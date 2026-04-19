@@ -63,6 +63,18 @@ Reading lock:
 - box-on-demand on this lane means objectize only at `publication_boundary`
   without runtime route re-recognition
 
+Bridge contract:
+
+- object -> text is `borrow.text_from_obj`
+  - carries provenance / proof responsibility
+  - owned by MIR/lowering, not runtime helper re-recognition
+- text -> object is `publish.text(reason, repr)`
+  - string-only v1 bridge on this lane
+  - `reason` answers why publication is required
+  - `repr` answers which public representation is required
+- `publish.any` is deferred until string lane truth is proven
+- these names may begin as internal MIR/effect vocabulary or metadata; they are not a request for a widened public MIR dialect
+
 ## Current Perf Reading
 
 Current active broader-corridor front is `kilo_micro_substring_concat`.
@@ -224,6 +236,7 @@ Reading lock:
 - MIR owns `publication_boundary`
 - `freeze.str` remains the only string birth sink
 - runtime does not choose between sink/publication meanings dynamically
+- runtime does not infer provenance or repr policy dynamically
 
 Target verifier reading:
 
@@ -231,6 +244,8 @@ Target verifier reading:
   enter `FreshRegistryHandle` before the first external boundary
 - if the lane does not demand stable object identity yet, it is illegal to
   insert `StableBoxNow`
+- if `publish.text` is required, MIR/lowering must provide both `reason` and `repr`
+- if a lane still holds `TextPlan`, it is illegal to publish without the required prior `freeze.str` / borrowed-view replay decision
 - if a direct-kernel lane promises unpublished outcome continuity, it is
   illegal to replay the public ABI facade before the boundary
 - if the lane promises unpublished continuity, it is illegal to use the host
@@ -256,6 +271,14 @@ Slot-capable consumer rule:
 - if the next consumer is not `slot_text` capable, MIR/lowering must insert one
   explicit cold publish at the boundary
 - runtime must not re-recognize this choice dynamically
+
+Phase-137x bridge-first rollout:
+
+- first explicit bridge is `publish.text`
+- first repr split is:
+  - `StableOwned`
+  - `StableView`
+- `substring_hii` mid-slice replay is the first intended `publish.text(reason=ExplicitApiReplay, repr=StableView)` proving ground
 
 Verifier placement:
 

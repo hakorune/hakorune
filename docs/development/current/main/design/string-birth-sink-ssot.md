@@ -50,6 +50,7 @@ birth は `BoundaryKind` に従って、最後に 1 回だけ行う。
 - `publish`
   - lowering / boundary owner が決める effect
   - 「ここから public/object world に出る」を示す
+  - v1 bridge は `publish.text(reason, repr)` に固定する
 - `freeze.str`
   - retained string birth の sink
   - bytes birth / reuse / flatten の mechanical owner
@@ -59,6 +60,7 @@ Reading lock:
 - `freeze.str` は publication policy owner ではない
 - `publish` は第二の birth sink ではない
 - runtime が `need_stable_object` を再推測して sink semantics を変えてはいけない
+- `publish.text` は `TextPlan` を直接 consume しない。plan から publish したいなら先に `freeze.str` を通すか、借用 view replay を明示する
 - current backend leaf が `materialize_owned_string -> StringBox::new -> Registry::alloc`
   まで続いて見えても、それは policy truth ではなく boundary-side mechanics として読む
 
@@ -116,6 +118,9 @@ canonical carrier は `TText = View1 | PiecesN | OwnedTmp`
 
 carrier は identity を持たない。
 VM / plugin / FFI / host handle へ見せない。
+
+`TextCell` はこの層の carrier ではない。
+future sink/residence であって、`View1 / PiecesN / OwnedTmp` と同列の corridor value にしない。
 
 ### 4. Birth Sink (`freeze.str`)
 
@@ -176,8 +181,9 @@ v1 では次の 4 種で十分だよ。
 ```text
 TextPlan / PiecesN
   -> freeze.str
-  -> MaterializeOwned
-  -> optional cold objectize / publish boundary
+  -> MaterializeOwned / TextCell residence
+  -> optional publish.text(reason, repr)
+  -> optional cold objectize / handle issue
 ```
 
 perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりもこの直列が先に支配している。
@@ -198,13 +204,16 @@ materialize_owned_string
 ## Immediate Rollout
 
 1. docs-first
-   - `freeze.str` を唯一の birth sink として current docs に固定する
+    - `freeze.str` を唯一の birth sink として current docs に固定する
+   - `publish.text(reason, repr)` を boundary effect として固定する
 2. docs-first parent
-   - `BoundaryKind` と `RetainedForm` の split を retained-boundary parent SSOT に固定する
+    - `BoundaryKind` と `RetainedForm` の split を retained-boundary parent SSOT に固定する
+    - `reason` と `repr` の split を string semantic/boundary SSOT に固定する
 3. landed
    - `concat_hs` と `insert_hsi` は `freeze_text_plan(...)` を共有し、`plan -> freeze` の形へ入った
 4. next
-   - `array_set` を first `Store` proof boundary として維持する
+    - `array_set` を first `Store` proof boundary として維持する
+    - `substring_hii` を first `StableView` replay boundary として固定する
 5. meso proof
    - `kilo_meso_substring_concat_array_set`
 6. main proof
@@ -212,7 +221,8 @@ materialize_owned_string
 7. only then
    - sink-local narrow tuning is paused after the direct `Registry::get` clone-path cut; the current summary is in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
    - compile-time placement helper landed in `crates/nyash_kernel/src/exports/string_birth_placement.rs`
-   - keep `StringBox::new` out unless new asm evidence appears
+    - keep `StringBox::new` out unless new asm evidence appears
+    - `publish.any` は string-only `publish.text` が proving ground を通るまで deferred
 
 ### Rejected follow-up
 

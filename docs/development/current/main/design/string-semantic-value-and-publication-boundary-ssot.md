@@ -49,17 +49,20 @@ Language meaning
 MIR contract
   proof_region
   publication_boundary
+  borrow.text_from_obj
+  publish.text(reason, repr)
   same-corridor unpublished outcome
 
 Runtime-private execution world
-  VerifiedTextSource
-    -> TextPlan
-    -> OwnedBytes
-    -> KernelTextSlot / read-side alias lane
+  TextRef
+  TextPlan
+  OwnedText
+  TextCell (sink/residence only)
+  read-side alias lane
 
 Cold boundary
-  publish effect
   freeze.str birth sink
+  publish.text(reason, repr)
 
 Public world
   StringHandle / ArrayHandle / Box<dyn NyashBox>
@@ -105,6 +108,8 @@ Public world
 
 - `proof_region`
 - `publication_boundary`
+- `borrow.text_from_obj` provenance / borrow contract
+- `publish.text(reason, repr)` boundary effect
 - `same-corridor unpublished outcome`
 - sink capability / stable identity demand
 
@@ -113,6 +118,7 @@ Public world
 - runtime route re-recognition
 - helper-name allowlist
 - public raw string ABI
+- runtime-side provenance re-inference
 
 Lock:
 
@@ -134,7 +140,8 @@ Lock:
 
 Semantic-vs-adapter lock:
 
-- future semantic carriers are `TextRef`, `TextPlan`, `OwnedText`, and `TextCell`
+- future semantic carriers are `TextRef`, `TextPlan`, and `OwnedText`
+- `TextCell` is future sink/residence only; it is not a corridor value
 - `BorrowedHandleBox` belongs to boundary/cache behavior, not semantic `Ref`
 - `KernelTextSlot` must not become the public or long-term `TextCell`
 - `StringViewBox` is an object-world view, not internal substring carrier
@@ -151,6 +158,7 @@ Semantic-vs-adapter lock:
 
 - `publish` effect
 - `freeze.str` birth sink
+- `publish.text(reason, repr)` adapter
 - `objectize`
 - `issue_fresh_handle`
 
@@ -164,6 +172,7 @@ Glossary lock:
 
 - `publish` is the boundary effect selected by MIR/lowering demand.
 - `freeze.str` is the string birth sink used at that boundary.
+- `publish.text` is the first explicit string bridge on this lane.
 - `objectize` / `handle issue` are mechanics below that boundary.
 - typed-lane docs must not reinterpret `freeze.str` as a generic publish effect.
 
@@ -174,10 +183,32 @@ Glossary lock:
 - `publish`
   - MIR/lowering が「ここから public/object world に出る」と決める boundary effect
   - legality owner
+  - v1 は `publish.text(reason, repr)` として string lane にだけ導入する
+  - `reason` と `repr` は分ける:
+    - `reason`: なぜ publish が必要か
+    - `repr`: public world にどう出すか
 - `freeze.str`
   - その boundary で実際に birth を行う sink
   - retained string birth / reuse の mechanical owner
   - public world が必要なら cold objectize / handle issue へ handoff する
+  - `TextPlan` は直接 `publish.text` に渡さない。copy/materialize が必要なら先に `freeze.str` を通して `OwnedText` へ寄せる
+
+## Bridge Lock
+
+この lane の bridge truth は 2 本で固定する。
+
+- `borrow.text_from_obj`
+  - object world から text world へ戻るときの provenance / proof 入口
+  - runtime helper ではなく MIR/lowering 側が責務を持つ
+- `publish.text(reason, repr)`
+  - text world から object world へ出る explicit boundary effect
+  - runtime は実行するだけで、`need_stable_object` を再推測しない
+
+v1 lock:
+
+- `publish.text` だけ先に導入する
+- `publish.any` は deferred
+- `borrow.text_from_obj` は最初は opcode でも metadata でもよいが、責務は MIR/lowering に置く
 
 禁止:
 
@@ -218,11 +249,14 @@ write/read は同じ text corridor の契約として読む。
 
 - `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot transport`
 - producer が public handle を返さなくても corridor が閉じることを証明する
+- `borrow.text_from_obj` provenance owner は MIR/lowering に置き、runtime helper が borrow truth を再判定しない
 
 ### Phase 2. Cold publish effect
 
-- publish reason を explicit boundary event に寄せる
+- `publish.text(reason, repr)` を explicit boundary event に寄せる
+- `reason` と `repr` を分離したまま string-only v1 を固定する
 - producer/helper から objectize / handle issue を退避する
+- `publish.any` はこの phase では始めない
 
 ### Phase 2.5. Read-side alias lane
 
@@ -239,6 +273,7 @@ write/read は同じ text corridor の契約として読む。
 ### Phase 4. MIR legality / verifier
 
 - publication boundary を verifier-visible にする
+- `borrow.text_from_obj` provenance と `publish.text(reason, repr)` boundary を verifier-visible にする
 - runtime private carrier が proven になってから legality を持ち上げる
 
 ## Forbidden Moves

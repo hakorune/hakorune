@@ -217,6 +217,29 @@ lowering on the pure-first route:
 These helper names are lowering-owned implementation details, not additional MIR
 ops.
 
+## Publication Ops (planned, not current kept vocabulary)
+
+The following publication ops are planned as post-phase-137x explicit bridge
+vocabulary. They are not part of the current kept vocabulary and are documented
+here only so the intended direction is visible.
+
+| Instruction | Purpose | Status |
+| --- | --- | --- |
+| `publish.text` | Explicit text publication boundary with operands `(value, reason, repr_policy)` | planned, string-only v1 |
+| `publish.any` | Generic publication boundary for non-string values | deferred |
+
+Current lock:
+
+- `freeze.str` remains the only string birth sink
+- explicit publication authority still lives in design docs and metadata planning
+- runtime may not become the canonical owner of `need_stable_object` policy
+
+See:
+
+- `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+- `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+- `docs/reference/mir/metadata-facts-ssot.md`
+
 ## 同期ルール
 - 命令の追加/削除/統合は、まずこの文書を更新し、次に実装（列挙/Printer/Verifier/Optimizer/VM）を同期する。
 - `DOC_SYNC_MIR_*` の値は `src/mir/contracts/backend_core_ops.rs` の ledger と一致させる（不一致はテスト失敗）。

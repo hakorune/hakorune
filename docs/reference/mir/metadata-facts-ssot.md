@@ -97,7 +97,7 @@ Each fact object contains:
 | `carrier` | Current lowering carrier such as `method_call`, `runtime_export`, `canonical_intrinsic` |
 | `outcome` | Optional Birth / Placement outcome name (`ReturnHandle`, `BorrowView`, `FreezeOwned`, etc.) |
 | `objectize` | Objectization placement fact (`?`, `none`, `sink`, `deferred`) |
-| `publish` | Publication placement fact (`?`, `none`, `sink`, `deferred`) |
+| `publish` | Publication placement fact. Current placeholder states are `?`, `none`, `sink`, `deferred`; future explicit bridge shape is `{reason, repr_policy, state}` for `publish.text` / `publish.any` |
 | `materialize` | Materialization placement fact (`?`, `none`, `sink`, `deferred`) |
 
 ### `string_corridor_candidates`
@@ -124,6 +124,26 @@ Each candidate object contains:
 | `kind` | `borrowed_corridor_fusion`, `publication_sink`, `materialization_sink`, or `direct_kernel_entry` |
 | `state` | `candidate` or `already_satisfied` |
 | `reason` | Stable explanation string |
+
+### Future `publish.text` / `publish.any` operand reading
+
+When explicit publication ops land, `publish` metadata remains the inspection mirror
+for operand structure rather than a second source of truth.
+
+- `publish.text(value, reason, repr_policy)`
+  - string-only v1 bridge
+  - `reason`: why publication is required (`escape_required`, `explicit_api_replay`, `stable_object_demand`, etc.)
+  - `repr_policy`: which public representation is required (`stable_owned`, `stable_view`, etc.)
+- `publish.any(value, reason, repr_policy)`
+  - generic bridge, deferred until string-only `publish.text` proves out
+
+Current phase-137x lock:
+
+- explicit publish ops are not emitted yet
+- current MIR metadata may still report coarse `publish` states only
+- design authority stays in:
+  - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+  - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 
 ## Thin-entry metadata
 

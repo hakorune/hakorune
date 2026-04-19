@@ -45,6 +45,9 @@ Related:
       - `BorrowedHandleBox` is boundary/cache, not semantic `Ref`
       - `KernelTextSlot` is transport adapter / sink seed, not long-term `TextCell`
       - `StringViewBox` is object-world view, not internal substring carrier
+      - `TextCell` remains sink/residence only, not a corridor value
+      - next explicit bridge is string-only `publish.text(reason, repr)`; `publish.any` stays deferred
+      - borrow/provenance truth stays MIR/lowering-owned under `borrow.text_from_obj`
   - parent:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -556,16 +559,23 @@ Related:
 ## Next
 
 1. keep phase-2.5 read-side alias lane as the active judge
-   - preserve live-source -> cached-handle -> cold-fallback encode order
-   - stable objectization must remain cache-backed and cold
-2. require a fresh narrow owner proof before the next code edit
+    - preserve live-source -> cached-handle -> cold-fallback encode order
+    - stable objectization must remain cache-backed and cold
+2. docs-first lock for the next explicit publication bridge
+   - string-only `publish.text(reason, repr)` comes before any `publish.any`
+   - `TextCell` stays sink/residence only
+   - `borrow.text_from_obj` provenance remains MIR/lowering-owned
+3. then implement the narrow bridge rollout
+   - first proving ground: `substring_hii` mid-slice API replay as `repr=StableView`
+   - keep `freeze.str` separate from `publish.text`; do not let runtime infer `need_stable_object`
+4. require a fresh narrow owner proof before wider perf edits
    - acceptable seam: reduce read/materialize/copy tax without changing public ABI
    - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read
    - reject seam: array-slot concat helper that leaves the preceding `array.get_hi` / `slot_load_hi` in place
-3. defer future representation work
+5. defer future representation work
    - no `TextLane` / MIR legality until the active read-side lane reaches keeper/reject
    - phase-289x remains planning-only; runtime-wide implementation does not start here
-4. keep current guards
+6. keep current guards
    - exact stays closed
    - middle remains the contradiction gate
    - strict whole remains the active owner proof front

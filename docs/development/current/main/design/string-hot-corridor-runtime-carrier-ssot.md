@@ -99,7 +99,7 @@ Related:
 | `BorrowedSource` | future `TextRef` / `AliasRef` | `VerifiedTextSource`, `SourceLifetimeKeep`; `BorrowedHandleBox` only as boundary/cache | meso, whole | source proof, alias retarget, source handle/epoch update | `StringBox` birth, fresh handle issue, generic publish |
 | `TransientPlan` | `TextPlan<'a>` | `TextPiece<'a>`, `StringSpan` | exact, meso, whole producer sites | piece normalize, known-len carry, concat/substring planning | registry lookup as steady-state carrier, `Arc` wrapping, object identity |
 | `OwnedText` | future `OwnedText` | `OwnedBytes`; `KernelTextSlot(state=OwnedBytes)` only as transport | exact, whole | freeze once, pass through caller-owned slot, same-corridor read | registry-backed unpublished carrier, immediate objectize |
-| `TextCell` | future `TextCell` | current `KernelTextSlot` sink seed | exact, whole | cell residence without public handle | growing `KernelTextSlot` into a public text ABI |
+| `TextCellResidence` | sink/residence only, not semantic corridor value | current `KernelTextSlot` sink seed | exact, whole | cell residence without public handle | growing `KernelTextSlot` into a public text ABI |
 | `PublishedPublic` | object-world stable text | `StringBox`, `Arc<dyn NyashBox>`, fresh handle; `StringViewBox` as boundary view | true external boundary only | stable objectize, handle issue, public ABI replay | re-enter hot loop as default carrier |
 
 Reading lock:
@@ -108,9 +108,17 @@ Reading lock:
 - do not treat `KernelTextSlot` as a user-visible string API
 - do not treat `BorrowedHandleBox` as semantic `TextRef`
 - do not treat `StringViewBox` as the internal substring carrier
+- do not widen `TextCell` from sink/residence into a corridor value
 - do not read future `TextLane` storage as semantic truth
 - do not reuse the host-handle registry as the unpublished carrier
 - do not move legality ownership out of MIR/lowering into runtime re-recognition
+
+Bridge lock:
+
+- object -> text bridge is `borrow.text_from_obj`
+- text -> object bridge is `publish.text(reason, repr)`
+- `reason` and `repr` are different operands and must not be collapsed into helper-name truth
+- `publish.any` is deferred until string-only `publish.text` proves out
 
 ## Corridor Rules
 
@@ -131,15 +139,20 @@ Reading lock:
 - If the lane needs an owned result but not yet a public object, freeze into `OwnedBytes`.
 - Preferred transport is caller-owned `KernelTextSlot`.
 - `OwnedBytes` is the minimal unpublished text carrier on this lane.
+- `TextPlan` does not publish directly; if a plan cannot stay borrowed, it freezes first.
 
 ### 4. Publish only at a real boundary
 
 - `StringBox` / `Arc` / fresh handle issue belong to `PublishedPublic`.
 - They are cold-adapter work.
+- v1 bridge is `publish.text(reason, repr)` only.
 - They are legal only at:
   - first true external boundary
   - stable object identity demand
   - public ABI replay that cannot stay slot-local
+- typical v1 reprs are:
+  - stable owned result
+  - stable borrowed view result
 
 ### 4.5. Read-side alias lane stays cache-backed and cold
 
@@ -278,6 +291,18 @@ These stay valid runtime mechanics, but the carrier design must treat them as co
 - goal:
   - use the same carrier continuity to shrink exact
   - do not start with helper-name-specific C rewrites
+
+### Card E. Explicit publish bridge lock
+
+- target:
+  - `publish.text(reason, repr)` string-only contract
+  - `borrow.text_from_obj` provenance lock
+- goal:
+  - make MIR/lowering the owner of boundary/provenance truth
+  - keep runtime as boundary executor only
+  - prove `substring_hii` as the first `StableView` replay site
+- defer:
+  - `publish.any`
 
 ## C-Rewrite Reading
 
