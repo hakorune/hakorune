@@ -483,6 +483,48 @@ fn verified_text_source_err_keeps_string_view_semantics() {
 }
 
 #[test]
+fn verified_text_source_with_text_and_proof_preserves_string_view_context() {
+    let base: Arc<dyn NyashBox> = Arc::new(StringBox::new("view-proof".to_string()));
+    let base_h = handles::to_handle_arc(base.clone()) as i64;
+    let view: Arc<dyn NyashBox> = Arc::new(StringViewBox::new(base_h, base, 5, 10));
+    let view_h = handles::to_handle_arc(view) as i64;
+    let source_text = with_array_store_str_source(view_h, |source_kind, source| {
+        assert_eq!(source_kind, StringHandleSourceKind::StringLike);
+        match source {
+            ArrayStoreStrSource::StringLike(source_text) => source_text,
+            _ => panic!("expected string-like source"),
+        }
+    });
+
+    let observed = source_text.with_text_and_proof(|text, proof| (text.to_string(), proof));
+    assert_eq!(
+        observed,
+        Some(("proof".to_string(), StringLikeProof::StringView))
+    );
+    assert_eq!(source_text.copy_owned_text_cold(), "proof");
+}
+
+#[test]
+fn verified_text_source_with_text_and_proof_preserves_string_box_context() {
+    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("box-proof".to_string()));
+    let value_h = handles::to_handle_arc(value) as i64;
+    let source_text = with_array_store_str_source(value_h, |source_kind, source| {
+        assert_eq!(source_kind, StringHandleSourceKind::StringLike);
+        match source {
+            ArrayStoreStrSource::StringLike(source_text) => source_text,
+            _ => panic!("expected string-like source"),
+        }
+    });
+
+    let observed = source_text.with_text_and_proof(|text, proof| (text.to_string(), proof));
+    assert_eq!(
+        observed,
+        Some(("box-proof".to_string(), StringLikeProof::StringBox))
+    );
+    assert_eq!(source_text.copy_owned_text_cold(), "box-proof");
+}
+
+#[test]
 fn store_string_box_from_source_keep_owned_keeps_borrowed_alias_for_string_handles() {
     let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("store-owned-keep".to_string()));
     let value_h = handles::to_handle_arc(value) as i64;

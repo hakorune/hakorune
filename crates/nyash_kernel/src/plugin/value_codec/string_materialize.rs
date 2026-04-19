@@ -1,3 +1,4 @@
+use super::{OwnedText, TextRef};
 use crate::plugin::value_demand::{
     DemandSet, KERNEL_TEXT_SLOT_DEFERRED_CONST_SUFFIX, KERNEL_TEXT_SLOT_EMPTY,
     KERNEL_TEXT_SLOT_OWNED_BYTES, KERNEL_TEXT_SLOT_PUBLISHED, PUBLISH_EXPLICIT_API,
@@ -118,25 +119,6 @@ fn record_publish_site_publish_handle(site: StringPublishSite) {
     }
 }
 
-pub(crate) struct OwnedBytes(String);
-
-impl OwnedBytes {
-    #[inline(always)]
-    fn from_string(value: String) -> Self {
-        Self(value)
-    }
-
-    #[inline(always)]
-    pub(crate) fn as_str(&self) -> &str {
-        self.0.as_str()
-    }
-
-    #[inline(always)]
-    pub(crate) fn into_string(self) -> String {
-        self.0
-    }
-}
-
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum KernelTextSlotState {
@@ -159,6 +141,8 @@ impl KernelTextSlotState {
 }
 
 #[derive(Clone, Copy)]
+/// Runtime-private boundary demand tags for `KernelTextSlot`.
+/// These are transport/observation hints only, not semantic text carriers.
 enum KernelTextSlotBoundary {
     PublishHandle,
     ObjectizeStableBox,
@@ -177,6 +161,8 @@ impl KernelTextSlotBoundary {
 /// Runtime-private direct-kernel string carrier passed through exported C ABI seams.
 /// The symbol is exported for AOT/LLVM lowering, but semantic ownership stays local
 /// to the active corridor and must not be treated as a general public string API.
+/// This remains a transport adapter and sink-residence seed only; future `TextCell`
+/// work is intentionally separate and must not be folded into `KernelTextSlot`.
 #[repr(C)]
 pub struct KernelTextSlot {
     pub(crate) state: u8,
@@ -225,7 +211,7 @@ impl KernelTextSlot {
     }
 
     #[inline(always)]
-    pub(crate) fn replace_owned_bytes(&mut self, bytes: OwnedBytes) {
+    pub(crate) fn replace_owned_bytes(&mut self, bytes: OwnedText) {
         self.clear();
         let bytes = bytes.into_string().into_bytes();
         let mut bytes = ManuallyDrop::new(bytes);
@@ -237,7 +223,7 @@ impl KernelTextSlot {
 
     #[inline(always)]
     pub(crate) fn replace_owned_string(&mut self, value: String) {
-        self.replace_owned_bytes(OwnedBytes::from_string(value));
+        self.replace_owned_bytes(OwnedText::from_string(value));
     }
 
     #[inline(always)]
@@ -253,13 +239,13 @@ impl KernelTextSlot {
     }
 
     #[inline(always)]
-    pub(crate) fn take_owned_bytes(&mut self) -> Option<OwnedBytes> {
+    pub(crate) fn take_owned_bytes(&mut self) -> Option<OwnedText> {
         if self.state() != KernelTextSlotState::OwnedBytes {
             return None;
         }
         let value = unsafe { String::from_raw_parts(self.ptr, self.len, self.cap) };
         self.reset_empty();
-        Some(OwnedBytes::from_string(value))
+        Some(OwnedText::from_string(value))
     }
 
     #[inline(always)]
@@ -278,14 +264,14 @@ impl KernelTextSlot {
     }
 
     #[inline(always)]
-    pub(crate) fn take_materialized_owned_bytes(&mut self) -> Option<OwnedBytes> {
+    pub(crate) fn take_materialized_owned_bytes(&mut self) -> Option<OwnedText> {
         match self.state() {
             KernelTextSlotState::OwnedBytes => self.take_owned_bytes(),
             KernelTextSlotState::DeferredConstSuffix => {
                 let (source_h, suffix_ptr) = self.take_deferred_const_suffix()?;
                 let source = crate::exports::string::to_owned_string_handle_arg(source_h);
                 materialize_const_suffix_text(source.as_str(), suffix_ptr)
-                    .map(OwnedBytes::from_string)
+                    .map(OwnedText::from_string)
             }
             KernelTextSlotState::Empty | KernelTextSlotState::Published => None,
         }
@@ -334,7 +320,7 @@ fn record_kernel_text_slot_boundary(boundary: KernelTextSlotBoundary, state: Ker
 fn take_kernel_text_slot_boundary_owned_bytes(
     slot: &mut KernelTextSlot,
     boundary: KernelTextSlotBoundary,
-) -> Option<OwnedBytes> {
+) -> Option<OwnedText> {
     let state = slot.state();
     record_kernel_text_slot_boundary(boundary, state);
     if state == KernelTextSlotState::Published {
@@ -355,14 +341,14 @@ fn take_kernel_text_slot_boundary_owned_bytes(
 #[inline(always)]
 pub(crate) fn with_const_suffix_ptr_text<R>(
     suffix_ptr: *const i8,
-    f: impl FnOnce(&str) -> R,
+    f: impl FnOnce(TextRef<'_>) -> R,
 ) -> Option<R> {
     if suffix_ptr.is_null() {
         return None;
     }
     let bytes = unsafe { CStr::from_ptr(suffix_ptr) }.to_bytes();
     let suffix = unsafe { std::str::from_utf8_unchecked(bytes) };
-    Some(f(suffix))
+    Some(f(TextRef::new(suffix)))
 }
 
 #[inline(always)]
@@ -370,7 +356,7 @@ pub(crate) fn materialize_const_suffix_text(source: &str, suffix_ptr: *const i8)
     with_const_suffix_ptr_text(suffix_ptr, |suffix| {
         let mut out = String::with_capacity(source.len().saturating_add(suffix.len()));
         out.push_str(source);
-        out.push_str(suffix);
+        out.push_str(suffix.as_str());
         out
     })
 }
@@ -378,13 +364,13 @@ pub(crate) fn materialize_const_suffix_text(source: &str, suffix_ptr: *const i8)
 #[inline(always)]
 pub(crate) fn with_kernel_text_slot_text<R>(
     slot: &KernelTextSlot,
-    f: impl FnOnce(&str) -> R,
+    f: impl FnOnce(TextRef<'_>) -> R,
 ) -> Option<R> {
     match slot.state() {
         KernelTextSlotState::OwnedBytes => {
             let bytes = unsafe { std::slice::from_raw_parts(slot.ptr as *const u8, slot.len) };
             let text = unsafe { std::str::from_utf8_unchecked(bytes) };
-            Some(f(text))
+            Some(f(TextRef::new(text)))
         }
         KernelTextSlotState::DeferredConstSuffix => {
             let (source_h, suffix_ptr) = slot.deferred_const_suffix()?;
@@ -399,7 +385,7 @@ pub(crate) fn with_kernel_text_slot_text<R>(
                 let source = crate::exports::string::to_owned_string_handle_arg(source_h);
                 materialize_const_suffix_text(source.as_str(), suffix_ptr)
             })?;
-            Some(f(text.as_str()))
+            Some(f(TextRef::new(text.as_str())))
         }
         KernelTextSlotState::Empty | KernelTextSlotState::Published => None,
     }
@@ -433,9 +419,9 @@ fn wrap_string_box_in_arc(string_box: StringBox) -> Arc<dyn NyashBox> {
 
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
-fn objectize_stable_string_box(bytes: OwnedBytes) -> Arc<dyn NyashBox> {
-    crate::observe::record_birth_backend_string_box_new(bytes.0.len());
-    crate::observe::record_birth_backend_objectize_stable_box_now(bytes.0.len());
+fn objectize_stable_string_box(bytes: OwnedText) -> Arc<dyn NyashBox> {
+    crate::observe::record_birth_backend_string_box_new(bytes.as_str().len());
+    crate::observe::record_birth_backend_objectize_stable_box_now(bytes.as_str().len());
     crate::observe::record_birth_backend_carrier_kind_stable_box();
     let string_box = birth_string_box_from_owned(bytes.into_string());
     wrap_string_box_in_arc(string_box)
@@ -443,7 +429,7 @@ fn objectize_stable_string_box(bytes: OwnedBytes) -> Arc<dyn NyashBox> {
 
 #[cfg(not(feature = "perf-observe"))]
 #[inline(always)]
-fn objectize_stable_string_box(bytes: OwnedBytes) -> Arc<dyn NyashBox> {
+fn objectize_stable_string_box(bytes: OwnedText) -> Arc<dyn NyashBox> {
     let string_box = birth_string_box_from_owned(bytes.into_string());
     wrap_string_box_in_arc(string_box)
 }
@@ -475,7 +461,7 @@ pub(crate) fn issue_fresh_handle_from_arc(arc: Arc<dyn NyashBox>) -> i64 {
 
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
-pub(crate) fn freeze_owned_bytes(value: String) -> OwnedBytes {
+pub(crate) fn freeze_owned_bytes(value: String) -> OwnedText {
     crate::observe::record_birth_backend_materialize_owned(value.len());
     crate::observe::record_birth_backend_carrier_kind_owned_bytes();
     if crate::observe::bypass_gc_alloc_enabled() {
@@ -484,12 +470,12 @@ pub(crate) fn freeze_owned_bytes(value: String) -> OwnedBytes {
         crate::observe::record_birth_backend_gc_alloc(value.len());
         nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     }
-    OwnedBytes::from_string(value)
+    OwnedText::from_string(value)
 }
 
 #[cfg(not(feature = "perf-observe"))]
 #[inline(always)]
-pub(crate) fn freeze_owned_bytes(value: String) -> OwnedBytes {
+pub(crate) fn freeze_owned_bytes(value: String) -> OwnedText {
     crate::observe::record_birth_backend_materialize_owned(value.len());
     crate::observe::record_birth_backend_carrier_kind_owned_bytes();
     if crate::observe::bypass_gc_alloc_enabled() {
@@ -498,7 +484,7 @@ pub(crate) fn freeze_owned_bytes(value: String) -> OwnedBytes {
         crate::observe::record_birth_backend_gc_alloc(value.len());
         nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     }
-    OwnedBytes::from_string(value)
+    OwnedText::from_string(value)
 }
 
 #[inline(always)]
@@ -507,19 +493,19 @@ pub(crate) fn freeze_owned_string_into_slot(slot: &mut KernelTextSlot, value: St
 }
 
 #[inline(always)]
-fn freeze_owned_bytes_with_site(value: String, site: StringPublishSite) -> OwnedBytes {
+fn freeze_owned_bytes_with_site(value: String, site: StringPublishSite) -> OwnedText {
     record_publish_site_materialize_owned(site, value.len());
     freeze_owned_bytes(value)
 }
 
 #[inline(always)]
-fn publish_owned_bytes_with_reason(bytes: OwnedBytes, reason: PublishReason) -> i64 {
+fn publish_owned_bytes_with_reason(bytes: OwnedText, reason: PublishReason) -> i64 {
     publish_owned_bytes_with_reason_and_site(bytes, reason, StringPublishSite::Generic)
 }
 
 #[inline(always)]
 fn publish_owned_bytes_with_reason_and_site(
-    bytes: OwnedBytes,
+    bytes: OwnedText,
     reason: PublishReason,
     site: StringPublishSite,
 ) -> i64 {
@@ -529,7 +515,7 @@ fn publish_owned_bytes_with_reason_and_site(
 #[cold]
 #[inline(never)]
 fn publish_owned_bytes_with_reason_and_site_cold(
-    bytes: OwnedBytes,
+    bytes: OwnedText,
     reason: PublishReason,
     site: StringPublishSite,
 ) -> i64 {
@@ -540,26 +526,26 @@ fn publish_owned_bytes_with_reason_and_site_cold(
     issue_fresh_handle(arc)
 }
 
-fn publish_owned_bytes_explicit_api_boundary(bytes: OwnedBytes) -> i64 {
+fn publish_owned_bytes_explicit_api_boundary(bytes: OwnedText) -> i64 {
     publish_owned_bytes_with_reason(bytes, PublishReason::ExplicitApi)
 }
 
 #[cold]
 #[inline(never)]
-fn publish_owned_bytes_external_boundary(bytes: OwnedBytes) -> i64 {
+fn publish_owned_bytes_external_boundary(bytes: OwnedText) -> i64 {
     publish_owned_bytes_with_reason(bytes, PublishReason::ExternalBoundary)
 }
 
 #[cold]
 #[inline(never)]
-fn publish_owned_bytes_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
+fn publish_owned_bytes_generic_fallback_boundary(bytes: OwnedText) -> i64 {
     publish_owned_bytes_with_reason(bytes, PublishReason::GenericFallback)
 }
 
 #[cfg(feature = "perf-observe")]
 #[cold]
 #[inline(never)]
-fn publish_owned_bytes_string_concat_hh_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
+fn publish_owned_bytes_string_concat_hh_generic_fallback_boundary(bytes: OwnedText) -> i64 {
     publish_owned_bytes_with_reason_and_site(
         bytes,
         PublishReason::GenericFallback,
@@ -571,7 +557,7 @@ fn publish_owned_bytes_string_concat_hh_generic_fallback_boundary(bytes: OwnedBy
 #[cold]
 #[inline(never)]
 fn publish_owned_bytes_string_substring_concat_hhii_generic_fallback_boundary(
-    bytes: OwnedBytes,
+    bytes: OwnedText,
 ) -> i64 {
     publish_owned_bytes_with_reason_and_site(
         bytes,
@@ -583,7 +569,7 @@ fn publish_owned_bytes_string_substring_concat_hhii_generic_fallback_boundary(
 #[cfg(feature = "perf-observe")]
 #[cold]
 #[inline(never)]
-fn publish_owned_bytes_const_suffix_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
+fn publish_owned_bytes_const_suffix_generic_fallback_boundary(bytes: OwnedText) -> i64 {
     publish_owned_bytes_with_reason_and_site(
         bytes,
         PublishReason::GenericFallback,
@@ -594,9 +580,7 @@ fn publish_owned_bytes_const_suffix_generic_fallback_boundary(bytes: OwnedBytes)
 #[cfg(feature = "perf-observe")]
 #[cold]
 #[inline(never)]
-fn publish_owned_bytes_freeze_text_plan_pieces3_generic_fallback_boundary(
-    bytes: OwnedBytes,
-) -> i64 {
+fn publish_owned_bytes_freeze_text_plan_pieces3_generic_fallback_boundary(bytes: OwnedText) -> i64 {
     publish_owned_bytes_with_reason_and_site(
         bytes,
         PublishReason::GenericFallback,
@@ -606,7 +590,7 @@ fn publish_owned_bytes_freeze_text_plan_pieces3_generic_fallback_boundary(
 
 #[inline(always)]
 fn publish_owned_bytes_generic_fallback_boundary_for_site(
-    bytes: OwnedBytes,
+    bytes: OwnedText,
     site: StringPublishSite,
 ) -> i64 {
     #[cfg(feature = "perf-observe")]
@@ -634,7 +618,7 @@ fn publish_owned_bytes_generic_fallback_boundary_for_site(
 }
 
 #[inline(always)]
-pub(crate) fn publish_owned_bytes(bytes: OwnedBytes) -> i64 {
+pub(crate) fn publish_owned_bytes(bytes: OwnedText) -> i64 {
     publish_owned_bytes_explicit_api_boundary(bytes)
 }
 

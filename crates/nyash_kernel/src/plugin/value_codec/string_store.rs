@@ -105,14 +105,14 @@ fn overwrite_string_box_from_const_suffix(
     with_const_suffix_ptr_text(suffix_ptr, |suffix| {
         if value.value.as_str() == source {
             value.value.reserve(suffix.len());
-            value.value.push_str(suffix);
+            value.value.push_str(suffix.as_str());
             return;
         }
         let total = source.len().saturating_add(suffix.len());
         value.value.clear();
         value.value.reserve(total);
         value.value.push_str(source);
-        value.value.push_str(suffix);
+        value.value.push_str(suffix.as_str());
     })
     .is_some()
 }

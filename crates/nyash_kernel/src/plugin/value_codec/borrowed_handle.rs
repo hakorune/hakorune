@@ -1,4 +1,4 @@
-use super::string_classify::VerifiedTextSource;
+use super::{string_classify::VerifiedTextSource, TextRef};
 use crate::observe;
 use crate::plugin::value_demand::{
     DemandSet, BORROWED_ALIAS_ENCODE, BORROWED_ALIAS_FALLBACK_PUBLISH,
@@ -65,12 +65,12 @@ impl TextKeepBacking {
     }
 
     #[inline(always)]
-    fn stable_object_text_fast(&self) -> Option<&str> {
-        self.stable_box.as_ref().as_str_fast()
+    fn stable_object_text_fast(&self) -> Option<TextRef<'_>> {
+        self.stable_box.as_ref().as_str_fast().map(TextRef::new)
     }
 
     #[inline(always)]
-    fn with_text<R>(&self, f: impl FnOnce(&str) -> R) -> Option<R> {
+    fn with_text<R>(&self, f: impl FnOnce(TextRef<'_>) -> R) -> Option<R> {
         self.stable_object_text_fast().map(f)
     }
 
@@ -92,6 +92,8 @@ impl TextKeepBacking {
 }
 
 #[derive(Debug, Clone)]
+/// Stable source proof + cached object reference for the current semantic text read lane.
+/// This is runtime-private proof/caching state, not the semantic `TextRef` itself.
 pub(crate) struct SourceLifetimeKeep {
     class: TextKeepClass,
     backing: TextKeepBacking,
@@ -120,7 +122,7 @@ impl SourceLifetimeKeep {
     }
 
     #[inline(always)]
-    pub(crate) fn with_text<R>(&self, f: impl FnOnce(&str) -> R) -> Option<R> {
+    pub(crate) fn with_text<R>(&self, f: impl FnOnce(TextRef<'_>) -> R) -> Option<R> {
         self.backing().with_text(f)
     }
 
@@ -146,6 +148,8 @@ impl SourceLifetimeKeep {
 }
 
 #[derive(Debug, Clone)]
+/// Internal lifetime helper that keeps semantic text reads anchored to a validated
+/// source object. This is support infrastructure for `TextRef`, not a public carrier.
 struct TextKeep {
     source_lifetime: SourceLifetimeKeep,
 }
@@ -158,12 +162,12 @@ impl TextKeep {
     }
 
     #[inline(always)]
-    fn with_text<R>(&self, f: impl FnOnce(&str) -> R) -> Option<R> {
+    fn with_text<R>(&self, f: impl FnOnce(TextRef<'_>) -> R) -> Option<R> {
         self.source_lifetime.with_text(f)
     }
 
     #[inline(always)]
-    fn stable_object_text_fast(&self) -> Option<&str> {
+    fn stable_object_text_fast(&self) -> Option<TextRef<'_>> {
         self.source_lifetime.backing().stable_object_text_fast()
     }
 
@@ -263,6 +267,9 @@ impl AliasSourceMeta {
 }
 
 #[derive(Debug)]
+/// Object-boundary/cache adapter for borrowed-alias encode.
+/// This wraps stable object-world text so hot read paths can reuse source handles or
+/// cached stable handles, but it is not the semantic `TextRef` carrier.
 pub(crate) struct BorrowedHandleBox {
     text_keep: TextKeep,
     source_meta: AliasSourceMeta,
@@ -274,6 +281,8 @@ pub(crate) struct BorrowedHandleBox {
 struct BorrowedHandleRuntimeCache {
     handle: AtomicI64,
     epoch: AtomicU64,
+    live_source_handle: AtomicI64,
+    live_source_epoch: AtomicU64,
 }
 
 impl BorrowedHandleRuntimeCache {
@@ -281,6 +290,8 @@ impl BorrowedHandleRuntimeCache {
         Self {
             handle: AtomicI64::new(0),
             epoch: AtomicU64::new(0),
+            live_source_handle: AtomicI64::new(0),
+            live_source_epoch: AtomicU64::new(0),
         }
     }
 }
@@ -354,6 +365,30 @@ impl BorrowedHandleBox {
     }
 
     #[inline(always)]
+    fn validated_live_source_handle_at_epoch(
+        &self,
+        current_epoch: u64,
+        source_handle: i64,
+    ) -> Option<i64> {
+        let handle = self
+            .cached_runtime_handle
+            .live_source_handle
+            .load(Ordering::Relaxed);
+        if handle == source_handle
+            && handle > 0
+            && self
+                .cached_runtime_handle
+                .live_source_epoch
+                .load(Ordering::Relaxed)
+                == current_epoch
+        {
+            Some(handle)
+        } else {
+            None
+        }
+    }
+
+    #[inline(always)]
     fn cache_runtime_handle(&self, handle: i64) {
         self.cached_runtime_handle
             .handle
@@ -364,11 +399,27 @@ impl BorrowedHandleBox {
     }
 
     #[inline(always)]
+    fn cache_validated_live_source_handle(&self, handle: i64, current_epoch: u64) {
+        self.cached_runtime_handle
+            .live_source_handle
+            .store(handle, Ordering::Relaxed);
+        self.cached_runtime_handle
+            .live_source_epoch
+            .store(current_epoch, Ordering::Relaxed);
+    }
+
+    #[inline(always)]
     fn invalidate_cached_runtime_handle(&self) {
         self.cached_runtime_handle
             .handle
             .store(0, Ordering::Relaxed);
         self.cached_runtime_handle.epoch.store(0, Ordering::Relaxed);
+        self.cached_runtime_handle
+            .live_source_handle
+            .store(0, Ordering::Relaxed);
+        self.cached_runtime_handle
+            .live_source_epoch
+            .store(0, Ordering::Relaxed);
     }
 
     #[inline(always)]
@@ -472,7 +523,11 @@ impl NyashBox for BorrowedHandleBox {
                 }
             }
         }
-        self.text_keep.stable_object_text_fast()
+        // Object-boundary NyashBox still exposes `&str`, but the underlying read path
+        // stays in the runtime-private semantic carrier lane until this final projection.
+        self.text_keep
+            .stable_object_text_fast()
+            .map(TextRef::as_str)
     }
 }
 
@@ -676,7 +731,13 @@ fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEn
     if source_handle > 0 {
         if alias.source_drop_epoch() == current_epoch {
             observe::record_borrowed_alias_encode_epoch_hit();
+            alias.cache_validated_live_source_handle(source_handle, current_epoch);
             return BorrowedAliasEncodePlan::LiveSourceHandle(source_handle);
+        }
+        if let Some(handle) =
+            alias.validated_live_source_handle_at_epoch(current_epoch, source_handle)
+        {
+            return BorrowedAliasEncodePlan::LiveSourceHandle(handle);
         }
     }
     if let Some(cached) = alias.cached_runtime_handle_at_epoch(current_epoch) {
@@ -686,6 +747,7 @@ fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEn
         if let Some(source_obj) = handles::get(source_handle as u64) {
             if Arc::ptr_eq(alias.cold_stable_object_ref(), &source_obj) {
                 observe::record_borrowed_alias_encode_ptr_eq_hit();
+                alias.cache_validated_live_source_handle(source_handle, current_epoch);
                 return BorrowedAliasEncodePlan::LiveSourceHandle(source_handle);
             }
         }
@@ -731,5 +793,49 @@ impl BorrowedAliasEncodeCaller {
                 observe::record_borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any();
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ptr_eq_validated_live_source_is_cached_for_current_epoch() {
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("live-source-cache".to_string()));
+        let source_handle = handles::to_handle_arc(source.clone()) as i64;
+        let stale_epoch = handles::drop_epoch();
+
+        let epoch_bump: Arc<dyn NyashBox> = Arc::new(StringBox::new("epoch-bump".to_string()));
+        let epoch_bump_handle = handles::to_handle_arc(epoch_bump) as i64;
+        handles::drop_handle(epoch_bump_handle as u64);
+        let current_epoch = handles::drop_epoch();
+        assert!(current_epoch > stale_epoch);
+
+        let alias = BorrowedHandleBox::new(
+            SourceLifetimeKeep::string_box(source),
+            source_handle,
+            stale_epoch,
+        );
+        assert_eq!(
+            alias.validated_live_source_handle_at_epoch(current_epoch, source_handle),
+            None
+        );
+
+        assert!(matches!(
+            plan_borrowed_alias_runtime_i64(&alias),
+            BorrowedAliasEncodePlan::LiveSourceHandle(handle) if handle == source_handle
+        ));
+        assert_eq!(
+            alias.validated_live_source_handle_at_epoch(current_epoch, source_handle),
+            Some(source_handle)
+        );
+
+        assert!(matches!(
+            plan_borrowed_alias_runtime_i64(&alias),
+            BorrowedAliasEncodePlan::LiveSourceHandle(handle) if handle == source_handle
+        ));
+
+        handles::drop_handle(source_handle as u64);
     }
 }

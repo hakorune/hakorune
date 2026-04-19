@@ -60,8 +60,8 @@ pub(crate) use value_codec::KernelTextSlotState;
 pub(crate) use value_codec::{
     freeze_owned_string_into_slot, issue_fresh_handle_from_arc, materialize_owned_string,
     materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
-    owned_string_from_handle, publish_kernel_text_slot, with_kernel_text_slot_text,
-    StringPublishSite,
+    owned_string_from_handle, publish_kernel_text_slot, with_kernel_text_slot_text, OwnedText,
+    StringPublishSite, TextRef,
 };
 
 #[cfg(test)]

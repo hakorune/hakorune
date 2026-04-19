@@ -1,4 +1,4 @@
-use super::borrowed_handle::SourceLifetimeKeep;
+use super::{borrowed_handle::SourceLifetimeKeep, TextRef};
 use crate::observe;
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
@@ -34,6 +34,25 @@ impl VerifiedTextSource {
     #[inline(always)]
     pub(crate) fn proof(&self) -> StringLikeProof {
         self.proof
+    }
+
+    #[inline(always)]
+    pub(crate) fn with_text<R>(&self, f: impl FnOnce(TextRef<'_>) -> R) -> Option<R> {
+        self.keep.with_text(f)
+    }
+
+    #[inline(always)]
+    pub(crate) fn with_text_and_proof<R>(
+        &self,
+        f: impl FnOnce(TextRef<'_>, StringLikeProof) -> R,
+    ) -> Option<R> {
+        let proof = self.proof;
+        self.keep.with_text(|text| f(text, proof))
+    }
+
+    #[inline(always)]
+    pub(crate) fn copy_owned_text_cold(&self) -> String {
+        self.keep.copy_owned_text_cold()
     }
 
     #[inline(always)]
