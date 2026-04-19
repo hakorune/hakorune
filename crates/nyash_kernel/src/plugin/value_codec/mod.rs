@@ -4,6 +4,7 @@ mod encode;
 mod string_classify;
 mod string_materialize;
 mod string_store;
+mod text_carrier;
 
 #[cfg(test)]
 pub(crate) use borrowed_handle::maybe_borrow_string_keep_with_epoch;
@@ -48,6 +49,7 @@ pub(crate) use string_store::{
     store_string_into_existing_string_box_from_kernel_text_slot,
     store_string_keep_from_kernel_text_slot,
 };
+pub(crate) use text_carrier::{OwnedText, TextRef};
 
 #[cfg(test)]
 mod tests;
