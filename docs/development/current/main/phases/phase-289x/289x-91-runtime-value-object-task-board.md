@@ -125,8 +125,9 @@ Task state:
 - `289x-6e`: done in code, Map load encoding split, no public ABI change
 - Rust runtime clusters in `289x-96`: closed
 - `289x-7c`: done in code, C shim `get/len/has/push` policy split over demand metadata, emitted lowering unchanged
-- `289x-7d`: next C shim cut, main `bname/mname` route classifier cutover, high-risk
-- `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
+- `289x-7d`: done in code, main `bname/mname` route classifier cutover to receiver/method surface enums, behavior unchanged
+- `289x-7e`: next C shim cut, concrete `slot_load_hi` / `slot_store` helper emission cutover, high-risk
+- `289x-7f`: high-risk C shim observer/window work is planned later, not skipped
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
 ## Phase 0. Authority / Vocabulary Lock
@@ -391,9 +392,9 @@ No-go:
   - `289x-7c`: C shim `get/len/has/push` policy split over demand metadata
     - done; emitted lowering unchanged
   - `289x-7d`: main `bname/mname` route classifier cutover
-    - next; high-risk
+    - done; behavior unchanged
   - `289x-7e`: concrete `slot_load_hi` / `slot_store` helper emission cutover
-    - high-risk
+    - next; high-risk
   - `289x-7f`: `runtime_array_string` observer/window matcher cutover
     - high-risk
   - `289x-7g`: MIR string helper-name compat/recovery cutover

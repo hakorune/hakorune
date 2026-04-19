@@ -72,7 +72,7 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | C1 | Generic method emit kind + set route metadata | `hako_llvmc_ffi_generic_method_policy.inc`, `hako_llvmc_ffi_generic_method_match.inc`, `hako_llvmc_ffi_generic_method_lowering.inc` | about 11 checks, 1 switch | high, metadata-only safe | `289x-7a` | done |
 | C2 | MIR demand/placement parallel facts | `thin_entry.rs`, `thin_entry_selection.rs`, `placement_effect.rs`, `semantic_refresh.rs` | about 4 surfaces | low-medium | `289x-7b` | done |
 | C3 | `get/len/has/push` policy split | `hako_llvmc_ffi_generic_method_get_policy.inc`, `*_len_policy.inc`, `*_has_policy.inc`, `*_push_policy.inc` | about 10 checks, 4 switches | medium-high | `289x-7c` | done |
-| C4 | Main `bname/mname` route classifier | `hako_llvmc_ffi_mir_call_route_policy.inc` | about 27 name checks, 2 consumers | high | `289x-7d` | pending-high-risk |
+| C4 | Main `bname/mname` route classifier | `hako_llvmc_ffi_mir_call_route_policy.inc` | about 27 name checks, 2 consumers | high | `289x-7d` | done |
 | C5 | concrete `slot_load/store` helper emission | `hako_llvmc_ffi_generic_method_lowering.inc`, `*_get_policy.inc`, `*_get_lowering.inc`, `hako_llvmc_ffi_indexof_observer_lowering.inc` | about 20 emits/declarations | high | `289x-7e` | pending-high-risk |
 | C6 | `runtime_array_string` observer/window routes | `hako_llvmc_ffi_generic_method_get_window.inc`, `hako_llvmc_ffi_indexof_observer_*` | about 5 matcher families | high | `289x-7f` | pending-high-risk |
 | C7 | MIR string helper-name compat/recovery | `string_corridor_compat.rs`, `string_corridor_recognizer.rs`, `string_corridor_placement/plan_infer.rs`, `passes/string_corridor_sink/mod.rs` | about 15 recognizers/constants | medium | `289x-7g` | pending |
@@ -93,7 +93,8 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | `289x-6d` | Map key/value codec demand bridge | done; no typed map lane |
 | `289x-6e` | Map load encoding split | done; no public ABI change |
 | `289x-7c` | C shim `get/len/has/push` policy split | done; behavior and emitted lowering unchanged |
-| `289x-7d` to `289x-7h` | high-risk C shim/MIR route replacement | next; one cluster per commit; exact gates required |
+| `289x-7d` | Main `bname/mname` route classifier | done; behavior unchanged |
+| `289x-7e` to `289x-7h` | high-risk C shim/MIR route replacement | next; one cluster per commit; exact gates required |
 
 ## Do Not Touch Yet
 

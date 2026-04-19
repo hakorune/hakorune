@@ -200,8 +200,12 @@ Reading:
   - status: done in code; behavior and emitted lowering unchanged
   - `get` stable-object/publish demand, `len`/`has` read-ref demand, and `push` encode/residence/mutation demand are now explicit route metadata
 - `289x-7d`: main `bname/mname` route classifier cutover
+  - status: done in code; behavior unchanged
+  - `bname/mname` strings are normalized into receiver/method surface enums before route-bit selection
+  - verified by RuntimeData array/map get/has/size/length/push, array-string indexOf, and StringBox length/indexOf route smokes
+- `289x-7e`: concrete `slot_load_hi` / `slot_store` helper emission cutover
   - next cutover cluster; high risk
-  - inspect route consumers first; no emitted-call change without exact before/after gate evidence
+  - no emitted-call change without exact before/after gate evidence
 
 ## Return To Optimization Gate
 

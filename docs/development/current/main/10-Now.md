@@ -109,11 +109,13 @@ Related:
     - `289x-7c` landed:
       - C shim `get/len/has/push` policy switches now compute explicit demand metadata beside existing routes
       - behavior and emitted lowering unchanged; this is metadata-only preparation for route cutover
+    - `289x-7d` landed:
+      - main C shim `bname/mname` route classifier now normalizes names into receiver/method surface enums before choosing route bits
+      - behavior unchanged; RuntimeData array/map get/has/size/length/push, array-string indexOf, and StringBox length/indexOf route smokes passed
     - next code cut:
-      - `289x-7d`: main `bname/mname` route classifier cutover
-      - high risk: inspect route consumers first; do not change emitted calls without exact before/after gate evidence
+      - `289x-7e`: concrete `slot_load_hi` / `slot_store` helper emission cutover
+      - high risk: do not change emitted calls without exact before/after gate evidence
     - high-risk planned later, not skipped:
-      - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`
       - full `ArrayStorage::Text` / full `TextLane`: after `289x-7h`, separate phase
       - Map typed lane: after `289x-6e`, separate phase

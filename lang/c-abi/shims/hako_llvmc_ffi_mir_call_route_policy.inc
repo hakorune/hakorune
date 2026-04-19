@@ -6,6 +6,24 @@
         HAKO_LLVMC_MIR_CALL_RECV_FAMILY_STRING,
       };
 
+      enum MirCallReceiverSurfaceKind {
+        HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN = 0,
+        HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX,
+        HAKO_LLVMC_MIR_CALL_RECV_SURFACE_ARRAY_BOX,
+        HAKO_LLVMC_MIR_CALL_RECV_SURFACE_STRING_BOX,
+        HAKO_LLVMC_MIR_CALL_RECV_SURFACE_RUNTIME_DATA_BOX,
+      };
+
+      enum MirCallMethodSurfaceKind {
+        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN = 0,
+        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET,
+        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE,
+        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS,
+        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_PUSH,
+        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF,
+        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING,
+      };
+
       enum MirCallGenericMethodRouteKind {
         HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK = 0,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET,
@@ -53,78 +71,133 @@
         }
       }
 
+      auto enum MirCallReceiverSurfaceKind classify_mir_call_receiver_surface(
+          const char* bname) {
+        if (!bname) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN;
+        if (!strcmp(bname, "MapBox")) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX;
+        if (!strcmp(bname, "ArrayBox")) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_ARRAY_BOX;
+        if (!strcmp(bname, "StringBox")) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_STRING_BOX;
+        if (!strcmp(bname, "RuntimeDataBox")) {
+          return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_RUNTIME_DATA_BOX;
+        }
+        return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN;
+      }
+
+      auto enum MirCallMethodSurfaceKind classify_mir_call_method_surface(
+          const char* mname) {
+        if (!mname) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
+        if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET;
+        if (!strcmp(mname, "size") || !strcmp(mname, "len") || !strcmp(mname, "length")) {
+          return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE;
+        }
+        if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS;
+        if (!strcmp(mname, "push")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_PUSH;
+        if (!strcmp(mname, "indexOf")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF;
+        if (!strcmp(mname, "substring")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING;
+        return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
+      }
+
       auto enum MirCallGenericMethodRouteKind
       classify_mir_call_generic_method_route_kind(
-          const char* bname,
-          const char* mname,
+          enum MirCallReceiverSurfaceKind recv_surface,
+          enum MirCallMethodSurfaceKind method_surface,
           enum MirCallReceiverFamilyKind recv_family) {
-        if (!(bname && mname)) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN ||
+            method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN) {
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
 
-        if (!strcmp(bname, "MapBox")) {
-          if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
-          if (!strcmp(mname, "size") || !strcmp(mname, "len") || !strcmp(mname, "length")) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX) {
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_SIZE;
           }
-          if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS;
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS;
+          }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
 
-        if (!strcmp(bname, "ArrayBox")) {
-          if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_ARRAY_BOX) {
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_LEN;
           }
-          if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET;
-          if (!strcmp(mname, "push")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH;
-          if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS;
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_PUSH) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS;
+          }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
 
-        if (!strcmp(bname, "StringBox")) {
-          if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_STRING_BOX) {
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
           }
-          if (!strcmp(mname, "indexOf")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
-          if (!strcmp(mname, "substring")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+          }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
 
-        if (!strcmp(bname, "RuntimeDataBox")) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_RUNTIME_DATA_BOX) {
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH) {
-            if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
-            if (!strcmp(mname, "size") || !strcmp(mname, "len") || !strcmp(mname, "length")) {
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+              return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
               return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_SIZE;
             }
-            if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS;
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
+              return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS;
+            }
             return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
           }
 
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_BIRTH ||
               recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH) {
-            if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
               return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_LEN;
             }
-            if (!strcmp(mname, "get") &&
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET &&
                 recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH) {
               return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_STRING;
             }
-            if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET;
-            if (!strcmp(mname, "push")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH;
-            if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS;
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+              return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_PUSH) {
+              return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
+              return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS;
+            }
             return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
           }
 
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_STRING) {
-            if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
               return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
             }
-            if (!strcmp(mname, "substring")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
-            if (!strcmp(mname, "indexOf")) return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING) {
+              return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
+              return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+            }
             return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
           }
 
-          if (!strcmp(mname, "indexOf")) {
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
           }
         }
@@ -140,6 +213,8 @@
           long long recv) {
         struct GenericMethodRouteState route;
         enum MirCallReceiverFamilyKind recv_family;
+        enum MirCallReceiverSurfaceKind recv_surface;
+        enum MirCallMethodSurfaceKind method_surface;
         enum MirCallGenericMethodRouteKind route_kind;
         (void)bid;
         (void)ii;
@@ -149,7 +224,10 @@
           route.recv_org = get_scan_origin(recv);
         }
         recv_family = classify_mir_call_receiver_family(route.recv_org);
-        route_kind = classify_mir_call_generic_method_route_kind(bname, mname, recv_family);
+        recv_surface = classify_mir_call_receiver_surface(bname);
+        method_surface = classify_mir_call_method_surface(mname);
+        route_kind = classify_mir_call_generic_method_route_kind(
+            recv_surface, method_surface, recv_family);
         switch (route_kind) {
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET:
             route.runtime_map_get = 1;
@@ -185,7 +263,8 @@
           default:
             break;
         }
-        if (mname && !strcmp(mname, "indexOf") && route.runtime_string) {
+        if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF &&
+            route.runtime_string) {
           route.deferred_array_string_indexof =
               find_deferred_array_string_indexof_select(bid, ii);
         }
