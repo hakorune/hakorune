@@ -10,6 +10,7 @@ use super::value_codec::{
     ArrayStoreStrSource, BorrowedHandleBox, KernelTextSlot, StringHandleSourceKind,
     StringLikeProof,
 };
+use super::value_demand::{DemandSet, ARRAY_TEXT_OWNED_CELL, ARRAY_TEXT_READ_REF};
 use crate::exports::string_view::resolve_string_span_from_handle;
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use memchr::{memchr, memmem};
@@ -25,6 +26,16 @@ struct CachedNeedle {
 
 thread_local! {
     static ARRAY_STRING_INDEXOF_NEEDLE_CACHE: RefCell<Option<CachedNeedle>> = const { RefCell::new(None) };
+}
+
+#[inline(always)]
+fn array_text_read_ref_demand() -> DemandSet {
+    ARRAY_TEXT_READ_REF
+}
+
+#[inline(always)]
+fn array_text_owned_cell_demand() -> DemandSet {
+    ARRAY_TEXT_OWNED_CELL
 }
 
 #[inline(always)]
@@ -174,6 +185,7 @@ fn record_store_array_str_plan(
 }
 
 pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
+    let _demand = array_text_read_ref_demand();
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
@@ -256,6 +268,7 @@ fn with_cached_needle_str<R>(needle_h: i64, f: impl FnOnce(&str) -> R) -> R {
 
 #[inline(always)]
 pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64) -> i64 {
+    let _demand = array_text_read_ref_demand();
     with_cached_needle_str(needle_h, |needle| {
         if !valid_handle_idx(handle, idx) {
             return if needle.is_empty() { 0 } else { -1 };
@@ -286,6 +299,8 @@ pub(super) fn array_string_concat_const_suffix_by_index_into_slot(
     idx: i64,
     suffix_ptr: *const i8,
 ) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
     slot.clear();
     if !valid_handle_idx(handle, idx) || suffix_ptr.is_null() {
         return 0;
@@ -592,6 +607,7 @@ pub(super) fn array_string_store_kernel_text_slot_at(
     idx: i64,
     slot: &mut KernelTextSlot,
 ) -> i64 {
+    let _demand = array_text_owned_cell_demand();
     if !valid_handle_idx(handle, idx) {
         return 0;
     }

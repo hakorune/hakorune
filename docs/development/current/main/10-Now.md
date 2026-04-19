@@ -62,8 +62,9 @@ Related:
     - first code cut landed:
       - `crates/nyash_kernel/src/plugin/value_demand.rs`
       - runtime-private demand vocabulary, behavior unchanged
+    - Array text-residence leaves now name the demand constants in code
     - next code cut:
-      - thread demand constants through Array text-residence leaves without changing lowering behavior
+      - replace one local helper-name check with demand-backed wrapper, while keeping emitted lowering identical
     - planning/docs debt only; not a runtime-wide implementation unblock by itself
 - blocker:
   - `none`

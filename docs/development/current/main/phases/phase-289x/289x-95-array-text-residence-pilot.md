@@ -106,6 +106,7 @@ Status:
 ```text
 landed in code as runtime-private vocabulary
 behavior unchanged
+demand constants are threaded through Array text read/owned-cell leaves
 ```
 
 ## Acceptance
