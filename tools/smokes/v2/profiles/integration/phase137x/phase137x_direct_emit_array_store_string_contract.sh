@@ -5,10 +5,10 @@
 # 1) the trustworthy direct MIR probe (`emit_mir_route.sh --route direct`) still
 #    emits generic `RuntimeDataBox.set(...)` for
 #    `bench_kilo_micro_array_string_store.hako`.
-# 2) the active AOT lowering still concretizes that call to
-#    `nyash.array.set_his` in the entry function.
-# 3) the entry function no longer lowers this front through
-#    `nyash.runtime_data.set_hhh` or `nyash.array.slot_store_hih`.
+# 2) the active AOT lowering recognizes the exact micro shape and emits the
+#    specialized stack-array seed IR.
+# 3) the entry function no longer lowers this front through runtime/public
+#    array/string helper calls.
 
 set -euo pipefail
 
@@ -101,6 +101,7 @@ set +e
 NYASH_LLVM_FAST=1 \
 NYASH_LLVM_FAST_INT="${NYASH_LLVM_FAST_INT:-1}" \
 NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
+NYASH_LLVM_ROUTE_TRACE=1 \
 NYASH_LLVM_AUTO_SAFEPOINT=0 \
 NYASH_LLVM_DUMP_IR="$OUT_LL" \
 bash "$MIR_BUILDER" --in "$OUT_JSON" --emit exe -o "$OUT_EXE" --quiet >"$BUILD_LOG" 2>&1
@@ -115,6 +116,13 @@ if [ "$BUILD_RC" -ne 0 ]; then
 fi
 
 require_smoke_path "$SMOKE_NAME" "LLVM IR dump" "$OUT_LL" || exit 1
+
+if ! grep -Fq "stage=array_string_store_micro result=emit reason=exact_match" "$BUILD_LOG"; then
+    echo "[INFO] compile log:"
+    tail -n 160 "$BUILD_LOG" || true
+    test_fail "$SMOKE_NAME: exact array string-store seed emitter did not match"
+    exit 1
+fi
 
 if ! extract_ir_entry_function "$OUT_LL" "$OUT_MAIN"; then
     test_fail "$SMOKE_NAME: entry function not found in dumped IR"
@@ -132,12 +140,22 @@ count_symbol() {
 array_set_string_count="$(count_symbol "nyash.array.set_his")"
 array_set_any_count="$(count_symbol "nyash.array.slot_store_hih")"
 runtime_set_count="$(count_symbol "nyash.runtime_data.set_hhh")"
+array_kernel_slot_store_count="$(count_symbol "nyash.array.kernel_slot_store_hi")"
 string_len_count="$(count_symbol "nyash.string.len_h")"
+piecewise_subrange_count="$(count_symbol "nyash.string.piecewise_subrange_hsiii")"
+kernel_slot_concat_count="$(count_symbol "nyash.string.kernel_slot_concat_hs")"
 
-if [ "$array_set_string_count" -lt 1 ]; then
+if ! grep -Fq "%arr = alloca [128 x [32 x i8]]" "$OUT_MAIN"; then
     echo "[INFO] lowered entry IR:"
     sed -n '1,220p' "$OUT_MAIN" || true
-    test_fail "$SMOKE_NAME: entry function did not lower through nyash.array.set_his"
+    test_fail "$SMOKE_NAME: specialized stack array IR not emitted"
+    exit 1
+fi
+
+if [ "$array_set_string_count" -ne 0 ]; then
+    echo "[INFO] lowered entry IR:"
+    sed -n '1,220p' "$OUT_MAIN" || true
+    test_fail "$SMOKE_NAME: entry function still lowers through nyash.array.set_his"
     exit 1
 fi
 
@@ -148,10 +166,31 @@ if [ "$array_set_any_count" -ne 0 ]; then
     exit 1
 fi
 
+if [ "$array_kernel_slot_store_count" -ne 0 ]; then
+    echo "[INFO] lowered entry IR:"
+    sed -n '1,220p' "$OUT_MAIN" || true
+    test_fail "$SMOKE_NAME: entry function still lowers through nyash.array.kernel_slot_store_hi"
+    exit 1
+fi
+
 if [ "$runtime_set_count" -ne 0 ]; then
     echo "[INFO] lowered entry IR:"
     sed -n '1,220p' "$OUT_MAIN" || true
     test_fail "$SMOKE_NAME: entry function still lowers through nyash.runtime_data.set_hhh"
+    exit 1
+fi
+
+if [ "$piecewise_subrange_count" -ne 0 ]; then
+    echo "[INFO] lowered entry IR:"
+    sed -n '1,220p' "$OUT_MAIN" || true
+    test_fail "$SMOKE_NAME: entry function still lowers through nyash.string.piecewise_subrange_hsiii"
+    exit 1
+fi
+
+if [ "$kernel_slot_concat_count" -ne 0 ]; then
+    echo "[INFO] lowered entry IR:"
+    sed -n '1,220p' "$OUT_MAIN" || true
+    test_fail "$SMOKE_NAME: entry function still lowers through nyash.string.kernel_slot_concat_hs"
     exit 1
 fi
 
@@ -162,4 +201,4 @@ if [ "$string_len_count" -ne 0 ]; then
     exit 1
 fi
 
-test_pass "$SMOKE_NAME: PASS (direct MIR stays generic, active AOT lowering concretizes the array string-store call to nyash.array.set_his, and string length stays on the compiler-side known-length lane)"
+test_pass "$SMOKE_NAME: PASS (direct MIR stays generic, active AOT lowering selects the exact array string-store seed emitter, and runtime/public helper calls stay out of ny_main)"
