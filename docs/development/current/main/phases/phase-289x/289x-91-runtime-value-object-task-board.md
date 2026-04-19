@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md
+  - docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md
 ---
 
 # Phase 289x Runtime Value/Object Task Board
@@ -109,7 +110,8 @@ Task state:
 - `289x-1f`: active post-keeper inventory sync after phase-137x keeper `49c356339`
 - `289x-1g`: done in `289x-93-demand-vocabulary-ledger.md`
 - `289x-2d`: done in `289x-94-container-demand-table.md`
-- `289x-3a` and later: no implementation authorization until demand/container inventory is closed
+- `289x-3a`: active pilot proposal in `289x-95-array-text-residence-pilot.md`
+- `289x-3b` and later: no broader implementation authorization until the pilot code cut is isolated
 
 ## Phase 0. Authority / Vocabulary Lock
 
@@ -252,6 +254,10 @@ No-go:
   - start with one runtime-private storage pilot only
 - Preferred pilot:
   - `Array` as lane host for text residence
+  - selected:
+    - `Array text residence through KernelTextSlot store`
+  - first code cut:
+    - runtime-private demand vocabulary module only; behavior unchanged
 - Non-goals:
   - no generic typed array family yet
   - no bytes/scalar/map storage rewrite in the same series

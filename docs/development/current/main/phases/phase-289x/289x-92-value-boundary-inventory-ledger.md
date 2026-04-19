@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md
   - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md
+  - docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md
 ---
 
 # Phase 289x Value Boundary Inventory Ledger
@@ -47,7 +48,7 @@ Further optimization resumes only after these are documented:
 | `289x-1f` post-keeper inventory sync | phase-137x keeper `49c356339` is reflected as the string proof, and older owner snapshots are marked historical |
 | `289x-1g` demand ledger | done in `289x-93-demand-vocabulary-ledger.md`; current profile/helper/caller names are mapped to `ValueDemand`, `StorageDemand`, `PublishDemand`, and `MutationDemand` |
 | `289x-2d` container demand table | done in `289x-94-container-demand-table.md`; Array/Map read/write paths say whether they need read-ref, encoded alias, cell residence, stable object, degrade, or invalidation |
-| `289x-3a` pilot selection | exactly one runtime-private storage pilot is chosen, with reject seams and tests, after Phase 1/2 docs are complete |
+| `289x-3a` pilot selection | done in `289x-95-array-text-residence-pilot.md`; selected pilot is Array text residence through `KernelTextSlot` store |
 | `289x-7a` MIR fact lift plan | MIR/lowering is identified as the owner of boundary demand; runtime stays executor, not legality oracle |
 
 No single gate above changes behavior by itself.
@@ -91,7 +92,7 @@ No single gate above changes behavior by itself.
 | `289x-1g` | BoxShape docs-only | done: exact demand ledger for current profile/helper/caller names |
 | `289x-2d` | BoxShape docs-only | done: Array/Map demand table and identity-container lane-host contract |
 | `289x-6d` | BoxShape docs-only | map key/value boundary map with compat-retirement criteria |
-| `289x-3a` | BoxCount implementation planning only | one runtime-private Array text-residence pilot proposal |
+| `289x-3a` | BoxCount implementation planning only | done: one runtime-private Array text-residence pilot proposal |
 | `289x-7a` | later BoxShape | MIR/lowering demand fact lift plan |
 
 Do not mix `289x-3a` implementation with the docs-only inventory cards.

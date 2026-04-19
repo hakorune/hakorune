@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md
+  - docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -52,10 +53,13 @@ Related:
     - `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
   - container demand table:
     - `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
+  - selected pilot:
+    - `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
   - current docs focus:
     - `289x-1g` demand vocabulary ledger is done
     - `289x-2d` Array/Map demand table is done
-    - next: choose one runtime-private Array text-residence pilot proposal (`289x-3a`) before code edits
+    - `289x-3a` selected pilot is Array text residence through `KernelTextSlot` store
+    - next code cut: add runtime-private demand vocabulary module, behavior unchanged
     - planning/docs debt only; not a runtime-wide implementation unblock by itself
 - blocker:
   - `none`

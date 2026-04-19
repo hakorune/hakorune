@@ -14,6 +14,7 @@
   - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
   - `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
   - `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
+  - `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
 
 ## Decision
 
@@ -66,6 +67,7 @@ Read this phase in this order:
 4. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
 5. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
 6. `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
+7. `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
 
 The brief is phase-local planning material.
 It does not create a new parent SSOT and does not authorize implementation.
@@ -146,6 +148,7 @@ Reading:
   - identify boxed int/bool hot paths before any implementation cut
 - `289x-3b`: first storage pilot selection
   - one runtime-private storage pilot only, after `289x-1g` and `289x-2d`
+  - selected pilot: `Array text residence through KernelTextSlot store`
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later
 - `289x-6a`: map key/value boundary map
