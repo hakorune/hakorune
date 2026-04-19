@@ -6,6 +6,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md
   - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
   - docs/development/current/main/phases/phase-289x/README.md
@@ -24,10 +25,14 @@ Related:
 
 ## Current
 
-- current optimization lane:
-  - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
+- current lane:
+  - `phase-137x-B container / primitive design cleanout before owner-first optimization return`
   - execution mode:
-    - phased value-model rollout
+    - docs-first BoxShape gate; no perf implementation until `137x-C`
+  - active phase:
+    - `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+  - taskboard:
+    - `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
 - background compiler lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -37,7 +42,7 @@ Related:
     - phase-0 authority/vocabulary lock is docs-only and complete
     - phase-137x string lane produced keeper `49c356339`
     - demand-backed cutover inventory `289x-96` is closed
-    - optimization work may resume only from the owner-first entry, not by bypassing this ledger
+    - optimization work may resume only after active `137x-B` design cleanout closes, then from the owner-first entry
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; later full lane rewrites stay separate phases
@@ -135,15 +140,18 @@ Related:
       - RuntimeData array/map get/has/size/length/push, array-string indexOf, and array set/get canary smokes passed
     - demand-backed cutover inventory:
       - `289x-96` Rust/C-shim/MIR clusters are closed
-      - optimization return gate is open, but next optimization work must start from the owner-first perf entry
+      - phase-289x no longer blocks optimization return, but active `137x-B` design cleanout must close first
     - high-risk planned later, not skipped:
       - full `ArrayStorage::Text` / full `TextLane`: `289x-8a`
       - string view/value carrier split: `289x-8b`
       - Map typed lane: `289x-6c`
       - allocator / arena: `289x-8c`, after value-boundary cutover and perf evidence only
     - return-to-optimization gate:
-      - closed by `289x-7h`; optimization may resume through `perf-owner-first-optimization-ssot.md`
+      - phase-289x gate was closed by `289x-7h`
+      - current return is paused by `137x-B` container / primitive design cleanout
+      - optimization resumes as `137x-C` through `perf-owner-first-optimization-ssot.md`
 - blocker:
+  - `137x-B` container / primitive design cleanout before perf return
   - no active `phase-289x` cutover blocker
 - latest active keeper:
   - phase-137x branch-target-aware same-slot suffix store cut is green
@@ -572,17 +580,23 @@ Related:
     - keep `freeze.str` separate from `publish.text`; do not let runtime infer `need_stable_object`
     - next follow-up is verifier visibility for borrow-scope and `freeze.str -> publish.text` separation, not `publish.any`
 4. cut the phase before optimization return
-   - current gate is `137x-A`: string publication contract closeout
+   - closed gate is `137x-A`: string publication contract closeout
    - `repr-downgrade-contract` is closed: unproven `stable_view` requests now fail before runtime and must be downgraded by lowering
    - `stableview-legality-contract` is closed: `stable_view_provenance` is the string-only witness vocabulary for legal StableView replay
    - `provenance-freeze-verifier-contract` is closed: `publish.text` requires borrow provenance plus the freeze/publish separation contract before codegen
    - `publish-idempotence-policy` is closed: repeated slot publish is no-op after `Published`, and cache reissue must not rebirth fresh text for the same stable source/cell
-   - 137x-A is satisfied; reopen owner-first perf work as 137x-B from the owner-first SSOT
-5. require a fresh narrow owner proof before wider perf edits
+   - active gate is `137x-B`: container / primitive design cleanout
+   - owner-first perf work moves to `137x-C` and stays closed until 137x-B exits
+5. finish 137x-B design cleanout before perf
+   - sync array typed-slot docs with current `InlineI64` / `InlineBool` / `InlineF64` runtime support without overstating readback
+   - lock map demand metadata vs typed map lane boundary; no typed map lane implementation starts here
+   - classify `Null` / `Void` and enum/sum/generic residuals as non-blocking later work unless a separate phase opens them
+   - keep Array / Map identity semantics while only internal residence may become lane-hosted later
+6. require a fresh narrow owner proof before wider perf edits
     - acceptable seam: reduce read/materialize/copy tax without changing public ABI
     - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read
     - reject seam: array-slot concat helper that leaves the preceding `array.get_hi` / `slot_load_hi` in place
-6. defer future representation work
+7. defer future representation work
     - no `TextLane` / MIR legality until the active read-side lane reaches keeper/reject
     - phase-289x remains planning-only `Value Lane Architecture`; runtime-wide implementation does not start here
 7. keep current guards

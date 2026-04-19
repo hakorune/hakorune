@@ -161,8 +161,11 @@ Reading:
 - Phase 289x does not bypass phase-137x stop-lines
 - Optimization work was paused while `289x-1f` / `289x-1g` / `289x-2d`
   inventory cards defined the next implementation cut.
-- Post-keeper inventory is now closed by `289x-96`; optimization may resume
-  only through the owner-first perf entry.
+- Post-keeper inventory is now closed by `289x-96`; phase-289x no longer
+  blocks optimization return.
+- Current optimization return is intentionally paused by
+  `phase-137x/137x-93-container-primitive-design-cleanout.md`; after that
+  gate closes, resume only through the owner-first perf entry.
 
 ## First Concrete Cards
 
@@ -289,8 +292,9 @@ Optimization work was paused until
 `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
 was fully closed.
 
-Current state: closed by `289x-7h`.
-Next optimization work may resume only through the owner-first perf entry:
+Current phase-289x state: closed by `289x-7h`.
+Current active gate: `phase-137x/137x-93-container-primitive-design-cleanout.md`.
+Next optimization work resumes only after that gate closes, through the owner-first perf entry:
 `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`.
 
 High-risk work is planned, not skipped:

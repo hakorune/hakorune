@@ -21,8 +21,10 @@ Related:
 
 This ledger is historical.
 It was the pre-`289x-96` inventory gate for value-boundary architecture.
-`289x-96` is now closed, so optimization may resume only through the
-owner-first perf entry.
+`289x-96` is now closed, so phase-289x no longer blocks optimization return.
+Current return is still paused by `phase-137x/137x-93-container-primitive-design-cleanout.md`;
+after that gate closes, optimization may resume only through the owner-first
+perf entry.
 
 The rule remains:
 

@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
 
@@ -31,11 +32,11 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
+  - `phase-137x-B container / primitive design cleanout before owner-first optimization return`
   - execution mode:
-    - phased value-model rollout
+    - docs-first BoxShape gate; no perf implementation until `137x-C`
 - blocker:
-  - `none`
+  - `137x-B design cleanout` before perf return
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -47,9 +48,9 @@ cargo check --features perf-observe -p nyash_kernel
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
   - `kilo_kernel_small = C 80 ms / Ny AOT 739 ms`
 - immediate next:
-  - `finish the strict whole stability reread on the phase-2 / phase-2.5 lane before opening a new TextLane or MIR legality cut`
+  - `finish 137x-B design cleanout: array typed-slot truth, map demand vs typed-lane boundary, primitive residuals, and container identity/residence contract`
 - method anchor:
-  - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+  - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-C` only)
 - rollout anchor:
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
@@ -64,13 +65,15 @@ cargo check --features perf-observe -p nyash_kernel
     - `get / set / call` as demand verbs
   - array/map remain identity containers; only internal residence may become lane-hosted later
   - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-  - do not start runtime-wide implementation before phase-137x is judged
+  - do not start runtime-wide implementation before 137x-B design cleanout is closed and phase-137x is judged again
 - taskboard:
+  - `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
   - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 - immediate follow-on:
   - `keep phase order intact: canonical sink before cold publish effect, cold publish before read-side alias split, read-side alias split before TextLane, TextLane before MIR legality`
-- immediate code seam:
-  - phase 2.5 read-side alias lane stays next:
+- deferred 137x-C code seam:
+  - phase 2.5 read-side alias lane stays next only after 137x-B closes:
     - `TextReadOnly`
     - `EncodedAlias`
     - `StableObject`
@@ -120,14 +123,14 @@ cargo check --features perf-observe -p nyash_kernel
   - exact micro owner = shared generic publish/objectize behind `string_concat_hh` + `string_substring_concat_hhii`
   - adopted middle = `kilo_meso_substring_concat_array_set_loopcarry`, used to confirm the same corridor without `indexOf("line")` row-scan noise
   - whole kilo owner = `const_suffix` fallback + `freeze_text_plan(Pieces3)` publication
-- next narrow cut candidate is the store/publication corridor around:
+- deferred 137x-C narrow cut candidate is the store/publication corridor around:
   - `execute_store_array_str_contract`
   - `array_get_index_encoded_i64`
   - `insert_const_mid_fallback`
 - allocator / GC (`memmove` / `gc_alloc` / `_int_malloc`) stays secondary diagnosis until that corridor is disproved
 - `indexOf` stays a side diagnosis, not the active keeper card
 - keep public ABI / legality ownership unchanged
-- next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed
+- next perf slice is no longer `len_h` removal; when 137x-C opens, restart from publication/source-capture with the compiler-known-length lane fixed
 - current plain-release reread after reverting the failed active probe:
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
   - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
@@ -170,14 +173,15 @@ cargo check --features perf-observe -p nyash_kernel
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 4. `docs/development/current/main/phases/phase-137x/README.md`
-5. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-7. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-8. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
-9. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
-10. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` planning only)
-11. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-12. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+5. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+6. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+7. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+8. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+9. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+10. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+11. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` planning only)
+12. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+13. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 13. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 14. `docs/development/current/main/design/string-birth-sink-ssot.md`
 15. `docs/development/current/main/15-Workstream-Map.md`

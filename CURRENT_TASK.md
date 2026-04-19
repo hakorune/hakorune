@@ -26,18 +26,19 @@ Scope: current lane / next lane / restart order only.
 12. `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
 13. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 14. `docs/development/current/main/phases/phase-137x/README.md`
-15. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-16. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-17. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-18. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-19. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-20. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-21. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-22. `docs/development/current/main/design/string-birth-sink-ssot.md`
-23. `docs/development/current/main/15-Workstream-Map.md`
-24. `git status -sb`
-25. `tools/checks/dev_gate.sh quick`
-26. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+15. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+16. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+17. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+18. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-C` に戻るときだけ)
+19. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+20. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+21. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+22. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+23. `docs/development/current/main/design/string-birth-sink-ssot.md`
+24. `docs/development/current/main/15-Workstream-Map.md`
+25. `git status -sb`
+26. `tools/checks/dev_gate.sh quick`
+27. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -45,9 +46,13 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
+  - `phase-137x-B container / primitive design cleanout before owner-first optimization return`
   - implementation mode:
-    - phased value-model rollout (`String value -> producer outcome -> canonical sink -> cold publish effect -> read-side alias lane -> future TextLane -> MIR legality`)
+    - docs-first BoxShape gate; no perf implementation until `137x-C`
+  - active phase:
+    - `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+  - taskboard:
+    - `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -57,7 +62,7 @@ Scope: current lane / next lane / restart order only.
     - phase-0 authority/vocabulary lock is docs-only and complete
     - phase-137x keeper `49c356339` is the current string proof
     - demand-backed cutover inventory `289x-96` is closed
-    - optimization work may resume only from the owner-first entry, not by bypassing this ledger
+    - optimization work may resume only after active `137x-B` design cleanout closes, then from the owner-first entry
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; later full lane rewrites stay separate phases
@@ -166,15 +171,18 @@ Scope: current lane / next lane / restart order only.
       - RuntimeData array/map get/has/size/length/push, array-string indexOf, and array set/get canary smokes passed
     - demand-backed cutover inventory:
       - `289x-96` Rust/C-shim/MIR clusters are closed
-      - optimization return gate is open, but next optimization work must start from the owner-first perf entry
+      - phase-289x no longer blocks optimization return, but active `137x-B` design cleanout must close first
     - high-risk planned later, not skipped:
       - full `ArrayStorage::Text` / full `TextLane`: `289x-8a`
       - string view/value carrier split: `289x-8b`
       - Map typed lane: `289x-6c`
       - allocator / arena: `289x-8c`, after value-boundary cutover and perf evidence only
     - return-to-optimization gate:
-      - closed by `289x-7h`; optimization may resume through `perf-owner-first-optimization-ssot.md`
+      - phase-289x gate was closed by `289x-7h`
+      - current return is paused by `137x-B` container / primitive design cleanout
+      - optimization resumes as `137x-C` through `perf-owner-first-optimization-ssot.md`
 - current blocker:
+  - `137x-B` container / primitive design cleanout before perf return
   - no active `phase-289x` cutover blocker
 - current cut status:
   - latest implementation candidate:
@@ -933,11 +941,17 @@ Scope: current lane / next lane / restart order only.
           - repeated slot publish is no-op after `Published`; stable cache may reissue handles to cached objects/views, but must not rebirth fresh text for the same stable source/cell
       - current phase cut before optimization return:
         - `137x-A`: string publication contract closeout is satisfied (`docs/development/current/main/phases/phase-137x/137x-92-string-publication-contract-closeout.md`)
-        - `137x-B`: owner-first optimization may reopen from the perf SSOT
+        - `137x-B`: container / primitive design cleanout is active (`docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`)
+        - `137x-C`: owner-first optimization may reopen only after `137x-B`
         - phase-289x stays parked as planning-only `Value Lane Architecture`
       - `publish.any` stays deferred/blocked until a separate explicit phase opens it
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
    - keep recent carrier commits as the semantic baseline; this card is contract/task shaping, not new keeper evidence
+   - active 137x-B task order:
+     - `array-typed-slot-truth-sync`
+     - `map-demand-vs-typed-lane-boundary`
+     - `primitive-residuals-classification`
+     - `container-identity-residence-contract`
 2. keep phase-2.5 read-side alias lane as the active judge
    - do not reopen the rejected store-side `owned-string keep` / `owned-text keep`
    - preserve live-source -> cached-handle -> cold-fallback encode order

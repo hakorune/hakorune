@@ -1,6 +1,6 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Active Reopen
+- Status: Active Design Cleanup
 - 目的: current optimization lane を phased value-model rollout として固定し、`producer outcome -> canonical sink -> cold publish effect -> future TextLane -> MIR legality` の順で whole-side owner を縮める。
 - 対象:
   - `CURRENT_TASK.md`
@@ -41,7 +41,8 @@
   - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from the current proof alone
 - current phase cut before optimization return:
   - `137x-A`: string publication contract closeout (`137x-92-string-publication-contract-closeout.md`)
-  - `137x-B`: owner-first optimization return only after the closeout gate lands
+  - `137x-B`: container / primitive design cleanout (`137x-93-container-primitive-design-cleanout.md`)
+  - `137x-C`: owner-first optimization return only after the design cleanout gate lands
 - current closeout status:
   - done: `repr-downgrade-contract`
     - verifier now rejects unproven `stable_view` repr requests before runtime; lowering must downgrade to `stable_owned` until StableView legality is verifier-visible
@@ -53,8 +54,13 @@
     - repeated slot publish is no-op after `Published`; cache handle reissue may reuse an existing stable object/view, but must not rebirth fresh text for the same stable source/cell
   - closeout gate:
     - 137x-A is satisfied
-    - 137x-B owner-first optimization return may reopen
+    - 137x-B design cleanout is now active before perf return
+    - 137x-C owner-first optimization return stays closed until 137x-B exits
     - `publish.any` and runtime-wide phase-289x implementation remain blocked here
+- current design cleanout gate:
+  - active: `137x-93-container-primitive-design-cleanout.md`
+  - purpose: sync array typed-slot, map demand/typed-lane, primitive residual, and container identity/residence docs before perf work resumes
+  - no runtime-wide implementation or public ABI widening starts from this gate
 - long-range successor stays parked:
   - phase-289x planning-only `Value Lane Architecture`
   - no runtime-wide implementation starts from this cut

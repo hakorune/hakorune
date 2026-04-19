@@ -163,7 +163,7 @@ Task state:
 - `289x-7g`: done in code, MIR string helper-name vocabulary centralized in `src/mir/string_corridor_names.rs`, behavior unchanged
 - `289x-7h`: done in code, prepass/declaration need classifier cutover to normalized surfaces, behavior unchanged
 - `289x-96`: closed; all Rust/C-shim/MIR clusters are done
-- optimization return: open only through the owner-first perf entry
+- optimization return: phase-289x gate is closed, but current return is paused by `phase-137x/137x-93-container-primitive-design-cleanout.md`; after that gate closes, reopen only through the owner-first perf entry
 - carrier responsibility lock: done in this taskboard and `289x-90`
 
 ## Phase 0. Authority / Vocabulary Lock
@@ -330,6 +330,7 @@ No-go:
   - return-to-optimization gate:
     - every cluster must be `done` or `rejected`
     - high-risk deferrals must have scheduled cards
+    - current non-289x blocker is `phase-137x/137x-93-container-primitive-design-cleanout.md`
 - `289x-3c`: Rust `CodecProfile -> DemandSet`
   - status: done in code
   - behavior unchanged
