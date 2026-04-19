@@ -9,6 +9,7 @@
   - `docs/development/current/main/phases/phase-137x/README.md`
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
 - Taskboard:
+  - `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
   - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
 
 ## Decision
@@ -52,6 +53,38 @@
 8. `Phase 7`: MIR legality / verifier lift
 9. `Phase 8`: allocator / arena only if evidence demands it
 
+## Readable Design Brief
+
+Read this phase in this order:
+
+1. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+2. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
+3. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+
+The brief is phase-local planning material.
+It does not create a new parent SSOT and does not authorize implementation.
+
+## Runtime Vocabulary Lock
+
+phase-289x uses this shared lifecycle vocabulary:
+
+| Term | Meaning | Scope |
+| --- | --- | --- |
+| `Ref` | borrowed/read-only view or read session | internal value world |
+| `Owned` | unpublished owned payload | internal value world |
+| `Cell` | container/lane residence | internal storage |
+| `Immediate` | unboxed scalar payload | internal value world |
+| `Stable` | object-capable public representation | object/handle world |
+
+Demand verbs:
+
+- `get` asks for read ref, immediate encode, borrowed alias encode, or stable object publication
+- `set` asks for immediate store, owned payload consume, cell residence, generic degrade, or invalidation
+- `call` asks for thin internal value entry or public object/handle entry
+
+`publish` / `promote` are effects selected by demand facts.
+They do not decide language legality and they do not create a second string birth sink.
+
 ## Relationship To Phase 137x
 
 Phase 137x remains the active string optimization lane.
@@ -71,6 +104,12 @@ Reading:
 - `289x-0b`: lane-host rule lock
   - array/map identity stays public semantic truth; only internal residence may specialize later
   - docs-only stop-line; no runtime/storage/MIR legality work opens here
+- `289x-0c`: restart/current pointers
+  - keep phase-289x visible as parked successor only
+- `289x-0d`: runtime vocabulary lock
+  - define `Ref / Owned / Cell / Immediate / Stable`
+  - define `get / set / call` as demand verbs
+  - keep this as planning vocabulary, not public ABI
 - `289x-1a`: `CodecProfile` inventory
   - document which profiles are decode demand, storage demand, or compat residue
 - `289x-1b`: `ValueDemand` vocabulary proposal

@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
   - docs/development/current/main/phases/phase-289x/README.md
+  - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -36,8 +37,16 @@ Related:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
     - `docs/development/current/main/phases/phase-289x/README.md`
+  - design brief:
+    - `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
   - taskboard:
     - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+  - current docs focus:
+    - close shared runtime vocabulary:
+      - `Ref / Owned / Cell / Immediate / Stable`
+      - `get / set / call` as demand verbs
+      - `publish / promote` as boundary effects only
+    - planning/docs debt only; not a runtime-wide implementation unblock by itself
 - blocker:
   - `none`
 
@@ -420,6 +429,7 @@ Related:
 10. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 11. `docs/development/current/main/design/string-birth-sink-ssot.md`
 12. `docs/development/current/main/15-Workstream-Map.md`
+13. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
 
 ## Proof Bundle
 

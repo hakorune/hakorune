@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
   - docs/development/current/main/phases/phase-289x/README.md
+  - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
 ---
 
 # Phase 289x Runtime Value/Object Task Board
@@ -84,6 +85,26 @@ Stop-line:
 - do not allow runtime helper names to become the legality source
 - do not use `publish` and `freeze.str` interchangeably
 
+## Vocabulary Gaps Closed By This Phase
+
+Before any runtime-wide implementation can start, these definitions must be explicit:
+
+| Gap | Planning term | Resolution |
+| --- | --- | --- |
+| internal value world vs object world | `value world` / `object world` | lifecycle SSOT owns the world split |
+| common carrier lifecycle | `Ref / Owned / Cell / Immediate / Stable` | phase-289x design brief gives phase-local mapping |
+| helper-name drift | `get / set / call` as demand verbs | MIR/lowering demand facts, not helper names, select behavior |
+| boundary effect drift | `publish / promote` | boundary effects only; not legality owners or string birth sinks |
+| container semantic drift | lane host | Array/Map identity remains public semantic truth |
+
+Task state:
+
+- `289x-0a`: done in docs
+- `289x-0b`: done in docs
+- `289x-0c`: done in restart/current pointers
+- `289x-0d`: done in docs, runtime vocabulary lock
+- `289x-1a` and later: inventory/planning only, no implementation authorization
+
 ## Phase 0. Authority / Vocabulary Lock
 
 - Goal:
@@ -140,9 +161,35 @@ Stop-line:
     - `freeze.str`
     - `handle issue`
   - `289x-1d`: identify which existing tests lock each demand
+- `289x-1e`: current code inventory anchors
+  - record exact files/functions that hold current demand/profile/storage/publication vocabulary
+  - keep this as inventory; do not rename or widen APIs in this card
 - Acceptance:
   - no caller needs to infer stable/object demand from helper names
   - each profile has a documented owner and removal/evolution path
+
+### Phase 1 Inventory Anchors
+
+These anchors make the inventory concrete without authorizing code changes.
+
+| Slice | Current vocabulary | Code anchor | phase-289x reading |
+| --- | --- | --- | --- |
+| profile policy | `CodecProfile::{Generic, ArrayFastBorrowString, ArrayBorrowStringOnly, MapKeyBorrowString, MapValueBorrowString}` | `crates/nyash_kernel/src/plugin/value_codec/decode.rs` | decode/storage/publication demands are still mixed |
+| scalar immediate | `ArrayFastDecodedValue::{ImmediateI64, ImmediateBool, ImmediateF64, Boxed}` | `value_codec/decode.rs`, `value_codec/encode.rs` | current immediate-lane vocabulary |
+| borrowed alias encode | `BorrowedAliasEncodeCaller`, `BorrowedAliasEncodePlan` | `value_codec/borrowed_handle.rs` | read outcomes are live-source, cached-handle, cold-fallback |
+| string publication | `PublishReason`, `StringPublishSite`, `KernelTextSlotState` | `value_codec/string_materialize.rs` | current publish/storage vocabulary for the first proving ground |
+| read-source classification | `StringHandleSourceKind`, `StringLikeProof`, `ArrayStoreStrSource` | `value_codec/string_classify.rs`, `array_string_slot.rs` | source-shape vocabulary for borrowed vs fallback reads |
+| array facade/residence | `array_runtime_*`, `array_slot_store_*`, `array_string_*_by_index` | `array_runtime_any.rs`, `array_runtime_facade.rs`, `array_slot_store.rs`, `array_string_slot.rs` | facade, indexed residence, and string corridor are separate layers |
+| map key/value boundary | `map_key_string_*`, `map_slot_load_*`, `map_slot_store_*`, `map_probe_*` | `map_key_codec.rs`, `map_slot_load.rs`, `map_slot_store.rs`, `map_probe.rs` | key decode, value storage, and read publication stay split |
+| runtime-data bridge | `nyash.runtime_data.{get_hh,set_hhh,has_hh,push_hh}` | `runtime_data.rs`, `map_runtime_data.rs` | facade-only bridge, not semantic owner |
+| compat residue | legacy `nyash.array.*` / `nyash.map.*` symbols | `array_compat.rs`, `map_compat.rs` | shrink-only compatibility surface |
+
+No-go:
+
+- do not turn phase-1 inventory into implementation
+- do not add a public ABI class or row field to clean up `CodecProfile`
+- do not erase caller-scoped borrowed-alias outcomes
+- do not treat facade or compat exports as the new semantic owner
 
 ## Phase 2. Container Lane-Host Contract
 

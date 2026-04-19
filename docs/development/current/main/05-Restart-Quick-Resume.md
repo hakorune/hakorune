@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
   - docs/development/current/main/phases/phase-289x/README.md
+  - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
@@ -55,8 +56,12 @@ cargo check --features perf-observe -p nyash_kernel
 - successor planning anchor:
   - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - `docs/development/current/main/phases/phase-289x/README.md`
+  - `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
   - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
   - read as parked planning only; phase-0 authority/vocabulary lock is docs-only
+  - current docs focus is shared runtime vocabulary:
+    - `Ref / Owned / Cell / Immediate / Stable`
+    - `get / set / call` as demand verbs
   - array/map remain identity containers; only internal residence may become lane-hosted later
   - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
   - do not start runtime-wide implementation before phase-137x is judged

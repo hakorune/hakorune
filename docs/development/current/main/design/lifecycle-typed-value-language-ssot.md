@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/phases/phase-289x/README.md
+  - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
   - docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md
   - src/mir/instruction.rs
   - src/mir/storage_class.rs
@@ -181,6 +182,36 @@ Rule:
 
 - optimize toward `imm`, `borrow`, and `agg_local`
 - treat `handle` as boundary-class, not default transport
+
+### 2.5. Runtime-private carrier vocabulary
+
+runtime-wide value/object work uses this shared carrier vocabulary.
+It is an internal planning vocabulary, not a public ABI class list.
+
+| Term | Meaning | Examples today |
+| --- | --- | --- |
+| `Ref` | borrowed/read-only view or read session | string read session, verified source, array/map read view |
+| `Owned` | unpublished caller-owned payload | `OwnedBytes`, owned bytes prepared for a sink |
+| `Cell` | mutable storage residence inside a container/lane | `KernelTextSlot`, future array/map lane cell |
+| `Immediate` | unboxed scalar payload | current `imm_i64`, `imm_bool` lowering |
+| `Stable` | object-capable public representation | `StringBox`/handle, scalar box, generic object |
+
+Rule:
+
+- `Ref`, `Owned`, `Cell`, and `Stable` are lifecycle states, not language types.
+- A family only adopts a state when it has a real owner, tests, and boundary demand.
+- `publish` / `promote` are boundary effects over these states; they are not legality owners.
+
+### 2.6. Demand verbs drive boundary behavior
+
+`get`, `set`, and `call` must be read as demand-bearing verbs, not as helper-name authority.
+
+- `get` may demand read-only ref, immediate encoding, borrowed alias encoding, or stable object publication.
+- `set` may demand cell residence, owned payload consumption, generic degrade, or mutation invalidation.
+- `call` may demand thin internal value entry or public object/handle entry.
+
+The demand owner is MIR/lowering facts and future recipe metadata.
+The runtime executes the selected demand and must not infer publication legality from helper names.
 
 ### 3. Objectization is driven by explicit barriers
 

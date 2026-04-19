@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
   - docs/development/current/main/phases/phase-289x/README.md
+  - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
 
@@ -31,6 +32,11 @@ runtime-wide の親読みは
 `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`、
 generalization taskboard は
 `docs/development/current/main/phases/phase-289x/README.md` に置く。
+
+String は proving ground であって、runtime-wide vocabulary の唯一の源ではない。
+future typed lanes は string-specific carrier 名を増殖させず、
+`lifecycle-typed-value-language-ssot.md` の `Ref / Owned / Cell / Stable`
+と boundary vocabulary を再利用する。
 
 ## Core Lock
 
@@ -146,6 +152,13 @@ Lock:
 - producer meaning
 - sink storage policy
 - helper ごとの special-case truth
+
+Glossary lock:
+
+- `publish` is the boundary effect selected by MIR/lowering demand.
+- `freeze.str` is the string birth sink used at that boundary.
+- `objectize` / `handle issue` are mechanics below that boundary.
+- typed-lane docs must not reinterpret `freeze.str` as a generic publish effect.
 
 ## Publish vs `freeze.str`
 

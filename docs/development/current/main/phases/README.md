@@ -11,6 +11,7 @@
 
 - **Phase 289x（PROPOSED PLANNING）**: runtime-wide value/object boundary rollout
   - parent SSOT: `../design/lifecycle-typed-value-language-ssot.md`
+  - design brief: `phase-289x/289x-90-runtime-value-object-design-brief.md`
   - taskboard: `phase-289x/289x-91-runtime-value-object-task-board.md`
   - guard: phase-137x string lane remains the first proving ground; no runtime-wide implementation starts before that lane is judged
 

@@ -17,20 +17,21 @@ Scope: current lane / next lane / restart order only.
 3. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
 4. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
 5. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` planning only)
-6. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-7. `docs/development/current/main/phases/phase-137x/README.md`
-8. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-9. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-10. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-11. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-12. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-13. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-14. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-15. `docs/development/current/main/design/string-birth-sink-ssot.md`
-16. `docs/development/current/main/15-Workstream-Map.md`
-17. `git status -sb`
-18. `tools/checks/dev_gate.sh quick`
-19. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+6. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
+7. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+8. `docs/development/current/main/phases/phase-137x/README.md`
+9. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+10. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+11. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+12. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+13. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+14. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+15. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+16. `docs/development/current/main/design/string-birth-sink-ssot.md`
+17. `docs/development/current/main/15-Workstream-Map.md`
+18. `git status -sb`
+19. `tools/checks/dev_gate.sh quick`
+20. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -55,8 +56,16 @@ Scope: current lane / next lane / restart order only.
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
     - `docs/development/current/main/phases/phase-289x/README.md`
+  - design brief:
+    - `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
   - taskboard:
     - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+  - current docs focus:
+    - close shared runtime vocabulary:
+      - `Ref / Owned / Cell / Immediate / Stable`
+      - `get / set / call` as demand verbs
+      - `publish / promote` as boundary effects only
+    - keep this as planning debt, not an execution blocker
 - current blocker:
   - `none`
 - current cut status:

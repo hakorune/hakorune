@@ -16,6 +16,7 @@ Related:
   - crates/nyash_kernel/src/plugin/value_codec/decode.rs
   - crates/nyash_kernel/src/plugin/value_codec/encode.rs
   - lang/src/vm/boxes/abi_adapter_registry.hako
+  - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
 ---
 
 # Value Repr And ABI Manifest (SSOT)
@@ -121,6 +122,9 @@ Future cleanup:
   - `StorageDemand`
   - `PublishDemand`
 - That split is tracked by `phase-289x` as successor planning/taskboard work.
+- phase-289x also owns the docs-only mapping from current profile names to
+  demand verbs such as read-ref, encode-immediate, encode-alias, cell-residence,
+  stable-object, and generic-degrade.
 - The cleanup is demand-vocabulary refactoring only:
   - it must not add a new public manifest class
   - it must not add a new public manifest row field
@@ -183,6 +187,31 @@ legacy `h` / `hh` / `hi` / `hii` 表記は compatibility artifact として残�
 - borrowed string handle is a first-class manifest class
 - ownership mismatch must fail-fast; no silent fallback
 
+## Demand Verb Reading
+
+The public ABI manifest owns value classes and ownership.
+It does not make helper names the source of semantic legality.
+
+For runtime-private work:
+
+- `get` is a demand verb:
+  - read ref
+  - encode immediate
+  - encode borrowed alias
+  - publish stable object
+- `set` is a demand verb:
+  - store immediate
+  - consume owned payload
+  - write cell residence
+  - degrade to generic object storage
+  - invalidate aliases/caches
+- `call` is a demand verb:
+  - thin internal value entry
+  - public handle/object entry
+
+`phase-289x` may refine these internal demand names, but public ABI rows remain
+owned by this manifest.
+
 ## Internal Direct-Kernel Result Manifest
 
 The public manifest above is not enough for phase-137x.
@@ -231,6 +260,20 @@ Reading rule:
 
 Do not treat `TextReadSession` itself as a result class.
 It is runtime mechanics, not result ABI vocabulary.
+
+### Lifecycle mapping
+
+The runtime-private result classes map back to the lifecycle vocabulary in
+`lifecycle-typed-value-language-ssot.md`.
+
+| Current/internal class | Lifecycle reading | Public ABI status |
+| --- | --- | --- |
+| `TextReadSession` | `Ref` mechanics | not a result class |
+| `OwnedBytes` | `Owned` unpublished payload | internal only |
+| `KernelTextSlot` | `Cell` residence | internal only |
+| `BorrowedHandleBox` | borrowed alias / stable-cache bridge | public class remains `handle_borrowed_string` |
+| `PublishedHandle` | `Stable` / handle world | public handle carrier |
+| `boxed_local` | codec-local temporary | never a manifest row |
 
 ## Public ABI vs Internal Direct-Kernel ABI
 
