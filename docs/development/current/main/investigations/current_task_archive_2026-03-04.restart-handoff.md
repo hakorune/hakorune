@@ -1,0 +1,166 @@
+## 2026-03-04 Restart Handoff (phase29bq/29bp unblock follow-up)
+
+- status:
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` = PASS
+- this round fixes:
+  - VM-Hako `indexOf` 契約を `1 or 2 args` へ拡張（subset-check + vm_s0 + unit/doc 同期）
+  - loop-cond の join-bearing `if` が `planner_required` 非依存で join-if 経路へ入るよう修正（`if body must be single-exit` 誤freeze除去）
+  - Pattern2 loop-break recipe:
+    - `carrier_var == loop_var` かつ同一更新式の二重適用を dedupe（`2` 化回帰を解消）
+    - `carrier_update_in_break`（`if { sum = ...; break }`）を recipe 化対応
+  - archive smoke 相対パス崩れ対応:
+    - `phase29ae_regression_pack_vm.sh` を `bash .../run.sh` 呼び出しへ
+    - `tools/smokes/v2/profiles/lib/*.sh` compatibility shim 追加（`test_runner/output_validator/llvm_exe_runner/plugin_pilot_common`）
+- key regression restored:
+  - `phase263_pattern2_seg_realworld_min_vm` が `output: 4` に復帰
+  - `phase29ai_pattern2_break_plan_subset_ok_min_vm` が `RC=15` に復帰
+- next fixed order:
+  1. このコミットを先に確定
+  2. `phase29bp` を一度再実行して再現性確認（PASS 維持）
+  3. Pattern/Domain cleanup（legacy domain 入口の isolate -> delete）へ復帰
+  4. SSOT (`joinir-planner-required-gates-ssot.md` / design README) の「Pattern削除順」を同期
+- update (2026-03-04, D5 single_planner order shrink / behavior-preserving):
+  - `single_planner::PlanRuleId` は互換タグ語彙（ScanWithInit / SplitScan を含む）として維持し、`PLAN_RULE_ORDER` は DomainPlan 実体がある `LoopCondContinueWithReturn` のみに縮退。
+  - `single_planner::fallback_extract` の全variant no-op match を削除し、明示 no-op (`Ok(None)`) へ統一。
+  - 目的: planner ルートの dead iteration を止め、router 側 planner-first tag 契約は維持したまま責務境界（single_planner=DomainPlan 選別）を明確化。
+  - verification:
+    - `cargo test -q --lib rule_name_uses_semantic_label`
+    - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+    - `cargo test -q --lib planner_first_tag_uses_semantic_name_for_pattern_rules`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 single_planner dead fallback removal):
+  - `single_planner/rules.rs` から dead no-op `fallback_extract` を撤去し、non-planner_required miss はループ内で直接 `None` 扱いへ簡約。
+  - 併せて header comment を DomainPlan-only order 契約に更新（legacy `PLAN_EXTRACTORS` 同順前提を除去）。
+  - verification:
+    - `cargo test -q --lib recipe_only_rules_require_planner_required_for_pattern_family`
+    - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+    - `cargo test -q --lib planner_first_tag_uses_semantic_name_for_pattern_rules`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, probe refresh):
+  - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+  - result: `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）
+- update (2026-03-04, planner-first compat guard for scan/split):
+  - `planner/tags.rs` に `planner_first_tag_keeps_scan_split_compat_labels` test を追加し、`[joinir/planner_first rule=ScanWithInit|SplitScan]` 文字列を固定。
+  - verification:
+    - `cargo test -q --lib planner_first_tag_keeps_scan_split_compat_labels`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 regression fix / pattern2 promotion hint restore):
+  - regression: `PLAN_RULE_ORDER` を DomainPlan-only に縮退した結果、`[plan/pattern2/promotion_hint:{TrimSeg|DigitPos}]` が非出力化（`phase29ab_pattern2_loopbodylocal_*` FAIL）。
+  - fix: `single_planner/rules.rs` で promotion hint 出力を rule iteration から分離し、`pattern2_loopbodylocal` facts がある strict 実行で 1回だけ stderr 出力する helper へ集約。
+  - add test: `promotion_hint_tag_matches_shape`
+  - verification:
+    - `cargo test -q --lib promotion_hint_tag_matches_shape`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 single_planner dead guard pruning):
+  - `single_planner/rules.rs` の DomainPlan-only 化に合わせて dead path を整理:
+    - `is_recipe_only_rule` を `LoopCondContinueWithReturn` のみへ縮退
+    - ループ内の unreachable Pattern2Break recipe-contract ガードを削除
+    - 到達不能な `planner_required` mismatch freeze helper/state を削除
+  - add/adjust tests:
+    - `recipe_only_rule_is_domain_plan_only`
+    - `loop_cond_continue_with_return_is_always_recipe_only`
+    - `promotion_hint_tag_matches_shape`（継続）
+  - verification:
+    - `cargo test -q --lib recipe_only_rule_is_domain_plan_only`
+    - `cargo test -q --lib loop_cond_continue_with_return_is_always_recipe_only`
+    - `cargo test -q --lib promotion_hint_tag_matches_shape`
+    - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 SSOT comment/doc sync for DomainPlan-only planner):
+  - `single_planner/README.md` を現実装へ同期:
+    - `PLAN_RULE_ORDER` は DomainPlan 選別専用（現状 `LoopCondContinueWithReturn` のみ）
+    - `ScanWithInit/SplitScan` などは router 側 planner-first tag の互換語彙として保持
+  - `planner/build.rs` の stale comments（P0 skeleton / unreachable note）を現状挙動へ更新。
+  - verification:
+    - `cargo check --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, phase29x-probe run_nonzero classification lock):
+  - latest probe:
+    - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）
+  - classification (monitor-known; not current blocker):
+    - `run:nonzero-empty` intentional contract exits (6):
+      - `phase29bq_hako_mirbuilder_phase11_local_loop_return_var_min.hako` (rc=3)
+      - `phase29bq_hako_mirbuilder_phase21_loop_if_return_var_min.hako` (rc=3)
+      - `phase29bq_joinir_port03_loop_local_return_var_min.hako` (rc=3)
+      - `phase29bq_strict_nested_loop_guard_min.hako` (rc=1)
+      - `phase29ca_generic_loop_continue_min.hako` (rc=4)
+      - `phase29cb_generic_loop_in_body_step_min.hako` (rc=3)
+    - `run:nonzero` direct runner bridge limitation cluster (9):
+      - v1 unsupported: `newbox` / `keepalive` / `release_strong`
+      - v0 fallback unsupported: `Closure` callee / `&` binop / `unop`
+      - fixtures: `phase29bq_generic_loop_v1_recipe_nested_if_min.hako`,
+        `phase29bq_selfhost_blocker_scan_methods_loop_min.hako`,
+        `phase29bq_selfhost_box_member_local_fini_*_loop_*_min.hako` (7 files)
+    - `run:vm-error` provider-dependent cluster (3):
+      - `phase29bq_selfhost_blocker_parse_loop_min.hako`
+      - `phase29bq_selfhost_blocker_scan_with_quote_loop_min.hako`
+      - `phase29bq_selfhost_blocker_scan_with_quote_loop_full_min.hako`
+      - signal: `No plugin provider for Box type: Main`（direct `--mir-json-file` route）
+  - note:
+    - current compiler blocker remains `none` / lane=`phase-29bq monitor-only`。
+    - failure-driven reopen rule: `emit_fail>0` または `route_blocker>0` に遷移した時のみ direct route を再優先で reopen。
+- update (2026-03-04, D5 facts/planner dead staging collapse first cut):
+  - `facts/loop_builder.rs` から未使用トグルを撤去し、抽出経路を一本化（挙動不変）:
+    - `try_build_loop_facts_inner` の `allow_pattern1` / `allow_pattern8` 引数を削除
+    - `pattern1_*` / `pattern8_bool_predicate_scan` の extractor 呼び出しを常時経路へ統一
+  - 目的:
+    - `facts/planner` 側に残っていた staging 分岐（常に true の dead branch）を除去し、D5 の isolate->delete 前段を固定
+  - verification:
+    - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+    - `cargo test -q --lib planner_first_tag_keeps_scan_split_compat_labels`
+    - `cargo test -q --lib loopfacts_ok_some_for_canonical_scan_with_init_minimal`
+    - `cargo test -q --lib loopfacts_ok_some_for_canonical_split_scan_minimal`
+    - `cargo test -q --lib facts_extracts_pattern8_success`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+  - note:
+    - `cargo test -q --lib facts_extracts_pattern9_const_accum_success` は現作業ツリーで `Some` 期待 mismatch の既存失敗を確認（本差分では未変更の extractor テスト）。
+- update (2026-03-04, D5 isolate->delete: dead pattern8 plan module removal):
+  - runtime 参照のない legacy module を撤去:
+    - delete: `src/mir/builder/control_flow/plan/pattern8_bool_predicate_scan.rs`
+    - update: `src/mir/builder/control_flow/plan/mod.rs` から `mod pattern8_bool_predicate_scan` wire を削除
+  - 目的:
+    - Pattern8 の正本経路を `facts + recipe_tree + joinir registry handler` に一本化し、未接続 plan-side lowering 残骸を削除
+  - verification:
+    - `cargo test -q --lib facts_extracts_pattern8_success`
+    - `cargo test -q --lib planner_first_tag_keeps_scan_split_compat_labels`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 planner shadow semantic-key cleanup):
+  - `planner/pattern_shadow.rs` の priority table を現行 semantic rule key へ更新し、legacy `loop/pattern*` 語彙を撤去。
+    - keep: `loop_cond_continue_with_return`, `loop_cond_break_continue`, `loop_cond_continue_only`, `loop_cond_return_in_body`
+    - keep: `cluster*` / `nested_depth*` の diagnostic bucket
+    - unknown fallback は `255` を維持
+  - note:
+    - `pattern_shadow` は ambiguous candidate 時の診断専用（selection SSOT ではない）なので挙動不変。
+  - verification:
+    - `cargo test -q --lib semantic_rule_priority_is_stable`
+    - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, probe refresh after D5 cleanup series):
+  - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+  - result: `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）
+  - class_counts:
+    - `run:nonzero-empty=6`
+    - `run:nonzero=9`
+    - `run:vm-error=3`
+    - `run:ok=101`
+- update (2026-03-04, D5 test-only entry shrink in facts):
+  - `facts/mod.rs` の `loop_tests` module 宣言を `#[cfg(test)]` 化し、runtime build から test-only module wire を除外。
+  - verification:
+    - `cargo test -q --lib loopfacts_ok_some_for_canonical_scan_with_init_minimal`
+    - `cargo test -q --lib loopfacts_ok_some_for_canonical_split_scan_minimal`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)

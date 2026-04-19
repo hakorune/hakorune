@@ -51,10 +51,9 @@ Runner-side compat loading (`src/runner/json_artifact/program_json_v0_loader.rs`
 ### Diagnostics / probe keep
 
 - `tools/dev/phase29ch_program_json_helper_exec_probe.sh`
-- `tools/dev/phase29ch_stage1_cli_env_file_context_probe.sh`
 - `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
 
-この 3 file は diagnostics-only keep であり、live caller の後ろへ回す。
+この 2 file は diagnostics-only keep であり、live caller の後ろへ回す。
 
 ### Test-only smoke tail
 

@@ -50,7 +50,6 @@ Related:
   - `bash tools/dev/phase29ch_source_route_direct_probe.sh [entry]`
   - diagnostics-only: builds a temporary helper artifact and calls `MirBuilderBox.emit_from_source_v0(...)` directly on a compiled artifact
 - stage1 env file-context probe:
-  - `bash tools/dev/phase29ch_stage1_cli_env_file_context_probe.sh`
   - diagnostics-only: emits/runs temporary `stage1_cli_env`-shaped clones through Stage1/Stage2 and narrows where source-route promotion first turns red
 - explicit Program(JSON) compat probe:
   - `bash tools/dev/phase29ch_program_json_compat_route_probe.sh --bin <stage1-cli>`
@@ -126,7 +125,6 @@ Related:
   - `bash tools/dev/phase29ch_source_route_materialize_probe.sh`
   - `bash tools/dev/phase29ch_selfhost_source_route_helper_probe.sh`
   - `bash tools/dev/phase29ch_selfhost_source_route_bisect_probe.sh`
-  - `bash tools/dev/phase29ch_stage1_cli_env_file_context_probe.sh`
 
 ### compat-surface thinning
 
