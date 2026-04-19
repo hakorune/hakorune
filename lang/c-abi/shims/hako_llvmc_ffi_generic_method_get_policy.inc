@@ -64,14 +64,14 @@
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY:
             if (dst) {
-              fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab);
-              set_type(dst, T_I64);
-              if (plan && plan->runtime_array_string) {
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
-              }
+              enum HakoLlvmcArraySlotEmitDemand demand =
+                  (plan && plan->runtime_array_string)
+                      ? HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF
+                      : HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_HANDLE;
+              hako_llvmc_emit_array_slot_load(f, dst, ab, demand);
             } else {
-              fprintf(f, "  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);
+              hako_llvmc_emit_array_slot_load(
+                  f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_HANDLE);
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE:

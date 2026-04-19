@@ -110,16 +110,11 @@
               sizeof(slot_store_ab) - strlen(slot_store_ab) - 1);
         }
 
-        if (dst) {
-          fprintf(
-              f,
-              "  %%r%lld = call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n",
-              dst,
-              slot_store_ab);
-          set_type(dst, T_I64);
-        } else {
-          fprintf(f, "  call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n", slot_store_ab);
-        }
+        hako_llvmc_emit_array_slot_store(
+            f,
+            dst,
+            slot_store_ab,
+            HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_TEXT_KERNEL);
         fprintf(
             f,
             "  call void @llvm.stackrestore(ptr %%arrstr.slotsave.%lld.%zu)\n",
@@ -212,16 +207,11 @@
               sizeof(slot_store_ab) - strlen(slot_store_ab) - 1);
         }
 
-        if (dst) {
-          fprintf(
-              f,
-              "  %%r%lld = call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n",
-              dst,
-              slot_store_ab);
-          set_type(dst, T_I64);
-        } else {
-          fprintf(f, "  call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n", slot_store_ab);
-        }
+        hako_llvmc_emit_array_slot_store(
+            f,
+            dst,
+            slot_store_ab,
+            HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_TEXT_KERNEL);
         fprintf(
             f,
             "  call void @llvm.stackrestore(ptr %%arrstr.slotsave.%lld.%zu)\n",
@@ -322,16 +312,11 @@
               sizeof(slot_store_ab) - strlen(slot_store_ab) - 1);
         }
 
-        if (dst) {
-          fprintf(
-              f,
-              "  %%r%lld = call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n",
-              dst,
-              slot_store_ab);
-          set_type(dst, T_I64);
-        } else {
-          fprintf(f, "  call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n", slot_store_ab);
-        }
+        hako_llvmc_emit_array_slot_store(
+            f,
+            dst,
+            slot_store_ab,
+            HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_TEXT_KERNEL);
         fprintf(
             f,
             "  call void @llvm.stackrestore(ptr %%arrstr.slotsave.%lld.%zu)\n",
@@ -408,12 +393,8 @@
                 }
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64:
-                if (dst) {
-                  fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_store_hii\"(%s)\n", dst, ab);
-                  set_type(dst, T_I64);
-                } else {
-                  fprintf(f, "  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
-                }
+                hako_llvmc_emit_array_slot_store(
+                    f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_I64);
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING:
                 /* owner route: `ArrayStoreString`
@@ -440,20 +421,12 @@
                         f, ii, ilen, insts, dst, recv, a0, a1)) {
                   break;
                 }
-                if (dst) {
-                  fprintf(f, "  %%r%lld = call i64 @\"nyash.array.set_his\"(%s)\n", dst, ab);
-                  set_type(dst, T_I64);
-                } else {
-                  fprintf(f, "  call i64 @\"nyash.array.set_his\"(%s)\n", ab);
-                }
+                hako_llvmc_emit_array_slot_store(
+                    f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_TEXT_PUBLIC);
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY:
-                if (dst) {
-                  fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_store_hih\"(%s)\n", dst, ab);
-                  set_type(dst, T_I64);
-                } else {
-                  fprintf(f, "  call i64 @\"nyash.array.slot_store_hih\"(%s)\n", ab);
-                }
+                hako_llvmc_emit_array_slot_store(
+                    f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_HANDLE);
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE:
               default:

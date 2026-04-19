@@ -45,22 +45,19 @@
           if (string_len_match.keep_get_live) {
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
             if (dst) {
-              fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab);
-              set_type(dst, T_I64);
-              set_origin(dst, ORG_STRING);
-              set_scan_origin(dst, ORG_STRING);
+              hako_llvmc_emit_array_slot_load(
+                  f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF);
             } else {
-              fprintf(f, "  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);
+              hako_llvmc_emit_array_slot_load(
+                  f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF);
             }
-            fprintf(f, "  %%r%lld = call i64 @\"nyash.array.string_len_hi\"(%s)\n", string_len_match.len_dst, ab);
-            set_type(string_len_match.len_dst, T_I64);
+            hako_llvmc_emit_array_string_len(f, string_len_match.len_dst, ab);
             if (dst) remember_string_length_call(string_len_match.len_dst, dst);
             skip_inst[string_len_match.len_ii] = 1;
             return 1;
           }
           if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-          fprintf(f, "  %%r%lld = call i64 @\"nyash.array.string_len_hi\"(%s)\n", string_len_match.len_dst, ab);
-          set_type(string_len_match.len_dst, T_I64);
+          hako_llvmc_emit_array_string_len(f, string_len_match.len_dst, ab);
           for (int si = 0; si < string_len_match.copy_n; si++) skip_inst[string_len_match.copy_iis[si]] = 1;
           skip_inst[string_len_match.len_ii] = 1;
           return 1;

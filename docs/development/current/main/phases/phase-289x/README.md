@@ -204,8 +204,12 @@ Reading:
   - `bname/mname` strings are normalized into receiver/method surface enums before route-bit selection
   - verified by RuntimeData array/map get/has/size/length/push, array-string indexOf, and StringBox length/indexOf route smokes
 - `289x-7e`: concrete `slot_load_hi` / `slot_store` helper emission cutover
+  - status: done in code; behavior and helper symbols unchanged
+  - `hako_llvmc_ffi_array_slot_emit.inc` is now the single C-shim emission entry for array slot load/store, array string len, and array string indexOf concrete calls
+  - verified by exact kernel slot-store, live-after-get, array set/get, and array-string len/indexOf smokes
+- `289x-7f`: `runtime_array_string` observer/window matcher cutover
   - next cutover cluster; high risk
-  - no emitted-call change without exact before/after gate evidence
+  - window matching is tightly coupled to branch/select/live-after-get exact guards
 
 ## Return To Optimization Gate
 
@@ -215,7 +219,6 @@ is fully closed.
 
 High-risk work is planned, not skipped:
 
-- `289x-7e`: concrete `slot_load_hi` / `slot_store` emission changes
 - `289x-7f`: `runtime_array_string` observer/window matcher rewrites
 - full `ArrayStorage::Text` / full `TextLane`: only after `289x-7h`, separate phase
 - Map typed lane: only after `289x-6e`, separate phase

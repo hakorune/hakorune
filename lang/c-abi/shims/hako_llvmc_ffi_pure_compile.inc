@@ -206,6 +206,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_indexof_observer_direct_match.inc"
       #include "hako_llvmc_ffi_indexof_observer_block_match.inc"
       #include "hako_llvmc_ffi_indexof_observer_trace.inc"
+      #include "hako_llvmc_ffi_array_slot_emit.inc"
       #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
       #include "hako_llvmc_ffi_string_chain_terms.inc"
       #include "hako_llvmc_ffi_string_candidate_plan_readers.inc"

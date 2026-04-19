@@ -81,12 +81,11 @@
             append_i64_arg_ref(keep_ab, sizeof(keep_ab), recv, 1);
             append_i64_arg_ref(keep_ab, sizeof(keep_ab), idx, 0);
             if (dst) {
-              fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, keep_ab);
-              set_type(dst, T_I64);
-              set_origin(dst, ORG_STRING);
-              set_scan_origin(dst, ORG_STRING);
+              hako_llvmc_emit_array_slot_load(
+                  f, dst, keep_ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF);
             } else {
-              fprintf(f, "  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", keep_ab);
+              hako_llvmc_emit_array_slot_load(
+                  f, dst, keep_ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF);
             }
           } else if (branch_uses_get_only_as_slot_const_suffix_store) {
             remember_array_string_get_source(dst, recv, idx);
@@ -155,11 +154,6 @@
           long long dst,
           const char* args) {
         if (!deferred_array_string_indexof) return 0;
-        if (dst) {
-          fprintf(f, "  %%r%lld = call i64 @\"nyash.array.string_indexof_hih\"(%s)\n", dst, args);
-          set_type(dst, T_I64);
-        } else {
-          fprintf(f, "  call i64 @\"nyash.array.string_indexof_hih\"(%s)\n", args);
-        }
+        hako_llvmc_emit_array_string_indexof(f, dst, args);
         return 1;
       }

@@ -132,11 +132,13 @@ Scope: current lane / next lane / restart order only.
     - `289x-7d` landed:
       - main C shim `bname/mname` route classifier now normalizes names into receiver/method surface enums before choosing route bits
       - behavior unchanged; RuntimeData array/map get/has/size/length/push, array-string indexOf, and StringBox length/indexOf route smokes passed
+    - `289x-7e` landed:
+      - C shim array slot load/store/string-len/string-indexOf concrete emission is now centralized in `hako_llvmc_ffi_array_slot_emit.inc`
+      - behavior and helper symbols unchanged; exact kernel slot-store, live-after-get, array set/get, and array-string len/indexOf smokes passed
     - next code cut:
-      - `289x-7e`: concrete `slot_load_hi` / `slot_store` helper emission cutover
-      - high risk: do not change emitted calls without exact before/after gate evidence
+      - `289x-7f`: `runtime_array_string` observer/window matcher cutover
+      - high risk: window matching is tightly coupled to branch/select/live-after-get exact guards
     - high-risk planned later, not skipped:
-      - `runtime_array_string` observer/window matcher rewrites: `289x-7f`
       - full `ArrayStorage::Text` / full `TextLane`: after `289x-7h`, separate phase
       - Map typed lane: after `289x-6e`, separate phase
       - allocator / arena: after value-boundary cutover and perf evidence only
