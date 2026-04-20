@@ -8,7 +8,8 @@ mod array_string_slot_store;
 mod array_string_slot_write;
 
 pub(super) use self::array_string_slot_indexof::{
-    array_string_indexof_by_index, array_string_len_by_index,
+    array_string_indexof_by_index, array_string_indexof_by_index_const_utf8,
+    array_string_len_by_index,
 };
 pub(super) use self::array_string_slot_store::{
     array_string_store_handle_at, array_string_store_kernel_text_slot_at,

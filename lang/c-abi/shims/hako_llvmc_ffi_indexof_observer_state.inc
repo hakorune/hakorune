@@ -87,6 +87,8 @@
         long long recv;
         long long idx;
         long long needle_reg;
+        int needle_const_utf8;
+        long long needle_byte_len;
       } deferred_array_string_indexof_select[128];
       int deferred_array_string_indexof_select_n = 0;
       struct DeferredArrayStringGetSource {
@@ -109,13 +111,17 @@
           size_t indexof_ii,
           long long recv,
           long long idx,
-          long long needle_reg) {
+          long long needle_reg,
+          int needle_const_utf8,
+          long long needle_byte_len) {
         struct DeferredArrayStringIndexofSelect* existing =
             find_deferred_array_string_indexof_select(bid, indexof_ii);
         if (existing) {
           existing->recv = recv;
           existing->idx = idx;
           existing->needle_reg = needle_reg;
+          existing->needle_const_utf8 = needle_const_utf8;
+          existing->needle_byte_len = needle_byte_len;
           return;
         }
         if (deferred_array_string_indexof_select_n >= (int)(sizeof(deferred_array_string_indexof_select) / sizeof(deferred_array_string_indexof_select[0]))) return;
@@ -126,6 +132,8 @@
         slot->recv = recv;
         slot->idx = idx;
         slot->needle_reg = needle_reg;
+        slot->needle_const_utf8 = needle_const_utf8;
+        slot->needle_byte_len = needle_byte_len;
       }
       auto void remember_array_string_get_source(long long dst, long long recv, long long idx) {
         dst = resolve_copy_source_reg(dst);

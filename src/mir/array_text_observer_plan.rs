@@ -82,6 +82,21 @@ impl std::fmt::Display for ArrayTextObserverResultRepr {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ArrayTextObserverArgRepr {
+    Value,
+    ConstUtf8 { text: String, byte_len: usize },
+}
+
+impl ArrayTextObserverArgRepr {
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Self::Value => "value",
+            Self::ConstUtf8 { .. } => "const_utf8",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextObserverRoute {
     pub block: BasicBlockId,
     pub observer_instruction_index: usize,
@@ -92,6 +107,8 @@ pub struct ArrayTextObserverRoute {
     pub source_value: ValueId,
     pub observer_kind: ArrayTextObserverKind,
     pub observer_arg0: ValueId,
+    pub observer_arg0_repr: ArrayTextObserverArgRepr,
+    pub observer_arg0_keep_live: bool,
     pub result_value: ValueId,
     pub consumer_shape: ArrayTextObserverConsumerShape,
     pub proof_region: ArrayTextObserverProofRegion,
@@ -149,6 +166,13 @@ fn match_array_text_indexof_route(
     let source_value = root(function, def_map, receiver_value);
     let (get_block, get_instruction_index, array_value, index_value) =
         match_array_get_source(function, def_map, source_value)?;
+    let observer_arg0_root = root(function, def_map, observer_arg0);
+    let observer_arg0_repr = const_utf8(function, def_map, observer_arg0_root)
+        .map(|text| ArrayTextObserverArgRepr::ConstUtf8 {
+            byte_len: text.len(),
+            text,
+        })
+        .unwrap_or(ArrayTextObserverArgRepr::Value);
 
     let consumer_shape = if has_found_predicate_consumer(function, def_map, result_value) {
         ArrayTextObserverConsumerShape::FoundPredicate
@@ -165,7 +189,16 @@ fn match_array_text_indexof_route(
         index_value,
         source_value,
         observer_kind: ArrayTextObserverKind::IndexOf,
-        observer_arg0: root(function, def_map, observer_arg0),
+        observer_arg0: observer_arg0_root,
+        observer_arg0_repr,
+        observer_arg0_keep_live: has_non_observer_value_use(
+            function,
+            def_map,
+            observer_arg0_root,
+            observer_arg0,
+            block,
+            observer_instruction_index,
+        ),
         result_value,
         consumer_shape,
         proof_region: ArrayTextObserverProofRegion::ArrayGetReceiverIndexOf,
@@ -298,6 +331,18 @@ fn const_i64(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> O
     }
 }
 
+fn const_utf8(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> Option<String> {
+    let value = root(function, def_map, value);
+    let (block, index) = def_map.get(&value).copied()?;
+    match function.blocks.get(&block)?.instructions.get(index)? {
+        MirInstruction::Const {
+            value: ConstValue::String(actual),
+            ..
+        } => Some(actual.clone()),
+        _ => None,
+    }
+}
+
 fn has_non_observer_source_use(
     function: &MirFunction,
     def_map: &ValueDefMap,
@@ -306,8 +351,26 @@ fn has_non_observer_source_use(
     observer_block: BasicBlockId,
     observer_instruction_index: usize,
 ) -> bool {
+    has_non_observer_value_use(
+        function,
+        def_map,
+        source_value,
+        observer_receiver_value,
+        observer_block,
+        observer_instruction_index,
+    )
+}
+
+fn has_non_observer_value_use(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    source_value: ValueId,
+    observer_value: ValueId,
+    observer_block: BasicBlockId,
+    observer_instruction_index: usize,
+) -> bool {
     let source_root = root(function, def_map, source_value);
-    let observer_chain = copy_chain_values(function, def_map, observer_receiver_value);
+    let observer_chain = copy_chain_values(function, def_map, observer_value);
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
     block_ids.sort();
     for block_id in block_ids {
@@ -409,6 +472,14 @@ mod tests {
         assert_eq!(route.index_value, ValueId::new(2));
         assert_eq!(route.source_value, ValueId::new(10));
         assert_eq!(route.observer_arg0, ValueId::new(11));
+        assert_eq!(
+            route.observer_arg0_repr,
+            ArrayTextObserverArgRepr::ConstUtf8 {
+                text: "line".to_string(),
+                byte_len: 4,
+            }
+        );
+        assert!(!route.observer_arg0_keep_live);
         assert_eq!(route.result_value, ValueId::new(12));
         assert_eq!(
             route.consumer_shape,
@@ -464,6 +535,24 @@ mod tests {
 
         let route = &function.metadata.array_text_observer_routes[0];
         assert!(route.keep_get_live);
+    }
+
+    #[test]
+    fn marks_observer_arg_live_when_const_is_used_elsewhere() {
+        let mut function = test_function(MirType::Integer);
+        let block = entry_block(&mut function);
+        block.add_instruction(array_get(10, 1, 2));
+        block.add_instruction(const_s(11, "needle"));
+        block.add_instruction(indexof_call(12, 10, 11));
+        block.add_instruction(len_call(13, 11));
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(12)),
+        });
+
+        refresh_function_array_text_observer_routes(&mut function);
+
+        let route = &function.metadata.array_text_observer_routes[0];
+        assert!(route.observer_arg0_keep_live);
     }
 
     fn test_function(return_type: MirType) -> MirFunction {

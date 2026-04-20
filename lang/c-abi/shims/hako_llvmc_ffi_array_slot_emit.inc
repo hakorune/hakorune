@@ -48,6 +48,13 @@
         hako_llvmc_emit_i64_call_result(f, "nyash.array.string_indexof_hih", dst, args);
       }
 
+      auto void hako_llvmc_emit_array_string_indexof_const_utf8(
+          FILE* f,
+          long long dst,
+          const char* args) {
+        hako_llvmc_emit_i64_call_result(f, "nyash.array.string_indexof_hisi", dst, args);
+      }
+
       auto void hako_llvmc_emit_array_slot_store(
           FILE* f,
           long long dst,

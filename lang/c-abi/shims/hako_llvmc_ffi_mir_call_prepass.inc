@@ -23,7 +23,11 @@
         (void)scan_org;
         if (!needs) return;
         if (match_array_text_observer_route_plan(bid, ii, &observer_route)) {
-          needs->arr_string_indexof = 1;
+          if (observer_route.observer_arg0_const_utf8) {
+            needs->arr_string_indexof_const_utf8 = 1;
+          } else {
+            needs->arr_string_indexof = 1;
+          }
         }
         needs->arr_get = 1;
         needs->arr_slot_load = 1;

@@ -4,7 +4,8 @@ use super::array_runtime_facade::{
 };
 use super::array_runtime_substrate::{
     array_runtime_cap, array_runtime_grow, array_runtime_len, array_runtime_push_any,
-    array_runtime_reserve, array_runtime_string_indexof_at, array_runtime_string_len_at,
+    array_runtime_reserve, array_runtime_string_indexof_at,
+    array_runtime_string_indexof_const_utf8_at, array_runtime_string_len_at,
 };
 
 // Mainline substrate aliases used by `.hako` collection owners and adapter defaults.
@@ -50,6 +51,16 @@ pub extern "C" fn nyash_array_string_indexof_hih_alias(
     needle_h: i64,
 ) -> i64 {
     array_runtime_string_indexof_at(handle, idx, needle_h)
+}
+
+#[export_name = "nyash.array.string_indexof_hisi"]
+pub extern "C" fn nyash_array_string_indexof_hisi_alias(
+    handle: i64,
+    idx: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+) -> i64 {
+    array_runtime_string_indexof_const_utf8_at(handle, idx, needle_ptr, needle_len)
 }
 
 #[export_name = "nyash.array.slot_append_hh"]

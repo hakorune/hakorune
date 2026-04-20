@@ -1,8 +1,8 @@
 use super::super::array_guard::valid_handle_idx;
 use super::super::array_handle_cache::with_array_box;
 use super::array_string_slot_helpers::{
-    array_text_read_ref_demand, string_indexof_fast_str, CachedNeedle,
-    ARRAY_STRING_INDEXOF_NEEDLE_CACHE,
+    array_text_read_ref_demand, string_indexof_fast_str, with_compiler_const_utf8_ptr_len,
+    CachedNeedle, ARRAY_STRING_INDEXOF_NEEDLE_CACHE,
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
 use nyash_rust::runtime::host_handles as handles;
@@ -47,6 +47,20 @@ pub(in super::super) fn array_string_indexof_by_index(handle: i64, idx: i64, nee
     with_cached_needle_str(needle_h, |needle| {
         array_string_indexof_by_index_str(handle, idx, needle)
     })
+}
+
+#[inline(always)]
+pub(in super::super) fn array_string_indexof_by_index_const_utf8(
+    handle: i64,
+    idx: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+) -> i64 {
+    let _demand = array_text_read_ref_demand();
+    with_compiler_const_utf8_ptr_len(needle_ptr, needle_len, |needle| {
+        array_string_indexof_by_index_str(handle, idx, needle)
+    })
+    .unwrap_or(-1)
 }
 
 #[inline(always)]

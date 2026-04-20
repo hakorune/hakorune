@@ -157,7 +157,7 @@ pub(super) fn build_mir_json_root(
                 })
             }).collect::<Vec<_>>(),
             "array_text_observer_routes": f.metadata.array_text_observer_routes.iter().map(|route| {
-                json!({
+                let mut obj = json!({
                     "block": route.block.as_u32(),
                     "observer_instruction_index": route.observer_instruction_index,
                     "get_block": route.get_block.as_u32(),
@@ -167,13 +167,22 @@ pub(super) fn build_mir_json_root(
                     "source_value": route.source_value.as_u32(),
                     "observer_kind": route.observer_kind.to_string(),
                     "observer_arg0": route.observer_arg0.as_u32(),
+                    "observer_arg0_repr": route.observer_arg0_repr.kind(),
+                    "observer_arg0_keep_live": route.observer_arg0_keep_live,
                     "result_value": route.result_value.as_u32(),
                     "consumer_shape": route.consumer_shape.to_string(),
                     "proof_region": route.proof_region.to_string(),
                     "publication_boundary": route.publication_boundary.to_string(),
                     "result_repr": route.result_repr.to_string(),
                     "keep_get_live": route.keep_get_live,
-                })
+                });
+                if let crate::mir::ArrayTextObserverArgRepr::ConstUtf8 { text, byte_len } =
+                    &route.observer_arg0_repr
+                {
+                    obj["observer_arg0_text"] = json!(text);
+                    obj["observer_arg0_byte_len"] = json!(byte_len);
+                }
+                obj
             }).collect::<Vec<_>>(),
             "array_string_store_micro_seed_route": f.metadata.array_string_store_micro_seed_route.as_ref().map(|route| {
                 json!({

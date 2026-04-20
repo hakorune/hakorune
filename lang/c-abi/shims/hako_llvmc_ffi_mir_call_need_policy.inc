@@ -13,6 +13,7 @@
         int arr_kernel_slot_concat_by_index;
         int arr_has;
         int arr_string_indexof;
+        int arr_string_indexof_const_utf8;
         int string_const_box;
         int string_len;
         int string_substring;

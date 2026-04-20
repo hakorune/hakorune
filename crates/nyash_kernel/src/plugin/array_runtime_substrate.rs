@@ -1,7 +1,10 @@
 use super::array_compat::nyash_array_length_h;
 use super::array_slot_append::array_slot_append_any;
 use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
-use super::array_string_slot::{array_string_indexof_by_index, array_string_len_by_index};
+use super::array_string_slot::{
+    array_string_indexof_by_index, array_string_indexof_by_index_const_utf8,
+    array_string_len_by_index,
+};
 
 // Mainline substrate-side Array forwarding.
 // Keep daily `.hako` owner routes separate from compat/runtime facade code so
@@ -41,4 +44,13 @@ pub(super) fn array_runtime_string_len_at(handle: i64, idx: i64) -> i64 {
 
 pub(super) fn array_runtime_string_indexof_at(handle: i64, idx: i64, needle_h: i64) -> i64 {
     array_string_indexof_by_index(handle, idx, needle_h)
+}
+
+pub(super) fn array_runtime_string_indexof_const_utf8_at(
+    handle: i64,
+    idx: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+) -> i64 {
+    array_string_indexof_by_index_const_utf8(handle, idx, needle_ptr, needle_len)
 }

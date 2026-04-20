@@ -16,16 +16,38 @@
         if (deferred_array_string_indexof) {
           append_i64_arg_ref(out, out_cap, deferred_array_string_indexof->recv, 1);
           append_i64_arg_ref(out, out_cap, deferred_array_string_indexof->idx, 0);
-          append_i64_arg_ref(out, out_cap, deferred_array_string_indexof->needle_reg, 0);
+          if (!deferred_array_string_indexof->needle_const_utf8) {
+            append_i64_arg_ref(out, out_cap, deferred_array_string_indexof->needle_reg, 0);
+          }
         } else if (recv) {
           append_i64_arg_ref(out, out_cap, recv, 1);
         }
+      }
+      auto void append_const_utf8_ptr_len_args(
+          char* out,
+          size_t out_cap,
+          long long reg,
+          long long byte_len,
+          int first) {
+        size_t used = strlen(out);
+        if (used >= out_cap || !reg || byte_len < 0) return;
+        snprintf(
+            out + used,
+            out_cap - used,
+            "%sptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld",
+            first ? "" : ", ",
+            byte_len + 1,
+            reg,
+            byte_len);
       }
       struct ArrayTextObserverRoutePlan {
         int matched;
         long long observer_bid;
         size_t observer_ii;
         long long observer_arg0;
+        int observer_arg0_const_utf8;
+        long long observer_arg0_byte_len;
+        int observer_arg0_keep_live;
         int keep_get_live;
       };
       auto int hako_llvmc_read_bool_key(yyjson_val* obj, const char* key) {
@@ -49,10 +71,14 @@
           yyjson_val* block_val = route ? yyjson_obj_get(route, "block") : NULL;
           yyjson_val* observer_index_val = route ? yyjson_obj_get(route, "observer_instruction_index") : NULL;
           yyjson_val* observer_arg0_val = route ? yyjson_obj_get(route, "observer_arg0") : NULL;
+          yyjson_val* observer_arg0_byte_len_val = route ? yyjson_obj_get(route, "observer_arg0_byte_len") : NULL;
+          const char* observer_arg0_repr = route ? read_str(route, "observer_arg0_repr") : NULL;
           const char* observer_kind = route ? read_str(route, "observer_kind") : NULL;
           const char* proof_region = route ? read_str(route, "proof_region") : NULL;
           const char* publication_boundary = route ? read_str(route, "publication_boundary") : NULL;
           const char* result_repr = route ? read_str(route, "result_repr") : NULL;
+          int observer_arg0_const_utf8 =
+              observer_arg0_repr && !strcmp(observer_arg0_repr, "const_utf8");
           if (!(get_block_val && get_index_val &&
                 yyjson_is_num(get_block_val) && yyjson_is_num(get_index_val))) {
             continue;
@@ -71,14 +97,56 @@
                 result_repr && !strcmp(result_repr, "scalar_i64"))) {
             return 0;
           }
+          if (observer_arg0_const_utf8 &&
+              !(observer_arg0_byte_len_val && yyjson_is_num(observer_arg0_byte_len_val))) {
+            return 0;
+          }
           if (out) {
             out->matched = 1;
             out->observer_bid = (long long)yyjson_get_sint(block_val);
             out->observer_ii = (size_t)yyjson_get_sint(observer_index_val);
             out->observer_arg0 = (long long)yyjson_get_sint(observer_arg0_val);
+            out->observer_arg0_const_utf8 = observer_arg0_const_utf8;
+            out->observer_arg0_byte_len = observer_arg0_const_utf8
+                ? (long long)yyjson_get_sint(observer_arg0_byte_len_val)
+                : 0;
+            out->observer_arg0_keep_live =
+                hako_llvmc_read_bool_key(route, "observer_arg0_keep_live");
             out->keep_get_live = hako_llvmc_read_bool_key(route, "keep_get_live");
           }
           return 1;
+        }
+        return 0;
+      }
+      auto int array_text_observer_const_arg_can_skip(long long reg) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (!fn_metadata || !reg) return 0;
+        routes = yyjson_obj_get(fn_metadata, "array_text_observer_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        reg = resolve_copy_source_reg(reg);
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* observer_arg0_val = route ? yyjson_obj_get(route, "observer_arg0") : NULL;
+          const char* observer_arg0_repr = route ? read_str(route, "observer_arg0_repr") : NULL;
+          if (!(observer_arg0_val && yyjson_is_num(observer_arg0_val))) continue;
+          if (!observer_arg0_repr || strcmp(observer_arg0_repr, "const_utf8") != 0) continue;
+          if ((long long)yyjson_get_sint(observer_arg0_val) != reg) continue;
+          if (hako_llvmc_read_bool_key(route, "observer_arg0_keep_live")) continue;
+          return 1;
+        }
+        return 0;
+      }
+      auto int array_text_observer_has_const_utf8_route(void) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "array_text_observer_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          const char* observer_arg0_repr = route ? read_str(route, "observer_arg0_repr") : NULL;
+          if (observer_arg0_repr && !strcmp(observer_arg0_repr, "const_utf8")) return 1;
         }
         return 0;
       }
@@ -126,7 +194,9 @@
               observer_route.observer_ii,
               recv,
               idx,
-              observer_route.observer_arg0);
+              observer_route.observer_arg0,
+              observer_route.observer_arg0_const_utf8,
+              observer_route.observer_arg0_byte_len);
           return 1;
         }
         return 0;
@@ -137,6 +207,22 @@
           long long dst,
           const char* args) {
         if (!deferred_array_string_indexof) return 0;
+        if (deferred_array_string_indexof->needle_const_utf8) {
+          char const_args[384];
+          const_args[0] = '\0';
+          append_i64_arg_ref(
+              const_args, sizeof(const_args), deferred_array_string_indexof->recv, 1);
+          append_i64_arg_ref(
+              const_args, sizeof(const_args), deferred_array_string_indexof->idx, 0);
+          append_const_utf8_ptr_len_args(
+              const_args,
+              sizeof(const_args),
+              deferred_array_string_indexof->needle_reg,
+              deferred_array_string_indexof->needle_byte_len,
+              0);
+          hako_llvmc_emit_array_string_indexof_const_utf8(f, dst, const_args);
+          return 1;
+        }
         hako_llvmc_emit_array_string_indexof(f, dst, args);
         return 1;
       }

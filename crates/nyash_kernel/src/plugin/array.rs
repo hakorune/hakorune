@@ -719,6 +719,31 @@ mod tests {
     }
 
     #[test]
+    fn string_indexof_const_utf8_alias_reads_string_slot_directly() {
+        let handle = new_array_handle();
+        let hay_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let needle = b"line";
+        let miss = b"none";
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, hay_handle), 1);
+        assert_eq!(
+            nyash_array_string_indexof_hisi_alias(handle, 0, needle.as_ptr() as *const i8, 4),
+            0
+        );
+        assert_eq!(
+            nyash_array_string_indexof_hisi_alias(handle, 0, miss.as_ptr() as *const i8, 4),
+            -1
+        );
+        assert_eq!(
+            nyash_array_string_indexof_hisi_alias(handle, -1, needle.as_ptr() as *const i8, 4),
+            -1
+        );
+    }
+
+    #[test]
     fn string_indexof_raw_alias_keeps_empty_needle_fail_safe_contract() {
         let handle = new_array_handle();
         let empty_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

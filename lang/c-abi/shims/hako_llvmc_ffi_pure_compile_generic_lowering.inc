@@ -24,6 +24,8 @@
               set_origin(dst, ORG_STRING);
               if (should_skip_string_const_box_for_concat_suffix(ii, ilen, insts, dst)) {
                 mark_hoisted_string_const_box_skip(dst);
+              } else if (array_text_observer_const_arg_can_skip(dst)) {
+                mark_hoisted_string_const_box_skip(dst);
               } else {
                 needs.string_const_box = 1;
               }
@@ -334,6 +336,10 @@
         if (!changed) break;
       }
 
+      if (array_text_observer_has_const_utf8_route()) {
+        needs.arr_string_indexof_const_utf8 = 1;
+      }
+
       // Cross-block refinement for string literal hoists.
       // Some literals are defined in an entry block but only consumed by a
       // single later concat/set window. The per-block pre-scan above cannot see
@@ -424,6 +430,7 @@
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (needs.arr_get || needs.arr_string_indexof || needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.arr_string_indexof_const_utf8) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hisi\"(i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_slot_load) fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
@@ -571,6 +578,12 @@
             const char* sval = get_str_const(dst);
             if (!sval) continue; // numeric const stays inlined
             if (should_skip_string_const_box_for_concat_suffix(ii, ilen, insts, dst)) continue;
+            if (should_skip_hoisted_string_const_box(dst)) {
+              set_type(dst, T_I64);
+              set_origin(dst, ORG_STRING);
+              set_scan_origin(dst, ORG_STRING);
+              continue;
+            }
             if (emit_string_const_box_result(f, dst)) continue;
             continue;
           }

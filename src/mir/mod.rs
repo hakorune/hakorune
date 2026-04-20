@@ -116,8 +116,9 @@ pub use array_text_loopcarry_plan::{
 };
 pub use array_text_observer_plan::{
     refresh_function_array_text_observer_routes, refresh_module_array_text_observer_routes,
-    ArrayTextObserverConsumerShape, ArrayTextObserverKind, ArrayTextObserverProofRegion,
-    ArrayTextObserverPublicationBoundary, ArrayTextObserverResultRepr, ArrayTextObserverRoute,
+    ArrayTextObserverArgRepr, ArrayTextObserverConsumerShape, ArrayTextObserverKind,
+    ArrayTextObserverProofRegion, ArrayTextObserverPublicationBoundary,
+    ArrayTextObserverResultRepr, ArrayTextObserverRoute,
 };
 pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
