@@ -136,6 +136,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
       if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) >= 1)) { yyjson_doc_free(d); break; }
       hako_llvmc_select_entry_runes(fn0, &selection);
+      if (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
+          hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0) {
+        yyjson_doc_free(d);
+        return 0;
+      }
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       struct { long long reg; long long val; } consts[1024]; size_t consts_n = 0;
       struct { long long reg; const char* val; } str_consts[512]; size_t str_consts_n = 0;

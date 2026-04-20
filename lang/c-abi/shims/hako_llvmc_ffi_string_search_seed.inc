@@ -333,6 +333,81 @@ static int hako_llvmc_match_indexof_ascii_seed_variant(
   return rc;
 }
 
+static int hako_llvmc_match_indexof_text_state_residence_fn(
+    yyjson_val* fn,
+    const char* obj_out,
+    const char* expected_variant,
+    const char* expected_proof,
+    int require_flip,
+    const char* trace_stage,
+    const char* trace_extra) {
+  hako_llvmc_entry_rune_selection selection;
+  hako_llvmc_indexof_search_micro_seed_route route;
+
+  if (!fn || !obj_out) return -1;
+  hako_llvmc_select_entry_runes(fn, &selection);
+  if (!hako_llvmc_read_indexof_search_micro_seed_route(
+          fn,
+          expected_variant,
+          expected_proof,
+          require_flip,
+          &route)) {
+    if (hako_llvmc_route_trace_enabled()) {
+      hako_llvmc_emit_route_trace(
+          trace_stage,
+          "skip",
+          "metadata_contract_mismatch",
+          "indexof_search_micro_seed_route");
+    }
+    return -1;
+  }
+
+  if (hako_llvmc_route_trace_enabled()) {
+    hako_llvmc_emit_route_trace(
+        trace_stage,
+        "emit",
+        "text_state_residence",
+        trace_extra);
+  }
+
+  return hako_llvmc_emit_indexof_seed_ir(
+      obj_out,
+      &selection,
+      route.rows,
+      route.ops,
+      route.flip_period,
+      route.line_seed,
+      route.line_seed_len,
+      route.none_seed,
+      route.none_seed_len);
+}
+
+static int hako_llvmc_match_indexof_leaf_text_state_residence_fn(
+    yyjson_val* fn,
+    const char* obj_out) {
+  return hako_llvmc_match_indexof_text_state_residence_fn(
+      fn,
+      obj_out,
+      "leaf",
+      "kilo_leaf_array_string_indexof_const_10block",
+      0,
+      "indexof_leaf_text_state_residence",
+      "kilo_leaf_array_string_indexof_const mir_route_plan");
+}
+
+static int hako_llvmc_match_indexof_line_text_state_residence_fn(
+    yyjson_val* fn,
+    const char* obj_out) {
+  return hako_llvmc_match_indexof_text_state_residence_fn(
+      fn,
+      obj_out,
+      "line",
+      "kilo_micro_indexof_line_15block",
+      1,
+      "indexof_line_text_state_residence",
+      "kilo_micro_indexof_line mir_route_plan");
+}
+
 static int hako_llvmc_match_indexof_leaf_ascii_seed(
     const char* json_in,
     const char* obj_out) {
