@@ -23,7 +23,7 @@ Current partitions:
 - `hako_llvmc_ffi_common.inc`
   - env, route-trace, file, and generic shared helpers
 - `hako_llvmc_ffi_string_metadata_fn_readers.inc`
-  - function-level string relation/plan readers used by exact seed bridges
+  - function-level string relation/metadata readers used by exact seed bridges
   - keeps string metadata JSON access out of the generic `common` owner
 - `hako_llvmc_ffi_string_candidate_plan_readers.inc`
   - register-rooted string candidate/plan readers used by legacy bridge and concat-policy consumers
@@ -118,6 +118,7 @@ Current partitions:
   - compiler-side mirror of `.hako` generic method `get` fallback route
 - `hako_llvmc_ffi_generic_method_get_window.inc`
   - compiler-state-heavy `GET` window helper bundle for producer-side probe logic
+  - new MIR metadata readers should use `*_route_metadata` naming; do not add new cross-boundary `*_route_plan` names here
 - `hako_llvmc_ffi_generic_method_get_lowering.inc`
   - thin `GET` dispatcher seam that consumes `get_policy` and `get_window`
 - `hako_llvmc_ffi_string_concat_window.inc`

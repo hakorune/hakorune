@@ -11,7 +11,7 @@
           long long dst,
           int scan_org,
           struct GenericPureNeedFlags* needs) {
-        struct ArrayTextObserverRoutePlan observer_route;
+        struct ArrayTextObserverRouteMetadata observer_route;
 
         (void)blocks;
         (void)ilen;
@@ -22,7 +22,7 @@
         (void)a0;
         (void)scan_org;
         if (!needs) return;
-        if (match_array_text_observer_route_plan(bid, ii, &observer_route)) {
+        if (match_array_text_observer_route_metadata(bid, ii, &observer_route)) {
           if (observer_route.observer_arg0_const_utf8) {
             needs->arr_string_indexof_const_utf8 = 1;
           } else {

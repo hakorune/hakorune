@@ -55,7 +55,7 @@
           out->skip_iis[out->skip_n++] = ii;
         }
       }
-      auto int match_array_text_loopcarry_len_store_route_plan(
+      auto int match_array_text_loopcarry_len_store_route_metadata(
           long long bid,
           size_t ii,
           struct ArrayStringLoopCarryLenStoreMatch* out) {
@@ -107,7 +107,7 @@
             hako_llvmc_emit_route_trace(
                 "array_string_loopcarry_len_store_window",
                 "hit",
-                "mir_route_plan",
+                "mir_route_metadata",
                 "");
           }
           return 1;

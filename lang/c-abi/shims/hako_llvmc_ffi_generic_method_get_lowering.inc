@@ -44,7 +44,7 @@
         if (hako_llvmc_window_array_text_read_enabled(
                 bname, recv_org, runtime_array_string)) {
           loopcarry_len_store_hit =
-              match_array_text_loopcarry_len_store_route_plan(
+              match_array_text_loopcarry_len_store_route_metadata(
                   bid, ii, &loopcarry_match);
         }
         if (loopcarry_len_store_hit) {

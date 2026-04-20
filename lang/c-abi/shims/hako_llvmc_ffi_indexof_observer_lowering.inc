@@ -40,7 +40,7 @@
             reg,
             byte_len);
       }
-      struct ArrayTextObserverRoutePlan {
+      struct ArrayTextObserverRouteMetadata {
         int matched;
         long long observer_bid;
         size_t observer_ii;
@@ -54,10 +54,10 @@
         yyjson_val* value = obj ? yyjson_obj_get(obj, key) : NULL;
         return value && yyjson_is_bool(value) ? yyjson_get_bool(value) : 0;
       }
-      auto int match_array_text_observer_route_plan(
+      auto int match_array_text_observer_route_metadata(
           long long get_bid,
           size_t get_ii,
-          struct ArrayTextObserverRoutePlan* out) {
+          struct ArrayTextObserverRouteMetadata* out) {
         yyjson_val* routes = NULL;
         size_t ri = 0;
         if (out) memset(out, 0, sizeof(*out));
@@ -165,7 +165,7 @@
           int recv_org,
           int runtime_array_string,
           unsigned char* skip_inst) {
-        struct ArrayTextObserverRoutePlan observer_route;
+        struct ArrayTextObserverRouteMetadata observer_route;
         char keep_ab[128];
         (void)blocks;
         (void)ilen;
@@ -175,7 +175,7 @@
         (void)recv_org;
         (void)runtime_array_string;
         (void)skip_inst;
-        if (match_array_text_observer_route_plan(bid, ii, &observer_route)) {
+        if (match_array_text_observer_route_metadata(bid, ii, &observer_route)) {
           if (dst) {
             set_type(dst, T_I64);
             set_origin(dst, ORG_STRING);
