@@ -50,14 +50,33 @@ ledger details; current implementation work should start here.
   - no runtime/session helper change
   - no `.inc` route change
 
+## H25b Landed
+
+- Worker design check rejected a direct long-lived runtime begin/end ABI as the
+  next step:
+  - `ArrayStorage` and write guards are private runtime mechanics.
+  - exporting/storing guards across C ABI calls would require unsafe lifetime
+    or self-referential state.
+  - `.inc` cannot infer preheader/exit placement from CFG without becoming a
+    planner again.
+- Extended `array_text_residence_sessions` as MIR-owned placement metadata:
+  - `begin_block` + `begin_placement=before_preheader_jump`
+  - `update_block` + `update_instruction_index` +
+    `update_placement=route_instruction`
+  - `end_block` + `end_placement=exit_block_entry`
+  - `skip_instruction_indices`
+- H25b remains behavior-preserving. The backend can now lower begin/update/end
+  later without rediscovering loop shape from raw MIR.
+
 ## Next Slice
 
-H25b should design and implement begin/update/end lowering against the session
-metadata. Do not edit runtime first.
+H25c should design the smallest backend/runtime keeper against H25b placement
+metadata. Do not add a public begin/end ABI unless the runtime session can stay
+executor-only and closure-scoped.
 
 Required order:
-1. Define the backend metadata consumption shape.
-2. Add runtime-private session executor surface only as needed by that shape.
+1. Define the `.inc` metadata reader for H25b placement fields.
+2. Add runtime-private session executor surface only as needed by that reader.
 3. Keep MIR metadata as the only legality source.
 4. Rerun exact timing and asm after any behavior change.
 
@@ -87,4 +106,3 @@ active:
 
 Retire them after H25 either lands a session keeper or rejects the session
 hypothesis. Do not add a new env var for them.
-

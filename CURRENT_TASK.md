@@ -387,7 +387,12 @@ Scope: current lane / next lane / restart order only.
       - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
       - ownership map: `docs/development/current/main/phases/phase-137x/137x-array-text-contract-map.md`
       - H25a landed metadata-only `array_text_residence_sessions`; `.inc` and runtime behavior are unchanged
-      - next slice: begin/update/end lowering against the MIR session metadata
+      - H25b landed MIR-owned begin/update/end placement metadata:
+        - `begin_placement=before_preheader_jump`
+        - `update_placement=route_instruction`
+        - `end_placement=exit_block_entry`
+        - `skip_instruction_indices`
+      - next slice: H25c `.inc` metadata reader plus the smallest runtime-private executor surface
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

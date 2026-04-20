@@ -21,6 +21,12 @@ and ownership map, not a second semantic source.
   - owns H25 residence-session eligibility derived from MIR route metadata.
   - emits `array_text_residence_sessions`.
   - current active proof: `loopcarry_len_store_only`.
+  - H25b placement fields:
+    - `begin_block` / `begin_placement=before_preheader_jump`
+    - `update_block` / `update_instruction_index`
+    - `end_block` / `end_placement=exit_block_entry`
+    - `skip_instruction_indices`
+  - backend must consume these fields instead of deriving preheader/exit shape.
 - `src/mir/array_text_observer_plan.rs`
   - owns generic read-side observer legality.
   - current use: `array_text_observer_routes`.
@@ -49,7 +55,7 @@ and ownership map, not a second semantic source.
   - must not rediscover route legality by scanning raw shape.
 - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_lowering.inc`
   - may emit the selected helper calls and skip covered instructions.
-  - H25b may add begin/update/end emission only after metadata is fixed.
+  - H25c may add begin/update/end emission against H25b placement metadata.
 
 ## Forbidden Drift
 
@@ -58,4 +64,3 @@ and ownership map, not a second semantic source.
 - `.inc` exact matcher revival for loopcarry session
 - semantic/search-result caches
 - loop-wide session without explicit MIR lifetime/alias/publication contract
-

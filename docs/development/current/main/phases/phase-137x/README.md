@@ -1455,6 +1455,17 @@ H25a result (2026-04-21):
   - `cargo test -q benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route -- --nocapture`
   - `cargo run -q --bin hakorune -- --emit-mir-json target/perf_state/h25_loopcarry.mir.json benchmarks/bench_kilo_meso_substring_concat_array_set_loopcarry.hako` emits one `array_text_residence_sessions` entry.
 
+H25b result (2026-04-21):
+- Worker design check rejected implementing long-lived runtime begin/end guard calls directly:
+  - runtime write guards must not leak across C ABI call boundaries.
+  - `.inc` must not infer preheader/exit placement from raw CFG.
+- Extended `array_text_residence_sessions` with MIR-owned placement metadata:
+  - `begin_block` / `begin_to_header_block` / `begin_placement=before_preheader_jump`
+  - `update_block` / `update_instruction_index` / `update_placement=route_instruction`
+  - `end_block` / `end_placement=exit_block_entry`
+  - `skip_instruction_indices`
+- Behavior remains unchanged. H25c may consume the metadata in `.inc` and add a runtime-private executor surface without making `.inc` a planner.
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
