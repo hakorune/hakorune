@@ -757,7 +757,7 @@ Decision:
 - MIR owns the string search exact seed route proof as function metadata.
 - Metadata payload: `variant`, `rows`, `ops`, `line_seed`, `line_seed_len`, `none_seed`, `none_seed_len`, `needle`, `needle_len`, optional `flip_period`, and proof name.
 - `.inc` may keep the temporary specialized emitters for now, but it must select them only from MIR metadata and must not rescan raw blocks/instructions for route legality.
-- `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED` remains a backend guard for the line seed bridge; it does not authorize C-side rediscovery.
+- Historical guard: `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED` remained a backend guard while generic lowering was slower; H15.7 retires it after the text-state residence route reaches keeper speed.
 
 First slice plan:
 - add `FunctionMetadata.indexof_search_micro_seed_route`
@@ -839,7 +839,7 @@ Decision:
 
 First slice plan:
 - replace `hako_llvmc_emit_indexof_leaf_ir(...)` and `hako_llvmc_emit_indexof_line_ir(...)` with one `hako_llvmc_emit_indexof_seed_ir(...)`
-- keep leaf/line matcher functions as metadata consumers only, because route gating and `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED` still live at dispatch level
+- keep leaf/line matcher functions as metadata consumers only, because route gating and the temporary backend guard still live at dispatch level in this slice
 - verify leaf and line micro fronts remain green before considering exact bridge deletion
 
 First slice result:
@@ -858,10 +858,10 @@ Verification:
 
 Problem:
 - H14.2 collapsed the actual emitter, but `hako_llvmc_match_indexof_leaf_ascii_seed(...)` and `hako_llvmc_match_indexof_line_ascii_seed(...)` still duplicate the same JSON parse, metadata validation, trace emission, and emitter call.
-- Deleting the exact bridge is not yet keeper-safe: with `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1`, `kilo_micro_indexof_line` remains correct but falls back to `C 5 ms / Ny AOT 11 ms`.
+- Deleting the exact bridge is not yet keeper-safe in this slice: with `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1`, `kilo_micro_indexof_line` remains correct but falls back to `C 5 ms / Ny AOT 11 ms`. H15.7 supersedes this after text-state residence reaches keeper speed.
 
 Decision:
-- Keep the leaf/line wrapper names as dispatch-level surfaces.
+- Keep the leaf/line wrapper names as dispatch-level surfaces for this slice.
 - Move shared parse/validation/trace/emitter mechanics into one `hako_llvmc_match_indexof_ascii_seed_variant(...)` helper.
 - Do not add a new env guard and do not reopen C-side route proof/action; wrappers may only provide variant/proof/trace constants.
 
@@ -887,15 +887,16 @@ Verification:
 
 - Active cleanup lane:
   - MIR owns `array_text_observer_routes`
-  - exact bridge stays quarantine in `indexof_search_micro_seed_route`
+  - exact dispatch bridge is retired in H15.7
+  - remaining text-state residence temporary emitter/payload stays quarantined under `array_text_state_residence_route.temporary_indexof_seed_payload`
   - `array_text_state_residence_route` is now a real `FunctionMetadata` field, not a JSON alias of the exact bridge key
   - `array_text_state_residence_route` top-level now contains only the generic residence contract; exact proof/action/literal data is quarantined under `temporary_indexof_seed_payload`
   - raw observer analyzer/trace `.inc` files are removed from active compilation; active observer lowering consumes MIR metadata only
-  - next step: delete or fixture the remaining exact search bridge after exact and seed-off keeper gates stay green
+  - next step: decide whether to rename/quarantine the remaining temporary emitter surface or lift its payload source away from `indexof_search_micro_seed_route`
 - Detailed H15.1-H15.3 history and the H15.4-H15.7 order live in [137x-96-h15-array-text-residence-cleanup.md](./137x-96-h15-array-text-residence-cleanup.md).
 - Current gate:
-  - `hako_llvmc_ffi_string_search_seed.inc` remains the explicit delete candidate
-  - deletion stays blocked until generic `array_text_observer_routes` plus `ArrayStorage::Text` cover leaf and line fronts at keeper speed
+  - `hako_llvmc_ffi_string_search_seed.inc` remains quarantined as the temporary text-state residence payload reader/emitter
+  - further deletion stays blocked until MIR no longer needs the exact `indexof_search_micro_seed_route` payload as the source for residence emission
 
 ## Legacy Retirement Ledger
 
@@ -912,7 +913,7 @@ Rules:
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
 | `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed emitter | temporary bridge surface | Pure-first array/string-store micro seed still has a specialized stack-array emitter for the current micro front; the route-shape proof is now MIR-owned metadata, not a C-side scanner. | Delete after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed emitter into an explicit legacy regression fixture with failure expectation. |
-| `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` exact search bridge | temporary bridge surface | Leaf/line `indexOf` micro fronts still use one specialized emitter, but route proof, predicate action, and wrapper selection are MIR-owned `indexof_search_micro_seed_route` metadata plus constants-only dispatch wrappers. H15 moved the active generic observer prepass/get-lowering path to `array_text_observer_routes`; this bridge now exists only for keeper-speed exact emission. | Delete after generic `array_text_observer_routes` + `ArrayStorage::Text` lowering covers leaf and line fronts at keeper speed, or move the bridge into an explicit legacy regression fixture with failure expectation. |
+| `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` text-state residence temporary emitter | temporary bridge surface | The exact leaf/line dispatch bridge and backend env guard are retired in H15.7. The file remains because current residence emission still consumes `array_text_state_residence_route.temporary_indexof_seed_payload`, which is derived from the exact seed route. | Delete or rename after MIR owns a non-exact residence payload and `.inc` can emit from generic residence metadata without `temporary_indexof_seed_payload`. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
@@ -930,6 +931,8 @@ Rules:
 - shrunk in `137x-H14.3`: leaf/line matcher wrappers now call `hako_llvmc_match_indexof_ascii_seed_variant(...)`; shared parse/validation/trace/emitter mechanics are no longer duplicated.
 - opened in `137x-H15`: generic `array_text_observer_routes` becomes the deletion path for the remaining exact search bridge; MIR owns observer legality/provenance/consumer facts while `.inc` stays helper selection and emit only.
 - shrunk in `137x-H15`: active indexOf observer prepass/get lowering now consumes `array_text_observer_routes`; raw C scanner calls are absent from those active surfaces. The specialized exact bridge remains until the generic route is keeper-fast.
+- retired in `137x-H15`: unused raw observer analyzer/trace `.inc` files are deleted; active observer lowering includes only metadata defer state and metadata consumer lowering.
+- retired in `137x-H15.7`: exact leaf/line search dispatch wrappers and backend env `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED` are deleted; exact and compatibility-skip runs now route through `array_text_state_residence_route`.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

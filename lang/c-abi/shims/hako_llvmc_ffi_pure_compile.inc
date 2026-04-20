@@ -31,13 +31,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_array_string_store_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
-  if (hako_llvmc_match_indexof_leaf_ascii_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (!hako_llvmc_skip_indexof_line_seed_enabled() &&
-      hako_llvmc_match_indexof_line_ascii_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
   if (hako_llvmc_match_array_rmw_add1_leaf_seed(json_in, obj_out) == 0) {
     return 0;
   }

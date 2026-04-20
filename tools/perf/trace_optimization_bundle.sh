@@ -17,7 +17,7 @@ Options:
   --lookahead <N>                 MIR window lookahead size (default: 8)
   --microasm-runs <N>             Optional perf-record runs on the same built exe (default: 0)
   --symbol <name>                 Optional symbol filter for symbol/perf annotate notes
-  --skip-indexof-line-seed        Diagnostic only: bypass the dedicated indexOf("line") seed
+  --skip-indexof-line-seed        Retired compatibility flag; indexOf("line") now uses text-state residence
   --timeout-secs <N>              Source emit timeout when --input is used (default: 60)
   --out-dir <dir>                 Bundle output directory
 
@@ -339,7 +339,6 @@ env \
   HAKO_V1_EXTERN_PROVIDER_C_ABI="${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}" \
   HAKO_BACKEND_COMPILE_RECIPE="${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}" \
   HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}" \
-  NYASH_LLVM_SKIP_INDEXOF_LINE_SEED="${SKIP_INDEXOF_LINE_SEED}" \
   NYASH_LLVM_DUMP_IR="${LL_DUMP}" \
   bash "${NY_MIR_BUILDER}" \
     --in "${MIR_JSON}" \
@@ -452,9 +451,9 @@ with open(out_path, "w", encoding="utf-8") as out:
             out.write(f"[hot-block-residue/item] label={label} count={text.count(needle)} needle={needle}\n")
 PY
 
-OWNER_ROUTE="seed"
+OWNER_ROUTE="text_state_residence"
 if [[ "${SKIP_INDEXOF_LINE_SEED}" -eq 1 ]]; then
-  OWNER_ROUTE="generic_probe"
+  OWNER_ROUTE="text_state_residence_retired_skip_flag"
 fi
 FIRST_BLOCKER="$(python3 - "${RECIPE_ACCEPTANCE_OUT}" <<'PY'
 import re

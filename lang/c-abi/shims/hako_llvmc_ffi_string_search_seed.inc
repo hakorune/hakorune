@@ -174,29 +174,6 @@ static int hako_llvmc_read_indexof_candidate_outcomes(
   return out->line_seed_outcome && out->none_seed_outcome;
 }
 
-static yyjson_val* hako_llvmc_indexof_search_seed_find_main(
-    yyjson_doc* doc,
-    hako_llvmc_entry_rune_selection* selection) {
-  yyjson_val* root;
-  yyjson_val* fns;
-  size_t i;
-
-  if (!doc) return NULL;
-  root = yyjson_doc_get_root(doc);
-  fns = yyjson_obj_get(root, "functions");
-  if (!(fns && yyjson_is_arr(fns))) return NULL;
-
-  for (i = 0; i < yyjson_arr_size(fns); i++) {
-    yyjson_val* candidate = yyjson_arr_get(fns, i);
-    const char* name = candidate ? yyjson_get_str(yyjson_obj_get(candidate, "name")) : NULL;
-    if (name && strcmp(name, "main") == 0) {
-      hako_llvmc_select_entry_runes(candidate, selection);
-      return candidate;
-    }
-  }
-  return NULL;
-}
-
 static int hako_llvmc_validate_array_text_state_residence_contract(yyjson_val* route) {
   const char* observer_kind;
   const char* residence;
@@ -218,10 +195,8 @@ static int hako_llvmc_validate_array_text_state_residence_contract(yyjson_val* r
          hako_llvmc_str_eq(publication_boundary, "none");
 }
 
-static int hako_llvmc_read_indexof_route_contract(
+static int hako_llvmc_read_indexof_state_residence_contract(
     yyjson_val* fn,
-    const char* route_key,
-    const char* temporary_payload_key,
     const char* expected_variant,
     const char* expected_proof,
     int require_flip,
@@ -233,16 +208,14 @@ static int hako_llvmc_read_indexof_route_contract(
   long long actual_none_seed_len = 0;
   long long actual_needle_len = 0;
 
-  if (!fn || !route_key || !expected_variant || !expected_proof || !out) return 0;
+  if (!fn || !expected_variant || !expected_proof || !out) return 0;
   memset(out, 0, sizeof(*out));
   metadata = yyjson_obj_get(fn, "metadata");
-  route = metadata ? yyjson_obj_get(metadata, route_key) : NULL;
+  route = metadata ? yyjson_obj_get(metadata, "array_text_state_residence_route") : NULL;
   if (!(route && yyjson_is_obj(route))) return 0;
-  if (temporary_payload_key) {
-    if (!hako_llvmc_validate_array_text_state_residence_contract(route)) return 0;
-    route = yyjson_obj_get(route, temporary_payload_key);
-    if (!(route && yyjson_is_obj(route))) return 0;
-  }
+  if (!hako_llvmc_validate_array_text_state_residence_contract(route)) return 0;
+  route = yyjson_obj_get(route, "temporary_indexof_seed_payload");
+  if (!(route && yyjson_is_obj(route))) return 0;
 
   out->variant = yyjson_get_str(yyjson_obj_get(route, "variant"));
   out->rows = (long long)yyjson_get_sint(yyjson_obj_get(route, "rows"));
@@ -305,64 +278,6 @@ static int hako_llvmc_read_indexof_route_contract(
   return 1;
 }
 
-static int hako_llvmc_match_indexof_ascii_seed_variant(
-    const char* json_in,
-    const char* obj_out,
-    const char* expected_variant,
-    const char* expected_proof,
-    int require_flip,
-    const char* trace_stage,
-    const char* trace_extra) {
-  yyjson_read_err rerr;
-  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
-  yyjson_val* fn;
-  hako_llvmc_entry_rune_selection selection;
-  hako_llvmc_indexof_route_contract route;
-  int rc;
-
-  if (!doc) return -1;
-  fn = hako_llvmc_indexof_search_seed_find_main(doc, &selection);
-  if (!hako_llvmc_read_indexof_route_contract(
-          fn,
-          "indexof_search_micro_seed_route",
-          NULL,
-          expected_variant,
-          expected_proof,
-          require_flip,
-          &route)) {
-    if (hako_llvmc_route_trace_enabled()) {
-      hako_llvmc_emit_route_trace(
-          trace_stage,
-          "skip",
-          "metadata_contract_mismatch",
-          "indexof_search_micro_seed_route");
-    }
-    yyjson_doc_free(doc);
-    return -1;
-  }
-
-  if (hako_llvmc_route_trace_enabled()) {
-    hako_llvmc_emit_route_trace(
-        trace_stage,
-        "emit",
-        "exact_match",
-        trace_extra);
-  }
-
-  rc = hako_llvmc_emit_indexof_seed_ir(
-      obj_out,
-      &selection,
-      route.rows,
-      route.ops,
-      route.flip_period,
-      route.line_seed,
-      route.line_seed_len,
-      route.none_seed,
-      route.none_seed_len);
-  yyjson_doc_free(doc);
-  return rc;
-}
-
 static int hako_llvmc_match_indexof_text_state_residence_fn(
     yyjson_val* fn,
     const char* obj_out,
@@ -376,10 +291,8 @@ static int hako_llvmc_match_indexof_text_state_residence_fn(
 
   if (!fn || !obj_out) return -1;
   hako_llvmc_select_entry_runes(fn, &selection);
-  if (!hako_llvmc_read_indexof_route_contract(
+  if (!hako_llvmc_read_indexof_state_residence_contract(
           fn,
-          "array_text_state_residence_route",
-          "temporary_indexof_seed_payload",
           expected_variant,
           expected_proof,
           require_flip,
@@ -437,31 +350,5 @@ static int hako_llvmc_match_indexof_line_text_state_residence_fn(
       "kilo_micro_indexof_line_15block",
       1,
       "indexof_line_text_state_residence",
-      "kilo_micro_indexof_line mir_route_plan");
-}
-
-static int hako_llvmc_match_indexof_leaf_ascii_seed(
-    const char* json_in,
-    const char* obj_out) {
-  return hako_llvmc_match_indexof_ascii_seed_variant(
-      json_in,
-      obj_out,
-      "leaf",
-      "kilo_leaf_array_string_indexof_const_10block",
-      0,
-      "indexof_leaf_micro",
-      "kilo_leaf_array_string_indexof_const mir_route_plan");
-}
-
-static int hako_llvmc_match_indexof_line_ascii_seed(
-    const char* json_in,
-    const char* obj_out) {
-  return hako_llvmc_match_indexof_ascii_seed_variant(
-      json_in,
-      obj_out,
-      "line",
-      "kilo_micro_indexof_line_15block",
-      1,
-      "indexof_line_micro",
       "kilo_micro_indexof_line mir_route_plan");
 }
