@@ -237,6 +237,42 @@ Verification:
 - `tools/checks/dev_gate.sh quick` PASS
 - note: full `cargo fmt --check` still reports pre-existing observe-module formatting drift; this slice does not rewrite those files.
 
+## 137x-H3 Exact Array-String-Store Emitted Length Seam
+
+Status: closed.
+
+Scope:
+- shrink only the temporary `kilo_micro_array_string_store` exact seed bridge
+- remove the emitted per-iteration `strlen(slot)` from the specialized stack-array IR
+- use only facts already proven by the bridge guard: `seed_len == 16`, `size == 128`, `ops == 800000`, and the store writes `seed + "xy"` plus nul
+- do not widen route matching, do not add semantic legality, and do not promote this bridge into keeper architecture
+
+Perf-first baseline:
+- `tools/checks/dev_gate.sh quick` PASS before the slice
+- `kilo_micro_array_string_store = C 10 ms / Ny AOT 10 ms`
+- `ny_aot_instr=26917228`, `ny_aot_cycles=34122757`
+- exact `ny_main` top owner is `__strlen_evex 53.84%`; annotated loop calls `strlen@plt` after copying the known 18-byte slot payload
+
+Acceptance:
+- `phase137x_direct_emit_array_store_string_contract.sh` still proves exact seed emitter selection and no runtime/public helper calls in `ny_main`
+- regenerated exact asm has no `strlen@plt` call in `ny_main`
+- exact micro perf does not regress in instructions or wall time
+- `tools/checks/dev_gate.sh quick` stays green
+
+Implementation:
+- `hako_llvmc_emit_array_string_store_micro_ir(...)` now derives `store_len = seed_len + 2` after the exact bridge guard and emits that constant into the sum update.
+- the emitted IR no longer declares or calls `strlen`; the exact bridge still only accepts the compact guarded micro shape.
+
+Verification:
+- `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh` PASS
+- `bash tools/perf/build_perf_release.sh` PASS
+- `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 9 ms`
+  - `ny_aot_instr=18866112`, `ny_aot_cycles=27213979`
+- `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_array_string_store 'ny_main' 3`:
+  - top owner moved to `ny_main 99.19%`
+  - annotated `ny_main` has no `strlen@plt`; the sum update is `addq $0x12`
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

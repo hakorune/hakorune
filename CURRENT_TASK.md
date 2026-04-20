@@ -81,8 +81,19 @@ Scope: current lane / next lane / restart order only.
       - keep the remaining Rust-side `MIR(JSON text) -> object path` route as an explicit backend boundary
       - exact seed bridge deletion remains blocked until active array-string store coverage is proven outside the exact matcher
       - verification: targeted `rustfmt --check`, `git diff --check`, `cargo check -q`, `cargo check -q -p nyash_kernel`, `phase137x_direct_emit_array_store_string_contract.sh`, and `tools/checks/dev_gate.sh quick` passed
+    - `137x-H3` exact array-string-store emitted length seam is closed
+      - perf-first baseline:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 10 ms`
+        - `ny_aot_instr=26917228`, `ny_aot_cycles=34122757`
+        - `ny_main` asm/top owner: `__strlen_evex 53.84%`, `ny_main 45.10%`
+      - implementation: the temporary exact seed bridge now emits the shape-known stored text length (`seed_len + 2`) instead of per-iteration `strlen(slot)`
+      - result:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 9 ms`
+        - `ny_aot_instr=18866112`, `ny_aot_cycles=27213979`
+        - regenerated exact asm has no `strlen@plt` call in `ny_main`
+      - guard held: no bridge widening, no new route legality, and no keeper-architecture promotion
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - next implementation blocker is `137x-H` owner-first optimization return
+    - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

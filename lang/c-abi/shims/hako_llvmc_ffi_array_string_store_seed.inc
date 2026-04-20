@@ -8,10 +8,14 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   char llpath[1024];
   FILE* f;
   int rc;
+  long long store_len;
+  long long store_bytes;
 
   if (!obj_out || !seed || seed_len != 16 || size != 128 || ops != 800000) {
     return -1;
   }
+  store_len = seed_len + 2;
+  store_bytes = store_len + 1;
 
   snprintf(
       llpath,
@@ -25,7 +29,7 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   fprintf(f, "; nyash minimal pure IR (array string-store micro)\n");
   fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
   fprintf(f, "declare void @llvm.memcpy.p0.p0.i64(ptr nocapture writeonly, ptr nocapture readonly, i64, i1 immarg)\n");
-  fprintf(f, "declare i64 @strlen(ptr)\n\n");
+  fprintf(f, "\n");
 
   fprintf(f, "@.array_string_seed = private unnamed_addr constant [%lld x i8] c\"", seed_len);
   hako_llvmc_emit_llvm_byte_string(f, seed, seed_len);
@@ -91,10 +95,9 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   fprintf(f, "  store i8 121, ptr %%out.17, align 1\n");
   fprintf(f, "  %%out.18 = getelementptr inbounds i8, ptr %%out.ptr, i64 18\n");
   fprintf(f, "  store i8 0, ptr %%out.18, align 1\n");
-  fprintf(f, "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%slot, ptr align 16 %%out.ptr, i64 19, i1 false)\n");
-  fprintf(f, "  %%len = call i64 @strlen(ptr %%slot)\n");
+  fprintf(f, "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%slot, ptr align 16 %%out.ptr, i64 %lld, i1 false)\n", store_bytes);
   fprintf(f, "  %%sum.cur = load volatile i64, ptr %%sum, align 8\n");
-  fprintf(f, "  %%sum.next = add i64 %%sum.cur, %%len\n");
+  fprintf(f, "  %%sum.next = add i64 %%sum.cur, %lld\n", store_len);
   fprintf(f, "  store volatile i64 %%sum.next, ptr %%sum, align 8\n");
   fprintf(f, "  %%text.shift = getelementptr inbounds i8, ptr %%out.ptr, i64 2\n");
   fprintf(
