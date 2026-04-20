@@ -16,6 +16,7 @@ Status:
 - H15.7 retired the exact leaf/line C dispatch bridge and backend env guard; all active line exact runs enter through `array_text_state_residence_route`.
 - H15.8 renamed the remaining backend surface to `hako_llvmc_ffi_indexof_text_state_residence.inc`.
 - H15.9 retired exported `indexof_search_micro_seed_route`; the residence route is the only backend metadata owner.
+- H15 closeout is closed; `temporary_indexof_seed_payload` remains an explicit, fixture-backed temporary payload until a generic residence emitter replaces it.
 
 Current owners:
 - MIR side: `array_text_state_residence_route` top-level is generic contract only; exact proof/action/literals live under `temporary_indexof_seed_payload`.
@@ -31,7 +32,14 @@ Fixed order:
 4. H15.7 retire the exact search dispatch bridge only after exact and compatibility-skip keeper gates stay green. Closed.
 5. H15.8 rename/quarantine the remaining text-state residence temporary emitter. Closed.
 6. H15.9 lift the residence payload source away from exported `indexof_search_micro_seed_route`. Closed.
-7. H15 closeout: keep `temporary_indexof_seed_payload` as the explicit, fixture-backed payload until a generic residence emitter replaces it. Next.
+7. H15 closeout: keep `temporary_indexof_seed_payload` as the explicit, fixture-backed payload until a generic residence emitter replaces it. Closed.
+
+Closeout verdict:
+- `array_text_state_residence_route` is the only exported backend route owner for this path.
+- `.inc` no longer rediscovers raw `indexOf` legality or exact leaf/line dispatch shape.
+- `hako_llvmc_ffi_indexof_text_state_residence.inc` remains a temporary payload reader/emitter, not a route owner.
+- `temporary_indexof_seed_payload` is not generic MIR truth; it is a quarantined fixture-backed payload carried only until the emitter becomes generic.
+- Next lane returns to owner-first kilo optimization; rerun perf evidence before source edits.
 
 Acceptance:
 - `cargo test indexof_search_micro_seed --lib`
@@ -77,3 +85,4 @@ Latest result:
 - H15.9 trace: MIR JSON has no `indexof_search_micro_seed_route`; `array_text_state_residence_route` still exports `temporary_indexof_seed_payload`; route trace emits `stage=indexof_line_text_state_residence reason=text_state_residence`.
 - H15.9 perf: `kilo_micro_indexof_line = C 4 ms / Ny AOT 3 ms`.
 - H15.9 checks: `cargo test indexof_search_micro_seed --lib`, `cargo test array_text_state_residence --lib`, `bash tools/perf/build_perf_release.sh`, `tools/checks/current_state_pointer_guard.sh`, `tools/checks/dev_gate.sh quick`, and `git diff --check` passed.
+- H15 closeout result: no new route owner is opened; the temporary payload stays ledgered while active implementation returns to `137x-H owner-first optimization return`.

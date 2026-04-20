@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H15 array text-state residence cleanup)
+  - `phase-137x-H owner-first optimization return` (active; post-H15 owner-first perf reread)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -216,7 +216,7 @@ Scope: current lane / next lane / restart order only.
       - result: leaf/line wrappers are now thin constants-only dispatch surfaces; shared parse/validation/trace/emitter mechanics live in `hako_llvmc_match_indexof_ascii_seed_variant(...)`
       - verification: `git diff --check`, `bash tools/perf/build_perf_release.sh`, `tools/checks/dev_gate.sh quick`, exact `kilo_leaf_array_string_indexof_const` microstat (`C 5 ms / Ny AOT 4 ms`), and exact `kilo_micro_indexof_line` microstat (`C 4 ms / Ny AOT 4 ms`) passed
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - `137x-H15` generic array/text observer route is active
+    - `137x-H15` generic array/text observer route is closed
       - problem: the remaining exact search bridge is thin, but the generic path still lacks a MIR-owned read-side observer contract for `array.get(i).indexOf(needle)`
       - decision: MIR owns `array_text_observer_routes` with legality/provenance/consumer facts; first consumer is `observer_kind=indexof`
       - guard: `.inc` may consume route metadata and map it to helper calls, but it must not rediscover raw `indexOf` windows or make helper symbols the MIR truth
@@ -240,10 +240,11 @@ Scope: current lane / next lane / restart order only.
       - eighth slice verification: post-rename route trace still emits `indexof_line_text_state_residence`; `kilo_micro_indexof_line = C 5 ms / Ny AOT 4 ms`; `bash tools/perf/build_perf_release.sh`, `cargo test array_text_state_residence --lib`, `tools/checks/current_state_pointer_guard.sh`, `tools/checks/dev_gate.sh quick`, and `git diff --check` passed
       - ninth slice result: `FunctionMetadata.indexof_search_micro_seed_route` and MIR JSON `indexof_search_micro_seed_route` are retired; `array_text_state_residence_route` is the only exported backend route owner for this path
       - ninth slice verification: MIR JSON has no `indexof_search_micro_seed_route`, still has `array_text_state_residence_route.temporary_indexof_seed_payload`; route trace emits `indexof_line_text_state_residence`; `kilo_micro_indexof_line = C 4 ms / Ny AOT 3 ms`; targeted tests, `bash tools/perf/build_perf_release.sh`, `tools/checks/current_state_pointer_guard.sh`, `tools/checks/dev_gate.sh quick`, and `git diff --check` passed
-      - H15 cleanup note: detailed history and next order live in `docs/development/current/main/phases/phase-137x/137x-96-h15-array-text-residence-cleanup.md`
-      - current blocker token: `137x-H15 array text-state residence cleanup`
+      - H15 closeout: `temporary_indexof_seed_payload` remains explicit, fixture-backed, and quarantined until a generic residence emitter replaces it
+      - next blocker token: `137x-H owner-first optimization return`
       - acceptance checks: `cargo test indexof_search_micro_seed --lib`, `cargo test array_text_observer --lib`, `cargo test array_text_state_residence --lib`, `bash tools/perf/build_perf_release.sh`, route trace showing `indexof_line_text_state_residence`, exact/retired-flag `kilo_micro_indexof_line` keeper microstats, and `tools/checks/current_state_pointer_guard.sh`
       - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
+      - next step: rerun owner-first perf evidence for the active kilo front before source edits
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:

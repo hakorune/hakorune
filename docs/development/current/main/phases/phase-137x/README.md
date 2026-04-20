@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H15 array text-state residence cleanup)
+- current lane: `phase-137x-H owner-first optimization return` (active; post-H15 owner-first perf reread)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -885,7 +885,7 @@ Verification:
 
 ## 137x-H15 Generic Array/Text Observer Route
 
-- Active cleanup lane:
+- Closed cleanup lane:
   - MIR owns `array_text_observer_routes`
   - exact dispatch bridge is retired in H15.7
   - remaining text-state residence temporary emitter/payload stays quarantined under `array_text_state_residence_route.temporary_indexof_seed_payload`
@@ -894,9 +894,10 @@ Verification:
   - `array_text_state_residence_route` top-level now contains only the generic residence contract; exact proof/action/literal data is quarantined under `temporary_indexof_seed_payload`
   - raw observer analyzer/trace `.inc` files are removed from active compilation; active observer lowering consumes MIR metadata only
   - remaining temporary emitter surface is named `hako_llvmc_ffi_indexof_text_state_residence.inc`
-  - next step: H15 closeout, then return to owner-first kilo optimization with the temporary payload tracked in the ledger
-- Detailed H15.1-H15.3 history and the H15.4-H15.7 order live in [137x-96-h15-array-text-residence-cleanup.md](./137x-96-h15-array-text-residence-cleanup.md).
-- Current gate:
+  - closeout verdict: `temporary_indexof_seed_payload` remains explicit, fixture-backed, and quarantined until a generic residence emitter replaces it
+  - next step: return to owner-first kilo optimization and rerun perf evidence before source edits
+- Detailed H15.1-H15.9 history and closeout live in [137x-96-h15-array-text-residence-cleanup.md](./137x-96-h15-array-text-residence-cleanup.md).
+- Closed gate:
   - `hako_llvmc_ffi_indexof_text_state_residence.inc` remains quarantined as the temporary text-state residence payload reader/emitter
   - further deletion stays blocked until a generic residence emitter no longer needs `temporary_indexof_seed_payload`
 
