@@ -54,25 +54,6 @@
           recv = src_prefix;
           used_plan_window = 1;
           reason = "kernel_plan_window_match";
-        } else if (hako_llvmc_string_corridor_read_any_plan_source_window(
-                prefix,
-                &src_prefix,
-                &prefix_start,
-                &prefix_end) &&
-            hako_llvmc_string_corridor_read_any_plan_source_window(
-                rhs,
-                &src_suffix,
-                &suffix_start,
-                &suffix_end) &&
-            src_prefix &&
-            src_prefix == src_suffix &&
-            has_const(prefix_start, &zero) &&
-            zero == 0 &&
-            prefix_end &&
-            prefix_end == suffix_start) {
-          recv = src_prefix;
-          used_plan_window = 1;
-          reason = "plan_window_match";
         }
 
         if (!used_plan_window) {
@@ -429,26 +410,14 @@
                 !strcmp(use_mname, "nyash.string.substring_hii") && use_args &&
                 yyjson_is_arr(use_args) && yyjson_arr_size(use_args) == 3 &&
                 (long long)yyjson_get_sint(yyjson_arr_get(use_args, 0)) == final_reg &&
-                (hako_llvmc_string_kernel_plan_has_publication_contract(
+                hako_llvmc_string_kernel_plan_read_publication_boundary_window(
                     read_int(use_ins, "dst"),
-                    "publish_now_not_required_before_first_external_boundary") ||
-                 hako_llvmc_string_corridor_plan_has_publication_contract(
-                    read_int(use_ins, "dst"),
-                    "direct_kernel_entry",
-                    "publish_now_not_required_before_first_external_boundary")) &&
+                    "publish_now_not_required_before_first_external_boundary",
+                    &plan_source,
+                    &plan_start,
+                    &plan_end) &&
                 use_start_val && yyjson_is_num(use_start_val) && use_end_val &&
                 yyjson_is_num(use_end_val) &&
-                (hako_llvmc_string_kernel_plan_read_source_window(
-                    read_int(use_ins, "dst"),
-                    &plan_source,
-                    &plan_start,
-                    &plan_end) ||
-                 hako_llvmc_string_corridor_read_plan_source_window(
-                    read_int(use_ins, "dst"),
-                    "direct_kernel_entry",
-                    &plan_source,
-                    &plan_start,
-                    &plan_end)) &&
                 plan_source == dst &&
                 plan_start == (long long)yyjson_get_sint(use_start_val) &&
                 plan_end == (long long)yyjson_get_sint(use_end_val)) {

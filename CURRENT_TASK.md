@@ -67,6 +67,7 @@ Scope: current lane / next lane / restart order only.
     - closed CURRENT_STATE token: `137x-F Value Lane bridge`
     - `137x-F` Value Lane bridge is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-H` runtime cleanup: removed dead `ValueLaneAction::PublishBoundary`; array string store now selects `TextCellResidence` or `GenericBoxResidence` once and the executor path only consumes the preselected action
+    - `137x-H` backend cleanup: `string_concat_emit_routes` now uses `kernel_plan_read_publication_boundary_window` for publication-boundary checks and no longer replays the corridor fallback in the insert-mid shared-receiver branch
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker is `137x-H` owner-first optimization return
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice

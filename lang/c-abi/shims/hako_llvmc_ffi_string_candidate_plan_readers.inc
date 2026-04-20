@@ -324,6 +324,25 @@
         return 1;
       }
 
+      auto int hako_llvmc_string_kernel_plan_read_publication_boundary_window(
+          long long value,
+          const char* contract_name,
+          long long* source_root,
+          long long* start,
+          long long* end) {
+        if (!(contract_name &&
+              hako_llvmc_string_kernel_plan_has_publication_contract(value, contract_name))) {
+          return 0;
+        }
+        if (hako_llvmc_string_kernel_plan_read_source_window(value, source_root, start, end)) {
+          return 1;
+        }
+        return hako_llvmc_string_corridor_plan_has_publication_contract(
+                   value, "direct_kernel_entry", contract_name) &&
+               hako_llvmc_string_corridor_read_plan_source_window(
+                   value, "direct_kernel_entry", source_root, start, end);
+      }
+
       auto int hako_llvmc_string_kernel_plan_read_insert_mid_window_values(
           long long value,
           long long* source_root,
