@@ -216,7 +216,18 @@ Scope: current lane / next lane / restart order only.
       - result: leaf/line wrappers are now thin constants-only dispatch surfaces; shared parse/validation/trace/emitter mechanics live in `hako_llvmc_match_indexof_ascii_seed_variant(...)`
       - verification: `git diff --check`, `bash tools/perf/build_perf_release.sh`, `tools/checks/dev_gate.sh quick`, exact `kilo_leaf_array_string_indexof_const` microstat (`C 5 ms / Ny AOT 4 ms`), and exact `kilo_micro_indexof_line` microstat (`C 4 ms / Ny AOT 4 ms`) passed
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - next implementation blocker is to replace the remaining exact search bridge with generic indexOf / ArrayStorage::Text lowering evidence; deletion is not keeper yet because line generic fallback with `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1` is green but slower (`C 5 ms / Ny AOT 11 ms`)
+    - `137x-H15` generic array/text observer route is active
+      - problem: the remaining exact search bridge is thin, but the generic path still lacks a MIR-owned read-side observer contract for `array.get(i).indexOf(needle)`
+      - decision: MIR owns `array_text_observer_routes` with legality/provenance/consumer facts; first consumer is `observer_kind=indexof`
+      - guard: `.inc` may consume route metadata and map it to helper calls, but it must not rediscover raw `indexOf` windows or make helper symbols the MIR truth
+      - first slice: add metadata + JSON export + unit tests; keep the exact search bridge until metadata-driven generic lowering reaches keeper speed
+      - first slice result: direct MIR metadata probes for `kilo_leaf_array_string_indexof_const` and `kilo_micro_indexof_line` now export `array_text_observer_routes[0]` with `observer_kind=indexof`, `consumer_shape=found_predicate`, `publication_boundary=none`, and `result_repr=scalar_i64`
+      - second slice result: active indexOf observer prepass/get lowering now consumes `array_text_observer_routes` metadata; raw C window scanners are no longer called from those active surfaces
+      - investigation result: seed-off fell on `array.get(row).indexOf("line")` in the hot 400k loop where `array_text_observer_routes[0].keep_get_live=false`, but H15 generic get lowering still emitted an unused `nyash.array.slot_load_hi`; perf owner was repeated Text-lane object materialization (`ArrayBox::boxed_from_text` plus malloc/free), not `indexOf` search itself
+      - third slice result: observer get lowering now honors `keep_get_live=false`; it suppresses the unused public get/materialize path while still remembering the array/index source and emitting the metadata-owned observer helper
+      - verification: `cargo test array_text_observer --lib`, `cargo build --release -j 24`, `bash tools/perf/build_perf_release.sh`, `tools/checks/dev_gate.sh quick`, direct MIR metadata probes, active `.inc` raw-scanner grep, seed-off IR no-`slot_load_hi` call grep, exact `kilo_micro_indexof_line` microstat (`C 4 ms / Ny AOT 4 ms`), seed-off `kilo_micro_indexof_line` microstat (`C 4 ms / Ny AOT 10 ms`), and `git diff --check` passed
+      - deletion probe: `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1` improved from `Ny AOT 497 ms` to `Ny AOT 10 ms`, but bridge deletion remains rejected until generic path reaches keeper speed
+      - deletion gate: `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` can be deleted only after generic `array_text_observer_routes` + `ArrayStorage::Text` lowering covers leaf and line fronts at keeper speed
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

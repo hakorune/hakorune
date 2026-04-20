@@ -156,6 +156,25 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }).collect::<Vec<_>>(),
+            "array_text_observer_routes": f.metadata.array_text_observer_routes.iter().map(|route| {
+                json!({
+                    "block": route.block.as_u32(),
+                    "observer_instruction_index": route.observer_instruction_index,
+                    "get_block": route.get_block.as_u32(),
+                    "get_instruction_index": route.get_instruction_index,
+                    "array_value": route.array_value.as_u32(),
+                    "index_value": route.index_value.as_u32(),
+                    "source_value": route.source_value.as_u32(),
+                    "observer_kind": route.observer_kind.to_string(),
+                    "observer_arg0": route.observer_arg0.as_u32(),
+                    "result_value": route.result_value.as_u32(),
+                    "consumer_shape": route.consumer_shape.to_string(),
+                    "proof_region": route.proof_region.to_string(),
+                    "publication_boundary": route.publication_boundary.to_string(),
+                    "result_repr": route.result_repr.to_string(),
+                    "keep_get_live": route.keep_get_live,
+                })
+            }).collect::<Vec<_>>(),
             "array_string_store_micro_seed_route": f.metadata.array_string_store_micro_seed_route.as_ref().map(|route| {
                 json!({
                     "seed": route.seed.as_str(),

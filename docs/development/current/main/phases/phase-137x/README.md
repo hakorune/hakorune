@@ -882,6 +882,70 @@ Verification:
 - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_leaf_array_string_indexof_const 1 3`: `C 5 ms / Ny AOT 4 ms`, `aot_status=ok`
 - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 4 ms / Ny AOT 4 ms`, `aot_status=ok`
 
+## 137x-H15 Generic Array/Text Observer Route
+
+Problem:
+- The exact search bridge is now metadata-owned and thin, but generic `indexOf` still falls back too slowly once the line seed bridge is disabled.
+- The missing contract is not an `indexOf` cache. It is a MIR-owned read-side observer route for `array.get(i).indexOf(needle)` so `.inc` can stop owning shape discovery.
+
+Decision:
+- Add `array_text_observer_routes` as the generic MIR route contract.
+- Keep the first concrete observer narrow: `observer_kind=indexof`, `publication_boundary=none`, `result_repr=scalar_i64`.
+- Name the MIR route after the generic observer lane, not after the temporary search seed bridge.
+- Do not put helper symbol names or backend action names in MIR. Backend shims map `observer_kind` / `consumer_shape` to calls locally.
+- Do not put canonical `skip_instruction_indices` in the generic route. The route owns covered producer/consumer facts; emit-local skipping remains a backend concern when needed.
+
+First slice plan:
+- Add MIR metadata type and refresh pass for `array_text_observer_routes`.
+- Export route metadata in MIR JSON.
+- Cover direct scalar and found-predicate `indexOf` consumers with unit tests.
+- Keep `hako_llvmc_ffi_string_search_seed.inc` unchanged until the metadata-driven generic lowering is both green and keeper-fast.
+
+First slice result:
+- `FunctionMetadata.array_text_observer_routes` is added as a generic read-side observer contract.
+- The current matcher recognizes `array.get(i).indexOf(needle)` through copy roots and records covered producer/consumer values.
+- Exported fields include `observer_kind`, `consumer_shape`, `proof_region`, `publication_boundary`, `result_repr`, and `keep_get_live`.
+- Direct MIR metadata probes for both `kilo_leaf_array_string_indexof_const` and `kilo_micro_indexof_line` export one route with:
+  - `observer_kind=indexof`
+  - `consumer_shape=found_predicate`
+  - `publication_boundary=none`
+  - `result_repr=scalar_i64`
+- The exact search bridge remains only as the temporary specialized emission path.
+
+Second slice result:
+- The active indexOf observer prepass and get-lowering surfaces now read `array_text_observer_routes` instead of calling the raw C window scanners.
+- Helper symbols remain backend-local: MIR carries `observer_kind`, `consumer_shape`, `publication_boundary`, and `result_repr`, not `nyash.*` helper names.
+- `hako_llvmc_ffi_string_search_seed.inc` remains a deletion candidate, but deletion is rejected until the metadata-driven generic path is keeper-fast.
+
+Third slice result:
+- Pre-fix investigation showed the seed-off regression was caused by an unused public get/materialize path, not by `indexOf` search.
+- Observer get lowering now honors `keep_get_live=false`: it records the array/index source and deferred observer route, but suppresses the unused `nyash.array.slot_load_hi` call.
+- Canonical `array_text_observer_routes` still does not carry `skip_instruction_indices`; the skip/materialize suppression remains emit-local.
+
+Acceptance:
+- `array.get(i).indexOf(needle)` exports one route with `observer_kind=indexof`, `consumer_shape`, `publication_boundary=none`, and `result_repr=scalar_i64`.
+- `.inc` remains a metadata consumer; no new raw block/window scanner is allowed.
+- The exact search bridge deletion gate stays blocked until generic `array_text_observer_routes` + `ArrayStorage::Text` lowering covers leaf and line fronts at keeper speed.
+
+Verification:
+- `cargo test array_text_observer --lib` PASS
+- `cargo build --release -j 24` PASS
+- `bash tools/perf/build_perf_release.sh` PASS
+- `tools/checks/dev_gate.sh quick` PASS
+- `git diff --check` PASS
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/hakorune_emit_mir.sh benchmarks/bench_kilo_micro_indexof_line.hako /tmp/h15_indexof_line.mir.json` plus metadata jq probe PASS
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/hakorune_emit_mir.sh benchmarks/bench_kilo_leaf_array_string_indexof_const.hako /tmp/h15_indexof_leaf.mir.json` plus metadata jq probe PASS
+- `rg -n "analyze_array_string_indexof|trace_array_string_indexof" lang/c-abi/shims/hako_llvmc_ffi_indexof_observer_lowering.inc lang/c-abi/shims/hako_llvmc_ffi_mir_call_prepass.inc`: no active scanner calls
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 1`: `C 4 ms / Ny AOT 4 ms`, `aot_status=ok`
+- `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1 PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 4 ms / Ny AOT 10 ms`, `aot_status=ok` (bridge deletion still rejected for now)
+- `target/perf_state/h15-indexof-line-seed-off-fixed/lowered.ll` grep: no `call ... nyash.array.slot_load_hi`; hot loop emits `nyash.array.string_indexof_hih(array, idx, needle)` directly.
+
+Seed-off investigation:
+- Case: the hot 400k loop uses `array.get(row).indexOf("line")`; MIR exports `array_text_observer_routes[0]` with `keep_get_live=false`, `consumer_shape=found_predicate`, and `publication_boundary=none`.
+- Pre-fix generated generic IR emitted an unused `%r62 = call i64 @nyash.array.slot_load_hi(i64 %r5, i64 %r88)` before `nyash.array.string_indexof_hih(i64 %r5, i64 %r88, i64 %r95)`.
+- Pre-fix runtime perf top was dominated by `ArrayBox::boxed_from_text` plus malloc/free. The regression owner was therefore repeated Text-lane public get/materialization, not string search.
+- Fix: `.inc` observer get lowering now suppresses that public get when `keep_get_live=false`, while retaining metadata-owned observer helper emission. Keep `skip_instruction_indices` out of canonical `array_text_observer_routes`.
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -897,7 +961,7 @@ Rules:
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
 | `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed emitter | temporary bridge surface | Pure-first array/string-store micro seed still has a specialized stack-array emitter for the current micro front; the route-shape proof is now MIR-owned metadata, not a C-side scanner. | Delete after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed emitter into an explicit legacy regression fixture with failure expectation. |
-| `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` exact search bridge | temporary bridge surface | Leaf/line `indexOf` micro fronts still use one specialized emitter, but route proof, predicate action, and wrapper selection are MIR-owned `indexof_search_micro_seed_route` metadata plus constants-only dispatch wrappers. | Delete after generic indexOf/ArrayStorage::Text lowering covers leaf and line fronts at keeper speed, or move the bridge into an explicit legacy regression fixture with failure expectation. |
+| `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` exact search bridge | temporary bridge surface | Leaf/line `indexOf` micro fronts still use one specialized emitter, but route proof, predicate action, and wrapper selection are MIR-owned `indexof_search_micro_seed_route` metadata plus constants-only dispatch wrappers. H15 moved the active generic observer prepass/get-lowering path to `array_text_observer_routes`; this bridge now exists only for keeper-speed exact emission. | Delete after generic `array_text_observer_routes` + `ArrayStorage::Text` lowering covers leaf and line fronts at keeper speed, or move the bridge into an explicit legacy regression fixture with failure expectation. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
@@ -913,6 +977,8 @@ Rules:
 - shrunk in `137x-H14.1`: the leaf exact search emitter no longer calls runtime `nyash.string.indexOf_ss`; it emits only the MIR-owned literal membership predicate after validating candidate outcomes metadata.
 - shrunk in `137x-H14.2`: `hako_llvmc_emit_indexof_leaf_ir(...)` and `hako_llvmc_emit_indexof_line_ir(...)` are collapsed into `hako_llvmc_emit_indexof_seed_ir(...)`; the remaining exact search bridge is one temporary backend surface with MIR-owned proof/action metadata.
 - shrunk in `137x-H14.3`: leaf/line matcher wrappers now call `hako_llvmc_match_indexof_ascii_seed_variant(...)`; shared parse/validation/trace/emitter mechanics are no longer duplicated.
+- opened in `137x-H15`: generic `array_text_observer_routes` becomes the deletion path for the remaining exact search bridge; MIR owns observer legality/provenance/consumer facts while `.inc` stays helper selection and emit only.
+- shrunk in `137x-H15`: active indexOf observer prepass/get lowering now consumes `array_text_observer_routes`; raw C scanner calls are absent from those active surfaces. The specialized exact bridge remains until the generic route is keeper-fast.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

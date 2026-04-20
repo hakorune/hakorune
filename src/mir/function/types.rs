@@ -2,6 +2,7 @@ use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
+    array_text_observer_plan::ArrayTextObserverRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     indexof_search_micro_seed_plan::IndexOfSearchMicroSeedRoute,
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
@@ -160,6 +161,11 @@ pub struct FunctionMetadata {
     /// These keep active fused store/len route recognition in MIR so the C
     /// backend can remain an emitter/transport consumer.
     pub array_text_loopcarry_len_store_routes: Vec<ArrayTextLoopCarryLenStoreRoute>,
+
+    /// Backend-consumable generic array/text observer route plans.
+    /// These own read-side observer legality/provenance/consumer facts in MIR;
+    /// backend shims may only map the metadata to local helper calls.
+    pub array_text_observer_routes: Vec<ArrayTextObserverRoute>,
 
     /// Backend-consumable exact array/string-store micro seed route.
     /// This quarantines the temporary kilo micro exact-shape bridge in MIR

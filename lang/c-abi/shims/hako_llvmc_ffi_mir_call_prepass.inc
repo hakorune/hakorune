@@ -1,5 +1,6 @@
       auto void mark_array_string_indexof_need_flags(
           yyjson_val* blocks,
+          long long bid,
           size_t ii,
           size_t ilen,
           yyjson_val* insts,
@@ -10,51 +11,22 @@
           long long dst,
           int scan_org,
           struct GenericPureNeedFlags* needs) {
-        struct ArrayStringIndexofSelectWindowMatch indexof_select_match;
-        struct ArrayStringIndexofBranchWindowMatch indexof_branch_match;
-        struct ArrayStringIndexofCrossBlockSelectWindowMatch indexof_cross_block_select_match;
-        struct ArrayStringIndexofInterleavedBranchWindowMatch indexof_interleaved_branch_match;
-        struct ArrayStringIndexofInterleavedSelectWindowMatch indexof_interleaved_select_match;
+        struct ArrayTextObserverRoutePlan observer_route;
 
+        (void)blocks;
+        (void)ilen;
+        (void)insts;
+        (void)bname;
+        (void)mname;
+        (void)recv;
+        (void)a0;
+        (void)scan_org;
         if (!needs) return;
-        if (analyze_array_string_indexof_select_window_candidate(
-                ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                &indexof_select_match, NULL, NULL, 0)) {
+        if (match_array_text_observer_route_plan(bid, ii, &observer_route)) {
           needs->arr_string_indexof = 1;
-        } else if (analyze_array_string_indexof_branch_window_candidate(
-                ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                &indexof_branch_match, NULL, NULL, 0)) {
-          needs->arr_string_indexof = 1;
-          if (branch_targets_use_reg(blocks, insts, indexof_branch_match.branch_ii, dst)) {
-            if (branch_targets_use_reg_only_as_const_suffix_store(
-                    blocks,
-                    insts,
-                    indexof_branch_match.branch_ii,
-                    dst,
-                    recv,
-                    a0)) {
-              needs->arr_kernel_slot_concat_by_index = 1;
-            } else {
-              needs->arr_get = 1;
-              needs->arr_slot_load = 1;
-            }
-          }
-        } else if (analyze_array_string_indexof_cross_block_select_window_candidate(
-                blocks, ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                &indexof_cross_block_select_match, NULL, NULL, 0)) {
-          needs->arr_string_indexof = 1;
-        } else if (analyze_array_string_indexof_interleaved_branch_window_candidate(
-                blocks, ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                &indexof_interleaved_branch_match, NULL, NULL, 0)) {
-          needs->arr_string_indexof = 1;
-        } else if (analyze_array_string_indexof_interleaved_select_window_candidate(
-                blocks, ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                &indexof_interleaved_select_match, NULL, NULL, 0)) {
-          needs->arr_string_indexof = 1;
-        } else {
-          needs->arr_get = 1;
-          needs->arr_slot_load = 1;
         }
+        needs->arr_get = 1;
+        needs->arr_slot_load = 1;
         if (dst) set_scan_origin(dst, ORG_STRING);
       }
 
@@ -114,7 +86,7 @@
           }
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF) {
             mark_array_string_indexof_need_flags(
-                blocks, ii, ilen, insts, bname, mname, recv, a0,
+                blocks, bid, ii, ilen, insts, bname, mname, recv, a0,
                 read_int(ins, "dst"), route.recv_org, needs);
             return;
           }

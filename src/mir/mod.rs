@@ -11,6 +11,7 @@ pub mod analysis; // analysis-only views (no AST rewrite)
 pub mod aot_plan_import;
 pub mod array_string_store_micro_seed_plan; // MIR-owned route plan for temporary array string-store micro seed bridge
 pub mod array_text_loopcarry_plan; // MIR-owned route plans for active array/text loopcarry lane
+pub mod array_text_observer_plan; // MIR-owned route plans for generic array/text read-side observers
 pub mod basic_block;
 pub mod builder;
 mod compiler;
@@ -112,6 +113,11 @@ pub use array_text_loopcarry_plan::{
     refresh_function_array_text_loopcarry_len_store_routes,
     refresh_module_array_text_loopcarry_len_store_routes, ArrayTextLoopCarryLenStoreProof,
     ArrayTextLoopCarryLenStoreRoute,
+};
+pub use array_text_observer_plan::{
+    refresh_function_array_text_observer_routes, refresh_module_array_text_observer_routes,
+    ArrayTextObserverConsumerShape, ArrayTextObserverKind, ArrayTextObserverProofRegion,
+    ArrayTextObserverPublicationBoundary, ArrayTextObserverResultRepr, ArrayTextObserverRoute,
 };
 pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
