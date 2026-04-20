@@ -134,6 +134,17 @@ Scope: current lane / next lane / restart order only.
         - `ny_aot_instr=58004175`, `ny_aot_cycles=17079682`
         - generated `ny_main` no longer calls `nyash.array.string_len_hi`; the new top owner is inside the fused slot mutation helper plus `memmove` / `String::Drain`
       - guard held: no array-wide seed length inference, no public ABI, and no runtime legality ownership
+    - `137x-H8` same-length loop-carry byte rewrite seam is closed
+      - baseline after H7:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+        - `ny_aot_instr=58004175`, `ny_aot_cycles=17079682`
+        - helper-symbol asm/top owner is the fused helper closure with secondary `memmove` / `String::Drain`
+      - implementation: replace only the proven same-length `insert_str -> drain -> truncate` path with a fixed-length byte rewrite
+      - result:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+        - `ny_aot_instr=49691974`, `ny_aot_cycles=12941203`
+        - `String::Drain` and libc `memmove` no longer appear as top owners
+      - guard held: no allocator/arena work, no public ABI, and no new MIR legality
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice

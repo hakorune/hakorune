@@ -429,6 +429,44 @@ Result:
   - no public ABI widening
   - no route legality ownership moved into runtime
 
+## 137x-H8 Same-Length Loop-Carry Byte Rewrite Seam
+
+Status: closed.
+
+Scope:
+- optimize only the runtime-private same-length subrange mutation that H7 already proved at lowering time
+- replace `insert_str -> drain -> truncate` with a fixed-length byte rewrite when all required UTF-8 boundaries are proven locally
+- do not add allocator/arena work, array-wide length inference, or new MIR legality
+
+Perf-first baseline:
+- after H7, `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=58004175`, `ny_aot_cycles=17079682`
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str' 3`:
+  - top owner is the fused helper closure
+  - visible secondary owners include `__memmove_avx512_unaligned_erms` and `alloc::string::Drain`
+
+Acceptance:
+- `try_update_insert_const_mid_subrange_same_len_in_place(...)` keeps string length unchanged without allocating or using `String::Drain`
+- generated `ny_main` remains on the H7 fused helper route
+- `kilo_meso_substring_concat_array_set_loopcarry` stays correct and improves or holds instruction/cycle count
+- `tools/checks/dev_gate.sh quick` stays green before landing
+
+Result:
+- implementation:
+  - the proven same-length interior shape now rewrites the existing `String` bytes in place
+  - fallback materialization remains for non-interior or non-boundary-safe shapes
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=49691974`, `ny_aot_cycles=12941203`
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'ny_main' 3`:
+  - `ny_main` still calls only `nyash.array.string_insert_mid_subrange_len_store_hisi` in the hot loop
+  - `String::Drain` and libc `memmove` no longer appear as top owners
+- guard held:
+  - runtime remains executor-only for the MIR-proven window
+  - no public ABI widening
+  - no allocator/arena rewrite
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

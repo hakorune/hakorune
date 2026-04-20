@@ -118,6 +118,7 @@ fn materialize_insert_const_mid_for_array_slot(source: &str, middle: &str, split
     let suffix = source.get(split..).unwrap_or("");
     let total = prefix.len() + middle.len() + suffix.len();
     let mut out = String::with_capacity(total);
+    // Equivalent to `(source[..split] + middle + source[split..])[1..source_len + 1]`.
     unsafe {
         let buf = out.as_mut_vec();
         buf.set_len(total);
@@ -200,7 +201,7 @@ fn try_update_insert_const_mid_subrange_same_len_in_place(
     if slice_start != 1 || slice_end != source_len + 1 {
         return false;
     }
-    if split_start == 0 || split_start > source_len {
+    if split_start == 0 || split_start >= source_len {
         return false;
     }
     if !value.is_char_boundary(slice_start)
@@ -210,9 +211,23 @@ fn try_update_insert_const_mid_subrange_same_len_in_place(
     {
         return false;
     }
-    value.insert_str(split_start, middle);
-    drop(value.drain(..slice_start));
-    value.truncate(source_len);
+    unsafe {
+        let bytes = value.as_mut_vec();
+        let ptr = bytes.as_mut_ptr();
+        let prefix_shift_len = split_start - 1;
+        let suffix_shift_len = source_len - split_start - 1;
+        if suffix_shift_len != 0 {
+            std::ptr::copy(
+                ptr.add(split_start),
+                ptr.add(split_start + middle_len - 1),
+                suffix_shift_len,
+            );
+        }
+        if prefix_shift_len != 0 {
+            std::ptr::copy(ptr.add(1), ptr, prefix_shift_len);
+        }
+        std::ptr::copy_nonoverlapping(middle.as_ptr(), ptr.add(split_start - 1), middle_len);
+    }
     true
 }
 
