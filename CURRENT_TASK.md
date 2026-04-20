@@ -209,8 +209,14 @@ Scope: current lane / next lane / restart order only.
       - first slice: replace `hako_llvmc_emit_indexof_leaf_ir(...)` and `hako_llvmc_emit_indexof_line_ir(...)` with one `hako_llvmc_emit_indexof_seed_ir(...)` that consumes `flip_period=0|16`
       - result: leaf and line now share `hako_llvmc_emit_indexof_seed_ir(...)`; leaf passes `flip_period=0`, line passes MIR-owned `flip_period=16`, and matcher functions remain metadata consumers only
       - verification: `git diff --check`, `bash tools/perf/build_perf_release.sh`, `tools/checks/dev_gate.sh quick`, exact `kilo_leaf_array_string_indexof_const` microstat (`C 4 ms / Ny AOT 3 ms`), and exact `kilo_micro_indexof_line` microstat (`C 4 ms / Ny AOT 4 ms`) passed
+    - `137x-H14.3` exact search matcher surface shrink is closed
+      - problem: leaf/line dispatch wrappers still duplicate the same metadata parse, route validation, trace, and emitter call
+      - decision: keep public wrapper names for dispatch and `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED`, but route both through one metadata-consumer helper
+      - first slice: add one `hako_llvmc_match_indexof_ascii_seed_variant(...)` helper; wrappers provide only variant/proof/trace constants
+      - result: leaf/line wrappers are now thin constants-only dispatch surfaces; shared parse/validation/trace/emitter mechanics live in `hako_llvmc_match_indexof_ascii_seed_variant(...)`
+      - verification: `git diff --check`, `bash tools/perf/build_perf_release.sh`, `tools/checks/dev_gate.sh quick`, exact `kilo_leaf_array_string_indexof_const` microstat (`C 5 ms / Ny AOT 4 ms`), and exact `kilo_micro_indexof_line` microstat (`C 4 ms / Ny AOT 4 ms`) passed
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - next implementation blocker is to decide whether the remaining exact search emitter surface should be deleted, kept as a temporary bridge, or replaced by generic indexOf lowering; do not reopen C-side route proof/action
+    - next implementation blocker is to replace the remaining exact search bridge with generic indexOf / ArrayStorage::Text lowering evidence; deletion is not keeper yet because line generic fallback with `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1` is green but slower (`C 5 ms / Ny AOT 11 ms`)
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

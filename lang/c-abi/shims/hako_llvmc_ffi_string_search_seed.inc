@@ -277,9 +277,14 @@ static int hako_llvmc_read_indexof_search_micro_seed_route(
   return 1;
 }
 
-static int hako_llvmc_match_indexof_leaf_ascii_seed(
+static int hako_llvmc_match_indexof_ascii_seed_variant(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const char* expected_variant,
+    const char* expected_proof,
+    int require_flip,
+    const char* trace_stage,
+    const char* trace_extra) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
   yyjson_val* fn;
@@ -291,13 +296,13 @@ static int hako_llvmc_match_indexof_leaf_ascii_seed(
   fn = hako_llvmc_indexof_search_seed_find_main(doc, &selection);
   if (!hako_llvmc_read_indexof_search_micro_seed_route(
           fn,
-          "leaf",
-          "kilo_leaf_array_string_indexof_const_10block",
-          0,
+          expected_variant,
+          expected_proof,
+          require_flip,
           &route)) {
     if (hako_llvmc_route_trace_enabled()) {
       hako_llvmc_emit_route_trace(
-          "indexof_leaf_micro",
+          trace_stage,
           "skip",
           "metadata_contract_mismatch",
           "indexof_search_micro_seed_route");
@@ -308,61 +313,10 @@ static int hako_llvmc_match_indexof_leaf_ascii_seed(
 
   if (hako_llvmc_route_trace_enabled()) {
     hako_llvmc_emit_route_trace(
-        "indexof_leaf_micro",
+        trace_stage,
         "emit",
         "exact_match",
-        "kilo_leaf_array_string_indexof_const mir_route_plan");
-  }
-
-  rc = hako_llvmc_emit_indexof_seed_ir(
-      obj_out,
-      &selection,
-      route.rows,
-      route.ops,
-      0,
-      route.line_seed,
-      route.line_seed_len,
-      route.none_seed,
-      route.none_seed_len);
-  yyjson_doc_free(doc);
-  return rc;
-}
-
-static int hako_llvmc_match_indexof_line_ascii_seed(
-    const char* json_in,
-    const char* obj_out) {
-  yyjson_read_err rerr;
-  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
-  yyjson_val* fn;
-  hako_llvmc_entry_rune_selection selection;
-  hako_llvmc_indexof_search_micro_seed_route route;
-  int rc;
-
-  if (!doc) return -1;
-  fn = hako_llvmc_indexof_search_seed_find_main(doc, &selection);
-  if (!hako_llvmc_read_indexof_search_micro_seed_route(
-          fn,
-          "line",
-          "kilo_micro_indexof_line_15block",
-          1,
-          &route)) {
-    if (hako_llvmc_route_trace_enabled()) {
-      hako_llvmc_emit_route_trace(
-          "indexof_line_micro",
-          "skip",
-          "metadata_contract_mismatch",
-          "indexof_search_micro_seed_route");
-    }
-    yyjson_doc_free(doc);
-    return -1;
-  }
-
-  if (hako_llvmc_route_trace_enabled()) {
-    hako_llvmc_emit_route_trace(
-        "indexof_line_micro",
-        "emit",
-        "exact_match",
-        "kilo_micro_indexof_line mir_route_plan");
+        trace_extra);
   }
 
   rc = hako_llvmc_emit_indexof_seed_ir(
@@ -377,4 +331,30 @@ static int hako_llvmc_match_indexof_line_ascii_seed(
       route.none_seed_len);
   yyjson_doc_free(doc);
   return rc;
+}
+
+static int hako_llvmc_match_indexof_leaf_ascii_seed(
+    const char* json_in,
+    const char* obj_out) {
+  return hako_llvmc_match_indexof_ascii_seed_variant(
+      json_in,
+      obj_out,
+      "leaf",
+      "kilo_leaf_array_string_indexof_const_10block",
+      0,
+      "indexof_leaf_micro",
+      "kilo_leaf_array_string_indexof_const mir_route_plan");
+}
+
+static int hako_llvmc_match_indexof_line_ascii_seed(
+    const char* json_in,
+    const char* obj_out) {
+  return hako_llvmc_match_indexof_ascii_seed_variant(
+      json_in,
+      obj_out,
+      "line",
+      "kilo_micro_indexof_line_15block",
+      1,
+      "indexof_line_micro",
+      "kilo_micro_indexof_line mir_route_plan");
 }

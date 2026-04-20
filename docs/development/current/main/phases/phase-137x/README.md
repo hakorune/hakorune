@@ -853,6 +853,35 @@ Verification:
 - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_leaf_array_string_indexof_const 1 3`: `C 4 ms / Ny AOT 3 ms`, `aot_status=ok`
 - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 4 ms / Ny AOT 4 ms`, `aot_status=ok`
 
+## 137x-H14.3 Exact Search Matcher Surface Shrink
+
+Problem:
+- H14.2 collapsed the actual emitter, but `hako_llvmc_match_indexof_leaf_ascii_seed(...)` and `hako_llvmc_match_indexof_line_ascii_seed(...)` still duplicate the same JSON parse, metadata validation, trace emission, and emitter call.
+- Deleting the exact bridge is not yet keeper-safe: with `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1`, `kilo_micro_indexof_line` remains correct but falls back to `C 5 ms / Ny AOT 11 ms`.
+
+Decision:
+- Keep the leaf/line wrapper names as dispatch-level surfaces.
+- Move shared parse/validation/trace/emitter mechanics into one `hako_llvmc_match_indexof_ascii_seed_variant(...)` helper.
+- Do not add a new env guard and do not reopen C-side route proof/action; wrappers may only provide variant/proof/trace constants.
+
+First slice plan:
+- add `hako_llvmc_match_indexof_ascii_seed_variant(...)`
+- make leaf and line wrappers call the shared helper
+- verify exact leaf/line micro fronts remain green
+
+First slice result:
+- `hako_llvmc_match_indexof_ascii_seed_variant(...)` owns the shared JSON parse, MIR metadata validation, route trace, and `hako_llvmc_emit_indexof_seed_ir(...)` call.
+- `hako_llvmc_match_indexof_leaf_ascii_seed(...)` and `hako_llvmc_match_indexof_line_ascii_seed(...)` remain only as dispatch-level wrapper names with variant/proof/trace constants.
+- The remaining exact search bridge is thinner, but it is not deleted because the generic line fallback is still materially slower.
+
+Verification:
+- `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1 PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 5 ms / Ny AOT 11 ms`, `aot_status=ok` (deletion rejected for now)
+- `git diff --check` PASS
+- `bash tools/perf/build_perf_release.sh` PASS
+- `tools/checks/dev_gate.sh quick` PASS
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_leaf_array_string_indexof_const 1 3`: `C 5 ms / Ny AOT 4 ms`, `aot_status=ok`
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 4 ms / Ny AOT 4 ms`, `aot_status=ok`
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -868,7 +897,7 @@ Rules:
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
 | `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed emitter | temporary bridge surface | Pure-first array/string-store micro seed still has a specialized stack-array emitter for the current micro front; the route-shape proof is now MIR-owned metadata, not a C-side scanner. | Delete after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed emitter into an explicit legacy regression fixture with failure expectation. |
-| `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` exact search emitters | temporary bridge surface | Leaf/line `indexOf` micro fronts still have specialized emitters, but route proof and predicate action are now MIR-owned `indexof_search_micro_seed_route` metadata. | Delete after generic indexOf/ArrayStorage::Text lowering covers leaf and line fronts, or move the emitters into explicit legacy regression fixtures with failure expectation. |
+| `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` exact search bridge | temporary bridge surface | Leaf/line `indexOf` micro fronts still use one specialized emitter, but route proof, predicate action, and wrapper selection are MIR-owned `indexof_search_micro_seed_route` metadata plus constants-only dispatch wrappers. | Delete after generic indexOf/ArrayStorage::Text lowering covers leaf and line fronts at keeper speed, or move the bridge into an explicit legacy regression fixture with failure expectation. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
@@ -880,9 +909,10 @@ Rules:
 - retired in `137x-H13`: the raw C-side block/op scanner in `hako_llvmc_match_substring_concat_loop_ascii_seed(...)` is deleted; exact seed bridge selection now consumes existing MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata.
 - retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_substring_views_only_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.substring_views_micro_seed_route`, while borrowed-window legality stays in `StringKernelPlan`.
 - retired in `137x-H13`: `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc` and `hako_llvmc_emit_string_length_hot_loop_ir(...)` are deleted; current length-hot fronts use generic/metadata lowering instead of the obsolete 5/6-block exact matcher family.
-- shrunk in `137x-H14.2`: `hako_llvmc_emit_indexof_leaf_ir(...)` and `hako_llvmc_emit_indexof_line_ir(...)` are collapsed into `hako_llvmc_emit_indexof_seed_ir(...)`; the remaining exact search bridge is one temporary backend surface with MIR-owned proof/action metadata.
 - retired in `137x-H14`: the raw C-side block/op scanners in `hako_llvmc_match_indexof_leaf_ascii_seed(...)` and `hako_llvmc_match_indexof_line_ascii_seed(...)` are deleted; exact search bridge selection now consumes MIR-owned `metadata.indexof_search_micro_seed_route`.
 - shrunk in `137x-H14.1`: the leaf exact search emitter no longer calls runtime `nyash.string.indexOf_ss`; it emits only the MIR-owned literal membership predicate after validating candidate outcomes metadata.
+- shrunk in `137x-H14.2`: `hako_llvmc_emit_indexof_leaf_ir(...)` and `hako_llvmc_emit_indexof_line_ir(...)` are collapsed into `hako_llvmc_emit_indexof_seed_ir(...)`; the remaining exact search bridge is one temporary backend surface with MIR-owned proof/action metadata.
+- shrunk in `137x-H14.3`: leaf/line matcher wrappers now call `hako_llvmc_match_indexof_ascii_seed_variant(...)`; shared parse/validation/trace/emitter mechanics are no longer duplicated.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
