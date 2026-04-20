@@ -59,10 +59,8 @@ cargo check --features perf-observe -p nyash_kernel
     - direct-only correctness: `Result: 2880064`, exit code `64`
   - `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`
 - immediate next:
-  - H15.4: make `array_text_state_residence_route` a distinct MIR metadata field instead of a JSON alias
-  - H15.5: split exact bridge proof from generic residence contract fields
-  - H15.6: audit `.inc` consumers for raw `indexOf` window/liveness rediscovery
-  - H15.7: delete or explicitly fixture the exact search bridge only after exact/seed-off keeper gates stay green
+  - [137x-96-h15-array-text-residence-cleanup.md](docs/development/current/main/phases/phase-137x/137x-96-h15-array-text-residence-cleanup.md)
+  - H15.4-H15.7 live in that note; keep `tools/checks/current_state_pointer_guard.sh` green
   - exact array-store route-shape card is closed; do not reopen it without a new failed measurement
   - kilo optimization is already active as `137x-H`; keep owner-first evidence for each slice
   - 137x-C final gate already passed: `tools/checks/dev_gate.sh quick`

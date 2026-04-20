@@ -29,8 +29,8 @@ as `137x-H`.
 - the final gate command is recorded
 
 It now means the storage/value gates are landed, allocator/arena is rejected
-with evidence for now, and the next kilo optimization return is active as
-`137x-H`.
+with evidence for now, and the active H15 cleanup order lives in
+[137x-96-h15-array-text-residence-cleanup.md](./137x-96-h15-array-text-residence-cleanup.md).
 
 ## Closed String Publication Closeout (137x-A)
 
