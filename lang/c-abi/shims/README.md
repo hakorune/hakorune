@@ -40,7 +40,8 @@ Current partitions:
 - `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc`
   - string-length hot-loop exact matcher family
 - `hako_llvmc_ffi_string_loop_seed_substring_concat.inc`
-  - substring-concat exact matcher family, including the remaining metadata-first + shape-fallback bridge
+  - substring-concat exact matcher family
+  - consumes MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata; do not regrow raw block scanners here
 - `hako_llvmc_ffi_array_string_store_seed.inc`
   - pure-first seed metadata reader and emitter for the exact array/string-store micro path
   - temporary bridge surface only; route-shape proof is MIR-owned `array_string_store_micro_seed_route`
