@@ -889,15 +889,16 @@ Verification:
   - MIR owns `array_text_observer_routes`
   - exact dispatch bridge is retired in H15.7
   - remaining text-state residence temporary emitter/payload stays quarantined under `array_text_state_residence_route.temporary_indexof_seed_payload`
+  - exported `indexof_search_micro_seed_route` is retired in H15.9; `array_text_state_residence_route` is the only backend metadata owner for this path
   - `array_text_state_residence_route` is now a real `FunctionMetadata` field, not a JSON alias of the exact bridge key
   - `array_text_state_residence_route` top-level now contains only the generic residence contract; exact proof/action/literal data is quarantined under `temporary_indexof_seed_payload`
   - raw observer analyzer/trace `.inc` files are removed from active compilation; active observer lowering consumes MIR metadata only
   - remaining temporary emitter surface is named `hako_llvmc_ffi_indexof_text_state_residence.inc`
-  - next step: lift the residence payload source away from `indexof_search_micro_seed_route`, or explicitly keep it as a fixture-backed temporary payload
+  - next step: H15 closeout, then return to owner-first kilo optimization with the temporary payload tracked in the ledger
 - Detailed H15.1-H15.3 history and the H15.4-H15.7 order live in [137x-96-h15-array-text-residence-cleanup.md](./137x-96-h15-array-text-residence-cleanup.md).
 - Current gate:
   - `hako_llvmc_ffi_indexof_text_state_residence.inc` remains quarantined as the temporary text-state residence payload reader/emitter
-  - further deletion stays blocked until MIR no longer needs the exact `indexof_search_micro_seed_route` payload as the source for residence emission
+  - further deletion stays blocked until a generic residence emitter no longer needs `temporary_indexof_seed_payload`
 
 ## Legacy Retirement Ledger
 
@@ -914,7 +915,7 @@ Rules:
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
 | `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed emitter | temporary bridge surface | Pure-first array/string-store micro seed still has a specialized stack-array emitter for the current micro front; the route-shape proof is now MIR-owned metadata, not a C-side scanner. | Delete after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed emitter into an explicit legacy regression fixture with failure expectation. |
-| `lang/c-abi/shims/hako_llvmc_ffi_indexof_text_state_residence.inc` text-state residence temporary emitter | temporary bridge surface | The exact leaf/line dispatch bridge and backend env guard are retired in H15.7. The file remains because current residence emission still consumes `array_text_state_residence_route.temporary_indexof_seed_payload`, which is derived from the exact seed route. | Delete after MIR owns a non-exact residence payload and `.inc` can emit from generic residence metadata without `temporary_indexof_seed_payload`. |
+| `lang/c-abi/shims/hako_llvmc_ffi_indexof_text_state_residence.inc` text-state residence temporary emitter | temporary bridge surface | The exact leaf/line dispatch bridge and backend env guard are retired in H15.7, and exported `indexof_search_micro_seed_route` is retired in H15.9. The file remains because current residence emission still consumes `array_text_state_residence_route.temporary_indexof_seed_payload`. | Delete after MIR owns a non-exact residence payload and `.inc` can emit from generic residence metadata without `temporary_indexof_seed_payload`. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
@@ -935,6 +936,7 @@ Rules:
 - retired in `137x-H15`: unused raw observer analyzer/trace `.inc` files are deleted; active observer lowering includes only metadata defer state and metadata consumer lowering.
 - retired in `137x-H15.7`: exact leaf/line search dispatch wrappers and backend env `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED` are deleted; exact and compatibility-skip runs now route through `array_text_state_residence_route`.
 - renamed in `137x-H15.8`: `hako_llvmc_ffi_string_search_seed.inc` becomes `hako_llvmc_ffi_indexof_text_state_residence.inc`; the remaining backend surface is named after the MIR residence contract instead of the retired exact seed bridge.
+- retired in `137x-H15.9`: `FunctionMetadata.indexof_search_micro_seed_route` and the standalone MIR JSON key are deleted; `array_text_state_residence_route` is the only exported backend route owner for this path.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

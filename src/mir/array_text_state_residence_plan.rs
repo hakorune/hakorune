@@ -2,14 +2,16 @@
  * MIR-owned route plan for array/text state residence.
  *
  * This route is the generic residence-side owner for current indexOf keeper
- * fronts. It may be derived from the exact bridge proof for now, but MIR JSON
- * and backend consumers read this field as a separate contract.
+ * fronts. MIR JSON and backend consumers read this field as the only active
+ * residence contract; the exact-shape payload remains an explicit temporary
+ * child field until the emitter no longer needs it.
  */
 
 use super::{
     indexof_search_micro_seed_plan::{
-        IndexOfSearchBackendAction, IndexOfSearchCandidateOutcome, IndexOfSearchMicroSeedProof,
-        IndexOfSearchMicroSeedRoute, IndexOfSearchMicroSeedVariant, IndexOfSearchResultUse,
+        match_indexof_search_micro_seed_route, IndexOfSearchBackendAction,
+        IndexOfSearchCandidateOutcome, IndexOfSearchMicroSeedProof, IndexOfSearchMicroSeedRoute,
+        IndexOfSearchMicroSeedVariant, IndexOfSearchResultUse,
     },
     MirFunction, MirModule,
 };
@@ -158,11 +160,10 @@ pub fn refresh_module_array_text_state_residence_routes(module: &mut MirModule) 
 }
 
 pub fn refresh_function_array_text_state_residence_route(function: &mut MirFunction) {
-    function.metadata.array_text_state_residence_route = function
-        .metadata
-        .indexof_search_micro_seed_route
-        .as_ref()
-        .map(ArrayTextStateResidenceRoute::from_indexof_search_route);
+    function.metadata.array_text_state_residence_route =
+        match_indexof_search_micro_seed_route(function)
+            .as_ref()
+            .map(ArrayTextStateResidenceRoute::from_indexof_search_route);
 }
 
 #[cfg(test)]

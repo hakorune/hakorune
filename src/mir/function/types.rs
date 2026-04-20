@@ -5,7 +5,6 @@ use crate::mir::{
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
-    indexof_search_micro_seed_plan::IndexOfSearchMicroSeedRoute,
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
     string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation, string_kernel_plan::StringKernelPlan,
@@ -169,8 +168,8 @@ pub struct FunctionMetadata {
     pub array_text_observer_routes: Vec<ArrayTextObserverRoute>,
 
     /// Backend-consumable array/text state residence route plan.
-    /// This keeps the generic residence contract separate from the temporary
-    /// exact search bridge payload consumed by `indexof_search_micro_seed_route`.
+    /// This keeps the generic residence contract separate from its explicit
+    /// temporary payload, so backend consumers do not read a second exact route.
     pub array_text_state_residence_route: Option<ArrayTextStateResidenceRoute>,
 
     /// Backend-consumable exact array/string-store micro seed route.
@@ -188,11 +187,6 @@ pub struct FunctionMetadata {
     /// Borrowed-slice windows stay in `string_kernel_plans`; this only carries
     /// the temporary emitter payload that generic plans do not expose yet.
     pub substring_views_micro_seed_route: Option<SubstringViewsMicroSeedRoute>,
-
-    /// Backend-consumable exact indexOf string-search micro seed route.
-    /// This keeps leaf/line `indexOf` exact bridge proof in MIR metadata so the
-    /// C backend can select an emitter without re-planning raw MIR JSON.
-    pub indexof_search_micro_seed_route: Option<IndexOfSearchMicroSeedRoute>,
 }
 
 /// Function statistics for profiling and optimization

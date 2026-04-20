@@ -143,11 +143,6 @@ pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
     UserBoxFieldDecl,
 };
-pub use indexof_search_micro_seed_plan::{
-    refresh_function_indexof_search_micro_seed_route,
-    refresh_module_indexof_search_micro_seed_routes, IndexOfSearchMicroSeedProof,
-    IndexOfSearchMicroSeedRoute, IndexOfSearchMicroSeedVariant,
-};
 pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
 pub use optimizer::MirOptimizer;

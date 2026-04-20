@@ -15,9 +15,11 @@ Status:
 - H15.6 removed unused raw `.inc` `indexOf` window/liveness rediscovery analyzers from active compilation.
 - H15.7 retired the exact leaf/line C dispatch bridge and backend env guard; all active line exact runs enter through `array_text_state_residence_route`.
 - H15.8 renamed the remaining backend surface to `hako_llvmc_ffi_indexof_text_state_residence.inc`.
+- H15.9 retired exported `indexof_search_micro_seed_route`; the residence route is the only backend metadata owner.
 
 Current owners:
 - MIR side: `array_text_state_residence_route` top-level is generic contract only; exact proof/action/literals live under `temporary_indexof_seed_payload`.
+- MIR JSON no longer exports `indexof_search_micro_seed_route`.
 - Backend side: active observer lowering consumes `array_text_observer_routes`; it does not call raw window/liveness analyzers or exact leaf/line dispatch wrappers.
 - Backend remaining surface: `hako_llvmc_ffi_indexof_text_state_residence.inc` is a text-state residence temporary payload reader/emitter, not an exact route dispatcher.
 - Read-side owner: `array_text_observer_routes`.
@@ -28,7 +30,8 @@ Fixed order:
 3. H15.6 audit `.inc` consumers for raw `indexOf` window/liveness rediscovery. Closed.
 4. H15.7 retire the exact search dispatch bridge only after exact and compatibility-skip keeper gates stay green. Closed.
 5. H15.8 rename/quarantine the remaining text-state residence temporary emitter. Closed.
-6. H15.9 lift the residence payload source away from `indexof_search_micro_seed_route`, or explicitly keep it as a fixture-backed temporary payload. Next.
+6. H15.9 lift the residence payload source away from exported `indexof_search_micro_seed_route`. Closed.
+7. H15 closeout: keep `temporary_indexof_seed_payload` as the explicit, fixture-backed payload until a generic residence emitter replaces it. Next.
 
 Acceptance:
 - `cargo test indexof_search_micro_seed --lib`
@@ -36,6 +39,7 @@ Acceptance:
 - `cargo test array_text_state_residence --lib`
 - `bash tools/perf/build_perf_release.sh`
 - route trace shows `indexof_line_text_state_residence`
+- MIR JSON does not export `indexof_search_micro_seed_route`
 - exact and retired-flag `kilo_micro_indexof_line` stay keeper-fast
 - `tools/checks/current_state_pointer_guard.sh`
 
@@ -43,7 +47,7 @@ Decision notes:
 - `array_text_observer_routes` remains the read-side owner.
 - `hako_llvmc_ffi_indexof_text_state_residence.inc` stays quarantined until the temporary payload/emitter is replaced by a non-exact MIR payload.
 - H15.4 keeps the exact proof/action payload reuse intentionally small; H15.5 is the structural split that removes exact bridge vocabulary from the generic residence contract.
-- H15.5 keeps `temporary_indexof_seed_payload` explicit because the current emitter is still a temporary exact bridge; do not promote that payload to generic MIR truth.
+- H15.9 keeps `temporary_indexof_seed_payload` explicit because the current emitter is still temporary; do not promote that payload to generic MIR truth.
 
 Latest result:
 - H15.4 adds `src/mir/array_text_state_residence_plan.rs` and stores the route in `FunctionMetadata.array_text_state_residence_route`.
@@ -68,3 +72,8 @@ Latest result:
 - H15.8 trace: post-rename route trace still emits `stage=indexof_line_text_state_residence reason=text_state_residence`.
 - H15.8 perf: `kilo_micro_indexof_line = C 5 ms / Ny AOT 4 ms`.
 - H15.8 checks: `bash tools/perf/build_perf_release.sh`, `cargo test array_text_state_residence --lib`, `tools/checks/current_state_pointer_guard.sh`, `tools/checks/dev_gate.sh quick`, and `git diff --check` passed.
+- H15.9 result: removed `FunctionMetadata.indexof_search_micro_seed_route`, its semantic refresh/export path, and the standalone MIR JSON key.
+- H15.9 result: `array_text_state_residence_route` builds its temporary payload from an internal matcher and remains the only backend-consumable metadata route for this path.
+- H15.9 trace: MIR JSON has no `indexof_search_micro_seed_route`; `array_text_state_residence_route` still exports `temporary_indexof_seed_payload`; route trace emits `stage=indexof_line_text_state_residence reason=text_state_residence`.
+- H15.9 perf: `kilo_micro_indexof_line = C 4 ms / Ny AOT 3 ms`.
+- H15.9 checks: `cargo test indexof_search_micro_seed --lib`, `cargo test array_text_state_residence --lib`, `bash tools/perf/build_perf_release.sh`, `tools/checks/current_state_pointer_guard.sh`, `tools/checks/dev_gate.sh quick`, and `git diff --check` passed.

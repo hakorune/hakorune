@@ -220,9 +220,6 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }),
-            "indexof_search_micro_seed_route": f.metadata.indexof_search_micro_seed_route.as_ref().map(|route| {
-                build_indexof_search_micro_seed_route_json(route)
-            }),
             "array_text_state_residence_route": f.metadata.array_text_state_residence_route.as_ref().map(|route| {
                 build_array_text_state_residence_route_json(route)
             }),
@@ -364,38 +361,6 @@ pub(super) fn build_mir_json_root(
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
     Ok(root)
-}
-
-fn build_indexof_search_micro_seed_route_json(
-    route: &crate::mir::IndexOfSearchMicroSeedRoute,
-) -> serde_json::Value {
-    json!({
-        "variant": route.variant.to_string(),
-        "rows": route.rows,
-        "ops": route.ops,
-        "flip_period": route.flip_period,
-        "line_seed": route.line_seed.as_str(),
-        "line_seed_len": route.line_seed_len,
-        "none_seed": route.none_seed.as_str(),
-        "none_seed_len": route.none_seed_len,
-        "needle": route.needle.as_str(),
-        "needle_len": route.needle_len,
-        "proof": route.proof.to_string(),
-        "result_use": route.result_use.to_string(),
-        "backend_action": route.backend_action.to_string(),
-        "candidate_outcomes": [
-            {
-                "literal": route.line_seed.as_str(),
-                "outcome": route.line_seed_outcome.to_string(),
-            },
-            {
-                "literal": route.none_seed.as_str(),
-                "outcome": route.none_seed_outcome.to_string(),
-            },
-        ],
-        "consumer_capability": "direct_indexof_search_seed",
-        "publication_boundary": "none",
-    })
 }
 
 fn build_array_text_state_residence_route_json(

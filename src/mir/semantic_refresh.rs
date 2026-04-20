@@ -13,9 +13,7 @@ use super::{
     array_text_observer_plan::refresh_function_array_text_observer_routes,
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
-    function::ModuleMetadata,
-    indexof_search_micro_seed_plan::refresh_function_indexof_search_micro_seed_route,
-    placement_effect::refresh_function_placement_effect_routes,
+    function::ModuleMetadata, placement_effect::refresh_function_placement_effect_routes,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
     refresh_function_string_kernel_plans, refresh_function_sum_placement_facts,
@@ -62,7 +60,6 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_array_string_store_micro_seed_route(function);
     refresh_function_concat_const_suffix_micro_seed_route(function);
     refresh_function_substring_views_micro_seed_route(function);
-    refresh_function_indexof_search_micro_seed_route(function);
     refresh_function_array_text_state_residence_route(function);
 }
 

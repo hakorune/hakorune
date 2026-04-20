@@ -1,14 +1,13 @@
 /*!
- * MIR-owned route plan for the temporary indexOf search micro seed bridge.
+ * Internal matcher for the temporary indexOf residence payload.
  *
- * The active string-search exact bridges still use specialized C emitters, but
- * the route proof belongs in MIR metadata. The backend may select an emitter
- * from this plan; it must not rediscover the search shape from raw MIR JSON.
+ * This is not exported as its own backend metadata route. The active metadata
+ * owner is `array_text_state_residence_route`; this module only supplies the
+ * temporary exact payload while the generic residence emitter is still narrow.
  */
 
 use super::{
-    definitions::Callee, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction,
-    MirInstruction, MirModule,
+    definitions::Callee, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -103,18 +102,7 @@ pub struct IndexOfSearchMicroSeedRoute {
     pub none_seed_outcome: IndexOfSearchCandidateOutcome,
 }
 
-pub fn refresh_module_indexof_search_micro_seed_routes(module: &mut MirModule) {
-    for function in module.functions.values_mut() {
-        refresh_function_indexof_search_micro_seed_route(function);
-    }
-}
-
-pub fn refresh_function_indexof_search_micro_seed_route(function: &mut MirFunction) {
-    function.metadata.indexof_search_micro_seed_route =
-        match_indexof_search_micro_seed_route(function);
-}
-
-fn match_indexof_search_micro_seed_route(
+pub(super) fn match_indexof_search_micro_seed_route(
     function: &MirFunction,
 ) -> Option<IndexOfSearchMicroSeedRoute> {
     let facts = collect_facts(function);
@@ -311,14 +299,8 @@ mod tests {
 
     #[test]
     fn detects_leaf_indexof_search_micro_seed_route() {
-        let mut function = build_leaf_function();
-
-        refresh_function_indexof_search_micro_seed_route(&mut function);
-
-        let route = function
-            .metadata
-            .indexof_search_micro_seed_route
-            .expect("leaf route");
+        let function = build_leaf_function();
+        let route = match_indexof_search_micro_seed_route(&function).expect("leaf route");
         assert_eq!(route.variant, IndexOfSearchMicroSeedVariant::Leaf);
         assert_eq!(route.rows, 64);
         assert_eq!(route.ops, 400000);
@@ -344,14 +326,8 @@ mod tests {
 
     #[test]
     fn detects_line_indexof_search_micro_seed_route() {
-        let mut function = build_line_function();
-
-        refresh_function_indexof_search_micro_seed_route(&mut function);
-
-        let route = function
-            .metadata
-            .indexof_search_micro_seed_route
-            .expect("line route");
+        let function = build_line_function();
+        let route = match_indexof_search_micro_seed_route(&function).expect("line route");
         assert_eq!(route.variant, IndexOfSearchMicroSeedVariant::Line);
         assert_eq!(route.flip_period, Some(16));
         assert_eq!(
@@ -388,9 +364,7 @@ mod tests {
             });
         }
 
-        refresh_function_indexof_search_micro_seed_route(&mut function);
-
-        assert!(function.metadata.indexof_search_micro_seed_route.is_none());
+        assert!(match_indexof_search_micro_seed_route(&function).is_none());
     }
 
     fn build_leaf_function() -> MirFunction {
