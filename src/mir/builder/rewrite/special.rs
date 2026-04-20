@@ -52,11 +52,11 @@ pub(crate) fn try_early_str_like_to_dst(
         return Some(Err(e.to_string()));
     }
 
-    // Annotate result type as String (toString always returns String)
-    builder.type_ctx.value_types.insert(
-        actual_dst,
-        super::super::MirType::Box("StringBox".to_string()),
-    );
+    // Annotate result type as value-world String (toString always returns text).
+    builder
+        .type_ctx
+        .value_types
+        .insert(actual_dst, super::super::MirType::String);
 
     trace_tostring(format!(
         "Emitted Call(Method) for {method} -> dst={:?}",

@@ -92,6 +92,15 @@ impl UnifiedCallEmitterBox {
             let recv_cls = box_type
                 .clone()
                 .or_else(|| builder.type_ctx.value_origin_newbox.get(&receiver).cloned())
+                .or_else(|| {
+                    builder.type_ctx.value_types.get(&receiver).and_then(|t| {
+                        if matches!(t, crate::mir::MirType::String) {
+                            Some("StringBox".to_string())
+                        } else {
+                            None
+                        }
+                    })
+                })
                 .unwrap_or_default();
             // Use indexed candidate lookup (tail → names)
             let candidates: Vec<String> = builder.method_candidates(method, arity_for_try);
@@ -118,6 +127,8 @@ impl UnifiedCallEmitterBox {
                     builder.type_ctx.value_types.get(&receiver).and_then(|t| {
                         if let crate::mir::MirType::Box(b) = t {
                             Some(b.clone())
+                        } else if matches!(t, crate::mir::MirType::String) {
+                            Some("StringBox".to_string())
                         } else {
                             None
                         }

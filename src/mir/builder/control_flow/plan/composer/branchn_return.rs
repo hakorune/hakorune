@@ -115,13 +115,7 @@ fn register_literal_type(builder: &mut MirBuilder, dst: ValueId, literal: &Liter
             builder.type_ctx.set_type(dst, MirType::Float);
         }
         LiteralValue::String(_) => {
-            builder
-                .type_ctx
-                .set_type(dst, MirType::Box("StringBox".to_string()));
-            builder
-                .type_ctx
-                .value_origin_newbox
-                .insert(dst, "StringBox".to_string());
+            builder.type_ctx.set_type(dst, MirType::String);
         }
         LiteralValue::Null | LiteralValue::Void => {
             builder.type_ctx.set_type(dst, MirType::Void);

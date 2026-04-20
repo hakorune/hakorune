@@ -184,6 +184,29 @@ Verification:
 - `cargo test -q -p nyash_kernel --lib value_lane -- --test-threads=1` PASS
 - `cargo test -q -p nyash_kernel --lib freeze_text_plan_with_site_publishes_owned_bytes -- --test-threads=1` PASS
 
+## 137x-H1 MIR String Value Lowering Cleanup
+
+Status: active.
+
+Scope:
+- keep source string values in MIR value-world form until an explicit object/publication boundary
+- stop using `value_origin_newbox[StringBox]` as the proof that a string literal or string `Add` result exists
+- keep `Callee::Method(StringBox.*)` as a runtime method-dispatch compatibility boundary for now
+- do not introduce first-class `text.ref` / `text.owned` / `publish` MIR instructions in this slice; the active contract stays in `StringKernelPlan` metadata and verifier checks
+- keep Rust handle issuance behind named publish/cache boundary helpers instead of exporting raw fresh-handle calls to string helpers
+
+Acceptance:
+- string constants emitted by builder constant lowering are typed as `MirType::String`
+- string `Add` results are typed as `MirType::String`
+- match-return literal composition records string literals as `MirType::String`
+- method resolution still maps `MirType::String` receivers to `StringBox` runtime dispatch without creating `value_origin_newbox`
+- no new public ABI, no `publish.any`, no runtime-wide object rewrite
+
+Implementation guard:
+- `value_origin_newbox` remains reserved for explicit `NewBox` / constructor-origin object facts.
+- A string value may be *dispatched through* `StringBox` runtime methods, but that dispatch does not prove the value was born as a `StringBox`.
+- `publish.text` remains MIR-owned metadata; `freeze.str` remains the string birth sink.
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

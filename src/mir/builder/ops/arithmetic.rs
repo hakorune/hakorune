@@ -13,7 +13,7 @@
 //!
 //! ## Type Facts Integration
 //! The Add operation uses TypeFactsBox to classify operand types:
-//! - String + String → StringBox result
+//! - String + String → String value result
 //! - Integer + Integer → Integer result
 //! - Mixed types → Unknown (use-site coercion in LLVM backend)
 //!
@@ -46,7 +46,7 @@ use super::super::{MirInstruction, MirType, ValueId};
 ///
 /// # Type Inference
 /// For Add operations:
-/// - Both String → StringBox result
+/// - Both String → String value result
 /// - Both Integer → Integer result
 /// - Mixed/Unknown → Unknown (use-site coercion)
 ///
@@ -92,15 +92,8 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
         use super::super::type_facts::OperandTypeClass::*;
         match (lhs_type, rhs_type) {
             (String, String) => {
-                // BOTH are strings: result is string
-                builder
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Box("StringBox".to_string()));
-                builder
-                    .type_ctx
-                    .value_origin_newbox
-                    .insert(dst, "StringBox".to_string());
+                // BOTH are strings: result stays value-world text.
+                builder.type_ctx.value_types.insert(dst, MirType::String);
             }
             (Integer, Integer) | (Integer, Unknown) | (Unknown, Integer) => {
                 // TypeFact: Integer + anything non-String = Integer
@@ -183,15 +176,8 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                 use super::super::type_facts::OperandTypeClass::*;
                 match (lhs_type, rhs_type) {
                     (String, String) => {
-                        // BOTH are strings: result is definitely a string
-                        builder
-                            .type_ctx
-                            .value_types
-                            .insert(dst, MirType::Box("StringBox".to_string()));
-                        builder
-                            .type_ctx
-                            .value_origin_newbox
-                            .insert(dst, "StringBox".to_string());
+                        // BOTH are strings: result stays value-world text.
+                        builder.type_ctx.value_types.insert(dst, MirType::String);
                     }
                     (Integer, Integer) | (Integer, Unknown) | (Unknown, Integer) => {
                         // TypeFact: Integer + anything non-String = Integer
@@ -249,15 +235,8 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                     .unwrap_or(false),
             };
             if lhs_is_str && rhs_is_str {
-                // BOTH are strings: result is definitely a string
-                builder
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Box("StringBox".to_string()));
-                builder
-                    .type_ctx
-                    .value_origin_newbox
-                    .insert(dst, "StringBox".to_string());
+                // BOTH are strings: result stays value-world text.
+                builder.type_ctx.value_types.insert(dst, MirType::String);
             } else if !lhs_is_str && !rhs_is_str {
                 // NEITHER is a string: numeric addition
                 builder.type_ctx.value_types.insert(dst, MirType::Integer);

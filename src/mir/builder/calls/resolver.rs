@@ -98,12 +98,13 @@ impl<'a> CalleeResolverBox<'a> {
                     self.infer_box_type(receiver, box_type, trace_enabled, use_registry);
 
                 // Certainty is Known when we have explicit origin or Box型の型情報を持つ場合
-                let has_box_type = self
+                let has_runtime_receiver_type = self
                     .value_types
                     .get(&receiver)
-                    .map(|t| matches!(t, MirType::Box(_)))
+                    .map(|t| matches!(t, MirType::Box(_) | MirType::String))
                     .unwrap_or(false);
-                let certainty = if self.value_origin_newbox.contains_key(&receiver) || has_box_type
+                let certainty = if self.value_origin_newbox.contains_key(&receiver)
+                    || has_runtime_receiver_type
                 {
                     TypeCertainty::Known
                 } else {
@@ -249,6 +250,7 @@ impl<'a> CalleeResolverBox<'a> {
             // 従来: BTreeMap から推論（型情報を優先し、origin は補助とする）
             let from_type = self.value_types.get(&receiver).and_then(|t| match t {
                 MirType::Box(box_name) => Some(box_name.clone()),
+                MirType::String => Some("StringBox".to_string()),
                 _ => None,
             });
             let from_origin = self.value_origin_newbox.get(&receiver).cloned();
@@ -376,6 +378,35 @@ mod tests {
         match result {
             Callee::Constructor { box_type } => assert_eq!(box_type, "StringBox"),
             _ => panic!("Expected Constructor callee"),
+        }
+    }
+
+    #[test]
+    fn test_resolve_string_value_receiver_without_newbox_origin() {
+        let value_origin = BTreeMap::new();
+        let mut value_types = BTreeMap::new();
+        value_types.insert(ValueId(1), MirType::String);
+        let resolver = CalleeResolverBox::new(&value_origin, &value_types, None);
+
+        let target = CallTarget::Method {
+            box_type: None,
+            method: "length".to_string(),
+            receiver: ValueId(1),
+        };
+        let result = resolver.resolve(target).unwrap();
+
+        match result {
+            Callee::Method {
+                box_name,
+                certainty,
+                box_kind,
+                ..
+            } => {
+                assert_eq!(box_name, "StringBox");
+                assert_eq!(certainty, TypeCertainty::Known);
+                assert_eq!(box_kind, CalleeBoxKind::RuntimeData);
+            }
+            _ => panic!("Expected Method callee"),
         }
     }
 }

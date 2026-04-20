@@ -127,7 +127,7 @@ impl TypePropagationPipeline {
     /// # アルゴリズム
     ///
     /// Pass 1: BinOp 命令の型更新を収集
-    /// - Add: String+String→StringBox, Int+Int→Integer, Int+Float→Float
+    /// - Add: String+String→String, Int+Int→Integer, Int+Float→Float
     /// - Other ops: Always Integer（型が欠けている場合）
     ///
     /// Pass 2: Copy チェーン経由で型を伝播（固定点ループ、最大10回）
@@ -158,7 +158,7 @@ impl TypePropagationPipeline {
 
                         use OperandTypeClass::*;
                         let new_type = match (lhs_class, rhs_class) {
-                            (String, String) => Some(MirType::Box("StringBox".to_string())),
+                            (String, String) => Some(MirType::String),
                             (Integer, Integer) | (Integer, Unknown) | (Unknown, Integer) => {
                                 Some(MirType::Integer)
                             }

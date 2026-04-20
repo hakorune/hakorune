@@ -7,11 +7,11 @@ use crate::exports::string_view::{
 };
 use crate::observe;
 use crate::plugin::{
-    issue_fresh_handle_from_arc, materialize_owned_string_explicit_api_boundary_for_site,
+    freeze_owned_bytes_with_site, materialize_owned_string_explicit_api_boundary_for_site,
     materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
     materialize_owned_string_need_stable_object_boundary_for_site,
-    publish_owned_bytes_generic_fallback_boundary_for_site, freeze_owned_bytes_with_site,
-    OwnedText, StringPublishSite,
+    publish_existing_view_arc_explicit_api_boundary,
+    publish_owned_bytes_generic_fallback_boundary_for_site, OwnedText, StringPublishSite,
 };
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles as handles;
@@ -319,9 +319,8 @@ pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
 
 #[inline(always)]
 pub(super) fn publish_view_span_handle_explicit_api(span: StringSpan) -> (Arc<dyn NyashBox>, i64) {
-    observe::record_birth_backend_publish_reason_explicit_api();
     let result_obj: Arc<dyn NyashBox> = Arc::new(span.into_view_box());
-    let handle = issue_fresh_handle_from_arc(result_obj.clone());
+    let handle = publish_existing_view_arc_explicit_api_boundary(result_obj.clone());
     if string_trace::enabled() {
         let len = result_obj.as_ref().as_str_fast().map_or(0, str::len);
         string_trace::emit(
@@ -543,7 +542,10 @@ mod tests {
         );
 
         assert_eq!(outcome.bytes.as_str(), "abcdef");
-        assert!(matches!(outcome.site, StringPublishSite::FreezeTextPlanPieces3));
+        assert!(matches!(
+            outcome.site,
+            StringPublishSite::FreezeTextPlanPieces3
+        ));
     }
 
     #[test]

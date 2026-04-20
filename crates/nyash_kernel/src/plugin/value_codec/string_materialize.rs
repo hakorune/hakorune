@@ -455,7 +455,13 @@ fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
 }
 
 #[inline(always)]
-pub(crate) fn issue_fresh_handle_from_arc(arc: Arc<dyn NyashBox>) -> i64 {
+pub(crate) fn reissue_cached_handle_boundary(arc: Arc<dyn NyashBox>) -> i64 {
+    issue_fresh_handle(arc)
+}
+
+#[inline(always)]
+pub(crate) fn publish_existing_view_arc_explicit_api_boundary(arc: Arc<dyn NyashBox>) -> i64 {
+    record_publish_reason(PublishReason::ExplicitApi);
     issue_fresh_handle(arc)
 }
 

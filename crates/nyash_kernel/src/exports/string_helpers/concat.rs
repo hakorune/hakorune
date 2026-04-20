@@ -20,7 +20,7 @@ use crate::exports::string_view::{
 };
 use crate::observe;
 use crate::plugin::{
-    freeze_owned_string_into_slot, issue_fresh_handle_from_arc, KernelTextSlot, TextRef,
+    freeze_owned_string_into_slot, reissue_cached_handle_boundary, KernelTextSlot, TextRef,
 };
 use nyash_rust::runtime::host_handles as handles;
 
@@ -404,7 +404,7 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     if let Some(cached) = concat_pair_fast_cache_lookup(a_h, b_h) {
         observe::record_str_concat2_route_fast_str_owned();
         observe::record_birth_placement_fresh_handle();
-        return Some(issue_fresh_handle_from_arc(cached));
+        return Some(reissue_cached_handle_boundary(cached));
     }
     let plan = handles::with_text_read_session(|session| {
         session.str_pair(a_h as u64, b_h as u64, |a, b| {

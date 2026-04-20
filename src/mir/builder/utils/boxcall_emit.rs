@@ -40,7 +40,7 @@ impl super::super::MirBuilder {
             // CoreMethodId で定義されたメソッドの戻り値型
             let type_name = method_id.return_type_name();
             return Some(match type_name {
-                "StringBox" => super::super::MirType::Box("StringBox".to_string()),
+                "StringBox" => super::super::MirType::String,
                 "IntegerBox" => super::super::MirType::Box("IntegerBox".to_string()),
                 "BoolBox" => super::super::MirType::Box("BoolBox".to_string()),
                 "ArrayBox" => super::super::MirType::Box("ArrayBox".to_string()),

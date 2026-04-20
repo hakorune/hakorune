@@ -55,14 +55,11 @@ pub fn emit_string<S: Into<String>>(b: &mut MirBuilder, s: S) -> Result<ValueId,
         dst,
         value: ConstValue::String(s.into()),
     })?;
-    // 🎯 Phase 3-A: String constant type annotation
-    // Ensures string constants have proper Box type for method resolution
+    // 137x-H1: string constants are value-world text. Runtime method dispatch may
+    // still route through StringBox, but const emission must not create object origin.
     b.type_ctx
         .value_types
-        .insert(dst, crate::mir::MirType::Box("StringBox".to_string()));
-    b.type_ctx
-        .value_origin_newbox
-        .insert(dst, "StringBox".to_string());
+        .insert(dst, crate::mir::MirType::String);
     Ok(dst)
 }
 

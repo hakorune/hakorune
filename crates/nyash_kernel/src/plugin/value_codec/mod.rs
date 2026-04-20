@@ -32,11 +32,12 @@ pub(crate) use string_classify::{
 pub(crate) use string_materialize::objectize_kernel_text_slot_stable_box;
 pub use string_materialize::KernelTextSlot;
 pub(crate) use string_materialize::{
-    freeze_owned_bytes_with_site, freeze_owned_string_into_slot, issue_fresh_handle_from_arc,
-    materialize_owned_string, materialize_owned_string_explicit_api_boundary_for_site,
+    freeze_owned_bytes_with_site, freeze_owned_string_into_slot, materialize_owned_string,
+    materialize_owned_string_explicit_api_boundary_for_site,
     materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
     materialize_owned_string_need_stable_object_boundary_for_site,
-    publish_kernel_text_slot, publish_owned_bytes_generic_fallback_boundary_for_site,
+    publish_existing_view_arc_explicit_api_boundary, publish_kernel_text_slot,
+    publish_owned_bytes_generic_fallback_boundary_for_site, reissue_cached_handle_boundary,
     with_kernel_text_slot_text, KernelTextSlotState, StringPublishSite,
 };
 #[cfg(test)]

@@ -26,8 +26,9 @@ use crate::exports::string_view::{
 use crate::hako_forward_bridge;
 use crate::observe;
 use crate::plugin::{
-    freeze_owned_string_into_slot, issue_fresh_handle_from_arc, owned_string_from_handle,
-    publish_kernel_text_slot, KernelTextSlot,
+    freeze_owned_string_into_slot, owned_string_from_handle,
+    publish_existing_view_arc_explicit_api_boundary, publish_kernel_text_slot,
+    reissue_cached_handle_boundary, KernelTextSlot,
 };
 use nyash_rust::runtime::host_handles as handles;
 use std::ffi::CStr;
@@ -438,7 +439,7 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
                     SubstringViewCacheHit::Reissue { result_obj, len } => {
                         observe::record_str_substring_route_view_arc_cache_reissue_hit();
                         observe::record_birth_placement_borrow_view();
-                        let handle = issue_fresh_handle_from_arc(result_obj);
+                        let handle = reissue_cached_handle_boundary(result_obj);
                         if handle > 0 {
                             string_len_fast_cache_store(handle, len);
                             substring_view_arc_cache_refresh_handle(h, start, end, handle);
@@ -537,7 +538,7 @@ pub(super) fn string_substring_publish_explicit_api_view_hii_export_impl(
             SubstringViewCacheHit::Reissue { result_obj, len } => {
                 observe::record_birth_placement_borrow_view();
                 observe::record_birth_backend_publish_reason_explicit_api();
-                let handle = issue_fresh_handle_from_arc(result_obj);
+                let handle = publish_existing_view_arc_explicit_api_boundary(result_obj);
                 if handle > 0 {
                     string_len_fast_cache_store(handle, len);
                     substring_view_arc_cache_refresh_handle(h, start, end, handle);
