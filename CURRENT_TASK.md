@@ -178,10 +178,11 @@ Scope: current lane / next lane / restart order only.
       - second slice: retired backend `has_direct_array_set_consumer(...)`; all remaining direct-set checks read `hako_llvmc_value_has_direct_set_consumer(...)`
       - third slice: `StringKernelPlan.slot_hop_substring` now owns the same-block slot-hop substring consumer, hop window, and skip indices; `.inc` only reads the route metadata before emitting/skipping
       - fourth slice: `FunctionMetadata.array_string_store_micro_seed_route` now owns the current compact 8-block exact seed proof; `.inc` reads this route metadata and no longer carries the raw JSON shape scanner
-      - verification: direct MIR metadata probe exports the route; `cargo test array_string_store_micro_seed --lib`, `bash tools/perf/build_perf_release.sh`, `phase137x_direct_emit_array_store_string_contract.sh`, `tools/checks/dev_gate.sh quick`, `git diff --check`, and exact `kilo_micro_array_string_store` microstat (`C 10 ms / Ny AOT 8 ms`) passed
-      - remaining adjacent surface: other exact micro seed families still have raw `.inc` matchers, but the active array-string store exact bridge is metadata-first and no longer the kilo route-owner blocker
+      - fifth slice: retired dead `kilo_micro_concat_hh_len` exact `.inc` bridge; current direct MIR already stays on the generic/metadata route and the specialized 5-block matcher was not active
+      - verification: direct MIR metadata probe exports the route; `cargo test array_string_store_micro_seed --lib`, `bash tools/perf/build_perf_release.sh`, `phase137x_direct_emit_array_store_string_contract.sh`, `tools/checks/dev_gate.sh quick`, `git diff --check`, exact `kilo_micro_array_string_store` microstat (`C 10 ms / Ny AOT 8 ms`), and post-retirement `kilo_micro_concat_hh_len` microstat (`C 3 ms / Ny AOT 3 ms`) passed
+      - remaining adjacent surface: `concat_const_suffix` still needs an exact bridge or MIR-owned replacement because deleting it regresses `kilo_micro_concat_const_suffix` from `Ny AOT 3 ms` to `101 ms`; substring views / length-hot / substring-concat still have raw `.inc` seed matchers
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - next implementation blocker is to inventory the remaining non-array-store exact micro seed matchers before widening kilo optimization again; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
+    - next implementation blocker is to move or replace the remaining active non-array-store exact micro seed matchers before widening kilo optimization again; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

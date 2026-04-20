@@ -31,7 +31,6 @@
 #include "hako_llvmc_ffi_string_loop_seed.inc"
 #include "hako_llvmc_ffi_concat_const_suffix_seed.inc"
 #include "hako_llvmc_ffi_array_string_store_seed.inc"
-#include "hako_llvmc_ffi_concat_hh_len_seed.inc"
 #include "hako_llvmc_ffi_string_search_seed.inc"
 #include "hako_llvmc_ffi_array_micro_seed.inc"
 #include "hako_llvmc_ffi_user_box_micro_seed.inc"

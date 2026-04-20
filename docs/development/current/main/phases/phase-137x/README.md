@@ -651,6 +651,16 @@ Fourth slice result:
   - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 1`: `C 10 ms / Ny AOT 8 ms`, `aot_status=ok`
   - `git diff --check` PASS
 
+Fifth slice result:
+- retired `hako_llvmc_ffi_concat_hh_len_seed.inc` and removed its pure-compile dispatch slot
+- current direct MIR for `kilo_micro_concat_hh_len` has already moved away from the old 5-block exact matcher shape, so generic/metadata lowering preserves the active front without the bridge
+- `concat_const_suffix` was tested but kept: removing its exact bridge regressed `kilo_micro_concat_const_suffix` from `Ny AOT 3 ms` to `101 ms`, so that surface needs a MIR-owned replacement before deletion
+- verification:
+  - `bash tools/perf/build_perf_release.sh` PASS
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_concat_hh_len 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_concat_const_suffix 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 1`: `C 10 ms / Ny AOT 8 ms`, `aot_status=ok`
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -672,6 +682,7 @@ Rules:
 - retired in `137x-H2`: `src/host_providers/llvm_codegen/compat_text_primitive.rs` is renamed out of active code; remaining Rust-side `MIR(JSON text) -> object path` emission lives in `mir_json_text_object.rs` as a no-helper backend boundary.
 - retired in `137x-H13`: `match_piecewise_slot_hop_substring_consumer(...)` is deleted; slot-hop substring consumer, window, and skip indices are now MIR-owned `StringKernelPlan.slot_hop_substring` metadata.
 - retired in `137x-H13`: the raw C-side 8-block scanner in `hako_llvmc_match_array_string_store_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.array_string_store_micro_seed_route`.
+- retired in `137x-H13`: `hako_llvmc_ffi_concat_hh_len_seed.inc` is deleted; the current `kilo_micro_concat_hh_len` direct front stays green through generic/metadata lowering and no longer needs a dedicated exact bridge.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

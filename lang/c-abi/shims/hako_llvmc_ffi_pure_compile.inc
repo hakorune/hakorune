@@ -28,9 +28,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_concat_const_suffix_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
-  if (hako_llvmc_match_concat_hh_len_micro_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
   if (hako_llvmc_match_array_string_store_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
