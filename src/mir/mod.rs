@@ -71,6 +71,7 @@ pub mod sum_placement_selection; // selection pilot over sum-local placement fac
 pub mod thin_entry; // thin-entry inventory for known local routes
 pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
+pub mod value_consumer; // generic consumer capability facts for backend emitters
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
 pub mod value_origin; // generic copy-root / alias-root owner (SSOT)
@@ -180,6 +181,9 @@ pub use thin_entry_selection::{
 };
 pub use types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
+};
+pub use value_consumer::{
+    refresh_function_value_consumer_facts, refresh_module_value_consumer_facts, ValueConsumerFacts,
 };
 pub use value_id::{LocalId, ValueId, ValueIdGenerator};
 pub use value_kind::{MirValueKind, TypedValueId}; // Phase 26-A: ValueId型安全化

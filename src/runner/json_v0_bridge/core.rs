@@ -45,6 +45,7 @@ pub fn parse_json_v0_to_module_with_imports(
     crate::mir::refresh_module_sum_placement_facts(&mut module);
     crate::mir::refresh_module_sum_placement_selections(&mut module);
     crate::mir::refresh_module_sum_placement_layouts(&mut module);
+    crate::mir::refresh_module_value_consumer_facts(&mut module);
     crate::mir::refresh_module_string_kernel_plans(&mut module);
     Ok(module)
 }

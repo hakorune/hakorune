@@ -6,8 +6,8 @@ use crate::mir::{
     string_corridor_relation::StringCorridorRelation, string_kernel_plan::StringKernelPlan,
     sum_placement::SumPlacementFact, sum_placement_layout::SumPlacementLayout,
     sum_placement_selection::SumPlacementSelection, thin_entry::ThinEntryCandidate,
-    thin_entry_selection::ThinEntrySelection, BasicBlock, BasicBlockId, ConstValue, EffectMask,
-    MirType, ValueId,
+    thin_entry_selection::ThinEntrySelection, value_consumer::ValueConsumerFacts, BasicBlock,
+    BasicBlockId, ConstValue, EffectMask, MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -79,6 +79,11 @@ pub struct FunctionMetadata {
 
     /// Optional per-value origin caller map (diagnostic only)
     pub value_origin_callers: BTreeMap<ValueId, String>,
+
+    /// Generic per-value consumer facts derived from canonical MIR.
+    /// Backend emitters may consume these facts, but must not re-own consumer
+    /// legality by scanning MIR JSON for semantic shape matches.
+    pub value_consumer_facts: BTreeMap<ValueId, ValueConsumerFacts>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,

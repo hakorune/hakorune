@@ -1,6 +1,26 @@
 use super::super::build_mir_json_root;
 use super::{make_function, make_string_loop_function};
-use crate::mir::{MirModule, ValueId};
+use crate::mir::{MirModule, ValueConsumerFacts, ValueId};
+
+#[test]
+fn build_mir_json_root_emits_value_consumer_facts() {
+    let mut module = MirModule::new("test".to_string());
+    let mut function = make_function("main", true);
+    function.metadata.value_consumer_facts.insert(
+        ValueId::new(7),
+        ValueConsumerFacts {
+            direct_set_consumer: true,
+        },
+    );
+    module.functions.insert("main".to_string(), function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let facts = root["functions"][0]["metadata"]["value_consumer_facts"]
+        .as_object()
+        .expect("value_consumer_facts object");
+
+    assert_eq!(facts["7"]["direct_set_consumer"], true);
+}
 
 #[test]
 fn build_mir_json_root_emits_string_corridor_facts() {

@@ -23,7 +23,7 @@
           long long rhs,
           int* direct_set_out,
           int* shared_receiver_out) {
-        int direct_set = has_direct_array_set_consumer(ii, ilen, insts, dst);
+        int direct_set = hako_llvmc_value_has_direct_set_consumer(dst);
         int shared_receiver = 0;
         if (get_str_const(rhs) != NULL) {
           shared_receiver = hako_llvmc_string_kernel_plan_shared_receiver(dst);

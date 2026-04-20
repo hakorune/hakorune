@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use crate::mir::{
     build_value_def_map, refresh_function_placement_effect_routes,
     refresh_function_string_corridor_metadata, refresh_function_string_kernel_plans,
-    resolve_value_origin,
+    refresh_function_value_consumer_facts, resolve_value_origin,
     string_corridor_recognizer::{
         const_string_length, extract_substring_args, match_add_in_block, match_concat_triplet,
         match_len_call, match_method_set_call, match_substring_call, match_substring_call_shape,
@@ -151,6 +151,7 @@ fn has_string_corridor_transform_sites(function: &MirFunction) -> bool {
 pub(crate) fn refresh_function_string_corridor_folded_metadata(function: &mut MirFunction) {
     refresh_function_string_corridor_metadata(function);
     refresh_function_placement_effect_routes(function);
+    refresh_function_value_consumer_facts(function);
     refresh_function_string_kernel_plans(function);
 }
 

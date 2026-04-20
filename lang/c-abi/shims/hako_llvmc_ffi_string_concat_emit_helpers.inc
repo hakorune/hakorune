@@ -362,7 +362,7 @@
           int emit_placeholder) {
         const char* rhs_const = get_str_const(rhs);
         if (!(dst && lhs && rhs_const)) return 0;
-        if (!emit_placeholder && !has_direct_array_set_consumer(ii, ilen, insts, dst)) return 0;
+        if (!emit_placeholder && !hako_llvmc_value_has_direct_set_consumer(dst)) return 0;
         remember_deferred_const_suffix_kernel_slot(dst, lhs, rhs);
         if (emit_placeholder) {
           fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);

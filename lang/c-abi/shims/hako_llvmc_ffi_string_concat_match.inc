@@ -625,7 +625,7 @@
           reason = "final_suffix_mismatch";
           goto done;
         }
-        direct_set = has_direct_array_set_consumer(final_use_ii, ilen, insts, result_reg);
+        direct_set = hako_llvmc_value_has_direct_set_consumer(result_reg);
         if (!direct_set) {
           reason = "set_consumer_missing";
           goto done;
@@ -727,7 +727,7 @@
         rhs = read_int(use_ins, "rhs");
         if (rhs != reg) return 0;
         concat_dst = read_int(use_ins, "dst");
-        return has_direct_array_set_consumer(use_ii, ilen, insts, concat_dst);
+        return hako_llvmc_value_has_direct_set_consumer(concat_dst);
       }
 
       auto int should_skip_string_const_box_for_insert_mid_window(
@@ -827,7 +827,7 @@
         } else {
           return 0;
         }
-        if (!has_direct_array_set_consumer(final_use_ii, ilen, insts, result_reg)) return 0;
+        if (!hako_llvmc_value_has_direct_set_consumer(result_reg)) return 0;
 
         prefix_final = resolve_copy_chain_source_reg(insts, pair_use_ii + 1, prefix_final);
         suffix_final = resolve_copy_chain_source_reg(insts, final_use_ii + 1, suffix_final);

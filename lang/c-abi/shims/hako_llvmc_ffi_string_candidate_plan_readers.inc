@@ -1,6 +1,26 @@
       #ifndef HAKO_LLVMC_STRING_CANDIDATE_PLAN_READERS_INC
       #define HAKO_LLVMC_STRING_CANDIDATE_PLAN_READERS_INC
 
+      auto yyjson_val* hako_llvmc_value_consumer_facts_by_value(
+          long long value) {
+        char key[32];
+        yyjson_val* facts = NULL;
+        if (!(fn_metadata && value)) return NULL;
+        snprintf(key, sizeof(key), "%lld", value);
+        facts = yyjson_obj_get(fn_metadata, "value_consumer_facts");
+        if (!(facts && yyjson_is_obj(facts))) return NULL;
+        facts = yyjson_obj_get(facts, key);
+        if (!(facts && yyjson_is_obj(facts))) return NULL;
+        return facts;
+      }
+
+      auto int hako_llvmc_value_has_direct_set_consumer(long long value) {
+        yyjson_val* facts = hako_llvmc_value_consumer_facts_by_value(value);
+        yyjson_val* direct_set =
+            facts ? yyjson_obj_get(facts, "direct_set_consumer") : NULL;
+        return direct_set && yyjson_is_bool(direct_set) && yyjson_get_bool(direct_set);
+      }
+
       auto yyjson_val* hako_llvmc_string_corridor_value_candidates(
           long long value) {
         char key[32];

@@ -47,6 +47,11 @@ pub(super) fn build_mir_json_root(
                 };
                 (k.as_u32().to_string(), type_str)
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
+            "value_consumer_facts": f.metadata.value_consumer_facts.iter().map(|(k, facts)| {
+                (k.as_u32().to_string(), json!({
+                    "direct_set_consumer": facts.direct_set_consumer,
+                }))
+            }).collect::<serde_json::Map<String, serde_json::Value>>(),
             "storage_classes": f.metadata.value_storage_classes.iter().map(|(k, v)| {
                 (k.as_u32().to_string(), json!(v.to_string()))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),

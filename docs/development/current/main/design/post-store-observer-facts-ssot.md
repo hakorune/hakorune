@@ -111,7 +111,7 @@ PlacedCarrierFacts = {
 
 1. `array.set` を first Store boundary として維持する
 2. trailing `length()` を post-store observer として扱う
-3. compiler-local placement window では `remember_string_concat_*`, `remember_string_substring_call(...)`, `remember_string_length_call(...)`, `has_direct_array_set_consumer(...)`, `analyze_array_string_len_window_candidate(...)` を同じ cluster で読む
+3. compiler-local placement window では `remember_string_concat_*`, `remember_string_substring_call(...)`, `remember_string_length_call(...)`, MIR `value_consumer_facts[*].direct_set_consumer`, `analyze_array_string_len_window_candidate(...)` を同じ cluster で読む
 4. `TextPlan` / `PiecesN` の carrier facts から答えられる observer だけを増やす
 5. meso/main proof は同じ artifact pair と trace+asm bundle で見る
 6. それでも必要なら、その時だけ `RetainedForm` wiring を code-side で広げる

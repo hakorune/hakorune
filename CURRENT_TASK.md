@@ -172,11 +172,12 @@ Scope: current lane / next lane / restart order only.
       - deletion gate: legacy C-side window matcher removed from the active lowering path; extend the same metadata-first contract to any remaining direct/front loopcarry windows
     - `137x-H13` MIR-owned piecewise direct-set consumer is active
       - problem: direct-front `Pieces3` emit routes still decide direct `array.set` consumer legality in `.inc`
-      - decision: `StringKernelPlan.read_alias.direct_set_consumer` is the MIR-owned fact; `.inc` only consumes it
-      - first slice: move string concat / insert direct-set consumer checks from `has_direct_array_set_consumer(...)` to MIR metadata
+      - decision: `StringKernelPlan.read_alias.direct_set_consumer` is the piecewise plan fact; generic `FunctionMetadata.value_consumer_facts` owns single direct `set` sink facts; `.inc` only consumes metadata
+      - first slice: moved string concat / insert direct-set consumer checks to MIR metadata
+      - second slice: retired backend `has_direct_array_set_consumer(...)`; all remaining direct-set checks read `hako_llvmc_value_has_direct_set_consumer(...)`
       - remaining adjacent surfaces: slot-hop substring skip planning and the exact array-string seed bridge
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - next implementation blocker remains `137x-H13` direct-front consumer ownership; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
+    - next implementation blocker is `137x-H13` adjacent backend route ownership: slot-hop substring skip planning first, exact array-string seed bridge second; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

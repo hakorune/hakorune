@@ -84,7 +84,8 @@ semantic boundary は 2 つに分かれているが、**compiler-local placement
 
 ### Store boundary detection
 
-- `has_direct_array_set_consumer(...)`
+- MIR metadata: `value_consumer_facts[*].direct_set_consumer`
+- backend reader: `hako_llvmc_value_has_direct_set_consumer(...)`
 
 役割:
 - `array.set` が first `Store` boundary か

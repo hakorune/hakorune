@@ -563,7 +563,8 @@ Decision:
 
 ## 137x-H12 MIR-Owned Loopcarry Route SSOT
 
-Status: active.
+Status: active; the direct-set consumer scanner is retired, while adjacent
+slot-hop / exact-seed surfaces remain in the phase.
 
 Purpose:
 - close the remaining route ownership leak in the active loopcarry middle guard before opening a lock-elision or allocator slice
@@ -597,18 +598,27 @@ Status: active.
 Purpose:
 - continue the H12 ownership cleanup on the adjacent direct-front `Pieces3` route
 - make MIR `StringKernelPlan` own whether a piecewise text value may be consumed by direct `array.set`
+- make generic MIR `value_consumer_facts` own the single direct `set` sink fact
 - keep `.inc` as a plan reader and emitter instead of a consumer-shape scanner for this decision
 
 Boundary:
 - MIR may scan current uses and expose `read_alias.direct_set_consumer`
+- MIR may scan canonical value uses and expose `metadata.value_consumer_facts[*].direct_set_consumer`
 - `.inc` may use that fact to defer piecewise publication or reject the fast route
 - `.inc` must not decide direct-set legality for the selected `Pieces3` value from raw JSON when the MIR fact is present
 - slot-hop substring skip planning and the exact array-string seed bridge stay out of this slice
 
 Acceptance:
 - `StringKernelPlan.read_alias.direct_set_consumer` is exported in MIR JSON
+- `metadata.value_consumer_facts` is exported in MIR JSON
 - string concat/insert direct-front emit routes use the MIR fact for direct-set consumer decisions
+- `has_direct_array_set_consumer(...)` is removed from the backend shim surface
 - existing route guards remain green
+
+Second slice result:
+- `.inc` now uses `hako_llvmc_value_has_direct_set_consumer(...)`, a metadata reader over MIR-owned `value_consumer_facts`
+- the old C-side `has_direct_array_set_consumer(...)` JSON scanner and its trace-only helper were deleted
+- remaining cleanup is not direct-set ownership; it is slot-hop substring skip planning and the exact array-string seed bridge
 
 ## Legacy Retirement Ledger
 

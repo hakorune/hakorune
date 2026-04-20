@@ -272,7 +272,7 @@
               concat_suffix == suffix_final &&
               concat_middle &&
               get_str_const(concat_middle))) return 0;
-        if (!has_direct_array_set_consumer(prefix_use_ii, ilen, insts, concat_dst)) return 0;
+        if (!hako_llvmc_value_has_direct_set_consumer(concat_dst)) return 0;
 
         if (out) {
           out->second_ii = ii + 1;
@@ -426,7 +426,7 @@
         result_reg = read_int(final_ins, "dst");
         if (!((final_lhs == pair_dst && final_rhs == suffix_final) ||
               (final_rhs == pair_dst && final_lhs == suffix_final))) return 0;
-        if (!has_direct_array_set_consumer(final_use_ii, ilen, insts, result_reg)) return 0;
+        if (!hako_llvmc_value_has_direct_set_consumer(result_reg)) return 0;
         if (second_ii_out) *second_ii_out = ii + 1;
         return 1;
       }

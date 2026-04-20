@@ -14,8 +14,8 @@ use super::{
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
     refresh_function_string_kernel_plans, refresh_function_sum_placement_facts,
     refresh_function_sum_placement_layouts, refresh_function_sum_placement_selections,
-    refresh_function_thin_entry_candidates, refresh_function_thin_entry_selections, MirFunction,
-    MirModule,
+    refresh_function_thin_entry_candidates, refresh_function_thin_entry_selections,
+    refresh_function_value_consumer_facts, MirFunction, MirModule,
 };
 
 /// Refresh the current string-corridor metadata stack for one function.
@@ -47,6 +47,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_sum_placement_layouts(function);
     refresh_function_agg_local_scalarization_routes(function);
     refresh_function_placement_effect_routes(function);
+    refresh_function_value_consumer_facts(function);
     refresh_function_string_kernel_plans(function);
     refresh_function_array_text_loopcarry_len_store_routes(function);
 }
