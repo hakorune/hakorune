@@ -35,6 +35,8 @@ pub struct ArrayStringStoreMicroSeedRoute {
     pub ops: i64,
     pub suffix: String,
     pub store_len: i64,
+    pub next_text_window_start: i64,
+    pub next_text_window_len: i64,
     pub proof: ArrayStringStoreMicroSeedProof,
 }
 
@@ -132,7 +134,11 @@ fn match_array_string_store_micro_seed_route(
     if !method_call_is(b5[8], &["RuntimeDataBox", "StringBox"], "length", 0) {
         return None;
     }
-    if const_i64(b5[9])? != 2 || const_i64(b5[10])? != 2 || !binop_is(b5[11], BinaryOp::Add) {
+    let next_text_window_start = const_i64(b5[9])?;
+    if next_text_window_start != 2
+        || const_i64(b5[10])? != next_text_window_start
+        || !binop_is(b5[11], BinaryOp::Add)
+    {
         return None;
     }
     if !method_call_is(b5[12], &["RuntimeDataBox", "StringBox"], "substring", 2) {
@@ -160,6 +166,8 @@ fn match_array_string_store_micro_seed_route(
         ops,
         suffix: suffix.to_string(),
         store_len: seed_len + suffix.len() as i64,
+        next_text_window_start,
+        next_text_window_len: seed_len,
         proof: ArrayStringStoreMicroSeedProof::KiloMicroArrayStringStore8Block,
     })
 }
@@ -283,6 +291,8 @@ mod tests {
         assert_eq!(route.ops, 800000);
         assert_eq!(route.suffix, "xy");
         assert_eq!(route.store_len, 18);
+        assert_eq!(route.next_text_window_start, 2);
+        assert_eq!(route.next_text_window_len, 16);
         assert_eq!(
             route.proof,
             ArrayStringStoreMicroSeedProof::KiloMicroArrayStringStore8Block

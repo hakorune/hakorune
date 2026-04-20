@@ -3,17 +3,31 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
     const hako_llvmc_entry_rune_selection* selection,
     const char* seed,
     long long seed_len,
+    const char* suffix,
+    long long suffix_len,
     long long size,
-    long long ops) {
+    long long ops,
+    long long store_len,
+    long long next_text_window_start,
+    long long next_text_window_len) {
   char llpath[1024];
   FILE* f;
   int rc;
-  long long store_len;
+  unsigned int suffix0;
+  unsigned int suffix1;
 
-  if (!obj_out || !seed || seed_len != 16 || size != 128 || ops != 800000) {
+  if (!obj_out || !seed || !suffix ||
+      seed_len != 16 ||
+      suffix_len != 2 ||
+      size != 128 ||
+      ops != 800000 ||
+      store_len != seed_len + suffix_len ||
+      next_text_window_start != 2 ||
+      next_text_window_len != seed_len) {
     return -1;
   }
-  store_len = seed_len + 2;
+  suffix0 = (unsigned int)(unsigned char)suffix[0];
+  suffix1 = (unsigned int)(unsigned char)suffix[1];
 
   snprintf(
       llpath,
@@ -81,24 +95,23 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   fprintf(f, "loop.body:\n");
   fprintf(f, "  %%idx = and i64 %%i.cur, 127\n");
   fprintf(f, "  %%slot = getelementptr inbounds [32 x i8], ptr %%arr.ptr, i64 %%idx\n");
-  fprintf(
-      f,
-      "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%slot, ptr align 16 %%text.ptr, i64 %lld, i1 false)\n",
-      seed_len);
+  fprintf(f, "  %%text.vec = load <16 x i8>, ptr %%text.ptr, align 16\n");
+  fprintf(f, "  store <16 x i8> %%text.vec, ptr %%slot, align 16\n");
   fprintf(f, "  %%slot.16 = getelementptr inbounds i8, ptr %%slot, i64 16\n");
-  fprintf(f, "  store i8 120, ptr %%slot.16, align 1\n");
+  fprintf(f, "  store i8 %u, ptr %%slot.16, align 1\n", suffix0);
   fprintf(f, "  %%slot.17 = getelementptr inbounds i8, ptr %%slot, i64 17\n");
-  fprintf(f, "  store i8 121, ptr %%slot.17, align 1\n");
+  fprintf(f, "  store i8 %u, ptr %%slot.17, align 1\n", suffix1);
   fprintf(f, "  %%slot.18 = getelementptr inbounds i8, ptr %%slot, i64 18\n");
   fprintf(f, "  store i8 0, ptr %%slot.18, align 1\n");
   fprintf(f, "  %%sum.cur = load volatile i64, ptr %%sum, align 8\n");
   fprintf(f, "  %%sum.next = add i64 %%sum.cur, %lld\n", store_len);
   fprintf(f, "  store volatile i64 %%sum.next, ptr %%sum, align 8\n");
-  fprintf(f, "  %%text.shift = getelementptr inbounds i8, ptr %%slot, i64 2\n");
   fprintf(
       f,
-      "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%text.ptr, ptr align 1 %%text.shift, i64 %lld, i1 false)\n",
-      seed_len);
+      "  %%text.next = shufflevector <16 x i8> %%text.vec, <16 x i8> <i8 %u, i8 %u, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0>, <16 x i32> <i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i32 8, i32 9, i32 10, i32 11, i32 12, i32 13, i32 14, i32 15, i32 16, i32 17>\n",
+      suffix0,
+      suffix1);
+  fprintf(f, "  store <16 x i8> %%text.next, ptr %%text.ptr, align 16\n");
   fprintf(f, "  %%text.16 = getelementptr inbounds i8, ptr %%text.ptr, i64 16\n");
   fprintf(f, "  store i8 0, ptr %%text.16, align 1\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
@@ -138,6 +151,8 @@ static int hako_llvmc_match_array_string_store_micro_seed(
   long long size = 0;
   long long ops = 0;
   long long store_len = 0;
+  long long next_text_window_start = 0;
+  long long next_text_window_len = 0;
   int rc;
   size_t i;
 
@@ -177,6 +192,8 @@ static int hako_llvmc_match_array_string_store_micro_seed(
   size = (long long)yyjson_get_sint(yyjson_obj_get(route, "size"));
   ops = (long long)yyjson_get_sint(yyjson_obj_get(route, "ops"));
   store_len = (long long)yyjson_get_sint(yyjson_obj_get(route, "store_len"));
+  next_text_window_start = (long long)yyjson_get_sint(yyjson_obj_get(route, "next_text_window_start"));
+  next_text_window_len = (long long)yyjson_get_sint(yyjson_obj_get(route, "next_text_window_len"));
 
   if (!(seed && suffix && proof &&
         hako_llvmc_ascii_strlen(seed, &actual_seed_len) &&
@@ -189,7 +206,9 @@ static int hako_llvmc_match_array_string_store_micro_seed(
         seed_len == 16 &&
         size == 128 &&
         ops == 800000 &&
-        store_len == seed_len + actual_suffix_len)) {
+        store_len == seed_len + actual_suffix_len &&
+        next_text_window_start == 2 &&
+        next_text_window_len == seed_len)) {
     if (hako_llvmc_route_trace_enabled()) {
       hako_llvmc_emit_route_trace(
           "array_string_store_micro",
@@ -213,8 +232,13 @@ static int hako_llvmc_match_array_string_store_micro_seed(
       &selection,
       seed,
       seed_len,
+      suffix,
+      actual_suffix_len,
       size,
-      ops);
+      ops,
+      store_len,
+      next_text_window_start,
+      next_text_window_len);
   yyjson_doc_free(doc);
   return rc;
 }

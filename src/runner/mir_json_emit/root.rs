@@ -192,6 +192,8 @@ pub(super) fn build_mir_json_root(
                     "ops": route.ops,
                     "suffix": route.suffix.as_str(),
                     "store_len": route.store_len,
+                    "next_text_window_start": route.next_text_window_start,
+                    "next_text_window_len": route.next_text_window_len,
                     "proof": route.proof.to_string(),
                     "consumer_capability": "direct_stack_array_string_store",
                     "publication_boundary": "none",

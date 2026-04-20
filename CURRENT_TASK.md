@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; post-H15 owner-first perf reread)
+  - `phase-137x-H owner-first optimization return` (active; post-H16 owner-first perf reread)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -245,6 +245,21 @@ Scope: current lane / next lane / restart order only.
       - acceptance checks: `cargo test indexof_search_micro_seed --lib`, `cargo test array_text_observer --lib`, `cargo test array_text_state_residence --lib`, `bash tools/perf/build_perf_release.sh`, route trace showing `indexof_line_text_state_residence`, exact/retired-flag `kilo_micro_indexof_line` keeper microstats, and `tools/checks/current_state_pointer_guard.sh`
       - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
       - next step: rerun owner-first perf evidence for the active kilo front before source edits
+    - `137x-H16` exact array-string store text-shift seam is closed
+      - perf-first baseline:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 7 ms`
+        - `ny_aot_instr=11671010`, `ny_aot_cycles=20593774`
+        - `ny_main` owns 97.81% of AOT cycles; annotate points at the emitted `slot + 2 -> text` 16-byte copy
+      - decision: MIR route metadata must expose the follow-up substring window used to update loop-carried text; `.inc` may use that metadata to emit text-state update mechanics, but must not rediscover the route from raw blocks
+      - guard: this remains the temporary exact array-store bridge; do not widen route legality, public ABI, or runtime ownership
+      - acceptance checks: `cargo test array_string_store_micro_seed --lib`, `bash tools/perf/build_perf_release.sh`, exact route trace, `phase137x_direct_emit_array_store_string_contract.sh`, exact `kilo_micro_array_string_store` microstat, and `tools/checks/current_state_pointer_guard.sh`
+      - implementation: `array_string_store_micro_seed_route` exports `next_text_window_start=2` and `next_text_window_len=16`; the exact emitter updates loop-carried text from that MIR-owned window via vector shuffle instead of reading `slot + 2`
+      - result:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 5 ms`
+        - `ny_aot_instr=11670690`, `ny_aot_cycles=9512639`
+        - post-change asm uses `vpalignr` for the text-state update; the previous `slot + 2 -> text` copy is gone
+      - guard held: no route widening, no public ABI, no runtime ownership, and the bridge remains temporary exact metadata
+      - next step: rerun owner-first perf evidence before the next exact-bridge shrink
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:

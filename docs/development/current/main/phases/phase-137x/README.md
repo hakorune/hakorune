@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; post-H15 owner-first perf reread)
+- current lane: `phase-137x-H owner-first optimization return` (active; post-H16 owner-first perf reread)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -900,6 +900,46 @@ Verification:
 - Closed gate:
   - `hako_llvmc_ffi_indexof_text_state_residence.inc` remains quarantined as the temporary text-state residence payload reader/emitter
   - further deletion stays blocked until a generic residence emitter no longer needs `temporary_indexof_seed_payload`
+
+## 137x-H16 Exact Array-String Store Text-Shift Seam
+
+Status: closed.
+
+Scope:
+- shrink only the temporary `kilo_micro_array_string_store` exact bridge
+- make MIR route metadata expose the follow-up substring window that updates loop-carried text
+- let `.inc` emit text-state update mechanics from metadata instead of copying back from the just-written slot
+- keep route legality, public ABI, and runtime ownership unchanged
+
+Perf-first baseline:
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
+  - `C 10 ms / Ny AOT 7 ms`
+  - `ny_aot_instr=11671010`, `ny_aot_cycles=20593774`
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_aot_asm.sh kilo_micro_array_string_store 'ny_main' 3`
+  - `ny_main` owns 97.81% of AOT cycles
+  - hot annotate points at the emitted 16-byte `slot + 2 -> text` copy
+
+Acceptance:
+- `cargo test array_string_store_micro_seed --lib`
+- `bash tools/perf/build_perf_release.sh`
+- `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+- route trace still emits `array_string_store_micro result=emit reason=exact_match`
+- exact `kilo_micro_array_string_store` microstat does not regress
+- `tools/checks/current_state_pointer_guard.sh`
+
+Implementation:
+- `array_string_store_micro_seed_route` now exports `next_text_window_start=2` and `next_text_window_len=16`.
+- The exact emitter validates those metadata fields and emits a vector text-state update from the MIR-owned follow-up substring window.
+- The old loop-body `slot + 2 -> text` copy is gone; the post-change asm uses `vpalignr` after storing the current text into the selected slot.
+
+Result:
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
+  - `C 10 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=11670690`, `ny_aot_cycles=9512639`
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_aot_asm.sh kilo_micro_array_string_store 'ny_main' 3`
+  - `ny_main` still owns the hot loop
+  - top local owner is now the slot store plus suffix stores; the previous `slot + 2 -> text` copy is absent
+- Guard held: no route widening, no public ABI, no runtime ownership, and the bridge remains temporary exact metadata.
 
 ## Legacy Retirement Ledger
 
