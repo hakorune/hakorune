@@ -42,6 +42,8 @@ Related:
     - H22 owner: after H21, `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`; top is `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str` closure 85-96%
     - H22 is closed: local helper surgery rejected; remaining owner is runtime-private array text residence mutation / uncontended write-lock substrate
     - H23 is active: first measure write guard acquire / slot resolve / storage dispatch / commit; only then prototype a helper-local `ArrayTextWriteTxn` / `ArrayTextSlotSession`
+    - H23a probe uses direct `NYASH_PERF_COUNTERS=1 target/release/hakorune --backend vm ...` runs for loopcarry and non-loopcarry control; do not use `bench_micro_c_vs_aot_stat.sh` for counter capture
+    - H23a inventory keeps storage/guard mechanics in `src/boxes/array/ops/text.rs`; plugin/kernel code may only orchestrate handle acquisition and runtime-private string edit mechanics
     - H23 guard: MIR remains legality owner, `.inc` remains emit-only, Rust runtime owns mechanics only; no semantic cache and no loop-wide session
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`

@@ -388,6 +388,15 @@ Scope: current lane / next lane / restart order only.
       - next seam:
         - first measure whether write guard acquire / slot resolve / storage dispatch / commit are the active substrate owner
         - only if confirmed, prototype a helper-local `ArrayTextWriteTxn` / `ArrayTextSlotSession`
+      - H23a inventory:
+        - hot helper is `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(...)`
+        - current runtime shape is `with_array_box(...) -> slot_update_text_resident_raw(...) -> fallback slot_update_text_raw(...)`
+        - storage/guard mechanics stay in `src/boxes/array/ops/text.rs`
+        - plugin/kernel wrapper may orchestrate handle acquisition, but must not own storage layout or legality
+      - first probe:
+        - use direct `NYASH_PERF_COUNTERS=1 target/release/hakorune --backend vm ...` runs for loopcarry and non-loopcarry control
+        - do not use `bench_micro_c_vs_aot_stat.sh` for counter capture because it hides child stderr
+        - if current counters are ambiguous, add only temporary `NYASH_PERF_COUNTERS`-gated split counters for resident hit/fallback/miss
       - allowed:
         - helper-local transaction only
         - acquire array text write guard once

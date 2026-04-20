@@ -1233,6 +1233,23 @@ Owner card:
   - no search-result cache / semantic cache
   - no lock held across publish / objectize / generic fallback / host handle calls
 
+Worker inventory:
+- active hot helper:
+  - `crates/nyash_kernel/src/plugin/array_string_slot_write.rs`
+  - `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(...)`
+  - current shape is `with_array_box(handle, |arr| arr.slot_update_text_resident_raw(...).or_else(|| arr.slot_update_text_raw(...)))`
+- storage substrate:
+  - `src/boxes/array/ops/text.rs`
+  - `slot_update_text_resident_raw(...)` owns text-resident mutation under one array write guard
+  - `slot_update_text_raw(...)` owns compatibility fallback and may promote boxed string-like slots
+- handle/cache substrate:
+  - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
+  - preserve `valid_handle_idx`, cached `ArrayBox`, and drop-epoch invalidation behavior
+- observe substrate:
+  - `crates/nyash_kernel/src/observe/README.md`
+  - `NYASH_PERF_COUNTERS` is the only counter gate for H23
+  - new H23 counters, if needed, must follow the observe counter change rule and stay evidence-only
+
 Design boundary:
 - Allowed:
   - helper-local transaction only
@@ -1240,6 +1257,14 @@ Design boundary:
   - resolve the slot once
   - expose transient resident text mutation mechanics inside the helper
   - commit within the helper boundary
+- Placement:
+  - `src/boxes/array/ops/text.rs` remains the owner for storage-layout and write-guard mechanics because `ArrayStorage` and the guard are private substrate
+  - `crates/nyash_kernel/src/plugin/array_string_slot_write.rs` remains the owner for runtime-private string edit mechanics and observe calls
+  - an optional small `crates/nyash_kernel/src/plugin/array_text_write_txn.rs` wrapper may orchestrate handle acquisition and delegate to the ArrayBox substrate, but it must not own storage layout or legality
+- Candidate API shape:
+  - ArrayBox substrate: one narrow text-slot writer that distinguishes resident hit / fallback / miss without exposing `ArrayStorage`
+  - kernel wrapper: one helper-local `ArrayTextWriteTxn` / `ArrayTextSlotSession` only if the probe proves repeated handle/slot/session mechanics are the owner
+  - no public ABI, no `.hako` surface, no MIR-facing API
 - Deferred:
   - block-local session
   - loop-wide session
@@ -1248,6 +1273,24 @@ Design boundary:
   - publishing while a write transaction is live
   - extending transaction lifetime across loop backedge, safepoint, generic object call, panic/unwind, or externally visible alias boundary
   - making helper symbol names semantic truth
+  - changing `ArrayStorage` layout or promotion rules as part of the transaction pilot
+
+First probe:
+- Build a perf-observe binary:
+  - `bash tools/perf/build_perf_observe_release.sh`
+- Capture attribution counters directly; do not use `bench_micro_c_vs_aot_stat.sh` for this probe because it suppresses child stderr:
+  - `NYASH_PERF_COUNTERS=1 NYASH_GC_MODE=off NYASH_SCHED_POLL_IN_SAFEPOINT=0 NYASH_DISABLE_PLUGINS=1 NYASH_SKIP_TOML_ENV=1 target/release/hakorune --backend vm benchmarks/bench_kilo_meso_substring_concat_array_set_loopcarry.hako > target/perf_state/h23_loopcarry.out 2> target/perf_state/h23_loopcarry.err`
+  - `NYASH_PERF_COUNTERS=1 NYASH_GC_MODE=off NYASH_SCHED_POLL_IN_SAFEPOINT=0 NYASH_DISABLE_PLUGINS=1 NYASH_SKIP_TOML_ENV=1 target/release/hakorune --backend vm benchmarks/bench_kilo_meso_substring_concat_array_set.hako > target/perf_state/h23_noloopcarry.out 2> target/perf_state/h23_noloopcarry.err`
+- Read buckets:
+  - guard/handle candidate: `store.array.str.total`, cache hit/miss, and `lookup.*`
+  - slot resolve candidate: `plan.source_kind_*`, `plan.slot_kind_*`, `lookup.registry_slot_read`, and `lookup.caller_latest_fresh_tag`
+  - storage dispatch candidate: resident text hit versus fallback through `slot_update_text_resident_raw(...)` / `slot_update_text_raw(...)`
+  - commit candidate: `existing_slot`, `append_slot`, and `source_store`
+- If the first probe is ambiguous, add only temporary `NYASH_PERF_COUNTERS`-gated counters:
+  - split `slot_update_text_resident_raw(...)` hit/miss
+  - split `slot_update_text_raw(...)` text-resident / boxed-string / miss
+  - optionally bracket `with_array_box(...)` in the hot helper
+  - no new env var and no unconditional logging
 
 Acceptance:
 - First probe must measure whether the active owner is actually write guard acquire / slot resolve / storage dispatch / commit.
