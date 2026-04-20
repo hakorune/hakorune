@@ -155,8 +155,8 @@ pub use string_kernel_plan::{
     StringKernelPlanBorrowContract, StringKernelPlanCarrier, StringKernelPlanConsumer,
     StringKernelPlanFamily, StringKernelPlanLegality, StringKernelPlanPart,
     StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
-    StringKernelPlanReadAliasFacts, StringKernelPlanRetainedForm, StringKernelPlanTextConsumer,
-    StringKernelPlanVerifierOwner,
+    StringKernelPlanReadAliasFacts, StringKernelPlanRetainedForm, StringKernelPlanSlotHopSubstring,
+    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

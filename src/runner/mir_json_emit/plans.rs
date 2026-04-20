@@ -78,6 +78,13 @@ pub(super) fn build_string_kernel_plan_json(
             "direct_set_consumer": plan.read_alias.direct_set_consumer,
             "shared_receiver": plan.read_alias.shared_receiver,
         },
+        "slot_hop_substring": plan.slot_hop_substring.as_ref().map(|route| json!({
+            "consumer_value": route.consumer_value.as_u32(),
+            "start": route.start.as_u32(),
+            "end": route.end.as_u32(),
+            "instruction_index": route.instruction_index,
+            "copy_instruction_indices": route.copy_instruction_indices,
+        })),
         "loop_payload": plan.loop_payload.as_ref().map(|payload| json!({
             "seed_value": payload.seed_value.as_u32(),
             "seed_literal": payload.seed_literal,

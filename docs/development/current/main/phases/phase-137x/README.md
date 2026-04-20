@@ -599,26 +599,36 @@ Purpose:
 - continue the H12 ownership cleanup on the adjacent direct-front `Pieces3` route
 - make MIR `StringKernelPlan` own whether a piecewise text value may be consumed by direct `array.set`
 - make generic MIR `value_consumer_facts` own the single direct `set` sink fact
+- make MIR `StringKernelPlan` own the same-block slot-hop substring continuation route and skip indices
 - keep `.inc` as a plan reader and emitter instead of a consumer-shape scanner for this decision
 
 Boundary:
 - MIR may scan current uses and expose `read_alias.direct_set_consumer`
 - MIR may scan canonical value uses and expose `metadata.value_consumer_facts[*].direct_set_consumer`
+- MIR may expose `slot_hop_substring` with `consumer_value`, `start`, `end`, `instruction_index`, and `copy_instruction_indices`
 - `.inc` may use that fact to defer piecewise publication or reject the fast route
 - `.inc` must not decide direct-set legality for the selected `Pieces3` value from raw JSON when the MIR fact is present
-- slot-hop substring skip planning and the exact array-string seed bridge stay out of this slice
+- `.inc` must not rediscover slot-hop substring callee/receiver legality from raw JSON; it may only consume the MIR route and apply skip marks
+- the exact array-string seed bridge stays out of this slice
 
 Acceptance:
 - `StringKernelPlan.read_alias.direct_set_consumer` is exported in MIR JSON
 - `metadata.value_consumer_facts` is exported in MIR JSON
+- `StringKernelPlan.slot_hop_substring` is exported in MIR JSON
 - string concat/insert direct-front emit routes use the MIR fact for direct-set consumer decisions
 - `has_direct_array_set_consumer(...)` is removed from the backend shim surface
+- `match_piecewise_slot_hop_substring_consumer(...)` is removed from the backend shim surface
 - existing route guards remain green
 
 Second slice result:
 - `.inc` now uses `hako_llvmc_value_has_direct_set_consumer(...)`, a metadata reader over MIR-owned `value_consumer_facts`
 - the old C-side `has_direct_array_set_consumer(...)` JSON scanner and its trace-only helper were deleted
 - remaining cleanup is not direct-set ownership; it is slot-hop substring skip planning and the exact array-string seed bridge
+
+Third slice result:
+- `StringKernelPlan.slot_hop_substring` now records the slot-hop substring route and same-block skip indices in MIR metadata
+- `.inc` uses `hako_llvmc_string_kernel_plan_read_slot_hop_substring(...)` and no longer scans MIR JSON to rediscover the next substring callee/receiver
+- remaining cleanup is the exact array-string seed bridge
 
 ## Legacy Retirement Ledger
 
@@ -639,6 +649,7 @@ Rules:
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
 - retired in `137x-H2`: `src/host_providers/llvm_codegen/compat_text_primitive.rs` is renamed out of active code; remaining Rust-side `MIR(JSON text) -> object path` emission lives in `mir_json_text_object.rs` as a no-helper backend boundary.
+- retired in `137x-H13`: `match_piecewise_slot_hop_substring_consumer(...)` is deleted; slot-hop substring consumer, window, and skip indices are now MIR-owned `StringKernelPlan.slot_hop_substring` metadata.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

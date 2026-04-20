@@ -414,4 +414,53 @@
                !strcmp(yyjson_get_str(boundary_val), "first_external_boundary");
       }
 
+      auto int hako_llvmc_string_kernel_plan_read_slot_hop_substring(
+          long long value,
+          size_t* use_ii_out,
+          long long* next_dst_out,
+          long long* next_start_out,
+          long long* next_end_out,
+          size_t* copy_iis_out,
+          int* copy_n_out) {
+        yyjson_val* plan = hako_llvmc_string_kernel_plan_by_value(value);
+        yyjson_val* route =
+            plan ? yyjson_obj_get(plan, "slot_hop_substring") : NULL;
+        yyjson_val* use_ii_val =
+            route ? yyjson_obj_get(route, "instruction_index") : NULL;
+        yyjson_val* next_dst_val =
+            route ? yyjson_obj_get(route, "consumer_value") : NULL;
+        yyjson_val* next_start_val = route ? yyjson_obj_get(route, "start") : NULL;
+        yyjson_val* next_end_val = route ? yyjson_obj_get(route, "end") : NULL;
+        yyjson_val* copy_iis =
+            route ? yyjson_obj_get(route, "copy_instruction_indices") : NULL;
+        int copy_n = 0;
+        if (!(route && yyjson_is_obj(route) && use_ii_val &&
+              yyjson_is_num(use_ii_val) && next_dst_val &&
+              yyjson_is_num(next_dst_val) && next_start_val &&
+              yyjson_is_num(next_start_val) && next_end_val &&
+              yyjson_is_num(next_end_val))) {
+          return 0;
+        }
+        if (copy_iis) {
+          if (!yyjson_is_arr(copy_iis)) return 0;
+          copy_n = (int)yyjson_arr_size(copy_iis);
+          if (copy_n > 8) return 0;
+          for (int ci = 0; ci < copy_n; ci++) {
+            yyjson_val* copy_ii = yyjson_arr_get(copy_iis, (size_t)ci);
+            if (!(copy_ii && yyjson_is_num(copy_ii))) return 0;
+            if (copy_iis_out) {
+              copy_iis_out[ci] = (size_t)yyjson_get_sint(copy_ii);
+            }
+          }
+        }
+        if (use_ii_out) *use_ii_out = (size_t)yyjson_get_sint(use_ii_val);
+        if (next_dst_out) *next_dst_out = (long long)yyjson_get_sint(next_dst_val);
+        if (next_start_out) {
+          *next_start_out = (long long)yyjson_get_sint(next_start_val);
+        }
+        if (next_end_out) *next_end_out = (long long)yyjson_get_sint(next_end_val);
+        if (copy_n_out) *copy_n_out = copy_n;
+        return 1;
+      }
+
       #endif

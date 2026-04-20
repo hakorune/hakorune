@@ -207,6 +207,20 @@ pub struct StringKernelPlanReadAliasFacts {
     pub shared_receiver: bool,
 }
 
+/// MIR-owned slot-hop continuation route.
+///
+/// This is the last same-block consumer that backend shims used to rediscover
+/// with JSON/callee matching. The shim may still apply the skip list, but the
+/// continuation decision and substring window are MIR metadata.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StringKernelPlanSlotHopSubstring {
+    pub consumer_value: ValueId,
+    pub start: ValueId,
+    pub end: ValueId,
+    pub instruction_index: usize,
+    pub copy_instruction_indices: Vec<usize>,
+}
+
 /// Thin backend-consumable kernel plan derived from the current candidate set.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StringKernelPlan {
@@ -231,6 +245,7 @@ pub struct StringKernelPlan {
     pub carrier: Option<StringKernelPlanCarrier>,
     pub verifier_owner: Option<StringKernelPlanVerifierOwner>,
     pub read_alias: StringKernelPlanReadAliasFacts,
+    pub slot_hop_substring: Option<StringKernelPlanSlotHopSubstring>,
     pub proof: StringCorridorCandidateProof,
     pub middle_literal: Option<String>,
     pub loop_payload: Option<StringKernelPlanLoopPayload>,
@@ -683,6 +698,96 @@ fn derive_read_alias_facts(
     }
 }
 
+fn find_single_direct_use_index(
+    instructions: &[MirInstruction],
+    start_index: usize,
+    value: ValueId,
+) -> Option<usize> {
+    let mut use_index = None;
+    for (idx, inst) in instructions.iter().enumerate().skip(start_index) {
+        if !inst.used_values().contains(&value) {
+            continue;
+        }
+        if use_index.is_some() {
+            return None;
+        }
+        use_index = Some(idx);
+    }
+    use_index
+}
+
+fn infer_slot_text_consumer_from_def_map(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    plan_value: ValueId,
+) -> bool {
+    if !inferred_text_output(function, plan_value, def_map) {
+        return false;
+    }
+
+    let plan_root = resolve_value_origin(function, def_map, plan_value);
+    let mut scan = TextConsumerScan::default();
+
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            record_text_consumer_use(function, def_map, plan_root, inst, &mut scan);
+        }
+        if let Some(term) = &block.terminator {
+            record_text_consumer_use(function, def_map, plan_root, term, &mut scan);
+        }
+    }
+
+    scan.non_slot_uses == 0 && scan.slot_text_uses == 1
+}
+
+fn derive_slot_hop_substring(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    plan_value: ValueId,
+    text_consumer: Option<StringKernelPlanTextConsumer>,
+) -> Option<StringKernelPlanSlotHopSubstring> {
+    if !matches!(text_consumer, Some(StringKernelPlanTextConsumer::SlotText)) {
+        return None;
+    }
+
+    let plan_root = resolve_value_origin(function, def_map, plan_value);
+    let (bbid, def_idx) = def_map.get(&plan_root).copied()?;
+    let instructions = function.blocks.get(&bbid)?.instructions.as_slice();
+    let mut cursor = plan_root;
+    let mut start_index = def_idx + 1;
+    let mut copy_instruction_indices = Vec::new();
+
+    loop {
+        let use_idx = find_single_direct_use_index(instructions, start_index, cursor)?;
+        match instructions.get(use_idx)? {
+            MirInstruction::Copy { dst, src } if *src == cursor => {
+                if copy_instruction_indices.len() >= 8 {
+                    return None;
+                }
+                copy_instruction_indices.push(use_idx);
+                cursor = *dst;
+                start_index = use_idx + 1;
+            }
+            inst => {
+                let (consumer_value, receiver, start, end, _) = match_substring_call(inst)?;
+                if receiver != cursor {
+                    return None;
+                }
+                if infer_slot_text_consumer_from_def_map(function, def_map, consumer_value) {
+                    return None;
+                }
+                return Some(StringKernelPlanSlotHopSubstring {
+                    consumer_value,
+                    start,
+                    end,
+                    instruction_index: use_idx,
+                    copy_instruction_indices,
+                });
+            }
+        }
+    }
+}
+
 pub fn infer_string_kernel_text_consumer(
     function: &MirFunction,
     plan_value: ValueId,
@@ -804,6 +909,8 @@ pub fn derive_string_kernel_plan(
         _ => None,
     };
     let text_consumer = infer_string_kernel_text_consumer(function, plan_value);
+    let slot_hop_substring =
+        derive_slot_hop_substring(function, &def_map, plan_value, text_consumer);
     let read_alias_scan = scan_read_alias_consumers(function, plan_value, &def_map);
     let read_alias = derive_read_alias_facts(
         &plan.proof,
@@ -844,6 +951,7 @@ pub fn derive_string_kernel_plan(
         carrier,
         verifier_owner,
         read_alias,
+        slot_hop_substring,
         proof: plan.proof,
         middle_literal,
         loop_payload,

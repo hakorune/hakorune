@@ -453,6 +453,16 @@ fn derive_string_kernel_plan_marks_slot_text_consumer_for_same_corridor_substrin
             shared_receiver: false,
         }
     );
+    assert_eq!(
+        kernel_plan.slot_hop_substring,
+        Some(StringKernelPlanSlotHopSubstring {
+            consumer_value: ValueId::new(11),
+            start: ValueId::new(3),
+            end: ValueId::new(4),
+            instruction_index: 5,
+            copy_instruction_indices: Vec::new(),
+        })
+    );
 }
 
 #[test]

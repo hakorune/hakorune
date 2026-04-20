@@ -68,7 +68,7 @@ Scope: current lane / next lane / restart order only.
     - `137x-F` Value Lane bridge is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-H` runtime cleanup: removed dead `ValueLaneAction::PublishBoundary`; array string store now selects `TextCellResidence` or `GenericBoxResidence` once and the executor path only consumes the preselected action
     - `137x-H` backend cleanup: `string_concat_emit_routes` now uses `kernel_plan_read_publication_boundary_window` for publication-boundary checks and no longer replays the corridor fallback in the insert-mid shared-receiver branch
-    - `137x-H` backend cleanup: `match_piecewise_slot_hop_substring_consumer` moved into shared concat emit helpers so `generic_method_substring_policy` no longer owns the slot-hop consumer replay
+    - `137x-H` backend cleanup: `match_piecewise_slot_hop_substring_consumer` is retired; slot-hop substring continuation is now MIR-owned `StringKernelPlan.slot_hop_substring` metadata
     - `137x-H` backend cleanup: removed unused `hako_llvmc_string_corridor_read_insert_mid_window_plan_values`; kernel-plan reader is now the only insert-mid window SSOT
     - `137x-H` backend cleanup: removed the standalone corridor triplet reader; `direct_kernel_entry` substring proof now goes through centralized `hako_llvmc_string_kernel_plan_read_concat_triplet_values` (kernel-first, corridor compat fallback)
     - `137x-H1` MIR string value lowering cleanup is closed
@@ -175,9 +175,10 @@ Scope: current lane / next lane / restart order only.
       - decision: `StringKernelPlan.read_alias.direct_set_consumer` is the piecewise plan fact; generic `FunctionMetadata.value_consumer_facts` owns single direct `set` sink facts; `.inc` only consumes metadata
       - first slice: moved string concat / insert direct-set consumer checks to MIR metadata
       - second slice: retired backend `has_direct_array_set_consumer(...)`; all remaining direct-set checks read `hako_llvmc_value_has_direct_set_consumer(...)`
-      - remaining adjacent surfaces: slot-hop substring skip planning and the exact array-string seed bridge
+      - third slice: `StringKernelPlan.slot_hop_substring` now owns the same-block slot-hop substring consumer, hop window, and skip indices; `.inc` only reads the route metadata before emitting/skipping
+      - remaining adjacent surface: the exact array-string seed bridge
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - next implementation blocker is `137x-H13` adjacent backend route ownership: slot-hop substring skip planning first, exact array-string seed bridge second; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
+    - next implementation blocker is `137x-H13` adjacent backend route ownership: exact array-string seed bridge; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

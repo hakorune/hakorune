@@ -435,10 +435,7 @@
             find_deferred_piecewise_subrange(
                 resolved_recv, &piecewise_source, &piecewise_middle, &piecewise_split)) {
           if (dst &&
-              match_piecewise_slot_hop_substring_consumer(
-                  ii,
-                  ilen,
-                  insts,
+              hako_llvmc_string_kernel_plan_read_slot_hop_substring(
                   dst,
                   &piecewise_use_ii,
                   &piecewise_next_dst,

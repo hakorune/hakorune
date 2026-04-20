@@ -339,3 +339,112 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
     assert_eq!(plan["loop_payload"]["loop_bound"], 300000);
     assert_eq!(plan["loop_payload"]["split_length"], 8);
 }
+
+#[test]
+fn build_mir_json_root_emits_string_kernel_plan_slot_hop_substring() {
+    let mut module = MirModule::new("test".to_string());
+    let mut function = make_function("main", true);
+    let block = function
+        .blocks
+        .get_mut(&crate::mir::BasicBlockId::new(0))
+        .expect("entry block");
+    block.instructions.extend([
+        crate::mir::MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: crate::mir::ConstValue::String("xx".to_string()),
+        },
+        crate::mir::MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(6),
+        },
+        crate::mir::MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: crate::mir::ConstValue::Integer(1),
+        },
+        crate::mir::MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: crate::mir::ConstValue::Integer(5),
+        },
+        crate::mir::MirInstruction::Call {
+            dst: Some(ValueId::new(10)),
+            func: ValueId::INVALID,
+            callee: Some(crate::mir::Callee::Extern(
+                "nyash.string.substring_concat3_hhhii".to_string(),
+            )),
+            args: vec![
+                ValueId::new(0),
+                ValueId::new(1),
+                ValueId::new(0),
+                ValueId::new(3),
+                ValueId::new(4),
+            ],
+            effects: crate::mir::EffectMask::PURE,
+        },
+        crate::mir::MirInstruction::Call {
+            dst: Some(ValueId::new(11)),
+            func: ValueId::INVALID,
+            callee: Some(crate::mir::Callee::Extern(
+                "nyash.string.substring_hii".to_string(),
+            )),
+            args: vec![ValueId::new(10), ValueId::new(3), ValueId::new(4)],
+            effects: crate::mir::EffectMask::PURE,
+        },
+    ]);
+    block.set_terminator(crate::mir::MirInstruction::Return {
+        value: Some(ValueId::new(11)),
+    });
+    function.metadata.string_corridor_candidates.insert(
+        ValueId::new(10),
+        vec![crate::mir::StringCorridorCandidate {
+            kind: crate::mir::StringCorridorCandidateKind::DirectKernelEntry,
+            state: crate::mir::StringCorridorCandidateState::Candidate,
+            reason: "direct kernel entry candidate",
+            plan: Some(crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+                corridor_root: ValueId::new(10),
+                source_root: Some(ValueId::new(0)),
+                borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+                publish_reason: None,
+                publish_repr_policy: None,
+                stable_view_provenance: None,
+                start: Some(ValueId::new(3)),
+                end: Some(ValueId::new(4)),
+                known_length: Some(2),
+                publication_contract: Some(
+                    crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+                ),
+                proof:
+                    crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                        left_value: Some(ValueId::new(0)),
+                        left_source: ValueId::new(0),
+                        left_start: ValueId::new(3),
+                        left_end: ValueId::new(2),
+                        middle: ValueId::new(1),
+                        right_value: Some(ValueId::new(0)),
+                        right_source: ValueId::new(0),
+                        right_start: ValueId::new(2),
+                        right_end: ValueId::new(4),
+                        shared_source: true,
+                    },
+            }),
+            publication_boundary: Some(
+                crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
+            ),
+        }],
+    );
+    module.functions.insert("main".to_string(), function);
+    crate::mir::refresh_module_string_kernel_plans(&mut module);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let plan = &root["functions"][0]["metadata"]["string_kernel_plans"]["10"];
+
+    assert_eq!(plan["text_consumer"], "slot_text");
+    assert_eq!(plan["carrier"], "kernel_text_slot");
+    assert_eq!(plan["slot_hop_substring"]["consumer_value"], 11);
+    assert_eq!(plan["slot_hop_substring"]["start"], 3);
+    assert_eq!(plan["slot_hop_substring"]["end"], 4);
+    assert_eq!(plan["slot_hop_substring"]["instruction_index"], 5);
+    assert!(plan["slot_hop_substring"]["copy_instruction_indices"]
+        .as_array()
+        .expect("copy indices")
+        .is_empty());
+}

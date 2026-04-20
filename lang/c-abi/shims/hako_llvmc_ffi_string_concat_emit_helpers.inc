@@ -1,17 +1,5 @@
 #include "hako_llvmc_ffi_string_concat_match.inc"
 
-      auto int match_piecewise_slot_hop_substring_consumer(
-          size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
-          long long value,
-          size_t* use_ii_out,
-          long long* next_dst_out,
-          long long* next_start_out,
-          long long* next_end_out,
-          size_t* copy_iis_out,
-          int* copy_n_out);
-
       auto int emit_piecewise_slot_hop_publish_call(
           FILE* f,
           size_t ii,
@@ -44,80 +32,6 @@
           return direct_set_consumer;
         }
         return 0;
-      }
-
-      auto int match_piecewise_slot_hop_substring_consumer(
-          size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
-          long long value,
-          size_t* use_ii_out,
-          long long* next_dst_out,
-          long long* next_start_out,
-          long long* next_end_out,
-          size_t* copy_iis_out,
-          int* copy_n_out) {
-        size_t use_ii = 0;
-        long long final_reg = 0;
-        yyjson_val* use_ins = NULL;
-        yyjson_val* use_mc = NULL;
-        yyjson_val* use_cal = NULL;
-        yyjson_val* use_args = NULL;
-        yyjson_val* start_val = NULL;
-        yyjson_val* end_val = NULL;
-        const char* use_op = NULL;
-        const char* use_ctype = NULL;
-        const char* use_mname = NULL;
-        long long next_dst = 0;
-
-        if (!(value && hako_llvmc_string_kernel_plan_is_slot_text_carrier(value))) {
-          return 0;
-        }
-        if (!follow_single_use_copy_chain_to_use(
-                ii + 1, ilen, insts, value, &use_ii, &final_reg, copy_iis_out, copy_n_out)) {
-          return 0;
-        }
-        use_ins = yyjson_arr_get(insts, use_ii);
-        use_op = use_ins ? read_str(use_ins, "op") : NULL;
-        if (!(use_op && !strcmp(use_op, "mir_call"))) {
-          return 0;
-        }
-        next_dst = read_int(use_ins, "dst");
-        if (!next_dst || hako_llvmc_string_kernel_plan_is_slot_text_carrier(next_dst)) {
-          return 0;
-        }
-        use_mc = yyjson_obj_get(use_ins, "mir_call");
-        use_cal = use_mc ? yyjson_obj_get(use_mc, "callee") : NULL;
-        use_args = use_mc ? yyjson_obj_get(use_mc, "args") : NULL;
-        use_ctype = use_cal ? read_str(use_cal, "type") : NULL;
-        use_mname = use_cal
-                        ? (read_str(use_cal, "method") ? read_str(use_cal, "method")
-                                                        : read_str(use_cal, "name"))
-                        : NULL;
-        if (use_ctype && !strcmp(use_ctype, "Method") && use_mname &&
-            !strcmp(use_mname, "substring") && use_args && yyjson_is_arr(use_args) &&
-            yyjson_arr_size(use_args) == 2 &&
-            resolve_copy_source_reg(read_int(use_cal, "receiver")) == final_reg) {
-          start_val = yyjson_arr_get(use_args, 0);
-          end_val = yyjson_arr_get(use_args, 1);
-        } else if (use_ctype && !strcmp(use_ctype, "Extern") && use_mname &&
-                   !strcmp(use_mname, "nyash.string.substring_hii") && use_args &&
-                   yyjson_is_arr(use_args) && yyjson_arr_size(use_args) == 3 &&
-                   resolve_copy_source_reg((long long)yyjson_get_sint(yyjson_arr_get(use_args, 0))) ==
-                       final_reg) {
-          start_val = yyjson_arr_get(use_args, 1);
-          end_val = yyjson_arr_get(use_args, 2);
-        } else {
-          return 0;
-        }
-        if (!(start_val && end_val && yyjson_is_num(start_val) && yyjson_is_num(end_val))) {
-          return 0;
-        }
-        if (use_ii_out) *use_ii_out = use_ii;
-        if (next_dst_out) *next_dst_out = next_dst;
-        if (next_start_out) *next_start_out = (long long)yyjson_get_sint(start_val);
-        if (next_end_out) *next_end_out = (long long)yyjson_get_sint(end_val);
-        return 1;
       }
 
       auto void remember_string_concat_pair(long long dst, long long lhs, long long rhs) {

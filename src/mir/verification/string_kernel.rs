@@ -426,6 +426,7 @@ mod tests {
                 direct_set_consumer: false,
                 shared_receiver: false,
             },
+            slot_hop_substring: None,
             proof: StringCorridorCandidateProof::ConcatTriplet {
                 left_value: Some(ValueId::new(0)),
                 left_source: ValueId::new(0),
