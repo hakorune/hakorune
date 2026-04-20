@@ -159,6 +159,11 @@ Scope: current lane / next lane / restart order only.
       - implementation: add a text-resident-only ArrayBox update path and keep mixed/boxed fallback cold
       - result: `ny_aot_instr=40152332`, `ny_aot_cycles=12636090`
       - guard held: no public ArrayBox semantic change, no MIR legality, no public ABI
+    - `137x-H11` exclusive text-region lock owner is blocked
+      - evidence: saved bundle `target/perf_state/optimization_bundle/137x-h11-loopcarry-owner` shows the remaining dominant sample on the `ArrayBox` text slot write-lock fast path
+      - decision: do not remove the lock in runtime based on helper name or benchmark shape
+      - required next contract: MIR-owned exclusive text-region / proof-region contract that can justify lock hoist or lock elision
+      - side evidence: `kilo_kernel_small_hk = C 81 ms / Ny AOT 26 ms`, parity ok; split-string exact fronts are no longer the immediate blocker
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice

@@ -541,6 +541,26 @@ Result:
   - no new MIR legality
   - no public ArrayBox semantics change
 
+## 137x-H11 Exclusive Text-Region Lock Owner
+
+Status: blocked.
+
+Observation:
+- after H10, `target/perf_state/optimization_bundle/137x-h11-loopcarry-owner` shows the fused helper closure remains the dominant owner
+- hot annotate:
+  - the largest sample is the `ArrayBox` text slot write-lock fast path (`lock cmpxchg`)
+  - libc `memmove` is now secondary noise, not the primary owner
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/run_kilo_string_split_pack.sh 1 3 0`:
+  - `kilo_micro_substring_only`: `c_instr=1623550`, `ny_aot_instr=1667573`
+  - `kilo_micro_substring_views_only`: `c_instr=123590`, `ny_aot_instr=467225`
+  - `kilo_micro_len_substring_views`: `c_instr=1623552`, `ny_aot_instr=1673034`
+  - `kilo_kernel_small_hk`: `C 81 ms / Ny AOT 26 ms`, parity ok
+
+Decision:
+- do not remove the `ArrayBox` lock inside runtime based on the helper name or benchmark shape
+- lock removal requires a MIR-owned exclusive text-region / proof-region contract that can justify hoisting or eliding synchronization
+- until that contract exists, continue with other measured owners or open a separate design slice for exclusive mutable array regions
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
