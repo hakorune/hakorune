@@ -80,6 +80,29 @@ impl ArrayBox {
         }
     }
 
+    /// Mutate a text slot only when storage is already text-resident.
+    /// This does not promote boxed arrays; callers that need full ArrayBox compatibility
+    /// must fall back to `slot_update_text_raw`.
+    #[inline(always)]
+    pub fn slot_update_text_resident_raw<R>(
+        &self,
+        idx: i64,
+        f: impl FnOnce(&mut String) -> R,
+    ) -> Option<R> {
+        if idx < 0 {
+            return None;
+        }
+        let idx = idx as usize;
+        let mut items = self.items.write();
+        match &mut *items {
+            ArrayStorage::Text(values) => values.get_mut(idx).map(f),
+            ArrayStorage::Boxed(_)
+            | ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_) => None,
+        }
+    }
+
     /// Mutate a text slot in-place when the array is text-resident.
     /// If the array is mixed but the target slot is string-like, only that slot is materialized.
     #[inline(always)]

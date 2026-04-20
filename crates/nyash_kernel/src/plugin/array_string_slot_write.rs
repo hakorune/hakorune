@@ -450,32 +450,44 @@ fn array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
-        arr.slot_update_text_raw(idx, |value| {
-            let source_len = value.len();
-            let split = (source_len / 2) as i64;
-            let start = 1;
-            let end = source_len as i64 + 1;
-            if !try_update_insert_const_mid_subrange_same_len_in_place(
-                value, middle, split, start, end,
-            ) {
-                let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
-                    value.as_str(),
-                    middle,
-                    split,
-                    start,
-                    end,
-                ) else {
-                    return 0;
-                };
-                *value = next;
-            }
-            if observe_enabled {
-                observe::record_store_array_str_existing_slot();
-                observe::record_store_array_str_source_store();
-            }
-            value.len() as i64
+        arr.slot_update_text_resident_raw(idx, |value| {
+            update_insert_const_mid_subrange_len_value(value, middle, observe_enabled)
+        })
+        .or_else(|| {
+            arr.slot_update_text_raw(idx, |value| {
+                update_insert_const_mid_subrange_len_value(value, middle, observe_enabled)
+            })
         })
     })
     .flatten()
     .unwrap_or(0)
+}
+
+#[inline(always)]
+fn update_insert_const_mid_subrange_len_value(
+    value: &mut String,
+    middle: &str,
+    observe_enabled: bool,
+) -> i64 {
+    let source_len = value.len();
+    let split = (source_len / 2) as i64;
+    let start = 1;
+    let end = source_len as i64 + 1;
+    if !try_update_insert_const_mid_subrange_same_len_in_place(value, middle, split, start, end) {
+        let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
+            value.as_str(),
+            middle,
+            split,
+            start,
+            end,
+        ) else {
+            return 0;
+        };
+        *value = next;
+    }
+    if observe_enabled {
+        observe::record_store_array_str_existing_slot();
+        observe::record_store_array_str_source_store();
+    }
+    value.len() as i64
 }

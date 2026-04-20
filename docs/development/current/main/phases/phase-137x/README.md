@@ -501,6 +501,46 @@ Result:
   - keep the H8 `ptr::copy` implementation
   - do not replace libc `memmove` with manual byte loops unless a later proof can remove the extra loop/control-flow cost
 
+## 137x-H10 Text-Resident Slot Update Fast Path Seam
+
+Status: closed.
+
+Scope:
+- optimize only the H7/H8 fused helper when the target array is already `ArrayStorage::Text`
+- keep existing mixed/boxed behavior as a cold fallback through `slot_update_text_raw`
+- do not change public ArrayBox semantics, storage promotion rules, MIR legality, or public ABI
+
+Perf-first baseline:
+- after H8 and rejected H9, `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=49693471`, `ny_aot_cycles=13039022`
+- saved bundle: `target/perf_state/optimization_bundle/137x-h9-loopcarry-owner`
+  - top owner is the fused helper closure
+  - hot annotate points at the text slot write-lock / fast-path entry, not string materialization
+
+Acceptance:
+- generated `ny_main` remains on the H7 fused helper route
+- text-resident arrays skip boxed/text promotion checks in the hot helper
+- mixed/boxed arrays keep the existing fallback contract
+- exact-front instruction/cycle count improves or holds
+- `tools/checks/dev_gate.sh quick` stays green before landing
+
+Result:
+- implementation:
+  - added a text-resident-only ArrayBox update path
+  - H7/H8 fused helper now tries the text-resident path first and falls back to existing `slot_update_text_raw` for mixed/boxed arrays
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=40152332`, `ny_aot_cycles=12636090`
+  - improvement from H8 baseline `ny_aot_instr=49693471`, `ny_aot_cycles=13039022`
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'ny_main' 3`:
+  - generated `ny_main` remains on `nyash.array.string_insert_mid_subrange_len_store_hisi`
+  - top owner remains inside the fused helper closure
+- guard held:
+  - no public ABI widening
+  - no new MIR legality
+  - no public ArrayBox semantics change
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

@@ -153,6 +153,12 @@ Scope: current lane / next lane / restart order only.
       - trial: replace the runtime-private small byte shifts with bytewise overlap loops while keeping large strings on the existing `ptr::copy` path
       - result: `ny_aot_instr=54372282`, `ny_aot_cycles=13785721`; worse than H8, so code was reverted
       - guard held: no benchmark-name dispatch, no public ABI, no new MIR legality
+    - `137x-H10` text-resident slot update fast path seam is closed
+      - baseline remains H8: `ny_aot_instr=49693471`, `ny_aot_cycles=13039022`
+      - owner: fused helper closure, with hot annotate pointing at text slot write-lock / fast-path entry
+      - implementation: add a text-resident-only ArrayBox update path and keep mixed/boxed fallback cold
+      - result: `ny_aot_instr=40152332`, `ny_aot_cycles=12636090`
+      - guard held: no public ArrayBox semantic change, no MIR legality, no public ABI
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
