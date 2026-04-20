@@ -825,6 +825,34 @@ Verification:
 - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_leaf_array_string_indexof_const 1 3`: `C 4 ms / Ny AOT 4 ms`, `aot_status=ok`
 - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 5 ms / Ny AOT 4 ms`, `aot_status=ok`
 
+## 137x-H14.2 Exact Search Emitter Surface Shrink
+
+Problem:
+- The remaining temporary search bridge still has separate leaf and line emitters even though both consume the same MIR-owned route proof/action and emit the same literal membership predicate.
+- Keeping two emitters increases the backend surface that must eventually be deleted or replaced by generic indexOf lowering.
+
+Decision:
+- Collapse the two backend emitters into one optional-flip emitter.
+- MIR remains the owner of route proof, predicate action, candidate outcomes, and flip eligibility.
+- `.inc` may only validate metadata and pass `flip_period=0` for leaf or `flip_period=16` for line; it must not regain route legality or predicate inference.
+
+First slice plan:
+- replace `hako_llvmc_emit_indexof_leaf_ir(...)` and `hako_llvmc_emit_indexof_line_ir(...)` with one `hako_llvmc_emit_indexof_seed_ir(...)`
+- keep leaf/line matcher functions as metadata consumers only, because route gating and `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED` still live at dispatch level
+- verify leaf and line micro fronts remain green before considering exact bridge deletion
+
+First slice result:
+- `hako_llvmc_emit_indexof_seed_ir(...)` is now the only exact search seed emitter.
+- Leaf and line still keep separate dispatch functions, but both are metadata consumers: leaf passes `flip_period=0`; line passes the MIR-owned `flip_period=16`.
+- Route proof, predicate action, candidate outcomes, and flip eligibility remain MIR-owned metadata; the `.inc` surface only validates and emits.
+
+Verification:
+- `git diff --check` PASS
+- `bash tools/perf/build_perf_release.sh` PASS
+- `tools/checks/dev_gate.sh quick` PASS
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_leaf_array_string_indexof_const 1 3`: `C 4 ms / Ny AOT 3 ms`, `aot_status=ok`
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 4 ms / Ny AOT 4 ms`, `aot_status=ok`
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -852,6 +880,7 @@ Rules:
 - retired in `137x-H13`: the raw C-side block/op scanner in `hako_llvmc_match_substring_concat_loop_ascii_seed(...)` is deleted; exact seed bridge selection now consumes existing MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata.
 - retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_substring_views_only_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.substring_views_micro_seed_route`, while borrowed-window legality stays in `StringKernelPlan`.
 - retired in `137x-H13`: `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc` and `hako_llvmc_emit_string_length_hot_loop_ir(...)` are deleted; current length-hot fronts use generic/metadata lowering instead of the obsolete 5/6-block exact matcher family.
+- shrunk in `137x-H14.2`: `hako_llvmc_emit_indexof_leaf_ir(...)` and `hako_llvmc_emit_indexof_line_ir(...)` are collapsed into `hako_llvmc_emit_indexof_seed_ir(...)`; the remaining exact search bridge is one temporary backend surface with MIR-owned proof/action metadata.
 - retired in `137x-H14`: the raw C-side block/op scanners in `hako_llvmc_match_indexof_leaf_ascii_seed(...)` and `hako_llvmc_match_indexof_line_ascii_seed(...)` are deleted; exact search bridge selection now consumes MIR-owned `metadata.indexof_search_micro_seed_route`.
 - shrunk in `137x-H14.1`: the leaf exact search emitter no longer calls runtime `nyash.string.indexOf_ss`; it emits only the MIR-owned literal membership predicate after validating candidate outcomes metadata.
 - current phase-2 start:

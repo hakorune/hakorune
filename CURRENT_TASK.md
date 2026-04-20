@@ -203,6 +203,12 @@ Scope: current lane / next lane / restart order only.
       - result: leaf exact emitter no longer declares/calls `nyash.string.indexOf_ss`; it uses the metadata-owned literal membership predicate like the line bridge
       - verification: `cargo test indexof_search_micro_seed --lib`, touched-file `rustfmt --check`, `bash tools/perf/build_perf_release.sh`, direct MIR metadata probes for leaf/line, manual route trace, `nm -u`/`objdump` search for runtime search calls, `tools/checks/dev_gate.sh quick`, and `git diff --check` passed
       - perf result: `kilo_leaf_array_string_indexof_const = C 4 ms / Ny AOT 4 ms`; `kilo_micro_indexof_line = C 5 ms / Ny AOT 4 ms`
+    - `137x-H14.2` exact search emitter surface shrink is closed
+      - problem: the remaining temporary exact search bridge still carries two near-duplicate C emitters for leaf and line
+      - decision: keep the MIR-owned route proof/action, but collapse backend emission into one optional-flip emitter; `.inc` must not regain route legality or predicate ownership
+      - first slice: replace `hako_llvmc_emit_indexof_leaf_ir(...)` and `hako_llvmc_emit_indexof_line_ir(...)` with one `hako_llvmc_emit_indexof_seed_ir(...)` that consumes `flip_period=0|16`
+      - result: leaf and line now share `hako_llvmc_emit_indexof_seed_ir(...)`; leaf passes `flip_period=0`, line passes MIR-owned `flip_period=16`, and matcher functions remain metadata consumers only
+      - verification: `git diff --check`, `bash tools/perf/build_perf_release.sh`, `tools/checks/dev_gate.sh quick`, exact `kilo_leaf_array_string_indexof_const` microstat (`C 4 ms / Ny AOT 3 ms`), and exact `kilo_micro_indexof_line` microstat (`C 4 ms / Ny AOT 4 ms`) passed
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker is to decide whether the remaining exact search emitter surface should be deleted, kept as a temporary bridge, or replaced by generic indexOf lowering; do not reopen C-side route proof/action
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice

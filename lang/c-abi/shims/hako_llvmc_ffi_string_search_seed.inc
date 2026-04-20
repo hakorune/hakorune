@@ -1,4 +1,4 @@
-static int hako_llvmc_emit_indexof_line_ir(
+static int hako_llvmc_emit_indexof_seed_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
     long long rows,
@@ -35,13 +35,13 @@ static int hako_llvmc_emit_indexof_line_ir(
   snprintf(
       llpath,
       sizeof(llpath),
-      "%s/hako_pure_indexof_line_%d.ll",
+      "%s/hako_pure_indexof_seed_%d.ll",
       hako_llvmc_tmp_dir_fallback(),
       (int)getpid());
   f = fopen(llpath, "wb");
   if (!f) return -1;
 
-  fprintf(f, "; nyash minimal pure IR (indexOf line loop ascii)\n");
+  fprintf(f, "; nyash minimal pure IR (indexOf seed loop ascii)\n");
   fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
   fprintf(f, "@.indexof_seed_line = private unnamed_addr constant [%lld x i8] c\"", line_seed_len);
   hako_llvmc_emit_llvm_byte_string(f, line_seed, line_seed_len);
@@ -103,116 +103,11 @@ static int hako_llvmc_emit_indexof_line_ir(
     fprintf(f, "  %%newval = select i1 %%found, ptr @.indexof_seed_none, ptr @.indexof_seed_line\n");
     fprintf(f, "  store ptr %%newval, ptr %%slot, align 8\n");
     fprintf(f, "  br label %%inc\n\n");
+  } else {
+    fprintf(f, "  br label %%inc\n\n");
   }
 
   fprintf(f, "inc:\n");
-  fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
-  fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
-  fprintf(f, "  br label %%loop\n\n");
-
-  fprintf(f, "exit:\n");
-  fprintf(f, "  %%hits.fin = load i64, ptr %%hits, align 8\n");
-  fprintf(f, "  %%ret = add i64 %%hits.fin, %lld\n", rows);
-  fprintf(f, "  ret i64 %%ret\n");
-  fprintf(f, "}\n");
-  hako_llvmc_emit_entry_alias_if_needed(f, selection);
-
-  fclose(f);
-  {
-    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
-  }
-  remove(llpath);
-  return rc == 0 ? 0 : -1;
-}
-
-static int hako_llvmc_emit_indexof_leaf_ir(
-    const char* obj_out,
-    const hako_llvmc_entry_rune_selection* selection,
-    long long rows,
-    long long ops,
-    const char* line_seed,
-    long long line_seed_len,
-    const char* none_seed,
-    long long none_seed_len) {
-  char llpath[1024];
-  FILE* f;
-  int rc;
-  long long row_mask;
-
-  if (!obj_out || rows != 64 || ops <= 0) {
-    return -1;
-  }
-  if (!line_seed || !none_seed || line_seed_len <= 0 || none_seed_len <= 0) {
-    return -1;
-  }
-
-  row_mask = rows - 1;
-  if ((rows & row_mask) != 0 || row_mask <= 0) {
-    return -1;
-  }
-
-  snprintf(
-      llpath,
-      sizeof(llpath),
-      "%s/hako_pure_indexof_leaf_%d.ll",
-      hako_llvmc_tmp_dir_fallback(),
-      (int)getpid());
-  f = fopen(llpath, "wb");
-  if (!f) return -1;
-
-  fprintf(f, "; nyash minimal pure IR (indexOf leaf observer ascii)\n");
-  fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-
-  fprintf(f, "@.indexof_seed_line = private unnamed_addr constant [%lld x i8] c\"", line_seed_len);
-  hako_llvmc_emit_llvm_byte_string(f, line_seed, line_seed_len);
-  fprintf(f, "\", align 1\n");
-  fprintf(f, "@.indexof_seed_none = private unnamed_addr constant [%lld x i8] c\"", none_seed_len);
-  hako_llvmc_emit_llvm_byte_string(f, none_seed, none_seed_len);
-  fprintf(f, "\", align 1\n\n");
-
-  hako_llvmc_emit_entry_header(f, selection);
-  fprintf(f, "entry:\n");
-  fprintf(f, "  %%lines = alloca [%lld x ptr], align 8\n", rows);
-  fprintf(f, "  %%i = alloca i64, align 8\n");
-  fprintf(f, "  %%hits = alloca i64, align 8\n");
-  fprintf(f, "  %%lines.ptr = getelementptr inbounds [%lld x ptr], ptr %%lines, i64 0, i64 0\n", rows);
-  fprintf(f, "  store i64 0, ptr %%i, align 8\n");
-  fprintf(f, "  br label %%prefill\n\n");
-
-  fprintf(f, "prefill:\n");
-  fprintf(f, "  %%i.pre = load i64, ptr %%i, align 8\n");
-  fprintf(f, "  %%prefill.cond = icmp slt i64 %%i.pre, 64\n");
-  fprintf(f, "  br i1 %%prefill.cond, label %%prefill.body, label %%prefill.exit\n\n");
-
-  fprintf(f, "prefill.body:\n");
-  fprintf(f, "  %%prefill.slot = getelementptr inbounds ptr, ptr %%lines.ptr, i64 %%i.pre\n");
-  fprintf(f, "  %%prefill.evenmask = and i64 %%i.pre, 1\n");
-  fprintf(f, "  %%prefill.is_even = icmp eq i64 %%prefill.evenmask, 0\n");
-  fprintf(f, "  %%prefill.val = select i1 %%prefill.is_even, ptr @.indexof_seed_line, ptr @.indexof_seed_none\n");
-  fprintf(f, "  store ptr %%prefill.val, ptr %%prefill.slot, align 8\n");
-  fprintf(f, "  %%i.pre.next = add i64 %%i.pre, 1\n");
-  fprintf(f, "  store i64 %%i.pre.next, ptr %%i, align 8\n");
-  fprintf(f, "  br label %%prefill\n\n");
-
-  fprintf(f, "prefill.exit:\n");
-  fprintf(f, "  store i64 0, ptr %%i, align 8\n");
-  fprintf(f, "  store i64 0, ptr %%hits, align 8\n");
-  fprintf(f, "  br label %%loop\n\n");
-
-  fprintf(f, "loop:\n");
-  fprintf(f, "  %%i.cur = load i64, ptr %%i, align 8\n");
-  fprintf(f, "  %%loop.cond = icmp slt i64 %%i.cur, %lld\n", ops);
-  fprintf(f, "  br i1 %%loop.cond, label %%loop.body, label %%exit\n\n");
-
-  fprintf(f, "loop.body:\n");
-  fprintf(f, "  %%row = and i64 %%i.cur, %lld\n", row_mask);
-  fprintf(f, "  %%slot = getelementptr inbounds ptr, ptr %%lines.ptr, i64 %%row\n");
-  fprintf(f, "  %%cur = load ptr, ptr %%slot, align 8\n");
-  fprintf(f, "  %%found = icmp eq ptr %%cur, @.indexof_seed_line\n");
-  fprintf(f, "  %%hits.cur = load i64, ptr %%hits, align 8\n");
-  fprintf(f, "  %%hits.inc.i64 = select i1 %%found, i64 1, i64 0\n");
-  fprintf(f, "  %%hits.next = add i64 %%hits.cur, %%hits.inc.i64\n");
-  fprintf(f, "  store i64 %%hits.next, ptr %%hits, align 8\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
   fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
   fprintf(f, "  br label %%loop\n\n");
@@ -419,11 +314,12 @@ static int hako_llvmc_match_indexof_leaf_ascii_seed(
         "kilo_leaf_array_string_indexof_const mir_route_plan");
   }
 
-  rc = hako_llvmc_emit_indexof_leaf_ir(
+  rc = hako_llvmc_emit_indexof_seed_ir(
       obj_out,
       &selection,
       route.rows,
       route.ops,
+      0,
       route.line_seed,
       route.line_seed_len,
       route.none_seed,
@@ -469,7 +365,7 @@ static int hako_llvmc_match_indexof_line_ascii_seed(
         "kilo_micro_indexof_line mir_route_plan");
   }
 
-  rc = hako_llvmc_emit_indexof_line_ir(
+  rc = hako_llvmc_emit_indexof_seed_ir(
       obj_out,
       &selection,
       route.rows,
