@@ -169,6 +169,19 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }),
+            "concat_const_suffix_micro_seed_route": f.metadata.concat_const_suffix_micro_seed_route.as_ref().map(|route| {
+                json!({
+                    "seed": route.seed.as_str(),
+                    "seed_len": route.seed_len,
+                    "suffix": route.suffix.as_str(),
+                    "suffix_len": route.suffix_len,
+                    "ops": route.ops,
+                    "result_len": route.result_len,
+                    "proof": route.proof.to_string(),
+                    "consumer_capability": "direct_concat_const_suffix_loop",
+                    "publication_boundary": "none",
+                })
+            }),
             "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
                 json!({
                     "block": candidate.block.as_u32(),

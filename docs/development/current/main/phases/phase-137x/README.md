@@ -594,8 +594,8 @@ First slice result:
 ## 137x-H13 MIR-Owned Backend Route Cleanup
 
 Status: active; the piecewise direct-set consumer, slot-hop substring route,
-and exact array-string seed bridge now have MIR-owned metadata for the active
-fronts.
+exact array-string seed bridge, and concat-const-suffix seed bridge now have
+MIR-owned metadata for the active fronts.
 
 Purpose:
 - continue the H12 ownership cleanup on the adjacent direct-front `Pieces3` route
@@ -603,6 +603,7 @@ Purpose:
 - make generic MIR `value_consumer_facts` own the single direct `set` sink fact
 - make MIR `StringKernelPlan` own the same-block slot-hop substring continuation route and skip indices
 - make MIR `FunctionMetadata.array_string_store_micro_seed_route` own the current compact 8-block exact seed proof
+- make MIR own the still-active `kilo_micro_concat_const_suffix` exact seed proof before deleting its C-side scanner
 - keep `.inc` as a plan reader and emitter instead of a consumer-shape scanner for this decision
 
 Boundary:
@@ -610,6 +611,7 @@ Boundary:
 - MIR may scan canonical value uses and expose `metadata.value_consumer_facts[*].direct_set_consumer`
 - MIR may expose `slot_hop_substring` with `consumer_value`, `start`, `end`, `instruction_index`, and `copy_instruction_indices`
 - MIR may expose `array_string_store_micro_seed_route` with the guarded seed/size/ops/suffix proof for the current exact micro front
+- MIR may expose a concat-const-suffix micro route with the guarded seed/suffix/ops proof for the still-active exact micro front
 - `.inc` may use that fact to defer piecewise publication or reject the fast route
 - `.inc` must not decide direct-set legality for the selected `Pieces3` value from raw JSON when the MIR fact is present
 - `.inc` must not rediscover slot-hop substring callee/receiver legality from raw JSON; it may only consume the MIR route and apply skip marks
@@ -620,10 +622,12 @@ Acceptance:
 - `metadata.value_consumer_facts` is exported in MIR JSON
 - `StringKernelPlan.slot_hop_substring` is exported in MIR JSON
 - `metadata.array_string_store_micro_seed_route` is exported in MIR JSON for the active exact micro front
+- `metadata.concat_const_suffix_micro_seed_route` is exported in MIR JSON for the active exact micro front
 - string concat/insert direct-front emit routes use the MIR fact for direct-set consumer decisions
 - `has_direct_array_set_consumer(...)` is removed from the backend shim surface
 - `match_piecewise_slot_hop_substring_consumer(...)` is removed from the backend shim surface
 - the raw C-side 8-block array-string seed JSON scanner is removed from `hako_llvmc_ffi_array_string_store_seed.inc`
+- the raw C-side concat-const-suffix 5-block scanner is removed from `hako_llvmc_ffi_concat_const_suffix_seed.inc` after metadata replacement lands
 - existing route guards remain green
 
 Second slice result:
@@ -661,6 +665,26 @@ Fifth slice result:
   - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_concat_const_suffix 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
   - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 1`: `C 10 ms / Ny AOT 8 ms`, `aot_status=ok`
 
+Sixth slice plan:
+- add MIR-owned metadata for the active `kilo_micro_concat_const_suffix` route proof
+- make `hako_llvmc_match_concat_const_suffix_micro_seed(...)` consume that metadata and select the existing temporary emitter
+- delete the raw C-side 5-block scanner macros and per-block callee checks from `hako_llvmc_ffi_concat_const_suffix_seed.inc`
+- keep the emitter temporary until the generic string lane can match the exact front without a dedicated bridge
+
+Sixth slice result:
+- `FunctionMetadata.concat_const_suffix_micro_seed_route` now records the active 5-block exact seed route: seed, seed length, suffix, suffix length, ops, result length, and proof
+- MIR JSON exports `metadata.concat_const_suffix_micro_seed_route` for `kilo_micro_concat_const_suffix`
+- `hako_llvmc_match_concat_const_suffix_micro_seed(...)` now only reads MIR route metadata and selects the existing temporary emitter
+- the previous raw C-side 5-block scanner macros and per-block callee checks were deleted from `hako_llvmc_ffi_concat_const_suffix_seed.inc`
+- verification:
+  - direct MIR metadata probe shows `metadata.concat_const_suffix_micro_seed_route` with `seed_len=16`, `suffix_len=2`, `ops=600000`, `result_len=18`, and proof `kilo_micro_concat_const_suffix_5block`
+  - `cargo test concat_const_suffix_micro_seed --lib` PASS
+  - `bash tools/perf/build_perf_release.sh` PASS
+  - `tools/checks/dev_gate.sh quick` PASS
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_concat_const_suffix 1 3`: `C 3 ms / Ny AOT 4 ms`, `aot_status=ok`
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 1`: `C 10 ms / Ny AOT 6 ms`, `aot_status=ok`
+  - `git diff --check` PASS
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -683,6 +707,7 @@ Rules:
 - retired in `137x-H13`: `match_piecewise_slot_hop_substring_consumer(...)` is deleted; slot-hop substring consumer, window, and skip indices are now MIR-owned `StringKernelPlan.slot_hop_substring` metadata.
 - retired in `137x-H13`: the raw C-side 8-block scanner in `hako_llvmc_match_array_string_store_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.array_string_store_micro_seed_route`.
 - retired in `137x-H13`: `hako_llvmc_ffi_concat_hh_len_seed.inc` is deleted; the current `kilo_micro_concat_hh_len` direct front stays green through generic/metadata lowering and no longer needs a dedicated exact bridge.
+- retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_concat_const_suffix_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.concat_const_suffix_micro_seed_route`.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

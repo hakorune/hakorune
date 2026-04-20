@@ -64,7 +64,8 @@ Current partitions:
 - `hako_llvmc_ffi_sum_local_seed_matchers_project_local.inc`
   - direct local project matcher family
 - `hako_llvmc_ffi_concat_const_suffix_seed.inc`
-  - dedicated exact-micro pure-first seed for `kilo_micro_concat_const_suffix`
+  - metadata reader plus temporary exact-micro emitter for `kilo_micro_concat_const_suffix`
+  - route-shape proof is MIR-owned `concat_const_suffix_micro_seed_route`; do not regrow raw block scanners here
 - `hako_llvmc_ffi_indexof_observer_state.inc`
   - shared `indexOf` observer match/state helpers used by pure-first and probe lanes
 - `hako_llvmc_ffi_indexof_observer_direct_match.inc`

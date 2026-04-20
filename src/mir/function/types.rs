@@ -2,6 +2,7 @@ use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
+    concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
     string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation, string_kernel_plan::StringKernelPlan,
@@ -163,6 +164,11 @@ pub struct FunctionMetadata {
     /// metadata so the C backend can select an emitter without re-planning raw
     /// MIR JSON.
     pub array_string_store_micro_seed_route: Option<ArrayStringStoreMicroSeedRoute>,
+
+    /// Backend-consumable exact concat-const-suffix micro seed route.
+    /// This keeps the current temporary exact bridge proof in MIR metadata so
+    /// the C backend can remain an emitter selector instead of a route planner.
+    pub concat_const_suffix_micro_seed_route: Option<ConcatConstSuffixMicroSeedRoute>,
 }
 
 /// Function statistics for profiling and optimization

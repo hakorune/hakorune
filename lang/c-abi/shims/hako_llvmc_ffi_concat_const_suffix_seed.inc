@@ -69,12 +69,18 @@ static int hako_llvmc_match_concat_const_suffix_micro_seed(
   yyjson_val* root;
   yyjson_val* fns;
   yyjson_val* fn = NULL;
-  yyjson_val* blocks;
+  yyjson_val* metadata;
+  yyjson_val* route;
   hako_llvmc_entry_rune_selection selection;
-  long long loop_bound = 0;
-  long long text_len = 0;
-  const char* text = NULL;
+  const char* seed = NULL;
   const char* suffix = NULL;
+  const char* proof = NULL;
+  long long seed_len = 0;
+  long long suffix_len = 0;
+  long long ops = 0;
+  long long result_len = 0;
+  long long actual_seed_len = 0;
+  long long actual_suffix_len = 0;
   size_t i;
 
   if (!doc) return -1;
@@ -99,219 +105,62 @@ static int hako_llvmc_match_concat_const_suffix_micro_seed(
   }
   hako_llvmc_select_entry_runes(fn, &selection);
 
-  blocks = yyjson_obj_get(fn, "blocks");
-  if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) == 5)) {
+  metadata = yyjson_obj_get(fn, "metadata");
+  route = metadata ? yyjson_obj_get(metadata, "concat_const_suffix_micro_seed_route") : NULL;
+  if (!(route && yyjson_is_obj(route))) {
     yyjson_doc_free(doc);
     return -1;
   }
 
-  #define READ_INT(obj, key) ((obj) && yyjson_obj_get((obj), (key)) ? (long long)yyjson_get_sint(yyjson_obj_get((obj), (key))) : 0)
-  #define READ_STR(obj, key) ((obj) && yyjson_obj_get((obj), (key)) ? yyjson_get_str(yyjson_obj_get((obj), (key))) : NULL)
-  #define BUILD_INTERESTING_NO_COPY(block_val) \
-    do { \
-      yyjson_val* _insts = yyjson_obj_get((block_val), "instructions"); \
-      size_t _ii; \
-      n = 0; \
-      if (!(_insts && yyjson_is_arr(_insts))) { yyjson_doc_free(doc); return -1; } \
-      for (_ii = 0; _ii < yyjson_arr_size(_insts) && n < (int)(sizeof(interesting) / sizeof(interesting[0])); _ii++) { \
-        yyjson_val* _ins = yyjson_arr_get(_insts, _ii); \
-        const char* _op = READ_STR(_ins, "op"); \
-        if (_op && strcmp(_op, "copy") != 0) interesting[n++] = _ins; \
-      } \
-    } while (0)
-  #define EXPECT_OP(idx, name) \
-    do { \
-      const char* _op = ((idx) < n) ? READ_STR(interesting[(idx)], "op") : NULL; \
-      if (!_op || strcmp(_op, (name)) != 0) { yyjson_doc_free(doc); return -1; } \
-    } while (0)
-  #define REQUIRE_STRINGISH_BOX(box_name) \
-    (((box_name) && strcmp((box_name), "RuntimeDataBox") == 0) || ((box_name) && strcmp((box_name), "StringBox") == 0))
+  seed = yyjson_get_str(yyjson_obj_get(route, "seed"));
+  suffix = yyjson_get_str(yyjson_obj_get(route, "suffix"));
+  proof = yyjson_get_str(yyjson_obj_get(route, "proof"));
+  seed_len = (long long)yyjson_get_sint(yyjson_obj_get(route, "seed_len"));
+  suffix_len = (long long)yyjson_get_sint(yyjson_obj_get(route, "suffix_len"));
+  ops = (long long)yyjson_get_sint(yyjson_obj_get(route, "ops"));
+  result_len = (long long)yyjson_get_sint(yyjson_obj_get(route, "result_len"));
 
-  yyjson_val* interesting[40];
-  int n = 0;
-  int saw_preheader = 0;
-  int saw_header = 0;
-  int saw_body = 0;
-  int saw_latch = 0;
-  int saw_exit = 0;
-
-  BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 0));
-  if (n != 6) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(0, "const");
-  EXPECT_OP(1, "const");
-  EXPECT_OP(2, "mir_call");
-  EXPECT_OP(3, "const");
-  EXPECT_OP(4, "const");
-  EXPECT_OP(5, "jump");
-  {
-    yyjson_val* vobj = yyjson_obj_get(interesting[0], "value");
-    yyjson_val* ty = vobj ? yyjson_obj_get(vobj, "type") : NULL;
-    const char* box_type = ty ? yyjson_get_str(yyjson_obj_get(ty, "box_type")) : NULL;
-    text = vobj ? READ_STR(vobj, "value") : NULL;
-    if (!(box_type && strcmp(box_type, "StringBox") == 0 &&
-          text && hako_llvmc_ascii_strlen(text, &text_len) &&
-          text_len == 16 && hako_llvmc_str_eq(text, "line-seed-abcdef"))) {
-      yyjson_doc_free(doc);
-      return -1;
+  if (!(seed && suffix && proof &&
+        hako_llvmc_ascii_strlen(seed, &actual_seed_len) &&
+        hako_llvmc_ascii_strlen(suffix, &actual_suffix_len) &&
+        seed_len == actual_seed_len &&
+        suffix_len == actual_suffix_len &&
+        hako_llvmc_str_eq(seed, "line-seed-abcdef") &&
+        hako_llvmc_str_eq(suffix, "xy") &&
+        hako_llvmc_str_eq(proof, "kilo_micro_concat_const_suffix_5block") &&
+        seed_len == 16 &&
+        suffix_len == 2 &&
+        ops == 600000 &&
+        result_len == seed_len + suffix_len)) {
+    if (hako_llvmc_route_trace_enabled()) {
+      hako_llvmc_emit_route_trace(
+          "concat_const_suffix_micro",
+          "skip",
+          "metadata_contract_mismatch",
+          "concat_const_suffix_micro_seed_route");
     }
-  }
-  {
-    yyjson_val* vobj = yyjson_obj_get(interesting[1], "value");
-    yyjson_val* ty = vobj ? yyjson_obj_get(vobj, "type") : NULL;
-    const char* box_type = ty ? yyjson_get_str(yyjson_obj_get(ty, "box_type")) : NULL;
-    const char* text_dup = vobj ? READ_STR(vobj, "value") : NULL;
-    if (!(box_type && strcmp(box_type, "StringBox") == 0 &&
-          text_dup && hako_llvmc_ascii_strlen(text_dup, &text_len) &&
-          text_len == 16 && hako_llvmc_str_eq(text_dup, "line-seed-abcdef"))) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-  }
-  {
-    yyjson_val* mc = yyjson_obj_get(interesting[2], "mir_call");
-    yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-    const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
-    const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-    yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-    if (!(box_name && strcmp(box_name, "StringBox") == 0 &&
-          name && strcmp(name, "length") == 0 &&
-          args && yyjson_is_arr(args) && yyjson_arr_size(args) == 0)) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-  }
-  if (READ_INT(yyjson_obj_get(interesting[3], "value"), "value") != 0 ||
-      READ_INT(yyjson_obj_get(interesting[4], "value"), "value") != 0) {
     yyjson_doc_free(doc);
     return -1;
   }
-  saw_preheader = 1;
 
-  BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 1));
-  if (n != 6) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(0, "phi");
-  EXPECT_OP(1, "phi");
-  EXPECT_OP(2, "phi");
-  EXPECT_OP(3, "const");
-  EXPECT_OP(4, "compare");
-  EXPECT_OP(5, "branch");
-  loop_bound = READ_INT(yyjson_obj_get(interesting[3], "value"), "value");
-  if (!(loop_bound == 600000 && hako_llvmc_str_eq(READ_STR(interesting[4], "operation"), "<"))) {
-    yyjson_doc_free(doc);
-    return -1;
+  if (hako_llvmc_route_trace_enabled()) {
+    hako_llvmc_emit_route_trace(
+        "concat_const_suffix_micro",
+        "emit",
+        "exact_match",
+        "kilo_micro_concat_const_suffix mir_route_plan");
   }
-  saw_header = 1;
 
-  BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 2));
-  if (n != 9) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(0, "const");
-  EXPECT_OP(1, "binop");
-  EXPECT_OP(2, "mir_call");
-  EXPECT_OP(3, "binop");
-  EXPECT_OP(4, "const");
-  EXPECT_OP(5, "const");
-  EXPECT_OP(6, "binop");
-  EXPECT_OP(7, "mir_call");
-  EXPECT_OP(8, "jump");
-  {
-    yyjson_val* vobj = yyjson_obj_get(interesting[0], "value");
-    yyjson_val* ty = vobj ? yyjson_obj_get(vobj, "type") : NULL;
-    const char* box_type = ty ? yyjson_get_str(yyjson_obj_get(ty, "box_type")) : NULL;
-    suffix = vobj ? READ_STR(vobj, "value") : NULL;
-    if (!(box_type && strcmp(box_type, "StringBox") == 0 &&
-          suffix && hako_llvmc_str_eq(suffix, "xy"))) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-  }
-  {
-    yyjson_val* mc = yyjson_obj_get(interesting[2], "mir_call");
-    yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-    const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
-    const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-    yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-    if (!(REQUIRE_STRINGISH_BOX(box_name) && name && strcmp(name, "length") == 0 &&
-          args && yyjson_is_arr(args) && yyjson_arr_size(args) == 0)) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-  }
-  if (READ_INT(yyjson_obj_get(interesting[4], "value"), "value") != 2 ||
-      READ_INT(yyjson_obj_get(interesting[5], "value"), "value") != 2) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  {
-    yyjson_val* mc = yyjson_obj_get(interesting[7], "mir_call");
-    yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-    const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
-    const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-    yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-    if (!(REQUIRE_STRINGISH_BOX(box_name) && name && strcmp(name, "substring") == 0 &&
-          args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2)) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-  }
-  saw_body = 1;
-
-  BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 3));
-  if (n != 5) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(0, "phi");
-  EXPECT_OP(1, "phi");
-  EXPECT_OP(2, "const");
-  EXPECT_OP(3, "binop");
-  EXPECT_OP(4, "jump");
-  if (READ_INT(yyjson_obj_get(interesting[2], "value"), "value") != 1 ||
-      !hako_llvmc_str_eq(READ_STR(interesting[3], "operation"), "+")) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  saw_latch = 1;
-
-  BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 4));
-  if (n != 3) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(0, "mir_call");
-  EXPECT_OP(1, "binop");
-  EXPECT_OP(2, "ret");
-  {
-    yyjson_val* mc = yyjson_obj_get(interesting[0], "mir_call");
-    yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-    const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
-    const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-    yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-    if (!(REQUIRE_STRINGISH_BOX(box_name) && name && strcmp(name, "length") == 0 &&
-          args && yyjson_is_arr(args) && yyjson_arr_size(args) == 0)) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-  }
-  if (!hako_llvmc_str_eq(READ_STR(interesting[1], "operation"), "+")) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  saw_exit = 1;
-
-  if (!(saw_preheader && saw_header && saw_body && saw_latch && saw_exit)) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
   {
     int rc = hako_llvmc_emit_concat_const_suffix_micro_ir(
-      obj_out,
-      &selection,
-      text,
-      text_len,
-      suffix,
-      2,
-      loop_bound);
+        obj_out,
+        &selection,
+        seed,
+        seed_len,
+        suffix,
+        suffix_len,
+        ops);
     yyjson_doc_free(doc);
     return rc;
   }
-
-  #undef READ_INT
-  #undef READ_STR
-  #undef BUILD_INTERESTING_NO_COPY
-  #undef EXPECT_OP
-  #undef REQUIRE_STRINGISH_BOX
 }

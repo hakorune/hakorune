@@ -14,6 +14,7 @@ pub mod array_text_loopcarry_plan; // MIR-owned route plans for active array/tex
 pub mod basic_block;
 pub mod builder;
 mod compiler;
+pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
 pub mod diagnostics; // freeze diagnostics helpers (SSOT)
@@ -112,6 +113,11 @@ pub use array_text_loopcarry_plan::{
 };
 pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
+pub use concat_const_suffix_micro_seed_plan::{
+    refresh_function_concat_const_suffix_micro_seed_route,
+    refresh_module_concat_const_suffix_micro_seed_routes, ConcatConstSuffixMicroSeedProof,
+    ConcatConstSuffixMicroSeedRoute,
+};
 pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions
 pub use effect::{Effect, EffectMask};
 pub use escape_barrier::{classify_escape_uses, EscapeBarrier, EscapeUse};
