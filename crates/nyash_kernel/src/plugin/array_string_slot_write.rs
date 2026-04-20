@@ -182,6 +182,41 @@ fn materialize_insert_const_mid_subrange_for_array_slot(
 }
 
 #[inline(always)]
+fn try_update_insert_const_mid_subrange_same_len_in_place(
+    value: &mut String,
+    middle: &str,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> bool {
+    let source_len = value.len();
+    let middle_len = middle.len();
+    if source_len == 0 || middle_len != 2 {
+        return false;
+    }
+    let (split_start, _) = clamp_i64_range(source_len, split, split);
+    let total_len = source_len.saturating_add(middle_len);
+    let (slice_start, slice_end) = clamp_i64_range(total_len, start, end);
+    if slice_start != 1 || slice_end != source_len + 1 {
+        return false;
+    }
+    if split_start == 0 || split_start > source_len {
+        return false;
+    }
+    if !value.is_char_boundary(slice_start)
+        || !value.is_char_boundary(split_start)
+        || !value.is_char_boundary(source_len - 1)
+        || !middle.is_char_boundary(1)
+    {
+        return false;
+    }
+    value.insert_str(split_start, middle);
+    drop(value.drain(..slice_start));
+    value.truncate(source_len);
+    true
+}
+
+#[inline(always)]
 fn insert_const_mid_into_string_box_value(value: &mut String, middle: &str, split: i64) {
     if value.is_empty() {
         value.push_str(middle);
@@ -345,6 +380,15 @@ fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
         arr.slot_update_text_raw(idx, |value| {
+            if try_update_insert_const_mid_subrange_same_len_in_place(
+                value, middle, split, start, end,
+            ) {
+                if observe_enabled {
+                    observe::record_store_array_str_existing_slot();
+                    observe::record_store_array_str_source_store();
+                }
+                return 1;
+            }
             let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
                 value.as_str(),
                 middle,

@@ -102,6 +102,16 @@ Scope: current lane / next lane / restart order only.
         - `ny_aot_instr=11666577`, `ny_aot_cycles=20300845`
         - regenerated exact asm has no separate `out` stack buffer and no runtime/public helper call in `ny_main`
       - guard held: no route widening, no new MIR legality, no runtime helper, and no public ABI change
+    - `137x-H5` middle same-slot subrange store materialization seam is closed
+      - perf-first baseline after H4:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 10 ms`
+        - top owners: `array_string_len_by_index` closure, same-slot subrange store closure, and Rust dealloc
+      - implementation: the existing `nyash.array.string_insert_mid_subrange_store_hisiiii` runtime-private helper now mutates the safe same-length subrange shape in place after checking only required UTF-8 byte boundaries
+      - result:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`
+        - `ny_aot_instr=83021976`, `ny_aot_cycles=26509766`
+        - `kilo_kernel_small = C 81 ms / Ny AOT 19 ms`
+      - guard held: no MIR route widening, no public ABI, and no helper-name semantic ownership
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
