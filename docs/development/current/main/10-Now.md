@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md
   - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
+  - docs/development/current/main/design/value-corridor-generic-optimization-contract.md
   - docs/development/current/main/phases/phase-289x/README.md
   - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
   - docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md
@@ -163,7 +164,7 @@ Related:
       - `137x-B` container / primitive design cleanout is closed
       - `137x-C` structure completion gate is closed by `137x-91-task-board.md`
       - `137x-D` exact route-shape keeper is landed
-      - optimization resumes as `137x-H` only after `137x-F/G` land or reject
+      - optimization resumes as `137x-H` after `137x-F` closeout and `137x-G` reject
 - blocker:
   - `137x-H owner-first optimization return`; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed, and `137x-G` allocator / arena is rejected for now
   - first landed keeper:
@@ -201,7 +202,7 @@ Related:
   - boundary:
     - this is structure-only, not keeper proof
     - this helper-local follow-up is no longer the next task
-    - `137x-E/F/G` now own the next implementation sequence before any `137x-H` perf return
+    - `137x-E/F` are closed and `137x-G` is rejected for now; `137x-H` owns the next perf return
 - current source-only get suppression + same-slot string store keeper:
   - compiler seam:
     - `array.get -> length -> substring/substring -> insert-mid set`
@@ -296,7 +297,7 @@ Related:
   - `Phase 2`: cold publish effect
   - `Phase 2.5`: read-side alias lane split
   - `Phase 3`: `TextLane` storage/residence implementation through `137x-E`
-  - `Phase 4`: `137x-F/G` Value Lane bridge and allocator pilot before `137x-H`
+  - `Phase 4`: `137x-F` Value Lane bridge closed; `137x-G` allocator pilot deferred before `137x-H`
 - current phase-2 start is now landed structurally:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined as cold boundaries

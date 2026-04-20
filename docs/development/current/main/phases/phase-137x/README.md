@@ -9,6 +9,7 @@
   - `docs/development/current/main/10-Now.md`
   - `docs/development/current/main/15-Workstream-Map.md`
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+  - `docs/development/current/main/design/value-corridor-generic-optimization-contract.md`
   - `crates/nyash_kernel/src/exports/string.rs`
   - `crates/nyash_kernel/src/plugin/map_substrate.rs`
   - `crates/nyash_kernel/src/plugin/map_aliases.rs`
@@ -105,7 +106,7 @@
   - `Phase 2.5`: read-side alias lane split
   - `Phase 2.6`: string publication contract closeout / legality lock
   - `Phase 3`: `TextLane` storage/residence implementation (`137x-E`)
-  - `Phase 4`: Value Lane bridge and allocator pilot before the next kilo optimization (`137x-F/G`)
+  - `Phase 4`: Value Lane bridge closed and allocator pilot deferred before the next kilo optimization (`137x-F/G`)
 
 ## 137x-E1 TextLane Slice
 

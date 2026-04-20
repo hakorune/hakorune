@@ -17,31 +17,32 @@ Scope: current lane / next lane / restart order only.
 3. `docs/development/current/main/10-Now.md`
 4. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
 5. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
-6. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` vocabulary; `137x-F` consumes it as the constrained bridge)
-7. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
-8. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
-9. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
-10. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
-11. `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
-12. `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
-13. `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
-14. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-15. `docs/development/current/main/phases/phase-137x/README.md`
-16. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-17. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
-18. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
-19. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-20. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-21. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
-22. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-23. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-24. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-25. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-26. `docs/development/current/main/design/string-birth-sink-ssot.md`
-27. `docs/development/current/main/15-Workstream-Map.md`
-28. `git status -sb`
-29. `tools/checks/dev_gate.sh quick`
-30. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+6. `docs/development/current/main/design/value-corridor-generic-optimization-contract.md` (`137x-H` generic contract vocabulary)
+7. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` vocabulary; `137x-F` consumes it as the constrained bridge)
+8. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
+9. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+10. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
+11. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
+12. `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
+13. `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
+14. `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
+15. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+16. `docs/development/current/main/phases/phase-137x/README.md`
+17. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+18. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+19. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+20. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+21. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+22. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
+23. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+24. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+25. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+26. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+27. `docs/development/current/main/design/string-birth-sink-ssot.md`
+28. `docs/development/current/main/15-Workstream-Map.md`
+29. `git status -sb`
+30. `tools/checks/dev_gate.sh quick`
+31. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -63,6 +64,7 @@ Scope: current lane / next lane / restart order only.
       - implemented as array-internal storage/residence only: `String = value`, public Array/String ABI, and MIR legality stay unchanged
       - array-string kernel read/store/mutate routes now use text raw APIs; generic/mixed ArrayBox routes degrade to Boxed instead of making `TextLane` semantic truth
       - retired the array-string store `BorrowedHandleBox` retarget executor path; runtime now stores text residence or degrades mixed values without re-planning alias legality
+    - closed CURRENT_STATE token: `137x-F Value Lane bridge`
     - `137x-F` Value Lane bridge is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker is `137x-H` owner-first optimization return
@@ -86,7 +88,7 @@ Scope: current lane / next lane / restart order only.
     - phase-137x keeper `49c356339` is the current string proof
     - demand-backed cutover inventory `289x-96` is closed
     - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed; `137x-D` exact route-shape keeper is landed
-    - next kilo optimization is parked until `137x-F/G` land or reject; return lane is `137x-H`
+    - `137x-F` is closed and `137x-G` is rejected for now; return lane is `137x-H`
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; their vocabulary now feeds the constrained `137x-F` implementation bridge
@@ -107,7 +109,7 @@ Scope: current lane / next lane / restart order only.
       - `substring_hii` `ViewSpan` publication cleanup is closed; `StringSpan` now survives until the final handle boundary helper
       - explicit string-only `publish.text` contract gates are closed for `137x-A`; `publish.any` remains deferred/blocked
       - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates, but not prerequisites for the active `137x-E` implementation gate
-      - active implementation gate is `137x-F` Value Lane bridge closeout; `137x-F1` demand-to-lane executor bridge, `137x-F2` producer outcome manifest split, `137x-E0` MIR/backend seam closeout, and `137x-E1` minimal TextLane are closed
+      - closed implementation gate token is `137x-F Value Lane bridge`; `137x-F1` demand-to-lane executor bridge, `137x-F2` producer outcome manifest split, `137x-E0` MIR/backend seam closeout, and `137x-E1` minimal TextLane are closed
       - `.inc` must consume MIR-owned metadata for legality/provenance and stay backend emit/normalization only
       - pre-E1 cleanup deleted the old `9-block` seed branch and the shared-receiver scanner fallback; active shared-receiver gates are now metadata-only
       - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
@@ -201,18 +203,18 @@ Scope: current lane / next lane / restart order only.
       - phase-289x no longer blocks optimization return, and `137x-B` design cleanout is now closed
     - implementation order before the next kilo optimization:
       - `137x-E`: minimal `ArrayStorage::Text` / `TextLane`
-      - `137x-F`: runtime-wide Value Lane implementation bridge, constrained by 289x vocabulary
-      - `137x-G`: allocator / arena pilot, only after copy/allocation tax remains structural
+      - `137x-F`: runtime-wide Value Lane implementation bridge is closed
+      - `137x-G`: allocator / arena pilot is rejected until copy/allocation tax becomes dominant
       - still deferred: string view/value carrier split beyond this gate, Map typed lane, heterogeneous / union slots
     - return-to-optimization gate:
       - phase-289x gate was closed by `289x-7h`
       - `137x-B` container / primitive design cleanout is closed
       - `137x-C` completion gate is closed by `137x-91-task-board.md`
       - `137x-D` exact route-shape keeper is landed
-      - optimization resumes as `137x-H` only after `137x-F/G` land or reject
+      - optimization resumes as `137x-H` after `137x-F` closeout and `137x-G` reject
 - current blocker:
-  - `137x-F Value Lane bridge` before any further kilo optimization edit
-  - no broad `phase-289x` cutover blocker; `137x-F` is a constrained implementation bridge
+  - `137x-H owner-first optimization return`
+  - no broad `phase-289x` cutover blocker; `137x-F` is closed and `137x-G` is deferred
 - current cut status:
   - latest implementation candidate:
     - phase-137x branch-target-aware array string get/store seam is now the active keeper candidate
@@ -242,7 +244,7 @@ Scope: current lane / next lane / restart order only.
           - the current owner proof remains reject-side after the exact route-shape keeper
         - boundary:
           - start the next perf/asm reread from these concrete helper interiors
-          - do not revive this helper-local seam as the next task; `137x-E/F/G` now own the next implementation sequence
+          - do not revive this helper-local seam as the next task; `137x-H` now owns the next measured optimization return
       - current source-only get suppression + same-slot string store keeper:
         - compiler seam: `array.get -> length -> substring/substring -> insert-mid set` records the array text source and skips the object-handle get when later uses are proven source-only
         - fused insert-mid store seam:
@@ -528,8 +530,8 @@ Scope: current lane / next lane / restart order only.
     - goal: `TextReadOnly` / `EncodedAlias` stay common path and `StableObject` stays cold
   - `Phase 3`: `TextLane` storage/residence implementation through `137x-E`
     - goal: specialize array internal text residence without changing public array semantics
-  - `Phase 4`: `137x-F/G` Value Lane bridge and allocator pilot before returning to kilo optimization
-    - goal: prove runtime-wide residence and allocation seams without public ABI widening
+  - `Phase 4`: `137x-F` Value Lane bridge closed; `137x-G` allocator pilot deferred before returning to kilo optimization
+    - goal: keep runtime-wide residence proven while requiring dominant allocation evidence before allocator work
 - current active work is phase 2 / phase 2.5 lane:
   - isolate publish as a cold effect without changing public ABI
   - keep read-side alias continuity cheap and cache-backed
