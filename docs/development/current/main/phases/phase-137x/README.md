@@ -946,6 +946,47 @@ Seed-off investigation:
 - Pre-fix runtime perf top was dominated by `ArrayBox::boxed_from_text` plus malloc/free. The regression owner was therefore repeated Text-lane public get/materialization, not string search.
 - Fix: `.inc` observer get lowering now suppresses that public get when `keep_get_live=false`, while retaining metadata-owned observer helper emission. Keep `skip_instruction_indices` out of canonical `array_text_observer_routes`.
 
+Post-fix 10 ms owner:
+- `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1 PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 15`: `C 4 ms / Ny AOT 10 ms`, `ny_aot_instr=122552339`, `ny_aot_cycles=35279056`.
+- Exact seed current comparison: `C 4 ms / Ny AOT 3 ms`, `ny_aot_instr=6196197`, `ny_aot_cycles=1513192`.
+- Seed-off generic IR now has no `nyash.array.slot_load_hi`, but it still emits `nyash.box.from_i8_string_const("line")` inside the 400k loop before `nyash.array.string_indexof_hih(array, row, needle_h)`.
+- Perf top for the 10 ms path is dominated by `nyash.box.from_i8_string_const`, `core::hash::BuildHasher::hash_one`, `__strlen_evex`, and `memchr`. The remaining owner is therefore const-string handle lookup plus generic substring search, not public array get materialization.
+- Exact seed does not pay that cost: it emits a stack pointer array of `@.indexof_seed_line` / `@.indexof_seed_none`, computes `found` as pointer equality, and stores the next pointer directly.
+
+Next design:
+- `137x-H15.1`: extend `array_text_observer_routes` with an observer-argument representation for compiler-known UTF-8 constants. MIR owns the fact that the argument is a constant text value; backend maps it to a ptr+len helper locally. Do not place helper symbols in MIR.
+- Runtime execution should use the existing raw const hook shape (`with_compiler_const_utf8_ptr_len`) and the existing `array_string_indexof_by_index_str` mechanics, so the hot loop no longer calls `nyash.box.from_i8_string_const` for the needle.
+- `137x-H15.2`: generalize the exact seed literal membership predicate into MIR-owned finite text-state observer outcomes for `consumer_shape=found_predicate`. Only emit predicate-only lowering when MIR proves candidate text values and outcomes; otherwise keep the raw search helper.
+- The exact search bridge remains blocked from deletion until H15.1/H15.2 match keeper speed for line and leaf fronts with the bridge disabled.
+
+H15.1 implementation result and H15.2 rejected probe:
+- `array_text_observer_routes` now carries `observer_arg0_repr=const_utf8`, byte length, and `observer_arg0_keep_live`; JSON export mirrors those fields.
+- Seed-off generic IR now emits `nyash.array.string_indexof_hisi(array, row, ptr, len)` for the const needle, suppressing the per-iteration `nyash.box.from_i8_string_const("line")`.
+- A finite literal-membership helper was tested from MIR metadata, but rejected as non-keeper: `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1 PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 5`: `C 5 ms / Ny AOT 10 ms`, `ny_aot_instr=121035205`, `ny_aot_cycles=31691591`.
+- Trace bundle: `target/perf_state/h15-2b-indexof-line-seed-off/lowered.ll` showed the membership helper in the hot loop; `perf_top.txt` was dominated by the helper closure plus parking_lot/RwLock-like array text slot access. `memchr`/generic search was no longer the hot owner, but the read-side array residence boundary remained.
+- Verdict: the literal-membership helper ABI was retired before commit. Keep only the generic const-UTF8 observer contract; keeper work must remove the read-side residence boundary.
+- Verification kept for the retained slice: `cargo test array_text_observer --lib`, `cargo test -p nyash_kernel string_indexof_const_utf8_alias_reads_string_slot_directly`, and `bash tools/perf/build_perf_release.sh` pass.
+
+H15.3 revised seam:
+- Stop adding narrower helper variants for `indexOf`.
+- The next keeper seam must be a MIR-owned text-state/array-lane residence contract that lets backend keep the 64-row text state loop-local, or an equivalent loop-resident cursor that avoids per-iteration ArrayBox/RwLock read calls.
+- Periodic const store ptr+len lowering remains useful, but it is secondary until the read-side array residence boundary is removed.
+- Exact bridge deletion is still rejected: exact seed wins by stack pointer-array residence and pointer equality, not by a better runtime search helper.
+
+H15.3a implementation plan:
+- Add a generic pure-first text-state residence entry that consumes only MIR-owned `indexof_search_micro_seed_route` metadata.
+- Reuse the resident pointer-array emitter as the executor for that route, so the line front can be tested with `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1` without falling back to per-iteration `ArrayBox` text reads.
+- This is not a new raw scanner: acceptance must come from MIR metadata, and the backend only chooses the resident executor.
+- Keeper gate: seed-off `kilo_micro_indexof_line` must recover exact-front speed while route trace shows the generic residence stage, not the old exact `indexof_line_micro` bridge.
+
+H15.3a implementation result:
+- The generic pure-first lane now tries `indexof_line_text_state_residence` / `indexof_leaf_text_state_residence` from the already refreshed `indexof_search_micro_seed_route` metadata before entering generic block walking.
+- The old exact line bridge can be skipped with `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1`; the generic residence entry still accepts the MIR route and emits the resident pointer-array IR.
+- Seed-off gate after retiring the non-keeper membership helper: `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED=1 PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 5`: `C 4 ms / Ny AOT 3 ms`, `ny_aot_instr=6198985`, `ny_aot_cycles=1554378`.
+- Trace bundle: `target/perf_state/h15-3a-indexof-line-seed-off/route_trace_summary.txt` shows `stage=indexof_line_text_state_residence result=emit reason=text_state_residence`.
+- IR residue: `target/perf_state/h15-3a-indexof-line-seed-off/lowered.ll` has the loop-local pointer array and pointer equality; `hot_block_residue.txt` reports `slot_load_hi=0`, `runtime_data=0`, `hostbridge=0`.
+- Verdict: the 10 ms gap was the read-side array residence boundary. H15.3a restores keeper speed without adding another runtime helper, but the remaining exact search bridge should stay until the resident route is renamed out of the temporary `micro_seed` vocabulary or covered by a generic array-lane residence contract.
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
