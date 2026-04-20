@@ -66,6 +66,7 @@ Scope: current lane / next lane / restart order only.
       - retired the array-string store `BorrowedHandleBox` retarget executor path; runtime now stores text residence or degrades mixed values without re-planning alias legality
     - closed CURRENT_STATE token: `137x-F Value Lane bridge`
     - `137x-F` Value Lane bridge is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
+    - `137x-H` runtime cleanup: removed dead `ValueLaneAction::PublishBoundary`; array string store now only selects `TextCellResidence` or `GenericBoxResidence`
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker is `137x-H` owner-first optimization return
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice

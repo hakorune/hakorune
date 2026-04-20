@@ -2,18 +2,15 @@
 //!
 //! MIR/lowering owns legality and provenance. This module only turns an already
 //! selected `DemandSet` into the concrete runtime action used by executor code.
-#![allow(dead_code)]
 
 use super::value_demand::{
-    DemandSet, PublishDemand, StorageDemand, ValueDemand, ARRAY_TEXT_DEGRADE_GENERIC,
-    ARRAY_TEXT_OWNED_CELL,
+    DemandSet, StorageDemand, ValueDemand, ARRAY_TEXT_DEGRADE_GENERIC, ARRAY_TEXT_OWNED_CELL,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum ValueLaneAction {
     TextCellResidence,
     GenericBoxResidence,
-    PublishBoundary,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -74,17 +71,6 @@ fn plan_generic_box_residence(demand: DemandSet) -> Option<ValueLanePlan> {
 }
 
 #[inline(always)]
-fn plan_publish_boundary(demand: DemandSet) -> Option<ValueLanePlan> {
-    if has_publish(demand, PublishDemand::NeedStableObject)
-        && has_value(demand, ValueDemand::StableObject)
-    {
-        Some(ValueLanePlan::new(ValueLaneAction::PublishBoundary, demand))
-    } else {
-        None
-    }
-}
-
-#[inline(always)]
 fn has_value(demand: DemandSet, needle: ValueDemand) -> bool {
     demand.value.iter().any(|value| *value == needle)
 }
@@ -94,17 +80,10 @@ fn has_storage(demand: DemandSet, needle: StorageDemand) -> bool {
     demand.storage.iter().any(|storage| *storage == needle)
 }
 
-#[inline(always)]
-fn has_publish(demand: DemandSet, needle: PublishDemand) -> bool {
-    demand.publish.iter().any(|publish| *publish == needle)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::plugin::value_demand::{
-        ARRAY_GENERIC_STORE_ANY, ARRAY_TEXT_READ_REF, PUBLISH_NEED_STABLE_OBJECT,
-    };
+    use crate::plugin::value_demand::{ARRAY_GENERIC_STORE_ANY, ARRAY_TEXT_READ_REF};
 
     #[test]
     fn text_cell_store_demand_maps_to_text_cell_residence() {
@@ -131,13 +110,5 @@ mod tests {
     fn read_ref_demand_is_not_a_storage_plan() {
         assert_eq!(plan_text_cell_residence(ARRAY_TEXT_READ_REF), None);
         assert_eq!(plan_generic_box_residence(ARRAY_TEXT_READ_REF), None);
-    }
-
-    #[test]
-    fn publish_need_stable_object_maps_to_boundary_action() {
-        let plan = plan_publish_boundary(PUBLISH_NEED_STABLE_OBJECT)
-            .expect("publish demand should map to boundary action");
-        assert_eq!(plan.action, ValueLaneAction::PublishBoundary);
-        assert_eq!(plan.demand, PUBLISH_NEED_STABLE_OBJECT);
     }
 }

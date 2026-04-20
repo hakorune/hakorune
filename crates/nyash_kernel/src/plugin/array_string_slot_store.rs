@@ -150,13 +150,6 @@ fn execute_store_array_str_contract_on_array(
                 0
             }
         }
-        ValueLaneAction::PublishBoundary => {
-            debug_assert!(
-                false,
-                "array string store must not publish during residence"
-            );
-            0
-        }
     }
 }
 
