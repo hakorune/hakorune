@@ -88,15 +88,15 @@ Treat the last two caller surfaces as separate watches with different unblock co
 
 | Contract item | Current owner | What must replace it before demotion | Verdict |
 | --- | --- | --- | --- |
-| MIR(JSON text) input | `compat_text_primitive::compile_object_from_mir_json_text_no_helper(...)` | shared no-helper primitive that still accepts text input | landed |
+| MIR(JSON text) input | `mir_json_text_object::compile_object_from_mir_json_text_boundary(...)` | shared backend boundary that still accepts text input | landed; renamed from `compat_text_primitive` in `137x-H2` |
 | version patching for old payloads | `compat_codegen_receiver::patch_mir_json_version(...)` | stays in the legacy wrapper path until upstream contract retirement | locked |
 | trace / observability point | `compat_codegen_receiver::trace_call/trace_result` | preserved at the replacement chokepoint | locked |
 | `emit_object(mir_json_text) -> object path` result contract | `compat_codegen_receiver::emit_object(...)` over the shared primitive | contract-preserving replacement over the single Rust text primitive | landed |
 
 ## 99W2 Verdict
 
-- landed: the single Rust-side no-helper `MIR(JSON text) -> object path` primitive now exists at `src/host_providers/llvm_codegen/compat_text_primitive.rs`.
-- landed: `compat_codegen_receiver.rs` no longer calls any explicit legacy helper; it uses the shared no-helper text primitive.
+- landed: the single Rust-side no-helper `MIR(JSON text) -> object path` boundary now exists at `src/host_providers/llvm_codegen/mir_json_text_object.rs` after the `137x-H2` legacy-name shrink.
+- landed: `compat_codegen_receiver.rs` no longer calls any explicit legacy helper; it uses the shared MIR JSON text object boundary.
 - `watch-1` remains an upstream contract-retirement follow-up, not a direct helper-caller watch.
 
 ## Watch-2 Caller Groups

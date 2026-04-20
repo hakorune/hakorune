@@ -4,12 +4,12 @@ use super::normalize;
 use super::route;
 use super::Opts;
 
-/// Explicit no-helper compat text primitive.
+/// Compile MIR(JSON text) to an object through the explicit backend boundary.
 ///
-/// This keeps the remaining Rust-side `emit_object(mir_json_text) -> object path`
-/// contract off the legacy front-door helper while preserving the explicit
-/// provider-keep / CAPI keep semantics that still back monitor-only proof lanes.
-pub fn compile_object_from_mir_json_text_no_helper(
+/// This is the remaining Rust-side text object emission chokepoint for
+/// monitor-only proof lanes. It normalizes input once, then delegates route
+/// selection to the backend route layer without reviving legacy helper ownership.
+pub fn compile_object_from_mir_json_text_boundary(
     mir_json: &str,
     opts: Opts,
 ) -> Result<PathBuf, String> {

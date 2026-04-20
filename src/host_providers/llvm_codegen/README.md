@@ -16,9 +16,10 @@ Thin Rust bridge for backend object emission.
 - `provider_keep.rs`
   - archive-later explicit provider keep lanes
   - `ny-llvmc` / `llvmlite` path resolution and object emission helpers only
-- `compat_text_primitive.rs`
-  - explicit no-helper compat text primitive
-  - Rust-side `MIR(JSON text) -> object path` replacement target for the final helper watch
+- `mir_json_text_object.rs`
+  - explicit `MIR(JSON text) -> object path` backend boundary
+  - Rust-side text object emission chokepoint for monitor-only proof lanes
+  - normalizes input once, then delegates route selection without owning MIR acceptance
 - `capi_transport.rs`
   - explicit CAPI helper split from the legacy transport helper surface
   - compile/link CAPI helpers only
@@ -51,5 +52,5 @@ Thin Rust bridge for backend object emission.
 - compare/debug residue is now split: `ll_emit_compare_source.rs` owns source rendering, `ll_emit_compare_driver.rs` owns orchestration plus VM spawn and stdout/LL extraction, `provider_keep.rs` owns explicit provider keep lanes plus provider path resolution, and the separate `hako_ll_driver.rs` / `ll_emit_bridge.rs` helpers have been retired
 - explicit legacy helper deletion is landed; the root facade stays thin and daily code only stops at `compile_ll_text(...)` / `ll_text_to_object(...)`
 - mainline object emit now goes through `ny-llvmc --emit obj`; the llvmlite keep lane stays explicit only
-- direct runtime caller retirement for the file-based `mir_json_file_to_object(...)` front door is landed; remaining compat acceptance is carried by `compat_text_primitive.rs`
-- the Rust compat chokepoint and compiled-stage1 surrogate both use the shared no-helper text primitive; there is no remaining explicit legacy helper module
+- direct runtime caller retirement for the file-based `mir_json_file_to_object(...)` front door is landed; remaining text object emission is carried by `mir_json_text_object.rs`
+- the Rust compat chokepoint and compiled-stage1 surrogate both use the shared MIR JSON text object boundary; there is no remaining explicit legacy helper module

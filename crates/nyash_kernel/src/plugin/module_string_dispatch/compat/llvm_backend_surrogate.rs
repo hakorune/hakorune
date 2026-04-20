@@ -92,7 +92,7 @@ fn compile_obj_from_json_path(mir_path: &str) -> Result<std::path::PathBuf, Stri
     // The compile core now reuses the same no-helper text primitive as watch-1.
     let mir_json = fs::read_to_string(Path::new(mir_path))
         .map_err(|e| format!("[llvmemit/input/read-failed] {}", e))?;
-    nyash_rust::host_providers::llvm_codegen::compat_text_primitive::compile_object_from_mir_json_text_no_helper(
+    nyash_rust::host_providers::llvm_codegen::mir_json_text_object::compile_object_from_mir_json_text_boundary(
         &mir_json,
         compile_obj_opts_from_env(),
     )

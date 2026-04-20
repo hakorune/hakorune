@@ -28,11 +28,11 @@ pub struct Opts {
 }
 
 mod capi_transport;
-pub mod compat_text_primitive;
 mod defaults;
 mod ll_emit_compare_driver;
 mod ll_emit_compare_source;
 mod ll_tool_driver;
+pub mod mir_json_text_object;
 mod normalize;
 mod provider_keep;
 mod route;

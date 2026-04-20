@@ -69,7 +69,7 @@ pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String,
     } else {
         mir_json.to_string()
     };
-    let result = crate::host_providers::llvm_codegen::compat_text_primitive::compile_object_from_mir_json_text_no_helper(
+    let result = crate::host_providers::llvm_codegen::mir_json_text_object::compile_object_from_mir_json_text_boundary(
         &input,
         codegen_opts(None),
     )

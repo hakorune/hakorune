@@ -186,7 +186,7 @@ Verification:
 
 ## 137x-H1 MIR String Value Lowering Cleanup
 
-Status: active.
+Status: closed.
 
 Scope:
 - keep source string values in MIR value-world form until an explicit object/publication boundary
@@ -207,6 +207,36 @@ Implementation guard:
 - A string value may be *dispatched through* `StringBox` runtime methods, but that dispatch does not prove the value was born as a `StringBox`.
 - `publish.text` remains MIR-owned metadata; `freeze.str` remains the string birth sink.
 
+## 137x-H2 MIR JSON Text Object Boundary Shrink
+
+Status: closed.
+
+Scope:
+- retire the active `compat_text_primitive.rs` module name from Rust callers
+- keep the remaining `MIR(JSON text) -> object path` contract as an explicit backend boundary, not as a legacy helper replacement surface
+- do not change route order, C-API keep behavior, provider keep behavior, or boundary-default behavior
+- do not touch the array/string-store exact seed bridge in this slice
+
+Acceptance:
+- `compat_text_primitive` has no active code references
+- the shared object emission entry is named for the contract it owns: MIR JSON text to object
+- plugin-loader `emit_object` and compiled-stage1 LLVM backend surrogate still share one chokepoint
+- quick gate stays green
+
+Implementation guard:
+- This slice is no-behavior cleanup.
+- The new boundary must normalize MIR JSON input once and delegate route selection to the existing route layer.
+- Exact seed bridge deletion remains blocked until active array-string store route coverage is proven outside the exact matcher.
+
+Verification:
+- `rustfmt --check src/host_providers/llvm_codegen/mir_json_text_object.rs src/host_providers/llvm_codegen.rs src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` PASS
+- `git diff --check` PASS
+- `cargo check -q` PASS
+- `cargo check -q -p nyash_kernel` PASS
+- `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh` PASS
+- `tools/checks/dev_gate.sh quick` PASS
+- note: full `cargo fmt --check` still reports pre-existing observe-module formatting drift; this slice does not rewrite those files.
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -222,10 +252,10 @@ Rules:
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
 | `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed bridge | temporary bridge surface | Pure-first array/string-store micro seed still has exact route-shape emission for the current micro front; it is not keeper architecture and must not grow semantic legality. | Delete or shrink after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed into an explicit legacy regression fixture with failure expectation. |
-| `src/host_providers/llvm_codegen/compat_text_primitive.rs` | watch item | Audit surfaced it as a legacy compiler compatibility surface; not part of the explicit-length helper cut | Classify first: either retire behind a small no-behavior cleanup gate or document why it remains a stable compatibility shim. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
+- retired in `137x-H2`: `src/host_providers/llvm_codegen/compat_text_primitive.rs` is renamed out of active code; remaining Rust-side `MIR(JSON text) -> object path` emission lives in `mir_json_text_object.rs` as a no-helper backend boundary.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

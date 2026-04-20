@@ -71,11 +71,16 @@ Scope: current lane / next lane / restart order only.
     - `137x-H` backend cleanup: `match_piecewise_slot_hop_substring_consumer` moved into shared concat emit helpers so `generic_method_substring_policy` no longer owns the slot-hop consumer replay
     - `137x-H` backend cleanup: removed unused `hako_llvmc_string_corridor_read_insert_mid_window_plan_values`; kernel-plan reader is now the only insert-mid window SSOT
     - `137x-H` backend cleanup: removed the standalone corridor triplet reader; `direct_kernel_entry` substring proof now goes through centralized `hako_llvmc_string_kernel_plan_read_concat_triplet_values` (kernel-first, corridor compat fallback)
-    - `137x-H1` MIR string value lowering cleanup is active now
+    - `137x-H1` MIR string value lowering cleanup is closed
       - first cut: string constants and string `Add` results stay `MirType::String` instead of creating `StringBox` origin metadata
       - method dispatch may still route `MirType::String` to `StringBox` runtime methods as a compatibility boundary; it must not mark the value as born object-world text
       - `text.ref` / `text.owned` / `publish` remain plan metadata and verifier vocabulary in this cut; first-class MIR instructions are deferred until the metadata contract needs a broader representation
       - Rust fresh-handle reissue sites must go through named publication/cache boundary helpers instead of calling the raw handle issuer from export helpers
+    - `137x-H2` MIR JSON text object boundary shrink is closed
+      - retire the active `compat_text_primitive.rs` module name from Rust callers
+      - keep the remaining Rust-side `MIR(JSON text) -> object path` route as an explicit backend boundary
+      - exact seed bridge deletion remains blocked until active array-string store coverage is proven outside the exact matcher
+      - verification: targeted `rustfmt --check`, `git diff --check`, `cargo check -q`, `cargo check -q -p nyash_kernel`, `phase137x_direct_emit_array_store_string_contract.sh`, and `tools/checks/dev_gate.sh quick` passed
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker is `137x-H` owner-first optimization return
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
@@ -122,7 +127,7 @@ Scope: current lane / next lane / restart order only.
       - closed implementation gate token is `137x-F Value Lane bridge`; `137x-F1` demand-to-lane executor bridge, `137x-F2` producer outcome manifest split, `137x-E0` MIR/backend seam closeout, and `137x-E1` minimal TextLane are closed
       - `.inc` must consume MIR-owned metadata for legality/provenance and stay backend emit/normalization only
       - pre-E1 cleanup deleted the old `9-block` seed branch and the shared-receiver scanner fallback; active shared-receiver gates are now metadata-only
-      - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
+      - legacy watch item `src/host_providers/llvm_codegen/compat_text_primitive.rs` is retired in `137x-H2`; remaining text object boundary is `src/host_providers/llvm_codegen/mir_json_text_object.rs`
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
