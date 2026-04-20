@@ -221,10 +221,10 @@ pub(super) fn build_mir_json_root(
                 })
             }),
             "indexof_search_micro_seed_route": f.metadata.indexof_search_micro_seed_route.as_ref().map(|route| {
-                build_indexof_search_route_json(route, "direct_indexof_search_seed", None)
+                build_indexof_route_contract_json(route, "direct_indexof_search_seed", None)
             }),
             "array_text_state_residence_route": f.metadata.indexof_search_micro_seed_route.as_ref().map(|route| {
-                build_indexof_search_route_json(
+                build_indexof_route_contract_json(
                     route,
                     "direct_array_text_state_residence",
                     Some("loop_local_pointer_array"),
@@ -370,7 +370,7 @@ pub(super) fn build_mir_json_root(
     Ok(root)
 }
 
-fn build_indexof_search_route_json(
+fn build_indexof_route_contract_json(
     route: &crate::mir::IndexOfSearchMicroSeedRoute,
     consumer_capability: &'static str,
     residence: Option<&'static str>,

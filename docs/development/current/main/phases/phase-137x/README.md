@@ -1008,6 +1008,29 @@ H15.3b implementation result:
   - seed-off `kilo_micro_indexof_line`: `C 5 ms / Ny AOT 4 ms`
   - exact `kilo_micro_indexof_line`: `C 4 ms / Ny AOT 4 ms`
 
+H15.3c cleanup plan:
+- Keep behavior unchanged.
+- Rename backend-local text-state residence structs/readers away from the exact `micro_seed` vocabulary.
+- Exact wrappers may still read `indexof_search_micro_seed_route`; generic pure-first residence must read `array_text_state_residence_route` through `array_text_state_residence` vocabulary.
+- Acceptance: `cargo test indexof_search_micro_seed --lib`, release build, seed-off route trace, and exact/seed-off microstats remain green.
+
+H15.3c implementation result:
+- Renamed shared backend-local route contract helpers:
+  - `hako_llvmc_indexof_route_contract`
+  - `hako_llvmc_read_indexof_route_contract(...)`
+  - `build_indexof_route_contract_json(...)`
+- Exact seed wrappers still read only `indexof_search_micro_seed_route`.
+- Text-state residence wrappers read only `array_text_state_residence_route`.
+- Verification:
+  - `cargo test indexof_search_micro_seed --lib` PASS
+  - `rustfmt --check src/runner/mir_json_emit/root.rs src/mir/indexof_search_micro_seed_plan.rs` PASS
+  - `git diff --check` PASS
+  - `bash tools/perf/build_perf_release.sh` PASS
+  - `target/perf_state/h15-3c-indexof-line-seed-off/route_trace_summary.txt` shows `stage=indexof_line_text_state_residence result=emit reason=text_state_residence`
+  - `target/perf_state/h15-3c-indexof-line-seed-off/hot_block_residue.txt` reports `slot_load_hi=0`, `runtime_data=0`, `hostbridge=0`
+  - seed-off `kilo_micro_indexof_line`: `C 4 ms / Ny AOT 4 ms`
+  - exact `kilo_micro_indexof_line`: `C 4 ms / Ny AOT 3 ms`
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
