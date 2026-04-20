@@ -258,6 +258,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     assert_eq!(plan["read_alias"]["source_window"], true);
     assert_eq!(plan["read_alias"]["followup_substring"], false);
     assert_eq!(plan["read_alias"]["piecewise_subrange"], false);
+    assert_eq!(plan["read_alias"]["direct_set_consumer"], false);
     assert_eq!(plan["read_alias"]["shared_receiver"], false);
     assert_eq!(plan["parts"][0]["kind"], "slice");
     assert_eq!(plan["parts"][1]["kind"], "const");

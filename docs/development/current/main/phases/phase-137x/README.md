@@ -590,6 +590,26 @@ First slice result:
 - `tools/checks/dev_gate.sh quick`: green
 - next deletion gate: extend the same metadata-first treatment to the remaining active direct/front loopcarry windows, if any
 
+## 137x-H13 MIR-Owned Piecewise Direct-Set Consumer
+
+Status: active.
+
+Purpose:
+- continue the H12 ownership cleanup on the adjacent direct-front `Pieces3` route
+- make MIR `StringKernelPlan` own whether a piecewise text value may be consumed by direct `array.set`
+- keep `.inc` as a plan reader and emitter instead of a consumer-shape scanner for this decision
+
+Boundary:
+- MIR may scan current uses and expose `read_alias.direct_set_consumer`
+- `.inc` may use that fact to defer piecewise publication or reject the fast route
+- `.inc` must not decide direct-set legality for the selected `Pieces3` value from raw JSON when the MIR fact is present
+- slot-hop substring skip planning and the exact array-string seed bridge stay out of this slice
+
+Acceptance:
+- `StringKernelPlan.read_alias.direct_set_consumer` is exported in MIR JSON
+- string concat/insert direct-front emit routes use the MIR fact for direct-set consumer decisions
+- existing route guards remain green
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

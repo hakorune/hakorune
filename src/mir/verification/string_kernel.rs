@@ -423,6 +423,7 @@ mod tests {
                 source_window: true,
                 followup_substring: true,
                 piecewise_subrange: true,
+                direct_set_consumer: false,
                 shared_receiver: false,
             },
             proof: StringCorridorCandidateProof::ConcatTriplet {

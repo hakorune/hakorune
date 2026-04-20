@@ -75,6 +75,7 @@ pub(super) fn build_string_kernel_plan_json(
             "source_window": plan.read_alias.source_window,
             "followup_substring": plan.read_alias.followup_substring,
             "piecewise_subrange": plan.read_alias.piecewise_subrange,
+            "direct_set_consumer": plan.read_alias.direct_set_consumer,
             "shared_receiver": plan.read_alias.shared_receiver,
         },
         "loop_payload": plan.loop_payload.as_ref().map(|payload| json!({

@@ -203,6 +203,7 @@ pub struct StringKernelPlanReadAliasFacts {
     pub source_window: bool,
     pub followup_substring: bool,
     pub piecewise_subrange: bool,
+    pub direct_set_consumer: bool,
     pub shared_receiver: bool,
 }
 
@@ -661,6 +662,11 @@ fn derive_read_alias_facts(
     let len_observer_legal = scan.len_observer_uses <= 1;
     let followup_substring =
         scan.substring_uses > 0 && scan.direct_set_uses == 0 && scan.other_uses == 0;
+    let direct_set_consumer = piecewise_subrange
+        && scan.direct_set_uses == 1
+        && scan.substring_uses == 0
+        && scan.len_observer_uses == 0
+        && scan.other_uses == 0;
     let shared_receiver = piecewise_subrange
         && scan.direct_set_uses == 1
         && scan.substring_uses == 1
@@ -672,6 +678,7 @@ fn derive_read_alias_facts(
         source_window,
         followup_substring,
         piecewise_subrange,
+        direct_set_consumer,
         shared_receiver,
     }
 }

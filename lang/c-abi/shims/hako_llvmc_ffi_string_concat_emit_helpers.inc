@@ -36,6 +36,16 @@
         return 0;
       }
 
+      auto int hako_llvmc_string_kernel_plan_direct_set_consumer(long long dst) {
+        int direct_set_consumer = 0;
+        if (!dst) return 0;
+        if (hako_llvmc_string_kernel_plan_read_alias_fact(
+                dst, "direct_set_consumer", &direct_set_consumer)) {
+          return direct_set_consumer;
+        }
+        return 0;
+      }
+
       auto int match_piecewise_slot_hop_substring_consumer(
           size_t ii,
           size_t ilen,

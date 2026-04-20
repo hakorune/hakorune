@@ -25,7 +25,7 @@
         char extra[256];
         const char* middle_const = NULL;
         if (!(dst && lhs && rhs)) return 0;
-        direct_set = has_direct_array_set_consumer(ii, ilen, insts, dst);
+        direct_set = hako_llvmc_string_kernel_plan_direct_set_consumer(dst);
         shared_receiver = hako_llvmc_string_kernel_plan_shared_receiver(dst);
         if (!(direct_set || shared_receiver)) return 0;
         lhs = resolve_copy_chain_source_reg(insts, ii + 1, lhs);
@@ -124,7 +124,7 @@
         char extra[256];
 
         if (!(dst && args && yyjson_is_arr(args) && yyjson_arr_size(args) == 5)) return 0;
-        if (!has_direct_array_set_consumer(ii, ilen, insts, dst)) return 0;
+        if (!hako_llvmc_string_kernel_plan_direct_set_consumer(dst)) return 0;
 
         prefix = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
         middle = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
@@ -349,7 +349,7 @@
           split = resolve_copy_chain_source_reg(insts, ii + 1, split);
           middle_const = get_str_const(middle);
           if (!middle_const) return -1;
-          int direct_set = dst ? has_direct_array_set_consumer(ii, ilen, insts, dst) : 0;
+          int direct_set = dst ? hako_llvmc_string_kernel_plan_direct_set_consumer(dst) : 0;
           shared_receiver = hako_llvmc_string_kernel_plan_shared_receiver(dst);
           if (dst && (direct_set || shared_receiver)) {
             remember_deferred_insert_mid_kernel_slot(dst, source, middle, split);
@@ -539,7 +539,7 @@
             }
             middle_const = get_str_const(piecewise_middle);
             if (middle_const) {
-              direct_set = dst ? has_direct_array_set_consumer(ii, ilen, insts, dst) : 0;
+              direct_set = dst ? hako_llvmc_string_kernel_plan_direct_set_consumer(dst) : 0;
               shared_receiver = hako_llvmc_string_kernel_plan_shared_receiver(dst);
               if (dst && (direct_set || shared_receiver)) {
                 remember_string_substring_call(dst, recv_reg, start_reg, end_reg);
