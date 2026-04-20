@@ -63,8 +63,9 @@ Scope: current lane / next lane / restart order only.
       - implemented as array-internal storage/residence only: `String = value`, public Array/String ABI, and MIR legality stay unchanged
       - array-string kernel read/store/mutate routes now use text raw APIs; generic/mixed ArrayBox routes degrade to Boxed instead of making `TextLane` semantic truth
       - retired the array-string store `BorrowedHandleBox` retarget executor path; runtime now stores text residence or degrades mixed values without re-planning alias legality
-    - next implementation blocker is `137x-F` Value Lane bridge; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed, and `137x-F` closeout still decides whether to open `137x-G` or split more
-    - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
+    - `137x-F` Value Lane bridge is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
+    - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
+    - next implementation blocker is `137x-H` owner-first optimization return
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
@@ -947,31 +948,32 @@ Scope: current lane / next lane / restart order only.
      - `137x-D`: exact array store route-shape keeper
      - `137x-E0`: MIR / backend seam closeout
      - `137x-E1`: minimal TextLane / ArrayStorage::Text
-   - current blocker: `137x-F Value Lane implementation bridge`
+   - current blocker: `137x-H owner-first optimization return`
    - order:
      - `137x-E0.1`: remove old `9-block` seed shape
      - `137x-E0.2`: export shared-receiver alias metadata for active guards and remove the `.inc` legacy scanner fallback
      - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` (landed)
-     - `137x-F`: runtime-wide Value Lane implementation bridge
-     - `137x-G`: allocator / arena pilot
-     - `137x-H`: next kilo optimization return after F/G land or reject
+     - `137x-F`: runtime-wide Value Lane implementation bridge (closed)
+     - `137x-G`: allocator / arena pilot (rejected / not opened by F closeout)
+     - `137x-H`: next kilo optimization return
    - still blocked here:
      - `publish.any`
      - typed map lane
      - heterogeneous / union array slot layout
      - public ABI widening
-2. implement `137x-F/G` after landed `137x-E1` evidence
-   - `137x-F` consumes phase-289x vocabulary and demand ledgers as implementation input, not as broad runtime rewrite permission
-   - `137x-G` opens only if exact/middle/whole evidence still shows structural copy/allocation tax after E/F
-   - each slice needs rollback notes and exact/middle/whole acceptance commands
+2. return through `137x-H` after `137x-F/G` closeout
+   - `137x-F` consumed phase-289x vocabulary and demand ledgers as implementation input, not as broad runtime rewrite permission
+   - `137x-G` is not opened from current evidence: middle `cfree` is 9.45% and whole `__memmove_avx512_unaligned_erms` is 5.39%, while main owners are string len/indexof/slot-write paths
+   - next optimization must start owner-first from the measured hot transition, not from an allocator rewrite
 3. preserve landed `137x-D` proof as baseline evidence
    - proof card: `137x-D exact array store route-shape proof`
    - front: `kilo_micro_array_string_store`
    - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` accepts only the current compact 8-block direct MIR shape; the old 9-block legacy seed branch is retired
    - smoke: `phase137x_direct_emit_array_store_string_contract.sh` requires exact seed emitter selection and no runtime/public helper calls in `ny_main`
    - guard results:
-     - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
-     - strict whole: `kilo_kernel_small_hk = C 83 ms / Ny AOT 28 ms`, parity ok
+     - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 10 ms`, `ny_aot_instr=26922384`
+     - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=129614388`
+     - strict whole: `kilo_kernel_small_hk = C 84 ms / Ny AOT 26 ms`, parity ok
 5. keep rejected probes as negative evidence
    - unpublished `owned-text keep` removed the `objectize_kernel_text_slot_stable_box` symbol from asm, but strict whole regressed to `902 ms` / `892 ms`
    - reject reason: active whole still demands an object handle at `array.get_hi`, so delayed stable birth only moves the cost
@@ -989,7 +991,7 @@ Scope: current lane / next lane / restart order only.
 
 - MIR/lowering still owns legality, `proof_region`, and `publication_boundary`
 - keep carrier/publication split physically narrow
-- `137x-E/F/G` may change internal storage/residence only through their phase gates
+- `137x-E/F` are closed; `137x-G` remains deferred until allocation becomes the dominant measured owner
 - keep public ABI stable
 - do not add syntax or public raw-string carriers on this card
 - compare `Rust vs .hako` only under:

@@ -32,8 +32,9 @@ Related:
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
-    - current blocker is `137x-F Value Lane bridge` closeout; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed, and `137x-F` closeout still decides whether to open `137x-G` or split more
-    - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
+    - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
+    - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
+    - current blocker is `137x-H owner-first optimization return`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
@@ -52,7 +53,7 @@ Related:
     - demand-backed cutover inventory `289x-96` is closed
     - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed
     - `137x-D` exact route-shape keeper is landed
-    - `137x-E0` and `137x-E1` are closed; `137x-F/G` remain open before the next kilo optimization return
+    - `137x-E0`, `137x-E1`, and `137x-F` are closed; `137x-G` is rejected for now before the `137x-H` optimization return
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; their vocabulary now feeds the constrained `137x-F` implementation bridge
@@ -164,11 +165,11 @@ Related:
       - `137x-D` exact route-shape keeper is landed
       - optimization resumes as `137x-H` only after `137x-F/G` land or reject
 - blocker:
-  - `137x-F Value Lane bridge` closeout before any further kilo optimization edit; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed and closeout remains current
+  - `137x-H owner-first optimization return`; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed, and `137x-G` allocator / arena is rejected for now
   - first landed keeper:
     - same-array/same-index piecewise concat3 subrange store originally lowered to `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses explicit-length `nyash.array.string_insert_mid_subrange_store_hisiiii`
-    - `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 9 ms`
+    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`
     - direct-only correctness: `Result: 2880064`, exit code `64`
   - no active `phase-289x` cutover blocker
 - latest active keeper:
@@ -186,7 +187,7 @@ Related:
     - `kilo_kernel_small_hk = C 81 ms / Ny AOT 218 ms` (`repeat=3`, parity ok)
   - boundary:
     - this is a narrow string read/store keeper
-    - `TextLane`, Value Lane, and allocator work now start through the separate `137x-E/F/G` gates
+    - `TextLane` and Value Lane are closed; allocator is rejected for now, so the next step is `137x-H`
 - active follow-up structure card:
   - owner family:
     - `array_string_concat_const_suffix_by_index_store_same_slot_str`
@@ -594,12 +595,12 @@ Related:
 ## Next
 
 1. open implementation gates before the next kilo optimization
-   - current blocker: `137x-F Value Lane bridge` closeout
+   - current blocker: `137x-H owner-first optimization return`
    - `137x-E0`: MIR / backend seam closeout is closed
    - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` is landed
-   - `137x-F`: runtime-wide Value Lane implementation bridge
-   - `137x-G`: allocator / arena pilot
-   - `137x-H`: next kilo optimization return after F/G land or reject
+   - `137x-F`: runtime-wide Value Lane implementation bridge is closed
+   - `137x-G`: allocator / arena pilot is rejected / not opened by F closeout
+   - `137x-H`: next kilo optimization return
 2. keep closed gates immutable
    - `137x-A`: string publication contract closeout is closed
    - `137x-B`: container / primitive design cleanout is closed
@@ -616,9 +617,9 @@ Related:
    - keep `String = value` and public Array / String ABI unchanged
 5. preserve `137x-D` evidence as baseline
    - closed card: `137x-D exact array store route-shape proof`
-   - exact: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
-   - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
-   - strict whole: `kilo_kernel_small_hk = C 83 ms / Ny AOT 28 ms`, parity ok
+   - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 10 ms`, `ny_aot_instr=26922384`
+   - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=129614388`
+   - strict whole: `kilo_kernel_small_hk = C 84 ms / Ny AOT 26 ms`, parity ok
 
 ## Read Next
 

@@ -46,10 +46,29 @@ This gate opens:
   - Landed first slice is `137x-F1`: runtime-private `DemandSet -> ValueLanePlan -> executor action` bridge for the landed array text residence route.
   - Landed second slice is `137x-F2`: runtime-private producer outcome manifest split that keeps frozen owned bytes separate from publish.
   - `137x-F1` and `137x-F2` must not open Map typed lanes, public ABI rows, or runtime-side legality/provenance inference.
-  - Closeout must decide whether to open `137x-G` next or stop here.
+  - Closeout verdict: closed on 2026-04-20; do not open `137x-G` from this evidence.
+
+## 137x-F Closeout Verdict
+
+- verdict: `137x-F` is closed; `137x-G allocator / arena` is rejected for now.
+- reason:
+  - exact front is closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 10 ms`
+  - middle remains slower, but hot samples point at string len / insert-subrange execution, not a dominant allocator owner
+  - whole guard is healthy: `kilo_kernel_small_hk = C 84 ms / Ny AOT 26 ms`, parity ok
+  - allocator/copy appears as secondary evidence only: `cfree` is 9.45% on middle; `__memmove_avx512_unaligned_erms` is 5.39% on whole
+- hot owner after F1/F2:
+  - exact: `ny_main` stack-array seed and `__strlen_evex`
+  - middle: `array_string_len_by_index` and `array_string_insert_const_mid_subrange_by_index_store_same_slot_str`
+  - whole: `memchr`, `array_string_indexof_by_index_str`, and `array_string_concat_const_suffix_by_index_store_same_slot_str`
+- rejected alternative:
+  - broad allocator / arena pilot before a dominant allocation owner is visible
+- next gate:
+  - return to `137x-H` owner-first optimization.
+  - if future evidence makes allocation dominant, reopen an allocator pilot with exact/middle/whole proof and rollback notes.
 
 - `137x-G allocator / arena`
-  - Open after TextLane / Value Lane show whether copy/allocation cost remains structural.
+  - Not opened by `137x-F` closeout.
+  - Open only after TextLane / Value Lane show copy/allocation cost is structural and dominant.
   - Treat `memmove`, `malloc`, and `_int_malloc` as evidence, not as permission for a broad allocator rewrite.
   - Keep rollback small and gate every allocator change with exact/middle/whole proof.
 

@@ -50,9 +50,9 @@
   - `137x-D`: owner-first optimization return landed the exact array store route-shape keeper
   - `137x-E0`: MIR / backend seam closeout before TextLane is closed
   - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` implementation is landed
-  - `137x-F`: runtime-wide `Value Lane` implementation bridge closeout remains current
-  - `137x-G`: allocator / arena pilot follows
-  - `137x-H`: next kilo optimization return after F/G land or reject
+  - `137x-F`: runtime-wide `Value Lane` implementation bridge is closed
+  - `137x-G`: allocator / arena pilot is rejected / not opened by F closeout
+  - `137x-H`: next kilo optimization return is current
 - current closeout status:
   - done: `repr-downgrade-contract`
     - verifier now rejects unproven `stable_view` repr requests before runtime; lowering must downgrade to `stable_owned` until StableView legality is verifier-visible
@@ -67,7 +67,7 @@
     - 137x-B design cleanout is satisfied
     - 137x-C structure completion gate is satisfied
     - 137x-D exact route-shape keeper is landed
-    - 137x-E0 and 137x-E1 are closed; 137x-F/G implementation gates remain open before next kilo optimization
+    - 137x-E0, 137x-E1, and 137x-F are closed; 137x-G is rejected for now before the next kilo optimization
     - `publish.any` remains blocked here
 - closed design cleanout gate:
   - closed: `137x-93-container-primitive-design-cleanout.md`
@@ -2053,12 +2053,12 @@ The next perf cut should not start until these mechanical contracts are fixed.
    - older exact-front notes in this file are historical unless the restart handoff names them as guards
    - `kilo_micro_substring_only` is no longer the current exact owner front for new implementation edits
 2. open implementation gates before the next kilo optimization
-   - current blocker: `137x-F Value Lane implementation bridge` closeout
+   - current blocker: `137x-H owner-first optimization return`
    - `137x-E0`: MIR / backend seam closeout is closed
    - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` is landed
-   - `137x-F`: runtime-wide Value Lane implementation bridge closeout
-   - `137x-G`: allocator / arena pilot
-   - `137x-H`: owner-first optimization return after F/G land or reject
+   - `137x-F`: runtime-wide Value Lane implementation bridge is closed
+   - `137x-G`: allocator / arena pilot is rejected / not opened by F closeout
+   - `137x-H`: owner-first optimization return
 3. keep landed `137x-D` cuts fixed
    - same-slot piecewise subrange store originally lowered through `nyash.array.string_insert_mid_subrange_store_hisiii`
    - current direct lowering uses `nyash.array.string_insert_mid_subrange_store_hisiiii`
@@ -2068,10 +2068,11 @@ The next perf cut should not start until these mechanical contracts are fixed.
      - `nyash.array.string_insert_mid_subrange_store_hisiiii`
    - C-shim const-hoist use counting now includes `phi.incoming`; this prevents skipped string constants from turning into undefined `%rN` values in generic pure lowering
    - fresh evidence:
-     - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127268967`
-     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms`, parity ok
+     - `kilo_micro_array_string_store = C 10 ms / Ny AOT 10 ms`, `ny_aot_instr=26922384`
+     - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=129614388`
+     - `kilo_kernel_small_hk = C 84 ms / Ny AOT 26 ms`, parity ok
      - `ny_main` hot path calls `nyash.array.string_insert_mid_store_hisii` and `nyash.array.string_suffix_store_hisi`
-     - `__strlen_evex` and `core::str::converts::from_utf8` are absent from the current whole asm hot report
+     - allocator/copy is secondary in the current hot reports: middle `cfree` is 9.45%, whole `__memmove_avx512_unaligned_erms` is 5.39%
    - exact route-shape keeper:
      - previous watch: `kilo_micro_array_string_store = C 10 ms / Ny AOT 144 ms`
      - current proof: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
@@ -2085,5 +2086,5 @@ The next perf cut should not start until these mechanical contracts are fixed.
    - guards:
      - middle `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
      - strict whole `kilo_kernel_small_hk = C 83 ms / Ny AOT 28 ms`, parity ok
-   - old blocker rule is retired: `TextLane`, runtime-wide Value Lane, and allocator/arena now open through `137x-E/F/G`
+   - old blocker rule is retired: `TextLane` and runtime-wide Value Lane closed through `137x-E/F`; allocator/arena is rejected for now by `137x-F` closeout
    - still blocked here: typed map, `publish.any`, heterogeneous / union array slot layout, and public ABI widening

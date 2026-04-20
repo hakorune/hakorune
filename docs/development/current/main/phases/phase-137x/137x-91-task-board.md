@@ -112,20 +112,21 @@ order before the next kilo optimization return.
   - start with array string hot paths
   - keep `String = value`; `TextLane` is storage/residence only
   - landed as runtime-private `ArrayStorage::Text`; array-string kernel routes use text raw APIs and mixed/generic arrays degrade to Boxed
-- [ ] G3 runtime-wide `Value Lane` implementation bridge
-  - active token: `137x-F Value Lane bridge`
+- [x] G3 runtime-wide `Value Lane` implementation bridge
+  - closed token: `137x-F Value Lane bridge`
   - use phase-289x ledgers as vocabulary/demand SSOT
   - keep Array / Map public identity unchanged
   - [x] G3a `137x-F1 demand-to-lane executor bridge`
     - map runtime-private `DemandSet` to `ValueLanePlan` action
     - first target is array-string TextCell residence vs generic boxed residence
     - no public ABI widening, no Map typed lane, no runtime-side legality/provenance inference
-  - [ ] G3b `137x-F closeout decision`
-    - `137x-F2 producer outcome manifest split` is landed; decide whether the constrained bridge is sufficient to open `137x-G`, or stop here
-    - do not start allocator or perf-return work until this closeout is recorded
-- [ ] G4 allocator / arena pilot
-  - open after TextLane / Value Lane proof shows copy/allocation tax remains structural
-  - require exact/middle/whole evidence and rollback notes
+  - [x] G3b `137x-F closeout decision`
+    - `137x-F2 producer outcome manifest split` is landed
+    - verdict: do not open `137x-G`; current hot owners are string len/indexof/slot-write paths, with allocator/copy only secondary
+- [x] G4 allocator / arena pilot
+  - rejected / not opened by `137x-F` closeout
+  - reopen only after exact/middle/whole proof shows copy/allocation tax is structural and dominant
+  - current evidence: middle `cfree` 9.45%, whole `__memmove_avx512_unaligned_erms` 5.39%
 
 ## Exit
 
@@ -133,5 +134,5 @@ order before the next kilo optimization return.
 - [x] F2 137x-B design cleanout gate is satisfied
 - [x] F3 137x-C structure completion gate is satisfied
 - [x] F4 owner-first optimization reopened as `137x-D`
-- [x] F5 implementation gate is open as `137x-E`
-- [ ] F6 kilo optimization returns as `137x-H` only after `137x-F/G` land or reject
+- [x] F5 implementation gate series is closed through `137x-F`; `137x-G` is rejected for now
+- [x] F6 kilo optimization returns as `137x-H`; `137x-F` landed and `137x-G` is rejected for now
