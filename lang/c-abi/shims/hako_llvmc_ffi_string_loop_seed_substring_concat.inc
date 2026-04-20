@@ -1,5 +1,3 @@
-}
-
 static int hako_llvmc_match_substring_concat_loop_ascii_seed(
     const char* json_in,
     const char* obj_out);

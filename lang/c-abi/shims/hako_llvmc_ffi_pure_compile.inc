@@ -122,13 +122,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_variant_project_local_i64_seed(json_in, obj_out) == 0) {
     return 0;
   }
-  if (hako_llvmc_match_runtime_data_length_hot_loop_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_match_string_length_hot_loop_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-
     // --- Generic CFG/PHI lowering (minimal i64 subset) ---
     // Supported ops: const/compare/branch/jump/ret/phi, mir_call (Array/Map minimal, Global print)
     do {

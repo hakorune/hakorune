@@ -726,6 +726,26 @@ Eighth slice result:
   - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_len_substring_views 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
   - `git diff --check` PASS
 
+Ninth slice plan:
+- retire the dead length-hot exact matcher family instead of metadata-porting it
+- current direct MIR for `kilo_micro_len_substring_views` is a 4-block generic/metadata route with borrowed-slice `StringKernelPlan` facts; it does not hit the old 5/6-block exact matcher family
+- current direct MIR for `method_call_only_small` is also a 4-block generic route and does not hit the old runtime-data length-hot matcher
+- remove `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc` from the active pure-compile route table
+- remove its now-dead `hako_llvmc_emit_string_length_hot_loop_ir(...)` emitter from the shared seed emitter file
+- keep generic len/substr policy metadata as the owner for length consumers
+
+Ninth slice result:
+- `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc` is deleted and pure-compile dispatch no longer calls the old runtime-data/string length-hot exact matchers
+- `hako_llvmc_emit_string_length_hot_loop_ir(...)` is deleted because it had no remaining caller after the matcher retirement
+- removing the include exposed a hidden include-order brace dependency; the stray leading `}` in `hako_llvmc_ffi_string_loop_seed_substring_concat.inc` is removed so each `.inc` file is syntactically self-contained
+- verification:
+  - `bash tools/perf/build_perf_release.sh` PASS
+  - `tools/checks/dev_gate.sh quick` PASS
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_len_substring_views 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh method_call_only_small 1 3`: `C 2 ms / Ny AOT 2 ms`, `aot_status=ok`
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
+  - `git diff --check` PASS
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -751,6 +771,7 @@ Rules:
 - retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_concat_const_suffix_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.concat_const_suffix_micro_seed_route`.
 - retired in `137x-H13`: the raw C-side block/op scanner in `hako_llvmc_match_substring_concat_loop_ascii_seed(...)` is deleted; exact seed bridge selection now consumes existing MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata.
 - retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_substring_views_only_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.substring_views_micro_seed_route`, while borrowed-window legality stays in `StringKernelPlan`.
+- retired in `137x-H13`: `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc` and `hako_llvmc_emit_string_length_hot_loop_ir(...)` are deleted; current length-hot fronts use generic/metadata lowering instead of the obsolete 5/6-block exact matcher family.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

@@ -38,8 +38,6 @@ Current partitions:
 - `hako_llvmc_ffi_string_loop_seed_views_only.inc`
   - metadata reader plus temporary exact emitter for `kilo_micro_substring_views_only`
   - borrowed-slice windows are MIR-owned `StringKernelPlan` data; exact source/loop proof is `substring_views_micro_seed_route`
-- `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc`
-  - string-length hot-loop exact matcher family
 - `hako_llvmc_ffi_string_loop_seed_substring_concat.inc`
   - substring-concat exact matcher family
   - consumes MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata; do not regrow raw block scanners here

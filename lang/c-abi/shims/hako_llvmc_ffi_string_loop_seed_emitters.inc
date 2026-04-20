@@ -180,65 +180,6 @@ static int hako_llvmc_emit_substring_concat_len_ir(
   return rc == 0 ? 0 : -1;
 }
 
-static int hako_llvmc_emit_string_length_hot_loop_ir(
-    const char* obj_out,
-    const hako_llvmc_entry_rune_selection* selection,
-    long long loop_bound,
-    long long lit_len) {
-  char llpath[1024];
-  FILE* f;
-  int rc;
-
-  if (loop_bound <= 0 || lit_len < 0) {
-    return -1;
-  }
-
-  snprintf(
-      llpath,
-      sizeof(llpath),
-      "%s/hako_pure_strlen_loop_%d.ll",
-      hako_llvmc_tmp_dir_fallback(),
-      (int)getpid());
-  f = fopen(llpath, "wb");
-  if (!f) return -1;
-
-  fprintf(f, "; nyash minimal pure IR (string length hot loop)\n");
-  fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-  hako_llvmc_emit_entry_header(f, selection);
-  fprintf(f, "entry:\n");
-  fprintf(f, "  %%i = alloca i64, align 8\n");
-  fprintf(f, "  %%acc = alloca i64, align 8\n");
-  fprintf(f, "  store i64 0, ptr %%i, align 8\n");
-  fprintf(f, "  store i64 0, ptr %%acc, align 8\n");
-  fprintf(f, "  br label %%loop\n\n");
-
-  fprintf(f, "loop:\n");
-  fprintf(f, "  %%i.cur = load i64, ptr %%i, align 8\n");
-  fprintf(f, "  %%cond = icmp slt i64 %%i.cur, %lld\n", loop_bound);
-  fprintf(f, "  br i1 %%cond, label %%body, label %%exit\n\n");
-
-  fprintf(f, "body:\n");
-  fprintf(f, "  %%acc.cur = load i64, ptr %%acc, align 8\n");
-  fprintf(f, "  %%acc.next = add i64 %%acc.cur, %lld\n", lit_len);
-  fprintf(f, "  store i64 %%acc.next, ptr %%acc, align 8\n");
-  fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
-  fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
-  fprintf(f, "  br label %%loop\n\n");
-
-  fprintf(f, "exit:\n");
-  fprintf(f, "  %%acc.fin = load i64, ptr %%acc, align 8\n");
-  fprintf(f, "  ret i64 %%acc.fin\n");
-  fprintf(f, "}\n");
-  hako_llvmc_emit_entry_alias_if_needed(f, selection);
-
-  fclose(f);
-  {
-    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
-  }
-  remove(llpath);
-  return rc == 0 ? 0 : -1;
-}
-
 static int hako_llvmc_emit_substring_views_only_exit_len_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
