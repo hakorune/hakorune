@@ -123,6 +123,17 @@ Scope: current lane / next lane / restart order only.
         - `kilo_kernel_small = C 84 ms / Ny AOT 19 ms`
       - guard held: no MIR route widening, no known-length inference, and no public ABI change
       - next seam: eliminate the `nyash.array.string_len_hi` call from lowering when MIR proves same-length loop-carried text
+    - `137x-H7` same-length loop-carry length call seam is closed
+      - baseline:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`
+        - `ny_aot_instr=80862956`, `ny_aot_cycles=26254374`
+        - asm top owner remains `nyash.array.string_len_hi`
+      - implementation: backend lowering fuses only the proven same-slot loop-carry window into runtime-private `nyash.array.string_insert_mid_subrange_len_store_hisi`
+      - result:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+        - `ny_aot_instr=58004175`, `ny_aot_cycles=17079682`
+        - generated `ny_main` no longer calls `nyash.array.string_len_hi`; the new top owner is inside the fused slot mutation helper plus `memmove` / `String::Drain`
+      - guard held: no array-wide seed length inference, no public ABI, and no runtime legality ownership
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice

@@ -366,6 +366,21 @@ pub(in super::super) fn array_string_insert_const_mid_subrange_by_index_store_sa
     .unwrap_or(0)
 }
 
+pub(in super::super) fn array_string_insert_const_mid_subrange_len_by_index_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(middle_ptr, middle_len, |middle| {
+        array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(handle, idx, middle)
+    })
+    .unwrap_or(0)
+}
+
 fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
     handle: i64,
     idx: i64,
@@ -404,6 +419,46 @@ fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
                 observe::record_store_array_str_source_store();
             }
             1
+        })
+    })
+    .flatten()
+    .unwrap_or(0)
+}
+
+fn array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(
+    handle: i64,
+    idx: i64,
+    middle: &str,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
+    let observe_enabled = observe::enabled();
+    observe::record_store_array_str_enter();
+    super::super::array_handle_cache::with_array_box(handle, |arr| {
+        arr.slot_update_text_raw(idx, |value| {
+            let source_len = value.len();
+            let split = (source_len / 2) as i64;
+            let start = 1;
+            let end = source_len as i64 + 1;
+            if !try_update_insert_const_mid_subrange_same_len_in_place(
+                value, middle, split, start, end,
+            ) {
+                let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
+                    value.as_str(),
+                    middle,
+                    split,
+                    start,
+                    end,
+                ) else {
+                    return 0;
+                };
+                *value = next;
+            }
+            if observe_enabled {
+                observe::record_store_array_str_existing_slot();
+                observe::record_store_array_str_source_store();
+            }
+            value.len() as i64
         })
     })
     .flatten()

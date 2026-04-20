@@ -12,6 +12,7 @@ use super::array_string_slot::{
     array_string_insert_const_mid_by_index_store_same_slot_len,
     array_string_insert_const_mid_subrange_by_index_store_same_slot,
     array_string_insert_const_mid_subrange_by_index_store_same_slot_len,
+    array_string_insert_const_mid_subrange_len_by_index_store_same_slot_len,
 };
 use super::KernelTextSlot;
 
@@ -131,6 +132,17 @@ pub(super) fn array_runtime_insert_const_mid_subrange_idx_store_same_slot_len(
 ) -> i64 {
     array_string_insert_const_mid_subrange_by_index_store_same_slot_len(
         handle, idx, middle_ptr, middle_len, split, start, end,
+    )
+}
+
+pub(super) fn array_runtime_insert_const_mid_subrange_len_idx_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+) -> i64 {
+    array_string_insert_const_mid_subrange_len_by_index_store_same_slot_len(
+        handle, idx, middle_ptr, middle_len,
     )
 }
 

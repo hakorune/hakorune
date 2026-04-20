@@ -387,6 +387,48 @@ Verification:
   - `kilo_kernel_small = C 84 ms / Ny AOT 19 ms`
 - `tools/checks/dev_gate.sh quick` PASS
 
+## 137x-H7 Same-Length Loop-Carry Length Call Seam
+
+Status: closed.
+
+Scope:
+- remove the standalone `nyash.array.string_len_hi` call only when lowering proves the full same-slot loop-carry window
+- keep length ownership as MIR/backend proof plus runtime-private execution, not a hard-coded array seed length
+- fuse only the shape `len -> split=len/2 -> insert const middle -> substring(1, len+1) -> same-slot set -> carry.length`
+- do not generalize this into array-wide known-length inference or allocator work
+
+Perf-first baseline:
+- `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`
+  - `ny_aot_instr=80862956`, `ny_aot_cycles=26254374`
+- `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'ny_main' 3`:
+  - top owner is `nyash.array.string_len_hi`
+  - `ny_main` still computes `len`, `split`, `end`, then calls `nyash.array.string_insert_mid_subrange_store_hisiiii`
+
+Acceptance:
+- generated `ny_main` no longer calls `nyash.array.string_len_hi` for the proven loop-carry window
+- total result stays `Result: 2880064`, exit code `64`
+- `tools/checks/dev_gate.sh quick` stays green
+- keep the fused helper runtime-private; no public Array/String ABI widening
+
+Result:
+- implementation:
+  - backend lowering now recognizes the proven same-slot loop-carry window and emits one runtime-private helper:
+    - `nyash.array.string_insert_mid_subrange_len_store_hisi(handle, idx, middle_ptr, middle_len) -> i64`
+  - the helper mutates the selected array text slot and returns the resulting length, so `ny_main` no longer needs a standalone `nyash.array.string_len_hi` call
+  - the matcher rejects the fusion if skipped intermediate values are used after the matched window
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=58004175`, `ny_aot_cycles=17079682`
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'ny_main' 1`:
+  - hot loop calls `nyash.array.string_insert_mid_subrange_len_store_hisi`
+  - no `nyash.array.string_len_hi` call remains in `ny_main`
+  - new top owner moves inside the fused runtime helper plus `__memmove_avx512_unaligned_erms` / `alloc::string::Drain`
+- guard held:
+  - no array-wide known-length inference
+  - no public ABI widening
+  - no route legality ownership moved into runtime
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

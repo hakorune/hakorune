@@ -520,6 +520,42 @@ mod tests {
     }
 
     #[test]
+    fn insert_mid_subrange_len_store_by_index_returns_result_len() {
+        let handle = new_array_handle();
+        let middle = std::ffi::CString::new("xx").expect("middle");
+
+        assert_eq!(
+            with_array_box(handle, |arr| arr.slot_store_box_raw(
+                0,
+                Box::new(nyash_rust::box_trait::StringBox::new("line-seed"))
+            ))
+            .unwrap_or(false),
+            true
+        );
+        assert_eq!(
+            crate::nyash_array_string_insert_mid_subrange_len_store_hisi_alias(
+                handle,
+                0,
+                middle.as_ptr(),
+                2,
+            ),
+            9
+        );
+
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|value| value.value.clone())
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(stored.as_deref(), Some("inexx-see"));
+    }
+
+    #[test]
     fn kernel_slot_store_existing_string_slot_keeps_text_lane_residence() {
         let handle = new_array_handle();
         let seed_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

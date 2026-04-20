@@ -23,6 +23,8 @@
         struct ArrayStringLenWindowMatch string_len_match;
         const char* string_len_reason = NULL;
         char string_len_extra[256];
+        struct ArrayStringLoopCarryLenStoreMatch loopcarry_match;
+        char loopcarry_ab[360];
         trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
         trace_array_string_len_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
         if (analyze_array_rmw_window_candidate(
@@ -36,6 +38,55 @@
           skip_inst[rmw_match.const_ii] = 1;
           skip_inst[rmw_match.binop_ii] = 1;
           skip_inst[rmw_match.set_ii] = 1;
+          return 1;
+        }
+        int loopcarry_len_store_hit = 0;
+        if (hako_llvmc_window_array_text_read_enabled(
+                bname, recv_org, runtime_array_string)) {
+          loopcarry_len_store_hit =
+              match_array_string_loopcarry_concat3_len_store_window(
+                  ii, ilen, insts, recv, a0, dst, &loopcarry_match) ||
+              match_array_string_loopcarry_len_store_window(
+                  ii, ilen, insts, recv, a0, dst, &loopcarry_match);
+        }
+        if (loopcarry_len_store_hit) {
+          loopcarry_ab[0] = '\0';
+          append_i64_arg_ref(loopcarry_ab, sizeof(loopcarry_ab), recv, 1);
+          if (a0) append_i64_arg_ref(loopcarry_ab, sizeof(loopcarry_ab), a0, 0);
+          strncat(
+              loopcarry_ab,
+              ", ptr getelementptr inbounds (",
+              sizeof(loopcarry_ab) - strlen(loopcarry_ab) - 1);
+          {
+            char tail[128];
+            snprintf(
+                tail,
+                sizeof(tail),
+                "[%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+                loopcarry_match.middle_len + 1,
+                loopcarry_match.middle_reg);
+            strncat(
+                loopcarry_ab,
+                tail,
+                sizeof(loopcarry_ab) - strlen(loopcarry_ab) - 1);
+          }
+          {
+            char tail[64];
+            snprintf(tail, sizeof(tail), ", i64 %lld", loopcarry_match.middle_len);
+            strncat(
+                loopcarry_ab,
+                tail,
+                sizeof(loopcarry_ab) - strlen(loopcarry_ab) - 1);
+          }
+          fprintf(
+              f,
+              "  %%r%lld = call i64 @\"nyash.array.string_insert_mid_subrange_len_store_hisi\"(%s)\n",
+              loopcarry_match.result_len_dst,
+              loopcarry_ab);
+          set_type(loopcarry_match.result_len_dst, T_I64);
+          for (int si = 0; si < loopcarry_match.skip_n; si++) {
+            skip_inst[loopcarry_match.skip_iis[si]] = 1;
+          }
           return 1;
         }
         if (analyze_array_string_len_window_candidate(
