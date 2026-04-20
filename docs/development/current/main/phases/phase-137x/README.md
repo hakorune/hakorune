@@ -987,6 +987,27 @@ H15.3a implementation result:
 - IR residue: `target/perf_state/h15-3a-indexof-line-seed-off/lowered.ll` has the loop-local pointer array and pointer equality; `hot_block_residue.txt` reports `slot_load_hi=0`, `runtime_data=0`, `hostbridge=0`.
 - Verdict: the 10 ms gap was the read-side array residence boundary. H15.3a restores keeper speed without adding another runtime helper, but the remaining exact search bridge should stay until the resident route is renamed out of the temporary `micro_seed` vocabulary or covered by a generic array-lane residence contract.
 
+H15.3b cleanup plan:
+- Split metadata naming by owner:
+  - `indexof_search_micro_seed_route` remains the temporary exact bridge key for the legacy seed wrappers.
+  - `array_text_state_residence_route` becomes the generic pure-first residence key for the keeper route.
+- The two JSON keys may initially mirror the same MIR-owned proof payload, but `.inc` must consume the generic key when entering `indexof_*_text_state_residence`.
+- Acceptance: seed-off `kilo_micro_indexof_line` keeps keeper speed and route trace still shows `indexof_line_text_state_residence`, while exact wrappers remain available as quarantine fallback.
+
+H15.3b implementation result:
+- MIR JSON export now mirrors the active proof into two owner-specific keys:
+  - `indexof_search_micro_seed_route`: exact bridge quarantine key, `consumer_capability=direct_indexof_search_seed`
+  - `array_text_state_residence_route`: generic pure-first residence key, `consumer_capability=direct_array_text_state_residence`, `residence=loop_local_pointer_array`
+- `hako_llvmc_match_indexof_{leaf,line}_ascii_seed(...)` still reads `indexof_search_micro_seed_route`.
+- `hako_llvmc_match_indexof_{leaf,line}_text_state_residence_fn(...)` reads `array_text_state_residence_route`.
+- Verification:
+  - `cargo test indexof_search_micro_seed --lib` PASS
+  - `bash tools/perf/build_perf_release.sh` PASS
+  - `target/perf_state/h15-3b-indexof-line-seed-off/bundle.mir.json` exports both keys; the generic key has `proof=kilo_micro_indexof_line_15block`
+  - route trace still shows `stage=indexof_line_text_state_residence result=emit reason=text_state_residence`
+  - seed-off `kilo_micro_indexof_line`: `C 5 ms / Ny AOT 4 ms`
+  - exact `kilo_micro_indexof_line`: `C 4 ms / Ny AOT 4 ms`
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

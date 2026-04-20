@@ -199,6 +199,7 @@ static yyjson_val* hako_llvmc_indexof_search_seed_find_main(
 
 static int hako_llvmc_read_indexof_search_micro_seed_route(
     yyjson_val* fn,
+    const char* route_key,
     const char* expected_variant,
     const char* expected_proof,
     int require_flip,
@@ -210,10 +211,10 @@ static int hako_llvmc_read_indexof_search_micro_seed_route(
   long long actual_none_seed_len = 0;
   long long actual_needle_len = 0;
 
-  if (!fn || !expected_variant || !expected_proof || !out) return 0;
+  if (!fn || !route_key || !expected_variant || !expected_proof || !out) return 0;
   memset(out, 0, sizeof(*out));
   metadata = yyjson_obj_get(fn, "metadata");
-  route = metadata ? yyjson_obj_get(metadata, "indexof_search_micro_seed_route") : NULL;
+  route = metadata ? yyjson_obj_get(metadata, route_key) : NULL;
   if (!(route && yyjson_is_obj(route))) return 0;
 
   out->variant = yyjson_get_str(yyjson_obj_get(route, "variant"));
@@ -296,6 +297,7 @@ static int hako_llvmc_match_indexof_ascii_seed_variant(
   fn = hako_llvmc_indexof_search_seed_find_main(doc, &selection);
   if (!hako_llvmc_read_indexof_search_micro_seed_route(
           fn,
+          "indexof_search_micro_seed_route",
           expected_variant,
           expected_proof,
           require_flip,
@@ -348,6 +350,7 @@ static int hako_llvmc_match_indexof_text_state_residence_fn(
   hako_llvmc_select_entry_runes(fn, &selection);
   if (!hako_llvmc_read_indexof_search_micro_seed_route(
           fn,
+          "array_text_state_residence_route",
           expected_variant,
           expected_proof,
           require_flip,
@@ -357,7 +360,7 @@ static int hako_llvmc_match_indexof_text_state_residence_fn(
           trace_stage,
           "skip",
           "metadata_contract_mismatch",
-          "indexof_search_micro_seed_route");
+          "array_text_state_residence_route");
     }
     return -1;
   }

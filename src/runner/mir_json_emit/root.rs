@@ -221,33 +221,14 @@ pub(super) fn build_mir_json_root(
                 })
             }),
             "indexof_search_micro_seed_route": f.metadata.indexof_search_micro_seed_route.as_ref().map(|route| {
-                json!({
-                    "variant": route.variant.to_string(),
-                    "rows": route.rows,
-                    "ops": route.ops,
-                    "flip_period": route.flip_period,
-                    "line_seed": route.line_seed.as_str(),
-                    "line_seed_len": route.line_seed_len,
-                    "none_seed": route.none_seed.as_str(),
-                    "none_seed_len": route.none_seed_len,
-                    "needle": route.needle.as_str(),
-                    "needle_len": route.needle_len,
-                    "proof": route.proof.to_string(),
-                    "result_use": route.result_use.to_string(),
-                    "backend_action": route.backend_action.to_string(),
-                    "candidate_outcomes": [
-                        {
-                            "literal": route.line_seed.as_str(),
-                            "outcome": route.line_seed_outcome.to_string(),
-                        },
-                        {
-                            "literal": route.none_seed.as_str(),
-                            "outcome": route.none_seed_outcome.to_string(),
-                        },
-                    ],
-                    "consumer_capability": "direct_indexof_search_seed",
-                    "publication_boundary": "none",
-                })
+                build_indexof_search_route_json(route, "direct_indexof_search_seed", None)
+            }),
+            "array_text_state_residence_route": f.metadata.indexof_search_micro_seed_route.as_ref().map(|route| {
+                build_indexof_search_route_json(
+                    route,
+                    "direct_array_text_state_residence",
+                    Some("loop_local_pointer_array"),
+                )
             }),
             "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
                 json!({
@@ -387,4 +368,44 @@ pub(super) fn build_mir_json_root(
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
     Ok(root)
+}
+
+fn build_indexof_search_route_json(
+    route: &crate::mir::IndexOfSearchMicroSeedRoute,
+    consumer_capability: &'static str,
+    residence: Option<&'static str>,
+) -> serde_json::Value {
+    let mut obj = json!({
+        "variant": route.variant.to_string(),
+        "rows": route.rows,
+        "ops": route.ops,
+        "flip_period": route.flip_period,
+        "line_seed": route.line_seed.as_str(),
+        "line_seed_len": route.line_seed_len,
+        "none_seed": route.none_seed.as_str(),
+        "none_seed_len": route.none_seed_len,
+        "needle": route.needle.as_str(),
+        "needle_len": route.needle_len,
+        "proof": route.proof.to_string(),
+        "result_use": route.result_use.to_string(),
+        "backend_action": route.backend_action.to_string(),
+        "candidate_outcomes": [
+            {
+                "literal": route.line_seed.as_str(),
+                "outcome": route.line_seed_outcome.to_string(),
+            },
+            {
+                "literal": route.none_seed.as_str(),
+                "outcome": route.none_seed_outcome.to_string(),
+            },
+        ],
+        "consumer_capability": consumer_capability,
+        "publication_boundary": "none",
+    });
+    if let Some(residence) = residence {
+        obj["residence"] = json!(residence);
+        obj["observer_kind"] = json!("indexof");
+        obj["result_repr"] = json!("scalar_i64");
+    }
+    obj
 }
