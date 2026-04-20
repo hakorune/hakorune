@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H22 array text len-store helper residency seam)
+- current lane: `phase-137x-H owner-first optimization return` (active; H23 array text write transaction pilot)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -1155,7 +1155,7 @@ Result:
 
 ## 137x-H22 Array Text Len-Store Helper Residency Seam
 
-Status: active; no-keeper micro probes rejected.
+Status: closed; local helper surgery rejected.
 
 Owner card:
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
@@ -1202,6 +1202,61 @@ Current verdict:
 - The owner remains runtime-private array text residence mutation, including the uncontended write-lock / slot update substrate.
 - Do not reopen H22 with local helper surgery unless a fresh `perf annotate` shows a new intra-helper block above the lock/residence transition.
 - The next keeper candidate needs a structural residence/session design, or this seam should be deferred to a later allocator/residence pilot with a smaller rollback surface.
+
+Closeout:
+- H22 is closed as a no-keeper local helper card.
+- The next owner hypothesis moves to a separate runtime-private residence/session card.
+- This avoids changing the card meaning from helper-local surgery to lock/session architecture mid-stream.
+
+## 137x-H23 Array Text Write Transaction Pilot
+
+Status: active.
+
+Purpose:
+- Test a narrow runtime-private residence/session substrate for one array text slot.
+- Keep H21's MIR route metadata as the legality owner.
+- Keep `.inc` as metadata consumer / emit-only.
+- Keep Rust runtime as executor/mechanics owner only.
+
+Owner card:
+- front: `kilo_meso_substring_concat_array_set_loopcarry`
+- failure mode: remaining `C 3-4 ms / Ny AOT 6 ms` gap after H21/H22
+- current owner:
+  - H21 removed route work explosion
+  - H22 rejected local helper surgery
+  - remaining hot transition is runtime-private array text residence mutation / uncontended write-lock substrate
+- next seam: introduce or prototype a helper-local `ArrayTextWriteTxn` / `ArrayTextSlotSession` shape that resolves the array slot and write residence once inside a runtime-private boundary
+- reject seam:
+  - no MIR legality change unless a later block-local session contract explicitly needs it
+  - no `.inc` shape rediscovery
+  - no runtime legality/provenance inference
+  - no search-result cache / semantic cache
+  - no lock held across publish / objectize / generic fallback / host handle calls
+
+Design boundary:
+- Allowed:
+  - helper-local transaction only
+  - acquire the array text write guard once
+  - resolve the slot once
+  - expose transient resident text mutation mechanics inside the helper
+  - commit within the helper boundary
+- Deferred:
+  - block-local session
+  - loop-wide session
+  - allocator / arena pilot
+- Forbidden in this card:
+  - publishing while a write transaction is live
+  - extending transaction lifetime across loop backedge, safepoint, generic object call, panic/unwind, or externally visible alias boundary
+  - making helper symbol names semantic truth
+
+Acceptance:
+- First probe must measure whether the active owner is actually write guard acquire / slot resolve / storage dispatch / commit.
+- If the probe does not show those substrate costs as the owner, close H23 without implementation.
+- If the probe confirms substrate ownership, implement the smallest helper-local transaction surface and rerun:
+  - `kilo_meso_substring_concat_array_set_loopcarry`
+  - split ladder including `kilo_kernel_small_hk`
+- Keeper requires instruction/cycle improvement or a clear owner move without regressing exact/micro guards.
+- Non-win result closes H23 and sends remaining cost to a later allocator/residence pilot only if `memmove` / `malloc` / `_int_malloc` becomes structural evidence.
 
 ## Legacy Retirement Ledger
 

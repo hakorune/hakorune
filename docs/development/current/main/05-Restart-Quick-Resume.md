@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H22 array text len-store helper residency seam, no-keeper micro probes rejected)
+  - `phase-137x-H owner-first optimization return` (active; H23 array text write transaction pilot)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H22 array text len-store helper residency seam`
+    - current blocker is `137x-H23 array text write transaction pilot`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H22 array text len-store helper residency seam`
+  - `137x-H23 array text write transaction pilot`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -61,7 +61,9 @@ cargo check --features perf-observe -p nyash_kernel
 - immediate next:
   - do not retry H22 small-copy / return-len / `slot_update_text_raw`-only edits without new perf evidence; all three were measured and reverted
   - H22 owner: after H21, `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`; top is `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str` closure 85-96%
-  - H22 verdict: remaining owner is runtime-private array text residence mutation / uncontended write-lock substrate; next keeper needs a structural residence/session design or should be deferred to a later allocator/residence pilot
+  - H22 is closed: local helper surgery rejected
+  - H23 is active: first measure write guard acquire / slot resolve / storage dispatch / commit; only then prototype a helper-local `ArrayTextWriteTxn` / `ArrayTextSlotSession`
+  - H23 guard: MIR remains legality owner, `.inc` remains emit-only, Rust runtime owns mechanics only; no semantic cache and no loop-wide session
   - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
   - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
   - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

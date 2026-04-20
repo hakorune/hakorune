@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H22 array text len-store helper residency seam, no-keeper micro probes rejected)
+  - `phase-137x-H owner-first optimization return` (active; H23 array text write transaction pilot)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -349,8 +349,8 @@ Scope: current lane / next lane / restart order only.
         - split ladder confirmation: `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`, `ny_aot_instr=40154852`, `ny_aot_cycles=12350248`
         - whole confirmation: `kilo_kernel_small_hk = C 81 ms / Ny AOT 26 ms`, parity `ok`
       - guard held: route legality moved to MIR metadata; `.inc` remains a metadata consumer and array stores remain live
-    - `137x-H22` array text len-store helper residency seam is active
-      - current blocker token: `137x-H22 array text len-store helper residency seam`
+    - `137x-H22` array text len-store helper residency seam is closed
+      - previous blocker token: `137x-H22 array text len-store helper residency seam`
       - front: `kilo_meso_substring_concat_array_set_loopcarry`
       - failure mode: remaining runtime helper residence/mutation cost
       - current owner:
@@ -374,6 +374,31 @@ Scope: current lane / next lane / restart order only.
         - remaining owner is not local string-copy surgery
         - owner is runtime-private array text residence mutation / uncontended write-lock substrate
         - next keeper needs a structural residence/session design or this seam should be deferred to a later allocator/residence pilot
+      - closeout:
+        - local helper surgery is rejected
+        - do not reopen H22 unless fresh perf evidence points at a new intra-helper block
+    - `137x-H23` array text write transaction pilot is active
+      - current blocker token: `137x-H23 array text write transaction pilot`
+      - front: `kilo_meso_substring_concat_array_set_loopcarry`
+      - failure mode: remaining `C 3-4 ms / Ny AOT 6 ms` gap after H21/H22
+      - current owner:
+        - H21 removed route work explosion
+        - H22 rejected local helper surgery
+        - remaining hot transition is runtime-private array text residence mutation / uncontended write-lock substrate
+      - next seam:
+        - first measure whether write guard acquire / slot resolve / storage dispatch / commit are the active substrate owner
+        - only if confirmed, prototype a helper-local `ArrayTextWriteTxn` / `ArrayTextSlotSession`
+      - allowed:
+        - helper-local transaction only
+        - acquire array text write guard once
+        - resolve one slot once
+        - mutate transient resident text and commit inside the helper boundary
+      - reject seam:
+        - no `.inc` shape rediscovery
+        - no runtime legality/provenance inference
+        - no semantic/search-result cache
+        - no publish/objectize/generic fallback while a write transaction is live
+        - no loop-wide session in this card
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
