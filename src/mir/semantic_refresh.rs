@@ -8,6 +8,7 @@
 
 use super::{
     agg_local_scalarization::refresh_function_agg_local_scalarization_routes,
+    array_text_loopcarry_plan::refresh_function_array_text_loopcarry_len_store_routes,
     function::ModuleMetadata, placement_effect::refresh_function_placement_effect_routes,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
@@ -47,6 +48,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_agg_local_scalarization_routes(function);
     refresh_function_placement_effect_routes(function);
     refresh_function_string_kernel_plans(function);
+    refresh_function_array_text_loopcarry_len_store_routes(function);
 }
 
 /// Refresh MIR semantic metadata for the whole module.

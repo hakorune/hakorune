@@ -134,6 +134,23 @@ pub(super) fn build_mir_json_root(
             "string_kernel_plans": f.metadata.string_kernel_plans.iter().map(|(k, plan)| {
                 (k.as_u32().to_string(), build_string_kernel_plan_json(plan))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
+            "array_text_loopcarry_len_store_routes": f.metadata.array_text_loopcarry_len_store_routes.iter().map(|route| {
+                json!({
+                    "block": route.block.as_u32(),
+                    "instruction_index": route.instruction_index,
+                    "array_value": route.array_value.as_u32(),
+                    "index_value": route.index_value.as_u32(),
+                    "source_value": route.source_value.as_u32(),
+                    "substring_value": route.substring_value.as_u32(),
+                    "result_len_value": route.result_len_value.as_u32(),
+                    "middle_value": route.middle_value.as_u32(),
+                    "middle_length": route.middle_length,
+                    "skip_instruction_indices": route.skip_instruction_indices,
+                    "proof": route.proof.to_string(),
+                    "consumer_capability": "slot_text_len_store",
+                    "publication_boundary": "none",
+                })
+            }).collect::<Vec<_>>(),
             "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
                 json!({
                     "block": candidate.block.as_u32(),

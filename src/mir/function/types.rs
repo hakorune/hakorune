@@ -1,7 +1,8 @@
 use crate::mir::{
-    agg_local_scalarization::AggLocalScalarizationRoute, placement_effect::PlacementEffectRoute,
-    storage_class::StorageClass, string_corridor::StringCorridorFact,
-    string_corridor_placement::StringCorridorCandidate,
+    agg_local_scalarization::AggLocalScalarizationRoute,
+    array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
+    placement_effect::PlacementEffectRoute, storage_class::StorageClass,
+    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation, string_kernel_plan::StringKernelPlan,
     sum_placement::SumPlacementFact, sum_placement_layout::SumPlacementLayout,
     sum_placement_selection::SumPlacementSelection, thin_entry::ThinEntryCandidate,
@@ -145,6 +146,11 @@ pub struct FunctionMetadata {
     /// stays a derived view over corridor candidates, not a new canonical
     /// semantic owner.
     pub string_kernel_plans: BTreeMap<ValueId, StringKernelPlan>,
+
+    /// Backend-consumable array/text loopcarry route plans.
+    /// These keep active fused store/len route recognition in MIR so the C
+    /// backend can remain an emitter/transport consumer.
+    pub array_text_loopcarry_len_store_routes: Vec<ArrayTextLoopCarryLenStoreRoute>,
 }
 
 /// Function statistics for profiling and optimization

@@ -164,8 +164,14 @@ Scope: current lane / next lane / restart order only.
       - decision: do not remove the lock in runtime based on helper name or benchmark shape
       - required next contract: MIR-owned exclusive text-region / proof-region contract that can justify lock hoist or lock elision
       - side evidence: `kilo_kernel_small_hk = C 81 ms / Ny AOT 26 ms`, parity ok; split-string exact fronts are no longer the immediate blocker
+    - `137x-H12` MIR-owned loopcarry route SSOT is active
+      - problem: `hako_llvmc_ffi_generic_method_get_window.inc` still rediscovers the active `array.get -> string edit -> array.set -> trailing length` route from raw MIR JSON
+      - decision: MIR must own the fused loopcarry len-store route plan; `.inc` may only consume the plan and emit/skip
+      - first slice: landed backend-consumable MIR metadata for the active loopcarry len-store window and made `.inc` consume it without the legacy matcher
+      - evidence: route trace hits `array_string_loopcarry_len_store_window reason=mir_route_plan`; `tools/checks/dev_gate.sh quick` is green
+      - deletion gate: legacy C-side window matcher removed from the active lowering path; extend the same metadata-first contract to any remaining direct/front loopcarry windows
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
+    - next implementation blocker remains `137x-H12` route SSOT closeout; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

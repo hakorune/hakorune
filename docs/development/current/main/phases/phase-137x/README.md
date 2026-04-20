@@ -561,6 +561,35 @@ Decision:
 - lock removal requires a MIR-owned exclusive text-region / proof-region contract that can justify hoisting or eliding synchronization
 - until that contract exists, continue with other measured owners or open a separate design slice for exclusive mutable array regions
 
+## 137x-H12 MIR-Owned Loopcarry Route SSOT
+
+Status: active.
+
+Purpose:
+- close the remaining route ownership leak in the active loopcarry middle guard before opening a lock-elision or allocator slice
+- make MIR metadata the owner of the fused `array.get -> string edit -> array.set -> length` route decision
+- remove the C `.inc` window matcher from the active route path once the metadata route covers the active direct front
+
+Boundary:
+- MIR may recognize the full fused window and emit a backend-consumable route plan
+- `.inc` may read the selected route plan, emit `nyash.array.string_insert_mid_subrange_len_store_hisi`, and skip the planned instructions
+- `.inc` must not rediscover substring / insert / set / trailing length legality when a MIR route plan exists
+- runtime remains executor only; no public ABI or ArrayBox semantic widening starts here
+
+Acceptance:
+- `kilo_meso_substring_concat_array_set_loopcarry` still lowers to the H7 fused helper route
+- MIR JSON exposes a route plan for the active loopcarry len-store window
+- `.inc` consumes the MIR route plan without consulting the legacy window matcher
+- legacy C matcher has been removed from the active lowering path for this route
+- `tools/checks/dev_gate.sh quick` stays green before landing
+
+First slice result:
+- MIR JSON now emits `metadata.array_text_loopcarry_len_store_routes` for the active loopcarry len-store window
+- direct backend route trace hits `array_string_loopcarry_len_store_window` with `reason=mir_route_plan`
+- probe-only perf guard after legacy removal: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`, `aot_status=ok`
+- `tools/checks/dev_gate.sh quick`: green
+- next deletion gate: extend the same metadata-first treatment to the remaining active direct/front loopcarry windows, if any
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

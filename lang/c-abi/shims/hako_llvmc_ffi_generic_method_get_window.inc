@@ -55,6 +55,65 @@
           out->skip_iis[out->skip_n++] = ii;
         }
       }
+      auto int match_array_text_loopcarry_len_store_route_plan(
+          long long bid,
+          size_t ii,
+          struct ArrayStringLoopCarryLenStoreMatch* out) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "array_text_loopcarry_len_store_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* block_val = route ? yyjson_obj_get(route, "block") : NULL;
+          yyjson_val* index_val = route ? yyjson_obj_get(route, "instruction_index") : NULL;
+          yyjson_val* proof_val = route ? yyjson_obj_get(route, "proof") : NULL;
+          yyjson_val* result_len_val = route ? yyjson_obj_get(route, "result_len_value") : NULL;
+          yyjson_val* middle_val = route ? yyjson_obj_get(route, "middle_value") : NULL;
+          yyjson_val* middle_len_val = route ? yyjson_obj_get(route, "middle_length") : NULL;
+          yyjson_val* skip_vals = route ? yyjson_obj_get(route, "skip_instruction_indices") : NULL;
+          const char* proof = proof_val && yyjson_is_str(proof_val) ? yyjson_get_str(proof_val) : NULL;
+          if (!(block_val && index_val && yyjson_is_num(block_val) && yyjson_is_num(index_val))) {
+            continue;
+          }
+          if ((long long)yyjson_get_sint(block_val) != bid ||
+              (size_t)yyjson_get_sint(index_val) != ii) {
+            continue;
+          }
+          if (!(proof && !strcmp(proof, "insert_mid_subrange_trailing_len") &&
+                result_len_val && yyjson_is_num(result_len_val) &&
+                middle_val && yyjson_is_num(middle_val) &&
+                middle_len_val && yyjson_is_num(middle_len_val) &&
+                skip_vals && yyjson_is_arr(skip_vals))) {
+            return 0;
+          }
+          if (out) {
+            out->matched = 1;
+            out->result_len_dst = (long long)yyjson_get_sint(result_len_val);
+            out->middle_reg = (long long)yyjson_get_sint(middle_val);
+            out->middle_len = (long long)yyjson_get_sint(middle_len_val);
+            for (size_t si = 0; si < yyjson_arr_size(skip_vals); si++) {
+              yyjson_val* skip_val = yyjson_arr_get(skip_vals, si);
+              if (skip_val && yyjson_is_num(skip_val)) {
+                array_string_loopcarry_len_store_skip(
+                    out,
+                    (size_t)yyjson_get_sint(skip_val));
+              }
+            }
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            hako_llvmc_emit_route_trace(
+                "array_string_loopcarry_len_store_window",
+                "hit",
+                "mir_route_plan",
+                "");
+          }
+          return 1;
+        }
+        return 0;
+      }
       auto int array_string_loopcarry_has_later_use(
           yyjson_val* insts,
           size_t from_ii,
@@ -68,469 +127,6 @@
           }
         }
         return 0;
-      }
-      auto int array_string_loopcarry_expect_const_i64(
-          yyjson_val* insts,
-          size_t ii,
-          long long expected,
-          long long* dst_out) {
-        yyjson_val* ins = yyjson_arr_get(insts, ii);
-        const char* op = ins ? read_str(ins, "op") : NULL;
-        long long value = 0;
-        if (!(op && !strcmp(op, "const"))) return 0;
-        if (!has_const(read_int(ins, "dst"), &value)) return 0;
-        if (value != expected) return 0;
-        if (dst_out) *dst_out = read_int(ins, "dst");
-        return 1;
-      }
-      auto int array_string_loopcarry_expect_i64_binop(
-          yyjson_val* insts,
-          size_t ii,
-          const char* expected_op,
-          long long expected_lhs,
-          long long expected_rhs,
-          long long* dst_out) {
-        yyjson_val* ins = yyjson_arr_get(insts, ii);
-        const char* op = ins ? read_str(ins, "op") : NULL;
-        const char* bop = ins ? read_str(ins, "operation") : NULL;
-        long long lhs = 0;
-        long long rhs = 0;
-        if (!bop) bop = ins ? read_str(ins, "op_kind") : NULL;
-        if (!(op && !strcmp(op, "binop") && bop && !strcmp(bop, expected_op))) return 0;
-        expected_lhs = resolve_copy_source_reg(expected_lhs);
-        expected_rhs = resolve_copy_source_reg(expected_rhs);
-        lhs = resolve_copy_chain_source_reg(insts, ii + 1, read_int(ins, "lhs"));
-        rhs = resolve_copy_chain_source_reg(insts, ii + 1, read_int(ins, "rhs"));
-        if (lhs != expected_lhs || rhs != expected_rhs) return 0;
-        if (dst_out) *dst_out = read_int(ins, "dst");
-        return 1;
-      }
-      auto int array_string_loopcarry_expect_extern_call(
-          yyjson_val* insts,
-          size_t ii,
-          const char* expected_name,
-          long long* dst_out,
-          yyjson_val** args_out) {
-        yyjson_val* ins = yyjson_arr_get(insts, ii);
-        const char* op = ins ? read_str(ins, "op") : NULL;
-        yyjson_val* mc = ins ? yyjson_obj_get(ins, "mir_call") : NULL;
-        yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-        yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-        const char* ctype = cal ? read_str(cal, "type") : NULL;
-        const char* name = cal ? (read_str(cal, "name") ? read_str(cal, "name") : read_str(cal, "method")) : NULL;
-        if (!(op && !strcmp(op, "mir_call") &&
-              ctype && !strcmp(ctype, "Extern") &&
-              name && !strcmp(name, expected_name) &&
-              args && yyjson_is_arr(args))) {
-          return 0;
-        }
-        if (dst_out) *dst_out = read_int(ins, "dst");
-        if (args_out) *args_out = args;
-        return 1;
-      }
-      auto int array_string_loopcarry_expect_substring_method(
-          yyjson_val* insts,
-          size_t ii,
-          long long expected_recv,
-          long long expected_start,
-          long long expected_end,
-          long long* dst_out) {
-        yyjson_val* ins = yyjson_arr_get(insts, ii);
-        const char* op = ins ? read_str(ins, "op") : NULL;
-        yyjson_val* mc = ins ? yyjson_obj_get(ins, "mir_call") : NULL;
-        yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-        yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-        const char* ctype = cal ? read_str(cal, "type") : NULL;
-        const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-        const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
-        long long recv = cal ? read_int(cal, "receiver") : 0;
-        long long start = 0;
-        long long end = 0;
-        if (!(op && !strcmp(op, "mir_call") &&
-              ctype && !strcmp(ctype, "Method") &&
-              bname && !strcmp(bname, "RuntimeDataBox") &&
-              mname && !strcmp(mname, "substring") &&
-              args && yyjson_is_arr(args) && yyjson_arr_size(args) >= 2)) {
-          return 0;
-        }
-        start = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-        end = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
-        if (resolve_copy_source_reg(recv) != resolve_copy_source_reg(expected_recv) ||
-            resolve_copy_chain_source_reg(insts, ii + 1, start) != resolve_copy_source_reg(expected_start) ||
-            resolve_copy_chain_source_reg(insts, ii + 1, end) != resolve_copy_source_reg(expected_end)) {
-          return 0;
-        }
-        if (dst_out) *dst_out = read_int(ins, "dst");
-        return 1;
-      }
-      auto int match_array_string_loopcarry_concat3_len_store_window(
-          size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
-          long long recv,
-          long long idx,
-          long long cur_dst,
-          struct ArrayStringLoopCarryLenStoreMatch* out) {
-        size_t jj = ii + 1;
-        long long carried = cur_dst;
-        long long len_dst = 0;
-        long long len_for_end = 0;
-        long long zero = 0;
-        long long len_for_split = 0;
-        long long const_two = 0;
-        long long split = 0;
-        long long left = 0;
-        long long right = 0;
-        long long start = 0;
-        long long const_one = 0;
-        long long end = 0;
-        long long middle = 0;
-        long long middle_len = 0;
-        long long concat = 0;
-        long long result_len_dst = 0;
-        yyjson_val* args = NULL;
-        const char* middle_const = NULL;
-        if (out) memset(out, 0, sizeof(*out));
-        if (!(insts && cur_dst && ii + 16 < ilen)) return 0;
-        while (jj < ilen) {
-          yyjson_val* c = yyjson_arr_get(insts, jj);
-          const char* cop = c ? read_str(c, "op") : NULL;
-          if (!(cop && !strcmp(cop, "copy") && read_int(c, "src") == carried)) break;
-          array_string_loopcarry_len_store_skip(out, jj);
-          carried = read_int(c, "dst");
-          jj++;
-        }
-        {
-          yyjson_val* n_len = yyjson_arr_get(insts, jj);
-          yyjson_val* mc = n_len ? yyjson_obj_get(n_len, "mir_call") : NULL;
-          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-          const char* op = n_len ? read_str(n_len, "op") : NULL;
-          const char* ctype = cal ? read_str(cal, "type") : NULL;
-          const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-          const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
-          long long recv2 = cal ? read_int(cal, "receiver") : 0;
-          if (!(op && !strcmp(op, "mir_call") &&
-                ctype && !strcmp(ctype, "Method") &&
-                bname && !strcmp(bname, "RuntimeDataBox") &&
-                mname && (!strcmp(mname, "length") || !strcmp(mname, "len") || !strcmp(mname, "size")) &&
-                recv2 == carried)) {
-            return 0;
-          }
-          len_dst = read_int(n_len, "dst");
-          array_string_loopcarry_len_store_skip(out, jj++);
-        }
-        {
-          yyjson_val* c = yyjson_arr_get(insts, jj);
-          const char* cop = c ? read_str(c, "op") : NULL;
-          if (!(cop && !strcmp(cop, "copy") && read_int(c, "src") == len_dst)) return 0;
-          len_for_end = read_int(c, "dst");
-          array_string_loopcarry_len_store_skip(out, jj++);
-        }
-        if (!array_string_loopcarry_expect_const_i64(insts, jj, 0, &zero)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        {
-          yyjson_val* c = yyjson_arr_get(insts, jj);
-          const char* cop = c ? read_str(c, "op") : NULL;
-          if (!(cop && !strcmp(cop, "copy") && read_int(c, "src") == len_for_end)) return 0;
-          len_for_split = read_int(c, "dst");
-          array_string_loopcarry_len_store_skip(out, jj++);
-        }
-        if (!array_string_loopcarry_expect_const_i64(insts, jj, 2, &const_two)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_i64_binop(insts, jj, "/", len_for_split, const_two, &split)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_substring_method(insts, jj, carried, zero, split, &left)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_substring_method(insts, jj, carried, split, len_for_end, &right)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_const_i64(insts, jj, 1, &start)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_const_i64(insts, jj, 1, &const_one)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_i64_binop(insts, jj, "+", len_for_split, const_one, &end)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        {
-          yyjson_val* middle_ins = yyjson_arr_get(insts, jj);
-          const char* middle_op = middle_ins ? read_str(middle_ins, "op") : NULL;
-          if (!(middle_op && !strcmp(middle_op, "const"))) return 0;
-          middle = read_int(middle_ins, "dst");
-          middle_const = get_str_const(middle);
-          if (!middle_const) return 0;
-          middle_len = (long long)strlen(middle_const);
-          array_string_loopcarry_len_store_skip(out, jj++);
-        }
-        if (!array_string_loopcarry_expect_extern_call(
-                insts, jj, "nyash.string.substring_concat3_hhhii", &concat, &args)) {
-          return 0;
-        }
-        if (!(yyjson_arr_size(args) == 5 &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 0))) ==
-                  resolve_copy_source_reg(left) &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 1))) ==
-                  resolve_copy_source_reg(middle) &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 2))) ==
-                  resolve_copy_source_reg(right) &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 3))) ==
-                  resolve_copy_source_reg(start) &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 4))) ==
-                  resolve_copy_source_reg(end))) {
-          return 0;
-        }
-        array_string_loopcarry_len_store_skip(out, jj++);
-        {
-          yyjson_val* set_ins = yyjson_arr_get(insts, jj);
-          yyjson_val* mc = set_ins ? yyjson_obj_get(set_ins, "mir_call") : NULL;
-          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-          yyjson_val* set_args = mc ? yyjson_obj_get(mc, "args") : NULL;
-          const char* op = set_ins ? read_str(set_ins, "op") : NULL;
-          const char* ctype = cal ? read_str(cal, "type") : NULL;
-          const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-          const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
-          long long set_recv = cal ? read_int(cal, "receiver") : 0;
-          long long set_idx = 0;
-          long long set_val = 0;
-          if (!(op && !strcmp(op, "mir_call") &&
-                ctype && !strcmp(ctype, "Method") &&
-                bname && !strcmp(bname, "RuntimeDataBox") &&
-                mname && !strcmp(mname, "set") &&
-                set_args && yyjson_is_arr(set_args) && yyjson_arr_size(set_args) >= 2)) {
-            return 0;
-          }
-          set_idx = (long long)yyjson_get_sint(yyjson_arr_get(set_args, 0));
-          set_val = (long long)yyjson_get_sint(yyjson_arr_get(set_args, 1));
-          if (resolve_copy_source_reg(set_recv) != resolve_copy_source_reg(recv) ||
-              resolve_copy_chain_source_reg(insts, jj + 1, set_idx) != resolve_copy_source_reg(idx) ||
-              resolve_copy_chain_source_reg(insts, jj + 1, set_val) != resolve_copy_source_reg(concat)) {
-            return 0;
-          }
-          array_string_loopcarry_len_store_skip(out, jj++);
-        }
-        if (!array_string_loopcarry_expect_i64_binop(insts, jj, "-", end, start, &result_len_dst)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj);
-        {
-          const long long consumed_regs[] = {
-              cur_dst, carried, len_dst, len_for_end, zero, len_for_split,
-              const_two, split, left, right, start, const_one, end,
-              middle, concat};
-          if (array_string_loopcarry_has_later_use(
-                  insts, jj + 1, ilen,
-                  consumed_regs,
-                  (int)(sizeof(consumed_regs) / sizeof(consumed_regs[0])))) {
-            return 0;
-          }
-        }
-        if (out) {
-          out->matched = 1;
-          out->result_len_dst = result_len_dst;
-          out->middle_reg = middle;
-          out->middle_len = middle_len;
-        }
-        if (hako_llvmc_route_trace_enabled()) {
-          hako_llvmc_emit_route_trace("array_string_loopcarry_len_store_window", "hit", "concat3_shape_match", "");
-        }
-        return 1;
-      }
-      auto int match_array_string_loopcarry_len_store_window(
-          size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
-          long long recv,
-          long long idx,
-          long long cur_dst,
-          struct ArrayStringLoopCarryLenStoreMatch* out) {
-        size_t jj = ii + 1;
-        long long carried = cur_dst;
-        long long len_dst = 0;
-        long long len_final = 0;
-        long long const_two = 0;
-        long long split = 0;
-        long long start = 0;
-        long long const_one = 0;
-        long long end = 0;
-        long long middle = 0;
-        long long middle_len = 0;
-        long long insert_dst = 0;
-        long long substring_dst = 0;
-        long long set_value = 0;
-        long long trailing_recv = 0;
-        long long trailing_len_dst = 0;
-        yyjson_val* args = NULL;
-        const char* middle_const = NULL;
-        if (out) memset(out, 0, sizeof(*out));
-        if (!(insts && cur_dst && ii + 16 < ilen)) return 0;
-        while (jj < ilen) {
-          yyjson_val* c = yyjson_arr_get(insts, jj);
-          const char* cop = c ? read_str(c, "op") : NULL;
-          if (!(cop && !strcmp(cop, "copy") && read_int(c, "src") == carried)) break;
-          array_string_loopcarry_len_store_skip(out, jj);
-          carried = read_int(c, "dst");
-          jj++;
-        }
-        {
-          yyjson_val* n_len = yyjson_arr_get(insts, jj);
-          yyjson_val* mc = n_len ? yyjson_obj_get(n_len, "mir_call") : NULL;
-          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-          const char* op = n_len ? read_str(n_len, "op") : NULL;
-          const char* ctype = cal ? read_str(cal, "type") : NULL;
-          const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-          const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
-          long long recv2 = cal ? read_int(cal, "receiver") : 0;
-          if (!(op && !strcmp(op, "mir_call") &&
-                ctype && !strcmp(ctype, "Method") &&
-                bname && !strcmp(bname, "RuntimeDataBox") &&
-                mname && (!strcmp(mname, "length") || !strcmp(mname, "len") || !strcmp(mname, "size")) &&
-                recv2 == carried)) {
-            return 0;
-          }
-          len_dst = read_int(n_len, "dst");
-          array_string_loopcarry_len_store_skip(out, jj);
-          jj++;
-        }
-        len_final = len_dst;
-        while (jj < ilen) {
-          yyjson_val* c = yyjson_arr_get(insts, jj);
-          const char* cop = c ? read_str(c, "op") : NULL;
-          if (!(cop && !strcmp(cop, "copy") && read_int(c, "src") == len_final)) break;
-          array_string_loopcarry_len_store_skip(out, jj);
-          len_final = read_int(c, "dst");
-          jj++;
-        }
-        if (jj + 8 >= ilen) return 0;
-        if (!array_string_loopcarry_expect_const_i64(insts, jj, 2, &const_two)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_i64_binop(insts, jj, "/", len_final, const_two, &split)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_const_i64(insts, jj, 1, &start)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_const_i64(insts, jj, 1, &const_one)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_i64_binop(insts, jj, "+", len_final, const_one, &end)) return 0;
-        array_string_loopcarry_len_store_skip(out, jj++);
-        {
-          yyjson_val* middle_ins = yyjson_arr_get(insts, jj);
-          const char* middle_op = middle_ins ? read_str(middle_ins, "op") : NULL;
-          if (!(middle_op && !strcmp(middle_op, "const"))) return 0;
-          middle = read_int(middle_ins, "dst");
-          middle_const = get_str_const(middle);
-          if (!middle_const) return 0;
-          middle_len = (long long)strlen(middle_const);
-          array_string_loopcarry_len_store_skip(out, jj++);
-        }
-        if (!array_string_loopcarry_expect_extern_call(
-                insts, jj, "nyash.string.insert_hsi", &insert_dst, &args)) {
-          return 0;
-        }
-        if (!(yyjson_arr_size(args) == 3 &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 0))) ==
-                  resolve_copy_source_reg(cur_dst) &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 1))) ==
-                  resolve_copy_source_reg(middle) &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 2))) ==
-                  resolve_copy_source_reg(split))) {
-          return 0;
-        }
-        array_string_loopcarry_len_store_skip(out, jj++);
-        if (!array_string_loopcarry_expect_extern_call(
-                insts, jj, "nyash.string.substring_hii", &substring_dst, &args)) {
-          return 0;
-        }
-        if (!(yyjson_arr_size(args) == 3 &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 0))) ==
-                  resolve_copy_source_reg(insert_dst) &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 1))) ==
-                  resolve_copy_source_reg(start) &&
-              resolve_copy_chain_source_reg(insts, jj + 1, (long long)yyjson_get_sint(yyjson_arr_get(args, 2))) ==
-                  resolve_copy_source_reg(end))) {
-          return 0;
-        }
-        array_string_loopcarry_len_store_skip(out, jj++);
-        set_value = substring_dst;
-        while (jj < ilen) {
-          yyjson_val* c = yyjson_arr_get(insts, jj);
-          const char* cop = c ? read_str(c, "op") : NULL;
-          if (!(cop && !strcmp(cop, "copy") && read_int(c, "src") == set_value)) break;
-          array_string_loopcarry_len_store_skip(out, jj);
-          set_value = read_int(c, "dst");
-          jj++;
-        }
-        {
-          yyjson_val* set_ins = yyjson_arr_get(insts, jj);
-          yyjson_val* mc = set_ins ? yyjson_obj_get(set_ins, "mir_call") : NULL;
-          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-          yyjson_val* set_args = mc ? yyjson_obj_get(mc, "args") : NULL;
-          const char* op = set_ins ? read_str(set_ins, "op") : NULL;
-          const char* ctype = cal ? read_str(cal, "type") : NULL;
-          const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-          const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
-          long long set_recv = cal ? read_int(cal, "receiver") : 0;
-          long long set_idx = 0;
-          long long set_val = 0;
-          if (!(op && !strcmp(op, "mir_call") &&
-                ctype && !strcmp(ctype, "Method") &&
-                bname && !strcmp(bname, "RuntimeDataBox") &&
-                mname && !strcmp(mname, "set") &&
-                set_args && yyjson_is_arr(set_args) && yyjson_arr_size(set_args) >= 2)) {
-            return 0;
-          }
-          set_idx = (long long)yyjson_get_sint(yyjson_arr_get(set_args, 0));
-          set_val = (long long)yyjson_get_sint(yyjson_arr_get(set_args, 1));
-          if (resolve_copy_source_reg(set_recv) != resolve_copy_source_reg(recv) ||
-              resolve_copy_chain_source_reg(insts, jj + 1, set_idx) != resolve_copy_source_reg(idx) ||
-              resolve_copy_chain_source_reg(insts, jj + 1, set_val) != resolve_copy_source_reg(set_value)) {
-            return 0;
-          }
-          array_string_loopcarry_len_store_skip(out, jj++);
-        }
-        trailing_recv = substring_dst;
-        while (jj < ilen) {
-          yyjson_val* c = yyjson_arr_get(insts, jj);
-          const char* cop = c ? read_str(c, "op") : NULL;
-          if (!(cop && !strcmp(cop, "copy") && read_int(c, "src") == trailing_recv)) break;
-          array_string_loopcarry_len_store_skip(out, jj);
-          trailing_recv = read_int(c, "dst");
-          jj++;
-        }
-        {
-          yyjson_val* len_ins = yyjson_arr_get(insts, jj);
-          yyjson_val* mc = len_ins ? yyjson_obj_get(len_ins, "mir_call") : NULL;
-          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-          const char* op = len_ins ? read_str(len_ins, "op") : NULL;
-          const char* ctype = cal ? read_str(cal, "type") : NULL;
-          const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-          const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
-          long long recv2 = cal ? read_int(cal, "receiver") : 0;
-          if (!(op && !strcmp(op, "mir_call") &&
-                ctype && !strcmp(ctype, "Method") &&
-                bname && !strcmp(bname, "RuntimeDataBox") &&
-                mname && (!strcmp(mname, "length") || !strcmp(mname, "len") || !strcmp(mname, "size")) &&
-                recv2 == trailing_recv)) {
-            return 0;
-          }
-          trailing_len_dst = read_int(len_ins, "dst");
-          array_string_loopcarry_len_store_skip(out, jj);
-        }
-        {
-          const long long consumed_regs[] = {
-              cur_dst, carried, len_dst, len_final, const_two, split,
-              start, const_one, end, middle, insert_dst, substring_dst,
-              set_value, trailing_recv};
-          if (array_string_loopcarry_has_later_use(
-                  insts, jj + 1, ilen,
-                  consumed_regs,
-                  (int)(sizeof(consumed_regs) / sizeof(consumed_regs[0])))) {
-            return 0;
-          }
-        }
-        if (out) {
-          out->matched = 1;
-          out->result_len_dst = trailing_len_dst;
-          out->middle_reg = middle;
-          out->middle_len = middle_len;
-        }
-        if (hako_llvmc_route_trace_enabled()) {
-          hako_llvmc_emit_route_trace("array_string_loopcarry_len_store_window", "hit", "shape_match", "");
-        }
-        return 1;
       }
       auto int inst_is_array_string_len_safe_reuse(yyjson_val* ins, long long reg) {
         if (!ins || !reg) return 0;
