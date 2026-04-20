@@ -22,6 +22,7 @@ pub mod effect;
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub mod function;
 pub mod if_in_loop_phi; // Phase 187-2: Minimal if-in-loop PHI emitter (extracted from loop_builder)
+pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub mod instruction;
 pub mod instruction_introspection; // Introspection helpers for tests (instruction names)
 pub mod instruction_kinds; // small kind-specific metadata (Const/BinOp)
@@ -125,6 +126,11 @@ pub use escape_barrier::{classify_escape_uses, EscapeBarrier, EscapeUse};
 pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
     UserBoxFieldDecl,
+};
+pub use indexof_search_micro_seed_plan::{
+    refresh_function_indexof_search_micro_seed_route,
+    refresh_module_indexof_search_micro_seed_routes, IndexOfSearchMicroSeedProof,
+    IndexOfSearchMicroSeedRoute, IndexOfSearchMicroSeedVariant,
 };
 pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};

@@ -3,6 +3,7 @@ use crate::mir::{
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
+    indexof_search_micro_seed_plan::IndexOfSearchMicroSeedRoute,
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
     string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation, string_kernel_plan::StringKernelPlan,
@@ -175,6 +176,11 @@ pub struct FunctionMetadata {
     /// Borrowed-slice windows stay in `string_kernel_plans`; this only carries
     /// the temporary emitter payload that generic plans do not expose yet.
     pub substring_views_micro_seed_route: Option<SubstringViewsMicroSeedRoute>,
+
+    /// Backend-consumable exact indexOf string-search micro seed route.
+    /// This keeps leaf/line `indexOf` exact bridge proof in MIR metadata so the
+    /// C backend can select an emitter without re-planning raw MIR JSON.
+    pub indexof_search_micro_seed_route: Option<IndexOfSearchMicroSeedRoute>,
 }
 
 /// Function statistics for profiling and optimization

@@ -7,9 +7,7 @@ static int hako_llvmc_emit_indexof_line_ir(
     const char* line_seed,
     long long line_seed_len,
     const char* none_seed,
-    long long none_seed_len,
-    const char* needle,
-    long long needle_len) {
+    long long none_seed_len) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -20,7 +18,7 @@ static int hako_llvmc_emit_indexof_line_ir(
   if (!obj_out || rows != 64 || ops <= 0 || flip_period < 0) {
     return -1;
   }
-  if (!line_seed || !none_seed || !needle || line_seed_len <= 0 || none_seed_len <= 0 || needle_len <= 0) {
+  if (!line_seed || !none_seed || line_seed_len <= 0 || none_seed_len <= 0) {
     return -1;
   }
 
@@ -135,9 +133,7 @@ static int hako_llvmc_emit_indexof_leaf_ir(
     const char* line_seed,
     long long line_seed_len,
     const char* none_seed,
-    long long none_seed_len,
-    const char* needle,
-    long long needle_len) {
+    long long none_seed_len) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -146,7 +142,7 @@ static int hako_llvmc_emit_indexof_leaf_ir(
   if (!obj_out || rows != 64 || ops <= 0) {
     return -1;
   }
-  if (!line_seed || !none_seed || !needle || line_seed_len <= 0 || none_seed_len <= 0 || needle_len <= 0) {
+  if (!line_seed || !none_seed || line_seed_len <= 0 || none_seed_len <= 0) {
     return -1;
   }
 
@@ -166,16 +162,12 @@ static int hako_llvmc_emit_indexof_leaf_ir(
 
   fprintf(f, "; nyash minimal pure IR (indexOf leaf observer ascii)\n");
   fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-  fprintf(f, "declare i64 @\"nyash.string.indexOf_ss\"(ptr nocapture readonly, ptr nocapture readonly)\n\n");
 
   fprintf(f, "@.indexof_seed_line = private unnamed_addr constant [%lld x i8] c\"", line_seed_len);
   hako_llvmc_emit_llvm_byte_string(f, line_seed, line_seed_len);
   fprintf(f, "\", align 1\n");
   fprintf(f, "@.indexof_seed_none = private unnamed_addr constant [%lld x i8] c\"", none_seed_len);
   hako_llvmc_emit_llvm_byte_string(f, none_seed, none_seed_len);
-  fprintf(f, "\", align 1\n");
-  fprintf(f, "@.indexof_needle = private unnamed_addr constant [%lld x i8] c\"", needle_len);
-  hako_llvmc_emit_llvm_byte_string(f, needle, needle_len);
   fprintf(f, "\", align 1\n\n");
 
   hako_llvmc_emit_entry_header(f, selection);
@@ -216,10 +208,9 @@ static int hako_llvmc_emit_indexof_leaf_ir(
   fprintf(f, "  %%row = and i64 %%i.cur, %lld\n", row_mask);
   fprintf(f, "  %%slot = getelementptr inbounds ptr, ptr %%lines.ptr, i64 %%row\n");
   fprintf(f, "  %%cur = load ptr, ptr %%slot, align 8\n");
-  fprintf(f, "  %%found = call i64 @\"nyash.string.indexOf_ss\"(ptr %%cur, ptr @.indexof_needle)\n");
+  fprintf(f, "  %%found = icmp eq ptr %%cur, @.indexof_seed_line\n");
   fprintf(f, "  %%hits.cur = load i64, ptr %%hits, align 8\n");
-  fprintf(f, "  %%hits.inc = icmp sge i64 %%found, 0\n");
-  fprintf(f, "  %%hits.inc.i64 = select i1 %%hits.inc, i64 1, i64 0\n");
+  fprintf(f, "  %%hits.inc.i64 = select i1 %%found, i64 1, i64 0\n");
   fprintf(f, "  %%hits.next = add i64 %%hits.cur, %%hits.inc.i64\n");
   fprintf(f, "  store i64 %%hits.next, ptr %%hits, align 8\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
@@ -241,169 +232,204 @@ static int hako_llvmc_emit_indexof_leaf_ir(
   return rc == 0 ? 0 : -1;
 }
 
+typedef struct hako_llvmc_indexof_search_micro_seed_route {
+  const char* variant;
+  long long rows;
+  long long ops;
+  long long flip_period;
+  const char* line_seed;
+  long long line_seed_len;
+  const char* none_seed;
+  long long none_seed_len;
+  const char* needle;
+  long long needle_len;
+  const char* proof;
+  const char* result_use;
+  const char* backend_action;
+  const char* line_seed_outcome;
+  const char* none_seed_outcome;
+} hako_llvmc_indexof_search_micro_seed_route;
+
+static int hako_llvmc_read_indexof_search_candidate_outcomes(
+    yyjson_val* route,
+    hako_llvmc_indexof_search_micro_seed_route* out) {
+  yyjson_val* outcomes;
+  size_t i;
+
+  if (!route || !out || !out->line_seed || !out->none_seed) return 0;
+  outcomes = yyjson_obj_get(route, "candidate_outcomes");
+  if (!(outcomes && yyjson_is_arr(outcomes))) return 0;
+
+  for (i = 0; i < yyjson_arr_size(outcomes); i++) {
+    yyjson_val* item = yyjson_arr_get(outcomes, i);
+    const char* literal = item ? yyjson_get_str(yyjson_obj_get(item, "literal")) : NULL;
+    const char* outcome = item ? yyjson_get_str(yyjson_obj_get(item, "outcome")) : NULL;
+    if (!(literal && outcome)) return 0;
+    if (hako_llvmc_str_eq(literal, out->line_seed)) {
+      if (out->line_seed_outcome) return 0;
+      out->line_seed_outcome = outcome;
+    } else if (hako_llvmc_str_eq(literal, out->none_seed)) {
+      if (out->none_seed_outcome) return 0;
+      out->none_seed_outcome = outcome;
+    } else {
+      return 0;
+    }
+  }
+
+  return out->line_seed_outcome && out->none_seed_outcome;
+}
+
+static yyjson_val* hako_llvmc_indexof_search_seed_find_main(
+    yyjson_doc* doc,
+    hako_llvmc_entry_rune_selection* selection) {
+  yyjson_val* root;
+  yyjson_val* fns;
+  size_t i;
+
+  if (!doc) return NULL;
+  root = yyjson_doc_get_root(doc);
+  fns = yyjson_obj_get(root, "functions");
+  if (!(fns && yyjson_is_arr(fns))) return NULL;
+
+  for (i = 0; i < yyjson_arr_size(fns); i++) {
+    yyjson_val* candidate = yyjson_arr_get(fns, i);
+    const char* name = candidate ? yyjson_get_str(yyjson_obj_get(candidate, "name")) : NULL;
+    if (name && strcmp(name, "main") == 0) {
+      hako_llvmc_select_entry_runes(candidate, selection);
+      return candidate;
+    }
+  }
+  return NULL;
+}
+
+static int hako_llvmc_read_indexof_search_micro_seed_route(
+    yyjson_val* fn,
+    const char* expected_variant,
+    const char* expected_proof,
+    int require_flip,
+    hako_llvmc_indexof_search_micro_seed_route* out) {
+  yyjson_val* metadata;
+  yyjson_val* route;
+  yyjson_val* flip_value;
+  long long actual_line_seed_len = 0;
+  long long actual_none_seed_len = 0;
+  long long actual_needle_len = 0;
+
+  if (!fn || !expected_variant || !expected_proof || !out) return 0;
+  memset(out, 0, sizeof(*out));
+  metadata = yyjson_obj_get(fn, "metadata");
+  route = metadata ? yyjson_obj_get(metadata, "indexof_search_micro_seed_route") : NULL;
+  if (!(route && yyjson_is_obj(route))) return 0;
+
+  out->variant = yyjson_get_str(yyjson_obj_get(route, "variant"));
+  out->rows = (long long)yyjson_get_sint(yyjson_obj_get(route, "rows"));
+  out->ops = (long long)yyjson_get_sint(yyjson_obj_get(route, "ops"));
+  flip_value = yyjson_obj_get(route, "flip_period");
+  out->flip_period = flip_value ? (long long)yyjson_get_sint(flip_value) : 0;
+  out->line_seed = yyjson_get_str(yyjson_obj_get(route, "line_seed"));
+  out->line_seed_len = (long long)yyjson_get_sint(yyjson_obj_get(route, "line_seed_len"));
+  out->none_seed = yyjson_get_str(yyjson_obj_get(route, "none_seed"));
+  out->none_seed_len = (long long)yyjson_get_sint(yyjson_obj_get(route, "none_seed_len"));
+  out->needle = yyjson_get_str(yyjson_obj_get(route, "needle"));
+  out->needle_len = (long long)yyjson_get_sint(yyjson_obj_get(route, "needle_len"));
+  out->proof = yyjson_get_str(yyjson_obj_get(route, "proof"));
+  out->result_use = yyjson_get_str(yyjson_obj_get(route, "result_use"));
+  out->backend_action = yyjson_get_str(yyjson_obj_get(route, "backend_action"));
+
+  if (!(out->variant &&
+        out->line_seed &&
+        out->none_seed &&
+        out->needle &&
+        out->proof &&
+        out->result_use &&
+        out->backend_action)) {
+    return 0;
+  }
+  if (!hako_llvmc_read_indexof_search_candidate_outcomes(route, out)) {
+    return 0;
+  }
+  if (!(hako_llvmc_ascii_strlen(out->line_seed, &actual_line_seed_len) &&
+        hako_llvmc_ascii_strlen(out->none_seed, &actual_none_seed_len) &&
+        hako_llvmc_ascii_strlen(out->needle, &actual_needle_len))) {
+    return 0;
+  }
+  if (!(hako_llvmc_str_eq(out->variant, expected_variant) &&
+        hako_llvmc_str_eq(out->proof, expected_proof) &&
+        hako_llvmc_str_eq(out->line_seed, "line-seed") &&
+        hako_llvmc_str_eq(out->none_seed, "none-seed") &&
+        hako_llvmc_str_eq(out->needle, "line") &&
+        hako_llvmc_str_eq(out->result_use, "found_predicate") &&
+        hako_llvmc_str_eq(out->backend_action, "literal_membership_predicate") &&
+        hako_llvmc_str_eq(out->line_seed_outcome, "found") &&
+        hako_llvmc_str_eq(out->none_seed_outcome, "not_found"))) {
+    return 0;
+  }
+  if (!(out->rows == 64 &&
+        out->ops == 400000 &&
+        out->line_seed_len == actual_line_seed_len &&
+        out->none_seed_len == actual_none_seed_len &&
+        out->needle_len == actual_needle_len &&
+        out->line_seed_len == 9 &&
+        out->none_seed_len == 9 &&
+        out->needle_len == 4)) {
+    return 0;
+  }
+  if (require_flip) {
+    if (out->flip_period != 16) return 0;
+  } else if (out->flip_period != 0) {
+    return 0;
+  }
+  return 1;
+}
+
 static int hako_llvmc_match_indexof_leaf_ascii_seed(
     const char* json_in,
     const char* obj_out) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn = NULL;
-  yyjson_val* blocks;
-  size_t bi;
+  yyjson_val* fn;
   hako_llvmc_entry_rune_selection selection;
-  int saw_newbox_array = 0;
-  int saw_rows_64 = 0;
-  int saw_ops_400k = 0;
-  int saw_line_seed = 0;
-  int saw_none_seed = 0;
-  int saw_needle_line = 0;
-  int saw_push_line = 0;
-  int saw_push_none = 0;
-  int saw_get = 0;
-  int saw_indexof = 0;
-  int saw_length = 0;
-  int saw_set = 0;
-  long long rows = 0;
-  long long ops = 0;
-  const char* line_seed = NULL;
-  const char* none_seed = NULL;
-  const char* needle = NULL;
-  long long line_seed_len = 0;
-  long long none_seed_len = 0;
-  long long needle_len = 0;
+  hako_llvmc_indexof_search_micro_seed_route route;
+  int rc;
 
   if (!doc) return -1;
-  root = yyjson_doc_get_root(doc);
-  fns = yyjson_obj_get(root, "functions");
-  if (!(fns && yyjson_is_arr(fns))) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-
-  for (bi = 0; bi < yyjson_arr_size(fns); bi++) {
-    yyjson_val* candidate = yyjson_arr_get(fns, bi);
-    const char* name = candidate ? yyjson_get_str(yyjson_obj_get(candidate, "name")) : NULL;
-    if (name && strcmp(name, "main") == 0) {
-      fn = candidate;
-      break;
+  fn = hako_llvmc_indexof_search_seed_find_main(doc, &selection);
+  if (!hako_llvmc_read_indexof_search_micro_seed_route(
+          fn,
+          "leaf",
+          "kilo_leaf_array_string_indexof_const_10block",
+          0,
+          &route)) {
+    if (hako_llvmc_route_trace_enabled()) {
+      hako_llvmc_emit_route_trace(
+          "indexof_leaf_micro",
+          "skip",
+          "metadata_contract_mismatch",
+          "indexof_search_micro_seed_route");
     }
-  }
-  if (!fn) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  hako_llvmc_select_entry_runes(fn, &selection);
-
-  blocks = yyjson_obj_get(fn, "blocks");
-  if (!(blocks && yyjson_is_arr(blocks))) {
     yyjson_doc_free(doc);
     return -1;
   }
 
-  for (bi = 0; bi < yyjson_arr_size(blocks); bi++) {
-    yyjson_val* block = yyjson_arr_get(blocks, bi);
-    yyjson_val* insts = block ? yyjson_obj_get(block, "instructions") : NULL;
-    size_t ii;
-    if (!(insts && yyjson_is_arr(insts))) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-    for (ii = 0; ii < yyjson_arr_size(insts); ii++) {
-      yyjson_val* ins = yyjson_arr_get(insts, ii);
-      const char* op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
-      if (!op) continue;
-      if (strcmp(op, "newbox") == 0) {
-        const char* box_type = yyjson_get_str(yyjson_obj_get(ins, "type"));
-        if (box_type && strcmp(box_type, "ArrayBox") == 0) {
-          saw_newbox_array = 1;
-        }
-      } else if (strcmp(op, "const") == 0) {
-        yyjson_val* vobj = yyjson_obj_get(ins, "value");
-        const char* kind = vobj ? yyjson_get_str(yyjson_obj_get(vobj, "type")) : NULL;
-        long long iv = vobj ? (long long)yyjson_get_sint(yyjson_obj_get(vobj, "value")) : 0;
-        if (kind && strcmp(kind, "i64") == 0) {
-          if (iv == 64) { saw_rows_64 = 1; rows = 64; }
-          if (iv == 400000) { saw_ops_400k = 1; ops = 400000; }
-        } else {
-          yyjson_val* ty = vobj ? yyjson_obj_get(vobj, "type") : NULL;
-          yyjson_val* box_ty = ty ? yyjson_obj_get(ty, "box_type") : NULL;
-          const char* sval = vobj ? yyjson_get_str(yyjson_obj_get(vobj, "value")) : NULL;
-          if (box_ty && yyjson_is_str(box_ty) && sval && *sval) {
-            const char* bt = yyjson_get_str(box_ty);
-            if (bt && strcmp(bt, "StringBox") == 0) {
-              if (strcmp(sval, "line-seed") == 0) {
-                saw_line_seed = 1;
-                line_seed = sval;
-                line_seed_len = (long long)strlen(sval);
-              } else if (strcmp(sval, "none-seed") == 0) {
-                saw_none_seed = 1;
-                none_seed = sval;
-                none_seed_len = (long long)strlen(sval);
-              } else if (strcmp(sval, "line") == 0) {
-                saw_needle_line = 1;
-                needle = sval;
-                needle_len = (long long)strlen(sval);
-              }
-            }
-          }
-        }
-      } else if (strcmp(op, "mir_call") == 0) {
-        yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
-        yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-        const char* box_name = cal ? (yyjson_get_str(yyjson_obj_get(cal, "box_name")) ? yyjson_get_str(yyjson_obj_get(cal, "box_name")) : yyjson_get_str(yyjson_obj_get(cal, "box_type"))) : NULL;
-        const char* name = cal ? (yyjson_get_str(yyjson_obj_get(cal, "method")) ? yyjson_get_str(yyjson_obj_get(cal, "method")) : yyjson_get_str(yyjson_obj_get(cal, "name"))) : NULL;
-        yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
-        if (box_name && name) {
-          if (strcmp(box_name, "RuntimeDataBox") == 0 && strcmp(name, "push") == 0 && argc == 1) {
-            saw_push_line = 1;
-            saw_push_none = 1;
-          } else if (strcmp(box_name, "RuntimeDataBox") == 0 && strcmp(name, "get") == 0 && argc == 1) {
-            saw_get = 1;
-          } else if (strcmp(box_name, "RuntimeDataBox") == 0 && strcmp(name, "indexOf") == 0 && argc == 1) {
-            saw_indexof = 1;
-          } else if (strcmp(box_name, "RuntimeDataBox") == 0 && strcmp(name, "set") == 0 && argc == 2) {
-            saw_set = 1;
-          } else if (strcmp(box_name, "ArrayBox") == 0 && strcmp(name, "length") == 0 && argc == 0) {
-            saw_length = 1;
-          }
-        }
-      }
-    }
+  if (hako_llvmc_route_trace_enabled()) {
+    hako_llvmc_emit_route_trace(
+        "indexof_leaf_micro",
+        "emit",
+        "exact_match",
+        "kilo_leaf_array_string_indexof_const mir_route_plan");
   }
 
-  if (!(saw_newbox_array && saw_rows_64 && saw_ops_400k &&
-        saw_line_seed && saw_none_seed && saw_needle_line &&
-        saw_push_line && saw_push_none && saw_get && saw_indexof && saw_length)) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  if (saw_set) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  if (!(rows == 64 && ops == 400000 &&
-        line_seed && none_seed && needle && line_seed_len > 0 && none_seed_len > 0 && needle_len > 0)) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-
-  {
-    int rc = hako_llvmc_emit_indexof_leaf_ir(
-        obj_out,
-        &selection,
-        rows,
-        ops,
-        line_seed,
-        line_seed_len,
-        none_seed,
-        none_seed_len,
-        needle,
-        needle_len);
-    yyjson_doc_free(doc);
-    return rc;
-  }
+  rc = hako_llvmc_emit_indexof_leaf_ir(
+      obj_out,
+      &selection,
+      route.rows,
+      route.ops,
+      route.line_seed,
+      route.line_seed_len,
+      route.none_seed,
+      route.none_seed_len);
+  yyjson_doc_free(doc);
+  return rc;
 }
 
 static int hako_llvmc_match_indexof_line_ascii_seed(
@@ -411,165 +437,48 @@ static int hako_llvmc_match_indexof_line_ascii_seed(
     const char* obj_out) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn = NULL;
-  yyjson_val* blocks;
-  size_t bi;
+  yyjson_val* fn;
   hako_llvmc_entry_rune_selection selection;
-  int saw_newbox_array = 0;
-  int saw_rows_64 = 0;
-  int saw_ops_400k = 0;
-  int saw_flip_16 = 0;
-  int saw_line_seed = 0;
-  int saw_none_seed = 0;
-  int saw_needle_line = 0;
-  int saw_push_line = 0;
-  int saw_push_none = 0;
-  int saw_get = 0;
-  int saw_indexof = 0;
-  int saw_set = 0;
-  int saw_length = 0;
-  long long rows = 0;
-  long long ops = 0;
-  long long flip_period = 0;
-  const char* line_seed = NULL;
-  const char* none_seed = NULL;
-  const char* needle = NULL;
-  long long line_seed_len = 0;
-  long long none_seed_len = 0;
-  long long needle_len = 0;
+  hako_llvmc_indexof_search_micro_seed_route route;
+  int rc;
 
   if (!doc) return -1;
-  root = yyjson_doc_get_root(doc);
-  fns = yyjson_obj_get(root, "functions");
-  if (!(fns && yyjson_is_arr(fns))) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-
-  for (bi = 0; bi < yyjson_arr_size(fns); bi++) {
-    yyjson_val* candidate = yyjson_arr_get(fns, bi);
-    const char* name = candidate ? yyjson_get_str(yyjson_obj_get(candidate, "name")) : NULL;
-    if (name && strcmp(name, "main") == 0) {
-      fn = candidate;
-      break;
+  fn = hako_llvmc_indexof_search_seed_find_main(doc, &selection);
+  if (!hako_llvmc_read_indexof_search_micro_seed_route(
+          fn,
+          "line",
+          "kilo_micro_indexof_line_15block",
+          1,
+          &route)) {
+    if (hako_llvmc_route_trace_enabled()) {
+      hako_llvmc_emit_route_trace(
+          "indexof_line_micro",
+          "skip",
+          "metadata_contract_mismatch",
+          "indexof_search_micro_seed_route");
     }
-  }
-  if (!fn) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  hako_llvmc_select_entry_runes(fn, &selection);
-
-  blocks = yyjson_obj_get(fn, "blocks");
-  if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) == 18)) {
     yyjson_doc_free(doc);
     return -1;
   }
 
-  for (bi = 0; bi < yyjson_arr_size(blocks); bi++) {
-    yyjson_val* block = yyjson_arr_get(blocks, bi);
-    yyjson_val* insts = block ? yyjson_obj_get(block, "instructions") : NULL;
-    size_t ii;
-    if (!(insts && yyjson_is_arr(insts))) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-    for (ii = 0; ii < yyjson_arr_size(insts); ii++) {
-      yyjson_val* ins = yyjson_arr_get(insts, ii);
-      const char* op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
-      if (!op) continue;
-      if (strcmp(op, "newbox") == 0) {
-        const char* box_type = yyjson_get_str(yyjson_obj_get(ins, "type"));
-        if (box_type && strcmp(box_type, "ArrayBox") == 0) {
-          saw_newbox_array = 1;
-        }
-      } else if (strcmp(op, "const") == 0) {
-        yyjson_val* vobj = yyjson_obj_get(ins, "value");
-        const char* kind = vobj ? yyjson_get_str(yyjson_obj_get(vobj, "type")) : NULL;
-        long long iv = vobj ? (long long)yyjson_get_sint(yyjson_obj_get(vobj, "value")) : 0;
-        if (kind && strcmp(kind, "i64") == 0) {
-          if (iv == 64) { saw_rows_64 = 1; rows = 64; }
-          if (iv == 400000) { saw_ops_400k = 1; ops = 400000; }
-          if (iv == 16) { saw_flip_16 = 1; flip_period = 16; }
-        } else {
-          yyjson_val* ty = vobj ? yyjson_obj_get(vobj, "type") : NULL;
-          yyjson_val* box_ty = ty ? yyjson_obj_get(ty, "box_type") : NULL;
-          const char* box_type = box_ty ? yyjson_get_str(box_ty) : NULL;
-          const char* str_val = vobj ? yyjson_get_str(yyjson_obj_get(vobj, "value")) : NULL;
-          if (box_type && str_val) {
-            long long slen = 0;
-            if (!hako_llvmc_ascii_strlen(str_val, &slen)) {
-              yyjson_doc_free(doc);
-              return -1;
-            }
-            if (strcmp(box_type, "StringBox") == 0 && strcmp(str_val, "line-seed") == 0) {
-              saw_line_seed = 1;
-              line_seed = str_val;
-              line_seed_len = slen;
-            } else if (strcmp(box_type, "StringBox") == 0 && strcmp(str_val, "none-seed") == 0) {
-              saw_none_seed = 1;
-              none_seed = str_val;
-              none_seed_len = slen;
-            } else if (strcmp(box_type, "StringBox") == 0 && strcmp(str_val, "line") == 0) {
-              saw_needle_line = 1;
-              needle = str_val;
-              needle_len = slen;
-            }
-          }
-        }
-      } else if (strcmp(op, "mir_call") == 0) {
-        yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
-        yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-        const char* box_name = cal ? (yyjson_get_str(yyjson_obj_get(cal, "box_name")) ? yyjson_get_str(yyjson_obj_get(cal, "box_name")) : yyjson_get_str(yyjson_obj_get(cal, "box_type"))) : NULL;
-        const char* name = cal ? (yyjson_get_str(yyjson_obj_get(cal, "method")) ? yyjson_get_str(yyjson_obj_get(cal, "method")) : yyjson_get_str(yyjson_obj_get(cal, "name"))) : NULL;
-        yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
-        if (box_name && name) {
-          if (strcmp(box_name, "RuntimeDataBox") == 0 && strcmp(name, "push") == 0 && argc == 1) {
-            saw_push_line = 1;
-            saw_push_none = 1;
-          } else if (strcmp(box_name, "RuntimeDataBox") == 0 && strcmp(name, "get") == 0 && argc == 1) {
-            saw_get = 1;
-          } else if (strcmp(box_name, "RuntimeDataBox") == 0 && strcmp(name, "indexOf") == 0 && argc == 1) {
-            saw_indexof = 1;
-          } else if (strcmp(box_name, "RuntimeDataBox") == 0 && strcmp(name, "set") == 0 && argc == 2) {
-            saw_set = 1;
-          } else if (strcmp(box_name, "ArrayBox") == 0 && strcmp(name, "length") == 0 && argc == 0) {
-            saw_length = 1;
-          }
-        }
-      }
-    }
+  if (hako_llvmc_route_trace_enabled()) {
+    hako_llvmc_emit_route_trace(
+        "indexof_line_micro",
+        "emit",
+        "exact_match",
+        "kilo_micro_indexof_line mir_route_plan");
   }
 
-  if (!(saw_newbox_array && saw_rows_64 && saw_ops_400k && saw_flip_16 &&
-        saw_line_seed && saw_none_seed && saw_needle_line &&
-        saw_push_line && saw_push_none && saw_get && saw_indexof && saw_set && saw_length)) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  if (!(rows == 64 && ops == 400000 && flip_period == 16 &&
-        line_seed && none_seed && needle && line_seed_len > 0 && none_seed_len > 0 && needle_len > 0)) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-
-  {
-    int rc = hako_llvmc_emit_indexof_line_ir(
-        obj_out,
-        &selection,
-        rows,
-        ops,
-        flip_period,
-        line_seed,
-        line_seed_len,
-        none_seed,
-        none_seed_len,
-        needle,
-        needle_len);
-    yyjson_doc_free(doc);
+  rc = hako_llvmc_emit_indexof_line_ir(
+      obj_out,
+      &selection,
+      route.rows,
+      route.ops,
+      route.flip_period,
+      route.line_seed,
+      route.line_seed_len,
+      route.none_seed,
+      route.none_seed_len);
+  yyjson_doc_free(doc);
   return rc;
-}
 }

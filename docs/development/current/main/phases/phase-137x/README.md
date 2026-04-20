@@ -746,6 +746,85 @@ Ninth slice result:
   - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
   - `git diff --check` PASS
 
+## 137x-H14 MIR-Owned String Search Seed Route
+
+Problem:
+- `hako_llvmc_ffi_string_search_seed.inc` still proves the exact `indexOf` leaf/line micro routes by parsing raw MIR JSON in C.
+- This duplicates the MIR route-owner rule established in H12/H13 and makes `.inc` a small delayed planner instead of a thin emitter selector.
+
+Decision:
+- MIR owns the string search exact seed route proof as function metadata.
+- Metadata payload: `variant`, `rows`, `ops`, `line_seed`, `line_seed_len`, `none_seed`, `none_seed_len`, `needle`, `needle_len`, optional `flip_period`, and proof name.
+- `.inc` may keep the temporary specialized emitters for now, but it must select them only from MIR metadata and must not rescan raw blocks/instructions for route legality.
+- `NYASH_LLVM_SKIP_INDEXOF_LINE_SEED` remains a backend guard for the line seed bridge; it does not authorize C-side rediscovery.
+
+First slice plan:
+- add `FunctionMetadata.indexof_search_micro_seed_route`
+- export it through MIR JSON
+- make `hako_llvmc_match_indexof_leaf_ascii_seed(...)` and `hako_llvmc_match_indexof_line_ascii_seed(...)` metadata consumers
+- remove the C-side raw block/op scanners from `hako_llvmc_ffi_string_search_seed.inc`
+- verify `kilo_leaf_array_string_indexof_const` and `kilo_micro_indexof_line` direct fronts before returning to broader kilo optimization
+
+First slice result:
+- `FunctionMetadata.indexof_search_micro_seed_route` now owns the current string-search exact seed proof.
+- Direct MIR JSON exports:
+  - `variant=leaf`, `proof=kilo_leaf_array_string_indexof_const_10block`, `rows=64`, `ops=400000`, `flip_period=null`
+  - `variant=line`, `proof=kilo_micro_indexof_line_15block`, `rows=64`, `ops=400000`, `flip_period=16`
+- `hako_llvmc_match_indexof_leaf_ascii_seed(...)` and `hako_llvmc_match_indexof_line_ascii_seed(...)` now read `metadata.indexof_search_micro_seed_route`.
+- The raw C-side block/instruction scanners, including the obsolete 18-block line guard, are deleted.
+- The temporary specialized emitters remain as backend-local bridge code.
+
+Verification:
+- `cargo test indexof_search_micro_seed --lib` PASS
+- `rustfmt --check src/mir/indexof_search_micro_seed_plan.rs src/mir/function/types.rs src/mir/semantic_refresh.rs src/mir/mod.rs src/runner/mir_json_emit/root.rs` PASS
+- `bash tools/perf/build_perf_release.sh` PASS
+- direct MIR metadata probes for `kilo_leaf_array_string_indexof_const` and `kilo_micro_indexof_line` PASS
+- manual route trace: `indexof_leaf_micro result=emit reason=exact_match extra=kilo_leaf_array_string_indexof_const mir_route_plan`
+- `tools/checks/dev_gate.sh quick` PASS
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 4 ms / Ny AOT 4 ms`, `aot_status=ok`
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_leaf_array_string_indexof_const 1 3`: `C 4 ms / Ny AOT 64 ms`, `aot_status=ok`
+- note: leaf route is selected, but the existing exact emitter still calls `nyash.string.indexOf_ss` in the loop; keep this as the next performance seam instead of mixing it into the SSOT cleanup slice.
+
+## 137x-H14.1 MIR-Owned IndexOf Predicate Action
+
+Problem:
+- H14 moved the leaf/line exact search route proof into MIR metadata, but `hako_llvmc_emit_indexof_leaf_ir(...)` still emits a per-iteration runtime call to `nyash.string.indexOf_ss`.
+- That makes the backend executor pay runtime string-search tax even though the MIR proof already constrains the candidate set to two literals with stable outcomes.
+
+Decision:
+- Extend `FunctionMetadata.indexof_search_micro_seed_route` from route proof to route action.
+- MIR owns:
+  - `result_use = found_predicate`
+  - `backend_action = literal_membership_predicate`
+  - candidate outcomes: `line_seed => found`, `none_seed => not_found`
+- `.inc` may only validate and emit this action. It must not derive predicate legality from helper names, literal spelling, or raw block/op scans.
+- Keep this as a temporary exact bridge shrink; it does not promote the exact emitter into keeper architecture and does not open generic `publish.any` or runtime-wide Value Lane work.
+
+First slice plan:
+- add predicate/action fields to `IndexOfSearchMicroSeedRoute`
+- export them through MIR JSON
+- make `hako_llvmc_read_indexof_search_micro_seed_route(...)` validate the action contract
+- replace the leaf loop `nyash.string.indexOf_ss` call with the same metadata-owned literal membership predicate already used by the line bridge
+- verify leaf and line fronts before deciding whether to delete or further shrink the remaining exact search emitter surface
+
+First slice result:
+- `IndexOfSearchMicroSeedRoute` now exports `result_use=found_predicate`, `backend_action=literal_membership_predicate`, and `candidate_outcomes=[line_seed=>found, none_seed=>not_found]`.
+- `hako_llvmc_read_indexof_search_micro_seed_route(...)` validates the action contract before selecting the temporary exact emitter.
+- `hako_llvmc_emit_indexof_leaf_ir(...)` no longer declares or calls `nyash.string.indexOf_ss`; the leaf loop uses the metadata-owned literal membership predicate.
+- The line bridge remains on the same predicate form and continues to require the MIR route proof plus `flip_period=16`.
+
+Verification:
+- `cargo test indexof_search_micro_seed --lib` PASS
+- `rustfmt --check src/mir/indexof_search_micro_seed_plan.rs src/mir/function/types.rs src/mir/semantic_refresh.rs src/mir/mod.rs src/runner/mir_json_emit/root.rs` PASS
+- `bash tools/perf/build_perf_release.sh` PASS
+- direct MIR metadata probes for `kilo_leaf_array_string_indexof_const` and `kilo_micro_indexof_line` export `result_use`, `backend_action`, and `candidate_outcomes` PASS
+- manual route trace: `indexof_leaf_micro result=emit reason=exact_match extra=kilo_leaf_array_string_indexof_const mir_route_plan`
+- `nm -u /tmp/indexof_leaf_pred.o | rg 'indexOf|nyash\.string'` and `objdump -d /tmp/indexof_leaf_pred.o | rg 'call|nyash|string|indexOf'` found no runtime search call in the leaf object
+- `tools/checks/dev_gate.sh quick` PASS
+- `git diff --check` PASS
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_leaf_array_string_indexof_const 1 3`: `C 4 ms / Ny AOT 4 ms`, `aot_status=ok`
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 3`: `C 5 ms / Ny AOT 4 ms`, `aot_status=ok`
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -761,6 +840,7 @@ Rules:
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
 | `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed emitter | temporary bridge surface | Pure-first array/string-store micro seed still has a specialized stack-array emitter for the current micro front; the route-shape proof is now MIR-owned metadata, not a C-side scanner. | Delete after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed emitter into an explicit legacy regression fixture with failure expectation. |
+| `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` exact search emitters | temporary bridge surface | Leaf/line `indexOf` micro fronts still have specialized emitters, but route proof and predicate action are now MIR-owned `indexof_search_micro_seed_route` metadata. | Delete after generic indexOf/ArrayStorage::Text lowering covers leaf and line fronts, or move the emitters into explicit legacy regression fixtures with failure expectation. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
@@ -772,6 +852,8 @@ Rules:
 - retired in `137x-H13`: the raw C-side block/op scanner in `hako_llvmc_match_substring_concat_loop_ascii_seed(...)` is deleted; exact seed bridge selection now consumes existing MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata.
 - retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_substring_views_only_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.substring_views_micro_seed_route`, while borrowed-window legality stays in `StringKernelPlan`.
 - retired in `137x-H13`: `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc` and `hako_llvmc_emit_string_length_hot_loop_ir(...)` are deleted; current length-hot fronts use generic/metadata lowering instead of the obsolete 5/6-block exact matcher family.
+- retired in `137x-H14`: the raw C-side block/op scanners in `hako_llvmc_match_indexof_leaf_ascii_seed(...)` and `hako_llvmc_match_indexof_line_ascii_seed(...)` are deleted; exact search bridge selection now consumes MIR-owned `metadata.indexof_search_micro_seed_route`.
+- shrunk in `137x-H14.1`: the leaf exact search emitter no longer calls runtime `nyash.string.indexOf_ss`; it emits only the MIR-owned literal membership predicate after validating candidate outcomes metadata.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
