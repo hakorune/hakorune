@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; post-H17 owner-first perf reread)
+- current lane: `phase-137x-H owner-first optimization return` (active; post-H18 owner-first perf reread)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -974,6 +974,47 @@ Result:
 - regenerated asm no longer contains the loop-body `movb $0, text+16`
 - remaining local owners are slot vector store, suffix store, and `vpalignr`
 - Guard held: no route widening, no public ABI, no runtime ownership, and the exact bridge remains temporary metadata.
+
+## 137x-H18 Exact Loop-Carried Text SSA Seam
+
+Status: closed.
+
+Scope:
+- shrink only the temporary `kilo_micro_array_string_store` exact bridge
+- carry loop-carried `text` as an LLVM SSA vector phi instead of stack memory
+- keep array slot stores, suffix stores, route legality, public ABI, and runtime ownership unchanged
+- do not perform array-store deadness / no-escape removal in this slice
+
+Perf-first baseline:
+- `kilo_micro_array_string_store = C 9 ms / Ny AOT 5 ms`
+- `ny_aot_instr=10870942`, `ny_aot_cycles=9536178`, `ny_aot_ipc=1.14`
+- asm: `ny_main` 93.62%; local owners are slot vector store, loop-carried text state store, loop increment, suffix stores
+
+Decision:
+- H16 metadata already proves the next loop-carried text window.
+- The backend may choose an SSA vector carrier for that already-proven value.
+- This is a backend-local physical carrier change, not new route legality.
+
+Acceptance:
+- `tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`
+- `cargo test array_string_store_micro_seed --lib`
+- `bash tools/perf/build_perf_release.sh`
+- `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+- exact `kilo_micro_array_string_store` microstat and asm confirm the stack `text.ptr` loop store/load is gone
+
+Implementation:
+- load the seed text once as `<16 x i8>`
+- make `loop` carry `%text.cur` as an LLVM SSA vector phi
+- update `%text.next` via the existing H16 `next_text_window` shuffle
+- keep selected array slot writes unchanged
+
+Result:
+- `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+- `ny_aot_instr=9270464`, `ny_aot_cycles=2343815`, `ny_aot_ipc=3.96`
+- asm now carries text in `%xmm0`; the stack `text.ptr` loop load/store is gone
+- remaining local owners are slot vector store, slot terminator/suffix stores, sum update, and `vpalignr`
+- Guard held: no route widening, no public ABI, no runtime ownership, and no array-store deadness removal.
 
 ## Legacy Retirement Ledger
 

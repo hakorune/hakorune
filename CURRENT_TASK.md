@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; post-H17 owner-first perf reread)
+  - `phase-137x-H owner-first optimization return` (active; post-H18 owner-first perf reread)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -271,6 +271,23 @@ Scope: current lane / next lane / restart order only.
         - `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`
         - regenerated asm has no loop-body `movb $0, text+16`
       - guard held: slot terminator stores and all route metadata stay unchanged
+      - next blocker token: `137x-H owner-first optimization return`
+      - next step: rerun owner-first perf evidence before the next exact-bridge shrink
+    - `137x-H18` exact loop-carried text SSA seam is closed
+      - front: `kilo_micro_array_string_store`
+      - current owner:
+        - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
+        - `C 9 ms / Ny AOT 5 ms`
+        - `ny_aot_instr=10870942`, `ny_aot_cycles=9536178`, `ny_aot_ipc=1.14`
+        - asm: `ny_main` 93.62%; local owners are slot vector store, loop-carried text state store, loop increment, suffix stores
+      - hot transition: `store <16 x i8> %text.next -> %text.ptr` keeps loop-carried text in memory even though H16 metadata already proves the next window
+      - next seam: make the exact emitter carry text as an LLVM SSA vector phi and keep array slot stores unchanged
+      - reject seam: do not remove `arr.set` / slot stores in this slice; array-store deadness needs a separate MIR-owned no-escape / consumer proof
+      - result:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+        - `ny_aot_instr=9270464`, `ny_aot_cycles=2343815`, `ny_aot_ipc=3.96`
+        - regenerated asm carries text in `%xmm0`; the stack `text.ptr` loop load/store is gone
+      - guard held: array slot stores, suffix stores, route legality, public ABI, and runtime ownership stay unchanged
       - next blocker token: `137x-H owner-first optimization return`
       - next step: rerun owner-first perf evidence before the next exact-bridge shrink
   - active phase:

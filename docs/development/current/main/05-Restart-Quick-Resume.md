@@ -34,7 +34,7 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; post-H17 owner-first perf reread)
+  - `phase-137x-H owner-first optimization return` (active; post-H18 owner-first perf reread)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
@@ -60,6 +60,8 @@ cargo check --features perf-observe -p nyash_kernel
   - `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`
 - immediate next:
   - rerun owner-first perf evidence before the next exact-bridge shrink
+  - H18 is closed: exact `kilo_micro_array_string_store` is `C 10 ms / Ny AOT 4 ms`, `ny_aot_instr=9270464`, `ny_aot_cycles=2343815`, and loop-carried text now stays in an SSA vector
+  - keep array slot stores unchanged unless a separate MIR-owned no-escape / consumer proof is opened
   - H17 is closed: exact `kilo_micro_array_string_store` stays `C 10 ms / Ny AOT 5 ms`, `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`, and the loop-body `text+16` terminator store is gone
   - exact array-store route-shape card is closed; do not reopen it without a new failed measurement
   - kilo optimization is already active as `137x-H`; keep owner-first evidence for each slice

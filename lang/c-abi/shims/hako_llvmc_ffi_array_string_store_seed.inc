@@ -40,9 +40,6 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
 
   fprintf(f, "; nyash minimal pure IR (array string-store micro)\n");
   fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-  fprintf(f, "declare void @llvm.memcpy.p0.p0.i64(ptr nocapture writeonly, ptr nocapture readonly, i64, i1 immarg)\n");
-  fprintf(f, "\n");
-
   fprintf(f, "@.array_string_seed = private unnamed_addr constant [%lld x i8] c\"", seed_len);
   hako_llvmc_emit_llvm_byte_string(f, seed, seed_len);
   fprintf(f, "\", align 1\n\n");
@@ -50,18 +47,14 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   hako_llvmc_emit_entry_header(f, selection);
   fprintf(f, "entry:\n");
   fprintf(f, "  %%arr = alloca [128 x [32 x i8]], align 16\n");
-  fprintf(f, "  %%text = alloca [32 x i8], align 16\n");
   fprintf(f, "  %%i = alloca i64, align 8\n");
   fprintf(f, "  %%sum = alloca i64, align 8\n");
   fprintf(f, "  %%arr.ptr = getelementptr inbounds [128 x [32 x i8]], ptr %%arr, i64 0, i64 0\n");
-  fprintf(f, "  %%text.ptr = getelementptr inbounds [32 x i8], ptr %%text, i64 0, i64 0\n");
   fprintf(
       f,
-      "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%text.ptr, ptr align 1 getelementptr inbounds ([%lld x i8], ptr @.array_string_seed, i64 0, i64 0), i64 %lld, i1 false)\n",
-      seed_len,
+      "  %%seed.ptr = getelementptr inbounds [%lld x i8], ptr @.array_string_seed, i64 0, i64 0\n",
       seed_len);
-  fprintf(f, "  %%text.term = getelementptr inbounds i8, ptr %%text.ptr, i64 16\n");
-  fprintf(f, "  store i8 0, ptr %%text.term, align 1\n");
+  fprintf(f, "  %%seed.vec = load <16 x i8>, ptr %%seed.ptr, align 1\n");
   fprintf(f, "  store i64 0, ptr %%i, align 8\n");
   fprintf(f, "  br label %%init\n\n");
 
@@ -72,10 +65,7 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
 
   fprintf(f, "init.body:\n");
   fprintf(f, "  %%init.slot = getelementptr inbounds [32 x i8], ptr %%arr.ptr, i64 %%i.init\n");
-  fprintf(
-      f,
-      "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%init.slot, ptr align 16 %%text.ptr, i64 %lld, i1 false)\n",
-      seed_len);
+  fprintf(f, "  store <16 x i8> %%seed.vec, ptr %%init.slot, align 16\n");
   fprintf(f, "  %%init.term = getelementptr inbounds i8, ptr %%init.slot, i64 16\n");
   fprintf(f, "  store i8 0, ptr %%init.term, align 1\n");
   fprintf(f, "  %%i.init.next = add i64 %%i.init, 1\n");
@@ -88,6 +78,7 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   fprintf(f, "  br label %%loop\n\n");
 
   fprintf(f, "loop:\n");
+  fprintf(f, "  %%text.cur = phi <16 x i8> [ %%seed.vec, %%init.exit ], [ %%text.next, %%loop.body ]\n");
   fprintf(f, "  %%i.cur = load i64, ptr %%i, align 8\n");
   fprintf(f, "  %%loop.cond = icmp slt i64 %%i.cur, %lld\n", ops);
   fprintf(f, "  br i1 %%loop.cond, label %%loop.body, label %%exit\n\n");
@@ -95,8 +86,7 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   fprintf(f, "loop.body:\n");
   fprintf(f, "  %%idx = and i64 %%i.cur, 127\n");
   fprintf(f, "  %%slot = getelementptr inbounds [32 x i8], ptr %%arr.ptr, i64 %%idx\n");
-  fprintf(f, "  %%text.vec = load <16 x i8>, ptr %%text.ptr, align 16\n");
-  fprintf(f, "  store <16 x i8> %%text.vec, ptr %%slot, align 16\n");
+  fprintf(f, "  store <16 x i8> %%text.cur, ptr %%slot, align 16\n");
   fprintf(f, "  %%slot.16 = getelementptr inbounds i8, ptr %%slot, i64 16\n");
   fprintf(f, "  store i8 %u, ptr %%slot.16, align 1\n", suffix0);
   fprintf(f, "  %%slot.17 = getelementptr inbounds i8, ptr %%slot, i64 17\n");
@@ -108,10 +98,9 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   fprintf(f, "  store volatile i64 %%sum.next, ptr %%sum, align 8\n");
   fprintf(
       f,
-      "  %%text.next = shufflevector <16 x i8> %%text.vec, <16 x i8> <i8 %u, i8 %u, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0>, <16 x i32> <i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i32 8, i32 9, i32 10, i32 11, i32 12, i32 13, i32 14, i32 15, i32 16, i32 17>\n",
+      "  %%text.next = shufflevector <16 x i8> %%text.cur, <16 x i8> <i8 %u, i8 %u, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0>, <16 x i32> <i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i32 8, i32 9, i32 10, i32 11, i32 12, i32 13, i32 14, i32 15, i32 16, i32 17>\n",
       suffix0,
       suffix1);
-  fprintf(f, "  store <16 x i8> %%text.next, ptr %%text.ptr, align 16\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
   fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
   fprintf(f, "  br label %%loop\n\n");
