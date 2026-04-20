@@ -392,7 +392,11 @@ Scope: current lane / next lane / restart order only.
         - `update_placement=route_instruction`
         - `end_placement=exit_block_entry`
         - `skip_instruction_indices`
-      - next slice: H25c `.inc` metadata reader plus the smallest runtime-private executor surface
+      - H25c.1 landed `.inc` residence-session metadata reader consumption
+        without behavior change; active `.inc` array/text readers now use
+        `*_route_metadata` naming
+      - next slice: H25c.2 smallest runtime-private executor surface and only
+        then begin/update/end emission
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

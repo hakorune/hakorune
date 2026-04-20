@@ -23,6 +23,7 @@
         struct ArrayStringLenWindowMatch string_len_match;
         const char* string_len_reason = NULL;
         char string_len_extra[256];
+        struct ArrayTextResidenceSessionRouteMetadata residence_session_match;
         struct ArrayStringLoopCarryLenStoreMatch loopcarry_match;
         char loopcarry_ab[360];
         trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
@@ -41,11 +42,22 @@
           return 1;
         }
         int loopcarry_len_store_hit = 0;
+        int residence_session_hit = 0;
         if (hako_llvmc_window_array_text_read_enabled(
                 bname, recv_org, runtime_array_string)) {
-          loopcarry_len_store_hit =
-              match_array_text_loopcarry_len_store_route_metadata(
-                  bid, ii, &loopcarry_match);
+          residence_session_hit =
+              match_array_text_residence_session_route_metadata(
+                  bid, ii, &residence_session_match);
+          if (residence_session_hit) {
+            array_text_residence_session_to_loopcarry_update(
+                &residence_session_match,
+                &loopcarry_match);
+            loopcarry_len_store_hit = 1;
+          } else {
+            loopcarry_len_store_hit =
+                match_array_text_loopcarry_len_store_route_metadata(
+                    bid, ii, &loopcarry_match);
+          }
         }
         if (loopcarry_len_store_hit) {
           loopcarry_ab[0] = '\0';

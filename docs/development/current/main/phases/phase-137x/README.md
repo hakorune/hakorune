@@ -1466,6 +1466,16 @@ H25b result (2026-04-21):
   - `skip_instruction_indices`
 - Behavior remains unchanged. H25c may consume the metadata in `.inc` and add a runtime-private executor surface without making `.inc` a planner.
 
+H25c.1 result (2026-04-21):
+- Small vocabulary cleanup: active array/text `.inc` readers are named
+  `*_route_metadata`; `plan` stays MIR-internal.
+- `hako_llvmc_ffi_generic_method_get_window.inc` now reads and validates
+  `array_text_residence_sessions` placement metadata.
+- `hako_llvmc_ffi_generic_method_get_lowering.inc` prefers that session
+  metadata and maps it to the existing loopcarry update helper.
+- Behavior remains unchanged: no begin/end emission and no runtime session
+  helper yet.
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

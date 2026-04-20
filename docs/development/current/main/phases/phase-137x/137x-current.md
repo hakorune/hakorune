@@ -68,15 +68,27 @@ ledger details; current implementation work should start here.
 - H25b remains behavior-preserving. The backend can now lower begin/update/end
   later without rediscovering loop shape from raw MIR.
 
+## H25c.1 Landed
+
+- Renamed active `.inc` array/text reader seams from `*_route_plan` to
+  `*_route_metadata` so `plan` stays MIR-internal.
+- Added `array_text_residence_sessions` metadata consumption in
+  `hako_llvmc_ffi_generic_method_get_window.inc`.
+- The current lowering consumes the residence-session metadata first, then maps
+  it to the existing loopcarry update helper. This is still behavior-preserving:
+  no runtime session helper and no begin/end calls yet.
+
 ## Next Slice
 
-H25c should design the smallest backend/runtime keeper against H25b placement
-metadata. Do not add a public begin/end ABI unless the runtime session can stay
-executor-only and closure-scoped.
+H25c.2 should design the smallest runtime-private executor surface against H25b
+placement metadata. Do not add a public begin/end ABI unless the runtime session
+can stay executor-only and closure-scoped.
 
 Required order:
-1. Define the `.inc` metadata reader for H25b placement fields.
-2. Add runtime-private session executor surface only as needed by that reader.
+1. Add runtime-private session executor surface only as needed by the H25c.1
+   metadata reader.
+2. Add backend begin/update/end emission only if the executor boundary is
+   lifetime-safe and does not leak guards across ABI calls.
 3. Keep MIR metadata as the only legality source.
 4. Rerun exact timing and asm after any behavior change.
 
