@@ -1,7 +1,7 @@
 /*!
  * MIR-owned backend route plans for the current array/text loopcarry lane.
  *
- * This module is the route SSOT for the active H12 loopcarry len-store slice.
+ * This module is the route SSOT for the active H21 loopcarry len-store slice.
  * It recognizes the fused window in MIR, then exposes only a thin
  * backend-consumable plan. C shims may consume this plan to emit/skip, but they
  * must not grow new legality for this route.
@@ -9,6 +9,9 @@
 
 use std::collections::HashMap;
 
+use super::string_corridor_recognizer::{
+    match_substring_call, match_substring_concat3_helper_call,
+};
 use super::{
     build_value_def_map, definitions::Callee, resolve_value_origin, BasicBlock, BasicBlockId,
     BinaryOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
@@ -256,6 +259,19 @@ fn match_insert_mid_subrange_trailing_len_route(
     index_value: ValueId,
     source_value: ValueId,
 ) -> Option<ArrayTextLoopCarryLenStoreRoute> {
+    if let Some(route) = match_substring_concat3_direct_set_trailing_len_route(
+        function,
+        def_map,
+        block,
+        block_id,
+        instruction_index,
+        array_value,
+        index_value,
+        source_value,
+    ) {
+        return Some(route);
+    }
+
     let instructions = block.instructions.as_slice();
     let mut skip = Vec::new();
     let (mut cursor, carried) = skip_copy_chain(
@@ -401,6 +417,213 @@ fn match_insert_mid_subrange_trailing_len_route(
         substring_value,
         set_value,
         trailing_recv,
+    ];
+    if has_later_use(function, def_map, instructions, cursor + 1, &consumed) {
+        return None;
+    }
+
+    Some(ArrayTextLoopCarryLenStoreRoute {
+        block: block_id,
+        instruction_index,
+        array_value,
+        index_value,
+        source_value,
+        substring_value,
+        result_len_value,
+        middle_value,
+        middle_length,
+        skip_instruction_indices: skip,
+        proof: ArrayTextLoopCarryLenStoreProof::InsertMidSubrangeTrailingLen,
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn match_substring_concat3_direct_set_trailing_len_route(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    block: &BasicBlock,
+    block_id: BasicBlockId,
+    instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    source_value: ValueId,
+) -> Option<ArrayTextLoopCarryLenStoreRoute> {
+    let instructions = block.instructions.as_slice();
+    let mut skip = Vec::new();
+    let (mut cursor, carried) = skip_copy_chain(
+        function,
+        def_map,
+        instructions,
+        instruction_index + 1,
+        source_value,
+        &mut skip,
+    );
+
+    let (len_value, len_recv) = match_len_call(instructions.get(cursor)?)?;
+    if !same_root(function, def_map, len_recv, carried) {
+        return None;
+    }
+    skip.push(cursor);
+    cursor += 1;
+
+    let (next_cursor, len_final) = skip_copy_chain(
+        function,
+        def_map,
+        instructions,
+        cursor,
+        len_value,
+        &mut skip,
+    );
+    cursor = next_cursor;
+
+    let left_start = match_const_i64(instructions.get(cursor)?, 0)?;
+    skip.push(cursor);
+    cursor += 1;
+
+    let (next_cursor, len_for_split) = skip_copy_chain(
+        function,
+        def_map,
+        instructions,
+        cursor,
+        len_final,
+        &mut skip,
+    );
+    cursor = next_cursor;
+
+    let const_two = match_const_i64(instructions.get(cursor)?, 2)?;
+    skip.push(cursor);
+    cursor += 1;
+
+    let split = match_binop(
+        instructions.get(cursor)?,
+        BinaryOp::Div,
+        len_for_split,
+        const_two,
+        function,
+        def_map,
+    )?;
+    skip.push(cursor);
+    cursor += 1;
+
+    let (left_value, left_source, left_arg_start, left_arg_end, _) =
+        match_substring_call(instructions.get(cursor)?)?;
+    if !same_root(function, def_map, left_source, carried)
+        || !same_root(function, def_map, left_arg_start, left_start)
+        || !same_root(function, def_map, left_arg_end, split)
+    {
+        return None;
+    }
+    skip.push(cursor);
+    cursor += 1;
+
+    let (right_value, right_source, right_arg_start, right_arg_end, _) =
+        match_substring_call(instructions.get(cursor)?)?;
+    if !same_root(function, def_map, right_source, carried)
+        || !same_root(function, def_map, right_arg_start, split)
+        || !same_root(function, def_map, right_arg_end, len_final)
+    {
+        return None;
+    }
+    skip.push(cursor);
+    cursor += 1;
+
+    let trailing_start = match_const_i64(instructions.get(cursor)?, 1)?;
+    skip.push(cursor);
+    cursor += 1;
+
+    let const_one = match_const_i64(instructions.get(cursor)?, 1)?;
+    skip.push(cursor);
+    cursor += 1;
+
+    let trailing_end = match_binop(
+        instructions.get(cursor)?,
+        BinaryOp::Add,
+        len_for_split,
+        const_one,
+        function,
+        def_map,
+    )?;
+    skip.push(cursor);
+    cursor += 1;
+
+    let middle_value = match instructions.get(cursor)? {
+        MirInstruction::Const { dst, .. } => *dst,
+        _ => return None,
+    };
+    let middle_length = match_const_string(function, def_map, middle_value)?;
+    skip.push(cursor);
+    cursor += 1;
+
+    let concat3 = match_substring_concat3_helper_call(instructions.get(cursor)?)?;
+    if !same_root(function, def_map, concat3.left, left_value)
+        || !same_root(function, def_map, concat3.middle, middle_value)
+        || !same_root(function, def_map, concat3.right, right_value)
+        || !same_root(function, def_map, concat3.start, trailing_start)
+        || !same_root(function, def_map, concat3.end, trailing_end)
+    {
+        return None;
+    }
+    let substring_value = concat3.dst;
+    skip.push(cursor);
+    cursor += 1;
+
+    let (next_cursor, set_value) = skip_copy_chain(
+        function,
+        def_map,
+        instructions,
+        cursor,
+        substring_value,
+        &mut skip,
+    );
+    cursor = next_cursor;
+
+    let (set_array, set_index, set_arg_value) = match_set_call(instructions.get(cursor)?)?;
+    if !same_root(function, def_map, set_array, array_value)
+        || !same_root(function, def_map, set_index, index_value)
+        || !same_root(function, def_map, set_arg_value, set_value)
+    {
+        return None;
+    }
+    skip.push(cursor);
+    cursor += 1;
+
+    let (next_cursor, _trailing_value) = skip_copy_chain(
+        function,
+        def_map,
+        instructions,
+        cursor,
+        substring_value,
+        &mut skip,
+    );
+    cursor = next_cursor;
+
+    let result_len_value = match_binop(
+        instructions.get(cursor)?,
+        BinaryOp::Sub,
+        trailing_end,
+        trailing_start,
+        function,
+        def_map,
+    )?;
+    skip.push(cursor);
+
+    let consumed = [
+        source_value,
+        carried,
+        len_value,
+        len_final,
+        left_start,
+        len_for_split,
+        const_two,
+        split,
+        left_value,
+        right_value,
+        trailing_start,
+        const_one,
+        trailing_end,
+        middle_value,
+        substring_value,
+        set_value,
     ];
     if has_later_use(function, def_map, instructions, cursor + 1, &consumed) {
         return None;

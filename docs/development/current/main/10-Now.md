@@ -29,17 +29,18 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H21 meso array text loopcarry len/store seam)
+  - `phase-137x-H owner-first optimization return` (active; H22 array text len-store helper residency seam)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H21 meso array text loopcarry len/store seam`
+  - current blocker is `137x-H22 array text len-store helper residency seam`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
-    - implement H21: reduce the meso array text loopcarry `array.string_len_hi` + insert-mid store helper pair
-    - H21 owner: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`, top is `nyash.array.string_len_hi` 54.74% and insert-mid subrange store 43.77%
+    - implement H22: reduce the remaining `nyash.array.string_insert_mid_subrange_len_store_hisi` Rust helper residency cost
+    - H22 owner: after H21, `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`; top is `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str` closure 85-96%
+    - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`
     - H19 is closed: whole `array.get -> indexOf` source liveness now treats same-slot const suffix store as a slot-capable consumer; row-scan `array.get_hi` materialization is gone

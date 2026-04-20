@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H21 meso array text loopcarry len/store seam)
+- current lane: `phase-137x-H owner-first optimization return` (active; H22 array text len-store helper residency seam)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -1105,7 +1105,7 @@ Result:
 
 ## 137x-H21 Meso Array Text Loopcarry Len/Store Seam
 
-Status: active.
+Status: closed.
 
 Owner card:
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
@@ -1131,6 +1131,54 @@ Acceptance:
 - write a front/failure/owner/seam/reject card before editing
 - prove lowered IR removes or reduces the standalone `array.string_len_hi` loop call without deleting the same-slot store
 - rerun `kilo_meso_substring_concat_array_set_loopcarry`
+
+Decision:
+- The `get -> length -> split -> substring pair -> substring_concat3_hhhii -> same-slot set -> end-start` shape is a MIR-owned loopcarry len-store route.
+- `.inc` must consume `array_text_loopcarry_len_store_routes` and emit the existing `nyash.array.string_insert_mid_subrange_len_store_hisi` helper; it must not rediscover route legality from raw JSON shape.
+- The same-slot store remains live. The optimization only fuses the observer/store helper pair.
+
+Result:
+- Added a benchmark contract proving `bench_kilo_meso_substring_concat_array_set_loopcarry` exposes one `array_text_loopcarry_len_store_routes` entry.
+- Trace bundle `target/perf_state/optimization_bundle/137x-h21-loopcarry-route-after`:
+  - route trace hits `array_string_loopcarry_len_store_window` with reason `mir_route_plan`
+  - MIR JSON has `result_len_value=52`, `middle_length=2`
+  - lowered loop body calls only `nyash.array.string_insert_mid_subrange_len_store_hisi`
+  - the hot loop no longer calls standalone `nyash.array.string_len_hi` or `nyash.array.string_insert_mid_subrange_store_hisiiii`
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=40155587`, `ny_aot_cycles=12429857`
+- split ladder confirmation:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=40154852`, `ny_aot_cycles=12350248`
+  - `kilo_kernel_small_hk = C 81 ms / Ny AOT 26 ms`, parity `ok`
+- Guard held: route legality moved to MIR metadata; `.inc` remains a metadata consumer and array stores remain live.
+
+## 137x-H22 Array Text Len-Store Helper Residency Seam
+
+Status: active.
+
+Owner card:
+- front: `kilo_meso_substring_concat_array_set_loopcarry`
+- failure mode: remaining runtime helper residence/mutation cost
+- current owner: after H21, the loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call
+- hot transition: the helper still enters the generic array-handle / text-slot mutation path every iteration
+- next seam: reduce helper residency overhead while keeping semantic legality in MIR and mechanics in runtime
+- reject seam: do not add semantic search/result caches, do not delete array stores, and do not move route legality into runtime
+
+Perf-first evidence:
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_kilo_kernel_split_ladder.sh 1 3`
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=40154852`, `ny_aot_cycles=12350248`
+- `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'nyash.array.string_insert_mid_subrange_len_store_hisi' 3`
+  - top owner: `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str` closure 96.51%
+- `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str' 3`
+  - top owner: same closure 85.22%
+  - secondary observed cost: `__strncmp_evex` 11.28%
+
+Acceptance:
+- keep the H21 MIR route as the only legality owner
+- reduce the helper residency/mutation cost without adding runtime semantic cache
+- rerun `kilo_meso_substring_concat_array_set_loopcarry` and record the next owner if it remains above C
 
 ## Legacy Retirement Ledger
 

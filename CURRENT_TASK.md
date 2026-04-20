@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H21 meso array text loopcarry len/store seam)
+  - `phase-137x-H owner-first optimization return` (active; H22 array text len-store helper residency seam)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -329,8 +329,8 @@ Scope: current lane / next lane / restart order only.
         - `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`
         - split ladder confirmation: `ny_aot_instr=1190204`, `ny_aot_cycles=909543`
       - guard held: no runtime cache, no `.inc` exact seed revival, and no helper-name legality shift
-    - `137x-H21` meso array text loopcarry len/store seam is active
-      - current blocker token: `137x-H21 meso array text loopcarry len/store seam`
+    - `137x-H21` meso array text loopcarry len/store seam is closed
+      - previous blocker token: `137x-H21 meso array text loopcarry len/store seam`
       - front: `kilo_meso_substring_concat_array_set_loopcarry`
       - failure mode: work explosion in runtime array text helper pair
       - current owner:
@@ -341,6 +341,25 @@ Scope: current lane / next lane / restart order only.
       - hot transition: array slot length is read through a runtime helper immediately before same-slot insert-mid subrange store
       - next seam: avoid the separate length helper when same-slot store has a known resulting length or can carry previous slot length as scalar state
       - reject seam: do not delete array stores, do not add semantic cache to `ArrayBox`, and do not infer same-slot legality in `.inc`
+      - result:
+        - MIR now exports one `array_text_loopcarry_len_store_routes` entry for the loopcarry block
+        - route trace hits `array_string_loopcarry_len_store_window` with reason `mir_route_plan`
+        - lowered loop body now calls only `nyash.array.string_insert_mid_subrange_len_store_hisi`; standalone `nyash.array.string_len_hi` and `store_hisiiii` are gone from the hot loop
+        - targeted perf: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`, `ny_aot_instr=40155587`, `ny_aot_cycles=12429857`
+        - split ladder confirmation: `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`, `ny_aot_instr=40154852`, `ny_aot_cycles=12350248`
+        - whole confirmation: `kilo_kernel_small_hk = C 81 ms / Ny AOT 26 ms`, parity `ok`
+      - guard held: route legality moved to MIR metadata; `.inc` remains a metadata consumer and array stores remain live
+    - `137x-H22` array text len-store helper residency seam is active
+      - current blocker token: `137x-H22 array text len-store helper residency seam`
+      - front: `kilo_meso_substring_concat_array_set_loopcarry`
+      - failure mode: remaining runtime helper residence/mutation cost
+      - current owner:
+        - after H21: `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`
+        - `ny_aot_instr=40154852`, `ny_aot_cycles=12350248`
+        - `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str` closure is 85-96% in `bench_micro_aot_asm`
+      - hot transition: one helper still enters the generic array-handle / text-slot mutation path for every iteration
+      - next seam: reduce helper residency overhead while keeping semantic legality in MIR and mechanics in runtime
+      - reject seam: do not add semantic search/result caches, do not delete array stores, and do not move route legality into runtime
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:

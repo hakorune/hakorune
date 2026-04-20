@@ -316,6 +316,43 @@ fn benchmark_meso_substring_concat_len_compiles_to_arithmetic_len() {
 }
 
 #[test]
+fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
+    ensure_ring0_initialized();
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/benchmarks/bench_kilo_meso_substring_concat_array_set_loopcarry.hako"
+    );
+    let source = std::fs::read_to_string(path).expect("benchmark source");
+    let prepared =
+        crate::runner::modes::common_util::source_hint::prepare_source_minimal(&source, path)
+            .expect("prepare benchmark source");
+    let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+    let mut compiler = MirCompiler::with_options(true);
+    let result = compiler
+        .compile_with_source(ast, Some(path))
+        .expect("compile benchmark");
+
+    let function = result.module.get_function("main").expect("main function");
+    assert_eq!(
+        function
+            .metadata
+            .array_text_loopcarry_len_store_routes
+            .len(),
+        1,
+        "loopcarry benchmark should expose one MIR-owned len-store route"
+    );
+    let route = &function.metadata.array_text_loopcarry_len_store_routes[0];
+    assert_eq!(route.middle_length, 2);
+    assert_eq!(route.proof.to_string(), "insert_mid_subrange_trailing_len");
+    assert!(
+        !route
+            .skip_instruction_indices
+            .contains(&route.instruction_index),
+        "route replaces the get instruction and should skip only covered followers"
+    );
+}
+
+#[test]
 fn benchmark_substring_concat_array_set_compiles_without_helper_len_observers() {
     ensure_ring0_initialized();
     let path = concat!(
