@@ -145,6 +145,14 @@ Scope: current lane / next lane / restart order only.
         - `ny_aot_instr=49691974`, `ny_aot_cycles=12941203`
         - `String::Drain` and libc `memmove` no longer appear as top owners
       - guard held: no allocator/arena work, no public ABI, and no new MIR legality
+    - `137x-H9` same-length loop-carry small shift seam is rejected
+      - baseline after H8:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+        - `ny_aot_instr=49693471`, `ny_aot_cycles=13039022`
+        - fused helper closure remains top owner; libc `memmove` is still visible as secondary owner in the saved optimization bundle
+      - trial: replace the runtime-private small byte shifts with bytewise overlap loops while keeping large strings on the existing `ptr::copy` path
+      - result: `ny_aot_instr=54372282`, `ny_aot_cycles=13785721`; worse than H8, so code was reverted
+      - guard held: no benchmark-name dispatch, no public ABI, no new MIR legality
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice

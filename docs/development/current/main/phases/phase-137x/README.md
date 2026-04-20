@@ -467,6 +467,40 @@ Result:
   - no public ABI widening
   - no allocator/arena rewrite
 
+## 137x-H9 Same-Length Loop-Carry Small Shift Seam
+
+Status: rejected.
+
+Scope:
+- optimize only the runtime-private same-length byte rewrite introduced by H8
+- remove libc `memmove` from the proven small shift path when the mutation can stay inside the existing `String` allocation
+- do not add new MIR legality, route inference, public ABI, or benchmark-name dispatch
+
+Perf-first baseline:
+- after H8, `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=49693471`, `ny_aot_cycles=13039022`
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/trace_optimization_bundle.sh --input kilo_meso_substring_concat_array_set_loopcarry --route direct --function main --callee-substr string_insert_mid --lookahead 16 --microasm-runs 3 --symbol array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str --out-dir target/perf_state/optimization_bundle/137x-h9-loopcarry-owner`:
+  - top owner remains the fused helper closure
+  - libc `__memmove_avx512_unaligned_erms` is still visible as the secondary owner
+  - hot block confirms the H8 `ptr::copy` shifts lower to `memmove` calls
+
+Acceptance:
+- generated `ny_main` remains on the H7 fused helper route
+- H8 same-length semantics remain unchanged
+- libc `memmove` leaves the exact-front top report or instruction/cycle count improves enough to justify the local executor change
+- `tools/checks/dev_gate.sh quick` stays green before landing
+
+Result:
+- rejected as non-keeper
+- trial: replace the small H8 `ptr::copy` shifts with bytewise overlap loops while keeping large strings on the existing `ptr::copy` path
+- `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `ny_aot_instr=54372282`, `ny_aot_cycles=13785721`
+  - worse than H8 baseline `ny_aot_instr=49693471`, `ny_aot_cycles=13039022`
+- decision:
+  - keep the H8 `ptr::copy` implementation
+  - do not replace libc `memmove` with manual byte loops unless a later proof can remove the extra loop/control-flow cost
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
