@@ -19,7 +19,6 @@ mod real;
 
 pub(crate) use real::*;
 
-
 #[cfg(all(test, feature = "perf-observe"))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct BorrowedAliasEncodeSnapshot {

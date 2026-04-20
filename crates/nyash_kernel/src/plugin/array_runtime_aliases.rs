@@ -11,9 +11,9 @@ use super::array_runtime_facade::{
     array_runtime_insert_const_mid_idx_store_same_slot_len,
     array_runtime_insert_const_mid_subrange_idx_store_same_slot,
     array_runtime_insert_const_mid_subrange_idx_store_same_slot_len,
-    array_runtime_insert_const_mid_subrange_len_idx_store_same_slot_len,
-    array_runtime_set_idx_any, array_runtime_set_idx_i64,
-    array_runtime_store_array_kernel_text_slot, array_runtime_store_array_string,
+    array_runtime_insert_const_mid_subrange_len_idx_store_same_slot_len, array_runtime_set_idx_any,
+    array_runtime_set_idx_i64, array_runtime_store_array_kernel_text_slot,
+    array_runtime_store_array_string,
 };
 use super::array_runtime_substrate::array_runtime_push_any;
 
