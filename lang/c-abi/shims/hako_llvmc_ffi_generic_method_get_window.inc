@@ -114,20 +114,6 @@
         }
         return 0;
       }
-      auto int array_string_loopcarry_has_later_use(
-          yyjson_val* insts,
-          size_t from_ii,
-          size_t ilen,
-          const long long* regs,
-          int reg_n) {
-        for (size_t kk = from_ii; kk < ilen; kk++) {
-          yyjson_val* later = yyjson_arr_get(insts, kk);
-          for (int ri = 0; ri < reg_n; ri++) {
-            if (regs[ri] && inst_uses_reg(later, regs[ri])) return 1;
-          }
-        }
-        return 0;
-      }
       auto int inst_is_array_string_len_safe_reuse(yyjson_val* ins, long long reg) {
         if (!ins || !reg) return 0;
         const char* op = read_str(ins, "op");
