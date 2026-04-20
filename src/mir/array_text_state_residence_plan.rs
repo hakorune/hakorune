@@ -54,7 +54,55 @@ impl std::fmt::Display for ArrayTextStateResidenceResultRepr {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ArrayTextStateResidenceRoute {
+pub enum ArrayTextStateResidenceConsumerCapability {
+    DirectArrayTextStateResidence,
+}
+
+impl std::fmt::Display for ArrayTextStateResidenceConsumerCapability {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DirectArrayTextStateResidence => f.write_str("direct_array_text_state_residence"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayTextStateResidencePublicationBoundary {
+    None,
+}
+
+impl std::fmt::Display for ArrayTextStateResidencePublicationBoundary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::None => f.write_str("none"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayTextStateResidenceContract {
+    pub observer_kind: ArrayTextStateResidenceKind,
+    pub residence: ArrayTextStateResidence,
+    pub result_repr: ArrayTextStateResidenceResultRepr,
+    pub consumer_capability: ArrayTextStateResidenceConsumerCapability,
+    pub publication_boundary: ArrayTextStateResidencePublicationBoundary,
+}
+
+impl ArrayTextStateResidenceContract {
+    fn indexof_loop_local_pointer_array() -> Self {
+        Self {
+            observer_kind: ArrayTextStateResidenceKind::IndexOf,
+            residence: ArrayTextStateResidence::LoopLocalPointerArray,
+            result_repr: ArrayTextStateResidenceResultRepr::ScalarI64,
+            consumer_capability:
+                ArrayTextStateResidenceConsumerCapability::DirectArrayTextStateResidence,
+            publication_boundary: ArrayTextStateResidencePublicationBoundary::None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayTextStateResidenceIndexOfSeedPayload {
     pub variant: IndexOfSearchMicroSeedVariant,
     pub rows: i64,
     pub ops: i64,
@@ -70,32 +118,35 @@ pub struct ArrayTextStateResidenceRoute {
     pub backend_action: IndexOfSearchBackendAction,
     pub line_seed_outcome: IndexOfSearchCandidateOutcome,
     pub none_seed_outcome: IndexOfSearchCandidateOutcome,
-    pub observer_kind: ArrayTextStateResidenceKind,
-    pub residence: ArrayTextStateResidence,
-    pub result_repr: ArrayTextStateResidenceResultRepr,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayTextStateResidenceRoute {
+    pub contract: ArrayTextStateResidenceContract,
+    pub temporary_indexof_seed_payload: Option<ArrayTextStateResidenceIndexOfSeedPayload>,
 }
 
 impl ArrayTextStateResidenceRoute {
     pub fn from_indexof_search_route(route: &IndexOfSearchMicroSeedRoute) -> Self {
         Self {
-            variant: route.variant,
-            rows: route.rows,
-            ops: route.ops,
-            flip_period: route.flip_period,
-            line_seed: route.line_seed.clone(),
-            line_seed_len: route.line_seed_len,
-            none_seed: route.none_seed.clone(),
-            none_seed_len: route.none_seed_len,
-            needle: route.needle.clone(),
-            needle_len: route.needle_len,
-            proof: route.proof,
-            result_use: route.result_use,
-            backend_action: route.backend_action,
-            line_seed_outcome: route.line_seed_outcome,
-            none_seed_outcome: route.none_seed_outcome,
-            observer_kind: ArrayTextStateResidenceKind::IndexOf,
-            residence: ArrayTextStateResidence::LoopLocalPointerArray,
-            result_repr: ArrayTextStateResidenceResultRepr::ScalarI64,
+            contract: ArrayTextStateResidenceContract::indexof_loop_local_pointer_array(),
+            temporary_indexof_seed_payload: Some(ArrayTextStateResidenceIndexOfSeedPayload {
+                variant: route.variant,
+                rows: route.rows,
+                ops: route.ops,
+                flip_period: route.flip_period,
+                line_seed: route.line_seed.clone(),
+                line_seed_len: route.line_seed_len,
+                none_seed: route.none_seed.clone(),
+                none_seed_len: route.none_seed_len,
+                needle: route.needle.clone(),
+                needle_len: route.needle_len,
+                proof: route.proof,
+                result_use: route.result_use,
+                backend_action: route.backend_action,
+                line_seed_outcome: route.line_seed_outcome,
+                none_seed_outcome: route.none_seed_outcome,
+            }),
         }
     }
 }
@@ -139,19 +190,34 @@ mod tests {
         };
 
         let route = ArrayTextStateResidenceRoute::from_indexof_search_route(&exact);
+        let payload = route
+            .temporary_indexof_seed_payload
+            .as_ref()
+            .expect("temporary payload");
 
-        assert_eq!(route.variant, IndexOfSearchMicroSeedVariant::Line);
+        assert_eq!(payload.variant, IndexOfSearchMicroSeedVariant::Line);
         assert_eq!(
-            route.residence,
+            route.contract.residence,
             ArrayTextStateResidence::LoopLocalPointerArray
         );
-        assert_eq!(route.observer_kind, ArrayTextStateResidenceKind::IndexOf);
         assert_eq!(
-            route.result_repr,
+            route.contract.observer_kind,
+            ArrayTextStateResidenceKind::IndexOf
+        );
+        assert_eq!(
+            route.contract.result_repr,
             ArrayTextStateResidenceResultRepr::ScalarI64
         );
         assert_eq!(
-            route.proof,
+            route.contract.consumer_capability,
+            ArrayTextStateResidenceConsumerCapability::DirectArrayTextStateResidence
+        );
+        assert_eq!(
+            route.contract.publication_boundary,
+            ArrayTextStateResidencePublicationBoundary::None
+        );
+        assert_eq!(
+            payload.proof,
             IndexOfSearchMicroSeedProof::KiloMicroIndexOfLine15Block
         );
     }

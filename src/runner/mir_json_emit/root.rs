@@ -401,34 +401,46 @@ fn build_indexof_search_micro_seed_route_json(
 fn build_array_text_state_residence_route_json(
     route: &crate::mir::ArrayTextStateResidenceRoute,
 ) -> serde_json::Value {
+    let mut obj = json!({
+        "observer_kind": route.contract.observer_kind.to_string(),
+        "residence": route.contract.residence.to_string(),
+        "result_repr": route.contract.result_repr.to_string(),
+        "consumer_capability": route.contract.consumer_capability.to_string(),
+        "publication_boundary": route.contract.publication_boundary.to_string(),
+    });
+    if let Some(payload) = route.temporary_indexof_seed_payload.as_ref() {
+        obj["temporary_indexof_seed_payload"] =
+            build_array_text_state_residence_indexof_seed_payload_json(payload);
+    }
+    obj
+}
+
+fn build_array_text_state_residence_indexof_seed_payload_json(
+    payload: &crate::mir::ArrayTextStateResidenceIndexOfSeedPayload,
+) -> serde_json::Value {
     json!({
-        "variant": route.variant.to_string(),
-        "rows": route.rows,
-        "ops": route.ops,
-        "flip_period": route.flip_period,
-        "line_seed": route.line_seed.as_str(),
-        "line_seed_len": route.line_seed_len,
-        "none_seed": route.none_seed.as_str(),
-        "none_seed_len": route.none_seed_len,
-        "needle": route.needle.as_str(),
-        "needle_len": route.needle_len,
-        "proof": route.proof.to_string(),
-        "result_use": route.result_use.to_string(),
-        "backend_action": route.backend_action.to_string(),
+        "variant": payload.variant.to_string(),
+        "rows": payload.rows,
+        "ops": payload.ops,
+        "flip_period": payload.flip_period,
+        "line_seed": payload.line_seed.as_str(),
+        "line_seed_len": payload.line_seed_len,
+        "none_seed": payload.none_seed.as_str(),
+        "none_seed_len": payload.none_seed_len,
+        "needle": payload.needle.as_str(),
+        "needle_len": payload.needle_len,
+        "proof": payload.proof.to_string(),
+        "result_use": payload.result_use.to_string(),
+        "backend_action": payload.backend_action.to_string(),
         "candidate_outcomes": [
             {
-                "literal": route.line_seed.as_str(),
-                "outcome": route.line_seed_outcome.to_string(),
+                "literal": payload.line_seed.as_str(),
+                "outcome": payload.line_seed_outcome.to_string(),
             },
             {
-                "literal": route.none_seed.as_str(),
-                "outcome": route.none_seed_outcome.to_string(),
+                "literal": payload.none_seed.as_str(),
+                "outcome": payload.none_seed_outcome.to_string(),
             },
         ],
-        "consumer_capability": "direct_array_text_state_residence",
-        "publication_boundary": "none",
-        "residence": route.residence.to_string(),
-        "observer_kind": route.observer_kind.to_string(),
-        "result_repr": route.result_repr.to_string(),
     })
 }

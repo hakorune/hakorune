@@ -197,9 +197,31 @@ static yyjson_val* hako_llvmc_indexof_search_seed_find_main(
   return NULL;
 }
 
+static int hako_llvmc_validate_array_text_state_residence_contract(yyjson_val* route) {
+  const char* observer_kind;
+  const char* residence;
+  const char* result_repr;
+  const char* consumer_capability;
+  const char* publication_boundary;
+
+  if (!(route && yyjson_is_obj(route))) return 0;
+  observer_kind = yyjson_get_str(yyjson_obj_get(route, "observer_kind"));
+  residence = yyjson_get_str(yyjson_obj_get(route, "residence"));
+  result_repr = yyjson_get_str(yyjson_obj_get(route, "result_repr"));
+  consumer_capability = yyjson_get_str(yyjson_obj_get(route, "consumer_capability"));
+  publication_boundary = yyjson_get_str(yyjson_obj_get(route, "publication_boundary"));
+
+  return hako_llvmc_str_eq(observer_kind, "indexof") &&
+         hako_llvmc_str_eq(residence, "loop_local_pointer_array") &&
+         hako_llvmc_str_eq(result_repr, "scalar_i64") &&
+         hako_llvmc_str_eq(consumer_capability, "direct_array_text_state_residence") &&
+         hako_llvmc_str_eq(publication_boundary, "none");
+}
+
 static int hako_llvmc_read_indexof_route_contract(
     yyjson_val* fn,
     const char* route_key,
+    const char* temporary_payload_key,
     const char* expected_variant,
     const char* expected_proof,
     int require_flip,
@@ -216,6 +238,11 @@ static int hako_llvmc_read_indexof_route_contract(
   metadata = yyjson_obj_get(fn, "metadata");
   route = metadata ? yyjson_obj_get(metadata, route_key) : NULL;
   if (!(route && yyjson_is_obj(route))) return 0;
+  if (temporary_payload_key) {
+    if (!hako_llvmc_validate_array_text_state_residence_contract(route)) return 0;
+    route = yyjson_obj_get(route, temporary_payload_key);
+    if (!(route && yyjson_is_obj(route))) return 0;
+  }
 
   out->variant = yyjson_get_str(yyjson_obj_get(route, "variant"));
   out->rows = (long long)yyjson_get_sint(yyjson_obj_get(route, "rows"));
@@ -298,6 +325,7 @@ static int hako_llvmc_match_indexof_ascii_seed_variant(
   if (!hako_llvmc_read_indexof_route_contract(
           fn,
           "indexof_search_micro_seed_route",
+          NULL,
           expected_variant,
           expected_proof,
           require_flip,
@@ -351,6 +379,7 @@ static int hako_llvmc_match_indexof_text_state_residence_fn(
   if (!hako_llvmc_read_indexof_route_contract(
           fn,
           "array_text_state_residence_route",
+          "temporary_indexof_seed_payload",
           expected_variant,
           expected_proof,
           require_flip,

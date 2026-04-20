@@ -11,16 +11,17 @@ Status:
 - H15.3b split the exact quarantine key from the generic residence key in MIR JSON.
 - H15.3c cleaned backend-local naming away from the exact `micro_seed` vocabulary.
 - H15.4 made `array_text_state_residence_route` a real `FunctionMetadata` field.
+- H15.5 split the generic residence contract from the temporary exact emitter payload.
 
 Current owners:
-- MIR side next split: `array_text_state_residence_route` no longer aliases the exact JSON key, but still derives its payload from the exact search proof/action route.
+- MIR side next audit: `array_text_state_residence_route` top-level is generic contract only; exact proof/action/literals live under `temporary_indexof_seed_payload`.
 - Backend delete candidate: `hako_llvmc_ffi_string_search_seed.inc`.
 - Read-side owner: `array_text_observer_routes`.
 
 Fixed order:
 1. H15.4 make `array_text_state_residence_route` a real MIR-owned metadata field. Closed.
-2. H15.5 split exact bridge proof fields from generic residence contract fields. Next.
-3. H15.6 audit `.inc` consumers for raw `indexOf` window/liveness rediscovery.
+2. H15.5 split exact bridge proof fields from generic residence contract fields. Closed.
+3. H15.6 audit `.inc` consumers for raw `indexOf` window/liveness rediscovery. Next.
 4. H15.7 delete or fixture the exact search bridge only after exact and seed-off keeper gates stay green.
 
 Acceptance:
@@ -35,6 +36,7 @@ Decision notes:
 - `array_text_observer_routes` remains the read-side owner.
 - `hako_llvmc_ffi_string_search_seed.inc` stays the explicit delete candidate until the ledger gate is green.
 - H15.4 keeps the exact proof/action payload reuse intentionally small; H15.5 is the structural split that removes exact bridge vocabulary from the generic residence contract.
+- H15.5 keeps `temporary_indexof_seed_payload` explicit because the current emitter is still a temporary exact bridge; do not promote that payload to generic MIR truth.
 
 Latest result:
 - H15.4 adds `src/mir/array_text_state_residence_plan.rs` and stores the route in `FunctionMetadata.array_text_state_residence_route`.
@@ -43,3 +45,6 @@ Latest result:
 - Seed-off `kilo_micro_indexof_line`: `C 5 ms / Ny AOT 4 ms`.
 - Exact `kilo_micro_indexof_line`: `C 4 ms / Ny AOT 3 ms`.
 - Checks: targeted `rustfmt --check`, `git diff --check`, `cargo test indexof_search_micro_seed --lib`, `cargo test array_text_state_residence --lib`, `cargo test array_text_observer --lib`, `bash tools/perf/build_perf_release.sh`, `tools/checks/current_state_pointer_guard.sh`, and `tools/checks/dev_gate.sh quick` passed.
+- H15.5 result: top-level `array_text_state_residence_route` keys are only `consumer_capability`, `observer_kind`, `publication_boundary`, `residence`, `result_repr`, and `temporary_indexof_seed_payload`.
+- H15.5 result: `variant`, `proof`, `backend_action`, `result_use`, and candidate literals moved under `temporary_indexof_seed_payload`; `.inc` validates the top-level generic contract before reading the temporary payload.
+- H15.5 perf: seed-off `kilo_micro_indexof_line = C 4 ms / Ny AOT 4 ms`; exact `kilo_micro_indexof_line = C 5 ms / Ny AOT 3 ms`.
