@@ -450,14 +450,29 @@ fn array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
-        arr.slot_update_text_resident_raw(idx, |value| {
+        let resident = arr.slot_update_text_resident_raw(idx, |value| {
             update_insert_const_mid_subrange_len_value(value, middle, observe_enabled)
-        })
-        .or_else(|| {
-            arr.slot_update_text_raw(idx, |value| {
-                update_insert_const_mid_subrange_len_value(value, middle, observe_enabled)
-            })
-        })
+        });
+        if resident.is_some() {
+            if observe_enabled {
+                observe::record_store_array_str_update_text_resident_hit();
+            }
+            return resident;
+        }
+        if observe_enabled {
+            observe::record_store_array_str_update_text_resident_miss();
+        }
+        let fallback = arr.slot_update_text_raw(idx, |value| {
+            update_insert_const_mid_subrange_len_value(value, middle, observe_enabled)
+        });
+        if observe_enabled {
+            if fallback.is_some() {
+                observe::record_store_array_str_update_text_fallback_hit();
+            } else {
+                observe::record_store_array_str_update_text_fallback_miss();
+            }
+        }
+        fallback
     })
     .flatten()
     .unwrap_or(0)

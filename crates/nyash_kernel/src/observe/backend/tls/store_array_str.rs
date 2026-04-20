@@ -143,4 +143,24 @@ impl ThreadCounters {
         Self::bump(&self.store_array_str_lookup_caller_latest_fresh_tag);
     }
 
+    #[inline(always)]
+    fn store_array_str_update_text_resident_hit(&self) {
+        Self::bump(&self.store_array_str_update_text_resident_hit);
+    }
+
+    #[inline(always)]
+    fn store_array_str_update_text_resident_miss(&self) {
+        Self::bump(&self.store_array_str_update_text_resident_miss);
+    }
+
+    #[inline(always)]
+    fn store_array_str_update_text_fallback_hit(&self) {
+        Self::bump(&self.store_array_str_update_text_fallback_hit);
+    }
+
+    #[inline(always)]
+    fn store_array_str_update_text_fallback_miss(&self) {
+        Self::bump(&self.store_array_str_update_text_fallback_miss);
+    }
+
 }

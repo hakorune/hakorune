@@ -156,6 +156,24 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }).collect::<Vec<_>>(),
+            "array_text_residence_sessions": f.metadata.array_text_residence_sessions.iter().map(|route| {
+                json!({
+                    "header_block": route.header_block.as_u32(),
+                    "body_block": route.body_block.as_u32(),
+                    "exit_block": route.exit_block.as_u32(),
+                    "route_instruction_index": route.route_instruction_index,
+                    "array_value": route.array_value.as_u32(),
+                    "index_value": route.index_value.as_u32(),
+                    "source_value": route.source_value.as_u32(),
+                    "result_len_value": route.result_len_value.as_u32(),
+                    "middle_value": route.middle_value.as_u32(),
+                    "middle_length": route.middle_length,
+                    "scope": route.scope.to_string(),
+                    "proof": route.proof.to_string(),
+                    "consumer_capability": "slot_text_len_store_session",
+                    "publication_boundary": "none",
+                })
+            }).collect::<Vec<_>>(),
             "array_text_observer_routes": f.metadata.array_text_observer_routes.iter().map(|route| {
                 let mut obj = json!({
                     "block": route.block.as_u32(),

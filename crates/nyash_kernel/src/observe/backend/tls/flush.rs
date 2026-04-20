@@ -113,6 +113,22 @@ impl ThreadCounters {
             &self.store_array_str_lookup_caller_latest_fresh_tag,
             &GLOBAL.store_array_str_lookup_caller_latest_fresh_tag,
         );
+        flush_cell(
+            &self.store_array_str_update_text_resident_hit,
+            &GLOBAL.store_array_str_update_text_resident_hit,
+        );
+        flush_cell(
+            &self.store_array_str_update_text_resident_miss,
+            &GLOBAL.store_array_str_update_text_resident_miss,
+        );
+        flush_cell(
+            &self.store_array_str_update_text_fallback_hit,
+            &GLOBAL.store_array_str_update_text_fallback_hit,
+        );
+        flush_cell(
+            &self.store_array_str_update_text_fallback_miss,
+            &GLOBAL.store_array_str_update_text_fallback_miss,
+        );
         flush_cell(&self.const_suffix_total, &GLOBAL.const_suffix_total);
         flush_cell(
             &self.const_suffix_cached_handle_hit,
@@ -584,7 +600,6 @@ impl ThreadCounters {
     }
 }
 
-}
 impl Drop for ThreadCounters {
     fn drop(&mut self) {
         self.flush_into_global();

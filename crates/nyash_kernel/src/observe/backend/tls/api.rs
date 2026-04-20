@@ -36,6 +36,10 @@ tls_zero_arg_api! {
     store_array_str_reason_retarget_alias_update => store_array_str_reason_retarget_alias_update,
     store_array_str_lookup_registry_slot_read => store_array_str_lookup_registry_slot_read,
     store_array_str_lookup_caller_latest_fresh_tag => store_array_str_lookup_caller_latest_fresh_tag,
+    store_array_str_update_text_resident_hit => store_array_str_update_text_resident_hit,
+    store_array_str_update_text_resident_miss => store_array_str_update_text_resident_miss,
+    store_array_str_update_text_fallback_hit => store_array_str_update_text_fallback_hit,
+    store_array_str_update_text_fallback_miss => store_array_str_update_text_fallback_miss,
     const_suffix_enter => const_suffix_enter,
     const_suffix_cached_handle_hit => const_suffix_cached_handle_hit,
     const_suffix_text_cache_reload => const_suffix_text_cache_reload,
@@ -389,5 +393,9 @@ pub(crate) fn snapshot() -> [u64; crate::observe::contract::SNAPSHOT_COUNTER_LEN
         load!(borrowed_alias_encode_cached_handle_hit),
         load!(borrowed_alias_encode_cached_handle_hit_array_get_index),
         load!(borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any),
+        load!(store_array_str_update_text_resident_hit),
+        load!(store_array_str_update_text_resident_miss),
+        load!(store_array_str_update_text_fallback_hit),
+        load!(store_array_str_update_text_fallback_miss),
     ]
 }

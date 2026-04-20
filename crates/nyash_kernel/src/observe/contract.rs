@@ -48,6 +48,10 @@ pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE: &str =
 pub(crate) const STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ: &str = "lookup.registry_slot_read";
 pub(crate) const STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG: &str =
     "lookup.caller_latest_fresh_tag";
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT: &str = "update_text_resident_hit";
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_MISS: &str = "update_text_resident_miss";
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_HIT: &str = "update_text_fallback_hit";
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_MISS: &str = "update_text_fallback_miss";
 
 pub(crate) const CONST_SUFFIX_CACHED_HANDLE_HIT: &str = "cached_handle_hit";
 pub(crate) const CONST_SUFFIX_TEXT_CACHE_RELOAD: &str = "text_cache_reload";
@@ -262,7 +266,7 @@ pub(crate) struct SnapshotCounterField {
 ///
 /// Counter names, snapshot indexes, and the snapshot length live in this module
 /// so backends and tests do not carry separate raw registration facts.
-pub(crate) const SNAPSHOT_COUNTER_LEN: usize = 149;
+pub(crate) const SNAPSHOT_COUNTER_LEN: usize = 153;
 
 impl SnapshotCounterField {
     pub(crate) const fn new(name: &'static str, snapshot_index: usize) -> Self {
@@ -347,8 +351,16 @@ pub(crate) const STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ_FIELD: SnapshotCounte
     SnapshotCounterField::new(STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ, 121);
 pub(crate) const STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD: SnapshotCounterField =
     SnapshotCounterField::new(STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG, 122);
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT, 149);
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_MISS_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_MISS, 150);
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_HIT, 151);
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_MISS_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_MISS, 152);
 
-pub(crate) const STORE_ARRAY_STR_SUMMARY_FIELDS: [SnapshotCounterField; 29] = [
+pub(crate) const STORE_ARRAY_STR_SUMMARY_FIELDS: [SnapshotCounterField; 33] = [
     STORE_ARRAY_STR_TOTAL_FIELD,
     STORE_ARRAY_STR_CACHE_HIT_FIELD,
     STORE_ARRAY_STR_CACHE_MISS_HANDLE_FIELD,
@@ -378,6 +390,10 @@ pub(crate) const STORE_ARRAY_STR_SUMMARY_FIELDS: [SnapshotCounterField; 29] = [
     STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE_FIELD,
     STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ_FIELD,
     STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD,
+    STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT_FIELD,
+    STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_MISS_FIELD,
+    STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_HIT_FIELD,
+    STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_MISS_FIELD,
 ];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -97,6 +97,18 @@ pub(crate) fn record_store_array_str_lookup_registry_slot_read() {}
 pub(crate) fn record_store_array_str_lookup_caller_latest_fresh_tag() {}
 
 #[inline(always)]
+pub(crate) fn record_store_array_str_update_text_resident_hit() {}
+
+#[inline(always)]
+pub(crate) fn record_store_array_str_update_text_resident_miss() {}
+
+#[inline(always)]
+pub(crate) fn record_store_array_str_update_text_fallback_hit() {}
+
+#[inline(always)]
+pub(crate) fn record_store_array_str_update_text_fallback_miss() {}
+
+#[inline(always)]
 pub(crate) fn record_const_suffix_enter() {}
 
 #[inline(always)]

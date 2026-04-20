@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H23 array text write transaction pilot)
+  - `phase-137x-H owner-first optimization return` (active; H25 array text residence session contract)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -377,39 +377,21 @@ Scope: current lane / next lane / restart order only.
       - closeout:
         - local helper surgery is rejected
         - do not reopen H22 unless fresh perf evidence points at a new intra-helper block
-    - `137x-H23` array text write transaction pilot is active
-      - current blocker token: `137x-H23 array text write transaction pilot`
-      - front: `kilo_meso_substring_concat_array_set_loopcarry`
-      - failure mode: remaining `C 3-4 ms / Ny AOT 6 ms` gap after H21/H22
-      - current owner:
-        - H21 removed route work explosion
-        - H22 rejected local helper surgery
-        - remaining hot transition is runtime-private array text residence mutation / uncontended write-lock substrate
-      - next seam:
-        - first measure whether write guard acquire / slot resolve / storage dispatch / commit are the active substrate owner
-        - only if confirmed, prototype a helper-local `ArrayTextWriteTxn` / `ArrayTextSlotSession`
-      - H23a inventory:
-        - hot helper is `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(...)`
-        - current runtime shape is `with_array_box(...) -> slot_update_text_resident_raw(...) -> fallback slot_update_text_raw(...)`
-        - storage/guard mechanics stay in `src/boxes/array/ops/text.rs`
-        - plugin/kernel wrapper may orchestrate handle acquisition, but must not own storage layout or legality
-      - first probe:
-        - use direct `NYASH_PERF_COUNTERS=1 target/release/hakorune --backend vm ...` runs for loopcarry and non-loopcarry control
-        - do not use `bench_micro_c_vs_aot_stat.sh` for counter capture because it hides child stderr
-        - if current counters are ambiguous, add only temporary `NYASH_PERF_COUNTERS`-gated split counters for resident hit/fallback/miss
-      - allowed:
-        - helper-local transaction only
-        - acquire array text write guard once
-        - resolve one slot once
-        - mutate transient resident text and commit inside the helper boundary
-      - reject seam:
-        - no `.inc` shape rediscovery
-        - no runtime legality/provenance inference
-        - no semantic/search-result cache
-        - no publish/objectize/generic fallback while a write transaction is live
-        - no loop-wide session in this card
+    - `137x-H23` / `137x-H24` are closed
+      - H23a proved fallback/promotion is not owner: `update_text_resident_hit=179999`
+      - H23b helper-local resident/fallback compaction regressed and was reverted
+      - H24 proved the active owner is write-lock acquire/release guard mechanics
+      - full evidence stays in `docs/development/current/main/phases/phase-137x/README.md`
+    - `137x-H25` array text residence session contract is active
+      - current blocker token: `137x-H25 array text residence session contract`
+      - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
+      - ownership map: `docs/development/current/main/phases/phase-137x/137x-array-text-contract-map.md`
+      - H25a landed metadata-only `array_text_residence_sessions`; `.inc` and runtime behavior are unchanged
+      - next slice: begin/update/end lowering against the MIR session metadata
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
+  - active current entry:
+    - `docs/development/current/main/phases/phase-137x/137x-current.md`
   - method anchor:
     - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
   - taskboard:

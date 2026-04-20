@@ -3,6 +3,7 @@ use crate::mir::{
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
+    array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
@@ -161,6 +162,12 @@ pub struct FunctionMetadata {
     /// These keep active fused store/len route recognition in MIR so the C
     /// backend can remain an emitter/transport consumer.
     pub array_text_loopcarry_len_store_routes: Vec<ArrayTextLoopCarryLenStoreRoute>,
+
+    /// Backend-consumable array/text residence session plans.
+    /// These are metadata-only until lowering consumes them; they prove where a
+    /// future backend may hold a runtime-private text residence guard without
+    /// asking runtime or `.inc` to rediscover legality.
+    pub array_text_residence_sessions: Vec<ArrayTextResidenceSessionRoute>,
 
     /// Backend-consumable generic array/text observer route plans.
     /// These own read-side observer legality/provenance/consumer facts in MIR;

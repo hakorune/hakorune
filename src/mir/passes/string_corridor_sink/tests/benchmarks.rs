@@ -350,6 +350,19 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
             .contains(&route.instruction_index),
         "route replaces the get instruction and should skip only covered followers"
     );
+
+    assert_eq!(
+        function.metadata.array_text_residence_sessions.len(),
+        1,
+        "loopcarry benchmark should expose one MIR-owned residence session candidate"
+    );
+    let session = &function.metadata.array_text_residence_sessions[0];
+    assert_eq!(session.body_block, route.block);
+    assert_eq!(session.route_instruction_index, route.instruction_index);
+    assert_eq!(session.array_value, route.array_value);
+    assert_eq!(session.middle_length, 2);
+    assert_eq!(session.scope.to_string(), "loop_backedge_single_body");
+    assert_eq!(session.proof.to_string(), "loopcarry_len_store_only");
 }
 
 #[test]

@@ -2,6 +2,13 @@
 
 - Status: `137x-H` owner-first optimization return active
 - 目的: `137x-E0/E/F` の MIR/backend seam, storage, value implementation gate を閉じ、`137x-G` allocator pilot を reject した状態から、owner-first evidence に従って kilo 最適化を進める。
+- Active entry SSOT:
+  - `137x-current.md`
+- Array/text ownership map:
+  - `137x-array-text-contract-map.md`
+- Historical note:
+  - this README is now the phase ledger and closed-history store; do not append
+    new current-only details here unless the phase state changes.
 - 対象:
   - `docs/development/current/main/CURRENT_STATE.toml`
   - `CURRENT_TASK.md`
@@ -18,7 +25,9 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H23 array text write transaction pilot)
+- current lane: `phase-137x-H owner-first optimization return` (active; H25 array text residence session contract)
+- active current entry: `137x-current.md`
+- active contract map: `137x-array-text-contract-map.md`
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -39,7 +48,7 @@
     - this is the historical producer-owner split that led to the landed phase-2 cuts
     - the current owner proof has moved to read-side encode/materialize/objectize and libc copy/alloc tax
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
-- current middle evidence: `C 3 ms / Ny AOT 9 ms` (`repeat=3`, direct route)
+- current middle evidence: `C 3 ms / Ny AOT 6 ms` (`repeat=3`, direct route; H24 post-revert)
 - direct-only correctness: `Result: 2880064`, exit code `64`
 - current stop-line:
   - `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
@@ -1210,7 +1219,7 @@ Closeout:
 
 ## 137x-H23 Array Text Write Transaction Pilot
 
-Status: active.
+Status: rejected/closed.
 
 Purpose:
 - Test a narrow runtime-private residence/session substrate for one array text slot.
@@ -1278,9 +1287,11 @@ Design boundary:
 First probe:
 - Build a perf-observe binary:
   - `bash tools/perf/build_perf_observe_release.sh`
-- Capture attribution counters directly; do not use `bench_micro_c_vs_aot_stat.sh` for this probe because it suppresses child stderr:
-  - `NYASH_PERF_COUNTERS=1 NYASH_GC_MODE=off NYASH_SCHED_POLL_IN_SAFEPOINT=0 NYASH_DISABLE_PLUGINS=1 NYASH_SKIP_TOML_ENV=1 target/release/hakorune --backend vm benchmarks/bench_kilo_meso_substring_concat_array_set_loopcarry.hako > target/perf_state/h23_loopcarry.out 2> target/perf_state/h23_loopcarry.err`
-  - `NYASH_PERF_COUNTERS=1 NYASH_GC_MODE=off NYASH_SCHED_POLL_IN_SAFEPOINT=0 NYASH_DISABLE_PLUGINS=1 NYASH_SKIP_TOML_ENV=1 target/release/hakorune --backend vm benchmarks/bench_kilo_meso_substring_concat_array_set.hako > target/perf_state/h23_noloopcarry.out 2> target/perf_state/h23_noloopcarry.err`
+- Capture attribution counters from direct perf-observe AOT executables; do not use `bench_micro_c_vs_aot_stat.sh` for counter capture because it suppresses child stderr:
+  - `source tools/perf/lib/aot_helpers.sh; perf_emit_and_build_aot_exe "$PWD" "$PWD/target/release/hakorune" "$PWD/benchmarks/bench_kilo_meso_substring_concat_array_set_loopcarry.hako" "$PWD/target/perf_state/h23_loopcarry.perf_observe.exe"; NYASH_PERF_COUNTERS=1 NYASH_GC_MODE=off NYASH_SCHED_POLL_IN_SAFEPOINT=0 NYASH_SKIP_TOML_ENV=1 target/perf_state/h23_loopcarry.perf_observe.exe > target/perf_state/h23_loopcarry.out 2> target/perf_state/h23_loopcarry.err`
+  - `source tools/perf/lib/aot_helpers.sh; perf_emit_and_build_aot_exe "$PWD" "$PWD/target/release/hakorune" "$PWD/benchmarks/bench_kilo_meso_substring_concat_array_set.hako" "$PWD/target/perf_state/h23_noloopcarry.perf_observe.exe"; NYASH_PERF_COUNTERS=1 NYASH_GC_MODE=off NYASH_SCHED_POLL_IN_SAFEPOINT=0 NYASH_SKIP_TOML_ENV=1 target/perf_state/h23_noloopcarry.perf_observe.exe > target/perf_state/h23_noloopcarry.out 2> target/perf_state/h23_noloopcarry.err`
+- Rejected capture path:
+  - direct `target/release/hakorune --backend vm ...` currently fails this benchmark with `Unknown: nyash.string.insert_hsi`; keep H23a on the AOT perf-observe executable path until VM route parity is fixed separately.
 - Read buckets:
   - guard/handle candidate: `store.array.str.total`, cache hit/miss, and `lookup.*`
   - slot resolve candidate: `plan.source_kind_*`, `plan.slot_kind_*`, `lookup.registry_slot_read`, and `lookup.caller_latest_fresh_tag`
@@ -1292,6 +1303,35 @@ First probe:
   - optionally bracket `with_array_box(...)` in the hot helper
   - no new env var and no unconditional logging
 
+H23a/H23b observation (2026-04-21):
+- Command results:
+  - `bash tools/perf/build_perf_observe_release.sh`: pass after fixing a perf-observe-only brace mismatch in `observe/backend/tls/flush.rs`.
+  - direct VM counter capture: rejected, `Unknown: nyash.string.insert_hsi`.
+  - perf-observe AOT loopcarry stdout: `Result: 2880064`, exit `64`.
+  - perf-observe AOT control stdout: `Result: 3240064`, exit `128`.
+  - release timing after returning to non-observe build: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`, `ny_aot_instr=40329994`, `ny_aot_cycles=12403515`.
+  - release asm top: hot helper closure `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(...)` at `94.86%`.
+- Split counter result:
+  - loopcarry: `store.array.str total=180000`, `existing_slot=180000`, `source_store=180000`, `update_text_resident_hit=179999`, `update_text_resident_miss=1`, `update_text_fallback_hit=1`, `update_text_fallback_miss=0`.
+  - non-loopcarry control: `store.array.str total=180000`, `existing_slot=180000`, `source_store=180000`, but H23 hot-helper update counters are all `0`; this control uses the non-loopcarry store path, not the H23 len-store helper.
+- Reading:
+  - fallback/promotion is not the active owner for loopcarry; the steady-state hot path is already text-resident.
+  - next implementation must not widen MIR or `.inc`; H23b may only compact the runtime-private resident mutation boundary for the one hot helper.
+- H23b rejected prototype:
+  - attempted shape: one `ArrayBox` resident/fallback/miss outcome writer, keeping `ArrayStorage` private and letting the hot helper consume only the outcome.
+  - result: `ny_aot_instr=45910743`, `ny_aot_cycles=12677425`, `ny_aot_ms=6`.
+  - baseline before H23b: `ny_aot_instr=40329994`, `ny_aot_cycles=12403515`, `ny_aot_ms=6`.
+  - verdict: non-keeper; instruction count regressed and wall time did not improve.
+  - code reverted; do not retry single-method resident/fallback unification without a fresh `perf annotate` block showing a different owner.
+
+H23 closeout:
+- Status: rejected/closed.
+- Final reading:
+  - helper-local transaction compaction is not enough; the remaining gap is not fallback/promotion.
+  - resident-first split remains necessary.
+  - opening a broader block-local or loop-wide session would require a new MIR-owned lifetime/alias contract, so it is out of scope for H23.
+  - next card must reclassify the owner from fresh `perf annotate` evidence before choosing between lock/session contract, lower-level array substrate, or allocator/copy work.
+
 Acceptance:
 - First probe must measure whether the active owner is actually write guard acquire / slot resolve / storage dispatch / commit.
 - If the probe does not show those substrate costs as the owner, close H23 without implementation.
@@ -1300,6 +1340,120 @@ Acceptance:
   - split ladder including `kilo_kernel_small_hk`
 - Keeper requires instruction/cycle improvement or a clear owner move without regressing exact/micro guards.
 - Non-win result closes H23 and sends remaining cost to a later allocator/residence pilot only if `memmove` / `malloc` / `_int_malloc` becomes structural evidence.
+
+## 137x-H24 Post-H23 Resident Mutation Owner Reclassification
+
+Status: closed.
+
+Purpose:
+- Reclassify the remaining `kilo_meso_substring_concat_array_set_loopcarry` owner after H23 rejected helper-local transaction compaction.
+- Keep the next optimization owner-first: no new API shape, transaction lifetime, cache, or allocator work until fresh top-block evidence identifies the active owner family.
+
+Owner card:
+- front: `kilo_meso_substring_concat_array_set_loopcarry`
+- failure mode: remaining `C 3 ms / Ny AOT 6 ms` gap after H21/H22/H23
+- current rejected seams:
+  - H22 local helper surgery: rejected
+  - H23 helper-local resident/fallback outcome writer: rejected
+  - fallback/promotion: not owner (`update_text_resident_hit=179999`)
+- current owner hypothesis:
+  - runtime-private resident mutation remains hot, but helper-local compaction is insufficient
+  - next evidence must distinguish string edit bytes work, uncontended lock mechanics, handle/cache call boundary, and generated call overhead
+
+Required first step:
+- Rebuild release after reverting H23b non-keeper code:
+  - `bash tools/perf/build_perf_release.sh`
+- Reconfirm timing:
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
+- Capture current top block:
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry '' 20`
+
+Result (2026-04-21):
+- `bash tools/perf/build_perf_release.sh`: pass.
+- `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`:
+  - `c_ms=3`, `ny_aot_ms=6`, `ny_aot_instr=40330160`, `ny_aot_cycles=12366672`.
+- `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry '' 20`:
+  - top owner remains `array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str` closure at `97.51%`.
+- closure IP probe:
+  - `413483`: 38 samples, immediately after the write-lock acquire `lock cmpxchg`.
+  - `4138e5`: 33 samples, immediately after the write-lock release `lock cmpxchg`.
+  - `413454`: 1 sample, prologue/load.
+- Reading:
+  - H24 confirms guard mechanics, not fallback/promotion and not the byte-edit/memmove body, as the active owner.
+  - One-helper-per-iteration remains the cost shape; helper-local compaction cannot remove the acquire/release pair.
+  - Next work must be a MIR-owned residence/session contract. Runtime may execute the mechanics, but it must not infer legality.
+
+Allowed next seams:
+- If hot block is inside the in-place byte edit, open a narrow string-edit kernel card.
+- If hot block is lock acquire/release or guard mechanics, open a new MIR-owned block-local session contract card; do not smuggle it into runtime alone.
+- If hot block is handle/cache or extern call boundary, open a backend/call-boundary card.
+- If `memmove` / malloc family becomes dominant, send to allocator/copy pilot with evidence.
+
+Forbidden:
+- Reopening single-method resident/fallback unification.
+- Loop-wide session without a MIR lifetime/alias contract.
+- Runtime legality/provenance inference.
+- `.inc` shape rediscovery.
+
+## 137x-H25 Array Text Residence Session Contract
+
+Status: active.
+
+Purpose:
+- Remove the per-iteration `ArrayStorage` write-lock acquire/release from the loopcarry route only when MIR proves a residence session is legal.
+- Keep `.inc` as metadata consumer and Rust as executor-only: MIR owns session eligibility, lifetime, alias, and publication-boundary facts.
+
+Owner card:
+- front: `kilo_meso_substring_concat_array_set_loopcarry`
+- failure mode: remaining `C 3 ms / Ny AOT 6 ms` gap after H21/H22/H23/H24.
+- current owner: uncontended write-lock acquire/release inside the fused loopcarry helper.
+- rejected seams:
+  - H22 local helper surgery
+  - H23 helper-local resident/fallback compaction
+  - H24 byte-edit/memmove owner hypothesis
+
+Contract shape:
+- MIR metadata may expose a `array_text_residence_sessions` route only when all are true:
+  - one array root and one text-resident slot family are used by the selected loop region
+  - the selected region has no publish/objectize/generic object call boundary while the session is live
+  - all covered operations are slot-capable and already represented by MIR-owned route plans
+  - the session has explicit begin/end scope and does not rely on helper names as truth
+- Backend may:
+  - read the session metadata
+  - emit begin/update/end calls
+  - skip only instructions covered by the MIR route
+- Runtime may:
+  - acquire the write guard once
+  - resolve text storage/slot under the guard
+  - perform repeated resident text mutations
+  - release the guard at the MIR-selected end boundary
+
+Forbidden:
+- Runtime deciding session legality from residence state.
+- `.inc` rediscovering loop/session shape from raw MIR JSON.
+- Holding a session across publish/objectize/generic fallback, externally visible alias calls, panic/unwind, or unknown side-effect calls.
+- Adding benchmark-specific whole-loop helpers.
+
+First implementation slice:
+- Add metadata-only MIR session eligibility for the existing loopcarry len-store route.
+- Emit JSON and a unit test proving the benchmark exposes exactly one session route.
+- Do not change lowering/runtime behavior until the metadata contract is visible and tested.
+
+H25a result (2026-04-21):
+- Added metadata-only `array_text_residence_sessions`.
+- The existing loopcarry len-store route now exposes one session candidate for the benchmark:
+  - `scope=loop_backedge_single_body`
+  - `proof=loopcarry_len_store_only`
+  - `consumer_capability=slot_text_len_store_session`
+  - `publication_boundary=none`
+- Contract guard:
+  - session eligibility is derived only from MIR-owned `array_text_loopcarry_len_store_routes`.
+  - uncovered loop-body instructions must be pure loop bookkeeping.
+  - `.inc` and runtime behavior are unchanged in H25a.
+- Validation:
+  - `cargo check -q`
+  - `cargo test -q benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route -- --nocapture`
+  - `cargo run -q --bin hakorune -- --emit-mir-json target/perf_state/h25_loopcarry.mir.json benchmarks/bench_kilo_meso_substring_concat_array_set_loopcarry.hako` emits one `array_text_residence_sessions` entry.
 
 ## Legacy Retirement Ledger
 

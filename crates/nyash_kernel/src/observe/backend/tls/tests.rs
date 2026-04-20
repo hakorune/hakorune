@@ -24,6 +24,7 @@ fn tls_store_array_str_counters_flush_current_thread() {
         store_array_str_enter();
         store_array_str_cache_probe(CacheProbeKind::Hit);
         store_array_str_retarget_hit();
+        store_array_str_update_text_resident_hit();
         let after = snapshot();
 
         assert_eq!(
@@ -39,6 +40,11 @@ fn tls_store_array_str_counters_flush_current_thread() {
         assert_eq!(
             contract::STORE_ARRAY_STR_RETARGET_HIT_FIELD.read(&after)
                 - contract::STORE_ARRAY_STR_RETARGET_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT_FIELD.read(&after)
+                - contract::STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT_FIELD.read(&before),
             1
         );
     });
