@@ -171,6 +171,7 @@ Related:
   - `137x-H` backend cleanup: `string_concat_emit_routes` now uses `kernel_plan_read_publication_boundary_window` for publication-boundary checks and no longer replays the corridor fallback in the insert-mid shared-receiver branch
   - `137x-H` backend cleanup: `match_piecewise_slot_hop_substring_consumer` now lives in shared concat emit helpers, so the policy owner no longer owns the slot-hop consumer replay
   - `137x-H` backend cleanup: removed unused `hako_llvmc_string_corridor_read_insert_mid_window_plan_values`; kernel-plan reader is now the single insert-mid window SSOT
+  - `137x-H` backend cleanup: removed the standalone corridor triplet reader; `direct_kernel_entry` substring proof now goes through centralized `hako_llvmc_string_kernel_plan_read_concat_triplet_values` (kernel-first, corridor compat fallback)
   - first landed keeper:
     - same-array/same-index piecewise concat3 subrange store originally lowered to `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses explicit-length `nyash.array.string_insert_mid_subrange_store_hisiiii`

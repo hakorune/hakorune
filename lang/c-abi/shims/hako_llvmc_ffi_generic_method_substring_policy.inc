@@ -1,21 +1,3 @@
-      enum GenericMethodSubstringRouteKind {
-        HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_INSERT_MID_WINDOW = 0,
-        HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_DIRECT_KERNEL_PLAN = 1,
-        HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_STRING_SUBSTRING_CALL = 2,
-      };
-
-      auto enum GenericMethodSubstringRouteKind classify_generic_method_substring_route(
-          int matched_insert_window,
-          int matched_direct_kernel_plan) {
-        if (matched_insert_window) {
-          return HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_INSERT_MID_WINDOW;
-        }
-        if (matched_direct_kernel_plan) {
-          return HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_DIRECT_KERNEL_PLAN;
-        }
-        return HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_STRING_SUBSTRING_CALL;
-      }
-
       auto int try_emit_piecewise_concat3_direct_set_source_window_call(
           FILE* f,
           size_t ii,
@@ -418,7 +400,6 @@
         long long concat_second = 0;
         long long concat_third = 0;
         int concat_term_count = 0;
-        int matched_direct_kernel_plan = 0;
         size_t piecewise_use_ii = 0;
         size_t piecewise_copy_iis[8];
         int piecewise_copy_n = 0;
@@ -429,11 +410,8 @@
                 f, ii, ilen, insts, recv, dst, skip_inst)) {
           return 1;
         }
-        if (classify_generic_method_substring_route(
-                try_emit_string_insert_mid_window_call(
-                    f, ii, ilen, insts, recv, dst, a0, a1, skip_inst),
-                0) ==
-            HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_INSERT_MID_WINDOW) {
+        if (try_emit_string_insert_mid_window_call(
+                f, ii, ilen, insts, recv, dst, a0, a1, skip_inst)) {
           return 1;
         }
         if (resolved_recv &&
@@ -502,33 +480,25 @@
           }
         }
         if (resolved_recv &&
-            hako_llvmc_string_corridor_read_concat_triplet_plan_values(
-                resolved_recv,
-                "direct_kernel_entry",
-                &concat_first,
-                &concat_second,
-                &concat_third)) {
+            hako_llvmc_string_kernel_plan_read_concat_triplet_values(
+                resolved_recv, &concat_first, &concat_second, &concat_third)) {
           concat_first = resolve_copy_source_reg(concat_first);
           concat_second = resolve_copy_source_reg(concat_second);
           concat_third = resolve_copy_source_reg(concat_third);
           if (concat_first && concat_second && concat_third) {
-            matched_direct_kernel_plan = 1;
+            return emit_string_substring_concat_call(
+                f,
+                ii,
+                resolved_recv,
+                dst,
+                concat_first,
+                concat_second,
+                concat_third,
+                3,
+                a0,
+                a1,
+                "direct_kernel_plan_proof");
           }
-        }
-        if (classify_generic_method_substring_route(0, matched_direct_kernel_plan) ==
-            HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_DIRECT_KERNEL_PLAN) {
-          return emit_string_substring_concat_call(
-              f,
-              ii,
-              resolved_recv,
-              dst,
-              concat_first,
-              concat_second,
-              concat_third,
-              3,
-              a0,
-              a1,
-              "direct_kernel_plan_proof");
         }
         if (resolved_recv &&
             resolve_string_concat_chain_terms(

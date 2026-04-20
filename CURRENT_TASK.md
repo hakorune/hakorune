@@ -70,6 +70,7 @@ Scope: current lane / next lane / restart order only.
     - `137x-H` backend cleanup: `string_concat_emit_routes` now uses `kernel_plan_read_publication_boundary_window` for publication-boundary checks and no longer replays the corridor fallback in the insert-mid shared-receiver branch
     - `137x-H` backend cleanup: `match_piecewise_slot_hop_substring_consumer` moved into shared concat emit helpers so `generic_method_substring_policy` no longer owns the slot-hop consumer replay
     - `137x-H` backend cleanup: removed unused `hako_llvmc_string_corridor_read_insert_mid_window_plan_values`; kernel-plan reader is now the only insert-mid window SSOT
+    - `137x-H` backend cleanup: removed the standalone corridor triplet reader; `direct_kernel_entry` substring proof now goes through centralized `hako_llvmc_string_kernel_plan_read_concat_triplet_values` (kernel-first, corridor compat fallback)
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker is `137x-H` owner-first optimization return
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice

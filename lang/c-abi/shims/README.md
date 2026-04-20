@@ -27,6 +27,7 @@ Current partitions:
   - keeps string metadata JSON access out of the generic `common` owner
 - `hako_llvmc_ffi_string_candidate_plan_readers.inc`
   - register-rooted string candidate/plan readers used by legacy bridge and concat-policy consumers
+  - kernel-plan concat-triplet readers and insert-mid/source-window SSOT live here
   - keeps candidate-plan JSON access out of `string_chain_terms.inc`
 - `hako_llvmc_ffi_string_loop_seed.inc`
   - thin facade include for loop/string hot-path seed families
