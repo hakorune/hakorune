@@ -70,6 +70,7 @@ fn slot_store_text_births_text_lane() {
         array.slot_with_text_raw(0, str::to_owned).as_deref(),
         Some("hello")
     );
+    assert_eq!(array.slot_text_len_raw(0), Some(5));
     assert_eq!(array.get_index_i64(0).to_string_box().value, "hello");
 }
 

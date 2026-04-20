@@ -348,6 +348,45 @@ Verification:
   - `kilo_kernel_small = C 81 ms / Ny AOT 19 ms`
 - `tools/checks/dev_gate.sh quick` PASS
 
+## 137x-H6 Array Text Length Substrate Seam
+
+Status: landed.
+
+Scope:
+- keep the existing runtime-private `nyash.array.string_len_hi` ABI
+- thin only the executor-side array text length substrate behind that ABI
+- do not add MIR known-length inference in this slice
+- do not widen routes or add public ABI
+
+Perf-first baseline:
+- `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`
+- top report after H5:
+  - `array_string_len_by_index` closure remains the largest owner
+  - same-slot subrange store closure is reduced but still visible
+
+Acceptance:
+- array text lane tests stay green
+- middle perf does not regress in instructions/cycles; wall stays in the same 8-9 ms noise band
+- `tools/checks/dev_gate.sh quick` stays green
+
+Implementation:
+- `ArrayBox::slot_text_len_raw(...)` gives array text residence a direct length substrate.
+- `array_string_len_by_index(...)` now uses that substrate instead of routing through `slot_with_text_raw(...)` with a closure.
+- This keeps the existing `nyash.array.string_len_hi` ABI and intentionally does not add known-length MIR inference.
+
+Verification:
+- `cargo test -q array::tests::slot_store_text_births_text_lane -- --test-threads=1` PASS
+- `bash tools/perf/build_perf_release.sh` PASS
+- `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 5`:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 9 ms`
+  - `ny_aot_instr=80862657`, `ny_aot_cycles=26265409`
+- `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'ny_main' 3`:
+  - top owner is now the `nyash.array.string_len_hi` call boundary itself
+  - next keeper candidate is MIR/lowering same-length proof, not more runtime substrate thinning
+- `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`:
+  - `kilo_kernel_small = C 84 ms / Ny AOT 19 ms`
+- `tools/checks/dev_gate.sh quick` PASS
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

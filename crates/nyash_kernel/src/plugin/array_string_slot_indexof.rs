@@ -38,11 +38,7 @@ pub(in super::super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
-    with_array_box(handle, |arr| {
-        arr.slot_with_text_raw(idx, |source| source.len() as i64)
-            .unwrap_or(0)
-    })
-    .unwrap_or(0)
+    with_array_box(handle, |arr| arr.slot_text_len_raw(idx).unwrap_or(0)).unwrap_or(0)
 }
 
 #[inline(always)]

@@ -61,6 +61,25 @@ impl ArrayBox {
         }
     }
 
+    /// Read a text slot length without materializing a public StringBox.
+    #[inline(always)]
+    pub fn slot_text_len_raw(&self, idx: i64) -> Option<i64> {
+        if idx < 0 {
+            return None;
+        }
+        let idx = idx as usize;
+        let items = self.items.read();
+        match &*items {
+            ArrayStorage::Text(values) => values.get(idx).map(|value| value.len() as i64),
+            ArrayStorage::Boxed(items) => items
+                .get(idx)
+                .and_then(|item| item.as_str_fast().map(|value| value.len() as i64)),
+            ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_) => None,
+        }
+    }
+
     /// Mutate a text slot in-place when the array is text-resident.
     /// If the array is mixed but the target slot is string-like, only that slot is materialized.
     #[inline(always)]

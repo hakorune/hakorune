@@ -112,6 +112,17 @@ Scope: current lane / next lane / restart order only.
         - `ny_aot_instr=83021976`, `ny_aot_cycles=26509766`
         - `kilo_kernel_small = C 81 ms / Ny AOT 19 ms`
       - guard held: no MIR route widening, no public ABI, and no helper-name semantic ownership
+    - `137x-H6` array text length substrate seam is closed
+      - perf-first baseline after H5:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`
+        - top owner is still `array_string_len_by_index` closure
+      - implementation: `ArrayBox::slot_text_len_raw(...)` gives the runtime-private len helper a direct text-lane length substrate instead of the generic `slot_with_text_raw` closure path
+      - result:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms` in the rerun noise band
+        - `ny_aot_instr=80862657`, `ny_aot_cycles=26265409`
+        - `kilo_kernel_small = C 84 ms / Ny AOT 19 ms`
+      - guard held: no MIR route widening, no known-length inference, and no public ABI change
+      - next seam: eliminate the `nyash.array.string_len_hi` call from lowering when MIR proves same-length loop-carried text
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
