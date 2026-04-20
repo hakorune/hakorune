@@ -69,6 +69,7 @@ Scope: current lane / next lane / restart order only.
     - `137x-H` runtime cleanup: removed dead `ValueLaneAction::PublishBoundary`; array string store now selects `TextCellResidence` or `GenericBoxResidence` once and the executor path only consumes the preselected action
     - `137x-H` backend cleanup: `string_concat_emit_routes` now uses `kernel_plan_read_publication_boundary_window` for publication-boundary checks and no longer replays the corridor fallback in the insert-mid shared-receiver branch
     - `137x-H` backend cleanup: `match_piecewise_slot_hop_substring_consumer` is retired; slot-hop substring continuation is now MIR-owned `StringKernelPlan.slot_hop_substring` metadata
+    - `137x-H` backend cleanup: the exact array-string seed bridge no longer rescans raw 8-block MIR JSON; it consumes MIR-owned `array_string_store_micro_seed_route` metadata and only selects the existing temporary specialized emitter
     - `137x-H` backend cleanup: removed unused `hako_llvmc_string_corridor_read_insert_mid_window_plan_values`; kernel-plan reader is now the only insert-mid window SSOT
     - `137x-H` backend cleanup: removed the standalone corridor triplet reader; `direct_kernel_entry` substring proof now goes through centralized `hako_llvmc_string_kernel_plan_read_concat_triplet_values` (kernel-first, corridor compat fallback)
     - `137x-H1` MIR string value lowering cleanup is closed
@@ -176,9 +177,11 @@ Scope: current lane / next lane / restart order only.
       - first slice: moved string concat / insert direct-set consumer checks to MIR metadata
       - second slice: retired backend `has_direct_array_set_consumer(...)`; all remaining direct-set checks read `hako_llvmc_value_has_direct_set_consumer(...)`
       - third slice: `StringKernelPlan.slot_hop_substring` now owns the same-block slot-hop substring consumer, hop window, and skip indices; `.inc` only reads the route metadata before emitting/skipping
-      - remaining adjacent surface: the exact array-string seed bridge
+      - fourth slice: `FunctionMetadata.array_string_store_micro_seed_route` now owns the current compact 8-block exact seed proof; `.inc` reads this route metadata and no longer carries the raw JSON shape scanner
+      - verification: direct MIR metadata probe exports the route; `cargo test array_string_store_micro_seed --lib`, `bash tools/perf/build_perf_release.sh`, `phase137x_direct_emit_array_store_string_contract.sh`, `tools/checks/dev_gate.sh quick`, `git diff --check`, and exact `kilo_micro_array_string_store` microstat (`C 10 ms / Ny AOT 8 ms`) passed
+      - remaining adjacent surface: other exact micro seed families still have raw `.inc` matchers, but the active array-string store exact bridge is metadata-first and no longer the kilo route-owner blocker
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
-    - next implementation blocker is `137x-H13` adjacent backend route ownership: exact array-string seed bridge; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
+    - next implementation blocker is to inventory the remaining non-array-store exact micro seed matchers before widening kilo optimization again; do not open lock elision or allocator/arena rewrite until the backend route owner is clean
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
@@ -1081,7 +1084,7 @@ Scope: current lane / next lane / restart order only.
 3. preserve landed `137x-D` proof as baseline evidence
    - proof card: `137x-D exact array store route-shape proof`
    - front: `kilo_micro_array_string_store`
-   - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` accepts only the current compact 8-block direct MIR shape; the old 9-block legacy seed branch is retired
+   - implementation: MIR owns the compact 8-block direct shape as `metadata.array_string_store_micro_seed_route`; `hako_llvmc_match_array_string_store_micro_seed(...)` now only reads that metadata and selects the existing specialized stack-array emitter
    - smoke: `phase137x_direct_emit_array_store_string_contract.sh` requires exact seed emitter selection and no runtime/public helper calls in `ny_main`
    - guard results:
      - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 10 ms`, `ny_aot_instr=26922384`

@@ -1,5 +1,6 @@
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
+    array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
     string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
@@ -156,6 +157,12 @@ pub struct FunctionMetadata {
     /// These keep active fused store/len route recognition in MIR so the C
     /// backend can remain an emitter/transport consumer.
     pub array_text_loopcarry_len_store_routes: Vec<ArrayTextLoopCarryLenStoreRoute>,
+
+    /// Backend-consumable exact array/string-store micro seed route.
+    /// This quarantines the temporary kilo micro exact-shape bridge in MIR
+    /// metadata so the C backend can select an emitter without re-planning raw
+    /// MIR JSON.
+    pub array_string_store_micro_seed_route: Option<ArrayStringStoreMicroSeedRoute>,
 }
 
 /// Function statistics for profiling and optimization

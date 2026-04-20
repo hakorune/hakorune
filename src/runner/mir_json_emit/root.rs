@@ -156,6 +156,19 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }).collect::<Vec<_>>(),
+            "array_string_store_micro_seed_route": f.metadata.array_string_store_micro_seed_route.as_ref().map(|route| {
+                json!({
+                    "seed": route.seed.as_str(),
+                    "seed_len": route.seed_len,
+                    "size": route.size,
+                    "ops": route.ops,
+                    "suffix": route.suffix.as_str(),
+                    "store_len": route.store_len,
+                    "proof": route.proof.to_string(),
+                    "consumer_capability": "direct_stack_array_string_store",
+                    "publication_boundary": "none",
+                })
+            }),
             "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
                 json!({
                     "block": candidate.block.as_u32(),

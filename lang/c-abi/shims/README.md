@@ -42,8 +42,8 @@ Current partitions:
 - `hako_llvmc_ffi_string_loop_seed_substring_concat.inc`
   - substring-concat exact matcher family, including the remaining metadata-first + shape-fallback bridge
 - `hako_llvmc_ffi_array_string_store_seed.inc`
-  - pure-first seed emit/match helpers for the exact array/string-store micro path
-  - temporary bridge surface only; removal/shrink gate is tracked in the phase-137x Legacy Retirement Ledger
+  - pure-first seed metadata reader and emitter for the exact array/string-store micro path
+  - temporary bridge surface only; route-shape proof is MIR-owned `array_string_store_micro_seed_route`
 - `hako_llvmc_ffi_string_search_seed.inc`
   - pure-first seed emit/match helpers for search/index-of paths
 - `hako_llvmc_ffi_array_micro_seed.inc`
@@ -85,7 +85,7 @@ Current partitions:
 - `hako_llvmc_ffi_string_concat_emit.inc`
   - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers and route-adjacent trace hooks
   - now partitioned further into `hako_llvmc_ffi_string_concat_emit_helpers.inc` and `hako_llvmc_ffi_string_concat_emit_routes.inc`
-  - shared emit helpers now also own the `shared_receiver` read and slot-hop substring consumer matcher used by the route layer
+  - shared emit helpers read `shared_receiver` and slot-hop substring metadata through the candidate/plan reader seams; they must not regrow route scanners
 - `hako_llvmc_ffi_concat_hh_len_seed.inc`
   - dedicated exact-micro pure-first seed for `kilo_micro_concat_hh_len`
 - `hako_llvmc_ffi_string_chain_terms.inc`

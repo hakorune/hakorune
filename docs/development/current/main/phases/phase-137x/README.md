@@ -563,8 +563,8 @@ Decision:
 
 ## 137x-H12 MIR-Owned Loopcarry Route SSOT
 
-Status: active; the direct-set consumer scanner is retired, while adjacent
-slot-hop / exact-seed surfaces remain in the phase.
+Status: closed for the active loopcarry route; adjacent direct-set,
+slot-hop, and exact-seed cleanup moved into H13.
 
 Purpose:
 - close the remaining route ownership leak in the active loopcarry middle guard before opening a lock-elision or allocator slice
@@ -591,33 +591,39 @@ First slice result:
 - `tools/checks/dev_gate.sh quick`: green
 - next deletion gate: extend the same metadata-first treatment to the remaining active direct/front loopcarry windows, if any
 
-## 137x-H13 MIR-Owned Piecewise Direct-Set Consumer
+## 137x-H13 MIR-Owned Backend Route Cleanup
 
-Status: active.
+Status: active; the piecewise direct-set consumer, slot-hop substring route,
+and exact array-string seed bridge now have MIR-owned metadata for the active
+fronts.
 
 Purpose:
 - continue the H12 ownership cleanup on the adjacent direct-front `Pieces3` route
 - make MIR `StringKernelPlan` own whether a piecewise text value may be consumed by direct `array.set`
 - make generic MIR `value_consumer_facts` own the single direct `set` sink fact
 - make MIR `StringKernelPlan` own the same-block slot-hop substring continuation route and skip indices
+- make MIR `FunctionMetadata.array_string_store_micro_seed_route` own the current compact 8-block exact seed proof
 - keep `.inc` as a plan reader and emitter instead of a consumer-shape scanner for this decision
 
 Boundary:
 - MIR may scan current uses and expose `read_alias.direct_set_consumer`
 - MIR may scan canonical value uses and expose `metadata.value_consumer_facts[*].direct_set_consumer`
 - MIR may expose `slot_hop_substring` with `consumer_value`, `start`, `end`, `instruction_index`, and `copy_instruction_indices`
+- MIR may expose `array_string_store_micro_seed_route` with the guarded seed/size/ops/suffix proof for the current exact micro front
 - `.inc` may use that fact to defer piecewise publication or reject the fast route
 - `.inc` must not decide direct-set legality for the selected `Pieces3` value from raw JSON when the MIR fact is present
 - `.inc` must not rediscover slot-hop substring callee/receiver legality from raw JSON; it may only consume the MIR route and apply skip marks
-- the exact array-string seed bridge stays out of this slice
+- `.inc` must not rediscover the array-string seed bridge 8-block shape from raw JSON; it may only consume MIR route metadata and select the existing temporary emitter
 
 Acceptance:
 - `StringKernelPlan.read_alias.direct_set_consumer` is exported in MIR JSON
 - `metadata.value_consumer_facts` is exported in MIR JSON
 - `StringKernelPlan.slot_hop_substring` is exported in MIR JSON
+- `metadata.array_string_store_micro_seed_route` is exported in MIR JSON for the active exact micro front
 - string concat/insert direct-front emit routes use the MIR fact for direct-set consumer decisions
 - `has_direct_array_set_consumer(...)` is removed from the backend shim surface
 - `match_piecewise_slot_hop_substring_consumer(...)` is removed from the backend shim surface
+- the raw C-side 8-block array-string seed JSON scanner is removed from `hako_llvmc_ffi_array_string_store_seed.inc`
 - existing route guards remain green
 
 Second slice result:
@@ -628,7 +634,22 @@ Second slice result:
 Third slice result:
 - `StringKernelPlan.slot_hop_substring` now records the slot-hop substring route and same-block skip indices in MIR metadata
 - `.inc` uses `hako_llvmc_string_kernel_plan_read_slot_hop_substring(...)` and no longer scans MIR JSON to rediscover the next substring callee/receiver
-- remaining cleanup is the exact array-string seed bridge
+- next cleanup target was the exact array-string seed bridge
+
+Fourth slice result:
+- `FunctionMetadata.array_string_store_micro_seed_route` now records the active compact 8-block exact seed route: seed, seed length, size, ops, suffix, stored length, and proof
+- MIR JSON exports `metadata.array_string_store_micro_seed_route` for `kilo_micro_array_string_store`
+- `hako_llvmc_match_array_string_store_micro_seed(...)` now only reads the MIR route metadata and selects the existing specialized stack-array emitter
+- the previous raw C-side 8-block scanner macros and per-block callee checks were deleted from `hako_llvmc_ffi_array_string_store_seed.inc`
+- remaining adjacent inventory: other exact micro seed families still have raw `.inc` matchers, but the active array-string store exact bridge is no longer the kilo route-owner blocker
+- verification:
+  - direct MIR metadata probe shows `metadata.array_string_store_micro_seed_route` with `seed_len=16`, `size=128`, `ops=800000`, `suffix=xy`, `store_len=18`, and proof `kilo_micro_array_string_store_8block`
+  - `cargo test array_string_store_micro_seed --lib` PASS
+  - `bash tools/perf/build_perf_release.sh` PASS
+  - `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh` PASS
+  - `tools/checks/dev_gate.sh quick` PASS
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 1`: `C 10 ms / Ny AOT 8 ms`, `aot_status=ok`
+  - `git diff --check` PASS
 
 ## Legacy Retirement Ledger
 
@@ -644,12 +665,13 @@ Rules:
 | `nyash.array.string_suffix_store_his` | compatibility row | Pointer/CStr validated suffix helper retained after direct lowering moved to `nyash.array.string_suffix_store_hisi` | Delete only after all source-only/indexof branch smokes require `hisi`, pure declarations no longer emit `his`, and no fixture/asm grep observes a `his` call. |
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
-| `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed bridge | temporary bridge surface | Pure-first array/string-store micro seed still has exact route-shape emission for the current micro front; it is not keeper architecture and must not grow semantic legality. | Delete or shrink after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed into an explicit legacy regression fixture with failure expectation. |
+| `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed emitter | temporary bridge surface | Pure-first array/string-store micro seed still has a specialized stack-array emitter for the current micro front; the route-shape proof is now MIR-owned metadata, not a C-side scanner. | Delete after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed emitter into an explicit legacy regression fixture with failure expectation. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
 - retired in `137x-H2`: `src/host_providers/llvm_codegen/compat_text_primitive.rs` is renamed out of active code; remaining Rust-side `MIR(JSON text) -> object path` emission lives in `mir_json_text_object.rs` as a no-helper backend boundary.
 - retired in `137x-H13`: `match_piecewise_slot_hop_substring_consumer(...)` is deleted; slot-hop substring consumer, window, and skip indices are now MIR-owned `StringKernelPlan.slot_hop_substring` metadata.
+- retired in `137x-H13`: the raw C-side 8-block scanner in `hako_llvmc_match_array_string_store_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.array_string_store_micro_seed_route`.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
@@ -2529,7 +2551,7 @@ The next perf cut should not start until these mechanical contracts are fixed.
 4. closed exact optimization card
    - closed card: `137x-D exact array store route-shape proof`
    - cause: the exact seed matcher accepted only the older 9-block MIR shape; current direct MIR emits the compact 8-block shape
-   - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` now accepts only the compact 8-block direct MIR shape and still emits the existing specialized stack-array IR
+   - implementation: MIR now owns the compact 8-block direct shape as `metadata.array_string_store_micro_seed_route`; `hako_llvmc_match_array_string_store_micro_seed(...)` only reads that metadata and still emits the existing specialized stack-array IR
    - smoke: `phase137x_direct_emit_array_store_string_contract.sh` now requires exact seed emitter selection and no runtime/public helper calls in `ny_main`
    - guards:
      - middle `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
