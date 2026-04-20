@@ -3,6 +3,7 @@ use crate::mir::{
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
+    array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     indexof_search_micro_seed_plan::IndexOfSearchMicroSeedRoute,
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
@@ -166,6 +167,11 @@ pub struct FunctionMetadata {
     /// These own read-side observer legality/provenance/consumer facts in MIR;
     /// backend shims may only map the metadata to local helper calls.
     pub array_text_observer_routes: Vec<ArrayTextObserverRoute>,
+
+    /// Backend-consumable array/text state residence route plan.
+    /// This keeps the generic residence contract separate from the temporary
+    /// exact search bridge payload consumed by `indexof_search_micro_seed_route`.
+    pub array_text_state_residence_route: Option<ArrayTextStateResidenceRoute>,
 
     /// Backend-consumable exact array/string-store micro seed route.
     /// This quarantines the temporary kilo micro exact-shape bridge in MIR

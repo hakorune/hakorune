@@ -11,6 +11,7 @@ use super::{
     array_string_store_micro_seed_plan::refresh_function_array_string_store_micro_seed_route,
     array_text_loopcarry_plan::refresh_function_array_text_loopcarry_len_store_routes,
     array_text_observer_plan::refresh_function_array_text_observer_routes,
+    array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
     function::ModuleMetadata,
     indexof_search_micro_seed_plan::refresh_function_indexof_search_micro_seed_route,
@@ -62,6 +63,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_concat_const_suffix_micro_seed_route(function);
     refresh_function_substring_views_micro_seed_route(function);
     refresh_function_indexof_search_micro_seed_route(function);
+    refresh_function_array_text_state_residence_route(function);
 }
 
 /// Refresh MIR semantic metadata for the whole module.
