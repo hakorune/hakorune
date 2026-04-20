@@ -127,9 +127,54 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
     }
 
     let fusion_plans = collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
-    rewritten += apply_complementary_len_fusion_plans(function, fusion_plans);
+    let fusion_rewritten = apply_complementary_len_fusion_plans(function, fusion_plans);
+    rewritten += fusion_rewritten;
+    if fusion_rewritten > 0 {
+        use_counts = build_use_counts(function);
+    }
+
+    rewritten += remove_unused_substring_view_producers(function, &use_counts);
 
     rewritten
+}
+
+fn remove_unused_substring_view_producers(
+    function: &mut MirFunction,
+    use_counts: &HashMap<ValueId, usize>,
+) -> usize {
+    let mut removed = 0usize;
+
+    for block in function.blocks.values_mut() {
+        let insts = std::mem::take(&mut block.instructions);
+        let spans = std::mem::take(&mut block.instruction_spans);
+        let mut new_insts = Vec::with_capacity(insts.len());
+        let mut new_spans = Vec::with_capacity(spans.len());
+
+        for (inst, span) in insts.into_iter().zip(spans.into_iter()) {
+            let remove = match_substring_call(&inst)
+                .map(|(dst, _, _, _, _)| use_counts.get(&dst).copied().unwrap_or(0) == 0)
+                .unwrap_or(false);
+            if remove {
+                removed += 1;
+                continue;
+            }
+            new_insts.push(inst);
+            new_spans.push(span);
+        }
+
+        block.instructions = new_insts;
+        block.instruction_spans = new_spans;
+    }
+
+    if removed > 0 {
+        function.update_cfg();
+        refresh_function_string_corridor_folded_metadata(function);
+        function.metadata.optimization_hints.push(format!(
+            "string_corridor_sink:dead_substring_view_producers:{removed}"
+        ));
+    }
+
+    removed
 }
 
 fn has_string_corridor_transform_sites(function: &MirFunction) -> bool {

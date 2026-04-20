@@ -256,6 +256,66 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
 }
 
 #[test]
+fn benchmark_meso_substring_concat_len_compiles_to_arithmetic_len() {
+    ensure_ring0_initialized();
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/benchmarks/bench_kilo_meso_substring_concat_len.hako"
+    );
+    let source = std::fs::read_to_string(path).expect("benchmark source");
+    let prepared =
+        crate::runner::modes::common_util::source_hint::prepare_source_minimal(&source, path)
+            .expect("prepare benchmark source");
+    let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+    let mut compiler = MirCompiler::with_options(true);
+    let result = compiler
+        .compile_with_source(ast, Some(path))
+        .expect("compile benchmark");
+
+    let mut leftover_string_consumers = Vec::new();
+    for (name, function) in &result.module.functions {
+        for (bbid, block) in &function.blocks {
+            for inst in &block.instructions {
+                match inst {
+                    MirInstruction::Call {
+                        callee: Some(Callee::Extern(callee)),
+                        ..
+                    } if callee == SUBSTRING_LEN_EXTERN
+                        || callee == "nyash.string.substring_hii" =>
+                    {
+                        leftover_string_consumers.push(format!(
+                            "fn={name} bb={} extern={callee} inst={inst:?}",
+                            bbid.0
+                        ));
+                    }
+                    MirInstruction::Call {
+                        callee:
+                            Some(Callee::Method {
+                                method,
+                                receiver: Some(_),
+                                ..
+                            }),
+                        ..
+                    } if matches!(method.as_str(), "substring" | "slice") => {
+                        leftover_string_consumers.push(format!(
+                            "fn={name} bb={} method={method} inst={inst:?}",
+                            bbid.0
+                        ));
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    assert!(
+        leftover_string_consumers.is_empty(),
+        "meso substring concat len should fold to arithmetic, found {:?}",
+        leftover_string_consumers
+    );
+}
+
+#[test]
 fn benchmark_substring_concat_array_set_compiles_without_helper_len_observers() {
     ensure_ring0_initialized();
     let path = concat!(

@@ -23,6 +23,10 @@ pub(super) fn complementary_pair_source_len(
         {
             return Some(source_len);
         }
+        if let Some(source_len) = const_source_length_value(function, def_map, &lhs_source, rhs.end)
+        {
+            return Some(source_len);
+        }
         let stable_len = stable_length_value_for_source(function, shared_source_root)?;
         let rhs_end = resolve_value_origin(function, def_map, rhs.end);
         if rhs_end == stable_len {
@@ -41,6 +45,10 @@ pub(super) fn complementary_pair_source_len(
         {
             return Some(source_len);
         }
+        if let Some(source_len) = const_source_length_value(function, def_map, &lhs_source, lhs.end)
+        {
+            return Some(source_len);
+        }
         let stable_len = stable_length_value_for_source(function, shared_source_root)?;
         let lhs_end = resolve_value_origin(function, def_map, lhs.end);
         if lhs_end == stable_len {
@@ -50,6 +58,20 @@ pub(super) fn complementary_pair_source_len(
     }
 
     None
+}
+
+fn const_source_length_value(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    source_identity: &StringSourceIdentity,
+    candidate: ValueId,
+) -> Option<ValueId> {
+    let StringSourceIdentity::ConstString(text) = source_identity else {
+        return None;
+    };
+    let expected_len = const_string_length(text);
+    let candidate_root = resolve_value_origin(function, def_map, candidate);
+    value_is_const_i64(function, def_map, candidate_root, expected_len).then_some(candidate_root)
 }
 
 pub(super) fn ordered_complementary_substring_pair_source_split(

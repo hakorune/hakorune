@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H19 closed, next owner proof pending)
+- current lane: `phase-137x-H owner-first optimization return` (active; H21 meso array text loopcarry len/store seam)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -1055,6 +1055,82 @@ Result:
   - previous owner baseline was `C 82 ms / Ny AOT 6653 ms`
   - parity stayed `ok`
 - Guard held: `.inc` remains a metadata consumer; no array stores were deleted and no runtime legality/provenance inference was added.
+
+## 137x-H20 Meso Substring Concat Len Fusion Seam
+
+Status: closed.
+
+Owner card:
+- front: `kilo_meso_substring_concat_len`
+- failure mode: work explosion in runtime helper calls
+- current owner: concat length observer lowers to two `nyash.string.substring_len_hii` calls even when the slices partition one const source
+- hot transition: virtual text view length crosses the runtime handle registry boundary; `perf annotate` shows `lock cmpxchg` / `lock xadd` in `nyash.string.substring_len_hii`
+- next seam: MIR string-corridor fusion must fold `len(left + const + right)` for complementary substring slices back to `source_len + const_len`
+- reject seam: do not add runtime caches, do not revive `.inc` exact seed matching, and do not move legality into helper names
+
+Perf-first evidence:
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_kilo_kernel_split_ladder.sh 1 3`
+  - `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 8 ms`
+  - `ny_aot_instr=66356109`, `ny_aot_cycles=21046448`
+- `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_len 'nyash.string.substring_len_hii' 3`
+  - top owner: `nyash.string.substring_len_hii` 98.40%
+  - helper annotate samples are on host-handle registry entry/exit atomics, not useful string bytes work
+- lowered IR currently emits two calls:
+  - `nyash.string.substring_len_hii(seed, 0, split)`
+  - `nyash.string.substring_len_hii(seed, split, len)`
+
+Decision:
+- For complementary substring slices over the same source, `len(left + const + right)` is a MIR-owned arithmetic fact.
+- If the concat length observer is the only consumer, the substring view producer calls are also dead and may be removed by the corridor plan.
+- Const-source length can witness the source length when the end value equals the const string byte length; no runtime helper or backend seed matcher is needed.
+
+Acceptance:
+- `tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`
+- targeted string-corridor tests prove `bench_kilo_meso_substring_concat_len` has no loop `substring_len_hii` or substring materialization calls
+- `bash tools/perf/build_perf_release.sh`
+- rerun `kilo_meso_substring_concat_len` and record the next owner if it remains blocked
+
+Result:
+- `cargo test string_corridor_sink::tests::benchmarks --lib`
+  - added and passed `benchmark_meso_substring_concat_len_compiles_to_arithmetic_len`
+- lowered IR has no `substring_len_hii`, no `substring_hii`, and `mir_calls=0` for `kilo_meso_substring_concat_len`
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_len 1 3`
+  - `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`
+  - `ny_aot_instr=1190457`, `ny_aot_cycles=918004`
+- split ladder confirmation:
+  - `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`
+  - `ny_aot_instr=1190204`, `ny_aot_cycles=909543`
+- Guard held: no runtime cache, no `.inc` exact seed revival, and no helper-name legality shift.
+
+## 137x-H21 Meso Array Text Loopcarry Len/Store Seam
+
+Status: active.
+
+Owner card:
+- front: `kilo_meso_substring_concat_array_set_loopcarry`
+- failure mode: work explosion in runtime array text helper pair
+- current owner: loop calls `nyash.array.string_len_hi` and `nyash.array.string_insert_mid_subrange_store_hisiiii` every iteration
+- hot transition: array slot length is read through a runtime helper immediately before same-slot insert-mid subrange store
+- next seam: MIR/lowering should avoid the separate length helper when the same slot store already has a known resulting length or can carry the previous slot length as scalar state
+- reject seam: do not delete array stores, do not add semantic cache to `ArrayBox`, and do not infer same-slot legality in `.inc`
+
+Perf-first evidence:
+- `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_kilo_kernel_split_ladder.sh 1 3`
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`
+  - `ny_aot_instr=72914136`, `ny_aot_cycles=22417148`
+- `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'ny_main' 3`
+  - `nyash.array.string_len_hi` 54.74%
+  - `array_string_insert_const_mid_subrange_by_index_store_same_slot_str` 43.77%
+- asm loop still performs:
+  - `call nyash.array.string_len_hi`
+  - arithmetic from returned length
+  - `call nyash.array.string_insert_mid_subrange_store_hisiiii`
+
+Acceptance:
+- write a front/failure/owner/seam/reject card before editing
+- prove lowered IR removes or reduces the standalone `array.string_len_hi` loop call without deleting the same-slot store
+- rerun `kilo_meso_substring_concat_array_set_loopcarry`
 
 ## Legacy Retirement Ledger
 

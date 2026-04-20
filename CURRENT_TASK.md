@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H19 closed, next owner proof pending)
+  - `phase-137x-H owner-first optimization return` (active; H21 meso array text loopcarry len/store seam)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -310,6 +310,37 @@ Scope: current lane / next lane / restart order only.
       - guard held: `.inc` remains a metadata consumer; no array stores were deleted and no runtime legality/provenance inference was added
       - current blocker token: `137x-H next owner proof after H19`
       - next step: rerun owner-first split/front evidence and open the next H-slice only from the measured owner
+    - `137x-H20` meso substring concat len fusion seam is closed
+      - previous blocker token: `137x-H20 meso substring concat len fusion seam`
+      - front: `kilo_meso_substring_concat_len`
+      - failure mode: work explosion in runtime helper calls
+      - current owner:
+        - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_kilo_kernel_split_ladder.sh 1 3`
+        - `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 8 ms`
+        - `ny_aot_instr=66356109`, `ny_aot_cycles=21046448`
+        - `bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_len 'nyash.string.substring_len_hii' 3`
+        - top owner: `nyash.string.substring_len_hii` 98.40%
+      - hot transition: virtual text view length crosses the runtime handle registry boundary; annotate samples sit on `lock cmpxchg` / `lock xadd`
+      - next seam: MIR string-corridor fusion folds `len(left + const + right)` for complementary substring slices back to `source_len + const_len`
+      - reject seam: do not add runtime caches, do not revive `.inc` exact seed matching, and do not move legality into helper names
+      - result:
+        - targeted string-corridor benchmark pack passed
+        - lowered IR has no `substring_len_hii`, no `substring_hii`, and `mir_calls=0` for `kilo_meso_substring_concat_len`
+        - `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`
+        - split ladder confirmation: `ny_aot_instr=1190204`, `ny_aot_cycles=909543`
+      - guard held: no runtime cache, no `.inc` exact seed revival, and no helper-name legality shift
+    - `137x-H21` meso array text loopcarry len/store seam is active
+      - current blocker token: `137x-H21 meso array text loopcarry len/store seam`
+      - front: `kilo_meso_substring_concat_array_set_loopcarry`
+      - failure mode: work explosion in runtime array text helper pair
+      - current owner:
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 8 ms`
+        - `ny_aot_instr=72914136`, `ny_aot_cycles=22417148`
+        - `nyash.array.string_len_hi` 54.74%
+        - `array_string_insert_const_mid_subrange_by_index_store_same_slot_str` 43.77%
+      - hot transition: array slot length is read through a runtime helper immediately before same-slot insert-mid subrange store
+      - next seam: avoid the separate length helper when same-slot store has a known resulting length or can carry previous slot length as scalar state
+      - reject seam: do not delete array stores, do not add semantic cache to `ArrayBox`, and do not infer same-slot legality in `.inc`
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
