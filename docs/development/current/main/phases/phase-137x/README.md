@@ -1155,7 +1155,7 @@ Result:
 
 ## 137x-H22 Array Text Len-Store Helper Residency Seam
 
-Status: active.
+Status: active; no-keeper micro probes rejected.
 
 Owner card:
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
@@ -1179,6 +1179,29 @@ Acceptance:
 - keep the H21 MIR route as the only legality owner
 - reduce the helper residency/mutation cost without adding runtime semantic cache
 - rerun `kilo_meso_substring_concat_array_set_loopcarry` and record the next owner if it remains above C
+
+Rejected probes:
+- small-overlap copy in `try_update_insert_const_mid_subrange_same_len_in_place`
+  - result: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=41954192`, `ny_aot_cycles=12355443`
+  - reading: replaced small `memmove` calls but increased instruction count; not a keeper
+  - code is reverted
+- fast-path return of pre-update `source_len`
+  - result: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=40154996`, `ny_aot_cycles=12377624`
+  - reading: removes only a post-update length read; no owner move
+  - code is reverted
+- route helper update through `slot_update_text_raw` only
+  - result: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=50413920`, `ny_aot_cycles=13248445`
+  - reading: the resident-first split is necessary; unifying the helper entry regresses the hot path
+  - code is reverted
+
+Current verdict:
+- H21 already removed the MIR/backend route work explosion. The remaining gap is not a small string-copy or helper-branch issue.
+- The owner remains runtime-private array text residence mutation, including the uncontended write-lock / slot update substrate.
+- Do not reopen H22 with local helper surgery unless a fresh `perf annotate` shows a new intra-helper block above the lock/residence transition.
+- The next keeper candidate needs a structural residence/session design, or this seam should be deferred to a later allocator/residence pilot with a smaller rollback surface.
 
 ## Legacy Retirement Ledger
 

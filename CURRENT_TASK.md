@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H22 array text len-store helper residency seam)
+  - `phase-137x-H owner-first optimization return` (active; H22 array text len-store helper residency seam, no-keeper micro probes rejected)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -360,6 +360,20 @@ Scope: current lane / next lane / restart order only.
       - hot transition: one helper still enters the generic array-handle / text-slot mutation path for every iteration
       - next seam: reduce helper residency overhead while keeping semantic legality in MIR and mechanics in runtime
       - reject seam: do not add semantic search/result caches, do not delete array stores, and do not move route legality into runtime
+      - rejected probes:
+        - small-overlap copy in `try_update_insert_const_mid_subrange_same_len_in_place`
+          - result: `C 3 ms / Ny AOT 6 ms`, `ny_aot_instr=41954192`, `ny_aot_cycles=12355443`
+          - code reverted; instruction count regressed
+        - fast-path return of pre-update `source_len`
+          - result: `C 3 ms / Ny AOT 6 ms`, `ny_aot_instr=40154996`, `ny_aot_cycles=12377624`
+          - code reverted; no owner move
+        - single-entry `slot_update_text_raw` helper path
+          - result: `C 3 ms / Ny AOT 6 ms`, `ny_aot_instr=50413920`, `ny_aot_cycles=13248445`
+          - code reverted; resident-first split is necessary
+      - current verdict:
+        - remaining owner is not local string-copy surgery
+        - owner is runtime-private array text residence mutation / uncontended write-lock substrate
+        - next keeper needs a structural residence/session design or this seam should be deferred to a later allocator/residence pilot
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
