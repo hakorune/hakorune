@@ -33,8 +33,8 @@ fn store_array_str_plan_source_kind(
 }
 
 #[inline(always)]
-fn store_array_str_plan_action(source_kind: StringHandleSourceKind) -> StoreArrayStrPlanAction {
-    if matches!(source_kind, StringHandleSourceKind::StringLike) {
+fn store_array_str_plan_action(lane_action: ValueLaneAction) -> StoreArrayStrPlanAction {
+    if matches!(lane_action, ValueLaneAction::TextCellResidence) {
         StoreArrayStrPlanAction::StoreFromSource
     } else {
         StoreArrayStrPlanAction::NeedStableObject
@@ -42,7 +42,7 @@ fn store_array_str_plan_action(source_kind: StringHandleSourceKind) -> StoreArra
 }
 
 #[inline(always)]
-fn array_store_str_lane_plan(source_kind: StringHandleSourceKind) -> ValueLanePlan {
+fn select_store_array_str_lane_plan(source_kind: StringHandleSourceKind) -> ValueLanePlan {
     if matches!(source_kind, StringHandleSourceKind::StringLike) {
         array_text_cell_store_lane_plan()
     } else {
@@ -71,6 +71,7 @@ fn record_store_array_str_contract(
     len: usize,
     value_h: i64,
     source_kind: StringHandleSourceKind,
+    lane_action: ValueLaneAction,
     source: &ArrayStoreStrSource,
 ) {
     if observe::enabled() {
@@ -90,7 +91,7 @@ fn record_store_array_str_contract(
     record_store_array_str_plan(
         store_array_str_plan_source_kind(source_kind),
         StoreArrayStrPlanSlotKind::Other,
-        store_array_str_plan_action(source_kind),
+        store_array_str_plan_action(lane_action),
     );
     if matches!(source_kind, StringHandleSourceKind::StringLike) {
         observe::record_store_array_str_source_store();
@@ -121,6 +122,7 @@ fn execute_store_array_str_contract_on_array(
     idx: i64,
     value_h: i64,
     source_kind: StringHandleSourceKind,
+    lane_action: ValueLaneAction,
     source: ArrayStoreStrSource,
     drop_epoch: u64,
 ) -> i64 {
@@ -129,9 +131,8 @@ fn execute_store_array_str_contract_on_array(
     if idx_usize > len {
         return 0;
     }
-    record_store_array_str_contract(idx_usize, len, value_h, source_kind, &source);
-    let lane_plan = array_store_str_lane_plan(source_kind);
-    match lane_plan.action {
+    record_store_array_str_contract(idx_usize, len, value_h, source_kind, lane_action, &source);
+    match lane_action {
         ValueLaneAction::TextCellResidence => {
             let Some(value) = owned_text_from_array_store_source(source) else {
                 return 0;
@@ -170,12 +171,14 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
         observe::record_store_array_str_cache_probe(kind);
     }
     let (source_kind, source) = capture_store_array_str_source(value_h);
+    let lane_plan = select_store_array_str_lane_plan(source_kind);
     super::super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
         execute_store_array_str_contract_on_array(
             arr,
             idx,
             value_h,
             source_kind,
+            lane_plan.action,
             source,
             drop_epoch,
         )
