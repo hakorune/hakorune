@@ -10,8 +10,8 @@
 use std::collections::BTreeSet;
 
 use super::{
-    build_value_def_map, definitions::Callee, resolve_value_origin, BasicBlockId, CompareOp,
-    ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
+    build_value_def_map, definitions::Callee, resolve_value_origin, BasicBlockId, BinaryOp,
+    CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -179,6 +179,7 @@ fn match_array_text_indexof_route(
     } else {
         ArrayTextObserverConsumerShape::DirectScalar
     };
+    let no_covered_source_values = BTreeSet::new();
 
     Some(ArrayTextObserverRoute {
         block,
@@ -198,6 +199,7 @@ fn match_array_text_indexof_route(
             observer_arg0,
             block,
             observer_instruction_index,
+            &no_covered_source_values,
         ),
         result_value,
         consumer_shape,
@@ -209,6 +211,8 @@ fn match_array_text_indexof_route(
             def_map,
             source_value,
             receiver_value,
+            array_value,
+            index_value,
             block,
             observer_instruction_index,
         ),
@@ -348,9 +352,18 @@ fn has_non_observer_source_use(
     def_map: &ValueDefMap,
     source_value: ValueId,
     observer_receiver_value: ValueId,
+    array_value: ValueId,
+    index_value: ValueId,
     observer_block: BasicBlockId,
     observer_instruction_index: usize,
 ) -> bool {
+    let covered_slot_suffix_values = same_slot_const_suffix_store_source_values(
+        function,
+        def_map,
+        source_value,
+        array_value,
+        index_value,
+    );
     has_non_observer_value_use(
         function,
         def_map,
@@ -358,6 +371,7 @@ fn has_non_observer_source_use(
         observer_receiver_value,
         observer_block,
         observer_instruction_index,
+        &covered_slot_suffix_values,
     )
 }
 
@@ -368,6 +382,7 @@ fn has_non_observer_value_use(
     observer_value: ValueId,
     observer_block: BasicBlockId,
     observer_instruction_index: usize,
+    covered_source_values: &BTreeSet<ValueId>,
 ) -> bool {
     let source_root = root(function, def_map, source_value);
     let observer_chain = copy_chain_values(function, def_map, observer_value);
@@ -382,6 +397,15 @@ fn has_non_observer_value_use(
                 continue;
             }
             if is_observer_chain_copy(function, def_map, inst, source_root, &observer_chain) {
+                continue;
+            }
+            if is_covered_slot_consumer_source_use(
+                function,
+                def_map,
+                inst,
+                source_root,
+                covered_source_values,
+            ) {
                 continue;
             }
             if inst
@@ -403,6 +427,152 @@ fn has_non_observer_value_use(
         }
     }
     false
+}
+
+fn same_slot_const_suffix_store_source_values(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    source_value: ValueId,
+    array_value: ValueId,
+    index_value: ValueId,
+) -> BTreeSet<ValueId> {
+    let source_root = root(function, def_map, source_value);
+    let array_root = root(function, def_map, array_value);
+    let index_root = root(function, def_map, index_value);
+    let mut covered = BTreeSet::new();
+
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+    for block_id in block_ids {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for inst in &block.instructions {
+            let Some((concat_value, source_operand)) =
+                const_suffix_concat_from_source(function, def_map, inst, source_root)
+            else {
+                continue;
+            };
+            if !has_same_slot_set_consumer(function, def_map, concat_value, array_root, index_root)
+            {
+                continue;
+            }
+            covered.extend(copy_chain_values(function, def_map, source_operand));
+            covered.insert(source_root);
+            covered.insert(concat_value);
+        }
+    }
+
+    covered
+}
+
+fn const_suffix_concat_from_source(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &MirInstruction,
+    source_root: ValueId,
+) -> Option<(ValueId, ValueId)> {
+    let MirInstruction::BinOp {
+        dst,
+        op: BinaryOp::Add,
+        lhs,
+        rhs,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    let lhs_root = root(function, def_map, *lhs);
+    let rhs_root = root(function, def_map, *rhs);
+    if lhs_root == source_root && const_utf8(function, def_map, rhs_root).is_some() {
+        return Some((*dst, *lhs));
+    }
+    if rhs_root == source_root && const_utf8(function, def_map, lhs_root).is_some() {
+        return Some((*dst, *rhs));
+    }
+    None
+}
+
+fn has_same_slot_set_consumer(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    array_root: ValueId,
+    index_root: ValueId,
+) -> bool {
+    let value_root = root(function, def_map, value);
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+    for block_id in block_ids {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for inst in &block.instructions {
+            if is_same_slot_set_consumer(
+                function, def_map, inst, value_root, array_root, index_root,
+            ) {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+fn is_same_slot_set_consumer(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &MirInstruction,
+    value_root: ValueId,
+    array_root: ValueId,
+    index_root: ValueId,
+) -> bool {
+    match inst {
+        MirInstruction::Call {
+            callee:
+                Some(Callee::Method {
+                    box_name,
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            args,
+            ..
+        } if method == "set"
+            && args.len() == 2
+            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox") =>
+        {
+            root(function, def_map, *receiver) == array_root
+                && root(function, def_map, args[0]) == index_root
+                && root(function, def_map, args[1]) == value_root
+        }
+        _ => false,
+    }
+}
+
+fn is_covered_slot_consumer_source_use(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &MirInstruction,
+    source_root: ValueId,
+    covered_source_values: &BTreeSet<ValueId>,
+) -> bool {
+    match inst {
+        MirInstruction::Copy { dst, src } => {
+            covered_source_values.contains(dst) && root(function, def_map, *src) == source_root
+        }
+        MirInstruction::BinOp {
+            dst,
+            op: BinaryOp::Add,
+            lhs,
+            rhs,
+            ..
+        } => {
+            covered_source_values.contains(dst)
+                && (root(function, def_map, *lhs) == source_root
+                    || root(function, def_map, *rhs) == source_root)
+        }
+        _ => false,
+    }
 }
 
 fn copy_chain_values(
@@ -538,6 +708,30 @@ mod tests {
     }
 
     #[test]
+    fn keeps_get_dead_when_source_only_feeds_same_slot_const_suffix_store() {
+        let mut function = test_function(MirType::Integer);
+        let block = entry_block(&mut function);
+        block.add_instruction(array_get(10, 1, 2));
+        block.add_instruction(const_s(11, "line"));
+        block.add_instruction(indexof_call(12, 10, 11));
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(13),
+            src: ValueId::new(10),
+        });
+        block.add_instruction(const_s(14, "ln"));
+        block.add_instruction(add(15, 13, 14));
+        block.add_instruction(array_set(16, 1, 2, 15));
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(12)),
+        });
+
+        refresh_function_array_text_observer_routes(&mut function);
+
+        let route = &function.metadata.array_text_observer_routes[0];
+        assert!(!route.keep_get_live);
+    }
+
+    #[test]
     fn marks_observer_arg_live_when_const_is_used_elsewhere() {
         let mut function = test_function(MirType::Integer);
         let block = entry_block(&mut function);
@@ -618,6 +812,25 @@ mod tests {
 
     fn len_call(dst: u32, receiver: u32) -> MirInstruction {
         method_call(dst, "RuntimeDataBox", "length", receiver, vec![])
+    }
+
+    fn add(dst: u32, lhs: u32, rhs: u32) -> MirInstruction {
+        MirInstruction::BinOp {
+            dst: ValueId::new(dst),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(lhs),
+            rhs: ValueId::new(rhs),
+        }
+    }
+
+    fn array_set(dst: u32, array: u32, index: u32, value: u32) -> MirInstruction {
+        method_call(
+            dst,
+            "RuntimeDataBox",
+            "set",
+            array,
+            vec![ValueId::new(index), ValueId::new(value)],
+        )
     }
 
     fn method_call(

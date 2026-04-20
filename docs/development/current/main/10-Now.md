@@ -29,16 +29,18 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; post-H18 owner-first perf reread)
+  - `phase-137x-H owner-first optimization return` (active; H19 closed, next owner proof pending)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H owner-first optimization return`
+  - current blocker is `137x-H next owner proof after H19`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
-    - rerun owner-first perf evidence before the next exact-bridge shrink
+    - rerun owner-first split/front evidence and open the next H-slice only from the measured owner
+    - H19 is closed: whole `array.get -> indexOf` source liveness now treats same-slot const suffix store as a slot-capable consumer; row-scan `array.get_hi` materialization is gone
+    - H19 result: `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms`
     - H18 is closed: exact `kilo_micro_array_string_store` is `C 10 ms / Ny AOT 4 ms`, `ny_aot_instr=9270464`, `ny_aot_cycles=2343815`, and loop-carried text now stays in an SSA vector
     - keep array slot stores unchanged unless a separate MIR-owned no-escape / consumer proof is opened
     - H17 is closed: exact `kilo_micro_array_string_store` stays `C 10 ms / Ny AOT 5 ms`, `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`, and the loop-body `text+16` terminator store is gone

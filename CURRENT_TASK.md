@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; post-H18 owner-first perf reread)
+  - `phase-137x-H owner-first optimization return` (active; H19 closed, next owner proof pending)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -290,6 +290,26 @@ Scope: current lane / next lane / restart order only.
       - guard held: array slot stores, suffix stores, route legality, public ABI, and runtime ownership stay unchanged
       - next blocker token: `137x-H owner-first optimization return`
       - next step: rerun owner-first perf evidence before the next exact-bridge shrink
+    - `137x-H19` whole indexOf slot-consumer liveness seam is closed
+      - previous blocker token: `137x-H19 whole indexOf slot-consumer liveness seam`
+      - front: `kilo_kernel_small_hk` whole direct pure-first
+      - failure mode: work explosion
+      - current owner:
+        - `PERF_AOT_DIRECT_ONLY=0 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_kilo_hk_bench.sh strict 1 3`
+        - `kilo_kernel_small_hk = C 82 ms / Ny AOT 6653 ms`
+        - perf top: `__memmove_avx512_unaligned_erms` 50.13%, `_int_malloc` 17.28%, `ArrayBox::boxed_from_text` 14.09%
+      - hot transition: `TextLane slot -> boxed StringBox object` through an unused `nyash.array.get_hi` before `array.string_indexof_hisi`
+      - current MIR fact: `array_text_observer_routes[0].keep_get_live=true` because `current` is also used by `current + "ln"`
+      - next seam: teach MIR liveness that same-slot const suffix store is a slot-capable consumer, so the get need not materialize a public object
+      - reject seam: do not delete array stores or infer liveness in `.inc`; MIR must own the consumer coverage
+      - result:
+        - MIR route now exports `array_text_observer_routes[0].keep_get_live=false`
+        - lowered IR emits `nyash.array.string_indexof_hisi` directly and no longer emits the row-scan `nyash.array.get_hi` / `nyash.array.slot_load_hi` materialization before it
+        - `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms`
+        - parity stayed `ok`
+      - guard held: `.inc` remains a metadata consumer; no array stores were deleted and no runtime legality/provenance inference was added
+      - current blocker token: `137x-H next owner proof after H19`
+      - next step: rerun owner-first split/front evidence and open the next H-slice only from the measured owner
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:

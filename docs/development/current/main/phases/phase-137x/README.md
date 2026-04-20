@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; post-H18 owner-first perf reread)
+- current lane: `phase-137x-H owner-first optimization return` (active; H19 closed, next owner proof pending)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -1015,6 +1015,46 @@ Result:
 - asm now carries text in `%xmm0`; the stack `text.ptr` loop load/store is gone
 - remaining local owners are slot vector store, slot terminator/suffix stores, sum update, and `vpalignr`
 - Guard held: no route widening, no public ABI, no runtime ownership, and no array-store deadness removal.
+
+## 137x-H19 Whole IndexOf Slot-Consumer Liveness Seam
+
+Status: closed.
+
+Owner card:
+- front: `kilo_kernel_small_hk` whole direct pure-first
+- failure mode: work explosion
+- current owner: `TextLane slot -> boxed StringBox object` through unused `array.get_hi` before `array.string_indexof_hisi`
+- hot transition: `ArrayBox::boxed_from_text` / memmove / malloc
+- next seam: MIR `array_text_observer_routes` must classify same-slot const suffix store as a slot-capable consumer of the get source
+- reject seam: do not delete array stores and do not infer source liveness in `.inc`
+
+Perf-first evidence:
+- `kilo_kernel_small_hk = C 82 ms / Ny AOT 6653 ms`
+- perf top: `__memmove_avx512_unaligned_erms` 50.13%, `_int_malloc` 17.28%, `ArrayBox::boxed_from_text` 14.09%
+- `ny_main` shows `array.get_hi` immediately before `array.string_indexof_hisi`
+- MIR metadata currently exports one `array_text_observer_routes` route with `keep_get_live=true` because the same source feeds `current + "ln"`
+
+Decision:
+- same-slot `current + const_suffix -> lines.set(j, ...)` is a slot-capable consumer when it targets the same array/index as the observer get
+- the source does not need public object materialization for that use
+- MIR owns this consumer coverage by setting `keep_get_live=false`; backend continues to consume metadata only
+
+Acceptance:
+- `tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`
+- `cargo test array_text_observer --lib`
+- `bash tools/perf/build_perf_release.sh`
+- trace bundle or lowered IR confirms the row-scan `array.get_hi` before `array.string_indexof_hisi` is gone
+- whole `kilo_kernel_small_hk` rerun improves or, if still blocked, records the next owner
+
+Result:
+- MIR route now exports `array_text_observer_routes[0].keep_get_live=false` for the whole row-scan case.
+- Lowered IR emits `nyash.array.string_indexof_hisi` directly and no longer emits the row-scan `nyash.array.get_hi` / `nyash.array.slot_load_hi` materialization before it.
+- `PERF_AOT_DIRECT_ONLY=0 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_kilo_hk_bench.sh strict 1 3`
+  - `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms`
+  - previous owner baseline was `C 82 ms / Ny AOT 6653 ms`
+  - parity stayed `ok`
+- Guard held: `.inc` remains a metadata consumer; no array stores were deleted and no runtime legality/provenance inference was added.
 
 ## Legacy Retirement Ledger
 
