@@ -14,11 +14,12 @@ Status:
 - H15.5 split the generic residence contract from the temporary exact emitter payload.
 - H15.6 removed unused raw `.inc` `indexOf` window/liveness rediscovery analyzers from active compilation.
 - H15.7 retired the exact leaf/line C dispatch bridge and backend env guard; all active line exact runs enter through `array_text_state_residence_route`.
+- H15.8 renamed the remaining backend surface to `hako_llvmc_ffi_indexof_text_state_residence.inc`.
 
 Current owners:
 - MIR side: `array_text_state_residence_route` top-level is generic contract only; exact proof/action/literals live under `temporary_indexof_seed_payload`.
 - Backend side: active observer lowering consumes `array_text_observer_routes`; it does not call raw window/liveness analyzers or exact leaf/line dispatch wrappers.
-- Backend remaining surface: `hako_llvmc_ffi_string_search_seed.inc` is now a text-state residence temporary payload reader/emitter, not an exact route dispatcher.
+- Backend remaining surface: `hako_llvmc_ffi_indexof_text_state_residence.inc` is a text-state residence temporary payload reader/emitter, not an exact route dispatcher.
 - Read-side owner: `array_text_observer_routes`.
 
 Fixed order:
@@ -26,7 +27,8 @@ Fixed order:
 2. H15.5 split exact bridge proof fields from generic residence contract fields. Closed.
 3. H15.6 audit `.inc` consumers for raw `indexOf` window/liveness rediscovery. Closed.
 4. H15.7 retire the exact search dispatch bridge only after exact and compatibility-skip keeper gates stay green. Closed.
-5. H15.8 decide whether to rename/quarantine the remaining text-state residence temporary emitter or lift its payload source away from `indexof_search_micro_seed_route`. Next.
+5. H15.8 rename/quarantine the remaining text-state residence temporary emitter. Closed.
+6. H15.9 lift the residence payload source away from `indexof_search_micro_seed_route`, or explicitly keep it as a fixture-backed temporary payload. Next.
 
 Acceptance:
 - `cargo test indexof_search_micro_seed --lib`
@@ -39,7 +41,7 @@ Acceptance:
 
 Decision notes:
 - `array_text_observer_routes` remains the read-side owner.
-- `hako_llvmc_ffi_string_search_seed.inc` stays quarantined until the temporary payload/emitter is either renamed as a residence emitter or replaced by a non-exact MIR payload.
+- `hako_llvmc_ffi_indexof_text_state_residence.inc` stays quarantined until the temporary payload/emitter is replaced by a non-exact MIR payload.
 - H15.4 keeps the exact proof/action payload reuse intentionally small; H15.5 is the structural split that removes exact bridge vocabulary from the generic residence contract.
 - H15.5 keeps `temporary_indexof_seed_payload` explicit because the current emitter is still a temporary exact bridge; do not promote that payload to generic MIR truth.
 
@@ -62,3 +64,7 @@ Latest result:
 - H15.7 trace: exact and retired-flag runs both emit `stage=indexof_line_text_state_residence reason=text_state_residence`.
 - H15.7 perf: exact `kilo_micro_indexof_line = C 5 ms / Ny AOT 3 ms`; retired-env probe `kilo_micro_indexof_line = C 4 ms / Ny AOT 4 ms`.
 - H15.7 checks: `cargo test indexof_search_micro_seed --lib`, `cargo test array_text_observer --lib`, `cargo test array_text_state_residence --lib`, `bash tools/perf/build_perf_release.sh`, `tools/checks/current_state_pointer_guard.sh`, `tools/checks/dev_gate.sh quick`, and `git diff --check` passed.
+- H15.8 result: `hako_llvmc_ffi_string_search_seed.inc` is renamed to `hako_llvmc_ffi_indexof_text_state_residence.inc`; emitter/temp symbol names now use residence wording, while `temporary_indexof_seed_payload` remains the explicit MIR quarantine key.
+- H15.8 trace: post-rename route trace still emits `stage=indexof_line_text_state_residence reason=text_state_residence`.
+- H15.8 perf: `kilo_micro_indexof_line = C 5 ms / Ny AOT 4 ms`.
+- H15.8 checks: `bash tools/perf/build_perf_release.sh`, `cargo test array_text_state_residence --lib`, `tools/checks/current_state_pointer_guard.sh`, `tools/checks/dev_gate.sh quick`, and `git diff --check` passed.

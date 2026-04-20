@@ -44,8 +44,9 @@ Current partitions:
 - `hako_llvmc_ffi_array_string_store_seed.inc`
   - pure-first seed metadata reader and emitter for the exact array/string-store micro path
   - temporary bridge surface only; route-shape proof is MIR-owned `array_string_store_micro_seed_route`
-- `hako_llvmc_ffi_string_search_seed.inc`
-  - pure-first seed emit/match helpers for search/index-of paths
+- `hako_llvmc_ffi_indexof_text_state_residence.inc`
+  - temporary text-state residence emitter for current indexOf micro fronts
+  - consumes MIR `array_text_state_residence_route`; do not regrow search route dispatch or raw block scanners here
 - `hako_llvmc_ffi_array_micro_seed.inc`
   - pure-first seed emit/match helpers for array get/set micro paths
 - `hako_llvmc_ffi_user_box_micro_seed.inc`

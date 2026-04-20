@@ -1,4 +1,4 @@
-static int hako_llvmc_emit_indexof_seed_ir(
+static int hako_llvmc_emit_indexof_text_state_residence_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
     long long rows,
@@ -35,18 +35,18 @@ static int hako_llvmc_emit_indexof_seed_ir(
   snprintf(
       llpath,
       sizeof(llpath),
-      "%s/hako_pure_indexof_seed_%d.ll",
+      "%s/hako_pure_indexof_text_state_residence_%d.ll",
       hako_llvmc_tmp_dir_fallback(),
       (int)getpid());
   f = fopen(llpath, "wb");
   if (!f) return -1;
 
-  fprintf(f, "; nyash minimal pure IR (indexOf seed loop ascii)\n");
+  fprintf(f, "; nyash minimal pure IR (indexOf text-state residence loop ascii)\n");
   fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-  fprintf(f, "@.indexof_seed_line = private unnamed_addr constant [%lld x i8] c\"", line_seed_len);
+  fprintf(f, "@.indexof_residence_line = private unnamed_addr constant [%lld x i8] c\"", line_seed_len);
   hako_llvmc_emit_llvm_byte_string(f, line_seed, line_seed_len);
   fprintf(f, "\", align 1\n");
-  fprintf(f, "@.indexof_seed_none = private unnamed_addr constant [%lld x i8] c\"", none_seed_len);
+  fprintf(f, "@.indexof_residence_none = private unnamed_addr constant [%lld x i8] c\"", none_seed_len);
   hako_llvmc_emit_llvm_byte_string(f, none_seed, none_seed_len);
   fprintf(f, "\", align 1\n");
   fprintf(f, "\n");
@@ -69,7 +69,7 @@ static int hako_llvmc_emit_indexof_seed_ir(
   fprintf(f, "  %%prefill.slot = getelementptr inbounds ptr, ptr %%lines.ptr, i64 %%i.pre\n");
   fprintf(f, "  %%prefill.evenmask = and i64 %%i.pre, 1\n");
   fprintf(f, "  %%prefill.is_even = icmp eq i64 %%prefill.evenmask, 0\n");
-  fprintf(f, "  %%prefill.val = select i1 %%prefill.is_even, ptr @.indexof_seed_line, ptr @.indexof_seed_none\n");
+  fprintf(f, "  %%prefill.val = select i1 %%prefill.is_even, ptr @.indexof_residence_line, ptr @.indexof_residence_none\n");
   fprintf(f, "  store ptr %%prefill.val, ptr %%prefill.slot, align 8\n");
   fprintf(f, "  %%i.pre.next = add i64 %%i.pre, 1\n");
   fprintf(f, "  store i64 %%i.pre.next, ptr %%i, align 8\n");
@@ -89,7 +89,7 @@ static int hako_llvmc_emit_indexof_seed_ir(
   fprintf(f, "  %%row = and i64 %%i.cur, %lld\n", row_mask);
   fprintf(f, "  %%slot = getelementptr inbounds ptr, ptr %%lines.ptr, i64 %%row\n");
   fprintf(f, "  %%cur = load ptr, ptr %%slot, align 8\n");
-  fprintf(f, "  %%found = icmp eq ptr %%cur, @.indexof_seed_line\n");
+  fprintf(f, "  %%found = icmp eq ptr %%cur, @.indexof_residence_line\n");
   fprintf(f, "  %%hits.cur = load i64, ptr %%hits, align 8\n");
   fprintf(f, "  %%hits.inc = select i1 %%found, i64 1, i64 0\n");
   fprintf(f, "  %%hits.next = add i64 %%hits.cur, %%hits.inc\n");
@@ -100,7 +100,7 @@ static int hako_llvmc_emit_indexof_seed_ir(
     fprintf(f, "  br i1 %%flip, label %%flip.then, label %%inc\n\n");
 
     fprintf(f, "flip.then:\n");
-    fprintf(f, "  %%newval = select i1 %%found, ptr @.indexof_seed_none, ptr @.indexof_seed_line\n");
+    fprintf(f, "  %%newval = select i1 %%found, ptr @.indexof_residence_none, ptr @.indexof_residence_line\n");
     fprintf(f, "  store ptr %%newval, ptr %%slot, align 8\n");
     fprintf(f, "  br label %%inc\n\n");
   } else {
@@ -127,7 +127,7 @@ static int hako_llvmc_emit_indexof_seed_ir(
   return rc == 0 ? 0 : -1;
 }
 
-typedef struct hako_llvmc_indexof_route_contract {
+typedef struct hako_llvmc_indexof_state_residence_payload {
   const char* variant;
   long long rows;
   long long ops;
@@ -143,11 +143,11 @@ typedef struct hako_llvmc_indexof_route_contract {
   const char* backend_action;
   const char* line_seed_outcome;
   const char* none_seed_outcome;
-} hako_llvmc_indexof_route_contract;
+} hako_llvmc_indexof_state_residence_payload;
 
 static int hako_llvmc_read_indexof_candidate_outcomes(
     yyjson_val* route,
-    hako_llvmc_indexof_route_contract* out) {
+    hako_llvmc_indexof_state_residence_payload* out) {
   yyjson_val* outcomes;
   size_t i;
 
@@ -200,7 +200,7 @@ static int hako_llvmc_read_indexof_state_residence_contract(
     const char* expected_variant,
     const char* expected_proof,
     int require_flip,
-    hako_llvmc_indexof_route_contract* out) {
+    hako_llvmc_indexof_state_residence_payload* out) {
   yyjson_val* metadata;
   yyjson_val* route;
   yyjson_val* flip_value;
@@ -287,7 +287,7 @@ static int hako_llvmc_match_indexof_text_state_residence_fn(
     const char* trace_stage,
     const char* trace_extra) {
   hako_llvmc_entry_rune_selection selection;
-  hako_llvmc_indexof_route_contract route;
+  hako_llvmc_indexof_state_residence_payload route;
 
   if (!fn || !obj_out) return -1;
   hako_llvmc_select_entry_runes(fn, &selection);
@@ -315,7 +315,7 @@ static int hako_llvmc_match_indexof_text_state_residence_fn(
         trace_extra);
   }
 
-  return hako_llvmc_emit_indexof_seed_ir(
+  return hako_llvmc_emit_indexof_text_state_residence_ir(
       obj_out,
       &selection,
       route.rows,
