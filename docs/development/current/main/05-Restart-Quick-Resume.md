@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H15 array text-state residence cleanup)
+  - `phase-137x-H owner-first optimization return` (active; post-H17 owner-first perf reread)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H15 array text-state residence cleanup`
+    - current blocker is `137x-H owner-first optimization return`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H15 array text-state residence cleanup`
+  - `137x-H owner-first optimization return`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -59,8 +59,8 @@ cargo check --features perf-observe -p nyash_kernel
     - direct-only correctness: `Result: 2880064`, exit code `64`
   - `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`
 - immediate next:
-  - [137x-96-h15-array-text-residence-cleanup.md](docs/development/current/main/phases/phase-137x/137x-96-h15-array-text-residence-cleanup.md)
-  - H15.4-H15.7 live in that note; keep `tools/checks/current_state_pointer_guard.sh` green
+  - rerun owner-first perf evidence before the next exact-bridge shrink
+  - H17 is closed: exact `kilo_micro_array_string_store` stays `C 10 ms / Ny AOT 5 ms`, `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`, and the loop-body `text+16` terminator store is gone
   - exact array-store route-shape card is closed; do not reopen it without a new failed measurement
   - kilo optimization is already active as `137x-H`; keep owner-first evidence for each slice
   - 137x-C final gate already passed: `tools/checks/dev_gate.sh quick`

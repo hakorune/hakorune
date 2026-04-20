@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; post-H16 owner-first perf reread)
+- current lane: `phase-137x-H owner-first optimization return` (active; post-H17 owner-first perf reread)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -940,6 +940,40 @@ Result:
   - `ny_main` still owns the hot loop
   - top local owner is now the slot store plus suffix stores; the previous `slot + 2 -> text` copy is absent
 - Guard held: no route widening, no public ABI, no runtime ownership, and the bridge remains temporary exact metadata.
+
+## 137x-H17 Exact Text Terminator Store Seam
+
+Status: closed.
+
+Scope:
+- shrink only the temporary `kilo_micro_array_string_store` exact bridge
+- remove the loop-body terminator store for loop-carried `text`
+- keep selected slot terminator stores unchanged
+- keep route legality, metadata, public ABI, and runtime ownership unchanged
+
+Perf-first baseline:
+- H16 post-change `kilo_micro_array_string_store = C 10 ms / Ny AOT 5 ms`
+- `ny_aot_instr=11670690`, `ny_aot_cycles=9512639`
+- H16 asm still shows `movb $0, text+16` in the hot loop
+
+Acceptance:
+- `cargo test array_string_store_micro_seed --lib`
+- `bash tools/perf/build_perf_release.sh`
+- `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+- exact `kilo_micro_array_string_store` microstat does not regress
+- `tools/checks/current_state_pointer_guard.sh`
+
+Implementation:
+- remove only the loop-body `store i8 0` for `text+16`
+- keep selected array-slot terminator stores unchanged
+- leave `array_string_store_micro_seed_route` metadata and legality untouched
+
+Result:
+- `kilo_micro_array_string_store = C 10 ms / Ny AOT 5 ms`
+- `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`
+- regenerated asm no longer contains the loop-body `movb $0, text+16`
+- remaining local owners are slot vector store, suffix store, and `vpalignr`
+- Guard held: no route widening, no public ABI, no runtime ownership, and the exact bridge remains temporary metadata.
 
 ## Legacy Retirement Ledger
 

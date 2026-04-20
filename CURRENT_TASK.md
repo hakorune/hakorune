@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; post-H16 owner-first perf reread)
+  - `phase-137x-H owner-first optimization return` (active; post-H17 owner-first perf reread)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -259,6 +259,19 @@ Scope: current lane / next lane / restart order only.
         - `ny_aot_instr=11670690`, `ny_aot_cycles=9512639`
         - post-change asm uses `vpalignr` for the text-state update; the previous `slot + 2 -> text` copy is gone
       - guard held: no route widening, no public ABI, no runtime ownership, and the bridge remains temporary exact metadata
+      - next step: rerun owner-first perf evidence before the next exact-bridge shrink
+    - `137x-H17` exact text terminator store seam is closed
+      - perf-first baseline is the H16 post-change asm:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 5 ms`
+        - `ny_aot_instr=11670690`, `ny_aot_cycles=9512639`
+        - hot loop still spends samples on `movb $0, text+16`
+      - decision: remove only the loop-body loop-carried text terminator store; the exact emitter uses fixed 16-byte vector payload and no C-string reads from `text`
+      - result:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 5 ms`
+        - `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`
+        - regenerated asm has no loop-body `movb $0, text+16`
+      - guard held: slot terminator stores and all route metadata stay unchanged
+      - next blocker token: `137x-H owner-first optimization return`
       - next step: rerun owner-first perf evidence before the next exact-bridge shrink
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

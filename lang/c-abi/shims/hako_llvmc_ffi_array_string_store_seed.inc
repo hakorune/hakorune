@@ -112,8 +112,6 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
       suffix0,
       suffix1);
   fprintf(f, "  store <16 x i8> %%text.next, ptr %%text.ptr, align 16\n");
-  fprintf(f, "  %%text.16 = getelementptr inbounds i8, ptr %%text.ptr, i64 16\n");
-  fprintf(f, "  store i8 0, ptr %%text.16, align 1\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
   fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
   fprintf(f, "  br label %%loop\n\n");

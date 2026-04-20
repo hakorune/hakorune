@@ -29,17 +29,17 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H15 array text-state residence cleanup)
+  - `phase-137x-H owner-first optimization return` (active; post-H17 owner-first perf reread)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H15 array text-state residence cleanup`
+  - current blocker is `137x-H owner-first optimization return`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
-    - [137x-96-h15-array-text-residence-cleanup.md](docs/development/current/main/phases/phase-137x/137x-96-h15-array-text-residence-cleanup.md)
-    - H15.4-H15.7 live in that note; keep `tools/checks/current_state_pointer_guard.sh` green
+    - rerun owner-first perf evidence before the next exact-bridge shrink
+    - H17 is closed: exact `kilo_micro_array_string_store` stays `C 10 ms / Ny AOT 5 ms`, `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`, and the loop-body `text+16` terminator store is gone
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
