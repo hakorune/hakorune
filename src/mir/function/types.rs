@@ -6,10 +6,11 @@ use crate::mir::{
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
     string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation, string_kernel_plan::StringKernelPlan,
-    sum_placement::SumPlacementFact, sum_placement_layout::SumPlacementLayout,
-    sum_placement_selection::SumPlacementSelection, thin_entry::ThinEntryCandidate,
-    thin_entry_selection::ThinEntrySelection, value_consumer::ValueConsumerFacts, BasicBlock,
-    BasicBlockId, ConstValue, EffectMask, MirType, ValueId,
+    substring_views_micro_seed_plan::SubstringViewsMicroSeedRoute, sum_placement::SumPlacementFact,
+    sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
+    thin_entry::ThinEntryCandidate, thin_entry_selection::ThinEntrySelection,
+    value_consumer::ValueConsumerFacts, BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType,
+    ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -169,6 +170,11 @@ pub struct FunctionMetadata {
     /// This keeps the current temporary exact bridge proof in MIR metadata so
     /// the C backend can remain an emitter selector instead of a route planner.
     pub concat_const_suffix_micro_seed_route: Option<ConcatConstSuffixMicroSeedRoute>,
+
+    /// Backend-consumable exact substring-views micro seed route.
+    /// Borrowed-slice windows stay in `string_kernel_plans`; this only carries
+    /// the temporary emitter payload that generic plans do not expose yet.
+    pub substring_views_micro_seed_route: Option<SubstringViewsMicroSeedRoute>,
 }
 
 /// Function statistics for profiling and optimization

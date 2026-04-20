@@ -182,6 +182,16 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }),
+            "substring_views_micro_seed_route": f.metadata.substring_views_micro_seed_route.as_ref().map(|route| {
+                json!({
+                    "source": route.source.as_str(),
+                    "source_len": route.source_len,
+                    "loop_bound": route.loop_bound,
+                    "proof": route.proof.to_string(),
+                    "consumer_capability": "direct_substring_views_exit_len",
+                    "publication_boundary": "none",
+                })
+            }),
             "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
                 json!({
                     "block": candidate.block.as_u32(),

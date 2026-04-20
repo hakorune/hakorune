@@ -36,7 +36,8 @@ Current partitions:
 - `hako_llvmc_ffi_string_loop_seed_copy_graph.inc`
   - copy-chain/copy-graph helper layer shared by the exact string seed matchers
 - `hako_llvmc_ffi_string_loop_seed_views_only.inc`
-  - views-only exact matcher family
+  - metadata reader plus temporary exact emitter for `kilo_micro_substring_views_only`
+  - borrowed-slice windows are MIR-owned `StringKernelPlan` data; exact source/loop proof is `substring_views_micro_seed_route`
 - `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc`
   - string-length hot-loop exact matcher family
 - `hako_llvmc_ffi_string_loop_seed_substring_concat.inc`

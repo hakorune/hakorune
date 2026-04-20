@@ -67,6 +67,7 @@ pub mod string_corridor_placement; // placement/effect scaffold over canonical s
 pub(crate) mod string_corridor_recognizer; // shared pure shape recognizers for string corridor
 pub mod string_corridor_relation; // string-corridor relation layer over generic PHI queries
 pub mod string_kernel_plan; // backend-consumable string plan seam derived from corridor candidates
+pub mod substring_views_micro_seed_plan; // MIR-owned route plan for temporary substring views micro seed bridge
 pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
 pub mod sum_placement_layout; // LLVM-side payload-lane choices for selected local sums
 pub mod sum_placement_selection; // selection pilot over sum-local placement facts
@@ -169,6 +170,11 @@ pub use string_kernel_plan::{
     StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
     StringKernelPlanReadAliasFacts, StringKernelPlanRetainedForm, StringKernelPlanSlotHopSubstring,
     StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
+};
+pub use substring_views_micro_seed_plan::{
+    refresh_function_substring_views_micro_seed_route,
+    refresh_module_substring_views_micro_seed_routes, SubstringViewsMicroSeedProof,
+    SubstringViewsMicroSeedRoute,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

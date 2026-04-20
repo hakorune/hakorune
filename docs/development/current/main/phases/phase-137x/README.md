@@ -705,6 +705,27 @@ Seventh slice result:
   - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`: `C 3 ms / Ny AOT 4 ms`, `aot_status=ok`
   - `git diff --check` PASS
 
+Eighth slice plan:
+- add MIR-owned metadata for the active `kilo_micro_substring_views_only` route proof
+- keep existing `StringKernelPlan` borrowed-slice plans as the window proof owner
+- add only the exact bridge payload missing from generic plans: source literal/length and loop bound
+- make `hako_llvmc_match_substring_views_only_micro_seed(...)` consume that metadata and select the existing temporary emitter
+- delete the raw C-side block/op scanner from `hako_llvmc_ffi_string_loop_seed_views_only.inc`
+
+Eighth slice result:
+- `FunctionMetadata.substring_views_micro_seed_route` now owns the exact bridge payload for `kilo_micro_substring_views_only`: source literal, source length, loop bound, and proof name
+- existing `StringKernelPlan` borrowed-slice plans remain the window proof owner; the new route does not add borrowed-window legality
+- `hako_llvmc_match_substring_views_only_micro_seed(...)` now consumes metadata and keeps only validation plus the existing temporary emitter selection
+- the raw C-side block/op scanner was deleted from `hako_llvmc_ffi_string_loop_seed_views_only.inc`
+- verification:
+  - direct MIR metadata probe shows `metadata.substring_views_micro_seed_route` with `source_len=16`, `loop_bound=300000`, and proof `kilo_micro_substring_views_only_5block`
+  - `cargo test substring_views_micro_seed --lib` PASS
+  - `bash tools/perf/build_perf_release.sh` PASS
+  - `tools/checks/dev_gate.sh quick` PASS
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_views_only 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
+  - `PERF_AOT_DIRECT_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_len_substring_views 1 3`: `C 3 ms / Ny AOT 3 ms`, `aot_status=ok`
+  - `git diff --check` PASS
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.
@@ -729,6 +750,7 @@ Rules:
 - retired in `137x-H13`: `hako_llvmc_ffi_concat_hh_len_seed.inc` is deleted; the current `kilo_micro_concat_hh_len` direct front stays green through generic/metadata lowering and no longer needs a dedicated exact bridge.
 - retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_concat_const_suffix_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.concat_const_suffix_micro_seed_route`.
 - retired in `137x-H13`: the raw C-side block/op scanner in `hako_llvmc_match_substring_concat_loop_ascii_seed(...)` is deleted; exact seed bridge selection now consumes existing MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata.
+- retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_substring_views_only_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.substring_views_micro_seed_route`, while borrowed-window legality stays in `StringKernelPlan`.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
