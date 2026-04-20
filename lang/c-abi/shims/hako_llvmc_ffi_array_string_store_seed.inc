@@ -9,13 +9,11 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   FILE* f;
   int rc;
   long long store_len;
-  long long store_bytes;
 
   if (!obj_out || !seed || seed_len != 16 || size != 128 || ops != 800000) {
     return -1;
   }
   store_len = seed_len + 2;
-  store_bytes = store_len + 1;
 
   snprintf(
       llpath,
@@ -39,12 +37,10 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   fprintf(f, "entry:\n");
   fprintf(f, "  %%arr = alloca [128 x [32 x i8]], align 16\n");
   fprintf(f, "  %%text = alloca [32 x i8], align 16\n");
-  fprintf(f, "  %%out = alloca [32 x i8], align 16\n");
   fprintf(f, "  %%i = alloca i64, align 8\n");
   fprintf(f, "  %%sum = alloca i64, align 8\n");
   fprintf(f, "  %%arr.ptr = getelementptr inbounds [128 x [32 x i8]], ptr %%arr, i64 0, i64 0\n");
   fprintf(f, "  %%text.ptr = getelementptr inbounds [32 x i8], ptr %%text, i64 0, i64 0\n");
-  fprintf(f, "  %%out.ptr = getelementptr inbounds [32 x i8], ptr %%out, i64 0, i64 0\n");
   fprintf(
       f,
       "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%text.ptr, ptr align 1 getelementptr inbounds ([%lld x i8], ptr @.array_string_seed, i64 0, i64 0), i64 %lld, i1 false)\n",
@@ -87,19 +83,18 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   fprintf(f, "  %%slot = getelementptr inbounds [32 x i8], ptr %%arr.ptr, i64 %%idx\n");
   fprintf(
       f,
-      "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%out.ptr, ptr align 16 %%text.ptr, i64 %lld, i1 false)\n",
+      "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%slot, ptr align 16 %%text.ptr, i64 %lld, i1 false)\n",
       seed_len);
-  fprintf(f, "  %%out.16 = getelementptr inbounds i8, ptr %%out.ptr, i64 16\n");
-  fprintf(f, "  store i8 120, ptr %%out.16, align 1\n");
-  fprintf(f, "  %%out.17 = getelementptr inbounds i8, ptr %%out.ptr, i64 17\n");
-  fprintf(f, "  store i8 121, ptr %%out.17, align 1\n");
-  fprintf(f, "  %%out.18 = getelementptr inbounds i8, ptr %%out.ptr, i64 18\n");
-  fprintf(f, "  store i8 0, ptr %%out.18, align 1\n");
-  fprintf(f, "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%slot, ptr align 16 %%out.ptr, i64 %lld, i1 false)\n", store_bytes);
+  fprintf(f, "  %%slot.16 = getelementptr inbounds i8, ptr %%slot, i64 16\n");
+  fprintf(f, "  store i8 120, ptr %%slot.16, align 1\n");
+  fprintf(f, "  %%slot.17 = getelementptr inbounds i8, ptr %%slot, i64 17\n");
+  fprintf(f, "  store i8 121, ptr %%slot.17, align 1\n");
+  fprintf(f, "  %%slot.18 = getelementptr inbounds i8, ptr %%slot, i64 18\n");
+  fprintf(f, "  store i8 0, ptr %%slot.18, align 1\n");
   fprintf(f, "  %%sum.cur = load volatile i64, ptr %%sum, align 8\n");
   fprintf(f, "  %%sum.next = add i64 %%sum.cur, %lld\n", store_len);
   fprintf(f, "  store volatile i64 %%sum.next, ptr %%sum, align 8\n");
-  fprintf(f, "  %%text.shift = getelementptr inbounds i8, ptr %%out.ptr, i64 2\n");
+  fprintf(f, "  %%text.shift = getelementptr inbounds i8, ptr %%slot, i64 2\n");
   fprintf(
       f,
       "  call void @llvm.memcpy.p0.p0.i64(ptr align 16 %%text.ptr, ptr align 1 %%text.shift, i64 %lld, i1 false)\n",

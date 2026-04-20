@@ -92,6 +92,16 @@ Scope: current lane / next lane / restart order only.
         - `ny_aot_instr=18866112`, `ny_aot_cycles=27213979`
         - regenerated exact asm has no `strlen@plt` call in `ny_main`
       - guard held: no bridge widening, no new route legality, and no keeper-architecture promotion
+    - `137x-H4` exact array-string-store out-buffer seam is closed
+      - perf-first baseline after H3:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 9 ms`
+        - exact `ny_main` top owner is the remaining stack-copy loop; annotated samples sit on the `out` temp copy and slot tail store
+      - implementation: the exact seed bridge writes `text + "xy"` directly into the selected array slot, then updates loop-carried `text` from `slot + 2`
+      - result:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 8 ms`
+        - `ny_aot_instr=11666577`, `ny_aot_cycles=20300845`
+        - regenerated exact asm has no separate `out` stack buffer and no runtime/public helper call in `ny_main`
+      - guard held: no route widening, no new MIR legality, no runtime helper, and no public ABI change
     - `137x-G` allocator / arena pilot is rejected for now because allocator/copy samples are secondary, not the dominant owner
     - next implementation blocker remains `137x-H` owner-first optimization return; continue from the next measured owner, not from allocator/arena rewrite
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
