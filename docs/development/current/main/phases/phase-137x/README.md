@@ -890,7 +890,8 @@ Verification:
   - exact bridge stays quarantine in `indexof_search_micro_seed_route`
   - `array_text_state_residence_route` is now a real `FunctionMetadata` field, not a JSON alias of the exact bridge key
   - `array_text_state_residence_route` top-level now contains only the generic residence contract; exact proof/action/literal data is quarantined under `temporary_indexof_seed_payload`
-  - next step: audit `.inc` consumers for any remaining raw `indexOf` window/liveness rediscovery
+  - raw observer analyzer/trace `.inc` files are removed from active compilation; active observer lowering consumes MIR metadata only
+  - next step: delete or fixture the remaining exact search bridge after exact and seed-off keeper gates stay green
 - Detailed H15.1-H15.3 history and the H15.4-H15.7 order live in [137x-96-h15-array-text-residence-cleanup.md](./137x-96-h15-array-text-residence-cleanup.md).
 - Current gate:
   - `hako_llvmc_ffi_string_search_seed.inc` remains the explicit delete candidate
