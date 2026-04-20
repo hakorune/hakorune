@@ -1,6 +1,6 @@
 # Phase 137x Task Board
 
-- Status: Closed guardrail
+- Status: Closed guardrail; 137x-H active
 - Current split:
   - `137x-A`: string publication contract closeout
   - `137x-B`: container / primitive design cleanout (closed)
@@ -8,16 +8,18 @@
   - `137x-D`: owner-first optimization return (exact route-shape keeper landed)
   - `137x-E0`: MIR / backend seam closeout before TextLane (closed)
   - `137x-E1`: TextLane / ArrayStorage::Text implementation (closed)
-  - `137x-F`: runtime-wide Value Lane implementation bridge (active)
-  - `137x-G`: allocator / arena lane pilot (next)
-  - `137x-H`: kilo optimization return after F/G land or reject
+  - `137x-F`: runtime-wide Value Lane implementation bridge (closed)
+  - `137x-G`: allocator / arena lane pilot (rejected for now)
+  - `137x-H`: kilo optimization return after F/G land or reject (active)
 
 ## Rule
 
 Owner-first optimization already reopened as `137x-D` and landed the exact
 array store route-shape keeper. The old rule that kept `TextLane`, runtime-wide
-Value Lane, and allocator/arena work closed is retired. Before the next kilo
-optimization pass, keep the `137x-F/G implementation gates before next kilo optimization` open.
+Value Lane, and allocator/arena work closed is retired. The
+`137x-F/G implementation gates before next kilo optimization` are closed:
+`137x-F` landed and `137x-G` is rejected for now, so kilo optimization proceeds
+as `137x-H`.
 
 `all done` for this board means:
 
@@ -26,8 +28,9 @@ optimization pass, keep the `137x-F/G implementation gates before next kilo opti
 - `CURRENT_TASK.md` and `10-Now.md` point to the same active lane
 - the final gate command is recorded
 
-It now means the storage/value/allocator successor implementations are opened in
-order before the next kilo optimization return.
+It now means the storage/value gates are landed, allocator/arena is rejected
+with evidence for now, and the next kilo optimization return is active as
+`137x-H`.
 
 ## Closed String Publication Closeout (137x-A)
 

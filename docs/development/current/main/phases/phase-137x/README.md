@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: TextLane / Value Lane Implementation Gate Active
-- 目的: 137x-C structure completion gate と 137x-D exact route-shape keeper を閉じた状態から、次の kilo 最適化に戻る前に `137x-E0/E/F/G` の MIR/backend seam, storage, value, allocator implementation gate を開く。
+- Status: `137x-H` owner-first optimization return active
+- 目的: `137x-E0/E/F` の MIR/backend seam, storage, value implementation gate を閉じ、`137x-G` allocator pilot を reject した状態から、owner-first evidence に従って kilo 最適化を進める。
 - 対象:
   - `docs/development/current/main/CURRENT_STATE.toml`
   - `CURRENT_TASK.md`
@@ -18,7 +18,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-E TextLane / Value Lane implementation gate` (active; `137x-E0` MIR/backend seam closeout is closed)
+- current lane: `phase-137x-H owner-first optimization return` (active; H15 array text-state residence cleanup)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -43,7 +43,8 @@
 - direct-only correctness: `Result: 2880064`, exit code `64`
 - current stop-line:
   - `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
-  - do not return to the next kilo optimization until the `137x-F/G` implementation gates land or reject with evidence
+  - `137x-F/G` implementation gates before next kilo optimization are closed: `137x-F` landed and `137x-G` is rejected for now
+  - continue kilo optimization only as `137x-H` with owner-first evidence per slice
 - current phase cut before next kilo optimization:
   - `137x-A`: string publication contract closeout (`137x-92-string-publication-contract-closeout.md`)
   - `137x-B`: container / primitive design cleanout (`137x-93-container-primitive-design-cleanout.md`) is closed
@@ -1030,6 +1031,33 @@ H15.3c implementation result:
   - `target/perf_state/h15-3c-indexof-line-seed-off/hot_block_residue.txt` reports `slot_load_hi=0`, `runtime_data=0`, `hostbridge=0`
   - seed-off `kilo_micro_indexof_line`: `C 4 ms / Ny AOT 4 ms`
   - exact `kilo_micro_indexof_line`: `C 4 ms / Ny AOT 3 ms`
+
+## 137x-H15 Next Task Order
+
+Worker inventory verdict:
+- MIR side: `array_text_state_residence_route` is currently serialized from `FunctionMetadata.indexof_search_micro_seed_route`; this is the next responsibility leak.
+- Backend side: `hako_llvmc_ffi_string_search_seed.inc` is still the explicit deletion candidate, but deletion remains blocked until generic `array_text_observer_routes` plus `ArrayStorage::Text` cover leaf and line fronts at keeper speed.
+- `indexof_observer_*` `.inc` files are active generic machinery, not deletion targets.
+
+Fixed order:
+1. H15.4 `array_text_state_residence_route` metadata split
+   - Add a distinct MIR-owned residence metadata field.
+   - Populate it during semantic refresh instead of fabricating it only in MIR JSON.
+   - Keep exact `indexof_search_micro_seed_route` as exact bridge quarantine.
+   - Acceptance: JSON exports both keys from distinct metadata owners; seed-off route trace still emits `indexof_line_text_state_residence`.
+2. H15.5 exact proof vs generic residence contract split
+   - Stop using one `IndexOfSearchMicroSeedRoute` payload as both exact bridge proof and generic residence contract.
+   - Exact bridge JSON owns exact seed proof fields.
+   - Residence JSON owns residence/observer/result fields.
+   - Acceptance: no shared JSON builder requires `Option<residence>` to distinguish the two owners.
+3. H15.6 `.inc` consumer audit
+   - Verify generic observer/text-state residence lowering consumes MIR metadata only.
+   - Do not delete `indexof_observer_*`; only prevent raw window/liveness rediscovery.
+   - Acceptance: grep stays clean for active raw `indexOf` scanner calls; direct-scalar and found-predicate observer tests stay green.
+4. H15.7 exact search bridge decision
+   - Delete `hako_llvmc_ffi_string_search_seed.inc` only if exact and seed-off keeper gates remain green without it.
+   - If not deletable, keep it as an explicit legacy bridge row or move it to a legacy regression fixture with failure expectation.
+   - Acceptance: exact and seed-off `kilo_micro_indexof_line` keeper microstats, direct leaf/line metadata probes, release build, and `tools/checks/dev_gate.sh quick`.
 
 ## Legacy Retirement Ledger
 

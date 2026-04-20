@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-20
+Date: 2026-04-21
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -34,14 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
+  - `phase-137x-H owner-first optimization return` (active; H15 array text-state residence cleanup)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
-    - `137x-F Value Lane bridge` is the current blocker; `137x-F1 demand-to-lane executor bridge` is landed, and `137x-F` closeout decides whether to open `137x-G` or split an F2 bridge slice
+    - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
+    - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
+    - current blocker is `137x-H15 array text-state residence cleanup`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-F Value Lane bridge` is required before any further kilo optimization edit
+  - `137x-H15 array text-state residence cleanup`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -57,9 +59,12 @@ cargo check --features perf-observe -p nyash_kernel
     - direct-only correctness: `Result: 2880064`, exit code `64`
   - `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`
 - immediate next:
-  - finish `137x-F` closeout from the implementation-gate SSOT before any new kilo perf edit
+  - H15.4: make `array_text_state_residence_route` a distinct MIR metadata field instead of a JSON alias
+  - H15.5: split exact bridge proof from generic residence contract fields
+  - H15.6: audit `.inc` consumers for raw `indexOf` window/liveness rediscovery
+  - H15.7: delete or explicitly fixture the exact search bridge only after exact/seed-off keeper gates stay green
   - exact array-store route-shape card is closed; do not reopen it without a new failed measurement
-  - return to kilo optimization only as `137x-H` after `137x-F/G` land or reject
+  - kilo optimization is already active as `137x-H`; keep owner-first evidence for each slice
   - 137x-C final gate already passed: `tools/checks/dev_gate.sh quick`
   - done in this cleanout:
     - `array-typed-slot-truth-sync`

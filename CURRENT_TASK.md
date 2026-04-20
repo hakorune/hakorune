@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-20
+Date: 2026-04-21
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
+  - `phase-137x-H owner-first optimization return` (active; H15 array text-state residence cleanup)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -241,7 +241,14 @@ Scope: current lane / next lane / restart order only.
       - H15.3c cleanup slice: behavior-preserving rename/adapter cleanup; backend text-state residence readers must use `array_text_state_residence` vocabulary, while exact wrappers remain the only surface that talks about the temporary `indexof_search_micro_seed_route`
       - H15.3c result: renamed backend-local route structs/readers and JSON helper away from `micro_seed` vocabulary; seed-off route trace still emits `indexof_line_text_state_residence`, `hot_block_residue` remains `slot_load_hi=0`, seed-off `kilo_micro_indexof_line` is `C 4 ms / Ny AOT 4 ms`, exact is `C 4 ms / Ny AOT 3 ms`
       - deletion gate: `lang/c-abi/shims/hako_llvmc_ffi_string_search_seed.inc` can be deleted only after generic `array_text_observer_routes` + `ArrayStorage::Text` lowering covers leaf and line fronts at keeper speed
-    - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
+      - current blocker token: `137x-H15 array text-state residence cleanup`
+      - next task order:
+        1. H15.4 split `array_text_state_residence_route` into a real MIR-owned metadata field instead of JSON aliasing `indexof_search_micro_seed_route`
+        2. H15.5 split exact bridge proof fields from generic residence fields so `IndexOfSearchMicroSeedRoute` no longer over-owns the generic keeper contract
+        3. H15.6 audit `.inc` consumers for raw `indexOf` window/liveness rediscovery; keep `indexof_observer_*` active unless a later SSOT row opens a rename/delete
+        4. H15.7 only then rerun exact/seed-off keeper gates and decide whether `hako_llvmc_ffi_string_search_seed.inc` can be deleted or must stay as explicit legacy fixture
+      - acceptance checks for the next slice: `cargo test indexof_search_micro_seed --lib`, `cargo test array_text_observer --lib`, `bash tools/perf/build_perf_release.sh`, seed-off route trace showing `indexof_line_text_state_residence`, exact/seed-off `kilo_micro_indexof_line` keeper microstats, and `tools/checks/current_state_pointer_guard.sh`
+      - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:

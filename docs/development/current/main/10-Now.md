@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-20
+Date: 2026-04-21
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -29,14 +29,19 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
+  - `phase-137x-H owner-first optimization return` (active; H15 array text-state residence cleanup)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-    - current blocker is `137x-H owner-first optimization return`
+    - current blocker is `137x-H15 array text-state residence cleanup`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
+  - next task order:
+    1. H15.4 make `array_text_state_residence_route` a distinct MIR metadata field, not a JSON alias of `indexof_search_micro_seed_route`
+    2. H15.5 split exact bridge proof from the generic residence contract inside the `indexOf` route model
+    3. H15.6 audit `.inc` consumers so generic observer/text-state residence lowering does not rediscover raw `indexOf` windows or liveness
+    4. H15.7 decide exact search bridge deletion only after exact and seed-off keeper gates stay green
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
