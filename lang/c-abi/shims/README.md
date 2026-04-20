@@ -84,6 +84,7 @@ Current partitions:
 - `hako_llvmc_ffi_string_concat_emit.inc`
   - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers and route-adjacent trace hooks
   - now partitioned further into `hako_llvmc_ffi_string_concat_emit_helpers.inc` and `hako_llvmc_ffi_string_concat_emit_routes.inc`
+  - shared emit helpers now also own the `shared_receiver` read and slot-hop substring consumer matcher used by the route layer
 - `hako_llvmc_ffi_concat_hh_len_seed.inc`
   - dedicated exact-micro pure-first seed for `kilo_micro_concat_hh_len`
 - `hako_llvmc_ffi_string_chain_terms.inc`

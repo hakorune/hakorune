@@ -1,13 +1,3 @@
-      auto int hako_llvmc_string_kernel_plan_shared_receiver(long long dst) {
-        int shared_receiver = 0;
-        if (!dst) return 0;
-        if (hako_llvmc_string_kernel_plan_read_alias_fact(
-                dst, "shared_receiver", &shared_receiver)) {
-          return shared_receiver;
-        }
-        return 0;
-      }
-
       auto int try_emit_string_insert_mid_const_call(
           FILE* f,
           size_t ii,
