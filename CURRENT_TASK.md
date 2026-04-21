@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.2 outer edit lock-boundary design)
-  - current blocker is `137x-H39.2 outer edit lock-boundary design`
+  - `phase-137x-H owner-first optimization return` (active; H39.3 combined edit-observer region proof)
+  - current blocker is `137x-H39.3 combined edit-observer region proof`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -861,8 +861,12 @@ Scope: current lane / next lane / restart order only.
             C 3 ms / Ny AOT 3 ms`
           - verdict: small keeper; observer-store mechanics improved but
             outer edit lock-boundary remains
-        - H39.2 active:
-          - design the outer edit lock-boundary next
+        - H39.2 result:
+          - closed as design / stop-line
+          - edit-only session is not enough because the outer loop interleaves
+            a periodic observer-store region
+        - H39.3 active:
+          - implement the MIR-owned combined edit-observer region proof
           - no hidden runtime session table; any lock-span widening must be
             MIR-proven
   - active phase:

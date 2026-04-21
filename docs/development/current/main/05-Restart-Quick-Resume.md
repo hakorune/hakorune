@@ -34,23 +34,23 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.2 outer edit lock-boundary design)
+  - `phase-137x-H owner-first optimization return` (active; H39.3 combined edit-observer region proof)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H39.2 outer edit lock-boundary design`
+    - current blocker is `137x-H39.3 combined edit-observer region proof`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H39.2 outer edit lock-boundary design`
+  - `137x-H39.3 combined edit-observer region proof`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
     - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
     - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
-    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 4 ms`
-    - `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`
+    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`
   - adopted middle bridge:
     - `substring + concat + array.set + loopcarry`
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
@@ -98,7 +98,10 @@ cargo check --features perf-observe -p nyash_kernel
       closure is cell-loop / short-literal / MidGap segment dominated
     - H39.1 landed: MidGap generic prefix fast path improves whole cycles
       to `11.3M`
-    - H39.2 active: outer edit lock-boundary design
+    - H39.2 closed: edit-only session is not enough because the outer loop
+      interleaves a periodic observer-store region
+    - H39.3 active: implement the MIR-owned combined edit-observer region
+      proof before any one-call runtime executor
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

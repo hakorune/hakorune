@@ -422,10 +422,16 @@ phase README / current entry. Current active card:
     - split outer edit lock-boundary from observer-store cell-loop work
     - result: runtime-only MidGap generic prefix fast path landed as a small
       keeper
-  - [ ] H39.2 outer edit lock-boundary design
+  - [x] H39.2 outer edit lock-boundary design
     - design the MIR-proven route for reducing the remaining outer edit lock
       owner
     - no hidden runtime session table
+    - result: closed as stop-line; outer edit-only session is not enough
+      because the hot loop interleaves a periodic observer-store region
+  - [ ] H39.3 combined edit-observer region proof
+    - implement metadata-first proof for the outer edit loop plus nested
+      observer-store region
+    - `.inc` consumes metadata only; runtime executes one RAII call if landed
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

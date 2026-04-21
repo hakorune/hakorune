@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39.2 outer edit lock-boundary design`
+- current blocker token: `137x-H39.3 combined edit-observer region proof`
 - current benchmark state:
   - `C 83 ms / Ny AOT 6 ms`
   - `ny_aot_instr=60443810`
@@ -1007,7 +1007,7 @@ Verdict:
 - small keeper: whole cycles improve from H38.1's `12531473` to `11322220`.
 - next seam is the outer edit lock-boundary.
 
-### H39.2 Active
+### H39.2 Result
 
 Goal: design the outer edit lock-boundary reduction.
 
@@ -1021,6 +1021,75 @@ Goal: design the outer edit lock-boundary reduction.
   - hidden runtime session handle table.
   - `.inc` rediscovery of loop shape.
   - benchmark-named whole-loop helper.
+
+Inventory:
+
+- existing MIR metadata:
+  - `array_text_edit_routes` proves the outer same-slot len-half
+    insert-mid edit in block `23`
+  - `array_text_observer_routes.executor_contract` proves the inner
+    conditional `indexOf("line") >= 0` + same-slot suffix store region
+  - `array_text_residence_sessions` is empty for `kilo_kernel_small` because
+    the outer body is not a single loopcarry len/store body
+- existing backend/runtime executor:
+  - the H25 single-region executor is valid only for one covered
+    loopcarry len/store route plus pure bookkeeping
+  - the H26 observer-store executor is valid only for the inner row scan
+  - the outer loop order is:
+    `edit(row) -> undo++ -> if i % 8 == 0 { observer-store rows } -> i++`
+
+Verdict:
+
+- H39.2 is closed as design / stop-line.
+- do not add an edit-only runtime session:
+  - it would still acquire the write lock once per outer iteration
+  - extending it across the observer-store call would hide lifetime/ordering
+    legality in runtime
+- the next clean keeper candidate is a MIR-owned combined region contract:
+  - one proof covers the outer loop header/body/latch and the nested
+    observer-store region
+  - `.inc` consumes only that metadata and emits one begin-site call
+  - Rust executes the edit + periodic observer-store in one RAII call; the
+    write guard never crosses the C ABI
+
+### H39.3 Active
+
+Goal: implement the first bounded combined edit-observer region proof.
+
+- contract shape:
+  - `proof_region=outer_loop_with_periodic_observer_store`
+  - `publication_boundary=none`
+  - `carrier=array_lane_text_cell`
+  - effects:
+    - `store.cell(lenhalf_insert_mid_const)`
+    - `observe.indexof`
+    - `store.cell(const_suffix_append)`
+    - `scalar_accumulator(+1)`
+  - consumer capabilities:
+    - `sink_store`
+    - `compare_only`
+    - `length_only_result_carry`
+- required MIR facts:
+  - outer loop bound and row modulus are constant
+  - edit route and observer route use the same array root
+  - the edit row index is `outer_i % row_modulus`
+  - the observer trigger is `outer_i % period == 0`
+  - the nested observer executor has `execution_mode=single_region_executor`
+  - no publish/objectize/generic escape appears between the covered effects
+  - the final scalar value used after the loop is the MIR-proven accumulator
+    result, not a runtime-inferred side effect
+- implementation order:
+  1. metadata-only route/proof + MIR JSON emission
+  2. `.inc` reader that validates the contract and still does no raw shape
+     rediscovery
+  3. one-call runtime-private RAII executor
+  4. perf keeper gate
+- reject seams:
+  - no hidden session table
+  - no helper-name truth in MIR
+  - no benchmark-name branch in runtime
+  - no source-content assumption beyond const needle/suffix metadata
+  - no broad loop executor framework until this single pattern wins
 
 ### H28.1 runtime-private literal search executor
 
