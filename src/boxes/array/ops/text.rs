@@ -386,6 +386,7 @@ impl ArrayBox {
         let observer_period_mask = observer_period
             .is_power_of_two()
             .then_some(observer_period - 1);
+        let needle4 = ArrayTextCell::four_byte_literal_word(needle);
         let mut items = self.items.write();
 
         if let ArrayStorage::Boxed(boxed) = &*items {
@@ -409,9 +410,17 @@ impl ArrayBox {
                     None => step % observer_period == 0,
                 };
                 if should_observe {
-                    for value in values.iter_mut().take(observer_bound) {
-                        if value.contains_literal(needle) {
-                            value.append_suffix(suffix);
+                    if let Some(needle4) = needle4 {
+                        for value in values.iter_mut().take(observer_bound) {
+                            if value.contains_four_byte_literal(needle4) {
+                                value.append_suffix(suffix);
+                            }
+                        }
+                    } else {
+                        for value in values.iter_mut().take(observer_bound) {
+                            if value.contains_literal(needle) {
+                                value.append_suffix(suffix);
+                            }
                         }
                     }
                 }
@@ -447,7 +456,12 @@ impl ArrayBox {
             if should_observe {
                 for idx in 0..observer_bound {
                     session.update(idx, |value| {
-                        if ArrayTextCell::string_contains_literal(value, needle) {
+                        let hit = if let Some(needle4) = needle4 {
+                            ArrayTextCell::string_contains_four_byte_literal(value, needle4)
+                        } else {
+                            ArrayTextCell::string_contains_literal(value, needle)
+                        };
+                        if hit {
                             ArrayTextCell::append_suffix_to_string(value, suffix);
                         }
                         0_i64

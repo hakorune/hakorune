@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.5.3 combined executor residual owner refresh)
-  - current blocker is `137x-H39.5.3 combined executor residual owner refresh`
+  - `phase-137x-H owner-first optimization return` (active; H39.5.4 combined executor post-literal residual owner refresh)
+  - current blocker is `137x-H39.5.4 combined executor post-literal residual owner refresh`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -902,9 +902,22 @@ Scope: current lane / next lane / restart order only.
             C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17651020`,
             `ny_aot_cycles=4233835`
           - result: keeper; `str::Range::get` falls out of the direct AOT top
-        - H39.5.3 active:
-          - re-annotate the post-range-cleanup combined executor closure
-          - choose the next narrow runtime leaf or reject further local cleanup
+        - H39.5.3 result:
+          - runtime-only 4-byte literal observer leaf; no MIR, `.inc`, or
+            public ABI changes
+          - whole `kilo_kernel_small = C 85 ms / Ny AOT 5 ms`,
+            `ny_aot_instr=35428450`, `ny_aot_cycles=6679916`
+          - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`,
+            `ny_aot_instr=9266200`, `ny_aot_cycles=2437087`
+          - middle `kilo_meso_substring_concat_array_set_loopcarry =
+            C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17650994`,
+            `ny_aot_cycles=4214918`
+          - result: keeper; next owner refresh must split residual combined
+            executor work from `memmove` / allocator mechanics
+        - H39.5.4 active:
+          - re-annotate after the 4-byte literal observer cleanup
+          - choose the next narrow runtime leaf or stop if the owner is broad
+            copy/allocation
           - do not touch MIR, `.inc`, or public ABI without new evidence
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`

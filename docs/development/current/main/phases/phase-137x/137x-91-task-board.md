@@ -459,10 +459,18 @@ phase README / current entry. Current active card:
     - result: keeper; whole `kilo_kernel_small = C 84 ms / Ny AOT 5 ms`,
       `ny_aot_instr=42303268`, `ny_aot_cycles=8732285`
     - `str::Range::get` falls out of the direct AOT top
-  - [ ] H39.5.3 combined executor residual owner refresh
+  - [x] H39.5.3 combined executor residual owner refresh
     - re-annotate the post-range-cleanup closure
     - choose the next narrow runtime leaf or reject further local cleanup
     - do not touch MIR, `.inc`, or public ABI without new evidence
+    - result: keeper; whole `kilo_kernel_small = C 85 ms / Ny AOT 5 ms`,
+      `ny_aot_instr=35428450`, `ny_aot_cycles=6679916`
+    - exact/middle guards stayed green
+  - [ ] H39.5.4 combined executor post-literal residual owner refresh
+    - re-annotate after the 4-byte literal observer cleanup
+    - split residual copy/allocation from observer branch mechanics
+    - stop if the remaining owner is broad `memmove` / allocator rather than
+      a narrow runtime leaf
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

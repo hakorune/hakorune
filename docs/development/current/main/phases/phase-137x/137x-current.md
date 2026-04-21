@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39.5.3 combined executor residual owner refresh`
+- current blocker token: `137x-H39.5.4 combined executor post-literal residual owner refresh`
 - current benchmark state:
-  - `C 84 ms / Ny AOT 5 ms`
-  - `ny_aot_instr=42303268`
-  - `ny_aot_cycles=8732285`
+  - `C 85 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=35428450`
+  - `ny_aot_cycles=6679916`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -28,13 +28,12 @@ ledger details; current implementation work should start here.
     byte-copy surgery did not become a keeper
   - H39.4 consumes the combined edit-observer MIR proof as one runtime-private
     executor call; the old per-iteration len-half helper is no longer emitted
-  - latest current-code asm top after H39.4:
-    - combined region executor closure: `82.23%`
-    - `__memmove_avx512_unaligned_erms`: `7.01%`
-    - `alloc::sync::Arc<T,A>::drop_slow`: `1.70%`
-    - `str` range get: `1.45%`
-    - `_int_malloc`: `1.10%`
-    - `realloc`: `1.00%`
+  - H39.5.3 specializes 4-byte literal observer mechanics inside the combined
+    executor without changing MIR, `.inc`, or public ABI
+  - latest current-code asm top after H39.5.3:
+    - combined region executor closure: `81.80%`
+    - `__memmove_avx512_unaligned_erms`: `8.44%`
+    - `_int_malloc`: `2.80%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -1344,6 +1343,54 @@ Goal: refresh the residual owner after the MidGap range cleanup.
   - runtime-only leaf cleanup if a sampled source helper is mechanically
     redundant
   - reject local cleanup and stop if the remaining owner is broad copy/alloc
+- forbidden:
+  - `.inc` shape rediscovery
+  - MIR metadata changes without a missing contract fact
+  - search-result cache or source-content assumptions
+
+Result:
+
+- implementation:
+  - runtime-only 4-byte literal observer leaf in `ArrayTextCell`
+  - combined executor precomputes the 4-byte literal word once and uses it for
+    text-cell observer checks
+  - no MIR metadata, `.inc`, or public ABI changes
+  - no search-result cache and no assumption that the source starts with
+    `"line"`
+- evidence:
+  - whole `kilo_kernel_small = C 85 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=35428450`
+  - `ny_aot_cycles=6679916`
+  - direct AOT asm top:
+    - combined executor closure: `81.80%`
+    - `__memmove_avx512_unaligned_erms`: `8.44%`
+    - `_int_malloc`: `2.80%`
+  - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+  - exact `ny_aot_instr=9266200`
+  - exact `ny_aot_cycles=2437087`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry =
+    C 3 ms / Ny AOT 4 ms`
+  - middle `ny_aot_instr=17650994`
+  - middle `ny_aot_cycles=4214918`
+- verdict:
+  - H39.5.3 is a keeper.
+  - The next owner is no longer generic 4-byte observer dispatch; residual
+    samples are combined executor work plus `memmove` / allocator mechanics.
+
+### H39.5.4 Active
+
+Goal: refresh the residual copy/allocation owner after the 4-byte literal
+observer cleanup.
+
+- first step:
+  - re-run direct AOT asm/annotate on `kilo_kernel_small`
+  - split the remaining combined executor closure between MidGap insert copy,
+    suffix append copy, observer scan branch mechanics, `memmove`, and
+    allocation
+- allowed:
+  - runtime-only leaf cleanup if a sampled block is mechanically redundant
+  - stop and record a reject/defer if the remaining owner is broad copy/alloc
+    rather than a narrow leaf
 - forbidden:
   - `.inc` shape rediscovery
   - MIR metadata changes without a missing contract fact

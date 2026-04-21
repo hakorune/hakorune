@@ -124,6 +124,36 @@ impl ArrayTextCell {
     }
 
     #[inline(always)]
+    pub(super) fn four_byte_literal_word(needle: &str) -> Option<u32> {
+        if needle.len() == 4 {
+            Some(read_u32_unaligned(needle.as_ptr()))
+        } else {
+            None
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn contains_four_byte_literal(&self, needle: u32) -> bool {
+        match self {
+            Self::Flat(value) => text_contains_four_byte_literal(value, needle),
+            Self::MidGap {
+                left,
+                right,
+                right_start,
+            } => mid_gap_contains_four_byte_literal(
+                left,
+                active_mid_gap_right(right, *right_start),
+                needle,
+            ),
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn string_contains_four_byte_literal(value: &str, needle: u32) -> bool {
+        text_contains_four_byte_literal(value, needle)
+    }
+
+    #[inline(always)]
     pub(super) fn append_suffix_to_string(value: &mut String, suffix: &str) {
         append_text_suffix(value, suffix)
     }
@@ -325,6 +355,24 @@ fn mid_gap_contains_literal(left: &str, right: &str, needle: &str) -> bool {
 }
 
 #[inline(always)]
+fn text_contains_four_byte_literal(value: &str, needle: u32) -> bool {
+    contains_four_byte_word(value.as_bytes(), needle)
+}
+
+#[inline(always)]
+fn mid_gap_contains_four_byte_literal(left: &str, right: &str, needle: u32) -> bool {
+    let left = left.as_bytes();
+    let right = right.as_bytes();
+    if left.len() + right.len() < 4 {
+        return false;
+    }
+    if contains_four_byte_word(left, needle) || contains_four_byte_word(right, needle) {
+        return true;
+    }
+    mid_gap_boundary_contains_four_byte(left, right, needle)
+}
+
+#[inline(always)]
 fn mid_gap_boundary_contains(left: &[u8], right: &[u8], needle: &[u8]) -> bool {
     if needle.len() < 2 || left.is_empty() || right.is_empty() {
         return false;
@@ -332,6 +380,26 @@ fn mid_gap_boundary_contains(left: &[u8], right: &[u8], needle: &[u8]) -> bool {
     let max_left_take = needle.len().saturating_sub(1).min(left.len());
     for left_take in 1..=max_left_take {
         let right_take = needle.len() - left_take;
+        if right_take > right.len() {
+            continue;
+        }
+        let left_start = left.len() - left_take;
+        if left[left_start..] == needle[..left_take] && right[..right_take] == needle[left_take..] {
+            return true;
+        }
+    }
+    false
+}
+
+#[inline(always)]
+fn mid_gap_boundary_contains_four_byte(left: &[u8], right: &[u8], needle: u32) -> bool {
+    if left.is_empty() || right.is_empty() {
+        return false;
+    }
+    let needle = needle.to_ne_bytes();
+    let max_left_take = 3.min(left.len());
+    for left_take in 1..=max_left_take {
+        let right_take = 4 - left_take;
         if right_take > right.len() {
             continue;
         }
@@ -601,6 +669,24 @@ fn contains_four_bytes_from(
 }
 
 #[inline(always)]
+fn contains_four_byte_word(haystack: &[u8], needle: u32) -> bool {
+    if haystack.len() < 4 {
+        return false;
+    }
+    let limit = haystack.len() - 4;
+    let mut index = 0;
+    while index <= limit {
+        // SAFETY: `index <= len - 4`, so the unaligned word read stays in-bounds.
+        let word = unsafe { read_u32_unaligned(haystack.as_ptr().add(index)) };
+        if word == needle {
+            return true;
+        }
+        index += 1;
+    }
+    false
+}
+
+#[inline(always)]
 fn contains_short_slice_from(
     haystack: &[u8],
     needle: &[u8],
@@ -689,6 +775,35 @@ mod tests {
         assert!(cell.contains_literal("XY"));
         assert!(cell.contains_literal("Yb"));
         assert!(!cell.contains_literal("Ya"));
+    }
+
+    #[test]
+    fn four_byte_literal_word_matches_generic_contains() {
+        let needles = ["line", "seed", "🙂", "none"];
+        let cells = [
+            ArrayTextCell::flat("line-seed🙂".to_string()),
+            ArrayTextCell::MidGap {
+                left: "ab".to_string(),
+                right: "cd-line".to_string(),
+                right_start: 0,
+            },
+            ArrayTextCell::MidGap {
+                left: "prefix-line".to_string(),
+                right: "tail".to_string(),
+                right_start: 0,
+            },
+        ];
+
+        for cell in cells {
+            for needle in needles {
+                let word = ArrayTextCell::four_byte_literal_word(needle).unwrap();
+                assert_eq!(
+                    cell.contains_four_byte_literal(word),
+                    cell.contains_literal(needle),
+                    "cell={cell:?} needle={needle:?}"
+                );
+            }
+        }
     }
 
     #[test]
