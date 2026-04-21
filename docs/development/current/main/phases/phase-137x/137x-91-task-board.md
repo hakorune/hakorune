@@ -481,6 +481,9 @@ phase README / current entry. Current active card:
     - `.inc` must consume metadata only and must not rediscover literals,
       source provenance, or loop shape
     - runtime keeps the checked path when the proof is absent
+    - H40.1 landed: optional `byte_boundary_proof=ascii_preserved_text_cell`
+      is produced by MIR and mirrored by `.inc`; runtime behavior is still
+      unchanged until a proof-consuming leaf is implemented
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

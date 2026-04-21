@@ -1468,6 +1468,38 @@ metadata before considering a runtime fast leaf that skips boundary checks.
   - runtime behavior is unchanged when the proof is absent
   - exact/middle/whole gates remain green before any keeper claim
 
+H40.1 metadata proof slice:
+
+- implementation:
+  - `array_text_combined_regions` now carries optional
+    `byte_boundary_proof=ascii_preserved_text_cell`
+  - JSON also emits `text_encoding=ascii_preserved` and
+    `split_boundary_policy=byte_index_safe`
+  - the proof is only produced when MIR sees an ASCII seed loop for the same
+    array plus ASCII edit / observer / suffix literals in the covered region
+  - `.inc` accepts and mirrors the optional proof bit; it still does not
+    rediscover source shape
+  - runtime behavior is unchanged in this slice
+- verification:
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `cargo check -q`
+  - `cargo test -q benchmark_kilo_kernel_small_has_combined_edit_observer_region -- --nocapture`
+  - `cargo run -q --bin hakorune -- --emit-mir-json target/perf_state/h40_byte_boundary_proof.mir.json benchmarks/bench_kilo_kernel_small.hako`
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 1`
+  - JSON proof check:
+    `byte_boundary_proof=ascii_preserved_text_cell`,
+    `text_encoding=ascii_preserved`,
+    `split_boundary_policy=byte_index_safe`
+  - smoke perf/compile check:
+    `kilo_kernel_small = C 82 ms / Ny AOT 5 ms`,
+    `ny_aot_instr=35428267`, `ny_aot_cycles=6731377`
+- next:
+  - compile the AOT path with the `.inc` reader active
+  - add a proof-consuming runtime fast leaf or helper variant only after the
+    checked/no-proof path remains unchanged
+
 ### H28.1 runtime-private literal search executor
 
 - decision:

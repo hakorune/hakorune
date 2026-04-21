@@ -99,6 +99,19 @@ impl std::fmt::Display for ArrayTextCombinedRegionConsumerCapability {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayTextCombinedRegionByteBoundaryProof {
+    AsciiPreservedTextCell,
+}
+
+impl std::fmt::Display for ArrayTextCombinedRegionByteBoundaryProof {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::AsciiPreservedTextCell => f.write_str("ascii_preserved_text_cell"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextCombinedRegionRoute {
     pub begin_block: BasicBlockId,
@@ -142,6 +155,7 @@ pub struct ArrayTextCombinedRegionRoute {
     pub execution_mode: ArrayTextCombinedRegionExecutionMode,
     pub proof_region: ArrayTextCombinedRegionProofRegion,
     pub proof: ArrayTextCombinedRegionProof,
+    pub byte_boundary_proof: Option<ArrayTextCombinedRegionByteBoundaryProof>,
 }
 
 pub fn refresh_module_array_text_combined_region_routes(module: &mut MirModule) {
@@ -251,6 +265,16 @@ fn derive_combined_region(
         return None;
     }
 
+    let byte_boundary_proof = prove_ascii_preserved_text_cell_boundary(
+        function,
+        def_map,
+        edit_route,
+        observer_route,
+        observer_mapping,
+        begin_block,
+        row_modulus_const,
+    );
+
     Some(ArrayTextCombinedRegionRoute {
         begin_block,
         header_block,
@@ -293,6 +317,7 @@ fn derive_combined_region(
         execution_mode: ArrayTextCombinedRegionExecutionMode::SingleRegionExecutor,
         proof_region: ArrayTextCombinedRegionProofRegion::OuterLoopWithPeriodicObserverStore,
         proof: ArrayTextCombinedRegionProof::OuterLenHalfEditWithPeriodicObserverStore,
+        byte_boundary_proof,
     })
 }
 
@@ -316,6 +341,16 @@ fn const_i64(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> O
             value: ConstValue::Integer(value),
             ..
         } => Some(*value),
+        _ => None,
+    }
+}
+
+fn const_string(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> Option<String> {
+    match defining_instruction(function, def_map, value)? {
+        MirInstruction::Const {
+            value: ConstValue::String(text),
+            ..
+        } => Some(text.clone()),
         _ => None,
     }
 }
@@ -529,6 +564,221 @@ fn is_add_const_one_from(
         }
         _ => false,
     })
+}
+
+fn prove_ascii_preserved_text_cell_boundary(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    edit_route: &ArrayTextEditRoute,
+    observer_route: &ArrayTextObserverRoute,
+    observer_mapping: &ArrayTextObserverStoreRegionMapping,
+    begin_block: BasicBlockId,
+    row_modulus_const: i64,
+) -> Option<ArrayTextCombinedRegionByteBoundaryProof> {
+    if !edit_route.middle_text.is_ascii()
+        || !observer_route.observer_arg0_repr.text()?.is_ascii()
+        || !observer_mapping.suffix_text.is_ascii()
+    {
+        return None;
+    }
+    ascii_seed_loop_initializes_text_array(
+        function,
+        def_map,
+        begin_block,
+        edit_route.array_value,
+        row_modulus_const,
+    )
+    .then_some(ArrayTextCombinedRegionByteBoundaryProof::AsciiPreservedTextCell)
+}
+
+fn ascii_seed_loop_initializes_text_array(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    begin_block: BasicBlockId,
+    array_value: ValueId,
+    expected_bound: i64,
+) -> bool {
+    let Some(begin) = function.blocks.get(&begin_block) else {
+        return false;
+    };
+    if begin.predecessors.len() != 1 {
+        return false;
+    }
+    if block_has_same_array_method_call(function, def_map, begin, array_value) {
+        return false;
+    }
+
+    let seed_header_block = *begin.predecessors.iter().next().expect("checked len");
+    let Some(seed_header) = function.blocks.get(&seed_header_block) else {
+        return false;
+    };
+    let Some(seed_body_block) = loop_body_that_exits_to(seed_header, begin_block) else {
+        return false;
+    };
+    let Some(seed_body) = function.blocks.get(&seed_body_block) else {
+        return false;
+    };
+    if !matches!(
+        seed_body.terminator.as_ref(),
+        Some(MirInstruction::Jump { target, .. }) if *target == seed_header_block
+    ) {
+        return false;
+    }
+    let Some(seed_preheader_block) =
+        single_non_latch_predecessor(function, seed_header_block, seed_body_block)
+    else {
+        return false;
+    };
+    let Some(seed_preheader) = function.blocks.get(&seed_preheader_block) else {
+        return false;
+    };
+    if block_has_same_array_method_call(function, def_map, seed_preheader, array_value) {
+        return false;
+    }
+    if !has_counted_loop_bound(
+        function,
+        def_map,
+        seed_header,
+        seed_preheader_block,
+        seed_body_block,
+        expected_bound,
+    ) {
+        return false;
+    }
+    body_pushes_single_ascii_literal(function, def_map, seed_body, array_value)
+}
+
+fn loop_body_that_exits_to(header: &BasicBlock, exit_block: BasicBlockId) -> Option<BasicBlockId> {
+    let MirInstruction::Branch {
+        then_bb, else_bb, ..
+    } = header.terminator.as_ref()?
+    else {
+        return None;
+    };
+    if *then_bb == exit_block {
+        Some(*else_bb)
+    } else if *else_bb == exit_block {
+        Some(*then_bb)
+    } else {
+        None
+    }
+}
+
+fn single_non_latch_predecessor(
+    function: &MirFunction,
+    header_block: BasicBlockId,
+    latch_block: BasicBlockId,
+) -> Option<BasicBlockId> {
+    let header = function.blocks.get(&header_block)?;
+    let mut candidates = header
+        .predecessors
+        .iter()
+        .copied()
+        .filter(|pred| *pred != latch_block);
+    let preheader = candidates.next()?;
+    candidates.next().is_none().then_some(preheader)
+}
+
+fn has_counted_loop_bound(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    header: &BasicBlock,
+    preheader_block: BasicBlockId,
+    body_block: BasicBlockId,
+    expected_bound: i64,
+) -> bool {
+    header.instructions.iter().any(|inst| {
+        let MirInstruction::Phi { dst, .. } = inst else {
+            return false;
+        };
+        let Some((_bound_value, bound_const)) =
+            match_header_bound(function, def_map, header, *dst, body_block)
+        else {
+            return false;
+        };
+        if bound_const != expected_bound {
+            return false;
+        }
+        let Some((initial, next)) =
+            match_loop_phi_inputs(header, *dst, preheader_block, body_block)
+        else {
+            return false;
+        };
+        const_i64(function, def_map, initial) == Some(0)
+            && is_add_const_one_from(
+                function,
+                def_map,
+                function.blocks.get(&body_block).expect("body checked"),
+                next,
+                *dst,
+            )
+    })
+}
+
+fn body_pushes_single_ascii_literal(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    body: &BasicBlock,
+    array_value: ValueId,
+) -> bool {
+    let mut push_count = 0;
+    for inst in &body.instructions {
+        let Some(method) = same_array_method_call(function, def_map, inst, array_value) else {
+            continue;
+        };
+        let ("push", args) = method else {
+            return false;
+        };
+        if args.len() != 1 {
+            return false;
+        }
+        let Some(text) = const_string(function, def_map, args[0]) else {
+            return false;
+        };
+        if !text.is_ascii() {
+            return false;
+        }
+        push_count += 1;
+    }
+    push_count == 1
+}
+
+fn block_has_same_array_method_call(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: &BasicBlock,
+    array_value: ValueId,
+) -> bool {
+    block
+        .instructions
+        .iter()
+        .any(|inst| same_array_method_call(function, def_map, inst, array_value).is_some())
+}
+
+fn same_array_method_call<'a>(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &'a MirInstruction,
+    array_value: ValueId,
+) -> Option<(&'a str, &'a [ValueId])> {
+    match inst {
+        MirInstruction::Call {
+            callee:
+                Some(super::definitions::Callee::Method {
+                    box_name,
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            args,
+            ..
+        } if matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
+            && root(function, def_map, *receiver) == root(function, def_map, array_value) =>
+        {
+            Some((method.as_str(), args.as_slice()))
+        }
+        _ => None,
+    }
 }
 
 fn match_outer_accumulator(

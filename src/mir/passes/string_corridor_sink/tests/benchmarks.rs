@@ -485,6 +485,14 @@ fn benchmark_kilo_kernel_small_has_combined_edit_observer_region() {
     assert_eq!(route.edit_middle_text, "xx");
     assert_eq!(route.observer_needle_text, "line");
     assert_eq!(route.observer_suffix_text, "ln");
+    assert_eq!(
+        route
+            .byte_boundary_proof
+            .map(|proof| proof.to_string())
+            .as_deref(),
+        Some("ascii_preserved_text_cell"),
+        "kilo kernel should carry a MIR-owned byte-boundary proof for the covered ASCII text-cell region"
+    );
     assert_ne!(
         route.accumulator_phi_value, route.outer_index_phi_value,
         "result accumulator must not alias the loop-index PHI"

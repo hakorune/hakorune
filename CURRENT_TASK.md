@@ -927,6 +927,16 @@ Scope: current lane / next lane / restart order only.
             checks
           - `.inc` consumes metadata only; runtime keeps the checked path when
             proof is absent
+        - H40.1 result:
+          - MIR emits optional `byte_boundary_proof=ascii_preserved_text_cell`
+            for the covered ASCII seed/edit/observer region
+          - JSON also carries `text_encoding=ascii_preserved` and
+            `split_boundary_policy=byte_index_safe`
+          - `.inc` mirrors the proof bit without raw shape rediscovery
+          - AOT smoke remains `kilo_kernel_small = C 82 ms / Ny AOT 5 ms`,
+            `ny_aot_instr=35428267`, `ny_aot_cycles=6731377`
+          - runtime behavior is unchanged; next slice consumes the proof in a
+            checked-fallback fast leaf
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

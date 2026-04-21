@@ -347,6 +347,11 @@ pub(super) fn build_mir_json_root(
                 obj["execution_mode"] = json!(route.execution_mode.to_string());
                 obj["proof_region"] = json!(route.proof_region.to_string());
                 obj["proof"] = json!(route.proof.to_string());
+                if let Some(proof) = route.byte_boundary_proof {
+                    obj["byte_boundary_proof"] = json!(proof.to_string());
+                    obj["text_encoding"] = json!("ascii_preserved");
+                    obj["split_boundary_policy"] = json!("byte_index_safe");
+                }
                 obj["publication_boundary"] = json!("none");
                 obj["carrier"] = json!("array_lane_text_cell");
                 obj["effects"] = json!([

@@ -23,6 +23,7 @@
         long long needle_len;
         long long suffix_reg;
         long long suffix_len;
+        int byte_boundary_safe;
       };
 
       auto int array_text_combined_region_read_i64(
@@ -100,6 +101,18 @@
         const char* carrier = route ? read_str(route, "carrier") : NULL;
         const char* materialization_policy =
             route ? read_str(route, "materialization_policy") : NULL;
+        const char* byte_boundary_proof =
+            route ? read_str(route, "byte_boundary_proof") : NULL;
+        const char* text_encoding = route ? read_str(route, "text_encoding") : NULL;
+        const char* split_boundary_policy =
+            route ? read_str(route, "split_boundary_policy") : NULL;
+        int has_byte_boundary_metadata =
+            byte_boundary_proof || text_encoding || split_boundary_policy;
+        int byte_boundary_metadata_valid =
+            !has_byte_boundary_metadata ||
+            (byte_boundary_proof && !strcmp(byte_boundary_proof, "ascii_preserved_text_cell") &&
+             text_encoding && !strcmp(text_encoding, "ascii_preserved") &&
+             split_boundary_policy && !strcmp(split_boundary_policy, "byte_index_safe"));
         yyjson_val* effects = route ? yyjson_obj_get(route, "effects") : NULL;
         yyjson_val* capabilities =
             route ? yyjson_obj_get(route, "consumer_capabilities") : NULL;
@@ -119,6 +132,7 @@
                carrier && !strcmp(carrier, "array_lane_text_cell") &&
                materialization_policy &&
                    !strcmp(materialization_policy, "text_resident_or_stringlike_slot") &&
+               byte_boundary_metadata_valid &&
                array_text_combined_region_string_array_eq4(
                    effects,
                    "store.cell(lenhalf_insert_mid_const)",
@@ -176,6 +190,16 @@
         if (!route || !out) return;
         memset(out, 0, sizeof(*out));
         out->matched = 1;
+        {
+          const char* byte_boundary_proof = read_str(route, "byte_boundary_proof");
+          const char* text_encoding = read_str(route, "text_encoding");
+          const char* split_boundary_policy = read_str(route, "split_boundary_policy");
+          out->byte_boundary_safe =
+              byte_boundary_proof &&
+              !strcmp(byte_boundary_proof, "ascii_preserved_text_cell") &&
+              text_encoding && !strcmp(text_encoding, "ascii_preserved") &&
+              split_boundary_policy && !strcmp(split_boundary_policy, "byte_index_safe");
+        }
         if (array_text_combined_region_read_i64(route, "begin_block", &tmp)) out->begin_block = tmp;
         if (array_text_combined_region_read_i64(route, "header_block", &tmp)) out->header_block = tmp;
         if (array_text_combined_region_read_i64(route, "edit_block", &tmp)) out->edit_block = tmp;
