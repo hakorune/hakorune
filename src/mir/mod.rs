@@ -10,6 +10,7 @@ pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
 pub mod array_string_store_micro_seed_plan; // MIR-owned route plan for temporary array string-store micro seed bridge
+pub mod array_text_edit_plan; // MIR-owned route plans for array/text same-cell edits
 pub mod array_text_loopcarry_plan; // MIR-owned route plans for active array/text loopcarry lane
 pub mod array_text_observer_plan; // MIR-owned route plans for generic array/text read-side observers
 pub mod array_text_observer_region_contract; // Nested executor contract for observer-store regions
@@ -111,6 +112,10 @@ pub use array_string_store_micro_seed_plan::{
     refresh_function_array_string_store_micro_seed_route,
     refresh_module_array_string_store_micro_seed_routes, ArrayStringStoreMicroSeedProof,
     ArrayStringStoreMicroSeedRoute,
+};
+pub use array_text_edit_plan::{
+    refresh_function_array_text_edit_routes, refresh_module_array_text_edit_routes,
+    ArrayTextEditKind, ArrayTextEditProof, ArrayTextEditRoute, ArrayTextEditSplitPolicy,
 };
 pub use array_text_loopcarry_plan::{
     refresh_function_array_text_loopcarry_len_store_routes,

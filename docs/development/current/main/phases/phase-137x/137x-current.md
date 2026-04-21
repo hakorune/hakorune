@@ -5,31 +5,42 @@ ledger details; current implementation work should start here.
 
 ## Current Lane
 
-- lane: `137x-H25 array text residence session contract`
-- front: `kilo_meso_substring_concat_array_set_loopcarry`
-- current blocker token: `137x-H26 array text observer-store region contract`
+- lane: `137x-H owner-first optimization return`
+- front: `kilo_kernel_small`
+- current blocker token: `137x-H28 array text observer-store search/copy owner split`
 - current benchmark state:
-  - `C 3 ms / Ny AOT 3 ms`
-  - `ny_aot_instr=16570267`
-  - `ny_aot_cycles=3471656`
+  - `C 83 ms / Ny AOT 10 ms`
+  - `ny_aot_instr=144977171`
+  - `ny_aot_cycles=30931233`
 - active owner:
-  - whole-front inner scan observer + conditional same-slot suffix store
-  - H25d closed with the runtime-private single-region executor at middle
-    parity
+  - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
+    lowering the MIR-owned len-half insert-mid edit contract to one
+    runtime-private helper
+  - the new H27 helper is not the dominant owner
+  - the remaining whole-front owner moved back to the H26 observer-store
+    region executor: const needle search plus suffix mutation/copy under one
+    write frame
   - latest asm top:
-    - region store mutation closure: `52.65%`
-    - `__memmove_avx512_unaligned_erms`: `35.67%`
+    - `<&str as core::str::pattern::Pattern>::is_contained_in`: `34.68%`
+    - `__memmove_avx512_unaligned_erms`: `24.83%`
+    - `with_array_text_write_txn` closure: `15.16%`
+    - observer-store region closure: `11.02%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
   - per-iteration exported fused helper call: removed by H25c.2c-4
   - write-lock acquire/release in emitted AOT loop: moved inside one Rust call
+  - inner `array.get(j).indexOf("line")` + suffix store: removed from emitted
+    AOT loop by H26
+  - outer len-half edit `string_len_hi`: removed by H27 from the emitted edit
+    path; residual `string_len_hi` belongs to the final 64-row sum loop only
 
 ## Active Contract
 
 - MIR owns:
   - residence-session eligibility
   - loop/session lifetime
+  - edit split policy such as `source_len / 2`
   - alias/publication boundary
   - covered route facts
 - `.inc` owns:
@@ -41,6 +52,86 @@ ledger details; current implementation work should start here.
   - text storage/slot access
   - mutation execution
   - no legality/provenance inference
+
+## H28 Active
+
+Goal: split the remaining observer-store region executor owner without making
+runtime or `.inc` semantic owners.
+
+- target owner:
+  - const needle search in the H26 observer-store region executor
+  - suffix mutation/copy inside the same runtime-private write frame
+- allowed next work:
+  - add MIR metadata only if the executor needs a generic fact such as
+    `needle_literal`, `observer_kind`, or `mutation_kind` to choose a runtime
+    executor variant
+  - keep `.inc` as metadata-to-call emit only
+  - keep runtime as execution mechanics only: search, copy, mutation, and guard
+    residence inside one call
+- reject seam:
+  - no source-prefix assumption such as every row contains `"line"`
+  - no search-result cache
+  - no runtime-owned legality/provenance/publication
+  - no benchmark-named whole-loop helper
+  - no C-side raw shape rediscovery
+- first step:
+  - inspect the H26 observer-store runtime helper and decide whether the next
+    keeper is a fixed-literal search executor, a copy/mutation split, or a
+    no-code closeout requiring more MIR proof
+
+## H27 Landed
+
+Goal: move the outer edit path's len-half split decision above the backend.
+
+- target shape:
+  - `array.get(row)` source
+  - `source.length()`
+  - `split = length / 2`
+  - `source.substring(0, split) + const + source.substring(split, length)`
+  - same-array, same-index `set`
+- MIR contract:
+  - `edit_kind=insert_mid_const`
+  - `split_policy=source_len_div_const(2)`
+  - `publication_boundary=none`
+  - `carrier=array_lane_text_cell`
+  - `effects=[load.ref, store.cell]`
+  - `consumer_capabilities=[sink_store]`
+  - `materialization_policy=text_resident_or_stringlike_slot`
+- backend rule:
+  - consume metadata by `get_block/get_instruction_index`
+  - emit one helper that computes the current slot length and split inside the
+    runtime-private mutation frame
+  - skip only MIR-covered len/split/substring/concat/set instructions
+  - do not rediscover this legality from raw JSON
+- runtime rule:
+  - execute one same-slot insert-mid edit for the selected cell
+  - compute `split = current_text.len() / 2` as the MIR-selected policy
+  - do not decide legality, provenance, publication, or route fallback
+- acceptance:
+  - PASS: emitted `kilo_kernel_small` outer edit path no longer calls
+    `nyash.array.string_len_hi`
+  - PASS: exact and middle guards remain no-regression
+  - result:
+    - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 10 ms`,
+      `ny_aot_instr=144977171`, `ny_aot_cycles=30931233`
+    - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
+    - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+      `C 4 ms / Ny AOT 4 ms`
+  - route proof:
+    - MIR JSON emits one `array_text_edit_routes` entry with
+      `edit_kind=insert_mid_const`,
+      `split_policy=source_len_div_const(2)`,
+      `proof=array_get_lenhalf_insert_mid_same_slot`
+    - backend route trace hits `stage=array_text_edit_lenhalf`
+      with `reason=mir_route_metadata`
+    - lowered outer edit block emits one
+      `nyash.array.string_insert_mid_lenhalf_store_hisi` call
+  - verdict:
+    - small keeper / contract cleanup
+    - instruction count improved by about `3.1%`, cycles by about `2.6%`;
+      wall time stayed in the same `10 ms` band
+    - next code card must start from the H28 observer-store search/copy owner,
+      not from more len-half edit surgery
 
 ## H25a Landed
 

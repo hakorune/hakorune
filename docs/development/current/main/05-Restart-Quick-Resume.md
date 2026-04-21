@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H25 array text residence session contract)
+  - `phase-137x-H owner-first optimization return` (active; H28 array text observer-store search/copy owner split)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H26 array text observer-store region contract`
+    - current blocker is `137x-H28 array text observer-store search/copy owner split`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H26 array text observer-store region contract`
+  - `137x-H28 array text observer-store search/copy owner split`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -53,6 +53,10 @@ cargo check --features perf-observe -p nyash_kernel
   - adopted middle bridge:
     - `substring + concat + array.set + loopcarry`
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
+  - current whole-front owner after H27:
+    - H26 observer-store region executor remains the active owner family
+    - H27 removed the outer edit `nyash.array.string_len_hi` call
+    - inspect fixed const-needle search and suffix mutation/copy before code
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

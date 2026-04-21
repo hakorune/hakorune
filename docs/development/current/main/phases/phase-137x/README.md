@@ -25,7 +25,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H25 array text residence session contract)
+- current lane: `phase-137x-H owner-first optimization return` (active; H28 array text observer-store search/copy owner split)
 - active current entry: `137x-current.md`
 - active contract map: `137x-array-text-contract-map.md`
 - semantic lock:
@@ -1666,6 +1666,79 @@ H26.2/H26.3/H26.4 observer-store region executor keeper:
   - Decide via owner refresh whether residual search / length observer deserves
     another generic MIR consumer capability card, or whether H26 closes and the
     next card starts from fresh perf evidence.
+
+H26e owner refresh / H27 cut:
+
+- Owner refresh commands:
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+  - `bash tools/perf/trace_optimization_bundle.sh --input kilo_kernel_small --route direct --callee-substr string_len --out-dir target/perf_state/h26e_owner_refresh`
+- Current result:
+  - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 10 ms`,
+    `ny_aot_instr=149657100`, `ny_aot_cycles=31814977`.
+  - asm top: `<&str as core::str::pattern::Pattern>::is_contained_in`
+    `29.05%`, `__memmove_avx512_unaligned_erms` `27.28%`,
+    `nyash.array.string_len_hi` `20.76%`.
+  - emitted outer edit path:
+    `array.get(row) -> nyash.array.string_len_hi -> split=len/2 ->
+    nyash.array.string_insert_mid_store_hisii`.
+- Verdict:
+  - H26 is closed; do not widen H26 with source-prefix/source-length/ASCII
+    assumptions.
+  - Open H27 as an array/text edit contract: MIR owns
+    `source_len_div_const(2)` and same-slot insert-mid legality; `.inc` emits
+    from metadata; runtime computes the current cell length and mutation only.
+- H27 guard:
+  - no benchmark-named helper
+  - no raw C-side legality rediscovery for the new path
+  - no runtime-owned provenance/publication/route selection
+  - exact and middle guards must remain no-regression
+
+H27 landed / H28 cut:
+
+- Implementation:
+  - MIR now emits `array_text_edit_routes` for the active same-slot edit
+    contract:
+    `array.get(row) -> length -> source_len_div_const(2) -> substring concat
+    -> same-array set`.
+  - `.inc` validates the MIR-owned metadata and emits one
+    `nyash.array.string_insert_mid_lenhalf_store_hisi` call from the get site;
+    it skips only covered MIR instructions and does not rediscover legality
+    from raw JSON.
+  - Runtime computes `split = current_text.len() / 2` inside the selected cell
+    mutation frame as the MIR-selected policy; it does not decide legality,
+    provenance, publication, or route fallback.
+- Verification:
+  - `cargo test -q array_text_edit_plan --lib`
+  - `cargo check -q -p nyash_kernel`
+  - `bash tools/perf/build_perf_release.sh`
+  - `NYASH_LLVM_ROUTE_TRACE=1 bash tools/perf/trace_optimization_bundle.sh --input kilo_kernel_small --route direct --callee-substr string_len --out-dir target/perf_state/h27_lenhalf_edit`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+  - `bash tools/checks/dev_gate.sh quick`
+- Evidence:
+  - route trace hits `stage=array_text_edit_lenhalf result=hit
+    reason=mir_route_metadata`.
+  - emitted outer edit block calls
+    `nyash.array.string_insert_mid_lenhalf_store_hisi` and no longer calls
+    `nyash.array.string_len_hi`.
+  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 10 ms`,
+    `ny_aot_instr=144977171`, `ny_aot_cycles=30931233`.
+  - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`.
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 4 ms / Ny AOT 4 ms`.
+- Verdict:
+  - H27 is a small keeper / contract cleanup: instructions dropped from
+    `149657100` to `144977171` and cycles from `31814977` to `30931233`, but
+    wall time stayed in the `10 ms` band.
+  - The next owner is not the len-half edit helper. H28 starts from the
+    observer-store region executor: fixed const-needle search and suffix
+    mutation/copy mechanics under the MIR-owned H26 region contract.
+  - H28 guard: no source-prefix assumption, no search-result cache, no
+    benchmark-named whole-loop helper, no runtime-owned legality/provenance,
+    and no C-side raw shape rediscovery.
 
 ## Legacy Retirement Ledger
 

@@ -421,6 +421,8 @@
         fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_store_hisi\"(i64, i64, ptr, i64)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
         fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_store_hisii\"(i64, i64, ptr, i64, i64)\n");
+      if (needs.arr_get && needs.arr_set)
+        fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_lenhalf_store_hisi\"(i64, i64, ptr, i64)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
         fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_subrange_store_hisiii\"(i64, i64, ptr, i64, i64, i64)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))

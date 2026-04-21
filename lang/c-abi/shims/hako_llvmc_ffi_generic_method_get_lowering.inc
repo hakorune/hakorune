@@ -23,6 +23,7 @@
         struct ArrayStringLenWindowMatch string_len_match;
         const char* string_len_reason = NULL;
         char string_len_extra[256];
+        struct ArrayTextEditLenHalfRouteMetadata edit_lenhalf_match;
         struct ArrayTextResidenceSessionRouteMetadata residence_session_match;
         struct ArrayStringLoopCarryLenStoreMatch loopcarry_match;
         char loopcarry_ab[360];
@@ -96,6 +97,66 @@
           set_type(loopcarry_match.result_len_dst, T_I64);
           for (int si = 0; si < loopcarry_match.skip_n; si++) {
             skip_inst[loopcarry_match.skip_iis[si]] = 1;
+          }
+          return 1;
+        }
+        if (hako_llvmc_window_array_text_read_enabled(
+                bname, recv_org, runtime_array_string) &&
+            match_array_text_edit_lenhalf_route_metadata(bid, ii, &edit_lenhalf_match)) {
+          char edit_ab[320];
+          edit_ab[0] = '\0';
+          append_i64_arg_ref(edit_ab, sizeof(edit_ab), recv, 1);
+          if (a0) append_i64_arg_ref(edit_ab, sizeof(edit_ab), a0, 0);
+          strncat(
+              edit_ab,
+              ", ptr getelementptr inbounds (",
+              sizeof(edit_ab) - strlen(edit_ab) - 1);
+          {
+            char tail[128];
+            snprintf(
+                tail,
+                sizeof(tail),
+                "[%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+                edit_lenhalf_match.middle_len + 1,
+                edit_lenhalf_match.middle_reg);
+            strncat(edit_ab, tail, sizeof(edit_ab) - strlen(edit_ab) - 1);
+          }
+          {
+            char tail[64];
+            snprintf(tail, sizeof(tail), ", i64 %lld", edit_lenhalf_match.middle_len);
+            strncat(edit_ab, tail, sizeof(edit_ab) - strlen(edit_ab) - 1);
+          }
+          fprintf(
+              f,
+              "  %%r%lld = call i64 @\"nyash.array.string_insert_mid_lenhalf_store_hisi\"(%s)\n",
+              dst,
+              edit_ab);
+          set_type(dst, T_I64);
+          if (dst && runtime_array_string) {
+            set_origin(dst, ORG_STRING);
+            set_scan_origin(dst, ORG_STRING);
+          }
+          for (int si = 0; si < edit_lenhalf_match.skip_n; si++) {
+            skip_inst[edit_lenhalf_match.skip_iis[si]] = 1;
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            char edit_extra[256];
+            snprintf(
+                edit_extra,
+                sizeof(edit_extra),
+                "ii=%zu dst=%lld recv=%lld idx=%lld middle=%lld middle_len=%lld skip_n=%d proof=array_get_lenhalf_insert_mid_same_slot",
+                ii,
+                dst,
+                recv,
+                a0,
+                edit_lenhalf_match.middle_reg,
+                edit_lenhalf_match.middle_len,
+                edit_lenhalf_match.skip_n);
+            hako_llvmc_emit_route_trace(
+                "array_text_edit_lenhalf",
+                "hit",
+                "mir_route_metadata",
+                edit_extra);
           }
           return 1;
         }

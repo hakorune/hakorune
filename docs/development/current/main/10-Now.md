@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H25 array text residence session contract)
+  - `phase-137x-H owner-first optimization return` (active; H28 array text observer-store search/copy owner split)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H26 array text observer-store region contract`
+  - current blocker is `137x-H28 array text observer-store search/copy owner split`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -58,6 +58,13 @@ Related:
       regressed, so keep H25d.1/H25d.2 as the accepted code
     - H25e post-parity owner refresh selected the whole-front inner scan:
       `indexOf("line") >= 0` followed by same-slot suffix store
+    - H26 landed the MIR-owned observer-store region executor and moved the
+      inner `indexOf("line")` + suffix store out of the emitted AOT loop
+    - H27 landed the MIR-owned len-half insert-mid edit contract; the outer
+      edit path no longer calls `nyash.array.string_len_hi`
+    - H28 starts from the remaining observer-store search/copy mechanics:
+      fixed const-needle search, suffix mutation/copy, and transaction frame
+      cost under the existing MIR-owned H26 region contract
     - next slice: H26 array text observer-store region contract; keep legality
       in MIR observer metadata and keep `.inc` emit-only
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`

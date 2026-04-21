@@ -30,8 +30,8 @@ as `137x-H`.
 
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
-phase README. Current active card: `137x-H25 array text residence session
-contract`.
+phase README / current entry. Current active card: `137x-H28 array text
+observer-store search/copy owner split`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -213,6 +213,67 @@ contract`.
     - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 3 ms`
     - middle `kilo_meso_substring_concat_array_set_loopcarry`:
       `C 3 ms / Ny AOT 4 ms`
+- [x] H27 array text len-half insert-mid edit contract
+  - target front: `kilo_kernel_small`
+  - owner evidence after H26:
+    - emitted outer edit loop still calls `nyash.array.string_len_hi`, then
+      computes `split = len / 2`, then calls the same-slot insert-mid helper
+    - whole asm top includes `nyash.array.string_len_hi` at `20.76%`
+  - design:
+    - add MIR-owned array/text edit metadata for the same-slot
+      `source_len_div_const(2)` insert-mid contract
+    - `.inc` consumes metadata at the `array.get(row)` site and emits one
+      runtime-private edit helper; it must not prove split/substring/set
+      legality from raw JSON
+    - runtime executes the mutation and computes the current cell length inside
+      the mutation frame; it must not own legality/provenance/publication
+  - reject seam:
+    - no source-prefix/source-length/ASCII assumption
+    - no benchmark-named helper
+    - no runtime-owned route selection
+    - no C-side raw shape fallback for the new H27 path
+  - [x] H27.1 docs/current-task cutover and metadata owner file
+    - `src/mir/array_text_edit_plan.rs` owns the route proof and metadata.
+  - [x] H27.2 `.inc` metadata reader and one-call emit/skip
+    - `hako_llvmc_ffi_array_text_edit_metadata.inc` validates MIR contract
+      fields and lowering emits `nyash.array.string_insert_mid_lenhalf_store_hisi`.
+  - [x] H27.3 runtime helper for len-half insert-mid cell edit
+    - runtime computes `split = current_text.len() / 2` as the MIR-selected
+      policy and executes same-slot mutation only.
+  - [x] H27.4 keeper/no-regression probe
+    - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 10 ms`,
+      `ny_aot_instr=144977171`, `ny_aot_cycles=30931233`
+    - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
+    - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+      `C 4 ms / Ny AOT 4 ms`
+    - verdict: small keeper / contract cleanup; outer edit
+      `nyash.array.string_len_hi` is removed, but wall time remains in the
+      same `10 ms` band.
+- [ ] H28 array text observer-store search/copy owner split
+  - target front: `kilo_kernel_small`
+  - owner evidence after H27:
+    - asm top: `<&str as Pattern>::is_contained_in` `34.68%`,
+      `__memmove_avx512_unaligned_erms` `24.83%`,
+      `with_array_text_write_txn` closure `15.16%`, observer-store region
+      closure `11.02%`
+    - H27 helper itself is around `1%`, so further len-half edit surgery is
+      not the next owner
+  - design:
+    - keep the H26 observer-store region executor as the semantic owner shape:
+      MIR proves observer + same-slot store region, `.inc` emits only from
+      metadata, runtime executes search/copy/mutation mechanics
+    - first inspect whether the next keeper is fixed-literal search mechanics,
+      suffix mutation/copy mechanics, or a closeout needing more MIR proof
+  - reject seam:
+    - no source-prefix/source-length assumption
+    - no search-result cache
+    - no benchmark-named whole-loop helper
+    - no runtime-owned legality/provenance/publication
+    - no C-side raw shape fallback
+  - [ ] H28.1 owner inspection: annotate/runtime helper read, no code change
+  - [ ] H28.2 pick one structural executor seam and update docs before code
+  - [ ] H28.3 implement the narrow runtime/backend/MIR change if justified
+  - [ ] H28.4 keeper/no-regression probe
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

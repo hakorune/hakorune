@@ -156,6 +156,31 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }).collect::<Vec<_>>(),
+            "array_text_edit_routes": f.metadata.array_text_edit_routes.iter().map(|route| {
+                json!({
+                    "block": route.block.as_u32(),
+                    "get_instruction_index": route.get_instruction_index,
+                    "set_instruction_index": route.set_instruction_index,
+                    "array_value": route.array_value.as_u32(),
+                    "index_value": route.index_value.as_u32(),
+                    "source_value": route.source_value.as_u32(),
+                    "length_value": route.length_value.as_u32(),
+                    "split_value": route.split_value.as_u32(),
+                    "result_value": route.result_value.as_u32(),
+                    "middle_value": route.middle_value.as_u32(),
+                    "middle_text": route.middle_text,
+                    "middle_byte_len": route.middle_byte_len,
+                    "skip_instruction_indices": route.skip_instruction_indices,
+                    "edit_kind": route.edit_kind.to_string(),
+                    "split_policy": route.split_policy.to_string(),
+                    "proof": route.proof.to_string(),
+                    "carrier": "array_lane_text_cell",
+                    "effects": ["load.ref", "store.cell"],
+                    "consumer_capabilities": ["sink_store"],
+                    "materialization_policy": "text_resident_or_stringlike_slot",
+                    "publication_boundary": "none",
+                })
+            }).collect::<Vec<_>>(),
             "array_text_residence_sessions": f.metadata.array_text_residence_sessions.iter().map(|route| {
                 let mut obj = json!({
                     "begin_block": route.begin_block.as_u32(),

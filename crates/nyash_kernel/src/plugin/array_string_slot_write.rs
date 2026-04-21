@@ -356,6 +356,21 @@ pub(in super::super) fn array_string_insert_const_mid_by_index_store_same_slot_l
     .unwrap_or(0)
 }
 
+pub(in super::super) fn array_string_insert_const_mid_lenhalf_by_index_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(middle_ptr, middle_len, |middle| {
+        array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str(handle, idx, middle)
+    })
+    .unwrap_or(0)
+}
+
 fn array_string_insert_const_mid_by_index_store_same_slot_str(
     handle: i64,
     idx: i64,
@@ -373,6 +388,27 @@ fn array_string_insert_const_mid_by_index_store_same_slot_str(
             observe::record_store_array_str_source_store();
         }
         1
+    })
+    .unwrap_or(0)
+}
+
+fn array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str(
+    handle: i64,
+    idx: i64,
+    middle: &str,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
+    let observe_enabled = observe::enabled();
+    observe::record_store_array_str_enter();
+    with_array_text_slot_update(handle, idx, |value| {
+        let split = (value.len() / 2) as i64;
+        insert_const_mid_into_string_box_value(value, middle, split);
+        if observe_enabled {
+            observe::record_store_array_str_existing_slot();
+            observe::record_store_array_str_source_store();
+        }
+        value.len() as i64
     })
     .unwrap_or(0)
 }

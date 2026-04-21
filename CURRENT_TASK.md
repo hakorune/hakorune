@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H25 array text residence session contract)
+  - `phase-137x-H owner-first optimization return` (active; H28 array text observer-store search/copy owner split)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -458,7 +458,7 @@ Scope: current lane / next lane / restart order only.
           observer/conditional-store, not H25d residual `memmove`
       - `137x-H26` array text observer-store region contract is landed
         - current blocker token:
-          `137x-H26e post-keeper owner refresh`
+          `137x-H27 array text len-half insert-mid edit contract`
         - closed blocker token:
           `137x-H26 array text observer-store region contract`
         - target shape: `array.get(j).indexOf(const) >= 0` followed by
@@ -518,6 +518,81 @@ Scope: current lane / next lane / restart order only.
         - reject seam: no helper-name shortcut, no runtime-owned legality, no
           `.inc` planner drift, no indexOf result cache, no source-prefix /
           source-length / ASCII assumption without MIR proof
+      - `137x-H26e` post-keeper owner refresh is closed
+        - commands:
+          - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+          - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+          - `bash tools/perf/trace_optimization_bundle.sh --input kilo_kernel_small --route direct --callee-substr string_len --out-dir target/perf_state/h26e_owner_refresh`
+        - result:
+          - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 10 ms`,
+            `ny_aot_instr=149657100`, `ny_aot_cycles=31814977`
+          - asm top includes `nyash.array.string_len_hi` at `20.76%`
+          - emitted outer edit path still calls
+            `nyash.array.string_len_hi`, computes `split = len / 2`, then
+            calls `nyash.array.string_insert_mid_store_hisii`
+        - verdict:
+          - H26 stays closed
+          - H27 opens as MIR-owned
+            `array.get -> length -> source_len_div_const(2) -> same-slot
+            insert-mid const` edit contract
+          - `.inc` must consume H27 metadata and must not rediscover H27
+            legality from raw JSON
+          - runtime may compute current cell length and execute the mutation
+            only; no legality/provenance/publication ownership
+      - `137x-H27` array text len-half insert-mid edit contract is closed
+        - current blocker token:
+          `137x-H28 array text observer-store search/copy owner split`
+        - closed blocker token:
+          `137x-H27 array text len-half insert-mid edit contract`
+        - implementation:
+          - MIR owns the new `array_text_edit_routes` contract:
+            `edit_kind=insert_mid_const`,
+            `split_policy=source_len_div_const(2)`,
+            `proof=array_get_lenhalf_insert_mid_same_slot`,
+            `publication_boundary=none`
+          - `.inc` consumes the metadata at the `array.get(row)` site and
+            emits one `nyash.array.string_insert_mid_lenhalf_store_hisi`
+            call; it skips only covered route instructions
+          - runtime executes same-slot mutation and computes
+            `split = current_text.len() / 2` as the MIR-selected policy
+            only
+        - route proof:
+          - MIR JSON emits one `array_text_edit_routes` entry for
+            `bench_kilo_kernel_small.hako`
+          - route trace hits
+            `stage=array_text_edit_lenhalf result=hit reason=mir_route_metadata`
+          - lowered outer edit block no longer calls
+            `nyash.array.string_len_hi`
+        - result:
+          - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 10 ms`,
+            `ny_aot_instr=144977171`, `ny_aot_cycles=30931233`
+          - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
+          - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+            `C 4 ms / Ny AOT 4 ms`
+          - quick gate: `tools/checks/dev_gate.sh quick` PASS
+        - verdict:
+          - small keeper / contract cleanup: instructions and cycles improved
+            slightly, wall time stayed in the `10 ms` band
+          - next owner is H28 observer-store search/copy mechanics, not more
+            len-half edit surgery
+      - `137x-H28` array text observer-store search/copy owner split is active
+        - owner evidence after H27:
+          - `<&str as core::str::pattern::Pattern>::is_contained_in`: `34.68%`
+          - `__memmove_avx512_unaligned_erms`: `24.83%`
+          - `with_array_text_write_txn` closure: `15.16%`
+          - observer-store region closure: `11.02%`
+          - `nyash.array.string_insert_mid_lenhalf_store_hisi`: about `1%`
+        - first step:
+          - inspect the H26 observer-store runtime helper and decide whether
+            the next keeper is fixed-literal search mechanics,
+            suffix mutation/copy mechanics, or a closeout that needs more MIR
+            proof
+        - guard:
+          - no source-prefix assumption such as every row contains `"line"`
+          - no search-result cache
+          - no benchmark-named whole-loop helper
+          - no runtime-owned legality/provenance/publication
+          - no C-side raw shape fallback
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

@@ -1,6 +1,7 @@
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
+    array_text_edit_plan::ArrayTextEditRoute,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
@@ -162,6 +163,11 @@ pub struct FunctionMetadata {
     /// These keep active fused store/len route recognition in MIR so the C
     /// backend can remain an emitter/transport consumer.
     pub array_text_loopcarry_len_store_routes: Vec<ArrayTextLoopCarryLenStoreRoute>,
+
+    /// Backend-consumable array/text same-cell edit route plans.
+    /// These own edit policy facts such as `source_len / 2` in MIR so backend
+    /// shims do not re-prove length/split/substring legality from raw JSON.
+    pub array_text_edit_routes: Vec<ArrayTextEditRoute>,
 
     /// Backend-consumable array/text residence session plans.
     /// These are metadata-only until lowering consumes them; they prove where a
