@@ -69,7 +69,10 @@ Related:
       `kilo_kernel_small = C 84 ms / Ny AOT 9 ms`,
       `ny_aot_instr=60662079`; `Pattern::is_contained_in` is no longer a top
       owner
-    - next slice: H28.2 suffix mutation/copy / allocation owner split under
+    - H28.2 landed the runtime-private short-literal prefix compare cleanup:
+      `kilo_kernel_small = C 83 ms / Ny AOT 7 ms`,
+      `ny_aot_instr=64501392`; `__memcmp_evex_movbe` is no longer a top owner
+    - next slice: H28.3 suffix mutation/copy / write-frame owner split under
       the existing MIR observer-store metadata; keep `.inc` emit-only
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`

@@ -279,10 +279,21 @@ observer-store search/copy owner split`.
     - middle `kilo_meso_substring_concat_array_set_loopcarry`:
       `C 3 ms / Ny AOT 3 ms`
     - asm: `Pattern::is_contained_in` is no longer a top owner
-  - [ ] H28.2 suffix mutation/copy / allocation owner split
-    - inspect `__memmove`, `__memcmp`, and write-frame closure ownership under
-      the existing MIR-owned observer-store contract
-  - [ ] H28.3 implement the narrow runtime/backend/MIR change if justified
+  - [x] H28.2 short-literal prefix compare cleanup
+    - annotate shows `__memcmp_evex_movbe` is the H28.1 `starts_with` prefix
+      check lowering to libc `bcmp`
+    - keep this runtime-private and do not change MIR metadata or `.inc`
+    - result: whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`,
+      `ny_aot_instr=64501392`, `ny_aot_cycles=18956185`
+    - exact guard `kilo_micro_array_string_store`: `C 11 ms / Ny AOT 4 ms`
+    - middle guard `kilo_meso_substring_concat_array_set_loopcarry`:
+      `C 3 ms / Ny AOT 4 ms`
+    - asm: `__memcmp_evex_movbe` is no longer a top owner
+  - [ ] H28.3 suffix mutation/copy / write-frame owner split
+    - inspect the remaining `__memmove_avx512_unaligned_erms` and
+      write-frame closure owner before code changes
+    - implement only a narrow runtime/backend/MIR change if evidence requires a
+      new MIR-owned fact; otherwise keep it runtime-private
   - [ ] H28.4 keeper/no-regression probe
 
 ## Opened Implementation Order Before Next Kilo Optimization

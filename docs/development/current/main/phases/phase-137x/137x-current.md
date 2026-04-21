@@ -9,22 +9,25 @@ ledger details; current implementation work should start here.
 - front: `kilo_kernel_small`
 - current blocker token: `137x-H28 array text observer-store search/copy owner split`
 - current benchmark state:
-  - `C 84 ms / Ny AOT 9 ms`
-  - `ny_aot_instr=60662079`
-  - `ny_aot_cycles=20100504`
+  - `C 83 ms / Ny AOT 7 ms`
+  - `ny_aot_instr=64501392`
+  - `ny_aot_cycles=18956185`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
     runtime-private helper
   - H28.1 removed the fixed-literal `Pattern::is_contained_in` search owner
     inside the H26 observer-store region executor
-  - the remaining owner is suffix mutation/copy plus write-frame mechanics under
-    the same MIR-owned observer-store contract
-  - latest asm top after H28.1:
-    - `__memmove_avx512_unaligned_erms`: `43.99%`
-    - `with_array_text_write_txn` closure: `23.17%`
-    - `__memcmp_evex_movbe`: `15.35%`
-    - observer-store region closure: `8.07%`
+  - H28.2 removed the short-literal prefix `bcmp` / `__memcmp_evex_movbe`
+    compare owner introduced by H28.1's `starts_with` check
+  - the remaining owner is suffix mutation/copy plus write-frame mechanics
+    under the same MIR-owned observer-store contract
+  - latest asm top after H28.2:
+    - `__memmove_avx512_unaligned_erms`: `39.78%`
+    - `with_array_text_write_txn` closure: `29.06%`
+    - observer-store region closure: `23.51%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `2.74%`
+    - `nyash.array.string_indexof_suffix_store_region_hisisi`: `1.10%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -62,7 +65,7 @@ runtime or `.inc` semantic owners.
   - suffix mutation/copy inside the H26 observer-store runtime-private write
     frame
   - allocator/copy side effects that remain after the H28.1 literal-search
-    keeper
+    keeper and H28.2 short-literal prefix compare cleanup
 - allowed next work:
   - add MIR metadata only if the executor needs a generic fact such as
     `needle_literal`, `observer_kind`, or `mutation_kind` to choose a runtime
@@ -129,7 +132,57 @@ Result:
 - verdict:
   - keeper: H28.1 removed the fixed-literal search owner without changing MIR
     authority or `.inc` responsibility
-  - next seam is H28.2 suffix mutation/copy / allocation owner split
+  - next seam is H28.2 short-literal prefix compare cleanup before returning
+    to suffix mutation/copy / allocation split
+
+### H28.2 runtime-private short-literal prefix compare cleanup
+
+- owner correction:
+  - annotate of `nyash.array.string_indexof_suffix_store_region_hisisi` shows
+    the remaining `__memcmp_evex_movbe` samples come from the H28.1
+    `starts_with` prefix check lowering to libc `bcmp`
+  - this is still runtime search mechanics, not MIR legality and not suffix
+    mutation/copy
+- decision:
+  - replace the short-literal prefix check with the same local byte compare used
+    by the short-literal search leaf
+  - keep the generic long-needle fallback on `str::contains`
+  - do not change MIR metadata or `.inc`
+- keeper gate:
+  - `__memcmp_evex_movbe` should drop from the top owner list or clearly move
+    below mutation/copy
+  - exact/middle guards must remain no-regression
+- next after this slice:
+  - only after the compare owner is gone, return to suffix mutation/copy /
+    allocation split
+
+Result:
+
+- code:
+  - replaced the short-literal prefix `starts_with` check with a private byte
+    loop so the runtime leaf no longer lowers the prefix probe to libc `bcmp`
+  - no MIR metadata shape changed
+  - no `.inc` emit shape changed
+- verification:
+  - `cargo test -q text_contains_literal --lib`
+  - `cargo fmt --check`
+  - `bash tools/perf/build_perf_release.sh`
+  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=64501392`, `ny_aot_cycles=18956185`
+  - exact `kilo_micro_array_string_store`: `C 11 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9266032`, `ny_aot_cycles=2341864`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=16571251`,
+    `ny_aot_cycles=3446763`
+- asm owner after H28.2:
+  - `__memmove_avx512_unaligned_erms`: `39.78%`
+  - `with_array_text_write_txn` closure: `29.06%`
+  - observer-store region closure: `23.51%`
+  - `__memcmp_evex_movbe` is no longer a top owner
+- verdict:
+  - keeper: H28.2 removes the accidental libc compare owner without changing
+    MIR authority or `.inc` responsibility
+  - next seam is H28.3 suffix mutation/copy / write-frame owner split
 
 ## H27 Landed
 

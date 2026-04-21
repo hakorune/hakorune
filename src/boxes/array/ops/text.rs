@@ -86,13 +86,27 @@ fn text_contains_literal(value: &str, needle: &str) -> bool {
     if needle.len() > haystack.len() {
         return false;
     }
-    if haystack.starts_with(needle) {
-        return true;
-    }
     match needle.len() {
-        1..=8 => contains_short_literal_from(haystack, needle, 1),
+        1..=8 => {
+            if short_literal_prefix_eq(haystack, needle) {
+                return true;
+            }
+            contains_short_literal_from(haystack, needle, 1)
+        }
         _ => value.contains(needle_text),
     }
+}
+
+#[inline(always)]
+fn short_literal_prefix_eq(haystack: &[u8], needle: &[u8]) -> bool {
+    let mut index = 0;
+    while index < needle.len() {
+        if haystack[index] != needle[index] {
+            return false;
+        }
+        index += 1;
+    }
+    true
 }
 
 #[inline(always)]

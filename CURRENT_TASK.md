@@ -609,7 +609,21 @@ Scope: current lane / next lane / restart order only.
           - exact guard `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
           - middle guard `kilo_meso_substring_concat_array_set_loopcarry`:
             `C 3 ms / Ny AOT 3 ms`
-          - next seam: H28.2 suffix mutation/copy / allocation owner split
+          - annotate correction: `__memcmp_evex_movbe` is the H28.1
+            `starts_with` prefix check lowering to libc `bcmp`, not suffix copy
+        - H28.2 result:
+          - runtime-private short-literal prefix compare now uses a local byte
+            loop instead of `starts_with` / libc `bcmp`
+          - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=64501392`, `ny_aot_cycles=18956185`
+          - exact guard `kilo_micro_array_string_store`: `C 11 ms / Ny AOT 4 ms`
+          - middle guard `kilo_meso_substring_concat_array_set_loopcarry`:
+            `C 3 ms / Ny AOT 4 ms`
+          - asm top after H28.2: `__memmove_avx512_unaligned_erms`,
+            `with_array_text_write_txn` closure, and observer-store region
+            closure; `__memcmp_evex_movbe` is no longer a top owner
+          - next seam: H28.3 suffix mutation/copy / write-frame owner split
+            under the same MIR-owned observer-store contract
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
