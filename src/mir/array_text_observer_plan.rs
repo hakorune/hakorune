@@ -10,8 +10,13 @@
 use std::collections::BTreeSet;
 
 use super::{
-    build_value_def_map, definitions::Callee, resolve_value_origin, BasicBlockId, BinaryOp,
-    CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
+    array_text_observer_region_contract::{
+        derive_observer_store_region_contract, ArrayTextObserverExecutorContract,
+    },
+    build_value_def_map,
+    definitions::Callee,
+    resolve_value_origin, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction,
+    MirInstruction, MirModule, ValueDefMap, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -115,6 +120,7 @@ pub struct ArrayTextObserverRoute {
     pub publication_boundary: ArrayTextObserverPublicationBoundary,
     pub result_repr: ArrayTextObserverResultRepr,
     pub keep_get_live: bool,
+    pub executor_contract: Option<ArrayTextObserverExecutorContract>,
 }
 
 pub fn refresh_module_array_text_observer_routes(module: &mut MirModule) {
@@ -181,7 +187,7 @@ fn match_array_text_indexof_route(
     };
     let no_covered_source_values = BTreeSet::new();
 
-    Some(ArrayTextObserverRoute {
+    let mut route = ArrayTextObserverRoute {
         block,
         observer_instruction_index,
         get_block,
@@ -216,7 +222,11 @@ fn match_array_text_indexof_route(
             block,
             observer_instruction_index,
         ),
-    })
+        executor_contract: None,
+    };
+    route.executor_contract = derive_observer_store_region_contract(function, def_map, &route)
+        .map(ArrayTextObserverExecutorContract::conditional_suffix_store_single_region);
+    Some(route)
 }
 
 fn match_indexof_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
@@ -618,6 +628,9 @@ fn is_observer_chain_copy(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::array_text_observer_region_contract::{
+        ArrayTextObserverExecutorConsumerCapability, ArrayTextObserverExecutorExecutionMode,
+    };
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::{BasicBlock, EffectMask, FunctionSignature, MirType};
 
@@ -732,6 +745,103 @@ mod tests {
     }
 
     #[test]
+    fn attaches_executor_contract_for_observer_conditional_suffix_store_region() {
+        let mut function = test_function(MirType::Integer);
+        for id in 1..=5 {
+            function.blocks.insert(
+                BasicBlockId::new(id),
+                BasicBlock::new(BasicBlockId::new(id)),
+            );
+        }
+
+        {
+            let block = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+            block.add_instruction(const_i(20, 0));
+            block.set_terminator(jump(1));
+        }
+        {
+            let block = function.blocks.get_mut(&BasicBlockId::new(1)).unwrap();
+            block.predecessors.insert(BasicBlockId::new(0));
+            block.predecessors.insert(BasicBlockId::new(4));
+            block.add_instruction(MirInstruction::Phi {
+                dst: ValueId::new(21),
+                inputs: vec![
+                    (BasicBlockId::new(0), ValueId::new(20)),
+                    (BasicBlockId::new(4), ValueId::new(32)),
+                ],
+                type_hint: Some(MirType::Integer),
+            });
+            block.add_instruction(const_i(22, 64));
+            block.add_instruction(compare(23, CompareOp::Lt, 21, 22));
+            block.set_terminator(branch(23, 2, 5));
+        }
+        {
+            let block = function.blocks.get_mut(&BasicBlockId::new(2)).unwrap();
+            block.predecessors.insert(BasicBlockId::new(1));
+            block.add_instruction(array_get(24, 1, 21));
+            block.add_instruction(const_s(25, "line"));
+            block.add_instruction(indexof_call(26, 24, 25));
+            block.add_instruction(const_i(27, 0));
+            block.add_instruction(compare(28, CompareOp::Ge, 26, 27));
+            block.set_terminator(branch(28, 3, 4));
+        }
+        {
+            let block = function.blocks.get_mut(&BasicBlockId::new(3)).unwrap();
+            block.predecessors.insert(BasicBlockId::new(2));
+            block.add_instruction(MirInstruction::Copy {
+                dst: ValueId::new(29),
+                src: ValueId::new(24),
+            });
+            block.add_instruction(const_s(30, "ln"));
+            block.add_instruction(add(31, 29, 30));
+            block.add_instruction(array_set(33, 1, 21, 31));
+            block.set_terminator(jump(4));
+        }
+        {
+            let block = function.blocks.get_mut(&BasicBlockId::new(4)).unwrap();
+            block.predecessors.insert(BasicBlockId::new(2));
+            block.predecessors.insert(BasicBlockId::new(3));
+            block.add_instruction(const_i(34, 1));
+            block.add_instruction(add(32, 21, 34));
+            block.set_terminator(jump(1));
+        }
+        {
+            let block = function.blocks.get_mut(&BasicBlockId::new(5)).unwrap();
+            block.predecessors.insert(BasicBlockId::new(1));
+            block.set_terminator(MirInstruction::Return {
+                value: Some(ValueId::new(21)),
+            });
+        }
+
+        refresh_function_array_text_observer_routes(&mut function);
+
+        let route = &function.metadata.array_text_observer_routes[0];
+        let contract = route.executor_contract.as_ref().expect("executor contract");
+        assert_eq!(
+            contract.execution_mode,
+            ArrayTextObserverExecutorExecutionMode::SingleRegionExecutor
+        );
+        assert_eq!(
+            contract.consumer_capabilities,
+            vec![
+                ArrayTextObserverExecutorConsumerCapability::CompareOnly,
+                ArrayTextObserverExecutorConsumerCapability::SinkStore,
+            ]
+        );
+        let mapping = contract.region_mapping.as_ref().expect("region mapping");
+        assert_eq!(mapping.array_root_value, ValueId::new(1));
+        assert_eq!(mapping.loop_index_phi_value, ValueId::new(21));
+        assert_eq!(mapping.loop_index_initial_const, 0);
+        assert_eq!(mapping.loop_bound_const, 64);
+        assert_eq!(mapping.observer_block, BasicBlockId::new(2));
+        assert_eq!(mapping.then_store_block, BasicBlockId::new(3));
+        assert_eq!(mapping.latch_block, BasicBlockId::new(4));
+        assert_eq!(mapping.exit_block, BasicBlockId::new(5));
+        assert_eq!(mapping.suffix_text, "ln");
+        assert_eq!(mapping.suffix_byte_len, 2);
+    }
+
+    #[test]
     fn marks_observer_arg_live_when_const_is_used_elsewhere() {
         let mut function = test_function(MirType::Integer);
         let block = entry_block(&mut function);
@@ -820,6 +930,23 @@ mod tests {
             op: BinaryOp::Add,
             lhs: ValueId::new(lhs),
             rhs: ValueId::new(rhs),
+        }
+    }
+
+    fn branch(cond: u32, then_bb: u32, else_bb: u32) -> MirInstruction {
+        MirInstruction::Branch {
+            condition: ValueId::new(cond),
+            then_bb: BasicBlockId::new(then_bb),
+            else_bb: BasicBlockId::new(else_bb),
+            then_edge_args: None,
+            else_edge_args: None,
+        }
+    }
+
+    fn jump(target: u32) -> MirInstruction {
+        MirInstruction::Jump {
+            target: BasicBlockId::new(target),
+            edge_args: None,
         }
     }
 

@@ -1612,6 +1612,25 @@ H25e post-parity owner refresh:
   - H26 must extend the existing observer metadata with a nested region
     executor contract; do not create a benchmark-named helper family.
 
+H26.1 MIR nested observer-store executor contract:
+
+- Landed metadata:
+  - existing `array_text_observer_routes` now owns an optional nested
+    `executor_contract`
+  - whole-front MIR JSON emits one `single_region_executor` contract for the
+    inner scan shape with `effects=[observe.indexof, store.cell]`
+  - region mapping records loop index PHI/init/next/bound, observer block,
+    predicate value, same-slot store block, latch/exit blocks, const needle
+    `"line"`, and const suffix `"ln"`
+- Structure:
+  - public route family remains `array_text_observer_routes`
+  - nested proof logic is isolated in
+    `src/mir/array_text_observer_region_contract.rs` so
+    `src/mir/array_text_observer_plan.rs` stays under 1000 lines
+- Next:
+  - H26.2 `.inc` metadata validation and one-call emit
+  - H26.3 runtime one-call observer-store executor
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

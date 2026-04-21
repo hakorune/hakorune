@@ -194,6 +194,16 @@ contract`.
     - no runtime-owned legality/provenance
     - no source-prefix assumption such as "`line` is always present"
     - no C-ABI session handle carrying guards
+  - [x] H26.1 MIR nested observer-store executor contract
+    - add `executor_contract` under existing `array_text_observer_routes`
+    - emitted whole-front metadata includes `single_region_executor`,
+      `observe.indexof`, `store.cell`, const needle `"line"`, and suffix `"ln"`
+    - implementation split: route owner stays in
+      `src/mir/array_text_observer_plan.rs`; nested contract proof lives in
+      `src/mir/array_text_observer_region_contract.rs`
+  - [ ] H26.2 `.inc` metadata validation and one-call emit
+  - [ ] H26.3 runtime one-call observer-store executor
+  - [ ] H26.4 keeper/no-regression probe
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

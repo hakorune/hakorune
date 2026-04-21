@@ -465,8 +465,15 @@ Scope: current lane / next lane / restart order only.
           `array_get_receiver_indexof`, `consumer_shape=found_predicate`,
           `publication_boundary=none`, const needle `"line"`
         - implementation order:
-          - H26.1 add a nested observer-store region contract under existing
-            observer metadata; do not add a benchmark-named sibling plan
+          - H26.1 landed: add a nested observer-store region contract under
+            existing observer metadata; do not add a benchmark-named sibling
+            plan
+            - whole-front MIR JSON emits one `single_region_executor` contract
+              with `effects=[observe.indexof, store.cell]`, const needle
+              `"line"`, and suffix `"ln"`
+            - code split keeps `src/mir/array_text_observer_plan.rs` under
+              1000 lines by isolating nested proof logic in
+              `src/mir/array_text_observer_region_contract.rs`
           - H26.2 make `.inc` validate metadata and emit one runtime call, with
             no raw CFG rediscovery
           - H26.3 add runtime one-call executor that holds guard/residence

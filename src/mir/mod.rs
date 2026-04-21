@@ -12,6 +12,7 @@ pub mod aot_plan_import;
 pub mod array_string_store_micro_seed_plan; // MIR-owned route plan for temporary array string-store micro seed bridge
 pub mod array_text_loopcarry_plan; // MIR-owned route plans for active array/text loopcarry lane
 pub mod array_text_observer_plan; // MIR-owned route plans for generic array/text read-side observers
+pub mod array_text_observer_region_contract; // Nested executor contract for observer-store regions
 pub mod array_text_residence_session_plan; // MIR-owned residence session route plans
 pub mod array_text_state_residence_plan; // MIR-owned route plan for generic array/text state residence
 pub mod basic_block;
@@ -121,6 +122,12 @@ pub use array_text_observer_plan::{
     ArrayTextObserverArgRepr, ArrayTextObserverConsumerShape, ArrayTextObserverKind,
     ArrayTextObserverProofRegion, ArrayTextObserverPublicationBoundary,
     ArrayTextObserverResultRepr, ArrayTextObserverRoute,
+};
+pub use array_text_observer_region_contract::{
+    ArrayTextObserverExecutorCarrier, ArrayTextObserverExecutorConsumerCapability,
+    ArrayTextObserverExecutorContract, ArrayTextObserverExecutorEffect,
+    ArrayTextObserverExecutorExecutionMode, ArrayTextObserverExecutorMaterializationPolicy,
+    ArrayTextObserverExecutorProofRegion, ArrayTextObserverStoreRegionMapping,
 };
 pub use array_text_residence_session_plan::{
     refresh_function_array_text_residence_session_routes,

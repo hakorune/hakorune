@@ -327,8 +327,8 @@ H25d final state:
   - H25d.3 manual byte moves and H25d.4 observe hoist both regressed, so
     H25d accepted code remains H25d.1 + H25d.2
 - next slice:
-  - H26 array text observer-store region contract
-  - keep the new region proof under MIR-owned observer metadata
+  - H26.2 `.inc` metadata validation and one-call emit
+  - keep the region proof under MIR-owned observer metadata
   - do not add source-prefix, source-length, or ASCII assumptions unless MIR
     provides an explicit generic proof
 
@@ -358,6 +358,26 @@ H25e post-parity owner refresh:
     `publication_boundary=none`, and const needle `"line"`
   - next code owner: extend that observer route into a MIR-proven
     observer + conditional suffix-store region executor
+
+H26.1 MIR nested observer-store executor contract:
+
+- landed:
+  - `array_text_observer_routes` now carries an optional nested
+    `executor_contract`
+  - whole-front `bench_kilo_kernel_small.hako` emits one contract for `main`
+    with `execution_mode=single_region_executor`,
+    `effects=[observe.indexof, store.cell]`, const needle `"line"`, and suffix
+    `"ln"`
+  - route metadata stays under the existing observer route; no benchmark-named
+    sibling plan family was added
+- structure:
+  - observer route detection remains in `src/mir/array_text_observer_plan.rs`
+  - nested region proof/detection is isolated in
+    `src/mir/array_text_observer_region_contract.rs`
+- verified:
+  - `cargo test -q array_text_observer_plan::tests::attaches_executor_contract_for_observer_conditional_suffix_store_region -- --nocapture`
+  - `cargo run -q --bin hakorune -- --emit-mir-json target/perf_state/h26_kilo_kernel_small_observer_store.mir.json benchmarks/bench_kilo_kernel_small.hako`
+  - `cargo check -q`
 
 Reject immediately if the implementation requires:
 - runtime deciding session legality from residence state

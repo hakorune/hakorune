@@ -241,6 +241,40 @@ pub(super) fn build_mir_json_root(
                     obj["observer_arg0_text"] = json!(text);
                     obj["observer_arg0_byte_len"] = json!(byte_len);
                 }
+                if let Some(contract) = route.executor_contract.as_ref() {
+                    let mut contract_obj = json!({
+                        "execution_mode": contract.execution_mode.to_string(),
+                        "proof_region": contract.proof_region.to_string(),
+                        "publication_boundary": contract.publication_boundary.to_string(),
+                        "carrier": contract.carrier.to_string(),
+                        "effects": contract.effects.iter().map(|effect| effect.to_string()).collect::<Vec<_>>(),
+                        "consumer_capabilities": contract.consumer_capabilities.iter().map(|capability| capability.to_string()).collect::<Vec<_>>(),
+                        "materialization_policy": contract.materialization_policy.to_string(),
+                    });
+                    if let Some(mapping) = contract.region_mapping.as_ref() {
+                        contract_obj["region_mapping"] = json!({
+                            "array_root_value": mapping.array_root_value.as_u32(),
+                            "loop_index_phi_value": mapping.loop_index_phi_value.as_u32(),
+                            "loop_index_initial_value": mapping.loop_index_initial_value.as_u32(),
+                            "loop_index_initial_const": mapping.loop_index_initial_const,
+                            "loop_index_next_value": mapping.loop_index_next_value.as_u32(),
+                            "loop_bound_value": mapping.loop_bound_value.as_u32(),
+                            "loop_bound_const": mapping.loop_bound_const,
+                            "header_block": mapping.header_block.as_u32(),
+                            "observer_block": mapping.observer_block.as_u32(),
+                            "observer_instruction_index": mapping.observer_instruction_index,
+                            "predicate_value": mapping.predicate_value.as_u32(),
+                            "then_store_block": mapping.then_store_block.as_u32(),
+                            "store_instruction_index": mapping.store_instruction_index,
+                            "suffix_value": mapping.suffix_value.as_u32(),
+                            "suffix_text": mapping.suffix_text,
+                            "suffix_byte_len": mapping.suffix_byte_len,
+                            "latch_block": mapping.latch_block.as_u32(),
+                            "exit_block": mapping.exit_block.as_u32(),
+                        });
+                    }
+                    obj["executor_contract"] = contract_obj;
+                }
                 obj
             }).collect::<Vec<_>>(),
             "array_string_store_micro_seed_route": f.metadata.array_string_store_micro_seed_route.as_ref().map(|route| {
