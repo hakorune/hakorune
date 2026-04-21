@@ -166,3 +166,5 @@ Completed cleanup:
 
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted after reference
   inventory showed no active import/module-registry route.
+- unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was
+  deleted after reference inventory showed no active import/module-registry route.

@@ -102,4 +102,5 @@ Remaining MapBox follow-up:
 
 - `.hako` VM `keys` / `values` / `remove` / `clear` source route still has stub/debt behavior and must not be silently promoted.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
+- unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` is a P0 scaffold used by the selfhost prelude; deletion requires a module-registry/prelude card.
