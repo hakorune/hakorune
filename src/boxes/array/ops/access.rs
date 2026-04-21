@@ -43,7 +43,7 @@ impl ArrayBox {
                 }
             },
             ArrayStorage::Text(values) => match values.get(idx) {
-                Some(value) => Box::new(StringBox::new(value.clone())),
+                Some(value) => Box::new(StringBox::new(value.as_str())),
                 None => {
                     if Self::oob_strict_enabled() {
                         crate::runtime::observe::mark_oob();

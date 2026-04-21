@@ -23,7 +23,7 @@ impl ArrayBox {
     }
 
     pub(super) fn new_with_text_elements(values: Vec<String>) -> Self {
-        Self::new_with_storage(ArrayStorage::Text(values))
+        Self::new_with_storage(ArrayStorage::Text(Self::text_cells_from_strings(values)))
     }
 
     #[inline(always)]

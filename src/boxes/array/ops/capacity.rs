@@ -70,7 +70,7 @@ impl ArrayBox {
                 }
             },
             ArrayStorage::Text(values) => match values.pop() {
-                Some(value) => Box::new(StringBox::new(value)),
+                Some(value) => Box::new(StringBox::new(value.into_string())),
                 None => {
                     if Self::oob_strict_enabled() {
                         Box::new(StringBox::new("[array/empty/pop] empty array"))

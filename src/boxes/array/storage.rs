@@ -2,7 +2,7 @@ use super::*;
 
 pub(super) enum ArrayStorage {
     Boxed(Vec<Box<dyn NyashBox>>),
-    Text(Vec<String>),
+    Text(Vec<ArrayTextCell>),
     InlineI64(Vec<i64>),
     InlineBool(Vec<bool>),
     InlineF64(Vec<f64>),
@@ -63,10 +63,10 @@ impl ArrayBox {
             .collect()
     }
 
-    pub(super) fn boxed_from_text(values: &[String]) -> Vec<Box<dyn NyashBox>> {
+    pub(super) fn boxed_from_text(values: &[ArrayTextCell]) -> Vec<Box<dyn NyashBox>> {
         values
             .iter()
-            .map(|value| Box::new(StringBox::new(value.clone())) as Box<dyn NyashBox>)
+            .map(|value| Box::new(StringBox::new(value.as_str())) as Box<dyn NyashBox>)
             .collect()
     }
 
@@ -82,10 +82,13 @@ impl ArrayBox {
         items.iter().map(|item| item.as_f64_fast()).collect()
     }
 
-    pub(super) fn try_text_values(items: &[Box<dyn NyashBox>]) -> Option<Vec<String>> {
+    pub(super) fn try_text_values(items: &[Box<dyn NyashBox>]) -> Option<Vec<ArrayTextCell>> {
         items
             .iter()
-            .map(|item| item.as_str_fast().map(str::to_owned))
+            .map(|item| {
+                item.as_str_fast()
+                    .map(|value| ArrayTextCell::flat(value.to_owned()))
+            })
             .collect()
     }
 
@@ -113,7 +116,7 @@ impl ArrayBox {
         }
     }
 
-    pub(super) fn ensure_text(storage: &mut ArrayStorage) -> Option<&mut Vec<String>> {
+    pub(super) fn ensure_text(storage: &mut ArrayStorage) -> Option<&mut Vec<ArrayTextCell>> {
         if let ArrayStorage::Boxed(items) = storage {
             let values = Self::try_text_values(items)?;
             *storage = ArrayStorage::Text(values);
@@ -211,7 +214,18 @@ impl ArrayBox {
             .join(", ")
     }
 
-    pub(super) fn format_text_values(values: &[String]) -> String {
-        values.join(", ")
+    pub(super) fn text_cells_from_strings(values: Vec<String>) -> Vec<ArrayTextCell> {
+        values.into_iter().map(ArrayTextCell::from).collect()
+    }
+
+    pub(super) fn strings_from_text(values: &[ArrayTextCell]) -> Vec<String> {
+        values
+            .iter()
+            .map(|value| value.as_str().to_owned())
+            .collect()
+    }
+
+    pub(super) fn format_text_values(values: &[ArrayTextCell]) -> String {
+        Self::strings_from_text(values).join(", ")
     }
 }

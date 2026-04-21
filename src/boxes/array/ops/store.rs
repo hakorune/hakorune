@@ -1,4 +1,4 @@
-use super::super::super::{ArrayBox, ArrayStorage};
+use super::super::super::{ArrayBox, ArrayStorage, ArrayTextCell};
 use crate::box_trait::{BoolBox, IntegerBox, NyashBox};
 use crate::boxes::FloatBox;
 
@@ -29,10 +29,10 @@ impl ArrayBox {
             if let ArrayStorage::Text(values) = &mut *items {
                 let text_value = text_value.to_owned();
                 if idx < values.len() {
-                    values[idx] = text_value;
+                    values[idx] = ArrayTextCell::from(text_value);
                     return true;
                 } else if idx == values.len() {
-                    values.push(text_value);
+                    values.push(ArrayTextCell::from(text_value));
                     return true;
                 } else {
                     if Self::oob_strict_enabled() {

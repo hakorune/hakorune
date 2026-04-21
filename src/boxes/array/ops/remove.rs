@@ -18,7 +18,7 @@ impl ArrayBox {
                 }
                 ArrayStorage::Text(values) => {
                     if idx < values.len() {
-                        Box::new(StringBox::new(values.remove(idx)))
+                        Box::new(StringBox::new(values.remove(idx).into_string()))
                     } else {
                         Box::new(crate::boxes::null_box::NullBox::new())
                     }

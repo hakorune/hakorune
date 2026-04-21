@@ -43,7 +43,10 @@ impl<'a> ArrayTextSlotSession<'a> {
                 *self.storage = ArrayStorage::Text(values);
                 if let ArrayStorage::Text(values) = self.storage {
                     return values.get_mut(idx).map(|value| {
-                        (f(value), ArrayTextSlotSessionOutcomeKind::PromotedTextLane)
+                        (
+                            f(value.as_mut_string()),
+                            ArrayTextSlotSessionOutcomeKind::PromotedTextLane,
+                        )
                     });
                 }
                 unreachable!("boxed text lane promoted to text");
@@ -51,9 +54,12 @@ impl<'a> ArrayTextSlotSession<'a> {
         }
 
         match self.storage {
-            ArrayStorage::Text(values) => values
-                .get_mut(idx)
-                .map(|value| (f(value), ArrayTextSlotSessionOutcomeKind::ResidentText)),
+            ArrayStorage::Text(values) => values.get_mut(idx).map(|value| {
+                (
+                    f(value.as_mut_string()),
+                    ArrayTextSlotSessionOutcomeKind::ResidentText,
+                )
+            }),
             ArrayStorage::Boxed(_) if self.mode == ArrayTextSlotSessionMode::ResidentOnly => None,
             ArrayStorage::Boxed(items) => {
                 let item = items.get_mut(idx)?;
@@ -305,10 +311,10 @@ impl ArrayBox {
         let mut items = self.items.write();
         if let Some(values) = Self::ensure_text(&mut items) {
             if idx < values.len() {
-                values[idx] = value;
+                values[idx] = ArrayTextCell::from(value);
                 true
             } else if idx == values.len() {
-                values.push(value);
+                values.push(ArrayTextCell::from(value));
                 true
             } else {
                 if Self::oob_strict_enabled() {
@@ -454,7 +460,7 @@ impl ArrayBox {
             for step in 0..loop_bound {
                 let idx = (step % row_modulus) as usize;
                 let value = values.get_mut(idx)?;
-                total = total.checked_add(f(value)?)?;
+                total = total.checked_add(f(value.as_mut_string())?)?;
             }
             return Some(total);
         }
@@ -500,8 +506,8 @@ impl ArrayBox {
             }
             let mut stores = 0_i64;
             for value in values.iter_mut().take(loop_bound) {
-                if text_contains_literal(value, needle) {
-                    append_text_suffix(value, suffix);
+                if text_contains_literal(value.as_str(), needle) {
+                    append_text_suffix(value.as_mut_string(), suffix);
                     stores += 1;
                 }
             }

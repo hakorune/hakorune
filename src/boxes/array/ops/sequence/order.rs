@@ -11,7 +11,7 @@ impl ArrayBox {
                     .iter()
                     .map(|item| item.to_string_box().value)
                     .collect(),
-                ArrayStorage::Text(values) => values.clone(),
+                ArrayStorage::Text(values) => Self::strings_from_text(values),
                 ArrayStorage::InlineI64(values) => {
                     values.iter().map(|value| value.to_string()).collect()
                 }

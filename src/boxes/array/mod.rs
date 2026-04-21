@@ -14,9 +14,11 @@ mod ops;
 mod storage;
 #[cfg(test)]
 mod tests;
+mod text_cell;
 mod traits;
 
 use storage::ArrayStorage;
+use text_cell::ArrayTextCell;
 
 pub struct ArrayBox {
     items: Arc<RwLock<ArrayStorage>>,
