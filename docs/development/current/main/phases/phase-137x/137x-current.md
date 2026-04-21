@@ -7,14 +7,15 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H25 array text residence session contract`
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
-- current blocker token: `137x-H25e post-parity owner refresh`
+- current blocker token: `137x-H26 array text observer-store region contract`
 - current benchmark state:
   - `C 3 ms / Ny AOT 3 ms`
   - `ny_aot_instr=16570267`
   - `ny_aot_cycles=3471656`
 - active owner:
-  - no new code owner selected yet; re-baseline exact/middle/whole first
-  - H25d closed with the runtime-private single-region executor at C parity
+  - whole-front inner scan observer + conditional same-slot suffix store
+  - H25d closed with the runtime-private single-region executor at middle
+    parity
   - latest asm top:
     - region store mutation closure: `52.65%`
     - `__memmove_avx512_unaligned_erms`: `35.67%`
@@ -326,10 +327,37 @@ H25d final state:
   - H25d.3 manual byte moves and H25d.4 observe hoist both regressed, so
     H25d accepted code remains H25d.1 + H25d.2
 - next slice:
-  - H25e post-parity owner refresh
-  - re-baseline exact/middle/whole with stat + asm before opening any new code
-  - do not add source-length or ASCII assumptions unless MIR provides an
-    explicit generic proof
+  - H26 array text observer-store region contract
+  - keep the new region proof under MIR-owned observer metadata
+  - do not add source-prefix, source-length, or ASCII assumptions unless MIR
+    provides an explicit generic proof
+
+H25e post-parity owner refresh:
+
+- exact `kilo_micro_array_string_store`:
+  - stat: `C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9265624`, `ny_aot_cycles=2385663`
+  - asm: `ny_main` `76.27%`; residual libc `memmove` is below 1%
+- middle `kilo_meso_substring_concat_array_set_loopcarry`:
+  - stat: `C 3 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=16570861`, `ny_aot_cycles=3387096`
+  - asm: region mutation closure `61.25%`,
+    `__memmove_avx512_unaligned_erms` `25.60%`
+  - verdict: do not reopen H25d from this percentage alone; H25d.3/H25d.4
+    already rejected local copy/observe surgery
+- whole `kilo_kernel_small`:
+  - stat: `C 81 ms / Ny AOT 20 ms`,
+    `ny_aot_instr=232160997`, `ny_aot_cycles=83942461`
+  - asm: `memchr::...find_avx2` `34.56%`,
+    `with_array_text_write_txn` closure `29.63%`,
+    `LocalKey::with` `12.69%`,
+    `__memmove_avx512_unaligned_erms` `6.75%`,
+    `nyash.array.string_len_hi` `6.33%`
+  - MIR already emits one `array_text_observer_routes` entry for
+    `array_get_receiver_indexof` with `consumer_shape=found_predicate`,
+    `publication_boundary=none`, and const needle `"line"`
+  - next code owner: extend that observer route into a MIR-proven
+    observer + conditional suffix-store region executor
 
 Reject immediately if the implementation requires:
 - runtime deciding session legality from residence state

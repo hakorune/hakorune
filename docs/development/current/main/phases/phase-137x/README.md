@@ -1579,10 +1579,38 @@ H25d region executor inner mutation result:
   - H25d.5 closes the residual memmove / mutation owner decision:
     H25d.3/H25d.4 both regressed, so do not reopen local byte-copy or observe
     surgery without new MIR proof.
-  - The next slice is H25e post-parity owner refresh: re-baseline
-    exact/middle/whole with stat + asm before opening new code.
+  - H25e post-parity owner refresh selected the next code owner:
+    whole-front inner scan observer + conditional same-slot suffix store.
+  - The next slice is H26 array text observer-store region contract.
   - Do not add source-length or ASCII assumptions unless MIR provides an
     explicit generic proof.
+
+H25e post-parity owner refresh:
+
+- exact `kilo_micro_array_string_store`:
+  - stat: `C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9265624`, `ny_aot_cycles=2385663`
+  - asm top: `ny_main` `76.27%`; libc `memmove` is below 1%
+- middle `kilo_meso_substring_concat_array_set_loopcarry`:
+  - stat: `C 3 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=16570861`, `ny_aot_cycles=3387096`
+  - asm top: region mutation closure `61.25%`,
+    `__memmove_avx512_unaligned_erms` `25.60%`
+  - verdict: H25d remains closed; residual memmove percentage alone is not a
+    new owner because local copy/observe probes regressed
+- whole `kilo_kernel_small`:
+  - stat: `C 81 ms / Ny AOT 20 ms`,
+    `ny_aot_instr=232160997`, `ny_aot_cycles=83942461`
+  - asm top: `memchr::...find_avx2` `34.56%`,
+    `with_array_text_write_txn` closure `29.63%`,
+    `LocalKey::with` `12.69%`,
+    `__memmove_avx512_unaligned_erms` `6.75%`,
+    `nyash.array.string_len_hi` `6.33%`
+  - MIR evidence: `array_text_observer_routes` already records the
+    `array_get_receiver_indexof` route with `consumer_shape=found_predicate`,
+    `publication_boundary=none`, and const needle `"line"`
+  - H26 must extend the existing observer metadata with a nested region
+    executor contract; do not create a benchmark-named helper family.
 
 ## Legacy Retirement Ledger
 

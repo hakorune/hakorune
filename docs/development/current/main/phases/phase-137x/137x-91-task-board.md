@@ -164,13 +164,36 @@ contract`.
       `ny_aot_instr=16570267`, `ny_aot_cycles=3471656`
     - verdict: close H25d; residual `memmove` / mutation surgery is not a
       keeper without new MIR proof, because H25d.3/H25d.4 both regressed
-- [ ] H25e post-parity owner refresh
+- [x] H25e post-parity owner refresh
   - re-baseline the current kilo exact/middle/whole fronts before opening new
     code
   - do not optimize from the H25d residual `memmove` percentage alone; pick the
     next owner from fresh stat + asm evidence
   - keeper gate remains owner-first: no helper-name shortcut, no runtime-owned
     legality, and no `.inc` planner drift
+  - result:
+    - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
+    - middle `kilo_meso_substring_concat_array_set_loopcarry`: `C 3 ms / Ny AOT 4 ms`
+    - whole `kilo_kernel_small`: `C 81 ms / Ny AOT 20 ms`
+  - verdict: next code owner is the whole-front inner scan
+    observer/conditional-store region, not H25d residual memmove surgery
+- [ ] H26 array text observer-store region contract
+  - target front: `kilo_kernel_small`
+  - target shape: `array.get(j).indexOf(const) >= 0` followed by same-array,
+    same-index const-suffix store in the taken branch
+  - design:
+    - extend the existing MIR-owned `array_text_observer_routes` with a nested
+      region executor contract instead of creating a benchmark-named helper
+      family
+    - `.inc` validates metadata and emits one runtime call; it must not rescan
+      raw MIR CFG to rediscover the shape
+    - runtime holds residence/guard mechanics inside one call and only executes
+      needle search + suffix mutation
+  - reject seam:
+    - no indexOf result cache
+    - no runtime-owned legality/provenance
+    - no source-prefix assumption such as "`line` is always present"
+    - no C-ABI session handle carrying guards
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

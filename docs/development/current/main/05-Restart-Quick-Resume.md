@@ -40,10 +40,10 @@ cargo check --features perf-observe -p nyash_kernel
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H25e post-parity owner refresh`
+    - current blocker is `137x-H26 array text observer-store region contract`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H25e post-parity owner refresh`
+  - `137x-H26 array text observer-store region contract`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -77,8 +77,10 @@ cargo check --features perf-observe -p nyash_kernel
     `ny_aot_cycles=3471656`
   - H25d.5 closes residual memmove / mutation surgery: H25d.3/H25d.4 both
     regressed, so keep H25d.1/H25d.2 as the accepted code
-  - next slice: H25e post-parity owner refresh; re-baseline exact/middle/whole
-    with stat + asm before opening new code
+  - H25e post-parity owner refresh selected the whole-front inner scan:
+    `indexOf("line") >= 0` followed by same-slot suffix store
+  - next slice: H26 array text observer-store region contract; keep legality in
+    MIR observer metadata and keep `.inc` emit-only
   - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
   - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
   - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

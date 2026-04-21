@@ -446,14 +446,36 @@ Scope: current lane / next lane / restart order only.
         - H25d.5 verdict: close H25d. Residual `memmove` / mutation surgery is
           not a keeper without a new MIR proof; H25d.3/H25d.4 both regressed,
           so accepted code remains H25d.1 + H25d.2.
-      - `137x-H25e` post-parity owner refresh is active
-        - current blocker token: `137x-H25e post-parity owner refresh`
-        - re-baseline exact/middle/whole with stat + asm before opening new
-          code
-        - do not optimize from the H25d residual `memmove` percentage alone
+      - `137x-H25e` post-parity owner refresh is closed
+        - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`,
+          `ny_aot_instr=9265624`, `ny_aot_cycles=2385663`
+        - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+          `C 3 ms / Ny AOT 4 ms`,
+          `ny_aot_instr=16570861`, `ny_aot_cycles=3387096`
+        - whole `kilo_kernel_small`: `C 81 ms / Ny AOT 20 ms`,
+          `ny_aot_instr=232160997`, `ny_aot_cycles=83942461`
+        - verdict: next code owner is whole-front inner scan
+          observer/conditional-store, not H25d residual `memmove`
+      - `137x-H26` array text observer-store region contract is active
+        - current blocker token:
+          `137x-H26 array text observer-store region contract`
+        - target shape: `array.get(j).indexOf(const) >= 0` followed by
+          same-array, same-index const-suffix store in the taken branch
+        - MIR evidence already present: `array_text_observer_routes` records
+          `array_get_receiver_indexof`, `consumer_shape=found_predicate`,
+          `publication_boundary=none`, const needle `"line"`
+        - implementation order:
+          - H26.1 add a nested observer-store region contract under existing
+            observer metadata; do not add a benchmark-named sibling plan
+          - H26.2 make `.inc` validate metadata and emit one runtime call, with
+            no raw CFG rediscovery
+          - H26.3 add runtime one-call executor that holds guard/residence
+            mechanics inside the call and performs search + suffix mutation
+          - H26.4 keeper probe on `kilo_kernel_small` plus exact/middle
+            no-regression
         - reject seam: no helper-name shortcut, no runtime-owned legality, no
-          `.inc` planner drift, and no source-length / ASCII assumption without
-          MIR proof
+          `.inc` planner drift, no indexOf result cache, no source-prefix /
+          source-length / ASCII assumption without MIR proof
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
