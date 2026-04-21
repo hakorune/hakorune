@@ -9,16 +9,14 @@ ledger details; current implementation work should start here.
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
 - current blocker token: `137x-H25d region executor inner mutation owner`
 - current benchmark state:
-  - `C 3 ms / Ny AOT 5 ms`
-  - `ny_aot_instr=28630426`
-  - `ny_aot_cycles=7033574`
+  - `C 3 ms / Ny AOT 3 ms`
+  - `ny_aot_instr=16570267`
+  - `ny_aot_cycles=3471656`
 - active owner:
   - runtime-private single-region executor inner mutation path
   - latest asm top:
-    - `slot_text_region_update_sum_raw` closure: `79.54%`
-    - `__memmove_avx512_unaligned_erms`: `9.74%`
-    - region store closure: `6.16%`
-    - `_int_malloc`: `1.02%`
+    - region store mutation closure: `52.65%`
+    - `__memmove_avx512_unaligned_erms`: `35.67%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -245,6 +243,86 @@ Required order:
 3. Keep MIR contract unchanged unless a new legality/materialization fact is
    genuinely required.
 4. Reject helper-name or benchmark-name dispatch.
+
+H25d.1 implementation target:
+
+- owner evidence:
+  - `slot_text_region_update_sum_raw` is the top sampled symbol after H25c.
+  - the runtime region executor still calls the generic
+    `ArrayTextSlotSession::update` path for every iteration, even when storage
+    is already `ArrayStorage::Text`.
+- change scope:
+  - make the text-resident region executor loop directly over
+    `Text(Vec<String>)` after taking the single write guard
+  - keep the existing compatible fallback for boxed/stringlike arrays
+  - do not change MIR metadata, `.inc` lowering, public ABI, or helper names
+- keeper gate:
+  - behavior tests remain green
+  - `kilo_meso_substring_concat_array_set_loopcarry` must not regress from the
+    H25c partial keeper baseline (`C 3 ms / Ny AOT 5 ms`)
+
+H25d.1 probe:
+
+- result: `ny_aot_instr=24851120`, `ny_aot_cycles=6700078`, `Ny AOT 5 ms`
+- verdict: keeper as instruction/cycles reduction, not a new ms keeper
+- next owner:
+  - `array_string_insert_const_mid_subrange_len_region_store_len` inlined
+    mutation closure (`66.75%`)
+  - `__memmove_avx512_unaligned_erms` (`18.52%`)
+
+H25d.2 implementation target:
+
+- split `update_insert_const_mid_subrange_len_value` into:
+  - hot in-place fixed len-store path
+  - cold semantic fallback for generic UTF-8/materialization cases
+- keep UTF-8 boundary checks in the hot path; do not assume ASCII without MIR
+  proof
+- do not change MIR metadata, `.inc` lowering, public ABI, or helper names
+
+H25d.2 probe:
+
+- result: `ny_aot_instr=16570239`, `ny_aot_cycles=3459091`, `Ny AOT 4 ms`
+- verdict: keeper; the cold fallback split removed the generic materialization
+  body from the active hot path
+- next owner:
+  - hot mutation closure (`63.01%`)
+  - `__memmove_avx512_unaligned_erms` (`23.20%`)
+
+H25d.3 implementation target:
+
+- replace the fixed in-place path's small overlapping shifts with manual byte
+  moves for short text cells
+- keep `ptr::copy` fallback for larger cells
+- preserve UTF-8 boundary checks and keep MIR/ABI unchanged
+
+H25d.3 probe:
+
+- result: `ny_aot_instr=22511003`, `ny_aot_cycles=4765539`, `Ny AOT 4 ms`
+- verdict: rejected; manual byte moves increase instruction/cycle count versus
+  H25d.2, so keep the existing `ptr::copy` path
+
+H25d.4 implementation target:
+
+- hoist `observe::enabled()` out of the per-iteration region mutation closure
+- keep all semantics and MIR/ABI unchanged
+
+H25d.4 probe:
+
+- result: `ny_aot_instr=22510404`, `ny_aot_cycles=4773551`, `Ny AOT 4 ms`
+- verdict: rejected; instruction/cycle regression versus H25d.2, reverted
+
+H25d final state:
+
+- accepted code: H25d.1 + H25d.2 only
+- final repeated stat: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`,
+  `ny_aot_instr=16570267`, `ny_aot_cycles=3471656`
+- final asm top:
+  - region store mutation closure: `52.65%`
+  - `__memmove_avx512_unaligned_erms`: `35.67%`
+- next slice:
+  - H25d.5 residual memmove / mutation owner decision
+  - do not add source-length or ASCII assumptions unless MIR provides an
+    explicit generic proof
 
 Reject immediately if the implementation requires:
 - runtime deciding session legality from residence state

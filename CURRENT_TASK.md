@@ -421,9 +421,31 @@ Scope: current lane / next lane / restart order only.
         - target transition: emitted hot loop no longer calls the per-iteration
           fused helper; owner moved into `slot_text_region_update_sum_raw`
           (`79.54%`) with `__memmove_avx512_unaligned_erms` (`9.74%`)
-      - next slice: H25d perf-first annotate the region executor inner mutation
-        body; do not widen MIR or add benchmark-name dispatch until samples
-        prove the next owner
+      - H25d perf-first inner mutation work:
+        - H25d.1 landed: keep the MIR contract unchanged and remove
+          per-iteration `ArrayTextSlotSession` dispatch from the text-resident
+          region executor path. Compatible fallback for boxed/stringlike arrays
+          remains unchanged.
+        - H25d.1 probe: `ny_aot_instr=24851120`, `ny_aot_cycles=6700078`,
+          `Ny AOT 5 ms`; next owner moved to the inlined
+          `array_string_insert_const_mid_subrange_len_region_store_len`
+          mutation closure.
+        - H25d.2 landed: split the fixed len-store update into a hot in-place
+          path and cold semantic fallback. Do not add new MIR facts; keep UTF-8
+          boundary checks in the hot path.
+        - H25d.2 final probe: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`,
+          `ny_aot_instr=16570267`, `ny_aot_cycles=3471656`; next owner is the
+          hot mutation closure plus
+          `__memmove_avx512_unaligned_erms`.
+        - H25d.3 rejected: manual byte moves regressed to
+          `ny_aot_instr=22511003`, `ny_aot_cycles=4765539`, `Ny AOT 4 ms`;
+          keep the existing `ptr::copy` path.
+        - H25d.4 rejected: hoisting `observe::enabled()` out of the
+          per-iteration region closure regressed instruction/cycle count to
+          `ny_aot_instr=22510404`, `ny_aot_cycles=4773551`; reverted.
+        - next slice: H25d.5 residual memmove / mutation owner decision. Do not
+          add source-length or ASCII assumptions unless MIR provides an explicit
+          generic proof.
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

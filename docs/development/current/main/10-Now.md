@@ -49,9 +49,13 @@ Related:
     - H25c.2b closed: clean one-call update boundary, but non-keeper because
       it still acquires the write lock once per iteration
     - H25c.2c/H25c.3 closed: MIR-owned single-region executor metadata now
-      drives one begin-site runtime call; result is `C 3 ms / Ny AOT 5 ms`
-    - next slice: H25d perf-first annotate `slot_text_region_update_sum_raw`
-      and optimize only the sampled inner mutation/copy owner
+      drives one begin-site runtime call; result was `C 3 ms / Ny AOT 5 ms`
+    - H25d.1/H25d.2 landed: direct text-resident region loop plus hot/cold
+      fixed len-store mutation split
+    - H25d result: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`,
+      `ny_aot_instr=16570267`, `ny_aot_cycles=3471656`
+    - next slice: H25d.5 residual memmove / mutation owner decision; do not add
+      source-length or ASCII assumptions without MIR proof
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

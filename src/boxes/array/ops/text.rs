@@ -223,7 +223,27 @@ impl ArrayBox {
         if loop_bound < 0 || row_modulus <= 0 {
             return None;
         }
+        if loop_bound == 0 {
+            return Some(0);
+        }
         let mut items = self.items.write();
+
+        if let ArrayStorage::Boxed(boxed) = &*items {
+            if let Some(values) = Self::try_text_values(boxed) {
+                *items = ArrayStorage::Text(values);
+            }
+        }
+
+        if let ArrayStorage::Text(values) = &mut *items {
+            let mut total = 0_i64;
+            for step in 0..loop_bound {
+                let idx = (step % row_modulus) as usize;
+                let value = values.get_mut(idx)?;
+                total = total.checked_add(f(value)?)?;
+            }
+            return Some(total);
+        }
+
         let mut session =
             ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible);
         let mut total = 0_i64;

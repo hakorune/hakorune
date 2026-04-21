@@ -48,7 +48,7 @@
     - this is the historical producer-owner split that led to the landed phase-2 cuts
     - the current owner proof has moved to read-side encode/materialize/objectize and libc copy/alloc tax
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
-- current middle evidence: `C 3 ms / Ny AOT 5 ms` (`repeat=3`, H25c single-region executor)
+- current middle evidence: `C 3 ms / Ny AOT 3 ms` (`repeat=3`, H25d.2 region executor inner mutation keeper)
 - direct-only correctness: `Result: 2880064`, exit code `64`
 - current stop-line:
   - `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
@@ -1551,6 +1551,34 @@ H25c.2c single-region executor contract:
     `__memmove_avx512_unaligned_erms` `9.74%`, region store closure `6.16%`.
   - Verdict: H25c.2c/H25c.3 are closed as a partial keeper. The next owner is
     H25d region executor inner mutation/copy; re-annotate before editing.
+
+H25d region executor inner mutation result:
+
+- H25d.1 landed:
+  - `ArrayBox::slot_text_region_update_sum_raw(...)` now loops directly over
+    `ArrayStorage::Text(Vec<String>)` after taking the single write guard.
+  - The compatible boxed/stringlike fallback remains unchanged.
+  - Probe: `ny_aot_instr=24851120`, `ny_aot_cycles=6700078`, `Ny AOT 5 ms`.
+- H25d.2 landed:
+  - `update_insert_const_mid_subrange_len_value(...)` is split into a hot
+    fixed in-place path and a cold semantic materialization fallback.
+  - UTF-8 boundary checks remain in the hot path; no ASCII assumption is added.
+  - Final repeated stat:
+    `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`,
+    `ny_aot_instr=16570267`, `ny_aot_cycles=3471656`.
+  - Final asm top:
+    region store mutation closure `52.65%`,
+    `__memmove_avx512_unaligned_erms` `35.67%`.
+- Rejected probes:
+  - H25d.3 manual byte moves regressed to
+    `ny_aot_instr=22511003`, `ny_aot_cycles=4765539`, `Ny AOT 4 ms`; reverted.
+  - H25d.4 `observe::enabled()` hoist regressed to
+    `ny_aot_instr=22510404`, `ny_aot_cycles=4773551`, `Ny AOT 4 ms`; reverted.
+- Verdict:
+  - H25d.1/H25d.2 are keepers.
+  - The next slice is H25d.5 residual memmove / mutation owner decision.
+  - Do not add source-length or ASCII assumptions unless MIR provides an
+    explicit generic proof.
 
 ## Legacy Retirement Ledger
 

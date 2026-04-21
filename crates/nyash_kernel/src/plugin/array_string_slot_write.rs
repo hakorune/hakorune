@@ -233,6 +233,43 @@ fn try_update_insert_const_mid_subrange_same_len_in_place(
 }
 
 #[inline(always)]
+fn try_update_insert_const_mid_subrange_len_fast(value: &mut String, middle: &str) -> bool {
+    let source_len = value.len();
+    if source_len == 0 || middle.len() != 2 {
+        return false;
+    }
+    let split_start = source_len / 2;
+    if split_start == 0 || split_start >= source_len {
+        return false;
+    }
+    if !value.is_char_boundary(1)
+        || !value.is_char_boundary(split_start)
+        || !value.is_char_boundary(source_len - 1)
+        || !middle.is_char_boundary(1)
+    {
+        return false;
+    }
+    unsafe {
+        let bytes = value.as_mut_vec();
+        let ptr = bytes.as_mut_ptr();
+        let prefix_shift_len = split_start - 1;
+        let suffix_shift_len = source_len - split_start - 1;
+        if suffix_shift_len != 0 {
+            std::ptr::copy(
+                ptr.add(split_start),
+                ptr.add(split_start + 1),
+                suffix_shift_len,
+            );
+        }
+        if prefix_shift_len != 0 {
+            std::ptr::copy(ptr.add(1), ptr, prefix_shift_len);
+        }
+        std::ptr::copy_nonoverlapping(middle.as_ptr(), ptr.add(split_start - 1), 2);
+    }
+    true
+}
+
+#[inline(always)]
 fn insert_const_mid_into_string_box_value(value: &mut String, middle: &str, split: i64) {
     if value.is_empty() {
         value.push_str(middle);
@@ -498,6 +535,23 @@ fn array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(
 
 #[inline(always)]
 fn update_insert_const_mid_subrange_len_value(
+    value: &mut String,
+    middle: &str,
+    observe_enabled: bool,
+) -> i64 {
+    if try_update_insert_const_mid_subrange_len_fast(value, middle) {
+        if observe_enabled {
+            observe::record_store_array_str_existing_slot();
+            observe::record_store_array_str_source_store();
+        }
+        return value.len() as i64;
+    }
+    update_insert_const_mid_subrange_len_value_slow(value, middle, observe_enabled)
+}
+
+#[cold]
+#[inline(never)]
+fn update_insert_const_mid_subrange_len_value_slow(
     value: &mut String,
     middle: &str,
     observe_enabled: bool,

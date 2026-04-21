@@ -142,6 +142,26 @@ contract`.
   - perf-first next slice.
   - inspect/annotate `slot_text_region_update_sum_raw` before code changes.
   - no MIR widening unless a new legality/materialization fact is required.
+  - [x] H25d.1 direct text-resident region loop
+    - bypass per-iteration `ArrayTextSlotSession` dispatch when the write guard
+      already exposes `ArrayStorage::Text`
+    - keep compatible boxed/stringlike fallback unchanged
+  - [x] H25d.2 hot/cold len-store mutation split
+    - isolate the fixed in-place update path from the generic materialization
+      fallback
+    - keep UTF-8 boundary checks; no ASCII assumption without MIR proof
+  - [x] H25d.3 small overlap copy specialization
+    - avoid libc `memmove` for short text cells in the fixed in-place path
+    - keep generic `ptr::copy` fallback for larger strings
+    - rejected: instruction/cycle regression versus H25d.2
+  - [x] H25d.4 observe flag hoist
+    - compute `observe::enabled()` once at region helper entry, not per
+      iteration
+    - rejected: instruction/cycle regression versus H25d.2
+  - [ ] H25d.5 residual memmove / mutation owner decision
+    - H25d final accepted code is H25d.1 + H25d.2
+    - current result: `C 3 ms / Ny AOT 3 ms`,
+      `ny_aot_instr=16570267`, `ny_aot_cycles=3471656`
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

@@ -55,6 +55,9 @@ and ownership map, not a second semantic source.
     `ArrayTextSlotSession` substrate here.
   - H25c.2c added `slot_text_region_update_sum_raw(...)` as a one-call
     runtime executor for the MIR-proven loop region.
+  - H25d.1 keeps the same MIR contract but makes the text-resident executor
+    loop directly over `ArrayStorage::Text(Vec<String>)`; compatible
+    boxed/stringlike fallback remains runtime-private.
   - any write guard or slot borrow must be created and dropped inside one Rust
     call stack.
 - `src/boxes/array/ops/text_session.rs`
@@ -66,6 +69,9 @@ and ownership map, not a second semantic source.
   - must not own storage layout, route legality, or publication policy.
   - H25c.2a may add a thin substrate consumer only; H25c.2b may add a
     metadata-selected single-call executor only after docs acceptance.
+  - H25d.2 owns the hot/cold split for the fixed len-store mutation executor:
+    hot in-place update plus cold semantic fallback, with UTF-8 boundary checks
+    preserved.
 - `crates/nyash_kernel/src/plugin/array_text_write_txn.rs`
   - H25c.2a proposed file for kernel-private transaction glue.
   - may own handle lookup, existing demand markers, observe accounting, and
