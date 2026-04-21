@@ -3,7 +3,7 @@
 Status: active design gate; H36.4 piece residence pilot rejected.
 
 Current blocker token:
-`137x-H38 bounded gap residence design`.
+`137x-H38.1 bounded mid-gap residence pilot`.
 
 ## Context
 
@@ -250,3 +250,59 @@ Verdict:
 - next work is H38 bounded gap / edit-buffer design, docs-first. No code until
   rollback, materialization, contains, append, and cap/compaction rules are
   fixed.
+
+## H38 Design
+
+Name: `ArrayTextCell bounded mid-gap`.
+
+Representation:
+
+- private variant only: logical text is `left + right[right_start..]`.
+- `left` owns the prefix up to the edit boundary.
+- `right_start` marks the consumed prefix of `right`; moving the edit boundary
+  right increments an offset instead of draining or memmoving the active right
+  tail.
+- suffix append writes to `right`'s end.
+
+Allowed operations:
+
+- `len` is `left.len() + right[right_start..].len()`.
+- len-half insert:
+  - computes the MIR-owned split policy result locally from current byte len.
+  - if the split is inside `right`, moves only the small prefix bytes into
+    `left` and advances `right_start`.
+  - if the split is inside `left`, inserts there and caps left-side overshoot
+    with an explicit rebalance.
+- `contains_literal` checks `left`, the active right tail, and the single
+  boundary crossing without materializing the full text.
+- `append_suffix` appends to `right`.
+- visible Array boundaries materialize explicitly through
+  `to_visible_string` / `into_string` / `with_text`.
+
+Rollback / fallback:
+
+- invalid UTF-8 byte-boundary splits fall back to the existing flat
+  materialization behavior.
+- generic `&mut String` update APIs may materialize the cell explicitly; hot
+  H38.1 paths must stay on cell operations.
+
+Cap / compaction:
+
+- the consumed right prefix is compacted only when it is both large and larger
+  than the active right tail.
+- left-side overshoot is capped by rebalancing from explicit materialization,
+  preventing a no-append workload from growing hidden per-edit movement
+  without bound.
+
+Forbidden:
+
+- MIR or `.inc` changes.
+- public ABI changes.
+- benchmark-name or source-content branches.
+- semantic/search-result cache.
+- unbounded piece vectors.
+
+H38 verdict:
+
+- design is sufficient to open H38.1 code.
+- keeper still requires fresh whole stat/asm after a rebuilt release artifact.

@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H38 bounded gap residence design)
+  - `phase-137x-H owner-first optimization return` (active; H38.1 bounded mid-gap residence pilot)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H38 bounded gap residence design`
+  - current blocker is `137x-H38.1 bounded mid-gap residence pilot`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -119,8 +119,9 @@ Related:
       (`Ny AOT 114 ms`, `ny_aot_instr=2084599541`), code reverted
     - H37 closed: reverted-code whole is back to `Ny AOT 7 ms`; top remains
       `memmove` / len-half closure, allocator is not dominant
-    - H38 active: bounded gap / edit-buffer design before any new
-      representation implementation
+    - H38 closed: bounded mid-gap design is documented
+    - H38.1 active: runtime-private bounded mid-gap pilot inside
+      `ArrayTextCell`
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

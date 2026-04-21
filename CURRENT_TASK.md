@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H38 bounded gap residence design)
-  - current blocker is `137x-H38 bounded gap residence design`
+  - `phase-137x-H owner-first optimization return` (active; H38.1 bounded mid-gap residence pilot)
+  - current blocker is `137x-H38.1 bounded mid-gap residence pilot`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -828,11 +828,17 @@ Scope: current lane / next lane / restart order only.
             observer-store closure `18.88%`
           - verdict: owner returned to flat len-half movement; naive pieces are
             rejected, allocator is not dominant
-        - H38 active:
-          - design only first: bounded gap / edit-buffer proof for the
-            MIR-owned len-half edit contract
-          - do not implement until rollback, materialization, contains, append,
-            and cap/compaction rules are fixed
+        - H38 result:
+          - bounded mid-gap design fixed for `ArrayTextCell`
+          - logical text is `left + right[right_start..]`
+          - len-half insert moves the right boundary by offset, not by
+            draining the active right tail
+          - visible materialization, contains, append, rollback, and
+            compaction rules are documented
+        - H38.1 active:
+          - implement the runtime-private bounded mid-gap pilot
+          - no MIR, `.inc`, public ABI, benchmark-name branch, or
+            semantic/search-result cache
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

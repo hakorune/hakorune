@@ -400,10 +400,15 @@ phase README / current entry. Current active card:
     - do not reopen non-flat residence without bounded piece/gap proof
     - result: `Ny AOT 7 ms`, top remains `memmove` / len-half closure;
       allocator is not dominant
-  - [ ] H38 bounded gap residence design
+  - [x] H38 bounded gap residence design
     - docs-first bounded gap / edit-buffer proof
     - must cover rollback, materialization, contains, append, and
       cap/compaction rules before code
+    - result: bounded mid-gap design fixed as `left + right[right_start..]`
+  - [ ] H38.1 bounded mid-gap residence pilot
+    - implement `ArrayTextCell`-private bounded mid-gap
+    - no MIR, `.inc`, public ABI, benchmark-name branch, or
+      semantic/search-result cache
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

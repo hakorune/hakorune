@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H38 bounded gap residence design`
+- current blocker token: `137x-H38.1 bounded mid-gap residence pilot`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -811,7 +811,7 @@ Verdict:
 - naive pieces are rejected; do not reopen unbounded piece vectors.
 - next card is H38 bounded gap / edit-buffer design, docs-first.
 
-### H38 Active
+### H38 Result
 
 Goal: decide whether a bounded gap/edit-buffer cell can reduce the len-half
 movement owner without repeating H36.4 work explosion.
@@ -828,6 +828,39 @@ movement owner without repeating H36.4 work explosion.
   - MIR or `.inc` changes
   - benchmark-named representation
   - semantic/search-result cache
+
+Decision:
+
+- open a private bounded mid-gap variant inside `ArrayTextCell`.
+- logical text is `left + right[right_start..]`.
+- len-half insert moves the right boundary by offset, not by draining the
+  active right tail.
+- suffix append writes to the right tail.
+- `contains_literal` checks left/right/boundary without full materialization.
+- visible boundaries still materialize explicitly.
+- cap/compaction rules prevent unbounded consumed right prefix and left-side
+  overshoot.
+
+### H38.1 Active
+
+Goal: implement the runtime-private bounded mid-gap pilot inside
+`ArrayTextCell`.
+
+- allowed:
+  - add the private cell variant and route cell methods through it.
+  - keep generic `&mut String` fallback APIs materializing explicitly.
+  - add focused unit tests for materialization, contains across the boundary,
+    append, repeated len-half insert, and fallback compatibility.
+- forbidden:
+  - MIR or `.inc` changes.
+  - public ABI changes.
+  - benchmark-name/source-content branches.
+  - semantic/search-result cache.
+- keeper gate:
+  - behavior tests stay green.
+  - release artifacts are rebuilt before measuring.
+  - whole `kilo_kernel_small` improves or the card records a reject with owner
+    movement evidence.
 
 ### H28.1 runtime-private literal search executor
 
