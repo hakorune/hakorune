@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H36 len-half residence representation design gate)
+  - `phase-137x-H owner-first optimization return` (active; H36.1 ArrayTextCell operation API split)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H36 len-half residence representation design gate`
+    - current blocker is `137x-H36.1 ArrayTextCell operation API split`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H36 len-half residence representation design gate`
+  - `137x-H36.1 ArrayTextCell operation API split`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -80,8 +80,9 @@ cargo check --features perf-observe -p nyash_kernel
       instructions to `50229601` and observer-store closure to `14.03%`
     - H35 closed: residual owner is `memmove` / len-half closure; do not repeat
       H29 flat byte-copy surgery
-    - H36 active: design-gate non-flat / gap / piece `ArrayTextCell`
-      residence before any implementation
+    - H36 design gate closed: do not add non-flat residence yet
+    - H36.1 active: flat-only `ArrayTextCell` operation API split before any
+      piece/gap implementation
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

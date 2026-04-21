@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H36 len-half residence representation design gate`
+- current blocker token: `137x-H36.1 ArrayTextCell operation API split`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -611,7 +611,7 @@ Goal: decide the next valid post-H34 card for the remaining len-half copy owner.
   - next step is a design gate for non-flat / gap / piece residence under
     `ArrayTextCell`
 
-### H36 Active
+### H36 Result
 
 Goal: decide whether `ArrayTextCell` should open a non-flat residence
 representation for repeated len-half inserts.
@@ -633,9 +633,35 @@ representation for repeated len-half inserts.
   - MIR or `.inc` route changes before the runtime residence contract is clear
   - another flat `String::insert_str` bypass without a new structural proof
 - exit:
-  - either open a narrow H36 implementation card with rollback gates, or reject
-    representation work and hand residual `memmove` to a later allocator/text
-    residence lane
+  - first implementation card is H36.1, a behavior-preserving operation API
+    split for `ArrayTextCell`
+  - do not add a non-flat variant before H36.1 is green
+
+SSOT:
+
+- [137x-97 H36 ArrayTextCell residence design gate](./137x-97-h36-array-text-cell-residence-design-gate.md)
+
+### H36.1 Active
+
+Goal: split `ArrayTextCell` operation APIs before any non-flat residence
+variant.
+
+- scope:
+  - `src/boxes/array/text_cell.rs`
+  - `src/boxes/array/ops/text.rs`
+- allowed:
+  - flat-only `ArrayTextCell::{contains_literal, append_suffix}` helpers
+  - replace hot-path `as_str` / `as_mut_string` calls where the caller wants an
+    operation, not public materialization
+- forbidden:
+  - `Piece` / `Gap` variants
+  - MIR or `.inc` edits
+  - perf keeper claim
+- acceptance:
+  - `cargo fmt --check`
+  - `cargo test -q array::tests --lib`
+  - `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
+  - `tools/checks/current_state_pointer_guard.sh`
 
 ### H28.1 runtime-private literal search executor
 

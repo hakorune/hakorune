@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H36 len-half residence representation design gate)
-  - current blocker is `137x-H36 len-half residence representation design gate`
+  - `phase-137x-H owner-first optimization return` (active; H36.1 ArrayTextCell operation API split)
+  - current blocker is `137x-H36.1 ArrayTextCell operation API split`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -783,6 +783,16 @@ Scope: current lane / next lane / restart order only.
             residence for repeated len-half inserts
           - docs/design first; no MIR or `.inc` route change before the
             runtime residence contract is clear
+        - H36 result:
+          - SSOT:
+            `docs/development/current/main/phases/phase-137x/137x-97-h36-array-text-cell-residence-design-gate.md`
+          - do not add a non-flat variant yet
+          - first land H36.1 flat-only `ArrayTextCell` operation API split
+        - H36.1 active:
+          - BoxShape-only; no new MIR accepted shape
+          - move hot-path contains/append operations behind `ArrayTextCell`
+            methods while staying flat-only
+          - no MIR, `.inc`, public ABI, or perf keeper claim
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
