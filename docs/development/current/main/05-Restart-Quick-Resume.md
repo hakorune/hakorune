@@ -32,9 +32,9 @@ cargo check -q
 ## Current Lane
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H45 post-observer-guard memmove/materialization owner)
+  - `phase-137x-H owner-first optimization return` (active; H46 text-cell residence/materialization design)
 - blocker:
-  - `137x-H45 post-observer-guard memmove/materialization owner`
+  - `137x-H46 text-cell residence/materialization design`
 - method anchor:
   - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 - active entry:
@@ -44,15 +44,14 @@ cargo check -q
 
 ## Current Perf Snapshot
 
-- H44.1 keeper:
-  - runtime-private observer all-hit guard
-  - no MIR metadata shape change
-  - no `.inc` emit change
-  - no public ABI change
+- H45 refresh:
+  - H44.1 keeper remains accepted
+  - saved bundle + dwarf callgraph pinned the residual owner to the combined
+    `ArrayTextCell` edit/materialization family
 - whole guard:
-  - `kilo_kernel_small = C 86 ms / Ny AOT 6 ms`
-  - `ny_aot_instr=24129815`
-  - `ny_aot_cycles=5615809`
+  - `kilo_kernel_small = C 83 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=24122891`
+  - `ny_aot_cycles=5842445`
 - exact guard:
   - `kilo_micro_array_string_store = C 11 ms / Ny AOT 3 ms`
   - `ny_aot_instr=9265721`
@@ -61,19 +60,20 @@ cargo check -q
   - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 4 ms`
   - `ny_aot_instr=17651018`
   - `ny_aot_cycles=4247395`
-- latest top after H44.1:
-  - combined executor closure `59.07%`
-  - external `__memmove_avx512_unaligned_erms` `24.01%`
-  - `_int_malloc` `3.03%`
+- latest top after H45 refresh:
+  - combined executor closure `54.33%`
+  - external `__memmove_avx512_unaligned_erms` `27.50%`
+  - `realloc` `2.41%`
+  - `_int_malloc` `0.51%`
 
 ## Immediate Next
 
-- H45 first step:
-  - split the post-H44.1 owner around external `memmove` / materialization
-  - preserve or regenerate top/annotate only if source mapping is needed
+- H46 first step:
+  - open the broader text-cell residence/materialization design card
+  - treat the residual owner as one combined `ArrayTextCell` edit /
+    materialization family, not another suffix / left-copy micro leaf
 - allowed next code shape:
-  - source-pinned copy/materialization transition only
-  - or broader text-cell residence/materialization design if the sampled owner is not narrow
+  - BoxShape-only residence/materialization design
 - forbidden drift:
   - no more suffix/left-copy micro leaves without a new sampled source block
   - no `.inc` planner regression

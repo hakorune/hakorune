@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H45 post-observer-guard memmove/materialization owner`
+- current blocker token: `137x-H46 text-cell residence/materialization design`
 - current benchmark state:
-  - `C 86 ms / Ny AOT 6 ms`
-  - `ny_aot_instr=24129815`
-  - `ny_aot_cycles=5615809`
+  - `C 83 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=24122891`
+  - `ny_aot_cycles=5842445`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -32,11 +32,13 @@ ledger details; current implementation work should start here.
     executor without changing MIR, `.inc`, or public ABI
   - H40 moves byte-boundary legality to MIR metadata and consumes it in a
     runtime-private proof-specific leaf
-  - latest direct-AOT top after H44.1:
-    - combined region executor closure: `59.07%`
-    - `__memmove_avx512_unaligned_erms`: `24.01%`
-    - `_int_malloc`: `3.03%`
-    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.08%`
+  - H45 rerun pins the residual owner family to `ArrayTextCell` edit /
+    materialization mechanics, not a fresh isolated suffix leaf
+  - latest direct-AOT top after H45 refresh:
+    - combined region executor closure: `54.33%`
+    - `__memmove_avx512_unaligned_erms`: `27.50%`
+    - `realloc`: `2.41%`
+    - `_int_malloc`: `0.51%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -1806,7 +1808,7 @@ failed to beat the clean H43 baseline.
   - exact/meso guards hold
   - next owner is external `memmove` / materialization, not observer scan
 
-### H45 Active
+### H45 Result
 
 Goal: split the remaining owner after H44.1 removed the repeated observer scan.
 
@@ -1814,21 +1816,56 @@ Goal: split the remaining owner after H44.1 removed the repeated observer scan.
   - `kilo_kernel_small`
 - blocker token:
   - `137x-H45 post-observer-guard memmove/materialization owner`
-- evidence entering H45:
-  - H44.1 lowered the combined executor closure from `68.01%` to `59.07%`
-  - external `memmove` is now the clearest next top owner by share
-    (`24.01%`) and `_int_malloc` is still secondary (`3.03%`)
-  - wall remains in the `5-6 ms` noise band, so next keeper must reduce a
-    source-pinned copy/materialization transition, not just move percentages
+- commands:
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+  - `bash tools/perf/save_micro_bundle.sh kilo_kernel_small --microasm-runs 20`
+  - manual `perf record --call-graph dwarf` on the saved bundle executable
+- fresh evidence:
+  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 5 ms`,
+    `ny_aot_instr=24122891`, `ny_aot_cycles=5842445`
+  - saved top after refresh:
+    - combined region executor closure: `54.33%`
+    - `__memmove_avx512_unaligned_erms`: `27.50%`
+    - `realloc`: `2.41%`
+    - `_int_malloc`: `0.51%`
+  - caller graph keeps the hot work inside the same combined closure:
+    `nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_ascii_hiisiiisisi`
+  - sampled `memmove` callsites inside that closure are
+    `0x415d90`, `0x415e8f`, and `0x416152`
+  - the sampled family is not a new isolated suffix leaf: it spans
+    `ArrayTextCell` byte-boundary-safe mid-insert / flat fallback /
+    materialization-side overlap shift, while `memcpy` remains another child of
+    the same closure (`12.09%`) and reserve is secondary (`0.65%`)
+- decision:
+  - do not open `H45.1`; the residual owner is not narrow enough for another
+    source-pinned copy micro slice stronger than rejected H29 / H43.1
+  - do not reopen suffix / left-copy surgery under this blocker
+  - next active card is a broader text-cell residence/materialization design
+
+### H46 Active
+
+Goal: design the next keeper around text-cell residence / materialization so the
+combined executor stops bouncing through visible flat-string edit paths.
+
+- target front:
+  - `kilo_kernel_small`
+- blocker token:
+  - `137x-H46 text-cell residence/materialization design`
+- active owner:
+  - `ArrayTextCell residence -> visible flat edit/materialization -> overlap shift`
 - first step:
-  - preserve a fresh H44.1 top/annotate if more source mapping is needed
-  - decide whether the next slice is broad text-cell residence/materialization
-    or a sampled external `memmove` transition with an owner stronger than the
-    rejected H42/H43.1 micro leaves
-- guard:
-  - no more suffix/left-copy micro leaves without a new sampled source block
-  - no `.inc` planner regression or runtime legality inference
-  - no benchmark-name/source-content assumptions
+  - inventory the smallest BoxShape-only design that keeps repeated len-half
+    insert plus observer append on text-cell residence longer, instead of
+    repeatedly materializing or flattening inside the combined executor
+  - keep MIR as legality/provenance owner, `.inc` as metadata-to-call emit only,
+    and runtime as execution mechanics only
+- reject seam:
+  - no benchmark-name or source-content assumptions
+  - no `.inc` planner regression
+  - no runtime-owned legality/provenance inference
+  - no reopening suffix / left-copy micro leaves
 
 ### H28.1 runtime-private literal search executor
 

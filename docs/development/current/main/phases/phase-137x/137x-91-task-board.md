@@ -542,13 +542,22 @@ phase README / current entry. Current active card:
         `ny_aot_instr=24129815`, `ny_aot_cycles=5615809`
       - exact/meso guards held; next owner is external `memmove` /
         materialization
-  - [ ] H45 post-observer-guard memmove/materialization owner
-    - split the remaining owner after H44.1 reduced repeated observer scan
-    - top: combined executor closure `59.07%`, external `memmove` `24.01%`,
-      `_int_malloc` `3.03%`
-    - first step: decide whether the next slice is broad text-cell
-      residence/materialization or a newly sampled external `memmove`
-      transition stronger than rejected H42/H43.1 micro leaves
+  - [x] H45 post-observer-guard memmove/materialization owner
+    - reran whole stat/asm after H44.1:
+      `kilo_kernel_small = C 83 ms / Ny AOT 5 ms`,
+      `ny_aot_instr=24122891`, `ny_aot_cycles=5842445`
+    - saved top: combined executor closure `54.33%`, external `memmove`
+      `27.50%`, `realloc` `2.41%`, `_int_malloc` `0.51%`
+    - saved bundle + dwarf callgraph pin sampled `memmove` callsites to one
+      owner family inside the combined closure (`0x415d90`, `0x415e8f`,
+      `0x416152`), spanning `ArrayTextCell` mid-insert / flat fallback /
+      materialization-side overlap shifts
+    - result: no narrow `H45.1`; do not reopen suffix/left-copy micro leaves
+  - [ ] H46 text-cell residence/materialization design
+    - active owner is broad `ArrayTextCell residence -> visible flat
+      edit/materialization -> overlap shift`
+    - next slice must be BoxShape-only and keep MIR / `.inc` / runtime ownership
+      boundaries unchanged
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

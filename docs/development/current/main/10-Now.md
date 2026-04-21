@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H45 post-observer-guard memmove/materialization owner)
+  - `phase-137x-H owner-first optimization return` (active; H46 text-cell residence/materialization design)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H45 post-observer-guard memmove/materialization owner`
+  - current blocker is `137x-H46 text-cell residence/materialization design`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -166,9 +166,11 @@ Related:
       `memmove` share rose to `17.72%`
     - H44 closed: runtime-private observer all-hit guard is keeper; whole
       improves to `ny_aot_instr=24129815`, `ny_aot_cycles=5615809`
-    - H45 active: next owner is external `memmove` / materialization, not
-      observer scan; do not add more suffix/left-copy micro leaves without a
-      new sampled source block
+    - H45 closed: rerun whole stat/asm and saved bundle + dwarf callgraph pin
+      the residual owner to one `ArrayTextCell` edit/materialization family
+      inside the combined executor (`0x415d90`, `0x415e8f`, `0x416152`)
+    - H46 active: broaden to text-cell residence/materialization design; do not
+      reopen suffix/left-copy micro leaves as standalone probes
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

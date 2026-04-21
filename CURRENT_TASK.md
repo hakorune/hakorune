@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H45 post-observer-guard memmove/materialization owner)
-  - current blocker is `137x-H45 post-observer-guard memmove/materialization owner`
+  - `phase-137x-H owner-first optimization return` (active; H46 text-cell residence/materialization design)
+  - current blocker is `137x-H46 text-cell residence/materialization design`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -981,13 +981,17 @@ Scope: current lane / next lane / restart order only.
           - whole improved from clean H43 `34108337` / `6544565` to
             `24129815` / `5615809`
           - exact/meso guards held
-        - H45 active:
+        - H45 closed:
+          - refreshed whole perf: `kilo_kernel_small = C 83 ms / Ny AOT 5 ms`,
+            `ny_aot_instr=24122891`, `ny_aot_cycles=5842445`
+          - saved bundle + dwarf callgraph pin the residual owner to one
+            `ArrayTextCell` edit/materialization family inside the combined
+            executor (`0x415d90`, `0x415e8f`, `0x416152`)
+        - H46 active:
           - blocker token:
-            `137x-H45 post-observer-guard memmove/materialization owner`
-          - next owner is external `memmove` / materialization, not observer
-            scan
-          - no more suffix/left-copy micro leaves without a new sampled source
-            block
+            `137x-H46 text-cell residence/materialization design`
+          - treat the owner as broad text-cell residence/materialization, not a
+            fresh suffix/left-copy micro leaf
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
