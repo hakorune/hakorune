@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H36.4 ArrayTextCell piece residence pilot`
+- current blocker token: `137x-H37 post-piece owner refresh`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -735,7 +735,7 @@ Result:
 - no `Piece` / `Gap`, no MIR or `.inc` edits, no public ABI change, and no perf
   keeper claim
 
-### H36.4 Active
+### H36.4 Result
 
 Goal: test a narrow runtime-private piece residence representation for repeated
 len-half inserts.
@@ -756,6 +756,42 @@ len-half inserts.
   - rebuild release artifacts before judging perf
   - whole `kilo_kernel_small` improves and `memmove` / len-half closure owner
     shrinks without moving dominant cost to allocator
+
+Result:
+
+- trial:
+  - added a runtime-private `ArrayTextCell::Pieces { pieces, len }` variant
+  - kept MIR, `.inc`, and public ABI unchanged
+  - routed len/contains/append/insert/materialize through `ArrayTextCell`
+- behavior verification:
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `tools/checks/current_state_pointer_guard.sh`
+  - `cargo test -q array::tests --lib`
+  - `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
+- perf:
+  - release artifacts rebuilt before measuring
+  - whole `kilo_kernel_small = C 85 ms / Ny AOT 114 ms`
+  - `ny_aot_instr=2084599541`, `ny_aot_cycles=521801542`
+- verdict:
+  - rejected; naive piece vectors create work explosion
+  - code was reverted
+  - do not reopen non-flat residence without a bounded piece/gap proof and a
+    plan for observer-store contains over non-flat text
+
+### H37 Active
+
+Goal: refresh the whole-front owner after the H36.4 rejection from reverted
+code.
+
+- first step:
+  - rebuild release artifacts
+  - rerun whole `kilo_kernel_small` stat and asm
+  - choose the next owner family from fresh evidence
+- forbidden:
+  - using the rejected H36.4 release artifact as current baseline
+  - reopening non-flat residence without bounded piece/gap proof
+  - local byte-copy surgery already rejected by H29/H36
 
 ### H28.1 runtime-private literal search executor
 

@@ -1,9 +1,9 @@
 # 137x-H36 ArrayTextCell Residence Design Gate
 
-Status: active design gate; H36.3 landed, H36.4 piece residence pilot active.
+Status: active design gate; H36.4 piece residence pilot rejected.
 
 Current blocker token:
-`137x-H36.4 ArrayTextCell piece residence pilot`.
+`137x-H37 post-piece owner refresh`.
 
 ## Context
 
@@ -213,3 +213,19 @@ Keeper gate:
 - release artifacts are rebuilt before measuring.
 - whole `kilo_kernel_small` improves and `memmove` / len-half closure share
   shrinks without simply moving the owner to allocator.
+
+## H36.4 Result
+
+Rejected.
+
+- behavior gates were green.
+- release artifacts were rebuilt before measuring.
+- whole `kilo_kernel_small = C 85 ms / Ny AOT 114 ms`.
+- `ny_aot_instr=2084599541`, `ny_aot_cycles=521801542`.
+- code was reverted.
+
+Verdict:
+
+- naive piece vectors are not a keeper; they cause work explosion.
+- do not reopen non-flat residence without a bounded piece/gap proof.
+- H37 must refresh whole owner evidence from the reverted H36.3 code state.

@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H36.4 ArrayTextCell piece residence pilot)
-  - current blocker is `137x-H36.4 ArrayTextCell piece residence pilot`
+  - `phase-137x-H owner-first optimization return` (active; H37 post-piece owner refresh)
+  - current blocker is `137x-H37 post-piece owner refresh`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -814,11 +814,16 @@ Scope: current lane / next lane / restart order only.
             `cargo test -q array::tests --lib`,
             `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`,
             and `tools/checks/current_state_pointer_guard.sh`
-        - H36.4 active:
-          - narrow runtime-private `ArrayTextCell::Pieces` pilot
-          - owner is repeated len-half insert residence mechanics only
-          - no MIR, `.inc`, public ABI, source-content assumptions, or
-            benchmark-named representation
+        - H36.4 result:
+          - rejected narrow `ArrayTextCell::Pieces` pilot
+          - behavior gates were green, but whole perf regressed to
+            `kilo_kernel_small = C 85 ms / Ny AOT 114 ms`,
+            `ny_aot_instr=2084599541`, `ny_aot_cycles=521801542`
+          - verdict: naive piece vectors cause work explosion; code reverted
+        - H37 active:
+          - rebuild release artifacts from reverted code
+          - refresh whole stat/asm and choose the next owner family
+          - do not reopen non-flat residence without bounded piece/gap proof
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

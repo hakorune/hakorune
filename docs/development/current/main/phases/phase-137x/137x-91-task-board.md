@@ -389,9 +389,15 @@ phase README / current entry. Current active card:
     - no `Piece` / `Gap`, no MIR, `.inc`, public ABI, or perf keeper claim
     - result: landed visible get/boxing/format/equality/membership/sort helper
       routing
-  - [ ] H36.4 ArrayTextCell piece residence pilot
+  - [x] H36.4 ArrayTextCell piece residence pilot
     - narrow runtime-private representation pilot for repeated len-half inserts
     - no MIR, `.inc`, public ABI, source-content assumptions, or semantic cache
+    - result: rejected; `Ny AOT 114 ms`, `ny_aot_instr=2084599541`, code
+      reverted
+  - [ ] H37 post-piece owner refresh
+    - rebuild release artifacts from reverted code
+    - rerun whole stat/asm and choose next owner family
+    - do not reopen non-flat residence without bounded piece/gap proof
 
 ## Opened Implementation Order Before Next Kilo Optimization
 
