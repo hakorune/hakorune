@@ -118,12 +118,17 @@ contract`.
   - add kernel-private `ArrayTextWriteTxn` glue if needed.
   - no public ABI, no session handle table, no guard across C ABI calls.
   - no perf keeper claim unless later evidence proves a safe executor boundary.
-- [ ] H25c.2b single-call executor design gate
+- [x] H25c.2b single-call executor design gate
   - decide whether `slot_text_len_store_session` can become one
     capability-generic runtime call.
   - reject benchmark-named whole-loop helpers and runtime-owned legality.
+- [ ] H25c.2c single-region executor contract
+  - add nested executor contract under `array_text_residence_sessions`, not a
+    new sibling plan family.
+  - `.inc` remains metadata-to-call emit only.
+  - runtime gets a one-call RAII executor only under MIR-owned legality.
 - [ ] H25c.3 keeper probe
-  - blocked on H25c.2b acceptance.
+  - blocked on H25c.2c implementation.
   - requires perf plus target-transition evidence.
 
 ## Opened Implementation Order Before Next Kilo Optimization

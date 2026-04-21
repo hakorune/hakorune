@@ -40,10 +40,10 @@ cargo check --features perf-observe -p nyash_kernel
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H25c.2b single-call executor design gate`
+    - current blocker is `137x-H25c.2c single-region executor contract`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H25c.2b single-call executor design gate`
+  - `137x-H25c.2c single-region executor contract`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -67,9 +67,11 @@ cargo check --features perf-observe -p nyash_kernel
   - H25c.1 landed: `.inc` consumes residence-session metadata first, still behavior-preserving
   - H25c.2a landed: runtime-private session substrate
     (`ArrayTextSlotSession` + kernel-private `ArrayTextWriteTxn`)
-  - next slice: H25c.2b docs-first single-call executor decision; no
-    backend/runtime behavior unless one Rust-call executor can keep guard
-    lifetime inside Rust and MIR remains the only legality owner
+  - H25c.2b closed: clean one-call update boundary, but non-keeper because it
+    still acquires the write lock once per iteration
+  - next slice: H25c.2c nested single-region executor contract under
+    `array_text_residence_sessions`; `.inc` stays metadata-to-call only and
+    runtime gets one-call RAII execution only under MIR-owned legality
   - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
   - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
   - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

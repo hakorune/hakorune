@@ -1490,11 +1490,22 @@ H25c.2a substrate-only landed:
   - `cargo check -q -p nyash_kernel`
 
 H25c.2b single-call executor design gate:
-- Decide whether the MIR-proven `slot_text_len_store_session` region can be
-  executed as one capability-generic runtime call.
-- Reject if the design requires a benchmark-named whole-loop helper, arbitrary
-  MIR execution inside runtime, or a guard/session lifetime crossing C ABI calls.
-- Only after acceptance may backend lowering emit a behavior-changing call.
+- Verdict: closed as clean non-keeper.
+- The current metadata can select the update instruction and keep `.inc`
+  metadata-consumer-only, but it still emits one Rust call per iteration and
+  does not remove the measured write-lock acquire/release owner.
+- Keep H25c.2b as contract closeout. Do not claim perf keeper from this slice.
+
+H25c.2c single-region executor contract:
+- Open the next keeper path as a nested `executor_contract` under
+  `array_text_residence_sessions`; do not add a new sibling plan family.
+- MIR owns proof region, publication boundary, effects, consumer capability,
+  and any materialization/fallback policy.
+- `.inc` may emit one call from the MIR-selected begin site and skip the covered
+  region, but must not rediscover preheader/exit/PHI/legality from raw CFG.
+- Runtime may implement a one-call RAII executor that acquires the array write
+  guard once and drops it before returning; no session table, no begin/end ABI,
+  no hidden legality.
 
 ## Legacy Retirement Ledger
 

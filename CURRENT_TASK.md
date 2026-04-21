@@ -382,8 +382,8 @@ Scope: current lane / next lane / restart order only.
       - H23b helper-local resident/fallback compaction regressed and was reverted
       - H24 proved the active owner is write-lock acquire/release guard mechanics
       - full evidence stays in `docs/development/current/main/phases/phase-137x/README.md`
-    - `137x-H25c.2b` single-call executor design gate is active
-      - current blocker token: `137x-H25c.2b single-call executor design gate`
+    - `137x-H25c.2c` single-region executor contract is active
+      - current blocker token: `137x-H25c.2c single-region executor contract`
       - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
       - ownership map: `docs/development/current/main/phases/phase-137x/137x-array-text-contract-map.md`
       - H25a landed metadata-only `array_text_residence_sessions`; `.inc` and runtime behavior are unchanged
@@ -398,11 +398,12 @@ Scope: current lane / next lane / restart order only.
       - H25c.2 is split:
         - H25c.2a runtime-private session substrate landed
           (`ArrayTextSlotSession` + kernel-private `ArrayTextWriteTxn`)
-        - H25c.2b single-call executor design gate is next
-        - H25c.3 keeper probe only if H25c.2b accepts a safe executor boundary
-      - next slice: H25c.2b docs-first decision; do not add backend/runtime
-        behavior unless one Rust-call executor can keep the guard lifetime
-        inside Rust and MIR remains the only legality owner
+        - H25c.2b single-call executor design gate closed as clean non-keeper
+        - H25c.2c single-region executor contract is next
+        - H25c.3 keeper probe only after H25c.2c lands
+      - next slice: H25c.2c nested executor contract under
+        `array_text_residence_sessions`; `.inc` stays metadata-to-call only,
+        runtime gets a one-call RAII executor only under MIR-owned legality
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

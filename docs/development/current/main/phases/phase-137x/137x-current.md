@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H25 array text residence session contract`
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
-- current blocker token: `137x-H25c.2b single-call executor design gate`
+- current blocker token: `137x-H25c.2c single-region executor contract`
 - current benchmark state:
   - `C 3 ms / Ny AOT 6 ms`
   - `ny_aot_instr=40330160`
@@ -136,29 +136,63 @@ collapse into one risky change.
     - H25c.2a-5: refactor existing slot write helpers to call the transaction
       wrapper without changing exported ABI names.
 - H25c.2b `single-call executor decision`
-  - status: open
+  - status: closed as clean non-keeper
   - decide whether `slot_text_len_store_session` can be executed as one
     capability-generic runtime call whose entire proven region stays inside one
     Rust call stack.
-  - reject if it requires a benchmark-named whole-loop helper, guard leakage
-    across C ABI calls, or a runtime-owned legality check.
-  - if accepted, write the backend/runtime call contract before code.
+  - verdict:
+    - accepted as a contract-cleaning boundary only.
+    - existing metadata can select the update instruction without `.inc`
+      re-scanning CFG or raw neighboring instructions.
+    - current one-call executor shape is still one Rust call per iteration, so
+      it cannot remove the measured per-iteration write-lock acquire/release
+      owner.
+    - keep this as clean closeout, not as a perf keeper.
+  - rejected for keeper:
+    - begin/update/end ABI with session handle table.
+    - guard or slot borrow crossing C ABI.
+    - runtime-owned legality from residence state.
+    - benchmark-named whole-loop helper.
+- H25c.2c `single-region executor contract`
+  - status: open
+  - intent: open the next keeper path as a MIR-proven region replacement nested
+    under `array_text_residence_sessions`, not as a new sibling plan family.
+  - contract shape:
+    - `executor_contract.execution_mode = single_region_executor`
+    - `proof_region = loop_backedge_single_body`
+    - `publication_boundary = none`
+    - `effects = store.cell + LengthOnly result carry`
+    - `carrier = ArrayLane(Text) / Cell`
+    - `consumer_capability = { SinkStore, LengthOnly }`
+    - `materialization_policy` must be MIR-owned if fallback behavior is needed.
+  - backend rule:
+    - `.inc` emits one call from the MIR-selected begin site and skips the
+      covered region.
+    - `.inc` must not infer loop legality, preheader, exit, PHI mapping, or
+      fallback policy.
+  - runtime rule:
+    - one-call RAII executor may acquire the array write guard once, resolve the
+      target slot once, run the proven region internally, return final length,
+      and drop the guard before returning.
+    - no guard/session table, TLS continuity, hidden legality, or public
+      begin/end ABI.
 - H25c.3 `keeper probe`
-  - status: blocked on H25c.2b acceptance
-  - only run as a perf keeper if a safe single-call executor exists.
+  - status: blocked on H25c.2c implementation
   - require target transition evidence, not only `ny_aot_ms`.
 
 ## Next Slice
 
-H25c.2a landed the runtime-private session substrate. Do not treat this as a
-perf keeper by itself.
+H25c.2b is closed as a clean non-keeper. The next keeper path is H25c.2c:
+a MIR-proven single-region executor contract nested under
+`array_text_residence_sessions`.
 
 Required order:
-1. Decide H25c.2b single-call executor viability in docs.
-2. Add backend/runtime behavior only if the executor boundary is lifetime-safe
-   and does not leak guards across ABI calls.
-3. Keep MIR metadata as the only legality source.
-4. Rerun exact timing and asm after any behavior change.
+1. Add nested `executor_contract` metadata in MIR docs/code only after the
+   contract fields are fixed.
+2. Make `.inc` consume that metadata without CFG/raw shape rediscovery.
+3. Add a runtime-private one-call RAII executor only if MIR fully owns legality,
+   fallback/materialization policy, and publication boundary.
+4. Rerun exact timing and asm after behavior change.
 
 Reject immediately if the implementation requires:
 - runtime deciding session legality from residence state
@@ -166,6 +200,7 @@ Reject immediately if the implementation requires:
 - benchmark-specific whole-loop helper
 - session across publish/objectize/generic fallback/unknown side-effect boundary
 - any session handle table that stores `RwLockWriteGuard` or borrowed slot data
+- moving loop semantics into runtime without a MIR-owned region contract
 
 ## Validation Anchor
 
