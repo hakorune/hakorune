@@ -46,17 +46,20 @@ cargo check --features perf-observe -p nyash_kernel
   - `137x-H28 array text observer-store search/copy owner split`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
-- current snapshot:
-  - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
-  - `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`
-  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`
+  - current snapshot:
+    - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 84 ms / Ny AOT 9 ms`
   - adopted middle bridge:
     - `substring + concat + array.set + loopcarry`
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
   - current whole-front owner after H27:
     - H26 observer-store region executor remains the active owner family
     - H27 removed the outer edit `nyash.array.string_len_hi` call
-    - inspect fixed const-needle search and suffix mutation/copy before code
+    - H28.1 removed the fixed const-needle Pattern-search owner
+    - next inspect suffix mutation/copy and allocation under the same
+      MIR-owned observer-store contract
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

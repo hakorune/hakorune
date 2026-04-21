@@ -9,22 +9,22 @@ ledger details; current implementation work should start here.
 - front: `kilo_kernel_small`
 - current blocker token: `137x-H28 array text observer-store search/copy owner split`
 - current benchmark state:
-  - `C 83 ms / Ny AOT 10 ms`
-  - `ny_aot_instr=144977171`
-  - `ny_aot_cycles=30931233`
+  - `C 84 ms / Ny AOT 9 ms`
+  - `ny_aot_instr=60662079`
+  - `ny_aot_cycles=20100504`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
     runtime-private helper
-  - the new H27 helper is not the dominant owner
-  - the remaining whole-front owner moved back to the H26 observer-store
-    region executor: const needle search plus suffix mutation/copy under one
-    write frame
-  - latest asm top:
-    - `<&str as core::str::pattern::Pattern>::is_contained_in`: `34.68%`
-    - `__memmove_avx512_unaligned_erms`: `24.83%`
-    - `with_array_text_write_txn` closure: `15.16%`
-    - observer-store region closure: `11.02%`
+  - H28.1 removed the fixed-literal `Pattern::is_contained_in` search owner
+    inside the H26 observer-store region executor
+  - the remaining owner is suffix mutation/copy plus write-frame mechanics under
+    the same MIR-owned observer-store contract
+  - latest asm top after H28.1:
+    - `__memmove_avx512_unaligned_erms`: `43.99%`
+    - `with_array_text_write_txn` closure: `23.17%`
+    - `__memcmp_evex_movbe`: `15.35%`
+    - observer-store region closure: `8.07%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -59,8 +59,10 @@ Goal: split the remaining observer-store region executor owner without making
 runtime or `.inc` semantic owners.
 
 - target owner:
-  - const needle search in the H26 observer-store region executor
-  - suffix mutation/copy inside the same runtime-private write frame
+  - suffix mutation/copy inside the H26 observer-store runtime-private write
+    frame
+  - allocator/copy side effects that remain after the H28.1 literal-search
+    keeper
 - allowed next work:
   - add MIR metadata only if the executor needs a generic fact such as
     `needle_literal`, `observer_kind`, or `mutation_kind` to choose a runtime
@@ -78,6 +80,56 @@ runtime or `.inc` semantic owners.
   - inspect the H26 observer-store runtime helper and decide whether the next
     keeper is a fixed-literal search executor, a copy/mutation split, or a
     no-code closeout requiring more MIR proof
+
+### H28.1 runtime-private literal search executor
+
+- decision:
+  - current MIR metadata already carries the needed generic facts:
+    `observer_kind=indexof`, `observer_arg0_repr=const_utf8`, literal byte len,
+    `effects=[observe.indexof, store.cell]`, and `publication_boundary=none`
+  - do not add a sibling plan or new `.inc` planner for this slice
+  - keep the emitted helper unchanged and replace only the runtime executor's
+    `str::contains` Pattern path with a small literal byte-search leaf
+- owner boundary:
+  - MIR remains legality/provenance/publication owner
+  - `.inc` remains metadata-to-call emit only
+  - Rust owns only search mechanics for the MIR-proven literal observer
+- keeper gate:
+  - `kilo_kernel_small` must improve or prove the owner moved from
+    `<&str as Pattern>::is_contained_in`
+  - exact/middle guards must stay non-regressing
+- reject gate:
+  - no source-prefix assumption such as rows always containing `"line"`
+  - no search-result cache
+  - no runtime legality inference
+
+Result:
+
+- code:
+  - replaced the runtime executor's `str::contains` call with a private
+    `text_contains_literal` leaf for short UTF-8 literals
+  - no MIR metadata shape changed
+  - no `.inc` emit shape changed
+- verification:
+  - `cargo test -q text_contains_literal --lib`
+  - `bash tools/perf/build_perf_release.sh`
+  - whole `kilo_kernel_small`: `C 84 ms / Ny AOT 9 ms`,
+    `ny_aot_instr=60662079`, `ny_aot_cycles=20100504`
+  - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9265703`, `ny_aot_cycles=2442083`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=16570264`,
+    `ny_aot_cycles=3533303`
+- asm owner after H28.1:
+  - `__memmove_avx512_unaligned_erms`: `43.99%`
+  - `with_array_text_write_txn` closure: `23.17%`
+  - `__memcmp_evex_movbe`: `15.35%`
+  - observer-store region closure: `8.07%`
+  - `Pattern::is_contained_in` is no longer a top owner
+- verdict:
+  - keeper: H28.1 removed the fixed-literal search owner without changing MIR
+    authority or `.inc` responsibility
+  - next seam is H28.2 suffix mutation/copy / allocation owner split
 
 ## H27 Landed
 

@@ -593,6 +593,23 @@ Scope: current lane / next lane / restart order only.
           - no benchmark-named whole-loop helper
           - no runtime-owned legality/provenance/publication
           - no C-side raw shape fallback
+        - H28.1 decision:
+          - current MIR metadata is sufficient for the first slice; do not add
+            a new plan family or C-side planner
+          - replace only the runtime executor's literal search mechanics inside
+            the existing MIR-proven observer-store helper
+          - keep suffix mutation/copy as the next measured owner if search is
+            no longer dominant
+        - H28.1 result:
+          - whole `kilo_kernel_small`: `C 84 ms / Ny AOT 9 ms`,
+            `ny_aot_instr=60662079`, `ny_aot_cycles=20100504`
+          - asm top moved from `Pattern::is_contained_in` to
+            `__memmove_avx512_unaligned_erms` / `__memcmp_evex_movbe` and the
+            write-frame closure
+          - exact guard `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
+          - middle guard `kilo_meso_substring_concat_array_set_loopcarry`:
+            `C 3 ms / Ny AOT 3 ms`
+          - next seam: H28.2 suffix mutation/copy / allocation owner split
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

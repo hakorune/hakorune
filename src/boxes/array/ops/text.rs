@@ -75,6 +75,129 @@ impl<'a> ArrayTextSlotSession<'a> {
     }
 }
 
+#[inline(always)]
+fn text_contains_literal(value: &str, needle: &str) -> bool {
+    let needle_text = needle;
+    let haystack = value.as_bytes();
+    let needle = needle.as_bytes();
+    if needle.is_empty() {
+        return true;
+    }
+    if needle.len() > haystack.len() {
+        return false;
+    }
+    if haystack.starts_with(needle) {
+        return true;
+    }
+    match needle.len() {
+        1..=8 => contains_short_literal_from(haystack, needle, 1),
+        _ => value.contains(needle_text),
+    }
+}
+
+#[inline(always)]
+fn contains_short_literal_from(haystack: &[u8], needle: &[u8], start: usize) -> bool {
+    let limit = haystack.len() - needle.len();
+    if start > limit {
+        return false;
+    }
+    match needle.len() {
+        1 => contains_one_byte_from(haystack, needle[0], start, limit),
+        2 => contains_two_bytes_from(haystack, needle[0], needle[1], start, limit),
+        3 => contains_three_bytes_from(haystack, needle[0], needle[1], needle[2], start, limit),
+        4 => contains_four_bytes_from(
+            haystack, needle[0], needle[1], needle[2], needle[3], start, limit,
+        ),
+        _ => contains_short_slice_from(haystack, needle, start, limit),
+    }
+}
+
+#[inline(always)]
+fn contains_one_byte_from(haystack: &[u8], b0: u8, mut index: usize, limit: usize) -> bool {
+    while index <= limit {
+        if haystack[index] == b0 {
+            return true;
+        }
+        index += 1;
+    }
+    false
+}
+
+#[inline(always)]
+fn contains_two_bytes_from(
+    haystack: &[u8],
+    b0: u8,
+    b1: u8,
+    mut index: usize,
+    limit: usize,
+) -> bool {
+    while index <= limit {
+        if haystack[index] == b0 && haystack[index + 1] == b1 {
+            return true;
+        }
+        index += 1;
+    }
+    false
+}
+
+#[inline(always)]
+fn contains_three_bytes_from(
+    haystack: &[u8],
+    b0: u8,
+    b1: u8,
+    b2: u8,
+    mut index: usize,
+    limit: usize,
+) -> bool {
+    while index <= limit {
+        if haystack[index] == b0 && haystack[index + 1] == b1 && haystack[index + 2] == b2 {
+            return true;
+        }
+        index += 1;
+    }
+    false
+}
+
+#[inline(always)]
+fn contains_four_bytes_from(
+    haystack: &[u8],
+    b0: u8,
+    b1: u8,
+    b2: u8,
+    b3: u8,
+    mut index: usize,
+    limit: usize,
+) -> bool {
+    while index <= limit {
+        if haystack[index] == b0
+            && haystack[index + 1] == b1
+            && haystack[index + 2] == b2
+            && haystack[index + 3] == b3
+        {
+            return true;
+        }
+        index += 1;
+    }
+    false
+}
+
+#[inline(always)]
+fn contains_short_slice_from(
+    haystack: &[u8],
+    needle: &[u8],
+    mut index: usize,
+    limit: usize,
+) -> bool {
+    while index <= limit {
+        let end = index + needle.len();
+        if haystack[index] == needle[0] && &haystack[index..end] == needle {
+            return true;
+        }
+        index += 1;
+    }
+    false
+}
+
 impl ArrayBox {
     /// Raw text store helper for runtime-private array string lanes.
     /// Public Array semantics stay object-based; mixed arrays degrade to Boxed.
@@ -285,7 +408,7 @@ impl ArrayBox {
             }
             let mut stores = 0_i64;
             for value in values.iter_mut().take(loop_bound) {
-                if needle.is_empty() || value.contains(needle) {
+                if text_contains_literal(value, needle) {
                     value.push_str(suffix);
                     stores += 1;
                 }
@@ -309,7 +432,7 @@ impl ArrayBox {
         let mut stores = 0_i64;
         for idx in 0..loop_bound {
             let (hit, _kind) = session.update(idx, |value| {
-                if needle.is_empty() || value.contains(needle) {
+                if text_contains_literal(value, needle) {
                     value.push_str(suffix);
                     1_i64
                 } else {
@@ -319,5 +442,35 @@ impl ArrayBox {
             stores += hit;
         }
         Some(stores)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::text_contains_literal;
+
+    #[test]
+    fn text_contains_literal_matches_str_contains() {
+        let values = [
+            "",
+            "line-seed",
+            "xxline-seed",
+            "seed-line",
+            "naive cafe",
+            "東京line大阪",
+            "abc日本語def",
+        ];
+        let needles = [
+            "", "l", "li", "line", "seed", "cafe", "東京", "日本", "absent",
+        ];
+        for value in values {
+            for needle in needles {
+                assert_eq!(
+                    text_contains_literal(value, needle),
+                    value.contains(needle),
+                    "value={value:?} needle={needle:?}"
+                );
+            }
+        }
     }
 }

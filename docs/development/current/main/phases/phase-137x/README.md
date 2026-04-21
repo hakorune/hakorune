@@ -1740,6 +1740,40 @@ H27 landed / H28 cut:
     benchmark-named whole-loop helper, no runtime-owned legality/provenance,
     and no C-side raw shape rediscovery.
 
+H28.1 landed / H28.2 cut:
+
+- Implementation:
+  - Runtime observer-store execution now uses a private `text_contains_literal`
+    short-literal search leaf instead of the generic `str::contains` Pattern
+    path.
+  - MIR metadata and `.inc` lowering are unchanged; the existing H26
+    observer-store contract still owns legality/provenance/publication, and the
+    backend still emits one metadata-selected helper call.
+- Verification:
+  - `cargo test -q text_contains_literal --lib`
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
+- Evidence:
+  - whole `kilo_kernel_small`: `C 84 ms / Ny AOT 9 ms`,
+    `ny_aot_instr=60662079`, `ny_aot_cycles=20100504`.
+  - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9265703`, `ny_aot_cycles=2442083`.
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=16570264`,
+    `ny_aot_cycles=3533303`.
+  - asm top moved to `__memmove_avx512_unaligned_erms` `43.99%`,
+    `with_array_text_write_txn` closure `23.17%`, and
+    `__memcmp_evex_movbe` `15.35%`; `Pattern::is_contained_in` is no longer a
+    top owner.
+- Verdict:
+  - H28.1 is a keeper. It removes the fixed-literal search owner without
+    shifting authority into runtime or `.inc`.
+  - H28.2 starts from suffix mutation/copy / allocation cost under the same
+    MIR-owned observer-store region contract.
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

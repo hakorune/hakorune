@@ -65,8 +65,12 @@ Related:
     - H28 starts from the remaining observer-store search/copy mechanics:
       fixed const-needle search, suffix mutation/copy, and transaction frame
       cost under the existing MIR-owned H26 region contract
-    - next slice: H26 array text observer-store region contract; keep legality
-      in MIR observer metadata and keep `.inc` emit-only
+    - H28.1 landed the runtime-private fixed-literal search leaf:
+      `kilo_kernel_small = C 84 ms / Ny AOT 9 ms`,
+      `ny_aot_instr=60662079`; `Pattern::is_contained_in` is no longer a top
+      owner
+    - next slice: H28.2 suffix mutation/copy / allocation owner split under
+      the existing MIR observer-store metadata; keep `.inc` emit-only
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

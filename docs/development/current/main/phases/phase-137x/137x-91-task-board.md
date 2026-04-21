@@ -270,8 +270,18 @@ observer-store search/copy owner split`.
     - no benchmark-named whole-loop helper
     - no runtime-owned legality/provenance/publication
     - no C-side raw shape fallback
-  - [ ] H28.1 owner inspection: annotate/runtime helper read, no code change
-  - [ ] H28.2 pick one structural executor seam and update docs before code
+  - [x] H28.1 fixed-literal search executor split
+    - runtime-only `text_contains_literal` leaf replaces the generic
+      `str::contains` Pattern path inside the existing observer-store helper
+    - whole `kilo_kernel_small`: `C 84 ms / Ny AOT 9 ms`,
+      `ny_aot_instr=60662079`, `ny_aot_cycles=20100504`
+    - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
+    - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+      `C 3 ms / Ny AOT 3 ms`
+    - asm: `Pattern::is_contained_in` is no longer a top owner
+  - [ ] H28.2 suffix mutation/copy / allocation owner split
+    - inspect `__memmove`, `__memcmp`, and write-frame closure ownership under
+      the existing MIR-owned observer-store contract
   - [ ] H28.3 implement the narrow runtime/backend/MIR change if justified
   - [ ] H28.4 keeper/no-regression probe
 
