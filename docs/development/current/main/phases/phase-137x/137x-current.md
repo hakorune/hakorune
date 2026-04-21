@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H30 array text edit residence representation decision`
+- current blocker token: `137x-H30.2 array text edit operation boundary extraction`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -304,6 +304,63 @@ reduce the H27 len-half mid-insert suffix-copy owner cleanly.
     same string contents
   - perf is observational only for the wrapper slice; keeper judgment belongs
     to the later non-flat representation slice
+
+### H30.1 Code Result
+
+- implementation:
+  - added a flat-only `ArrayTextCell` wrapper
+  - changed `ArrayStorage::Text` from `Vec<String>` to
+    `Vec<ArrayTextCell>`
+  - kept public Array/String behavior unchanged by materializing flat text at
+    visible boundaries (`get`, formatting, equality, boxing, sequence ops)
+- guard held:
+  - no MIR metadata changes
+  - no `.inc` changes
+  - no public ABI changes
+  - no non-flat representation yet
+- verification:
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `cargo check -q`
+  - `cargo test -q array::tests --lib`
+  - `cargo test -q text_contains_literal --lib`
+  - `cargo test -q slot_store_text_births_text_lane --lib`
+  - `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
+  - `tools/checks/dev_gate.sh quick`
+
+### H30.2 Active
+
+Goal: close the H27 edit operation boundary before any non-flat text residence
+prototype.
+
+- problem:
+  - `ArrayTextCell` is now the storage boundary, but H27 len-half edit still
+    reaches the hot slot through an exported helper closure that exposes
+    `&mut String`
+  - adding a gap/piece variant while that API remains dominant would leak the
+    flat representation back into plugin/runtime helper code
+- decision:
+  - first add a runtime-private `ArrayTextCell` edit operation for the
+    MIR-owned len-half insert-mid contract
+  - make the H27 len-half helper call that operation through `ArrayBox`
+  - keep the operation flat-only in this slice; the non-flat representation
+    decision remains blocked until this operation boundary is green
+- allowed:
+  - `ArrayTextCell` methods that execute storage mechanics for the existing
+    H27 edit contract
+  - a narrow `ArrayBox` raw helper for len-half insert-mid edit
+  - tests proving text-lane and mixed boxed-string behavior stay unchanged
+- forbidden:
+  - MIR metadata changes
+  - `.inc` lowering changes
+  - public ABI changes
+  - benchmark-named helpers
+  - runtime legality/provenance/publication decisions
+- acceptance:
+  - existing H27 len-half helper behavior is unchanged
+  - `ArrayTextCell` becomes the owner of the flat edit mechanics for this hot
+    operation
+  - focused array/text and kernel insert-mid tests pass
 
 ### H28.1 runtime-private literal search executor
 

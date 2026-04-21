@@ -34,6 +34,20 @@ impl ArrayTextCell {
     pub(super) fn len(&self) -> usize {
         self.as_str().len()
     }
+
+    #[inline(always)]
+    pub(super) fn insert_const_mid_lenhalf(&mut self, middle: &str) -> i64 {
+        match self {
+            Self::Flat(value) => Self::insert_const_mid_lenhalf_string(value, middle),
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn insert_const_mid_lenhalf_string(value: &mut String, middle: &str) -> i64 {
+        let split = (value.len() / 2) as i64;
+        insert_const_mid_flat(value, middle, split);
+        value.len() as i64
+    }
 }
 
 impl From<String> for ArrayTextCell {
@@ -41,4 +55,40 @@ impl From<String> for ArrayTextCell {
     fn from(value: String) -> Self {
         Self::flat(value)
     }
+}
+
+#[inline(always)]
+fn insert_const_mid_flat(value: &mut String, middle: &str, split: i64) {
+    if value.is_empty() {
+        value.push_str(middle);
+        return;
+    }
+    if middle.is_empty() {
+        return;
+    }
+    let split = split.clamp(0, value.len() as i64) as usize;
+    if value.is_char_boundary(split) {
+        value.insert_str(split, middle);
+        return;
+    }
+    *value = materialize_insert_const_mid_flat(value.as_str(), middle, split as i64);
+}
+
+#[inline(always)]
+fn materialize_insert_const_mid_flat(source: &str, middle: &str, split: i64) -> String {
+    if source.is_empty() {
+        return middle.to_owned();
+    }
+    if middle.is_empty() {
+        return source.to_owned();
+    }
+    let split = split.clamp(0, source.len() as i64) as usize;
+    let prefix = source.get(0..split).unwrap_or("");
+    let suffix = source.get(split..).unwrap_or("");
+    let total = prefix.len() + middle.len() + suffix.len();
+    let mut out = String::with_capacity(total);
+    out.push_str(prefix);
+    out.push_str(middle);
+    out.push_str(suffix);
+    out
 }

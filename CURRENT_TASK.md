@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H30 array text edit residence representation decision)
-  - current blocker is `137x-H30 array text edit residence representation decision`
+  - `phase-137x-H owner-first optimization return` (active; H30.2 array text edit operation boundary extraction)
+  - current blocker is `137x-H30.2 array text edit operation boundary extraction`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -705,6 +705,22 @@ Scope: current lane / next lane / restart order only.
             `ArrayTextCell` boundary first, with no MIR, `.inc`, public ABI, or
             behavior change; non-flat edit residence can only open behind that
             boundary
+        - H30.1 code result:
+          - landed flat `ArrayTextCell` boundary for `ArrayStorage::Text`
+          - `ArrayStorage::Text` now stores `Vec<ArrayTextCell>` while public
+            Array/String behavior remains unchanged
+          - verification: `cargo fmt --check`, `git diff --check`,
+            `cargo check -q`, `cargo test -q array::tests --lib`,
+            `cargo test -q text_contains_literal --lib`,
+            `cargo test -q slot_store_text_births_text_lane --lib`,
+            `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`,
+            and `tools/checks/dev_gate.sh quick`
+        - H30.2 active:
+          - first close the H27 edit operation boundary: the len-half edit
+            helper must call a runtime-private `ArrayTextCell` edit operation,
+            not expose `&mut String` as the long-term representation truth
+          - no non-flat storage variant is allowed until that operation
+            boundary is green
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

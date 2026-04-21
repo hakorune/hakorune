@@ -30,8 +30,8 @@ as `137x-H`.
 
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
-phase README / current entry. Current active card: `137x-H30 array text edit
-residence representation decision`.
+phase README / current entry. Current active card:
+`137x-H30.2 array text edit operation boundary extraction`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -320,14 +320,19 @@ residence representation decision`.
       can reduce the H27 len-half mid-insert suffix-copy owner cleanly
     - guard: no benchmark-named helper, no runtime legality/provenance, no
       `.inc` raw shape rediscovery, no public ABI widening
-  - [ ] H30.1 flat `ArrayTextCell` boundary extraction
+  - [x] H30.1 flat `ArrayTextCell` boundary extraction
     - BoxShape-only preparatory slice; keep the implementation flat-string
       only and make `ArrayStorage::Text` stop exposing raw `String` as the
       long-term representation truth
     - no MIR, `.inc`, public ABI, or behavior change
-  - [ ] H30.2 non-flat edit residence prototype decision
-    - open only after H30.1 is green; compare gap-buffer / piece-cell options
-      behind the `ArrayTextCell` boundary
+    - landed as `ArrayStorage::Text(Vec<ArrayTextCell>)`
+  - [ ] H30.2 array text edit operation boundary extraction
+    - before adding any non-flat variant, route the H27 len-half edit helper
+      through a runtime-private `ArrayTextCell` edit operation
+    - no MIR, `.inc`, public ABI, or behavior change
+  - [ ] H30.3 non-flat edit residence prototype decision
+    - open only after H30.2 is green; compare gap-buffer / piece-cell options
+      behind the `ArrayTextCell` operation boundary
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

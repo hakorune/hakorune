@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H30 array text edit residence representation decision)
+  - `phase-137x-H owner-first optimization return` (active; H30.2 array text edit operation boundary extraction)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H30 array text edit residence representation decision`
+  - current blocker is `137x-H30.2 array text edit operation boundary extraction`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -89,6 +89,12 @@ Related:
     - H30.1 inventory says the next code slice should be BoxShape-only:
       introduce a flat `ArrayTextCell` boundary before any non-contiguous
       text residence prototype
+    - H30.1 code slice is landed: `ArrayStorage::Text` now stores
+      `Vec<ArrayTextCell>` with a flat-only implementation and no MIR, `.inc`,
+      public ABI, or behavior change
+    - H30.2 active: close the H27 len-half edit operation boundary so the hot
+      helper consumes a runtime-private `ArrayTextCell` edit operation instead
+      of treating `&mut String` as the long-term representation truth
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

@@ -432,6 +432,38 @@ impl ArrayBox {
             })
     }
 
+    /// Execute the MIR-owned len-half insert-mid edit through the text-cell
+    /// boundary. This keeps the hot operation from treating flat `String` as
+    /// the long-term array text representation.
+    #[inline(always)]
+    pub fn slot_insert_const_mid_lenhalf_raw(&self, idx: i64, middle: &str) -> Option<i64> {
+        if idx < 0 {
+            return None;
+        }
+        let idx = idx as usize;
+        let mut items = self.items.write();
+
+        if let ArrayStorage::Boxed(boxed) = &*items {
+            if let Some(values) = Self::try_text_values(boxed) {
+                *items = ArrayStorage::Text(values);
+            }
+        }
+
+        if let ArrayStorage::Text(values) = &mut *items {
+            return values
+                .get_mut(idx)
+                .map(|value| value.insert_const_mid_lenhalf(middle));
+        }
+
+        let mut session =
+            ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible);
+        session
+            .update(idx, |value| {
+                ArrayTextCell::insert_const_mid_lenhalf_string(value, middle)
+            })
+            .map(|(out, _kind)| out)
+    }
+
     /// Runtime-private repeated text-cell update for a MIR-proven loop region.
     /// The write guard stays inside this call; legality and loop shape stay MIR-owned.
     #[inline(always)]

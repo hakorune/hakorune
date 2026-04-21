@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H30 array text edit residence representation decision)
+  - `phase-137x-H owner-first optimization return` (active; H30.2 array text edit operation boundary extraction)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H30 array text edit residence representation decision`
+    - current blocker is `137x-H30.2 array text edit operation boundary extraction`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H30 array text edit residence representation decision`
+  - `137x-H30.2 array text edit operation boundary extraction`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -66,6 +66,8 @@ cargo check --features perf-observe -p nyash_kernel
       edit closure, not append capacity
     - H29 rejected local runtime byte-copy surgery; H30 now decides whether a
       narrow array text edit residence representation is clean enough to open
+    - H30.1 landed the flat `ArrayTextCell` boundary; H30.2 now closes the
+      H27 edit operation boundary before any non-flat representation prototype
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

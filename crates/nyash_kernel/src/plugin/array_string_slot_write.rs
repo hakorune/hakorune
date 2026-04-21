@@ -401,16 +401,17 @@ fn array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str(
     let _output_demand = array_text_owned_cell_demand();
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
-    with_array_text_slot_update(handle, idx, |value| {
-        let split = (value.len() / 2) as i64;
-        insert_const_mid_into_string_box_value(value, middle, split);
-        if observe_enabled {
-            observe::record_store_array_str_existing_slot();
-            observe::record_store_array_str_source_store();
-        }
-        value.len() as i64
+
+    let out = super::super::array_handle_cache::with_array_box(handle, |arr| {
+        arr.slot_insert_const_mid_lenhalf_raw(idx, middle)
     })
-    .unwrap_or(0)
+    .flatten();
+
+    if out.is_some() && observe_enabled {
+        observe::record_store_array_str_existing_slot();
+        observe::record_store_array_str_source_store();
+    }
+    out.unwrap_or(0)
 }
 
 pub(in super::super) fn array_string_insert_const_mid_subrange_by_index_store_same_slot(
