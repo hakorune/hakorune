@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H32 observer-store transaction path decision)
-  - current blocker is `137x-H32 observer-store transaction path decision`
+  - `phase-137x-H owner-first optimization return` (active; H33 valid post-H32 owner decision)
+  - current blocker is `137x-H33 valid post-H32 owner decision`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -727,31 +727,32 @@ Scope: current lane / next lane / restart order only.
             `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`,
             `cargo test -q array::tests --lib`, and
             `tools/checks/dev_gate.sh quick`
-        - H30.3 rejected:
+        - H30.3 closed without keeper:
           - tried a narrow piece-cell/deferred-edit prototype behind
-            `ArrayTextCell`; code was reverted because it did not improve the
-            whole front
-          - evidence: `kilo_kernel_small = C 83 ms / Ny AOT 7 ms`,
-            `ny_aot_instr=60495384`, `ny_aot_cycles=17911705`
-          - asm: `__memmove_avx512_unaligned_erms` remained `40.60%`; the
-            piece vector replaced byte suffix movement with descriptor movement
-            rather than removing the owner
+            `ArrayTextCell`; code was reverted
+          - release hygiene note: the first perf read was taken before
+            `tools/perf/build_perf_release.sh`, so do not use those stale
+            numbers as keeper evidence
           - verdict: do not continue local gap/piece representation surgery
-            without a fresh owner proof
+            until a fresh valid-release owner proof selects it again
         - H31 result:
-          - whole post-H30 baseline: `kilo_kernel_small = C 83 ms / Ny AOT 7 ms`,
-            `ny_aot_instr=60495384`, `ny_aot_cycles=17911705`
-          - top asm/callgraph: `__memmove_avx512_unaligned_erms` `36.58%`;
-            observer-store closure `30.17%`; `with_array_text_write_txn`
-            `24.02%`; standalone `nyash.array.string_insert_mid_lenhalf_store_hisi`
-            only `4.17%`
-          - verdict: remaining owner is not the H27 edit representation card;
-            return to H26 observer-store transaction/mutation path
-        - H32 active:
-          - decide the next narrow observer-store card before code edits
-          - likely candidates: suffix mutation path, transaction façade
-            thinning, or owner attribution inside the observer-store region
-            executor
+          - source inspection selected H32 transaction façade thinning
+          - fixed measurement hygiene for this lane: rebuild release with
+            `tools/perf/build_perf_release.sh` before judging runtime changes
+        - H32 code result:
+          - flattened kernel-private `with_array_text_slot_update*` so it
+            calls `with_array_box -> slot_update_text_*` directly
+          - removed the extra `with_array_text_write_txn` closure surface
+          - valid-release whole perf: `kilo_kernel_small = C 84 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=60315390`, `ny_aot_cycles=17714067`
+          - asm: `with_array_text_write_txn` is gone from the top list;
+            `__memmove` remains `40.82%`, len-half closure `25.39%`,
+            observer-store closure `24.05%`
+          - verdict: keep as structural cleanup / owner-shift, not a wall-time
+            keeper
+        - H33 active:
+          - decide the next valid-release owner card from the post-H32 asm:
+            len-half closure vs observer-store closure vs residual `memmove`
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

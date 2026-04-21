@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H32 observer-store transaction path decision`
+- current blocker token: `137x-H33 valid post-H32 owner decision`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -373,7 +373,7 @@ prototype.
     operation
   - focused array/text and kernel insert-mid tests pass
 
-### H30.3 Rejected
+### H30.3 Closed Without Keeper
 
 Goal: decide whether to open a non-flat `ArrayTextCell` edit residence
 prototype behind the H30.2 operation boundary.
@@ -410,18 +410,18 @@ prototype behind the H30.2 operation boundary.
   - H26 observer-store used cell-owned `contains` / suffix append operations
   - no MIR, `.inc`, public ABI, legality, provenance, or publication changes
 - result:
-  - code reverted; not a keeper
-  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`
-  - `ny_aot_instr=60495384`
-  - `ny_aot_cycles=17911705`
-  - asm: `__memmove_avx512_unaligned_erms` remained `40.60%`
+  - code reverted; no keeper landed
+  - measurement hygiene note: the first perf read for this prototype was taken
+    before rebuilding release artifacts, so those numbers are stale and must
+    not be used as keeper evidence
 - verdict:
-  - piece vector residence moved the cost from contiguous suffix bytes to
-    descriptor movement and cache/materialization mechanics
+  - piece vector residence has a credible risk of moving the cost from
+    contiguous suffix bytes to descriptor movement and cache/materialization
+    mechanics
   - gap-buffer has the same structural risk for this front because the edit
     point is recomputed as `len / 2`, not a stable cursor
   - do not continue local gap/piece representation surgery without a fresh
-    owner proof
+    valid-release owner proof
 
 ### H31 Result
 
@@ -429,10 +429,10 @@ Goal: refresh the whole-front owner after H30 rejection before opening the next
 implementation card.
 
 - reason:
-  - H28.4 append headroom, H29 byte-copy surgery, and H30.3 piece residence all
-    failed to turn the current `memmove` owner into a keeper
-  - continuing local runtime string mechanics without a new owner proof would
-    violate the owner-first rule
+  - H28.4 append headroom and H29 byte-copy surgery failed to turn the current
+    `memmove` owner into a keeper
+  - H30.3 exposed a measurement hygiene issue: runtime perf must rebuild
+    release artifacts before judgment
 - first step:
   - rerun whole `kilo_kernel_small` stat / asm and attribute the active
     `memmove` call path
@@ -445,22 +445,15 @@ implementation card.
     contract fact
   - no runtime helper-name or benchmark-name truth
 - evidence:
-  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`
-  - `ny_aot_instr=60495384`
-  - `ny_aot_cycles=17911705`
-  - top asm/callgraph:
-    - `__memmove_avx512_unaligned_erms`: `36.58%`
-    - observer-store closure:
-      `array_string_indexof_const_suffix_region_store::{closure...}`:
-      `30.17%`
-    - `with_array_text_write_txn::{closure}`: `24.02%`
-    - standalone `nyash.array.string_insert_mid_lenhalf_store_hisi`: `4.17%`
+  - source inspection selected the extra kernel-private
+    `with_array_text_write_txn` closure surface as the first narrow cleanup
+  - measurement rule fixed for the lane:
+    run `tools/perf/build_perf_release.sh` before runtime perf judgment
 - verdict:
-  - remaining whole-front owner is not H27 edit representation
-  - H30 local gap/piece text residence is closed
-  - next card returns to the H26 observer-store transaction/mutation path
+  - H30 local gap/piece text residence is closed without keeper
+  - next card should use valid-release perf only
 
-### H32 Active
+### H32 Code Result
 
 Goal: decide the next narrow observer-store implementation card.
 
@@ -471,11 +464,69 @@ Goal: decide the next narrow observer-store implementation card.
 - first step:
   - inspect the hot observer-store source only around the sampled functions
   - avoid broad runtime redesign; choose one seam and one keeper gate
+- decision:
+  - first try transaction facade thinning
+  - `ArrayTextWriteTxn` is a kernel-private wrapper around
+    `with_array_box -> slot_update_text_*`; it does not own legality or
+    provenance
+  - flatten `with_array_text_slot_update*` to call `with_array_box` directly
+    and remove the extra `with_array_text_write_txn` closure surface
+- acceptance:
+  - no public ABI, MIR, or `.inc` change
+  - existing same-slot update behavior and resident/fallback observation
+    semantics stay unchanged
+  - whole perf must improve or at least move the `with_array_text_write_txn`
+    symbol out of the top owner list; otherwise revert/reject
 - guard:
   - `.hako`, MIR metadata, and `.inc` stay unchanged unless the seam proves a
     missing generic contract fact
   - runtime remains executor-only; no legality/provenance/publication decisions
   - no benchmark-named whole-loop helper
+- implementation:
+  - removed `ArrayTextWriteTxn` and `with_array_text_write_txn`
+  - `with_array_text_slot_update` now calls
+    `with_array_box(handle, |arr| arr.slot_update_text_raw(idx, f)).flatten()`
+  - `with_array_text_slot_update_resident_first` now calls
+    `slot_update_text_resident_first_raw` directly and preserves the
+    Resident/Fallback outcome mapping
+- valid-release verification:
+  - `tools/perf/build_perf_release.sh`
+  - whole `kilo_kernel_small`: `C 84 ms / Ny AOT 7 ms`
+  - `ny_aot_instr=60315390`
+  - `ny_aot_cycles=17714067`
+  - top asm:
+    - `__memmove_avx512_unaligned_erms`: `40.82%`
+    - len-half closure:
+      `array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str::{closure}`:
+      `25.39%`
+    - observer-store closure:
+      `array_string_indexof_const_suffix_region_store::{closure...}`:
+      `24.05%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `3.23%`
+    - `nyash.array.string_len_hi`: `1.08%`
+- verdict:
+  - keep as structural cleanup and owner-shift: the extra transaction facade
+    symbol is gone
+  - not a wall-time keeper: whole remains `Ny AOT 7 ms`
+  - next owner proof should use the post-H32 valid-release asm, not stale
+    pre-rebuild readings
+
+### H33 Active
+
+Goal: choose the next implementation card from valid post-H32 evidence.
+
+- active owner candidates:
+  - residual `memmove` under the len-half edit closure
+  - observer-store closure cost
+  - unexpected `nyash.array.string_len_hi` reappearance
+- first step:
+  - inspect only the sampled len-half and observer-store source paths
+  - decide whether the next card is H27 len-half closure thinning, H26
+    observer-store mutation, or a missing MIR contract that still emits
+    `string_len_hi`
+- guard:
+  - rebuild release before every runtime perf judgment
+  - no runtime representation surgery without a valid owner proof
 
 ### H28.1 runtime-private literal search executor
 

@@ -31,7 +31,7 @@ as `137x-H`.
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
 phase README / current entry. Current active card:
-`137x-H32 observer-store transaction path decision`.
+`137x-H33 valid post-H32 owner decision`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -335,15 +335,21 @@ phase README / current entry. Current active card:
       behind the `ArrayTextCell` operation boundary
     - current preference: piece-cell/deferred-edit residence over gap-buffer
       unless perf evidence contradicts it
-    - rejected: piece-cell prototype kept whole at `Ny AOT 7 ms` and
-      `__memmove` at `40.60%`; code reverted
+    - closed without keeper; code reverted
+    - measurement hygiene note: stale perf before release rebuild must not be
+      used as keeper evidence
   - [x] H31 post-H30 owner refresh
     - rerun whole stat/asm and attribute the remaining `memmove` owner before
       any new implementation card
-    - verdict: owner is back in H26 observer-store transaction/mutation path;
-      standalone H27 len-half helper is only `4.17%`
-  - [ ] H32 observer-store transaction path decision
+    - result: fixed lane hygiene; rebuild release before runtime perf judgment
+  - [x] H32 observer-store transaction path decision
     - choose the next narrow observer-store seam before code edits
+    - landed transaction façade thinning; valid-release asm removed
+      `with_array_text_write_txn` from the top list, but wall stayed
+      `Ny AOT 7 ms`
+  - [ ] H33 valid post-H32 owner decision
+    - choose between len-half closure, observer-store closure, and unexpected
+      `string_len_hi` from valid post-H32 asm
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

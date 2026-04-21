@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H32 observer-store transaction path decision)
+  - `phase-137x-H owner-first optimization return` (active; H33 valid post-H32 owner decision)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H32 observer-store transaction path decision`
+    - current blocker is `137x-H33 valid post-H32 owner decision`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H32 observer-store transaction path decision`
+  - `137x-H33 valid post-H32 owner decision`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -67,13 +67,14 @@ cargo check --features perf-observe -p nyash_kernel
     - H29 rejected local runtime byte-copy surgery; H30 now decides whether a
       narrow array text edit residence representation is clean enough to open
     - H30.1 landed the flat `ArrayTextCell` boundary; H30.2 routed the H27
-      len-half edit through that boundary; H30.3 rejected a narrow
-      piece-cell/deferred-edit prototype because whole stayed `Ny AOT 7 ms`
-      and `__memmove` stayed `40.60%`
-    - H31 refreshed the owner: remaining whole cost is back in H26
-      observer-store transaction/mutation path, not the standalone H27
-      len-half edit helper
-    - H32 now decides the next narrow observer-store card before code edits
+      len-half edit through that boundary; H30.3 closed without keeper and its
+      first perf read was marked stale because release artifacts had not been
+      rebuilt
+    - H31 fixed measurement hygiene: rebuild with
+      `tools/perf/build_perf_release.sh` before judging runtime perf
+    - H32 landed transaction façade thinning; valid-release asm no longer has
+      `with_array_text_write_txn` in the top list, but wall remains `Ny AOT 7 ms`
+    - H33 now decides the next valid-release owner card from post-H32 asm
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`
