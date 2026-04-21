@@ -7,13 +7,14 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H25 array text residence session contract`
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
-- current blocker token: `137x-H25d region executor inner mutation owner`
+- current blocker token: `137x-H25e post-parity owner refresh`
 - current benchmark state:
   - `C 3 ms / Ny AOT 3 ms`
   - `ny_aot_instr=16570267`
   - `ny_aot_cycles=3471656`
 - active owner:
-  - runtime-private single-region executor inner mutation path
+  - no new code owner selected yet; re-baseline exact/middle/whole first
+  - H25d closed with the runtime-private single-region executor at C parity
   - latest asm top:
     - region store mutation closure: `52.65%`
     - `__memmove_avx512_unaligned_erms`: `35.67%`
@@ -319,8 +320,14 @@ H25d final state:
 - final asm top:
   - region store mutation closure: `52.65%`
   - `__memmove_avx512_unaligned_erms`: `35.67%`
+- H25d.5 closeout:
+  - residual `memmove` / mutation surgery is not reopened from the current
+    percentage alone
+  - H25d.3 manual byte moves and H25d.4 observe hoist both regressed, so
+    H25d accepted code remains H25d.1 + H25d.2
 - next slice:
-  - H25d.5 residual memmove / mutation owner decision
+  - H25e post-parity owner refresh
+  - re-baseline exact/middle/whole with stat + asm before opening any new code
   - do not add source-length or ASCII assumptions unless MIR provides an
     explicit generic proof
 

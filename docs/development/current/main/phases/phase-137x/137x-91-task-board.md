@@ -138,7 +138,7 @@ contract`.
   - result: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 5 ms`
   - target transition: per-iteration exported fused helper left the emitted hot
     loop; owner moved into the runtime-private region executor.
-- [ ] H25d region executor inner mutation owner
+- [x] H25d region executor inner mutation owner
   - perf-first next slice.
   - inspect/annotate `slot_text_region_update_sum_raw` before code changes.
   - no MIR widening unless a new legality/materialization fact is required.
@@ -158,10 +158,19 @@ contract`.
     - compute `observe::enabled()` once at region helper entry, not per
       iteration
     - rejected: instruction/cycle regression versus H25d.2
-  - [ ] H25d.5 residual memmove / mutation owner decision
+  - [x] H25d.5 residual memmove / mutation owner decision
     - H25d final accepted code is H25d.1 + H25d.2
     - current result: `C 3 ms / Ny AOT 3 ms`,
       `ny_aot_instr=16570267`, `ny_aot_cycles=3471656`
+    - verdict: close H25d; residual `memmove` / mutation surgery is not a
+      keeper without new MIR proof, because H25d.3/H25d.4 both regressed
+- [ ] H25e post-parity owner refresh
+  - re-baseline the current kilo exact/middle/whole fronts before opening new
+    code
+  - do not optimize from the H25d residual `memmove` percentage alone; pick the
+    next owner from fresh stat + asm evidence
+  - keeper gate remains owner-first: no helper-name shortcut, no runtime-owned
+    legality, and no `.inc` planner drift
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

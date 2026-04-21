@@ -35,7 +35,7 @@ Related:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H25d region executor inner mutation owner`
+  - current blocker is `137x-H25e post-parity owner refresh`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -54,8 +54,10 @@ Related:
       fixed len-store mutation split
     - H25d result: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`,
       `ny_aot_instr=16570267`, `ny_aot_cycles=3471656`
-    - next slice: H25d.5 residual memmove / mutation owner decision; do not add
-      source-length or ASCII assumptions without MIR proof
+    - H25d.5 closes residual memmove / mutation surgery: H25d.3/H25d.4 both
+      regressed, so keep H25d.1/H25d.2 as the accepted code
+    - next slice: H25e post-parity owner refresh; re-baseline
+      exact/middle/whole with stat + asm before opening new code
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

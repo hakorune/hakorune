@@ -382,8 +382,8 @@ Scope: current lane / next lane / restart order only.
       - H23b helper-local resident/fallback compaction regressed and was reverted
       - H24 proved the active owner is write-lock acquire/release guard mechanics
       - full evidence stays in `docs/development/current/main/phases/phase-137x/README.md`
-    - `137x-H25d` region executor inner mutation owner is active
-      - current blocker token: `137x-H25d region executor inner mutation owner`
+    - `137x-H25d` region executor inner mutation owner is closed
+      - closed blocker token: `137x-H25d region executor inner mutation owner`
       - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
       - ownership map: `docs/development/current/main/phases/phase-137x/137x-array-text-contract-map.md`
       - H25a landed metadata-only `array_text_residence_sessions`; `.inc` and runtime behavior are unchanged
@@ -443,9 +443,17 @@ Scope: current lane / next lane / restart order only.
         - H25d.4 rejected: hoisting `observe::enabled()` out of the
           per-iteration region closure regressed instruction/cycle count to
           `ny_aot_instr=22510404`, `ny_aot_cycles=4773551`; reverted.
-        - next slice: H25d.5 residual memmove / mutation owner decision. Do not
-          add source-length or ASCII assumptions unless MIR provides an explicit
-          generic proof.
+        - H25d.5 verdict: close H25d. Residual `memmove` / mutation surgery is
+          not a keeper without a new MIR proof; H25d.3/H25d.4 both regressed,
+          so accepted code remains H25d.1 + H25d.2.
+      - `137x-H25e` post-parity owner refresh is active
+        - current blocker token: `137x-H25e post-parity owner refresh`
+        - re-baseline exact/middle/whole with stat + asm before opening new
+          code
+        - do not optimize from the H25d residual `memmove` percentage alone
+        - reject seam: no helper-name shortcut, no runtime-owned legality, no
+          `.inc` planner drift, and no source-length / ASCII assumption without
+          MIR proof
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

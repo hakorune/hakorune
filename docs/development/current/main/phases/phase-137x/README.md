@@ -1576,7 +1576,11 @@ H25d region executor inner mutation result:
     `ny_aot_instr=22510404`, `ny_aot_cycles=4773551`, `Ny AOT 4 ms`; reverted.
 - Verdict:
   - H25d.1/H25d.2 are keepers.
-  - The next slice is H25d.5 residual memmove / mutation owner decision.
+  - H25d.5 closes the residual memmove / mutation owner decision:
+    H25d.3/H25d.4 both regressed, so do not reopen local byte-copy or observe
+    surgery without new MIR proof.
+  - The next slice is H25e post-parity owner refresh: re-baseline
+    exact/middle/whole with stat + asm before opening new code.
   - Do not add source-length or ASCII assumptions unless MIR provides an
     explicit generic proof.
 
