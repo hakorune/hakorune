@@ -113,7 +113,7 @@ pub fn suggest_resolution(name: &str) -> String {
 pub fn has_method(box_name: &str, method: &str) -> bool {
     match box_name {
         "ConsoleStd" => matches!(method, "print" | "println" | "log"),
-        "StringBox" => matches!(method, "upper" | "lower" | "length" | "concat" | "slice"),
+        "StringBox" => crate::boxes::basic::StringMethodId::from_name(method).is_some(),
         "IntegerBox" => matches!(method, "add" | "sub" | "mul" | "div"),
         "ArrayBox" => crate::boxes::array::ArrayMethodId::from_name(method).is_some(),
         "MapBox" => matches!(method, "get" | "set" | "has" | "delete"),

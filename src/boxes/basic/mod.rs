@@ -9,6 +9,7 @@ mod error_box;
 mod file_box;
 mod integer_box;
 mod string_box;
+mod string_surface_catalog;
 mod void_box;
 
 // Re-export all basic box types
@@ -17,4 +18,9 @@ pub use error_box::ErrorBox;
 pub use file_box::FileBox;
 pub use integer_box::IntegerBox;
 pub use string_box::StringBox;
+pub use string_surface_catalog::{
+    StringExposureState, StringMethodId, StringMethodSpec, StringSurfaceEffect,
+    StringSurfaceInvokeError, StringSurfaceInvokeResult, StringSurfaceReturn,
+    STRING_SURFACE_METHODS,
+};
 pub use void_box::VoidBox;

@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox surface catalog` |
-| Front | `ArrayBox precedent landed -> StringBox catalog first -> MapBox follows` |
+| Front | `ArrayBox precedent landed -> StringBox catalog landed -> MapBox first catalog slice` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `StringBox truth is split across runtime surface, dispatch, std sugar, and docs` |
-| Next | `StringBox surface catalog/invoke smoke` |
-| After Next | `MapBox surface catalog after StringBox green` |
+| Blocker | `MapBox truth is split across runtime substrate, compat ABI, MIR lowering, and docs` |
+| Next | `MapBox surface catalog/invoke smoke` |
+| After Next | `namespace/static box/alias resolution SSOT` |
 
 ## Current Read
 
@@ -33,9 +33,9 @@ Related:
 ## Immediate Sequence
 
 1. `phase-291x docs-first CoreBox surface inventory`
-2. `phase-291x StringBox catalog/invoke seam`
-3. `phase-291x stable StringBox smoke`
-4. `phase-291x MapBox inventory follow-up`
+2. `phase-291x StringBox catalog/invoke seam` landed
+3. `phase-291x stable StringBox smoke` landed
+4. `phase-291x MapBox first catalog slice`
 
 ## Parked Corridor
 

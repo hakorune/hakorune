@@ -86,6 +86,25 @@ fn array_surface_method_entries() -> Vec<MethodEntry> {
     entries
 }
 
+fn string_surface_method_entries() -> Vec<MethodEntry> {
+    let mut entries = Vec::new();
+    for spec in crate::boxes::basic::STRING_SURFACE_METHODS {
+        entries.push(MethodEntry {
+            name: spec.canonical,
+            arity: spec.arity,
+            slot: spec.slot,
+        });
+        for alias in spec.aliases {
+            entries.push(MethodEntry {
+                name: *alias,
+                arity: spec.arity,
+                slot: spec.slot,
+            });
+        }
+    }
+    entries
+}
+
 const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
     MethodEntry {
         name: "clear",
@@ -157,11 +176,6 @@ const MAP_METHOD_EXTRAS: &[MethodEntry] = &[
 
 const STRING_METHOD_EXTRAS: &[MethodEntry] = &[
     MethodEntry {
-        name: "len",
-        arity: 0,
-        slot: 300,
-    },
-    MethodEntry {
         name: "toUpper",
         arity: 0,
         slot: 306,
@@ -170,11 +184,6 @@ const STRING_METHOD_EXTRAS: &[MethodEntry] = &[
         name: "toLower",
         arity: 0,
         slot: 307,
-    },
-    MethodEntry {
-        name: "contains",
-        arity: 1,
-        slot: 309,
     },
 ];
 
@@ -217,7 +226,8 @@ fn mapbox_typebox() -> &'static TypeBox {
 
 fn stringbox_typebox() -> &'static TypeBox {
     STRINGBOX_TB.get_or_init(|| {
-        let core = core_method_entries_for_box(CoreBoxId::String);
+        let mut core = core_method_entries_for_box(CoreBoxId::String);
+        core.extend(string_surface_method_entries());
         let methods = merge_method_entries(core, STRING_METHOD_EXTRAS);
         TypeBox::new_with("StringBox", methods)
     })
@@ -265,26 +275,7 @@ static INSTANCEBOX_TB: TypeBox = TypeBox::new_with("InstanceBox", INSTANCE_METHO
 // Primitive types (String, Integer, Array) share the same slot numbers as their Box variants
 // This enables unified dispatch for both primitives and boxes
 
-const PRIMITIVE_STRING_ALLOWED_SIGNATURES: &[(&str, usize)] = &[
-    ("length", 0),
-    ("substring", 2),
-    ("concat", 1),
-    ("indexOf", 1),
-    ("replace", 2),
-    ("trim", 0),
-];
-const PRIMITIVE_STRING_EXTRAS: &[MethodEntry] = &[
-    MethodEntry {
-        name: "lastIndexOf",
-        arity: 1,
-        slot: 308,
-    },
-    MethodEntry {
-        name: "contains",
-        arity: 1,
-        slot: 309,
-    },
-];
+const PRIMITIVE_STRING_EXTRAS: &[MethodEntry] = &[];
 
 const PRIMITIVE_ARRAY_ALLOWED_SIGNATURES: &[(&str, usize)] =
     &[("get", 1), ("length", 0), ("push", 1)];
@@ -306,11 +297,8 @@ static PRIMITIVE_ARRAY_TB: OnceLock<TypeBox> = OnceLock::new();
 
 fn primitive_string_typebox() -> &'static TypeBox {
     PRIMITIVE_STRING_TB.get_or_init(|| {
-        let core = core_method_entries_for_box_signatures(
-            CoreBoxId::String,
-            PRIMITIVE_STRING_ALLOWED_SIGNATURES,
-        );
-        let methods = merge_method_entries(core, PRIMITIVE_STRING_EXTRAS);
+        let methods =
+            merge_method_entries(string_surface_method_entries(), PRIMITIVE_STRING_EXTRAS);
         TypeBox::new_with("String", methods)
     })
 }

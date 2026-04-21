@@ -56,6 +56,11 @@ impl EffectsAnalyzerBox {
                         };
                     }
                 }
+                if box_name == "StringBox"
+                    && crate::boxes::basic::StringMethodId::from_name(method).is_some()
+                {
+                    return EffectMask::READ;
+                }
 
                 match method.as_str() {
                     "birth" => EffectMask::PURE.add(Effect::Alloc),

@@ -11,6 +11,15 @@ impl MirInterpreter {
         args: &[ValueId],
     ) -> Result<VMValue, VMError> {
         match (type_name, slot) {
+            ("String" | "StringBox", slot)
+                if crate::boxes::basic::StringMethodId::from_slot_and_arity(slot, args.len())
+                    .is_some() =>
+            {
+                let method_id =
+                    crate::boxes::basic::StringMethodId::from_slot_and_arity(slot, args.len())
+                        .expect("checked StringMethodId slot/arity");
+                self.invoke_string_surface(receiver, method_id, args)
+            }
             // String methods (slot 300+)
             ("String", 300) => {
                 // length

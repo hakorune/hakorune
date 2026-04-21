@@ -19,6 +19,12 @@ mod tests {
         assert_eq!(resolve_slot_by_name("ArrayBox", "insert", 2), Some(113));
         // StringBox
         assert_eq!(resolve_slot_by_name("StringBox", "len", 0), Some(300));
+        assert_eq!(resolve_slot_by_name("StringBox", "size", 0), Some(300));
+        assert_eq!(resolve_slot_by_name("StringBox", "substr", 2), Some(301));
+        assert_eq!(resolve_slot_by_name("StringBox", "find", 1), Some(303));
+        assert_eq!(resolve_slot_by_name("StringBox", "find", 2), Some(303));
+        assert_eq!(resolve_slot_by_name("String", "size", 0), Some(300));
+        assert_eq!(resolve_slot_by_name("String", "find", 2), Some(303));
 
         // Known methods listing should include representative entries
         let mm = known_methods_for("MapBox").expect("map methods");

@@ -8,8 +8,9 @@ use crate::backend::mir_interpreter::handlers::temp_dispatch::{
     TMP_OUT_OBJECT_FIELD_METHOD_BRIDGE, TMP_RECV_INSTANCE_FIELD_OP,
     TMP_RECV_INSTANCE_METHOD_BRIDGE, TMP_RECV_OBJECT_FIELD_METHOD_BRIDGE,
 };
-use crate::box_trait::NyashBox;
+use crate::box_trait::{NyashBox, StringBox as CoreStringBox};
 use crate::boxes::array::{ArrayBox, ArrayMethodId, ArraySurfaceInvokeResult};
+use crate::boxes::basic::{StringMethodId, StringSurfaceInvokeResult};
 use crate::boxes::string_ops;
 use crate::config::env;
 use crate::runtime::get_global_ring0;
@@ -53,6 +54,50 @@ impl MirInterpreter {
         Ok(match result {
             ArraySurfaceInvokeResult::Value(value) => VMValue::from_nyash_box(value),
             ArraySurfaceInvokeResult::Void => VMValue::Void,
+        })
+    }
+
+    fn load_string_surface_args(
+        &mut self,
+        method_id: StringMethodId,
+        args: &[ValueId],
+    ) -> Result<Vec<Box<dyn NyashBox>>, VMError> {
+        let expected = method_id.arity();
+        if args.len() < expected {
+            return Err(self.err_invalid(format!(
+                "StringBox.{}: invalid receiver or missing arguments",
+                method_id.canonical_name()
+            )));
+        }
+
+        args.iter()
+            .take(expected)
+            .map(|arg| self.load_as_box(*arg))
+            .collect()
+    }
+
+    fn invoke_string_surface(
+        &mut self,
+        receiver: &VMValue,
+        method_id: StringMethodId,
+        args: &[ValueId],
+    ) -> Result<VMValue, VMError> {
+        let string = match receiver {
+            VMValue::String(value) => CoreStringBox::new(value.clone()),
+            VMValue::BoxRef(bx) if bx.type_name() == "StringBox" => bx.to_string_box(),
+            _ => {
+                return Err(self.err_invalid(format!(
+                    "StringBox.{}: invalid receiver",
+                    method_id.canonical_name()
+                )));
+            }
+        };
+        let surface_args = self.load_string_surface_args(method_id, args)?;
+        let result = string
+            .invoke_surface(method_id, surface_args)
+            .map_err(|err| self.err_invalid(err.to_string()))?;
+        Ok(match result {
+            StringSurfaceInvokeResult::Value(value) => VMValue::from_nyash_box(value),
         })
     }
 
@@ -238,33 +283,22 @@ impl MirInterpreter {
             VMValue::WeakBox(_) => "WeakRef", // Phase 285A0
         };
 
-        // Canonical alias map for slot dispatch.
-        // Keep fallback surface minimal by normalizing aliases before lookup.
-        let canonical_method = if matches!(type_name, "String" | "StringBox") && method == "find" {
-            "indexOf"
-        } else {
-            method
-        };
-
         // 2. Lookup type in TypeRegistry and get slot
         // Note: Try exact arity first, then try with args.len()-1 (in case receiver is duplicated in args)
-        let slot = crate::runtime::type_registry::resolve_slot_by_name(
-            type_name,
-            canonical_method,
-            args.len(),
-        )
-        .or_else(|| {
-            // Fallback: try with one less argument (receiver might be in args)
-            if args.len() > 0 {
-                crate::runtime::type_registry::resolve_slot_by_name(
-                    type_name,
-                    canonical_method,
-                    args.len() - 1,
-                )
-            } else {
-                None
-            }
-        });
+        let slot =
+            crate::runtime::type_registry::resolve_slot_by_name(type_name, method, args.len())
+                .or_else(|| {
+                    // Fallback: try with one less argument (receiver might be in args)
+                    if args.len() > 0 {
+                        crate::runtime::type_registry::resolve_slot_by_name(
+                            type_name,
+                            method,
+                            args.len() - 1,
+                        )
+                    } else {
+                        None
+                    }
+                });
 
         if let Some(slot) = slot {
             // 3. Use unified dispatch

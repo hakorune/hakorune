@@ -19,7 +19,7 @@ Related:
 - Status: Active
 - Date: 2026-04-22
 - Purpose: phase-290x の `ArrayBox` catalog/invoke seam を、CoreBox surface の横断ルールへ上げる。
-- First implementation target: `StringBox`
+- Landed first implementation target: `StringBox`
 - Next implementation target: `MapBox`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -61,7 +61,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 
 ## Implementation State
 
-Planned first implementation card:
+Landed first implementation card:
 
 ```text
 String surface catalog
@@ -71,5 +71,8 @@ String surface catalog
   -> stable String surface smoke
 ```
 
-MapBox follows only after StringBox has a green catalog/invoke smoke.
+Landed smoke:
 
+- `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
+
+MapBox is now the next CoreBox catalog target.

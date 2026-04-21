@@ -12,6 +12,7 @@ using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 using selfhost.shared.backend.llvm_backend_evidence_adapter as LlvmBackendEvidenceAdapterBox
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
+using selfhost.vm.boxes.mir_vm_s0_reg_utils as MirVmS0RegUtilsBox
 using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
 using lang.runtime.collections.array_core_box as ArrayCoreBox
 using lang.runtime.collections.map_core_box as MapCoreBox
@@ -596,11 +597,19 @@ static box MirCallV1HandlerBox {
        name == "env.console.error" || name == "nyash.console.error" {
       local v = ""
       if arg0id >= 0 {
-        local raw_text = me._read_reg_text_or_null(regs, handle_regs, arg0id)
-        if raw_text != null { v = "" + raw_text }
-        else {
-          local raw = regs.getField(StringHelpers.int_to_str(arg0id))
-          v = "" + raw
+        local arg_kind = "scalar"
+        if kinds != null { arg_kind = MirVmS0RegUtilsBox._reg_kind_get(kinds, arg0id) }
+        if arg_kind == "bool" {
+          local raw_bool = regs.getField(StringHelpers.int_to_str(arg0id))
+          v = "false"
+          if raw_bool != null && JsonFragBox._str_to_int("" + raw_bool) != 0 { v = "true" }
+        } else {
+          local raw_text = me._read_reg_text_or_null(regs, handle_regs, arg0id)
+          if raw_text != null { v = "" + raw_text }
+          else {
+            local raw = regs.getField(StringHelpers.int_to_str(arg0id))
+            v = "" + raw
+          }
         }
       }
       print(v)

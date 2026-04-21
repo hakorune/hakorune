@@ -32,19 +32,19 @@ StringBox surface catalog
 
 | Card | Status | Goal |
 | --- | --- | --- |
-| `291x-0a` | active | create phase front + design brief + StringBox taskboard + inventory ledger |
-| `291x-0b` | active | update current/restart/workstream pointers to phase-291x |
-| `291x-0c` | active | lock first StringBox stable surface row set |
+| `291x-0a` | done | create phase front + design brief + StringBox taskboard + inventory ledger |
+| `291x-0b` | done | update current/restart/workstream pointers to phase-291x |
+| `291x-0c` | done | lock first StringBox stable surface row set |
 
 ## Implementation Slice Order
 
 | Card | Status | Goal |
 | --- | --- | --- |
-| `291x-S1a` | pending | add `src/boxes/basic/string_surface_catalog.rs` and `StringMethodId` |
-| `291x-S1b` | pending | add `StringBox::invoke_surface(...)` for the first stable rows |
-| `291x-S1c` | pending | convert TypeRegistry / method resolution / effect analysis readers |
-| `291x-S1d` | pending | route VM slot dispatch through the invoke seam where receiver is `StringBox`/`String` |
-| `291x-S1e` | pending | add stable StringBox surface smoke |
+| `291x-S1a` | done | add `src/boxes/basic/string_surface_catalog.rs` and `StringMethodId` |
+| `291x-S1b` | done | add `StringBox::invoke_surface(...)` for the first stable rows |
+| `291x-S1c` | done | convert TypeRegistry / method resolution / effect analysis readers |
+| `291x-S1d` | done | route Rust VM slot dispatch and `.hako` VM-facing `StringCoreBox` through the cataloged surface rows where receiver is `StringBox`/`String` |
+| `291x-S1e` | done | add stable StringBox surface smoke |
 
 ## First Stable Surface Target
 
@@ -80,5 +80,13 @@ This StringBox slice is done when:
 1. catalog is the clear Rust-side surface authoring point
 2. TypeRegistry aliases come from the catalog
 3. dispatch no longer hardcodes the first stable StringBox slot rows in several places
-4. one stable smoke proves aliases and output values without VM stub drift
+4. `.hako` VM-facing `StringCoreBox` remains a thin consumer for the same stable rows, including boolean kind publication for `contains`
+5. one stable smoke proves aliases and output values without VM stub drift
 
+## Landing Snapshot
+
+- Rust catalog: `src/boxes/basic/string_surface_catalog.rs`
+- Rust invoke seam: `StringBox::invoke_surface(...)`
+- Rust consumers: TypeRegistry, method resolution, effect analysis, and VM slot dispatch
+- `.hako` consumer: `lang/src/runtime/collections/string_core_box.hako`
+- smoke: `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`

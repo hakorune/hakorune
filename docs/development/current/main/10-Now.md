@@ -35,21 +35,23 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
-  - current implementation focus: `StringBox` surface catalog
+  - current implementation focus: `MapBox` surface catalog first slice
   - current phase goal:
     - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
-    - implement the first `StringBox` catalog/invoke slice only
+    - `StringBox` catalog/invoke slice is landed
+    - implement the first `MapBox` catalog/invoke slice next
     - lock `StringBox.length()` as canonical and `len()` / `size()` as compatibility aliases
-    - inventory MapBox without mixing it into the first StringBox code commit
+    - catalog current MapBox vtable rows before alias or return-contract normalization
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
-    - StringBox surface truth is still split across Rust helpers, VM dispatch, TypeRegistry, `.hako` wrappers, and std sugar
+    - StringBox surface SSOT is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
+    - MapBox surface truth is still split across runtime substrate, compat ABI, MIR lowering, Rust VM dispatch, and `.hako` state paths
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs`
+  - current blocker token: `MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

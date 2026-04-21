@@ -35,7 +35,7 @@ Deferred:
 - `clear/contains/indexOf/join/sort/reverse`
 - direct source `slice()` result follow-up calls through `RuntimeDataBox` union receiver
 
-## StringBox Current Duplication
+## StringBox Landing Snapshot
 
 Primary files:
 
@@ -51,16 +51,22 @@ Primary files:
 - `apps/std/string.hako`
 - `apps/std/string2.hako`
 
-Observed drift:
+Landed fix:
 
-- `length` has `len` / `size` aliases in VM or adapter paths, but not one Rust-side catalog.
-- `find` is normalized to `indexOf` in one dispatch path and accepted by plugin paths.
+- `src/boxes/basic/string_surface_catalog.rs` now owns the stable first row set.
+- `StringBox::invoke_surface(...)` is the Rust invoke seam for those rows.
+- TypeRegistry aliases now come from the catalog.
+- Rust VM dispatch and `.hako` VM-facing `StringCoreBox` consume the same stable rows.
+- `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh` pins aliases, values, and no-stub VM drift.
+
+Remaining drift:
+
 - `lastIndexOf` one-arg is implemented; two-arg is documented as a gap.
 - `apps/std/string.hako` implements `string_index_of` manually instead of being the semantic owner.
 - `apps/std/string2.hako` is a diagnostic partial file, not a full surface.
 - `toUpper` / `toLower` exposure exists in TypeRegistry extras, but route ownership is not clear enough for the first catalog slice.
 
-First safe implementation:
+Completed first implementation:
 
 - catalog the stable rows listed in `291x-91`
 - route Rust dispatch and TypeRegistry through that catalog

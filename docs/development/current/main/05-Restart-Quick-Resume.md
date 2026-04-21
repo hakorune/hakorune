@@ -39,8 +39,9 @@ cargo check -q
 - app focus:
   - CoreBox surface catalog
   - ArrayBox catalog/invoke seam is landed and phase-290x is closed
-  - first active implementation target is `StringBox`
-  - lock `length()` canonical / `len()` and `size()` aliases before broadening to MapBox
+  - StringBox catalog/invoke seam is landed and pinned by the phase-291x smoke
+  - next active implementation target is `MapBox`
+  - catalog current vtable rows first; defer alias normalization and return-contract changes
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
@@ -50,7 +51,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 - current blocker token:
-  - `StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs`
+  - `MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs`
 
 ## Current Perf Snapshot
 
@@ -85,9 +86,10 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - implement the first `StringBox` catalog/invoke slice
+  - implement the first `MapBox` catalog/invoke slice
   - keep `src/boxes/array/surface_catalog.rs` as the ArrayBox precedent
-  - do not implement MapBox in the same commit
+  - keep `src/boxes/basic/string_surface_catalog.rs` as the StringBox precedent
+  - do not normalize MapBox aliases or return contracts in the first MapBox commit
   - keep phase-137x at observe-only unless app work produces a real blocker
 - perf reopen rule:
   - `137x-E` is already closed enough (`E0` closed, `E1` landed)

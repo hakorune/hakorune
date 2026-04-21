@@ -9,12 +9,12 @@ status = "Active"
 date = "2026-04-22"
 
 active_lane = "phase-291x CoreBox surface catalog"
-active_lane_status = "active; docs-first CoreBox inventory, StringBox first implementation slice"
+active_lane_status = "active; StringBox surface catalog landed, MapBox first catalog slice next"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-current_blocker_token = "StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs"
+current_blocker_token = "MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -22,14 +22,14 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 opened_successors = [
   "phase-290x ArrayBox surface catalog landed",
   "phase-291x CoreBox surface catalog active",
-  "StringBox surface catalog first implementation slice",
-  "MapBox surface catalog follows after StringBox smoke is green",
+  "StringBox surface catalog first implementation slice landed",
+  "MapBox surface catalog first implementation slice next",
 ]
 
 blocked_successors = [
   "phase-137x perf reopen without app blocker evidence",
   "StringBox lastIndexOf two-arg implementation in the catalog commit",
-  "MapBox implementation mixed into the first StringBox slice",
+  "MapBox alias normalization or return-contract changes mixed into the first MapBox catalog slice",
   "std.string sugar treated as semantic owner",
 ]
 
@@ -40,4 +40,5 @@ stale_pointer_patterns = [
   "active app slice: `apps/kilo_nyash/enhanced_kilo_editor.hako`",
   "phase-290x ArrayBox surface canonicalization active",
   "current-state token: `phase-290x ArrayBox surface canonicalization`",
+  "StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs",
 ]

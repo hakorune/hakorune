@@ -91,7 +91,8 @@ Rule:
 - `string_core_box.hako`
   - `len_i64(handle)` -> `nyash.string.len_h`
   - `try_handle(seg, regs, mname)`
-    -> owns adapter-on `StringBox.length/len/size` orchestration for `mir_call_v1_handler`
+    -> VM-facing consumer for the phase-291x stable `StringBox.{length/len/size,substring/substr,concat,indexOf/find,replace,trim,lastIndexOf,contains}` rows used by `mir_call_v1_handler`
+  - string search delegates to `runtime/kernel/string/search.hako`; this wrapper must not become a second algorithm owner
 - `method_policy_box.hako`
   - `generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string)`
     -> stage2 semantic-owner vocabulary for generic collection/runtime method lowering

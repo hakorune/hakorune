@@ -71,19 +71,21 @@ Scope: current lane / next lane / restart order only.
   - current perf blocker stays recorded as `137x-H46 text-cell residence/materialization design`, but it does not preempt app work unless app implementation is actually blocked
   - current CoreBox phase goal:
     - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
-    - implement only the first StringBox slice in this card
+    - StringBox catalog/invoke slice is landed and pinned
+    - implement the first MapBox catalog slice next
     - keep `StringBox.length()` canonical and `len()` / `size()` as compatibility aliases
     - keep `StringBox.lastIndexOf(needle, start_pos)` deferred to a separate card
-    - inventory MapBox, but do not mix MapBox implementation into the StringBox commit
+    - catalog current MapBox vtable rows first; do not mix alias normalization or return-contract changes into that commit
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
-    - StringBox surface truth is still split across Rust helpers, VM dispatch, TypeRegistry, `.hako` wrappers, and std sugar
+    - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - `apps/std/string.hako` and `apps/std/string2.hako` are not a single surface owner
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
+    - MapBox surface truth is still split across runtime substrate, compat ABI, MIR lowering, Rust VM dispatch, and `.hako` state paths
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs`
+    - `MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

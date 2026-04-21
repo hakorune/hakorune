@@ -1,8 +1,9 @@
 // StringCoreBox — thin VM runtime wrapper over string i64 ABI helper
 // Responsibility:
 // - provide VM-low-level i64 length path without std-layer coupling
+// - consume the phase-291x stable StringBox surface rows for the `.hako` VM lane
 // - delegate visible StringBox search semantics to `.hako` string-kernel owners
-// - keep this file as a VM-facing wrapper residue only (`size alias` / `substring` / delegated search wrappers)
+// - keep this file as a VM-facing wrapper residue only (`size alias` / `substring` / delegated search wrappers / simple surface forwarding)
 // - do not let wrapper-local helpers turn back into string semantic owners
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
@@ -79,6 +80,13 @@ static box StringCoreBox {
     }
   }
 
+  _write_bool_dst(regs, kinds, dst, value) {
+    me._write_i64_dst(regs, dst, value)
+    if kinds != null && dst != null {
+      MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "bool")
+    }
+  }
+
   _trace(tag) {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
@@ -145,6 +153,31 @@ static box StringCoreBox {
     return 1
   }
 
+  _concat_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text) {
+    local arg0 = MiniMirV1Scan.first_arg_register(seg)
+    local rhs_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
+    local rhs = rhs_raw == null ? "" : ("" + rhs_raw)
+    me._write_text_dst(regs, kinds, handle_regs, dst, text + rhs)
+    me._trace("[vm/adapter/string_core:concat]")
+    return 1
+  }
+
+  _replace_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text) {
+    local old_raw = me._read_reg_text_or_null(regs, handle_regs, MiniMirV1Scan.first_arg_register(seg))
+    local new_raw = me._read_reg_text_or_null(regs, handle_regs, MiniMirV1Scan.nth_arg_register(seg, 1))
+    local old_text = old_raw == null ? "" : ("" + old_raw)
+    local new_text = new_raw == null ? "" : ("" + new_raw)
+    me._write_text_dst(regs, kinds, handle_regs, dst, text.replace(old_text, new_text))
+    me._trace("[vm/adapter/string_core:replace]")
+    return 1
+  }
+
+  _trim_wrapper_runtime(regs, kinds, handle_regs, dst, text) {
+    me._write_text_dst(regs, kinds, handle_regs, dst, text.trim())
+    me._trace("[vm/adapter/string_core:trim]")
+    return 1
+  }
+
   _lastindexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
     local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
     local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
@@ -152,6 +185,15 @@ static box StringCoreBox {
     local idx = StringSearchKernelBox.last_index(text, needle)
     me._write_scalar_dst(regs, kinds, dst, idx)
     me._trace("[vm/adapter/string_core:lastindexof]")
+    return 1
+  }
+
+  _contains_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
+    local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
+    local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
+    local needle = needle_rt == null ? "" : ("" + needle_rt)
+    me._write_bool_dst(regs, kinds, dst, StringSearchKernelBox.contains(text, needle))
+    me._trace("[vm/adapter/string_core:contains]")
     return 1
   }
 
@@ -179,11 +221,23 @@ static box StringCoreBox {
     local raw = me._read_reg_text_or_null(regs, handle_regs, rid)
     if raw == null { return 0 }
     local text = "" + raw
-    if mname == "indexOf" {
+    if mname == "concat" {
+      return me._concat_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text)
+    }
+    if mname == "indexOf" || mname == "find" {
       return me._indexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
+    }
+    if mname == "replace" {
+      return me._replace_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text)
+    }
+    if mname == "trim" {
+      return me._trim_wrapper_runtime(regs, kinds, handle_regs, dst, text)
     }
     if mname == "lastIndexOf" {
       return me._lastindexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
+    }
+    if mname == "contains" {
+      return me._contains_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
     }
     if mname == "substring" || mname == "substr" {
       return me._substring_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text)

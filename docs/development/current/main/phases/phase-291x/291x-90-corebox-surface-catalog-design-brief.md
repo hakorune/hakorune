@@ -46,7 +46,7 @@ Each stable surface row must carry:
 | Box | State | First catalog owner |
 | --- | --- | --- |
 | `ArrayBox` | landed in phase-290x | `src/boxes/array/surface_catalog.rs` |
-| `StringBox` | active first implementation | planned `src/boxes/basic/string_surface_catalog.rs` |
+| `StringBox` | landed in phase-291x first slice | `src/boxes/basic/string_surface_catalog.rs` |
 | `MapBox` | inventory only in this slice | planned later, after StringBox |
 
 ## StringBox First Stable Rows

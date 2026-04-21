@@ -282,7 +282,8 @@ impl MirInterpreter {
                             obj.as_any()
                                 .downcast_ref::<crate::boxes::array::ArrayBox>()
                                 .map(|arr| {
-                                    if arr.slot_insert_box_raw(idx, collection_any_arg_to_box(value))
+                                    if arr
+                                        .slot_insert_box_raw(idx, collection_any_arg_to_box(value))
                                     {
                                         1
                                     } else {
