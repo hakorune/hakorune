@@ -382,8 +382,8 @@ Scope: current lane / next lane / restart order only.
       - H23b helper-local resident/fallback compaction regressed and was reverted
       - H24 proved the active owner is write-lock acquire/release guard mechanics
       - full evidence stays in `docs/development/current/main/phases/phase-137x/README.md`
-    - `137x-H25c.2c` single-region executor contract is active
-      - current blocker token: `137x-H25c.2c single-region executor contract`
+    - `137x-H25d` region executor inner mutation owner is active
+      - current blocker token: `137x-H25d region executor inner mutation owner`
       - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
       - ownership map: `docs/development/current/main/phases/phase-137x/137x-array-text-contract-map.md`
       - H25a landed metadata-only `array_text_residence_sessions`; `.inc` and runtime behavior are unchanged
@@ -409,11 +409,21 @@ Scope: current lane / next lane / restart order only.
         - H25c.2c-3 MIR `region_mapping` landed under `executor_contract`:
           loop index PHI/init/next/bound, accumulator PHI/init/next/exit use,
           and row modulus are now MIR-owned metadata and validated by `.inc`
-        - H25c.2c is still active until lowering can replace the region safely
-        - H25c.3 keeper probe only after H25c.2c lands
-      - next slice: H25c.2c-4 backend region-replacement design/implementation;
-        do not add runtime executor until backend can skip/replace the header,
-        body, PHI, and exit-use wiring without redefining SSA values
+        - H25c.2c-4 landed backend region replacement:
+          `.inc` emits one begin-site
+          `nyash.array.string_insert_mid_subrange_len_store_region_hiisi`
+          call from MIR-owned metadata, skips the covered header/body without
+          redefining SSA PHIs, and validates loop/accumulator initial constants
+          as MIR facts
+        - H25c.3 keeper probe passed as a partial keeper:
+          `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 5 ms`,
+          `ny_aot_instr=28630426`, `ny_aot_cycles=7033574`
+        - target transition: emitted hot loop no longer calls the per-iteration
+          fused helper; owner moved into `slot_text_region_update_sum_raw`
+          (`79.54%`) with `__memmove_avx512_unaligned_erms` (`9.74%`)
+      - next slice: H25d perf-first annotate the region executor inner mutation
+        body; do not widen MIR or add benchmark-name dispatch until samples
+        prove the next owner
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

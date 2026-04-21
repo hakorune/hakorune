@@ -40,6 +40,10 @@
         size_t update_instruction_index;
         long long end_block;
         size_t route_instruction_index;
+        long long array_root_value;
+        long long loop_bound_const;
+        long long row_modulus_const;
+        long long region_result_dst;
         long long result_len_dst;
         long long middle_reg;
         long long middle_len;
@@ -114,13 +118,16 @@
           yyjson_val* contract) {
         yyjson_val* mapping = contract ? yyjson_obj_get(contract, "region_mapping") : NULL;
         long long route_index_value = 0;
+        long long array_root_value = 0;
         long long loop_index_phi_value = 0;
         long long loop_index_initial_value = 0;
+        long long loop_index_initial_const = 0;
         long long loop_index_next_value = 0;
         long long loop_bound_value = 0;
         long long loop_bound_const = 0;
         long long accumulator_phi_value = 0;
         long long accumulator_initial_value = 0;
+        long long accumulator_initial_const = 0;
         long long accumulator_next_value = 0;
         long long exit_accumulator_value = 0;
         long long row_index_value = 0;
@@ -130,12 +137,20 @@
         return array_text_residence_read_i64_field(route, "index_value", &route_index_value) &&
                array_text_residence_read_i64_field(
                    mapping,
+                   "array_root_value",
+                   &array_root_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
                    "loop_index_phi_value",
                    &loop_index_phi_value) &&
                array_text_residence_read_i64_field(
                    mapping,
                    "loop_index_initial_value",
                    &loop_index_initial_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "loop_index_initial_const",
+                   &loop_index_initial_const) &&
                array_text_residence_read_i64_field(
                    mapping,
                    "loop_index_next_value",
@@ -158,6 +173,10 @@
                    &accumulator_initial_value) &&
                array_text_residence_read_i64_field(
                    mapping,
+                   "accumulator_initial_const",
+                   &accumulator_initial_const) &&
+               array_text_residence_read_i64_field(
+                   mapping,
                    "accumulator_next_value",
                    &accumulator_next_value) &&
                array_text_residence_read_i64_field(
@@ -178,6 +197,9 @@
                    &row_modulus_const) &&
                loop_bound_const > 0 &&
                row_modulus_const > 0 &&
+               array_root_value != 0 &&
+               loop_index_initial_const == 0 &&
+               accumulator_initial_const == 0 &&
                row_index_value == route_index_value &&
                exit_accumulator_value == accumulator_phi_value &&
                loop_index_phi_value != 0 &&
@@ -216,6 +238,26 @@
                materialization_policy &&
                    !strcmp(materialization_policy, "text_resident_or_stringlike_slot") &&
                array_text_residence_region_mapping_valid(route, contract);
+      }
+      auto void array_text_residence_region_mapping_fill(
+          yyjson_val* route,
+          struct ArrayTextResidenceSessionRouteMetadata* out) {
+        yyjson_val* contract = route ? yyjson_obj_get(route, "executor_contract") : NULL;
+        yyjson_val* mapping = contract ? yyjson_obj_get(contract, "region_mapping") : NULL;
+        long long tmp = 0;
+        if (!out || !mapping) return;
+        if (array_text_residence_read_i64_field(mapping, "array_root_value", &tmp)) {
+          out->array_root_value = tmp;
+        }
+        if (array_text_residence_read_i64_field(mapping, "loop_bound_const", &tmp)) {
+          out->loop_bound_const = tmp;
+        }
+        if (array_text_residence_read_i64_field(mapping, "row_modulus_const", &tmp)) {
+          out->row_modulus_const = tmp;
+        }
+        if (array_text_residence_read_i64_field(mapping, "exit_accumulator_value", &tmp)) {
+          out->region_result_dst = tmp;
+        }
       }
       auto void array_text_residence_session_to_loopcarry_update(
           const struct ArrayTextResidenceSessionRouteMetadata* session,
@@ -330,6 +372,7 @@
             out->update_instruction_index = update_index;
             out->end_block = end_block;
             out->route_instruction_index = route_index;
+            array_text_residence_region_mapping_fill(route, out);
             out->result_len_dst = (long long)yyjson_get_sint(result_len_val);
             out->middle_reg = (long long)yyjson_get_sint(middle_val);
             out->middle_len = (long long)yyjson_get_sint(middle_len_val);
@@ -347,6 +390,115 @@
                 "array_text_residence_session",
                 "hit",
                 "mir_route_metadata",
+                "");
+          }
+          return 1;
+        }
+        return 0;
+      }
+      auto int match_array_text_residence_session_region_begin_metadata(
+          long long bid,
+          struct ArrayTextResidenceSessionRouteMetadata* out) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "array_text_residence_sessions");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* begin_block_val = route ? yyjson_obj_get(route, "begin_block") : NULL;
+          yyjson_val* begin_to_header_block_val = route ? yyjson_obj_get(route, "begin_to_header_block") : NULL;
+          yyjson_val* header_block_val = route ? yyjson_obj_get(route, "header_block") : NULL;
+          yyjson_val* body_block_val = route ? yyjson_obj_get(route, "body_block") : NULL;
+          yyjson_val* exit_block_val = route ? yyjson_obj_get(route, "exit_block") : NULL;
+          yyjson_val* update_block_val = route ? yyjson_obj_get(route, "update_block") : NULL;
+          yyjson_val* update_index_val = route ? yyjson_obj_get(route, "update_instruction_index") : NULL;
+          yyjson_val* end_block_val = route ? yyjson_obj_get(route, "end_block") : NULL;
+          yyjson_val* route_index_val = route ? yyjson_obj_get(route, "route_instruction_index") : NULL;
+          yyjson_val* result_len_val = route ? yyjson_obj_get(route, "result_len_value") : NULL;
+          yyjson_val* middle_val = route ? yyjson_obj_get(route, "middle_value") : NULL;
+          yyjson_val* middle_len_val = route ? yyjson_obj_get(route, "middle_length") : NULL;
+          const char* begin_placement = route ? read_str(route, "begin_placement") : NULL;
+          const char* update_placement = route ? read_str(route, "update_placement") : NULL;
+          const char* end_placement = route ? read_str(route, "end_placement") : NULL;
+          const char* scope = route ? read_str(route, "scope") : NULL;
+          const char* proof = route ? read_str(route, "proof") : NULL;
+          const char* consumer_capability = route ? read_str(route, "consumer_capability") : NULL;
+          const char* publication_boundary = route ? read_str(route, "publication_boundary") : NULL;
+          long long begin_block = 0;
+          long long begin_to_header_block = 0;
+          long long header_block = 0;
+          long long body_block = 0;
+          long long exit_block = 0;
+          long long update_block = 0;
+          size_t update_index = 0;
+          long long end_block = 0;
+          size_t route_index = 0;
+          if (!(begin_block_val && yyjson_is_num(begin_block_val))) continue;
+          if ((long long)yyjson_get_sint(begin_block_val) != bid) continue;
+          if (!(begin_to_header_block_val && header_block_val && body_block_val &&
+                exit_block_val && update_block_val && update_index_val &&
+                end_block_val && route_index_val && result_len_val &&
+                middle_val && middle_len_val &&
+                yyjson_is_num(begin_to_header_block_val) &&
+                yyjson_is_num(header_block_val) &&
+                yyjson_is_num(body_block_val) &&
+                yyjson_is_num(exit_block_val) &&
+                yyjson_is_num(update_block_val) &&
+                yyjson_is_num(update_index_val) &&
+                yyjson_is_num(end_block_val) &&
+                yyjson_is_num(route_index_val) &&
+                yyjson_is_num(result_len_val) &&
+                yyjson_is_num(middle_val) &&
+                yyjson_is_num(middle_len_val) &&
+                begin_placement && !strcmp(begin_placement, "before_preheader_jump") &&
+                update_placement && !strcmp(update_placement, "route_instruction") &&
+                end_placement && !strcmp(end_placement, "exit_block_entry") &&
+                scope && !strcmp(scope, "loop_backedge_single_body") &&
+                proof && !strcmp(proof, "loopcarry_len_store_only") &&
+                consumer_capability && !strcmp(consumer_capability, "slot_text_len_store_session") &&
+                publication_boundary && !strcmp(publication_boundary, "none") &&
+                array_text_residence_executor_contract_valid(route))) {
+            return 0;
+          }
+          begin_block = (long long)yyjson_get_sint(begin_block_val);
+          begin_to_header_block = (long long)yyjson_get_sint(begin_to_header_block_val);
+          header_block = (long long)yyjson_get_sint(header_block_val);
+          body_block = (long long)yyjson_get_sint(body_block_val);
+          exit_block = (long long)yyjson_get_sint(exit_block_val);
+          update_block = (long long)yyjson_get_sint(update_block_val);
+          update_index = (size_t)yyjson_get_sint(update_index_val);
+          end_block = (long long)yyjson_get_sint(end_block_val);
+          route_index = (size_t)yyjson_get_sint(route_index_val);
+          if (!(begin_to_header_block == header_block &&
+                body_block == update_block &&
+                end_block == exit_block &&
+                route_index == update_index)) {
+            return 0;
+          }
+          if (out) {
+            out->matched = 1;
+            out->executor_contract_matched = 1;
+            out->begin_block = begin_block;
+            out->begin_to_header_block = begin_to_header_block;
+            out->header_block = header_block;
+            out->body_block = body_block;
+            out->exit_block = exit_block;
+            out->update_block = update_block;
+            out->update_instruction_index = update_index;
+            out->end_block = end_block;
+            out->route_instruction_index = route_index;
+            array_text_residence_region_mapping_fill(route, out);
+            out->result_len_dst = (long long)yyjson_get_sint(result_len_val);
+            out->middle_reg = (long long)yyjson_get_sint(middle_val);
+            out->middle_len = (long long)yyjson_get_sint(middle_len_val);
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            hako_llvmc_emit_route_trace(
+                "array_text_residence_region_begin",
+                "hit",
+                "mir_region_mapping",
                 "");
           }
           return 1;

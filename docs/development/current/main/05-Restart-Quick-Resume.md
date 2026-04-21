@@ -40,16 +40,16 @@ cargo check --features perf-observe -p nyash_kernel
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H25c.2c single-region executor contract`
+    - current blocker is `137x-H25d region executor inner mutation owner`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H25c.2c single-region executor contract`
+  - `137x-H25d region executor inner mutation owner`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
   - `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`
-  - `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 6 ms`
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 5 ms`
   - adopted middle bridge:
     - `substring + concat + array.set + loopcarry`
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
@@ -69,9 +69,10 @@ cargo check --features perf-observe -p nyash_kernel
     (`ArrayTextSlotSession` + kernel-private `ArrayTextWriteTxn`)
   - H25c.2b closed: clean one-call update boundary, but non-keeper because it
     still acquires the write lock once per iteration
-  - next slice: H25c.2c nested single-region executor contract under
-    `array_text_residence_sessions`; `.inc` stays metadata-to-call only and
-    runtime gets one-call RAII execution only under MIR-owned legality
+  - H25c.2c/H25c.3 closed: MIR-owned single-region executor metadata now
+    drives one begin-site runtime call; result is `C 3 ms / Ny AOT 5 ms`
+  - next slice: H25d perf-first annotate `slot_text_region_update_sum_raw`
+    and optimize only the sampled inner mutation/copy owner
   - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
   - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
   - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

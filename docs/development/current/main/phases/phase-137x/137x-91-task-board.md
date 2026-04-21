@@ -122,7 +122,7 @@ contract`.
   - decide whether `slot_text_len_store_session` can become one
     capability-generic runtime call.
   - reject benchmark-named whole-loop helpers and runtime-owned legality.
-- [ ] H25c.2c single-region executor contract
+- [x] H25c.2c single-region executor contract
   - add nested executor contract under `array_text_residence_sessions`, not a
     new sibling plan family.
   - [x] H25c.2c-1 MIR route metadata emits the nested
@@ -131,12 +131,17 @@ contract`.
     rediscovery.
   - [x] H25c.2c-3 extend MIR with required loop/PHI/exit mapping before
     region replacement.
-  - [ ] H25c.2c-4 backend region replacement without SSA redefinition.
+  - [x] H25c.2c-4 backend region replacement without SSA redefinition.
   - `.inc` remains metadata-to-call emit only.
   - runtime gets a one-call RAII executor only under MIR-owned legality.
-- [ ] H25c.3 keeper probe
-  - blocked on H25c.2c implementation.
-  - requires perf plus target-transition evidence.
+- [x] H25c.3 keeper probe
+  - result: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 5 ms`
+  - target transition: per-iteration exported fused helper left the emitted hot
+    loop; owner moved into the runtime-private region executor.
+- [ ] H25d region executor inner mutation owner
+  - perf-first next slice.
+  - inspect/annotate `slot_text_region_update_sum_raw` before code changes.
+  - no MIR widening unless a new legality/materialization fact is required.
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

@@ -150,13 +150,16 @@ impl std::fmt::Display for ArrayTextResidenceExecutorMaterializationPolicy {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextResidenceLoopRegionMapping {
+    pub array_root_value: ValueId,
     pub loop_index_phi_value: ValueId,
     pub loop_index_initial_value: ValueId,
+    pub loop_index_initial_const: i64,
     pub loop_index_next_value: ValueId,
     pub loop_bound_value: ValueId,
     pub loop_bound_const: i64,
     pub accumulator_phi_value: ValueId,
     pub accumulator_initial_value: ValueId,
+    pub accumulator_initial_const: i64,
     pub accumulator_next_value: ValueId,
     pub exit_accumulator_value: ValueId,
     pub row_index_value: ValueId,
@@ -336,6 +339,10 @@ fn derive_loop_region_mapping(
     let (loop_index_phi_value, loop_bound_value) =
         match_loop_index_condition(function, def_map, header)?;
     let loop_index_initial_value = phi_input_from(header, loop_index_phi_value, begin_block)?;
+    let loop_index_initial_const = const_i64(function, def_map, loop_index_initial_value)?;
+    if loop_index_initial_const != 0 {
+        return None;
+    }
     let loop_index_next_value = phi_input_from(header, loop_index_phi_value, body_block)?;
     if !is_add_const_one_from(
         function,
@@ -360,18 +367,25 @@ fn derive_loop_region_mapping(
             body_block,
             route,
         )?;
+    let accumulator_initial_const = const_i64(function, def_map, accumulator_initial_value)?;
+    if accumulator_initial_const != 0 {
+        return None;
+    }
     if !block_uses_root(function, def_map, exit, accumulator_phi_value) {
         return None;
     }
 
     Some(ArrayTextResidenceLoopRegionMapping {
+        array_root_value: root(function, def_map, route.array_value),
         loop_index_phi_value,
         loop_index_initial_value,
+        loop_index_initial_const,
         loop_index_next_value,
         loop_bound_value,
         loop_bound_const,
         accumulator_phi_value,
         accumulator_initial_value,
+        accumulator_initial_const,
         accumulator_next_value,
         exit_accumulator_value: accumulator_phi_value,
         row_index_value,

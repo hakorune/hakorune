@@ -48,7 +48,7 @@
     - this is the historical producer-owner split that led to the landed phase-2 cuts
     - the current owner proof has moved to read-side encode/materialize/objectize and libc copy/alloc tax
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
-- current middle evidence: `C 3 ms / Ny AOT 6 ms` (`repeat=3`, direct route; H24 post-revert)
+- current middle evidence: `C 3 ms / Ny AOT 5 ms` (`repeat=3`, H25c single-region executor)
 - direct-only correctness: `Result: 2880064`, exit code `64`
 - current stop-line:
   - `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
@@ -1532,6 +1532,25 @@ H25c.2c single-region executor contract:
   - Lowering still emits the existing per-iteration fused helper. The next
     open problem is replacing the header/body/PHI/exit-use region without
     redefining SSA values.
+- Fourth implementation slice landed as backend region replacement:
+  - MIR additionally proves `loop_index_initial_const=0` and
+    `accumulator_initial_const=0`; the runtime executor does not infer these.
+  - `.inc` now matches the MIR-selected begin block, emits one
+    `nyash.array.string_insert_mid_subrange_len_store_region_hiisi` call, and
+    skips the covered header/body region without redefining PHI values.
+  - Runtime executes the proven loop inside
+    `ArrayBox::slot_text_region_update_sum_raw(...)`; the write guard stays
+    inside one Rust call stack, with no session table and no begin/end ABI.
+  - Route trace:
+    `stage=array_text_residence_region_begin result=hit reason=mir_region_mapping`.
+  - Keeper probe:
+    `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 5 ms`,
+    `ny_aot_instr=28630426`, `ny_aot_cycles=7033574`.
+  - Latest asm top:
+    `slot_text_region_update_sum_raw` closure `79.54%`,
+    `__memmove_avx512_unaligned_erms` `9.74%`, region store closure `6.16%`.
+  - Verdict: H25c.2c/H25c.3 are closed as a partial keeper. The next owner is
+    H25d region executor inner mutation/copy; re-annotate before editing.
 
 ## Legacy Retirement Ledger
 

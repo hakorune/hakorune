@@ -7,18 +7,23 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H25 array text residence session contract`
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
-- current blocker token: `137x-H25c.2c single-region executor contract`
+- current blocker token: `137x-H25d region executor inner mutation owner`
 - current benchmark state:
-  - `C 3 ms / Ny AOT 6 ms`
-  - `ny_aot_instr=40330160`
-  - `ny_aot_cycles=12366672`
+  - `C 3 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=28630426`
+  - `ny_aot_cycles=7033574`
 - active owner:
-  - write-lock acquire/release guard mechanics inside the fused loopcarry helper
-  - H24 IP evidence: acquire/release `lock cmpxchg` sites own the samples
+  - runtime-private single-region executor inner mutation path
+  - latest asm top:
+    - `slot_text_region_update_sum_raw` closure: `79.54%`
+    - `__memmove_avx512_unaligned_erms`: `9.74%`
+    - region store closure: `6.16%`
+    - `_int_malloc`: `1.02%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
-  - byte-edit/memmove body: H24 samples did not land there
+  - per-iteration exported fused helper call: removed by H25c.2c-4
+  - write-lock acquire/release in emitted AOT loop: moved inside one Rust call
 
 ## Active Contract
 
@@ -154,7 +159,7 @@ collapse into one risky change.
     - runtime-owned legality from residence state.
     - benchmark-named whole-loop helper.
 - H25c.2c `single-region executor contract`
-  - status: active; first MIR metadata slice landed
+  - status: landed
   - intent: open the next keeper path as a MIR-proven region replacement nested
     under `array_text_residence_sessions`, not as a new sibling plan family.
   - H25c.2c-1 landed:
@@ -188,6 +193,17 @@ collapse into one risky change.
       that the exit accumulator aliases the accumulator PHI.
     - Active backend trace still hits `array_text_residence_session` through
       `mir_route_metadata`; lowering behavior remains unchanged.
+  - H25c.2c-4 landed:
+    - MIR `region_mapping` now also proves the loop index and accumulator
+      initial constants are `0`; runtime does not infer that fact.
+    - `.inc` matches the MIR-selected begin block and emits one
+      `nyash.array.string_insert_mid_subrange_len_store_region_hiisi` call,
+      then skips the covered header/body region without redefining PHI values.
+    - Runtime executes the proven loop inside
+      `ArrayBox::slot_text_region_update_sum_raw(...)`; the write guard stays
+      inside one Rust call stack and no session table or begin/end ABI is used.
+    - Probe trace hit:
+      `stage=array_text_residence_region_begin result=hit reason=mir_region_mapping`.
   - contract shape:
     - `executor_contract.execution_mode = single_region_executor`
     - `proof_region = loop_backedge_single_body`
@@ -208,29 +224,27 @@ collapse into one risky change.
     - no guard/session table, TLS continuity, hidden legality, or public
       begin/end ABI.
 - H25c.3 `keeper probe`
-  - status: blocked on H25c.2c implementation
-  - require target transition evidence, not only `ny_aot_ms`.
+  - status: passed as partial keeper
+  - timing: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 5 ms`
+  - instruction/cycle transition:
+    - before H25c.2c: `ny_aot_instr=40330160`, `ny_aot_cycles=12366672`
+    - after H25c.2c: `ny_aot_instr=28630426`, `ny_aot_cycles=7033574`
+  - target transition: hot path no longer emits the per-iteration
+    `string_insert_mid_subrange_len_store_hisi` helper; owner moved into the
+    runtime-private region executor and its text mutation/copy body.
 
 ## Next Slice
 
-H25c.2b is closed as a clean non-keeper. The next keeper path is H25c.2c:
-a MIR-proven single-region executor contract nested under
-`array_text_residence_sessions`.
+H25c.2c/H25c.3 are closed. The next owner-first slice is H25d:
+`region executor inner mutation owner`.
 
 Required order:
-1. Land nested `executor_contract` metadata in MIR docs/code.
-   - status: done for H25c.2c-1.
-2. Make `.inc` validate and consume that metadata without CFG/raw shape
-   rediscovery.
-   - status: done for H25c.2c-2.
-3. Extend the MIR contract for any missing loop/PHI/exit semantics before
-   replacing the loop region.
-   - status: done for H25c.2c-3 at metadata/validation level.
-4. Teach backend lowering how to replace the region without redefining SSA
-   PHI/result values.
-5. Add a runtime-private one-call RAII executor only if MIR fully owns legality,
-   fallback/materialization policy, and publication boundary.
-6. Rerun exact timing and asm after behavior change.
+1. Re-run `bench_micro_aot_asm.sh` and annotate
+   `slot_text_region_update_sum_raw` before editing runtime internals.
+2. Fix only the sampled block owner.
+3. Keep MIR contract unchanged unless a new legality/materialization fact is
+   genuinely required.
+4. Reject helper-name or benchmark-name dispatch.
 
 Reject immediately if the implementation requires:
 - runtime deciding session legality from residence state

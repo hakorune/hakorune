@@ -30,6 +30,7 @@ and ownership map, not a second semantic source.
     - `consumer_capabilities=[sink_store, length_only]`
     - `materialization_policy=text_resident_or_stringlike_slot`
     - `region_mapping={loop_index_phi/init/next/bound, accumulator_phi/init/next,
+       loop_index_initial_const=0, accumulator_initial_const=0,
        exit_accumulator, row_index, row_modulus}`
   - H25b placement fields:
     - `begin_block` / `begin_placement=before_preheader_jump`
@@ -50,8 +51,10 @@ and ownership map, not a second semantic source.
 - `src/boxes/array/ops/text.rs`
   - owns `ArrayStorage::Text` read/write mechanics.
   - may expose runtime-private helpers, but must not decide MIR legality.
-  - H25c.2a may add an `ArrayBox`-local closure-scoped
+  - H25c.2a added an `ArrayBox`-local closure-scoped
     `ArrayTextSlotSession` substrate here.
+  - H25c.2c added `slot_text_region_update_sum_raw(...)` as a one-call
+    runtime executor for the MIR-proven loop region.
   - any write guard or slot borrow must be created and dropped inside one Rust
     call stack.
 - `src/boxes/array/ops/text_session.rs`
@@ -78,7 +81,9 @@ and ownership map, not a second semantic source.
 - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
   - forwarding-only; do not grow ownership or mutation policy here.
 - `crates/nyash_kernel/src/plugin/array_runtime_aliases.rs`
-  - compatibility ABI aliases only; H25c.2a must not add new exported names.
+  - compatibility ABI aliases only.
+  - H25c.2c exposes only the metadata-selected region executor alias; it must
+    stay executor-only and must not become a route legality owner.
 
 ## Backend Files
 
@@ -90,13 +95,16 @@ and ownership map, not a second semantic source.
   - H25c.2c validates `executor_contract`; it rejects missing/mismatched nested
     contract fields instead of inferring them from CFG.
   - H25c.2c also validates `region_mapping` presence and minimum cross-field
-    invariants; it must not derive loop/PHI/exit facts from raw blocks.
+    invariants, including zero initial loop/accumulator constants; it must not
+    derive loop/PHI/exit facts from raw blocks.
 - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_lowering.inc`
   - may emit the selected helper calls and skip covered instructions.
   - H25c.1 consumes residence-session metadata first, but still maps it to the
     existing loopcarry update helper.
-  - H25c.2c may emit one metadata-selected executor call only if that executor
-    keeps the guard lifetime inside Rust.
+  - H25c.2c emits one metadata-selected executor call from the MIR-selected
+    begin site and skips the covered header/body region.
+  - The executor keeps the guard lifetime inside Rust and returns the
+    accumulator value selected by MIR metadata.
   - must not emit guard-bearing begin/end handle plumbing in H25c.2.
 
 ## Forbidden Drift

@@ -24,4 +24,5 @@ pub(super) use self::array_string_slot_write::{
     array_string_insert_const_mid_subrange_by_index_store_same_slot,
     array_string_insert_const_mid_subrange_by_index_store_same_slot_len,
     array_string_insert_const_mid_subrange_len_by_index_store_same_slot_len,
+    array_string_insert_const_mid_subrange_len_region_store_len,
 };

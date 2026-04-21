@@ -415,13 +415,16 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
         .region_mapping
         .as_ref()
         .expect("single-region executor contract should expose loop/PHI/exit mapping");
+    assert_eq!(region_mapping.array_root_value.0, 5);
     assert_eq!(region_mapping.loop_index_phi_value.0, 31);
     assert_eq!(region_mapping.loop_index_initial_value.0, 30);
+    assert_eq!(region_mapping.loop_index_initial_const, 0);
     assert_eq!(region_mapping.loop_index_next_value.0, 32);
     assert_eq!(region_mapping.loop_bound_value.0, 58);
     assert_eq!(region_mapping.loop_bound_const, 180000);
     assert_eq!(region_mapping.accumulator_phi_value.0, 35);
     assert_eq!(region_mapping.accumulator_initial_value.0, 29);
+    assert_eq!(region_mapping.accumulator_initial_const, 0);
     assert_eq!(region_mapping.accumulator_next_value.0, 53);
     assert_eq!(region_mapping.exit_accumulator_value.0, 35);
     assert_eq!(region_mapping.row_index_value.0, 64);

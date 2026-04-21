@@ -394,6 +394,32 @@ pub(in super::super) fn array_string_insert_const_mid_subrange_len_by_index_stor
     .unwrap_or(0)
 }
 
+pub(in super::super) fn array_string_insert_const_mid_subrange_len_region_store_len(
+    handle: i64,
+    loop_bound: i64,
+    row_modulus: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+) -> i64 {
+    if handle <= 0 || loop_bound < 0 || row_modulus <= 0 {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(middle_ptr, middle_len, |middle| {
+        super::super::array_handle_cache::with_array_box(handle, |arr| {
+            arr.slot_text_region_update_sum_raw(loop_bound, row_modulus, |value| {
+                Some(update_insert_const_mid_subrange_len_value(
+                    value,
+                    middle,
+                    observe::enabled(),
+                ))
+            })
+        })
+        .flatten()
+        .unwrap_or(0)
+    })
+    .unwrap_or(0)
+}
+
 fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
     handle: i64,
     idx: i64,
