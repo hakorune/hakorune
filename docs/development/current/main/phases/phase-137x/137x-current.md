@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H35 post-H34 len-half copy owner decision`
+- current blocker token: `137x-H36 len-half residence representation design gate`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -585,22 +585,57 @@ only.
   - next owner is now the len-half edit copy / residual `memmove` family, not
     observer-store search/suffix mechanics
 
-### H35 Active
+### H35 Result
 
 Goal: decide the next valid post-H34 card for the remaining len-half copy owner.
 
-- active owner candidates:
-  - outer len-half edit closure
-  - residual `__memmove_avx512_unaligned_erms`
-  - possible representation-level text residence proof
-- first step:
-  - collect a fresh callgraph/objdump focused on the post-H34 len-half closure
-  - do not repeat H29 local byte-copy surgery unless a new representation proof
-    explains why the previous rejection no longer applies
-- guard:
-  - MIR / `.inc` stay unchanged until evidence shows a missing contract
-  - runtime-only byte-copy tweaks are rejected by default after H29 unless they
-    come with a new structural owner proof
+- evidence:
+  - post-H34 callgraph bundle:
+    `target/perf_state/h35_kilo_kernel_small.callgraph.perf.data`
+  - no-children top:
+    - `__memmove_avx512_unaligned_erms`: `48.59%`
+    - len-half closure:
+      `array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str::{closure}`:
+      `26.13%`
+    - observer-store closure:
+      `array_string_indexof_const_suffix_region_store::{closure...}`:
+      `16.08%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `2.45%`
+- verdict:
+  - close H35 as owner decision
+  - observer-store is no longer the primary code card after H34
+  - remaining owner is flat text residence suffix movement under the H27
+    len-half edit
+  - do not repeat H29 local byte-copy surgery; it already failed without a
+    representation proof
+  - next step is a design gate for non-flat / gap / piece residence under
+    `ArrayTextCell`
+
+### H36 Active
+
+Goal: decide whether `ArrayTextCell` should open a non-flat residence
+representation for repeated len-half inserts.
+
+- design questions:
+  - can a non-flat cell preserve visible `ArrayBox` behavior while keeping
+    internal len/indexOf/append/insert operations local?
+  - where is materialization allowed, given existing `as_str` and
+    `as_mut_string` callers?
+  - should the first pilot be gap-like, piece-like, or rejected until a broader
+    text residence interface exists?
+- scope:
+  - docs/design first
+  - source inventory around `ArrayTextCell`, `ArrayStorage::Text`, visible
+    get/format/equality paths, and observer-store operations
+- forbidden:
+  - benchmark-named representation
+  - source content assumptions
+  - MIR or `.inc` route changes before the runtime residence contract is clear
+  - another flat `String::insert_str` bypass without a new structural proof
+- exit:
+  - either open a narrow H36 implementation card with rollback gates, or reject
+    representation work and hand residual `memmove` to a later allocator/text
+    residence lane
 
 ### H28.1 runtime-private literal search executor
 

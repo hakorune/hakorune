@@ -31,7 +31,7 @@ as `137x-H`.
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
 phase README / current entry. Current active card:
-`137x-H35 post-H34 len-half copy owner decision`.
+`137x-H36 len-half residence representation design gate`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -358,9 +358,16 @@ phase README / current entry. Current active card:
     - no MIR, `.inc`, public ABI, semantic cache, or source-prefix assumption
     - kept: observer-store closure shrank from `27.45%` to `14.03%`;
       whole instructions dropped to `50229601`
-  - [ ] H35 post-H34 len-half copy owner decision
+  - [x] H35 post-H34 len-half copy owner decision
     - choose the next valid card for residual `memmove` / len-half closure
     - do not repeat H29 byte-copy surgery without a new representation proof
+    - result: post-H34 top is `memmove` `48.59%`, len-half closure `26.13%`,
+      observer-store closure `16.08%`
+  - [ ] H36 len-half residence representation design gate
+    - decide whether `ArrayTextCell` opens non-flat / gap / piece residence
+      for repeated len-half inserts
+    - docs/design first; no MIR or `.inc` route change before runtime
+      residence contract is clear
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

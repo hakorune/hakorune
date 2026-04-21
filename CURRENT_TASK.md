@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H35 post-H34 len-half copy owner decision)
-  - current blocker is `137x-H35 post-H34 len-half copy owner decision`
+  - `phase-137x-H owner-first optimization return` (active; H36 len-half residence representation design gate)
+  - current blocker is `137x-H36 len-half residence representation design gate`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -773,6 +773,16 @@ Scope: current lane / next lane / restart order only.
             closure
           - do not repeat H29 byte-copy surgery without a new representation
             proof
+        - H35 result:
+          - post-H34 callgraph top: `__memmove` `48.59%`, len-half closure
+            `26.13%`, observer-store closure `16.08%`
+          - verdict: next step is a representation design gate, not another
+            flat `String::insert_str` bypass
+        - H36 active:
+          - decide whether `ArrayTextCell` opens non-flat / gap / piece
+            residence for repeated len-half inserts
+          - docs/design first; no MIR or `.inc` route change before the
+            runtime residence contract is clear
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
