@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39 post-mid-gap closure owner refresh`
+- current blocker token: `137x-H39.1 post-mid-gap owner split design`
 - current benchmark state:
   - `C 83 ms / Ny AOT 6 ms`
   - `ny_aot_instr=60923714`
@@ -905,7 +905,7 @@ Verdict:
 - whole instruction count increased, so H39 must refresh the closure-internal
   owner before further representation work.
 
-### H39 Active
+### H39 Result
 
 Goal: pin the new post-mid-gap hot block.
 
@@ -920,6 +920,43 @@ Goal: pin the new post-mid-gap hot block.
   - reopening unbounded pieces.
   - MIR / `.inc` changes before H39 proves a metadata seam.
   - semantic/search-result cache.
+
+Evidence:
+
+- len-half edit closure focused annotate:
+  - local `62.33%` at `lock cmpxchg` in the write-lock acquire path.
+  - conclusion: this owner is lock-boundary / call-region shape, not text
+    representation.
+- observer-store closure focused annotate:
+  - local write-lock acquire only `2.60%`.
+  - samples are in text-cell iteration, short-literal dispatch, and MidGap
+    segment checks.
+  - conclusion: this owner is a cell-loop/search mechanics seam, not the
+    outer edit lock seam.
+
+Verdict:
+
+- H39 closed as owner refresh.
+- do not reopen representation work immediately.
+- next card must choose one of two owners before code:
+  - outer edit lock-boundary, likely requiring a MIR-proven region boundary.
+  - observer-store cell-loop mechanics, runtime-only if it stays generic.
+
+### H39.1 Active
+
+Goal: choose the next seam after H39.
+
+- candidate A:
+  - outer edit lock-boundary.
+  - clean route would be MIR-owned region proof; `.inc` remains emit-only;
+    runtime owns one-call executor mechanics.
+- candidate B:
+  - observer-store cell-loop mechanics.
+  - clean route must not use source-content assumptions or search-result
+    cache; it may only simplify generic literal/segment mechanics.
+- first step:
+  - compare expected win and rollback size.
+  - write the selected implementation card before code.
 
 ### H28.1 runtime-private literal search executor
 

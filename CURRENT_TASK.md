@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H39 post-mid-gap closure owner refresh)
-  - current blocker is `137x-H39 post-mid-gap closure owner refresh`
+  - `phase-137x-H owner-first optimization return` (active; H39.1 post-mid-gap owner split design)
+  - current blocker is `137x-H39.1 post-mid-gap owner split design`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -845,9 +845,17 @@ Scope: current lane / next lane / restart order only.
           - middle `kilo_meso_substring_concat_array_set_loopcarry =
             C 3 ms / Ny AOT 4 ms`
           - verdict: owner-moving keeper with instruction-count watch
-        - H39 active:
-          - refresh closure-internal owner after `memmove` removal
-          - do not reopen representation work until H39 pins the new hot block
+        - H39 result:
+          - focused annotation pinned two different owners
+          - len-half edit closure is mostly write-lock acquire
+            (`lock cmpxchg` local `62.33%`)
+          - observer-store closure is not lock-dominant; it is now
+            cell-loop / short-literal / MidGap segment checks
+          - verdict: do not reopen representation work immediately
+        - H39.1 active:
+          - split next design into outer edit lock-boundary vs observer-store
+            cell-loop owner
+          - no code until the next seam is chosen
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

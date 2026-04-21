@@ -3,7 +3,7 @@
 Status: active design gate; H36.4 piece residence pilot rejected.
 
 Current blocker token:
-`137x-H39 post-mid-gap closure owner refresh`.
+`137x-H39.1 post-mid-gap owner split design`.
 
 ## Context
 
@@ -351,3 +351,23 @@ Verdict:
 - keep an instruction-count watch because whole instruction count increased
   versus H37.
 - next card is H39 post-mid-gap closure owner refresh.
+
+## H39 Result
+
+Focused annotation after H38.1:
+
+- len-half edit closure:
+  - top local sample is the write-lock acquire path:
+    `lock cmpxchg` at local `62.33%`.
+  - this is not a text-copy owner.
+- observer-store closure:
+  - write-lock acquire is local `2.60%`.
+  - samples are in the text-cell loop / short-literal / MidGap segment checks.
+
+Verdict:
+
+- do not reopen representation work immediately.
+- next design must split two seams:
+  - outer edit lock-boundary: needs a MIR-proven region boundary if pursued.
+  - observer-store cell-loop: may be runtime-only only if it preserves
+    generic literal semantics and does not become a search-result cache.

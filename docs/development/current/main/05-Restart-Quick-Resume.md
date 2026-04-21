@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H39 post-mid-gap closure owner refresh)
+  - `phase-137x-H owner-first optimization return` (active; H39.1 post-mid-gap owner split design)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H39 post-mid-gap closure owner refresh`
+    - current blocker is `137x-H39.1 post-mid-gap owner split design`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H39 post-mid-gap closure owner refresh`
+  - `137x-H39.1 post-mid-gap owner split design`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -94,8 +94,9 @@ cargo check --features perf-observe -p nyash_kernel
     - H38 closed: bounded mid-gap design is documented
     - H38.1 landed: bounded mid-gap moved `__memmove` to `0.23%` and whole
       Ny AOT to `6 ms`, but instruction count rose
-    - H39 active: refresh closure-internal owner before more representation
-      work
+    - H39 closed: len-half closure is lock-acquire dominated; observer-store
+      closure is cell-loop / short-literal / MidGap segment dominated
+    - H39.1 active: split next seam before code
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

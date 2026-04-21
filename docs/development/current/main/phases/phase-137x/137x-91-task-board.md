@@ -411,10 +411,15 @@ phase README / current entry. Current active card:
       semantic/search-result cache
     - result: whole `Ny AOT 6 ms`, `__memmove` down to `0.23%`; instruction
       count watch remains
-  - [ ] H39 post-mid-gap closure owner refresh
+  - [x] H39 post-mid-gap closure owner refresh
     - refresh stat/asm after H38.1
     - pin the new hot block inside len-half / observer-store closures
     - do not reopen representation work until the new owner is fixed
+    - result: len-half closure is lock-acquire dominated; observer-store is
+      cell-loop / short-literal / MidGap segment dominated
+  - [ ] H39.1 post-mid-gap owner split design
+    - choose next seam before code
+    - split outer edit lock-boundary from observer-store cell-loop work
 
 ## Opened Implementation Order Before Next Kilo Optimization
 
