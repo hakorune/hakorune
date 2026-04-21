@@ -9,6 +9,7 @@
 use super::{
     agg_local_scalarization::refresh_function_agg_local_scalarization_routes,
     array_rmw_window_plan::refresh_function_array_rmw_window_routes,
+    array_string_len_window_plan::refresh_function_array_string_len_window_routes,
     array_string_store_micro_seed_plan::refresh_function_array_string_store_micro_seed_route,
     array_text_combined_region_plan::refresh_function_array_text_combined_region_routes,
     array_text_edit_plan::refresh_function_array_text_edit_routes,
@@ -60,6 +61,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_value_consumer_facts(function);
     refresh_function_string_kernel_plans(function);
     refresh_function_array_rmw_window_routes(function);
+    refresh_function_array_string_len_window_routes(function);
     refresh_function_array_text_loopcarry_len_store_routes(function);
     refresh_function_array_text_edit_routes(function);
     refresh_function_array_text_residence_session_routes(function);

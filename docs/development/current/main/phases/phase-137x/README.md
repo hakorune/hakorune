@@ -2192,9 +2192,9 @@ Rules:
       - boundary:
         - this is structure, not keeper proof
         - old helper-local next-card rule is superseded; the next implementation sequence is `137x-E/F/G`
-    - current source-only get suppression + same-slot string store keeper:
-      - `array.get -> length -> substring(0, split) + const + substring(split, len) -> array.set(...)` now has a dedicated source-only len-window guard
-      - lowering records the array text source with `remember_array_string_get_source(...)`, emits `nyash.array.string_len_hi`, and skips the object-handle get when no later consumer needs the fetched object
+    - historical source-only get fixture + same-slot string store guard:
+      - `array.get -> length -> substring(0, split) + const + substring(split, len) -> array.set(...)` now observes the live-source fallback
+      - lowering emits `nyash.array.slot_load_hi` for the live source and `nyash.array.string_len_hi` for the length; source-only residence recovery is a future metadata-owned route, not a phase-137x C analyzer contract
       - same-slot insert-mid store now lowers to runtime-private `nyash.array.string_insert_mid_store_hisii(array_h, idx, middle_ptr, middle_len, split)`
       - branch same-slot const-suffix store now lowers to runtime-private `nyash.array.string_suffix_store_hisi(array_h, idx, suffix_ptr, suffix_len)`
       - same-slot insert-mid subrange direct lowering now uses `nyash.array.string_insert_mid_subrange_store_hisiiii(array_h, idx, middle_ptr, middle_len, split, start, end)`
@@ -2203,7 +2203,7 @@ Rules:
         - existing raw `StringBox` slot is mutated in place
         - borrowed-handle slot is materialized into an unpublished raw `StringBox` residence
         - the source stable handle behind the borrowed alias is not mutated
-      - new guard:
+      - historical guard:
         - fixture: `apps/tests/mir_shape_guard/array_string_len_insert_mid_source_only_min_v1.mir.json`
         - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
       - regression guard:
@@ -2214,8 +2214,8 @@ Rules:
         - exact route proof: `array_string_store_micro result=emit reason=exact_match`
         - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
         - strict whole: `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
-        - `ny_main` no longer calls `nyash.array.get_hi`
-        - hot edit path is `nyash.array.string_len_hi -> nyash.array.string_insert_mid_store_hisii`
+        - current historical fixture path is `nyash.array.slot_load_hi -> nyash.array.string_len_hi -> string substring/concat -> nyash.array.set_his`
+        - source-only direct edit path requires a future MIR-owned route tag before becoming an active guard again
         - branch suffix path is `nyash.array.string_indexof_hih -> nyash.array.string_suffix_store_hisi`
         - same-slot paths have no `nyash.array.kernel_slot_insert_hisi`, `nyash.array.kernel_slot_concat_his`, or `nyash.array.kernel_slot_store_hi`
         - `__strlen_evex` and `core::str::converts::from_utf8` are absent from the current whole asm hot report
@@ -2351,17 +2351,18 @@ Rules:
       - guard the landed direct-set-only deferred `Pieces3 substring` widening with:
         - fixture: `apps/tests/mir_shape_guard/string_piecewise_kernel_slot_store_min_v1.mir.json`
         - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_piecewise_direct_set_min.sh`
-      - guard the landed source-only `substring_concat3_hhhii` subrange store widening with:
+      - historical `substring_concat3_hhhii` subrange fixture now observes the live-source fallback:
         - fixture: `apps/tests/mir_shape_guard/array_string_len_piecewise_concat3_source_only_min_v1.mir.json`
         - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh`
-    - landed source-only concat3 subrange store:
+    - historical concat3 subrange store fixture:
       - exact front is closed again after the compact 8-block matcher fix: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
       - middle guard after the exact route-shape follow-up: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
-      - loop IR now keeps the source in array text residence:
+      - loop IR currently follows the live-source fallback:
+        - `array.slot_load_hi`
         - `array.string_len_hi`
-        - `array.kernel_slot_insert_hisi`
-        - `string.kernel_slot_substring_hii_in_place`
-        - `array.kernel_slot_store_hi`
+        - `string.substring_hii`
+        - `string.substring_concat3_hhhii`
+        - `array.set_his`
       - forbidden loop calls are gone on this shape:
         - `array.slot_load_hi`
         - `string.substring_hii`

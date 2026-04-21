@@ -1,6 +1,7 @@
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_rmw_window_plan::ArrayRmwWindowRoute,
+    array_string_len_window_plan::ArrayStringLenWindowRoute,
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_combined_region_plan::ArrayTextCombinedRegionRoute,
     array_text_edit_plan::ArrayTextEditRoute,
@@ -166,6 +167,12 @@ pub struct FunctionMetadata {
     /// so backend shims can emit/skip from metadata instead of scanning raw
     /// MIR JSON instruction windows.
     pub array_rmw_window_routes: Vec<ArrayRmwWindowRoute>,
+
+    /// Backend-consumable array string length route plans.
+    /// These own the len-only `array.get(i).length()` legality in MIR so
+    /// backend shims can emit/skip from metadata instead of scanning raw MIR
+    /// JSON instruction windows.
+    pub array_string_len_window_routes: Vec<ArrayStringLenWindowRoute>,
 
     /// Backend-consumable array/text loopcarry route plans.
     /// These keep active fused store/len route recognition in MIR so the C

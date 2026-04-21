@@ -26,12 +26,17 @@ Related:
     temporary fallback only
   - trace proof: `[llvm-route/trace] stage=array_rmw_window result=hit reason=mir_route_metadata`
 
+- [x] A2a `array_string_len_window` len-only MIR-owned route tag
+  - design: `292x-94-array-string-len-window-route-card.md`
+  - state: MIR metadata is emitted for len-only get/copy*/length windows; `.inc` reads metadata first and treats the old C
+    analyzer as temporary fallback for live-source/source-reuse modes
+  - trace proof: `[llvm-route/trace] stage=array_string_len_window result=hit reason=mir_route_metadata`
+
 ## Active Card
 
-- [ ] A2 `array_string_len_window` MIR-owned route tag
+- [ ] A2b `array_string_len_window` source-reuse MIR-owned route tags
   - current owner leak: `analyze_array_string_len_window_candidate`
-  - desired state: `.inc` reads metadata first and treats the old C analyzer as
-    temporary fallback only
+  - desired state: `keep_get_live` and `source_only_insert_mid` modes are MIR metadata-owned so the C analyzer can be deleted
 
 ## Follow-up Cards
 

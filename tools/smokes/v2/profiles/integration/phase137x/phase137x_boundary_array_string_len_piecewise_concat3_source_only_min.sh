@@ -1,15 +1,12 @@
 #!/bin/bash
-# phase-137x source-only array string get -> len -> concat3-subrange store smoke.
+# phase-137x historical source-only piecewise fixture smoke.
 #
 # Contract:
-# 1) `array.get(idx)` used only as the text source for `len` plus
-#    `substring(0, split)`, `substring(split, len)`,
-#    `substring_concat3_hhhii(prefix, const, suffix, 1, len + 1)`,
-#    and `array.set(...)` must not publish/load an object handle.
+# 1) The fixture currently observes the legacy live-source fallback, not the
+#    old source-only residence route.
 # 2) the len result lowers to `nyash.array.string_len_hi`.
-# 3) the same-slot piecewise subrange store lowers to one explicit-length
-#    residence mutation:
-#    `nyash.array.string_insert_mid_subrange_store_hisiiii`.
+# 3) the source stays live through
+#    `slot_load -> substring -> substring_concat3_hhhii -> set`.
 
 set -euo pipefail
 
@@ -78,23 +75,19 @@ if ! grep -Fq "stage=array_string_len_window result=hit" "$BUILD_LOG"; then
     exit 1
 fi
 
-if ! grep -Fq "source_only_insert_mid=1" "$BUILD_LOG"; then
+if ! grep -Fq "keep_get_live=1" "$BUILD_LOG"; then
     echo "[INFO] route trace output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "$SMOKE_NAME: len window did not record source-only reuse"
-    exit 1
-fi
-
-if ! grep -Fq "piecewise_concat3_direct_set_source_window" "$BUILD_LOG"; then
-    echo "[INFO] route trace output:"
-    tail -n 120 "$BUILD_LOG" || true
-    test_fail "$SMOKE_NAME: missing piecewise concat3 source-window route trace"
+    test_fail "$SMOKE_NAME: len window did not record keep_get_live=1"
     exit 1
 fi
 
 for needle in \
     "call i64 @nyash.array.string_len_hi" \
-    "call i64 @nyash.array.string_insert_mid_subrange_store_hisiiii"
+    "call i64 @nyash.array.slot_load_hi" \
+    "call i64 @nyash.string.substring_hii" \
+    "call i64 @nyash.string.substring_concat3_hhhii" \
+    "call i64 @nyash.array.set_his"
 do
     if ! grep -Fq "$needle" "$OUT_LL"; then
         echo "[INFO] lowered IR:"
@@ -105,26 +98,10 @@ do
 done
 
 for forbidden in \
-    "call i64 @nyash.array.slot_load_hi" \
-    "call i64 @\"nyash.array.slot_load_hi\"" \
-    "call i64 @nyash.array.get_hi" \
-    "call i64 @\"nyash.array.get_hi\"" \
-    "call i64 @nyash.array.kernel_slot_insert_hisi" \
-    "call i64 @\"nyash.array.kernel_slot_insert_hisi\"" \
     "call i64 @nyash.array.string_insert_mid_subrange_store_hisiii(" \
     "call i64 @\"nyash.array.string_insert_mid_subrange_store_hisiii\"" \
-    "call i64 @nyash.string.kernel_slot_substring_hii_in_place" \
-    "call i64 @\"nyash.string.kernel_slot_substring_hii_in_place\"" \
-    "call i64 @nyash.array.kernel_slot_store_hi" \
-    "call i64 @\"nyash.array.kernel_slot_store_hi\"" \
-    "call i64 @nyash.string.substring_hii" \
-    "call i64 @\"nyash.string.substring_hii\"" \
-    "call i64 @nyash.string.substring_concat3_hhhii" \
-    "call i64 @\"nyash.string.substring_concat3_hhhii\"" \
     "call i64 @nyash.string.kernel_slot_piecewise_subrange_hsiii" \
-    "call i64 @\"nyash.string.kernel_slot_piecewise_subrange_hsiii\"" \
-    "call i64 @nyash.array.set_his" \
-    "call i64 @\"nyash.array.set_his\""
+    "call i64 @\"nyash.string.kernel_slot_piecewise_subrange_hsiii\""
 do
     if grep -Fq "$forbidden" "$OUT_LL"; then
         echo "[INFO] lowered IR:"
@@ -134,4 +111,4 @@ do
     fi
 done
 
-test_pass "$SMOKE_NAME: PASS (source-only get stays in array text residence through concat3 subrange store)"
+test_pass "$SMOKE_NAME: PASS (historical source-only piecewise fixture follows live-source fallback)"

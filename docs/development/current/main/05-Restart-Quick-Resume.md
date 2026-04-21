@@ -39,7 +39,8 @@ cargo check -q
   - `.inc` is boundary glue, not planner
   - `tools/checks/inc_codegen_thin_shim_guard.sh` pins the no-growth baseline
   - first implementation card `array_rmw_window` MIR-owned route tag is landed
-  - next implementation card is `array_string_len_window` MIR-owned route tag
+  - `array_string_len_window` len-only MIR-owned route tag is landed
+  - next implementation card is `array_string_len_window` source-reuse modes
   - CoreBox surface catalog work is landed and now a reference lane
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
@@ -48,9 +49,9 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-292x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
+  - `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
 - current blocker token:
-  - `array_string_len_window must move to MIR-owned route metadata before C analyzer deletion`
+  - `array_string_len_window source-reuse modes must move to MIR-owned route metadata before C analyzer deletion`
 
 ## Current Perf Snapshot
 
@@ -85,7 +86,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - implement `array_string_len_window` as a MIR-owned route tag
+  - implement `array_string_len_window` source-reuse modes as MIR-owned route tags
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

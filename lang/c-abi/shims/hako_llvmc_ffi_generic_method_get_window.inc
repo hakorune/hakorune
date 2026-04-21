@@ -25,6 +25,14 @@
         size_t len_ii;
         long long len_dst;
       };
+      struct ArrayStringLenWindowRouteMetadata {
+        int matched;
+        int invalid;
+        size_t skip_iis[16];
+        int skip_n;
+        size_t len_ii;
+        long long len_dst;
+      };
       struct ArrayStringLoopCarryLenStoreMatch {
         int matched;
         size_t skip_iis[32];
@@ -86,6 +94,17 @@
       }
       auto void array_rmw_window_route_skip(
           struct ArrayRmwWindowRouteMetadata* out,
+          size_t ii) {
+        if (!out || ii == (size_t)-1) return;
+        for (int i = 0; i < out->skip_n; i++) {
+          if (out->skip_iis[i] == ii) return;
+        }
+        if (out->skip_n < (int)(sizeof(out->skip_iis) / sizeof(out->skip_iis[0]))) {
+          out->skip_iis[out->skip_n++] = ii;
+        }
+      }
+      auto void array_string_len_window_route_skip(
+          struct ArrayStringLenWindowRouteMetadata* out,
           size_t ii) {
         if (!out || ii == (size_t)-1) return;
         for (int i = 0; i < out->skip_n; i++) {
@@ -673,6 +692,112 @@
                 "hit",
                 "mir_route_metadata",
                 "");
+          }
+          return 1;
+        }
+        return 0;
+      }
+      auto int match_array_string_len_window_route_metadata(
+          long long bid,
+          size_t ii,
+          struct ArrayStringLenWindowRouteMetadata* out) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "array_string_len_window_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* block_val = route ? yyjson_obj_get(route, "block") : NULL;
+          yyjson_val* index_val = route ? yyjson_obj_get(route, "instruction_index") : NULL;
+          yyjson_val* array_val = route ? yyjson_obj_get(route, "array_value") : NULL;
+          yyjson_val* idx_val = route ? yyjson_obj_get(route, "index_value") : NULL;
+          yyjson_val* source_val = route ? yyjson_obj_get(route, "source_value") : NULL;
+          yyjson_val* len_index_val = route ? yyjson_obj_get(route, "len_instruction_index") : NULL;
+          yyjson_val* len_val = route ? yyjson_obj_get(route, "len_value") : NULL;
+          yyjson_val* skip_vals = route ? yyjson_obj_get(route, "skip_instruction_indices") : NULL;
+          yyjson_val* effects = route ? yyjson_obj_get(route, "effects") : NULL;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* mode = route ? read_str(route, "mode") : NULL;
+          const char* proof = route ? read_str(route, "proof") : NULL;
+          const char* emit_symbol = route ? read_str(route, "emit_symbol") : NULL;
+          if (!(block_val && index_val &&
+                yyjson_is_num(block_val) && yyjson_is_num(index_val))) {
+            continue;
+          }
+          if ((long long)yyjson_get_sint(block_val) != bid ||
+              (size_t)yyjson_get_sint(index_val) != ii) {
+            continue;
+          }
+          if (!(route_id && !strcmp(route_id, "array.string_len.window") &&
+                mode && !strcmp(mode, "len_only") &&
+                proof && !strcmp(proof, "array_get_len_no_later_source_use") &&
+                emit_symbol && !strcmp(emit_symbol, "nyash.array.string_len_hi") &&
+                array_val && yyjson_is_num(array_val) &&
+                idx_val && yyjson_is_num(idx_val) &&
+                source_val && yyjson_is_num(source_val) &&
+                len_index_val && yyjson_is_num(len_index_val) &&
+                len_val && yyjson_is_num(len_val) &&
+                skip_vals && yyjson_is_arr(skip_vals) &&
+                array_text_residence_string_array_eq2(effects, "load.cell", "observe.len"))) {
+            if (hako_llvmc_route_trace_enabled()) {
+              hako_llvmc_emit_route_trace(
+                  "array_string_len_window",
+                  "miss",
+                  "malformed_mir_route_metadata",
+                  "");
+            }
+            if (out) out->invalid = 1;
+            return 0;
+          }
+          if (out) {
+            out->matched = 1;
+            out->len_ii = (size_t)yyjson_get_sint(len_index_val);
+            out->len_dst = (long long)yyjson_get_sint(len_val);
+            for (size_t si = 0; si < yyjson_arr_size(skip_vals); si++) {
+              yyjson_val* skip_val = yyjson_arr_get(skip_vals, si);
+              if (!(skip_val && yyjson_is_num(skip_val))) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  hako_llvmc_emit_route_trace(
+                      "array_string_len_window",
+                      "miss",
+                      "malformed_mir_route_skip",
+                      "");
+                }
+                out->invalid = 1;
+                return 0;
+              }
+              size_t skip_ii = (size_t)yyjson_get_sint(skip_val);
+              if (skip_ii == ii) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  hako_llvmc_emit_route_trace(
+                      "array_string_len_window",
+                      "miss",
+                      "metadata_skips_current_instruction",
+                      "");
+                }
+                out->invalid = 1;
+                return 0;
+              }
+              array_string_len_window_route_skip(out, skip_ii);
+            }
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[256];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "ii=%zu len_ii=%zu len_dst=%lld source_only_insert_mid=0 keep_get_live=0 skip_n=%d proof=array_get_len_no_later_source_use",
+                ii,
+                out ? out->len_ii : (size_t)yyjson_get_sint(len_index_val),
+                out ? out->len_dst : (long long)yyjson_get_sint(len_val),
+                out ? out->skip_n : 0);
+            hako_llvmc_emit_route_trace(
+                "array_string_len_window",
+                "hit",
+                "mir_route_metadata",
+                extra);
           }
           return 1;
         }

@@ -84,11 +84,13 @@ phase README / current entry. Current active card:
     - `Null` / `Void` are non-blocking conservative residuals
     - enum/sum/generic remains separate SSOT
 - [x] C4 `source-only-array-string-contract-index`
-  - current source-only get/store contracts are listed with fixtures/smokes
-  - insert-mid source-only contract:
+  - historical source-only get/store fixtures are listed with smokes
+  - these smokes now assert the live-source fallback; source-only direct
+    residence requires a future MIR-owned route tag before becoming active again
+  - insert-mid historical fixture:
     - fixture: `apps/tests/mir_shape_guard/array_string_len_insert_mid_source_only_min_v1.mir.json`
     - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
-  - concat3 subrange source-only contract:
+  - concat3 subrange historical fixture:
     - fixture: `apps/tests/mir_shape_guard/array_string_len_piecewise_concat3_source_only_min_v1.mir.json`
     - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh`
   - live-after-get regression remains listed

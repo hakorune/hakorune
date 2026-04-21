@@ -33,14 +33,15 @@ Related:
   - current-state token: `phase-292x .inc codegen thin tag cleanup`
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
-  - current implementation focus: `array_string_len_window` MIR-owned route tag
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
+  - current implementation focus: `array_string_len_window` source-reuse modes after len-only metadata route
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - `array_rmw_window` metadata-first route is landed; legacy C analyzer is fallback-only until deletion coverage is pinned
+    - `array_string_len_window` len-only metadata-first route is landed; live-source/source-reuse modes remain fallback-only
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -51,7 +52,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `array_string_len_window must move to MIR-owned route metadata before C analyzer deletion`
+  - current blocker token: `array_string_len_window source-reuse modes must move to MIR-owned route metadata before C analyzer deletion`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
@@ -396,8 +397,10 @@ Related:
     - same-slot insert-mid subrange direct lowering now uses `nyash.array.string_insert_mid_subrange_store_hisiiii(array_h, idx, middle_ptr, middle_len, split, start, end)`
     - the older `hisiii` row remains as the pointer/CStr validated compatibility path
   - validation:
-    - new smoke: `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
-    - new smoke: `phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh`
+    - historical source-only fixture smoke now observes the live-source fallback:
+      `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
+    - historical piecewise source-only fixture smoke now observes the live-source fallback:
+      `phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh`
     - live-after-get regression: `phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
   - perf/asm proof:
     - exact keeper: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`

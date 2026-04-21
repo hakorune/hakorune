@@ -1,54 +1,69 @@
 /*!
- * MIR-owned route plans for array read-modify-write windows.
+ * MIR-owned route plans for array string length windows.
  *
- * This module owns the narrow `array.get(i) -> + 1 -> array.set(i, ...)`
- * legality proof so `.inc` codegen can consume a pre-decided route tag instead
- * of rediscovering the MIR shape from JSON.
+ * This module owns the simple `array.get(i) -> copy* -> length` legality proof
+ * so `.inc` codegen can consume a pre-decided route tag for direct
+ * `nyash.array.string_len_hi` emission instead of rediscovering the MIR shape
+ * from JSON.
  */
 
 use super::array_receiver_proof::{
-    match_array_get_call, match_array_set_call, receiver_is_proven_array, same_value_root,
+    match_array_get_call, receiver_is_proven_array, same_value_root,
     value_root as resolve_array_value_root,
 };
+use super::string_corridor_recognizer::match_len_call;
 use super::{
-    build_value_def_map, BasicBlock, BasicBlockId, BinaryOp, ConstValue, MirFunction,
-    MirInstruction, MirModule, ValueDefMap, ValueId,
+    build_value_def_map, BasicBlock, BasicBlockId, MirFunction, MirInstruction, MirModule,
+    ValueDefMap, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayRmwWindowProof {
-    ArrayGetAdd1SetSameSlot,
+pub enum ArrayStringLenWindowMode {
+    LenOnly,
 }
 
-impl std::fmt::Display for ArrayRmwWindowProof {
+impl std::fmt::Display for ArrayStringLenWindowMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::ArrayGetAdd1SetSameSlot => f.write_str("array_get_add1_set_same_slot"),
+            Self::LenOnly => f.write_str("len_only"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayStringLenWindowProof {
+    ArrayGetLenNoLaterSourceUse,
+}
+
+impl std::fmt::Display for ArrayStringLenWindowProof {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ArrayGetLenNoLaterSourceUse => f.write_str("array_get_len_no_later_source_use"),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ArrayRmwWindowRoute {
+pub struct ArrayStringLenWindowRoute {
     pub block: BasicBlockId,
     pub instruction_index: usize,
     pub array_value: ValueId,
     pub index_value: ValueId,
-    pub input_value: ValueId,
-    pub const_value: ValueId,
-    pub result_value: ValueId,
-    pub set_instruction_index: usize,
+    pub source_value: ValueId,
+    pub len_instruction_index: usize,
+    pub len_value: ValueId,
     pub skip_instruction_indices: Vec<usize>,
-    pub proof: ArrayRmwWindowProof,
+    pub mode: ArrayStringLenWindowMode,
+    pub proof: ArrayStringLenWindowProof,
 }
 
-pub fn refresh_module_array_rmw_window_routes(module: &mut MirModule) {
+pub fn refresh_module_array_string_len_window_routes(module: &mut MirModule) {
     for function in module.functions.values_mut() {
-        refresh_function_array_rmw_window_routes(function);
+        refresh_function_array_string_len_window_routes(function);
     }
 }
 
-pub fn refresh_function_array_rmw_window_routes(function: &mut MirFunction) {
+pub fn refresh_function_array_string_len_window_routes(function: &mut MirFunction) {
     let def_map = build_value_def_map(function);
     let mut routes = Vec::new();
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
@@ -70,7 +85,7 @@ pub fn refresh_function_array_rmw_window_routes(function: &mut MirFunction) {
             ) {
                 continue;
             }
-            if let Some(route) = match_add1_same_slot_set_route(
+            if let Some(route) = match_len_only_route(
                 function,
                 &def_map,
                 block,
@@ -86,45 +101,11 @@ pub fn refresh_function_array_rmw_window_routes(function: &mut MirFunction) {
     }
 
     routes.sort_by_key(|route| (route.block.as_u32(), route.instruction_index));
-    function.metadata.array_rmw_window_routes = routes;
+    function.metadata.array_string_len_window_routes = routes;
 }
 
 fn same_root(function: &MirFunction, def_map: &ValueDefMap, lhs: ValueId, rhs: ValueId) -> bool {
     same_value_root(function, def_map, lhs, rhs)
-}
-
-fn match_const_i64(inst: &MirInstruction, expected: i64) -> Option<ValueId> {
-    match inst {
-        MirInstruction::Const {
-            dst,
-            value: ConstValue::Integer(actual),
-        } if *actual == expected => Some(*dst),
-        _ => None,
-    }
-}
-
-fn match_add1_binop(
-    inst: &MirInstruction,
-    carried: ValueId,
-    const_one: ValueId,
-    function: &MirFunction,
-    def_map: &ValueDefMap,
-) -> Option<ValueId> {
-    match inst {
-        MirInstruction::BinOp {
-            dst,
-            op: BinaryOp::Add,
-            lhs,
-            rhs,
-        } if (same_root(function, def_map, *lhs, carried)
-            && same_root(function, def_map, *rhs, const_one))
-            || (same_root(function, def_map, *rhs, carried)
-                && same_root(function, def_map, *lhs, const_one)) =>
-        {
-            Some(*dst)
-        }
-        _ => None,
-    }
 }
 
 fn skip_copy_chain(
@@ -146,14 +127,14 @@ fn skip_copy_chain(
     (index, carried)
 }
 
-fn has_later_use(
+fn has_later_source_use(
     function: &MirFunction,
     def_map: &ValueDefMap,
     instructions: &[MirInstruction],
     from_index: usize,
-    consumed_values: &[ValueId],
+    source_values: &[ValueId],
 ) -> bool {
-    let consumed_roots: Vec<ValueId> = consumed_values
+    let source_roots: Vec<ValueId> = source_values
         .iter()
         .copied()
         .map(|value| resolve_array_value_root(function, def_map, value))
@@ -161,15 +142,13 @@ fn has_later_use(
     instructions.iter().skip(from_index).any(|inst| {
         inst.used_values().into_iter().any(|value| {
             let value_root = resolve_array_value_root(function, def_map, value);
-            consumed_roots
-                .iter()
-                .any(|consumed| *consumed == value_root)
+            source_roots.iter().any(|source| *source == value_root)
         })
     })
 }
 
 #[allow(clippy::too_many_arguments)]
-fn match_add1_same_slot_set_route(
+fn match_len_only_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
     block: &BasicBlock,
@@ -177,64 +156,46 @@ fn match_add1_same_slot_set_route(
     instruction_index: usize,
     array_value: ValueId,
     index_value: ValueId,
-    input_value: ValueId,
-) -> Option<ArrayRmwWindowRoute> {
+    source_value: ValueId,
+) -> Option<ArrayStringLenWindowRoute> {
     let instructions = block.instructions.as_slice();
     let mut skip = Vec::new();
-    let (mut cursor, carried) = skip_copy_chain(
+    let (cursor, carried) = skip_copy_chain(
         function,
         def_map,
         instructions,
         instruction_index + 1,
-        input_value,
+        source_value,
         &mut skip,
     );
 
-    let const_value = match_const_i64(instructions.get(cursor)?, 1)?;
-    skip.push(cursor);
-    cursor += 1;
-
-    let result_value = match_add1_binop(
-        instructions.get(cursor)?,
-        carried,
-        const_value,
-        function,
-        def_map,
-    )?;
-    skip.push(cursor);
-    cursor += 1;
-
-    let set_instruction_index = cursor;
-    let set_call = match_array_set_call(instructions.get(cursor)?)?;
-    if !same_root(function, def_map, set_call.array_value, array_value)
-        || !same_root(function, def_map, set_call.index_value, index_value)
-        || !same_root(function, def_map, set_call.input_value, result_value)
-    {
+    let (len_value, len_receiver, _) = match_len_call(instructions.get(cursor)?)?;
+    if !same_root(function, def_map, len_receiver, carried) {
         return None;
     }
     skip.push(cursor);
 
-    if has_later_use(
+    if has_later_source_use(
         function,
         def_map,
         instructions,
         cursor + 1,
-        &[input_value, carried],
+        &[source_value, carried],
     ) {
         return None;
     }
 
-    Some(ArrayRmwWindowRoute {
+    Some(ArrayStringLenWindowRoute {
         block: block_id,
         instruction_index,
         array_value,
         index_value,
-        input_value,
-        const_value,
-        result_value,
-        set_instruction_index,
+        source_value,
+        len_instruction_index: cursor,
+        len_value,
         skip_instruction_indices: skip,
-        proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
+        mode: ArrayStringLenWindowMode::LenOnly,
+        proof: ArrayStringLenWindowProof::ArrayGetLenNoLaterSourceUse,
     })
 }
 
@@ -242,33 +203,35 @@ fn match_add1_same_slot_set_route(
 mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-    use crate::mir::{BasicBlock, Callee, EffectMask, FunctionSignature, MirType};
+    use crate::mir::{BasicBlock, Callee, ConstValue, EffectMask, FunctionSignature, MirType};
 
     #[test]
-    fn detects_array_get_add1_set_same_slot_route() {
+    fn detects_array_get_string_len_route() {
         let mut function = test_function(MirType::Box("ArrayBox".to_string()));
         let block = entry_block(&mut function);
         block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
         block.add_instruction(copy(11, 10));
-        block.add_instruction(const_i(12, 1));
-        block.add_instruction(binop(13, BinaryOp::Add, 11, 12));
-        block.add_instruction(array_set("RuntimeDataBox", 1, 2, 13));
+        block.add_instruction(length_call(12, "RuntimeDataBox", "length", 11));
+        block.add_instruction(const_i(13, 1));
         block.set_terminator(MirInstruction::Return {
-            value: Some(ValueId::new(13)),
+            value: Some(ValueId::new(12)),
         });
 
-        refresh_function_array_rmw_window_routes(&mut function);
+        refresh_function_array_string_len_window_routes(&mut function);
 
-        assert_eq!(function.metadata.array_rmw_window_routes.len(), 1);
-        let route = &function.metadata.array_rmw_window_routes[0];
+        assert_eq!(function.metadata.array_string_len_window_routes.len(), 1);
+        let route = &function.metadata.array_string_len_window_routes[0];
         assert_eq!(route.array_value, ValueId::new(1));
         assert_eq!(route.index_value, ValueId::new(2));
-        assert_eq!(route.input_value, ValueId::new(10));
-        assert_eq!(route.const_value, ValueId::new(12));
-        assert_eq!(route.result_value, ValueId::new(13));
-        assert_eq!(route.set_instruction_index, 4);
-        assert_eq!(route.skip_instruction_indices, vec![1, 2, 3, 4]);
-        assert_eq!(route.proof, ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot);
+        assert_eq!(route.source_value, ValueId::new(10));
+        assert_eq!(route.len_instruction_index, 2);
+        assert_eq!(route.len_value, ValueId::new(12));
+        assert_eq!(route.skip_instruction_indices, vec![1, 2]);
+        assert_eq!(route.mode, ArrayStringLenWindowMode::LenOnly);
+        assert_eq!(
+            route.proof,
+            ArrayStringLenWindowProof::ArrayGetLenNoLaterSourceUse
+        );
     }
 
     #[test]
@@ -278,32 +241,15 @@ mod tests {
         block.add_instruction(new_box(20, "ArrayBox"));
         block.add_instruction(copy(21, 20));
         block.add_instruction(array_get(10, "RuntimeDataBox", 21, 2));
-        block.add_instruction(copy(11, 10));
-        block.add_instruction(const_i(12, 1));
-        block.add_instruction(binop(13, BinaryOp::Add, 11, 12));
-        block.add_instruction(array_set("RuntimeDataBox", 21, 2, 13));
+        block.add_instruction(length_call(12, "RuntimeDataBox", "len", 10));
 
-        refresh_function_array_rmw_window_routes(&mut function);
+        refresh_function_array_string_len_window_routes(&mut function);
 
-        assert_eq!(function.metadata.array_rmw_window_routes.len(), 1);
-        let route = &function.metadata.array_rmw_window_routes[0];
+        assert_eq!(function.metadata.array_string_len_window_routes.len(), 1);
+        let route = &function.metadata.array_string_len_window_routes[0];
         assert_eq!(route.array_value, ValueId::new(21));
-        assert_eq!(route.set_instruction_index, 6);
-        assert_eq!(route.skip_instruction_indices, vec![3, 4, 5, 6]);
-    }
-
-    #[test]
-    fn rejects_non_one_increment() {
-        let mut function = test_function(MirType::Box("ArrayBox".to_string()));
-        let block = entry_block(&mut function);
-        block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-        block.add_instruction(const_i(11, 2));
-        block.add_instruction(binop(12, BinaryOp::Add, 10, 11));
-        block.add_instruction(array_set("RuntimeDataBox", 1, 2, 12));
-
-        refresh_function_array_rmw_window_routes(&mut function);
-
-        assert!(function.metadata.array_rmw_window_routes.is_empty());
+        assert_eq!(route.len_instruction_index, 3);
+        assert_eq!(route.skip_instruction_indices, vec![3]);
     }
 
     #[test]
@@ -311,29 +257,44 @@ mod tests {
         let mut function = test_function(MirType::Box("MapBox".to_string()));
         let block = entry_block(&mut function);
         block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-        block.add_instruction(const_i(11, 1));
-        block.add_instruction(binop(12, BinaryOp::Add, 10, 11));
-        block.add_instruction(array_set("RuntimeDataBox", 1, 2, 12));
+        block.add_instruction(length_call(12, "RuntimeDataBox", "length", 10));
 
-        refresh_function_array_rmw_window_routes(&mut function);
+        refresh_function_array_string_len_window_routes(&mut function);
 
-        assert!(function.metadata.array_rmw_window_routes.is_empty());
+        assert!(function.metadata.array_string_len_window_routes.is_empty());
     }
 
     #[test]
-    fn rejects_post_set_get_value_use() {
+    fn rejects_post_len_source_use() {
         let mut function = test_function(MirType::Box("ArrayBox".to_string()));
         let block = entry_block(&mut function);
         block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
         block.add_instruction(copy(11, 10));
-        block.add_instruction(const_i(12, 1));
-        block.add_instruction(binop(13, BinaryOp::Add, 11, 12));
-        block.add_instruction(array_set("RuntimeDataBox", 1, 2, 13));
-        block.add_instruction(copy(14, 10));
+        block.add_instruction(length_call(12, "RuntimeDataBox", "size", 11));
+        block.add_instruction(copy(13, 10));
 
-        refresh_function_array_rmw_window_routes(&mut function);
+        refresh_function_array_string_len_window_routes(&mut function);
 
-        assert!(function.metadata.array_rmw_window_routes.is_empty());
+        assert!(function.metadata.array_string_len_window_routes.is_empty());
+    }
+
+    #[test]
+    fn rejects_keep_get_live_shape_for_follow_up_card() {
+        let mut function = test_function(MirType::Box("ArrayBox".to_string()));
+        let block = entry_block(&mut function);
+        block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
+        block.add_instruction(length_call(12, "RuntimeDataBox", "length", 10));
+        block.add_instruction(method_call(
+            Some(13),
+            "RuntimeDataBox",
+            "substring",
+            10,
+            vec![ValueId::new(3), ValueId::new(4)],
+        ));
+
+        refresh_function_array_string_len_window_routes(&mut function);
+
+        assert!(function.metadata.array_string_len_window_routes.is_empty());
     }
 
     fn test_function(array_param_type: MirType) -> MirFunction {
@@ -376,27 +337,12 @@ mod tests {
         }
     }
 
-    fn binop(dst: u32, op: BinaryOp, lhs: u32, rhs: u32) -> MirInstruction {
-        MirInstruction::BinOp {
-            dst: ValueId::new(dst),
-            op,
-            lhs: ValueId::new(lhs),
-            rhs: ValueId::new(rhs),
-        }
-    }
-
     fn array_get(dst: u32, box_name: &str, array: u32, index: u32) -> MirInstruction {
         method_call(Some(dst), box_name, "get", array, vec![ValueId::new(index)])
     }
 
-    fn array_set(box_name: &str, array: u32, index: u32, value: u32) -> MirInstruction {
-        method_call(
-            None,
-            box_name,
-            "set",
-            array,
-            vec![ValueId::new(index), ValueId::new(value)],
-        )
+    fn length_call(dst: u32, box_name: &str, method: &str, receiver: u32) -> MirInstruction {
+        method_call(Some(dst), box_name, method, receiver, vec![])
     }
 
     fn method_call(

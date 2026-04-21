@@ -22,12 +22,14 @@
         const char* rmw_reason = NULL;
         char rmw_extra[384];
         struct ArrayStringLenWindowMatch string_len_match;
+        struct ArrayStringLenWindowRouteMetadata string_len_route_match;
         const char* string_len_reason = NULL;
         char string_len_extra[256];
         struct ArrayTextEditLenHalfRouteMetadata edit_lenhalf_match;
         struct ArrayTextResidenceSessionRouteMetadata residence_session_match;
         struct ArrayStringLoopCarryLenStoreMatch loopcarry_match;
         char loopcarry_ab[360];
+        memset(&string_len_route_match, 0, sizeof(string_len_route_match));
         if (match_array_rmw_window_route_metadata(bid, ii, &rmw_route_match)) {
           if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
           fprintf(f, "  %%r%lld = call i64 @\"nyash.array.rmw_add1_hi\"(%s)\n", rmw_route_match.result_reg, ab);
@@ -39,7 +41,6 @@
           return -1;
         }
         trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
-        trace_array_string_len_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
         if (analyze_array_rmw_window_candidate(
                 ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
                 runtime_array_get, runtime_array_string, &rmw_match, &rmw_reason,
@@ -171,6 +172,21 @@
           }
           return 1;
         }
+        if (hako_llvmc_window_array_text_read_enabled(
+                bname, recv_org, runtime_array_string) &&
+            match_array_string_len_window_route_metadata(
+                bid, ii, &string_len_route_match)) {
+          if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
+          hako_llvmc_emit_array_string_len(f, string_len_route_match.len_dst, ab);
+          for (int si = 0; si < string_len_route_match.skip_n; si++) {
+            skip_inst[string_len_route_match.skip_iis[si]] = 1;
+          }
+          return 1;
+        }
+        if (string_len_route_match.invalid) {
+          return -1;
+        }
+        trace_array_string_len_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
         if (analyze_array_string_len_window_candidate(
                 ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
                 runtime_array_string, &string_len_match, &string_len_reason,

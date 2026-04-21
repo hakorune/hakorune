@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-91-task-board.md
   - docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md
   - docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md
+  - docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -23,7 +24,8 @@ Related:
 - Purpose: `.inc` を MIR JSON の形解析 owner から外し、MIR-owned
   pre-decided tag を読むだけの boundary glue に寄せる。
 - First implementation target: `array_rmw_window` (landed)
-- Next implementation target: `array_string_len_window`
+- Landed second target: `array_string_len_window` len-only route
+- Next implementation target: `array_string_len_window` source-reuse modes
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless this cleanup reopens a real app/perf blocker.
@@ -52,7 +54,8 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 2. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
 3. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
 4. `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
-5. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+5. `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
+6. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
 
 ## Current Rule
 
@@ -82,12 +85,21 @@ array_rmw_window
   -> route trace locks `mir_route_metadata`
 ```
 
-Next open card:
+Landed second card:
 
 ```text
-array_string_len_window
+array_string_len_window len-only
   -> MIR-owned route metadata
   -> MIR JSON route tag
   -> .inc metadata-first lowering
-  -> legacy analyzer fallback only
+  -> legacy analyzer fallback only for live-source/source-reuse modes
+```
+
+Next open card:
+
+```text
+array_string_len_window source-reuse modes
+  -> keep_get_live metadata route
+  -> source_only_insert_mid metadata route
+  -> delete C analyzer only after both modes are metadata-owned
 ```

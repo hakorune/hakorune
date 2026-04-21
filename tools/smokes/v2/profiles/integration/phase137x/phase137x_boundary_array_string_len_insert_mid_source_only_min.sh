@@ -1,14 +1,11 @@
 #!/bin/bash
-# phase-137x source-only array string get -> len -> insert-mid store smoke.
+# phase-137x historical source-only fixture smoke.
 #
 # Contract:
-# 1) `array.get(idx)` used only as the text source for `len` plus
-#    `substring(0, split) + const + substring(split, len) -> array.set(...)`
-#    must not publish/load an object handle.
+# 1) The fixture currently observes the legacy live-source fallback, not the
+#    old source-only residence route.
 # 2) the len result lowers to `nyash.array.string_len_hi`.
-# 3) the same-slot insert-mid store lowers to a single explicit-length
-#    residence mutation:
-#    `nyash.array.string_insert_mid_store_hisii`.
+# 3) the source stays live through `slot_load -> substring -> concat3 -> set`.
 
 set -euo pipefail
 
@@ -77,16 +74,19 @@ if ! grep -Fq "stage=array_string_len_window result=hit" "$BUILD_LOG"; then
     exit 1
 fi
 
-if ! grep -Fq "source_only_insert_mid=1" "$BUILD_LOG"; then
+if ! grep -Fq "keep_get_live=1" "$BUILD_LOG"; then
     echo "[INFO] route trace output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "$SMOKE_NAME: len window did not record source_only_insert_mid=1"
+    test_fail "$SMOKE_NAME: len window did not record keep_get_live=1"
     exit 1
 fi
 
 for needle in \
     "call i64 @nyash.array.string_len_hi" \
-    "call i64 @nyash.array.string_insert_mid_store_hisii"
+    "call i64 @nyash.array.slot_load_hi" \
+    "call i64 @nyash.string.substring_hii" \
+    "call i64 @nyash.string.concat3_hhh" \
+    "call i64 @nyash.array.set_his"
 do
     if ! grep -Fq "$needle" "$OUT_LL"; then
         echo "[INFO] lowered IR:"
@@ -97,18 +97,8 @@ do
 done
 
 for forbidden in \
-    "call i64 @nyash.array.slot_load_hi" \
-    "call i64 @\"nyash.array.slot_load_hi\"" \
-    "call i64 @nyash.array.get_hi" \
-    "call i64 @\"nyash.array.get_hi\"" \
-    "call i64 @nyash.array.kernel_slot_insert_hisi" \
-    "call i64 @\"nyash.array.kernel_slot_insert_hisi\"" \
     "call i64 @nyash.array.string_insert_mid_store_hisi(" \
     "call i64 @\"nyash.array.string_insert_mid_store_hisi\"" \
-    "call i64 @nyash.array.kernel_slot_store_hi" \
-    "call i64 @\"nyash.array.kernel_slot_store_hi\"" \
-    "call i64 @nyash.string.substring_hii" \
-    "call i64 @\"nyash.string.substring_hii\"" \
     "call i64 @nyash.string.kernel_slot_insert_hsi" \
     "call i64 @\"nyash.string.kernel_slot_insert_hsi\""
 do
@@ -120,4 +110,4 @@ do
     fi
 done
 
-test_pass "$SMOKE_NAME: PASS (source-only get is kept as array text residence through insert-mid store)"
+test_pass "$SMOKE_NAME: PASS (historical source-only fixture follows live-source fallback)"
