@@ -1,6 +1,7 @@
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
+    array_text_combined_region_plan::ArrayTextCombinedRegionRoute,
     array_text_edit_plan::ArrayTextEditRoute,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
@@ -168,6 +169,12 @@ pub struct FunctionMetadata {
     /// These own edit policy facts such as `source_len / 2` in MIR so backend
     /// shims do not re-prove length/split/substring legality from raw JSON.
     pub array_text_edit_routes: Vec<ArrayTextEditRoute>,
+
+    /// Backend-consumable combined array/text region plans.
+    /// These prove a bounded outer edit loop together with an already-proven
+    /// nested observer-store region. They are metadata-only until lowering
+    /// consumes them as a single begin-site executor contract.
+    pub array_text_combined_regions: Vec<ArrayTextCombinedRegionRoute>,
 
     /// Backend-consumable array/text residence session plans.
     /// These are metadata-only until lowering consumes them; they prove where a

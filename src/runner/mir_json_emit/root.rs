@@ -304,6 +304,65 @@ pub(super) fn build_mir_json_root(
                 }
                 obj
             }).collect::<Vec<_>>(),
+            "array_text_combined_regions": f.metadata.array_text_combined_regions.iter().map(|route| {
+                let mut obj = json!({});
+                obj["begin_block"] = json!(route.begin_block.as_u32());
+                obj["header_block"] = json!(route.header_block.as_u32());
+                obj["edit_block"] = json!(route.edit_block.as_u32());
+                obj["observer_begin_block"] = json!(route.observer_begin_block.as_u32());
+                obj["observer_header_block"] = json!(route.observer_header_block.as_u32());
+                obj["observer_block"] = json!(route.observer_block.as_u32());
+                obj["observer_store_block"] = json!(route.observer_store_block.as_u32());
+                obj["observer_latch_block"] = json!(route.observer_latch_block.as_u32());
+                obj["observer_exit_block"] = json!(route.observer_exit_block.as_u32());
+                obj["latch_block"] = json!(route.latch_block.as_u32());
+                obj["exit_block"] = json!(route.exit_block.as_u32());
+                obj["array_value"] = json!(route.array_value.as_u32());
+                obj["outer_index_phi_value"] = json!(route.outer_index_phi_value.as_u32());
+                obj["outer_index_initial_value"] = json!(route.outer_index_initial_value.as_u32());
+                obj["outer_index_initial_const"] = json!(route.outer_index_initial_const);
+                obj["outer_index_next_value"] = json!(route.outer_index_next_value.as_u32());
+                obj["loop_bound_value"] = json!(route.loop_bound_value.as_u32());
+                obj["loop_bound_const"] = json!(route.loop_bound_const);
+                obj["row_index_value"] = json!(route.row_index_value.as_u32());
+                obj["row_modulus_value"] = json!(route.row_modulus_value.as_u32());
+                obj["row_modulus_const"] = json!(route.row_modulus_const);
+                obj["observer_period_value"] = json!(route.observer_period_value.as_u32());
+                obj["observer_period_const"] = json!(route.observer_period_const);
+                obj["accumulator_phi_value"] = json!(route.accumulator_phi_value.as_u32());
+                obj["accumulator_initial_value"] = json!(route.accumulator_initial_value.as_u32());
+                obj["accumulator_initial_const"] = json!(route.accumulator_initial_const);
+                obj["accumulator_next_value"] = json!(route.accumulator_next_value.as_u32());
+                obj["edit_middle_value"] = json!(route.edit_middle_value.as_u32());
+                obj["edit_middle_text"] = json!(route.edit_middle_text);
+                obj["edit_middle_byte_len"] = json!(route.edit_middle_byte_len);
+                obj["observer_bound_value"] = json!(route.observer_bound_value.as_u32());
+                obj["observer_bound_const"] = json!(route.observer_bound_const);
+                obj["observer_needle_value"] = json!(route.observer_needle_value.as_u32());
+                obj["observer_needle_text"] = json!(route.observer_needle_text);
+                obj["observer_needle_byte_len"] = json!(route.observer_needle_byte_len);
+                obj["observer_suffix_value"] = json!(route.observer_suffix_value.as_u32());
+                obj["observer_suffix_text"] = json!(route.observer_suffix_text);
+                obj["observer_suffix_byte_len"] = json!(route.observer_suffix_byte_len);
+                obj["execution_mode"] = json!(route.execution_mode.to_string());
+                obj["proof_region"] = json!(route.proof_region.to_string());
+                obj["proof"] = json!(route.proof.to_string());
+                obj["publication_boundary"] = json!("none");
+                obj["carrier"] = json!("array_lane_text_cell");
+                obj["effects"] = json!([
+                    "store.cell(lenhalf_insert_mid_const)",
+                    "observe.indexof",
+                    "store.cell(const_suffix_append)",
+                    "scalar_accumulator(+1)"
+                ]);
+                obj["consumer_capabilities"] = json!([
+                    "sink_store",
+                    "compare_only",
+                    "length_only_result_carry"
+                ]);
+                obj["materialization_policy"] = json!("text_resident_or_stringlike_slot");
+                obj
+            }).collect::<Vec<_>>(),
             "array_string_store_micro_seed_route": f.metadata.array_string_store_micro_seed_route.as_ref().map(|route| {
                 json!({
                     "seed": route.seed.as_str(),

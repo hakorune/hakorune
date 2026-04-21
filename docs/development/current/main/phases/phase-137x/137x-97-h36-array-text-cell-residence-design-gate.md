@@ -3,7 +3,7 @@
 Status: active design gate; H36.4 piece residence pilot rejected.
 
 Current blocker token:
-`137x-H39.3 combined edit-observer region proof`.
+`137x-H39.4 combined edit-observer region executor`.
 
 ## Context
 

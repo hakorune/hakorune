@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39.3 combined edit-observer region proof`
+- current blocker token: `137x-H39.4 combined edit-observer region executor`
 - current benchmark state:
   - `C 83 ms / Ny AOT 6 ms`
   - `ny_aot_instr=60443810`
@@ -1052,7 +1052,7 @@ Verdict:
   - Rust executes the edit + periodic observer-store in one RAII call; the
     write guard never crosses the C ABI
 
-### H39.3 Active
+### H39.3 Result
 
 Goal: implement the first bounded combined edit-observer region proof.
 
@@ -1090,6 +1090,59 @@ Goal: implement the first bounded combined edit-observer region proof.
   - no benchmark-name branch in runtime
   - no source-content assumption beyond const needle/suffix metadata
   - no broad loop executor framework until this single pattern wins
+
+Implementation:
+
+- added MIR-owned `array_text_combined_regions` metadata
+- the route is derived from:
+  - the H27 `array_text_edit_routes` len-half same-slot edit proof
+  - the H26 `array_text_observer_routes.executor_contract` nested
+    observer-store proof
+  - outer loop PHI/bound/modulus/period facts
+- no `.inc` lowering, runtime helper, public ABI, or behavior changed
+
+Verification:
+
+- `cargo check -q`
+- `cargo fmt --check`
+- `cargo test -q benchmark_kilo_kernel_small_has_combined_edit_observer_region -- --nocapture`
+- `cargo run -q --bin hakorune -- --emit-mir-json target/perf_state/h39_combined_region.mir.json benchmarks/bench_kilo_kernel_small.hako`
+- MIR JSON proof:
+  - one `array_text_combined_regions` entry
+  - `proof=outer_lenhalf_edit_with_periodic_observer_store`
+  - `loop_bound_const=60000`
+  - `row_modulus_const=64`
+  - `observer_period_const=8`
+  - `observer_bound_const=64`
+  - accumulator PHI is distinct from the loop-index PHI
+
+Verdict:
+
+- metadata keeper: MIR now owns the combined region legality/proof.
+- next card may lower this metadata to one begin-site runtime call.
+
+### H39.4 Active
+
+Goal: consume `array_text_combined_regions` as a one-call executor.
+
+- `.inc` contract:
+  - read only `array_text_combined_regions`
+  - validate `execution_mode=single_region_executor`
+  - emit one begin-site call
+  - mark only the MIR-covered blocks unreachable
+  - do not rescan raw block/window shape
+- Rust runtime contract:
+  - one RAII call owns the write guard internally
+  - execute `lenhalf insert-mid` then periodic observer-store in the same
+    order as `.hako`
+  - return the MIR-proven scalar accumulator result
+  - no guard/session handle crosses C ABI
+- keeper gate:
+  - generated `ny_main` no longer calls per-iteration
+    `nyash.array.string_insert_mid_lenhalf_store_hisi`
+  - whole `kilo_kernel_small` wall/cycles/instructions improve or the card is
+    rejected
+  - exact and middle guards stay no-regression
 
 ### H28.1 runtime-private literal search executor
 

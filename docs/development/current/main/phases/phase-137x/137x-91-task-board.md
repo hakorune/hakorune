@@ -428,10 +428,16 @@ phase README / current entry. Current active card:
     - no hidden runtime session table
     - result: closed as stop-line; outer edit-only session is not enough
       because the hot loop interleaves a periodic observer-store region
-  - [ ] H39.3 combined edit-observer region proof
+  - [x] H39.3 combined edit-observer region proof
     - implement metadata-first proof for the outer edit loop plus nested
       observer-store region
     - `.inc` consumes metadata only; runtime executes one RAII call if landed
+    - result: MIR JSON now carries one `array_text_combined_regions` route for
+      `kilo_kernel_small`
+  - [ ] H39.4 combined edit-observer region executor
+    - consume the MIR-owned route in `.inc`
+    - execute the covered region in one runtime-private RAII call
+    - reject if whole perf does not move or exact/middle guards regress
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

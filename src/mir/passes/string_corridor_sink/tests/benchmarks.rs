@@ -446,6 +446,52 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
 }
 
 #[test]
+fn benchmark_kilo_kernel_small_has_combined_edit_observer_region() {
+    ensure_ring0_initialized();
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/benchmarks/bench_kilo_kernel_small.hako"
+    );
+    let source = std::fs::read_to_string(path).expect("benchmark source");
+    let prepared =
+        crate::runner::modes::common_util::source_hint::prepare_source_minimal(&source, path)
+            .expect("prepare benchmark source");
+    let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+    let mut compiler = MirCompiler::with_options(true);
+    let result = compiler
+        .compile_with_source(ast, Some(path))
+        .expect("compile benchmark");
+
+    let function = result.module.get_function("main").expect("main function");
+    assert_eq!(
+        function.metadata.array_text_combined_regions.len(),
+        1,
+        "kilo kernel should expose one MIR-owned combined edit/observer region"
+    );
+    let route = &function.metadata.array_text_combined_regions[0];
+    assert_eq!(
+        route.proof.to_string(),
+        "outer_lenhalf_edit_with_periodic_observer_store"
+    );
+    assert_eq!(
+        route.proof_region.to_string(),
+        "outer_loop_with_periodic_observer_store"
+    );
+    assert_eq!(route.execution_mode.to_string(), "single_region_executor");
+    assert_eq!(route.loop_bound_const, 60000);
+    assert_eq!(route.row_modulus_const, 64);
+    assert_eq!(route.observer_period_const, 8);
+    assert_eq!(route.observer_bound_const, 64);
+    assert_eq!(route.edit_middle_text, "xx");
+    assert_eq!(route.observer_needle_text, "line");
+    assert_eq!(route.observer_suffix_text, "ln");
+    assert_ne!(
+        route.accumulator_phi_value, route.outer_index_phi_value,
+        "result accumulator must not alias the loop-index PHI"
+    );
+}
+
+#[test]
 fn benchmark_substring_concat_array_set_compiles_without_helper_len_observers() {
     ensure_ring0_initialized();
     let path = concat!(

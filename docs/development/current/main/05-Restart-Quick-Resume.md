@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.3 combined edit-observer region proof)
+  - `phase-137x-H owner-first optimization return` (active; H39.4 combined edit-observer region executor)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H39.3 combined edit-observer region proof`
+    - current blocker is `137x-H39.4 combined edit-observer region executor`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H39.3 combined edit-observer region proof`
+  - `137x-H39.4 combined edit-observer region executor`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -100,8 +100,9 @@ cargo check --features perf-observe -p nyash_kernel
       to `11.3M`
     - H39.2 closed: edit-only session is not enough because the outer loop
       interleaves a periodic observer-store region
-    - H39.3 active: implement the MIR-owned combined edit-observer region
-      proof before any one-call runtime executor
+    - H39.3 landed: MIR JSON now carries one combined edit-observer region
+      proof for `kilo_kernel_small`
+    - H39.4 active: consume the combined proof as a one-call runtime executor
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`
