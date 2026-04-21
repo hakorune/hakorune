@@ -394,10 +394,16 @@ phase README / current entry. Current active card:
     - no MIR, `.inc`, public ABI, source-content assumptions, or semantic cache
     - result: rejected; `Ny AOT 114 ms`, `ny_aot_instr=2084599541`, code
       reverted
-  - [ ] H37 post-piece owner refresh
+  - [x] H37 post-piece owner refresh
     - rebuild release artifacts from reverted code
     - rerun whole stat/asm and choose next owner family
     - do not reopen non-flat residence without bounded piece/gap proof
+    - result: `Ny AOT 7 ms`, top remains `memmove` / len-half closure;
+      allocator is not dominant
+  - [ ] H38 bounded gap residence design
+    - docs-first bounded gap / edit-buffer proof
+    - must cover rollback, materialization, contains, append, and
+      cap/compaction rules before code
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

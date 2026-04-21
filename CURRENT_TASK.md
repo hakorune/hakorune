@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H37 post-piece owner refresh)
-  - current blocker is `137x-H37 post-piece owner refresh`
+  - `phase-137x-H owner-first optimization return` (active; H38 bounded gap residence design)
+  - current blocker is `137x-H38 bounded gap residence design`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -820,10 +820,19 @@ Scope: current lane / next lane / restart order only.
             `kilo_kernel_small = C 85 ms / Ny AOT 114 ms`,
             `ny_aot_instr=2084599541`, `ny_aot_cycles=521801542`
           - verdict: naive piece vectors cause work explosion; code reverted
-        - H37 active:
-          - rebuild release artifacts from reverted code
-          - refresh whole stat/asm and choose the next owner family
-          - do not reopen non-flat residence without bounded piece/gap proof
+        - H37 result:
+          - rebuilt release artifacts from reverted H36.3 code
+          - whole `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=50229360`, `ny_aot_cycles=16404095`
+          - asm top: `__memmove` `49.02%`, len-half edit closure `22.74%`,
+            observer-store closure `18.88%`
+          - verdict: owner returned to flat len-half movement; naive pieces are
+            rejected, allocator is not dominant
+        - H38 active:
+          - design only first: bounded gap / edit-buffer proof for the
+            MIR-owned len-half edit contract
+          - do not implement until rollback, materialization, contains, append,
+            and cap/compaction rules are fixed
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

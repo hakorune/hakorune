@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H37 post-piece owner refresh`
+- current blocker token: `137x-H38 bounded gap residence design`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -779,7 +779,7 @@ Result:
   - do not reopen non-flat residence without a bounded piece/gap proof and a
     plan for observer-store contains over non-flat text
 
-### H37 Active
+### H37 Result
 
 Goal: refresh the whole-front owner after the H36.4 rejection from reverted
 code.
@@ -792,6 +792,42 @@ code.
   - using the rejected H36.4 release artifact as current baseline
   - reopening non-flat residence without bounded piece/gap proof
   - local byte-copy surgery already rejected by H29/H36
+
+Evidence:
+
+- rebuilt release artifacts from reverted H36.3 code
+- whole `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`
+- `ny_aot_instr=50229360`, `ny_aot_cycles=16404095`
+- asm top:
+  - `__memmove_avx512_unaligned_erms`: `49.02%`
+  - len-half edit closure: `22.74%`
+  - observer-store closure: `18.88%`
+  - `_int_realloc`: `0.90%`
+
+Verdict:
+
+- top owner is still flat len-half text movement.
+- allocator is not dominant.
+- naive pieces are rejected; do not reopen unbounded piece vectors.
+- next card is H38 bounded gap / edit-buffer design, docs-first.
+
+### H38 Active
+
+Goal: decide whether a bounded gap/edit-buffer cell can reduce the len-half
+movement owner without repeating H36.4 work explosion.
+
+- design requirements:
+  - keep representation private to `ArrayTextCell`
+  - bounded move/update rule for repeated len-half insertion
+  - explicit materialization policy for visible Array boundaries
+  - `contains_literal` and `append_suffix` behavior that does not materialize
+    every observer-store iteration
+  - compaction/cap rules that cannot grow unbounded hidden work
+- forbidden:
+  - code before the above contract is written
+  - MIR or `.inc` changes
+  - benchmark-named representation
+  - semantic/search-result cache
 
 ### H28.1 runtime-private literal search executor
 

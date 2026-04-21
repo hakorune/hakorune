@@ -3,7 +3,7 @@
 Status: active design gate; H36.4 piece residence pilot rejected.
 
 Current blocker token:
-`137x-H37 post-piece owner refresh`.
+`137x-H38 bounded gap residence design`.
 
 ## Context
 
@@ -229,3 +229,24 @@ Verdict:
 - naive piece vectors are not a keeper; they cause work explosion.
 - do not reopen non-flat residence without a bounded piece/gap proof.
 - H37 must refresh whole owner evidence from the reverted H36.3 code state.
+
+## H37 Result
+
+Reverted-code owner refresh:
+
+- release artifacts rebuilt from the reverted H36.3 code state.
+- `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`.
+- `ny_aot_instr=50229360`, `ny_aot_cycles=16404095`.
+- asm top:
+  - `__memmove_avx512_unaligned_erms`: `49.02%`
+  - len-half edit closure: `22.74%`
+  - observer-store closure: `18.88%`
+  - `_int_realloc`: `0.90%`
+
+Verdict:
+
+- flat len-half movement remains the top owner.
+- allocator is not dominant.
+- next work is H38 bounded gap / edit-buffer design, docs-first. No code until
+  rollback, materialization, contains, append, and cap/compaction rules are
+  fixed.
