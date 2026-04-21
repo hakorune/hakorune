@@ -694,6 +694,17 @@ Scope: current lane / next lane / restart order only.
             the next keeper
           - next seam: H30 array text edit residence representation decision
             under the existing MIR-owned H27 edit contract
+        - H30.1 inventory:
+          - `ArrayStorage::Text(Vec<String>)` is still matched directly by
+            storage promotion, raw text read/write/update helpers, region
+            executors, visible `get`, clone/format/equality/debug, and
+            generic array ops
+          - direct gap/piece replacement would leak representation details and
+            make rollback large
+          - next clean slice is BoxShape-only: introduce a flat
+            `ArrayTextCell` boundary first, with no MIR, `.inc`, public ABI, or
+            behavior change; non-flat edit residence can only open behind that
+            boundary
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

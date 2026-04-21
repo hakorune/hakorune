@@ -86,6 +86,9 @@ Related:
     - H30 active: decide whether the next clean keeper requires a narrow
       array text edit residence representation, not more local byte-copy
       surgery
+    - H30.1 inventory says the next code slice should be BoxShape-only:
+      introduce a flat `ArrayTextCell` boundary before any non-contiguous
+      text residence prototype
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

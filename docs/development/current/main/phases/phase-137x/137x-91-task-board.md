@@ -320,6 +320,14 @@ residence representation decision`.
       can reduce the H27 len-half mid-insert suffix-copy owner cleanly
     - guard: no benchmark-named helper, no runtime legality/provenance, no
       `.inc` raw shape rediscovery, no public ABI widening
+  - [ ] H30.1 flat `ArrayTextCell` boundary extraction
+    - BoxShape-only preparatory slice; keep the implementation flat-string
+      only and make `ArrayStorage::Text` stop exposing raw `String` as the
+      long-term representation truth
+    - no MIR, `.inc`, public ABI, or behavior change
+  - [ ] H30.2 non-flat edit residence prototype decision
+    - open only after H30.1 is green; compare gap-buffer / piece-cell options
+      behind the `ArrayTextCell` boundary
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

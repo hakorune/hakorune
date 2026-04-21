@@ -267,6 +267,44 @@ reduce the H27 len-half mid-insert suffix-copy owner cleanly.
   - if the representation would leak into MIR/public ABI, reject H30 and stop
     local kilo surgery
 
+### H30.1 Inventory Result
+
+- current storage shape:
+  - `ArrayStorage::Text(Vec<String>)`
+  - `storage.rs` exposes text values as plain `String` for promotion,
+    boxing, formatting, capacity, and clone helpers
+- hot runtime text APIs:
+  - `slot_with_text_raw(idx, |&str| ...)`
+  - `slot_text_len_raw(idx)`
+  - `slot_update_text_raw(idx, |&mut String| ...)`
+  - `slot_update_text_resident_first_raw(idx, |&mut String| ...)`
+  - `slot_text_region_update_sum_raw(..., |&mut String| ...)`
+  - `slot_text_indexof_suffix_store_region_raw(...)`
+- public / visible array consumers:
+  - `get_index_i64` materializes `Text` slots to `StringBox`
+  - `Clone`, `fmt_box`, `to_string_box`, `equals`, and `Debug` match
+    `ArrayStorage::Text` directly
+  - `store`, `remove`, `capacity`, and sequence ops also pattern-match the
+    text variant
+- decision:
+  - do not replace `Text(Vec<String>)` directly with a gap/piece structure in
+    the next code slice; that would leak representation details across array
+    ops and make rollback large
+  - next clean code step is BoxShape-only: introduce an internal
+    `ArrayTextCell` boundary while keeping the first implementation
+    flat-string-only
+  - only after the flat `ArrayTextCell` wrapper is green should H30 open a
+    piece/gap representation variant behind the same runtime-private boundary
+- acceptance for the next code slice:
+  - no MIR metadata changes
+  - no `.inc` changes
+  - no public ABI changes
+  - no behavior change; tests should prove text lane store/read/mutate,
+    visible `get`, equality/formatting, and observer-store routes still see the
+    same string contents
+  - perf is observational only for the wrapper slice; keeper judgment belongs
+    to the later non-flat representation slice
+
 ### H28.1 runtime-private literal search executor
 
 - decision:
