@@ -2,7 +2,7 @@
 
 Status: Active
 Decision: accepted
-Last updated: 2026-02-19
+Last updated: 2026-04-22
 
 ## Purpose
 
@@ -22,16 +22,16 @@ Last updated: 2026-02-19
 - nyash top-only allowlist: `tools/checks/module_registry_nyash_top_only_allowlist.txt`
 - override allowlist: `tools/checks/module_registry_override_allowlist.txt`
 
-## Snapshot (2026-02-19)
+## Snapshot (2026-04-22)
 
-- `hako.toml`: `[modules]=143`, `top-only=143`, `override=0`, `duplicate=0`
-- `nyash.toml`: `[modules]=158`, `top-only=158`, `override=0`, `duplicate=0`
+- `hako.toml`: `[modules]=153`, `top-only=153`, `override=0`, `duplicate=0`
+- `nyash.toml`: `[modules]=168`, `top-only=168`, `override=0`, `duplicate=0`
 - override allowlist: empty（`selfhost.vm.helpers.mini_map` withdrawn）
 
 Prefix distribution:
 
-- `hako.toml top-only`: `lang=53, hako=49, selfhost=25, apps=9, hakorune=3, nyash=2, sh_core=1, tools=1`
-- `nyash.toml top-only`: `lang=68, hako=49, selfhost=25, apps=9, hakorune=3, nyash=2, sh_core=1, tools=1`
+- `hako.toml top-only`: `hako=60, lang=53, selfhost=25, apps=8, hakorune=3, nyash=2, sh_core=1, tools=1`
+- `nyash.toml top-only`: `lang=68, hako=60, selfhost=25, apps=8, hakorune=3, nyash=2, sh_core=1, tools=1`
 
 ## Why top-only remains
 
@@ -40,9 +40,15 @@ Prefix distribution:
 
 2. `hako.*` / `hakorune.*` / `nyash.*`
 - 互換 alias（CLI/既存fixture/外部AI handoff）として維持する。
+- `hako.mir.builder.internal.*` は `lang.mir.builder.internal.*_box`
+  workspace export と同じ実体を指す互換 alias であり、logical name
+  が異なるため guard 上は top-only として明示 allowlist する。
 
 3. `lang.*` / `selfhost.*`
 - 旧直参照 alias が残存。原則は workspace export へ移管し、段階的に削除する。
+- 新規の `lang.*` direct add は許可しない。所有 workspace の
+  `hako_module.toml` `[exports]` へ追加し、root `[modules]` からは
+  削除する。
 
 4. 差分キー
 - `lang.shared.module_roots_priority_box`（hako-only）

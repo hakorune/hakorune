@@ -45,6 +45,9 @@ entry.stageb.stageb_json_builder_box = "entry/stageb/stageb_json_builder_box.hak
 entry.bundle_resolver = "entry/bundle_resolver.hako"
 entry.using_resolver = "entry/using_resolver_box.hako"
 
+# MIR builder JSON v0 helpers
+mirbuilder.program_json_v0_rune_attrs_box = "mirbuilder/program_json_v0_rune_attrs_box.hako"
+
 [dependencies]
 "selfhost.shared" = "^1.0.0"
 "selfhost.vm" = "^1.0.0"

@@ -166,7 +166,6 @@ search_paths = ["target/release"]
 "lang.compiler.emit.common.newbox_emit" = "lang/src/compiler/emit/common/newbox_emit_box.hako"
 "lang.compiler.emit.common.header_emit" = "lang/src/compiler/emit/common/header_emit_box.hako"
 "lang.compiler.mirbuilder.program_json_v0_scanner_box" = "lang/src/compiler/mirbuilder/program_json_v0_scanner_box.hako"
-"lang.compiler.mirbuilder.program_json_v0_rune_attrs_box" = "lang/src/compiler/mirbuilder/program_json_v0_rune_attrs_box.hako"
 "lang.compiler.mirbuilder.program_json_v0_phase_state_box" = "lang/src/compiler/mirbuilder/program_json_v0_phase_state_box.hako"
 "lang.compiler.mirbuilder.program_json_v0_phase_state_consumer_box" = "lang/src/compiler/mirbuilder/program_json_v0_phase_state_consumer_box.hako"
 "lang.compiler.mirbuilder.program_json_v0_legacy_shape_classifier_box" = "lang/src/compiler/mirbuilder/program_json_v0_legacy_shape_classifier_box.hako"

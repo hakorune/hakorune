@@ -56,14 +56,12 @@ Passed:
 
 - `cargo check -q`
 - `tools/checks/current_state_pointer_guard.sh`
+- `bash tools/checks/module_registry_hygiene_guard.sh`
 - `cargo test embedded_snapshot_matches_registry_doc --lib`
 - `bash tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_vm.sh`
 
 Known blocked verification:
 
-- `bash tools/checks/module_registry_hygiene_guard.sh` still reports the
-  existing unrelated top-only alias debt; this card removes the
-  `apps.lib.boxes.map_std` allowlist entry.
 - direct `OpsCalls` import smoke still stops on the existing dynamic fallback
   checker issue for `recv[method]`; fix that in a separate selfhost-runtime
   dispatcher card before promoting broader `pref == "ny"` coverage.
