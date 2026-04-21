@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H41 post-byte-proof MidGap copy owner refresh)
+  - `phase-137x-H owner-first optimization return` (active; H43 combined executor memmove owner split)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H41 post-byte-proof MidGap copy owner refresh`
+  - current blocker is `137x-H43 combined executor memmove owner split`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -156,8 +156,13 @@ Related:
       `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`; 200-run top remains
       combined executor closure `68.98%` and `__memmove_avx512_unaligned_erms`
       `17.89%`
-    - H41 active: annotate residual MidGap copy/materialization before adding
-      any further runtime leaf
+    - H41 closed: post-byte-proof annotate kept the combined executor closure
+      as top owner and pinned residual local samples in observer scan plus the
+      existing short-suffix write leaf; broad copy remains external `memmove`
+    - H42 rejected: prepared suffix append worsened whole instructions/cycles
+      (`35553658` / `6944027`) and was reverted
+    - H43 active: split the remaining combined executor owner around external
+      `memmove` / MidGap old-content copy before adding code
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

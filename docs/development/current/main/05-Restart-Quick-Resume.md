@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H41 post-byte-proof MidGap copy owner refresh)
+  - `phase-137x-H owner-first optimization return` (active; H43 combined executor memmove owner split)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H41 post-byte-proof MidGap copy owner refresh`
+    - current blocker is `137x-H43 combined executor memmove owner split`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H41 post-byte-proof MidGap copy owner refresh`
+  - `137x-H43 combined executor memmove owner split`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -128,8 +128,13 @@ cargo check --features perf-observe -p nyash_kernel
       `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`; 200-run top remains
       combined executor closure `68.98%` and `__memmove_avx512_unaligned_erms`
       `17.89%`
-    - H41 active: annotate residual MidGap copy/materialization before adding
-      any further runtime leaf
+    - H41 closed: top remains combined executor closure `69.87%` with
+      external `__memmove_avx512_unaligned_erms` `16.26%`; local samples are
+      observer scan plus the existing short-suffix write leaf
+    - H42 rejected: prepared suffix append worsened whole instructions/cycles
+      and was reverted
+    - H43 active: split the remaining combined executor owner around external
+      `memmove` / MidGap old-content copy before adding code
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

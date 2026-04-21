@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H41 post-byte-proof MidGap copy owner refresh)
-  - current blocker is `137x-H41 post-byte-proof MidGap copy owner refresh`
+  - `phase-137x-H owner-first optimization return` (active; H43 combined executor memmove owner split)
+  - current blocker is `137x-H43 combined executor memmove owner split`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -950,9 +950,30 @@ Scope: current lane / next lane / restart order only.
             `__memmove_avx512_unaligned_erms` `17.89%`
           - verdict: H40 closes as a narrow keeper; next owner is residual
             MidGap copy/materialization, not byte-boundary legality
-        - H41 active:
-          - annotate the H40.2 combined executor closure and pin the sampled
-            MidGap copy/materialization block before adding more runtime code
+        - H41 result:
+          - refreshed direct AOT owner with persistent perf data at
+            `target/perf_state/h41_kilo_kernel_small.perf.data`
+          - top remains combined executor closure `69.87%`,
+            `__memmove_avx512_unaligned_erms` `16.26%`,
+            `_int_malloc` `2.04%`, `finish_grow` `0.21%`,
+            `reserve::do_reserve_and_handle` `0.09%`
+          - annotate pins residual local samples in observer scan and the
+            existing 2-byte short-suffix write leaf, while the broad copy owner
+            stays as external `memmove`
+          - verdict: close H41 as owner refresh; next narrow code slice is
+            runtime-private prepared suffix append, not new MIR legality
+        - H42 rejected:
+          - tried runtime-private prepared suffix append plan and reverted it
+          - whole `kilo_kernel_small = C 82 ms / Ny AOT 5 ms`,
+            `ny_aot_instr=35553658`, `ny_aot_cycles=6944027`
+          - exact/meso guards held, but whole instr/cycles regressed from
+            H40.2 (`34108663` / `6613012`) and top `memmove` share rose to
+            `19.77%`
+          - verdict: suffix dispatch/source-load is not the keeper seam
+        - H43 active:
+          - split the remaining combined executor owner around external
+            `memmove` / MidGap old-content copy before adding code
+          - no more suffix micro-leaf surgery without a fresh sampled block
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

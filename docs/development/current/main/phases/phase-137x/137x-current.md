@@ -1539,7 +1539,7 @@ H40.2 proof-consuming runtime leaf:
     residual MidGap copy/materialization and decide whether any further
     runtime-private leaf is justified
 
-### H41 Active
+### H41 Result
 
 Goal: refresh the post-byte-proof owner inside the combined text-cell executor
 before adding more runtime code.
@@ -1551,17 +1551,114 @@ before adding more runtime code.
     `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`
   - top samples remain inside the combined executor closure, with visible
     `__memmove_avx512_unaligned_erms` and small allocator/reserve tails
+- refreshed evidence:
+  - persistent perf data: `target/perf_state/h41_kilo_kernel_small.perf.data`
+  - 500-run top:
+    - combined executor closure: `69.87%`
+    - `__memmove_avx512_unaligned_erms`: `16.26%`
+    - `_int_malloc`: `2.04%`
+    - `finish_grow`: `0.21%`
+    - `reserve::do_reserve_and_handle`: `0.09%`
+  - closure annotate:
+    - residual local samples are in observer scan / branch mechanics and the
+      existing 2-byte short-suffix write leaf
+    - the broad old-content copy owner remains external `memmove`
+    - byte-boundary legality is no longer the active owner after H40.2
+- verdict:
+  - close H41 as an owner refresh
+  - do not add another byte-boundary or MIR legality proof
+  - the next narrow slice is a runtime-private prepared suffix append plan:
+    existing MIR const suffix metadata is sufficient, `.inc` stays emit-only,
+    and Rust should consume a prepared append plan rather than rereading the
+    suffix shape on every hit
+
+### H42 Result
+
+Goal: reduce the residual short-suffix append dispatch/source-load cost inside
+the MIR-proven combined executor without changing MIR or `.inc` authority.
+
+- target front:
+  - `kilo_kernel_small`
+- owner evidence:
+  - H41 annotate samples the existing short-suffix append leaf around the
+    2-byte suffix write after a MIR-proven `indexOf("line")` hit
+  - H28.3 already removed the old `memcpy` suffix append path; this slice is
+    therefore about preparing the suffix plan once per executor call, not
+    another public ABI/helper route
+- design:
+  - add a runtime-private prepared suffix append plan in `ArrayTextCell`
+  - build the plan once from the already-passed const suffix string
+  - pass the plan through the Text-lane and compatible Boxed string paths
+  - preserve existing `append_suffix(&str)` behavior for non-region callers
+- forbidden drift:
+  - no source-content or benchmark-name assumption
+  - no search-result cache
+  - no `.inc` planner or MIR metadata shape change
+  - no runtime-owned legality/provenance inference
+- keeper gate:
+  - `cargo test -q append_text_suffix --lib`
+  - `cargo test -q benchmark_kilo_kernel_small_has_combined_edit_observer_region -- --nocapture`
+  - `bash tools/perf/build_perf_release.sh`
+  - whole `kilo_kernel_small` stat and top report must show no exact/meso
+    guard regression; accept only if instructions/cycles improve or the
+    suffix-append residual clearly shrinks
+- implementation probe:
+  - tried a runtime-private `TextSuffixAppendPlan` prepared once per executor
+    call and consumed by the existing Text-lane / compatible string append
+    leaves
+  - no MIR, `.inc`, or public ABI shape changed
+- verification:
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `cargo test -q append_text_suffix --lib`
+  - `cargo test -q benchmark_kilo_kernel_small_has_combined_edit_observer_region -- --nocapture`
+  - `cargo check -q`
+  - `bash tools/perf/build_perf_release.sh`
+  - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 5 ms`,
+    `ny_aot_instr=35553658`, `ny_aot_cycles=6944027`
+  - exact guard `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 3 ms`,
+    `ny_aot_instr=9266541`, `ny_aot_cycles=2347275`
+  - meso guard `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=17651102`,
+    `ny_aot_cycles=4272874`
+  - 200-run top: combined executor closure `67.00%`,
+    `__memmove_avx512_unaligned_erms` `19.77%`, `_int_malloc` `1.31%`,
+    `reserve::do_reserve_and_handle` `0.29%`
+- verdict:
+  - rejected and reverted
+  - exact/meso guards held, but whole instructions/cycles regressed from H40.2
+    (`34108663` / `6613012`) and the external `memmove` share increased
+  - suffix dispatch/source-load is not the keeper seam; return to the
+    post-byte-proof copy owner
+
+### H43 Active
+
+Goal: split the remaining combined executor owner around external `memmove` /
+MidGap old-content copy before adding any more runtime leaf code.
+
+- target front:
+  - `kilo_kernel_small`
+- owner evidence:
+  - H41/H42 top keeps the combined executor closure as the primary owner
+  - external `__memmove_avx512_unaligned_erms` remains the next visible owner
+    (`16.26%` before H42, `19.77%` in the rejected H42 probe)
+  - suffix micro-leaf surgery is now rejected unless a new sampled block proves
+    otherwise
 - first step:
-  - annotate the H40.2 direct AOT executor closure and identify whether the
-    sampled block is MidGap materialization, right-side copy, append suffix, or
-    growth/reserve mechanics
+  - preserve a fresh direct-AOT annotate / objdump after reverting H42
+  - split samples into:
+    - external `memmove`
+    - MidGap old-content shift/copy
+    - observer scan branch mechanics
+    - allocator/reserve tails
 - accept gate:
-  - no source-shape or benchmark-name assumptions
-  - no `.inc` planner regression
-  - choose the next card only after a sampled source block is pinned
-- reject gate:
-  - if samples are broad copy/allocation rather than a narrow executor leaf,
-    close H41 as owner refresh and do not add code
+  - no code before a sampled source-owned copy transition is pinned
+  - no `.inc` planner regression or runtime legality inference
+  - no benchmark-name/source-content assumptions
+- likely next verdicts:
+  - narrow keeper if a specific MidGap copy transition can be reduced
+  - otherwise close H43 as broad copy/materialization evidence and escalate to
+    a larger text-cell residence design rather than another micro leaf
 
 ### H28.1 runtime-private literal search executor
 

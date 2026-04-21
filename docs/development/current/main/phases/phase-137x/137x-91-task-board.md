@@ -490,12 +490,29 @@ phase README / current entry. Current active card:
     - result: keeper; whole `kilo_kernel_small = C 82 ms / Ny AOT 6 ms`,
       `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`; wall is in the
       5-6 ms band, but instruction/cycle count improves from H40.1 smoke
-  - [ ] H41 post-byte-proof MidGap copy owner refresh
+  - [x] H41 post-byte-proof MidGap copy owner refresh
     - annotate the H40.2 combined executor closure before adding more code
     - decide whether residual samples are a narrow MidGap leaf, copy/memmove,
       suffix append, or broad allocator/reserve mechanics
     - no source-shape assumptions, benchmark-named helper, `.inc` planner
       rediscovery, or runtime-owned legality inference
+    - result: top remains combined executor closure `69.87%`; broad copy is
+      external `__memmove_avx512_unaligned_erms` `16.26%`; local residuals
+      are observer scan plus the existing short-suffix write leaf
+  - [x] H42 runtime-private prepared suffix append plan
+    - prepare the const suffix once per MIR-proven combined executor call
+    - consume the prepared plan inside `ArrayTextCell` / compatible string
+      append leaves
+    - do not change MIR metadata shape, `.inc` emit shape, public ABI, or
+      source-content assumptions
+    - result: rejected and reverted; whole instructions/cycles regressed to
+      `35553658` / `6944027`, and `memmove` share rose to `19.77%`
+  - [ ] H43 combined executor memmove owner split
+    - split the remaining owner between external `memmove`, MidGap
+      old-content copy, observer scan, and allocator tails
+    - do not add more suffix micro-leaf surgery without a fresh sampled block
+    - choose the next code slice only if a narrow source-owned copy transition
+      is pinned
 
 ## Opened Implementation Order Before Next Kilo Optimization
 
