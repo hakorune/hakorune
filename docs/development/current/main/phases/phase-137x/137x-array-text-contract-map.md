@@ -29,6 +29,8 @@ and ownership map, not a second semantic source.
     - `effects=[store.cell, length_only_result_carry]`
     - `consumer_capabilities=[sink_store, length_only]`
     - `materialization_policy=text_resident_or_stringlike_slot`
+    - `region_mapping={loop_index_phi/init/next/bound, accumulator_phi/init/next,
+       exit_accumulator, row_index, row_modulus}`
   - H25b placement fields:
     - `begin_block` / `begin_placement=before_preheader_jump`
     - `update_block` / `update_instruction_index`
@@ -87,6 +89,8 @@ and ownership map, not a second semantic source.
     cross-boundary `*_route_plan` names.
   - H25c.2c validates `executor_contract`; it rejects missing/mismatched nested
     contract fields instead of inferring them from CFG.
+  - H25c.2c also validates `region_mapping` presence and minimum cross-field
+    invariants; it must not derive loop/PHI/exit facts from raw blocks.
 - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_lowering.inc`
   - may emit the selected helper calls and skip covered instructions.
   - H25c.1 consumes residence-session metadata first, but still maps it to the

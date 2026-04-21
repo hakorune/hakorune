@@ -1523,6 +1523,15 @@ H25c.2c single-region executor contract:
   - Lowering still emits the existing per-iteration fused helper; the keeper
     path is blocked on MIR-owned loop/PHI/exit mapping before region
     replacement.
+- Third implementation slice landed as loop-region mapping:
+  - `executor_contract.region_mapping` now carries loop index PHI/init/next,
+    loop bound const, accumulator PHI/init/next, exit accumulator value, row
+    index, and row modulus const.
+  - The backend reader validates the mapping presence and the minimum
+    cross-field invariants without deriving CFG shape.
+  - Lowering still emits the existing per-iteration fused helper. The next
+    open problem is replacing the header/body/PHI/exit-use region without
+    redefining SSA values.
 
 ## Legacy Retirement Ledger
 

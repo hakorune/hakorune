@@ -129,8 +129,9 @@ contract`.
     `executor_contract` and route tests assert it.
   - [x] H25c.2c-2 `.inc` validates the nested contract without CFG/raw shape
     rediscovery.
-  - [ ] H25c.2c-3 extend MIR with any required loop/PHI/exit mapping before
+  - [x] H25c.2c-3 extend MIR with required loop/PHI/exit mapping before
     region replacement.
+  - [ ] H25c.2c-4 backend region replacement without SSA redefinition.
   - `.inc` remains metadata-to-call emit only.
   - runtime gets a one-call RAII executor only under MIR-owned legality.
 - [ ] H25c.3 keeper probe

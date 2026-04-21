@@ -183,7 +183,7 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 });
                 if let Some(contract) = route.executor_contract.as_ref() {
-                    obj["executor_contract"] = json!({
+                    let mut contract_obj = json!({
                         "execution_mode": contract.execution_mode.to_string(),
                         "proof_region": contract.proof_region.to_string(),
                         "publication_boundary": contract.publication_boundary,
@@ -192,6 +192,23 @@ pub(super) fn build_mir_json_root(
                         "consumer_capabilities": contract.consumer_capabilities.iter().map(|capability| capability.to_string()).collect::<Vec<_>>(),
                         "materialization_policy": contract.materialization_policy.to_string(),
                     });
+                    if let Some(mapping) = contract.region_mapping.as_ref() {
+                        contract_obj["region_mapping"] = json!({
+                            "loop_index_phi_value": mapping.loop_index_phi_value.as_u32(),
+                            "loop_index_initial_value": mapping.loop_index_initial_value.as_u32(),
+                            "loop_index_next_value": mapping.loop_index_next_value.as_u32(),
+                            "loop_bound_value": mapping.loop_bound_value.as_u32(),
+                            "loop_bound_const": mapping.loop_bound_const,
+                            "accumulator_phi_value": mapping.accumulator_phi_value.as_u32(),
+                            "accumulator_initial_value": mapping.accumulator_initial_value.as_u32(),
+                            "accumulator_next_value": mapping.accumulator_next_value.as_u32(),
+                            "exit_accumulator_value": mapping.exit_accumulator_value.as_u32(),
+                            "row_index_value": mapping.row_index_value.as_u32(),
+                            "row_modulus_value": mapping.row_modulus_value.as_u32(),
+                            "row_modulus_const": mapping.row_modulus_const,
+                        });
+                    }
+                    obj["executor_contract"] = contract_obj;
                 }
                 obj
             }).collect::<Vec<_>>(),

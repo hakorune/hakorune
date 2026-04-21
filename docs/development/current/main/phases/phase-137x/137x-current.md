@@ -179,6 +179,15 @@ collapse into one risky change.
       per-iteration loopcarry update helper; no region replacement yet.
     - Probe trace hit:
       `stage=array_text_residence_session result=hit reason=mir_route_metadata`.
+  - H25c.2c-3 landed:
+    - `executor_contract.region_mapping` now carries the loop index PHI,
+      loop bound, accumulator PHI, accumulator exit use, row index, and row
+      modulus needed by a later region replacement.
+    - `.inc` validates that `region_mapping` exists, that numeric fields are
+      present, that `row_index_value` matches the top-level `index_value`, and
+      that the exit accumulator aliases the accumulator PHI.
+    - Active backend trace still hits `array_text_residence_session` through
+      `mir_route_metadata`; lowering behavior remains unchanged.
   - contract shape:
     - `executor_contract.execution_mode = single_region_executor`
     - `proof_region = loop_backedge_single_body`
@@ -216,9 +225,12 @@ Required order:
    - status: done for H25c.2c-2.
 3. Extend the MIR contract for any missing loop/PHI/exit semantics before
    replacing the loop region.
-4. Add a runtime-private one-call RAII executor only if MIR fully owns legality,
+   - status: done for H25c.2c-3 at metadata/validation level.
+4. Teach backend lowering how to replace the region without redefining SSA
+   PHI/result values.
+5. Add a runtime-private one-call RAII executor only if MIR fully owns legality,
    fallback/materialization policy, and publication boundary.
-5. Rerun exact timing and asm after behavior change.
+6. Rerun exact timing and asm after behavior change.
 
 Reject immediately if the implementation requires:
 - runtime deciding session legality from residence state

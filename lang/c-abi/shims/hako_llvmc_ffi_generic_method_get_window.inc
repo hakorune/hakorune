@@ -100,6 +100,94 @@
         s1 = yyjson_get_str(v1);
         return s0 && s1 && !strcmp(s0, first) && !strcmp(s1, second);
       }
+      auto int array_text_residence_read_i64_field(
+          yyjson_val* obj,
+          const char* key,
+          long long* out) {
+        yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
+        if (!(val && yyjson_is_num(val))) return 0;
+        if (out) *out = (long long)yyjson_get_sint(val);
+        return 1;
+      }
+      auto int array_text_residence_region_mapping_valid(
+          yyjson_val* route,
+          yyjson_val* contract) {
+        yyjson_val* mapping = contract ? yyjson_obj_get(contract, "region_mapping") : NULL;
+        long long route_index_value = 0;
+        long long loop_index_phi_value = 0;
+        long long loop_index_initial_value = 0;
+        long long loop_index_next_value = 0;
+        long long loop_bound_value = 0;
+        long long loop_bound_const = 0;
+        long long accumulator_phi_value = 0;
+        long long accumulator_initial_value = 0;
+        long long accumulator_next_value = 0;
+        long long exit_accumulator_value = 0;
+        long long row_index_value = 0;
+        long long row_modulus_value = 0;
+        long long row_modulus_const = 0;
+        if (!(mapping && yyjson_is_obj(mapping))) return 0;
+        return array_text_residence_read_i64_field(route, "index_value", &route_index_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "loop_index_phi_value",
+                   &loop_index_phi_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "loop_index_initial_value",
+                   &loop_index_initial_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "loop_index_next_value",
+                   &loop_index_next_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "loop_bound_value",
+                   &loop_bound_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "loop_bound_const",
+                   &loop_bound_const) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "accumulator_phi_value",
+                   &accumulator_phi_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "accumulator_initial_value",
+                   &accumulator_initial_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "accumulator_next_value",
+                   &accumulator_next_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "exit_accumulator_value",
+                   &exit_accumulator_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "row_index_value",
+                   &row_index_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "row_modulus_value",
+                   &row_modulus_value) &&
+               array_text_residence_read_i64_field(
+                   mapping,
+                   "row_modulus_const",
+                   &row_modulus_const) &&
+               loop_bound_const > 0 &&
+               row_modulus_const > 0 &&
+               row_index_value == route_index_value &&
+               exit_accumulator_value == accumulator_phi_value &&
+               loop_index_phi_value != 0 &&
+               loop_index_initial_value != 0 &&
+               loop_index_next_value != 0 &&
+               loop_bound_value != 0 &&
+               accumulator_initial_value != 0 &&
+               accumulator_next_value != 0 &&
+               row_modulus_value != 0;
+      }
       auto int array_text_residence_executor_contract_valid(yyjson_val* route) {
         yyjson_val* contract = route ? yyjson_obj_get(route, "executor_contract") : NULL;
         yyjson_val* effects = contract ? yyjson_obj_get(contract, "effects") : NULL;
@@ -126,7 +214,8 @@
                    "sink_store",
                    "length_only") &&
                materialization_policy &&
-                   !strcmp(materialization_policy, "text_resident_or_stringlike_slot");
+                   !strcmp(materialization_policy, "text_resident_or_stringlike_slot") &&
+               array_text_residence_region_mapping_valid(route, contract);
       }
       auto void array_text_residence_session_to_loopcarry_update(
           const struct ArrayTextResidenceSessionRouteMetadata* session,

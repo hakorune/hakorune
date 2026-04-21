@@ -406,11 +406,14 @@ Scope: current lane / next lane / restart order only.
         - H25c.2c-2 `.inc` reader validation landed; active lowering accepts
           the residence session only when the nested contract matches and still
           maps to the existing per-iteration helper
-        - H25c.2c is still active until the region execution contract owns
-          loop/PHI/exit semantics
+        - H25c.2c-3 MIR `region_mapping` landed under `executor_contract`:
+          loop index PHI/init/next/bound, accumulator PHI/init/next/exit use,
+          and row modulus are now MIR-owned metadata and validated by `.inc`
+        - H25c.2c is still active until lowering can replace the region safely
         - H25c.3 keeper probe only after H25c.2c lands
-      - next slice: H25c.2c-3 MIR loop/PHI/exit mapping inventory; no runtime
-        executor until those semantics are MIR-owned
+      - next slice: H25c.2c-4 backend region-replacement design/implementation;
+        do not add runtime executor until backend can skip/replace the header,
+        body, PHI, and exit-use wiring without redefining SSA values
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
