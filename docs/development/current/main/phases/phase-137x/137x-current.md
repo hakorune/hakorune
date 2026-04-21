@@ -1659,6 +1659,54 @@ MidGap old-content copy before adding any more runtime leaf code.
   - narrow keeper if a specific MidGap copy transition can be reduced
   - otherwise close H43 as broad copy/materialization evidence and escalate to
     a larger text-cell residence design rather than another micro leaf
+- H43.1 attempted slice:
+  - source-owned transition:
+    `insert_const_mid_lenhalf_mid_gap(_byte_boundary_safe)` takes the
+    `split <= left.len()` branch and inserts into the left `String`; this
+    shifts the left suffix with `memmove`
+  - runtime-only design:
+    - if `right_start` has enough inactive front gap, copy the left suffix into
+      `right[right_start - suffix_len .. right_start]`
+    - truncate `left` to the split point
+    - append the middle text to `left`
+    - move `right_start` backward to include the escaped suffix
+  - fallback:
+    - keep the existing left insert path when there is not enough right front
+      gap or the checked path cannot prove character boundaries
+  - boundary:
+    - no MIR metadata shape change
+    - no `.inc` emit change
+    - no runtime legality/provenance inference; this is only MidGap residence
+      mechanics for an already MIR-proven text-cell region
+  - verification:
+    - `cargo fmt --check`
+    - `git diff --check`
+    - `cargo test -q mid_gap_reuses_right_front_gap_for_left_suffix_escape --lib`
+    - `cargo test -q byte_boundary_safe_lenhalf_insert_matches_checked_ascii --lib`
+    - `cargo test -q benchmark_kilo_kernel_small_has_combined_edit_observer_region -- --nocapture`
+    - `cargo check -q`
+  - perf result after release rebuild:
+    - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 5 ms`,
+      `ny_aot_instr=34826664`, `ny_aot_cycles=7281528`
+    - exact guard `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 3 ms`,
+      `ny_aot_instr=9265684`, `ny_aot_cycles=2409468`
+    - meso guard `kilo_meso_substring_concat_array_set_loopcarry`:
+      `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17651114`,
+      `ny_aot_cycles=4262634`
+    - 200-run top: combined executor closure `69.15%`,
+      `__memmove_avx512_unaligned_erms` `17.72%`, `_int_malloc` `1.38%`,
+      `realloc` `0.52%`, `reserve::do_reserve_and_handle` `0.09%`
+  - verdict:
+    - rejected and reverted
+    - whole instructions/cycles regressed from the clean H43 baseline
+      (`34108337` / `6544565`) to `34826664` / `7281528`
+    - external `memmove` share rose from `16.93%` to `17.72%`
+    - right-front suffix escape is not the keeper seam; do not continue
+      per-leaf MidGap copy surgery without a new sampled transition
+  - next decision:
+    - close H43 if no narrower sampled copy transition appears
+    - prefer a broader text-cell residence/materialization design or observer
+      scan split over another micro copy leaf
 
 ### H28.1 runtime-private literal search executor
 

@@ -513,6 +513,14 @@ phase README / current entry. Current active card:
     - do not add more suffix micro-leaf surgery without a fresh sampled block
     - choose the next code slice only if a narrow source-owned copy transition
       is pinned
+    - H43.1 result: rejected and reverted; right-front suffix escape worsened
+      whole `kilo_kernel_small` from the clean H43 baseline
+      `ny_aot_instr=34108337`, `ny_aot_cycles=6544565` to
+      `34826664` / `7281528`, and `memmove` share rose from `16.93%` to
+      `17.72%`
+    - next: close H43 if no narrower sampled copy transition appears; prefer
+      broader text-cell residence/materialization design or observer scan split
+      over another micro copy leaf
 
 ## Opened Implementation Order Before Next Kilo Optimization
 
