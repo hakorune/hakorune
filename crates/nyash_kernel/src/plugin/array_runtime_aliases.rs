@@ -6,7 +6,8 @@ use super::array_runtime_facade::{
     array_runtime_concat_const_suffix_idx_into_slot,
     array_runtime_concat_const_suffix_idx_store_same_slot,
     array_runtime_concat_const_suffix_idx_store_same_slot_len, array_runtime_get_idx,
-    array_runtime_has_idx, array_runtime_insert_const_mid_idx_into_slot,
+    array_runtime_has_idx, array_runtime_indexof_const_suffix_region_store,
+    array_runtime_insert_const_mid_idx_into_slot,
     array_runtime_insert_const_mid_idx_store_same_slot,
     array_runtime_insert_const_mid_idx_store_same_slot_len,
     array_runtime_insert_const_mid_subrange_idx_store_same_slot,
@@ -205,6 +206,20 @@ pub extern "C" fn nyash_array_string_insert_mid_subrange_len_store_region_hiisi_
         row_modulus,
         middle_ptr,
         middle_len,
+    )
+}
+
+#[export_name = "nyash.array.string_indexof_suffix_store_region_hisisi"]
+pub extern "C" fn nyash_array_string_indexof_suffix_store_region_hisisi_alias(
+    handle: i64,
+    loop_bound: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    array_runtime_indexof_const_suffix_region_store(
+        handle, loop_bound, needle_ptr, needle_len, suffix_ptr, suffix_len,
     )
 }
 

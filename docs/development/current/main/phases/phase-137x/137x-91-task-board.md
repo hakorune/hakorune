@@ -177,7 +177,7 @@ contract`.
     - whole `kilo_kernel_small`: `C 81 ms / Ny AOT 20 ms`
   - verdict: next code owner is the whole-front inner scan
     observer/conditional-store region, not H25d residual memmove surgery
-- [ ] H26 array text observer-store region contract
+- [x] H26 array text observer-store region contract
   - target front: `kilo_kernel_small`
   - target shape: `array.get(j).indexOf(const) >= 0` followed by same-array,
     same-index const-suffix store in the taken branch
@@ -201,9 +201,18 @@ contract`.
     - implementation split: route owner stays in
       `src/mir/array_text_observer_plan.rs`; nested contract proof lives in
       `src/mir/array_text_observer_region_contract.rs`
-  - [ ] H26.2 `.inc` metadata validation and one-call emit
-  - [ ] H26.3 runtime one-call observer-store executor
-  - [ ] H26.4 keeper/no-regression probe
+  - [x] H26.2 `.inc` metadata validation and one-call emit
+    - `begin_block` / `begin_to_header_block` are MIR-owned fields
+    - `.inc` preloads the contract before block emission and marks covered
+      blocks unreachable without raw CFG rediscovery
+  - [x] H26.3 runtime one-call observer-store executor
+    - `nyash.array.string_indexof_suffix_store_region_hisisi`
+      executes compare-only `indexOf` + same-slot suffix store under one guard
+  - [x] H26.4 keeper/no-regression probe
+    - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 10 ms`
+    - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 3 ms`
+    - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+      `C 3 ms / Ny AOT 4 ms`
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

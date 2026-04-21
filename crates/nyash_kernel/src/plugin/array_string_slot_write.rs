@@ -457,6 +457,30 @@ pub(in super::super) fn array_string_insert_const_mid_subrange_len_region_store_
     .unwrap_or(0)
 }
 
+pub(in super::super) fn array_string_indexof_const_suffix_region_store(
+    handle: i64,
+    loop_bound: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    if handle <= 0 || loop_bound < 0 {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(needle_ptr, needle_len, |needle| {
+        with_compiler_const_utf8_ptr_len(suffix_ptr, suffix_len, |suffix| {
+            super::super::array_handle_cache::with_array_box(handle, |arr| {
+                arr.slot_text_indexof_suffix_store_region_raw(loop_bound, needle, suffix)
+            })
+            .flatten()
+            .unwrap_or(0)
+        })
+        .unwrap_or(0)
+    })
+    .unwrap_or(0)
+}
+
 fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
     handle: i64,
     idx: i64,

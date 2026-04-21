@@ -260,6 +260,8 @@ pub(super) fn build_mir_json_root(
                             "loop_index_next_value": mapping.loop_index_next_value.as_u32(),
                             "loop_bound_value": mapping.loop_bound_value.as_u32(),
                             "loop_bound_const": mapping.loop_bound_const,
+                            "begin_block": mapping.begin_block.as_u32(),
+                            "begin_to_header_block": mapping.begin_to_header_block.as_u32(),
                             "header_block": mapping.header_block.as_u32(),
                             "observer_block": mapping.observer_block.as_u32(),
                             "observer_instruction_index": mapping.observer_instruction_index,

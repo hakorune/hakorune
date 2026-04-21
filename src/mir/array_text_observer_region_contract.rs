@@ -107,6 +107,8 @@ pub struct ArrayTextObserverStoreRegionMapping {
     pub loop_index_next_value: ValueId,
     pub loop_bound_value: ValueId,
     pub loop_bound_const: i64,
+    pub begin_block: BasicBlockId,
+    pub begin_to_header_block: BasicBlockId,
     pub header_block: BasicBlockId,
     pub observer_block: BasicBlockId,
     pub observer_instruction_index: usize,
@@ -226,6 +228,14 @@ pub(crate) fn derive_observer_store_region_contract(
         } if *else_bb == route.block => *then_bb,
         _ => return None,
     };
+    let exit = function.blocks.get(&exit_block)?;
+    if exit
+        .instructions
+        .iter()
+        .any(|inst| matches!(inst, MirInstruction::Phi { .. }))
+    {
+        return None;
+    }
     if !observer_block.predecessors.contains(&header_block)
         || !latch.predecessors.contains(&route.block)
         || !latch.predecessors.contains(&then_block)
@@ -263,6 +273,8 @@ pub(crate) fn derive_observer_store_region_contract(
         loop_index_next_value,
         loop_bound_value,
         loop_bound_const,
+        begin_block: preheader,
+        begin_to_header_block: header_block,
         header_block,
         observer_block: route.block,
         observer_instruction_index: route.observer_instruction_index,

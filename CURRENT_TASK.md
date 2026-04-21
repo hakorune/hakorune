@@ -456,8 +456,10 @@ Scope: current lane / next lane / restart order only.
           `ny_aot_instr=232160997`, `ny_aot_cycles=83942461`
         - verdict: next code owner is whole-front inner scan
           observer/conditional-store, not H25d residual `memmove`
-      - `137x-H26` array text observer-store region contract is active
+      - `137x-H26` array text observer-store region contract is landed
         - current blocker token:
+          `137x-H26e post-keeper owner refresh`
+        - closed blocker token:
           `137x-H26 array text observer-store region contract`
         - target shape: `array.get(j).indexOf(const) >= 0` followed by
           same-array, same-index const-suffix store in the taken branch
@@ -476,10 +478,43 @@ Scope: current lane / next lane / restart order only.
               `src/mir/array_text_observer_region_contract.rs`
           - H26.2 make `.inc` validate metadata and emit one runtime call, with
             no raw CFG rediscovery
+            - landed: `.inc` reads the nested observer-store contract before
+              block emission, so covered blocks are skipped even when MIR block
+              order places the loop header before the begin block
+            - add `begin_block` / `begin_to_header_block` to MIR-owned
+              `executor_contract.region_mapping` so backend placement does not
+              infer loop entry from raw CFG
+            - accept only `execution_mode=single_region_executor`,
+              `proof_region=loop_backedge_single_body`,
+              `publication_boundary=none`,
+              `effects=[observe.indexof, store.cell]`, and
+              `consumer_capabilities=[compare_only, sink_store]`
           - H26.3 add runtime one-call executor that holds guard/residence
             mechanics inside the call and performs search + suffix mutation
+            - landed: `nyash.array.string_indexof_suffix_store_region_hisisi`
+              keeps guard/residence inside one ABI call and executes
+              compare-only indexOf + same-slot suffix store
+            - runtime helper is a generic observer-store region executor, not a
+              benchmark-named whole-loop helper
+            - runtime returns execution evidence only; it does not decide
+              legality, provenance, or publication policy
           - H26.4 keeper probe on `kilo_kernel_small` plus exact/middle
             no-regression
+            - landed result:
+              - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 10 ms`,
+                `ny_aot_instr=149657283`, `ny_aot_cycles=31829608`
+              - exact `kilo_micro_array_string_store`:
+                `C 10 ms / Ny AOT 3 ms`,
+                `ny_aot_instr=9266329`, `ny_aot_cycles=2400782`
+              - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+                `C 3 ms / Ny AOT 4 ms`,
+                `ny_aot_instr=16570773`, `ny_aot_cycles=3435120`
+              - asm owner refresh: `<&str as Pattern>::is_contained_in`
+                `35.05%`, `__memmove_avx512_unaligned_erms` `23.82%`,
+                `nyash.array.string_len_hi` `20.97%`
+            - next step: run an owner refresh before opening another code card;
+              do not continue H26 by adding source-prefix/source-length/ASCII
+              assumptions without MIR proof
         - reject seam: no helper-name shortcut, no runtime-owned legality, no
           `.inc` planner drift, no indexOf result cache, no source-prefix /
           source-length / ASCII assumption without MIR proof

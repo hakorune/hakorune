@@ -833,6 +833,8 @@ mod tests {
         assert_eq!(mapping.loop_index_phi_value, ValueId::new(21));
         assert_eq!(mapping.loop_index_initial_const, 0);
         assert_eq!(mapping.loop_bound_const, 64);
+        assert_eq!(mapping.begin_block, BasicBlockId::new(0));
+        assert_eq!(mapping.begin_to_header_block, BasicBlockId::new(1));
         assert_eq!(mapping.observer_block, BasicBlockId::new(2));
         assert_eq!(mapping.then_store_block, BasicBlockId::new(3));
         assert_eq!(mapping.latch_block, BasicBlockId::new(4));

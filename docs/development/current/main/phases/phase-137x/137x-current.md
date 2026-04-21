@@ -328,9 +328,42 @@ H25d final state:
     H25d accepted code remains H25d.1 + H25d.2
 - next slice:
   - H26.2 `.inc` metadata validation and one-call emit
+  - add `begin_block` / `begin_to_header_block` to MIR-owned
+    `executor_contract.region_mapping`; backend placement must not rediscover
+    loop entry from raw CFG
+  - H26.3 runtime one-call observer-store executor after metadata consume lands
   - keep the region proof under MIR-owned observer metadata
   - do not add source-prefix, source-length, or ASCII assumptions unless MIR
     provides an explicit generic proof
+
+H26.2/H26.3/H26.4 observer-store region executor keeper:
+
+- landed:
+  - `executor_contract.region_mapping` now includes `begin_block` and
+    `begin_to_header_block`
+  - `.inc` preloads the MIR-owned observer-store region before block emission,
+    then emits one `nyash.array.string_indexof_suffix_store_region_hisisi`
+    call and marks covered blocks unreachable
+  - runtime executor holds the array write guard inside one call and performs
+    compare-only `indexOf` plus same-slot const suffix store
+- verified:
+  - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 10 ms`,
+    `ny_aot_instr=149657283`, `ny_aot_cycles=31829608`
+  - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 3 ms`,
+    `ny_aot_instr=9266329`, `ny_aot_cycles=2400782`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=16570773`, `ny_aot_cycles=3435120`
+  - whole asm owner refresh:
+    `<&str as core::str::pattern::Pattern>::is_contained_in` `35.05%`,
+    `__memmove_avx512_unaligned_erms` `23.82%`,
+    `nyash.array.string_len_hi` `20.97%`
+- next owner:
+  - H26 should not reopen source-prefix/source-length/ASCII assumptions without
+    MIR proof
+  - next probe should decide whether residual search / length observer can be
+    represented by generic MIR consumer capability, or whether H26 closes here
+    and a new owner-refresh card opens
 
 H25e post-parity owner refresh:
 

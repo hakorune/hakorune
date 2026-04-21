@@ -7,6 +7,7 @@ use super::array_string_slot::{
     array_string_concat_const_suffix_by_index_into_slot,
     array_string_concat_const_suffix_by_index_store_same_slot,
     array_string_concat_const_suffix_by_index_store_same_slot_len,
+    array_string_indexof_const_suffix_region_store,
     array_string_insert_const_mid_by_index_into_slot,
     array_string_insert_const_mid_by_index_store_same_slot,
     array_string_insert_const_mid_by_index_store_same_slot_len,
@@ -160,6 +161,19 @@ pub(super) fn array_runtime_insert_const_mid_subrange_len_region_store_len(
         row_modulus,
         middle_ptr,
         middle_len,
+    )
+}
+
+pub(super) fn array_runtime_indexof_const_suffix_region_store(
+    handle: i64,
+    loop_bound: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    array_string_indexof_const_suffix_region_store(
+        handle, loop_bound, needle_ptr, needle_len, suffix_ptr, suffix_len,
     )
 }
 

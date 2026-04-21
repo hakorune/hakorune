@@ -18,6 +18,7 @@ pub(super) use self::array_string_slot_write::{
     array_string_concat_const_suffix_by_index_into_slot,
     array_string_concat_const_suffix_by_index_store_same_slot,
     array_string_concat_const_suffix_by_index_store_same_slot_len,
+    array_string_indexof_const_suffix_region_store,
     array_string_insert_const_mid_by_index_into_slot,
     array_string_insert_const_mid_by_index_store_same_slot,
     array_string_insert_const_mid_by_index_store_same_slot_len,

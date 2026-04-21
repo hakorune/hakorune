@@ -254,4 +254,70 @@ impl ArrayBox {
         }
         Some(total)
     }
+
+    /// Runtime-private observer/store executor for a MIR-proven text-cell region.
+    /// The write guard stays inside this call; legality and publication stay MIR-owned.
+    #[inline(always)]
+    pub fn slot_text_indexof_suffix_store_region_raw(
+        &self,
+        loop_bound: i64,
+        needle: &str,
+        suffix: &str,
+    ) -> Option<i64> {
+        if loop_bound < 0 {
+            return None;
+        }
+        let loop_bound = usize::try_from(loop_bound).ok()?;
+        if loop_bound == 0 {
+            return Some(0);
+        }
+        let mut items = self.items.write();
+
+        if let ArrayStorage::Boxed(boxed) = &*items {
+            if let Some(values) = Self::try_text_values(boxed) {
+                *items = ArrayStorage::Text(values);
+            }
+        }
+
+        if let ArrayStorage::Text(values) = &mut *items {
+            if loop_bound > values.len() {
+                return None;
+            }
+            let mut stores = 0_i64;
+            for value in values.iter_mut().take(loop_bound) {
+                if needle.is_empty() || value.contains(needle) {
+                    value.push_str(suffix);
+                    stores += 1;
+                }
+            }
+            return Some(stores);
+        }
+
+        let boxed_len = match &*items {
+            ArrayStorage::Boxed(boxed) => boxed.len(),
+            ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_) => return None,
+            ArrayStorage::Text(_) => unreachable!("text storage returned above"),
+        };
+        if loop_bound > boxed_len {
+            return None;
+        }
+
+        let mut session =
+            ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible);
+        let mut stores = 0_i64;
+        for idx in 0..loop_bound {
+            let (hit, _kind) = session.update(idx, |value| {
+                if needle.is_empty() || value.contains(needle) {
+                    value.push_str(suffix);
+                    1_i64
+                } else {
+                    0_i64
+                }
+            })?;
+            stores += hit;
+        }
+        Some(stores)
+    }
 }

@@ -429,6 +429,8 @@
         fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_subrange_len_store_hisi\"(i64, i64, ptr, i64)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
         fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_subrange_len_store_region_hiisi\"(i64, i64, i64, ptr, i64)\n");
+      if (array_text_observer_has_store_region_route())
+        fprintf(f, "declare i64 @\"nyash.array.string_indexof_suffix_store_region_hisisi\"(i64, i64, ptr, i64, ptr, i64)\n");
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (needs.arr_get || needs.arr_string_indexof || needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
@@ -479,7 +481,14 @@
       #include "hako_llvmc_ffi_mir_call_dispatch.inc"
       struct ArrayTextResidenceSessionRouteMetadata active_region_executor;
       int active_region_executor_matched = 0;
+      struct ArrayTextObserverStoreRegionRouteMetadata active_observer_store_region;
+      int active_observer_store_region_available = 0;
+      int active_observer_store_region_emitted = 0;
       memset(&active_region_executor, 0, sizeof(active_region_executor));
+      memset(&active_observer_store_region, 0, sizeof(active_observer_store_region));
+      active_observer_store_region_available =
+          match_array_text_observer_store_region_metadata_any(
+              &active_observer_store_region);
       auto void emit_array_text_region_executor_call(
           const struct ArrayTextResidenceSessionRouteMetadata* region) {
         if (!region) return;
@@ -494,6 +503,21 @@
             region->middle_reg,
             region->middle_len);
         set_type(region->region_result_dst, T_I64);
+      }
+      auto void emit_array_text_observer_store_region_call(
+          const struct ArrayTextObserverStoreRegionRouteMetadata* region) {
+        if (!region) return;
+        fprintf(
+            f,
+            "  call i64 @\"nyash.array.string_indexof_suffix_store_region_hisisi\"(i64 %%r%lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld)\n",
+            region->array_root_value,
+            region->loop_bound_const,
+            region->needle_len + 1,
+            region->needle_reg,
+            region->needle_len,
+            region->suffix_len + 1,
+            region->suffix_reg,
+            region->suffix_len);
       }
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
       auto void emit_phi(long long dst, struct Incoming* in, int in_n){
@@ -578,6 +602,15 @@
           EMIT("  unreachable\n");
           continue;
         }
+        if (active_observer_store_region_available &&
+            (bid == active_observer_store_region.header_block ||
+             bid == active_observer_store_region.observer_block ||
+             bid == active_observer_store_region.then_store_block ||
+             bid == active_observer_store_region.latch_block)) {
+          emit_block_label(bid);
+          EMIT("  unreachable\n");
+          continue;
+        }
         if (!active_region_executor_matched &&
             match_array_text_residence_session_region_begin_metadata(
                 bid,
@@ -586,6 +619,15 @@
           emit_array_text_region_executor_call(&active_region_executor);
           EMIT("  br label %%bb%lld\n", active_region_executor.exit_block);
           active_region_executor_matched = 1;
+          continue;
+        }
+        if (active_observer_store_region_available &&
+            !active_observer_store_region_emitted &&
+            bid == active_observer_store_region.begin_block) {
+          emit_block_label(bid);
+          emit_array_text_observer_store_region_call(&active_observer_store_region);
+          EMIT("  br label %%bb%lld\n", active_observer_store_region.exit_block);
+          active_observer_store_region_emitted = 1;
           continue;
         }
         emit_block_label(bid);
