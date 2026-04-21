@@ -440,9 +440,22 @@ phase README / current entry. Current active card:
     - reject if whole perf does not move or exact/middle guards regress
     - result: keeper; whole `kilo_kernel_small = C 82 ms / Ny AOT 5 ms`,
       `ny_aot_instr=49691801`, `ny_aot_cycles=9882715`
-  - [ ] H39.5 combined executor internal owner refresh
+  - [x] H39.5 combined executor internal owner refresh
     - annotate the H39.4 executor closure before code
     - choose the next narrow runtime/MIR seam from measured evidence
+    - result: next narrow code slice is runtime-only pow2 index/period
+      arithmetic cleanup
+  - [x] H39.5.1 combined executor pow2 index cleanup
+    - replace power-of-two `%` in the combined executor with bitmask arithmetic
+    - no MIR, `.inc`, or public ABI changes
+    - result: cycles/memmove cleanup only; not a wall-time keeper
+    - whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`,
+      `ny_aot_instr=49271666`, `ny_aot_cycles=9282981`
+  - [ ] H39.5.2 combined executor text-cell hot block cleanup
+    - post-pow2 annotate before code
+    - split MidGap text access, UTF-8/range checks, append/contains mechanics,
+      and residual copy inside the combined executor closure
+    - no MIR, `.inc`, or public ABI changes until evidence requires it
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.5 combined executor internal owner refresh)
-  - current blocker is `137x-H39.5 combined executor internal owner refresh`
+  - `phase-137x-H owner-first optimization return` (active; H39.5.2 combined executor text-cell hot block cleanup)
+  - current blocker is `137x-H39.5.2 combined executor text-cell hot block cleanup`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -878,9 +878,24 @@ Scope: current lane / next lane / restart order only.
             C 4 ms / Ny AOT 3 ms`
           - emitted `ny_main` no longer calls per-iteration
             `nyash.array.string_insert_mid_lenhalf_store_hisi`
-        - H39.5 active:
-          - annotate the H39.4 combined executor closure before code
-          - choose the next narrow runtime/MIR seam from measured evidence
+        - H39.5 result:
+          - annotate pins the current owner inside combined executor mechanics
+          - first follow-up is runtime-only pow2 index/period arithmetic
+        - H39.5.1 result:
+          - runtime-only pow2 index/period bitmask cleanup landed
+          - whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`,
+            `ny_aot_instr=49271666`, `ny_aot_cycles=9282981`
+          - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`,
+            `ny_aot_instr=9265976`, `ny_aot_cycles=2404527`
+          - middle `kilo_meso_substring_concat_array_set_loopcarry =
+            C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17651126`,
+            `ny_aot_cycles=4237981`
+          - verdict: cycles/memmove cleanup only; not a wall-time keeper
+        - H39.5.2 active:
+          - post-pow2 annotate before code
+          - split the combined executor hot block between MidGap text access,
+            UTF-8/range checks, append/contains mechanics, and residual copy
+          - no MIR, `.inc`, or public ABI changes until evidence requires it
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

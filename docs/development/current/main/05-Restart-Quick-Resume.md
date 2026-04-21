@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.5 combined executor internal owner refresh)
+  - `phase-137x-H owner-first optimization return` (active; H39.5.2 combined executor text-cell hot block cleanup)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H39.5 combined executor internal owner refresh`
+    - current blocker is `137x-H39.5.2 combined executor text-cell hot block cleanup`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H39.5 combined executor internal owner refresh`
+  - `137x-H39.5.2 combined executor text-cell hot block cleanup`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -105,8 +105,14 @@ cargo check --features perf-observe -p nyash_kernel
     - H39.4 landed: combined edit-observer proof now lowers to one
       runtime-private executor call; whole `kilo_kernel_small = C 82 ms /
       Ny AOT 5 ms`, `ny_aot_instr=49691801`, `ny_aot_cycles=9882715`
-    - H39.5 active: annotate the combined executor closure before choosing the
-      next narrow seam
+    - H39.5 closed: annotate pins the current owner inside combined executor
+      mechanics; first follow-up is runtime-only pow2 index/period arithmetic
+    - H39.5.1 landed: runtime-only pow2 index/period bitmask cleanup; whole
+      `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`, `ny_aot_instr=49271666`,
+      `ny_aot_cycles=9282981`; result is cycles/memmove cleanup only, not a
+      wall-time keeper
+    - H39.5.2 active: post-pow2 annotate and split the combined executor hot
+      block before the next code slice
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

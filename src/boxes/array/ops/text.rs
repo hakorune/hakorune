@@ -382,6 +382,10 @@ impl ArrayBox {
         let row_modulus = usize::try_from(row_modulus).ok()?;
         let observer_period = usize::try_from(observer_period).ok()?;
         let observer_bound = usize::try_from(observer_bound).ok()?;
+        let row_modulus_mask = row_modulus.is_power_of_two().then_some(row_modulus - 1);
+        let observer_period_mask = observer_period
+            .is_power_of_two()
+            .then_some(observer_period - 1);
         let mut items = self.items.write();
 
         if let ArrayStorage::Boxed(boxed) = &*items {
@@ -395,9 +399,16 @@ impl ArrayBox {
                 return None;
             }
             for step in 0..loop_bound {
-                let idx = step % row_modulus;
+                let idx = match row_modulus_mask {
+                    Some(mask) => step & mask,
+                    None => step % row_modulus,
+                };
                 values.get_mut(idx)?.insert_const_mid_lenhalf(middle);
-                if step % observer_period == 0 {
+                let should_observe = match observer_period_mask {
+                    Some(mask) => step & mask == 0,
+                    None => step % observer_period == 0,
+                };
+                if should_observe {
                     for value in values.iter_mut().take(observer_bound) {
                         if value.contains_literal(needle) {
                             value.append_suffix(suffix);
@@ -422,11 +433,18 @@ impl ArrayBox {
         let mut session =
             ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible);
         for step in 0..loop_bound {
-            let idx = step % row_modulus;
+            let idx = match row_modulus_mask {
+                Some(mask) => step & mask,
+                None => step % row_modulus,
+            };
             session.update(idx, |value| {
                 ArrayTextCell::insert_const_mid_lenhalf_string(value, middle)
             })?;
-            if step % observer_period == 0 {
+            let should_observe = match observer_period_mask {
+                Some(mask) => step & mask == 0,
+                None => step % observer_period == 0,
+            };
+            if should_observe {
                 for idx in 0..observer_bound {
                     session.update(idx, |value| {
                         if ArrayTextCell::string_contains_literal(value, needle) {

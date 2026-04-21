@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39.5 combined executor internal owner refresh`
+- current blocker token: `137x-H39.5.2 combined executor text-cell hot block cleanup`
 - current benchmark state:
-  - `C 82 ms / Ny AOT 5 ms`
-  - `ny_aot_instr=49691801`
-  - `ny_aot_cycles=9882715`
+  - `C 83 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=49271666`
+  - `ny_aot_cycles=9282981`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -1196,7 +1196,7 @@ Verdict:
 - next owner is inside the combined executor closure, not `.inc` route
   selection or runtime lock-boundary frequency.
 
-### H39.5 Active
+### H39.5 Result
 
 Goal: refresh the owner inside the H39.4 combined executor before another code
 slice.
@@ -1215,6 +1215,88 @@ slice.
   - hidden runtime legality/session state
   - search-result cache or source-content assumptions
   - broad allocator/arena work before allocator/copy is again dominant
+
+Evidence:
+
+- direct AOT top still names the combined executor closure as the dominant
+  owner (`80-82%` local top in the direct runner).
+- focused annotate shows samples in runtime mechanics, not in `.inc`:
+  - loop index / observer-period arithmetic still lowers to division on the
+    current constants (`row_modulus=64`, `observer_period=8`)
+  - MidGap insert/contains/append branches and UTF-8 boundary checks are the
+    visible source-side hot block
+  - residual libc `memmove` remains secondary (`5-7%`)
+
+Verdict:
+
+- H39.5 closes as owner refresh.
+- first narrow code slice is runtime-only: replace power-of-two modulo in the
+  combined executor with bitmask arithmetic.
+
+### H39.5.1 Result
+
+Goal: reduce combined executor loop arithmetic without touching MIR or `.inc`.
+
+- implementation:
+  - if `row_modulus` or `observer_period` is a power of two, use `step & mask`
+    instead of `%`
+  - keep generic modulo fallback for non-power-of-two metadata
+- keeper gate:
+  - whole `kilo_kernel_small` improves or is at least no-regression
+  - exact/middle guards stay no-regression
+  - no MIR metadata, `.inc`, or public ABI changes
+
+Implementation:
+
+- runtime-only change in `ArrayBox::slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_raw`
+- use `step & mask` for power-of-two `row_modulus` / `observer_period`
+- keep `%` fallback for non-power-of-two metadata
+
+Evidence:
+
+- whole guard:
+  - `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=49271666`
+  - `ny_aot_cycles=9282981`
+- direct AOT asm top:
+  - combined executor closure: `88.57%`
+  - `__memmove_avx512_unaligned_erms`: `5.06%`
+  - `_int_malloc`: `0.55%`
+  - `_int_realloc`: `0.40%`
+- exact guard:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+  - `ny_aot_instr=9265976`
+  - `ny_aot_cycles=2404527`
+- middle guard:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 4 ms`
+  - `ny_aot_instr=17651126`
+  - `ny_aot_cycles=4237981`
+
+Verdict:
+
+- H39.5.1 is accepted as a narrow runtime-internal cleanup.
+- It is not a wall-time keeper: whole/middle integer `ms` did not improve.
+- Next work must keep the owner-first discipline and inspect the combined
+  executor closure again before touching code.
+
+### H39.5.2 Active
+
+Goal: split the post-pow2 combined executor hot block before the next code
+slice.
+
+- first step:
+  - annotate the H39.5.1 direct AOT executor closure
+  - separate MidGap text access, UTF-8/range checks, append/contains mechanics,
+    and residual copy/allocation
+- allowed:
+  - runtime-only cleanup if the sampled block is a mechanical text-cell leaf
+  - MIR metadata only if the sampled block proves a missing generic contract
+    fact
+- forbidden:
+  - `.inc` shape rediscovery
+  - hidden runtime legality/session state
+  - search-result cache or source-content assumptions
+  - public ABI widening for a local cleanup
 
 ### H28.1 runtime-private literal search executor
 
