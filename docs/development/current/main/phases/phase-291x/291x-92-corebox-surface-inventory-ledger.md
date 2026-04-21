@@ -1,0 +1,90 @@
+---
+Status: Active
+Date: 2026-04-22
+Scope: CoreBox surface catalog の棚卸し ledger。結論だけ current docs に反映する。
+Related:
+  - docs/development/current/main/phases/phase-291x/README.md
+  - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
+  - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
+---
+
+# CoreBox Surface Inventory Ledger
+
+## ArrayBox Baseline
+
+Landed in phase-290x:
+
+- Rust owner: `src/boxes/array/surface_catalog.rs`
+- method id: `ArrayMethodId`
+- invoke seam: `ArrayBox::invoke_surface(...)`
+- stable smoke: `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh`
+
+Stable rows:
+
+- `length` with `size` / `len`
+- `get`
+- `set`
+- `push`
+- `pop`
+- `slice`
+- `remove`
+- `insert`
+
+Deferred:
+
+- `clear/contains/indexOf/join/sort/reverse`
+- direct source `slice()` result follow-up calls through `RuntimeDataBox` union receiver
+
+## StringBox Current Duplication
+
+Primary files:
+
+- `src/boxes/basic/string_box.rs`
+- `src/boxes/string_box.rs`
+- `src/runtime/type_registry.rs`
+- `src/runtime/core_box_ids/specs/basic.rs`
+- `src/backend/mir_interpreter/handlers/boxes_string.rs`
+- `src/backend/mir_interpreter/handlers/calls/method.rs`
+- `src/backend/mir_interpreter/handlers/calls/method/dispatch.rs`
+- `lang/src/runtime/collections/string_core_box.hako`
+- `lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako`
+- `apps/std/string.hako`
+- `apps/std/string2.hako`
+
+Observed drift:
+
+- `length` has `len` / `size` aliases in VM or adapter paths, but not one Rust-side catalog.
+- `find` is normalized to `indexOf` in one dispatch path and accepted by plugin paths.
+- `lastIndexOf` one-arg is implemented; two-arg is documented as a gap.
+- `apps/std/string.hako` implements `string_index_of` manually instead of being the semantic owner.
+- `apps/std/string2.hako` is a diagnostic partial file, not a full surface.
+- `toUpper` / `toLower` exposure exists in TypeRegistry extras, but route ownership is not clear enough for the first catalog slice.
+
+First safe implementation:
+
+- catalog the stable rows listed in `291x-91`
+- route Rust dispatch and TypeRegistry through that catalog
+- add a smoke for aliases and values
+- leave `std.string2.hako` and wider method families for follow-up
+
+## MapBox Current Duplication
+
+Primary files to inventory before coding:
+
+- `src/boxes/map_box.rs`
+- `src/runtime/type_registry.rs`
+- `src/backend/mir_interpreter/handlers/calls/method/dispatch.rs`
+- `lang/src/runtime/collections/map_core_box.hako`
+- `lang/src/runtime/collections/map_state_core_box.hako`
+- `lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`
+- `crates/nyash_kernel/src/plugin/map_compat.rs`
+- `lang/src/mir/builder/internal/lower_method_map_get_set_box.hako`
+- `lang/src/mir/builder/internal/lower_method_map_size_box.hako`
+- `docs/development/current/main/phases/phase-29cm/README.md`
+
+Known drift:
+
+- visible surface and compat ABI are split.
+- `size` / `len` / `length` policy appears in `.hako` owner paths and TypeRegistry with legacy slot split.
+- raw substrate helpers are already better separated than StringBox, so MapBox should be cataloged after StringBox rather than before it.
+

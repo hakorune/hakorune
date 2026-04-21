@@ -33,25 +33,24 @@ cargo check -q
 
 - lane:
   - app lane is primary
-  - current-state token: `phase-290x ArrayBox surface canonicalization`
+  - current-state token: `phase-291x CoreBox surface catalog`
   - app proving ground: `apps/kilo_nyash/enhanced_kilo_editor.hako`
-  - active phase: `docs/development/current/main/phases/phase-290x/README.md`
+  - active phase: `docs/development/current/main/phases/phase-291x/README.md`
 - app focus:
-  - `ArrayBox` surface canonicalization
-  - catalog/invoke seam is landed for the first stable surface
-  - stable smoke is landed:
-    - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh`
-  - lock `length()` canonical / `size()` alias before broadening implementation work
+  - CoreBox surface catalog
+  - ArrayBox catalog/invoke seam is landed and phase-290x is closed
+  - first active implementation target is `StringBox`
+  - lock `length()` canonical / `len()` and `size()` aliases before broadening to MapBox
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
-  - `docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md`
+  - `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 - active entry:
-  - `docs/development/current/main/phases/phase-290x/README.md`
+  - `docs/development/current/main/phases/phase-291x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
+  - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 - current blocker token:
-  - `ArrayBox surface truth is split across implementation, dispatch, and exposure`
+  - `StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs`
 
 ## Current Perf Snapshot
 
@@ -86,8 +85,9 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - return to kilo editor feature slices unless ArrayBox drift reappears
-  - keep `src/boxes/array/surface_catalog.rs` as the first surface authoring point
+  - implement the first `StringBox` catalog/invoke slice
+  - keep `src/boxes/array/surface_catalog.rs` as the ArrayBox precedent
+  - do not implement MapBox in the same commit
   - keep phase-137x at observe-only unless app work produces a real blocker
 - perf reopen rule:
   - `137x-E` is already closed enough (`E0` closed, `E1` landed)
@@ -104,11 +104,11 @@ cargo check -q
 
 - worktree should be clean after the last commit.
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
-- the current docs front is phase-290x, not the old “insert missing” app-gap note.
+- the current docs front is phase-291x, not the old ArrayBox-only front.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.
 - history lives in phase docs, not this file:
-  - `docs/development/current/main/phases/phase-290x/README.md`
-  - `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
+  - `docs/development/current/main/phases/phase-291x/README.md`
+  - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
   - `docs/development/current/main/phases/phase-137x/README.md`

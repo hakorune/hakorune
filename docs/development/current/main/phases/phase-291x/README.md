@@ -1,0 +1,75 @@
+---
+Status: Active
+Date: 2026-04-22
+Scope: CoreBox surface catalog を ArrayBox から StringBox / MapBox へ広げる phase front。
+Related:
+  - CURRENT_TASK.md
+  - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/05-Restart-Quick-Resume.md
+  - docs/development/current/main/10-Now.md
+  - docs/development/current/main/15-Workstream-Map.md
+  - docs/development/current/main/phases/phase-290x/README.md
+  - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
+  - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
+  - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
+---
+
+# Phase 291x: CoreBox surface catalog
+
+- Status: Active
+- Date: 2026-04-22
+- Purpose: phase-290x の `ArrayBox` catalog/invoke seam を、CoreBox surface の横断ルールへ上げる。
+- First implementation target: `StringBox`
+- Next implementation target: `MapBox`
+- Sibling guardrail:
+  - `docs/development/current/main/phases/phase-137x/README.md`
+  - phase-137x remains observe-only unless app work produces a real blocker
+
+## Decision
+
+ArrayBox で固定した読み方を CoreBox 全体へ広げる。
+
+```text
+surface contract
+  -> canonical name / aliases / arity / slot / effect / return
+
+execution dispatch
+  -> one invoke seam per Box family
+
+exposure state
+  -> runtime / VM / std sugar / docs / smoke pinned state
+```
+
+ただし、最初の code slice で `StringBox` と `MapBox` を同時に触らない。
+phase-291x の初回実装は `StringBox` だけに閉じる。
+
+## Reading Order
+
+1. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+2. `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
+3. `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
+
+## Current Rule
+
+- docs-first before code
+- `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
+- `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
+- `StringBox.lastIndexOf(needle, start_pos)` remains explicitly deferred until a separate card
+- `apps/std/string.hako` is sugar, not the semantic owner
+- `apps/std/string2.hako` is diagnostic residue unless promoted or deleted by an explicit cleanup card
+- `MapBox` is inventoried in this phase but not implemented in the first StringBox card
+
+## Implementation State
+
+Planned first implementation card:
+
+```text
+String surface catalog
+  -> StringMethodId
+  -> StringBox::invoke_surface(...)
+  -> thin registry / method-resolution / dispatch consumers
+  -> stable String surface smoke
+```
+
+MapBox follows only after StringBox has a green catalog/invoke smoke.
+

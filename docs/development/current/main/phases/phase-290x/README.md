@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-04-22
 Scope: app lane の `ArrayBox` surface contract / execution dispatch / exposure state を docs-first で固定する phase front。
 Related:
@@ -16,7 +16,7 @@ Related:
 
 # Phase 290x: ArrayBox surface canonicalization
 
-- Status: Active
+- Status: Closed
 - Date: 2026-04-22
 - Purpose: `ArrayBox` の truth を `surface contract / execution dispatch / exposure state` の 3 層に切り分け、app lane で触りやすい入口を先に固定する。
 - Active proving ground:
@@ -78,4 +78,5 @@ Stable Array surface smoke is landed:
 tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh
 ```
 
-Next follow-up is return to app-lane slices unless another ArrayBox drift is found.
+Follow-up moved to phase-291x CoreBox surface catalog, with StringBox as the
+first implementation target.

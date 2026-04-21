@@ -8,28 +8,29 @@
 status = "Active"
 date = "2026-04-22"
 
-active_lane = "phase-290x ArrayBox surface canonicalization"
-active_lane_status = "active; catalog/invoke seam and stable smoke landed; app follow-up pending"
-active_phase = "docs/development/current/main/phases/phase-290x/README.md"
-method_anchor = "docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md"
+active_lane = "phase-291x CoreBox surface catalog"
+active_lane_status = "active; docs-first CoreBox inventory, StringBox first implementation slice"
+active_phase = "docs/development/current/main/phases/phase-291x/README.md"
+method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
+taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-current_blocker_token = "ArrayBox surface truth is split across implementation, dispatch, and exposure"
+current_blocker_token = "StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 opened_successors = [
-  "phase-290x docs-first ArrayBox surface canonicalization active",
-  "ArrayBox surface catalog / ArrayMethodId / invoke_surface seam landed",
-  "phase290x_arraybox_surface_catalog_vm stable smoke landed",
-  "kilo editor follow-up slices after ArrayBox surface SSOT lands",
+  "phase-290x ArrayBox surface catalog landed",
+  "phase-291x CoreBox surface catalog active",
+  "StringBox surface catalog first implementation slice",
+  "MapBox surface catalog follows after StringBox smoke is green",
 ]
 
 blocked_successors = [
   "phase-137x perf reopen without app blocker evidence",
-  "length/size drift without canonical surface owner",
-  "runtime/std/docs/smoke surface drift for ArrayBox methods",
+  "StringBox lastIndexOf two-arg implementation in the catalog commit",
+  "MapBox implementation mixed into the first StringBox slice",
+  "std.string sugar treated as semantic owner",
 ]
 
 stale_pointer_patterns = [
@@ -37,4 +38,6 @@ stale_pointer_patterns = [
   "ArrayBox.remove(index) = runtime exists, but std/docs/smoke surface is still thin",
   "phase-137x-H owner-first optimization return",
   "active app slice: `apps/kilo_nyash/enhanced_kilo_editor.hako`",
+  "phase-290x ArrayBox surface canonicalization active",
+  "current-state token: `phase-290x ArrayBox surface canonicalization`",
 ]

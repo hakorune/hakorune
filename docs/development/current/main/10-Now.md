@@ -30,26 +30,26 @@ Related:
 
 - current lane:
   - app lane is primary
-  - current-state token: `phase-290x ArrayBox surface canonicalization`
+  - current-state token: `phase-291x CoreBox surface catalog`
   - app proving ground: `apps/kilo_nyash/enhanced_kilo_editor.hako`
-  - active phase: `docs/development/current/main/phases/phase-290x/README.md`
-  - method anchor: `docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
-  - current implementation focus: `ArrayBox` surface canonicalization
+  - active phase: `docs/development/current/main/phases/phase-291x/README.md`
+  - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
+  - current implementation focus: `StringBox` surface catalog
   - current phase goal:
-    - split `ArrayBox` truth into `surface contract / execution dispatch / exposure state`
-    - lock `length()` as canonical and `size()` as compatibility alias
-    - keep the landed `surface_catalog.rs` + `ArrayMethodId` + `ArrayBox::invoke_surface(...)` seam as the first code-side owner
-    - stable surface smoke is landed before returning to kilo editor slices
+    - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
+    - implement the first `StringBox` catalog/invoke slice only
+    - lock `StringBox.length()` as canonical and `len()` / `size()` as compatibility aliases
+    - inventory MapBox without mixing it into the first StringBox code commit
   - current app gap read:
-    - `ArrayBox.insert(index, value)` is now landed
-    - `ArrayBox.remove(index)` is now surfaced through std/smoke
-    - first stable ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
-    - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins catalog/invoke plus VM visible-owner routes
+    - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
+    - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
+    - StringBox surface truth is still split across Rust helpers, VM dispatch, TypeRegistry, `.hako` wrappers, and std sugar
+    - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `ArrayBox surface truth is split across implementation, dispatch, and exposure`
+  - current blocker token: `StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
@@ -207,7 +207,7 @@ Related:
     - keep array slot stores unchanged unless a separate MIR-owned no-escape / consumer proof is opened
     - H17 is closed: exact `kilo_micro_array_string_store` stays `C 10 ms / Ny AOT 5 ms`, `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`, and the loop-body `text+16` terminator store is gone
   - active phase:
-    - `docs/development/current/main/phases/phase-290x/README.md`
+    - `docs/development/current/main/phases/phase-291x/README.md`
     - sibling guardrail: `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
     - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`

@@ -4,7 +4,7 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 290x ArrayBox surface canonicalization
+- **Current (ACTIVE)**: Phase 291x CoreBox surface catalog
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection (observe-only)
 
 ## Planned / Parked Successors

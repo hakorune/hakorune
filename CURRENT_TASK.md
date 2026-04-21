@@ -28,21 +28,25 @@ Scope: current lane / next lane / restart order only.
 14. `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
 15. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 16. `docs/development/current/main/phases/phase-137x/README.md`
-17. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-18. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
-19. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
-20. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-21. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-22. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
-23. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-24. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-25. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-26. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-27. `docs/development/current/main/design/string-birth-sink-ssot.md`
-28. `docs/development/current/main/15-Workstream-Map.md`
-29. `git status -sb`
-30. `tools/checks/dev_gate.sh quick`
-31. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+17. `docs/development/current/main/phases/phase-291x/README.md`
+18. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+19. `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
+20. `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
+21. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+22. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+23. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+24. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+25. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+26. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
+27. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+28. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+29. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+30. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+31. `docs/development/current/main/design/string-birth-sink-ssot.md`
+32. `docs/development/current/main/15-Workstream-Map.md`
+33. `git status -sb`
+34. `tools/checks/dev_gate.sh quick`
+35. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -52,42 +56,34 @@ Scope: current lane / next lane / restart order only.
 - active lane:
   - app lane is primary now
   - current-state token:
-    - `phase-290x ArrayBox surface canonicalization`
+    - `phase-291x CoreBox surface catalog`
   - active phase:
-    - `docs/development/current/main/phases/phase-290x/README.md`
+    - `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor:
-    - `docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md`
+    - `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
+    - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
   - current app slice:
     - `apps/kilo_nyash/enhanced_kilo_editor.hako`
     - replace-all is real
     - line split is real and now uses native `ArrayBox.insert()`
   - phase-137x remains observe-only
   - current perf blocker stays recorded as `137x-H46 text-cell residence/materialization design`, but it does not preempt app work unless app implementation is actually blocked
-  - current ArrayBox phase goal:
-    - split `ArrayBox` truth into:
-      - `surface contract`
-      - `execution dispatch`
-      - `exposure state`
-    - document `length()` as canonical and `size()` as compatibility alias
-    - keep the landed first implementation seam:
-      - `src/boxes/array/surface_catalog.rs`
-      - `ArrayMethodId`
-      - `ArrayBox::invoke_surface(...)`
-    - stable Array surface smoke is landed:
-      - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh`
-    - next: return to kilo editor feature slices unless ArrayBox drift reappears
+  - current CoreBox phase goal:
+    - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
+    - implement only the first StringBox slice in this card
+    - keep `StringBox.length()` canonical and `len()` / `size()` as compatibility aliases
+    - keep `StringBox.lastIndexOf(needle, start_pos)` deferred to a separate card
+    - inventory MapBox, but do not mix MapBox implementation into the StringBox commit
   - current app/runtime gap read:
-    - `ArrayBox.insert(index, value)` is landed
-    - `ArrayBox.remove(index)` is surfaced
-    - first stable ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
-    - stable smoke now pins catalog/invoke plus VM visible-owner routes
+    - ArrayBox surface catalog is landed and phase-290x is closed
+    - StringBox surface truth is still split across Rust helpers, VM dispatch, TypeRegistry, `.hako` wrappers, and std sugar
+    - `apps/std/string.hako` and `apps/std/string2.hako` are not a single surface owner
+    - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
     - static-box receiver friction remains a semantics/diagnostics issue
-    - direct source `slice()` result currently lowers follow-up calls through a `RuntimeDataBox` union receiver; slice semantics are pinned by `ArrayBox::invoke_surface(...)` while that separate return-type topic remains deferred
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `ArrayBox surface truth is split across implementation, dispatch, and exposure`
+    - `StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

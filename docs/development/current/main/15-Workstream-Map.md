@@ -14,28 +14,28 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-290x ArrayBox surface canonicalization` |
-| Front | `catalog/invoke seam landed -> stable smoke landed -> app follow-up` |
+| Now | `phase-291x CoreBox surface catalog` |
+| Front | `ArrayBox precedent landed -> StringBox catalog first -> MapBox follows` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `ArrayBox truth is split across runtime surface, dispatch, std sugar, and smoke` |
-| Next | `resume kilo editor slices (backspace merge / undo execution)` |
-| After Next | `defer slice return-type union receiver cleanup unless app work needs it` |
+| Blocker | `StringBox truth is split across runtime surface, dispatch, std sugar, and docs` |
+| Next | `StringBox surface catalog/invoke smoke` |
+| After Next | `MapBox surface catalog after StringBox green` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-290x/README.md`
-  - phase brief: `docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
-  - inventory: `docs/development/current/main/phases/phase-290x/290x-92-arraybox-surface-inventory-ledger.md`
+  - implementation lane: `docs/development/current/main/phases/phase-291x/README.md`
+  - phase brief: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
+  - inventory: `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Immediate Sequence
 
-1. `phase-290x docs-first ArrayBox surface lock`
-2. `phase-290x implementation seam` (landed)
-3. `phase-290x stable smoke` (landed)
-4. `return to kilo editor feature slices`
+1. `phase-291x docs-first CoreBox surface inventory`
+2. `phase-291x StringBox catalog/invoke seam`
+3. `phase-291x stable StringBox smoke`
+4. `phase-291x MapBox inventory follow-up`
 
 ## Parked Corridor
 
