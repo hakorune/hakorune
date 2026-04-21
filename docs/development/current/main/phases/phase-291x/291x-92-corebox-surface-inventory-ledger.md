@@ -161,3 +161,8 @@ Remaining drift:
 - `set` / `delete` / `clear` current Rust receipt values are unchanged.
 - `apps/lib/boxes/map_std.hako` is a P0 scaffold imported by the selfhost prelude,
   so deletion requires a separate module-registry/prelude cleanup card.
+
+Completed cleanup:
+
+- legacy `apps/std/map_std.hako` JIT-only placeholder was deleted after reference
+  inventory showed no active import/module-registry route.

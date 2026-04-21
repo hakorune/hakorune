@@ -86,5 +86,6 @@ This MapBox slice is done when:
 ## Follow-Up Cleanup Candidates
 
 - `.hako` VM source route still stubs `keys` / `values` / `remove` / `clear`; promote only with a separate state-owner card.
+- legacy `apps/std/map_std.hako` JIT-only placeholder was deleted after inventory; do not recreate it as a second std owner.
 - `apps/lib/boxes/map_std.hako` remains a P0 scaffold and is imported by `apps/selfhost-runtime/selfhost_prelude.hako`; delete only after replacing that prelude/module-registry dependency.
 - `crates/nyash_kernel/src/plugin/map_compat.rs` remains compat-only quarantine; do not delete in a surface catalog commit.
