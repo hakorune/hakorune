@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+use std::cmp::Ordering;
+
+#[derive(Clone, Debug)]
 pub(super) enum ArrayTextCell {
     Flat(String),
 }
@@ -13,6 +15,20 @@ impl ArrayTextCell {
     pub(super) fn as_str(&self) -> &str {
         match self {
             Self::Flat(value) => value.as_str(),
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn with_text<R>(&self, f: impl FnOnce(&str) -> R) -> R {
+        match self {
+            Self::Flat(value) => f(value.as_str()),
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn to_visible_string(&self) -> String {
+        match self {
+            Self::Flat(value) => value.clone(),
         }
     }
 
@@ -33,6 +49,21 @@ impl ArrayTextCell {
     #[inline(always)]
     pub(super) fn len(&self) -> usize {
         self.as_str().len()
+    }
+
+    #[inline(always)]
+    pub(super) fn equals_text(&self, needle: &str) -> bool {
+        self.with_text(|value| value == needle)
+    }
+
+    #[inline(always)]
+    pub(super) fn equals_cell(&self, other: &Self) -> bool {
+        self.with_text(|lhs| other.with_text(|rhs| lhs == rhs))
+    }
+
+    #[inline(always)]
+    pub(super) fn cmp_text(&self, other: &Self) -> Ordering {
+        self.with_text(|lhs| other.with_text(|rhs| lhs.cmp(rhs)))
     }
 
     #[inline(always)]

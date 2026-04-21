@@ -132,18 +132,28 @@ impl NyashBox for ArrayBox {
                     return BoolBox::new(lhs == rhs);
                 }
                 (ArrayStorage::Text(lhs), ArrayStorage::Text(rhs)) => {
-                    return BoolBox::new(lhs == rhs);
+                    return BoolBox::new(
+                        lhs.iter()
+                            .zip(rhs.iter())
+                            .all(|(lhs, rhs)| lhs.equals_cell(rhs)),
+                    );
                 }
                 (ArrayStorage::Text(lhs), ArrayStorage::Boxed(rhs)) => {
                     for (a, b) in lhs.iter().zip(rhs.iter()) {
-                        if b.as_str_fast() != Some(a.as_str()) {
+                        let Some(value) = b.as_str_fast() else {
+                            return BoolBox::new(false);
+                        };
+                        if !a.equals_text(value) {
                             return BoolBox::new(false);
                         }
                     }
                 }
                 (ArrayStorage::Boxed(lhs), ArrayStorage::Text(rhs)) => {
                     for (a, b) in lhs.iter().zip(rhs.iter()) {
-                        if a.as_str_fast() != Some(b.as_str()) {
+                        let Some(value) = a.as_str_fast() else {
+                            return BoolBox::new(false);
+                        };
+                        if !b.equals_text(value) {
                             return BoolBox::new(false);
                         }
                     }

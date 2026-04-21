@@ -66,7 +66,7 @@ impl ArrayBox {
     pub(super) fn boxed_from_text(values: &[ArrayTextCell]) -> Vec<Box<dyn NyashBox>> {
         values
             .iter()
-            .map(|value| Box::new(StringBox::new(value.as_str())) as Box<dyn NyashBox>)
+            .map(|value| Box::new(StringBox::new(value.to_visible_string())) as Box<dyn NyashBox>)
             .collect()
     }
 
@@ -221,7 +221,7 @@ impl ArrayBox {
     pub(super) fn strings_from_text(values: &[ArrayTextCell]) -> Vec<String> {
         values
             .iter()
-            .map(|value| value.as_str().to_owned())
+            .map(ArrayTextCell::to_visible_string)
             .collect()
     }
 

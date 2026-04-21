@@ -39,7 +39,7 @@ impl ArrayBox {
     pub fn sort(&self) -> Box<dyn NyashBox> {
         let mut items = self.items.write();
         match &mut *items {
-            ArrayStorage::Text(values) => values.sort_unstable(),
+            ArrayStorage::Text(values) => values.sort_unstable_by(|lhs, rhs| lhs.cmp_text(rhs)),
             ArrayStorage::InlineI64(values) => values.sort_unstable(),
             ArrayStorage::InlineBool(values) => values.sort_unstable(),
             ArrayStorage::InlineF64(values) => values.sort_by(|lhs, rhs| lhs.total_cmp(rhs)),

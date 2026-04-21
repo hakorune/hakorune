@@ -134,7 +134,7 @@ impl ArrayBox {
         let idx = idx as usize;
         let items = self.items.read();
         match &*items {
-            ArrayStorage::Text(values) => values.get(idx).map(|value| f(value.as_str())),
+            ArrayStorage::Text(values) => values.get(idx).map(|value| value.with_text(f)),
             ArrayStorage::Boxed(items) => items.get(idx).and_then(|item| item.as_str_fast().map(f)),
             ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)

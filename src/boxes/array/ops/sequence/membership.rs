@@ -15,7 +15,7 @@ impl ArrayBox {
             }
             ArrayStorage::Text(values) => {
                 if let Some(needle) = value.as_str_fast() {
-                    if let Some(idx) = values.iter().position(|item| item.as_str() == needle) {
+                    if let Some(idx) = values.iter().position(|item| item.equals_text(needle)) {
                         return Box::new(IntegerBox::new(idx as i64));
                     }
                 }
@@ -62,7 +62,7 @@ impl ArrayBox {
             ArrayStorage::Text(values) => {
                 if let Some(needle) = value.as_str_fast() {
                     return Box::new(BoolBox::new(
-                        values.iter().any(|item| item.as_str() == needle),
+                        values.iter().any(|item| item.equals_text(needle)),
                     ));
                 }
             }
