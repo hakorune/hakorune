@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H43 combined executor memmove owner split)
-  - current blocker is `137x-H43 combined executor memmove owner split`
+  - `phase-137x-H owner-first optimization return` (active; H44 post-copy-probe owner decision)
+  - current blocker is `137x-H44 post-copy-probe owner decision`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -970,10 +970,17 @@ Scope: current lane / next lane / restart order only.
             H40.2 (`34108663` / `6613012`) and top `memmove` share rose to
             `19.77%`
           - verdict: suffix dispatch/source-load is not the keeper seam
-        - H43 active:
-          - split the remaining combined executor owner around external
-            `memmove` / MidGap old-content copy before adding code
-          - no more suffix micro-leaf surgery without a fresh sampled block
+        - H43 closed:
+          - H43.1 right-front suffix escape was rejected and reverted
+          - whole instructions/cycles regressed from clean H43
+            `34108337` / `6544565` to `34826664` / `7281528`
+          - `memmove` share rose from `16.93%` to `17.72%`
+          - no more local MidGap copy leaves without a fresh sampled block
+        - H44 active:
+          - blocker token: `137x-H44 post-copy-probe owner decision`
+          - choose observer-scan split only if sampled source blocks pin it
+          - otherwise escalate to broader text-cell residence/materialization
+            design instead of more `String` surgery
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

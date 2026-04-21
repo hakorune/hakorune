@@ -507,7 +507,7 @@ phase README / current entry. Current active card:
       source-content assumptions
     - result: rejected and reverted; whole instructions/cycles regressed to
       `35553658` / `6944027`, and `memmove` share rose to `19.77%`
-  - [ ] H43 combined executor memmove owner split
+  - [x] H43 combined executor memmove owner split
     - split the remaining owner between external `memmove`, MidGap
       old-content copy, observer scan, and allocator tails
     - do not add more suffix micro-leaf surgery without a fresh sampled block
@@ -521,6 +521,16 @@ phase README / current entry. Current active card:
     - next: close H43 if no narrower sampled copy transition appears; prefer
       broader text-cell residence/materialization design or observer scan split
       over another micro copy leaf
+  - [ ] H44 post-copy-probe owner decision
+    - decide the next keeper owner after H42 prepared suffix append and H43.1
+      right-front suffix escape both rejected
+    - baseline: clean H43 whole `kilo_kernel_small = C 82 ms / Ny AOT 5 ms`,
+      `ny_aot_instr=34108337`, `ny_aot_cycles=6544565`
+    - top: combined executor closure `68.01%`, external `memmove` `16.93%`,
+      `_int_malloc` `1.62%`
+    - choose observer-scan split only if sampled source block pins it
+    - otherwise escalate to broader text-cell residence/materialization design
+      rather than another local MidGap copy leaf
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

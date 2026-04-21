@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H41 post-byte-proof MidGap copy owner refresh`
+- current blocker token: `137x-H44 post-copy-probe owner decision`
 - current benchmark state:
-  - `C 82 ms / Ny AOT 6 ms`
-  - `ny_aot_instr=34108663`
-  - `ny_aot_cycles=6613012`
+  - `C 82 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=34108337`
+  - `ny_aot_cycles=6544565`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -32,11 +32,11 @@ ledger details; current implementation work should start here.
     executor without changing MIR, `.inc`, or public ABI
   - H40 moves byte-boundary legality to MIR metadata and consumes it in a
     runtime-private proof-specific leaf
-  - latest direct-AOT top after H40.2:
-    - combined region executor closure: `68.98%`
-    - `__memmove_avx512_unaligned_erms`: `17.89%`
-    - `_int_malloc`: `1.25%`
-    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.23%`
+  - latest clean direct-AOT top after H43 reject/revert:
+    - combined region executor closure: `68.01%`
+    - `__memmove_avx512_unaligned_erms`: `16.93%`
+    - `_int_malloc`: `1.62%`
+    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.18%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -1631,7 +1631,7 @@ the MIR-proven combined executor without changing MIR or `.inc` authority.
   - suffix dispatch/source-load is not the keeper seam; return to the
     post-byte-proof copy owner
 
-### H43 Active
+### H43 Closed
 
 Goal: split the remaining combined executor owner around external `memmove` /
 MidGap old-content copy before adding any more runtime leaf code.
@@ -1707,6 +1707,40 @@ MidGap old-content copy before adding any more runtime leaf code.
     - close H43 if no narrower sampled copy transition appears
     - prefer a broader text-cell residence/materialization design or observer
       scan split over another micro copy leaf
+
+### H44 Active
+
+Goal: choose the next clean keeper owner after two runtime micro-copy probes
+failed to beat the clean H43 baseline.
+
+- target front:
+  - `kilo_kernel_small`
+- blocker token:
+  - `137x-H44 post-copy-probe owner decision`
+- evidence entering H44:
+  - H42 prepared suffix append regressed whole instructions/cycles to
+    `35553658` / `6944027` and raised `memmove` share to `19.77%`
+  - H43.1 right-front suffix escape regressed whole instructions/cycles to
+    `34826664` / `7281528` and raised `memmove` share to `17.72%`
+  - clean H43 baseline is `ny_aot_instr=34108337`,
+    `ny_aot_cycles=6544565`; 300-run top is combined executor closure
+    `68.01%`, external `memmove` `16.93%`, `_int_malloc` `1.62%`
+- decision rule:
+  - do not add another MidGap copy/suffix leaf unless a fresh sampled block
+    pins a narrower transition than the current broad external `memmove`
+  - if observer scan branch samples are the next source-owned block, open a
+    narrow observer-scan split
+  - if copy/materialization remains broad after scan is ruled out, open a
+    larger text-cell residence/materialization design instead of local
+    `String` surgery
+- first step:
+  - preserve/reuse direct-AOT top plus annotate for the clean H43 baseline
+  - write the H44 decision in this entry before code
+- guard:
+  - no MIR metadata shape change until the new owner requires it
+  - no `.inc` planner regression
+  - no runtime legality/provenance inference
+  - no benchmark-name/source-content assumptions
 
 ### H28.1 runtime-private literal search executor
 

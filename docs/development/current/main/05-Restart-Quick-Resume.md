@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H43 combined executor memmove owner split)
+  - `phase-137x-H owner-first optimization return` (active; H44 post-copy-probe owner decision)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H43 combined executor memmove owner split`
+    - current blocker is `137x-H44 post-copy-probe owner decision`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H43 combined executor memmove owner split`
+  - `137x-H44 post-copy-probe owner decision`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -133,8 +133,12 @@ cargo check --features perf-observe -p nyash_kernel
       observer scan plus the existing short-suffix write leaf
     - H42 rejected: prepared suffix append worsened whole instructions/cycles
       and was reverted
-    - H43 active: split the remaining combined executor owner around external
-      `memmove` / MidGap old-content copy before adding code
+    - H43 closed: H43.1 right-front suffix escape was rejected and reverted;
+      whole instructions/cycles regressed to `34826664` / `7281528` and
+      `memmove` share rose to `17.72%`
+    - H44 active: choose observer-scan split only if sampled source blocks pin
+      it; otherwise escalate to broader text-cell residence/materialization
+      design instead of more local `String` surgery
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`
