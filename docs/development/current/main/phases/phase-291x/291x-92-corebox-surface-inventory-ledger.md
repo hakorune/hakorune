@@ -137,3 +137,25 @@ First slice owner decision:
   - `src/backend/mir_interpreter/handlers/calls/method/dispatch.rs`
 - `.hako` visible owner remains `lang/src/runtime/collections/map_core_box.hako`
   for state/raw-handle orchestration in this slice.
+
+## MapBox Landing Snapshot
+
+Landed first implementation:
+
+- `src/boxes/map_surface_catalog.rs` owns the current Rust vtable row set.
+- `MapBox::invoke_surface(...)` is the Rust invoke seam for those rows.
+- TypeRegistry rows now come from `MAP_SURFACE_METHODS`; the old `MAP_METHOD_EXTRAS`
+  table was removed.
+- Rust VM slot dispatch delegates cataloged MapBox slots to the invoke seam.
+- method resolution and effect analysis read `MapMethodId`.
+- `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_vm.sh`
+  pins Rust catalog rows and the hako-visible `size/len/set/get/has` VM subset.
+
+Remaining drift:
+
+- `.hako` VM source route still stubs `keys` / `values` / `remove` / `clear`.
+- `length` remains `.hako` compatibility/debt and is not a Rust vtable alias.
+- `size` and `len` keep separate slots.
+- `set` / `delete` / `clear` current Rust receipt values are unchanged.
+- `apps/lib/boxes/map_std.hako` is a P0 scaffold imported by the selfhost prelude,
+  so deletion requires a separate module-registry/prelude cleanup card.

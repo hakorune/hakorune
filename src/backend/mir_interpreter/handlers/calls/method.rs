@@ -12,6 +12,7 @@ use crate::box_trait::{NyashBox, StringBox as CoreStringBox};
 use crate::boxes::array::{ArrayBox, ArrayMethodId, ArraySurfaceInvokeResult};
 use crate::boxes::basic::{StringMethodId, StringSurfaceInvokeResult};
 use crate::boxes::string_ops;
+use crate::boxes::{MapBox, MapMethodId, MapSurfaceInvokeResult};
 use crate::config::env;
 use crate::runtime::get_global_ring0;
 
@@ -54,6 +55,40 @@ impl MirInterpreter {
         Ok(match result {
             ArraySurfaceInvokeResult::Value(value) => VMValue::from_nyash_box(value),
             ArraySurfaceInvokeResult::Void => VMValue::Void,
+        })
+    }
+
+    fn load_map_surface_args(
+        &mut self,
+        method_id: MapMethodId,
+        args: &[ValueId],
+    ) -> Result<Vec<Box<dyn NyashBox>>, VMError> {
+        let expected = method_id.arity();
+        if args.len() < expected {
+            return Err(self.err_invalid(format!(
+                "MapBox.{}: invalid receiver or missing arguments",
+                method_id.canonical_name()
+            )));
+        }
+
+        args.iter()
+            .take(expected)
+            .map(|arg| self.load_as_box(*arg))
+            .collect()
+    }
+
+    fn invoke_map_surface(
+        &mut self,
+        map: &MapBox,
+        method_id: MapMethodId,
+        args: &[ValueId],
+    ) -> Result<VMValue, VMError> {
+        let surface_args = self.load_map_surface_args(method_id, args)?;
+        let result = map
+            .invoke_surface(method_id, surface_args)
+            .map_err(|err| self.err_invalid(err.to_string()))?;
+        Ok(match result {
+            MapSurfaceInvokeResult::Value(value) => VMValue::from_nyash_box(value),
         })
     }
 

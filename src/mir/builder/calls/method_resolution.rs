@@ -116,7 +116,7 @@ pub fn has_method(box_name: &str, method: &str) -> bool {
         "StringBox" => crate::boxes::basic::StringMethodId::from_name(method).is_some(),
         "IntegerBox" => matches!(method, "add" | "sub" | "mul" | "div"),
         "ArrayBox" => crate::boxes::array::ArrayMethodId::from_name(method).is_some(),
-        "MapBox" => matches!(method, "get" | "set" | "has" | "delete"),
+        "MapBox" => crate::boxes::MapMethodId::from_name(method).is_some(),
         "MathBox" => matches!(method, "sin" | "cos" | "abs" | "min" | "max"),
         _ => false, // Conservative: assume no method unless explicitly known
     }

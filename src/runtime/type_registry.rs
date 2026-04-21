@@ -105,6 +105,25 @@ fn string_surface_method_entries() -> Vec<MethodEntry> {
     entries
 }
 
+fn map_surface_method_entries() -> Vec<MethodEntry> {
+    let mut entries = Vec::new();
+    for spec in crate::boxes::MAP_SURFACE_METHODS {
+        entries.push(MethodEntry {
+            name: spec.canonical,
+            arity: spec.arity,
+            slot: spec.slot,
+        });
+        for alias in spec.aliases {
+            entries.push(MethodEntry {
+                name: *alias,
+                arity: spec.arity,
+                slot: spec.slot,
+            });
+        }
+    }
+    entries
+}
+
 const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
     MethodEntry {
         name: "clear",
@@ -137,40 +156,6 @@ const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
         name: "reverse",
         arity: 0,
         slot: 110,
-    },
-];
-
-const MAP_METHOD_EXTRAS: &[MethodEntry] = &[
-    MethodEntry {
-        name: "size",
-        arity: 0,
-        slot: 200,
-    },
-    MethodEntry {
-        name: "len",
-        arity: 0,
-        slot: 201,
-    },
-    // Extended
-    MethodEntry {
-        name: "delete",
-        arity: 1,
-        slot: 205,
-    }, // alias: remove (同一スロット)
-    MethodEntry {
-        name: "remove",
-        arity: 1,
-        slot: 205,
-    },
-    MethodEntry {
-        name: "values",
-        arity: 0,
-        slot: 207,
-    },
-    MethodEntry {
-        name: "clear",
-        arity: 0,
-        slot: 208,
     },
 ];
 
@@ -218,8 +203,9 @@ fn arraybox_typebox() -> &'static TypeBox {
 
 fn mapbox_typebox() -> &'static TypeBox {
     MAPBOX_TB.get_or_init(|| {
-        let core = core_method_entries_for_box(CoreBoxId::Map);
-        let methods = merge_method_entries(core, MAP_METHOD_EXTRAS);
+        let mut core = core_method_entries_for_box(CoreBoxId::Map);
+        core.extend(map_surface_method_entries());
+        let methods = merge_method_entries(core, &[]);
         TypeBox::new_with("MapBox", methods)
     })
 }
@@ -383,5 +369,29 @@ mod tests {
     fn test_string_trim_slot_resolves_for_primitive_and_box() {
         assert_eq!(resolve_slot_by_name("String", "trim", 0), Some(305));
         assert_eq!(resolve_slot_by_name("StringBox", "trim", 0), Some(305));
+    }
+
+    #[test]
+    fn test_map_slots_resolve_from_surface_catalog() {
+        for spec in crate::boxes::MAP_SURFACE_METHODS {
+            assert_eq!(
+                resolve_slot_by_name("MapBox", spec.canonical, spec.arity as usize),
+                Some(spec.slot),
+                "MapBox.{}({}) should resolve to slot {}",
+                spec.canonical,
+                spec.arity,
+                spec.slot
+            );
+            for alias in spec.aliases {
+                assert_eq!(
+                    resolve_slot_by_name("MapBox", alias, spec.arity as usize),
+                    Some(spec.slot),
+                    "MapBox.{}({}) alias should resolve to slot {}",
+                    alias,
+                    spec.arity,
+                    spec.slot
+                );
+            }
+        }
     }
 }

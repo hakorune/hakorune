@@ -73,8 +73,8 @@ Scope: current lane / next lane / restart order only.
   - current CoreBox phase goal:
     - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
     - StringBox catalog/invoke slice is landed and pinned
-    - implement the first MapBox catalog slice next
-    - MapBox docs-first taskboard is active
+    - MapBox catalog/invoke slice is landed and pinned
+    - cleanup triage is next
     - keep `StringBox.length()` canonical and `len()` / `size()` as compatibility aliases
     - keep `StringBox.lastIndexOf(needle, start_pos)` deferred to a separate card
     - catalog current MapBox vtable rows first; do not mix alias normalization or return-contract changes into that commit
@@ -83,11 +83,11 @@ Scope: current lane / next lane / restart order only.
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - `apps/std/string.hako` and `apps/std/string2.hako` are not a single surface owner
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - MapBox surface truth is still split across runtime substrate, compat ABI, MIR lowering, Rust VM dispatch, and `.hako` state paths
+    - MapBox Rust vtable surface is now cataloged; compat ABI, MIR lowering, `.hako` extended routes, and std scaffold debt remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs`
+    - `CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

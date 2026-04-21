@@ -9,12 +9,12 @@ status = "Active"
 date = "2026-04-22"
 
 active_lane = "phase-291x CoreBox surface catalog"
-active_lane_status = "active; StringBox surface catalog landed, MapBox first catalog slice next"
+active_lane_status = "active; StringBox and MapBox first surface catalog slices landed; cleanup triage next"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md"
 
-current_blocker_token = "MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs"
+current_blocker_token = "CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -23,7 +23,7 @@ opened_successors = [
   "phase-290x ArrayBox surface catalog landed",
   "phase-291x CoreBox surface catalog active",
   "StringBox surface catalog first implementation slice landed",
-  "MapBox surface catalog first implementation slice next",
+  "MapBox surface catalog first implementation slice landed",
 ]
 
 blocked_successors = [
@@ -31,6 +31,7 @@ blocked_successors = [
   "StringBox lastIndexOf two-arg implementation in the catalog commit",
   "MapBox alias normalization or return-contract changes mixed into the first MapBox catalog slice",
   "std.string sugar treated as semantic owner",
+  "apps.lib.boxes.map_std deleted without replacing selfhost prelude/module registry dependency",
 ]
 
 stale_pointer_patterns = [

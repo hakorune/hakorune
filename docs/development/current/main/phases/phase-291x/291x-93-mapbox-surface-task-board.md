@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-22
 Scope: phase-291x second implementation target, `MapBox` surface catalog first slice.
 Related:
@@ -34,11 +34,11 @@ MapBox surface catalog
 
 | Card | Status | Goal |
 | --- | --- | --- |
-| `291x-M1a` | active | add `src/boxes/map_surface_catalog.rs` and `MapMethodId` |
-| `291x-M1b` | pending | add `MapBox::invoke_surface(...)` for current vtable rows |
-| `291x-M1c` | pending | convert TypeRegistry / method resolution / effect analysis readers |
-| `291x-M1d` | pending | route Rust VM slot dispatch through the cataloged surface rows |
-| `291x-M1e` | pending | add stable MapBox surface smoke |
+| `291x-M1a` | done | add `src/boxes/map_surface_catalog.rs` and `MapMethodId` |
+| `291x-M1b` | done | add `MapBox::invoke_surface(...)` for current vtable rows |
+| `291x-M1c` | done | convert TypeRegistry / method resolution / effect analysis readers |
+| `291x-M1d` | done | route Rust VM slot dispatch through the cataloged surface rows |
+| `291x-M1e` | done | add stable MapBox surface smoke |
 
 ## First Stable Surface Target
 
@@ -73,4 +73,18 @@ This MapBox slice is done when:
 2. TypeRegistry rows come from the catalog instead of a separate Map extras table
 3. method resolution and effect analysis read `MapMethodId`
 4. Rust VM slot dispatch delegates current MapBox rows to `MapBox::invoke_surface(...)`
-5. one stable smoke proves slots, aliases already visible today, values, and no VM stub drift
+5. one stable smoke proves Rust catalog rows plus the hako-visible VM subset without stub drift
+
+## Landing Snapshot
+
+- Rust catalog: `src/boxes/map_surface_catalog.rs`
+- Rust invoke seam: `MapBox::invoke_surface(...)`
+- Rust consumers: TypeRegistry, method resolution, effect analysis, and VM slot dispatch
+- removed duplicate TypeRegistry `MAP_METHOD_EXTRAS` table
+- smoke: `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_vm.sh`
+
+## Follow-Up Cleanup Candidates
+
+- `.hako` VM source route still stubs `keys` / `values` / `remove` / `clear`; promote only with a separate state-owner card.
+- `apps/lib/boxes/map_std.hako` remains a P0 scaffold and is imported by `apps/selfhost-runtime/selfhost_prelude.hako`; delete only after replacing that prelude/module-registry dependency.
+- `crates/nyash_kernel/src/plugin/map_compat.rs` remains compat-only quarantine; do not delete in a surface catalog commit.

@@ -61,6 +61,16 @@ impl EffectsAnalyzerBox {
                 {
                     return EffectMask::READ;
                 }
+                if box_name == "MapBox" {
+                    if let Some(method_id) = crate::boxes::MapMethodId::from_name(method) {
+                        return match method_id.effect() {
+                            crate::boxes::MapSurfaceEffect::Read => EffectMask::READ,
+                            crate::boxes::MapSurfaceEffect::WriteHeap => {
+                                EffectMask::READ.add(Effect::WriteHeap)
+                            }
+                        };
+                    }
+                }
 
                 match method.as_str() {
                     "birth" => EffectMask::PURE.add(Effect::Alloc),

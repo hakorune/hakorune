@@ -40,8 +40,8 @@ cargo check -q
   - CoreBox surface catalog
   - ArrayBox catalog/invoke seam is landed and phase-290x is closed
   - StringBox catalog/invoke seam is landed and pinned by the phase-291x smoke
-  - next active implementation target is `MapBox`
-  - catalog current vtable rows first; defer alias normalization and return-contract changes
+  - MapBox catalog/invoke seam is landed and pinned by the phase-291x smoke
+  - next active target is CoreBox legacy cleanup triage
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
@@ -51,7 +51,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
 - current blocker token:
-  - `MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs`
+  - `CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices`
 
 ## Current Perf Snapshot
 
@@ -86,10 +86,10 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - implement the first `MapBox` catalog/invoke slice
+  - triage CoreBox legacy cleanup candidates after first catalog slices
   - keep `src/boxes/array/surface_catalog.rs` as the ArrayBox precedent
   - keep `src/boxes/basic/string_surface_catalog.rs` as the StringBox precedent
-  - do not normalize MapBox aliases or return contracts in the first MapBox commit
+  - do not delete `apps/lib/boxes/map_std.hako` until its selfhost prelude/module-registry dependency is replaced
   - keep phase-137x at observe-only unless app work produces a real blocker
 - perf reopen rule:
   - `137x-E` is already closed enough (`E0` closed, `E1` landed)
@@ -107,6 +107,7 @@ cargo check -q
 - worktree should be clean after the last commit.
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
 - the current docs front is phase-291x, not the old ArrayBox-only front.
+- MapBox first catalog slice is landed; `.hako` extended route and std scaffold cleanup are follow-up work.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.

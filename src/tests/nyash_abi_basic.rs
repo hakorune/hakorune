@@ -10,6 +10,12 @@ mod tests {
         assert_eq!(resolve_slot_by_name("MapBox", "has", 1), Some(202));
         assert_eq!(resolve_slot_by_name("MapBox", "get", 1), Some(203));
         assert_eq!(resolve_slot_by_name("MapBox", "set", 2), Some(204));
+        assert_eq!(resolve_slot_by_name("MapBox", "delete", 1), Some(205));
+        assert_eq!(resolve_slot_by_name("MapBox", "remove", 1), Some(205));
+        assert_eq!(resolve_slot_by_name("MapBox", "keys", 0), Some(206));
+        assert_eq!(resolve_slot_by_name("MapBox", "values", 0), Some(207));
+        assert_eq!(resolve_slot_by_name("MapBox", "clear", 0), Some(208));
+        assert_eq!(resolve_slot_by_name("MapBox", "length", 0), None);
         // ArrayBox
         assert_eq!(resolve_slot_by_name("ArrayBox", "get", 1), Some(100));
         assert_eq!(resolve_slot_by_name("ArrayBox", "set", 2), Some(101));

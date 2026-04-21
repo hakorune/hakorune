@@ -20,8 +20,10 @@ Related:
 - Status: Active
 - Date: 2026-04-22
 - Purpose: phase-290x の `ArrayBox` catalog/invoke seam を、CoreBox surface の横断ルールへ上げる。
-- Landed first implementation target: `StringBox`
-- Next implementation target: `MapBox`
+- Landed implementation targets:
+  - `StringBox`
+  - `MapBox` first current-vtable slice
+- Next implementation target: CoreBox legacy cleanup triage / follow-up cards
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -59,7 +61,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `StringBox.lastIndexOf(needle, start_pos)` remains explicitly deferred until a separate card
 - `apps/std/string.hako` is sugar, not the semantic owner
 - `apps/std/string2.hako` is diagnostic residue unless promoted or deleted by an explicit cleanup card
-- `MapBox` first slice catalogs current Rust vtable rows only
+- `MapBox` first slice cataloged current Rust vtable rows only
 - do not add `length` as a Rust vtable alias in the first MapBox commit
 - do not collapse `size` and `len` slots in the first MapBox commit
 - do not normalize `set` / `delete` / `clear` return contracts in the first MapBox commit
@@ -82,12 +84,21 @@ Landed smoke:
 
 MapBox is now the next CoreBox catalog target.
 
-Active MapBox card:
+Landed MapBox card:
 
 ```text
 Map surface catalog
   -> MapMethodId
   -> MapBox::invoke_surface(...)
   -> thin registry / method-resolution / effect-analysis / VM dispatch consumers
-  -> stable MapBox surface smoke
+  -> stable MapBox surface smoke for Rust catalog + hako-visible VM subset
 ```
+
+Landed smoke:
+
+- `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_vm.sh`
+
+Remaining MapBox follow-up:
+
+- `.hako` VM `keys` / `values` / `remove` / `clear` source route still has stub/debt behavior and must not be silently promoted.
+- `apps/lib/boxes/map_std.hako` is a P0 scaffold used by the selfhost prelude; deletion requires a module-registry/prelude card.

@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox surface catalog` |
-| Front | `ArrayBox precedent landed -> StringBox catalog landed -> MapBox first catalog slice` |
+| Front | `ArrayBox precedent landed -> StringBox catalog landed -> MapBox catalog landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `MapBox truth is split across runtime substrate, compat ABI, MIR lowering, and docs` |
-| Next | `MapBox surface catalog/invoke smoke` |
+| Blocker | `CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices` |
+| Next | `std/map scaffold and .hako MapBox extended-route cleanup decision` |
 | After Next | `namespace/static box/alias resolution SSOT` |
 
 ## Current Read
@@ -35,7 +35,8 @@ Related:
 1. `phase-291x docs-first CoreBox surface inventory`
 2. `phase-291x StringBox catalog/invoke seam` landed
 3. `phase-291x stable StringBox smoke` landed
-4. `phase-291x MapBox first catalog slice`
+4. `phase-291x MapBox first catalog slice` landed
+5. `phase-291x CoreBox legacy cleanup triage`
 
 ## Parked Corridor
 

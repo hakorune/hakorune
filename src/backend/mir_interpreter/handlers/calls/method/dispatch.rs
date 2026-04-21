@@ -224,98 +224,18 @@ impl MirInterpreter {
             }
 
             // MapBox methods (slot 200+)
-            ("MapBox", 200) | ("MapBox", 201) => {
-                // size/len
+            ("MapBox", slot) if crate::boxes::MapMethodId::from_slot(slot).is_some() => {
+                let method_id =
+                    crate::boxes::MapMethodId::from_slot(slot).expect("checked MapMethodId slot");
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
-                        let ret = map.size();
-                        return Ok(VMValue::from_nyash_box(ret));
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::MapBox>() {
+                        return self.invoke_map_surface(map, method_id, args);
                     }
                 }
-                Err(self.err_invalid("MapBox.size/len: invalid receiver"))
-            }
-            ("MapBox", 202) => {
-                // has
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
-                        if let Some(a0) = args.get(0) {
-                            let key = self.load_as_box(*a0)?;
-                            let ret = map.has(key);
-                            return Ok(VMValue::from_nyash_box(ret));
-                        }
-                    }
-                }
-                Err(self.err_invalid("MapBox.has: invalid receiver or missing argument"))
-            }
-            ("MapBox", 203) => {
-                // get
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
-                        if let Some(a0) = args.get(0) {
-                            let key = self.load_as_box(*a0)?;
-                            let ret = map.get(key);
-                            return Ok(VMValue::from_nyash_box(ret));
-                        }
-                    }
-                }
-                Err(self.err_invalid("MapBox.get: invalid receiver or missing argument"))
-            }
-            ("MapBox", 204) => {
-                // set
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
-                        if args.len() >= 2 {
-                            let key = self.load_as_box(args[0])?;
-                            let value = self.load_as_box(args[1])?;
-                            let ret = map.set(key, value);
-                            return Ok(VMValue::from_nyash_box(ret));
-                        }
-                    }
-                }
-                Err(self.err_invalid("MapBox.set: invalid receiver or missing arguments"))
-            }
-            ("MapBox", 205) => {
-                // delete/remove
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
-                        if let Some(a0) = args.get(0) {
-                            let key = self.load_as_box(*a0)?;
-                            let ret = map.delete(key);
-                            return Ok(VMValue::from_nyash_box(ret));
-                        }
-                    }
-                }
-                Err(self.err_invalid("MapBox.delete/remove: invalid receiver or missing argument"))
-            }
-            ("MapBox", 206) => {
-                // keys
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
-                        let ret = map.keys();
-                        return Ok(VMValue::from_nyash_box(ret));
-                    }
-                }
-                Err(self.err_invalid("MapBox.keys: invalid receiver"))
-            }
-            ("MapBox", 207) => {
-                // values
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
-                        let ret = map.values();
-                        return Ok(VMValue::from_nyash_box(ret));
-                    }
-                }
-                Err(self.err_invalid("MapBox.values: invalid receiver"))
-            }
-            ("MapBox", 208) => {
-                // clear
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
-                        let ret = map.clear();
-                        return Ok(VMValue::from_nyash_box(ret));
-                    }
-                }
-                Err(self.err_invalid("MapBox.clear: invalid receiver"))
+                Err(self.err_invalid(format!(
+                    "MapBox.{}: invalid receiver",
+                    method_id.canonical_name()
+                )))
             }
 
             // ConsoleBox methods (slot 400+)

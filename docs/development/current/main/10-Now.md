@@ -36,11 +36,12 @@ Related:
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
   - MapBox taskboard: `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
-  - current implementation focus: `MapBox` surface catalog first slice
+  - current implementation focus: CoreBox legacy cleanup triage after first catalog slices
   - current phase goal:
     - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
     - `StringBox` catalog/invoke slice is landed
-    - implement the first `MapBox` catalog/invoke slice next
+    - `MapBox` catalog/invoke slice is landed
+    - triage legacy std/debt cleanup without deleting active prelude/module-registry dependencies
     - lock `StringBox.length()` as canonical and `len()` / `size()` as compatibility aliases
     - catalog current MapBox vtable rows before alias or return-contract normalization
   - current app gap read:
@@ -48,11 +49,11 @@ Related:
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
     - StringBox surface SSOT is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - MapBox surface truth is still split across runtime substrate, compat ABI, MIR lowering, Rust VM dispatch, and `.hako` state paths
+    - MapBox Rust vtable surface is cataloged; compat ABI, MIR lowering, `.hako` extended routes, and std scaffold debt remain separate cleanup cards
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs`
+  - current blocker token: `CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

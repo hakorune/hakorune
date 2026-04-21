@@ -84,6 +84,7 @@ pub mod function_box;
 pub mod gc_config_box;
 // ARCHIVED: JIT Box modules moved to archive/jit-cranelift/ during Phase 15
 pub mod map_box;
+pub mod map_surface_catalog;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod qr_box;
 pub mod ref_cell_box;
@@ -117,6 +118,10 @@ pub use console_box::ConsoleBox;
 pub use debug_box::DebugBox;
 // ARCHIVED: JIT Box imports moved to archive/jit-cranelift/ during Phase 15
 pub use map_box::MapBox;
+pub use map_surface_catalog::{
+    MapExposureState, MapMethodId, MapMethodSpec, MapSurfaceEffect, MapSurfaceInvokeError,
+    MapSurfaceInvokeResult, MapSurfaceReturn, MAP_SURFACE_METHODS,
+};
 pub use math_box::{FloatBox, MathBox};
 pub use path_box::PathBox;
 #[cfg(not(target_arch = "wasm32"))]
