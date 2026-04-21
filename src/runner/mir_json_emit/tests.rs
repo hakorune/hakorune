@@ -3,6 +3,7 @@ use crate::mir::{
     MirFunction, MirInstruction, MirType, ValueId,
 };
 
+mod array_routes;
 mod debug;
 mod decl_values;
 mod function_attrs;

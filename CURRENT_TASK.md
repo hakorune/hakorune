@@ -79,7 +79,8 @@ Scope: current lane / next lane / restart order only.
     - move route legality and shape ownership to MIR-owned metadata
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
-    - first implementation card is `array_rmw_window`
+    - first implementation card `array_rmw_window` is landed as metadata-first lowering
+    - next implementation card is `array_string_len_window`
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -89,7 +90,7 @@ Scope: current lane / next lane / restart order only.
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `.inc must consume MIR-owned pre-decided route tags instead of rediscovering MIR shapes`
+    - `array_string_len_window must move to MIR-owned route metadata before C analyzer deletion`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

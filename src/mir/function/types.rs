@@ -1,5 +1,6 @@
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
+    array_rmw_window_plan::ArrayRmwWindowRoute,
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_combined_region_plan::ArrayTextCombinedRegionRoute,
     array_text_edit_plan::ArrayTextEditRoute,
@@ -159,6 +160,12 @@ pub struct FunctionMetadata {
     /// stays a derived view over corridor candidates, not a new canonical
     /// semantic owner.
     pub string_kernel_plans: BTreeMap<ValueId, StringKernelPlan>,
+
+    /// Backend-consumable array RMW route plans.
+    /// These own `array.get(i) -> + 1 -> array.set(i, ...)` legality in MIR
+    /// so backend shims can emit/skip from metadata instead of scanning raw
+    /// MIR JSON instruction windows.
+    pub array_rmw_window_routes: Vec<ArrayRmwWindowRoute>,
 
     /// Backend-consumable array/text loopcarry route plans.
     /// These keep active fused store/len route recognition in MIR so the C

@@ -34,12 +34,13 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
-  - current implementation focus: `array_rmw_window` MIR-owned route tag
+  - current implementation focus: `array_string_len_window` MIR-owned route tag
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
+    - `array_rmw_window` metadata-first route is landed; legacy C analyzer is fallback-only until deletion coverage is pinned
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -50,7 +51,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `.inc must consume MIR-owned pre-decided route tags instead of rediscovering MIR shapes`
+  - current blocker token: `array_string_len_window must move to MIR-owned route metadata before C analyzer deletion`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

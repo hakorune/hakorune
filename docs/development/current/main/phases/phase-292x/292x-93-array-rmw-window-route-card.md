@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-22
 Scope: First implementation card for moving array RMW window route legality from `.inc` to MIR metadata.
 Related:
@@ -55,21 +55,21 @@ the ownership rule must not change: MIR owns legality, `.inc` owns emission.
 
 ## Implementation Steps
 
-1. Add `src/mir/array_rmw_window_plan.rs`.
+1. [x] Add `src/mir/array_rmw_window_plan.rs`.
    - `ArrayRmwWindowRoute`
    - `ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot`
    - `refresh_function_array_rmw_window_routes(...)`
    - `refresh_module_array_rmw_window_routes(...)`
-2. Add `FunctionMetadata.array_rmw_window_routes`.
-3. Wire semantic refresh after value/string facts and before array-text route consumers.
-4. Emit `metadata.array_rmw_window_routes` through MIR JSON.
-5. Add `.inc` metadata reader, likely
-   `lang/c-abi/shims/hako_llvmc_ffi_array_rmw_window_metadata.inc`.
-6. Prefer metadata in `emit_generic_method_get_by_window_or_policy(...)`.
-7. Keep `analyze_array_rmw_window_candidate` as fallback-only for the first
+2. [x] Add `FunctionMetadata.array_rmw_window_routes`.
+3. [x] Wire semantic refresh after value/string facts and before array-text route consumers.
+4. [x] Emit `metadata.array_rmw_window_routes` through MIR JSON.
+5. [x] Add `.inc` metadata reader in
+   `lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_window.inc`.
+6. [x] Prefer metadata in `emit_generic_method_get_by_window_or_policy(...)`.
+7. [x] Keep `analyze_array_rmw_window_candidate` as fallback-only for the first
    implementation commit.
-8. Add or update focused smoke to prove metadata-first route selection.
-9. After coverage is stable, remove the C analyzer and prune the guard allowlist.
+8. [x] Add focused route trace proof for metadata-first route selection.
+9. [ ] After coverage is stable, remove the C analyzer and prune the guard allowlist.
 
 ## Detection Shape
 
@@ -107,6 +107,13 @@ before deleting fallback code.
 Targeted implementation checks:
 
 ```bash
-cargo test -p nyash_rust array_rmw_window
-cargo test -p nyash_rust mir_json_emit
+cargo test -q array_rmw_window
+cargo test -q build_mir_json_root_emits_array_rmw_window_routes
+```
+
+Landed evidence:
+
+```text
+array_rmw_window_routes = 1 for benchmarks/bench_kilo_micro_array_getset.hako
+[llvm-route/trace] stage=array_rmw_window result=hit reason=mir_route_metadata
 ```

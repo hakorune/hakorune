@@ -9,6 +9,7 @@ pub mod agg_local_scalarization; // generic agg_local scalarization owner seam f
 pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
+pub mod array_rmw_window_plan; // MIR-owned route plans for array get/+1/set windows
 pub mod array_string_store_micro_seed_plan; // MIR-owned route plan for temporary array string-store micro seed bridge
 pub mod array_text_combined_region_plan; // MIR-owned combined array/text region route plans
 pub mod array_text_edit_plan; // MIR-owned route plans for array/text same-cell edits
@@ -108,6 +109,10 @@ pub(crate) use builder::detect_parse_string_shape;
 pub use agg_local_scalarization::{
     refresh_function_agg_local_scalarization_routes, refresh_module_agg_local_scalarization_routes,
     AggLocalScalarizationKind, AggLocalScalarizationRoute,
+};
+pub use array_rmw_window_plan::{
+    refresh_function_array_rmw_window_routes, refresh_module_array_rmw_window_routes,
+    ArrayRmwWindowProof, ArrayRmwWindowRoute,
 };
 pub use array_string_store_micro_seed_plan::{
     refresh_function_array_string_store_micro_seed_route,

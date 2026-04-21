@@ -9,6 +9,13 @@
         long long const_reg;
         long long result_reg;
       };
+      struct ArrayRmwWindowRouteMetadata {
+        int matched;
+        int invalid;
+        size_t skip_iis[16];
+        int skip_n;
+        long long result_reg;
+      };
       struct ArrayStringLenWindowMatch {
         int matched;
         int keep_get_live;
@@ -68,6 +75,17 @@
       };
       auto void array_string_loopcarry_len_store_skip(
           struct ArrayStringLoopCarryLenStoreMatch* out,
+          size_t ii) {
+        if (!out || ii == (size_t)-1) return;
+        for (int i = 0; i < out->skip_n; i++) {
+          if (out->skip_iis[i] == ii) return;
+        }
+        if (out->skip_n < (int)(sizeof(out->skip_iis) / sizeof(out->skip_iis[0]))) {
+          out->skip_iis[out->skip_n++] = ii;
+        }
+      }
+      auto void array_rmw_window_route_skip(
+          struct ArrayRmwWindowRouteMetadata* out,
           size_t ii) {
         if (!out || ii == (size_t)-1) return;
         for (int i = 0; i < out->skip_n; i++) {
@@ -556,6 +574,102 @@
           if (hako_llvmc_route_trace_enabled()) {
             hako_llvmc_emit_route_trace(
                 "array_string_loopcarry_len_store_window",
+                "hit",
+                "mir_route_metadata",
+                "");
+          }
+          return 1;
+        }
+        return 0;
+      }
+      auto int match_array_rmw_window_route_metadata(
+          long long bid,
+          size_t ii,
+          struct ArrayRmwWindowRouteMetadata* out) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "array_rmw_window_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* block_val = route ? yyjson_obj_get(route, "block") : NULL;
+          yyjson_val* index_val = route ? yyjson_obj_get(route, "instruction_index") : NULL;
+          yyjson_val* result_val = route ? yyjson_obj_get(route, "result_value") : NULL;
+          yyjson_val* set_index_val = route ? yyjson_obj_get(route, "set_instruction_index") : NULL;
+          yyjson_val* skip_vals = route ? yyjson_obj_get(route, "skip_instruction_indices") : NULL;
+          yyjson_val* array_val = route ? yyjson_obj_get(route, "array_value") : NULL;
+          yyjson_val* idx_val = route ? yyjson_obj_get(route, "index_value") : NULL;
+          yyjson_val* input_val = route ? yyjson_obj_get(route, "input_value") : NULL;
+          yyjson_val* const_val = route ? yyjson_obj_get(route, "const_value") : NULL;
+          yyjson_val* effects = route ? yyjson_obj_get(route, "effects") : NULL;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* proof = route ? read_str(route, "proof") : NULL;
+          const char* emit_symbol = route ? read_str(route, "emit_symbol") : NULL;
+          if (!(block_val && index_val &&
+                yyjson_is_num(block_val) && yyjson_is_num(index_val))) {
+            continue;
+          }
+          if ((long long)yyjson_get_sint(block_val) != bid ||
+              (size_t)yyjson_get_sint(index_val) != ii) {
+            continue;
+          }
+          if (!(route_id && !strcmp(route_id, "array.rmw_add1.window") &&
+                proof && !strcmp(proof, "array_get_add1_set_same_slot") &&
+                emit_symbol && !strcmp(emit_symbol, "nyash.array.rmw_add1_hi") &&
+                result_val && yyjson_is_num(result_val) &&
+                set_index_val && yyjson_is_num(set_index_val) &&
+                array_val && yyjson_is_num(array_val) &&
+                idx_val && yyjson_is_num(idx_val) &&
+                input_val && yyjson_is_num(input_val) &&
+                const_val && yyjson_is_num(const_val) &&
+                skip_vals && yyjson_is_arr(skip_vals) &&
+                array_text_residence_string_array_eq2(effects, "load.cell", "store.cell"))) {
+            if (hako_llvmc_route_trace_enabled()) {
+              hako_llvmc_emit_route_trace(
+                  "array_rmw_window",
+                  "miss",
+                  "malformed_mir_route_metadata",
+                  "");
+            }
+            if (out) out->invalid = 1;
+            return 0;
+          }
+          if (out) {
+            out->matched = 1;
+            out->result_reg = (long long)yyjson_get_sint(result_val);
+            for (size_t si = 0; si < yyjson_arr_size(skip_vals); si++) {
+              yyjson_val* skip_val = yyjson_arr_get(skip_vals, si);
+              if (!(skip_val && yyjson_is_num(skip_val))) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  hako_llvmc_emit_route_trace(
+                      "array_rmw_window",
+                      "miss",
+                      "malformed_mir_route_skip",
+                      "");
+                }
+                out->invalid = 1;
+                return 0;
+              }
+              size_t skip_ii = (size_t)yyjson_get_sint(skip_val);
+              if (skip_ii == ii) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  hako_llvmc_emit_route_trace(
+                      "array_rmw_window",
+                      "miss",
+                      "metadata_skips_current_instruction",
+                      "");
+                }
+                out->invalid = 1;
+                return 0;
+              }
+              array_rmw_window_route_skip(out, skip_ii);
+            }
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            hako_llvmc_emit_route_trace(
+                "array_rmw_window",
                 "hit",
                 "mir_route_metadata",
                 "");

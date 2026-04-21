@@ -15,9 +15,9 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `.inc no-growth guard landed -> array_rmw_window MIR-owned route tag` |
+| Front | `array_rmw_window route tag landed -> array_string_len_window MIR-owned route tag` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `.inc must consume MIR-owned pre-decided route tags instead of rediscovering MIR shapes` |
+| Blocker | `array_string_len_window must move to MIR-owned route metadata before C analyzer deletion` |
 | Next | `array_string_len_window MIR-owned route tag` |
 | After Next | `generic method route policy metadata` |
 

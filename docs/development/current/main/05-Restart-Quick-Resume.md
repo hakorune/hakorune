@@ -35,10 +35,11 @@ cargo check -q
   - compiler cleanup lane is primary
   - current-state token: `phase-292x .inc codegen thin tag cleanup`
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
-- current focus:
+  - current focus:
   - `.inc` is boundary glue, not planner
   - `tools/checks/inc_codegen_thin_shim_guard.sh` pins the no-growth baseline
-  - first implementation card is `array_rmw_window` MIR-owned route tag
+  - first implementation card `array_rmw_window` MIR-owned route tag is landed
+  - next implementation card is `array_string_len_window` MIR-owned route tag
   - CoreBox surface catalog work is landed and now a reference lane
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
@@ -49,7 +50,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
 - current blocker token:
-  - `.inc must consume MIR-owned pre-decided route tags instead of rediscovering MIR shapes`
+  - `array_string_len_window must move to MIR-owned route metadata before C analyzer deletion`
 
 ## Current Perf Snapshot
 
@@ -84,9 +85,9 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - implement `array_rmw_window` as a MIR-owned route tag
+  - implement `array_string_len_window` as a MIR-owned route tag
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
-  - old C analyzer is temporary fallback only until the route is pinned
+  - old C analyzers are temporary fallback only until each route is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references
   - keep phase-137x at observe-only unless app work produces a real blocker
 - perf reopen rule:
@@ -106,7 +107,7 @@ cargo check -q
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
 - the current docs front is phase-292x `.inc` thin tag cleanup.
 - phase-291x CoreBox first catalog and cleanup slices are landed references.
-- active cleanup card is `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`.
+- active cleanup card is the next phase-292x metadata route card; `292x-93-array-rmw-window-route-card.md` is landed evidence.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.

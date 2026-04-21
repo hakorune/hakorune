@@ -18,17 +18,23 @@ Related:
   - when a C analyzer is retired, reduce
     `tools/checks/inc_codegen_thin_shim_debt_allowlist.tsv` in the same commit
 
+## Completed Cards
+
+- [x] A1 `array_rmw_window` MIR-owned route tag
+  - design: `292x-93-array-rmw-window-route-card.md`
+  - state: MIR metadata is emitted; `.inc` reads metadata first and treats the old C analyzer as
+    temporary fallback only
+  - trace proof: `[llvm-route/trace] stage=array_rmw_window result=hit reason=mir_route_metadata`
+
 ## Active Card
 
-- [ ] A1 `array_rmw_window` MIR-owned route tag
-  - design: `292x-93-array-rmw-window-route-card.md`
-  - current owner leak: `analyze_array_rmw_window_candidate`
+- [ ] A2 `array_string_len_window` MIR-owned route tag
+  - current owner leak: `analyze_array_string_len_window_candidate`
   - desired state: `.inc` reads metadata first and treats the old C analyzer as
     temporary fallback only
 
 ## Follow-up Cards
 
-- [ ] A2 `array_string_len_window` MIR-owned route tag
 - [ ] A3 generic method route policy metadata
 - [ ] A4 string concat / direct-set windows metadata-only consumption
 - [ ] A5 exact seed ladders to function-level backend route tags

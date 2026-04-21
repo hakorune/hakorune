@@ -22,7 +22,8 @@ Related:
 - Date: 2026-04-22
 - Purpose: `.inc` を MIR JSON の形解析 owner から外し、MIR-owned
   pre-decided tag を読むだけの boundary glue に寄せる。
-- First implementation target: `array_rmw_window`
+- First implementation target: `array_rmw_window` (landed)
+- Next implementation target: `array_string_len_window`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless this cleanup reopens a real app/perf blocker.
@@ -70,7 +71,7 @@ Landed guardrail:
 - baseline: 30 `.inc` files, 324 analysis-debt lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 
-First open card:
+Landed first card:
 
 ```text
 array_rmw_window
@@ -78,5 +79,15 @@ array_rmw_window
   -> MIR JSON route tag
   -> .inc metadata-first lowering
   -> legacy analyzer fallback only
-  -> smoke locks route trace / no behavior change
+  -> route trace locks `mir_route_metadata`
+```
+
+Next open card:
+
+```text
+array_string_len_window
+  -> MIR-owned route metadata
+  -> MIR JSON route tag
+  -> .inc metadata-first lowering
+  -> legacy analyzer fallback only
 ```

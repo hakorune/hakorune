@@ -18,6 +18,7 @@
           size_t ab_cap,
           unsigned char* skip_inst) {
         struct ArrayRmwWindowMatch rmw_match;
+        struct ArrayRmwWindowRouteMetadata rmw_route_match;
         const char* rmw_reason = NULL;
         char rmw_extra[384];
         struct ArrayStringLenWindowMatch string_len_match;
@@ -27,6 +28,16 @@
         struct ArrayTextResidenceSessionRouteMetadata residence_session_match;
         struct ArrayStringLoopCarryLenStoreMatch loopcarry_match;
         char loopcarry_ab[360];
+        if (match_array_rmw_window_route_metadata(bid, ii, &rmw_route_match)) {
+          if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
+          fprintf(f, "  %%r%lld = call i64 @\"nyash.array.rmw_add1_hi\"(%s)\n", rmw_route_match.result_reg, ab);
+          set_type(rmw_route_match.result_reg, T_I64);
+          for (int si = 0; si < rmw_route_match.skip_n; si++) skip_inst[rmw_route_match.skip_iis[si]] = 1;
+          return 1;
+        }
+        if (rmw_route_match.invalid) {
+          return -1;
+        }
         trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
         trace_array_string_len_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
         if (analyze_array_rmw_window_candidate(
