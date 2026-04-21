@@ -531,6 +531,64 @@ pub(in super::super) fn array_string_lenhalf_insert_mid_periodic_indexof_suffix_
     suffix_ptr: *const i8,
     suffix_len: i64,
 ) -> i64 {
+    array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_store_impl::<false>(
+        handle,
+        loop_bound,
+        row_modulus,
+        middle_ptr,
+        middle_len,
+        observer_period,
+        observer_bound,
+        needle_ptr,
+        needle_len,
+        suffix_ptr,
+        suffix_len,
+    )
+}
+
+pub(in super::super) fn array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_byte_boundary_safe_store(
+    handle: i64,
+    loop_bound: i64,
+    row_modulus: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    observer_period: i64,
+    observer_bound: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_store_impl::<true>(
+        handle,
+        loop_bound,
+        row_modulus,
+        middle_ptr,
+        middle_len,
+        observer_period,
+        observer_bound,
+        needle_ptr,
+        needle_len,
+        suffix_ptr,
+        suffix_len,
+    )
+}
+
+fn array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_store_impl<
+    const BYTE_BOUNDARY_SAFE: bool,
+>(
+    handle: i64,
+    loop_bound: i64,
+    row_modulus: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    observer_period: i64,
+    observer_bound: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
     if handle <= 0 || loop_bound < 0 || row_modulus <= 0 || observer_period <= 0 {
         return 0;
     }
@@ -538,15 +596,27 @@ pub(in super::super) fn array_string_lenhalf_insert_mid_periodic_indexof_suffix_
         with_compiler_const_utf8_ptr_len(needle_ptr, needle_len, |needle| {
             with_compiler_const_utf8_ptr_len(suffix_ptr, suffix_len, |suffix| {
                 super::super::array_handle_cache::with_array_box(handle, |arr| {
-                    arr.slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_raw(
-                        loop_bound,
-                        row_modulus,
-                        middle,
-                        observer_period,
-                        observer_bound,
-                        needle,
-                        suffix,
-                    )
+                    if BYTE_BOUNDARY_SAFE {
+                        arr.slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_byte_boundary_safe_raw(
+                            loop_bound,
+                            row_modulus,
+                            middle,
+                            observer_period,
+                            observer_bound,
+                            needle,
+                            suffix,
+                        )
+                    } else {
+                        arr.slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_raw(
+                            loop_bound,
+                            row_modulus,
+                            middle,
+                            observer_period,
+                            observer_bound,
+                            needle,
+                            suffix,
+                        )
+                    }
                 })
                 .flatten()
                 .unwrap_or(0)

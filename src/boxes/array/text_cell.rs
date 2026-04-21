@@ -186,9 +186,55 @@ impl ArrayTextCell {
     }
 
     #[inline(always)]
+    pub(super) fn insert_const_mid_lenhalf_byte_boundary_safe(&mut self, middle: &str) -> i64 {
+        debug_assert!(middle.is_ascii());
+        match self {
+            Self::Flat(value) => {
+                if let Some((next, out)) =
+                    build_mid_gap_from_flat_lenhalf_byte_boundary_safe(value, middle)
+                {
+                    *self = next;
+                    out
+                } else {
+                    Self::insert_const_mid_lenhalf_string_byte_boundary_safe(value, middle)
+                }
+            }
+            Self::MidGap {
+                left,
+                right,
+                right_start,
+            } => match insert_const_mid_lenhalf_mid_gap_byte_boundary_safe(
+                left,
+                right,
+                right_start,
+                middle,
+            ) {
+                Some(out) => out,
+                None => {
+                    let mut value = self.to_visible_string();
+                    let out = Self::insert_const_mid_lenhalf_string(&mut value, middle);
+                    *self = Self::Flat(value);
+                    out
+                }
+            },
+        }
+    }
+
+    #[inline(always)]
     pub(super) fn insert_const_mid_lenhalf_string(value: &mut String, middle: &str) -> i64 {
         let split = (value.len() / 2) as i64;
         insert_const_mid_flat(value, middle, split);
+        value.len() as i64
+    }
+
+    #[inline(always)]
+    pub(super) fn insert_const_mid_lenhalf_string_byte_boundary_safe(
+        value: &mut String,
+        middle: &str,
+    ) -> i64 {
+        debug_assert!(middle.is_ascii());
+        let split = value.len() / 2;
+        insert_str_byte_boundary_unchecked(value, split, middle);
         value.len() as i64
     }
 }
@@ -211,6 +257,15 @@ fn active_mid_gap_right(right: &str, right_start: usize) -> &str {
 
 #[inline(always)]
 fn mid_gap_right_range(right: &str, start: usize, end: usize) -> &str {
+    debug_assert!(start <= end);
+    debug_assert!(end <= right.len());
+    debug_assert!(right.is_char_boundary(start));
+    debug_assert!(right.is_char_boundary(end));
+    unsafe { right.get_unchecked(start..end) }
+}
+
+#[inline(always)]
+fn mid_gap_right_range_byte_boundary_safe(right: &str, start: usize, end: usize) -> &str {
     debug_assert!(start <= end);
     debug_assert!(end <= right.len());
     debug_assert!(right.is_char_boundary(start));
@@ -263,6 +318,39 @@ fn build_mid_gap_from_flat_lenhalf(value: &str, middle: &str) -> Option<(ArrayTe
 }
 
 #[inline(always)]
+fn build_mid_gap_from_flat_lenhalf_byte_boundary_safe(
+    value: &str,
+    middle: &str,
+) -> Option<(ArrayTextCell, i64)> {
+    if value.is_empty() || middle.is_empty() {
+        return None;
+    }
+    debug_assert!(middle.is_ascii());
+    let split = value.len() / 2;
+    debug_assert!(value.is_char_boundary(split));
+    let prefix = unsafe { value.get_unchecked(..split) };
+    let suffix = unsafe { value.get_unchecked(split..) };
+
+    let mut left = String::with_capacity(
+        split
+            .saturating_add(middle.len())
+            .saturating_add(MID_GAP_INITIAL_HEADROOM),
+    );
+    left.push_str(prefix);
+    left.push_str(middle);
+    let right = suffix.to_owned();
+    let out = left.len() + right.len();
+    Some((
+        ArrayTextCell::MidGap {
+            left,
+            right,
+            right_start: 0,
+        },
+        out as i64,
+    ))
+}
+
+#[inline(always)]
 fn insert_const_mid_lenhalf_mid_gap(
     left: &mut String,
     right: &mut String,
@@ -296,6 +384,41 @@ fn insert_const_mid_lenhalf_mid_gap(
     }
 
     rebalance_mid_gap_left_overshoot(left, right, right_start);
+    Some((left.len() + active_mid_gap_right(right, *right_start).len()) as i64)
+}
+
+#[inline(always)]
+fn insert_const_mid_lenhalf_mid_gap_byte_boundary_safe(
+    left: &mut String,
+    right: &mut String,
+    right_start: &mut usize,
+    middle: &str,
+) -> Option<i64> {
+    debug_assert!(middle.is_ascii());
+    if middle.is_empty() {
+        return Some((left.len() + active_mid_gap_right(right, *right_start).len()) as i64);
+    }
+
+    let active_right_len = active_mid_gap_right(right, *right_start).len();
+    let source_len = left.len() + active_right_len;
+    let split = source_len / 2;
+
+    if split <= left.len() {
+        insert_str_byte_boundary_unchecked(left, split, middle);
+    } else {
+        let delta = split - left.len();
+        let start = *right_start;
+        let end = start.checked_add(delta)?;
+        if end > right.len() {
+            return None;
+        }
+        left.push_str(mid_gap_right_range_byte_boundary_safe(right, start, end));
+        *right_start = end;
+        left.push_str(middle);
+        compact_mid_gap_right(right, right_start);
+    }
+
+    rebalance_mid_gap_left_overshoot_byte_boundary_safe(left, right, right_start);
     Some((left.len() + active_mid_gap_right(right, *right_start).len()) as i64)
 }
 
@@ -334,6 +457,57 @@ fn rebalance_mid_gap_left_overshoot(
     *left = new_left;
     *right = value[target..].to_owned();
     *right_start = 0;
+}
+
+#[inline(always)]
+fn rebalance_mid_gap_left_overshoot_byte_boundary_safe(
+    left: &mut String,
+    right: &mut String,
+    right_start: &mut usize,
+) {
+    let active_right = active_mid_gap_right(right, *right_start);
+    let total_len = left.len() + active_right.len();
+    let target = total_len / 2;
+    if left.len() <= target.saturating_add(MID_GAP_LEFT_OVERSHOOT_LIMIT) {
+        return;
+    }
+
+    let value = materialize_mid_gap(left, right, *right_start);
+    debug_assert!(value.is_char_boundary(target));
+    let prefix = unsafe { value.get_unchecked(..target) };
+    let suffix = unsafe { value.get_unchecked(target..) };
+    let mut new_left = String::with_capacity(target.saturating_add(MID_GAP_INITIAL_HEADROOM));
+    new_left.push_str(prefix);
+    *left = new_left;
+    *right = suffix.to_owned();
+    *right_start = 0;
+}
+
+#[inline(always)]
+fn insert_str_byte_boundary_unchecked(value: &mut String, split: usize, middle: &str) {
+    if value.is_empty() {
+        value.push_str(middle);
+        return;
+    }
+    if middle.is_empty() {
+        return;
+    }
+    let split = split.min(value.len());
+    debug_assert!(value.is_char_boundary(split));
+    debug_assert!(middle.is_ascii());
+    let len = value.len();
+    let add = middle.len();
+    value.reserve(add);
+    unsafe {
+        let bytes = value.as_mut_vec();
+        std::ptr::copy(
+            bytes.as_ptr().add(split),
+            bytes.as_mut_ptr().add(split + add),
+            len - split,
+        );
+        std::ptr::copy_nonoverlapping(middle.as_ptr(), bytes.as_mut_ptr().add(split), add);
+        bytes.set_len(len + add);
+    }
 }
 
 #[inline(always)]
@@ -763,6 +937,33 @@ mod tests {
 
             assert_eq!(cell.len(), expected.len(), "step={step}");
             assert_eq!(cell.to_visible_string(), expected, "step={step}");
+        }
+    }
+
+    #[test]
+    fn byte_boundary_safe_lenhalf_insert_matches_checked_ascii() {
+        let mut checked = ArrayTextCell::flat("line-seed".to_string());
+        let mut fast = ArrayTextCell::flat("line-seed".to_string());
+
+        for step in 0..128 {
+            let checked_len = checked.insert_const_mid_lenhalf("xx");
+            let fast_len = fast.insert_const_mid_lenhalf_byte_boundary_safe("xx");
+            assert_eq!(fast_len, checked_len, "step={step}");
+            assert_eq!(
+                fast.to_visible_string(),
+                checked.to_visible_string(),
+                "step={step}"
+            );
+
+            if step % 8 == 0 {
+                checked.append_suffix("ln");
+                fast.append_suffix("ln");
+                assert_eq!(
+                    fast.to_visible_string(),
+                    checked.to_visible_string(),
+                    "append step={step}"
+                );
+            }
         }
     }
 

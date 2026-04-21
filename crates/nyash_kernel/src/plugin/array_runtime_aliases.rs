@@ -15,6 +15,7 @@ use super::array_runtime_facade::{
     array_runtime_insert_const_mid_subrange_idx_store_same_slot_len,
     array_runtime_insert_const_mid_subrange_len_idx_store_same_slot_len,
     array_runtime_insert_const_mid_subrange_len_region_store_len,
+    array_runtime_lenhalf_insert_mid_periodic_indexof_suffix_region_byte_boundary_safe_store,
     array_runtime_lenhalf_insert_mid_periodic_indexof_suffix_region_store,
     array_runtime_set_idx_any, array_runtime_set_idx_i64,
     array_runtime_store_array_kernel_text_slot, array_runtime_store_array_string,
@@ -252,6 +253,35 @@ pub extern "C" fn nyash_array_string_lenhalf_insert_mid_periodic_indexof_suffix_
     suffix_len: i64,
 ) -> i64 {
     array_runtime_lenhalf_insert_mid_periodic_indexof_suffix_region_store(
+        handle,
+        loop_bound,
+        row_modulus,
+        middle_ptr,
+        middle_len,
+        observer_period,
+        observer_bound,
+        needle_ptr,
+        needle_len,
+        suffix_ptr,
+        suffix_len,
+    )
+}
+
+#[export_name = "nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_ascii_hiisiiisisi"]
+pub extern "C" fn nyash_array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_ascii_hiisiiisisi_alias(
+    handle: i64,
+    loop_bound: i64,
+    row_modulus: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    observer_period: i64,
+    observer_bound: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    array_runtime_lenhalf_insert_mid_periodic_indexof_suffix_region_byte_boundary_safe_store(
         handle,
         loop_bound,
         row_modulus,

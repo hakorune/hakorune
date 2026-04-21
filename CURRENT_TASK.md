@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H40 MIR-owned byte-boundary proof for text-cell edits)
-  - current blocker is `137x-H40 MIR-owned byte-boundary proof for text-cell edits`
+  - `phase-137x-H owner-first optimization return` (active; H41 post-byte-proof MidGap copy owner refresh)
+  - current blocker is `137x-H41 post-byte-proof MidGap copy owner refresh`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -921,8 +921,8 @@ Scope: current lane / next lane / restart order only.
             `2.05%`
           - remaining sampled MidGap edit branch is a byte-boundary legality
             seam; do not skip it in Rust without MIR-owned proof
-        - H40 active:
-          - add MIR-owned byte-boundary / ASCII-preserved proof for covered
+        - H40 closed:
+          - MIR owns byte-boundary / ASCII-preserved proof for covered
             text-cell edit regions before any runtime fast leaf skips boundary
             checks
           - `.inc` consumes metadata only; runtime keeps the checked path when
@@ -937,6 +937,22 @@ Scope: current lane / next lane / restart order only.
             `ny_aot_instr=35428267`, `ny_aot_cycles=6731377`
           - runtime behavior is unchanged; next slice consumes the proof in a
             checked-fallback fast leaf
+        - H40.2 result:
+          - `.inc` selects the proof-specific helper only from MIR metadata
+          - runtime adds a const-specialized byte-boundary-safe edit leaf and
+            preserves the checked no-proof path
+          - whole `kilo_kernel_small = C 82 ms / Ny AOT 6 ms`,
+            `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`
+          - exact guard `kilo_micro_array_string_store = C 9 ms / Ny AOT 4 ms`
+          - meso guard
+            `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 4 ms`
+          - 200-run top remains combined executor closure `68.98%`,
+            `__memmove_avx512_unaligned_erms` `17.89%`
+          - verdict: H40 closes as a narrow keeper; next owner is residual
+            MidGap copy/materialization, not byte-boundary legality
+        - H41 active:
+          - annotate the H40.2 combined executor closure and pin the sampled
+            MidGap copy/materialization block before adding more runtime code
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

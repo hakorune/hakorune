@@ -433,6 +433,8 @@
         fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_subrange_len_store_region_hiisi\"(i64, i64, i64, ptr, i64)\n");
       if (array_text_combined_region_has_route())
         fprintf(f, "declare i64 @\"nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_hiisiiisisi\"(i64, i64, i64, ptr, i64, i64, i64, ptr, i64, ptr, i64)\n");
+      if (array_text_combined_region_has_route())
+        fprintf(f, "declare i64 @\"nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_ascii_hiisiiisisi\"(i64, i64, i64, ptr, i64, i64, i64, ptr, i64, ptr, i64)\n");
       if (array_text_observer_has_store_region_route())
         fprintf(f, "declare i64 @\"nyash.array.string_indexof_suffix_store_region_hisisi\"(i64, i64, ptr, i64, ptr, i64)\n");
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
@@ -531,11 +533,16 @@
       }
       auto void emit_array_text_combined_region_call(
           const struct ArrayTextCombinedRegionRouteMetadata* region) {
+        const char* symbol = NULL;
         if (!region) return;
+        symbol = region->byte_boundary_safe
+            ? "nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_ascii_hiisiiisisi"
+            : "nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_hiisiiisisi";
         fprintf(
             f,
-            "  %%r%lld = call i64 @\"nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_hiisiiisisi\"(i64 %%r%lld, i64 %lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld, i64 %lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld)\n",
+            "  %%r%lld = call i64 @\"%s\"(i64 %%r%lld, i64 %lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld, i64 %lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld)\n",
             region->accumulator_phi_value,
+            symbol,
             region->array_value,
             region->loop_bound_const,
             region->row_modulus_const,

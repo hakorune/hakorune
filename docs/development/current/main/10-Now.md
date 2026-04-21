@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H40 MIR-owned byte-boundary proof for text-cell edits)
+  - `phase-137x-H owner-first optimization return` (active; H41 post-byte-proof MidGap copy owner refresh)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H40 MIR-owned byte-boundary proof for text-cell edits`
+  - current blocker is `137x-H41 post-byte-proof MidGap copy owner refresh`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -149,8 +149,15 @@ Related:
       `75.26%`, `__memmove_avx512_unaligned_erms` `10.03%`,
       `_int_malloc` `2.05%`; remaining sampled MidGap edit branch is a
       byte-boundary legality seam, not another runtime-only leaf
-    - H40 active: move byte-boundary / ASCII-preserved proof to MIR metadata
-      before allowing a runtime text-cell fast leaf to skip boundary checks
+    - H40 closed: MIR owns `byte_boundary_proof=ascii_preserved_text_cell`;
+      `.inc` consumes metadata only; runtime uses a const-specialized
+      proof-specific leaf while preserving the checked no-proof path
+    - H40.2 result: whole `kilo_kernel_small = C 82 ms / Ny AOT 6 ms`,
+      `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`; 200-run top remains
+      combined executor closure `68.98%` and `__memmove_avx512_unaligned_erms`
+      `17.89%`
+    - H41 active: annotate residual MidGap copy/materialization before adding
+      any further runtime leaf
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

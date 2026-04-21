@@ -475,7 +475,7 @@ phase README / current entry. Current active card:
       closure `75.26%`, `__memmove_avx512_unaligned_erms` `10.03%`,
       `_int_malloc` `2.05%`, and the remaining sampled MidGap edit branch is
       byte-boundary legality rather than duplicated runtime mechanics
-  - [ ] H40 MIR-owned byte-boundary proof for text-cell edits
+  - [x] H40 MIR-owned byte-boundary proof for text-cell edits
     - add a generic MIR proof for byte-boundary / ASCII-preserved text-cell
       edit regions before any runtime fast leaf can skip boundary checks
     - `.inc` must consume metadata only and must not rediscover literals,
@@ -484,6 +484,18 @@ phase README / current entry. Current active card:
     - H40.1 landed: optional `byte_boundary_proof=ascii_preserved_text_cell`
       is produced by MIR and mirrored by `.inc`; runtime behavior is still
       unchanged until a proof-consuming leaf is implemented
+    - H40.2 landed: `.inc` selects a proof-specific runtime helper only from
+      MIR metadata; runtime uses a const-specialized byte-boundary-safe leaf
+      while keeping the checked no-proof path
+    - result: keeper; whole `kilo_kernel_small = C 82 ms / Ny AOT 6 ms`,
+      `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`; wall is in the
+      5-6 ms band, but instruction/cycle count improves from H40.1 smoke
+  - [ ] H41 post-byte-proof MidGap copy owner refresh
+    - annotate the H40.2 combined executor closure before adding more code
+    - decide whether residual samples are a narrow MidGap leaf, copy/memmove,
+      suffix append, or broad allocator/reserve mechanics
+    - no source-shape assumptions, benchmark-named helper, `.inc` planner
+      rediscovery, or runtime-owned legality inference
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

@@ -16,6 +16,7 @@ use super::array_string_slot::{
     array_string_insert_const_mid_subrange_by_index_store_same_slot_len,
     array_string_insert_const_mid_subrange_len_by_index_store_same_slot_len,
     array_string_insert_const_mid_subrange_len_region_store_len,
+    array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_byte_boundary_safe_store,
     array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_store,
 };
 use super::KernelTextSlot;
@@ -204,6 +205,34 @@ pub(super) fn array_runtime_lenhalf_insert_mid_periodic_indexof_suffix_region_st
     suffix_len: i64,
 ) -> i64 {
     array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_store(
+        handle,
+        loop_bound,
+        row_modulus,
+        middle_ptr,
+        middle_len,
+        observer_period,
+        observer_bound,
+        needle_ptr,
+        needle_len,
+        suffix_ptr,
+        suffix_len,
+    )
+}
+
+pub(super) fn array_runtime_lenhalf_insert_mid_periodic_indexof_suffix_region_byte_boundary_safe_store(
+    handle: i64,
+    loop_bound: i64,
+    row_modulus: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    observer_period: i64,
+    observer_bound: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_byte_boundary_safe_store(
         handle,
         loop_bound,
         row_modulus,

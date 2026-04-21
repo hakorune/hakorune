@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H40 MIR-owned byte-boundary proof for text-cell edits`
+- current blocker token: `137x-H41 post-byte-proof MidGap copy owner refresh`
 - current benchmark state:
-  - `C 85 ms / Ny AOT 5 ms`
-  - `ny_aot_instr=35428450`
-  - `ny_aot_cycles=6679916`
+  - `C 82 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=34108663`
+  - `ny_aot_cycles=6613012`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -30,14 +30,13 @@ ledger details; current implementation work should start here.
     executor call; the old per-iteration len-half helper is no longer emitted
   - H39.5.3 specializes 4-byte literal observer mechanics inside the combined
     executor without changing MIR, `.inc`, or public ABI
-  - H39.5.4 refreshes the residual owner after the 4-byte literal observer
-    cleanup; the next narrow seam is byte-boundary legality, not another
-    runtime-only leaf
-  - latest preserved-AOT top after H39.5.4:
-    - combined region executor closure: `75.26%`
-    - `__memmove_avx512_unaligned_erms`: `10.03%`
-    - `_int_malloc`: `2.05%`
-    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.30%`
+  - H40 moves byte-boundary legality to MIR metadata and consumes it in a
+    runtime-private proof-specific leaf
+  - latest direct-AOT top after H40.2:
+    - combined region executor closure: `68.98%`
+    - `__memmove_avx512_unaligned_erms`: `17.89%`
+    - `_int_malloc`: `1.25%`
+    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.23%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -1499,6 +1498,70 @@ H40.1 metadata proof slice:
   - compile the AOT path with the `.inc` reader active
   - add a proof-consuming runtime fast leaf or helper variant only after the
     checked/no-proof path remains unchanged
+
+H40.2 proof-consuming runtime leaf:
+
+- implementation:
+  - `.inc` selects a narrow proof-specific helper only when
+    `byte_boundary_safe` metadata is present
+  - runtime adds a private byte-boundary-safe len-half edit leaf for
+    MIR-proven ASCII-preserved text cells
+  - normal no-proof execution still calls the checked edit path
+  - the hot executor is const-specialized so the proof/no-proof branch is not
+    a runtime planner decision
+- verification:
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `cargo check -q`
+  - `cargo test -q byte_boundary_safe_lenhalf_insert_matches_checked_ascii -- --nocapture`
+  - `cargo test -q benchmark_kilo_kernel_small_has_combined_edit_observer_region -- --nocapture`
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 200`
+- results:
+  - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 6 ms`,
+    `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`
+  - exact guard `kilo_micro_array_string_store`: `C 9 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9266103`, `ny_aot_cycles=2432773`
+  - meso guard `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17651317`,
+    `ny_aot_cycles=4278913`
+  - 200-run top remains combined executor closure `68.98%` with
+    `__memmove_avx512_unaligned_erms` `17.89%`, `_int_malloc` `1.25%`,
+    `reserve::do_reserve_and_handle` `0.23%`
+- verdict:
+  - H40 closes as a narrow keeper for MIR-owned proof consumption:
+    instruction/cycle counts improved versus the metadata-only smoke, while
+    wall time remains in the 5-6 ms noise band
+  - next owner is no longer byte-boundary legality; open H41 to re-annotate
+    residual MidGap copy/materialization and decide whether any further
+    runtime-private leaf is justified
+
+### H41 Active
+
+Goal: refresh the post-byte-proof owner inside the combined text-cell executor
+before adding more runtime code.
+
+- target front:
+  - `kilo_kernel_small`
+- current owner evidence:
+  - H40.2 whole run: `kilo_kernel_small = C 82 ms / Ny AOT 6 ms`,
+    `ny_aot_instr=34108663`, `ny_aot_cycles=6613012`
+  - top samples remain inside the combined executor closure, with visible
+    `__memmove_avx512_unaligned_erms` and small allocator/reserve tails
+- first step:
+  - annotate the H40.2 direct AOT executor closure and identify whether the
+    sampled block is MidGap materialization, right-side copy, append suffix, or
+    growth/reserve mechanics
+- accept gate:
+  - no source-shape or benchmark-name assumptions
+  - no `.inc` planner regression
+  - choose the next card only after a sampled source block is pinned
+- reject gate:
+  - if samples are broad copy/allocation rather than a narrow executor leaf,
+    close H41 as owner refresh and do not add code
 
 ### H28.1 runtime-private literal search executor
 

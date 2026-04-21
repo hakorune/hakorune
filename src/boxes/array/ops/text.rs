@@ -372,6 +372,53 @@ impl ArrayBox {
         needle: &str,
         suffix: &str,
     ) -> Option<i64> {
+        self.slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_impl::<false>(
+            loop_bound,
+            row_modulus,
+            middle,
+            observer_period,
+            observer_bound,
+            needle,
+            suffix,
+        )
+    }
+
+    /// Runtime-private variant for MIR-proven ASCII/byte-boundary-safe regions.
+    #[inline(always)]
+    pub fn slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_byte_boundary_safe_raw(
+        &self,
+        loop_bound: i64,
+        row_modulus: i64,
+        middle: &str,
+        observer_period: i64,
+        observer_bound: i64,
+        needle: &str,
+        suffix: &str,
+    ) -> Option<i64> {
+        self.slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_impl::<true>(
+            loop_bound,
+            row_modulus,
+            middle,
+            observer_period,
+            observer_bound,
+            needle,
+            suffix,
+        )
+    }
+
+    #[inline(always)]
+    fn slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_impl<
+        const BYTE_BOUNDARY_SAFE: bool,
+    >(
+        &self,
+        loop_bound: i64,
+        row_modulus: i64,
+        middle: &str,
+        observer_period: i64,
+        observer_bound: i64,
+        needle: &str,
+        suffix: &str,
+    ) -> Option<i64> {
         if loop_bound < 0 || row_modulus <= 0 || observer_period <= 0 || observer_bound < 0 {
             return None;
         }
@@ -404,7 +451,13 @@ impl ArrayBox {
                     Some(mask) => step & mask,
                     None => step % row_modulus,
                 };
-                values.get_mut(idx)?.insert_const_mid_lenhalf(middle);
+                if BYTE_BOUNDARY_SAFE {
+                    values
+                        .get_mut(idx)?
+                        .insert_const_mid_lenhalf_byte_boundary_safe(middle);
+                } else {
+                    values.get_mut(idx)?.insert_const_mid_lenhalf(middle);
+                }
                 let should_observe = match observer_period_mask {
                     Some(mask) => step & mask == 0,
                     None => step % observer_period == 0,
@@ -447,7 +500,11 @@ impl ArrayBox {
                 None => step % row_modulus,
             };
             session.update(idx, |value| {
-                ArrayTextCell::insert_const_mid_lenhalf_string(value, middle)
+                if BYTE_BOUNDARY_SAFE {
+                    ArrayTextCell::insert_const_mid_lenhalf_string_byte_boundary_safe(value, middle)
+                } else {
+                    ArrayTextCell::insert_const_mid_lenhalf_string(value, middle)
+                }
             })?;
             let should_observe = match observer_period_mask {
                 Some(mask) => step & mask == 0,
