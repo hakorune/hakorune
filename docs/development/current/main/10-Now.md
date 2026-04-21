@@ -29,23 +29,17 @@ Related:
 ## Current
 
 - current lane:
-  - app lane is primary
-  - current-state token: `phase-291x CoreBox surface catalog`
-  - app proving ground: `apps/kilo_nyash/enhanced_kilo_editor.hako`
-  - active phase: `docs/development/current/main/phases/phase-291x/README.md`
-  - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-  - StringBox taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
-  - MapBox taskboard: `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
-  - MapStd cleanup card: `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
-  - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-  - current implementation focus: `.hako` MapBox extended-route cleanup decision after safe stub deletions
+  - compiler cleanup lane is primary
+  - current-state token: `phase-292x .inc codegen thin tag cleanup`
+  - active phase: `docs/development/current/main/phases/phase-292x/README.md`
+  - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
+  - current implementation focus: `array_rmw_window` MIR-owned route tag
   - current phase goal:
-    - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
-    - `StringBox` catalog/invoke slice is landed
-    - `MapBox` catalog/invoke slice is landed
-    - safe legacy std/debt deletions landed, including the `apps.lib.boxes.map_std` prelude/registry dependency
-    - lock `StringBox.length()` as canonical and `len()` / `size()` as compatibility aliases
-    - catalog current MapBox vtable rows before alias or return-contract normalization
+    - make `.inc` a thin boundary glue layer
+    - move route legality and shape ownership to MIR-owned metadata
+    - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
+    - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -56,7 +50,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices`
+  - current blocker token: `.inc must consume MIR-owned pre-decided route tags instead of rediscovering MIR shapes`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

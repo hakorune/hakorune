@@ -4,7 +4,7 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 291x CoreBox surface catalog
+- **Current (ACTIVE)**: Phase 292x `.inc` codegen thin tag cleanup
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection (observe-only)
 
 ## Planned / Parked Successors
@@ -17,6 +17,8 @@
 
 ## Recent Landed
 
+- **Phase 291x（LANDED）**: CoreBox surface catalog and first legacy cleanup
+- **Phase 290x（LANDED）**: ArrayBox surface catalog
 - **Phase 277x（LANDED）**: optimization lane closeout judgment
 - **Phase 276x（LANDED）**: IPO PGO generate/use first cut
 - **Phase 275x（LANDED）**: IPO PGO scaffold
@@ -79,4 +81,4 @@ phases/phase-141x/
 
 ---
 
-**最終更新**: 2026-04-13
+**最終更新**: 2026-04-22

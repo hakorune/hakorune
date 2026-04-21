@@ -25,7 +25,7 @@
 
 ## Quick Scan
 
-- current-state token: `phase-291x CoreBox surface catalog`
+- current-state token: `phase-292x .inc codegen thin tag cleanup`
 - current lane: `phase-137x observe-only guardrail`
 - active current entry: `137x-current.md`
 - active contract map: `137x-array-text-contract-map.md`

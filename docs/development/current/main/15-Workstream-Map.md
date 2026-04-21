@@ -14,31 +14,31 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-291x CoreBox surface catalog` |
-| Front | `ArrayBox precedent landed -> StringBox catalog landed -> MapBox catalog landed` |
+| Now | `phase-292x .inc codegen thin tag cleanup` |
+| Front | `.inc no-growth guard landed -> array_rmw_window MIR-owned route tag` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices` |
-| Next | `.hako MapBox extended-route cleanup decision` |
-| After Next | `namespace/static box/alias resolution SSOT` |
+| Blocker | `.inc must consume MIR-owned pre-decided route tags instead of rediscovering MIR shapes` |
+| Next | `array_string_len_window MIR-owned route tag` |
+| After Next | `generic method route policy metadata` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-291x/README.md`
-  - phase brief: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-  - inventory: `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
+  - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
+  - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
+  - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Immediate Sequence
 
-1. `phase-291x docs-first CoreBox surface inventory`
-2. `phase-291x StringBox catalog/invoke seam` landed
-3. `phase-291x stable StringBox smoke` landed
-4. `phase-291x MapBox first catalog slice` landed
-5. `phase-291x safe legacy cleanup deletions` landed
-6. `phase-291x apps.lib.boxes.map_std prelude cleanup card` landed
-7. `phase-291x .hako MapBox extended-route cleanup decision`
+1. `phase-291x CoreBox surface catalog` landed
+2. `phase-292x docs-first .inc thin tag phase cut`
+3. `phase-292x array_rmw_window MIR-owned route tag`
+4. `phase-292x array_string_len_window MIR-owned route tag`
+5. `phase-292x generic method route policy metadata`
+6. `phase-292x string concat / direct-set windows metadata-only`
+7. `phase-292x exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

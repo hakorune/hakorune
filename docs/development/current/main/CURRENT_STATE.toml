@@ -8,13 +8,13 @@
 status = "Active"
 date = "2026-04-22"
 
-active_lane = "phase-291x CoreBox surface catalog"
-active_lane_status = "active; StringBox and MapBox first surface catalog slices landed; std scaffold cleanup landed; hako extended route cleanup decision next"
-active_phase = "docs/development/current/main/phases/phase-291x/README.md"
-method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md"
+active_lane = "phase-292x .inc codegen thin tag cleanup"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array_rmw_window MIR-owned route tag first implementation card"
+active_phase = "docs/development/current/main/phases/phase-292x/README.md"
+method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md"
 
-current_blocker_token = "CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices"
+current_blocker_token = ".inc must consume MIR-owned pre-decided route tags instead of rediscovering MIR shapes"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -44,4 +44,6 @@ stale_pointer_patterns = [
   "phase-290x ArrayBox surface canonicalization active",
   "current-state token: `phase-290x ArrayBox surface canonicalization`",
   "StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs",
+  "current implementation focus: `.hako` MapBox extended-route cleanup decision after safe stub deletions",
+  "active cleanup card is `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`",
 ]
