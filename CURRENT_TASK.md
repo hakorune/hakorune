@@ -81,7 +81,7 @@ Scope: current lane / next lane / restart order only.
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
-    - `apps/std/string.hako` and `apps/std/string2.hako` are not a single surface owner
+    - `apps/std/string.hako` is std sugar; the old diagnostic `apps/std/string2.hako` stub was deleted during cleanup triage
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
     - MapBox Rust vtable surface is now cataloged; compat ABI, MIR lowering, `.hako` extended routes, and std scaffold debt remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue

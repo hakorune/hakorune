@@ -24,7 +24,7 @@ StringBox surface catalog
 
 - code slice is StringBox-only
 - `apps/std/string.hako` stays sugar
-- `apps/std/string2.hako` remains diagnostic residue in this card
+- legacy `apps/std/string2.hako` cleanup is handled by a separate cleanup card
 - do not solve `lastIndexOf(needle, start_pos)` in the same commit as cataloging
 - do not widen replacement semantics; record current behavior and keep the card small
 
@@ -70,7 +70,6 @@ StringBox surface catalog
 - uppercase/lowercase name family
 - `charAt`
 - `equals` method surface
-- `std.string2.hako` cleanup
 - MapBox implementation
 
 ## Exit Condition
@@ -90,3 +89,8 @@ This StringBox slice is done when:
 - Rust consumers: TypeRegistry, method resolution, effect analysis, and VM slot dispatch
 - `.hako` consumer: `lang/src/runtime/collections/string_core_box.hako`
 - smoke: `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
+
+## Cleanup Snapshot
+
+- legacy diagnostic stub `apps/std/string2.hako` was deleted after the catalog
+  landed; it was not a full surface owner and had no active import route.

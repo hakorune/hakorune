@@ -60,7 +60,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` remains explicitly deferred until a separate card
 - `apps/std/string.hako` is sugar, not the semantic owner
-- `apps/std/string2.hako` is diagnostic residue unless promoted or deleted by an explicit cleanup card
+- legacy `apps/std/string2.hako` diagnostic residue was deleted by an explicit cleanup card
 - `MapBox` first slice cataloged current Rust vtable rows only
 - do not add `length` as a Rust vtable alias in the first MapBox commit
 - do not collapse `size` and `len` slots in the first MapBox commit

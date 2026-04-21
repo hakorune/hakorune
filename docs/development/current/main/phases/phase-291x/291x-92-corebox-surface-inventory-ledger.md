@@ -50,7 +50,6 @@ Primary files:
 - `lang/src/runtime/collections/string_core_box.hako`
 - `lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako`
 - `apps/std/string.hako`
-- `apps/std/string2.hako`
 
 Landed fix:
 
@@ -64,7 +63,6 @@ Remaining drift:
 
 - `lastIndexOf` one-arg is implemented; two-arg is documented as a gap.
 - `apps/std/string.hako` implements `string_index_of` manually instead of being the semantic owner.
-- `apps/std/string2.hako` is a diagnostic partial file, not a full surface.
 - `toUpper` / `toLower` exposure exists in TypeRegistry extras, but route ownership is not clear enough for the first catalog slice.
 
 Completed first implementation:
@@ -72,7 +70,11 @@ Completed first implementation:
 - catalog the stable rows listed in `291x-91`
 - route Rust dispatch and TypeRegistry through that catalog
 - add a smoke for aliases and values
-- leave `std.string2.hako` and wider method families for follow-up
+- leave wider method families for follow-up
+
+Completed cleanup:
+
+- legacy `std.string2.hako` diagnostic residue was retired in a follow-up cleanup
 
 ## MapBox Current Duplication
 
