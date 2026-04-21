@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H30.2 array text edit operation boundary extraction`
+- current blocker token: `137x-H32 observer-store transaction path decision`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -328,39 +328,154 @@ reduce the H27 len-half mid-insert suffix-copy owner cleanly.
   - `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
   - `tools/checks/dev_gate.sh quick`
 
-### H30.2 Active
+### H30.2 Code Result
 
 Goal: close the H27 edit operation boundary before any non-flat text residence
 prototype.
 
-- problem:
+- result:
+  - added `ArrayTextCell::insert_const_mid_lenhalf` as the runtime-private
+    edit operation boundary for the MIR-owned H27 len-half contract
+  - added `ArrayBox::slot_insert_const_mid_lenhalf_raw` so the kernel helper
+    no longer exposes `&mut String` as the dominant hot operation surface for
+    text-resident slots
+  - kept the implementation flat-only in this slice
+- problem closed:
   - `ArrayTextCell` is now the storage boundary, but H27 len-half edit still
     reaches the hot slot through an exported helper closure that exposes
     `&mut String`
   - adding a gap/piece variant while that API remains dominant would leak the
     flat representation back into plugin/runtime helper code
-- decision:
+- decision kept:
   - first add a runtime-private `ArrayTextCell` edit operation for the
     MIR-owned len-half insert-mid contract
   - make the H27 len-half helper call that operation through `ArrayBox`
   - keep the operation flat-only in this slice; the non-flat representation
     decision remains blocked until this operation boundary is green
-- allowed:
-  - `ArrayTextCell` methods that execute storage mechanics for the existing
-    H27 edit contract
-  - a narrow `ArrayBox` raw helper for len-half insert-mid edit
-  - tests proving text-lane and mixed boxed-string behavior stay unchanged
-- forbidden:
+- guard held:
   - MIR metadata changes
   - `.inc` lowering changes
   - public ABI changes
   - benchmark-named helpers
   - runtime legality/provenance/publication decisions
-- acceptance:
+- verification:
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `tools/checks/current_state_pointer_guard.sh`
+  - `cargo check -q`
+  - `cargo test -q slot_insert_const_mid_lenhalf_raw --lib`
+  - `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
+  - `cargo test -q array::tests --lib`
+  - `tools/checks/dev_gate.sh quick`
+- acceptance result:
   - existing H27 len-half helper behavior is unchanged
   - `ArrayTextCell` becomes the owner of the flat edit mechanics for this hot
     operation
   - focused array/text and kernel insert-mid tests pass
+
+### H30.3 Rejected
+
+Goal: decide whether to open a non-flat `ArrayTextCell` edit residence
+prototype behind the H30.2 operation boundary.
+
+- design question:
+  - can the H27 len-half insert-mid edit avoid repeated contiguous suffix
+    movement without leaking representation details into MIR, `.inc`, public
+    ABI, or plugin facade code?
+- candidate options:
+  - gap buffer:
+    - useful for local edits near the same cursor
+    - risky for this front because the edit point is recomputed as `len / 2`
+      each iteration, so gap movement can remain structural
+  - piece-cell / deferred edit residence:
+    - keeps logical text as pieces and materializes only at explicit visible
+      boundaries
+    - better aligned with the current owner because the repeated edit moves
+      descriptors instead of copying the full suffix bytes
+- decision rule:
+  - prefer a narrow piece-cell prototype if it can live entirely inside
+    `ArrayTextCell`
+  - reject H30.3 if the representation requires MIR metadata changes, `.inc`
+    route changes, public ABI widening, runtime legality/provenance decisions,
+    or semantic/search-result cache
+- acceptance for any prototype:
+  - `ArrayTextCell` owns the non-flat variant and materialization boundary
+  - existing text-lane read, length, equality/formatting, visible `get`, and
+    H26/H27 hot helpers keep behavior
+  - the whole-front target must reduce the residual `memmove` owner; no
+    improvement means revert/reject, not broader runtime surgery
+- prototype tried:
+  - narrow `ArrayTextCell::Pieces(Vec<String>)` residence
+  - H27 len-half insert promoted large flat text into pieces
+  - H26 observer-store used cell-owned `contains` / suffix append operations
+  - no MIR, `.inc`, public ABI, legality, provenance, or publication changes
+- result:
+  - code reverted; not a keeper
+  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`
+  - `ny_aot_instr=60495384`
+  - `ny_aot_cycles=17911705`
+  - asm: `__memmove_avx512_unaligned_erms` remained `40.60%`
+- verdict:
+  - piece vector residence moved the cost from contiguous suffix bytes to
+    descriptor movement and cache/materialization mechanics
+  - gap-buffer has the same structural risk for this front because the edit
+    point is recomputed as `len / 2`, not a stable cursor
+  - do not continue local gap/piece representation surgery without a fresh
+    owner proof
+
+### H31 Result
+
+Goal: refresh the whole-front owner after H30 rejection before opening the next
+implementation card.
+
+- reason:
+  - H28.4 append headroom, H29 byte-copy surgery, and H30.3 piece residence all
+    failed to turn the current `memmove` owner into a keeper
+  - continuing local runtime string mechanics without a new owner proof would
+    violate the owner-first rule
+- first step:
+  - rerun whole `kilo_kernel_small` stat / asm and attribute the active
+    `memmove` call path
+  - decide whether the next card belongs to observer-store transaction
+    mechanics, text edit residence, publication/materialization, or another
+    substrate seam
+- guard:
+  - no code changes until the new owner family is fixed in this doc
+  - no MIR / `.inc` changes unless the owner proof shows a missing generic
+    contract fact
+  - no runtime helper-name or benchmark-name truth
+- evidence:
+  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`
+  - `ny_aot_instr=60495384`
+  - `ny_aot_cycles=17911705`
+  - top asm/callgraph:
+    - `__memmove_avx512_unaligned_erms`: `36.58%`
+    - observer-store closure:
+      `array_string_indexof_const_suffix_region_store::{closure...}`:
+      `30.17%`
+    - `with_array_text_write_txn::{closure}`: `24.02%`
+    - standalone `nyash.array.string_insert_mid_lenhalf_store_hisi`: `4.17%`
+- verdict:
+  - remaining whole-front owner is not H27 edit representation
+  - H30 local gap/piece text residence is closed
+  - next card returns to the H26 observer-store transaction/mutation path
+
+### H32 Active
+
+Goal: decide the next narrow observer-store implementation card.
+
+- candidate seams:
+  - suffix mutation path inside `slot_text_indexof_suffix_store_region_raw`
+  - transaction/facade overhead around `with_array_text_write_txn`
+  - missing owner attribution inside the observer-store region executor
+- first step:
+  - inspect the hot observer-store source only around the sampled functions
+  - avoid broad runtime redesign; choose one seam and one keeper gate
+- guard:
+  - `.hako`, MIR metadata, and `.inc` stay unchanged unless the seam proves a
+    missing generic contract fact
+  - runtime remains executor-only; no legality/provenance/publication decisions
+  - no benchmark-named whole-loop helper
 
 ### H28.1 runtime-private literal search executor
 

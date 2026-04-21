@@ -31,7 +31,7 @@ as `137x-H`.
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
 phase README / current entry. Current active card:
-`137x-H30.2 array text edit operation boundary extraction`.
+`137x-H32 observer-store transaction path decision`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -326,13 +326,24 @@ phase README / current entry. Current active card:
       long-term representation truth
     - no MIR, `.inc`, public ABI, or behavior change
     - landed as `ArrayStorage::Text(Vec<ArrayTextCell>)`
-  - [ ] H30.2 array text edit operation boundary extraction
+  - [x] H30.2 array text edit operation boundary extraction
     - before adding any non-flat variant, route the H27 len-half edit helper
       through a runtime-private `ArrayTextCell` edit operation
     - no MIR, `.inc`, public ABI, or behavior change
-  - [ ] H30.3 non-flat edit residence prototype decision
+  - [x] H30.3 non-flat edit residence prototype decision
     - open only after H30.2 is green; compare gap-buffer / piece-cell options
       behind the `ArrayTextCell` operation boundary
+    - current preference: piece-cell/deferred-edit residence over gap-buffer
+      unless perf evidence contradicts it
+    - rejected: piece-cell prototype kept whole at `Ny AOT 7 ms` and
+      `__memmove` at `40.60%`; code reverted
+  - [x] H31 post-H30 owner refresh
+    - rerun whole stat/asm and attribute the remaining `memmove` owner before
+      any new implementation card
+    - verdict: owner is back in H26 observer-store transaction/mutation path;
+      standalone H27 len-half helper is only `4.17%`
+  - [ ] H32 observer-store transaction path decision
+    - choose the next narrow observer-store seam before code edits
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

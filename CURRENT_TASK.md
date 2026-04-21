@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H30.2 array text edit operation boundary extraction)
-  - current blocker is `137x-H30.2 array text edit operation boundary extraction`
+  - `phase-137x-H owner-first optimization return` (active; H32 observer-store transaction path decision)
+  - current blocker is `137x-H32 observer-store transaction path decision`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -715,12 +715,43 @@ Scope: current lane / next lane / restart order only.
             `cargo test -q slot_store_text_births_text_lane --lib`,
             `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`,
             and `tools/checks/dev_gate.sh quick`
-        - H30.2 active:
+        - H30.2 code result:
           - first close the H27 edit operation boundary: the len-half edit
             helper must call a runtime-private `ArrayTextCell` edit operation,
             not expose `&mut String` as the long-term representation truth
-          - no non-flat storage variant is allowed until that operation
-            boundary is green
+          - landed: H27 len-half helper now calls
+            `ArrayBox::slot_insert_const_mid_lenhalf_raw`, which dispatches to
+            `ArrayTextCell::insert_const_mid_lenhalf` for text-resident slots
+          - verification: `cargo fmt --check`, `git diff --check`,
+            `cargo check -q`, `cargo test -q slot_insert_const_mid_lenhalf_raw --lib`,
+            `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`,
+            `cargo test -q array::tests --lib`, and
+            `tools/checks/dev_gate.sh quick`
+        - H30.3 rejected:
+          - tried a narrow piece-cell/deferred-edit prototype behind
+            `ArrayTextCell`; code was reverted because it did not improve the
+            whole front
+          - evidence: `kilo_kernel_small = C 83 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=60495384`, `ny_aot_cycles=17911705`
+          - asm: `__memmove_avx512_unaligned_erms` remained `40.60%`; the
+            piece vector replaced byte suffix movement with descriptor movement
+            rather than removing the owner
+          - verdict: do not continue local gap/piece representation surgery
+            without a fresh owner proof
+        - H31 result:
+          - whole post-H30 baseline: `kilo_kernel_small = C 83 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=60495384`, `ny_aot_cycles=17911705`
+          - top asm/callgraph: `__memmove_avx512_unaligned_erms` `36.58%`;
+            observer-store closure `30.17%`; `with_array_text_write_txn`
+            `24.02%`; standalone `nyash.array.string_insert_mid_lenhalf_store_hisi`
+            only `4.17%`
+          - verdict: remaining owner is not the H27 edit representation card;
+            return to H26 observer-store transaction/mutation path
+        - H32 active:
+          - decide the next narrow observer-store card before code edits
+          - likely candidates: suffix mutation path, transaction façade
+            thinning, or owner attribution inside the observer-store region
+            executor
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
