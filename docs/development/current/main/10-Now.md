@@ -41,8 +41,14 @@ Related:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
     - ownership map: `docs/development/current/main/phases/phase-137x/137x-array-text-contract-map.md`
     - H24 verdict: active owner is write-lock guard mechanics, not fallback/promotion or byte-edit/memmove
-    - H25a landed: metadata-only `array_text_residence_sessions`; `.inc` and runtime behavior are still unchanged
-    - next slice: begin/update/end lowering against MIR session metadata
+    - H25a landed: metadata-only `array_text_residence_sessions`; `.inc` and runtime behavior were unchanged
+    - H25b landed: MIR-owned begin/update/end placement metadata and skip indices
+    - H25c.1 landed: `.inc` consumes residence-session metadata first, still behavior-preserving
+    - next slice: H25c.2a runtime-private session substrate only
+      - no public ABI
+      - no session handle table
+      - no guard across C ABI calls
+      - no perf keeper claim yet
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

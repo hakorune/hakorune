@@ -40,13 +40,35 @@ and ownership map, not a second semantic source.
 - `src/boxes/array/ops/text.rs`
   - owns `ArrayStorage::Text` read/write mechanics.
   - may expose runtime-private helpers, but must not decide MIR legality.
+  - H25c.2a may add an `ArrayBox`-local closure-scoped
+    `ArrayTextSlotSession` substrate here.
+  - any write guard or slot borrow must be created and dropped inside one Rust
+    call stack.
+- `src/boxes/array/ops/text_session.rs`
+  - optional split file if the H25c.2a substrate grows beyond a few helpers.
+  - must stay mechanism-only: no route proof, provenance, or publication policy.
 - `crates/nyash_kernel/src/plugin/array_string_slot_write.rs`
   - owns string-slot write executor glue.
   - may orchestrate handle acquisition and call array text mechanics.
   - must not own storage layout, route legality, or publication policy.
+  - H25c.2a may add a thin substrate consumer only; H25c.2b may add a
+    metadata-selected single-call executor only after docs acceptance.
+- `crates/nyash_kernel/src/plugin/array_text_write_txn.rs`
+  - H25c.2a proposed file for kernel-private transaction glue.
+  - may own handle lookup, existing demand markers, observe accounting, and
+    resident-first/fallback mode selection.
+  - must not own route legality, storage layout, public ABI names, or session
+    lifetime beyond one Rust call stack.
+- `crates/nyash_kernel/src/plugin/array_runtime_substrate.rs`
+  - may receive private forwarding only if needed by H25c.2a.
+  - must not become a second policy owner or exported ABI surface.
 - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
   - owns handle-to-`ArrayBox` access mechanics.
   - must stay runtime-private.
+- `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+  - forwarding-only; do not grow ownership or mutation policy here.
+- `crates/nyash_kernel/src/plugin/array_runtime_aliases.rs`
+  - compatibility ABI aliases only; H25c.2a must not add new exported names.
 
 ## Backend Files
 
@@ -59,7 +81,9 @@ and ownership map, not a second semantic source.
   - may emit the selected helper calls and skip covered instructions.
   - H25c.1 consumes residence-session metadata first, but still maps it to the
     existing loopcarry update helper.
-  - H25c.2 may add begin/update/end emission against H25b placement metadata.
+  - H25c.2b may emit one metadata-selected executor call only if that executor
+    keeps the guard lifetime inside Rust.
+  - must not emit guard-bearing begin/end handle plumbing in H25c.2.
 
 ## Forbidden Drift
 
@@ -68,3 +92,6 @@ and ownership map, not a second semantic source.
 - `.inc` exact matcher revival for loopcarry session
 - semantic/search-result caches
 - loop-wide session without explicit MIR lifetime/alias/publication contract
+- session handle tables that store write guards or borrowed slot references
+- guard/session lifetime crossing a C ABI call boundary
+- benchmark-named whole-loop helpers

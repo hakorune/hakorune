@@ -1476,6 +1476,26 @@ H25c.1 result (2026-04-21):
 - Behavior remains unchanged: no begin/end emission and no runtime session
   helper yet.
 
+H25c.2a substrate-only task plan:
+- Goal: land a closure-scoped runtime substrate without claiming a perf keeper.
+- Add `ArrayTextSlotSession` under ArrayBox text mechanics and keep existing
+  raw update methods as compatibility adapters.
+- Add kernel-private `ArrayTextWriteTxn` glue for handle lookup, demand markers,
+  observe accounting, and resident-first/fallback mode selection.
+- Do not add exported `nyash.array.*` symbols, session handle tables, new env
+  vars, or guard-bearing C ABI begin/end calls.
+- Required substrate gates:
+  - `cargo test -q --lib slot_update_text`
+  - `cargo test -q --lib array_text`
+  - `cargo check -q -p nyash_kernel`
+
+H25c.2b single-call executor design gate:
+- Decide whether the MIR-proven `slot_text_len_store_session` region can be
+  executed as one capability-generic runtime call.
+- Reject if the design requires a benchmark-named whole-loop helper, arbitrary
+  MIR execution inside runtime, or a guard/session lifetime crossing C ABI calls.
+- Only after acceptance may backend lowering emit a behavior-changing call.
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

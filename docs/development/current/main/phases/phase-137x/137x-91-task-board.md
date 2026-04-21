@@ -30,8 +30,8 @@ as `137x-H`.
 
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
-phase README. Current active card: `137x-H23 array text write transaction
-pilot`.
+phase README. Current active card: `137x-H25 array text residence session
+contract`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -100,6 +100,31 @@ pilot`.
 - [ ] E1 `publish-any-generalization` (blocked; target successor: separate `publish-any-generalization` phase, unnumbered)
 - [ ] E3 typed map lane implementation (blocked; target successor `289x-6c`, owner proof required)
 - [ ] E4 heterogeneous / union array slot layout (blocked; target successor: separate `heterogeneous-array-slot-layout` phase, unnumbered)
+
+## Active H25 Task Breakdown
+
+- [x] H25a `array_text_residence_sessions` metadata-only eligibility
+  - MIR owns session eligibility.
+  - `.inc` and runtime behavior unchanged.
+- [x] H25b `array_text_residence_sessions` placement metadata
+  - MIR emits begin/update/end placement and skip indices.
+  - `.inc` must not derive preheader or exit shape from CFG.
+- [x] H25c.1 `.inc` residence-session metadata reader
+  - active `.inc` array/text reader seams use `*_route_metadata` naming.
+  - current lowering consumes session metadata first but maps to the existing
+    loopcarry update helper.
+- [ ] H25c.2a runtime-private session substrate
+  - add `ArrayTextSlotSession` under ArrayBox text mechanics.
+  - add kernel-private `ArrayTextWriteTxn` glue if needed.
+  - no public ABI, no session handle table, no guard across C ABI calls.
+  - no perf keeper claim unless later evidence proves a safe executor boundary.
+- [ ] H25c.2b single-call executor design gate
+  - decide whether `slot_text_len_store_session` can become one
+    capability-generic runtime call.
+  - reject benchmark-named whole-loop helpers and runtime-owned legality.
+- [ ] H25c.3 keeper probe
+  - blocked on H25c.2b acceptance.
+  - requires perf plus target-transition evidence.
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

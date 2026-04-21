@@ -395,8 +395,13 @@ Scope: current lane / next lane / restart order only.
       - H25c.1 landed `.inc` residence-session metadata reader consumption
         without behavior change; active `.inc` array/text readers now use
         `*_route_metadata` naming
-      - next slice: H25c.2 smallest runtime-private executor surface and only
-        then begin/update/end emission
+      - H25c.2 is split:
+        - H25c.2a runtime-private session substrate
+          (`ArrayTextSlotSession` / optional kernel-private `ArrayTextWriteTxn`)
+        - H25c.2b single-call executor design gate
+        - H25c.3 keeper probe only if H25c.2b accepts a safe executor boundary
+      - next slice: H25c.2a substrate-only; no public ABI, no session handle
+        table, no guard across C ABI calls, and no perf keeper claim yet
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
