@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H28 array text observer-store search/copy owner split`
+- current blocker token: `137x-H29 len-half edit copy owner decision`
 - current benchmark state:
   - `C 82 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60615291`
@@ -85,6 +85,128 @@ runtime or `.inc` semantic owners.
   - inspect the H26 observer-store runtime helper and decide whether the next
     keeper is a fixed-literal search executor, a copy/mutation split, or a
     no-code closeout requiring more MIR proof
+
+### H28.4 text append capacity owner probe
+
+- owner split:
+  - H25 guard mechanics is closed; do not reopen it under this card
+  - H28.4 is a separate owner-first slice for resident `String` capacity miss
+    and old-content copy under the H26 observer-store suffix append executor
+- worker/local evidence:
+  - the short suffix byte-copy path no longer calls `memcpy`
+  - residual `__memmove` maps best to growth/reallocation copy around the
+    append leaf, with adjacent write-frame mechanics still visible
+  - `Boxed -> Text` promotion is one-shot and not the steady-state owner
+- decision:
+  - first confirm the capacity-growth hypothesis from the append leaf
+  - any keeper implementation must be Rust-only and runtime-private
+  - MIR metadata, `.inc` lowering, and public ABI stay unchanged
+- allowed:
+  - a narrow text append headroom policy based only on storage facts such as
+    suffix length, current length, and current capacity
+  - unit tests that prove the append leaf still matches `String::push_str`
+- forbidden:
+  - source-prefix or benchmark-name branches
+  - search-result cache
+  - runtime-owned legality/provenance/publication
+  - C-side shape planning or new MIR metadata only for capacity tuning
+- keeper gate:
+  - whole `kilo_kernel_small` improves in instruction/cycle count and the
+    `__memmove` share drops
+  - exact `kilo_micro_array_string_store` and middle
+    `kilo_meso_substring_concat_array_set_loopcarry` stay no-regression
+  - reject if the reduction only shifts cost into allocator / `_int_malloc`
+    owners
+
+Result:
+
+- trial:
+  - added a Rust-only short append headroom policy in `append_short_text_suffix`
+  - no MIR metadata, `.inc` lowering, or public ABI changed
+- verification:
+  - `cargo test -q append_text_suffix --lib`
+  - `cargo test -q text_contains_literal --lib`
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `bash tools/perf/build_perf_release.sh`
+  - whole `kilo_kernel_small` first run: `C 82 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=61363741`, `ny_aot_cycles=17616053`
+  - whole rerun: `C 82 ms / Ny AOT 8 ms`,
+    `ny_aot_instr=61364376`, `ny_aot_cycles=17951505`
+  - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9265802`, `ny_aot_cycles=2367573`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=16570977`,
+    `ny_aot_cycles=3472466`
+  - asm after trial: `__memmove_avx512_unaligned_erms` dropped to `34.76%`,
+    but `with_array_text_write_txn` rose to `31.09%` and the
+    observer-store closure to `27.10%`
+- verdict:
+  - rejected; lower `memmove` share did not translate into instruction/cycle
+    or wall-time keeper
+  - code was reverted to the H28.3 append leaf
+  - H28.5 must refresh residual `memmove` ownership with callsite/callgraph
+    evidence before another code slice
+
+### H28.5 residual memmove owner refresh
+
+- goal:
+  - distinguish append-capacity growth from outer len-half edit copy and
+    write-frame mechanics before further runtime surgery
+- allowed:
+  - perf/asm/callgraph evidence collection
+  - docs-only owner decision
+- forbidden:
+  - more helper-local copy/capacity changes without a target transition
+  - MIR or `.inc` changes unless the refreshed owner proves a missing contract
+
+Result:
+
+- commands:
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+  - manual `perf record --call-graph dwarf` on the generated
+    `kilo_kernel_small` AOT executable
+- evidence:
+  - whole `kilo_kernel_small`: `C 84 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=60616017`, `ny_aot_cycles=17782048`
+  - asm top after returning to H28.3 code:
+    - `__memmove_avx512_unaligned_erms`: `37.20%`
+    - observer-store region closure: `28.98%`
+    - `with_array_text_write_txn` closure: `26.22%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `3.26%`
+  - callgraph attributes the dominant `__memmove` child to
+    `array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str`
+    closure (`27.91%`)
+  - append / realloc growth under `alloc::raw_vec::finish_grow` accounts for
+    only about `0.93%`
+- verdict:
+  - H28 observer-store search/copy split is closed
+  - append capacity is not the next owner; do not reopen H28.4 headroom
+    without new evidence
+  - next active card is H29: len-half edit copy owner decision under the
+    MIR-owned H27 edit contract
+
+## H29 Active
+
+Goal: decide whether the outer len-half edit copy owner can be reduced cleanly
+without making runtime or `.inc` a semantic owner.
+
+- target owner:
+  - overlapping copy inside
+    `array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str`
+  - this is H27 edit execution mechanics, not observer-store append capacity
+- guard:
+  - no source-shape shortcut beyond the existing MIR-owned H27 edit contract
+  - no benchmark-named whole-loop helper
+  - no runtime-owned legality/provenance/publication
+  - no `.inc` raw shape rediscovery
+- first step:
+  - inspect whether the current in-place copy is already the minimal physical
+    executor for the H27 contract
+  - if yes, close as data-structure/gap-buffer successor work rather than
+    local byte-copy surgery
 
 ### H28.1 runtime-private literal search executor
 

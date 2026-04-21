@@ -30,8 +30,8 @@ as `137x-H`.
 
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
-phase README / current entry. Current active card: `137x-H28 array text
-observer-store search/copy owner split`.
+phase README / current entry. Current active card: `137x-H29 len-half edit
+copy owner decision`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -303,7 +303,15 @@ observer-store search/copy owner split`.
       `C 3 ms / Ny AOT 4 ms`
     - verdict: small keeper; short suffix byte copy no longer calls `memcpy`,
       but residual capacity growth / write-frame `memmove` remains
-  - [ ] H28.4 capacity growth / write-frame owner decision
+  - [x] H28.4 capacity growth / write-frame owner decision
+    - rejected: Rust-only short append headroom lowered `memmove` share but
+      worsened whole instr/cycles/wall
+    - code reverted; H28.3 append leaf remains
+  - [x] H28.5 residual memmove owner refresh
+    - callgraph attributes dominant `memmove` to the outer len-half edit
+      closure, not append capacity
+    - H28 observer-store search/copy split is closed
+  - [ ] H29 len-half edit copy owner decision
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

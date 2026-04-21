@@ -50,7 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H28 array text observer-store search/copy owner split)
+  - `phase-137x-H owner-first optimization return` (active; H29 len-half edit copy owner decision)
+  - current blocker is `137x-H29 len-half edit copy owner decision`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -642,6 +643,36 @@ Scope: current lane / next lane / restart order only.
             growth / old-content copy or adjacent write-frame mechanics rather
             than the short suffix byte copy
           - next seam: H28.4 capacity growth / write-frame owner decision
+        - H28.4 result:
+          - card type: new owner-first slice under H28, not a continuation of
+            H25 guard-mechanics surgery
+          - target owner: resident `String` capacity miss leading to realloc /
+            old-content copy in the observer-store suffix append path
+          - trial: Rust-only short append headroom policy in
+            `append_short_text_suffix`; no MIR, `.inc`, or public ABI change
+          - result: whole stayed noisy but worsened on instruction/cycle/wall
+            (`ny_aot_instr=61363741`, `ny_aot_cycles=17616053`, then rerun
+            `ny_aot_instr=61364376`, `ny_aot_cycles=17951505`, `Ny AOT 8 ms`)
+          - asm: `__memmove` share dropped to `34.76%`, but
+            `with_array_text_write_txn` / observer-store closure share rose;
+            target transition did not become a keeper
+          - verdict: reject and revert code; capacity headroom alone is not
+            the next keeper
+        - H28.5 result:
+          - after reverting H28.4 and rebuilding plain release, whole
+            `kilo_kernel_small`: `C 84 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=60616017`, `ny_aot_cycles=17782048`
+          - asm top: `__memmove_avx512_unaligned_erms` `37.20%`,
+            observer-store closure `28.98%`, `with_array_text_write_txn`
+            `26.22%`, `nyash.array.string_insert_mid_lenhalf_store_hisi`
+            `3.26%`
+          - callgraph: `__memmove` samples primarily come from
+            `array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str`
+            closure (`27.91%`); append/realloc growth is only about `0.93%`
+          - verdict: H28 observer-store search/copy split is closed; do not
+            chase append capacity further
+          - next seam: H29 len-half edit copy owner decision under the H27
+            MIR-owned edit contract
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

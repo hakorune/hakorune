@@ -25,7 +25,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H28 array text observer-store search/copy owner split)
+- current lane: `phase-137x-H owner-first optimization return` (active; H29 len-half edit copy owner decision)
 - active current entry: `137x-current.md`
 - active contract map: `137x-array-text-contract-map.md`
 - semantic lock:
@@ -1842,6 +1842,87 @@ H28.3 landed / H28.4 cut:
   - H28.3 is a small keeper: whole-front instruction/cycle count improves
     without shifting authority into runtime or `.inc`.
   - H28.4 starts from capacity growth / write-frame owner decision.
+
+H28.4 cut:
+
+- Owner split:
+  - this is a new owner-first slice under H28, not a continuation of the H25
+    write-lock guard mechanics card
+  - target owner is resident `String` append capacity miss leading to realloc /
+    old-content copy under the H26 observer-store suffix append executor
+- Decision:
+  - keep MIR metadata, `.inc` lowering, and public ABI unchanged
+  - probe the append leaf first; only then try a Rust-only runtime-private text
+    append headroom policy
+  - the policy may look only at storage facts such as suffix length, current
+    length, and current capacity
+- Forbidden:
+  - source-prefix / benchmark-name branches
+  - search-result cache
+  - runtime-owned legality/provenance/publication
+  - C-side shape planning or new MIR metadata for capacity tuning
+  - plugin facade policy ownership; the policy belongs at the runtime-private
+    string growth leaf
+- Keeper gate:
+  - whole `kilo_kernel_small` instruction/cycle count improves and
+    `__memmove` share drops
+  - exact `kilo_micro_array_string_store` and middle
+    `kilo_meso_substring_concat_array_set_loopcarry` stay no-regression
+  - reject if `memmove` only moves into allocator / `_int_malloc`
+
+H28.4 rejected / H28.5 cut:
+
+- Trial:
+  - Rust-only short append headroom policy in `append_short_text_suffix`
+  - no MIR metadata, `.inc` lowering, or public ABI change
+- Evidence:
+  - whole `kilo_kernel_small` first run: `C 82 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=61363741`, `ny_aot_cycles=17616053`
+  - whole rerun: `C 82 ms / Ny AOT 8 ms`,
+    `ny_aot_instr=61364376`, `ny_aot_cycles=17951505`
+  - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9265802`, `ny_aot_cycles=2367573`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=16570977`,
+    `ny_aot_cycles=3472466`
+  - asm after trial: `__memmove_avx512_unaligned_erms` dropped to `34.76%`,
+    but `with_array_text_write_txn` rose to `31.09%` and the observer-store
+    closure rose to `27.10%`
+- Verdict:
+  - reject; the target transition did not improve instruction/cycle/wall
+    enough to be a keeper
+  - code was reverted, leaving the H28.3 runtime append leaf intact
+  - H28.5 starts with residual `memmove` owner refresh. Gather
+    callsite/callgraph evidence before opening more runtime copy/capacity
+    surgery.
+
+H28.5 landed / H29 cut:
+
+- Commands:
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+  - manual `perf record --call-graph dwarf` on the generated whole-front AOT
+    executable
+- Evidence:
+  - whole `kilo_kernel_small`: `C 84 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=60616017`, `ny_aot_cycles=17782048`
+  - asm top after reverting H28.4 code:
+    - `__memmove_avx512_unaligned_erms`: `37.20%`
+    - observer-store region closure: `28.98%`
+    - `with_array_text_write_txn` closure: `26.22%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `3.26%`
+  - callgraph: dominant `__memmove` child is
+    `array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str`
+    closure (`27.91%`)
+  - append / realloc growth through `alloc::raw_vec::finish_grow` is only
+    about `0.93%`
+- Verdict:
+  - H28 observer-store search/copy split is closed
+  - residual `memmove` is not primarily append capacity; do not chase H28.4
+    headroom further
+  - H29 opens as len-half edit copy owner decision under the existing
+    MIR-owned H27 edit contract
 
 ## Legacy Retirement Ledger
 
