@@ -1742,6 +1742,40 @@ failed to beat the clean H43 baseline.
   - no runtime legality/provenance inference
   - no benchmark-name/source-content assumptions
 
+#### H44.1 planned: runtime-private observer all-hit guard
+
+- selected owner:
+  - observer scan inside the MIR-proven combined executor
+  - H41 annotate pins row-iteration / MidGap contains samples around
+    `415470..41554e`, while H42/H43.1 rejected suffix/copy micro leaves
+- source-owned block:
+  - `slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_impl`
+    scans `values.iter_mut().take(observer_bound)` on every observer period
+  - for each row it calls `contains_four_byte_literal` / `contains_literal`
+    before appending the const suffix
+- runtime-only design:
+  - after the Text-lane bound check, scan the observed rows once with the
+    existing contains helper
+  - if every observed row already contains the needle, skip per-period search
+    and append the suffix directly
+  - if any row misses, keep the existing per-period search path unchanged
+- safety boundary:
+  - the combined executor's MIR-owned effects are insert-only and append-only;
+    within one executor call, a row that already contains the needle cannot
+    lose that membership
+  - no state escapes the helper call; this is not a persistent search-result
+    cache
+  - no literal spelling, benchmark name, `.hako` source text, or helper-name
+    assumption is used
+- keeper gate:
+  - whole `kilo_kernel_small` must improve from the clean H43 baseline
+    `ny_aot_instr=34108337`, `ny_aot_cycles=6544565`
+  - exact `kilo_micro_array_string_store` and meso
+    `kilo_meso_substring_concat_array_set_loopcarry` must not regress
+  - top/annotate should show the observer scan block reduced; if `memmove`
+    remains dominant without whole improvement, reject and open broader
+    text-cell residence/materialization
+
 ### H28.1 runtime-private literal search executor
 
 - decision:

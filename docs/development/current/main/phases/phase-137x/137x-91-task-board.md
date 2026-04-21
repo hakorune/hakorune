@@ -531,6 +531,13 @@ phase README / current entry. Current active card:
     - choose observer-scan split only if sampled source block pins it
     - otherwise escalate to broader text-cell residence/materialization design
       rather than another local MidGap copy leaf
+    - H44.1 planned: runtime-private observer all-hit guard
+      - scan observed rows once at combined-executor entry
+      - if all already contain the needle, append suffix directly on observer
+        periods because MIR-owned effects are insert-only / append-only
+      - fallback to existing per-period search when any observed row misses
+      - no persistent search cache, source-content assumption, MIR shape
+        change, `.inc` change, or public ABI change
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

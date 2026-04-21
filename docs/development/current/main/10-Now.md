@@ -167,6 +167,9 @@ Related:
     - H44 active: choose observer-scan split only if sampled source blocks pin
       it; otherwise escalate to broader text-cell residence/materialization
       design instead of more local `String` surgery
+    - H44.1 planned: runtime-private observer all-hit guard; scan observed
+      rows once and append directly on observer periods only when all rows
+      already contain the needle
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

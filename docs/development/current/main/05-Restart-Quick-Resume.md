@@ -139,6 +139,9 @@ cargo check --features perf-observe -p nyash_kernel
     - H44 active: choose observer-scan split only if sampled source blocks pin
       it; otherwise escalate to broader text-cell residence/materialization
       design instead of more local `String` surgery
+    - H44.1 planned: runtime-private observer all-hit guard; scan observed
+      rows once and append directly on observer periods only when all rows
+      already contain the needle
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

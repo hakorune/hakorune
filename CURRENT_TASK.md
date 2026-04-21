@@ -981,6 +981,9 @@ Scope: current lane / next lane / restart order only.
           - choose observer-scan split only if sampled source blocks pin it
           - otherwise escalate to broader text-cell residence/materialization
             design instead of more `String` surgery
+          - H44.1 planned: runtime-private observer all-hit guard; scan
+            observed rows once, append directly when all rows already contain
+            the needle, and fall back to existing per-period search otherwise
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
