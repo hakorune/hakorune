@@ -85,6 +85,35 @@ Primary files to inventory before coding:
 Known drift:
 
 - visible surface and compat ABI are split.
-- `size` / `len` / `length` policy appears in `.hako` owner paths and TypeRegistry with legacy slot split.
+- current vtable rows register `size` at slot `200` and `len` at slot `201`;
+  `.hako` owner paths also accept `length`, but `length` is not currently a
+  vtable-registered Rust alias.
+- `remove` is registered as the same slot as `delete`, but not all dispatch
+  paths accept it as a visible alias.
+- `set` / `delete` / `clear` return contracts differ between Rust VM, core
+  specs, and `.hako` state paths.
+- bad-key validation is enforced in the Rust `boxes_map.rs` path but can be
+  bypassed by direct slot dispatch.
 - raw substrate helpers are already better separated than StringBox, so MapBox should be cataloged after StringBox rather than before it.
 
+Current slot inventory:
+
+| Canonical | Aliases / routes | Arity | Slot | Notes |
+| --- | --- | ---: | ---: | --- |
+| `size` | `.hako` also accepts `length` | 0 | 200 | read-only count |
+| `len` | size-equivalent | 0 | 201 | read-only count |
+| `has` |  | 1 | 202 | read-only boolean |
+| `get` | `getField` bridge outside vtable | 1 | 203 | read-only value/missing path |
+| `set` | `setField` bridge outside vtable | 2 | 204 | mutates; return contract drift |
+| `delete` | `remove` in TypeRegistry | 1 | 205 | mutates; alias drift |
+| `keys` |  | 0 | 206 | read-only array |
+| `values` |  | 0 | 207 | read-only array |
+| `clear` |  | 0 | 208 | mutates; return contract drift |
+
+MapBox first safe slice after StringBox:
+
+- create catalog rows for current vtable rows only
+- add a guard that TypeRegistry slot lookup matches the catalog
+- do not normalize aliases or return contracts in the first MapBox commit
+- keep `length`, `birth`, `getField`, `setField`, `forEach`, and `toJSON` in a
+  non-vtable/debt section until a policy card accepts them

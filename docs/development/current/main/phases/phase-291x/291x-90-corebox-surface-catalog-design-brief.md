@@ -83,11 +83,12 @@ and VM dispatch do not currently agree on them.
 MapBox should follow the same row shape, but it is not implemented in the first
 StringBox card.
 
-Known rows to inventory before coding:
+Known rows from the current vtable / dispatch inventory:
 
 | Canonical | Aliases | Expected slot family |
 | --- | --- | --- |
-| `length` | `len`, `size` | 200 / 201 currently split |
+| `size` |  | 200 |
+| `len` |  | 201 |
 | `has` |  | 202 |
 | `get` |  | 203 |
 | `set` |  | 204 |
@@ -98,8 +99,12 @@ Known rows to inventory before coding:
 
 Decision needed before MapBox coding:
 
-- whether `length`, `len`, and `size` collapse to one canonical slot row or keep
-  legacy slot distinction for ABI compatibility.
+- whether `length` should become a registered vtable alias or stay a `.hako` /
+  state-owner compatibility route.
+- whether `size` / `len` should keep legacy slot distinction or collapse to one
+  canonical slot row.
+- whether `remove` should become a real visible alias for `delete` everywhere or
+  stay TypeRegistry-only debt.
 
 ## Guardrails
 
@@ -107,4 +112,3 @@ Decision needed before MapBox coding:
 - Do not change language semantics while cataloging.
 - Do not add hidden env toggles.
 - No fallback dispatch for unknown methods. Unknown surface remains fail-fast.
-
