@@ -446,6 +446,8 @@ impl ArrayBox {
             if row_modulus > values.len() || observer_bound > values.len() {
                 return None;
             }
+            let observer_all_hit =
+                text_cells_all_contain_needle(values, observer_bound, needle, needle4);
             for step in 0..loop_bound {
                 let idx = match row_modulus_mask {
                     Some(mask) => step & mask,
@@ -463,7 +465,9 @@ impl ArrayBox {
                     None => step % observer_period == 0,
                 };
                 if should_observe {
-                    if let Some(needle4) = needle4 {
+                    if observer_all_hit {
+                        append_suffix_to_text_cells(values, observer_bound, suffix);
+                    } else if let Some(needle4) = needle4 {
                         for value in values.iter_mut().take(observer_bound) {
                             if value.contains_four_byte_literal(needle4) {
                                 value.append_suffix(suffix);
@@ -527,5 +531,32 @@ impl ArrayBox {
             }
         }
         i64::try_from(loop_bound).ok()
+    }
+}
+
+#[inline(always)]
+fn text_cells_all_contain_needle(
+    values: &[ArrayTextCell],
+    observer_bound: usize,
+    needle: &str,
+    needle4: Option<u32>,
+) -> bool {
+    if let Some(needle4) = needle4 {
+        values
+            .iter()
+            .take(observer_bound)
+            .all(|value| value.contains_four_byte_literal(needle4))
+    } else {
+        values
+            .iter()
+            .take(observer_bound)
+            .all(|value| value.contains_literal(needle))
+    }
+}
+
+#[inline(always)]
+fn append_suffix_to_text_cells(values: &mut [ArrayTextCell], observer_bound: usize, suffix: &str) {
+    for value in values.iter_mut().take(observer_bound) {
+        value.append_suffix(suffix);
     }
 }

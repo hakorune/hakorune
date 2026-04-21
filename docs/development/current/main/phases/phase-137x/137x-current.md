@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H44 post-copy-probe owner decision`
+- current blocker token: `137x-H45 post-observer-guard memmove/materialization owner`
 - current benchmark state:
-  - `C 82 ms / Ny AOT 5 ms`
-  - `ny_aot_instr=34108337`
-  - `ny_aot_cycles=6544565`
+  - `C 86 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=24129815`
+  - `ny_aot_cycles=5615809`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -32,11 +32,11 @@ ledger details; current implementation work should start here.
     executor without changing MIR, `.inc`, or public ABI
   - H40 moves byte-boundary legality to MIR metadata and consumes it in a
     runtime-private proof-specific leaf
-  - latest clean direct-AOT top after H43 reject/revert:
-    - combined region executor closure: `68.01%`
-    - `__memmove_avx512_unaligned_erms`: `16.93%`
-    - `_int_malloc`: `1.62%`
-    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.18%`
+  - latest direct-AOT top after H44.1:
+    - combined region executor closure: `59.07%`
+    - `__memmove_avx512_unaligned_erms`: `24.01%`
+    - `_int_malloc`: `3.03%`
+    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.08%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -1708,7 +1708,7 @@ MidGap old-content copy before adding any more runtime leaf code.
     - prefer a broader text-cell residence/materialization design or observer
       scan split over another micro copy leaf
 
-### H44 Active
+### H44 Closed
 
 Goal: choose the next clean keeper owner after two runtime micro-copy probes
 failed to beat the clean H43 baseline.
@@ -1742,7 +1742,7 @@ failed to beat the clean H43 baseline.
   - no runtime legality/provenance inference
   - no benchmark-name/source-content assumptions
 
-#### H44.1 planned: runtime-private observer all-hit guard
+#### H44.1 landed: runtime-private observer all-hit guard
 
 - selected owner:
   - observer scan inside the MIR-proven combined executor
@@ -1775,6 +1775,60 @@ failed to beat the clean H43 baseline.
   - top/annotate should show the observer scan block reduced; if `memmove`
     remains dominant without whole improvement, reject and open broader
     text-cell residence/materialization
+- implementation:
+  - Text-lane combined executor scans observed rows once at entry
+  - when all observed rows already contain the needle, observer periods append
+    the suffix directly
+  - any miss keeps the previous per-period search path unchanged
+  - touched only `src/boxes/array/ops/text.rs` and array tests
+- verification:
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `cargo test -q combined_region_all_hit --lib`
+  - `cargo test -q benchmark_kilo_kernel_small_has_combined_edit_observer_region -- --nocapture`
+  - `cargo check -q`
+  - `bash tools/perf/build_perf_release.sh`
+- perf result:
+  - whole `kilo_kernel_small`: `C 86 ms / Ny AOT 6 ms`,
+    `ny_aot_instr=24129815`, `ny_aot_cycles=5615809`
+  - exact guard `kilo_micro_array_string_store`: `C 11 ms / Ny AOT 3 ms`,
+    `ny_aot_instr=9265721`, `ny_aot_cycles=2317791`
+  - meso guard `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17651018`,
+    `ny_aot_cycles=4247395`
+  - 200-run top: combined executor closure `59.07%`,
+    `__memmove_avx512_unaligned_erms` `24.01%`, `_int_malloc` `3.03%`,
+    `reserve::do_reserve_and_handle` `0.08%`
+- verdict:
+  - keeper for instruction/cycle owner reduction
+  - whole instructions/cycles improve from clean H43
+    `34108337` / `6544565` to `24129815` / `5615809`
+  - exact/meso guards hold
+  - next owner is external `memmove` / materialization, not observer scan
+
+### H45 Active
+
+Goal: split the remaining owner after H44.1 removed the repeated observer scan.
+
+- target front:
+  - `kilo_kernel_small`
+- blocker token:
+  - `137x-H45 post-observer-guard memmove/materialization owner`
+- evidence entering H45:
+  - H44.1 lowered the combined executor closure from `68.01%` to `59.07%`
+  - external `memmove` is now the clearest next top owner by share
+    (`24.01%`) and `_int_malloc` is still secondary (`3.03%`)
+  - wall remains in the `5-6 ms` noise band, so next keeper must reduce a
+    source-pinned copy/materialization transition, not just move percentages
+- first step:
+  - preserve a fresh H44.1 top/annotate if more source mapping is needed
+  - decide whether the next slice is broad text-cell residence/materialization
+    or a sampled external `memmove` transition with an owner stronger than the
+    rejected H42/H43.1 micro leaves
+- guard:
+  - no more suffix/left-copy micro leaves without a new sampled source block
+  - no `.inc` planner regression or runtime legality inference
+  - no benchmark-name/source-content assumptions
 
 ### H28.1 runtime-private literal search executor
 

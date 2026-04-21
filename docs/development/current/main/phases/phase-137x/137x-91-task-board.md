@@ -521,7 +521,7 @@ phase README / current entry. Current active card:
     - next: close H43 if no narrower sampled copy transition appears; prefer
       broader text-cell residence/materialization design or observer scan split
       over another micro copy leaf
-  - [ ] H44 post-copy-probe owner decision
+  - [x] H44 post-copy-probe owner decision
     - decide the next keeper owner after H42 prepared suffix append and H43.1
       right-front suffix escape both rejected
     - baseline: clean H43 whole `kilo_kernel_small = C 82 ms / Ny AOT 5 ms`,
@@ -531,13 +531,24 @@ phase README / current entry. Current active card:
     - choose observer-scan split only if sampled source block pins it
     - otherwise escalate to broader text-cell residence/materialization design
       rather than another local MidGap copy leaf
-    - H44.1 planned: runtime-private observer all-hit guard
+    - H44.1 result: keeper; runtime-private observer all-hit guard
       - scan observed rows once at combined-executor entry
       - if all already contain the needle, append suffix directly on observer
         periods because MIR-owned effects are insert-only / append-only
       - fallback to existing per-period search when any observed row misses
       - no persistent search cache, source-content assumption, MIR shape
         change, `.inc` change, or public ABI change
+      - whole `kilo_kernel_small = C 86 ms / Ny AOT 6 ms`,
+        `ny_aot_instr=24129815`, `ny_aot_cycles=5615809`
+      - exact/meso guards held; next owner is external `memmove` /
+        materialization
+  - [ ] H45 post-observer-guard memmove/materialization owner
+    - split the remaining owner after H44.1 reduced repeated observer scan
+    - top: combined executor closure `59.07%`, external `memmove` `24.01%`,
+      `_int_malloc` `3.03%`
+    - first step: decide whether the next slice is broad text-cell
+      residence/materialization or a newly sampled external `memmove`
+      transition stronger than rejected H42/H43.1 micro leaves
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

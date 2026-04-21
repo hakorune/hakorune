@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H44 post-copy-probe owner decision)
-  - current blocker is `137x-H44 post-copy-probe owner decision`
+  - `phase-137x-H owner-first optimization return` (active; H45 post-observer-guard memmove/materialization owner)
+  - current blocker is `137x-H45 post-observer-guard memmove/materialization owner`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -976,14 +976,18 @@ Scope: current lane / next lane / restart order only.
             `34108337` / `6544565` to `34826664` / `7281528`
           - `memmove` share rose from `16.93%` to `17.72%`
           - no more local MidGap copy leaves without a fresh sampled block
-        - H44 active:
-          - blocker token: `137x-H44 post-copy-probe owner decision`
-          - choose observer-scan split only if sampled source blocks pin it
-          - otherwise escalate to broader text-cell residence/materialization
-            design instead of more `String` surgery
-          - H44.1 planned: runtime-private observer all-hit guard; scan
-            observed rows once, append directly when all rows already contain
-            the needle, and fall back to existing per-period search otherwise
+        - H44 closed:
+          - H44.1 runtime-private observer all-hit guard is keeper
+          - whole improved from clean H43 `34108337` / `6544565` to
+            `24129815` / `5615809`
+          - exact/meso guards held
+        - H45 active:
+          - blocker token:
+            `137x-H45 post-observer-guard memmove/materialization owner`
+          - next owner is external `memmove` / materialization, not observer
+            scan
+          - no more suffix/left-copy micro leaves without a new sampled source
+            block
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
