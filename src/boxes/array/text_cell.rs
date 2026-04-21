@@ -172,7 +172,20 @@ impl From<String> for ArrayTextCell {
 
 #[inline(always)]
 fn active_mid_gap_right(right: &str, right_start: usize) -> &str {
-    &right[right_start..]
+    debug_assert!(right_start <= right.len());
+    debug_assert!(right.is_char_boundary(right_start));
+    // MidGap updates `right_start` only after char-boundary checks. Keep the
+    // hot executor from paying the same UTF-8/range check on every access.
+    unsafe { right.get_unchecked(right_start..) }
+}
+
+#[inline(always)]
+fn mid_gap_right_range(right: &str, start: usize, end: usize) -> &str {
+    debug_assert!(start <= end);
+    debug_assert!(end <= right.len());
+    debug_assert!(right.is_char_boundary(start));
+    debug_assert!(right.is_char_boundary(end));
+    unsafe { right.get_unchecked(start..end) }
 }
 
 #[inline(always)]
@@ -246,7 +259,7 @@ fn insert_const_mid_lenhalf_mid_gap(
         if end > right.len() || !right.is_char_boundary(end) {
             return None;
         }
-        left.push_str(&right[start..end]);
+        left.push_str(mid_gap_right_range(right, start, end));
         *right_start = end;
         left.push_str(middle);
         compact_mid_gap_right(right, right_start);

@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39.5.2 combined executor text-cell hot block cleanup`
+- current blocker token: `137x-H39.5.3 combined executor residual owner refresh`
 - current benchmark state:
-  - `C 83 ms / Ny AOT 6 ms`
-  - `ny_aot_instr=49271666`
-  - `ny_aot_cycles=9282981`
+  - `C 84 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=42303268`
+  - `ny_aot_cycles=8732285`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -1279,7 +1279,7 @@ Verdict:
 - Next work must keep the owner-first discipline and inspect the combined
   executor closure again before touching code.
 
-### H39.5.2 Active
+### H39.5.2 Result
 
 Goal: split the post-pow2 combined executor hot block before the next code
 slice.
@@ -1297,6 +1297,57 @@ slice.
   - hidden runtime legality/session state
   - search-result cache or source-content assumptions
   - public ABI widening for a local cleanup
+
+Implementation:
+
+- runtime-only change in `ArrayTextCell`
+- replace hot MidGap right slices with debug-asserted unchecked helpers:
+  - `active_mid_gap_right(right, right_start)`
+  - `mid_gap_right_range(right, start, end)`
+- no MIR metadata, `.inc`, or public ABI changes
+
+Evidence:
+
+- whole guard:
+  - `kilo_kernel_small = C 84 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=42303268`
+  - `ny_aot_cycles=8732285`
+- direct AOT asm top:
+  - combined executor closure: `89.17%`
+  - `__memmove_avx512_unaligned_erms`: `5.52%`
+  - `_int_realloc`: `1.04%`
+  - `core::str::Range::get` is no longer in the top report
+- exact guard:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+  - `ny_aot_instr=9265804`
+  - `ny_aot_cycles=2352051`
+- middle guard:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 4 ms`
+  - `ny_aot_instr=17651020`
+  - `ny_aot_cycles=4233835`
+
+Verdict:
+
+- H39.5.2 is a keeper.
+- The hot closure remains dominant, so the next slice must re-annotate before
+  code rather than guessing at a source helper.
+
+### H39.5.3 Active
+
+Goal: refresh the residual owner after the MidGap range cleanup.
+
+- first step:
+  - re-run direct AOT asm/annotate on `kilo_kernel_small`
+  - split the remaining combined executor closure between insert-mid copy,
+    short literal search, append suffix, allocation, and branch mechanics
+- allowed:
+  - runtime-only leaf cleanup if a sampled source helper is mechanically
+    redundant
+  - reject local cleanup and stop if the remaining owner is broad copy/alloc
+- forbidden:
+  - `.inc` shape rediscovery
+  - MIR metadata changes without a missing contract fact
+  - search-result cache or source-content assumptions
 
 ### H28.1 runtime-private literal search executor
 

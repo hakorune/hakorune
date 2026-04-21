@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.5.2 combined executor text-cell hot block cleanup)
+  - `phase-137x-H owner-first optimization return` (active; H39.5.3 combined executor residual owner refresh)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H39.5.2 combined executor text-cell hot block cleanup`
+    - current blocker is `137x-H39.5.3 combined executor residual owner refresh`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H39.5.2 combined executor text-cell hot block cleanup`
+  - `137x-H39.5.3 combined executor residual owner refresh`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -111,8 +111,11 @@ cargo check --features perf-observe -p nyash_kernel
       `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`, `ny_aot_instr=49271666`,
       `ny_aot_cycles=9282981`; result is cycles/memmove cleanup only, not a
       wall-time keeper
-    - H39.5.2 active: post-pow2 annotate and split the combined executor hot
-      block before the next code slice
+    - H39.5.2 landed: runtime-only MidGap unchecked slice helper cleanup;
+      whole `kilo_kernel_small = C 84 ms / Ny AOT 5 ms`,
+      `ny_aot_instr=42303268`, `ny_aot_cycles=8732285`
+    - H39.5.3 active: re-annotate the post-range-cleanup combined executor
+      closure before choosing another code slice
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`

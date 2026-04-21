@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.5.2 combined executor text-cell hot block cleanup)
-  - current blocker is `137x-H39.5.2 combined executor text-cell hot block cleanup`
+  - `phase-137x-H owner-first optimization return` (active; H39.5.3 combined executor residual owner refresh)
+  - current blocker is `137x-H39.5.3 combined executor residual owner refresh`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -891,11 +891,21 @@ Scope: current lane / next lane / restart order only.
             C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17651126`,
             `ny_aot_cycles=4237981`
           - verdict: cycles/memmove cleanup only; not a wall-time keeper
-        - H39.5.2 active:
-          - post-pow2 annotate before code
-          - split the combined executor hot block between MidGap text access,
-            UTF-8/range checks, append/contains mechanics, and residual copy
-          - no MIR, `.inc`, or public ABI changes until evidence requires it
+        - H39.5.2 result:
+          - MidGap right slice/range access now uses debug-asserted unchecked
+            helpers in the runtime text-cell leaf
+          - whole `kilo_kernel_small = C 84 ms / Ny AOT 5 ms`,
+            `ny_aot_instr=42303268`, `ny_aot_cycles=8732285`
+          - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`,
+            `ny_aot_instr=9265804`, `ny_aot_cycles=2352051`
+          - middle `kilo_meso_substring_concat_array_set_loopcarry =
+            C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17651020`,
+            `ny_aot_cycles=4233835`
+          - result: keeper; `str::Range::get` falls out of the direct AOT top
+        - H39.5.3 active:
+          - re-annotate the post-range-cleanup combined executor closure
+          - choose the next narrow runtime leaf or reject further local cleanup
+          - do not touch MIR, `.inc`, or public ABI without new evidence
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

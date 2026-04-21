@@ -451,11 +451,18 @@ phase README / current entry. Current active card:
     - result: cycles/memmove cleanup only; not a wall-time keeper
     - whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`,
       `ny_aot_instr=49271666`, `ny_aot_cycles=9282981`
-  - [ ] H39.5.2 combined executor text-cell hot block cleanup
+  - [x] H39.5.2 combined executor text-cell hot block cleanup
     - post-pow2 annotate before code
     - split MidGap text access, UTF-8/range checks, append/contains mechanics,
       and residual copy inside the combined executor closure
     - no MIR, `.inc`, or public ABI changes until evidence requires it
+    - result: keeper; whole `kilo_kernel_small = C 84 ms / Ny AOT 5 ms`,
+      `ny_aot_instr=42303268`, `ny_aot_cycles=8732285`
+    - `str::Range::get` falls out of the direct AOT top
+  - [ ] H39.5.3 combined executor residual owner refresh
+    - re-annotate the post-range-cleanup closure
+    - choose the next narrow runtime leaf or reject further local cleanup
+    - do not touch MIR, `.inc`, or public ABI without new evidence
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

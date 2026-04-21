@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.5.2 combined executor text-cell hot block cleanup)
+  - `phase-137x-H owner-first optimization return` (active; H39.5.3 combined executor residual owner refresh)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H39.5.2 combined executor text-cell hot block cleanup`
+  - current blocker is `137x-H39.5.3 combined executor residual owner refresh`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -139,8 +139,11 @@ Related:
       `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`, `ny_aot_instr=49271666`,
       `ny_aot_cycles=9282981`; result is cycles/memmove cleanup only, not a
       wall-time keeper
-    - H39.5.2 active: post-pow2 annotate and split the combined executor hot
-      block before the next code slice
+    - H39.5.2 landed: runtime-only MidGap unchecked slice helper cleanup;
+      whole `kilo_kernel_small = C 84 ms / Ny AOT 5 ms`,
+      `ny_aot_instr=42303268`, `ny_aot_cycles=8732285`
+    - H39.5.3 active: re-annotate the post-range-cleanup combined executor
+      closure before choosing another code slice
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`
