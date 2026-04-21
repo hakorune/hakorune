@@ -403,12 +403,14 @@ Scope: current lane / next lane / restart order only.
           (`single_region_executor`, `loop_backedge_single_body`,
           `publication_boundary=none`, `ArrayLane(Text)/Cell`, `store.cell`,
           `LengthOnly`, `text_resident_or_stringlike_slot`)
-        - H25c.2c is still active until `.inc` validates the nested contract
-          and the region execution contract owns loop/PHI/exit semantics
+        - H25c.2c-2 `.inc` reader validation landed; active lowering accepts
+          the residence session only when the nested contract matches and still
+          maps to the existing per-iteration helper
+        - H25c.2c is still active until the region execution contract owns
+          loop/PHI/exit semantics
         - H25c.3 keeper probe only after H25c.2c lands
-      - next slice: H25c.2c-2 `.inc` reader validation for nested
-        `executor_contract`; no CFG/raw shape rediscovery and no runtime
-        executor yet
+      - next slice: H25c.2c-3 MIR loop/PHI/exit mapping inventory; no runtime
+        executor until those semantics are MIR-owned
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

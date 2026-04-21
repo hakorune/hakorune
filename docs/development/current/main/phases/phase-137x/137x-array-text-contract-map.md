@@ -85,8 +85,8 @@ and ownership map, not a second semantic source.
   - must not rediscover route legality by scanning raw shape.
   - active array/text readers use `*_route_metadata` naming; do not add new
     cross-boundary `*_route_plan` names.
-  - H25c.2c may validate `executor_contract`; it must reject missing/mismatched
-    nested contract fields instead of inferring them from CFG.
+  - H25c.2c validates `executor_contract`; it rejects missing/mismatched nested
+    contract fields instead of inferring them from CFG.
 - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_lowering.inc`
   - may emit the selected helper calls and skip covered instructions.
   - H25c.1 consumes residence-session metadata first, but still maps it to the

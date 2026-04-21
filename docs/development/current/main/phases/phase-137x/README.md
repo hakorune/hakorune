@@ -1515,6 +1515,14 @@ H25c.2c single-region executor contract:
   - MIR JSON emits the nested contract and the loopcarry route test asserts it.
   - No behavior change yet; next slice is `.inc` reader validation, followed by
     any missing MIR loop/PHI/exit mapping before a region replacement.
+- Second implementation slice landed as backend validation only:
+  - `hako_llvmc_ffi_generic_method_get_window.inc` now requires the nested
+    `executor_contract` fields before accepting the residence-session metadata.
+  - The active backend trace remains metadata-owned:
+    `array_text_residence_session hit mir_route_metadata`.
+  - Lowering still emits the existing per-iteration fused helper; the keeper
+    path is blocked on MIR-owned loop/PHI/exit mapping before region
+    replacement.
 
 ## Legacy Retirement Ledger
 

@@ -28,6 +28,7 @@
       };
       struct ArrayTextResidenceSessionRouteMetadata {
         int matched;
+        int executor_contract_matched;
         size_t skip_iis[32];
         int skip_n;
         long long begin_block;
@@ -82,6 +83,50 @@
         if (out->skip_n < (int)(sizeof(out->skip_iis) / sizeof(out->skip_iis[0]))) {
           out->skip_iis[out->skip_n++] = ii;
         }
+      }
+      auto int array_text_residence_string_array_eq2(
+          yyjson_val* vals,
+          const char* first,
+          const char* second) {
+        yyjson_val* v0 = NULL;
+        yyjson_val* v1 = NULL;
+        const char* s0 = NULL;
+        const char* s1 = NULL;
+        if (!(vals && yyjson_is_arr(vals) && yyjson_arr_size(vals) == 2)) return 0;
+        v0 = yyjson_arr_get(vals, 0);
+        v1 = yyjson_arr_get(vals, 1);
+        if (!(v0 && v1 && yyjson_is_str(v0) && yyjson_is_str(v1))) return 0;
+        s0 = yyjson_get_str(v0);
+        s1 = yyjson_get_str(v1);
+        return s0 && s1 && !strcmp(s0, first) && !strcmp(s1, second);
+      }
+      auto int array_text_residence_executor_contract_valid(yyjson_val* route) {
+        yyjson_val* contract = route ? yyjson_obj_get(route, "executor_contract") : NULL;
+        yyjson_val* effects = contract ? yyjson_obj_get(contract, "effects") : NULL;
+        yyjson_val* capabilities =
+            contract ? yyjson_obj_get(contract, "consumer_capabilities") : NULL;
+        const char* execution_mode = contract ? read_str(contract, "execution_mode") : NULL;
+        const char* proof_region = contract ? read_str(contract, "proof_region") : NULL;
+        const char* publication_boundary =
+            contract ? read_str(contract, "publication_boundary") : NULL;
+        const char* carrier = contract ? read_str(contract, "carrier") : NULL;
+        const char* materialization_policy =
+            contract ? read_str(contract, "materialization_policy") : NULL;
+        return contract && yyjson_is_obj(contract) &&
+               execution_mode && !strcmp(execution_mode, "single_region_executor") &&
+               proof_region && !strcmp(proof_region, "loop_backedge_single_body") &&
+               publication_boundary && !strcmp(publication_boundary, "none") &&
+               carrier && !strcmp(carrier, "array_lane_text_cell") &&
+               array_text_residence_string_array_eq2(
+                   effects,
+                   "store.cell",
+                   "length_only_result_carry") &&
+               array_text_residence_string_array_eq2(
+                   capabilities,
+                   "sink_store",
+                   "length_only") &&
+               materialization_policy &&
+                   !strcmp(materialization_policy, "text_resident_or_stringlike_slot");
       }
       auto void array_text_residence_session_to_loopcarry_update(
           const struct ArrayTextResidenceSessionRouteMetadata* session,
@@ -165,7 +210,8 @@
                 scope && !strcmp(scope, "loop_backedge_single_body") &&
                 proof && !strcmp(proof, "loopcarry_len_store_only") &&
                 consumer_capability && !strcmp(consumer_capability, "slot_text_len_store_session") &&
-                publication_boundary && !strcmp(publication_boundary, "none"))) {
+                publication_boundary && !strcmp(publication_boundary, "none") &&
+                array_text_residence_executor_contract_valid(route))) {
             return 0;
           }
           begin_block = (long long)yyjson_get_sint(begin_block_val);
@@ -185,6 +231,7 @@
           }
           if (out) {
             out->matched = 1;
+            out->executor_contract_matched = 1;
             out->begin_block = begin_block;
             out->begin_to_header_block = begin_to_header_block;
             out->header_block = header_block;

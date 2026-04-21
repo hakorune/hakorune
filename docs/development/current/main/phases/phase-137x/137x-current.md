@@ -170,6 +170,15 @@ collapse into one risky change.
       - `materialization_policy=text_resident_or_stringlike_slot`
     - Route tests assert the contract and MIR JSON emission preserves it.
     - Behavior is unchanged; no backend execution replacement yet.
+  - H25c.2c-2 landed:
+    - `hako_llvmc_ffi_generic_method_get_window.inc` validates the nested
+      `executor_contract` before accepting `array_text_residence_sessions`.
+    - Missing or mismatched executor contract fields reject the route instead
+      of letting `.inc` infer the contract from CFG/raw shape.
+    - Active lowering still maps the validated session to the existing
+      per-iteration loopcarry update helper; no region replacement yet.
+    - Probe trace hit:
+      `stage=array_text_residence_session result=hit reason=mir_route_metadata`.
   - contract shape:
     - `executor_contract.execution_mode = single_region_executor`
     - `proof_region = loop_backedge_single_body`
@@ -204,6 +213,7 @@ Required order:
    - status: done for H25c.2c-1.
 2. Make `.inc` validate and consume that metadata without CFG/raw shape
    rediscovery.
+   - status: done for H25c.2c-2.
 3. Extend the MIR contract for any missing loop/PHI/exit semantics before
    replacing the loop region.
 4. Add a runtime-private one-call RAII executor only if MIR fully owns legality,
