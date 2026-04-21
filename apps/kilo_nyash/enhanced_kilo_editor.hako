@@ -22,29 +22,31 @@ box EnhancedTextBuffer {
     memory_footprint() {
         // Calculate total memory usage
         local total_memory = 100  // Base TextBuffer overhead
-        local line_count_box = me.lines.length()
+        local lines = me.lines
+        local undo_stack = me.undo_stack
+        local line_count_box = lines.length()
         
         // Convert to integer for loop usage
         local line_count = 0
         if line_count_box != null {
-            line_count = line_count_box.toString().toInteger()
+            line_count = line_count_box
         }
         
         // Add memory for each line
         local i = 0
         loop(i < line_count) {
-            local line = me.lines.get(i)
+            local line = lines.get(i)
             if line != null {
-                total_memory = total_memory + line.toString().length() + 20  // String overhead
+                total_memory = total_memory + line.length() + 20  // String overhead
             }
             i = i + 1
         }
         
         // Add undo stack memory
-        local undo_count_box = me.undo_stack.length()
+        local undo_count_box = undo_stack.length()
         local undo_count = 0
         if undo_count_box != null {
-            undo_count = undo_count_box.toString().toInteger()
+            undo_count = undo_count_box
         }
         total_memory = total_memory + (undo_count * 50)  // Estimate for undo operations
         
@@ -55,10 +57,13 @@ box EnhancedTextBuffer {
     insert_char(row, col, char) {
         local old_memory = me.memory_footprint()
         me.operation_count = me.operation_count + 1
+        local lines = me.lines
+        local undo_stack = me.undo_stack
+        local operation_count = me.operation_count
         
         // Get current line
-        local current_line = me.lines.get(row)
-        local line_str = current_line.toString()
+        local current_line = lines.get(row)
+        local line_str = current_line
         
         // Insert character
         local left_part = line_str.substring(0, col)
@@ -66,24 +71,29 @@ box EnhancedTextBuffer {
         local new_line = left_part + char + right_part
         
         // Replace line
-        me.lines.set(row, new_line)
+        lines.set(row, new_line)
         
         // Save to undo stack
         local undo_op = "insert_char:" + row + ":" + col + ":" + char
-        me.undo_stack.push(undo_op)
+        undo_stack.push(undo_op)
         
         // Check for accidental full copy
         local new_memory = me.memory_footprint()
         local memory_diff = new_memory - old_memory
         
-        print("💾 Memory change: " + memory_diff + " bytes for operation " + me.operation_count)
+        print("💾 Memory change: " + memory_diff + " bytes for operation " + operation_count)
         
         // ⭐ Alert if memory increase is suspicious
         if (memory_diff > 100) {  // 1 character should not increase memory by 100+ bytes
+            local average_memory = new_memory / operation_count
             print("🚨 INEFFICIENT COPY DETECTED!")
             print("   Expected: ~20 bytes, Actual: " + memory_diff + " bytes")
             print("   Operation: Insert '" + char + "' at (" + row + ", " + col + ")")
-            me.log_memory_leak_warning()
+            print("⚠️ MEMORY EFFICIENCY WARNING")
+            print("   Current total memory: " + new_memory)
+            print("   Operations performed: " + operation_count)
+            print("   Average memory per operation: " + average_memory)
+            print("   Consider optimizing string operations")
         } else if (memory_diff > 0) {
             print("✅ Normal memory usage: " + memory_diff + " bytes")
         }
@@ -98,20 +108,22 @@ box EnhancedTextBuffer {
         
         local old_memory = me.memory_footprint()
         me.operation_count = me.operation_count + 1
+        local lines = me.lines
+        local undo_stack = me.undo_stack
         
         // Get current line and remove character
-        local current_line = me.lines.get(row)
-        local line_str = current_line.toString()
+        local current_line = lines.get(row)
+        local line_str = current_line
         
         local left_part = line_str.substring(0, col - 1)
         local right_part = line_str.substring(col, line_str.length())
         local new_line = left_part + right_part
         
-        me.lines.set(row, new_line)
+        lines.set(row, new_line)
         
         // Save to undo stack
         local undo_op = "delete_char:" + row + ":" + col
-        me.undo_stack.push(undo_op)
+        undo_stack.push(undo_op)
         
         local new_memory = me.memory_footprint()
         local memory_diff = new_memory - old_memory
@@ -120,30 +132,93 @@ box EnhancedTextBuffer {
         
         return true
     }
+
+    split_line(row, col) {
+        local old_memory = me.memory_footprint()
+        me.operation_count = me.operation_count + 1
+        local operation_count = me.operation_count
+        local lines = me.lines
+        local undo_stack = me.undo_stack
+        local current_line = lines.get(row)
+
+        if current_line == null {
+            return false
+        }
+
+        local line_str = current_line
+        local line_len = line_str.length()
+        local split_col = col
+        if split_col < 0 {
+            split_col = 0
+        }
+        if split_col > line_len {
+            split_col = line_len
+        }
+
+        local left_part = line_str.substring(0, split_col)
+        local right_part = line_str.substring(split_col, line_len)
+        lines.set(row, left_part)
+        lines.insert(row + 1, right_part)
+
+        local undo_op = "split_line:" + row + ":" + split_col
+        undo_stack.push(undo_op)
+
+        local new_memory = me.memory_footprint()
+        local memory_diff = new_memory - old_memory
+        print("💾 Memory change: " + memory_diff + " bytes (line split, op " + operation_count + ")")
+
+        return true
+    }
     
     // Search and replace with efficiency monitoring
     search_and_replace(pattern, replacement) {
         local initial_memory = me.memory_footprint()
         local matches_found = 0
+        local lines = me.lines
+        local undo_stack = me.undo_stack
         
         print("🔍 Starting search and replace: '" + pattern + "' -> '" + replacement + "'")
+
+        if pattern == null {
+            print("⚠️ Search pattern is null; replace skipped")
+            return 0
+        }
+        local pattern_len = pattern.length()
+        if pattern_len <= 0 {
+            print("⚠️ Empty search pattern; replace skipped")
+            return 0
+        }
         
-        local line_count_box = me.lines.length()
+        local line_count_box = lines.length()
         local line_count = 0
         if line_count_box != null {
-            line_count = line_count_box.toString().toInteger()
+            line_count = line_count_box
         }
         local i = 0
         loop(i < line_count) {
-            local line = me.lines.get(i)
-            local line_str = line.toString()
-            
-            // Simple search and replace (contains check)
-            if (line_str.indexOf(pattern) >= 0) {
-                // For simplicity, just append replacement to demonstrate memory monitoring
-                local new_line = line_str + " [REPLACED: " + pattern + " -> " + replacement + "]"
-                me.lines.set(i, new_line)
-                matches_found = matches_found + 1
+            local line = lines.get(i)
+            local line_str = line
+
+            local line_matches = 0
+            local search_start = 0
+            local line_len = line_str.length()
+            local new_line = ""
+            local hit = line_str.indexOf(pattern, search_start)
+
+            loop(hit >= 0) {
+                new_line = new_line + line_str.substring(search_start, hit) + replacement
+                search_start = hit + pattern_len
+                line_matches = line_matches + 1
+                hit = line_str.indexOf(pattern, search_start)
+            }
+
+            if line_matches > 0 {
+                new_line = new_line + line_str.substring(search_start, line_len)
+                lines.set(i, new_line)
+                matches_found = matches_found + line_matches
+
+                local undo_op = "replace:" + i + ":" + line_matches + ":" + pattern + ":" + replacement
+                undo_stack.push(undo_op)
             }
             i = i + 1
         }
@@ -179,7 +254,7 @@ box EnhancedTextBuffer {
         local line_count = me.lines.length()
         local undo_count = me.undo_stack.length()
         
-        return "Lines: " + line_count.toString() + ", Undo: " + undo_count.toString() + ", Memory: " + current_memory + "B, Ops: " + me.operation_count
+        return "Lines: " + line_count + ", Undo: " + undo_count + ", Memory: " + current_memory + "B, Ops: " + me.operation_count
     }
 }
 
@@ -198,27 +273,41 @@ box EnhancedKiloEditor {
     insert_text(text) {
         local i = 0
         local text_len = text.length()
+        local buffer = me.buffer
+        local row = me.cursor_row
+        local col = me.cursor_col
         
         loop(i < text_len) {
             local char = text.substring(i, i + 1)
-            me.buffer.insert_char(me.cursor_row, me.cursor_col, char)
-            me.cursor_col = me.cursor_col + 1
+            buffer.insert_char(row, col, char)
+            col = col + 1
             i = i + 1
         }
+        me.cursor_col = col
     }
     
     new_line() {
-        // Insert new line at current position
-        me.cursor_row = me.cursor_row + 1
-        me.cursor_col = 0
-        me.buffer.lines.insert(me.cursor_row, "")
-        print("↩️ New line inserted at row " + me.cursor_row)
+        local row = me.cursor_row
+        local col = me.cursor_col
+        local buffer = me.buffer
+
+        if buffer.split_line(row, col) {
+            me.cursor_row = row + 1
+            me.cursor_col = 0
+            print("↩️ Line split at row " + row + ", col " + col)
+            return true
+        }
+
+        return false
     }
     
     backspace() {
-        if (me.cursor_col > 0) {
-            me.buffer.delete_char(me.cursor_row, me.cursor_col)
-            me.cursor_col = me.cursor_col - 1
+        local col = me.cursor_col
+        local row = me.cursor_row
+        local buffer = me.buffer
+        if (col > 0) {
+            buffer.delete_char(row, col)
+            me.cursor_col = col - 1
         }
     }
     
@@ -230,32 +319,40 @@ box EnhancedKiloEditor {
 
 // Test suite for memory efficiency
 static box Main {
-    init { console }
-    
     main() {
-        me.console = new ConsoleBox()
-        me.console.log("✏️ Phase 10.4: Enhanced Kilo Editor - Memory Efficiency Testing")
+        local console = new ConsoleBox()
+        console.log("✏️ Phase 10.4: Enhanced Kilo Editor - Memory Efficiency Testing")
         
         local editor = new EnhancedKiloEditor("test_document.txt")
         
         // Test 1: Normal character insertion
-        me.console.log("Test 1: Inserting characters normally")
+        console.log("Test 1: Inserting characters normally")
         editor.insert_text("Hello World")
         editor.show_stats()
+
+        local split_editor = new EnhancedKiloEditor("split_test.txt")
+        split_editor.insert_text("AlphaBeta")
+        split_editor.cursor_col = 5
+        split_editor.new_line()
+        console.log("Split line 0: " + split_editor.buffer.lines.get(0))
+        console.log("Split line 1: " + split_editor.buffer.lines.get(1))
+        split_editor.show_stats()
         
         // Test 2: Large text insertion (potential memory stress)
-        me.console.log("Test 2: Large text insertion")
+        console.log("Test 2: Large text insertion")
         editor.new_line()
         editor.insert_text("This is a longer line of text to test memory efficiency monitoring")
         editor.show_stats()
         
         // Test 3: Search and replace (memory doubling test)
-        me.console.log("Test 3: Search and replace operation")
+        console.log("Test 3: Search and replace operation")
         local matches = editor.buffer.search_and_replace("test", "TEST")
+        console.log("Matches replaced: " + matches)
+        console.log("Updated line: " + editor.buffer.lines.get(1))
         editor.show_stats()
         
         // Test 4: Memory stress test
-        me.console.log("Test 4: Memory stress test - rapid insertions")
+        console.log("Test 4: Memory stress test - rapid insertions")
         local stress_count = 0
         loop(stress_count < 10) {
             editor.insert_text("X")
@@ -264,8 +361,8 @@ static box Main {
         editor.show_stats()
         
         // Final memory report
-        me.console.log("Final memory footprint: " + editor.buffer.memory_footprint() + " bytes")
-        me.console.log("Total operations: " + editor.buffer.operation_count)
+        console.log("Final memory footprint: " + editor.buffer.memory_footprint() + " bytes")
+        console.log("Total operations: " + editor.buffer.operation_count)
         
         return "Enhanced Kilo Editor test complete"
     }
