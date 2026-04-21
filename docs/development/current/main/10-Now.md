@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H36.3 ArrayTextCell visible materialization split)
+  - `phase-137x-H owner-first optimization return` (active; H36.4 ArrayTextCell piece residence pilot)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H36.3 ArrayTextCell visible materialization split`
+  - current blocker is `137x-H36.4 ArrayTextCell piece residence pilot`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -114,8 +114,9 @@ Related:
       `.inc` change
     - H36.2 closed: fresh whole stat/asm still points at `memmove` / len-half
       closure, so non-flat residence remains justified
-    - H36.3 active: make visible text materialization/comparison explicit
-      before adding any non-flat representation variant
+    - H36.3 landed: visible text materialization/comparison is explicit
+    - H36.4 active: narrow runtime-private piece residence pilot for repeated
+      len-half insert mechanics
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

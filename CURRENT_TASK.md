@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H36.3 ArrayTextCell visible materialization split)
-  - current blocker is `137x-H36.3 ArrayTextCell visible materialization split`
+  - `phase-137x-H owner-first optimization return` (active; H36.4 ArrayTextCell piece residence pilot)
+  - current blocker is `137x-H36.4 ArrayTextCell piece residence pilot`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -805,11 +805,20 @@ Scope: current lane / next lane / restart order only.
             observer-store closure `20.21%`
           - verdict: non-flat text residence remains justified, but first
             close visible materialization APIs so representation does not leak
-        - H36.3 active:
-          - BoxShape-only; make visible text reads/materialization explicit
-          - replace visible `as_str()` equality/format/get/sort paths with
-            `ArrayTextCell` materialization/comparison helpers
+        - H36.3 result:
+          - landed BoxShape-only visible materialization split
+          - Array visible get/boxing/format/equality/membership/sort now use
+            `ArrayTextCell` helpers instead of raw `as_str()` / derived order
           - no `Piece` / `Gap`, no MIR, `.inc`, public ABI, or perf keeper claim
+          - verification: `cargo fmt --check`, `git diff --check`,
+            `cargo test -q array::tests --lib`,
+            `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`,
+            and `tools/checks/current_state_pointer_guard.sh`
+        - H36.4 active:
+          - narrow runtime-private `ArrayTextCell::Pieces` pilot
+          - owner is repeated len-half insert residence mechanics only
+          - no MIR, `.inc`, public ABI, source-content assumptions, or
+            benchmark-named representation
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

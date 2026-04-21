@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H36.3 ArrayTextCell visible materialization split`
+- current blocker token: `137x-H36.4 ArrayTextCell piece residence pilot`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -706,7 +706,7 @@ Verdict:
   a later non-flat representation does not leak through `as_str()` / derived
   equality / derived order
 
-### H36.3 Active
+### H36.3 Result
 
 Goal: split visible text materialization/comparison APIs before adding any
 non-flat `ArrayTextCell` representation.
@@ -724,7 +724,38 @@ non-flat `ArrayTextCell` representation.
   - `cargo fmt --check`
   - `git diff --check`
   - `cargo test -q array::tests --lib`
+  - `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
   - `tools/checks/current_state_pointer_guard.sh`
+
+Result:
+
+- landed BoxShape-only visible materialization split
+- Array visible get/boxing/format/equality/membership/sort now use
+  `ArrayTextCell` helpers instead of raw `as_str()` / derived cell ordering
+- no `Piece` / `Gap`, no MIR or `.inc` edits, no public ABI change, and no perf
+  keeper claim
+
+### H36.4 Active
+
+Goal: test a narrow runtime-private piece residence representation for repeated
+len-half inserts.
+
+- allowed:
+  - add `ArrayTextCell::Pieces` or equivalent internal residence variant
+  - keep len/contains/append/insert/materialize behavior owned by
+    `ArrayTextCell`
+  - materialize only at visible/public boundaries
+- forbidden:
+  - MIR metadata or `.inc` changes
+  - public ABI changes
+  - source-content assumptions such as rows containing `"line"`
+  - benchmark-named representation or helper
+  - semantic/search-result cache
+- keeper gate:
+  - behavior tests stay green
+  - rebuild release artifacts before judging perf
+  - whole `kilo_kernel_small` improves and `memmove` / len-half closure owner
+    shrinks without moving dominant cost to allocator
 
 ### H28.1 runtime-private literal search executor
 

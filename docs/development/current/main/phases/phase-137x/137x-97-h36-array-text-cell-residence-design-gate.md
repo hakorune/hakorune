@@ -1,9 +1,9 @@
 # 137x-H36 ArrayTextCell Residence Design Gate
 
-Status: active design gate; H36.2 closed, H36.3 visible materialization split active.
+Status: active design gate; H36.3 landed, H36.4 piece residence pilot active.
 
 Current blocker token:
-`137x-H36.3 ArrayTextCell visible materialization split`.
+`137x-H36.4 ArrayTextCell piece residence pilot`.
 
 ## Context
 
@@ -173,3 +173,43 @@ Acceptance:
 - `git diff --check`
 - `cargo test -q array::tests --lib`
 - `tools/checks/current_state_pointer_guard.sh`
+
+## H36.3 Result
+
+Landed as BoxShape-only cleanup:
+
+- visible Array get/boxing/format/equality/membership/sort paths route through
+  `ArrayTextCell` materialization/comparison helpers.
+- raw borrowed `as_str()` and derived cell ordering no longer define visible
+  Array behavior outside the cell boundary.
+- no `Piece` / `Gap`, MIR, `.inc`, public ABI, or perf keeper claim.
+- verification: `cargo fmt --check`, `git diff --check`,
+  `cargo test -q array::tests --lib`,
+  `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`, and
+  `tools/checks/current_state_pointer_guard.sh`.
+
+## H36.4 Implementation Card
+
+Name: `ArrayTextCell piece residence pilot`.
+
+Allowed:
+
+- add a narrow runtime-private non-flat cell variant for repeated len-half
+  insert mechanics.
+- keep `len`, `contains_literal`, `append_suffix`, `insert_const_mid_lenhalf`,
+  and visible materialization inside `ArrayTextCell`.
+- use storage facts only; do not depend on benchmark names or source content.
+
+Forbidden:
+
+- MIR or `.inc` edits.
+- public ABI changes.
+- semantic/search-result cache.
+- source-content assumptions such as every row containing `"line"`.
+
+Keeper gate:
+
+- behavior tests stay green.
+- release artifacts are rebuilt before measuring.
+- whole `kilo_kernel_small` improves and `memmove` / len-half closure share
+  shrinks without simply moving the owner to allocator.

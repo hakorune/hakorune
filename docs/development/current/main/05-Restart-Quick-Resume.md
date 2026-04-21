@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H36.3 ArrayTextCell visible materialization split)
+  - `phase-137x-H owner-first optimization return` (active; H36.4 ArrayTextCell piece residence pilot)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H36.3 ArrayTextCell visible materialization split`
+    - current blocker is `137x-H36.4 ArrayTextCell piece residence pilot`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H36.3 ArrayTextCell visible materialization split`
+  - `137x-H36.4 ArrayTextCell piece residence pilot`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -86,8 +86,9 @@ cargo check --features perf-observe -p nyash_kernel
       public ABI changes
     - H36.2 closed: fresh whole stat/asm still points at `memmove` / len-half
       closure, so non-flat residence remains justified
-    - H36.3 active: make visible text materialization/comparison explicit
-      before adding any non-flat representation variant
+    - H36.3 landed: visible text materialization/comparison is explicit
+    - H36.4 active: narrow runtime-private piece residence pilot for repeated
+      len-half insert mechanics
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`
