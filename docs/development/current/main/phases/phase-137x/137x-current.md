@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39.5.4 combined executor post-literal residual owner refresh`
+- current blocker token: `137x-H40 MIR-owned byte-boundary proof for text-cell edits`
 - current benchmark state:
   - `C 85 ms / Ny AOT 5 ms`
   - `ny_aot_instr=35428450`
@@ -30,10 +30,14 @@ ledger details; current implementation work should start here.
     executor call; the old per-iteration len-half helper is no longer emitted
   - H39.5.3 specializes 4-byte literal observer mechanics inside the combined
     executor without changing MIR, `.inc`, or public ABI
-  - latest current-code asm top after H39.5.3:
-    - combined region executor closure: `81.80%`
-    - `__memmove_avx512_unaligned_erms`: `8.44%`
-    - `_int_malloc`: `2.80%`
+  - H39.5.4 refreshes the residual owner after the 4-byte literal observer
+    cleanup; the next narrow seam is byte-boundary legality, not another
+    runtime-only leaf
+  - latest preserved-AOT top after H39.5.4:
+    - combined region executor closure: `75.26%`
+    - `__memmove_avx512_unaligned_erms`: `10.03%`
+    - `_int_malloc`: `2.05%`
+    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.30%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -53,6 +57,7 @@ ledger details; current implementation work should start here.
   - residence-session eligibility
   - loop/session lifetime
   - edit split policy such as `source_len / 2`
+  - byte-boundary / encoding-preservation proof for text-cell edit fast leaves
   - alias/publication boundary
   - covered route facts
 - `.inc` owns:
@@ -1395,6 +1400,73 @@ observer cleanup.
   - `.inc` shape rediscovery
   - MIR metadata changes without a missing contract fact
   - search-result cache or source-content assumptions
+
+Result:
+
+- evidence:
+  - preserved AOT perf data:
+    `target/perf_state/h39_5_4_kilo_kernel_small.perf.data`
+  - preserved annotate:
+    `target/perf_state/h39_5_4_kilo_kernel_small.annotate.txt`
+  - direct AOT top:
+    - combined region executor closure: `75.26%`
+    - `__memmove_avx512_unaligned_erms`: `10.03%`
+    - `_int_malloc`: `2.05%`
+    - `_int_realloc`: `0.36%`
+    - `alloc::raw_vec::RawVecInner<A>::reserve::do_reserve_and_handle`: `0.30%`
+    - `nyash.array.string_len_hi`: `0.05%` and belongs only to the final
+      64-row sum loop
+  - annotate still samples the MidGap insert path around the byte legality
+    check / branch block; this is a correctness boundary, not a runtime
+    mechanics duplicate
+- verdict:
+  - close H39.5.4 as no-code owner refresh
+  - further runtime-only unchecked slicing would move legality into Rust
+  - open H40 so MIR can own the byte-boundary / ASCII-preservation proof and
+    runtime can consume it as executor-only metadata
+
+### H40 Active
+
+Goal: move the remaining MidGap text-cell edit byte-boundary proof to MIR
+metadata before considering a runtime fast leaf that skips boundary checks.
+
+- target front:
+  - `kilo_kernel_small`
+- owner hypothesis:
+  - residual executor samples include UTF-8 byte-boundary legality checks in
+    the len-half text-cell edit path
+  - the legal fact is derivable from MIR/lowering facts such as ASCII literals,
+    byte-index split policy, and covered text-cell edit region
+  - Rust must not infer that fact from current storage contents or benchmark
+    source shape
+- MIR owns:
+  - `byte_boundary_safe` / `ascii_preserved` proof for the covered edit region
+  - split boundary policy for byte-indexed edits
+  - consumer/publication boundary remains `publication_boundary=none`
+- `.inc` owns:
+  - metadata consumption only
+  - passing the proof bit to the existing runtime executor or a narrow variant
+  - no raw MIR rediscovery of literals, loop shape, or source provenance
+- Rust runtime owns:
+  - executing the fast leaf only when the MIR proof is explicit
+  - preserving the safe checked path when the proof is absent
+- forbidden:
+  - source-content assumptions such as rows starting with `"line"`
+  - benchmark-named helpers
+  - search-result cache
+  - runtime-owned encoding/provenance inference
+  - `.inc` planner fallback or shape rediscovery
+- first implementation step:
+  - inspect the existing `array_text_combined_regions` metadata writer,
+    `.inc` reader, and runtime executor signature
+  - add the smallest generic proof field and a MIR JSON fixture/test before
+    changing runtime boundary checks
+- accept gate:
+  - MIR JSON carries the proof only for the proven `kilo_kernel_small` covered
+    edit region
+  - `.inc` consumes that metadata without scanning raw MIR instructions
+  - runtime behavior is unchanged when the proof is absent
+  - exact/middle/whole gates remain green before any keeper claim
 
 ### H28.1 runtime-private literal search executor
 

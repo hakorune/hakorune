@@ -466,11 +466,21 @@ phase README / current entry. Current active card:
     - result: keeper; whole `kilo_kernel_small = C 85 ms / Ny AOT 5 ms`,
       `ny_aot_instr=35428450`, `ny_aot_cycles=6679916`
     - exact/middle guards stayed green
-  - [ ] H39.5.4 combined executor post-literal residual owner refresh
+  - [x] H39.5.4 combined executor post-literal residual owner refresh
     - re-annotate after the 4-byte literal observer cleanup
     - split residual copy/allocation from observer branch mechanics
     - stop if the remaining owner is broad `memmove` / allocator rather than
       a narrow runtime leaf
+    - result: no-code closeout; latest preserved-AOT top is combined executor
+      closure `75.26%`, `__memmove_avx512_unaligned_erms` `10.03%`,
+      `_int_malloc` `2.05%`, and the remaining sampled MidGap edit branch is
+      byte-boundary legality rather than duplicated runtime mechanics
+  - [ ] H40 MIR-owned byte-boundary proof for text-cell edits
+    - add a generic MIR proof for byte-boundary / ASCII-preserved text-cell
+      edit regions before any runtime fast leaf can skip boundary checks
+    - `.inc` must consume metadata only and must not rediscover literals,
+      source provenance, or loop shape
+    - runtime keeps the checked path when the proof is absent
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

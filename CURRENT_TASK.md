@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.5.4 combined executor post-literal residual owner refresh)
-  - current blocker is `137x-H39.5.4 combined executor post-literal residual owner refresh`
+  - `phase-137x-H owner-first optimization return` (active; H40 MIR-owned byte-boundary proof for text-cell edits)
+  - current blocker is `137x-H40 MIR-owned byte-boundary proof for text-cell edits`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -914,11 +914,19 @@ Scope: current lane / next lane / restart order only.
             `ny_aot_cycles=4214918`
           - result: keeper; next owner refresh must split residual combined
             executor work from `memmove` / allocator mechanics
-        - H39.5.4 active:
-          - re-annotate after the 4-byte literal observer cleanup
-          - choose the next narrow runtime leaf or stop if the owner is broad
-            copy/allocation
-          - do not touch MIR, `.inc`, or public ABI without new evidence
+        - H39.5.4 result:
+          - no-code owner refresh after the 4-byte literal observer cleanup
+          - preserved-AOT top is combined executor closure `75.26%`,
+            `__memmove_avx512_unaligned_erms` `10.03%`, `_int_malloc`
+            `2.05%`
+          - remaining sampled MidGap edit branch is a byte-boundary legality
+            seam; do not skip it in Rust without MIR-owned proof
+        - H40 active:
+          - add MIR-owned byte-boundary / ASCII-preserved proof for covered
+            text-cell edit regions before any runtime fast leaf skips boundary
+            checks
+          - `.inc` consumes metadata only; runtime keeps the checked path when
+            proof is absent
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
