@@ -1,9 +1,9 @@
 # 137x-H36 ArrayTextCell Residence Design Gate
 
-Status: active design gate.
+Status: active design gate; H36.1 landed, H36.2 decision active.
 
 Current blocker token:
-`137x-H36.1 ArrayTextCell operation API split`.
+`137x-H36.2 ArrayTextCell residence decision`.
 
 ## Context
 
@@ -107,3 +107,21 @@ Only after H36.1 is green, decide one of:
   later TextCell / allocator lane
 
 The H36.2 keeper gate must include fresh whole stat/asm and rollback notes.
+
+## H36.1 Result
+
+Landed as a BoxShape-only split:
+
+- `ArrayTextCell::{contains_literal, append_suffix}` own the hot text
+  operations for flat text cells.
+- fallback string updates use `ArrayTextCell` string leaf wrappers instead of
+  duplicating short literal / short suffix helpers in `ops/text.rs`.
+- `ops/text.rs` now calls the cell boundary; no MIR, `.inc`, public ABI, or
+  representation variant changed.
+- verification: `cargo fmt --check`, `git diff --check`,
+  `cargo test -q array::tests --lib`,
+  `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`, and
+  `tools/checks/current_state_pointer_guard.sh`.
+
+Next: H36.2 must refresh `kilo_kernel_small` whole stat/asm from a rebuilt
+release artifact before any representation implementation.

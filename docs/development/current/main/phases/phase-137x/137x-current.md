@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H36.1 ArrayTextCell operation API split`
+- current blocker token: `137x-H36.2 ArrayTextCell residence decision`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -641,7 +641,7 @@ SSOT:
 
 - [137x-97 H36 ArrayTextCell residence design gate](./137x-97-h36-array-text-cell-residence-design-gate.md)
 
-### H36.1 Active
+### H36.1 Result
 
 Goal: split `ArrayTextCell` operation APIs before any non-flat residence
 variant.
@@ -659,9 +659,34 @@ variant.
   - perf keeper claim
 - acceptance:
   - `cargo fmt --check`
+  - `git diff --check`
   - `cargo test -q array::tests --lib`
   - `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
   - `tools/checks/current_state_pointer_guard.sh`
+
+Result:
+
+- landed as BoxShape-only runtime cleanup
+- hot-path contains/append operations now go through `ArrayTextCell`
+  methods / string leaf wrappers
+- no `Piece` / `Gap`, no MIR or `.inc` edits, no public ABI change, and no perf
+  keeper claim
+
+### H36.2 Active
+
+Goal: decide whether to open a narrow non-flat `ArrayTextCell` residence pilot
+or reject it to a later TextCell / allocator lane.
+
+- first step:
+  - rebuild release artifacts
+  - refresh whole `kilo_kernel_small` stat and asm after H36.1
+  - only open representation code if fresh evidence still points at a
+    structural flat-residence copy owner
+- forbidden:
+  - implementation from stale perf artifacts
+  - benchmark-named representation
+  - MIR or `.inc` route changes for a runtime residence experiment
+  - another flat byte-copy bypass without a new representation proof
 
 ### H28.1 runtime-private literal search executor
 

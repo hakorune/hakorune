@@ -370,10 +370,15 @@ phase README / current entry. Current active card:
       residence contract is clear
     - SSOT: `137x-97-h36-array-text-cell-residence-design-gate.md`
     - result: do not add a non-flat variant yet; first split operation APIs
-  - [ ] H36.1 ArrayTextCell operation API split
+  - [x] H36.1 ArrayTextCell operation API split
     - BoxShape-only precondition for any future non-flat text residence
     - add operation methods while staying flat-only
     - no MIR, `.inc`, public ABI, or perf keeper claim
+    - result: hot-path contains/append operations now go through
+      `ArrayTextCell` methods / string leaf wrappers
+  - [ ] H36.2 ArrayTextCell residence decision
+    - refresh whole stat/asm after H36.1
+    - decide narrow non-flat residence pilot vs later-lane rejection
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

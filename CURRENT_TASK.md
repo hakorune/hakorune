@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H36.1 ArrayTextCell operation API split)
-  - current blocker is `137x-H36.1 ArrayTextCell operation API split`
+  - `phase-137x-H owner-first optimization return` (active; H36.2 ArrayTextCell residence decision)
+  - current blocker is `137x-H36.2 ArrayTextCell residence decision`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -788,11 +788,21 @@ Scope: current lane / next lane / restart order only.
             `docs/development/current/main/phases/phase-137x/137x-97-h36-array-text-cell-residence-design-gate.md`
           - do not add a non-flat variant yet
           - first land H36.1 flat-only `ArrayTextCell` operation API split
-        - H36.1 active:
-          - BoxShape-only; no new MIR accepted shape
-          - move hot-path contains/append operations behind `ArrayTextCell`
-            methods while staying flat-only
+        - H36.1 result:
+          - landed flat-only `ArrayTextCell` operation API split
+          - hot-path contains/append now go through `ArrayTextCell`
+            methods / string leaf wrappers
           - no MIR, `.inc`, public ABI, or perf keeper claim
+          - verification: `cargo fmt --check`, `git diff --check`,
+            `cargo test -q array::tests --lib`,
+            `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`,
+            and `tools/checks/current_state_pointer_guard.sh`
+        - H36.2 active:
+          - fresh owner proof before any representation code
+          - decide whether to open a narrow non-flat `ArrayTextCell`
+            residence pilot or reject it to a later TextCell / allocator lane
+          - start with rebuild + whole stat/asm; do not edit code from stale
+            artifacts
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
