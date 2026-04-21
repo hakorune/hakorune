@@ -48,9 +48,9 @@ cargo check --features perf-observe -p nyash_kernel
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
     - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
-    - `kilo_micro_array_string_store = C 11 ms / Ny AOT 4 ms`
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
     - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 4 ms`
-    - `kilo_kernel_small = C 83 ms / Ny AOT 7 ms`
+    - `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`
   - adopted middle bridge:
     - `substring + concat + array.set + loopcarry`
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
@@ -59,7 +59,8 @@ cargo check --features perf-observe -p nyash_kernel
     - H27 removed the outer edit `nyash.array.string_len_hi` call
     - H28.1 removed the fixed const-needle Pattern-search owner
     - H28.2 removed the accidental short-literal prefix `bcmp` compare owner
-    - next inspect suffix mutation/copy and write-frame mechanics under the
+    - H28.3 removed the short suffix append `memcpy` path
+    - next inspect residual capacity growth / write-frame mechanics under the
       same MIR-owned observer-store contract
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`

@@ -289,12 +289,21 @@ observer-store search/copy owner split`.
     - middle guard `kilo_meso_substring_concat_array_set_loopcarry`:
       `C 3 ms / Ny AOT 4 ms`
     - asm: `__memcmp_evex_movbe` is no longer a top owner
-  - [ ] H28.3 suffix mutation/copy / write-frame owner split
+  - [x] H28.3 suffix mutation/copy / write-frame owner split
     - inspect the remaining `__memmove_avx512_unaligned_erms` and
       write-frame closure owner before code changes
     - implement only a narrow runtime/backend/MIR change if evidence requires a
       new MIR-owned fact; otherwise keep it runtime-private
-  - [ ] H28.4 keeper/no-regression probe
+    - first active slice: runtime-private short-suffix append leaf, because
+      annotate points at `value.push_str(suffix)` after the MIR-proven hit
+    - result: whole `kilo_kernel_small`: `C 82 ms / Ny AOT 7 ms`,
+      `ny_aot_instr=60615291`, `ny_aot_cycles=17586950`
+    - exact guard `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
+    - middle guard `kilo_meso_substring_concat_array_set_loopcarry`:
+      `C 3 ms / Ny AOT 4 ms`
+    - verdict: small keeper; short suffix byte copy no longer calls `memcpy`,
+      but residual capacity growth / write-frame `memmove` remains
+  - [ ] H28.4 capacity growth / write-frame owner decision
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

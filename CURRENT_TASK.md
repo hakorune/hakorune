@@ -622,8 +622,26 @@ Scope: current lane / next lane / restart order only.
           - asm top after H28.2: `__memmove_avx512_unaligned_erms`,
             `with_array_text_write_txn` closure, and observer-store region
             closure; `__memcmp_evex_movbe` is no longer a top owner
-          - next seam: H28.3 suffix mutation/copy / write-frame owner split
-            under the same MIR-owned observer-store contract
+        - H28.3 active:
+          - annotate shows the next `__memmove` owner is the short
+            `value.push_str(suffix)` append in the observer-store runtime
+            executor
+          - implement only a runtime-private short-suffix append leaf if it
+            removes that copy owner
+          - no MIR metadata change, no `.inc` shape logic, no source-prefix
+            assumption, no search-result cache
+        - H28.3 result:
+          - short suffixes now append through a runtime-private byte leaf
+            instead of `String::push_str`
+          - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=60615291`, `ny_aot_cycles=17586950`
+          - exact guard `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`
+          - middle guard `kilo_meso_substring_concat_array_set_loopcarry`:
+            `C 3 ms / Ny AOT 4 ms`
+          - residual owner: `__memmove` remains top, now attributed to capacity
+            growth / old-content copy or adjacent write-frame mechanics rather
+            than the short suffix byte copy
+          - next seam: H28.4 capacity growth / write-frame owner decision
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

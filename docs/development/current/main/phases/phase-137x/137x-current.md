@@ -9,9 +9,9 @@ ledger details; current implementation work should start here.
 - front: `kilo_kernel_small`
 - current blocker token: `137x-H28 array text observer-store search/copy owner split`
 - current benchmark state:
-  - `C 83 ms / Ny AOT 7 ms`
-  - `ny_aot_instr=64501392`
-  - `ny_aot_cycles=18956185`
+  - `C 82 ms / Ny AOT 7 ms`
+  - `ny_aot_instr=60615291`
+  - `ny_aot_cycles=17586950`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -20,14 +20,16 @@ ledger details; current implementation work should start here.
     inside the H26 observer-store region executor
   - H28.2 removed the short-literal prefix `bcmp` / `__memcmp_evex_movbe`
     compare owner introduced by H28.1's `starts_with` check
-  - the remaining owner is suffix mutation/copy plus write-frame mechanics
-    under the same MIR-owned observer-store contract
-  - latest asm top after H28.2:
-    - `__memmove_avx512_unaligned_erms`: `39.78%`
-    - `with_array_text_write_txn` closure: `29.06%`
-    - observer-store region closure: `23.51%`
-    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `2.74%`
-    - `nyash.array.string_indexof_suffix_store_region_hisisi`: `1.10%`
+  - H28.3 removed the short-suffix append `memcpy` call from the
+    observer-store runtime executor
+  - the remaining owner is capacity growth / old-content copy plus write-frame
+    mechanics under the same MIR-owned observer-store contract
+  - latest asm top after H28.3:
+    - `__memmove_avx512_unaligned_erms`: `38.17%`
+    - `with_array_text_write_txn` closure: `26.80%`
+    - observer-store region closure: `26.43%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `2.15%`
+    - `nyash.array.string_indexof_suffix_store_region_hisisi`: `2.03%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -183,6 +185,56 @@ Result:
   - keeper: H28.2 removes the accidental libc compare owner without changing
     MIR authority or `.inc` responsibility
   - next seam is H28.3 suffix mutation/copy / write-frame owner split
+
+### H28.3 runtime-private short suffix append cleanup
+
+- owner correction:
+  - annotate of the observer-store closure shows the remaining `memmove` owner
+    is the short `value.push_str(suffix)` append after a MIR-proven hit
+  - this is suffix copy mechanics inside the existing runtime executor, not new
+    route legality
+- decision:
+  - add a runtime-private short-suffix byte append leaf for small UTF-8 suffixes
+  - keep long suffixes on `String::push_str`
+  - do not add MIR metadata, `.inc` shape logic, source-prefix assumptions, or
+    search-result cache
+- keeper gate:
+  - whole `kilo_kernel_small` must improve or show `__memmove` moved below the
+    write-frame closure
+  - exact/middle guards must stay non-regressing
+
+Result:
+
+- code:
+  - added a runtime-private `append_text_suffix` leaf
+  - suffixes of `1..=8` bytes append through checked pointer writes instead of
+    `String::push_str`
+  - long suffixes stay on `String::push_str`
+  - no MIR metadata shape changed
+  - no `.inc` emit shape changed
+- verification:
+  - `cargo test -q append_text_suffix --lib`
+  - `cargo test -q text_contains_literal --lib`
+  - `cargo fmt --check`
+  - `bash tools/perf/build_perf_release.sh`
+  - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=60615291`, `ny_aot_cycles=17586950`
+  - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9266365`, `ny_aot_cycles=2326918`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=16571079`,
+    `ny_aot_cycles=3398840`
+- asm owner after H28.3:
+  - `__memmove_avx512_unaligned_erms`: `38.17%`
+  - `with_array_text_write_txn` closure: `26.80%`
+  - observer-store region closure: `26.43%`
+  - annotate shows the short suffix path no longer calls `memcpy`; residual
+    `memmove` is capacity growth / old-content copy or adjacent write-frame
+    mechanics
+- verdict:
+  - small keeper: H28.3 reduces whole-front instruction/cycle count without
+    changing MIR authority or `.inc` responsibility
+  - next seam is H28.4 capacity growth / write-frame owner decision
 
 ## H27 Landed
 

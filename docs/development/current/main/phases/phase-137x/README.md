@@ -1804,8 +1804,44 @@ H28.2 landed / H28.3 cut:
 - Verdict:
   - H28.2 is a keeper. It removes the accidental libc compare owner without
     shifting authority into runtime or `.inc`.
-  - H28.3 starts from suffix mutation/copy and write-frame mechanics under the
-    same MIR-owned observer-store region contract.
+  - H28.3 starts from the short suffix append copy under the same MIR-owned
+    observer-store region contract.
+
+H28.3 landed / H28.4 cut:
+
+- Implementation:
+  - Runtime observer-store execution now uses a private `append_text_suffix`
+    leaf for `1..=8` byte suffixes.
+  - The short suffix path appends bytes directly under the existing `String`
+    UTF-8 invariant; long suffixes stay on `String::push_str`.
+  - MIR metadata and `.inc` lowering are unchanged.
+- Verification:
+  - `cargo test -q append_text_suffix --lib`
+  - `cargo test -q text_contains_literal --lib`
+  - `cargo fmt --check`
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
+- Evidence:
+  - whole `kilo_kernel_small`: `C 82 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=60615291`, `ny_aot_cycles=17586950`.
+  - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9266365`, `ny_aot_cycles=2326918`.
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=16571079`,
+    `ny_aot_cycles=3398840`.
+  - asm top after H28.3 is `__memmove_avx512_unaligned_erms` `38.17%`,
+    `with_array_text_write_txn` closure `26.80%`, and observer-store region
+    closure `26.43%`.
+  - annotate of the observer-store closure shows the short suffix append path
+    no longer calls `memcpy`; residual `memmove` belongs to capacity growth /
+    old-content copy or adjacent write-frame mechanics.
+- Verdict:
+  - H28.3 is a small keeper: whole-front instruction/cycle count improves
+    without shifting authority into runtime or `.inc`.
+  - H28.4 starts from capacity growth / write-frame owner decision.
 
 ## Legacy Retirement Ledger
 

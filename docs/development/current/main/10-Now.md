@@ -72,8 +72,11 @@ Related:
     - H28.2 landed the runtime-private short-literal prefix compare cleanup:
       `kilo_kernel_small = C 83 ms / Ny AOT 7 ms`,
       `ny_aot_instr=64501392`; `__memcmp_evex_movbe` is no longer a top owner
-    - next slice: H28.3 suffix mutation/copy / write-frame owner split under
-      the existing MIR observer-store metadata; keep `.inc` emit-only
+    - H28.3 landed the runtime-private short-suffix append cleanup:
+      `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`,
+      `ny_aot_instr=60615291`; short suffix append no longer calls `memcpy`
+    - next slice: H28.4 capacity growth / write-frame owner decision under the
+      existing MIR observer-store metadata; keep `.inc` emit-only
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

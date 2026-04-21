@@ -98,6 +98,84 @@ fn text_contains_literal(value: &str, needle: &str) -> bool {
 }
 
 #[inline(always)]
+fn append_text_suffix(value: &mut String, suffix: &str) {
+    match suffix.len() {
+        0 => {}
+        1..=8 => append_short_text_suffix(value, suffix),
+        _ => value.push_str(suffix),
+    }
+}
+
+#[inline(always)]
+fn append_short_text_suffix(value: &mut String, suffix: &str) {
+    let bytes = suffix.as_bytes();
+    let len = bytes.len();
+    debug_assert!((1..=8).contains(&len));
+    // SAFETY: `suffix` is valid UTF-8, so appending its bytes to an existing
+    // valid `String` preserves the UTF-8 invariant.
+    unsafe {
+        let vec = value.as_mut_vec();
+        let base_len = vec.len();
+        vec.reserve(len);
+        let dst = vec.as_mut_ptr().add(base_len);
+        match len {
+            1 => dst.write(bytes[0]),
+            2 => {
+                dst.write(bytes[0]);
+                dst.add(1).write(bytes[1]);
+            }
+            3 => {
+                dst.write(bytes[0]);
+                dst.add(1).write(bytes[1]);
+                dst.add(2).write(bytes[2]);
+            }
+            4 => {
+                dst.write(bytes[0]);
+                dst.add(1).write(bytes[1]);
+                dst.add(2).write(bytes[2]);
+                dst.add(3).write(bytes[3]);
+            }
+            5 => {
+                dst.write(bytes[0]);
+                dst.add(1).write(bytes[1]);
+                dst.add(2).write(bytes[2]);
+                dst.add(3).write(bytes[3]);
+                dst.add(4).write(bytes[4]);
+            }
+            6 => {
+                dst.write(bytes[0]);
+                dst.add(1).write(bytes[1]);
+                dst.add(2).write(bytes[2]);
+                dst.add(3).write(bytes[3]);
+                dst.add(4).write(bytes[4]);
+                dst.add(5).write(bytes[5]);
+            }
+            7 => {
+                dst.write(bytes[0]);
+                dst.add(1).write(bytes[1]);
+                dst.add(2).write(bytes[2]);
+                dst.add(3).write(bytes[3]);
+                dst.add(4).write(bytes[4]);
+                dst.add(5).write(bytes[5]);
+                dst.add(6).write(bytes[6]);
+            }
+            8 => {
+                dst.write(bytes[0]);
+                dst.add(1).write(bytes[1]);
+                dst.add(2).write(bytes[2]);
+                dst.add(3).write(bytes[3]);
+                dst.add(4).write(bytes[4]);
+                dst.add(5).write(bytes[5]);
+                dst.add(6).write(bytes[6]);
+                dst.add(7).write(bytes[7]);
+            }
+            _ => unreachable!("short suffix length is checked above"),
+        }
+        vec.set_len(base_len + len);
+    }
+}
+
+#[inline(always)]
 fn short_literal_prefix_eq(haystack: &[u8], needle: &[u8]) -> bool {
     let mut index = 0;
     while index < needle.len() {
@@ -423,7 +501,7 @@ impl ArrayBox {
             let mut stores = 0_i64;
             for value in values.iter_mut().take(loop_bound) {
                 if text_contains_literal(value, needle) {
-                    value.push_str(suffix);
+                    append_text_suffix(value, suffix);
                     stores += 1;
                 }
             }
@@ -447,7 +525,7 @@ impl ArrayBox {
         for idx in 0..loop_bound {
             let (hit, _kind) = session.update(idx, |value| {
                 if text_contains_literal(value, needle) {
-                    value.push_str(suffix);
+                    append_text_suffix(value, suffix);
                     1_i64
                 } else {
                     0_i64
@@ -461,7 +539,7 @@ impl ArrayBox {
 
 #[cfg(test)]
 mod tests {
-    use super::text_contains_literal;
+    use super::{append_text_suffix, text_contains_literal};
 
     #[test]
     fn text_contains_literal_matches_str_contains() {
@@ -485,6 +563,19 @@ mod tests {
                     "value={value:?} needle={needle:?}"
                 );
             }
+        }
+    }
+
+    #[test]
+    fn append_text_suffix_matches_push_str() {
+        let suffixes = ["", "l", "ln", "東京", "🙂", "abcdefghi"];
+        for suffix in suffixes {
+            let mut actual = String::from("line-seed");
+            append_text_suffix(&mut actual, suffix);
+
+            let mut expected = String::from("line-seed");
+            expected.push_str(suffix);
+            assert_eq!(actual, expected, "suffix={suffix:?}");
         }
     }
 }
