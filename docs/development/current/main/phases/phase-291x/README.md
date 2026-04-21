@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
   - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
+  - docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -23,7 +24,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: CoreBox legacy cleanup triage / follow-up cards
+- Next implementation target: `apps/lib/boxes/map_std.hako` prelude cleanup card
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -52,6 +53,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 2. `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 3. `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
 4. `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
+5. `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
 
 ## Current Rule
 
@@ -104,3 +106,4 @@ Remaining MapBox follow-up:
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` is a P0 scaffold used by the selfhost prelude; deletion requires a module-registry/prelude card.
+- next card: `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`

@@ -33,21 +33,22 @@ Scope: current lane / next lane / restart order only.
 19. `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 20. `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
 21. `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
-22. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-23. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
-24. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
-25. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-26. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-27. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
-28. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-29. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-30. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-31. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-32. `docs/development/current/main/design/string-birth-sink-ssot.md`
-33. `docs/development/current/main/15-Workstream-Map.md`
-34. `git status -sb`
-35. `tools/checks/dev_gate.sh quick`
-36. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+22. `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
+23. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+24. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+25. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+26. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+27. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+28. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
+29. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+30. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+31. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+32. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+33. `docs/development/current/main/design/string-birth-sink-ssot.md`
+34. `docs/development/current/main/15-Workstream-Map.md`
+35. `git status -sb`
+36. `tools/checks/dev_gate.sh quick`
+37. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -63,7 +64,7 @@ Scope: current lane / next lane / restart order only.
   - method anchor:
     - `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
+    - `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
   - current app slice:
     - `apps/kilo_nyash/enhanced_kilo_editor.hako`
     - replace-all is real
@@ -74,7 +75,7 @@ Scope: current lane / next lane / restart order only.
     - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
     - StringBox catalog/invoke slice is landed and pinned
     - MapBox catalog/invoke slice is landed and pinned
-    - cleanup triage is next
+    - cleanup triage safe deletions are landed; `apps/lib/boxes/map_std.hako` prelude cleanup card is next
     - keep `StringBox.length()` canonical and `len()` / `size()` as compatibility aliases
     - keep `StringBox.lastIndexOf(needle, start_pos)` deferred to a separate card
     - catalog current MapBox vtable rows first; do not mix alias normalization or return-contract changes into that commit

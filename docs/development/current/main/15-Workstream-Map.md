@@ -18,7 +18,7 @@ Related:
 | Front | `ArrayBox precedent landed -> StringBox catalog landed -> MapBox catalog landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices` |
-| Next | `std/map scaffold and .hako MapBox extended-route cleanup decision` |
+| Next | `apps/lib/boxes/map_std.hako prelude cleanup card` |
 | After Next | `namespace/static box/alias resolution SSOT` |
 
 ## Current Read
@@ -26,7 +26,7 @@ Related:
   - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-291x/README.md`
   - phase brief: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
   - inventory: `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -36,7 +36,8 @@ Related:
 2. `phase-291x StringBox catalog/invoke seam` landed
 3. `phase-291x stable StringBox smoke` landed
 4. `phase-291x MapBox first catalog slice` landed
-5. `phase-291x CoreBox legacy cleanup triage`
+5. `phase-291x safe legacy cleanup deletions` landed
+6. `phase-291x apps.lib.boxes.map_std prelude cleanup card`
 
 ## Parked Corridor
 
