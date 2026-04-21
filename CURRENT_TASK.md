@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H36.2 ArrayTextCell residence decision)
-  - current blocker is `137x-H36.2 ArrayTextCell residence decision`
+  - `phase-137x-H owner-first optimization return` (active; H36.3 ArrayTextCell visible materialization split)
+  - current blocker is `137x-H36.3 ArrayTextCell visible materialization split`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -797,12 +797,19 @@ Scope: current lane / next lane / restart order only.
             `cargo test -q array::tests --lib`,
             `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`,
             and `tools/checks/current_state_pointer_guard.sh`
-        - H36.2 active:
-          - fresh owner proof before any representation code
-          - decide whether to open a narrow non-flat `ArrayTextCell`
-            residence pilot or reject it to a later TextCell / allocator lane
-          - start with rebuild + whole stat/asm; do not edit code from stale
-            artifacts
+        - H36.2 result:
+          - rebuilt release artifacts before measuring
+          - whole `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=50229407`, `ny_aot_cycles=16401030`
+          - asm top: `__memmove` `38.15%`, len-half edit closure `33.22%`,
+            observer-store closure `20.21%`
+          - verdict: non-flat text residence remains justified, but first
+            close visible materialization APIs so representation does not leak
+        - H36.3 active:
+          - BoxShape-only; make visible text reads/materialization explicit
+          - replace visible `as_str()` equality/format/get/sort paths with
+            `ArrayTextCell` materialization/comparison helpers
+          - no `Piece` / `Gap`, no MIR, `.inc`, public ABI, or perf keeper claim
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

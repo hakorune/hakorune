@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H36.2 ArrayTextCell residence decision`
+- current blocker token: `137x-H36.3 ArrayTextCell visible materialization split`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -672,7 +672,7 @@ Result:
 - no `Piece` / `Gap`, no MIR or `.inc` edits, no public ABI change, and no perf
   keeper claim
 
-### H36.2 Active
+### H36.2 Result
 
 Goal: decide whether to open a narrow non-flat `ArrayTextCell` residence pilot
 or reject it to a later TextCell / allocator lane.
@@ -687,6 +687,44 @@ or reject it to a later TextCell / allocator lane.
   - benchmark-named representation
   - MIR or `.inc` route changes for a runtime residence experiment
   - another flat byte-copy bypass without a new representation proof
+
+Evidence:
+
+- rebuilt release artifacts with `tools/perf/build_perf_release.sh`
+- whole `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`
+- `ny_aot_instr=50229407`, `ny_aot_cycles=16401030`
+- asm top:
+  - `__memmove_avx512_unaligned_erms`: `38.15%`
+  - len-half edit closure: `33.22%`
+  - observer-store closure: `20.21%`
+
+Verdict:
+
+- non-flat text residence remains justified by fresh owner evidence
+- do not add `Piece` / `Gap` yet
+- next card is H36.3: make visible text materialization/comparison explicit so
+  a later non-flat representation does not leak through `as_str()` / derived
+  equality / derived order
+
+### H36.3 Active
+
+Goal: split visible text materialization/comparison APIs before adding any
+non-flat `ArrayTextCell` representation.
+
+- allowed:
+  - add flat-only `ArrayTextCell` helpers such as `to_visible_string`,
+    `equals_text`, `cmp_text`, and `with_text`
+  - replace visible Array get/format/equality/membership/sort paths that use
+    raw `as_str()` or derived cell ordering
+- forbidden:
+  - adding `Piece` / `Gap`
+  - changing MIR metadata, `.inc`, or public ABI
+  - perf keeper claim
+- acceptance:
+  - `cargo fmt --check`
+  - `git diff --check`
+  - `cargo test -q array::tests --lib`
+  - `tools/checks/current_state_pointer_guard.sh`
 
 ### H28.1 runtime-private literal search executor
 

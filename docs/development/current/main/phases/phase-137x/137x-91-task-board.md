@@ -376,9 +376,17 @@ phase README / current entry. Current active card:
     - no MIR, `.inc`, public ABI, or perf keeper claim
     - result: hot-path contains/append operations now go through
       `ArrayTextCell` methods / string leaf wrappers
-  - [ ] H36.2 ArrayTextCell residence decision
+  - [x] H36.2 ArrayTextCell residence decision
     - refresh whole stat/asm after H36.1
     - decide narrow non-flat residence pilot vs later-lane rejection
+    - result: fresh whole stat/asm still points at `memmove` / len-half
+      closure; open the non-flat path, but first split visible
+      materialization APIs
+  - [ ] H36.3 ArrayTextCell visible materialization split
+    - BoxShape-only precondition for future non-flat text residence
+    - replace visible raw `as_str()` / derived order use with explicit cell
+      materialization/comparison helpers
+    - no `Piece` / `Gap`, no MIR, `.inc`, public ABI, or perf keeper claim
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

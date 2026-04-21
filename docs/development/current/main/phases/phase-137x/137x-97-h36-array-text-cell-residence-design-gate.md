@@ -1,9 +1,9 @@
 # 137x-H36 ArrayTextCell Residence Design Gate
 
-Status: active design gate; H36.1 landed, H36.2 decision active.
+Status: active design gate; H36.2 closed, H36.3 visible materialization split active.
 
 Current blocker token:
-`137x-H36.2 ArrayTextCell residence decision`.
+`137x-H36.3 ArrayTextCell visible materialization split`.
 
 ## Context
 
@@ -125,3 +125,51 @@ Landed as a BoxShape-only split:
 
 Next: H36.2 must refresh `kilo_kernel_small` whole stat/asm from a rebuilt
 release artifact before any representation implementation.
+
+## H36.2 Result
+
+Fresh owner proof after H36.1:
+
+- release artifacts rebuilt with `tools/perf/build_perf_release.sh`
+- `kilo_kernel_small = C 82 ms / Ny AOT 7 ms`
+- `ny_aot_instr=50229407`, `ny_aot_cycles=16401030`
+- asm top:
+  - `__memmove_avx512_unaligned_erms`: `38.15%`
+  - len-half edit closure: `33.22%`
+  - observer-store closure: `20.21%`
+
+Verdict:
+
+- non-flat `ArrayTextCell` residence remains justified.
+- do not add `Piece` / `Gap` directly after H36.2.
+- first land H36.3: visible materialization/comparison API split, because
+  current visible `as_str()` and derived ordering would leak flat storage
+  assumptions into a non-flat cell.
+
+## H36.3 Implementation Card
+
+Name: `ArrayTextCell visible materialization split`.
+
+Allowed:
+
+- add flat-only helpers such as:
+  - `to_visible_string(&self) -> String`
+  - `equals_text(&self, needle: &str) -> bool`
+  - `cmp_text(&self, other: &Self) -> Ordering`
+  - `with_text(&self, f: impl FnOnce(&str) -> R) -> R`
+- route visible Array get/boxing/format/equality/membership/sort paths through
+  those helpers.
+
+Forbidden:
+
+- `Piece` / `Gap` variants
+- MIR or `.inc` edits
+- public ABI changes
+- perf keeper claim
+
+Acceptance:
+
+- `cargo fmt --check`
+- `git diff --check`
+- `cargo test -q array::tests --lib`
+- `tools/checks/current_state_pointer_guard.sh`
