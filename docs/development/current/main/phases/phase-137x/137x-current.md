@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H29 len-half edit copy owner decision`
+- current blocker token: `137x-H30 array text edit residence representation decision`
 - current benchmark state:
-  - `C 82 ms / Ny AOT 7 ms`
-  - `ny_aot_instr=60615291`
-  - `ny_aot_cycles=17586950`
+  - `C 84 ms / Ny AOT 7 ms`
+  - `ny_aot_instr=60616017`
+  - `ny_aot_cycles=17782048`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -22,14 +22,15 @@ ledger details; current implementation work should start here.
     compare owner introduced by H28.1's `starts_with` check
   - H28.3 removed the short-suffix append `memcpy` call from the
     observer-store runtime executor
-  - the remaining owner is capacity growth / old-content copy plus write-frame
-    mechanics under the same MIR-owned observer-store contract
-  - latest asm top after H28.3:
-    - `__memmove_avx512_unaligned_erms`: `38.17%`
-    - `with_array_text_write_txn` closure: `26.80%`
-    - observer-store region closure: `26.43%`
-    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `2.15%`
-    - `nyash.array.string_indexof_suffix_store_region_hisisi`: `2.03%`
+  - H28.5 refreshed ownership: residual `memmove` is primarily the outer
+    len-half edit closure, not append capacity
+  - H29 rejected a runtime-private `String::insert_str` bypass; local
+    byte-copy surgery did not become a keeper
+  - latest current-code asm top after H28.5:
+    - `__memmove_avx512_unaligned_erms`: `37.20%`
+    - observer-store region closure: `28.98%`
+    - `with_array_text_write_txn` closure: `26.22%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `3.26%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -188,7 +189,7 @@ Result:
   - next active card is H29: len-half edit copy owner decision under the
     MIR-owned H27 edit contract
 
-## H29 Active
+## H29 Result
 
 Goal: decide whether the outer len-half edit copy owner can be reduced cleanly
 without making runtime or `.inc` a semantic owner.
@@ -207,6 +208,64 @@ without making runtime or `.inc` a semantic owner.
     executor for the H27 contract
   - if yes, close as data-structure/gap-buffer successor work rather than
     local byte-copy surgery
+
+Result:
+
+- trial:
+  - replaced the len-half helper's `String::insert_str` path with an explicit
+    runtime-private reserve + suffix shift + middle copy leaf
+  - no MIR metadata, `.inc` lowering, or public ABI changed
+- verification:
+  - `cargo test -q -p nyash_kernel insert_mid_lenhalf_store_by_index_returns_result_len`
+  - `cargo test -q -p nyash_kernel insert_mid_store_by_index`
+  - `cargo test -q detects_lenhalf_insert_mid_same_slot_edit_route --lib`
+  - `cargo fmt --check`
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+- evidence:
+  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=60494965`, `ny_aot_cycles=17790198`
+  - asm top after trial:
+    - `__memmove_avx512_unaligned_erms`: `40.84%`
+    - `with_array_text_write_txn` closure: `30.00%`
+    - observer-store region closure: `20.99%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `3.21%`
+- verdict:
+  - rejected and reverted
+  - the active H27 edit is a contiguous `String` mid-insert; the suffix move is
+    structural for that representation
+  - further keeper work must start from a representation decision, not another
+    local byte-copy leaf
+
+## H30 Active
+
+Goal: decide whether a narrow array text edit residence representation can
+reduce the H27 len-half mid-insert suffix-copy owner cleanly.
+
+- target owner:
+  - contiguous `String` mid-insert suffix movement in the outer edit path
+  - this is storage representation mechanics under the MIR-owned H27 edit
+    contract
+- allowed:
+  - docs-first inventory of representation options such as gap-buffer,
+    segmented text cell, or piece-table-style residence
+  - a runtime-private prototype only if publication/materialization boundaries
+    stay explicit and current public Array/String ABI remains unchanged
+  - MIR metadata changes only if a generic contract fact is missing; helper
+    names must not become truth
+- forbidden:
+  - benchmark-named whole-loop helpers
+  - source-prefix assumptions
+  - semantic/search-result cache
+  - runtime-owned legality, provenance, or publication decisions
+  - `.inc` raw MIR shape rediscovery
+- first step:
+  - inventory current `ArrayStorage::Text`, observer-store, append, length, and
+    publication consumers to see whether a non-contiguous residence can stay
+    boxed inside runtime mechanics
+  - if the representation would leak into MIR/public ABI, reject H30 and stop
+    local kilo surgery
 
 ### H28.1 runtime-private literal search executor
 

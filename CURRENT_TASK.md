@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H29 len-half edit copy owner decision)
-  - current blocker is `137x-H29 len-half edit copy owner decision`
+  - `phase-137x-H owner-first optimization return` (active; H30 array text edit residence representation decision)
+  - current blocker is `137x-H30 array text edit residence representation decision`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -673,6 +673,27 @@ Scope: current lane / next lane / restart order only.
             chase append capacity further
           - next seam: H29 len-half edit copy owner decision under the H27
             MIR-owned edit contract
+        - H29 result:
+          - trial: runtime-private bypass of `String::insert_str` for the
+            len-half helper, using explicit reserve + suffix shift + middle
+            copy; no MIR, `.inc`, or public ABI change
+          - behavior checks:
+            `cargo test -q -p nyash_kernel insert_mid_lenhalf_store_by_index_returns_result_len`,
+            `cargo test -q -p nyash_kernel insert_mid_store_by_index`,
+            `cargo test -q detects_lenhalf_insert_mid_same_slot_edit_route --lib`,
+            and `cargo fmt --check`
+          - perf after trial: whole `kilo_kernel_small`
+            `C 83 ms / Ny AOT 7 ms`, `ny_aot_instr=60494965`,
+            `ny_aot_cycles=17790198`
+          - asm after trial: `__memmove_avx512_unaligned_erms` rose to
+            `40.84%`; `with_array_text_write_txn` `30.00%`; observer-store
+            closure `20.99%`; `nyash.array.string_insert_mid_lenhalf_store_hisi`
+            `3.21%`
+          - verdict: reject and revert code; contiguous `String` mid-insert
+            still requires the suffix copy, so local byte-copy surgery is not
+            the next keeper
+          - next seam: H30 array text edit residence representation decision
+            under the existing MIR-owned H27 edit contract
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

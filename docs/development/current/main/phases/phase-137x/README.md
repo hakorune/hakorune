@@ -25,7 +25,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H29 len-half edit copy owner decision)
+- current lane: `phase-137x-H owner-first optimization return` (active; H30 array text edit residence representation decision)
 - active current entry: `137x-current.md`
 - active contract map: `137x-array-text-contract-map.md`
 - semantic lock:
@@ -1923,6 +1923,36 @@ H28.5 landed / H29 cut:
     headroom further
   - H29 opens as len-half edit copy owner decision under the existing
     MIR-owned H27 edit contract
+
+H29 rejected / H30 cut:
+
+- Commands:
+  - `cargo test -q -p nyash_kernel insert_mid_lenhalf_store_by_index_returns_result_len`
+  - `cargo test -q -p nyash_kernel insert_mid_store_by_index`
+  - `cargo test -q detects_lenhalf_insert_mid_same_slot_edit_route --lib`
+  - `cargo fmt --check`
+  - `bash tools/perf/build_perf_release.sh`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+- Trial:
+  - replaced the len-half helper's `String::insert_str` call with a
+    runtime-private explicit reserve + suffix shift + middle copy leaf
+  - no MIR metadata, `.inc` lowering, or public ABI changed
+- Evidence:
+  - whole `kilo_kernel_small`: `C 83 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=60494965`, `ny_aot_cycles=17790198`
+  - asm top after trial:
+    - `__memmove_avx512_unaligned_erms`: `40.84%`
+    - `with_array_text_write_txn` closure: `30.00%`
+    - observer-store region closure: `20.99%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `3.21%`
+- Verdict:
+  - H29 local byte-copy surgery is rejected and reverted
+  - the contiguous `String` mid-insert executor still requires moving the
+    suffix bytes for the MIR-owned H27 edit contract
+  - H30 opens as a representation decision: only a narrow array text edit
+    residence representation may attack this owner cleanly; do not add
+    benchmark-named helpers, runtime legality, or `.inc` rediscovery
 
 ## Legacy Retirement Ledger
 

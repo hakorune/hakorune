@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H29 len-half edit copy owner decision)
+  - `phase-137x-H owner-first optimization return` (active; H30 array text edit residence representation decision)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H29 len-half edit copy owner decision`
+  - current blocker is `137x-H30 array text edit residence representation decision`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -80,8 +80,12 @@ Related:
     - H28.5 callgraph found residual `memmove` is primarily the outer
       len-half edit closure (`27.91%`), not append capacity (`~0.93%`
       realloc/growth)
-    - H29 active: decide whether H27 len-half edit copy mechanics can be
-      reduced locally or must move to a data-structure/gap-buffer successor
+    - H29 rejected the runtime-private `String::insert_str` bypass:
+      whole stayed `Ny AOT 7 ms`, cycles stayed flat, and `__memmove` rose
+      to `40.84%`
+    - H30 active: decide whether the next clean keeper requires a narrow
+      array text edit residence representation, not more local byte-copy
+      surgery
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

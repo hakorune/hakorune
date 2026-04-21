@@ -30,8 +30,8 @@ as `137x-H`.
 
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
-phase README / current entry. Current active card: `137x-H29 len-half edit
-copy owner decision`.
+phase README / current entry. Current active card: `137x-H30 array text edit
+residence representation decision`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -311,7 +311,15 @@ copy owner decision`.
     - callgraph attributes dominant `memmove` to the outer len-half edit
       closure, not append capacity
     - H28 observer-store search/copy split is closed
-  - [ ] H29 len-half edit copy owner decision
+  - [x] H29 len-half edit copy owner decision
+    - rejected: explicit reserve + suffix shift + middle copy leaf did not
+      improve whole and raised `__memmove` share to `40.84%`
+    - code reverted; local byte-copy surgery is not the next keeper
+  - [ ] H30 array text edit residence representation decision
+    - decide whether a narrow runtime-private edit residence representation
+      can reduce the H27 len-half mid-insert suffix-copy owner cleanly
+    - guard: no benchmark-named helper, no runtime legality/provenance, no
+      `.inc` raw shape rediscovery, no public ABI widening
 
 ## Opened Implementation Order Before Next Kilo Optimization
 
