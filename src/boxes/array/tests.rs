@@ -93,6 +93,83 @@ fn slot_update_text_mutates_text_lane_without_boxing() {
 }
 
 #[test]
+fn slot_update_text_resident_first_reports_existing_text_lane() {
+    let array = ArrayBox::new();
+    assert!(array.slot_store_text_raw(0, "line".to_string()));
+
+    assert_eq!(
+        array.slot_update_text_resident_first_raw(0, |value| {
+            value.push_str("-seed");
+            value.len()
+        }),
+        Some((9, true))
+    );
+    assert!(array.uses_text_slots());
+    assert_eq!(
+        array.slot_with_text_raw(0, str::to_owned).as_deref(),
+        Some("line-seed")
+    );
+}
+
+#[test]
+fn slot_update_text_resident_raw_does_not_promote_boxed_string_lane() {
+    let array =
+        ArrayBox::new_with_elements(vec![Box::new(StringBox::new("line")) as Box<dyn NyashBox>]);
+
+    assert!(!array.uses_text_slots());
+    assert_eq!(
+        array.slot_update_text_resident_raw(0, |value| value.len()),
+        None
+    );
+    assert!(!array.uses_text_slots());
+    assert_eq!(array.get_index_i64(0).to_string_box().value, "line");
+}
+
+#[test]
+fn slot_update_text_raw_mutates_mixed_boxed_string_slot() {
+    let array = ArrayBox::new_with_elements(vec![
+        Box::new(StringBox::new("line")) as Box<dyn NyashBox>,
+        Box::new(IntegerBox::new(7)) as Box<dyn NyashBox>,
+    ]);
+
+    assert_eq!(
+        array.slot_update_text_resident_first_raw(0, |value| {
+            value.push_str("-seed");
+            value.len()
+        }),
+        Some((9, false))
+    );
+    assert!(!array.uses_text_slots());
+    assert_eq!(
+        array.slot_with_text_raw(0, str::to_owned).as_deref(),
+        Some("line-seed")
+    );
+    assert_eq!(array.slot_load_i64_raw(1), Some(7));
+}
+
+#[test]
+fn slot_update_text_raw_misses_mixed_boxed_non_string_slot() {
+    let array = ArrayBox::new_with_elements(vec![
+        Box::new(StringBox::new("line")) as Box<dyn NyashBox>,
+        Box::new(IntegerBox::new(7)) as Box<dyn NyashBox>,
+    ]);
+
+    assert_eq!(
+        array.slot_update_text_resident_first_raw(1, |value| {
+            value.push_str("-seed");
+            value.len()
+        }),
+        None
+    );
+    assert!(!array.uses_text_slots());
+    assert_eq!(array.slot_load_i64_raw(1), Some(7));
+    assert_eq!(
+        array.slot_update_text_resident_first_raw(-1, |value| value.len()),
+        None
+    );
+}
+
+#[test]
 fn generic_box_store_degrades_text_lane_to_boxed_for_mixed_value() {
     let array = ArrayBox::new();
     assert!(array.slot_store_text_raw(0, "hello".to_string()));

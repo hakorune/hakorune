@@ -113,7 +113,7 @@ contract`.
   - active `.inc` array/text reader seams use `*_route_metadata` naming.
   - current lowering consumes session metadata first but maps to the existing
     loopcarry update helper.
-- [ ] H25c.2a runtime-private session substrate
+- [x] H25c.2a runtime-private session substrate
   - add `ArrayTextSlotSession` under ArrayBox text mechanics.
   - add kernel-private `ArrayTextWriteTxn` glue if needed.
   - no public ABI, no session handle table, no guard across C ABI calls.

@@ -382,8 +382,8 @@ Scope: current lane / next lane / restart order only.
       - H23b helper-local resident/fallback compaction regressed and was reverted
       - H24 proved the active owner is write-lock acquire/release guard mechanics
       - full evidence stays in `docs/development/current/main/phases/phase-137x/README.md`
-    - `137x-H25` array text residence session contract is active
-      - current blocker token: `137x-H25 array text residence session contract`
+    - `137x-H25c.2b` single-call executor design gate is active
+      - current blocker token: `137x-H25c.2b single-call executor design gate`
       - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
       - ownership map: `docs/development/current/main/phases/phase-137x/137x-array-text-contract-map.md`
       - H25a landed metadata-only `array_text_residence_sessions`; `.inc` and runtime behavior are unchanged
@@ -396,12 +396,13 @@ Scope: current lane / next lane / restart order only.
         without behavior change; active `.inc` array/text readers now use
         `*_route_metadata` naming
       - H25c.2 is split:
-        - H25c.2a runtime-private session substrate
-          (`ArrayTextSlotSession` / optional kernel-private `ArrayTextWriteTxn`)
-        - H25c.2b single-call executor design gate
+        - H25c.2a runtime-private session substrate landed
+          (`ArrayTextSlotSession` + kernel-private `ArrayTextWriteTxn`)
+        - H25c.2b single-call executor design gate is next
         - H25c.3 keeper probe only if H25c.2b accepts a safe executor boundary
-      - next slice: H25c.2a substrate-only; no public ABI, no session handle
-        table, no guard across C ABI calls, and no perf keeper claim yet
+      - next slice: H25c.2b docs-first decision; do not add backend/runtime
+        behavior unless one Rust-call executor can keep the guard lifetime
+        inside Rust and MIR remains the only legality owner
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

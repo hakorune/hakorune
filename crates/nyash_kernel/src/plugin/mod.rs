@@ -15,6 +15,7 @@ mod array_slot_load;
 mod array_slot_store;
 mod array_string_slot;
 mod array_substrate;
+mod array_text_write_txn;
 pub mod birth;
 mod compat_invoke_core;
 pub mod console;

@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H25 array text residence session contract`
 - front: `kilo_meso_substring_concat_array_set_loopcarry`
-- current blocker token: `137x-H25 array text residence session contract`
+- current blocker token: `137x-H25c.2b single-call executor design gate`
 - current benchmark state:
   - `C 3 ms / Ny AOT 6 ms`
   - `ny_aot_instr=40330160`
@@ -84,9 +84,20 @@ H25c.2 is split so the clean substrate and the perf keeper decision do not
 collapse into one risky change.
 
 - H25c.2a `runtime-private session substrate`
-  - status: open
+  - status: landed
   - intent: add an `ArrayBox`-local closure-scoped `ArrayTextSlotSession`
     substrate, plus an optional kernel-private `ArrayTextWriteTxn` wrapper.
+  - landed:
+    - `ArrayTextSlotSession` now owns text-slot update mechanics inside one
+      `ArrayBox` write-lock frame.
+    - `slot_update_text_resident_raw(...)` and `slot_update_text_raw(...)`
+      are adapters over that substrate.
+    - `slot_update_text_resident_first_raw(...)` reports whether the update
+      hit an already text-resident lane without exposing a guard or slot borrow.
+    - kernel-private `array_text_write_txn.rs` wraps handle lookup and
+      resident-first/fallback outcome mapping.
+    - same-slot string write helpers call the transaction wrapper without
+      adding public ABI names.
   - files:
     - `src/boxes/array/ops/text.rs`, or `src/boxes/array/ops/text_session.rs`
     - `src/boxes/array/ops.rs` if a new module is split out
@@ -120,11 +131,12 @@ collapse into one risky change.
     - H25c.2a-3: add array unit tests for resident hit, boxed string hit,
       boxed non-string miss, negative index miss, and resident-only non-promotion.
     - H25c.2a-4: add kernel-private `ArrayTextWriteTxn` wrapper for handle
-      lookup, observe accounting, and resident-first/fallback mode selection.
+      lookup and resident-first/fallback outcome mapping; observe accounting
+      stays at existing helper call sites.
     - H25c.2a-5: refactor existing slot write helpers to call the transaction
       wrapper without changing exported ABI names.
 - H25c.2b `single-call executor decision`
-  - status: blocked on H25c.2a substrate
+  - status: open
   - decide whether `slot_text_len_store_session` can be executed as one
     capability-generic runtime call whose entire proven region stays inside one
     Rust call stack.
@@ -138,16 +150,15 @@ collapse into one risky change.
 
 ## Next Slice
 
-H25c.2a should land the runtime-private session substrate first. Do not expect
-it to move perf by itself.
+H25c.2a landed the runtime-private session substrate. Do not treat this as a
+perf keeper by itself.
 
 Required order:
-1. Land H25c.2a substrate-only with unit tests.
-2. Decide H25c.2b single-call executor viability in docs.
-3. Add backend/runtime behavior only if the executor boundary is lifetime-safe
+1. Decide H25c.2b single-call executor viability in docs.
+2. Add backend/runtime behavior only if the executor boundary is lifetime-safe
    and does not leak guards across ABI calls.
-4. Keep MIR metadata as the only legality source.
-5. Rerun exact timing and asm after any behavior change.
+3. Keep MIR metadata as the only legality source.
+4. Rerun exact timing and asm after any behavior change.
 
 Reject immediately if the implementation requires:
 - runtime deciding session legality from residence state

@@ -1,4 +1,8 @@
 use super::super::array_guard::valid_handle_idx;
+use super::super::array_text_write_txn::{
+    with_array_text_slot_update, with_array_text_slot_update_resident_first,
+    ArrayTextWriteTxnOutcome,
+};
 use super::super::value_codec::KernelTextSlot;
 use super::array_string_slot_helpers::{
     array_text_owned_cell_demand, array_text_read_ref_demand, with_compiler_const_utf8_ptr_len,
@@ -91,17 +95,14 @@ fn array_string_concat_const_suffix_by_index_store_same_slot_str(
     let _output_demand = array_text_owned_cell_demand();
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
-    super::super::array_handle_cache::with_array_box(handle, |arr| {
-        arr.slot_update_text_raw(idx, |value| {
-            append_const_suffix_to_string_box_value(value, suffix);
-            if observe_enabled {
-                observe::record_store_array_str_existing_slot();
-                observe::record_store_array_str_source_store();
-            }
-            1
-        })
+    with_array_text_slot_update(handle, idx, |value| {
+        append_const_suffix_to_string_box_value(value, suffix);
+        if observe_enabled {
+            observe::record_store_array_str_existing_slot();
+            observe::record_store_array_str_source_store();
+        }
+        1
     })
-    .flatten()
     .unwrap_or(0)
 }
 
@@ -328,17 +329,14 @@ fn array_string_insert_const_mid_by_index_store_same_slot_str(
     let _output_demand = array_text_owned_cell_demand();
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
-    super::super::array_handle_cache::with_array_box(handle, |arr| {
-        arr.slot_update_text_raw(idx, |value| {
-            insert_const_mid_into_string_box_value(value, middle, split);
-            if observe_enabled {
-                observe::record_store_array_str_existing_slot();
-                observe::record_store_array_str_source_store();
-            }
-            1
-        })
+    with_array_text_slot_update(handle, idx, |value| {
+        insert_const_mid_into_string_box_value(value, middle, split);
+        if observe_enabled {
+            observe::record_store_array_str_existing_slot();
+            observe::record_store_array_str_source_store();
+        }
+        1
     })
-    .flatten()
     .unwrap_or(0)
 }
 
@@ -408,35 +406,31 @@ fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
     let _output_demand = array_text_owned_cell_demand();
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
-    super::super::array_handle_cache::with_array_box(handle, |arr| {
-        arr.slot_update_text_raw(idx, |value| {
-            if try_update_insert_const_mid_subrange_same_len_in_place(
-                value, middle, split, start, end,
-            ) {
-                if observe_enabled {
-                    observe::record_store_array_str_existing_slot();
-                    observe::record_store_array_str_source_store();
-                }
-                return 1;
-            }
-            let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
-                value.as_str(),
-                middle,
-                split,
-                start,
-                end,
-            ) else {
-                return 0;
-            };
-            *value = next;
+    with_array_text_slot_update(handle, idx, |value| {
+        if try_update_insert_const_mid_subrange_same_len_in_place(value, middle, split, start, end)
+        {
             if observe_enabled {
                 observe::record_store_array_str_existing_slot();
                 observe::record_store_array_str_source_store();
             }
-            1
-        })
+            return 1;
+        }
+        let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
+            value.as_str(),
+            middle,
+            split,
+            start,
+            end,
+        ) else {
+            return 0;
+        };
+        *value = next;
+        if observe_enabled {
+            observe::record_store_array_str_existing_slot();
+            observe::record_store_array_str_source_store();
+        }
+        1
     })
-    .flatten()
     .unwrap_or(0)
 }
 
@@ -449,33 +443,31 @@ fn array_string_insert_const_mid_subrange_len_by_index_store_same_slot_str(
     let _output_demand = array_text_owned_cell_demand();
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
-    super::super::array_handle_cache::with_array_box(handle, |arr| {
-        let resident = arr.slot_update_text_resident_raw(idx, |value| {
-            update_insert_const_mid_subrange_len_value(value, middle, observe_enabled)
-        });
-        if resident.is_some() {
+    let outcome = with_array_text_slot_update_resident_first(handle, idx, |value| {
+        update_insert_const_mid_subrange_len_value(value, middle, observe_enabled)
+    });
+    match outcome {
+        Some(ArrayTextWriteTxnOutcome::Resident(out)) => {
             if observe_enabled {
                 observe::record_store_array_str_update_text_resident_hit();
             }
-            return resident;
+            out
         }
-        if observe_enabled {
-            observe::record_store_array_str_update_text_resident_miss();
-        }
-        let fallback = arr.slot_update_text_raw(idx, |value| {
-            update_insert_const_mid_subrange_len_value(value, middle, observe_enabled)
-        });
-        if observe_enabled {
-            if fallback.is_some() {
+        Some(ArrayTextWriteTxnOutcome::Fallback(out)) => {
+            if observe_enabled {
+                observe::record_store_array_str_update_text_resident_miss();
                 observe::record_store_array_str_update_text_fallback_hit();
-            } else {
+            }
+            out
+        }
+        None => {
+            if observe_enabled {
+                observe::record_store_array_str_update_text_resident_miss();
                 observe::record_store_array_str_update_text_fallback_miss();
             }
+            0
         }
-        fallback
-    })
-    .flatten()
-    .unwrap_or(0)
+    }
 }
 
 #[inline(always)]

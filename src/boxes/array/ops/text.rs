@@ -1,5 +1,80 @@
 use super::*;
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ArrayTextSlotSessionMode {
+    ResidentOnly,
+    Compatible,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ArrayTextSlotSessionOutcomeKind {
+    ResidentText,
+    PromotedTextLane,
+    BoxedString,
+    BoxedStringLike,
+}
+
+struct ArrayTextSlotSession<'a> {
+    storage: &'a mut ArrayStorage,
+    mode: ArrayTextSlotSessionMode,
+}
+
+impl<'a> ArrayTextSlotSession<'a> {
+    #[inline(always)]
+    fn new(storage: &'a mut ArrayStorage, mode: ArrayTextSlotSessionMode) -> Self {
+        Self { storage, mode }
+    }
+
+    #[inline(always)]
+    fn update<R>(
+        &mut self,
+        idx: usize,
+        f: impl FnOnce(&mut String) -> R,
+    ) -> Option<(R, ArrayTextSlotSessionOutcomeKind)> {
+        if self.mode == ArrayTextSlotSessionMode::Compatible {
+            let promoted = match &*self.storage {
+                ArrayStorage::Boxed(items) => ArrayBox::try_text_values(items),
+                ArrayStorage::Text(_)
+                | ArrayStorage::InlineI64(_)
+                | ArrayStorage::InlineBool(_)
+                | ArrayStorage::InlineF64(_) => None,
+            };
+            if let Some(values) = promoted {
+                *self.storage = ArrayStorage::Text(values);
+                if let ArrayStorage::Text(values) = self.storage {
+                    return values.get_mut(idx).map(|value| {
+                        (f(value), ArrayTextSlotSessionOutcomeKind::PromotedTextLane)
+                    });
+                }
+                unreachable!("boxed text lane promoted to text");
+            }
+        }
+
+        match self.storage {
+            ArrayStorage::Text(values) => values
+                .get_mut(idx)
+                .map(|value| (f(value), ArrayTextSlotSessionOutcomeKind::ResidentText)),
+            ArrayStorage::Boxed(_) if self.mode == ArrayTextSlotSessionMode::ResidentOnly => None,
+            ArrayStorage::Boxed(items) => {
+                let item = items.get_mut(idx)?;
+                if let Some(value) = item.as_any_mut().downcast_mut::<StringBox>() {
+                    return Some((
+                        f(&mut value.value),
+                        ArrayTextSlotSessionOutcomeKind::BoxedString,
+                    ));
+                }
+                let mut value = item.as_str_fast().map(str::to_owned)?;
+                let out = f(&mut value);
+                *item = Box::new(StringBox::new(value));
+                Some((out, ArrayTextSlotSessionOutcomeKind::BoxedStringLike))
+            }
+            ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_) => None,
+        }
+    }
+}
+
 impl ArrayBox {
     /// Raw text store helper for runtime-private array string lanes.
     /// Public Array semantics stay object-based; mixed arrays degrade to Boxed.
@@ -94,13 +169,9 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
-        match &mut *items {
-            ArrayStorage::Text(values) => values.get_mut(idx).map(f),
-            ArrayStorage::Boxed(_)
-            | ArrayStorage::InlineI64(_)
-            | ArrayStorage::InlineBool(_)
-            | ArrayStorage::InlineF64(_) => None,
-        }
+        ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::ResidentOnly)
+            .update(idx, f)
+            .map(|(out, _kind)| out)
     }
 
     /// Mutate a text slot in-place when the array is text-resident.
@@ -112,24 +183,31 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
-        if let Some(values) = Self::ensure_text(&mut items) {
-            return values.get_mut(idx).map(f);
+        ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible)
+            .update(idx, f)
+            .map(|(out, _kind)| out)
+    }
+
+    /// Mutate a text slot through the compatible substrate and report whether
+    /// the slot was already text-resident at session entry.
+    #[inline(always)]
+    pub fn slot_update_text_resident_first_raw<R>(
+        &self,
+        idx: i64,
+        f: impl FnOnce(&mut String) -> R,
+    ) -> Option<(R, bool)> {
+        if idx < 0 {
+            return None;
         }
-        match &mut *items {
-            ArrayStorage::Boxed(items) => {
-                let item = items.get_mut(idx)?;
-                if let Some(value) = item.as_any_mut().downcast_mut::<StringBox>() {
-                    return Some(f(&mut value.value));
-                }
-                let mut value = item.as_str_fast().map(str::to_owned)?;
-                let out = f(&mut value);
-                *item = Box::new(StringBox::new(value));
-                Some(out)
-            }
-            ArrayStorage::Text(_)
-            | ArrayStorage::InlineI64(_)
-            | ArrayStorage::InlineBool(_)
-            | ArrayStorage::InlineF64(_) => None,
-        }
+        let idx = idx as usize;
+        let mut items = self.items.write();
+        ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible)
+            .update(idx, f)
+            .map(|(out, kind)| {
+                (
+                    out,
+                    matches!(kind, ArrayTextSlotSessionOutcomeKind::ResidentText),
+                )
+            })
     }
 }
