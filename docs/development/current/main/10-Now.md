@@ -35,6 +35,7 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
+  - MapBox taskboard: `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
   - current implementation focus: `MapBox` surface catalog first slice
   - current phase goal:
     - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary

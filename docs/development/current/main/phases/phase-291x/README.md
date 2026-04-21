@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
+  - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -48,6 +49,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 1. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 2. `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 3. `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
+4. `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
 
 ## Current Rule
 
@@ -57,7 +59,10 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `StringBox.lastIndexOf(needle, start_pos)` remains explicitly deferred until a separate card
 - `apps/std/string.hako` is sugar, not the semantic owner
 - `apps/std/string2.hako` is diagnostic residue unless promoted or deleted by an explicit cleanup card
-- `MapBox` is inventoried in this phase but not implemented in the first StringBox card
+- `MapBox` first slice catalogs current Rust vtable rows only
+- do not add `length` as a Rust vtable alias in the first MapBox commit
+- do not collapse `size` and `len` slots in the first MapBox commit
+- do not normalize `set` / `delete` / `clear` return contracts in the first MapBox commit
 
 ## Implementation State
 
@@ -76,3 +81,13 @@ Landed smoke:
 - `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
 
 MapBox is now the next CoreBox catalog target.
+
+Active MapBox card:
+
+```text
+Map surface catalog
+  -> MapMethodId
+  -> MapBox::invoke_surface(...)
+  -> thin registry / method-resolution / effect-analysis / VM dispatch consumers
+  -> stable MapBox surface smoke
+```

@@ -6,6 +6,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
+  - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
 ---
 
 # CoreBox Surface Inventory Ledger
@@ -123,3 +124,16 @@ MapBox first safe slice after StringBox:
 - do not normalize aliases or return contracts in the first MapBox commit
 - keep `length`, `birth`, `getField`, `setField`, `forEach`, and `toJSON` in a
   non-vtable/debt section until a policy card accepts them
+
+First slice owner decision:
+
+- Rust catalog owner: `src/boxes/map_surface_catalog.rs`
+- Rust invoke seam: `MapBox::invoke_surface(...)`
+- Rust consumers to thin in the same commit:
+  - `src/runtime/type_registry.rs`
+  - `src/mir/builder/calls/method_resolution.rs`
+  - `src/mir/builder/calls/effects_analyzer.rs`
+  - `src/backend/mir_interpreter/handlers/calls/method.rs`
+  - `src/backend/mir_interpreter/handlers/calls/method/dispatch.rs`
+- `.hako` visible owner remains `lang/src/runtime/collections/map_core_box.hako`
+  for state/raw-handle orchestration in this slice.

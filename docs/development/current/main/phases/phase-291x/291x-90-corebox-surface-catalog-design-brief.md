@@ -6,6 +6,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
+  - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
   - docs/development/current/main/phases/phase-290x/README.md
 ---
 
@@ -47,7 +48,7 @@ Each stable surface row must carry:
 | --- | --- | --- |
 | `ArrayBox` | landed in phase-290x | `src/boxes/array/surface_catalog.rs` |
 | `StringBox` | landed in phase-291x first slice | `src/boxes/basic/string_surface_catalog.rs` |
-| `MapBox` | inventory only in this slice | planned later, after StringBox |
+| `MapBox` | active first catalog slice | `src/boxes/map_surface_catalog.rs` |
 
 ## StringBox First Stable Rows
 
@@ -80,31 +81,29 @@ and VM dispatch do not currently agree on them.
 
 ## MapBox Inventory Rows
 
-MapBox should follow the same row shape, but it is not implemented in the first
-StringBox card.
+MapBox follows the same row shape in the second implementation card. The first
+MapBox code slice is intentionally conservative: it records current Rust vtable
+rows and dispatch behavior, then makes existing consumers read the catalog.
 
-Known rows from the current vtable / dispatch inventory:
+| Canonical | Aliases | Arity | Slot | Effect | Return | Notes |
+| --- | --- | ---: | ---: | --- | --- | --- |
+| `size` |  | 0 | 200 | Read | Value | keep distinct from `len` for this slice |
+| `len` |  | 0 | 201 | Read | Value | legacy slot remains distinct |
+| `has` |  | 1 | 202 | Read | Value | returns boolean |
+| `get` |  | 1 | 203 | Read | Value | missing-key behavior is unchanged |
+| `set` |  | 2 | 204 | WriteHeap | Value | current Rust path returns a receipt value; do not normalize |
+| `delete` | `remove` | 1 | 205 | WriteHeap | Value | preserve existing TypeRegistry alias only |
+| `keys` |  | 0 | 206 | Read | Value | deterministic key order comes from `MapBox::keys()` |
+| `values` |  | 0 | 207 | Read | Value | current value order remains storage order |
+| `clear` |  | 0 | 208 | WriteHeap | Value | current Rust path returns a receipt value; do not normalize |
 
-| Canonical | Aliases | Expected slot family |
-| --- | --- | --- |
-| `size` |  | 200 |
-| `len` |  | 201 |
-| `has` |  | 202 |
-| `get` |  | 203 |
-| `set` |  | 204 |
-| `delete` | `remove` | 205 |
-| `keys` |  | 206 |
-| `values` |  | 207 |
-| `clear` |  | 208 |
+Explicitly deferred from the first MapBox code slice:
 
-Decision needed before MapBox coding:
-
-- whether `length` should become a registered vtable alias or stay a `.hako` /
-  state-owner compatibility route.
-- whether `size` / `len` should keep legacy slot distinction or collapse to one
-  canonical slot row.
-- whether `remove` should become a real visible alias for `delete` everywhere or
-  stay TypeRegistry-only debt.
+- registering `length` as a Rust vtable alias
+- collapsing `size` and `len` into one slot row
+- changing `set` / `delete` / `clear` return contracts
+- changing bad-key validation behavior across VM routes
+- changing compat ABI exports in `crates/nyash_kernel/src/plugin/map_compat.rs`
 
 ## Guardrails
 

@@ -26,7 +26,7 @@ Related:
   - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-291x/README.md`
   - phase brief: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
   - inventory: `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 

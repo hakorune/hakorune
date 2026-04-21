@@ -49,7 +49,7 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-291x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
+  - `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
 - current blocker token:
   - `MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs`
 
@@ -113,4 +113,5 @@ cargo check -q
 - history lives in phase docs, not this file:
   - `docs/development/current/main/phases/phase-291x/README.md`
   - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
+  - `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
   - `docs/development/current/main/phases/phase-137x/README.md`

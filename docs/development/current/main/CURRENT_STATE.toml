@@ -12,7 +12,7 @@ active_lane = "phase-291x CoreBox surface catalog"
 active_lane_status = "active; StringBox surface catalog landed, MapBox first catalog slice next"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
+taskboard = "docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md"
 
 current_blocker_token = "MapBox surface truth is split across runtime substrate, compat ABI, MIR lowering, and docs"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
