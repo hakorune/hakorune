@@ -126,55 +126,26 @@ fn append_short_text_suffix(value: &mut String, suffix: &str) {
         let dst = vec.as_mut_ptr().add(base_len);
         match len {
             1 => dst.write(bytes[0]),
-            2 => {
-                dst.write(bytes[0]);
-                dst.add(1).write(bytes[1]);
-            }
+            2 => write_u16_unaligned(dst, read_u16_unaligned(bytes.as_ptr())),
             3 => {
-                dst.write(bytes[0]);
-                dst.add(1).write(bytes[1]);
+                write_u16_unaligned(dst, read_u16_unaligned(bytes.as_ptr()));
                 dst.add(2).write(bytes[2]);
             }
-            4 => {
-                dst.write(bytes[0]);
-                dst.add(1).write(bytes[1]);
-                dst.add(2).write(bytes[2]);
-                dst.add(3).write(bytes[3]);
-            }
+            4 => write_u32_unaligned(dst, read_u32_unaligned(bytes.as_ptr())),
             5 => {
-                dst.write(bytes[0]);
-                dst.add(1).write(bytes[1]);
-                dst.add(2).write(bytes[2]);
-                dst.add(3).write(bytes[3]);
+                write_u32_unaligned(dst, read_u32_unaligned(bytes.as_ptr()));
                 dst.add(4).write(bytes[4]);
             }
             6 => {
-                dst.write(bytes[0]);
-                dst.add(1).write(bytes[1]);
-                dst.add(2).write(bytes[2]);
-                dst.add(3).write(bytes[3]);
-                dst.add(4).write(bytes[4]);
-                dst.add(5).write(bytes[5]);
+                write_u32_unaligned(dst, read_u32_unaligned(bytes.as_ptr()));
+                write_u16_unaligned(dst.add(4), read_u16_unaligned(bytes.as_ptr().add(4)));
             }
             7 => {
-                dst.write(bytes[0]);
-                dst.add(1).write(bytes[1]);
-                dst.add(2).write(bytes[2]);
-                dst.add(3).write(bytes[3]);
-                dst.add(4).write(bytes[4]);
-                dst.add(5).write(bytes[5]);
+                write_u32_unaligned(dst, read_u32_unaligned(bytes.as_ptr()));
+                write_u16_unaligned(dst.add(4), read_u16_unaligned(bytes.as_ptr().add(4)));
                 dst.add(6).write(bytes[6]);
             }
-            8 => {
-                dst.write(bytes[0]);
-                dst.add(1).write(bytes[1]);
-                dst.add(2).write(bytes[2]);
-                dst.add(3).write(bytes[3]);
-                dst.add(4).write(bytes[4]);
-                dst.add(5).write(bytes[5]);
-                dst.add(6).write(bytes[6]);
-                dst.add(7).write(bytes[7]);
-            }
+            8 => write_u64_unaligned(dst, read_u64_unaligned(bytes.as_ptr())),
             _ => unreachable!("short suffix length is checked above"),
         }
         vec.set_len(base_len + len);
@@ -183,14 +154,66 @@ fn append_short_text_suffix(value: &mut String, suffix: &str) {
 
 #[inline(always)]
 fn short_literal_prefix_eq(haystack: &[u8], needle: &[u8]) -> bool {
-    let mut index = 0;
-    while index < needle.len() {
-        if haystack[index] != needle[index] {
-            return false;
-        }
-        index += 1;
+    if needle.len() > haystack.len() {
+        return false;
     }
-    true
+    match needle.len() {
+        0 => true,
+        1 => haystack[0] == needle[0],
+        2 => read_u16_unaligned(haystack.as_ptr()) == read_u16_unaligned(needle.as_ptr()),
+        3 => {
+            read_u16_unaligned(haystack.as_ptr()) == read_u16_unaligned(needle.as_ptr())
+                && haystack[2] == needle[2]
+        }
+        4 => read_u32_unaligned(haystack.as_ptr()) == read_u32_unaligned(needle.as_ptr()),
+        5 => {
+            read_u32_unaligned(haystack.as_ptr()) == read_u32_unaligned(needle.as_ptr())
+                && haystack[4] == needle[4]
+        }
+        6 => {
+            read_u32_unaligned(haystack.as_ptr()) == read_u32_unaligned(needle.as_ptr())
+                && read_u16_unaligned(unsafe { haystack.as_ptr().add(4) })
+                    == read_u16_unaligned(unsafe { needle.as_ptr().add(4) })
+        }
+        7 => {
+            read_u32_unaligned(haystack.as_ptr()) == read_u32_unaligned(needle.as_ptr())
+                && read_u16_unaligned(unsafe { haystack.as_ptr().add(4) })
+                    == read_u16_unaligned(unsafe { needle.as_ptr().add(4) })
+                && haystack[6] == needle[6]
+        }
+        8 => read_u64_unaligned(haystack.as_ptr()) == read_u64_unaligned(needle.as_ptr()),
+        _ => haystack.starts_with(needle),
+    }
+}
+
+#[inline(always)]
+fn read_u16_unaligned(src: *const u8) -> u16 {
+    unsafe { core::ptr::read_unaligned(src.cast::<u16>()) }
+}
+
+#[inline(always)]
+fn read_u32_unaligned(src: *const u8) -> u32 {
+    unsafe { core::ptr::read_unaligned(src.cast::<u32>()) }
+}
+
+#[inline(always)]
+fn read_u64_unaligned(src: *const u8) -> u64 {
+    unsafe { core::ptr::read_unaligned(src.cast::<u64>()) }
+}
+
+#[inline(always)]
+fn write_u16_unaligned(dst: *mut u8, value: u16) {
+    unsafe { core::ptr::write_unaligned(dst.cast::<u16>(), value) }
+}
+
+#[inline(always)]
+fn write_u32_unaligned(dst: *mut u8, value: u32) {
+    unsafe { core::ptr::write_unaligned(dst.cast::<u32>(), value) }
+}
+
+#[inline(always)]
+fn write_u64_unaligned(dst: *mut u8, value: u64) {
+    unsafe { core::ptr::write_unaligned(dst.cast::<u64>(), value) }
 }
 
 #[inline(always)]

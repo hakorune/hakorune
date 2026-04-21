@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H33 valid post-H32 owner decision)
-  - current blocker is `137x-H33 valid post-H32 owner decision`
+  - `phase-137x-H owner-first optimization return` (active; H35 post-H34 len-half copy owner decision)
+  - current blocker is `137x-H35 post-H34 len-half copy owner decision`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -750,9 +750,29 @@ Scope: current lane / next lane / restart order only.
             observer-store closure `24.05%`
           - verdict: keep as structural cleanup / owner-shift, not a wall-time
             keeper
-        - H33 active:
-          - decide the next valid-release owner card from the post-H32 asm:
-            len-half closure vs observer-store closure vs residual `memmove`
+        - H33 result:
+          - valid-release direct runner shows no hot `string_len_hi`
+          - direct top: `__memmove` `35.52%`, len-half closure `31.17%`,
+            observer-store closure `27.45%`
+          - verdict: do not reopen len-half byte-copy surgery from `memmove`
+            share alone; H29 already rejected that seam
+        - H34 active:
+          - narrow runtime-private observer-store short-byte leaf thinning
+          - touch only `src/boxes/array/ops/text.rs`
+          - optimize short literal prefix check and short suffix byte write as
+            mechanics only; no MIR, `.inc`, public ABI, or semantic cache
+        - H34 result:
+          - kept as runtime-private mechanics keeper
+          - `kilo_kernel_small = C 83 ms / Ny AOT 7 ms`,
+            `ny_aot_instr=50229601`, `ny_aot_cycles=16375916`
+          - observer-store closure shrank to `14.03%`; post-H32 was `27.45%`
+          - no-regression guards: meso loopcarry `Ny AOT 4 ms`, exact array
+            string store `Ny AOT 4 ms`
+        - H35 active:
+          - decide the next valid card for residual `memmove` / len-half
+            closure
+          - do not repeat H29 byte-copy surgery without a new representation
+            proof
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

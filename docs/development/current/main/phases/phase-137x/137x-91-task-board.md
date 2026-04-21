@@ -31,7 +31,7 @@ as `137x-H`.
 It now means the storage/value gates are landed, allocator/arena is rejected
 with evidence for now, and the active H-series optimization card lives in the
 phase README / current entry. Current active card:
-`137x-H33 valid post-H32 owner decision`.
+`137x-H35 post-H34 len-half copy owner decision`.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -347,9 +347,20 @@ phase README / current entry. Current active card:
     - landed transaction façade thinning; valid-release asm removed
       `with_array_text_write_txn` from the top list, but wall stayed
       `Ny AOT 7 ms`
-  - [ ] H33 valid post-H32 owner decision
-    - choose between len-half closure, observer-store closure, and unexpected
-      `string_len_hi` from valid post-H32 asm
+  - [x] H33 valid post-H32 owner decision
+    - valid-release direct runner showed no hot `string_len_hi`
+    - next code card selected: narrow runtime-private observer-store
+      short-byte leaf thinning
+  - [x] H34 observer-store short-byte leaf thinning
+    - touch only `src/boxes/array/ops/text.rs`
+    - optimize short const-needle prefix check / short const-suffix byte write
+      as mechanics only
+    - no MIR, `.inc`, public ABI, semantic cache, or source-prefix assumption
+    - kept: observer-store closure shrank from `27.45%` to `14.03%`;
+      whole instructions dropped to `50229601`
+  - [ ] H35 post-H34 len-half copy owner decision
+    - choose the next valid card for residual `memmove` / len-half closure
+    - do not repeat H29 byte-copy surgery without a new representation proof
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

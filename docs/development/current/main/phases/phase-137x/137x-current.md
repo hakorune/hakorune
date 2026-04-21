@@ -7,7 +7,7 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H33 valid post-H32 owner decision`
+- current blocker token: `137x-H35 post-H34 len-half copy owner decision`
 - current benchmark state:
   - `C 84 ms / Ny AOT 7 ms`
   - `ny_aot_instr=60616017`
@@ -511,22 +511,96 @@ Goal: decide the next narrow observer-store implementation card.
   - next owner proof should use the post-H32 valid-release asm, not stale
     pre-rebuild readings
 
-### H33 Active
+### H33 Result
 
 Goal: choose the next implementation card from valid post-H32 evidence.
 
+- valid-release evidence:
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`
+  - direct-runner top:
+    - `__memmove_avx512_unaligned_erms`: `35.52%`
+    - observer-store closure:
+      `array_string_indexof_const_suffix_region_store::{closure...}`:
+      `27.45%`
+    - len-half closure:
+      `array_string_insert_const_mid_lenhalf_by_index_store_same_slot_str::{closure}`:
+      `31.17%`
+    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `1.25%`
+    - no hot `nyash.array.string_len_hi`
+- callgraph probe:
+  - `target/perf_state/h33_kilo_kernel_small.callgraph.perf.data`
+  - top shifted between observer-store and len-half closure, but
+    `string_len_hi` did not reappear as an active owner
+  - `memmove` remains a broad copy symptom; previous H29 byte-copy surgery
+    already failed, so do not reopen local insert-copy surgery without a new
+    representation proof
+- verdict:
+  - close H33 as an owner-decision card
+  - next implementation card is a narrow runtime-private observer-store byte
+    leaf thinning: short literal prefix check and short suffix byte write
+  - MIR remains legality/provenance/publication owner
+  - `.inc` remains metadata-to-call emit only
+
+### H34 Result
+
+Goal: reduce observer-store closure cost with a runtime-private short-byte leaf
+only.
+
+- scope:
+  - `src/boxes/array/ops/text.rs`
+  - `text_contains_literal` prefix path for short const needles
+  - `append_short_text_suffix` for short const suffixes
+- allowed:
+  - byte-level mechanics such as unaligned fixed-width prefix compare and
+    fixed-width suffix write
+  - no new public ABI
+  - no MIR or `.inc` metadata change
+- forbidden:
+  - source-prefix semantic assumptions such as rows always containing `"line"`
+  - search-result cache
+  - runtime legality/provenance inference
+  - reopening len-half representation or byte-copy surgery from `memmove`
+    percentage alone
+- keeper gate:
+  - `cargo test -q array::tests --lib`: pass
+  - `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`: pass
+  - `tools/perf/build_perf_release.sh`: pass
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_kernel_small 1 3`:
+    `C 83 ms / Ny AOT 7 ms`,
+    `ny_aot_instr=50229601`, `ny_aot_cycles=16375916`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small '' 20`:
+    - `__memmove_avx512_unaligned_erms`: `53.25%`
+    - len-half closure: `26.76%`
+    - observer-store closure: `14.03%`
+  - no-regression checks:
+    - `kilo_meso_substring_concat_array_set_loopcarry`:
+      `C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=16570930`
+    - `kilo_micro_array_string_store`:
+      `C 10 ms / Ny AOT 4 ms`, `ny_aot_instr=9265993`
+- verdict:
+  - keep H34 as a runtime-private mechanics keeper
+  - whole wall remains `Ny AOT 7 ms`, but primary direct-only instruction count
+    dropped from post-H32 `60315390` to `50229601`
+  - observer-store closure shrank from `27.45%` to `14.03%`
+  - next owner is now the len-half edit copy / residual `memmove` family, not
+    observer-store search/suffix mechanics
+
+### H35 Active
+
+Goal: decide the next valid post-H34 card for the remaining len-half copy owner.
+
 - active owner candidates:
-  - residual `memmove` under the len-half edit closure
-  - observer-store closure cost
-  - unexpected `nyash.array.string_len_hi` reappearance
+  - outer len-half edit closure
+  - residual `__memmove_avx512_unaligned_erms`
+  - possible representation-level text residence proof
 - first step:
-  - inspect only the sampled len-half and observer-store source paths
-  - decide whether the next card is H27 len-half closure thinning, H26
-    observer-store mutation, or a missing MIR contract that still emits
-    `string_len_hi`
+  - collect a fresh callgraph/objdump focused on the post-H34 len-half closure
+  - do not repeat H29 local byte-copy surgery unless a new representation proof
+    explains why the previous rejection no longer applies
 - guard:
-  - rebuild release before every runtime perf judgment
-  - no runtime representation surgery without a valid owner proof
+  - MIR / `.inc` stay unchanged until evidence shows a missing contract
+  - runtime-only byte-copy tweaks are rejected by default after H29 unless they
+    come with a new structural owner proof
 
 ### H28.1 runtime-private literal search executor
 

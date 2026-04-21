@@ -34,16 +34,16 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H33 valid post-H32 owner decision)
+  - `phase-137x-H owner-first optimization return` (active; H35 post-H34 len-half copy owner decision)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
-    - current blocker is `137x-H33 valid post-H32 owner decision`
+    - current blocker is `137x-H35 post-H34 len-half copy owner decision`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
-  - `137x-H33 valid post-H32 owner decision`
+  - `137x-H35 post-H34 len-half copy owner decision`
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
   - current snapshot:
@@ -74,7 +74,12 @@ cargo check --features perf-observe -p nyash_kernel
       `tools/perf/build_perf_release.sh` before judging runtime perf
     - H32 landed transaction façade thinning; valid-release asm no longer has
       `with_array_text_write_txn` in the top list, but wall remains `Ny AOT 7 ms`
-    - H33 now decides the next valid-release owner card from post-H32 asm
+    - H33 closed: valid-release direct runner showed no hot `string_len_hi`
+      and selected observer-store short-byte leaf thinning next
+    - H34 kept: runtime-private short-byte leaf thinning dropped whole
+      instructions to `50229601` and observer-store closure to `14.03%`
+    - H35 active: decide residual `memmove` / len-half closure path; do not
+      repeat H29 byte-copy surgery without a new representation proof
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`
