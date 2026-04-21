@@ -78,6 +78,107 @@ impl std::fmt::Display for ArrayTextResidenceSessionEndPlacement {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayTextResidenceExecutorExecutionMode {
+    SingleRegionExecutor,
+}
+
+impl std::fmt::Display for ArrayTextResidenceExecutorExecutionMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::SingleRegionExecutor => f.write_str("single_region_executor"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayTextResidenceExecutorCarrier {
+    ArrayLaneTextCell,
+}
+
+impl std::fmt::Display for ArrayTextResidenceExecutorCarrier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ArrayLaneTextCell => f.write_str("array_lane_text_cell"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayTextResidenceExecutorEffect {
+    StoreCell,
+    LengthOnlyResultCarry,
+}
+
+impl std::fmt::Display for ArrayTextResidenceExecutorEffect {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::StoreCell => f.write_str("store.cell"),
+            Self::LengthOnlyResultCarry => f.write_str("length_only_result_carry"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayTextResidenceExecutorConsumerCapability {
+    SinkStore,
+    LengthOnly,
+}
+
+impl std::fmt::Display for ArrayTextResidenceExecutorConsumerCapability {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::SinkStore => f.write_str("sink_store"),
+            Self::LengthOnly => f.write_str("length_only"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayTextResidenceExecutorMaterializationPolicy {
+    TextResidentOrStringlikeSlot,
+}
+
+impl std::fmt::Display for ArrayTextResidenceExecutorMaterializationPolicy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::TextResidentOrStringlikeSlot => f.write_str("text_resident_or_stringlike_slot"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayTextResidenceExecutorContract {
+    pub execution_mode: ArrayTextResidenceExecutorExecutionMode,
+    pub proof_region: ArrayTextResidenceSessionScope,
+    pub publication_boundary: &'static str,
+    pub carrier: ArrayTextResidenceExecutorCarrier,
+    pub effects: Vec<ArrayTextResidenceExecutorEffect>,
+    pub consumer_capabilities: Vec<ArrayTextResidenceExecutorConsumerCapability>,
+    pub materialization_policy: ArrayTextResidenceExecutorMaterializationPolicy,
+}
+
+impl ArrayTextResidenceExecutorContract {
+    fn loopcarry_len_store_single_region() -> Self {
+        Self {
+            execution_mode: ArrayTextResidenceExecutorExecutionMode::SingleRegionExecutor,
+            proof_region: ArrayTextResidenceSessionScope::LoopBackedgeSingleBody,
+            publication_boundary: "none",
+            carrier: ArrayTextResidenceExecutorCarrier::ArrayLaneTextCell,
+            effects: vec![
+                ArrayTextResidenceExecutorEffect::StoreCell,
+                ArrayTextResidenceExecutorEffect::LengthOnlyResultCarry,
+            ],
+            consumer_capabilities: vec![
+                ArrayTextResidenceExecutorConsumerCapability::SinkStore,
+                ArrayTextResidenceExecutorConsumerCapability::LengthOnly,
+            ],
+            materialization_policy:
+                ArrayTextResidenceExecutorMaterializationPolicy::TextResidentOrStringlikeSlot,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextResidenceSessionRoute {
     pub begin_block: BasicBlockId,
@@ -101,6 +202,7 @@ pub struct ArrayTextResidenceSessionRoute {
     pub skip_instruction_indices: Vec<usize>,
     pub scope: ArrayTextResidenceSessionScope,
     pub proof: ArrayTextResidenceSessionProof,
+    pub executor_contract: Option<ArrayTextResidenceExecutorContract>,
 }
 
 pub fn refresh_module_array_text_residence_session_routes(module: &mut MirModule) {
@@ -182,6 +284,9 @@ fn derive_loopcarry_session(
         skip_instruction_indices: route.skip_instruction_indices.clone(),
         scope: ArrayTextResidenceSessionScope::LoopBackedgeSingleBody,
         proof: ArrayTextResidenceSessionProof::LoopcarryLenStoreOnly,
+        executor_contract: Some(
+            ArrayTextResidenceExecutorContract::loopcarry_len_store_single_region(),
+        ),
     })
 }
 

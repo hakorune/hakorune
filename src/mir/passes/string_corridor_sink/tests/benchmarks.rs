@@ -374,6 +374,43 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
     );
     assert_eq!(session.scope.to_string(), "loop_backedge_single_body");
     assert_eq!(session.proof.to_string(), "loopcarry_len_store_only");
+    let executor_contract = session
+        .executor_contract
+        .as_ref()
+        .expect("residence session should expose nested executor contract");
+    assert_eq!(
+        executor_contract.execution_mode.to_string(),
+        "single_region_executor"
+    );
+    assert_eq!(
+        executor_contract.proof_region.to_string(),
+        "loop_backedge_single_body"
+    );
+    assert_eq!(executor_contract.publication_boundary, "none");
+    assert_eq!(
+        executor_contract.carrier.to_string(),
+        "array_lane_text_cell"
+    );
+    assert_eq!(
+        executor_contract
+            .effects
+            .iter()
+            .map(|effect| effect.to_string())
+            .collect::<Vec<_>>(),
+        vec!["store.cell", "length_only_result_carry"]
+    );
+    assert_eq!(
+        executor_contract
+            .consumer_capabilities
+            .iter()
+            .map(|capability| capability.to_string())
+            .collect::<Vec<_>>(),
+        vec!["sink_store", "length_only"]
+    );
+    assert_eq!(
+        executor_contract.materialization_policy.to_string(),
+        "text_resident_or_stringlike_slot"
+    );
 
     let begin_block = function
         .blocks

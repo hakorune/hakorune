@@ -399,11 +399,16 @@ Scope: current lane / next lane / restart order only.
         - H25c.2a runtime-private session substrate landed
           (`ArrayTextSlotSession` + kernel-private `ArrayTextWriteTxn`)
         - H25c.2b single-call executor design gate closed as clean non-keeper
-        - H25c.2c single-region executor contract is next
+        - H25c.2c-1 MIR nested `executor_contract` metadata landed in code/tests
+          (`single_region_executor`, `loop_backedge_single_body`,
+          `publication_boundary=none`, `ArrayLane(Text)/Cell`, `store.cell`,
+          `LengthOnly`, `text_resident_or_stringlike_slot`)
+        - H25c.2c is still active until `.inc` validates the nested contract
+          and the region execution contract owns loop/PHI/exit semantics
         - H25c.3 keeper probe only after H25c.2c lands
-      - next slice: H25c.2c nested executor contract under
-        `array_text_residence_sessions`; `.inc` stays metadata-to-call only,
-        runtime gets a one-call RAII executor only under MIR-owned legality
+      - next slice: H25c.2c-2 `.inc` reader validation for nested
+        `executor_contract`; no CFG/raw shape rediscovery and no runtime
+        executor yet
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

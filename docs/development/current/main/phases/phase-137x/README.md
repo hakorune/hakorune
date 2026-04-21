@@ -1506,6 +1506,15 @@ H25c.2c single-region executor contract:
 - Runtime may implement a one-call RAII executor that acquires the array write
   guard once and drops it before returning; no session table, no begin/end ABI,
   no hidden legality.
+- First implementation slice landed as metadata-only:
+  - `ArrayTextResidenceSessionRoute.executor_contract` now carries
+    `single_region_executor`, `loop_backedge_single_body`,
+    `publication_boundary=none`, `array_lane_text_cell`, `store.cell`,
+    `length_only_result_carry`, `sink_store`, `length_only`, and
+    `text_resident_or_stringlike_slot`.
+  - MIR JSON emits the nested contract and the loopcarry route test asserts it.
+  - No behavior change yet; next slice is `.inc` reader validation, followed by
+    any missing MIR loop/PHI/exit mapping before a region replacement.
 
 ## Legacy Retirement Ledger
 

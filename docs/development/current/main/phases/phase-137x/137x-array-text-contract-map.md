@@ -21,6 +21,14 @@ and ownership map, not a second semantic source.
   - owns H25 residence-session eligibility derived from MIR route metadata.
   - emits `array_text_residence_sessions`.
   - current active proof: `loopcarry_len_store_only`.
+  - H25c.2c nested executor contract fields:
+    - `executor_contract.execution_mode=single_region_executor`
+    - `proof_region=loop_backedge_single_body`
+    - `publication_boundary=none`
+    - `carrier=array_lane_text_cell`
+    - `effects=[store.cell, length_only_result_carry]`
+    - `consumer_capabilities=[sink_store, length_only]`
+    - `materialization_policy=text_resident_or_stringlike_slot`
   - H25b placement fields:
     - `begin_block` / `begin_placement=before_preheader_jump`
     - `update_block` / `update_instruction_index`
@@ -77,11 +85,13 @@ and ownership map, not a second semantic source.
   - must not rediscover route legality by scanning raw shape.
   - active array/text readers use `*_route_metadata` naming; do not add new
     cross-boundary `*_route_plan` names.
+  - H25c.2c may validate `executor_contract`; it must reject missing/mismatched
+    nested contract fields instead of inferring them from CFG.
 - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_lowering.inc`
   - may emit the selected helper calls and skip covered instructions.
   - H25c.1 consumes residence-session metadata first, but still maps it to the
     existing loopcarry update helper.
-  - H25c.2b may emit one metadata-selected executor call only if that executor
+  - H25c.2c may emit one metadata-selected executor call only if that executor
     keeps the guard lifetime inside Rust.
   - must not emit guard-bearing begin/end handle plumbing in H25c.2.
 

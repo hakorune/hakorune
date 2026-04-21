@@ -157,7 +157,7 @@ pub(super) fn build_mir_json_root(
                 })
             }).collect::<Vec<_>>(),
             "array_text_residence_sessions": f.metadata.array_text_residence_sessions.iter().map(|route| {
-                json!({
+                let mut obj = json!({
                     "begin_block": route.begin_block.as_u32(),
                     "begin_to_header_block": route.begin_to_header_block.as_u32(),
                     "begin_placement": route.begin_placement.to_string(),
@@ -181,7 +181,19 @@ pub(super) fn build_mir_json_root(
                     "proof": route.proof.to_string(),
                     "consumer_capability": "slot_text_len_store_session",
                     "publication_boundary": "none",
-                })
+                });
+                if let Some(contract) = route.executor_contract.as_ref() {
+                    obj["executor_contract"] = json!({
+                        "execution_mode": contract.execution_mode.to_string(),
+                        "proof_region": contract.proof_region.to_string(),
+                        "publication_boundary": contract.publication_boundary,
+                        "carrier": contract.carrier.to_string(),
+                        "effects": contract.effects.iter().map(|effect| effect.to_string()).collect::<Vec<_>>(),
+                        "consumer_capabilities": contract.consumer_capabilities.iter().map(|capability| capability.to_string()).collect::<Vec<_>>(),
+                        "materialization_policy": contract.materialization_policy.to_string(),
+                    });
+                }
+                obj
             }).collect::<Vec<_>>(),
             "array_text_observer_routes": f.metadata.array_text_observer_routes.iter().map(|route| {
                 let mut obj = json!({

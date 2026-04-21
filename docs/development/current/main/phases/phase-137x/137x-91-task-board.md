@@ -125,6 +125,12 @@ contract`.
 - [ ] H25c.2c single-region executor contract
   - add nested executor contract under `array_text_residence_sessions`, not a
     new sibling plan family.
+  - [x] H25c.2c-1 MIR route metadata emits the nested
+    `executor_contract` and route tests assert it.
+  - [ ] H25c.2c-2 `.inc` validates the nested contract without CFG/raw shape
+    rediscovery.
+  - [ ] H25c.2c-3 extend MIR with any required loop/PHI/exit mapping before
+    region replacement.
   - `.inc` remains metadata-to-call emit only.
   - runtime gets a one-call RAII executor only under MIR-owned legality.
 - [ ] H25c.3 keeper probe

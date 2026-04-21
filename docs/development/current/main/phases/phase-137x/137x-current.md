@@ -154,9 +154,22 @@ collapse into one risky change.
     - runtime-owned legality from residence state.
     - benchmark-named whole-loop helper.
 - H25c.2c `single-region executor contract`
-  - status: open
+  - status: active; first MIR metadata slice landed
   - intent: open the next keeper path as a MIR-proven region replacement nested
     under `array_text_residence_sessions`, not as a new sibling plan family.
+  - H25c.2c-1 landed:
+    - `ArrayTextResidenceSessionRoute.executor_contract` is now emitted as
+      nested metadata.
+    - The current loopcarry benchmark exports:
+      - `execution_mode=single_region_executor`
+      - `proof_region=loop_backedge_single_body`
+      - `publication_boundary=none`
+      - `carrier=array_lane_text_cell`
+      - `effects=[store.cell, length_only_result_carry]`
+      - `consumer_capabilities=[sink_store, length_only]`
+      - `materialization_policy=text_resident_or_stringlike_slot`
+    - Route tests assert the contract and MIR JSON emission preserves it.
+    - Behavior is unchanged; no backend execution replacement yet.
   - contract shape:
     - `executor_contract.execution_mode = single_region_executor`
     - `proof_region = loop_backedge_single_body`
@@ -187,12 +200,15 @@ a MIR-proven single-region executor contract nested under
 `array_text_residence_sessions`.
 
 Required order:
-1. Add nested `executor_contract` metadata in MIR docs/code only after the
-   contract fields are fixed.
-2. Make `.inc` consume that metadata without CFG/raw shape rediscovery.
-3. Add a runtime-private one-call RAII executor only if MIR fully owns legality,
+1. Land nested `executor_contract` metadata in MIR docs/code.
+   - status: done for H25c.2c-1.
+2. Make `.inc` validate and consume that metadata without CFG/raw shape
+   rediscovery.
+3. Extend the MIR contract for any missing loop/PHI/exit semantics before
+   replacing the loop region.
+4. Add a runtime-private one-call RAII executor only if MIR fully owns legality,
    fallback/materialization policy, and publication boundary.
-4. Rerun exact timing and asm after behavior change.
+5. Rerun exact timing and asm after behavior change.
 
 Reject immediately if the implementation requires:
 - runtime deciding session legality from residence state
