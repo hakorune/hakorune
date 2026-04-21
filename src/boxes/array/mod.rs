@@ -12,12 +12,17 @@ use std::sync::Arc;
 
 mod ops;
 mod storage;
+mod surface_catalog;
 #[cfg(test)]
 mod tests;
 mod text_cell;
 mod traits;
 
 use storage::ArrayStorage;
+pub use surface_catalog::{
+    ArrayExposureState, ArrayMethodId, ArrayMethodSpec, ArraySurfaceEffect,
+    ArraySurfaceInvokeError, ArraySurfaceInvokeResult, ArraySurfaceReturn, ARRAY_SURFACE_METHODS,
+};
 use text_cell::ArrayTextCell;
 
 pub struct ArrayBox {

@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-16
+Date: 2026-04-22
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -14,27 +14,28 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-29bq loop owner seam cleanup landing` |
-| Front | `cleanup landing -> optimization (kilo / micro-kilo)` |
-| Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `active blocker = none; finish the narrow cleanup landing, then stay failure-driven only for the next exact blocker` |
-| Next | `return to optimization (kilo / micro-kilo)` |
-| After Next | `phase-29bq failure-driven only if a new exact blocker appears` |
+| Now | `phase-290x ArrayBox surface canonicalization` |
+| Front | `catalog/invoke seam landed -> stable smoke landed -> app follow-up` |
+| Guardrail | `phase-137x observe-only perf reopen rule` |
+| Blocker | `ArrayBox truth is split across runtime surface, dispatch, std sugar, and smoke` |
+| Next | `resume kilo editor slices (backspace merge / undo execution)` |
+| After Next | `defer slice return-type union receiver cleanup unless app work needs it` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
-  - next layer landing: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-  - roadmap SSOT: `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+  - implementation lane: `docs/development/current/main/phases/phase-290x/README.md`
+  - phase brief: `docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md`
+  - taskboard: `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
+  - inventory: `docs/development/current/main/phases/phase-290x/290x-92-arraybox-surface-inventory-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
-  - concurrency manual owner: `docs/reference/concurrency/semantics.md`
-  - concurrency runtime-plan owner: `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 
 ## Immediate Sequence
 
-1. `phase-29bq loop owner seam cleanup landing`
-2. `return to optimization (kilo / micro-kilo)`
+1. `phase-290x docs-first ArrayBox surface lock`
+2. `phase-290x implementation seam` (landed)
+3. `phase-290x stable smoke` (landed)
+4. `return to kilo editor feature slices`
 
 ## Parked Corridor
 

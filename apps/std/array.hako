@@ -25,6 +25,17 @@ static box StdArrayNy {
     return a.pop()
   }
 
+  array_insert(a, index, x) {
+    if a == null { return 0 }
+    a.insert(index, x)
+    return a.length()
+  }
+
+  array_remove(a, index) {
+    if a == null { return null }
+    return a.remove(index)
+  }
+
   array_slice(a, start, end) {
     if a == null { return new ArrayBox() }
     local n, b, e

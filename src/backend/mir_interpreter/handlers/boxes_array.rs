@@ -1,5 +1,6 @@
 use super::*;
 use crate::box_trait::NyashBox;
+use crate::boxes::array::{ArrayMethodId, ArraySurfaceInvokeResult};
 
 pub(super) fn try_handle_array_box(
     this: &mut MirInterpreter,
@@ -23,42 +24,26 @@ pub(super) fn try_handle_array_box(
                 this.write_void(dst);
                 return Ok(true);
             }
-            "push" => {
-                this.validate_args_exact("push", args, 1)?;
-                let val = this.load_as_box(args[0])?;
-                let _ = ab.push(val);
-                this.write_void(dst);
-                return Ok(true);
-            }
-            "pop" => {
-                if !args.is_empty() {
-                    return Err(this.err_invalid("pop expects 0 args"));
-                }
-                let ret = ab.pop();
-                this.write_result(dst, VMValue::from_nyash_box(ret));
-                return Ok(true);
-            }
-            "len" | "length" | "size" => {
-                let ret = ab.length();
-                this.write_result(dst, VMValue::from_nyash_box(ret));
-                return Ok(true);
-            }
-            "get" => {
-                this.validate_args_exact("get", args, 1)?;
-                let idx = this.load_as_box(args[0])?;
-                let ret = ab.get(idx);
-                this.write_result(dst, VMValue::from_nyash_box(ret));
-                return Ok(true);
-            }
-            "set" => {
-                this.validate_args_exact("set", args, 2)?;
-                let idx = this.load_as_box(args[0])?;
-                let val = this.load_as_box(args[1])?;
-                let _ = ab.set(idx, val);
-                this.write_void(dst);
-                return Ok(true);
-            }
             _ => {}
+        }
+        if let Some(method_id) = ArrayMethodId::from_name(method) {
+            this.validate_args_exact(method, args, method_id.arity())?;
+            let surface_args = args
+                .iter()
+                .map(|arg| this.load_as_box(*arg))
+                .collect::<Result<Vec<_>, _>>()?;
+            let result = ab
+                .invoke_surface(method_id, surface_args)
+                .map_err(|err| this.err_invalid(err.to_string()))?;
+            match result {
+                ArraySurfaceInvokeResult::Value(value) => {
+                    this.write_result(dst, VMValue::from_nyash_box(value));
+                }
+                ArraySurfaceInvokeResult::Void => {
+                    this.write_void(dst);
+                }
+            }
+            return Ok(true);
         }
     }
     Ok(false)

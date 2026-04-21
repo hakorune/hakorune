@@ -67,17 +67,26 @@ fn merge_method_entries(
     Box::leak(entries.into_boxed_slice())
 }
 
+fn array_surface_method_entries() -> Vec<MethodEntry> {
+    let mut entries = Vec::new();
+    for spec in crate::boxes::array::ARRAY_SURFACE_METHODS {
+        entries.push(MethodEntry {
+            name: spec.canonical,
+            arity: spec.arity,
+            slot: spec.slot,
+        });
+        for alias in spec.aliases {
+            entries.push(MethodEntry {
+                name: *alias,
+                arity: spec.arity,
+                slot: spec.slot,
+            });
+        }
+    }
+    entries
+}
+
 const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
-    MethodEntry {
-        name: "set",
-        arity: 2,
-        slot: 101,
-    },
-    MethodEntry {
-        name: "len",
-        arity: 0,
-        slot: 102,
-    },
     MethodEntry {
         name: "clear",
         arity: 0,
@@ -109,11 +118,6 @@ const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
         name: "reverse",
         arity: 0,
         slot: 110,
-    },
-    MethodEntry {
-        name: "slice",
-        arity: 2,
-        slot: 111,
     },
 ];
 
@@ -196,7 +200,8 @@ static CONSOLEBOX_TB: OnceLock<TypeBox> = OnceLock::new();
 
 fn arraybox_typebox() -> &'static TypeBox {
     ARRAYBOX_TB.get_or_init(|| {
-        let core = core_method_entries_for_box(CoreBoxId::Array);
+        let mut core = core_method_entries_for_box(CoreBoxId::Array);
+        core.extend(array_surface_method_entries());
         let methods = merge_method_entries(core, ARRAY_METHOD_EXTRAS);
         TypeBox::new_with("ArrayBox", methods)
     })

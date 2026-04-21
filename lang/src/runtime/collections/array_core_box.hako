@@ -1,6 +1,7 @@
 // ArrayCoreBox — visible ArrayBox semantics owner over array ABI/state helpers
 // Responsibility:
-// - own user-visible ArrayBox method contract in ring1 (`get/set/push/len/length/size`)
+// - own user-visible ArrayBox method contract in ring1
+//   (`get/set/push/pop/slice/remove/insert/len/length/size`)
 // - keep bounds / fallback / size-alias decisions local to the `.hako` owner
 // - delegate raw storage ops to ABI symbols or state bookkeeping helpers
 // Non-responsibility:
@@ -20,6 +21,11 @@ static box ArrayCoreBox {
   _shadow_handle_key(vid) {
     if vid == null || vid < 0 { return null }
     return "__vm.handle:" + StringHelpers.int_to_str(vid)
+  }
+
+  _recv_box_key(rid) {
+    if rid == null { return null }
+    return "__vm.recv.box:" + StringHelpers.int_to_str(rid)
   }
 
   _is_i64_text(s) {
@@ -84,6 +90,18 @@ static box ArrayCoreBox {
     me._write_i64_dst(regs, dst, 0)
   }
 
+  _write_box_handle_dst(regs, kinds, dst, handle) {
+    if dst == null { return }
+    regs.setField(StringHelpers.int_to_str(dst), StringHelpers.int_to_str(handle))
+    if kinds != null {
+      MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "box")
+    }
+    local recv_key = me._recv_box_key(dst)
+    if recv_key != null {
+      regs.setField(recv_key, "ArrayBox")
+    }
+  }
+
   _can_route_live_string_handle(arg_kind, value_h, value_text) {
     if arg_kind != "handle" { return 0 }
     if value_h == null || value_h <= 0 { return 0 }
@@ -115,12 +133,32 @@ static box ArrayCoreBox {
     return RawArrayCoreBox.slot_append_any(handle, value_any)
   }
 
-  _normalize_push_any(regs, kinds, arg0_i) {
-    local val_any = me._read_reg_i64_or_null(regs, arg0_i)
+  pop_any(handle) {
+    return RawArrayCoreBox.slot_pop_any(handle)
+  }
+
+  remove_any(handle, idx) {
+    return RawArrayCoreBox.slot_remove_any(handle, idx)
+  }
+
+  insert_any(handle, idx, value_any) {
+    return RawArrayCoreBox.slot_insert_any(handle, idx, value_any)
+  }
+
+  slice_any(handle, start, end) {
+    return RawArrayCoreBox.slot_slice_any(handle, start, end)
+  }
+
+  _normalize_surface_any(regs, kinds, arg_i) {
+    local val_any = me._read_reg_i64_or_null(regs, arg_i)
     if val_any == null { return null }
-    local arg0_kind = me._read_reg_kind_or_scalar(kinds, arg0_i)
+    local arg0_kind = me._read_reg_kind_or_scalar(kinds, arg_i)
     if arg0_kind == "handle" { return val_any }
     return externcall "nyash.box.from_i64"(val_any)
+  }
+
+  _normalize_push_any(regs, kinds, arg0_i) {
+    return me._normalize_surface_any(regs, kinds, arg0_i)
   }
 
   _record_push_owner_state(regs, per_recv, rid, key, cur_len, next_len, arg0_i) {
@@ -376,30 +414,149 @@ static box ArrayCoreBox {
     return 1
   }
 
-  _pop_visible_owner_runtime(regs, dst, recv_h) {
+  _pop_visible_owner_runtime(regs, rid, per_recv, key, recv_h, dst) {
     local len_i64 = me.len_i64(recv_h)
     if len_i64 <= 0 {
       me._emit_oob_tag("[array/empty/pop] empty array")
       return me._fail_pop_empty(regs, dst)
     }
-    return 0
+    local out = me.pop_any(recv_h)
+    local value_state = me._value_state()
+    local _old_value = ArrayStateCoreBox.pop_state_value(regs, per_recv, rid, len_i64, value_state)
+    regs.setField(key, StringHelpers.int_to_str(len_i64 - 1))
+    me._write_i64_dst(regs, dst, out)
+    me._trace("[vm/adapter/array_core:pop_any]")
+    return 1
   }
 
-  _pop_visible_owner_state_only(regs, rid, dst) {
-    local key = me._len_state_key(rid)
-    local cur_len = me._len_state_value(regs, key)
+  _pop_visible_owner_state_only(regs, rid, per_recv, key, cur_len, dst) {
     if cur_len <= 0 {
       me._emit_oob_tag("[array/empty/pop] empty array")
       return me._fail_pop_empty(regs, dst)
     }
-    return 0
+    local value_state = me._value_state()
+    local out = ArrayStateCoreBox.pop_state_value(regs, per_recv, rid, cur_len, value_state)
+    regs.setField(key, StringHelpers.int_to_str(cur_len - 1))
+    if out != null {
+      if dst != null { regs.setField(StringHelpers.int_to_str(dst), "" + out) }
+    } else {
+      me._write_zero_dst(regs, dst)
+    }
+    return 1
   }
 
-  _try_handle_pop(regs, rid, dst, recv_h) {
+  _try_handle_pop(regs, rid, per_recv, key, cur_len, dst, recv_h) {
     if recv_h != null && recv_h > 0 {
-      return me._pop_visible_owner_runtime(regs, dst, recv_h)
+      return me._pop_visible_owner_runtime(regs, rid, per_recv, key, recv_h, dst)
     }
-    return me._pop_visible_owner_state_only(regs, rid, dst)
+    return me._pop_visible_owner_state_only(regs, rid, per_recv, key, cur_len, dst)
+  }
+
+  _fail_remove_oob(regs, dst) {
+    me._write_zero_dst(regs, dst)
+    return 1
+  }
+
+  _try_handle_remove(seg, regs, rid, per_recv, key, cur_len, recv_h, dst) {
+    local arg0_i = MiniMirV1Scan.first_arg_register(seg)
+    local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
+    if idx_i64 == null { idx_i64 = me._read_reg_int_or_zero(regs, arg0_i) }
+    if idx_i64 < 0 || idx_i64 >= cur_len {
+      me._emit_oob_tag("[oob/array/remove] index out of bounds")
+      return me._fail_remove_oob(regs, dst)
+    }
+    local value_state = me._value_state()
+    if recv_h != null && recv_h > 0 {
+      local out_rt = me.remove_any(recv_h, idx_i64)
+      local _old_value_rt = ArrayStateCoreBox.remove_state_value(regs, per_recv, rid, idx_i64, cur_len, value_state)
+      regs.setField(key, StringHelpers.int_to_str(cur_len - 1))
+      me._write_i64_dst(regs, dst, out_rt)
+      me._trace("[vm/adapter/array_core:remove_any]")
+      return 1
+    }
+    local out = ArrayStateCoreBox.remove_state_value(regs, per_recv, rid, idx_i64, cur_len, value_state)
+    regs.setField(key, StringHelpers.int_to_str(cur_len - 1))
+    if out != null {
+      if dst != null { regs.setField(StringHelpers.int_to_str(dst), "" + out) }
+    } else {
+      me._write_zero_dst(regs, dst)
+    }
+    return 1
+  }
+
+  _try_handle_insert(seg, regs, kinds, rid, per_recv, key, cur_len, recv_h, dst) {
+    local arg0_i = MiniMirV1Scan.first_arg_register(seg)
+    local arg1_i = MiniMirV1Scan.nth_arg_register(seg, 1)
+    local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
+    if idx_i64 == null { idx_i64 = me._read_reg_int_or_zero(regs, arg0_i) }
+    if idx_i64 < 0 || idx_i64 > cur_len {
+      me._emit_oob_tag("[oob/array/insert] index out of bounds")
+      me._write_zero_dst(regs, dst)
+      return 1
+    }
+    local value_state = me._value_state()
+    if recv_h != null && recv_h > 0 {
+      local insert_any = me._normalize_surface_any(regs, kinds, arg1_i)
+      if insert_any == null { return 0 }
+      local rc = me.insert_any(recv_h, idx_i64, insert_any)
+      local strict = env.get("HAKO_VM_ARRAY_CORE_STRICT"); if strict == null { strict = "0" }
+      if strict == "1" && rc == 0 {
+        print("[vm/adapter/freeze:array_insert_any]")
+        return 1
+      }
+      if rc != 0 {
+        local next_len_rt = ArrayStateCoreBox.record_insert_state(regs, per_recv, rid, idx_i64, cur_len, value_state, arg1_i)
+        regs.setField(key, StringHelpers.int_to_str(next_len_rt))
+      }
+      me._write_zero_dst(regs, dst)
+      me._trace("[vm/adapter/array_core:insert_any]")
+      return 1
+    }
+    local next_len = ArrayStateCoreBox.record_insert_state(regs, per_recv, rid, idx_i64, cur_len, value_state, arg1_i)
+    regs.setField(key, StringHelpers.int_to_str(next_len))
+    me._write_zero_dst(regs, dst)
+    return 1
+  }
+
+  _slice_start(start, cur_len) {
+    if start < 0 { return 0 }
+    if start > cur_len { return cur_len + 1 }
+    return start
+  }
+
+  _slice_end(end, cur_len) {
+    if end < 0 { return cur_len }
+    if end > cur_len { return cur_len }
+    return end
+  }
+
+  _try_handle_slice(seg, regs, kinds, rid, per_recv, cur_len, recv_h, dst) {
+    local arg0_i = MiniMirV1Scan.first_arg_register(seg)
+    local arg1_i = MiniMirV1Scan.nth_arg_register(seg, 1)
+    local start_i64 = me._read_reg_i64_or_null(regs, arg0_i)
+    local end_i64 = me._read_reg_i64_or_null(regs, arg1_i)
+    if start_i64 == null { start_i64 = me._read_reg_int_or_zero(regs, arg0_i) }
+    if end_i64 == null { end_i64 = me._read_reg_int_or_zero(regs, arg1_i) }
+    if recv_h != null && recv_h > 0 {
+      local out_h = me.slice_any(recv_h, start_i64, end_i64)
+      me._write_box_handle_dst(regs, kinds, dst, out_h)
+      me._trace("[vm/adapter/array_core:slice_any]")
+      return 1
+    }
+    local start = me._slice_start(start_i64, cur_len)
+    local end = me._slice_end(end_i64, cur_len)
+    if start > cur_len || start > end {
+      start = 0
+      end = 0
+    }
+    local out_len = end - start
+    if out_len < 0 { out_len = 0 }
+    local value_state = me._value_state()
+    ArrayStateCoreBox.copy_slice_state(regs, per_recv, rid, dst, start, end, value_state)
+    local out_key = me._len_state_key(dst)
+    regs.setField(out_key, StringHelpers.int_to_str(out_len))
+    me._write_box_handle_dst(regs, kinds, dst, 0)
+    return 1
   }
 
   _try_handle_push(seg, regs, kinds, rid, per_recv, key, cur_len, recv_h, dst) {
@@ -441,7 +598,31 @@ static box ArrayCoreBox {
     }
 
     if mname == "pop" {
-      return me._try_handle_pop(regs, rid, dst, recv_h)
+      local per_recv = me._size_state_per_recv()
+      local key = me._len_state_key(rid)
+      local cur_len = me._len_state_value(regs, key)
+      return me._try_handle_pop(regs, rid, per_recv, key, cur_len, dst, recv_h)
+    }
+
+    if mname == "remove" {
+      local per_recv = me._size_state_per_recv()
+      local key = me._len_state_key(rid)
+      local cur_len = me._len_state_value(regs, key)
+      return me._try_handle_remove(seg, regs, rid, per_recv, key, cur_len, recv_h, dst)
+    }
+
+    if mname == "insert" {
+      local per_recv = me._size_state_per_recv()
+      local key = me._len_state_key(rid)
+      local cur_len = me._len_state_value(regs, key)
+      return me._try_handle_insert(seg, regs, kinds, rid, per_recv, key, cur_len, recv_h, dst)
+    }
+
+    if mname == "slice" {
+      local per_recv = me._size_state_per_recv()
+      local key = me._len_state_key(rid)
+      local cur_len = me._len_state_value(regs, key)
+      return me._try_handle_slice(seg, regs, kinds, rid, per_recv, cur_len, recv_h, dst)
     }
 
     return 0

@@ -6,43 +6,35 @@
 # - Do not store history here; phase docs and investigations own history.
 
 status = "Active"
-date = "2026-04-21"
+date = "2026-04-22"
 
-active_lane = "phase-137x-H owner-first optimization return"
-active_lane_status = "active; H45 post-observer-guard memmove/materialization owner"
-active_phase = "docs/development/current/main/phases/phase-137x/README.md"
-method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
+active_lane = "phase-290x ArrayBox surface canonicalization"
+active_lane_status = "active; catalog/invoke seam and stable smoke landed; app follow-up pending"
+active_phase = "docs/development/current/main/phases/phase-290x/README.md"
+method_anchor = "docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md"
+taskboard = "docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md"
 
-current_blocker_token = "137x-H45 post-observer-guard memmove/materialization owner"
-pre_perf_gate = "137x-F/G implementation gates before next kilo optimization"
-pre_perf_gate_status = "closed"
-optimization_return_lane = "137x-H"
+current_blocker_token = "ArrayBox surface truth is split across implementation, dispatch, and exposure"
+pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
+pre_perf_gate_status = "active guardrail"
+optimization_return_lane = "phase-137x observe-only guardrail"
 
 opened_successors = [
-  "137x-E1 minimal TextLane / ArrayStorage::Text implementation landed",
-  "137x-F runtime-wide Value Lane implementation bridge closed",
-  "137x-G allocator / arena lane pilot rejected for now",
-  "137x-H owner-first optimization return active",
+  "phase-290x docs-first ArrayBox surface canonicalization active",
+  "ArrayBox surface catalog / ArrayMethodId / invoke_surface seam landed",
+  "phase290x_arraybox_surface_catalog_vm stable smoke landed",
+  "kilo editor follow-up slices after ArrayBox surface SSOT lands",
 ]
 
 blocked_successors = [
-  "publish.any",
-  "typed map lane",
-  "heterogeneous / union array slot layout",
+  "phase-137x perf reopen without app blocker evidence",
+  "length/size drift without canonical surface owner",
+  "runtime/std/docs/smoke surface drift for ArrayBox methods",
 ]
 
 stale_pointer_patterns = [
-  "phase-137x-C owner-first optimization return",
-  "137x-C owner-first",
-  "fresh `137x-C` owner proof",
-  "optimization resumes as `137x-C`",
-  "reopen as `137x-C`",
-  "deferred 137x-C",
-  "137x-C restarts from",
-  "phase-137x-D owner-first optimization return",
-  "next `137x-D` owner proof",
-  "continue `137x-D` only by owner-first evidence",
-  "phase-289x stays parked as planning-only",
-  "`publish.any`, `TextLane`, typed map lane, runtime-wide Value Lane, and allocator/arena work remain blocked/deferred",
+  "ArrayBox.insert(index, value) = missing runtime surface",
+  "ArrayBox.remove(index) = runtime exists, but std/docs/smoke surface is still thin",
+  "phase-137x-H owner-first optimization return",
+  "active app slice: `apps/kilo_nyash/enhanced_kilo_editor.hako`",
 ]

@@ -199,6 +199,139 @@ fn slot_insert_const_mid_lenhalf_raw_mutates_mixed_boxed_string_slot() {
 }
 
 #[test]
+fn slot_insert_box_raw_preserves_inline_i64_lane() {
+    let array = ArrayBox::new();
+    assert!(array.slot_store_i64_raw(0, 10));
+    assert!(array.slot_store_i64_raw(1, 30));
+
+    assert!(array.slot_insert_box_raw(1, Box::new(IntegerBox::new(20))));
+    assert!(array.uses_inline_i64_slots());
+    assert_eq!(array.slot_load_i64_raw(0), Some(10));
+    assert_eq!(array.slot_load_i64_raw(1), Some(20));
+    assert_eq!(array.slot_load_i64_raw(2), Some(30));
+}
+
+#[test]
+fn slot_insert_box_raw_preserves_text_lane() {
+    let array = ArrayBox::new();
+    assert!(array.slot_store_text_raw(0, "Alpha".to_string()));
+    assert!(array.slot_store_text_raw(1, "Gamma".to_string()));
+
+    assert!(array.slot_insert_box_raw(1, Box::new(StringBox::new("Beta"))));
+    assert!(array.uses_text_slots());
+    assert_eq!(
+        array.slot_with_text_raw(0, str::to_owned).as_deref(),
+        Some("Alpha")
+    );
+    assert_eq!(
+        array.slot_with_text_raw(1, str::to_owned).as_deref(),
+        Some("Beta")
+    );
+    assert_eq!(
+        array.slot_with_text_raw(2, str::to_owned).as_deref(),
+        Some("Gamma")
+    );
+}
+
+#[test]
+fn invoke_surface_routes_insert_remove_and_length_alias() {
+    let array = ArrayBox::new();
+    assert!(matches!(
+        array
+            .invoke_surface(
+                ArrayMethodId::Push,
+                vec![Box::new(IntegerBox::new(10)) as Box<dyn NyashBox>],
+            )
+            .unwrap(),
+        ArraySurfaceInvokeResult::Void
+    ));
+
+    assert!(matches!(
+        array
+            .invoke_surface(
+                ArrayMethodId::Set,
+                vec![
+                    Box::new(IntegerBox::new(0)) as Box<dyn NyashBox>,
+                    Box::new(IntegerBox::new(11)) as Box<dyn NyashBox>,
+                ],
+            )
+            .unwrap(),
+        ArraySurfaceInvokeResult::Void
+    ));
+
+    let get = array
+        .invoke_surface(
+            ArrayMethodId::Get,
+            vec![Box::new(IntegerBox::new(0)) as Box<dyn NyashBox>],
+        )
+        .unwrap();
+    match get {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "11");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("get must return a value"),
+    }
+
+    let insert_result = array
+        .invoke_surface(
+            ArrayMethodId::Insert,
+            vec![
+                Box::new(IntegerBox::new(1)) as Box<dyn NyashBox>,
+                Box::new(StringBox::new("Alpha")) as Box<dyn NyashBox>,
+            ],
+        )
+        .unwrap();
+    assert!(matches!(insert_result, ArraySurfaceInvokeResult::Void));
+
+    let length = array
+        .invoke_surface(ArrayMethodId::from_name("size").unwrap(), vec![])
+        .unwrap();
+    match length {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "2");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("length must return a value"),
+    }
+
+    let slice = array
+        .invoke_surface(
+            ArrayMethodId::Slice,
+            vec![
+                Box::new(IntegerBox::new(0)) as Box<dyn NyashBox>,
+                Box::new(IntegerBox::new(1)) as Box<dyn NyashBox>,
+            ],
+        )
+        .unwrap();
+    match slice {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "[11]");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("slice must return a value"),
+    }
+
+    let removed = array
+        .invoke_surface(
+            ArrayMethodId::Remove,
+            vec![Box::new(IntegerBox::new(1)) as Box<dyn NyashBox>],
+        )
+        .unwrap();
+    match removed {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "Alpha");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("remove must return a value"),
+    }
+
+    let popped = array.invoke_surface(ArrayMethodId::Pop, vec![]).unwrap();
+    match popped {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "11");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("pop must return a value"),
+    }
+}
+
+#[test]
 fn combined_region_all_hit_appends_each_observer_period() {
     let array = ArrayBox::new();
     for idx in 0..4 {

@@ -4,8 +4,8 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 29bq selfhost mirbuilder failure-driven
-- **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Current (ACTIVE)**: Phase 290x ArrayBox surface canonicalization
+- **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection (observe-only)
 
 ## Planned / Parked Successors
 

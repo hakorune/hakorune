@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-21
+Date: 2026-04-22
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -29,13 +29,36 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H46 text-cell residence/materialization design)
+  - app lane is primary
+  - current-state token: `phase-290x ArrayBox surface canonicalization`
+  - app proving ground: `apps/kilo_nyash/enhanced_kilo_editor.hako`
+  - active phase: `docs/development/current/main/phases/phase-290x/README.md`
+  - method anchor: `docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md`
+  - taskboard: `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
+  - current implementation focus: `ArrayBox` surface canonicalization
+  - current phase goal:
+    - split `ArrayBox` truth into `surface contract / execution dispatch / exposure state`
+    - lock `length()` as canonical and `size()` as compatibility alias
+    - keep the landed `surface_catalog.rs` + `ArrayMethodId` + `ArrayBox::invoke_surface(...)` seam as the first code-side owner
+    - stable surface smoke is landed before returning to kilo editor slices
+  - current app gap read:
+    - `ArrayBox.insert(index, value)` is now landed
+    - `ArrayBox.remove(index)` is now surfaced through std/smoke
+    - first stable ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
+    - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins catalog/invoke plus VM visible-owner routes
+    - static-box `me.*` friction remains a separate semantics/diagnostics topic
+    - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
+    - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
+  - current blocker token: `ArrayBox surface truth is split across implementation, dispatch, and exposure`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H46 text-cell residence/materialization design`
+  - phase-137x blocker remains recorded as `137x-H46 text-cell residence/materialization design`
+  - stop rule:
+    - app lane is primary; phase-137x is observe-only unless app work is actually blocked
+    - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -171,6 +194,10 @@ Related:
       inside the combined executor (`0x415d90`, `0x415e8f`, `0x416152`)
     - H46 active: broaden to text-cell residence/materialization design; do not
       reopen suffix/left-copy micro leaves as standalone probes
+    - H46.1 bounded `MidGap + bridge` probe was rejected and reverted:
+      `Ny AOT 22 ms`, `ny_aot_instr=142651499`, `ny_aot_cycles=90126830`,
+      `__memmove 54.59%`, `_int_malloc 21.74%`; post-revert whole guard is back
+      at `Ny AOT 5 ms`, `ny_aot_instr=24123290`, `ny_aot_cycles=6044833`
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`
@@ -180,7 +207,8 @@ Related:
     - keep array slot stores unchanged unless a separate MIR-owned no-escape / consumer proof is opened
     - H17 is closed: exact `kilo_micro_array_string_store` stays `C 10 ms / Ny AOT 5 ms`, `ny_aot_instr=10870861`, `ny_aot_cycles=9526782`, and the loop-body `text+16` terminator store is gone
   - active phase:
-    - `docs/development/current/main/phases/phase-137x/README.md`
+    - `docs/development/current/main/phases/phase-290x/README.md`
+    - sibling guardrail: `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
     - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
   - taskboard:

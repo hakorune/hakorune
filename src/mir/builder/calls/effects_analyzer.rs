@@ -46,10 +46,23 @@ impl EffectsAnalyzerBox {
             Callee::Method {
                 method, box_name, ..
             } => {
+                if box_name == "ArrayBox" {
+                    if let Some(method_id) = crate::boxes::array::ArrayMethodId::from_name(method) {
+                        return match method_id.effect() {
+                            crate::boxes::array::ArraySurfaceEffect::Read => EffectMask::READ,
+                            crate::boxes::array::ArraySurfaceEffect::WriteHeap => {
+                                EffectMask::READ.add(Effect::WriteHeap)
+                            }
+                        };
+                    }
+                }
+
                 match method.as_str() {
                     "birth" => EffectMask::PURE.add(Effect::Alloc),
                     "get" | "length" | "size" => EffectMask::READ,
-                    "set" | "push" | "pop" => EffectMask::READ.add(Effect::WriteHeap),
+                    "set" | "push" | "pop" | "insert" | "remove" | "clear" => {
+                        EffectMask::READ.add(Effect::WriteHeap)
+                    }
                     _ => {
                         // Check if it's a known pure method
                         if Self::is_pure_method(box_name, method) {

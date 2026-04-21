@@ -8,6 +8,8 @@ use crate::backend::mir_interpreter::handlers::temp_dispatch::{
     TMP_OUT_OBJECT_FIELD_METHOD_BRIDGE, TMP_RECV_INSTANCE_FIELD_OP,
     TMP_RECV_INSTANCE_METHOD_BRIDGE, TMP_RECV_OBJECT_FIELD_METHOD_BRIDGE,
 };
+use crate::box_trait::NyashBox;
+use crate::boxes::array::{ArrayBox, ArrayMethodId, ArraySurfaceInvokeResult};
 use crate::boxes::string_ops;
 use crate::config::env;
 use crate::runtime::get_global_ring0;
@@ -19,6 +21,41 @@ mod dispatch;
 mod tests;
 
 impl MirInterpreter {
+    fn load_array_surface_args(
+        &mut self,
+        method_id: ArrayMethodId,
+        args: &[ValueId],
+    ) -> Result<Vec<Box<dyn NyashBox>>, VMError> {
+        let expected = method_id.arity();
+        if args.len() < expected {
+            return Err(self.err_invalid(format!(
+                "ArrayBox.{}: invalid receiver or missing arguments",
+                method_id.canonical_name()
+            )));
+        }
+
+        args.iter()
+            .take(expected)
+            .map(|arg| self.load_as_box(*arg))
+            .collect()
+    }
+
+    fn invoke_array_surface(
+        &mut self,
+        array: &ArrayBox,
+        method_id: ArrayMethodId,
+        args: &[ValueId],
+    ) -> Result<VMValue, VMError> {
+        let surface_args = self.load_array_surface_args(method_id, args)?;
+        let result = array
+            .invoke_surface(method_id, surface_args)
+            .map_err(|err| self.err_invalid(err.to_string()))?;
+        Ok(match result {
+            ArraySurfaceInvokeResult::Value(value) => VMValue::from_nyash_box(value),
+            ArraySurfaceInvokeResult::Void => VMValue::Void,
+        })
+    }
+
     fn normalize_plugin_method_args<'a>(
         &mut self,
         receiver: &VMValue,
@@ -133,38 +170,12 @@ impl MirInterpreter {
             // Preserve legacy semantics when plugins are absent.
             if let VMValue::BoxRef(bx) = &recv_val {
                 // ArrayBox bridge
-                if let Some(arr) = bx.as_any().downcast_ref::<crate::boxes::array::ArrayBox>() {
-                    match method {
-                        "birth" => {
-                            return Ok(VMValue::Void);
-                        }
-                        "push" => {
-                            if let Some(a0) = args.get(0) {
-                                let v = self.load_as_box(*a0)?;
-                                let _ = arr.push(v);
-                                return Ok(VMValue::Void);
-                            }
-                        }
-                        "len" | "length" | "size" => {
-                            let ret = arr.length();
-                            return Ok(VMValue::from_nyash_box(ret));
-                        }
-                        "get" => {
-                            if let Some(a0) = args.get(0) {
-                                let idx = self.load_as_box(*a0)?;
-                                let ret = arr.get(idx);
-                                return Ok(VMValue::from_nyash_box(ret));
-                            }
-                        }
-                        "set" => {
-                            if args.len() >= 2 {
-                                let idx = self.load_as_box(args[0])?;
-                                let val = self.load_as_box(args[1])?;
-                                let _ = arr.set(idx, val);
-                                return Ok(VMValue::Void);
-                            }
-                        }
-                        _ => {}
+                if let Some(arr) = bx.as_any().downcast_ref::<ArrayBox>() {
+                    if method == "birth" {
+                        return Ok(VMValue::Void);
+                    }
+                    if let Some(method_id) = ArrayMethodId::from_name(method) {
+                        return self.invoke_array_surface(arr, method_id, args);
                     }
                 }
             }

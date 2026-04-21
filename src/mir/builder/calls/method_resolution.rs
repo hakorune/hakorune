@@ -115,7 +115,7 @@ pub fn has_method(box_name: &str, method: &str) -> bool {
         "ConsoleStd" => matches!(method, "print" | "println" | "log"),
         "StringBox" => matches!(method, "upper" | "lower" | "length" | "concat" | "slice"),
         "IntegerBox" => matches!(method, "add" | "sub" | "mul" | "div"),
-        "ArrayBox" => matches!(method, "push" | "pop" | "get" | "set" | "length"),
+        "ArrayBox" => crate::boxes::array::ArrayMethodId::from_name(method).is_some(),
         "MapBox" => matches!(method, "get" | "set" | "has" | "delete"),
         "MathBox" => matches!(method, "sin" | "cos" | "abs" | "min" | "max"),
         _ => false, // Conservative: assume no method unless explicitly known

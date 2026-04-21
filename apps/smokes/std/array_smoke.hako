@@ -15,10 +15,19 @@ static box Main {
     if A.array_push(a, 20) != 2 { fails = fails + 1 }
     if A.array_len(a) != 2 { fails = fails + 1 }
 
+    // insert
+    if A.array_insert(a, 1, 15) != 3 { fails = fails + 1 }
+    if a.get(0) != 10 { fails = fails + 1 }
+    if a.get(1) != 15 { fails = fails + 1 }
+    if a.get(2) != 20 { fails = fails + 1 }
+
     // pop
     local v
     v = A.array_pop(a)
     if v != 20 { fails = fails + 1 }
+    if A.array_len(a) != 2 { fails = fails + 1 }
+    v = A.array_remove(a, 1)
+    if v != 15 { fails = fails + 1 }
     if A.array_len(a) != 1 { fails = fails + 1 }
     // pop remaining and one extra -> null
     v = A.array_pop(a)

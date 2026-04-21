@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-21
+Date: 2026-04-22
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -50,8 +50,47 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H46 text-cell residence/materialization design)
-  - current blocker is `137x-H46 text-cell residence/materialization design`
+  - app lane is primary now
+  - current-state token:
+    - `phase-290x ArrayBox surface canonicalization`
+  - active phase:
+    - `docs/development/current/main/phases/phase-290x/README.md`
+  - method anchor:
+    - `docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md`
+  - taskboard:
+    - `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
+  - current app slice:
+    - `apps/kilo_nyash/enhanced_kilo_editor.hako`
+    - replace-all is real
+    - line split is real and now uses native `ArrayBox.insert()`
+  - phase-137x remains observe-only
+  - current perf blocker stays recorded as `137x-H46 text-cell residence/materialization design`, but it does not preempt app work unless app implementation is actually blocked
+  - current ArrayBox phase goal:
+    - split `ArrayBox` truth into:
+      - `surface contract`
+      - `execution dispatch`
+      - `exposure state`
+    - document `length()` as canonical and `size()` as compatibility alias
+    - keep the landed first implementation seam:
+      - `src/boxes/array/surface_catalog.rs`
+      - `ArrayMethodId`
+      - `ArrayBox::invoke_surface(...)`
+    - stable Array surface smoke is landed:
+      - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh`
+    - next: return to kilo editor feature slices unless ArrayBox drift reappears
+  - current app/runtime gap read:
+    - `ArrayBox.insert(index, value)` is landed
+    - `ArrayBox.remove(index)` is surfaced
+    - first stable ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
+    - stable smoke now pins catalog/invoke plus VM visible-owner routes
+    - static-box receiver friction remains a semantics/diagnostics issue
+    - direct source `slice()` result currently lowers follow-up calls through a `RuntimeDataBox` union receiver; slice semantics are pinned by `ArrayBox::invoke_surface(...)` while that separate return-type topic remains deferred
+    - two-arg `lastIndexOf` remains a separate runtime gap
+  - current blocker token:
+    - `ArrayBox surface truth is split across implementation, dispatch, and exposure`
+  - stop rule:
+    - app lane is primary; phase-137x is observe-only unless app work is actually blocked
+    - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -992,6 +1031,12 @@ Scope: current lane / next lane / restart order only.
             `137x-H46 text-cell residence/materialization design`
           - treat the owner as broad text-cell residence/materialization, not a
             fresh suffix/left-copy micro leaf
+          - H46.1 bounded `MidGap + bridge` probe was rejected and reverted:
+            `Ny AOT 22 ms`, `ny_aot_instr=142651499`,
+            `ny_aot_cycles=90126830`, `__memmove 54.59%`,
+            `_int_malloc 21.74%`
+          - post-revert whole guard is back at `Ny AOT 5 ms`,
+            `ny_aot_instr=24123290`, `ny_aot_cycles=6044833`
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

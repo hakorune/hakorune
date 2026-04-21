@@ -200,55 +200,18 @@ impl MirInterpreter {
             }
 
             // ArrayBox methods (slot 100+)
-            ("ArrayBox", 100) => {
-                // get
+            ("ArrayBox", slot) if crate::boxes::array::ArrayMethodId::from_slot(slot).is_some() => {
+                let method_id = crate::boxes::array::ArrayMethodId::from_slot(slot)
+                    .expect("checked ArrayMethodId slot");
                 if let VMValue::BoxRef(bx) = receiver {
                     if let Some(arr) = bx.as_any().downcast_ref::<crate::boxes::array::ArrayBox>() {
-                        if let Some(a0) = args.get(0) {
-                            let idx = self.load_as_box(*a0)?;
-                            let ret = arr.get(idx);
-                            return Ok(VMValue::from_nyash_box(ret));
-                        }
+                        return self.invoke_array_surface(arr, method_id, args);
                     }
                 }
-                Err(self.err_invalid("ArrayBox.get: invalid receiver or missing argument"))
-            }
-            ("ArrayBox", 101) => {
-                // set
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(arr) = bx.as_any().downcast_ref::<crate::boxes::array::ArrayBox>() {
-                        if args.len() >= 2 {
-                            let idx = self.load_as_box(args[0])?;
-                            let val = self.load_as_box(args[1])?;
-                            let _ = arr.set(idx, val);
-                            return Ok(VMValue::Void);
-                        }
-                    }
-                }
-                Err(self.err_invalid("ArrayBox.set: invalid receiver or missing arguments"))
-            }
-            ("ArrayBox", 102) => {
-                // len/length
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(arr) = bx.as_any().downcast_ref::<crate::boxes::array::ArrayBox>() {
-                        let ret = arr.length();
-                        return Ok(VMValue::from_nyash_box(ret));
-                    }
-                }
-                Err(self.err_invalid("ArrayBox.length: invalid receiver"))
-            }
-            ("ArrayBox", 103) => {
-                // push
-                if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(arr) = bx.as_any().downcast_ref::<crate::boxes::array::ArrayBox>() {
-                        if let Some(a0) = args.get(0) {
-                            let v = self.load_as_box(*a0)?;
-                            let _ = arr.push(v);
-                            return Ok(VMValue::Void);
-                        }
-                    }
-                }
-                Err(self.err_invalid("ArrayBox.push: invalid receiver or missing argument"))
+                Err(self.err_invalid(format!(
+                    "ArrayBox.{}: invalid receiver",
+                    method_id.canonical_name()
+                )))
             }
 
             // MapBox methods (slot 200+)

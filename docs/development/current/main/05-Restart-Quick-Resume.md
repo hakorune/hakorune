@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-21
+Date: 2026-04-22
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -32,15 +32,26 @@ cargo check -q
 ## Current Lane
 
 - lane:
-  - `phase-137x-H owner-first optimization return` (active; H46 text-cell residence/materialization design)
-- blocker:
+  - app lane is primary
+  - current-state token: `phase-290x ArrayBox surface canonicalization`
+  - app proving ground: `apps/kilo_nyash/enhanced_kilo_editor.hako`
+  - active phase: `docs/development/current/main/phases/phase-290x/README.md`
+- app focus:
+  - `ArrayBox` surface canonicalization
+  - catalog/invoke seam is landed for the first stable surface
+  - stable smoke is landed:
+    - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh`
+  - lock `length()` canonical / `size()` alias before broadening implementation work
+- perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
-  - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+  - `docs/development/current/main/phases/phase-290x/290x-90-arraybox-surface-canonicalization-design-brief.md`
 - active entry:
-  - `docs/development/current/main/phases/phase-137x/137x-current.md`
+  - `docs/development/current/main/phases/phase-290x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
+- current blocker token:
+  - `ArrayBox surface truth is split across implementation, dispatch, and exposure`
 
 ## Current Perf Snapshot
 
@@ -52,6 +63,12 @@ cargo check -q
   - `kilo_kernel_small = C 83 ms / Ny AOT 5 ms`
   - `ny_aot_instr=24122891`
   - `ny_aot_cycles=5842445`
+- latest reject/revert:
+  - bounded `MidGap + bridge` H46.1 probe regressed to `Ny AOT 22 ms`,
+    `ny_aot_instr=142651499`, `ny_aot_cycles=90126830`
+  - perf top moved cost into `__memmove 54.59%` and `_int_malloc 21.74%`
+  - post-revert whole guard is back at `Ny AOT 5 ms`,
+    `ny_aot_instr=24123290`, `ny_aot_cycles=6044833`
 - exact guard:
   - `kilo_micro_array_string_store = C 11 ms / Ny AOT 3 ms`
   - `ny_aot_instr=9265721`
@@ -68,12 +85,15 @@ cargo check -q
 
 ## Immediate Next
 
-- H46 first step:
-  - open the broader text-cell residence/materialization design card
-  - treat the residual owner as one combined `ArrayTextCell` edit /
-    materialization family, not another suffix / left-copy micro leaf
-- allowed next code shape:
-  - BoxShape-only residence/materialization design
+- app priority:
+  - return to kilo editor feature slices unless ArrayBox drift reappears
+  - keep `src/boxes/array/surface_catalog.rs` as the first surface authoring point
+  - keep phase-137x at observe-only unless app work produces a real blocker
+- perf reopen rule:
+  - `137x-E` is already closed enough (`E0` closed, `E1` landed)
+  - do not reopen helper-local perf cards from curiosity or local neatness
+  - open a new perf card only when app work is actually blocked, the owner is
+    pinned to one family, and the slice fits in one rollback-safe card
 - forbidden drift:
   - no more suffix/left-copy micro leaves without a new sampled source block
   - no `.inc` planner regression
@@ -84,9 +104,11 @@ cargo check -q
 
 - worktree should be clean after the last commit.
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
+- the current docs front is phase-290x, not the old “insert missing” app-gap note.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.
 - history lives in phase docs, not this file:
-  - `docs/development/current/main/phases/phase-137x/137x-current.md`
+  - `docs/development/current/main/phases/phase-290x/README.md`
+  - `docs/development/current/main/phases/phase-290x/290x-91-arraybox-surface-task-board.md`
   - `docs/development/current/main/phases/phase-137x/README.md`

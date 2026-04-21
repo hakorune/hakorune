@@ -299,9 +299,15 @@ static box MirCallV1HandlerBox {
         // Try to resolve box type/name for logging/fallbacks
         local recv_id = MiniMirV1Scan.receiver_id(seg)
         local btype = JsonFragBox.get_str(seg, "box_name"); if btype == null { btype = JsonFragBox.get_str(seg, "box_type") }
+        local recv_hint = me._recv_box_key(recv_id)
         if btype == null {
-          local recv_hint = me._recv_box_key(recv_id)
           if recv_hint != null { btype = regs.getField(recv_hint) }
+        }
+        if btype == "RuntimeDataBox" && recv_hint != null {
+          local hinted_btype = regs.getField(recv_hint)
+          if hinted_btype != null && hinted_btype != "" {
+            btype = hinted_btype
+          }
         }
         if btype == "ArrayBox" && mname == "birth" {
           return

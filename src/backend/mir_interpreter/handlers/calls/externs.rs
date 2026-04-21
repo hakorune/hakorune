@@ -31,6 +31,9 @@ fn collection_any_arg_to_box(arg: i64) -> Box<dyn NyashBox> {
 }
 
 fn collection_box_to_runtime_i64(value: &dyn NyashBox) -> i64 {
+    if crate::boxes::null_box::NullBox::check_null(value) {
+        return 0;
+    }
     if let Some(iv) = value.as_i64_fast() {
         return iv;
     }
@@ -218,6 +221,106 @@ impl MirInterpreter {
                     })
                 };
                 Ok(VMValue::Integer(next_len))
+            }
+            "nyash.array.slot_pop_h" => {
+                if args.len() < 1 {
+                    return Err(self.err_arg_count("nyash.array.slot_pop_h", 1, args.len()));
+                }
+                let handle = self.reg_load(args[0])?.as_integer().unwrap_or(0);
+                let out = if handle <= 0 {
+                    0
+                } else {
+                    crate::runtime::host_handles::with_handle(handle as u64, |obj| {
+                        obj.and_then(|obj| {
+                            obj.as_any()
+                                .downcast_ref::<crate::boxes::array::ArrayBox>()
+                                .map(|arr| {
+                                    let value = arr.pop();
+                                    collection_box_to_runtime_i64(value.as_ref())
+                                })
+                        })
+                        .unwrap_or(0)
+                    })
+                };
+                Ok(VMValue::Integer(out))
+            }
+            "nyash.array.slot_remove_hi" => {
+                if args.len() < 2 {
+                    return Err(self.err_arg_count("nyash.array.slot_remove_hi", 2, args.len()));
+                }
+                let handle = self.reg_load(args[0])?.as_integer().unwrap_or(0);
+                let idx = self.reg_load(args[1])?.as_integer().unwrap_or(0);
+                let out = if handle <= 0 {
+                    0
+                } else {
+                    crate::runtime::host_handles::with_handle(handle as u64, |obj| {
+                        obj.and_then(|obj| {
+                            obj.as_any()
+                                .downcast_ref::<crate::boxes::array::ArrayBox>()
+                                .map(|arr| {
+                                    let value = arr.remove(Box::new(IntegerBox::new(idx)));
+                                    collection_box_to_runtime_i64(value.as_ref())
+                                })
+                        })
+                        .unwrap_or(0)
+                    })
+                };
+                Ok(VMValue::Integer(out))
+            }
+            "nyash.array.slot_insert_hih" => {
+                if args.len() < 3 {
+                    return Err(self.err_arg_count("nyash.array.slot_insert_hih", 3, args.len()));
+                }
+                let handle = self.reg_load(args[0])?.as_integer().unwrap_or(0);
+                let idx = self.reg_load(args[1])?.as_integer().unwrap_or(0);
+                let value = self.reg_load(args[2])?.as_integer().unwrap_or(0);
+                let rc = if handle <= 0 {
+                    0
+                } else {
+                    crate::runtime::host_handles::with_handle(handle as u64, |obj| {
+                        obj.and_then(|obj| {
+                            obj.as_any()
+                                .downcast_ref::<crate::boxes::array::ArrayBox>()
+                                .map(|arr| {
+                                    if arr.slot_insert_box_raw(idx, collection_any_arg_to_box(value))
+                                    {
+                                        1
+                                    } else {
+                                        0
+                                    }
+                                })
+                        })
+                        .unwrap_or(0)
+                    })
+                };
+                Ok(VMValue::Integer(rc))
+            }
+            "nyash.array.slice_hii" => {
+                if args.len() < 3 {
+                    return Err(self.err_arg_count("nyash.array.slice_hii", 3, args.len()));
+                }
+                let handle = self.reg_load(args[0])?.as_integer().unwrap_or(0);
+                let start = self.reg_load(args[1])?.as_integer().unwrap_or(0);
+                let end = self.reg_load(args[2])?.as_integer().unwrap_or(0);
+                let out = if handle <= 0 {
+                    0
+                } else {
+                    crate::runtime::host_handles::with_handle(handle as u64, |obj| {
+                        obj.and_then(|obj| {
+                            obj.as_any()
+                                .downcast_ref::<crate::boxes::array::ArrayBox>()
+                                .map(|arr| {
+                                    let value = arr.slice(
+                                        Box::new(IntegerBox::new(start)),
+                                        Box::new(IntegerBox::new(end)),
+                                    );
+                                    collection_box_to_runtime_i64(value.as_ref())
+                                })
+                        })
+                        .unwrap_or(0)
+                    })
+                };
+                Ok(VMValue::Integer(out))
             }
             // Minimal console externs
             "nyash.console.log" | "env.console.log" | "print" | "nyash.builtin.print" => {

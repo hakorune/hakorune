@@ -9,11 +9,17 @@
 
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box ArrayStateCoreBox {
+  reg_value_or_null(regs, id) {
+    if id == null || id < 0 { return null }
+    return MirVmS0StateOpsBox.storage_get_or_null(regs, StringHelpers.int_to_str(id))
+  }
+
   record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id) {
     if value_state == "1" && arg0_id != null && arg0_id >= 0 {
-      local val_str = regs.getField(StringHelpers.int_to_str(arg0_id))
+      local val_str = me.reg_value_or_null(regs, arg0_id)
       if val_str != null {
         local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, cur_len)
         regs.setField(val_key, "" + val_str)
@@ -26,7 +32,7 @@ static box ArrayStateCoreBox {
     local next_len = cur_len
     if idx + 1 > next_len { next_len = idx + 1 }
     if value_state == "1" && arg1_id != null && arg1_id >= 0 {
-      local val_str = regs.getField(StringHelpers.int_to_str(arg1_id))
+      local val_str = me.reg_value_or_null(regs, arg1_id)
       if val_str != null {
         local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
         regs.setField(val_key, "" + val_str)
@@ -47,6 +53,88 @@ static box ArrayStateCoreBox {
 
   get_state_value(regs, per_recv, rid, idx) {
     local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
-    return regs.getField(val_key)
+    return MirVmS0StateOpsBox.storage_get_or_null(regs, val_key)
+  }
+
+  clear_state_value(regs, per_recv, rid, idx) {
+    local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+    regs.setField(val_key, null)
+  }
+
+  set_state_value(regs, per_recv, rid, idx, value) {
+    local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+    regs.setField(val_key, "" + value)
+  }
+
+  record_insert_state(regs, per_recv, rid, idx, cur_len, value_state, arg_id) {
+    if idx < 0 { return cur_len }
+    if idx > cur_len { return cur_len }
+    if value_state == "1" {
+      local i = cur_len
+      loop(i > idx) {
+        local prev = me.get_state_value(regs, per_recv, rid, i - 1)
+        if prev != null {
+          me.set_state_value(regs, per_recv, rid, i, prev)
+        } else {
+          me.clear_state_value(regs, per_recv, rid, i)
+        }
+        i = i - 1
+      }
+      if arg_id != null && arg_id >= 0 {
+        local val_str = me.reg_value_or_null(regs, arg_id)
+        if val_str != null {
+          me.set_state_value(regs, per_recv, rid, idx, val_str)
+        }
+      }
+    }
+    return cur_len + 1
+  }
+
+  pop_state_value(regs, per_recv, rid, cur_len, value_state) {
+    if cur_len <= 0 { return null }
+    local idx = cur_len - 1
+    local val_str = null
+    if value_state == "1" {
+      val_str = me.get_state_value(regs, per_recv, rid, idx)
+      me.clear_state_value(regs, per_recv, rid, idx)
+    }
+    return val_str
+  }
+
+  remove_state_value(regs, per_recv, rid, idx, cur_len, value_state) {
+    if idx < 0 { return null }
+    if idx >= cur_len { return null }
+    local val_str = null
+    if value_state == "1" {
+      val_str = me.get_state_value(regs, per_recv, rid, idx)
+      local i = idx
+      loop(i + 1 < cur_len) {
+        local next_val = me.get_state_value(regs, per_recv, rid, i + 1)
+        if next_val != null {
+          me.set_state_value(regs, per_recv, rid, i, next_val)
+        } else {
+          me.clear_state_value(regs, per_recv, rid, i)
+        }
+        i = i + 1
+      }
+      me.clear_state_value(regs, per_recv, rid, cur_len - 1)
+    }
+    return val_str
+  }
+
+  copy_slice_state(regs, per_recv, src_rid, dst_rid, start, end, value_state) {
+    if value_state != "1" { return }
+    local out_idx = 0
+    local i = start
+    loop(i < end) {
+      local val_str = me.get_state_value(regs, per_recv, src_rid, i)
+      if val_str != null {
+        me.set_state_value(regs, per_recv, dst_rid, out_idx, val_str)
+      } else {
+        me.clear_state_value(regs, per_recv, dst_rid, out_idx)
+      }
+      out_idx = out_idx + 1
+      i = i + 1
+    }
   }
 }

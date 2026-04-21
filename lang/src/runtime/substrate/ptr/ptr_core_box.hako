@@ -28,6 +28,22 @@ static box PtrCoreBox {
     return externcall "nyash.array.slot_append_hh"(handle, value_any)
   }
 
+  slot_pop_any(handle) {
+    return externcall "nyash.array.slot_pop_h"(handle)
+  }
+
+  slot_remove_any(handle, idx) {
+    return externcall "nyash.array.slot_remove_hi"(handle, idx)
+  }
+
+  slot_insert_any(handle, idx, value_any) {
+    return externcall "nyash.array.slot_insert_hih"(handle, idx, value_any)
+  }
+
+  slot_slice_any(handle, start, end) {
+    return externcall "nyash.array.slice_hii"(handle, start, end)
+  }
+
   slot_reserve_i64(handle, additional) {
     return externcall "nyash.array.slot_reserve_hi"(handle, additional)
   }
