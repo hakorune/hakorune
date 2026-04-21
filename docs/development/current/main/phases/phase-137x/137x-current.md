@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39.1 post-mid-gap owner split design`
+- current blocker token: `137x-H39.2 outer edit lock-boundary design`
 - current benchmark state:
   - `C 83 ms / Ny AOT 6 ms`
-  - `ny_aot_instr=60923714`
-  - `ny_aot_cycles=12531473`
+  - `ny_aot_instr=60443810`
+  - `ny_aot_cycles=11322220`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -942,7 +942,7 @@ Verdict:
   - outer edit lock-boundary, likely requiring a MIR-proven region boundary.
   - observer-store cell-loop mechanics, runtime-only if it stays generic.
 
-### H39.1 Active
+### H39.1 Result
 
 Goal: choose the next seam after H39.
 
@@ -957,6 +957,70 @@ Goal: choose the next seam after H39.
 - first step:
   - compare expected win and rollback size.
   - write the selected implementation card before code.
+
+Selected first probe:
+
+- choose candidate B first because it is runtime-only and has small rollback.
+- H39.1 implementation card: MidGap generic prefix fast path.
+- rationale:
+  - observer-store hot path repeatedly calls `contains_literal` on MidGap text.
+  - a prefix hit is a valid generic literal fact, not a source-content branch
+    and not a search-result cache.
+  - if this is non-win, reject it and return to candidate A's MIR region
+    design.
+- acceptance:
+  - behavior tests stay green.
+  - whole `kilo_kernel_small` stat/asm is rerun from rebuilt release.
+  - reject if observer-store closure does not shrink or if exact/middle
+    guards regress.
+
+Implementation:
+
+- added a runtime-only generic prefix literal hit before the full MidGap
+  segmented search.
+- no MIR, `.inc`, public ABI, source-content branch, or search-result cache.
+
+Verification:
+
+- `cargo fmt --check`
+- `git diff --check`
+- `cargo test -q array::text_cell --lib`
+- release artifacts rebuilt with `tools/perf/build_perf_release.sh`
+
+Perf:
+
+- whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`
+- `ny_aot_instr=60443810`, `ny_aot_cycles=11322220`
+- asm top:
+  - observer-store closure: `51.21%`
+  - len-half edit closure: `30.53%`
+  - `__memmove_avx512_unaligned_erms`: `4.62%`
+- guards:
+  - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9266628`, `ny_aot_cycles=2432139`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry =
+    C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=17651373`,
+    `ny_aot_cycles=4229069`
+
+Verdict:
+
+- small keeper: whole cycles improve from H38.1's `12531473` to `11322220`.
+- next seam is the outer edit lock-boundary.
+
+### H39.2 Active
+
+Goal: design the outer edit lock-boundary reduction.
+
+- current proof:
+  - len-half edit closure focused annotate showed local `62.33%` at
+    write-lock `lock cmpxchg`.
+- allowed:
+  - MIR-proven region boundary design.
+  - one-call runtime executor if MIR owns legality/lifetime.
+- forbidden:
+  - hidden runtime session handle table.
+  - `.inc` rediscovery of loop shape.
+  - benchmark-named whole-loop helper.
 
 ### H28.1 runtime-private literal search executor
 

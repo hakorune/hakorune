@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.1 post-mid-gap owner split design)
+  - `phase-137x-H owner-first optimization return` (active; H39.2 outer edit lock-boundary design)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H39.1 post-mid-gap owner split design`
+  - current blocker is `137x-H39.2 outer edit lock-boundary design`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -124,7 +124,9 @@ Related:
       Ny AOT to `6 ms`, but instruction count rose
     - H39 closed: len-half closure is lock-acquire dominated; observer-store
       closure is cell-loop / short-literal / MidGap segment dominated
-    - H39.1 active: split next seam before code
+    - H39.1 landed: MidGap generic prefix fast path improves whole cycles
+      to `11.3M`
+    - H39.2 active: outer edit lock-boundary design
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

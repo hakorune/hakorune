@@ -417,9 +417,15 @@ phase README / current entry. Current active card:
     - do not reopen representation work until the new owner is fixed
     - result: len-half closure is lock-acquire dominated; observer-store is
       cell-loop / short-literal / MidGap segment dominated
-  - [ ] H39.1 post-mid-gap owner split design
+  - [x] H39.1 post-mid-gap owner split design
     - choose next seam before code
     - split outer edit lock-boundary from observer-store cell-loop work
+    - result: runtime-only MidGap generic prefix fast path landed as a small
+      keeper
+  - [ ] H39.2 outer edit lock-boundary design
+    - design the MIR-proven route for reducing the remaining outer edit lock
+      owner
+    - no hidden runtime session table
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

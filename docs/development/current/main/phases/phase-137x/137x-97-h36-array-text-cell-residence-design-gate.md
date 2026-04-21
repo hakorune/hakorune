@@ -3,7 +3,7 @@
 Status: active design gate; H36.4 piece residence pilot rejected.
 
 Current blocker token:
-`137x-H39.1 post-mid-gap owner split design`.
+`137x-H39.2 outer edit lock-boundary design`.
 
 ## Context
 
@@ -371,3 +371,63 @@ Verdict:
   - outer edit lock-boundary: needs a MIR-proven region boundary if pursued.
   - observer-store cell-loop: may be runtime-only only if it preserves
     generic literal semantics and does not become a search-result cache.
+
+## H39.1 Implementation Card
+
+Name: `MidGap generic prefix fast path`.
+
+Decision:
+
+- run the observer-store cell-loop probe before the heavier outer edit
+  lock-boundary design.
+- keep the probe runtime-only inside `ArrayTextCell`.
+
+Allowed:
+
+- check a generic prefix literal hit before the full MidGap segmented search.
+- keep behavior identical to `str::contains`.
+
+Forbidden:
+
+- source-content assumptions such as the literal being `"line"`.
+- search-result cache.
+- MIR, `.inc`, or public ABI changes.
+
+Reject if:
+
+- observer-store closure does not shrink.
+- exact or middle guards regress.
+
+## H39.1 Result
+
+Implementation:
+
+- added a runtime-only generic prefix literal hit before the full MidGap
+  segmented search.
+- no MIR, `.inc`, public ABI, source-content branch, or search-result cache.
+
+Verification:
+
+- `cargo fmt --check`
+- `git diff --check`
+- `cargo test -q array::text_cell --lib`
+- release artifacts rebuilt with `tools/perf/build_perf_release.sh`
+
+Perf:
+
+- whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`.
+- `ny_aot_instr=60443810`, `ny_aot_cycles=11322220`.
+- asm top:
+  - observer-store closure: `51.21%`
+  - len-half edit closure: `30.53%`
+  - `__memmove_avx512_unaligned_erms`: `4.62%`
+- guards:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9266628`, `ny_aot_cycles=2432139`
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 3 ms`,
+    `ny_aot_instr=17651373`, `ny_aot_cycles=4229069`
+
+Verdict:
+
+- small keeper: whole cycles improve from H38.1's `12531473` to `11322220`.
+- outer edit lock-boundary remains the next structural seam.

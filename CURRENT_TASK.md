@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.1 post-mid-gap owner split design)
-  - current blocker is `137x-H39.1 post-mid-gap owner split design`
+  - `phase-137x-H owner-first optimization return` (active; H39.2 outer edit lock-boundary design)
+  - current blocker is `137x-H39.2 outer edit lock-boundary design`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -852,10 +852,19 @@ Scope: current lane / next lane / restart order only.
           - observer-store closure is not lock-dominant; it is now
             cell-loop / short-literal / MidGap segment checks
           - verdict: do not reopen representation work immediately
-        - H39.1 active:
-          - split next design into outer edit lock-boundary vs observer-store
-            cell-loop owner
-          - no code until the next seam is chosen
+        - H39.1 result:
+          - landed runtime-only MidGap generic prefix fast path
+          - whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`,
+            `ny_aot_instr=60443810`, `ny_aot_cycles=11322220`
+          - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+          - middle `kilo_meso_substring_concat_array_set_loopcarry =
+            C 3 ms / Ny AOT 3 ms`
+          - verdict: small keeper; observer-store mechanics improved but
+            outer edit lock-boundary remains
+        - H39.2 active:
+          - design the outer edit lock-boundary next
+          - no hidden runtime session table; any lock-span widening must be
+            MIR-proven
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:

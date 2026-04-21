@@ -302,6 +302,9 @@ fn mid_gap_contains_literal(left: &str, right: &str, needle: &str) -> bool {
     if needle_bytes.len() > left.len() + right.len() {
         return false;
     }
+    if short_literal_prefix_eq(left.as_bytes(), needle_bytes) {
+        return true;
+    }
     if text_contains_literal(left, needle) || text_contains_literal(right, needle) {
         return true;
     }
