@@ -36,13 +36,14 @@ Related:
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - StringBox taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
   - MapBox taskboard: `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
-  - taskboard: `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
-  - current implementation focus: `apps/lib/boxes/map_std.hako` prelude cleanup after safe stub deletions
+  - MapStd cleanup card: `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+  - current implementation focus: `.hako` MapBox extended-route cleanup decision after safe stub deletions
   - current phase goal:
     - lift the phase-290x ArrayBox catalog pattern to CoreBox surface vocabulary
     - `StringBox` catalog/invoke slice is landed
     - `MapBox` catalog/invoke slice is landed
-    - safe legacy std/debt deletions landed; next cleanup must preserve active prelude/module-registry behavior
+    - safe legacy std/debt deletions landed, including the `apps.lib.boxes.map_std` prelude/registry dependency
     - lock `StringBox.length()` as canonical and `len()` / `size()` as compatibility aliases
     - catalog current MapBox vtable rows before alias or return-contract normalization
   - current app gap read:
@@ -51,7 +52,7 @@ Related:
     - StringBox surface SSOT is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
     - MapBox Rust vtable surface is cataloged; legacy `apps/std/map_std.hako` and unused `map_keys_values_bridge.hako` prototype were deleted
-    - live `apps/lib/boxes/map_std.hako` prelude debt remains and is pinned by `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
+    - `apps/lib/boxes/map_std.hako` prelude debt is closed; `OpsCalls.map_has(...)` owns the remaining `pref == "ny"` Map-only wrapper
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap

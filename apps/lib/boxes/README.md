@@ -4,8 +4,10 @@ Shared `.hako` box library sources.
 
 ## Runtime status (phase29cc)
 
-- `array_std.hako`, `console_std.hako`, `map_std.hako`, `string_std.hako`:
+- `array_std.hako`, `console_std.hako`, `string_std.hako`:
   standard library boxes used by current app/runtime paths.
+- `map_std.hako` was retired in phase-291x; `OpsCalls.map_has(...)` owns the
+  remaining selfhost-runtime Map-only wrapper behavior.
 - `wasm_canvas_box.hako`, `wasm_display_box.hako`:
   reserved facades for future WasmBox-first route.
   Current `nyash-wasm` g4 path uses marker-driven prebuilt fixtures and JS draw hooks,

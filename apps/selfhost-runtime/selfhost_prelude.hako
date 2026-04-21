@@ -7,7 +7,6 @@ using apps.selfhost_runtime.ops_calls
 using apps.lib.boxes.console_std
 using apps.lib.boxes.string_std
 using apps.lib.boxes.array_std
-using apps.lib.boxes.map_std
 
 using apps.selfhost_runtime.string_cursor
 using apps.selfhost_runtime.ast_extractors

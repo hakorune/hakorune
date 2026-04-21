@@ -41,7 +41,7 @@ cargo check -q
   - ArrayBox catalog/invoke seam is landed and phase-290x is closed
   - StringBox catalog/invoke seam is landed and pinned by the phase-291x smoke
   - MapBox catalog/invoke seam is landed and pinned by the phase-291x smoke
-  - next active target is `apps/lib/boxes/map_std.hako` prelude cleanup
+  - next active target is `.hako` MapBox extended-route cleanup decision
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
@@ -49,7 +49,7 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-291x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
   - `CoreBox legacy std/debt surfaces need cleanup triage after first catalog slices`
 
@@ -89,8 +89,8 @@ cargo check -q
   - triage CoreBox legacy cleanup candidates after first catalog slices
   - keep `src/boxes/array/surface_catalog.rs` as the ArrayBox precedent
   - keep `src/boxes/basic/string_surface_catalog.rs` as the StringBox precedent
-  - safe legacy stubs already removed: `apps/std/string2.hako`, `apps/std/map_std.hako`, `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako`
-  - do not delete `apps/lib/boxes/map_std.hako` until its selfhost prelude/module-registry dependency is replaced
+  - safe legacy stubs already removed: `apps/std/string2.hako`, `apps/std/map_std.hako`, `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako`, `apps/lib/boxes/map_std.hako`
+  - `OpsCalls.map_has(...)` owns the remaining `pref == "ny"` Map-only wrapper behavior
   - keep phase-137x at observe-only unless app work produces a real blocker
 - perf reopen rule:
   - `137x-E` is already closed enough (`E0` closed, `E1` landed)
@@ -109,7 +109,7 @@ cargo check -q
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
 - the current docs front is phase-291x, not the old ArrayBox-only front.
 - MapBox first catalog slice is landed; `.hako` extended route and std scaffold cleanup are follow-up work.
-- active cleanup card is `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`.
+- active cleanup card is `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.
@@ -118,4 +118,5 @@ cargo check -q
   - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
   - `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
   - `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
   - `docs/development/current/main/phases/phase-137x/README.md`

@@ -159,8 +159,6 @@ Remaining drift:
 - `length` remains `.hako` compatibility/debt and is not a Rust vtable alias.
 - `size` and `len` keep separate slots.
 - `set` / `delete` / `clear` current Rust receipt values are unchanged.
-- `apps/lib/boxes/map_std.hako` is a P0 scaffold imported by the selfhost prelude,
-  so deletion requires a separate module-registry/prelude cleanup card.
 
 Completed cleanup:
 
@@ -168,3 +166,6 @@ Completed cleanup:
   inventory showed no active import/module-registry route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was
   deleted after reference inventory showed no active import/module-registry route.
+- `apps/lib/boxes/map_std.hako` was deleted after moving the remaining live
+  `pref == "ny"` Map-only wrapper to `OpsCalls.map_has(...)` and refreshing the
+  stage1 module snapshot.
