@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H39.4 combined edit-observer region executor`
+- current blocker token: `137x-H39.5 combined executor internal owner refresh`
 - current benchmark state:
-  - `C 83 ms / Ny AOT 6 ms`
-  - `ny_aot_instr=60443810`
-  - `ny_aot_cycles=11322220`
+  - `C 82 ms / Ny AOT 5 ms`
+  - `ny_aot_instr=49691801`
+  - `ny_aot_cycles=9882715`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -26,11 +26,15 @@ ledger details; current implementation work should start here.
     len-half edit closure, not append capacity
   - H29 rejected a runtime-private `String::insert_str` bypass; local
     byte-copy surgery did not become a keeper
-  - latest current-code asm top after H28.5:
-    - `__memmove_avx512_unaligned_erms`: `37.20%`
-    - observer-store region closure: `28.98%`
-    - `with_array_text_write_txn` closure: `26.22%`
-    - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `3.26%`
+  - H39.4 consumes the combined edit-observer MIR proof as one runtime-private
+    executor call; the old per-iteration len-half helper is no longer emitted
+  - latest current-code asm top after H39.4:
+    - combined region executor closure: `82.23%`
+    - `__memmove_avx512_unaligned_erms`: `7.01%`
+    - `alloc::sync::Arc<T,A>::drop_slow`: `1.70%`
+    - `str` range get: `1.45%`
+    - `_int_malloc`: `1.10%`
+    - `realloc`: `1.00%`
 - non-owners:
   - fallback/promotion: H23a observed `update_text_resident_hit=179999`
   - helper-local resident/fallback compaction: H23b regressed to `ny_aot_instr=45910743`
@@ -40,6 +44,9 @@ ledger details; current implementation work should start here.
     AOT loop by H26
   - outer len-half edit `string_len_hi`: removed by H27 from the emitted edit
     path; residual `string_len_hi` belongs to the final 64-row sum loop only
+  - per-iteration outer edit helper:
+    `nyash.array.string_insert_mid_lenhalf_store_hisi` is removed from
+    current `ny_main` by H39.4
 
 ## Active Contract
 
@@ -1121,7 +1128,7 @@ Verdict:
 - metadata keeper: MIR now owns the combined region legality/proof.
 - next card may lower this metadata to one begin-site runtime call.
 
-### H39.4 Active
+### H39.4 Result
 
 Goal: consume `array_text_combined_regions` as a one-call executor.
 
@@ -1143,6 +1150,71 @@ Goal: consume `array_text_combined_regions` as a one-call executor.
   - whole `kilo_kernel_small` wall/cycles/instructions improve or the card is
     rejected
   - exact and middle guards stay no-regression
+
+Implementation:
+
+- added a `.inc` metadata reader for `array_text_combined_regions`
+- generic lowering emits one begin-site call to a runtime-private combined
+  region executor and marks only MIR-covered blocks unreachable
+- Rust executes the outer len-half edit and periodic observer-store in one
+  RAII write-guard frame
+- tightened MIR proof so this executor only accepts zero-initial accumulator
+  shapes, matching the returned scalar contract
+
+Verification:
+
+- `cargo fmt --check`
+- `cargo check -q`
+- `cargo test -q benchmark_kilo_kernel_small_has_combined_edit_observer_region -- --nocapture`
+- `bash tools/perf/build_perf_release.sh`
+- current object check: `ny_main` calls
+  `nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_hiisiiisisi`
+  and no longer calls `nyash.array.string_insert_mid_lenhalf_store_hisi`
+
+Perf:
+
+- whole `kilo_kernel_small = C 82 ms / Ny AOT 5 ms`
+- `ny_aot_instr=49691801`, `ny_aot_cycles=9882715`
+- asm top:
+  - combined region executor closure: `82.23%`
+  - `__memmove_avx512_unaligned_erms`: `7.01%`
+  - `alloc::sync::Arc<T,A>::drop_slow`: `1.70%`
+  - `str` range get: `1.45%`
+  - `_int_malloc`: `1.10%`
+  - `realloc`: `1.00%`
+- guards:
+  - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=9265823`, `ny_aot_cycles=2405196`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry =
+    C 4 ms / Ny AOT 3 ms`, `ny_aot_instr=17651027`,
+    `ny_aot_cycles=4262736`
+
+Verdict:
+
+- keeper: whole wall/cycles/instructions improve and the emitted hot loop no
+  longer calls the per-iteration outer edit helper.
+- next owner is inside the combined executor closure, not `.inc` route
+  selection or runtime lock-boundary frequency.
+
+### H39.5 Active
+
+Goal: refresh the owner inside the H39.4 combined executor before another code
+slice.
+
+- first step:
+  - annotate / inspect the combined executor closure from the current
+    `kilo_kernel_small` direct AOT executable
+  - split the owner between len-half edit mutation, periodic observer-store
+    cell loop, visible text/range access, and residual allocation/copy
+- allowed:
+  - perf/asm/source confirmation only until the owner block is pinned
+  - runtime-only cleanup if the hot block is a mechanical executor leaf
+  - MIR metadata only if the hot block proves a missing generic contract fact
+- forbidden:
+  - `.inc` shape rediscovery
+  - hidden runtime legality/session state
+  - search-result cache or source-content assumptions
+  - broad allocator/arena work before allocator/copy is again dominant
 
 ### H28.1 runtime-private literal search executor
 

@@ -358,4 +358,85 @@ impl ArrayBox {
         }
         Some(stores)
     }
+
+    /// Runtime-private combined executor for a MIR-proven outer edit region.
+    /// The write guard stays inside this call; MIR owns ordering and legality.
+    #[inline(always)]
+    pub fn slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_raw(
+        &self,
+        loop_bound: i64,
+        row_modulus: i64,
+        middle: &str,
+        observer_period: i64,
+        observer_bound: i64,
+        needle: &str,
+        suffix: &str,
+    ) -> Option<i64> {
+        if loop_bound < 0 || row_modulus <= 0 || observer_period <= 0 || observer_bound < 0 {
+            return None;
+        }
+        if loop_bound == 0 {
+            return Some(0);
+        }
+        let loop_bound = usize::try_from(loop_bound).ok()?;
+        let row_modulus = usize::try_from(row_modulus).ok()?;
+        let observer_period = usize::try_from(observer_period).ok()?;
+        let observer_bound = usize::try_from(observer_bound).ok()?;
+        let mut items = self.items.write();
+
+        if let ArrayStorage::Boxed(boxed) = &*items {
+            if let Some(values) = Self::try_text_values(boxed) {
+                *items = ArrayStorage::Text(values);
+            }
+        }
+
+        if let ArrayStorage::Text(values) = &mut *items {
+            if row_modulus > values.len() || observer_bound > values.len() {
+                return None;
+            }
+            for step in 0..loop_bound {
+                let idx = step % row_modulus;
+                values.get_mut(idx)?.insert_const_mid_lenhalf(middle);
+                if step % observer_period == 0 {
+                    for value in values.iter_mut().take(observer_bound) {
+                        if value.contains_literal(needle) {
+                            value.append_suffix(suffix);
+                        }
+                    }
+                }
+            }
+            return i64::try_from(loop_bound).ok();
+        }
+
+        let boxed_len = match &*items {
+            ArrayStorage::Boxed(boxed) => boxed.len(),
+            ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_) => return None,
+            ArrayStorage::Text(_) => unreachable!("text storage returned above"),
+        };
+        if row_modulus > boxed_len || observer_bound > boxed_len {
+            return None;
+        }
+
+        let mut session =
+            ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible);
+        for step in 0..loop_bound {
+            let idx = step % row_modulus;
+            session.update(idx, |value| {
+                ArrayTextCell::insert_const_mid_lenhalf_string(value, middle)
+            })?;
+            if step % observer_period == 0 {
+                for idx in 0..observer_bound {
+                    session.update(idx, |value| {
+                        if ArrayTextCell::string_contains_literal(value, needle) {
+                            ArrayTextCell::append_suffix_to_string(value, suffix);
+                        }
+                        0_i64
+                    })?;
+                }
+            }
+        }
+        i64::try_from(loop_bound).ok()
+    }
 }

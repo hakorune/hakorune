@@ -434,10 +434,15 @@ phase README / current entry. Current active card:
     - `.inc` consumes metadata only; runtime executes one RAII call if landed
     - result: MIR JSON now carries one `array_text_combined_regions` route for
       `kilo_kernel_small`
-  - [ ] H39.4 combined edit-observer region executor
+  - [x] H39.4 combined edit-observer region executor
     - consume the MIR-owned route in `.inc`
     - execute the covered region in one runtime-private RAII call
     - reject if whole perf does not move or exact/middle guards regress
+    - result: keeper; whole `kilo_kernel_small = C 82 ms / Ny AOT 5 ms`,
+      `ny_aot_instr=49691801`, `ny_aot_cycles=9882715`
+  - [ ] H39.5 combined executor internal owner refresh
+    - annotate the H39.4 executor closure before code
+    - choose the next narrow runtime/MIR seam from measured evidence
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

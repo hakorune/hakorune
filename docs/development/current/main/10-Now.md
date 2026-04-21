@@ -29,13 +29,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-H owner-first optimization return` (active; H39.4 combined edit-observer region executor)
+  - `phase-137x-H owner-first optimization return` (active; H39.5 combined executor internal owner refresh)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
     - `137x-F Value Lane bridge` is closed; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed
     - `137x-G` allocator / arena pilot is rejected for now; allocator/copy is secondary, not dominant
-  - current blocker is `137x-H39.4 combined edit-observer region executor`
+  - current blocker is `137x-H39.5 combined executor internal owner refresh`
   - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - next task order:
     - active entry: `docs/development/current/main/phases/phase-137x/137x-current.md`
@@ -130,7 +130,11 @@ Related:
       interleaves a periodic observer-store region
     - H39.3 landed: MIR JSON now carries one combined edit-observer region
       proof for `kilo_kernel_small`
-    - H39.4 active: consume the combined proof as a one-call runtime executor
+    - H39.4 landed: combined edit-observer proof now lowers to one
+      runtime-private executor call; whole `kilo_kernel_small = C 82 ms /
+      Ny AOT 5 ms`, `ny_aot_instr=49691801`, `ny_aot_cycles=9882715`
+    - H39.5 active: annotate the combined executor closure before choosing the
+      next narrow seam
     - H21 is closed: MIR now owns the loopcarry len/store route; lowered loop body is one `nyash.array.string_insert_mid_subrange_len_store_hisi` call and no standalone `nyash.array.string_len_hi`
     - H20 is closed: pure meso substring concat len now folds to arithmetic, with no loop `substring_len_hii` / `substring_hii`
     - H20 result: `kilo_meso_substring_concat_len = C 3 ms / Ny AOT 3 ms`, `ny_aot_instr=1190204`

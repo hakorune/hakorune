@@ -518,6 +518,46 @@ pub(in super::super) fn array_string_indexof_const_suffix_region_store(
     .unwrap_or(0)
 }
 
+pub(in super::super) fn array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_store(
+    handle: i64,
+    loop_bound: i64,
+    row_modulus: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    observer_period: i64,
+    observer_bound: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    if handle <= 0 || loop_bound < 0 || row_modulus <= 0 || observer_period <= 0 {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(middle_ptr, middle_len, |middle| {
+        with_compiler_const_utf8_ptr_len(needle_ptr, needle_len, |needle| {
+            with_compiler_const_utf8_ptr_len(suffix_ptr, suffix_len, |suffix| {
+                super::super::array_handle_cache::with_array_box(handle, |arr| {
+                    arr.slot_text_lenhalf_insert_mid_periodic_indexof_suffix_region_raw(
+                        loop_bound,
+                        row_modulus,
+                        middle,
+                        observer_period,
+                        observer_bound,
+                        needle,
+                        suffix,
+                    )
+                })
+                .flatten()
+                .unwrap_or(0)
+            })
+            .unwrap_or(0)
+        })
+        .unwrap_or(0)
+    })
+    .unwrap_or(0)
+}
+
 fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
     handle: i64,
     idx: i64,

@@ -247,6 +247,9 @@ fn derive_combined_region(
             outer_index_phi_value,
         )?;
     let accumulator_initial_const = const_i64(function, def_map, accumulator_initial_value)?;
+    if accumulator_initial_const != 0 {
+        return None;
+    }
 
     Some(ArrayTextCombinedRegionRoute {
         begin_block,

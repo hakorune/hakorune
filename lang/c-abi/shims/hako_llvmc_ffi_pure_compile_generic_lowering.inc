@@ -431,6 +431,8 @@
         fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_subrange_len_store_hisi\"(i64, i64, ptr, i64)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
         fprintf(f, "declare i64 @\"nyash.array.string_insert_mid_subrange_len_store_region_hiisi\"(i64, i64, i64, ptr, i64)\n");
+      if (array_text_combined_region_has_route())
+        fprintf(f, "declare i64 @\"nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_hiisiiisisi\"(i64, i64, i64, ptr, i64, i64, i64, ptr, i64, ptr, i64)\n");
       if (array_text_observer_has_store_region_route())
         fprintf(f, "declare i64 @\"nyash.array.string_indexof_suffix_store_region_hisisi\"(i64, i64, ptr, i64, ptr, i64)\n");
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
@@ -483,11 +485,17 @@
       #include "hako_llvmc_ffi_mir_call_dispatch.inc"
       struct ArrayTextResidenceSessionRouteMetadata active_region_executor;
       int active_region_executor_matched = 0;
+      struct ArrayTextCombinedRegionRouteMetadata active_combined_region;
+      int active_combined_region_available = 0;
+      int active_combined_region_emitted = 0;
       struct ArrayTextObserverStoreRegionRouteMetadata active_observer_store_region;
       int active_observer_store_region_available = 0;
       int active_observer_store_region_emitted = 0;
       memset(&active_region_executor, 0, sizeof(active_region_executor));
+      memset(&active_combined_region, 0, sizeof(active_combined_region));
       memset(&active_observer_store_region, 0, sizeof(active_observer_store_region));
+      active_combined_region_available =
+          match_array_text_combined_region_metadata_any(&active_combined_region);
       active_observer_store_region_available =
           match_array_text_observer_store_region_metadata_any(
               &active_observer_store_region);
@@ -520,6 +528,29 @@
             region->suffix_len + 1,
             region->suffix_reg,
             region->suffix_len);
+      }
+      auto void emit_array_text_combined_region_call(
+          const struct ArrayTextCombinedRegionRouteMetadata* region) {
+        if (!region) return;
+        fprintf(
+            f,
+            "  %%r%lld = call i64 @\"nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_hiisiiisisi\"(i64 %%r%lld, i64 %lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld, i64 %lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld)\n",
+            region->accumulator_phi_value,
+            region->array_value,
+            region->loop_bound_const,
+            region->row_modulus_const,
+            region->middle_len + 1,
+            region->middle_reg,
+            region->middle_len,
+            region->observer_period_const,
+            region->observer_bound_const,
+            region->needle_len + 1,
+            region->needle_reg,
+            region->needle_len,
+            region->suffix_len + 1,
+            region->suffix_reg,
+            region->suffix_len);
+        set_type(region->accumulator_phi_value, T_I64);
       }
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
       auto void emit_phi(long long dst, struct Incoming* in, int in_n){
@@ -597,6 +628,20 @@
       for (size_t bi=0; bi<blen; bi++) {
         yyjson_val* b = yyjson_arr_get(blocks, bi);
         long long bid = read_int(b, "id");
+        if (active_combined_region_emitted &&
+            (bid == active_combined_region.header_block ||
+             bid == active_combined_region.edit_block ||
+             bid == active_combined_region.observer_begin_block ||
+             bid == active_combined_region.observer_header_block ||
+             bid == active_combined_region.observer_block ||
+             bid == active_combined_region.observer_store_block ||
+             bid == active_combined_region.observer_latch_block ||
+             bid == active_combined_region.observer_exit_block ||
+             bid == active_combined_region.latch_block)) {
+          emit_block_label(bid);
+          EMIT("  unreachable\n");
+          continue;
+        }
         if (active_region_executor_matched &&
             (bid == active_region_executor.header_block ||
              bid == active_region_executor.body_block)) {
@@ -621,6 +666,15 @@
           emit_array_text_region_executor_call(&active_region_executor);
           EMIT("  br label %%bb%lld\n", active_region_executor.exit_block);
           active_region_executor_matched = 1;
+          continue;
+        }
+        if (active_combined_region_available &&
+            !active_combined_region_emitted &&
+            bid == active_combined_region.begin_block) {
+          emit_block_label(bid);
+          emit_array_text_combined_region_call(&active_combined_region);
+          EMIT("  br label %%bb%lld\n", active_combined_region.exit_block);
+          active_combined_region_emitted = 1;
           continue;
         }
         if (active_observer_store_region_available &&
