@@ -431,3 +431,122 @@ Verdict:
 
 - small keeper: whole cycles improve from H38.1's `12531473` to `11322220`.
 - outer edit lock-boundary remains the next structural seam.
+
+## H46 design card - bounded bridge/spill on top of MidGap
+
+Goal:
+
+- keep the next slice inside `ArrayTextCell` BoxShape only, so the combined
+  executor spends longer on text-resident edits instead of bouncing through
+  visible flat-string materialization and overlap shifts.
+
+Shape:
+
+```rust
+enum ArrayTextCell {
+    Flat(String),
+    MidGap {
+        left: String,
+        bridge: String,
+        right: String,
+        right_start: usize,
+    },
+}
+```
+
+- logical visible text is `left + bridge + right[right_start..]`
+- `bridge` is a bounded spill segment near the edit center, not an unbounded
+  piece vector
+- the H38/H38.1 bounded-residence principle stays intact: no new public shape,
+  no new MIR contract, no planner logic in `.inc`
+
+Why this seam:
+
+- H45 pinned the residual `__memmove` owner to a broad `ArrayTextCell`
+  mid-insert / flat fallback / materialization family, not to a fresh narrow
+  suffix or left-copy leaf
+- current `MidGap` keeps right-oriented append cheap, but when the split walks
+  back into the left side it tends to rebuild or flatten more aggressively
+- a bounded `bridge` gives the cell one extra resident spill slot, so left-side
+  returns can stay inside the cell before crossing the explicit visible
+  materialization boundary
+
+Invariants:
+
+- `bridge.len() <= ARRAY_TEXT_CELL_BRIDGE_LIMIT` at all times; the initial H46
+  slice uses a small fixed bound and rejects unbounded segmentation
+- visible/public text still materializes only through
+  `to_visible_string()`, `with_text()`, and `into_string()`
+- runtime remains mechanics only; legality/provenance still belongs to MIR
+  metadata owners and `.inc` remains emit only
+- append stays right-oriented; `bridge` exists to absorb left-return spill, not
+  to create a generic piece framework
+- if a byte-boundary-safe edit cannot keep the bound or preserve internal
+  invariants cheaply, the cell falls back to `Flat(String)` explicitly
+
+Boundary behavior:
+
+- `contains_literal` must check across `left|bridge`, `bridge|right_visible`,
+  and the fully resident segments, without changing public semantics
+- repeated byte-boundary-safe len-half inserts may spill resident bytes into
+  `bridge` instead of forcing an immediate full materialization
+- `append_suffix` should continue to prefer the active right side; it must not
+  reopen generic session materialization as the primary hot path
+
+Reject seams:
+
+- no MIR metadata widening
+- no `.inc` planner regression
+- no runtime legality/provenance inference
+- no benchmark-name or source-content assumptions
+- no unbounded piece/piece-vector expansion
+- no reopening suffix / left-copy micro leaves
+
+## H46.1 first implementation slice
+
+Scope:
+
+- implement the bounded bridge/spill shape only for
+  `insert_const_mid_lenhalf_byte_boundary_safe`
+- keep the generic non-byte-safe path and `as_mut_string()` compatibility path
+  unchanged for now
+- keep code changes local to `ArrayTextCell` plus focused tests
+
+Keeper gate:
+
+- structure:
+  - `src/mir/*`, `.inc` emit logic, public ABI aliases, and visible Array
+    behavior stay untouched
+- behavior:
+  - repeated byte-boundary-safe len-half insert stays result-equivalent to flat
+    string reference behavior
+  - contains works across `left|bridge|right`
+  - append after repeated inserts preserves current visible output
+  - explicit flatten/materialization entry points still produce identical
+    strings
+- perf:
+  - compare against the H45 baseline on `kilo_kernel_small`
+  - accept only if `__memmove` share and/or the broad combined owner family
+    shrink without exact/middle regressions
+
+Reject gate:
+
+- if cost merely migrates from `__memmove` into another child of the same broad
+  owner family, reject
+- if the bounded bridge triggers H36.4-style work explosion, reject
+
+### H46.1 probe result - rejected
+
+- implementation attempt: bounded `MidGap + bridge` on
+  `insert_const_mid_lenhalf_byte_boundary_safe`
+- result on `kilo_kernel_small`:
+  - `ny_aot_instr=142651499`
+  - `ny_aot_cycles=90126830`
+  - `Ny AOT 22 ms`
+- perf top moved deeper into libc instead of narrowing the owner:
+  - `__memmove_avx512_unaligned_erms 54.59%`
+  - `_int_malloc 21.74%`
+- decision:
+  - reject and revert the code slice
+  - keep H46 open, but do not reopen this bounded bridge card without a fresh
+    source-pinned reason that avoids bridge-local shift/allocation churn

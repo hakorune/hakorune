@@ -14,6 +14,12 @@
 
 ## Rule
 
+Current pointer contract:
+
+- `phase-137x stays observe-only unless app work reopens a real blocker`
+- `active guardrail`
+- `phase-137x observe-only guardrail`
+
 Owner-first optimization already reopened as `137x-D` and landed the exact
 array store route-shape keeper. The old rule that kept `TextLane`, runtime-wide
 Value Lane, and allocator/arena work closed is retired. The
@@ -558,6 +564,17 @@ phase README / current entry. Current active card:
       edit/materialization -> overlap shift`
     - next slice must be BoxShape-only and keep MIR / `.inc` / runtime ownership
       boundaries unchanged
+    - H46.1 first slice: bounded `MidGap + bridge` spill for
+      `insert_const_mid_lenhalf_byte_boundary_safe` only
+    - invariants: bounded bridge, explicit visible materialization boundary,
+      right-oriented append, semantic-preserving contains across
+      `left|bridge|right`, explicit fallback to `Flat(String)` when bounds break
+    - H46.1 probe result: rejected and reverted
+      - `kilo_kernel_small`: `ny_aot_instr=142651499`,
+        `ny_aot_cycles=90126830`, `Ny AOT 22 ms`
+      - perf top moved cost into `__memmove 54.59%` + `_int_malloc 21.74%`
+      - do not reopen bounded `MidGap + bridge` without a new source-pinned
+        owner narrowing
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

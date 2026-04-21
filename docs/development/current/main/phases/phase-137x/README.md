@@ -1,6 +1,6 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: `137x-H` owner-first optimization return active
+- Status: observe-only guardrail for app-lane work
 - 目的: `137x-E0/E/F` の MIR/backend seam, storage, value implementation gate を閉じ、`137x-G` allocator pilot を reject した状態から、owner-first evidence に従って kilo 最適化を進める。
 - Active entry SSOT:
   - `137x-current.md`
@@ -25,7 +25,8 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-H owner-first optimization return` (active; H30 array text edit residence representation decision)
+- current-state token: `phase-290x ArrayBox surface canonicalization`
+- current lane: `phase-137x observe-only guardrail`
 - active current entry: `137x-current.md`
 - active contract map: `137x-array-text-contract-map.md`
 - semantic lock:

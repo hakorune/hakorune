@@ -52,6 +52,28 @@ ledger details; current implementation work should start here.
     `nyash.array.string_insert_mid_lenhalf_store_hisi` is removed from
     current `ny_main` by H39.4
 
+## Optimization Stop Rule
+
+- optimization is a guardrail for app development, not a lane that keeps
+  expanding after each local win
+- `137x-E` is already closed enough for this purpose:
+  - `137x-E0` is closed
+  - `137x-E1` minimal `TextLane / ArrayStorage::Text` is landed
+- default priority from here:
+  - app lane is primary
+  - phase-137x stays at observe-only unless app work produces a real blocker
+  - perf work is limited to lightweight observation and reject logging
+- do not reopen helper-local perf cards just because a local seam still looks
+  optimizable
+- open a new perf card only when all three are true:
+  - app implementation is actually blocked by the hot lane
+  - the owner can be pinned to one family with current perf evidence
+  - the slice fits in one rollback-safe card
+- reject reopen reasons:
+  - "it still looks improvable"
+  - "the structure might become prettier"
+  - "the previous card still feels unfinished"
+
 ## Active Contract
 
 - MIR owns:
@@ -1855,17 +1877,41 @@ combined executor stops bouncing through visible flat-string edit paths.
   - `137x-H46 text-cell residence/materialization design`
 - active owner:
   - `ArrayTextCell residence -> visible flat edit/materialization -> overlap shift`
-- first step:
-  - inventory the smallest BoxShape-only design that keeps repeated len-half
-    insert plus observer append on text-cell residence longer, instead of
-    repeatedly materializing or flattening inside the combined executor
+- shape card:
+  - extend `ArrayTextCell::MidGap` with a bounded `bridge` spill segment so the
+    resident form becomes `left + bridge + right[right_start..]`
+  - keep the public/visible materialization boundary explicit at
+    `to_visible_string()`, `with_text()`, and `into_string()`
+- H46.1 first slice:
+  - implement the bridge/spill path only for
+    `insert_const_mid_lenhalf_byte_boundary_safe`
+  - keep the generic non-byte-safe path and `as_mut_string()` compatibility
+    flattening unchanged
+- H46.1 trial result:
+  - rejected and reverted
+  - probe numbers on `kilo_kernel_small` regressed to
+    `ny_aot_instr=142651499`, `ny_aot_cycles=90126830`, `Ny AOT 22 ms`
+  - saved bundle moved cost deeper into libc instead of narrowing the owner:
+    `__memmove_avx512_unaligned_erms 54.59%`, `_int_malloc 21.74%`
+  - post-revert whole guard returned to `Ny AOT 5 ms`,
+    `ny_aot_instr=24123290`, `ny_aot_cycles=6044833`
+- invariants:
+  - bridge stays strictly bounded; no piece-vector growth
+  - append remains right-oriented
+  - contains must preserve semantics across `left|bridge|right`
+  - if the bound or internal shape cannot be preserved cheaply, fall back
+    explicitly to `Flat(String)`
   - keep MIR as legality/provenance owner, `.inc` as metadata-to-call emit only,
     and runtime as execution mechanics only
 - reject seam:
   - no benchmark-name or source-content assumptions
   - no `.inc` planner regression
   - no runtime-owned legality/provenance inference
+  - no MIR metadata widening
+  - no unbounded piece/piece-vector expansion
   - no reopening suffix / left-copy micro leaves
+  - do not reopen the bounded `MidGap + bridge` card without a new source-pinned
+    owner narrowing that avoids bridge-local shift/allocation churn
 
 ### H28.1 runtime-private literal search executor
 
