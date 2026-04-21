@@ -87,6 +87,11 @@ Related:
 - first stage2-mainline optimization wave is handled by the parent task pack and is limited to `route/perf only`.
 - `kernel authority zero` and `substrate zero` are separate end states; this doc only fixes the former owner-first migration.
 - Current `lang/c-abi/shims/*.inc` are not yet pure thin shims.
+- Current scan (2026-04-22) fixes the remaining `.inc` cleanup as a
+  pre-decided-tag problem: `lang/c-abi/shims` has 82 files, including 76
+  `.inc` files and 19,481 `.inc` lines. The current no-growth baseline is 30
+  `.inc` files with analysis-debt patterns. See
+  `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`.
 - `hako_llvmc_ffi_common.inc` is closest to a thin shim + native support bundle.
 - `hako_llvmc_ffi_string_concat_match.inc` is mostly compiler-state / semantic placement owner.
 - `hako_llvmc_ffi_string_concat_lowering.inc` now wraps the concat emit seam and is no longer the main owner surface.
