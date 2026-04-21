@@ -3,7 +3,7 @@
 Status: active design gate; H36.4 piece residence pilot rejected.
 
 Current blocker token:
-`137x-H38.1 bounded mid-gap residence pilot`.
+`137x-H39 post-mid-gap closure owner refresh`.
 
 ## Context
 
@@ -306,3 +306,48 @@ H38 verdict:
 
 - design is sufficient to open H38.1 code.
 - keeper still requires fresh whole stat/asm after a rebuilt release artifact.
+
+## H38.1 Result
+
+Implementation:
+
+- added the private `ArrayTextCell::MidGap { left, right, right_start }`
+  variant.
+- kept MIR, `.inc`, public ABI, benchmark names, and semantic/search-result
+  cache untouched.
+- `contains_literal`, `append_suffix`, len-half insert, and visible
+  materialization stay inside `ArrayTextCell`.
+
+Verification:
+
+- `cargo fmt --check`
+- `git diff --check`
+- `tools/checks/current_state_pointer_guard.sh`
+- `cargo test -q array::text_cell --lib`
+- `cargo test -q array::tests --lib`
+- `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
+- release artifacts rebuilt with `tools/perf/build_perf_release.sh`
+
+Perf:
+
+- whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`.
+- `ny_aot_instr=60923714`, `ny_aot_cycles=12531473`.
+- asm top:
+  - len-half edit closure: `49.27%`
+  - observer-store closure: `41.58%`
+  - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `1.49%`
+  - `nyash.array.string_indexof_suffix_store_region_hisisi`: `1.46%`
+  - `__memmove_avx512_unaligned_erms`: `0.23%`
+- contradiction guards:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`,
+    `ny_aot_instr=9266540`, `ny_aot_cycles=2423297`
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 4 ms`,
+    `ny_aot_instr=17650827`, `ny_aot_cycles=4300117`
+
+Verdict:
+
+- H38.1 is an owner-moving keeper: the dominant `memmove` seam is removed and
+  whole wall/cycles improve.
+- keep an instruction-count watch because whole instruction count increased
+  versus H37.
+- next card is H39 post-mid-gap closure owner refresh.

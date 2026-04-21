@@ -1,8 +1,17 @@
 use std::cmp::Ordering;
 
+const MID_GAP_RIGHT_COMPACT_MIN: usize = 4096;
+const MID_GAP_LEFT_OVERSHOOT_LIMIT: usize = 1024;
+const MID_GAP_INITIAL_HEADROOM: usize = 64;
+
 #[derive(Clone, Debug)]
 pub(super) enum ArrayTextCell {
     Flat(String),
+    MidGap {
+        left: String,
+        right: String,
+        right_start: usize,
+    },
 }
 
 impl ArrayTextCell {
@@ -12,16 +21,17 @@ impl ArrayTextCell {
     }
 
     #[inline(always)]
-    pub(super) fn as_str(&self) -> &str {
-        match self {
-            Self::Flat(value) => value.as_str(),
-        }
-    }
-
-    #[inline(always)]
     pub(super) fn with_text<R>(&self, f: impl FnOnce(&str) -> R) -> R {
         match self {
             Self::Flat(value) => f(value.as_str()),
+            Self::MidGap {
+                left,
+                right,
+                right_start,
+            } => {
+                let value = materialize_mid_gap(left, right, *right_start);
+                f(value.as_str())
+            }
         }
     }
 
@@ -29,13 +39,23 @@ impl ArrayTextCell {
     pub(super) fn to_visible_string(&self) -> String {
         match self {
             Self::Flat(value) => value.clone(),
+            Self::MidGap {
+                left,
+                right,
+                right_start,
+            } => materialize_mid_gap(left, right, *right_start),
         }
     }
 
     #[inline(always)]
     pub(super) fn as_mut_string(&mut self) -> &mut String {
+        if !matches!(self, Self::Flat(_)) {
+            let value = self.to_visible_string();
+            *self = Self::Flat(value);
+        }
         match self {
             Self::Flat(value) => value,
+            Self::MidGap { .. } => unreachable!("non-flat text cell materialized above"),
         }
     }
 
@@ -43,12 +63,24 @@ impl ArrayTextCell {
     pub(super) fn into_string(self) -> String {
         match self {
             Self::Flat(value) => value,
+            Self::MidGap {
+                left,
+                right,
+                right_start,
+            } => materialize_mid_gap(left.as_str(), right.as_str(), right_start),
         }
     }
 
     #[inline(always)]
     pub(super) fn len(&self) -> usize {
-        self.as_str().len()
+        match self {
+            Self::Flat(value) => value.len(),
+            Self::MidGap {
+                left,
+                right,
+                right_start,
+            } => left.len() + active_mid_gap_right(right, *right_start).len(),
+        }
     }
 
     #[inline(always)]
@@ -70,6 +102,11 @@ impl ArrayTextCell {
     pub(super) fn contains_literal(&self, needle: &str) -> bool {
         match self {
             Self::Flat(value) => text_contains_literal(value, needle),
+            Self::MidGap {
+                left,
+                right,
+                right_start,
+            } => mid_gap_contains_literal(left, active_mid_gap_right(right, *right_start), needle),
         }
     }
 
@@ -77,6 +114,7 @@ impl ArrayTextCell {
     pub(super) fn append_suffix(&mut self, suffix: &str) {
         match self {
             Self::Flat(value) => append_text_suffix(value, suffix),
+            Self::MidGap { right, .. } => append_text_suffix(right, suffix),
         }
     }
 
@@ -93,7 +131,27 @@ impl ArrayTextCell {
     #[inline(always)]
     pub(super) fn insert_const_mid_lenhalf(&mut self, middle: &str) -> i64 {
         match self {
-            Self::Flat(value) => Self::insert_const_mid_lenhalf_string(value, middle),
+            Self::Flat(value) => {
+                if let Some((next, out)) = build_mid_gap_from_flat_lenhalf(value, middle) {
+                    *self = next;
+                    out
+                } else {
+                    Self::insert_const_mid_lenhalf_string(value, middle)
+                }
+            }
+            Self::MidGap {
+                left,
+                right,
+                right_start,
+            } => match insert_const_mid_lenhalf_mid_gap(left, right, right_start, middle) {
+                Some(out) => out,
+                None => {
+                    let mut value = self.to_visible_string();
+                    let out = Self::insert_const_mid_lenhalf_string(&mut value, middle);
+                    *self = Self::Flat(value);
+                    out
+                }
+            },
         }
     }
 
@@ -110,6 +168,163 @@ impl From<String> for ArrayTextCell {
     fn from(value: String) -> Self {
         Self::flat(value)
     }
+}
+
+#[inline(always)]
+fn active_mid_gap_right(right: &str, right_start: usize) -> &str {
+    &right[right_start..]
+}
+
+#[inline(always)]
+fn materialize_mid_gap(left: &str, right: &str, right_start: usize) -> String {
+    let active_right = active_mid_gap_right(right, right_start);
+    if left.is_empty() {
+        return active_right.to_owned();
+    }
+    if active_right.is_empty() {
+        return left.to_owned();
+    }
+    let mut out = String::with_capacity(left.len() + active_right.len());
+    out.push_str(left);
+    out.push_str(active_right);
+    out
+}
+
+#[inline(always)]
+fn build_mid_gap_from_flat_lenhalf(value: &str, middle: &str) -> Option<(ArrayTextCell, i64)> {
+    if value.is_empty() || middle.is_empty() {
+        return None;
+    }
+    let split = value.len() / 2;
+    if !value.is_char_boundary(split) {
+        return None;
+    }
+
+    let mut left = String::with_capacity(
+        split
+            .saturating_add(middle.len())
+            .saturating_add(MID_GAP_INITIAL_HEADROOM),
+    );
+    left.push_str(&value[..split]);
+    left.push_str(middle);
+    let right = value[split..].to_owned();
+    let out = left.len() + right.len();
+    Some((
+        ArrayTextCell::MidGap {
+            left,
+            right,
+            right_start: 0,
+        },
+        out as i64,
+    ))
+}
+
+#[inline(always)]
+fn insert_const_mid_lenhalf_mid_gap(
+    left: &mut String,
+    right: &mut String,
+    right_start: &mut usize,
+    middle: &str,
+) -> Option<i64> {
+    if middle.is_empty() {
+        return Some((left.len() + active_mid_gap_right(right, *right_start).len()) as i64);
+    }
+
+    let active_right_len = active_mid_gap_right(right, *right_start).len();
+    let source_len = left.len() + active_right_len;
+    let split = source_len / 2;
+
+    if split <= left.len() {
+        if !left.is_char_boundary(split) {
+            return None;
+        }
+        left.insert_str(split, middle);
+    } else {
+        let delta = split - left.len();
+        let start = *right_start;
+        let end = start.checked_add(delta)?;
+        if end > right.len() || !right.is_char_boundary(end) {
+            return None;
+        }
+        left.push_str(&right[start..end]);
+        *right_start = end;
+        left.push_str(middle);
+        compact_mid_gap_right(right, right_start);
+    }
+
+    rebalance_mid_gap_left_overshoot(left, right, right_start);
+    Some((left.len() + active_mid_gap_right(right, *right_start).len()) as i64)
+}
+
+#[inline(always)]
+fn compact_mid_gap_right(right: &mut String, right_start: &mut usize) {
+    if *right_start < MID_GAP_RIGHT_COMPACT_MIN {
+        return;
+    }
+    let active_len = right.len().saturating_sub(*right_start);
+    if *right_start <= active_len {
+        return;
+    }
+    *right = right[*right_start..].to_owned();
+    *right_start = 0;
+}
+
+#[inline(always)]
+fn rebalance_mid_gap_left_overshoot(
+    left: &mut String,
+    right: &mut String,
+    right_start: &mut usize,
+) {
+    let active_right = active_mid_gap_right(right, *right_start);
+    let total_len = left.len() + active_right.len();
+    let target = total_len / 2;
+    if left.len() <= target.saturating_add(MID_GAP_LEFT_OVERSHOOT_LIMIT) {
+        return;
+    }
+
+    let value = materialize_mid_gap(left, right, *right_start);
+    if !value.is_char_boundary(target) {
+        return;
+    }
+    let mut new_left = String::with_capacity(target.saturating_add(MID_GAP_INITIAL_HEADROOM));
+    new_left.push_str(&value[..target]);
+    *left = new_left;
+    *right = value[target..].to_owned();
+    *right_start = 0;
+}
+
+#[inline(always)]
+fn mid_gap_contains_literal(left: &str, right: &str, needle: &str) -> bool {
+    let needle_bytes = needle.as_bytes();
+    if needle_bytes.is_empty() {
+        return true;
+    }
+    if needle_bytes.len() > left.len() + right.len() {
+        return false;
+    }
+    if text_contains_literal(left, needle) || text_contains_literal(right, needle) {
+        return true;
+    }
+    mid_gap_boundary_contains(left.as_bytes(), right.as_bytes(), needle_bytes)
+}
+
+#[inline(always)]
+fn mid_gap_boundary_contains(left: &[u8], right: &[u8], needle: &[u8]) -> bool {
+    if needle.len() < 2 || left.is_empty() || right.is_empty() {
+        return false;
+    }
+    let max_left_take = needle.len().saturating_sub(1).min(left.len());
+    for left_take in 1..=max_left_take {
+        let right_take = needle.len() - left_take;
+        if right_take > right.len() {
+            continue;
+        }
+        let left_start = left.len() - left_take;
+        if left[left_start..] == needle[..left_take] && right[..right_take] == needle[left_take..] {
+            return true;
+        }
+    }
+    false
 }
 
 #[inline(always)]
@@ -388,7 +603,7 @@ fn contains_short_slice_from(
 
 #[cfg(test)]
 mod tests {
-    use super::{append_text_suffix, text_contains_literal};
+    use super::{append_text_suffix, text_contains_literal, ArrayTextCell};
 
     #[test]
     fn text_contains_literal_matches_str_contains() {
@@ -426,5 +641,46 @@ mod tests {
             expected.push_str(suffix);
             assert_eq!(actual, expected, "suffix={suffix:?}");
         }
+    }
+
+    #[test]
+    fn mid_gap_lenhalf_insert_matches_flat_string() {
+        let mut cell = ArrayTextCell::flat("line-seed".to_string());
+        let mut expected = "line-seed".to_string();
+
+        for step in 0..128 {
+            let out = cell.insert_const_mid_lenhalf("xx");
+            let split = expected.len() / 2;
+            expected.insert_str(split, "xx");
+            assert_eq!(out, expected.len() as i64, "step={step}");
+
+            if step % 8 == 0 {
+                cell.append_suffix("ln");
+                expected.push_str("ln");
+            }
+
+            assert_eq!(cell.len(), expected.len(), "step={step}");
+            assert_eq!(cell.to_visible_string(), expected, "step={step}");
+        }
+    }
+
+    #[test]
+    fn mid_gap_contains_literal_checks_boundary() {
+        let mut cell = ArrayTextCell::flat("ab".to_string());
+        assert_eq!(cell.insert_const_mid_lenhalf("XY"), 4);
+
+        assert!(cell.contains_literal("aX"));
+        assert!(cell.contains_literal("XY"));
+        assert!(cell.contains_literal("Yb"));
+        assert!(!cell.contains_literal("Ya"));
+    }
+
+    #[test]
+    fn mid_gap_as_mut_string_materializes_explicitly() {
+        let mut cell = ArrayTextCell::flat("abcd".to_string());
+        assert_eq!(cell.insert_const_mid_lenhalf("XY"), 6);
+
+        cell.as_mut_string().push_str("!");
+        assert_eq!(cell.to_visible_string(), "abXYcd!");
     }
 }

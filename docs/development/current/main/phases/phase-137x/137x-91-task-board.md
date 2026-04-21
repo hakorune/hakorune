@@ -405,10 +405,16 @@ phase README / current entry. Current active card:
     - must cover rollback, materialization, contains, append, and
       cap/compaction rules before code
     - result: bounded mid-gap design fixed as `left + right[right_start..]`
-  - [ ] H38.1 bounded mid-gap residence pilot
+  - [x] H38.1 bounded mid-gap residence pilot
     - implement `ArrayTextCell`-private bounded mid-gap
     - no MIR, `.inc`, public ABI, benchmark-name branch, or
       semantic/search-result cache
+    - result: whole `Ny AOT 6 ms`, `__memmove` down to `0.23%`; instruction
+      count watch remains
+  - [ ] H39 post-mid-gap closure owner refresh
+    - refresh stat/asm after H38.1
+    - pin the new hot block inside len-half / observer-store closures
+    - do not reopen representation work until the new owner is fixed
 
 ## Opened Implementation Order Before Next Kilo Optimization
 

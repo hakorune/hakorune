@@ -7,11 +7,11 @@ ledger details; current implementation work should start here.
 
 - lane: `137x-H owner-first optimization return`
 - front: `kilo_kernel_small`
-- current blocker token: `137x-H38.1 bounded mid-gap residence pilot`
+- current blocker token: `137x-H39 post-mid-gap closure owner refresh`
 - current benchmark state:
-  - `C 84 ms / Ny AOT 7 ms`
-  - `ny_aot_instr=60616017`
-  - `ny_aot_cycles=17782048`
+  - `C 83 ms / Ny AOT 6 ms`
+  - `ny_aot_instr=60923714`
+  - `ny_aot_cycles=12531473`
 - active owner:
   - H27 removed the outer edit path's `nyash.array.string_len_hi` call by
     lowering the MIR-owned len-half insert-mid edit contract to one
@@ -841,7 +841,7 @@ Decision:
 - cap/compaction rules prevent unbounded consumed right prefix and left-side
   overshoot.
 
-### H38.1 Active
+### H38.1 Result
 
 Goal: implement the runtime-private bounded mid-gap pilot inside
 `ArrayTextCell`.
@@ -861,6 +861,65 @@ Goal: implement the runtime-private bounded mid-gap pilot inside
   - release artifacts are rebuilt before measuring.
   - whole `kilo_kernel_small` improves or the card records a reject with owner
     movement evidence.
+
+Implementation:
+
+- added private `ArrayTextCell::MidGap { left, right, right_start }`.
+- logical text is `left + right[right_start..]`.
+- len-half insert moves the right-side boundary by offset and caps left
+  overshoot.
+- `contains_literal`, `append_suffix`, and visible materialization stay inside
+  the cell boundary.
+
+Verification:
+
+- `cargo fmt --check`
+- `git diff --check`
+- `tools/checks/current_state_pointer_guard.sh`
+- `cargo test -q array::text_cell --lib`
+- `cargo test -q array::tests --lib`
+- `cargo test -q -p nyash_kernel insert_mid_store_by_index --lib`
+- release artifacts rebuilt with `tools/perf/build_perf_release.sh`
+
+Perf:
+
+- whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`
+- `ny_aot_instr=60923714`, `ny_aot_cycles=12531473`
+- asm top:
+  - len-half edit closure: `49.27%`
+  - observer-store closure: `41.58%`
+  - `nyash.array.string_insert_mid_lenhalf_store_hisi`: `1.49%`
+  - `nyash.array.string_indexof_suffix_store_region_hisisi`: `1.46%`
+  - `__memmove_avx512_unaligned_erms`: `0.23%`
+- guards:
+  - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`,
+    `ny_aot_instr=9266540`, `ny_aot_cycles=2423297`
+  - middle `kilo_meso_substring_concat_array_set_loopcarry =
+    C 3 ms / Ny AOT 4 ms`, `ny_aot_instr=17650827`,
+    `ny_aot_cycles=4300117`
+
+Verdict:
+
+- owner-moving keeper: `memmove` is no longer the dominant owner and
+  wall/cycles improve.
+- whole instruction count increased, so H39 must refresh the closure-internal
+  owner before further representation work.
+
+### H39 Active
+
+Goal: pin the new post-mid-gap hot block.
+
+- current owner candidates:
+  - len-half edit closure internals.
+  - observer-store closure internals after non-flat cells.
+- first step:
+  - rerun focused annotate / owner bundle for the two closures.
+  - determine whether the next seam is materialization, boundary search,
+    right-tail append, branch layout, or generic closure overhead.
+- forbidden:
+  - reopening unbounded pieces.
+  - MIR / `.inc` changes before H39 proves a metadata seam.
+  - semantic/search-result cache.
 
 ### H28.1 runtime-private literal search executor
 

@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-H owner-first optimization return` (active; H38.1 bounded mid-gap residence pilot)
-  - current blocker is `137x-H38.1 bounded mid-gap residence pilot`
+  - `phase-137x-H owner-first optimization return` (active; H39 post-mid-gap closure owner refresh)
+  - current blocker is `137x-H39 post-mid-gap closure owner refresh`
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
@@ -835,10 +835,19 @@ Scope: current lane / next lane / restart order only.
             draining the active right tail
           - visible materialization, contains, append, rollback, and
             compaction rules are documented
-        - H38.1 active:
-          - implement the runtime-private bounded mid-gap pilot
-          - no MIR, `.inc`, public ABI, benchmark-name branch, or
-            semantic/search-result cache
+        - H38.1 result:
+          - runtime-private bounded mid-gap pilot landed in `ArrayTextCell`
+          - whole `kilo_kernel_small = C 83 ms / Ny AOT 6 ms`,
+            `ny_aot_instr=60923714`, `ny_aot_cycles=12531473`
+          - asm: `__memmove` fell to `0.23%`; top owners are now len-half
+            closure `49.27%` and observer-store closure `41.58%`
+          - exact `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+          - middle `kilo_meso_substring_concat_array_set_loopcarry =
+            C 3 ms / Ny AOT 4 ms`
+          - verdict: owner-moving keeper with instruction-count watch
+        - H39 active:
+          - refresh closure-internal owner after `memmove` removal
+          - do not reopen representation work until H39 pins the new hot block
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - active current entry:
