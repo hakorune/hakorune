@@ -116,13 +116,14 @@ Landed CoreBox router first slice:
 
 - `src/mir/builder/router/policy.rs` now routes only the catalog-backed
   `StringBox.length` / `len` / `size` and `StringBox.substring` / `substr`
-  and `StringBox.concat` families through `Route::Unified`.
+  and `StringBox.concat` and `StringBox.trim` families through
+  `Route::Unified`.
 - `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
   `StringBox` before route selection; uncovered methods remain on the BoxCall
   fallback.
-- remaining router cleanup count after `concat`: 7 family-equivalents
-  (`trim`, `contains`, `lastIndexOf` one-arg, `replace`, `indexOf` / `find`,
-  `ArrayBox`, `MapBox`).
-- `StringBox.trim` is the next safe single-family candidate; ArrayBox and
+- remaining router cleanup count after `trim`: 6 family-equivalents
+  (`contains`, `lastIndexOf` one-arg, `replace`, `indexOf` / `find`, `ArrayBox`,
+  `MapBox`).
+- `StringBox.contains` is the next safe single-family candidate; ArrayBox and
   MapBox remain separate route-flip cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

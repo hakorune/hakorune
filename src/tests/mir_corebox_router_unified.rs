@@ -155,6 +155,30 @@ static box Main {
 }
 
 #[test]
+fn string_value_trim_uses_unified_receiver_arg_shape() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local s = " banana "
+    local out = s.trim()
+    return out
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let arg_lens = method_call_arg_lens(&module, "StringBox", "trim");
+
+    assert_eq!(
+        arg_lens,
+        vec![1],
+        "StringBox.trim should use the Unified method-call shape with receiver in args"
+    );
+}
+
+#[test]
 fn string_value_index_of_stays_boxcall_arg_shape() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
