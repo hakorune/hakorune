@@ -11,7 +11,7 @@ phase = "phase-292x"
 title = ".inc codegen thin tag cleanup"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-current_blocker_token = "pure_compile_minimal_paths Map/Array path cleanup"
+current_blocker_token = "pure_compile_minimal_paths Map path #3 owner gap"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-292x/292x-115-pure-compile-minimal-map-array-deletion-card.md"
 
@@ -19,14 +19,14 @@ purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected hel
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
 inc_file_count = 73
-inc_line_count = 16146
+inc_line_count = 16079
 analysis_debt_files = 5
-analysis_debt_lines = 34
+analysis_debt_lines = 28
 remaining_seed_matcher_defs = 0
 
-last_landed_slice = "pure_compile_minimal_paths_ret_branch_deletion"
-next_recommended_slice = "pure_compile_minimal_paths_map_array_deletion"
-next_recommended_reason = "292x-112 removed path #1/#2 and lowered the guard to 34 debt lines. Continue with path #3/#4 MapBox and ArrayBox shortcuts under 292x-115."
+last_landed_slice = "pure_compile_minimal_paths_array_len_deletion"
+next_recommended_slice = "pure_compile_minimal_paths_map_set_size_owner"
+next_recommended_reason = "292x-115 deleted Array path #4 and lowered the guard to 28 debt lines. Map path #3 deletion fails pure_map_set_size, so fix generic/Hako LL MapBox set-size ownership or add MIR-owned metadata before deleting it."
 
 verification_min = [
   "cargo fmt --check",
@@ -215,9 +215,17 @@ backend_tag = "none"
 status = "landed"
 smoke = "phase29x_backend_owner_daily_ret_const_min.sh; pure-historical 5/5; pure-keep 2/2; llvmlite-monitor-keep 3/3"
 
+[[landed_slice]]
+id = "pure_compile_minimal_paths_array_len_deletion"
+kind = "c_analyzer_deletion"
+owner = "generic/CoreBox Array lowering"
+backend_tag = "none"
+status = "landed"
+smoke = "pure-historical 5/5; pure-keep 2/2; llvmlite-monitor-keep 3/3"
+
 [[backlog]]
 id = "pure_compile_minimal_paths_inventory"
 priority = 1
 remaining_matchers = 0
-owner_status = "paths #1/#2 deleted in 292x-112; paths #3/#4 active in 292x-115"
-note = "Largest remaining debt bucket is hako_llvmc_ffi_pure_compile_minimal_paths.inc at 27 lines; next Map/Array, then String const-eval decision."
+owner_status = "paths #1/#2 deleted in 292x-112; path #4 deleted in 292x-115; path #3 remains blocked"
+note = "Largest remaining debt bucket is hako_llvmc_ffi_pure_compile_minimal_paths.inc at 21 lines; next Map path #3 owner, then String const-eval decision."

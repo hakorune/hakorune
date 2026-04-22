@@ -142,8 +142,10 @@ Related:
 
 - [ ] A11 pure compile minimal Map/Array deletion
   - design: `292x-115-pure-compile-minimal-map-array-deletion-card.md`
-  - next state: delete-probe path #3/#4 and prove generic/CoreBox lowering owns
-    the MapBox and ArrayBox shapes
+  - state: path #4 ArrayBox push-len deleted; guard is now 5 files / 28
+    analysis-debt lines
+  - next state: path #3 MapBox set-size still needs generic/Hako LL ownership
+    before the C fallback can be removed
 
 ## Follow-up Cards
 

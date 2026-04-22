@@ -42,10 +42,11 @@ cargo check -q
   - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
   - latest landed exact route tag: `array_getset_micro`
   - MapBox duplicate receiver predelete fix is landed
-  - guard baseline: 5 `.inc` files / 34 analysis-debt lines
+  - guard baseline: 5 `.inc` files / 28 analysis-debt lines
   - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
     is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
-    restored, then landed; next cleanup is path #3/#4 Map/Array
+    restored, then landed; path #4 Array deletion is also landed; next cleanup
+    is path #3 Map owner
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -64,7 +65,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-292x/292x-115-pure-compile-minimal-map-array-deletion-card.md`
 - current blocker token:
-  - `pure_compile_minimal_paths Map/Array path cleanup`
+  - `pure_compile_minimal_paths Map path #3 owner gap`
 
 ## Current Perf Snapshot
 
@@ -99,8 +100,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - delete-probe `pure_compile_minimal_paths` paths #3/#4 Map/Array
-  - paths #1/#2 are deleted and the guard is now 5 files / 34 debt lines
+  - fix `pure_compile_minimal_paths` path #3 MapBox set-size owner gap
+  - paths #1/#2 and #4 are deleted; the guard is now 5 files / 28 debt lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

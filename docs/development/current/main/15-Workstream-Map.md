@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, array_getset_micro, MapBox duplicate receiver, Hako LL/provider fix, and pure minimal path #1/#2 deletion landed` |
+| Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, array_getset_micro, MapBox duplicate receiver, Hako LL/provider fix, pure minimal path #1/#2, and Array path #4 deletion landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `pure_compile_minimal_paths Map/Array path cleanup` |
-| Next | `pure_compile_minimal_paths delete-probe #3/#4` |
+| Blocker | `pure_compile_minimal_paths Map path #3 owner gap` |
+| Next | `MapBox set-size owner fix, then delete path #3` |
 | After Next | `pure_compile_minimal_paths String const-eval decision` |
 
 ## Current Read
@@ -60,7 +60,8 @@ Related:
 25. `phase-292x MapBox duplicate receiver predelete fix` landed
 26. `phase-292x Hako LL/provider stack overflow predelete fix` landed
 27. `phase-292x pure_compile_minimal_paths delete-probe #1/#2` landed
-28. `phase-292x pure_compile_minimal_paths delete-probe #3/#4`
+28. `phase-292x pure_compile_minimal_paths delete-probe #4 Array` landed
+29. `phase-292x pure_compile_minimal_paths path #3 Map owner gap`
 
 ## Parked Corridor
 

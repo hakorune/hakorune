@@ -101,9 +101,10 @@ Scope: current lane / next lane / restart order only.
     - latest landed exact route tag: `array_getset_micro`
     - MapBox duplicate receiver and Hako LL/provider stack overflow predelete fixes are landed
     - minimal paths #1/#2 deletion is landed
-    - guard baseline: 5 `.inc` files / 34 analysis-debt lines
+    - minimal path #4 Array deletion is landed
+    - guard baseline: 5 `.inc` files / 28 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is inventoried in `292x-111`; next cleanup is path #3/#4 Map/Array
+      is inventoried in `292x-111`; next cleanup is path #3 Map owner
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -116,7 +117,7 @@ Scope: current lane / next lane / restart order only.
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `pure_compile_minimal_paths Map/Array path cleanup`
+    - `pure_compile_minimal_paths Map path #3 owner gap`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

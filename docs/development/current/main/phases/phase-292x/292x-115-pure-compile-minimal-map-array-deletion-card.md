@@ -11,6 +11,22 @@ Related:
 
 # 292x-115: Pure Compile Minimal Map/Array Deletion
 
+## Current Result
+
+Array path #4 is delete-ready and landed in this card:
+
+- Removed path #4 `ArrayBox` constructor, `push`, `len/length/size`, `ret`.
+- Pruned `hako_llvmc_ffi_pure_compile_minimal_paths.inc` allowlist `27 -> 21`.
+- Guard moved from 5 files / 34 analysis-debt lines to 5 files / 28
+  analysis-debt lines.
+
+Map path #3 is not delete-ready:
+
+- Deleting path #3 makes `s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh`
+  fail with `ny-llvmc boundary emit rc=1`.
+- Keep path #3 as a temporary fallback until generic/Hako LL MapBox set-size
+  ownership is fixed or a MIR-owned route exists.
+
 ## Goal
 
 Remove the next two raw MIR recognizers from
@@ -24,10 +40,11 @@ method route legality.
 
 ## Plan
 
-1. Delete path #3 and #4 recognizer blocks.
-2. Rebuild the C FFI.
-3. Run pure keep, pure historical, and llvmlite monitor canaries.
-4. If all pass, prune `hako_llvmc_ffi_pure_compile_minimal_paths.inc` in the
+1. Delete path #4 recognizer block. (landed)
+2. Fix or replace path #3 owner, then delete path #3.
+3. Rebuild the C FFI.
+4. Run pure keep, pure historical, and llvmlite monitor canaries.
+5. If all pass, prune `hako_llvmc_ffi_pure_compile_minimal_paths.inc` in the
    allowlist to the new guard count.
 
 If deletion exposes a missing real owner, add a MIR-owned route or fix generic

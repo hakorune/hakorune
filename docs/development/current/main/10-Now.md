@@ -35,7 +35,7 @@ Related:
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-292x/292x-115-pure-compile-minimal-map-array-deletion-card.md`
-  - current implementation focus: delete-probe pure compile minimal paths #3/#4 Map/Array
+  - current implementation focus: fix pure compile minimal path #3 MapBox set-size owner gap
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
@@ -45,9 +45,10 @@ Related:
     - latest landed exact route tag: `array_getset_micro`
     - MapBox duplicate receiver and Hako LL/provider stack overflow predelete fixes are landed
     - minimal paths #1/#2 deletion is landed
-    - guard baseline: 5 `.inc` files / 34 analysis-debt lines
+    - minimal path #4 Array deletion is landed
+    - guard baseline: 5 `.inc` files / 28 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is inventoried in `292x-111`; next cleanup is path #3/#4 Map/Array
+      is inventoried in `292x-111`; next cleanup is path #3 Map owner
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -59,7 +60,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `pure_compile_minimal_paths Map/Array path cleanup`
+  - current blocker token: `pure_compile_minimal_paths Map path #3 owner gap`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

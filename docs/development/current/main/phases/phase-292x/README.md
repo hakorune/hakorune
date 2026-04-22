@@ -57,7 +57,8 @@ Related:
 - Landed predelete fix: `mapbox_duplicate_receiver_unified_dispatch`
 - Landed predelete fix: `hako_ll_provider_stack_overflow_predelete`
 - Landed deletion: `pure_compile_minimal_paths` path #1/#2
-- Next cleanup target: `pure_compile_minimal_paths` path #3/#4 Map/Array
+- Landed deletion: `pure_compile_minimal_paths` path #4 Array
+- Next cleanup target: `pure_compile_minimal_paths` path #3 Map owner
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -130,8 +131,8 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 5 `.inc` files, 34 analysis-debt lines
-- current inventory: 73 `.inc` files, 16,146 `.inc` lines
+- baseline: 5 `.inc` files, 28 analysis-debt lines
+- current inventory: 73 `.inc` files, 16,079 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 - compact phase status lives in `292x-STATUS.toml`
 
@@ -227,5 +228,6 @@ exact seed ladders to function-level backend route tags
   -> MapBox duplicate receiver predelete fix is landed
   -> Hako LL/provider stack overflow predelete fix is landed
   -> minimal paths #1/#2 deletion is landed
-  -> next recommended slice is path #3/#4 Map/Array deletion
+  -> minimal path #4 Array deletion is landed
+  -> path #3 Map deletion is blocked on generic/Hako LL MapBox set-size ownership
 ```

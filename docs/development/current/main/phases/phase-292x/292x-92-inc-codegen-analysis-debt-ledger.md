@@ -315,3 +315,12 @@ Pure compile minimal ret/branch deletion:
 - lowered allowlist:
   - `hako_llvmc_ffi_pure_compile_minimal_paths.inc`: `40 -> 27`
   - current analysis-debt baseline is `34`
+
+Pure compile minimal Array path deletion:
+
+- deleted `pure_compile_minimal_paths` path #4 `ArrayBox` constructor, `push`,
+  `len/length/size`, `ret`
+- path #3 `MapBox` set-size stays as fallback after a failed delete probe
+- lowered allowlist:
+  - `hako_llvmc_ffi_pure_compile_minimal_paths.inc`: `27 -> 21`
+  - current analysis-debt baseline is `28`
