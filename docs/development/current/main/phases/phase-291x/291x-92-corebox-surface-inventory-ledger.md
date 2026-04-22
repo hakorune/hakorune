@@ -121,8 +121,11 @@ Landed first slice and follow-up:
 - ninth implementation moved `ArrayBox.length` / `size` / `len` after adding
   focused arity-zero receiver-shape fixtures and Integer return-type
   publication assertions.
-- remaining router cleanup after ArrayBox length: ArrayBox non-length rows
-  (`get`, `set`, `push`, `pop`, `slice`, `remove`, `insert`) and MapBox.
+- tenth implementation moved `ArrayBox.push` after adding a focused
+  receiver-plus-value fixture and preserving the remaining ArrayBox fallback
+  sentinels.
+- remaining router cleanup after ArrayBox push: ArrayBox `get`, `set`, `pop`,
+  `slice`, `remove`, `insert` and MapBox.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
 

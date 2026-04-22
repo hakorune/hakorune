@@ -55,7 +55,8 @@ StringBox surface catalog
 | `291x-S8` | done | prove `StringBox.replace` through the same MIR router Unified value path |
 | `291x-S9` | done | prove `StringBox.indexOf` / `find` one-arg and two-arg through the same MIR router Unified value path |
 | `291x-S10` | done | prove `ArrayBox.length` / `size` / `len` through the same MIR router Unified value path |
-| `291x-S11` | parked | move the next CoreBox method family through the same route pattern |
+| `291x-S11` | done | prove `ArrayBox.push` through the same MIR router Unified value path |
+| `291x-S12` | parked | move the next CoreBox method family through the same route pattern |
 
 ## First Stable Surface Target
 
@@ -115,11 +116,12 @@ This StringBox slice is done when:
 - `boxcall_emit.rs` still bridges `MirType::String` receivers to `StringBox`
   before route selection
 - `ArrayBox.length` / `size` / `len` is the first collection route slice
+- `ArrayBox.push` is the first collection write route slice
 - next safe cleanup is not a whole-CoreBox flip; it should allowlist one
   proven CoreBox method family, with remaining ArrayBox rows and MapBox as
   separate candidates
-- remaining router cleanup after ArrayBox length: ArrayBox non-length rows and
-  MapBox
+- remaining router cleanup after ArrayBox push: ArrayBox `get` / `set` /
+  `pop` / `slice` / `remove` / `insert` and MapBox
 - two-arg `lastIndexOf(needle, start_pos)` remains deferred and must stay off
   the allowlist until a dedicated runtime card lands
 - tracking card: `291x-96-corebox-router-unified-value-path-card.md`

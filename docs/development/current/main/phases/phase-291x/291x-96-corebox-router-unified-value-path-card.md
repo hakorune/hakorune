@@ -24,6 +24,7 @@ Landed route slices:
 - `StringBox.replace`
 - `StringBox.indexOf` / `StringBox.find` one-arg and two-arg
 - `ArrayBox.length` / `ArrayBox.size` / `ArrayBox.len`
+- `ArrayBox.push`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -106,6 +107,8 @@ runtime dispatch.
 `ArrayBox.length` / `size` / `len` is the first collection slice because it is
 read-only, arity-zero, and publishes a fixed `Integer` result without touching
 generic element-return methods.
+`ArrayBox.push` is the first collection write slice because it is a single
+argument, has a catalog-backed `WriteHeap` effect, and returns `Void`.
 
 ## Implementation Snapshot
 
@@ -116,7 +119,8 @@ generic element-return methods.
   `StringMethodId::Replace`, `StringMethodId::IndexOf`, and
   `StringMethodId::IndexOfFrom` families to `Route::Unified`.
 - `src/mir/builder/router/policy.rs` also allowlists the catalog-backed
-  `ArrayMethodId::Length` family to `Route::Unified`.
+  `ArrayMethodId::Length` and `ArrayMethodId::Push` families to
+  `Route::Unified`.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -138,8 +142,9 @@ generic element-return methods.
   publishes `MirType::String`; `indexOf` / `find` use receiver-plus-needle
   and receiver-plus-needle-plus-start shapes and publish `MirType::Integer`;
   `ArrayBox.length` / `size` / `len` use the arity-zero receiver shape and
-  publish `MirType::Integer`; `lastIndexOf/2`, `ArrayBox.get`, and
-  `MapBox.size` remain pinned as BoxCall fallback sentinels.
+  publish `MirType::Integer`; `ArrayBox.push` uses the receiver-plus-value
+  shape and stays `Void`; `lastIndexOf/2`, `ArrayBox.get`, and `MapBox.size`
+  remain pinned as BoxCall fallback sentinels.
 
 ## Acceptance
 
@@ -168,12 +173,12 @@ implemented.
 
 ## Remaining Work
 
-- remaining ArrayBox method rows: `get`, `set`, `push`, `pop`, `slice`,
-  `remove`, `insert`
+- remaining ArrayBox method rows: `get`, `set`, `pop`, `slice`, `remove`,
+  `insert`
 - `MapBox` route flips
 
-Remaining cleanup after the ArrayBox length slice: ArrayBox non-length rows and
-MapBox.
+Remaining cleanup after the ArrayBox push slice: ArrayBox generic/value rows,
+ArrayBox remaining writes, and MapBox.
 
 Each method family needs its own fixture and route assertion before the
 family-wide CoreBox fallback can shrink further.

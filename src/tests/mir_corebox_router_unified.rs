@@ -393,7 +393,6 @@ static box Main {
     let size_result_types = method_call_result_types(&module, "ArrayBox", "size");
     let len_arg_lens = method_call_arg_lens(&module, "ArrayBox", "len");
     let len_result_types = method_call_result_types(&module, "ArrayBox", "len");
-    let push_arg_lens = method_call_arg_lens(&module, "ArrayBox", "push");
 
     assert_eq!(
         length_arg_lens,
@@ -425,9 +424,35 @@ static box Main {
         vec![Some(MirType::Integer)],
         "ArrayBox.len should publish an Integer result type"
     );
+}
+
+#[test]
+fn array_value_push_uses_unified_receiver_arg_shape() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push(7)
+    local x = a.get(0)
+    return a.length()
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let push_arg_lens = method_call_arg_lens(&module, "ArrayBox", "push");
+    let get_arg_lens = method_call_arg_lens(&module, "ArrayBox", "get");
+
     assert_eq!(
         push_arg_lens,
+        vec![2],
+        "ArrayBox.push should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        get_arg_lens,
         vec![1],
-        "ArrayBox.push is still deferred and should stay on the BoxCall fallback shape"
+        "ArrayBox.get is still deferred and should stay on the BoxCall fallback shape"
     );
 }
