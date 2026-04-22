@@ -49,9 +49,9 @@ cargo check -q
   - next implementation card is exact seed ladders to function-level backend route tags
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
-    `StringBox.concat`, `StringBox.trim`, and `StringBox.contains` are on the
-    Unified value path; remaining cleanup is about 5 family-equivalents,
-    starting with one-arg `lastIndexOf`
+    `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
+    `StringBox.lastIndexOf` are on the Unified value path; remaining cleanup is
+    about 4 family-equivalents, starting with `replace`
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
