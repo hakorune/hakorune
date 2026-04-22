@@ -64,7 +64,8 @@ StringBox surface catalog
 | `291x-S17` | done | prove `ArrayBox.pop` through the same MIR router Unified value path |
 | `291x-S18` | done | prove `ArrayBox.set` through the same MIR router Unified value path |
 | `291x-S19` | done | prove `ArrayBox.remove` through the same MIR router Unified value path |
-| `291x-S20` | parked | move the next CoreBox method family through the same route pattern |
+| `291x-S20` | done | prove `ArrayBox.insert` through the same MIR router Unified value path |
+| `291x-S21` | parked | move the next CoreBox method family through the same route pattern |
 
 ## First Stable Surface Target
 
@@ -136,6 +137,8 @@ This StringBox slice is done when:
   receiver-plus-index-plus-value Unified shape
 - `ArrayBox.remove` follows the same generic element-return contract as
   `get` / `pop`; its MIR result type intentionally stays `Unknown`
+- `ArrayBox.insert` follows the same write-`Void` contract as `push` / `set`,
+  with a receiver-plus-index-plus-value Unified shape
 - `MapBox.size` is the first MapBox route slice; `len` was kept as a separate
   current-vtable row and handled in its own slice
 - `MapBox.len` is the second MapBox route slice; it stays a separate row from
@@ -144,8 +147,8 @@ This StringBox slice is done when:
   fixed `Bool` result
 - next safe cleanup is not a whole-CoreBox flip; it should allowlist one
   proven CoreBox method family at a time
-- remaining router inventory order after ArrayBox remove: ArrayBox `insert`,
-  then MapBox `get` and `set`
+- remaining router inventory order after ArrayBox insert: MapBox `get`, then
+  `set`
 - MapBox `keys` / `values` / `delete` / `remove` / `clear` stay
   contract-first until their `.hako` owner and return contract are pinned
 - two-arg `lastIndexOf(needle, start_pos)` remains deferred and must stay off

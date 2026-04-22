@@ -206,6 +206,7 @@ mod tests {
         assert_eq!(infer_return_type("ArrayBox.len/0"), Some(MirType::Integer));
         assert_eq!(infer_return_type("ArrayBox.push/1"), Some(MirType::Void));
         assert_eq!(infer_return_type("ArrayBox.set/2"), Some(MirType::Void));
+        assert_eq!(infer_return_type("ArrayBox.insert/2"), Some(MirType::Void));
         assert_eq!(
             infer_return_type("ArrayBox.slice/2"),
             Some(MirType::Box("ArrayBox".to_string()))

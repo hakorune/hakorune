@@ -129,6 +129,8 @@ to the Unified receiver-only shape while keeping the MIR result type
 `ArrayBox.remove` follows the same generic element-return contract as
 `get` / `pop`; it moves to the Unified receiver-plus-index shape while
 keeping the MIR result type `Unknown`.
+`ArrayBox.insert` follows the write-`Void` contract already proven by
+`push` / `set`, with receiver-plus-index-plus-value Unified shape.
 `MapBox.size` is the first MapBox route slice because it is read-only,
 arity-zero, and publishes a fixed `Integer` result without collapsing the
 separate `len` slot.
@@ -148,7 +150,8 @@ separate `len` slot.
 - `src/mir/builder/router/policy.rs` also allowlists the catalog-backed
   `ArrayMethodId::Length`, `ArrayMethodId::Push`, `ArrayMethodId::Slice`, and
   `ArrayMethodId::Get`, `ArrayMethodId::Pop`, `ArrayMethodId::Set`, and
-  `ArrayMethodId::Remove` families to `Route::Unified`.
+  `ArrayMethodId::Remove`, and `ArrayMethodId::Insert` families to
+  `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, and `MapMethodId::Has` rows to
   `Route::Unified`; remaining MapBox rows still use the family-wide fallback.
@@ -181,11 +184,12 @@ separate `len` slot.
   intentionally stays `MirType::Unknown`; `ArrayBox.set` uses the
   receiver-plus-index-plus-value shape and stays `Void`; `ArrayBox.remove`
   uses the receiver-plus-index shape and intentionally stays
-  `MirType::Unknown`;
+  `MirType::Unknown`; `ArrayBox.insert` uses the
+  receiver-plus-index-plus-value shape and stays `Void`;
   `MapBox.size` and `MapBox.len` use the arity-zero receiver shape and publish
   `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
-  publishes `MirType::Bool`; `lastIndexOf/2`, `ArrayBox.insert`, and `MapBox.get`
-  remain pinned as BoxCall fallback sentinels.
+  publishes `MirType::Bool`; `lastIndexOf/2` and `MapBox.get` remain pinned as
+  BoxCall fallback sentinels.
 
 ## Acceptance
 
@@ -214,8 +218,8 @@ implemented.
 
 ## Remaining Work
 
-- remaining router inventory order after `ArrayBox.remove`: `ArrayBox.insert`,
-  `MapBox.get`, then `MapBox.set`
+- remaining router inventory order after `ArrayBox.insert`: `MapBox.get`, then
+  `MapBox.set`
 - contract-first backlog: two-arg `StringBox.lastIndexOf(needle, start_pos)`,
   Array generic element-result publication (`get` / `pop` / `remove` as `T`
   instead of `Unknown`), `MapBox.length`, `MapBox.keys` / `values`,
