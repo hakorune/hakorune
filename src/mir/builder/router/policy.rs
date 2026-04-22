@@ -25,6 +25,9 @@ pub fn choose_route(box_name: &str, method: &str, certainty: TypeCertainty, arit
     } else if is_arraybox_unified_value_path(method, arity) && box_name == "ArrayBox" {
         reason = "arraybox_value_path";
         Route::Unified
+    } else if is_mapbox_unified_value_path(method, arity) && box_name == "MapBox" {
+        reason = "mapbox_value_path";
+        Route::Unified
     } else if matches!(box_name, "StringBox" | "ArrayBox" | "MapBox") {
         reason = "core_box";
         Route::BoxCall
@@ -73,6 +76,14 @@ fn is_arraybox_unified_value_path(method: &str, arity: usize) -> bool {
                 | crate::boxes::array::ArrayMethodId::Push
                 | crate::boxes::array::ArrayMethodId::Slice
         )
+    )
+}
+
+#[inline]
+fn is_mapbox_unified_value_path(method: &str, arity: usize) -> bool {
+    matches!(
+        crate::boxes::MapMethodId::from_name_and_arity(method, arity),
+        Some(crate::boxes::MapMethodId::Size)
     )
 }
 
@@ -160,6 +171,11 @@ mod tests {
     }
 
     #[test]
+    fn map_size_row_uses_unified_value_path() {
+        assert_eq!(route("MapBox", "size", 0), Route::Unified);
+    }
+
+    #[test]
     fn non_allowlisted_corebox_methods_stay_boxcall() {
         assert_eq!(route("StringBox", "length", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "substring", 1), Route::BoxCall);
@@ -182,7 +198,9 @@ mod tests {
         assert_eq!(route("ArrayBox", "slice", 3), Route::BoxCall);
         assert_eq!(route("ArrayBox", "remove", 1), Route::BoxCall);
         assert_eq!(route("ArrayBox", "insert", 2), Route::BoxCall);
-        assert_eq!(route("MapBox", "size", 0), Route::BoxCall);
+        assert_eq!(route("MapBox", "size", 1), Route::BoxCall);
+        assert_eq!(route("MapBox", "len", 0), Route::BoxCall);
+        assert_eq!(route("MapBox", "has", 1), Route::BoxCall);
     }
 
     #[test]

@@ -101,7 +101,7 @@ Scope: current lane / next lane / restart order only.
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - `apps/std/string.hako` is std sugar; the old diagnostic `apps/std/string2.hako` stub was deleted during cleanup triage
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, and `ArrayBox.slice` to the Unified value path; remaining cleanup is ArrayBox `get/set/pop/remove/insert` and MapBox
+    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, and `MapBox.size` to the Unified value path; remaining cleanup is ArrayBox `get/set/pop/remove/insert` and remaining MapBox rows
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap

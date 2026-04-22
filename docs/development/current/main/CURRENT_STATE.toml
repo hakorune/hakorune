@@ -23,7 +23,7 @@ opened_successors = [
   "phase-290x ArrayBox surface catalog landed",
   "phase-291x CoreBox surface catalog reference lane",
   "StringBox surface catalog first implementation slice landed",
-  "StringBox router length, substring, concat, trim, contains, one-arg lastIndexOf, replace, and indexOf/find families plus ArrayBox length, push, and slice moved to Unified value path",
+  "StringBox router length, substring, concat, trim, contains, one-arg lastIndexOf, replace, and indexOf/find families plus ArrayBox length, push, and slice plus MapBox size moved to Unified value path",
   "MapBox surface catalog first implementation slice landed",
   "CoreBox legacy cleanup first safe deletions landed",
   "MapStd prelude cleanup landed",
