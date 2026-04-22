@@ -211,6 +211,8 @@ mod tests {
             Some(MirType::Box("ArrayBox".to_string()))
         );
         assert_eq!(infer_return_type("ArrayBox.get/1"), None);
+        assert_eq!(infer_return_type("ArrayBox.pop/0"), None);
+        assert_eq!(infer_return_type("ArrayBox.remove/1"), None);
         assert_eq!(infer_return_type("MapBox.size/0"), Some(MirType::Integer));
         assert_eq!(infer_return_type("MapBox.len/0"), Some(MirType::Integer));
         assert_eq!(infer_return_type("MapBox.has/1"), Some(MirType::Bool));
