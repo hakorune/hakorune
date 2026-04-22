@@ -17,6 +17,7 @@ Landed route slices:
 
 - `StringBox.length` / `StringBox.len` / `StringBox.size`
 - `StringBox.substring` / `StringBox.substr`
+- `StringBox.concat`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -84,13 +85,14 @@ String value receiver
 `length` / `len` / `size` was the first route flip because the method family is
 already cataloged, read-only, and arity-zero. `substring` / `substr` followed
 after the Unified receiver-argument shape and catalog-backed return-type
-publication were fixed by focused fixtures.
+publication were fixed by focused fixtures. `concat` then proved the same
+receiver-plus-one-argument shape for the first non-zero-arity string value call.
 
 ## Implementation Snapshot
 
 - `src/mir/builder/router/policy.rs` now allowlists the catalog-backed
-  `StringMethodId::Length` and `StringMethodId::Substring` families to
-  `Route::Unified`.
+  `StringMethodId::Length`, `StringMethodId::Substring`, and
+  `StringMethodId::Concat` families to `Route::Unified`.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -103,7 +105,8 @@ publication were fixed by focused fixtures.
   duplicate receiver `ValueId` at the VM method boundary before slot dispatch.
 - `src/tests/mir_corebox_router_unified.rs` pins direct string value receiver
   shape: `length`, `substring`, and `substr` use the Unified receiver-arg
-  shape, while `concat` stays on the BoxCall fallback shape.
+  shape; `concat` uses the same Unified receiver-plus-argument shape; `indexOf`
+  remains a pinned BoxCall fallback sentinel.
 
 ## Acceptance
 
@@ -131,13 +134,14 @@ implemented.
 
 ## Remaining Work
 
-- `StringBox.concat`
-- `StringBox.indexOf` / `find`
-- `StringBox.replace`
 - `StringBox.trim`
-- `StringBox.lastIndexOf`
 - `StringBox.contains`
+- `StringBox.lastIndexOf`
+- `StringBox.replace`
+- `StringBox.indexOf` / `find`
 - `ArrayBox` and `MapBox` route flips
+
+Remaining cleanup count after the `concat` slice: 7 family-equivalents.
 
 Each method family needs its own fixture and route assertion before the
 family-wide CoreBox fallback can shrink further.

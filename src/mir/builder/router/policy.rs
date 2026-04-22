@@ -50,6 +50,7 @@ fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
         Some(
             crate::boxes::basic::StringMethodId::Length
                 | crate::boxes::basic::StringMethodId::Substring
+                | crate::boxes::basic::StringMethodId::Concat
         )
     )
 }
@@ -88,10 +89,16 @@ mod tests {
     }
 
     #[test]
+    fn string_concat_family_uses_unified_value_path() {
+        assert_eq!(route("StringBox", "concat", 1), Route::Unified);
+    }
+
+    #[test]
     fn non_allowlisted_corebox_methods_stay_boxcall() {
         assert_eq!(route("StringBox", "length", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "substring", 1), Route::BoxCall);
-        assert_eq!(route("StringBox", "concat", 1), Route::BoxCall);
+        assert_eq!(route("StringBox", "concat", 0), Route::BoxCall);
+        assert_eq!(route("StringBox", "indexOf", 1), Route::BoxCall);
         assert_eq!(route("ArrayBox", "length", 0), Route::BoxCall);
         assert_eq!(route("MapBox", "size", 0), Route::BoxCall);
     }

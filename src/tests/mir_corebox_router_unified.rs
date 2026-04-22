@@ -131,7 +131,7 @@ static box Main {
 }
 
 #[test]
-fn string_value_concat_stays_boxcall_arg_shape() {
+fn string_value_concat_uses_unified_receiver_arg_shape() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
     let src = r#"
@@ -149,7 +149,31 @@ static box Main {
 
     assert_eq!(
         arg_lens,
+        vec![2],
+        "StringBox.concat should use the Unified method-call shape with receiver in args"
+    );
+}
+
+#[test]
+fn string_value_index_of_stays_boxcall_arg_shape() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local s = "banana"
+    local idx = s.indexOf("a")
+    return idx
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let arg_lens = method_call_arg_lens(&module, "StringBox", "indexOf");
+
+    assert_eq!(
+        arg_lens,
         vec![1],
-        "StringBox.concat is not allowlisted yet and should stay on the BoxCall fallback shape"
+        "StringBox.indexOf is not allowlisted yet and should stay on the BoxCall fallback shape"
     );
 }
