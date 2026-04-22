@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::{Callee, MirCompiler, MirInstruction, MirModule};
+use crate::mir::{Callee, MirCompiler, MirInstruction, MirModule, MirType};
 use crate::parser::NyashParser;
 
 struct EnvGuard {
@@ -56,6 +56,38 @@ fn method_call_arg_lens(module: &MirModule, box_name: &str, method: &str) -> Vec
         }
     }
     arg_lens
+}
+
+fn method_call_result_types(
+    module: &MirModule,
+    box_name: &str,
+    method: &str,
+) -> Vec<Option<MirType>> {
+    let mut result_types = Vec::new();
+    for function in module.functions.values() {
+        for block in function.blocks.values() {
+            for inst in &block.instructions {
+                let MirInstruction::Call {
+                    dst,
+                    callee:
+                        Some(Callee::Method {
+                            box_name: call_box,
+                            method: call_method,
+                            ..
+                        }),
+                    ..
+                } = inst
+                else {
+                    continue;
+                };
+                if call_box == box_name && call_method == method {
+                    result_types
+                        .push(dst.and_then(|dst| function.metadata.value_types.get(&dst).cloned()));
+                }
+            }
+        }
+    }
+    result_types
 }
 
 #[test]
@@ -175,6 +207,36 @@ static box Main {
         arg_lens,
         vec![1],
         "StringBox.trim should use the Unified method-call shape with receiver in args"
+    );
+}
+
+#[test]
+fn string_value_contains_uses_unified_receiver_arg_shape_and_bool_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local s = "banana"
+    local ok = s.contains("na")
+    return ok
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let arg_lens = method_call_arg_lens(&module, "StringBox", "contains");
+    let result_types = method_call_result_types(&module, "StringBox", "contains");
+
+    assert_eq!(
+        arg_lens,
+        vec![2],
+        "StringBox.contains should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        result_types,
+        vec![Some(MirType::Bool)],
+        "StringBox.contains should publish a Bool result type"
     );
 }
 

@@ -19,6 +19,7 @@ Landed route slices:
 - `StringBox.substring` / `StringBox.substr`
 - `StringBox.concat`
 - `StringBox.trim`
+- `StringBox.contains`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -89,13 +90,14 @@ after the Unified receiver-argument shape and catalog-backed return-type
 publication were fixed by focused fixtures. `concat` then proved the same
 receiver-plus-one-argument shape for the first non-zero-arity string value call.
 `trim` extends the arity-zero read-only String-return family beyond `length`.
+`contains` proves the first Bool-return StringBox value-path family.
 
 ## Implementation Snapshot
 
 - `src/mir/builder/router/policy.rs` now allowlists the catalog-backed
   `StringMethodId::Length`, `StringMethodId::Substring`, and
-  `StringMethodId::Concat`, and `StringMethodId::Trim` families to
-  `Route::Unified`.
+  `StringMethodId::Concat`, `StringMethodId::Trim`, and
+  `StringMethodId::Contains` families to `Route::Unified`.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -109,8 +111,9 @@ receiver-plus-one-argument shape for the first non-zero-arity string value call.
 - `src/tests/mir_corebox_router_unified.rs` pins direct string value receiver
   shape: `length`, `substring`, and `substr` use the Unified receiver-arg
   shape; `concat` uses the same Unified receiver-plus-argument shape; `trim`
-  uses the arity-zero Unified receiver-arg shape; `indexOf` remains a pinned
-  BoxCall fallback sentinel.
+  uses the arity-zero Unified receiver-arg shape; `contains` uses the
+  receiver-plus-needle shape and publishes `MirType::Bool`; `indexOf` remains a
+  pinned BoxCall fallback sentinel.
 
 ## Acceptance
 
@@ -138,13 +141,12 @@ implemented.
 
 ## Remaining Work
 
-- `StringBox.contains`
 - `StringBox.lastIndexOf`
 - `StringBox.replace`
 - `StringBox.indexOf` / `find`
 - `ArrayBox` and `MapBox` route flips
 
-Remaining cleanup count after the `trim` slice: 6 family-equivalents.
+Remaining cleanup count after the `contains` slice: 5 family-equivalents.
 
 Each method family needs its own fixture and route assertion before the
 family-wide CoreBox fallback can shrink further.
