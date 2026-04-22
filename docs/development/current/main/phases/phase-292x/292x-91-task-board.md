@@ -99,7 +99,10 @@ Related:
     seed family behind `sum_variant_tag_seed_route`
   - seventh slice landed: `292x-104` moved the Sum `variant_project`
     local/copy seed family behind `sum_variant_project_seed_route`
-  - next state: migrate UserBox local scalar seeds
+  - eighth slice landed: `292x-105` moved the UserBox `Point`
+    local/copy scalar pair behind `userbox_local_scalar_seed_route`
+  - next state: migrate `Flag` / `PointF` local scalar seeds, then the
+    multi-block UserBox loop micro routes
 
 ## Follow-up Cards
 

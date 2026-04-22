@@ -20,6 +20,7 @@ pub enum ExactSeedBackendRouteKind {
     SubstringConcatLoopAscii,
     SumVariantTagLocal,
     SumVariantProjectLocal,
+    UserBoxPointLocalScalar,
 }
 
 impl ExactSeedBackendRouteKind {
@@ -32,6 +33,7 @@ impl ExactSeedBackendRouteKind {
             Self::SubstringConcatLoopAscii => "substring_concat_loop_ascii",
             Self::SumVariantTagLocal => "sum_variant_tag_local",
             Self::SumVariantProjectLocal => "sum_variant_project_local",
+            Self::UserBoxPointLocalScalar => "userbox_point_local_scalar",
         }
     }
 
@@ -44,6 +46,7 @@ impl ExactSeedBackendRouteKind {
             Self::SubstringConcatLoopAscii => "string_kernel_plans.loop_payload",
             Self::SumVariantTagLocal => "sum_variant_tag_seed_route",
             Self::SumVariantProjectLocal => "sum_variant_project_seed_route",
+            Self::UserBoxPointLocalScalar => "userbox_local_scalar_seed_route",
         }
     }
 }
@@ -108,6 +111,17 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
         return Some(ExactSeedBackendRoute {
             tag: ExactSeedBackendRouteKind::SumVariantProjectLocal,
             source_route: ExactSeedBackendRouteKind::SumVariantProjectLocal
+                .source_route_field()
+                .to_string(),
+            proof: route.proof.to_string(),
+            selected_value: None,
+        });
+    }
+
+    if let Some(route) = function.metadata.userbox_local_scalar_seed_route.as_ref() {
+        return Some(ExactSeedBackendRoute {
+            tag: ExactSeedBackendRouteKind::UserBoxPointLocalScalar,
+            source_route: ExactSeedBackendRouteKind::UserBoxPointLocalScalar
                 .source_route_field()
                 .to_string(),
             proof: route.proof.to_string(),
@@ -184,6 +198,7 @@ mod tests {
         SubstringViewsMicroSeedRoute, SumLocalAggregateLayout, SumVariantProjectSeedKind,
         SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
         SumVariantTagSeedKind, SumVariantTagSeedProof, SumVariantTagSeedRoute,
+        UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -346,6 +361,44 @@ mod tests {
         assert_eq!(route.tag.as_str(), "sum_variant_project_local");
         assert_eq!(route.source_route, "sum_variant_project_seed_route");
         assert_eq!(route.proof, "sum_variant_project_local_aggregate_seed");
+        assert_eq!(route.selected_value, None);
+    }
+
+    #[test]
+    fn exact_seed_backend_route_selects_userbox_point_local_scalar_metadata() {
+        let mut function = make_function();
+        function.metadata.userbox_local_scalar_seed_route = Some(UserBoxLocalScalarSeedRoute {
+            kind: UserBoxLocalScalarSeedKind::PointLocalI64,
+            box_name: "Point".to_string(),
+            x_field: "x".to_string(),
+            y_field: "y".to_string(),
+            block: BasicBlockId::new(0),
+            newbox_instruction_index: 2,
+            set_x_instruction_index: 3,
+            set_y_instruction_index: 4,
+            get_x_instruction_index: 5,
+            get_y_instruction_index: 6,
+            point_value: ValueId::new(3),
+            copy_value: None,
+            x_value: ValueId::new(1),
+            y_value: ValueId::new(2),
+            get_x_value: ValueId::new(4),
+            get_y_value: ValueId::new(5),
+            result_value: ValueId::new(6),
+            x_i64: 41,
+            y_i64: 2,
+            proof: UserBoxLocalScalarSeedProof::PointFieldLocalScalarSeed,
+        });
+
+        refresh_function_exact_seed_backend_route(&mut function);
+
+        let route = function
+            .metadata
+            .exact_seed_backend_route
+            .expect("exact seed backend route");
+        assert_eq!(route.tag.as_str(), "userbox_point_local_scalar");
+        assert_eq!(route.source_route, "userbox_local_scalar_seed_route");
+        assert_eq!(route.proof, "userbox_point_field_local_scalar_seed");
         assert_eq!(route.selected_value, None);
     }
 

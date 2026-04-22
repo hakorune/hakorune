@@ -21,8 +21,10 @@ use crate::mir::{
     sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
     sum_variant_project_seed_plan::SumVariantProjectSeedRoute,
     sum_variant_tag_seed_plan::SumVariantTagSeedRoute, thin_entry::ThinEntryCandidate,
-    thin_entry_selection::ThinEntrySelection, value_consumer::ValueConsumerFacts, BasicBlock,
-    BasicBlockId, ConstValue, EffectMask, MirType, ValueId,
+    thin_entry_selection::ThinEntrySelection,
+    userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
+    value_consumer::ValueConsumerFacts, BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType,
+    ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -253,6 +255,12 @@ pub struct FunctionMetadata {
     /// Sum placement metadata owns the local aggregate proof; this route carries
     /// the temporary literal payload required by the exact backend helper.
     pub sum_variant_project_seed_route: Option<SumVariantProjectSeedRoute>,
+
+    /// Backend-consumable exact UserBox local scalar seed route.
+    /// Thin-entry metadata owns the primitive field surface proof; this route
+    /// only carries the temporary Point local/copy exact seed payload for the C
+    /// backend.
+    pub userbox_local_scalar_seed_route: Option<UserBoxLocalScalarSeedRoute>,
 
     /// Function-level backend route tag for one already-proven exact seed.
     /// Payload legality remains owned by the selected `*_micro_seed_route`;

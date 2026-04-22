@@ -27,6 +27,7 @@ placement/entry decisions without guessing from helper names.
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
 | `sum_variant_tag_seed_route` | object or null | Exact Sum `variant_tag` seed route selected from Sum placement metadata |
 | `sum_variant_project_seed_route` | object or null | Exact Sum `variant_project` seed route selected from Sum placement metadata |
+| `userbox_local_scalar_seed_route` | object or null | Exact UserBox Point local/copy scalar seed route selected from thin-entry field metadata |
 | `exact_seed_backend_route` | object or null | Function-level backend route tag for one already-proven exact seed payload |
 
 ## Value maps
@@ -275,6 +276,24 @@ metadata.
 | `consumer_capability` | `direct_sum_variant_project_local` |
 | `publication_boundary` | `none` |
 
+### `userbox_local_scalar_seed_route`
+
+`userbox_local_scalar_seed_route` is the exact-seed bridge for the current
+UserBox Point local/copy scalar seed pair. It is derived from thin-entry field
+metadata; it does not replace canonical `newbox` / `field_set` / `field_get`
+instructions.
+
+| Field | Meaning |
+| --- | --- |
+| `kind` | `point_local_i64` or `point_copy_local_i64` |
+| `box`, `x_field`, `y_field` | UserBox and field identity; current slice is `Point.x` / `Point.y` |
+| `block`, `newbox_instruction_index`, `set_x_instruction_index`, `set_y_instruction_index`, `get_x_instruction_index`, `get_y_instruction_index` | MIR sites proven by the route |
+| `point_value`, `copy_value`, `x_value`, `y_value`, `get_x_value`, `get_y_value`, `result_value` | Value ids needed by backend validation |
+| `x_i64`, `y_i64` | Literal field payloads for the temporary exact helper |
+| `proof` | `userbox_point_field_local_scalar_seed` |
+| `consumer_capability` | `direct_userbox_point_local_scalar` |
+| `publication_boundary` | `none` |
+
 ### `exact_seed_backend_route`
 
 `exact_seed_backend_route` lets the backend choose one already-proven exact seed
@@ -285,7 +304,7 @@ payload before walking any legacy compatibility ladder.
 | `tag` | Stable backend tag such as `sum_variant_tag_local` |
 | `source_route` | Metadata field that owns the payload, such as `sum_variant_tag_seed_route` or `sum_variant_project_seed_route` |
 | `proof` | Proof string copied from the selected source route |
-| `selected_value` | Optional value id for plan-indexed routes; null for Sum variant_tag |
+| `selected_value` | Optional value id for plan-indexed routes; null for route-payload fields such as Sum and UserBox exact seeds |
 
 ## Text MIR / verbose MIR relation
 

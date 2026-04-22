@@ -191,3 +191,13 @@ Each boundary smoke must observe:
   and emits the selected helper without scanning raw MIR JSON blocks.
 - The route is pinned with `phase163x_boundary_sum_metadata_keep_min.sh`.
 - The analysis-debt baseline is now `206` lines.
+
+## Eighth Slice Result
+
+- Added `FunctionMetadata.userbox_local_scalar_seed_route`.
+- `ExactSeedBackendRouteKind` includes `userbox_point_local_scalar`.
+- The two UserBox Point local/copy scalar matchers now flow through
+  `hako_llvmc_consume_userbox_point_local_scalar_route`, which validates
+  metadata and emits the selected helper without scanning raw MIR JSON blocks.
+- The route is pinned with `phase163x_boundary_user_box_metadata_keep_min.sh`.
+- The analysis-debt baseline is now `179` lines.

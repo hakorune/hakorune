@@ -567,6 +567,32 @@ pub(super) fn build_mir_json_root(
                 obj.insert("publication_boundary".to_string(), json!("none"));
                 serde_json::Value::Object(obj)
             }),
+            "userbox_local_scalar_seed_route": f.metadata.userbox_local_scalar_seed_route.as_ref().map(|route| {
+                let mut obj = serde_json::Map::new();
+                obj.insert("kind".to_string(), json!(route.kind.to_string()));
+                obj.insert("box".to_string(), json!(route.box_name.as_str()));
+                obj.insert("x_field".to_string(), json!(route.x_field.as_str()));
+                obj.insert("y_field".to_string(), json!(route.y_field.as_str()));
+                obj.insert("block".to_string(), json!(route.block.as_u32()));
+                obj.insert("newbox_instruction_index".to_string(), json!(route.newbox_instruction_index));
+                obj.insert("set_x_instruction_index".to_string(), json!(route.set_x_instruction_index));
+                obj.insert("set_y_instruction_index".to_string(), json!(route.set_y_instruction_index));
+                obj.insert("get_x_instruction_index".to_string(), json!(route.get_x_instruction_index));
+                obj.insert("get_y_instruction_index".to_string(), json!(route.get_y_instruction_index));
+                obj.insert("point_value".to_string(), json!(route.point_value.as_u32()));
+                obj.insert("copy_value".to_string(), json!(route.copy_value.map(|value| value.as_u32())));
+                obj.insert("x_value".to_string(), json!(route.x_value.as_u32()));
+                obj.insert("y_value".to_string(), json!(route.y_value.as_u32()));
+                obj.insert("get_x_value".to_string(), json!(route.get_x_value.as_u32()));
+                obj.insert("get_y_value".to_string(), json!(route.get_y_value.as_u32()));
+                obj.insert("result_value".to_string(), json!(route.result_value.as_u32()));
+                obj.insert("x_i64".to_string(), json!(route.x_i64));
+                obj.insert("y_i64".to_string(), json!(route.y_i64));
+                obj.insert("proof".to_string(), json!(route.proof.to_string()));
+                obj.insert("consumer_capability".to_string(), json!("direct_userbox_point_local_scalar"));
+                obj.insert("publication_boundary".to_string(), json!("none"));
+                serde_json::Value::Object(obj)
+            }),
             "exact_seed_backend_route": f.metadata.exact_seed_backend_route.as_ref().map(|route| {
                 json!({
                     "tag": route.tag.as_str(),

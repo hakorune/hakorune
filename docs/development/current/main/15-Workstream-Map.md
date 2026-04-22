@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-22
+Date: 2026-04-23
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array/string windows, generic_method.has, and first exact seed tags migrated to MIR metadata` |
+| Front | `array/string windows, generic_method.has, Sum seeds, and UserBox Point seed migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `move exact seed ladders to function-level backend route tags` |
-| Next | `UserBox local scalar exact route tag cleanup` |
+| Next | `UserBox Flag / PointF local scalar exact route tag cleanup` |
 | After Next | `next .inc raw-analysis deletion candidate` |
 
 ## Current Read
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-104-sum-variant-project-seed-route-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-105-userbox-point-local-scalar-seed-route-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -49,7 +49,8 @@ Related:
 14. `phase-292x array_rmw_add1_leaf exact seed function route tag` landed
 15. `phase-292x sum_variant_tag_local exact seed function route tag` landed
 16. `phase-292x sum_variant_project_local exact seed function route tag` landed
-17. `phase-292x remaining exact seed ladders to function-level backend route tags`
+17. `phase-292x userbox_point_local_scalar exact seed function route tag` landed
+18. `phase-292x remaining exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

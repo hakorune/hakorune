@@ -96,6 +96,23 @@ for FIXTURE in "${FIXTURES[@]}"; do
         test_fail "phase163x_boundary_user_box_metadata_keep_min: boundary route unexpectedly replayed compat lane for metadata-bearing user-box shape fixture=${BASENAME}"
         exit 1
     fi
+
+    case "$BASENAME" in
+      user_box_point_local_i64_min|user_box_point_copy_local_i64_min)
+        if ! grep -Fq "[llvm-route/trace] stage=exact_seed_backend_route result=hit reason=mir_route_metadata extra=userbox_point_local_scalar" "$BUILD_LOG"; then
+            echo "[INFO] compile output:"
+            tail -n 120 "$BUILD_LOG" || true
+            test_fail "phase163x_boundary_user_box_metadata_keep_min: Point fixture did not select exact_seed_backend_route fixture=${BASENAME}"
+            exit 1
+        fi
+        if ! grep -Fq "[llvm-route/trace] stage=userbox_point_local_scalar result=emit reason=exact_match" "$BUILD_LOG"; then
+            echo "[INFO] compile output:"
+            tail -n 120 "$BUILD_LOG" || true
+            test_fail "phase163x_boundary_user_box_metadata_keep_min: Point fixture did not emit via userbox_point_local_scalar route fixture=${BASENAME}"
+            exit 1
+        fi
+        ;;
+    esac
 done
 
-test_pass "phase163x_boundary_user_box_metadata_keep_min: PASS (metadata-bearing Point local-i64, Flag local-bool, and PointF local-f64 user-box JSON fixtures stay green on boundary pure-first owner lane without compat replay, including the Point, Flag, and PointF single-copy alias routes)"
+test_pass "phase163x_boundary_user_box_metadata_keep_min: PASS (Point local/copy now use exact_seed_backend_route, and remaining metadata-bearing Flag/PointF user-box JSON fixtures stay green without compat replay)"

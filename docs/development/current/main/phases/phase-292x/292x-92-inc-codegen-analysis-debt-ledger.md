@@ -178,3 +178,22 @@ Sum `variant_project` exact seed backend route:
     removed from the baseline
   - `hako_llvmc_ffi_pure_compile.inc`: `23 -> 17`
   - current analysis-debt baseline is `206`
+
+UserBox Point local scalar exact seed backend route:
+
+- added `FunctionMetadata.userbox_local_scalar_seed_route` for the current
+  Point local/copy scalar exact seed pair
+- replaced the two `hako_llvmc_match_userbox_point_*seed` C matchers with
+  `hako_llvmc_consume_userbox_point_local_scalar_route`
+- deleted the old copy-only Point matcher include and kept the local Point
+  include emitter-only
+- updated Point local/copy fixtures to carry `userbox_local_scalar_seed_route`
+  and `exact_seed_backend_route`
+- pinned route traces in `phase163x_boundary_user_box_metadata_keep_min.sh`
+- lowered allowlist:
+  - `hako_llvmc_ffi_user_box_micro_seed_point_copy_local_i64.inc`: `13 -> 0`
+    and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_point_local_i64.inc`: `12 -> 0`
+    and removed from the baseline
+  - `hako_llvmc_ffi_pure_compile.inc`: `17 -> 15`
+  - current analysis-debt baseline is `179`

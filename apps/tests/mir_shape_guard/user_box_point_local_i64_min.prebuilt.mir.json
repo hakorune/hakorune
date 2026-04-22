@@ -225,7 +225,37 @@
             "detail": "user_box_field_get.inline_scalar",
             "reason": "known primitive field reads stay on a thin internal scalar lane below canonical field.get"
           }
-        ]
+        ],
+        "userbox_local_scalar_seed_route": {
+          "kind": "point_local_i64",
+          "box": "Point",
+          "x_field": "x",
+          "y_field": "y",
+          "block": 0,
+          "newbox_instruction_index": 2,
+          "set_x_instruction_index": 3,
+          "set_y_instruction_index": 4,
+          "get_x_instruction_index": 5,
+          "get_y_instruction_index": 6,
+          "point_value": 3,
+          "copy_value": null,
+          "x_value": 1,
+          "y_value": 2,
+          "get_x_value": 4,
+          "get_y_value": 5,
+          "result_value": 6,
+          "x_i64": 41,
+          "y_i64": 2,
+          "proof": "userbox_point_field_local_scalar_seed",
+          "consumer_capability": "direct_userbox_point_local_scalar",
+          "publication_boundary": "none"
+        },
+        "exact_seed_backend_route": {
+          "tag": "userbox_point_local_scalar",
+          "source_route": "userbox_local_scalar_seed_route",
+          "proof": "userbox_point_field_local_scalar_seed",
+          "selected_value": null
+        }
       }
     }
   ]

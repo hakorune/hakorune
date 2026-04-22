@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-22
+Date: 2026-04-23
 Scope: `.inc` codegen を pre-decided tag consumer だけに薄くする phase front。
 Related:
   - CURRENT_TASK.md
@@ -26,12 +26,13 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md
   - docs/development/current/main/phases/phase-292x/292x-103-sum-variant-tag-seed-route-card.md
   - docs/development/current/main/phases/phase-292x/292x-104-sum-variant-project-seed-route-card.md
+  - docs/development/current/main/phases/phase-292x/292x-105-userbox-point-local-scalar-seed-route-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
 
 - Status: Active
-- Date: 2026-04-22
+- Date: 2026-04-23
 - Purpose: `.inc` を MIR JSON の形解析 owner から外し、MIR-owned
   pre-decided tag を読むだけの boundary glue に寄せる。
 - First implementation target: `array_rmw_window` (landed)
@@ -42,8 +43,8 @@ Related:
 - Landed sixth target: delete legacy `array_rmw_window` C analyzer
 - Landed seventh target: string concat / direct-set windows metadata-only
 - Landed eighth target: `generic_method.has` route policy metadata
-- Landed exact-seed slice: Sum `variant_project` local/copy route metadata
-- Next exact-seed cleanup target: UserBox local scalar seeds
+- Landed exact-seed slice: UserBox Point local/copy scalar route metadata
+- Next exact-seed cleanup target: Flag / PointF local scalar seeds
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -75,9 +76,10 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 4. `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
 5. `docs/development/current/main/phases/phase-292x/292x-103-sum-variant-tag-seed-route-card.md`
 6. `docs/development/current/main/phases/phase-292x/292x-104-sum-variant-project-seed-route-card.md`
-7. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-8. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
-9. Historical per-slice cards as needed:
+7. `docs/development/current/main/phases/phase-292x/292x-105-userbox-point-local-scalar-seed-route-card.md`
+8. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+9. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+10. Historical per-slice cards as needed:
    - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
@@ -86,7 +88,7 @@ only as temporary fallback while each family gets a MIR-owned route tag.
    - `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
-8. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+11. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
 
 ## Current Rule
 
@@ -105,7 +107,7 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 21 `.inc` files, 206 analysis-debt lines
+- baseline: 19 `.inc` files, 179 analysis-debt lines
 - current inventory: 75 `.inc` files, 18,153 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 - compact phase status lives in `292x-STATUS.toml`
@@ -191,5 +193,7 @@ exact seed ladders to function-level backend route tags
   -> fifth slice landed for array_rmw_add1_leaf whole-function metadata
   -> sixth slice landed for Sum variant_tag local/copy metadata
   -> seventh slice landed for Sum variant_project local/copy metadata
-  -> next recommended slice is UserBox local scalar seeds
+  -> eighth slice landed for UserBox Point local/copy scalar metadata
+  -> next recommended slice is Flag/PointF local scalar metadata
+  -> UserBox loop micro seeds remain a later follow-up slice
 ```

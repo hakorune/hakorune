@@ -6,27 +6,27 @@
 # - Human-authored mirrors should point here unless the active lane or blocker changes.
 
 status = "Active"
-date = "2026-04-22"
+date = "2026-04-23"
 phase = "phase-292x"
 title = ".inc codegen thin tag cleanup"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
 current_blocker_token = "move exact seed ladders to function-level backend route tags"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-104-sum-variant-project-seed-route-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-105-userbox-point-local-scalar-seed-route-card.md"
 
 purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
 inc_file_count = 75
-inc_line_count = 18153
-analysis_debt_files = 21
-analysis_debt_lines = 206
-remaining_seed_matcher_defs = 16
+inc_line_count = 18080
+analysis_debt_files = 19
+analysis_debt_lines = 179
+remaining_seed_matcher_defs = 14
 
-last_landed_slice = "sum_variant_project_local"
-next_recommended_slice = "userbox_local_scalar_seeds"
-next_recommended_reason = "Sum local exact seeds are metadata-routed; remaining highest-value seed family is UserBox local scalar, with 8 Point/Flag/PointF local/copy matchers."
+last_landed_slice = "userbox_point_local_scalar"
+next_recommended_slice = "userbox_flag_pointf_local_scalar_seeds"
+next_recommended_reason = "Point local/copy scalar seeds are metadata-routed; next cleanest UserBox slice is Flag BoolBox and PointF FloatBox direct/copy before loop-count-sensitive micro seeds."
 
 verification_min = [
   "cargo fmt --check",
@@ -141,23 +141,38 @@ backend_tag = "sum_variant_project_local"
 status = "landed"
 smoke = "phase163x_boundary_sum_metadata_keep_min.sh"
 
+[[landed_slice]]
+id = "userbox_point_local_scalar"
+kind = "exact_seed_backend_route"
+owner = "FunctionMetadata.userbox_local_scalar_seed_route"
+backend_tag = "userbox_point_local_scalar"
+status = "landed"
+smoke = "phase163x_boundary_user_box_metadata_keep_min.sh"
+
 [[backlog]]
-id = "userbox_local_scalar_seeds"
+id = "userbox_flag_pointf_local_scalar_seeds"
 priority = 1
-remaining_matchers = 8
+remaining_matchers = 4
 owner_status = "metadata exists: placement_effect_routes first, thin_entry_selections fallback, user_box_decls"
-note = "Start with Point / Flag / PointF local/copy plus point_add_micro and flag_toggle_micro."
+note = "Follow-up local scalar slice for Flag BoolBox and PointF FloatBox direct/copy routes."
+
+[[backlog]]
+id = "userbox_loop_micro_seeds"
+priority = 2
+remaining_matchers = 2
+owner_status = "metadata exists for field surfaces, but route still needs loop-count contract owner"
+note = "point_add_micro and flag_toggle_micro are multi-block loop-count-coupled routes; keep separate from local/copy scalar proof."
 
 [[backlog]]
 id = "userbox_known_receiver_method_seeds"
-priority = 2
+priority = 3
 remaining_matchers = 7
 owner_status = "metadata exists, but phase163x smokes may still pin stale block/value shapes"
 note = "Clean brittle smokes before route consumer migration."
 
 [[backlog]]
 id = "array_getset_micro"
-priority = 3
+priority = 4
 remaining_matchers = 1
 owner_status = "needs new whole-function MIR owner"
 note = "Defer until FunctionMetadata.array_getset_micro_seed_route or equivalent exists."

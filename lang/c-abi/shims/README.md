@@ -50,8 +50,11 @@ Current partitions:
 - `hako_llvmc_ffi_array_micro_seed.inc`
   - pure-first seed emit/match helpers for array get/set micro paths
 - `hako_llvmc_ffi_user_box_micro_seed.inc`
-  - pure-first seed emit/match helpers for the narrow typed user-box point-add / flag-toggle micro paths
+  - pure-first seed emit/match helpers for the narrow typed user-box local scalar and point-add / flag-toggle micro paths
   - now partitioned further into `hako_llvmc_ffi_user_box_micro_seed_helpers.inc` plus typed family slices
+- `hako_llvmc_ffi_user_box_micro_seed_point_route.inc`
+  - metadata consumer for the UserBox Point local/copy scalar exact seed route
+  - consumes MIR `userbox_local_scalar_seed_route`; do not regrow raw block scanners here
 - `hako_llvmc_ffi_sum_local_seed.inc`
   - thin facade include for local variant/sum pure-first seeds
 - `hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc`
