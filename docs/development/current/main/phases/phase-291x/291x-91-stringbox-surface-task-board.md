@@ -6,6 +6,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
+  - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
 ---
 
 # StringBox Surface Task Board
@@ -45,6 +46,7 @@ StringBox surface catalog
 | `291x-S1c` | done | convert TypeRegistry / method resolution / effect analysis readers |
 | `291x-S1d` | done | route Rust VM slot dispatch and `.hako` VM-facing `StringCoreBox` through the cataloged surface rows where receiver is `StringBox`/`String` |
 | `291x-S1e` | done | add stable StringBox surface smoke |
+| `291x-S2` | parked | prove a catalog-backed `StringBox` method family through the MIR router Unified value path |
 
 ## First Stable Surface Target
 
@@ -94,3 +96,13 @@ This StringBox slice is done when:
 
 - legacy diagnostic stub `apps/std/string2.hako` was deleted after the catalog
   landed; it was not a full surface owner and had no active import route.
+
+## Parked Router Follow-up
+
+- current router policy forces `StringBox` to `Route::BoxCall` as part of the
+  broad CoreBox guard
+- `boxcall_emit.rs` bridges `MirType::String` receivers to `StringBox` before
+  route selection
+- first safe cleanup is not a whole-family flip; it should allowlist one proven
+  method family, starting with `length` / `len` / `size`
+- tracking card: `291x-96-corebox-router-unified-value-path-card.md`

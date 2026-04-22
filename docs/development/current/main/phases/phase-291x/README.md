@@ -15,6 +15,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md
+  - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -56,6 +57,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 4. `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
 5. `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
 6. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+7. `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
 
 ## Current Rule
 
@@ -109,3 +111,13 @@ Remaining MapBox follow-up:
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
 - next card: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+
+Parked CoreBox router follow-up:
+
+- `src/mir/builder/router/policy.rs` still routes `StringBox` / `ArrayBox` /
+  `MapBox` as a family-wide `Route::BoxCall` guard.
+- `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
+  `StringBox` before route selection.
+- do not flip the family-wide guard in one edit; first prove one catalog-backed
+  `StringBox` method family through the Unified value path.
+- task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

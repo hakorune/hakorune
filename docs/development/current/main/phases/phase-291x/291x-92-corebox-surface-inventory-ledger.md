@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
+  - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
 ---
 
 # CoreBox Surface Inventory Ledger
@@ -75,6 +76,28 @@ Completed first implementation:
 Completed cleanup:
 
 - legacy `std.string2.hako` diagnostic residue was retired in a follow-up cleanup
+
+## Router / Value World Follow-up
+
+Confirmed route seam:
+
+- `src/mir/builder/router/policy.rs` routes `StringBox` / `ArrayBox` / `MapBox`
+  to `Route::BoxCall` through a family-wide `core_box` guard.
+- `src/mir/builder/utils/boxcall_emit.rs` maps `MirType::String` receivers to
+  `"StringBox"` before calling `choose_route(...)`.
+
+Consequence:
+
+- value-typed string calls can be seen as `StringBox` and kept on the BoxCall
+  fallback path, even when the desired long-term path is Unified / Value World.
+- the fallback remains behaviorally important because it also publishes return
+  types and emits canonical method calls for legacy paths.
+
+Tasked follow-up:
+
+- `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
+- first implementation must be StringBox-only and method-allowlisted.
+- `ArrayBox` and `MapBox` must stay out of the first router flip.
 
 ## MapBox Current Duplication
 
