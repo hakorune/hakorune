@@ -21,8 +21,8 @@ contains six C-side raw MIR recognizers that read `blocks`, `instructions`, and
 
 This file is the next primary cleanup target after the exact-seed ladder work:
 
-- current no-growth baseline: 5 `.inc` files / 28 analysis-debt lines
-- this bucket: 21 analysis-debt lines
+- current no-growth baseline: 5 `.inc` files / 21 analysis-debt lines
+- this bucket: 14 analysis-debt lines
 - rule: no new path may be added here
 - cleanup mode: prove each path has a non-C route owner, then delete or replace
   it with MIR-owned metadata consumption
@@ -33,7 +33,7 @@ This file is the next primary cleanup target after the exact-seed ladder work:
 | --- | --- | --- | --- |
 | #1 | single-block `const* -> ret const` | route legality owner | deleted in `292x-112`; Hako LL daily owner covers the shape |
 | #2 | const compare branch with two const arms and merge ret | route legality owner plus fallback hook | deleted in `292x-112`; llvmlite compare monitor remains green |
-| #3 | `MapBox` constructor, `set`, `size/len`, `ret` | CoreBox method shortcut | blocked deletion probe in `292x-115`; fix generic/Hako LL MapBox set-size ownership before deleting |
+| #3 | `MapBox` constructor, `set`, `size/len`, `ret` | CoreBox method shortcut | deleted in `292x-115`; smoke updated to canonical Method callee metadata |
 | #4 | `ArrayBox` constructor, `push`, `len/length/size`, `ret` | CoreBox method shortcut | deleted in `292x-115`; pure historical and pure keep remain green |
 | #5 | const ASCII string, `StringBox.length/size`, folded ret | string const-eval shortcut | choose delete vs MIR-owned const-eval route; C must not own the fold |
 | #6 | const ASCII haystack/needle, `StringBox.indexOf`, folded ret | string const-eval shortcut | choose delete vs MIR-owned const-eval route; C must not own the fold |
@@ -44,7 +44,7 @@ This file is the next primary cleanup target after the exact-seed ladder work:
    - These are language/control-flow shapes, not backend helper special cases.
    - Acceptance must cover ret const, compare branch, pure keep, and historical
      ternary collection.
-2. Retire paths #3 and #4. (path #4 landed; path #3 blocked in `292x-115`)
+2. Retire paths #3 and #4. (landed in `292x-115`)
    - First try deletion with generic constructor/method lowering canaries.
    - If generic lowering is missing a real contract, add MIR-owned route
      metadata. Do not add another `.inc` shape recognizer.

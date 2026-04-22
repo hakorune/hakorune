@@ -138,20 +138,17 @@ Related:
   - state: path #1/#2 deleted; allowlist pruned; guard is now 5 files / 34
     analysis-debt lines
 
+- [x] A11 pure compile minimal Map/Array deletion
+  - design: `292x-115-pure-compile-minimal-map-array-deletion-card.md`
+  - state: path #4 ArrayBox push-len and path #3 MapBox set-size deleted; guard is now 5 files / 21
+    analysis-debt lines
+
 ## Active Card
 
-- [ ] A11 pure compile minimal Map/Array deletion
-  - design: `292x-115-pure-compile-minimal-map-array-deletion-card.md`
-  - state: path #4 ArrayBox push-len deleted; guard is now 5 files / 28
-    analysis-debt lines
-  - next state: path #3 MapBox set-size still needs generic/Hako LL ownership
-    before the C fallback can be removed
-
-## Follow-up Cards
-
-- [ ] Continue pure compile minimal paths after A8
-  - design: `292x-111-pure-compile-minimal-paths-inventory-card.md`
-  - next families: String const-eval decision after A11
+- [ ] A12 pure compile minimal String const-eval decision
+  - design: `292x-116-pure-compile-minimal-string-const-eval-card.md`
+  - next families: path #5 StringBox length const-fold and path #6
+    StringBox indexOf const-fold
 
 ## Done Definition
 

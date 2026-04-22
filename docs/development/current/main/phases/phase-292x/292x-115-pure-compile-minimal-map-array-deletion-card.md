@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-23
 Scope: Delete-probe `pure_compile_minimal_paths` path #3 and #4.
 Related:
@@ -13,19 +13,20 @@ Related:
 
 ## Current Result
 
-Array path #4 is delete-ready and landed in this card:
+Array path #4 and Map path #3 are deleted in this card:
 
 - Removed path #4 `ArrayBox` constructor, `push`, `len/length/size`, `ret`.
-- Pruned `hako_llvmc_ffi_pure_compile_minimal_paths.inc` allowlist `27 -> 21`.
-- Guard moved from 5 files / 34 analysis-debt lines to 5 files / 28
+- Updated the pure-historical Map set-size smoke from the legacy receiver-in-args
+  MIR shape to the canonical `box_name` / `method` / `receiver` shape.
+- Removed path #3 `MapBox` constructor, `set`, `size/len`, `ret`.
+- Pruned `hako_llvmc_ffi_pure_compile_minimal_paths.inc` allowlist `27 -> 14`.
+- Guard moved from 5 files / 34 analysis-debt lines to 5 files / 21
   analysis-debt lines.
 
-Map path #3 is not delete-ready:
-
-- Deleting path #3 makes `s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh`
-  fail with `ny-llvmc boundary emit rc=1`.
-- Keep path #3 as a temporary fallback until generic/Hako LL MapBox set-size
-  ownership is fixed or a MIR-owned route exists.
+The failed predelete probe was caused by a stale smoke dialect, not by a missing
+current owner: the old smoke encoded the receiver inside `args` and used
+`callee.name`, while generic pure lowering expects canonical Method callee
+metadata.
 
 ## Goal
 
@@ -41,10 +42,11 @@ method route legality.
 ## Plan
 
 1. Delete path #4 recognizer block. (landed)
-2. Fix or replace path #3 owner, then delete path #3.
-3. Rebuild the C FFI.
-4. Run pure keep, pure historical, and llvmlite monitor canaries.
-5. If all pass, prune `hako_llvmc_ffi_pure_compile_minimal_paths.inc` in the
+2. Update the stale Map smoke to canonical MIR Method metadata. (landed)
+3. Delete path #3 recognizer block. (landed)
+4. Rebuild the C FFI.
+5. Run pure keep, pure historical, and llvmlite monitor canaries.
+6. If all pass, prune `hako_llvmc_ffi_pure_compile_minimal_paths.inc` in the
    allowlist to the new guard count.
 
 If deletion exposes a missing real owner, add a MIR-owned route or fix generic

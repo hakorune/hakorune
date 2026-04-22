@@ -58,7 +58,8 @@ Related:
 - Landed predelete fix: `hako_ll_provider_stack_overflow_predelete`
 - Landed deletion: `pure_compile_minimal_paths` path #1/#2
 - Landed deletion: `pure_compile_minimal_paths` path #4 Array
-- Next cleanup target: `pure_compile_minimal_paths` path #3 Map owner
+- Landed deletion: `pure_compile_minimal_paths` path #3 Map
+- Next cleanup target: `pure_compile_minimal_paths` String const-eval decision
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`

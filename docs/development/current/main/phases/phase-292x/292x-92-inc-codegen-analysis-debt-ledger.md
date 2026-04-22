@@ -324,3 +324,13 @@ Pure compile minimal Array path deletion:
 - lowered allowlist:
   - `hako_llvmc_ffi_pure_compile_minimal_paths.inc`: `27 -> 21`
   - current analysis-debt baseline is `28`
+
+Pure compile minimal Map path deletion:
+
+- updated the pure-historical Map set-size smoke from legacy receiver-in-args
+  Method MIR to canonical `box_name` / `method` / `receiver` Method MIR
+- deleted `pure_compile_minimal_paths` path #3 `MapBox` constructor, `set`,
+  `size/len`, `ret`
+- lowered allowlist:
+  - `hako_llvmc_ffi_pure_compile_minimal_paths.inc`: `21 -> 14`
+  - current analysis-debt baseline is `21`
