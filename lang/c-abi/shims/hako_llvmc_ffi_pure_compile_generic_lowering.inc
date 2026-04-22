@@ -347,8 +347,9 @@
       // literal has exactly one use and that use is a raw-ptr concat window.
       for (size_t sci = 0; sci < str_consts_n; sci++) {
         long long reg = str_consts[sci].reg;
-        size_t use_bi = 0;
         size_t use_ii = 0;
+        yyjson_val* use_insts = NULL;
+        size_t use_ilen = 0;
         long long effective_reg = reg;
         int dead_copy_chain = 0;
         if (!reg || should_skip_hoisted_string_const_box(reg)) continue;
@@ -356,8 +357,9 @@
                 blocks,
                 blen,
                 reg,
-                &use_bi,
                 &use_ii,
+                &use_insts,
+                &use_ilen,
                 &effective_reg,
                 &dead_copy_chain)) {
           if (dead_copy_chain) {
@@ -369,19 +371,14 @@
           mark_hoisted_string_const_box_skip(reg);
           continue;
         }
-        {
-          yyjson_val* ub = yyjson_arr_get(blocks, use_bi);
-          yyjson_val* uinsts = ub ? yyjson_obj_get(ub, "instructions") : NULL;
-          if (!uinsts || !yyjson_is_arr(uinsts)) continue;
-          size_t uilen = yyjson_arr_size(uinsts);
-          if (should_skip_string_const_box_for_known_len_use(use_ii, uilen, uinsts, effective_reg)) {
-            mark_hoisted_string_const_box_skip(reg);
-            continue;
-          }
-          if (should_skip_string_const_box_for_concat_suffix((size_t)-1, uilen, uinsts, effective_reg) ||
-              should_skip_string_const_box_for_insert_mid_window((size_t)-1, uilen, uinsts, effective_reg)) {
-            mark_hoisted_string_const_box_skip(reg);
-          }
+        if (!use_insts || !yyjson_is_arr(use_insts)) continue;
+        if (should_skip_string_const_box_for_known_len_use(use_ii, use_ilen, use_insts, effective_reg)) {
+          mark_hoisted_string_const_box_skip(reg);
+          continue;
+        }
+        if (should_skip_string_const_box_for_concat_suffix((size_t)-1, use_ilen, use_insts, effective_reg) ||
+            should_skip_string_const_box_for_insert_mid_window((size_t)-1, use_ilen, use_insts, effective_reg)) {
+          mark_hoisted_string_const_box_skip(reg);
         }
       }
 

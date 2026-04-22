@@ -42,12 +42,13 @@ cargo check -q
   - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
   - latest landed exact route tag: `array_getset_micro`
   - MapBox duplicate receiver predelete fix is landed
-  - guard baseline: 3 `.inc` files / 5 analysis-debt lines
+  - guard baseline: 3 `.inc` files / 4 analysis-debt lines
   - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
     is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
     restored, then landed; path #3 Map, path #4 Array, and paths #5/#6 String
     const-eval deletions are also landed; the string loop seed copy-graph helper
-    is deleted; next cleanup is live generic pure walker residual debt
+    is deleted; cross-block use API tightening is landed; next cleanup is live
+    generic pure walker residual debt
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -102,7 +103,7 @@ cargo check -q
 
 - app priority:
   - split live generic pure walker substrate from route-legality debt
-  - `pure_compile_minimal_paths` is removed; the guard is now 3 files / 5 debt lines
+  - `pure_compile_minimal_paths` is removed; the guard is now 3 files / 4 debt lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references
@@ -126,8 +127,9 @@ cargo check -q
 - phase-291x CoreBox first catalog and cleanup slices are landed references.
 - active cleanup card is `292x-117-generic-pure-walker-residual-debt-card.md`;
   `292x-112` deleted path #1/#2 after `292x-114` fixed the predelete blockers,
-  `292x-115` deleted paths #3/#4, `292x-116` deleted paths #5/#6, and
-  `292x-117a` deleted the string loop seed copy-graph helper.
+  `292x-115` deleted paths #3/#4, `292x-116` deleted paths #5/#6,
+  `292x-117a` deleted the string loop seed copy-graph helper, and `292x-117b`
+  tightened cross-block use lookup.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.

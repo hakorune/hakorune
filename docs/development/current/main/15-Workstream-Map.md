@@ -18,7 +18,7 @@ Related:
 | Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, array_getset_micro, MapBox duplicate receiver, Hako LL/provider fix, and all pure_compile_minimal_paths deletions landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `generic pure walker residual debt split` |
-| Next | `split remaining 5 guard lines into generic walker substrate vs route-legality debt` |
+| Next | `split remaining 4 guard lines into generic walker substrate vs route-legality debt` |
 | After Next | `post-walker residual .inc guard cleanup` |
 
 ## Current Read
@@ -64,7 +64,8 @@ Related:
 29. `phase-292x pure_compile_minimal_paths path #3 Map deletion` landed
 30. `phase-292x pure_compile_minimal_paths String const-eval deletion` landed
 31. `phase-292x string loop seed copy-graph helper deletion` landed
-32. `phase-292x generic pure walker residual debt split`
+32. `phase-292x generic pure cross-block use API tightening` landed
+33. `phase-292x generic pure walker residual debt split`
 
 ## Parked Corridor
 

@@ -19,14 +19,14 @@ purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected hel
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
 inc_file_count = 71
-inc_line_count = 15783
+inc_line_count = 15786
 analysis_debt_files = 3
-analysis_debt_lines = 5
+analysis_debt_lines = 4
 remaining_seed_matcher_defs = 0
 
-last_landed_slice = "string_loop_seed_copy_graph_helper_deletion"
+last_landed_slice = "generic_pure_cross_block_use_api_tightening"
 next_recommended_slice = "generic_pure_walker_live_debt_split"
-next_recommended_reason = "292x-117a deleted the unreferenced copy-graph helper and lowered the guard to 3 files / 5 debt lines. Next split live generic pure walker substrate from route-legality debt."
+next_recommended_reason = "292x-117b removed the caller-side cross-block instructions re-fetch and lowered the guard to 3 files / 4 debt lines. The remaining hits are live generic pure walker/shared substrate."
 
 verification_min = [
   "cargo fmt --check",
@@ -247,6 +247,14 @@ backend_tag = "none"
 status = "landed"
 smoke = "inc_codegen_thin_shim_guard 3 files / 5 debt lines; build_hako_llvmc_ffi"
 
+[[landed_slice]]
+id = "generic_pure_cross_block_use_api_tightening"
+kind = "walker_api_tightening"
+owner = "find_single_effective_use_across_blocks"
+backend_tag = "none"
+status = "landed"
+smoke = "inc_codegen_thin_shim_guard 3 files / 4 debt lines"
+
 [[backlog]]
 id = "pure_compile_minimal_paths_inventory"
 priority = 1
@@ -258,5 +266,5 @@ note = "Bucket closed; hako_llvmc_ffi_pure_compile_minimal_paths.inc is removed.
 id = "generic_pure_walker_residual_debt_split"
 priority = 1
 remaining_matchers = 0
-owner_status = "copy-graph helper deleted; remaining guard debt is live generic walker/shared substrate, not pure_compile_minimal_paths"
-note = "Guard is 3 files / 5 debt lines; split generic walker substrate from route-legality debt before next deletion."
+owner_status = "copy-graph helper deleted and cross-block use API tightened; remaining guard debt is live generic walker/shared substrate"
+note = "Guard is 3 files / 4 debt lines; further reduction needs a wider generic walker API split, not a local shave."

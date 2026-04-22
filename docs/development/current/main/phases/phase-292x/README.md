@@ -61,6 +61,7 @@ Related:
 - Landed deletion: `pure_compile_minimal_paths` path #3 Map
 - Landed deletion: `pure_compile_minimal_paths` String const-eval
 - Landed deletion: string loop seed copy-graph helper
+- Landed tightening: generic pure cross-block use lookup API
 - Next cleanup target: live generic pure walker residual debt
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:

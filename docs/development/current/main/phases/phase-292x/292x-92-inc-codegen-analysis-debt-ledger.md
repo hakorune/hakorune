@@ -357,3 +357,13 @@ String loop seed copy-graph helper deletion:
 - lowered allowlist:
   - removed `hako_llvmc_ffi_string_loop_seed_copy_graph.inc`: `2 -> 0`
   - current analysis-debt baseline is `5`
+
+Generic pure cross-block use API tightening:
+
+- made `find_single_effective_use_across_blocks(...)` return the instruction
+  list and length it already found
+- removed the caller-side raw `instructions` re-fetch in
+  `pure_compile_generic_lowering.inc`
+- lowered allowlist:
+  - `hako_llvmc_ffi_pure_compile_generic_lowering.inc`: `3 -> 2`
+  - current analysis-debt baseline is `4`

@@ -13,12 +13,12 @@ Related:
 
 ## Current Debt
 
-`tools/checks/inc_codegen_thin_shim_guard.sh` now reports 3 files / 5
+`tools/checks/inc_codegen_thin_shim_guard.sh` now reports 3 files / 4
 analysis-debt lines:
 
 - `hako_llvmc_ffi_compiler_state.inc`: 1 line
 - `hako_llvmc_ffi_pure_compile.inc`: 1 line
-- `hako_llvmc_ffi_pure_compile_generic_lowering.inc`: 3 lines
+- `hako_llvmc_ffi_pure_compile_generic_lowering.inc`: 2 lines
 
 `hako_llvmc_ffi_string_loop_seed_copy_graph.inc` was deleted as an unreferenced
 copy-graph helper slice. The remaining hits are the live generic pure walker
@@ -47,6 +47,14 @@ substrate.
 - deleted the unreferenced copy-chain / copy-graph helper file
 - pruned its allowlist row
 - lowered the guard from 4 files / 7 lines to 3 files / 5 lines
+
+## Slice 117b Result
+
+- widened `find_single_effective_use_across_blocks(...)` to return the
+  instruction list it already found
+- removed the caller-side raw `instructions` re-fetch in cross-block string
+  const refinement
+- lowered the guard from 3 files / 5 lines to 3 files / 4 lines
 
 ## Acceptance
 

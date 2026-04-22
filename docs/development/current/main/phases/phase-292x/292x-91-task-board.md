@@ -152,8 +152,8 @@ Related:
 
 - [ ] A13 generic pure walker residual debt
   - design: `292x-117-generic-pure-walker-residual-debt-card.md`
-  - state: copy-graph helper deleted; guard is now 3 files / 5 analysis-debt
-    lines
+  - state: copy-graph helper deleted and cross-block use API tightened; guard
+    is now 3 files / 4 analysis-debt lines
   - next families: split live generic pure walker substrate from route-legality
     debt
 

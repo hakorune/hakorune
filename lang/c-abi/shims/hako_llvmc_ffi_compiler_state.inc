@@ -179,18 +179,22 @@
           yyjson_val* blocks,
           size_t blen,
           long long reg,
-          size_t* use_bi_out,
           size_t* use_ii_out,
+          yyjson_val** use_insts_out,
+          size_t* use_ilen_out,
           long long* effective_reg_out,
           int* dead_out) {
         long long cur = resolve_copy_source_reg(reg);
         int depth = 0;
         if (dead_out) *dead_out = 0;
+        if (use_insts_out) *use_insts_out = NULL;
+        if (use_ilen_out) *use_ilen_out = 0;
         if (!cur) return 0;
         while (depth < 16) {
           size_t use_count = 0;
-          size_t use_bi = 0;
           size_t use_ii = 0;
+          yyjson_val* use_insts = NULL;
+          size_t use_ilen = 0;
           yyjson_val* use_ins = NULL;
           const char* op = NULL;
           for (size_t bi = 0; bi < blen; bi++) {
@@ -202,8 +206,9 @@
               yyjson_val* ins = yyjson_arr_get(insts, ii);
               if (!inst_uses_reg(ins, cur)) continue;
               use_count++;
-              use_bi = bi;
               use_ii = ii;
+              use_insts = insts;
+              use_ilen = ilen;
               use_ins = ins;
               if (use_count > 1) return 0;
             }
@@ -214,8 +219,9 @@
           }
           op = use_ins ? read_str(use_ins, "op") : NULL;
           if (!(op && strcmp(op, "copy") == 0)) {
-            if (use_bi_out) *use_bi_out = use_bi;
             if (use_ii_out) *use_ii_out = use_ii;
+            if (use_insts_out) *use_insts_out = use_insts;
+            if (use_ilen_out) *use_ilen_out = use_ilen;
             if (effective_reg_out) *effective_reg_out = cur;
             return 1;
           }
