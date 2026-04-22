@@ -1,12 +1,10 @@
 #!/bin/bash
-# phase-137x historical source-only piecewise fixture smoke.
+# phase-137x source-only piecewise fixture smoke.
 #
 # Contract:
-# 1) The fixture currently observes the legacy live-source fallback, not the
-#    old source-only residence route.
-# 2) the len result lowers to `nyash.array.string_len_hi`.
-# 3) the source stays live through
-#    `slot_load -> substring -> substring_concat3_hhhii -> set`.
+# 1) the len window is selected from MIR metadata.
+# 2) the source-only mode publishes the get source without a slot load.
+# 3) the direct set lowers to the array subrange insert-mid store helper.
 
 set -euo pipefail
 
@@ -68,26 +66,37 @@ fi
 require_smoke_path "$SMOKE_NAME" "object" "$OUT_OBJ" || exit 1
 require_smoke_path "$SMOKE_NAME" "LLVM IR dump" "$OUT_LL" || exit 1
 
-if ! grep -Fq "stage=array_string_len_window result=hit" "$BUILD_LOG"; then
+if ! grep -Fq "stage=array_string_len_window result=hit reason=mir_route_metadata" "$BUILD_LOG"; then
     echo "[INFO] route trace output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "$SMOKE_NAME: missing array_string_len_window hit"
+    test_fail "$SMOKE_NAME: len window did not use MIR metadata"
     exit 1
 fi
 
-if ! grep -Fq "keep_get_live=1" "$BUILD_LOG"; then
+if ! grep -Fq "source_only_insert_mid=1" "$BUILD_LOG"; then
     echo "[INFO] route trace output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "$SMOKE_NAME: len window did not record keep_get_live=1"
+    test_fail "$SMOKE_NAME: source-only metadata route was not selected"
+    exit 1
+fi
+
+if ! grep -Fq "keep_get_live=0" "$BUILD_LOG"; then
+    echo "[INFO] route trace output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "$SMOKE_NAME: source-only metadata route unexpectedly kept get live"
+    exit 1
+fi
+
+if ! grep -Fq "proof=array_get_len_source_only_direct_set" "$BUILD_LOG"; then
+    echo "[INFO] route trace output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "$SMOKE_NAME: source-only proof tag missing"
     exit 1
 fi
 
 for needle in \
     "call i64 @nyash.array.string_len_hi" \
-    "call i64 @nyash.array.slot_load_hi" \
-    "call i64 @nyash.string.substring_hii" \
-    "call i64 @nyash.string.substring_concat3_hhhii" \
-    "call i64 @nyash.array.set_his"
+    "call i64 @nyash.array.string_insert_mid_subrange_store_hisiiii"
 do
     if ! grep -Fq "$needle" "$OUT_LL"; then
         echo "[INFO] lowered IR:"
@@ -98,8 +107,10 @@ do
 done
 
 for forbidden in \
-    "call i64 @nyash.array.string_insert_mid_subrange_store_hisiii(" \
-    "call i64 @\"nyash.array.string_insert_mid_subrange_store_hisiii\"" \
+    "call i64 @nyash.array.slot_load_hi" \
+    "call i64 @nyash.string.substring_hii" \
+    "call i64 @nyash.string.substring_concat3_hhhii" \
+    "call i64 @nyash.array.set_his" \
     "call i64 @nyash.string.kernel_slot_piecewise_subrange_hsiii" \
     "call i64 @\"nyash.string.kernel_slot_piecewise_subrange_hsiii\""
 do
@@ -111,4 +122,4 @@ do
     fi
 done
 
-test_pass "$SMOKE_NAME: PASS (historical source-only piecewise fixture follows live-source fallback)"
+test_pass "$SMOKE_NAME: PASS (source-only piecewise len window uses MIR metadata route)"

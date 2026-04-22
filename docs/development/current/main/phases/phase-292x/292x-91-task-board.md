@@ -35,17 +35,23 @@ Related:
 - [x] A2b `array_string_len_window` keep-live MIR-owned route tag
   - design: `292x-95-array-string-len-keep-live-route-card.md`
   - state: `keep_get_live` mode is MIR metadata-owned; `.inc` emits
-    slot-load + string-len from metadata and leaves source-only direct-set reuse
-    as fallback
+    slot-load + string-len from metadata
   - trace proof: `[llvm-route/trace] stage=array_string_len_window result=hit reason=mir_route_metadata ... keep_get_live=1`
+
+- [x] A2c `array_string_len_window` source-only direct-set route tag
+  - design: `292x-96-array-string-len-source-only-route-card.md`
+  - state: `source_only_insert_mid` mode is MIR metadata-owned; source-only
+    insert-mid and piecewise direct-set smokes require
+    `reason=mir_route_metadata`
+  - trace proof: `[llvm-route/trace] stage=array_string_len_window result=hit reason=mir_route_metadata ... source_only_insert_mid=1`
 
 ## Active Card
 
-- [ ] A2c `array_string_len_window` source-only direct-set route tag
-  - design: `292x-96-array-string-len-source-only-route-card.md`
+- [ ] A2d delete legacy `array_string_len_window` C analyzer
+  - design: `292x-97-array-string-len-c-analyzer-deletion-card.md`
   - current owner leak: `analyze_array_string_len_window_candidate`
-  - desired state: `source_only_insert_mid` / piecewise concat direct-set reuse
-    is MIR metadata-owned, enabling deletion of the C analyzer
+  - desired state: `.inc` keeps only metadata validation / emit / skip /
+    fail-fast for the migrated family
 
 ## Follow-up Cards
 

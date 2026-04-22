@@ -157,14 +157,21 @@ pub(super) fn build_mir_json_root(
                 })
             }).collect::<Vec<_>>(),
             "array_string_len_window_routes": f.metadata.array_string_len_window_routes.iter().map(|route| {
-                let (keep_get_live, effects) = match route.mode {
+                let (keep_get_live, source_only_insert_mid, effects) = match route.mode {
                     crate::mir::ArrayStringLenWindowMode::LenOnly => (
+                        false,
                         false,
                         vec!["load.cell", "observe.len"],
                     ),
                     crate::mir::ArrayStringLenWindowMode::KeepGetLive => (
                         true,
+                        false,
                         vec!["load.cell", "observe.len", "keep.source.live"],
+                    ),
+                    crate::mir::ArrayStringLenWindowMode::SourceOnlyInsertMid => (
+                        false,
+                        true,
+                        vec!["load.cell", "observe.len", "publish.source.ref"],
                     ),
                 };
                 json!({
@@ -181,7 +188,7 @@ pub(super) fn build_mir_json_root(
                     "proof": route.proof.to_string(),
                     "emit_symbol": "nyash.array.string_len_hi",
                     "keep_get_live": keep_get_live,
-                    "source_only_insert_mid": false,
+                    "source_only_insert_mid": source_only_insert_mid,
                     "effects": effects,
                 })
             }).collect::<Vec<_>>(),

@@ -8,6 +8,32 @@
     {
       "name": "main",
       "params": [],
+      "metadata": {
+        "value_consumer_facts": {
+          "15": {
+            "direct_set_consumer": true
+          }
+        },
+        "array_string_len_window_routes": [
+          {
+            "route_id": "array.string_len.window",
+            "block": 0,
+            "instruction_index": 5,
+            "array_value": 4,
+            "index_value": 3,
+            "source_value": 5,
+            "len_instruction_index": 7,
+            "len_value": 7,
+            "skip_instruction_indices": [7],
+            "mode": "source_only_insert_mid",
+            "proof": "array_get_len_source_only_direct_set",
+            "emit_symbol": "nyash.array.string_len_hi",
+            "keep_get_live": false,
+            "source_only_insert_mid": true,
+            "effects": ["load.cell", "observe.len", "publish.source.ref"]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,

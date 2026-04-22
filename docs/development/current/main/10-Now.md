@@ -33,8 +33,8 @@ Related:
   - current-state token: `phase-292x .inc codegen thin tag cleanup`
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
-  - current implementation focus: `array_string_len_window` source-only direct-set reuse after keep-live metadata route
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
+  - current implementation focus: delete legacy `array_string_len_window` C analyzer after source-only metadata route
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
@@ -43,7 +43,8 @@ Related:
     - `array_rmw_window` metadata-first route is landed; legacy C analyzer is fallback-only until deletion coverage is pinned
     - `array_string_len_window` len-only metadata-first route is landed
     - `array_string_len_window` keep-live source reuse metadata-first route is landed
-    - source-only direct-set reuse remains the active fallback before C analyzer deletion
+    - `array_string_len_window` source-only direct-set reuse metadata-first route is landed
+    - legacy `array_string_len_window` C analyzer deletion is the active cleanup
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -54,7 +55,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `array_string_len_window source_only_insert_mid must move to MIR-owned route metadata before C analyzer deletion`
+  - current blocker token: `delete legacy array_string_len_window C analyzer after source-only metadata route landed`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
@@ -399,9 +400,9 @@ Related:
     - same-slot insert-mid subrange direct lowering now uses `nyash.array.string_insert_mid_subrange_store_hisiiii(array_h, idx, middle_ptr, middle_len, split, start, end)`
     - the older `hisiii` row remains as the pointer/CStr validated compatibility path
   - validation:
-    - historical source-only fixture smoke now observes the live-source fallback:
+    - source-only fixture smoke now requires MIR metadata and no slot-load fallback:
       `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
-    - historical piecewise source-only fixture smoke now observes the live-source fallback:
+    - piecewise source-only fixture smoke now requires MIR metadata and no slot-load fallback:
       `phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh`
     - live-after-get regression: `phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
   - perf/asm proof:

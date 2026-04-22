@@ -755,17 +755,24 @@
           const char* emit_symbol = route ? read_str(route, "emit_symbol") : NULL;
           int mode_len_only = mode && !strcmp(mode, "len_only");
           int mode_keep_get_live = mode && !strcmp(mode, "keep_get_live");
+          int mode_source_only = mode && !strcmp(mode, "source_only_insert_mid");
           int keep_get_live = keep_val && yyjson_is_bool(keep_val) && yyjson_get_bool(keep_val);
           int source_only_insert_mid =
               source_only_val && yyjson_is_bool(source_only_val) &&
               yyjson_get_bool(source_only_val);
-          const char* expected_proof = mode_keep_get_live
-              ? "array_get_len_keep_source_live"
-              : "array_get_len_no_later_source_use";
-          int effects_ok = mode_keep_get_live
+          const char* expected_proof = mode_source_only
+              ? "array_get_len_source_only_direct_set"
+              : (mode_keep_get_live
+                    ? "array_get_len_keep_source_live"
+                    : "array_get_len_no_later_source_use");
+          int effects_ok = mode_source_only
               ? array_text_residence_string_array_eq3(
-                    effects, "load.cell", "observe.len", "keep.source.live")
-              : array_text_residence_string_array_eq2(effects, "load.cell", "observe.len");
+                    effects, "load.cell", "observe.len", "publish.source.ref")
+              : (mode_keep_get_live
+                    ? array_text_residence_string_array_eq3(
+                          effects, "load.cell", "observe.len", "keep.source.live")
+                    : array_text_residence_string_array_eq2(
+                          effects, "load.cell", "observe.len"));
           if (!(block_val && index_val &&
                 yyjson_is_num(block_val) && yyjson_is_num(index_val))) {
             continue;
@@ -775,7 +782,7 @@
             continue;
           }
           if (!(route_id && !strcmp(route_id, "array.string_len.window") &&
-                (mode_len_only || mode_keep_get_live) &&
+                (mode_len_only || mode_keep_get_live || mode_source_only) &&
                 proof && !strcmp(proof, expected_proof) &&
                 emit_symbol && !strcmp(emit_symbol, "nyash.array.string_len_hi") &&
                 array_val && yyjson_is_num(array_val) &&
@@ -787,7 +794,7 @@
                 keep_val && yyjson_is_bool(keep_val) &&
                 source_only_val && yyjson_is_bool(source_only_val) &&
                 keep_get_live == mode_keep_get_live &&
-                !source_only_insert_mid &&
+                source_only_insert_mid == mode_source_only &&
                 effects_ok)) {
             if (hako_llvmc_route_trace_enabled()) {
               hako_llvmc_emit_route_trace(

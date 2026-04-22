@@ -36,13 +36,14 @@ Scope: current lane / next lane / restart order only.
 22. `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
 23. `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
 24. `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
-25. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
-26. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
-27. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-28. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-29. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-30. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
-31. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+25. `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
+26. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+27. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
+28. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+29. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+30. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+31. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+32. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
 32. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
 33. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 34. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
@@ -70,7 +71,7 @@ Scope: current lane / next lane / restart order only.
   - method anchor:
     - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
+    - `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
   - current app slice:
     - phase-291x CoreBox surface catalog is landed
     - StringBox / MapBox catalog seams are pinned
@@ -85,7 +86,8 @@ Scope: current lane / next lane / restart order only.
     - first implementation card `array_rmw_window` is landed as metadata-first lowering
     - `array_string_len_window` len-only route is landed as metadata-first lowering
     - `array_string_len_window` keep-live source reuse is landed as metadata-first lowering
-    - next implementation card is `array_string_len_window` source-only direct-set reuse
+    - `array_string_len_window` source-only direct-set reuse is landed as metadata-first lowering
+    - next implementation card is legacy `array_string_len_window` C analyzer deletion
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -95,7 +97,7 @@ Scope: current lane / next lane / restart order only.
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `array_string_len_window source_only_insert_mid must move to MIR-owned route metadata before C analyzer deletion`
+    - `delete legacy array_string_len_window C analyzer after source-only metadata route landed`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback
