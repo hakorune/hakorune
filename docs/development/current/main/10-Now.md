@@ -48,9 +48,10 @@ Related:
     - minimal path #3 Map deletion is landed
     - minimal path #4 Array deletion is landed
     - minimal String const-eval paths #5/#6 deletion is landed
-    - guard baseline: 4 `.inc` files / 7 analysis-debt lines
+    - string loop seed copy-graph helper deletion is landed
+    - guard baseline: 3 `.inc` files / 5 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is removed; next cleanup is generic pure walker residual debt
+      is removed; next cleanup is live generic pure walker residual debt
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent

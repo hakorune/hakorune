@@ -106,9 +106,10 @@ Scope: current lane / next lane / restart order only.
     - minimal path #3 Map deletion is landed
     - minimal path #4 Array deletion is landed
     - minimal String const-eval paths #5/#6 deletion is landed
-    - guard baseline: 4 `.inc` files / 7 analysis-debt lines
+    - string loop seed copy-graph helper deletion is landed
+    - guard baseline: 3 `.inc` files / 5 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is removed; next cleanup is generic pure walker residual debt
+      is removed; next cleanup is live generic pure walker residual debt
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`

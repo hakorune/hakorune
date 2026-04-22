@@ -347,3 +347,13 @@ Pure compile minimal String const-eval deletion:
 - lowered allowlist:
   - removed `hako_llvmc_ffi_pure_compile_minimal_paths.inc`: `14 -> 0`
   - current analysis-debt baseline is `7`
+
+String loop seed copy-graph helper deletion:
+
+- removed the unreferenced
+  `hako_llvmc_ffi_string_loop_seed_copy_graph.inc` include from the string loop
+  seed facade
+- deleted the dead copy-chain / copy-graph helper file
+- lowered allowlist:
+  - removed `hako_llvmc_ffi_string_loop_seed_copy_graph.inc`: `2 -> 0`
+  - current analysis-debt baseline is `5`

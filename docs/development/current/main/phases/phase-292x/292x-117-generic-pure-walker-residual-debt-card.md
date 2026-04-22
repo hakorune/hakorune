@@ -13,17 +13,16 @@ Related:
 
 ## Current Debt
 
-`tools/checks/inc_codegen_thin_shim_guard.sh` now reports 4 files / 7
+`tools/checks/inc_codegen_thin_shim_guard.sh` now reports 3 files / 5
 analysis-debt lines:
 
 - `hako_llvmc_ffi_compiler_state.inc`: 1 line
 - `hako_llvmc_ffi_pure_compile.inc`: 1 line
 - `hako_llvmc_ffi_pure_compile_generic_lowering.inc`: 3 lines
-- `hako_llvmc_ffi_string_loop_seed_copy_graph.inc`: 2 lines
 
-This is no longer a pile of route-specific raw recognizers. The remaining
-question is whether these lines are generic walker substrate, copy graph
-helpers, or still route-legality analysis hidden in boundary glue.
+`hako_llvmc_ffi_string_loop_seed_copy_graph.inc` was deleted as an unreferenced
+copy-graph helper slice. The remaining hits are the live generic pure walker
+and shared helper substrate.
 
 ## Goal
 
@@ -35,11 +34,19 @@ substrate.
 ## Plan
 
 1. Print the guard hit list and classify each line.
-2. Start with `hako_llvmc_ffi_string_loop_seed_copy_graph.inc`, because it still
-   reads raw `op` values in a helper-specific file.
+2. Deleted `hako_llvmc_ffi_string_loop_seed_copy_graph.inc`; no callsites
+   remained after the string seed facade cleanup.
 3. Keep `pure_compile_generic_lowering` changes behavior-preserving unless a
    fixture proves a route-specific owner is still hidden there.
 4. Lower the allowlist only after the guard reports a reduction.
+
+## Slice 117a Result
+
+- removed the `hako_llvmc_ffi_string_loop_seed_copy_graph.inc` include from the
+  string loop seed facade
+- deleted the unreferenced copy-chain / copy-graph helper file
+- pruned its allowlist row
+- lowered the guard from 4 files / 7 lines to 3 files / 5 lines
 
 ## Acceptance
 

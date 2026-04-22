@@ -33,8 +33,6 @@ Current partitions:
   - thin facade include for loop/string hot-path seed families
 - `hako_llvmc_ffi_string_loop_seed_emitters.inc`
   - exact LLVM IR emitters shared by the loop/string pure-first seed families
-- `hako_llvmc_ffi_string_loop_seed_copy_graph.inc`
-  - copy-chain/copy-graph helper layer shared by the exact string seed matchers
 - `hako_llvmc_ffi_string_loop_seed_views_only.inc`
   - metadata reader plus temporary exact emitter for `kilo_micro_substring_views_only`
   - borrowed-slice windows are MIR-owned `StringKernelPlan` data; exact source/loop proof is `substring_views_micro_seed_route`

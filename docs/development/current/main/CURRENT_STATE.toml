@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; exact seed route tags through array_getset_micro landed; no hako_llvmc_match_*seed definitions remain; pure_compile_minimal_paths is fully removed; guard is 4 files / 7 debt lines; next cleanup should classify generic pure walker residual debt"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; exact seed route tags through array_getset_micro landed; no hako_llvmc_match_*seed definitions remain; pure_compile_minimal_paths is fully removed; copy-graph helper is deleted; guard is 3 files / 5 debt lines; next cleanup should split live generic pure walker substrate"
 active_phase = "docs/development/current/main/phases/phase-292x/README.md"
 phase_status = "docs/development/current/main/phases/phase-292x/292x-STATUS.toml"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
@@ -47,6 +47,7 @@ opened_successors = [
   "pure_compile_minimal_paths Map path #3 deletion landed",
   "pure_compile_minimal_paths Array path #4 deletion landed",
   "pure_compile_minimal_paths String const-eval deletion landed",
+  "string_loop_seed copy-graph helper deletion landed",
 ]
 
 blocked_successors = [
@@ -72,4 +73,6 @@ stale_pointer_patterns = [
   "retry pure_compile_minimal_paths #1/#2 deletion",
   "pure_compile_minimal_paths Map/Array path cleanup",
   "pure_compile_minimal_paths String const-eval decision",
+  "guard is 4 files / 7 debt lines",
+  "remaining 7 guard lines",
 ]

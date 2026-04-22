@@ -18,15 +18,15 @@ taskboard = "docs/development/current/main/phases/phase-292x/292x-117-generic-pu
 purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
-inc_file_count = 72
-inc_line_count = 15866
-analysis_debt_files = 4
-analysis_debt_lines = 7
+inc_file_count = 71
+inc_line_count = 15783
+analysis_debt_files = 3
+analysis_debt_lines = 5
 remaining_seed_matcher_defs = 0
 
-last_landed_slice = "pure_compile_minimal_paths_string_const_eval_deletion"
-next_recommended_slice = "generic_pure_walker_residual_debt_split"
-next_recommended_reason = "292x-116 removed pure_compile_minimal_paths entirely and lowered the guard to 4 files / 7 debt lines. Next classify the remaining generic walker/copy-graph hits before deleting anything else."
+last_landed_slice = "string_loop_seed_copy_graph_helper_deletion"
+next_recommended_slice = "generic_pure_walker_live_debt_split"
+next_recommended_reason = "292x-117a deleted the unreferenced copy-graph helper and lowered the guard to 3 files / 5 debt lines. Next split live generic pure walker substrate from route-legality debt."
 
 verification_min = [
   "cargo fmt --check",
@@ -239,6 +239,14 @@ backend_tag = "none"
 status = "landed"
 smoke = "string length/runtime-data length/indexOf boundary smokes green; daily owner smokes green"
 
+[[landed_slice]]
+id = "string_loop_seed_copy_graph_helper_deletion"
+kind = "dead_helper_deletion"
+owner = "string loop seed facade"
+backend_tag = "none"
+status = "landed"
+smoke = "inc_codegen_thin_shim_guard 3 files / 5 debt lines; build_hako_llvmc_ffi"
+
 [[backlog]]
 id = "pure_compile_minimal_paths_inventory"
 priority = 1
@@ -250,5 +258,5 @@ note = "Bucket closed; hako_llvmc_ffi_pure_compile_minimal_paths.inc is removed.
 id = "generic_pure_walker_residual_debt_split"
 priority = 1
 remaining_matchers = 0
-owner_status = "remaining guard debt is generic walker/copy-graph substrate, not pure_compile_minimal_paths"
-note = "Guard is 4 files / 7 debt lines; classify before next deletion."
+owner_status = "copy-graph helper deleted; remaining guard debt is live generic walker/shared substrate, not pure_compile_minimal_paths"
+note = "Guard is 3 files / 5 debt lines; split generic walker substrate from route-legality debt before next deletion."
