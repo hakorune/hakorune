@@ -136,59 +136,76 @@ impl MirInterpreter {
         })
     }
 
-    fn normalize_plugin_method_args<'a>(
+    fn is_duplicate_receiver_arg(
         &mut self,
         receiver: &VMValue,
+        receiver_id: ValueId,
+        arg: ValueId,
+    ) -> bool {
+        if arg == receiver_id {
+            return true;
+        }
+
+        let Ok(VMValue::BoxRef(arg_bx)) = self.reg_load(arg) else {
+            return false;
+        };
+        let VMValue::BoxRef(recv_bx) = receiver else {
+            return false;
+        };
+
+        if std::sync::Arc::ptr_eq(&arg_bx, recv_bx) {
+            return true;
+        }
+
+        let Some(recv_plugin) = recv_bx
+            .as_any()
+            .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
+        else {
+            return false;
+        };
+        arg_bx
+            .as_any()
+            .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
+            .map(|arg_plugin| {
+                arg_plugin.inner.instance_id == recv_plugin.inner.instance_id
+                    && arg_plugin.box_type == recv_plugin.box_type
+            })
+            .unwrap_or(false)
+    }
+
+    fn strip_duplicate_receiver_arg_for_arity<'a>(
+        &mut self,
+        receiver: &VMValue,
+        receiver_id: ValueId,
         args: &'a [ValueId],
+        expected_arity: usize,
     ) -> &'a [ValueId] {
-        let Some((recv_box_type, recv_instance_id)) = (match receiver {
-            VMValue::BoxRef(bx) => bx
-                .as_any()
-                .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
-                .map(|p| (p.box_type.as_str(), p.inner.instance_id)),
-            _ => None,
-        }) else {
-            return args;
-        };
-
-        let Some(first_arg) = args.first() else {
-            return args;
-        };
-
-        let is_duplicate_receiver = match self.reg_load(*first_arg) {
-            Ok(VMValue::BoxRef(arg_bx)) => arg_bx
-                .as_any()
-                .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
-                .map(|p| p.inner.instance_id == recv_instance_id && p.box_type == recv_box_type)
-                .unwrap_or(false),
-            _ => false,
-        };
-
-        if is_duplicate_receiver {
+        if args.len() == expected_arity + 1
+            && args
+                .first()
+                .copied()
+                .is_some_and(|arg| self.is_duplicate_receiver_arg(receiver, receiver_id, arg))
+        {
             &args[1..]
         } else {
             args
         }
     }
 
-    fn normalize_duplicate_receiver_method_args<'a>(
-        &mut self,
-        receiver: &VMValue,
-        args: &'a [ValueId],
-    ) -> &'a [ValueId] {
-        let Some(first_arg) = args.first() else {
-            return args;
-        };
-
-        if let Ok(VMValue::BoxRef(arg_bx)) = self.reg_load(*first_arg) {
-            if let VMValue::BoxRef(recv_bx) = receiver {
-                if std::sync::Arc::ptr_eq(&arg_bx, recv_bx) {
-                    return &args[1..];
-                }
+    fn core_surface_expected_arity(receiver: &VMValue, method: &str) -> Option<usize> {
+        match receiver {
+            VMValue::String(_) => StringMethodId::from_name(method).map(|id| id.arity()),
+            VMValue::BoxRef(bx) if bx.as_any().downcast_ref::<ArrayBox>().is_some() => {
+                ArrayMethodId::from_name(method).map(|id| id.arity())
             }
+            VMValue::BoxRef(bx) if bx.as_any().downcast_ref::<MapBox>().is_some() => {
+                MapMethodId::from_name(method).map(|id| id.arity())
+            }
+            VMValue::BoxRef(bx) if bx.type_name() == "StringBox" => {
+                StringMethodId::from_name(method).map(|id| id.arity())
+            }
+            _ => None,
         }
-
-        self.normalize_plugin_method_args(receiver, args)
     }
 
     pub(super) fn execute_method_callee(
@@ -266,11 +283,6 @@ impl MirInterpreter {
                 }
             };
             let dev_trace = env::env_bool("NYASH_VM_TRACE");
-            let args_without_duplicate_receiver = if args.first().copied() == Some(*recv_id) {
-                &args[1..]
-            } else {
-                args
-            };
             // Fast bridge for builtin boxes (Array) and common methods.
             // Preserve legacy semantics when plugins are absent.
             if let VMValue::BoxRef(bx) = &recv_val {
@@ -280,37 +292,36 @@ impl MirInterpreter {
                         return Ok(VMValue::Void);
                     }
                     if let Some(method_id) = ArrayMethodId::from_name(method) {
-                        return self.invoke_array_surface(
-                            arr,
-                            method_id,
-                            args_without_duplicate_receiver,
+                        let method_args = self.strip_duplicate_receiver_arg_for_arity(
+                            &recv_val,
+                            *recv_id,
+                            args,
+                            method_id.arity(),
                         );
+                        return self.invoke_array_surface(arr, method_id, method_args);
                     }
                 }
             }
             // Minimal bridge for birth(): delegate to BoxCall handler and return Void
             if method == "birth" {
-                let _ = self.handle_box_call(
-                    None,
-                    *recv_id,
-                    &method.to_string(),
-                    args_without_duplicate_receiver,
-                )?;
+                let method_args =
+                    self.strip_duplicate_receiver_arg_for_arity(&recv_val, *recv_id, args, 0);
+                let _ = self.handle_box_call(None, *recv_id, &method.to_string(), method_args)?;
                 return Ok(VMValue::Void);
             }
             let is_kw = method == "keyword_to_token_type";
+            let method_args =
+                if let Some(expected) = Self::core_surface_expected_arity(&recv_val, method) {
+                    self.strip_duplicate_receiver_arg_for_arity(&recv_val, *recv_id, args, expected)
+                } else {
+                    args
+                };
             if dev_trace && is_kw {
-                let a0 = args_without_duplicate_receiver
-                    .get(0)
-                    .and_then(|id| self.reg_load(*id).ok());
+                let a0 = method_args.get(0).and_then(|id| self.reg_load(*id).ok());
                 get_global_ring0()
                     .log
                     .debug(&format!("[vm-trace] mcall {} argv0={:?}", method, a0));
             }
-            let method_args = self.normalize_duplicate_receiver_method_args(
-                &recv_val,
-                args_without_duplicate_receiver,
-            );
             let out = self.execute_method_call(&recv_val, method, method_args)?;
             if dev_trace && is_kw {
                 get_global_ring0()

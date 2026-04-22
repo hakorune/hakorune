@@ -315,11 +315,11 @@ impl MapBox {
 // Clone implementation for MapBox (needed since RwLock doesn't auto-derive Clone)
 impl Clone for MapBox {
     fn clone(&self) -> Self {
-        // ディープコピー（独立インスタンス）
+        // Keep nested identity boxes shared to avoid recursive graph cloning.
         let data_guard = self.data.read().unwrap();
         let cloned_data: HashMap<String, Box<dyn NyashBox>> = data_guard
             .iter()
-            .map(|(k, v)| (k.clone(), v.clone_box())) // 要素もディープコピー
+            .map(|(k, v)| (k.clone(), Self::clone_for_visible_read(v.as_ref())))
             .collect();
         MapBox {
             data: Arc::new(RwLock::new(cloned_data)), // 新しいArc

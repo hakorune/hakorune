@@ -1,5 +1,5 @@
 ---
-Status: Blocked
+Status: Active
 Date: 2026-04-23
 Scope: Delete-probe `pure_compile_minimal_paths` path #1 and #2.
 Related:
@@ -41,7 +41,19 @@ MIR/Hako LL route, not another `.inc` pattern matcher.
    `tools/checks/inc_codegen_thin_shim_debt_allowlist.tsv` to the guard's new
    debt count.
 
-## Probe Result
+## Retry State
+
+`292x-114` cleared the predelete blocker:
+
+- `phase29x_backend_owner_daily_ret_const_min.sh`: PASS.
+- `compat/llvmlite-monitor-keep`: PASS 3/3.
+- Remaining `.inc` guard baseline before retry: 5 files / 47 analysis-debt
+  lines.
+
+Retry this card by deleting path #1/#2 again and pruning the allowlist if the
+guard moves to the new lower count.
+
+## Previous Probe Result
 
 The 2026-04-23 deletion probe did not land.
 
@@ -56,8 +68,8 @@ The 2026-04-23 deletion probe did not land.
   `compat/llvmlite-monitor-keep` move past `route_profile` missing and abort
   with stack overflow.
 
-Next required card before this deletion can be retried:
-`292x-114-hako-ll-stack-overflow-predelete-card.md`.
+The next retry can start from the same deletion diff because
+`292x-114-hako-ll-stack-overflow-predelete-card.md` is now closed.
 
 ## Acceptance
 

@@ -127,23 +127,26 @@ Related:
   - state: Rust VM method dispatch now strips duplicate BoxRef receiver aliases
     before invoking MapBox/StringBox surface methods
 
-## Active Card
-
-- [ ] A10 Hako LL stack overflow predelete
+- [x] A10 Hako LL stack overflow predelete
   - design: `292x-114-hako-ll-stack-overflow-predelete-card.md`
-  - next state: identify and fix or retire the Hako LL/provider recursion that
-    makes the ret/branch deletion canaries abort after `292x-113`
+  - state: ArrayBox/MapBox clone recursion is fixed, ArrayBox fast bridge
+    duplicate receiver aliases are stripped arity-aware, daily Hako LL and
+    llvmlite monitor canaries are green
 
-## Follow-up Cards
+## Active Card
 
 - [ ] A8 pure compile minimal ret/branch deletion
   - design: `292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
   - state: probed but not landed; local deletion reduced guard debt from
     47 to 34 lines, then was restored because Hako LL and llvmlite monitor
-    canaries stack overflow after the MapBox duplicate-receiver fix
+    canaries stack-overflowed after the MapBox duplicate-receiver fix
+  - next state: retry path #1/#2 deletion now that A10 is green
 
-Retry A8 only after A10 makes the daily Hako LL and llvmlite monitor canaries
-green or explicitly replaces stale canaries with a newer owner.
+## Follow-up Cards
+
+- [ ] Continue pure compile minimal paths after A8
+  - design: `292x-111-pure-compile-minimal-paths-inventory-card.md`
+  - next families: Map/Array paths, then String const-eval decision
 
 ## Done Definition
 

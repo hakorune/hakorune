@@ -1,6 +1,7 @@
 use super::*;
 use crate::backend::vm_types::VMError;
 use crate::box_trait::StringBox;
+use crate::boxes::array::ArrayBox;
 use crate::boxes::MapBox;
 use std::sync::Arc;
 
@@ -10,6 +11,14 @@ fn stringbox_receiver(text: &str) -> VMValue {
 
 fn mapbox_receiver() -> VMValue {
     VMValue::BoxRef(Arc::new(MapBox::new()))
+}
+
+fn arraybox_receiver(values: &[&str]) -> VMValue {
+    let array = ArrayBox::new();
+    for value in values {
+        array.push(Box::new(StringBox::new(*value)));
+    }
+    VMValue::BoxRef(Arc::new(array))
 }
 
 #[test]
@@ -104,4 +113,47 @@ fn method_callee_mapbox_set_get_strips_duplicate_receiver_arg() {
         .expect("MapBox.get should tolerate unified duplicate receiver arg");
 
     assert_eq!(got.to_string(), "b");
+}
+
+#[test]
+fn method_callee_arraybox_get_strips_duplicate_receiver_alias_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let index = ValueId(2);
+    let recv_alias = ValueId(3);
+    interp.regs.insert(recv, arraybox_receiver(&["row"]));
+    let alias_value = interp.regs.get(&recv).expect("receiver inserted").clone();
+    interp.regs.insert(recv_alias, alias_value);
+    interp.regs.insert(index, VMValue::Integer(0));
+
+    let got = interp
+        .execute_method_callee("ArrayBox", "get", &Some(recv), &[recv_alias, index])
+        .expect("ArrayBox.get should tolerate unified duplicate receiver arg");
+
+    assert_eq!(got.to_string(), "row");
+}
+
+#[test]
+fn method_callee_arraybox_push_keeps_legitimate_self_argument() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let recv_alias = ValueId(2);
+    let index = ValueId(3);
+    interp.regs.insert(recv, arraybox_receiver(&[]));
+    let alias_value = interp.regs.get(&recv).expect("receiver inserted").clone();
+    interp.regs.insert(recv_alias, alias_value);
+    interp.regs.insert(index, VMValue::Integer(0));
+
+    interp
+        .execute_method_callee("ArrayBox", "push", &Some(recv), &[recv_alias])
+        .expect("ArrayBox.push should keep a real self argument");
+
+    let got = interp
+        .execute_method_callee("ArrayBox", "get", &Some(recv), &[index])
+        .expect("ArrayBox.get should read back pushed self argument");
+
+    match got {
+        VMValue::BoxRef(bx) => assert_eq!(bx.type_name(), "ArrayBox"),
+        other => panic!("expected ArrayBox, got {:?}", other),
+    }
 }

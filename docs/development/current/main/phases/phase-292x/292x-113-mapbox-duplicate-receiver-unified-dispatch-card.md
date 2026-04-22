@@ -42,6 +42,8 @@ This also made `BackendRecipeBox` profile validation fail with missing
   boundary.
 - Added a Rust unit test where a `MapBox` receiver alias is passed before the
   real key/value arguments.
+- Follow-up in `292x-114`: the shared helper became arity-aware and the
+  ArrayBox fast bridge now uses the same duplicate-receiver stripping contract.
 
 ## Verification
 
@@ -60,7 +62,5 @@ m.set("a", "b"); m.get("a") -> b
 
 ## Residual
 
-This fixes the Rust VM duplicate-receiver bug, but it does not make
-`pure_compile_minimal_paths` path #1/#2 delete-ready yet. After this fix, the
-daily Hako LL and llvmlite monitor canaries move past `route_profile` missing
-and fail later with stack overflow. That triage is tracked by `292x-114`.
+This fix exposed the later Hako LL/provider stack overflow. That follow-up is
+closed in `292x-114`, so `292x-112` is ready to retry.

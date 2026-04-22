@@ -32,9 +32,9 @@ Scope: current lane / next lane / restart order only.
 18. `docs/development/current/main/phases/phase-292x/292x-STATUS.toml` (`phase-292x` compact status SSOT)
 19. `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
 20. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
-21. `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
-22. `docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md`
-23. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+21. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+22. `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
+23. `docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md`
 24. `docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md`
 25. `docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md`
 26. `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
@@ -84,7 +84,7 @@ Scope: current lane / next lane / restart order only.
   - method anchor:
     - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
+    - `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
   - current app slice:
     - phase-291x CoreBox surface catalog is landed
     - StringBox / MapBox catalog seams are pinned
@@ -98,11 +98,11 @@ Scope: current lane / next lane / restart order only.
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
     - latest landed exact route tag: `array_getset_micro`
-    - MapBox duplicate receiver predelete fix is landed
+    - MapBox duplicate receiver and Hako LL/provider stack overflow predelete fixes are landed
     - guard baseline: 5 `.inc` files / 47 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
       is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
-      restored until the Hako LL/provider stack overflow is resolved
+      restored and is now ready to retry after `292x-114`
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -115,7 +115,7 @@ Scope: current lane / next lane / restart order only.
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `hako ll/provider stack overflow blocks minimal path deletion`
+    - `retry pure_compile_minimal_paths #1/#2 deletion`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

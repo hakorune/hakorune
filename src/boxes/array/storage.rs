@@ -181,6 +181,26 @@ impl ArrayBox {
         {
             return item.share_box();
         }
+        if item
+            .as_any()
+            .downcast_ref::<crate::instance_v2::InstanceBox>()
+            .is_some()
+        {
+            return item.share_box();
+        }
+        if item.as_any().downcast_ref::<ArrayBox>().is_some() {
+            return item.share_box();
+        }
+        if item
+            .as_any()
+            .downcast_ref::<crate::boxes::MapBox>()
+            .is_some()
+        {
+            return item.share_box();
+        }
+        if item.borrowed_handle_source_fast().is_some() {
+            return item.share_box();
+        }
         item.clone_box()
     }
 

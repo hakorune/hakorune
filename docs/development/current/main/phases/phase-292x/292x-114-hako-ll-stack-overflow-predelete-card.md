@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-04-23
 Scope: Triage Hako LL / provider stack overflow before deleting `pure_compile_minimal_paths` path #1/#2.
 Related:
@@ -11,7 +11,51 @@ Related:
 
 # 292x-114: Hako LL Stack Overflow Predelete
 
-## Blocker
+## Resolution
+
+The stack overflow and follow-up `String + Void` failure are fixed.
+
+Root causes:
+
+- `ArrayBox::clone` / `MapBox::clone` deep-cloned nested identity collections,
+  which could recurse forever on self/cyclic collection graphs.
+- `execute_method_callee` normalized duplicate receiver aliases for the general
+  method path, but the ArrayBox fast bridge invoked the surface before that
+  normalization. `rows.get(0)` in Hako LL could therefore pass the receiver
+  alias as the index and return `Error: get() requires integer index`.
+
+Landed fix:
+
+- `ArrayBox` visible reads / clones share nested `InstanceBox`, `ArrayBox`,
+  `MapBox`, and borrowed-handle identity boxes instead of deep-cloning them.
+- `MapBox::clone` reuses the visible-read clone/share policy.
+- CoreBox method callee duplicate-receiver stripping is now arity-aware:
+  it strips only when the arg list is exactly one item longer than the
+  surface arity and the first arg is the receiver alias.
+- Regression coverage pins ArrayBox duplicate receiver aliases, legitimate
+  `array.push(array)` self arguments, and collection clone recursion.
+
+Verification:
+
+```bash
+cargo test -q method_callee_arraybox_get_strips_duplicate_receiver_alias_arg --lib
+cargo test -q method_callee_arraybox_push_keeps_legitimate_self_argument --lib
+cargo test -q method_callee_mapbox_set_get_strips_duplicate_receiver_arg --lib
+cargo test -q clone_recursion --lib
+cargo build --release --bin hakorune
+bash tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_daily_ret_const_min.sh
+bash tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/run_llvmlite_monitor_keep.sh
+bash tools/checks/inc_codegen_thin_shim_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Current delete-readiness:
+
+- `phase29x_backend_owner_daily_ret_const_min.sh`: PASS.
+- `compat/llvmlite-monitor-keep`: PASS 3/3.
+- `.inc` guard remains unchanged at 5 files / 47 analysis-debt lines.
+
+## Original Blocker
 
 `pure_compile_minimal_paths` path #1/#2 cannot be deleted yet.
 
@@ -77,3 +121,5 @@ Delete-readiness for `292x-112` additionally requires:
 bash tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_daily_ret_const_min.sh
 bash tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/run_llvmlite_monitor_keep.sh
 ```
+
+Both delete-readiness commands are now green; retry `292x-112` next.
