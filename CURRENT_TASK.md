@@ -32,7 +32,7 @@ Scope: current lane / next lane / restart order only.
 18. `docs/development/current/main/phases/phase-292x/292x-STATUS.toml` (`phase-292x` compact status SSOT)
 19. `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
 20. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
-21. `docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md`
+21. `docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md`
 22. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
 23. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
 24. `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
@@ -79,7 +79,7 @@ Scope: current lane / next lane / restart order only.
   - method anchor:
     - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md`
+    - `docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md`
   - current app slice:
     - phase-291x CoreBox surface catalog is landed
     - StringBox / MapBox catalog seams are pinned
@@ -92,9 +92,9 @@ Scope: current lane / next lane / restart order only.
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-    - latest landed exact route tag: `userbox_loop_micro`
-    - guard baseline: 13 `.inc` files / 131 analysis-debt lines
-    - next cleanup remains remaining exact seed ladders, one metadata-owned family at a time; worker inventory recommends UserBox known-receiver method seeds next
+    - latest landed exact route tag: `userbox_known_receiver_method_seed`
+    - guard baseline: 9 `.inc` files / 99 analysis-debt lines
+    - next cleanup remains remaining exact seed ladders, one metadata-owned family at a time; finish the UserBox known-receiver chain/micro method seeds next
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`

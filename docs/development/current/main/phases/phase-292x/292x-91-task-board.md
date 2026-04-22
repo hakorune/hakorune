@@ -106,8 +106,11 @@ Related:
   - tenth slice landed: `292x-107` moved the multi-block UserBox
     `point_add_micro` / `flag_toggle_micro` pair behind
     `userbox_loop_micro_seed_route`
-  - next state: migrate or delete the remaining UserBox known-receiver method
-    seed matchers after stale block/value fixture assumptions are cleaned
+  - eleventh slice landed: `292x-108` moved the `Counter.step` and
+    `Point.sum` local/copy known-receiver method seeds behind
+    `userbox_known_receiver_method_seed_route`
+  - next state: route the remaining UserBox known-receiver chain/micro method
+    seed matchers, then the unrelated `array_getset_micro` matcher
 
 ## Follow-up Cards
 

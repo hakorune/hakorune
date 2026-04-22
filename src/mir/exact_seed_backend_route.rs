@@ -24,6 +24,7 @@ pub enum ExactSeedBackendRouteKind {
     UserBoxPointLocalScalar,
     UserBoxFlagPointFLocalScalar,
     UserBoxLoopMicro,
+    UserBoxKnownReceiverMethodSeed,
 }
 
 impl ExactSeedBackendRouteKind {
@@ -39,6 +40,7 @@ impl ExactSeedBackendRouteKind {
             Self::UserBoxPointLocalScalar => "userbox_point_local_scalar",
             Self::UserBoxFlagPointFLocalScalar => "userbox_flag_pointf_local_scalar",
             Self::UserBoxLoopMicro => "userbox_loop_micro",
+            Self::UserBoxKnownReceiverMethodSeed => "userbox_known_receiver_method_seed",
         }
     }
 
@@ -54,6 +56,7 @@ impl ExactSeedBackendRouteKind {
             Self::UserBoxPointLocalScalar => "userbox_local_scalar_seed_route",
             Self::UserBoxFlagPointFLocalScalar => "userbox_local_scalar_seed_route",
             Self::UserBoxLoopMicro => "userbox_loop_micro_seed_route",
+            Self::UserBoxKnownReceiverMethodSeed => "userbox_known_receiver_method_seed_route",
         }
     }
 }
@@ -156,6 +159,20 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
         });
     }
 
+    if let Some(route) = function
+        .metadata
+        .userbox_known_receiver_method_seed_route
+        .as_ref()
+    {
+        let tag = ExactSeedBackendRouteKind::UserBoxKnownReceiverMethodSeed;
+        return Some(ExactSeedBackendRoute {
+            tag,
+            source_route: tag.source_route_field().to_string(),
+            proof: route.proof.to_string(),
+            selected_value: None,
+        });
+    }
+
     function
         .metadata
         .concat_const_suffix_micro_seed_route
@@ -225,6 +242,8 @@ mod tests {
         SubstringViewsMicroSeedRoute, SumLocalAggregateLayout, SumVariantProjectSeedKind,
         SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
         SumVariantTagSeedKind, SumVariantTagSeedProof, SumVariantTagSeedRoute,
+        UserBoxKnownReceiverMethodSeedKind, UserBoxKnownReceiverMethodSeedPayload,
+        UserBoxKnownReceiverMethodSeedProof, UserBoxKnownReceiverMethodSeedRoute,
         UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof,
         UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind,
         UserBoxLoopMicroSeedProof, UserBoxLoopMicroSeedRoute,
@@ -496,6 +515,47 @@ mod tests {
         assert_eq!(route.tag.as_str(), "userbox_loop_micro");
         assert_eq!(route.source_route, "userbox_loop_micro_seed_route");
         assert_eq!(route.proof, "userbox_flag_toggle_loop_micro_seed");
+        assert_eq!(route.selected_value, None);
+    }
+
+    #[test]
+    fn exact_seed_backend_route_selects_userbox_known_receiver_method_metadata() {
+        let mut function = make_function();
+        function.metadata.userbox_known_receiver_method_seed_route =
+            Some(UserBoxKnownReceiverMethodSeedRoute {
+                kind: UserBoxKnownReceiverMethodSeedKind::CounterStepCopyLocalI64,
+                box_name: "Counter".to_string(),
+                method: "step".to_string(),
+                method_function: "Counter.step/1".to_string(),
+                block_count: 1,
+                method_block_count: 1,
+                block: BasicBlockId::new(0),
+                method_block: BasicBlockId::new(1),
+                newbox_instruction_index: 1,
+                copy_instruction_index: Some(3),
+                call_instruction_index: 4,
+                box_value: ValueId::new(2),
+                copy_value: Some(ValueId::new(3)),
+                result_value: ValueId::new(4),
+                proof: UserBoxKnownReceiverMethodSeedProof::CounterStepLocalI64Seed,
+                payload: UserBoxKnownReceiverMethodSeedPayload::CounterStepI64 {
+                    base_i64: 41,
+                    delta_i64: 2,
+                },
+            });
+
+        refresh_function_exact_seed_backend_route(&mut function);
+
+        let route = function
+            .metadata
+            .exact_seed_backend_route
+            .expect("exact seed backend route");
+        assert_eq!(route.tag.as_str(), "userbox_known_receiver_method_seed");
+        assert_eq!(
+            route.source_route,
+            "userbox_known_receiver_method_seed_route"
+        );
+        assert_eq!(route.proof, "userbox_counter_step_local_i64_seed");
         assert_eq!(route.selected_value, None);
     }
 

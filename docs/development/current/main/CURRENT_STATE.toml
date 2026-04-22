@@ -9,11 +9,11 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; array_string_store_micro, concat_const_suffix_micro, substring_views_only_micro, substring_concat_loop_ascii, array_rmw_add1_leaf, sum_variant_tag_local, sum_variant_project_local, userbox_point_local_scalar, userbox_flag_pointf_local_scalar, and userbox_loop_micro exact seed route tags landed; remaining exact seed route tags next"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; array_string_store_micro, concat_const_suffix_micro, substring_views_only_micro, substring_concat_loop_ascii, array_rmw_add1_leaf, sum_variant_tag_local, sum_variant_project_local, userbox_point_local_scalar, userbox_flag_pointf_local_scalar, userbox_loop_micro, and userbox_known_receiver_method_seed exact seed route tags landed; remaining exact seed route tags next"
 active_phase = "docs/development/current/main/phases/phase-292x/README.md"
 phase_status = "docs/development/current/main/phases/phase-292x/292x-STATUS.toml"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md"
 
 current_blocker_token = "move exact seed ladders to function-level backend route tags"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
@@ -39,6 +39,7 @@ opened_successors = [
   "userbox_point_local_scalar exact seed backend route tag landed",
   "userbox_flag_pointf_local_scalar exact seed backend route tag landed",
   "userbox_loop_micro exact seed backend route tag landed",
+  "userbox_known_receiver_method_seed exact seed backend route tag landed",
 ]
 
 blocked_successors = [

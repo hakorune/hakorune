@@ -90,6 +90,7 @@ pub mod sum_variant_tag_seed_plan; // MIR-owned route plan for temporary Sum var
 pub mod thin_entry; // thin-entry inventory for known local routes
 pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
+pub mod userbox_known_receiver_method_seed_plan; // MIR-owned route plan for temporary UserBox known-receiver method exact seeds
 pub mod userbox_local_scalar_seed_plan; // MIR-owned route plan for temporary UserBox local scalar exact seeds
 pub mod userbox_loop_micro_seed_plan; // MIR-owned route plan for temporary UserBox loop micro exact seeds
 pub mod value_consumer; // generic consumer capability facts for backend emitters
@@ -288,6 +289,11 @@ pub use thin_entry_selection::{
 };
 pub use types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
+};
+pub use userbox_known_receiver_method_seed_plan::{
+    refresh_module_userbox_known_receiver_method_seed_routes, UserBoxKnownReceiverMethodSeedKind,
+    UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedProof,
+    UserBoxKnownReceiverMethodSeedRoute,
 };
 pub use userbox_local_scalar_seed_plan::{
     refresh_function_userbox_local_scalar_seed_route,

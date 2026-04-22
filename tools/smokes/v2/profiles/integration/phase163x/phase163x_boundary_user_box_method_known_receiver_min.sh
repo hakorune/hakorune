@@ -98,6 +98,23 @@ for FIXTURE in "${FIXTURES[@]}"; do
         test_fail "phase163x_boundary_user_box_method_known_receiver_min: boundary route unexpectedly replayed compat lane fixture=${BASENAME}"
         exit 1
     fi
+
+    case "$BASENAME" in
+        user_box_counter_step_local_i64_min|user_box_counter_step_copy_local_i64_min|user_box_point_sum_local_i64_min|user_box_point_sum_copy_local_i64_min)
+            if ! grep -Fq "[llvm-route/trace] stage=exact_seed_backend_route result=hit reason=mir_route_metadata extra=userbox_known_receiver_method_seed" "$BUILD_LOG"; then
+                echo "[INFO] compile output:"
+                tail -n 120 "$BUILD_LOG" || true
+                test_fail "phase163x_boundary_user_box_method_known_receiver_min: exact route tag missing fixture=${BASENAME}"
+                exit 1
+            fi
+            if ! grep -Fq "[llvm-route/trace] stage=userbox_known_receiver_method_seed result=emit reason=exact_match" "$BUILD_LOG"; then
+                echo "[INFO] compile output:"
+                tail -n 120 "$BUILD_LOG" || true
+                test_fail "phase163x_boundary_user_box_method_known_receiver_min: known receiver route emit trace missing fixture=${BASENAME}"
+                exit 1
+            fi
+            ;;
+    esac
 done
 
-test_pass "phase163x_boundary_user_box_method_known_receiver_min: PASS (selected Counter.step_chain, Counter.step and Point.sum known_receiver metadata stay green on boundary pure-first owner lane without compat replay, including the single-copy receiver alias lane and 1-hop recursive delegate lane)"
+test_pass "phase163x_boundary_user_box_method_known_receiver_min: PASS (Counter.step and Point.sum local/copy known_receiver seeds use MIR-owned route metadata without compat replay; Counter.step_chain remains green for the next route slice)"

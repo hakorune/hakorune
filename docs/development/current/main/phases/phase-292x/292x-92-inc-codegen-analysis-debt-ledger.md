@@ -240,3 +240,30 @@ UserBox loop micro exact seed backend route:
     removed from the baseline
   - `hako_llvmc_ffi_pure_compile.inc`: `11 -> 9`
   - current analysis-debt baseline is `131`
+
+UserBox known-receiver local method exact seed backend route:
+
+- added `FunctionMetadata.userbox_known_receiver_method_seed_route` for the
+  current `Counter.step/1` and `Point.sum/1` local/copy exact seed family
+- added backend tag `userbox_known_receiver_method_seed`
+- replaced the four
+  `hako_llvmc_match_userbox_{counter_step,point_sum}_{local,copy}_i64_seed`
+  C matchers with
+  `hako_llvmc_consume_userbox_known_receiver_method_seed_route`
+- deleted the old copy-only Counter.step / Point.sum matcher include files and
+  kept the local Counter.step / Point.sum includes emitter-only
+- updated the four local/copy known-receiver fixtures to carry
+  `userbox_known_receiver_method_seed_route` and `exact_seed_backend_route`
+- pinned route traces in
+  `phase163x_boundary_user_box_method_known_receiver_min.sh`
+- lowered allowlist:
+  - `hako_llvmc_ffi_user_box_micro_seed_counter_step_copy_local_i64.inc`:
+    `7 -> 0` and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_counter_step_local_i64.inc`:
+    `7 -> 0` and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_point_sum_copy_local_i64.inc`:
+    `7 -> 0` and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_point_sum_local_i64.inc`:
+    `7 -> 0` and removed from the baseline
+  - `hako_llvmc_ffi_pure_compile.inc`: `9 -> 5`
+  - current analysis-debt baseline is `99`

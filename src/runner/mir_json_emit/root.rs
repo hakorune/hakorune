@@ -739,6 +739,14 @@ pub(super) fn build_mir_json_root(
                     .map(build_userbox_loop_micro_seed_route_json)
                     .unwrap_or(serde_json::Value::Null),
             );
+            obj.insert(
+                "userbox_known_receiver_method_seed_route".to_string(),
+                f.metadata
+                    .userbox_known_receiver_method_seed_route
+                    .as_ref()
+                    .map(build_userbox_known_receiver_method_seed_route_json)
+                    .unwrap_or(serde_json::Value::Null),
+            );
         }
         let attrs_json = json!({
             "runes": f
@@ -835,6 +843,74 @@ fn build_userbox_loop_micro_seed_route_json(
     obj.insert(
         "consumer_capability".to_string(),
         json!("direct_userbox_loop_micro"),
+    );
+    obj.insert("publication_boundary".to_string(), json!("none"));
+    serde_json::Value::Object(obj)
+}
+
+fn build_userbox_known_receiver_method_seed_route_json(
+    route: &crate::mir::UserBoxKnownReceiverMethodSeedRoute,
+) -> serde_json::Value {
+    let mut obj = serde_json::Map::new();
+    obj.insert("kind".to_string(), json!(route.kind.to_string()));
+    obj.insert("box".to_string(), json!(route.box_name.as_str()));
+    obj.insert("method".to_string(), json!(route.method.as_str()));
+    obj.insert(
+        "method_function".to_string(),
+        json!(route.method_function.as_str()),
+    );
+    obj.insert("block_count".to_string(), json!(route.block_count));
+    obj.insert(
+        "method_block_count".to_string(),
+        json!(route.method_block_count),
+    );
+    obj.insert("block".to_string(), json!(route.block.as_u32()));
+    obj.insert(
+        "method_block".to_string(),
+        json!(route.method_block.as_u32()),
+    );
+    obj.insert(
+        "newbox_instruction_index".to_string(),
+        json!(route.newbox_instruction_index),
+    );
+    obj.insert(
+        "copy_instruction_index".to_string(),
+        json!(route.copy_instruction_index),
+    );
+    obj.insert(
+        "call_instruction_index".to_string(),
+        json!(route.call_instruction_index),
+    );
+    obj.insert("box_value".to_string(), json!(route.box_value.as_u32()));
+    obj.insert(
+        "copy_value".to_string(),
+        json!(route.copy_value.map(|value| value.as_u32())),
+    );
+    obj.insert(
+        "result_value".to_string(),
+        json!(route.result_value.as_u32()),
+    );
+    obj.insert("proof".to_string(), json!(route.proof.to_string()));
+    match &route.payload {
+        crate::mir::UserBoxKnownReceiverMethodSeedPayload::CounterStepI64 {
+            base_i64,
+            delta_i64,
+        } => {
+            obj.insert("base_i64".to_string(), json!(*base_i64));
+            obj.insert("delta_i64".to_string(), json!(*delta_i64));
+            obj.insert("x_i64".to_string(), serde_json::Value::Null);
+            obj.insert("y_i64".to_string(), serde_json::Value::Null);
+        }
+        crate::mir::UserBoxKnownReceiverMethodSeedPayload::PointSumI64 { x_i64, y_i64 } => {
+            obj.insert("base_i64".to_string(), serde_json::Value::Null);
+            obj.insert("delta_i64".to_string(), serde_json::Value::Null);
+            obj.insert("x_i64".to_string(), json!(*x_i64));
+            obj.insert("y_i64".to_string(), json!(*y_i64));
+        }
+    }
+    obj.insert(
+        "consumer_capability".to_string(),
+        json!("direct_userbox_known_receiver_method_local"),
     );
     obj.insert("publication_boundary".to_string(), json!("none"));
     serde_json::Value::Object(obj)

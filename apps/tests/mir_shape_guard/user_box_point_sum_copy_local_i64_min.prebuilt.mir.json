@@ -195,7 +195,36 @@
             "detail": "user_box_method.known_receiver",
             "reason": "known receiver user-box methods can lower beneath canonical Call, even through a single local copy alias"
           }
-        ]
+        ],
+        "userbox_known_receiver_method_seed_route": {
+          "kind": "point_sum_copy_local_i64",
+          "box": "Point",
+          "method": "sum",
+          "method_function": "Point.sum/1",
+          "block_count": 1,
+          "method_block_count": 1,
+          "block": 0,
+          "method_block": 1,
+          "newbox_instruction_index": 2,
+          "copy_instruction_index": 5,
+          "call_instruction_index": 6,
+          "box_value": 3,
+          "copy_value": 4,
+          "result_value": 5,
+          "proof": "userbox_point_sum_local_i64_seed",
+          "base_i64": null,
+          "delta_i64": null,
+          "x_i64": 1,
+          "y_i64": 2,
+          "consumer_capability": "direct_userbox_known_receiver_method_local",
+          "publication_boundary": "none"
+        },
+        "exact_seed_backend_route": {
+          "tag": "userbox_known_receiver_method_seed",
+          "source_route": "userbox_known_receiver_method_seed_route",
+          "proof": "userbox_point_sum_local_i64_seed",
+          "selected_value": null
+        }
       }
     },
     {

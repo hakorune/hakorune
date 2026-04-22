@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -52,7 +52,8 @@ Related:
 17. `phase-292x userbox_point_local_scalar exact seed function route tag` landed
 18. `phase-292x userbox_flag_pointf_local_scalar exact seed function route tag` landed
 19. `phase-292x userbox_loop_micro exact seed function route tag` landed
-19. `phase-292x remaining exact seed ladders to function-level backend route tags`
+20. `phase-292x userbox_known_receiver_method_seed exact seed function route tag` landed
+21. `phase-292x remaining exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

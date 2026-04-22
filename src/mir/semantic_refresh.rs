@@ -19,7 +19,10 @@ use super::{
     array_text_residence_session_plan::refresh_function_array_text_residence_session_routes,
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
-    exact_seed_backend_route::refresh_function_exact_seed_backend_route, function::ModuleMetadata,
+    exact_seed_backend_route::{
+        refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
+    },
+    function::ModuleMetadata,
     generic_method_route_plan::refresh_function_generic_method_routes,
     placement_effect::refresh_function_placement_effect_routes,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
@@ -31,6 +34,7 @@ use super::{
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
+    userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
     MirFunction, MirModule,
 };
 
@@ -92,6 +96,8 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         refresh_function_semantic_metadata(function, &module_metadata);
     }
+    refresh_module_userbox_known_receiver_method_seed_routes(module);
+    refresh_module_exact_seed_backend_routes(module);
 }
 
 #[cfg(test)]

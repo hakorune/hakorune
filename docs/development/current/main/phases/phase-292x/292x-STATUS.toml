@@ -13,27 +13,27 @@ title = ".inc codegen thin tag cleanup"
 active_lane = "phase-292x .inc codegen thin tag cleanup"
 current_blocker_token = "move exact seed ladders to function-level backend route tags"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md"
 
 purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
-inc_file_count = 75
-inc_line_count = 17842
-analysis_debt_files = 13
-analysis_debt_lines = 131
-remaining_seed_matcher_defs = 8
+inc_file_count = 74
+inc_line_count = 17189
+analysis_debt_files = 9
+analysis_debt_lines = 99
+remaining_seed_matcher_defs = 4
 
-last_landed_slice = "userbox_loop_micro"
-next_recommended_slice = "userbox_known_receiver_method_seeds"
-next_recommended_reason = "Point/Flag/PointF scalar seeds and the loop-count-coupled point_add_micro / flag_toggle_micro pair are metadata-routed; next cleanest UserBox slice is the known-receiver method seed family before the unrelated array_getset_micro matcher."
+last_landed_slice = "userbox_known_receiver_method_local"
+next_recommended_slice = "userbox_known_receiver_method_loop_seeds"
+next_recommended_reason = "Counter.step and Point.sum local/copy known-receiver method seeds are metadata-routed; finish the remaining Counter.step_chain / Counter.step micro / Point.sum micro known-receiver matchers before the unrelated array_getset_micro matcher."
 
 verification_min = [
   "cargo fmt --check",
-  "cargo test -q userbox_loop_micro_seed --lib",
+  "cargo test -q userbox_known_receiver_method_seed --lib",
   "cargo test -q exact_seed_backend_route --lib",
   "bash tools/build_hako_llvmc_ffi.sh",
-  "bash tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_loop_micro_route_min.sh",
+  "bash tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_method_known_receiver_min.sh",
   "bash tools/checks/inc_codegen_thin_shim_guard.sh",
   "bash tools/checks/current_state_pointer_guard.sh",
   "git diff --check",
@@ -167,12 +167,20 @@ backend_tag = "userbox_loop_micro"
 status = "landed"
 smoke = "phase163x_boundary_user_box_loop_micro_route_min.sh"
 
+[[landed_slice]]
+id = "userbox_known_receiver_method_local"
+kind = "exact_seed_backend_route"
+owner = "FunctionMetadata.userbox_known_receiver_method_seed_route"
+backend_tag = "userbox_known_receiver_method_seed"
+status = "landed"
+smoke = "phase163x_boundary_user_box_method_known_receiver_min.sh"
+
 [[backlog]]
-id = "userbox_known_receiver_method_seeds"
+id = "userbox_known_receiver_method_loop_seeds"
 priority = 1
-remaining_matchers = 7
-owner_status = "metadata exists, but phase163x smokes may still pin stale block/value shapes"
-note = "Clean brittle smokes before route consumer migration."
+remaining_matchers = 3
+owner_status = "local/copy route landed; chain/micro shapes still need route proof before C matcher deletion"
+note = "Finish Counter.step_chain, Counter.step micro, and Point.sum micro before array_getset_micro."
 
 [[backlog]]
 id = "array_getset_micro"

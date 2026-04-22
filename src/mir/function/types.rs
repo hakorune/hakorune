@@ -22,6 +22,7 @@ use crate::mir::{
     sum_variant_project_seed_plan::SumVariantProjectSeedRoute,
     sum_variant_tag_seed_plan::SumVariantTagSeedRoute, thin_entry::ThinEntryCandidate,
     thin_entry_selection::ThinEntrySelection,
+    userbox_known_receiver_method_seed_plan::UserBoxKnownReceiverMethodSeedRoute,
     userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
     userbox_loop_micro_seed_plan::UserBoxLoopMicroSeedRoute, value_consumer::ValueConsumerFacts,
     BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType, ValueId,
@@ -267,6 +268,12 @@ pub struct FunctionMetadata {
     /// carries the current point-add / flag-toggle loop micro seed payload so
     /// the C backend can stay an emitter selector.
     pub userbox_loop_micro_seed_route: Option<UserBoxLoopMicroSeedRoute>,
+
+    /// Backend-consumable exact UserBox known-receiver method seed route.
+    /// Thin-entry metadata owns the method and primitive field surface proof;
+    /// this route carries the current local/copy Counter.step and Point.sum
+    /// exact seed payloads so the C backend can stay an emitter selector.
+    pub userbox_known_receiver_method_seed_route: Option<UserBoxKnownReceiverMethodSeedRoute>,
 
     /// Function-level backend route tag for one already-proven exact seed.
     /// Payload legality remains owned by the selected `*_micro_seed_route`;
