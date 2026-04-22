@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-22
+Date: 2026-04-23
 Scope: `.inc` codegen analysis-debt ledger for Phase 292x.
 Related:
   - docs/development/current/main/phases/phase-292x/README.md
@@ -197,3 +197,27 @@ UserBox Point local scalar exact seed backend route:
     and removed from the baseline
   - `hako_llvmc_ffi_pure_compile.inc`: `17 -> 15`
   - current analysis-debt baseline is `179`
+
+UserBox Flag/PointF local scalar exact seed backend route:
+
+- extended `FunctionMetadata.userbox_local_scalar_seed_route` to cover the
+  current Flag BoolBox and PointF FloatBox local/copy scalar exact seed family
+- added backend tag `userbox_flag_pointf_local_scalar`
+- replaced the four `hako_llvmc_match_userbox_{flag,pointf}_*seed` C matchers
+  with `hako_llvmc_consume_userbox_flag_pointf_local_scalar_route`
+- deleted the old copy-only Flag/PointF matcher include files and kept the
+  local Flag/PointF includes emitter-only
+- updated Flag/PointF local/copy fixtures to carry
+  `userbox_local_scalar_seed_route` and `exact_seed_backend_route`
+- pinned route traces in `phase163x_boundary_user_box_metadata_keep_min.sh`
+- lowered allowlist:
+  - `hako_llvmc_ffi_user_box_micro_seed_flag_copy_local_bool.inc`: `9 -> 0`
+    and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_flag_local_bool.inc`: `8 -> 0`
+    and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_pointf_copy_local_f64.inc`: `9 -> 0`
+    and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_pointf_local_f64.inc`: `8 -> 0`
+    and removed from the baseline
+  - `hako_llvmc_ffi_pure_compile.inc`: `15 -> 11`
+  - current analysis-debt baseline is `141`

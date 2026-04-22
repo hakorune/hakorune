@@ -571,26 +571,74 @@ pub(super) fn build_mir_json_root(
                 let mut obj = serde_json::Map::new();
                 obj.insert("kind".to_string(), json!(route.kind.to_string()));
                 obj.insert("box".to_string(), json!(route.box_name.as_str()));
-                obj.insert("x_field".to_string(), json!(route.x_field.as_str()));
-                obj.insert("y_field".to_string(), json!(route.y_field.as_str()));
                 obj.insert("block".to_string(), json!(route.block.as_u32()));
                 obj.insert("newbox_instruction_index".to_string(), json!(route.newbox_instruction_index));
-                obj.insert("set_x_instruction_index".to_string(), json!(route.set_x_instruction_index));
-                obj.insert("set_y_instruction_index".to_string(), json!(route.set_y_instruction_index));
-                obj.insert("get_x_instruction_index".to_string(), json!(route.get_x_instruction_index));
-                obj.insert("get_y_instruction_index".to_string(), json!(route.get_y_instruction_index));
-                obj.insert("point_value".to_string(), json!(route.point_value.as_u32()));
+                obj.insert("box_value".to_string(), json!(route.box_value.as_u32()));
                 obj.insert("copy_value".to_string(), json!(route.copy_value.map(|value| value.as_u32())));
-                obj.insert("x_value".to_string(), json!(route.x_value.as_u32()));
-                obj.insert("y_value".to_string(), json!(route.y_value.as_u32()));
-                obj.insert("get_x_value".to_string(), json!(route.get_x_value.as_u32()));
-                obj.insert("get_y_value".to_string(), json!(route.get_y_value.as_u32()));
                 obj.insert("result_value".to_string(), json!(route.result_value.as_u32()));
-                obj.insert("x_i64".to_string(), json!(route.x_i64));
-                obj.insert("y_i64".to_string(), json!(route.y_i64));
                 obj.insert("proof".to_string(), json!(route.proof.to_string()));
-                obj.insert("consumer_capability".to_string(), json!("direct_userbox_point_local_scalar"));
+                let consumer_capability = match route.kind {
+                    crate::mir::UserBoxLocalScalarSeedKind::PointLocalI64 |
+                    crate::mir::UserBoxLocalScalarSeedKind::PointCopyLocalI64 => "direct_userbox_point_local_scalar",
+                    crate::mir::UserBoxLocalScalarSeedKind::FlagLocalBool |
+                    crate::mir::UserBoxLocalScalarSeedKind::FlagCopyLocalBool => "direct_userbox_flag_local_scalar",
+                    crate::mir::UserBoxLocalScalarSeedKind::PointFLocalF64 |
+                    crate::mir::UserBoxLocalScalarSeedKind::PointFCopyLocalF64 => "direct_userbox_pointf_local_scalar",
+                };
+                obj.insert("consumer_capability".to_string(), json!(consumer_capability));
                 obj.insert("publication_boundary".to_string(), json!("none"));
+                match &route.payload {
+                    crate::mir::UserBoxLocalScalarSeedPayload::PointI64Pair {
+                        x_field,
+                        y_field,
+                        set_x_instruction_index,
+                        set_y_instruction_index,
+                        get_x_instruction_index,
+                        get_y_instruction_index,
+                        x_value,
+                        y_value,
+                        get_x_value,
+                        get_y_value,
+                        x_i64,
+                        y_i64,
+                    } => {
+                        obj.insert("x_field".to_string(), json!(x_field.as_str()));
+                        obj.insert("y_field".to_string(), json!(y_field.as_str()));
+                        obj.insert("set_x_instruction_index".to_string(), json!(*set_x_instruction_index));
+                        obj.insert("set_y_instruction_index".to_string(), json!(*set_y_instruction_index));
+                        obj.insert("get_x_instruction_index".to_string(), json!(*get_x_instruction_index));
+                        obj.insert("get_y_instruction_index".to_string(), json!(*get_y_instruction_index));
+                        obj.insert("point_value".to_string(), json!(route.box_value.as_u32()));
+                        obj.insert("x_value".to_string(), json!(x_value.as_u32()));
+                        obj.insert("y_value".to_string(), json!(y_value.as_u32()));
+                        obj.insert("get_x_value".to_string(), json!(get_x_value.as_u32()));
+                        obj.insert("get_y_value".to_string(), json!(get_y_value.as_u32()));
+                        obj.insert("x_i64".to_string(), json!(*x_i64));
+                        obj.insert("y_i64".to_string(), json!(*y_i64));
+                    }
+                    crate::mir::UserBoxLocalScalarSeedPayload::SingleField {
+                        field,
+                        set_instruction_index,
+                        get_instruction_index,
+                        field_value,
+                        get_field_value,
+                        payload,
+                    } => {
+                        let (payload_i64, payload_f64) = match payload {
+                            crate::mir::UserBoxLocalScalarSeedSinglePayload::I64(value) => (Some(*value), None),
+                            crate::mir::UserBoxLocalScalarSeedSinglePayload::F64Bits(bits) => {
+                                (None, Some(f64::from_bits(*bits)))
+                            }
+                        };
+                        obj.insert("field".to_string(), json!(field.as_str()));
+                        obj.insert("set_field_instruction_index".to_string(), json!(*set_instruction_index));
+                        obj.insert("get_field_instruction_index".to_string(), json!(*get_instruction_index));
+                        obj.insert("field_value".to_string(), json!(field_value.as_u32()));
+                        obj.insert("get_field_value".to_string(), json!(get_field_value.as_u32()));
+                        obj.insert("payload_i64".to_string(), json!(payload_i64));
+                        obj.insert("payload_f64".to_string(), json!(payload_f64));
+                    }
+                }
                 serde_json::Value::Object(obj)
             }),
             "exact_seed_backend_route": f.metadata.exact_seed_backend_route.as_ref().map(|route| {

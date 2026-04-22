@@ -112,7 +112,21 @@ for FIXTURE in "${FIXTURES[@]}"; do
             exit 1
         fi
         ;;
+      user_box_flag_local_bool_min|user_box_flag_copy_local_bool_min|user_box_pointf_local_f64_min|user_box_pointf_copy_local_f64_min)
+        if ! grep -Fq "[llvm-route/trace] stage=exact_seed_backend_route result=hit reason=mir_route_metadata extra=userbox_flag_pointf_local_scalar" "$BUILD_LOG"; then
+            echo "[INFO] compile output:"
+            tail -n 120 "$BUILD_LOG" || true
+            test_fail "phase163x_boundary_user_box_metadata_keep_min: Flag/PointF fixture did not select exact_seed_backend_route fixture=${BASENAME}"
+            exit 1
+        fi
+        if ! grep -Fq "[llvm-route/trace] stage=userbox_flag_pointf_local_scalar result=emit reason=exact_match" "$BUILD_LOG"; then
+            echo "[INFO] compile output:"
+            tail -n 120 "$BUILD_LOG" || true
+            test_fail "phase163x_boundary_user_box_metadata_keep_min: Flag/PointF fixture did not emit via userbox_flag_pointf_local_scalar route fixture=${BASENAME}"
+            exit 1
+        fi
+        ;;
     esac
 done
 
-test_pass "phase163x_boundary_user_box_metadata_keep_min: PASS (Point local/copy now use exact_seed_backend_route, and remaining metadata-bearing Flag/PointF user-box JSON fixtures stay green without compat replay)"
+test_pass "phase163x_boundary_user_box_metadata_keep_min: PASS (Point/Flag/PointF local scalar user-box fixtures use exact_seed_backend_route without compat replay)"

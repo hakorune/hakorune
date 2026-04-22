@@ -291,7 +291,8 @@ pub use types::{
 pub use userbox_local_scalar_seed_plan::{
     refresh_function_userbox_local_scalar_seed_route,
     refresh_module_userbox_local_scalar_seed_routes, UserBoxLocalScalarSeedKind,
-    UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
+    UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
+    UserBoxLocalScalarSeedSinglePayload,
 };
 pub use value_consumer::{
     refresh_function_value_consumer_facts, refresh_module_value_consumer_facts, ValueConsumerFacts,

@@ -8,7 +8,8 @@
 
 use super::{MirFunction, MirModule};
 use crate::mir::{
-    StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanRetainedForm, ValueId,
+    StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanRetainedForm,
+    UserBoxLocalScalarSeedKind, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -21,6 +22,7 @@ pub enum ExactSeedBackendRouteKind {
     SumVariantTagLocal,
     SumVariantProjectLocal,
     UserBoxPointLocalScalar,
+    UserBoxFlagPointFLocalScalar,
 }
 
 impl ExactSeedBackendRouteKind {
@@ -34,6 +36,7 @@ impl ExactSeedBackendRouteKind {
             Self::SumVariantTagLocal => "sum_variant_tag_local",
             Self::SumVariantProjectLocal => "sum_variant_project_local",
             Self::UserBoxPointLocalScalar => "userbox_point_local_scalar",
+            Self::UserBoxFlagPointFLocalScalar => "userbox_flag_pointf_local_scalar",
         }
     }
 
@@ -47,6 +50,7 @@ impl ExactSeedBackendRouteKind {
             Self::SumVariantTagLocal => "sum_variant_tag_seed_route",
             Self::SumVariantProjectLocal => "sum_variant_project_seed_route",
             Self::UserBoxPointLocalScalar => "userbox_local_scalar_seed_route",
+            Self::UserBoxFlagPointFLocalScalar => "userbox_local_scalar_seed_route",
         }
     }
 }
@@ -119,11 +123,21 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
     }
 
     if let Some(route) = function.metadata.userbox_local_scalar_seed_route.as_ref() {
+        let tag = match route.kind {
+            UserBoxLocalScalarSeedKind::PointLocalI64
+            | UserBoxLocalScalarSeedKind::PointCopyLocalI64 => {
+                ExactSeedBackendRouteKind::UserBoxPointLocalScalar
+            }
+            UserBoxLocalScalarSeedKind::FlagLocalBool
+            | UserBoxLocalScalarSeedKind::FlagCopyLocalBool
+            | UserBoxLocalScalarSeedKind::PointFLocalF64
+            | UserBoxLocalScalarSeedKind::PointFCopyLocalF64 => {
+                ExactSeedBackendRouteKind::UserBoxFlagPointFLocalScalar
+            }
+        };
         return Some(ExactSeedBackendRoute {
-            tag: ExactSeedBackendRouteKind::UserBoxPointLocalScalar,
-            source_route: ExactSeedBackendRouteKind::UserBoxPointLocalScalar
-                .source_route_field()
-                .to_string(),
+            tag,
+            source_route: tag.source_route_field().to_string(),
             proof: route.proof.to_string(),
             selected_value: None,
         });
@@ -198,7 +212,8 @@ mod tests {
         SubstringViewsMicroSeedRoute, SumLocalAggregateLayout, SumVariantProjectSeedKind,
         SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
         SumVariantTagSeedKind, SumVariantTagSeedProof, SumVariantTagSeedRoute,
-        UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
+        UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof,
+        UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -370,24 +385,26 @@ mod tests {
         function.metadata.userbox_local_scalar_seed_route = Some(UserBoxLocalScalarSeedRoute {
             kind: UserBoxLocalScalarSeedKind::PointLocalI64,
             box_name: "Point".to_string(),
-            x_field: "x".to_string(),
-            y_field: "y".to_string(),
             block: BasicBlockId::new(0),
             newbox_instruction_index: 2,
-            set_x_instruction_index: 3,
-            set_y_instruction_index: 4,
-            get_x_instruction_index: 5,
-            get_y_instruction_index: 6,
-            point_value: ValueId::new(3),
+            box_value: ValueId::new(3),
             copy_value: None,
-            x_value: ValueId::new(1),
-            y_value: ValueId::new(2),
-            get_x_value: ValueId::new(4),
-            get_y_value: ValueId::new(5),
             result_value: ValueId::new(6),
-            x_i64: 41,
-            y_i64: 2,
             proof: UserBoxLocalScalarSeedProof::PointFieldLocalScalarSeed,
+            payload: UserBoxLocalScalarSeedPayload::PointI64Pair {
+                x_field: "x".to_string(),
+                y_field: "y".to_string(),
+                set_x_instruction_index: 3,
+                set_y_instruction_index: 4,
+                get_x_instruction_index: 5,
+                get_y_instruction_index: 6,
+                x_value: ValueId::new(1),
+                y_value: ValueId::new(2),
+                get_x_value: ValueId::new(4),
+                get_y_value: ValueId::new(5),
+                x_i64: 41,
+                y_i64: 2,
+            },
         });
 
         refresh_function_exact_seed_backend_route(&mut function);
@@ -399,6 +416,40 @@ mod tests {
         assert_eq!(route.tag.as_str(), "userbox_point_local_scalar");
         assert_eq!(route.source_route, "userbox_local_scalar_seed_route");
         assert_eq!(route.proof, "userbox_point_field_local_scalar_seed");
+        assert_eq!(route.selected_value, None);
+    }
+
+    #[test]
+    fn exact_seed_backend_route_selects_userbox_flag_pointf_local_scalar_metadata() {
+        let mut function = make_function();
+        function.metadata.userbox_local_scalar_seed_route = Some(UserBoxLocalScalarSeedRoute {
+            kind: UserBoxLocalScalarSeedKind::FlagCopyLocalBool,
+            box_name: "Flag".to_string(),
+            block: BasicBlockId::new(0),
+            newbox_instruction_index: 1,
+            box_value: ValueId::new(2),
+            copy_value: Some(ValueId::new(3)),
+            result_value: ValueId::new(4),
+            proof: UserBoxLocalScalarSeedProof::FlagFieldLocalScalarSeed,
+            payload: UserBoxLocalScalarSeedPayload::SingleField {
+                field: "enabled".to_string(),
+                set_instruction_index: 2,
+                get_instruction_index: 4,
+                field_value: ValueId::new(1),
+                get_field_value: ValueId::new(4),
+                payload: UserBoxLocalScalarSeedSinglePayload::I64(1),
+            },
+        });
+
+        refresh_function_exact_seed_backend_route(&mut function);
+
+        let route = function
+            .metadata
+            .exact_seed_backend_route
+            .expect("exact seed backend route");
+        assert_eq!(route.tag.as_str(), "userbox_flag_pointf_local_scalar");
+        assert_eq!(route.source_route, "userbox_local_scalar_seed_route");
+        assert_eq!(route.proof, "userbox_flag_field_local_scalar_seed");
         assert_eq!(route.selected_value, None);
     }
 

@@ -40,9 +40,9 @@ cargo check -q
   - `.inc` is boundary glue, not planner
   - `tools/checks/inc_codegen_thin_shim_guard.sh` pins the no-growth baseline
   - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-  - latest landed exact route tag: `userbox_point_local_scalar`
-  - guard baseline: 19 `.inc` files / 179 analysis-debt lines
-  - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time; Flag / PointF local scalar seeds are the recommended next cleanup slice
+  - latest landed exact route tag: `userbox_flag_pointf_local_scalar`
+  - guard baseline: 15 `.inc` files / 141 analysis-debt lines
+  - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time; UserBox loop micro seeds are the recommended next cleanup slice
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -59,7 +59,7 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-292x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-105-userbox-point-local-scalar-seed-route-card.md`
+  - `docs/development/current/main/phases/phase-292x/292x-106-userbox-flag-pointf-local-scalar-seed-route-card.md`
 - current blocker token:
   - `move exact seed ladders to function-level backend route tags`
 
@@ -96,7 +96,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - select the next remaining exact seed ladder and move its function-level backend route to MIR metadata; prefer Flag / PointF local scalar seeds next
+  - select the next remaining exact seed ladder and move its function-level backend route to MIR metadata; prefer UserBox loop micro seeds next
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

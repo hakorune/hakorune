@@ -101,8 +101,10 @@ Related:
     local/copy seed family behind `sum_variant_project_seed_route`
   - eighth slice landed: `292x-105` moved the UserBox `Point`
     local/copy scalar pair behind `userbox_local_scalar_seed_route`
-  - next state: migrate `Flag` / `PointF` local scalar seeds, then the
-    multi-block UserBox loop micro routes
+  - ninth slice landed: `292x-106` moved `Flag` / `PointF` local/copy scalar
+    seeds behind `userbox_local_scalar_seed_route`
+  - next state: migrate the multi-block UserBox loop micro routes after the
+    scalar local/copy family is metadata-routed
 
 ## Follow-up Cards
 

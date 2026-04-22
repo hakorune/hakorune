@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array/string windows, generic_method.has, Sum seeds, and UserBox Point seed migrated to MIR metadata` |
+| Front | `array/string windows, generic_method.has, Sum seeds, and UserBox Point/Flag/PointF scalar seeds migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `move exact seed ladders to function-level backend route tags` |
-| Next | `UserBox Flag / PointF local scalar exact route tag cleanup` |
+| Next | `UserBox loop micro exact route tag cleanup` |
 | After Next | `next .inc raw-analysis deletion candidate` |
 
 ## Current Read
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-105-userbox-point-local-scalar-seed-route-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-106-userbox-flag-pointf-local-scalar-seed-route-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -50,7 +50,8 @@ Related:
 15. `phase-292x sum_variant_tag_local exact seed function route tag` landed
 16. `phase-292x sum_variant_project_local exact seed function route tag` landed
 17. `phase-292x userbox_point_local_scalar exact seed function route tag` landed
-18. `phase-292x remaining exact seed ladders to function-level backend route tags`
+18. `phase-292x userbox_flag_pointf_local_scalar exact seed function route tag` landed
+19. `phase-292x remaining exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 
