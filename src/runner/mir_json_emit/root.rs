@@ -514,6 +514,28 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }),
+            "sum_variant_tag_seed_route": f.metadata.sum_variant_tag_seed_route.as_ref().map(|route| {
+                json!({
+                    "kind": route.kind.to_string(),
+                    "enum": route.enum_name.as_str(),
+                    "variant": route.variant.as_str(),
+                    "subject": route.subject.as_str(),
+                    "layout": route.layout.to_string(),
+                    "variant_tag": route.variant_tag,
+                    "make_block": route.make_block.as_u32(),
+                    "make_instruction_index": route.make_instruction_index,
+                    "tag_block": route.tag_block.as_u32(),
+                    "tag_instruction_index": route.tag_instruction_index,
+                    "sum_value": route.sum_value.as_u32(),
+                    "tag_value": route.tag_value.as_u32(),
+                    "tag_source_value": route.tag_source_value.as_u32(),
+                    "copy_value": route.copy_value.map(|value| value.as_u32()),
+                    "payload_value": route.payload_value.map(|value| value.as_u32()),
+                    "proof": route.proof.to_string(),
+                    "consumer_capability": "direct_sum_variant_tag_local",
+                    "publication_boundary": "none",
+                })
+            }),
             "exact_seed_backend_route": f.metadata.exact_seed_backend_route.as_ref().map(|route| {
                 json!({
                     "tag": route.tag.as_str(),

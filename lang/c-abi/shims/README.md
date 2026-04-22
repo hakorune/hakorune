@@ -59,7 +59,8 @@ Current partitions:
 - `hako_llvmc_ffi_sum_local_seed_emitters.inc`
   - exact local variant tag/project pure IR emitters
 - `hako_llvmc_ffi_sum_local_seed_matchers_tag.inc`
-  - local/tag matcher family
+  - metadata consumer for the Sum `variant_tag` exact seed route
+  - consumes MIR `sum_variant_tag_seed_route`; do not regrow raw block scanners here
 - `hako_llvmc_ffi_sum_local_seed_matchers_project_copy.inc`
   - project-through-copy matcher family
 - `hako_llvmc_ffi_sum_local_seed_matchers_project_local.inc`

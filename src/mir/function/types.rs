@@ -19,9 +19,9 @@ use crate::mir::{
     string_kernel_plan::StringKernelPlan,
     substring_views_micro_seed_plan::SubstringViewsMicroSeedRoute, sum_placement::SumPlacementFact,
     sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
-    thin_entry::ThinEntryCandidate, thin_entry_selection::ThinEntrySelection,
-    value_consumer::ValueConsumerFacts, BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType,
-    ValueId,
+    sum_variant_tag_seed_plan::SumVariantTagSeedRoute, thin_entry::ThinEntryCandidate,
+    thin_entry_selection::ThinEntrySelection, value_consumer::ValueConsumerFacts, BasicBlock,
+    BasicBlockId, ConstValue, EffectMask, MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -242,6 +242,11 @@ pub struct FunctionMetadata {
     /// Borrowed-slice windows stay in `string_kernel_plans`; this only carries
     /// the temporary emitter payload that generic plans do not expose yet.
     pub substring_views_micro_seed_route: Option<SubstringViewsMicroSeedRoute>,
+
+    /// Backend-consumable exact Sum variant_tag seed route.
+    /// Sum placement metadata owns the local aggregate proof; this route only
+    /// owns the temporary whole-function exact seed payload for the C backend.
+    pub sum_variant_tag_seed_route: Option<SumVariantTagSeedRoute>,
 
     /// Function-level backend route tag for one already-proven exact seed.
     /// Payload legality remains owned by the selected `*_micro_seed_route`;

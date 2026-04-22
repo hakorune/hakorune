@@ -25,6 +25,8 @@ placement/entry decisions without guessing from helper names.
 | `sum_placement_facts` | array | Observed sum objectization / local-aggregate facts |
 | `sum_placement_selections` | array | Selected sum path (`local_aggregate` vs compat fallback) |
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
+| `sum_variant_tag_seed_route` | object or null | Exact Sum `variant_tag` seed route selected from Sum placement metadata |
+| `exact_seed_backend_route` | object or null | Function-level backend route tag for one already-proven exact seed payload |
 
 ## Value maps
 
@@ -233,6 +235,36 @@ for the local aggregate path:
 | `block`, `instruction_index`, `value`, `surface`, `subject`, `source_sum` | Site identity |
 | `layout` | `tag_only`, `tag_i64_payload`, `tag_f64_payload`, or `tag_handle_payload` |
 | `reason` | Stable explanation string |
+
+### `sum_variant_tag_seed_route`
+
+`sum_variant_tag_seed_route` is the exact-seed bridge for the current
+`variant_tag` local/copy seed family. It is derived from the Sum metadata above;
+it does not replace canonical `variant_make` / `variant_tag` instructions.
+
+| Field | Meaning |
+| --- | --- |
+| `kind` | `variant_tag_local_i64`, `variant_tag_local_tag_only`, `variant_tag_local_f64`, `variant_tag_local_handle`, or `variant_tag_copy_local_i64` |
+| `enum`, `variant`, `subject` | Enum and variant identity |
+| `layout` | Selected local aggregate layout |
+| `variant_tag` | Discriminant value emitted by the exact helper |
+| `make_block`, `make_instruction_index`, `tag_block`, `tag_instruction_index` | MIR sites proven by the route |
+| `sum_value`, `tag_value`, `tag_source_value`, `copy_value`, `payload_value` | Value ids needed by backend validation |
+| `proof` | `sum_variant_tag_local_aggregate_seed` |
+| `consumer_capability` | `direct_sum_variant_tag_local` |
+| `publication_boundary` | `none` |
+
+### `exact_seed_backend_route`
+
+`exact_seed_backend_route` lets the backend choose one already-proven exact seed
+payload before walking any legacy compatibility ladder.
+
+| Field | Meaning |
+| --- | --- |
+| `tag` | Stable backend tag such as `sum_variant_tag_local` |
+| `source_route` | Metadata field that owns the payload, such as `sum_variant_tag_seed_route` |
+| `proof` | Proof string copied from the selected source route |
+| `selected_value` | Optional value id for plan-indexed routes; null for Sum variant_tag |
 
 ## Text MIR / verbose MIR relation
 

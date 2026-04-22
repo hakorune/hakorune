@@ -18,7 +18,7 @@ Related:
 | Front | `array/string windows, generic_method.has, and first exact seed tags migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `move exact seed ladders to function-level backend route tags` |
-| Next | `Sum local seed exact route tag cleanup, then UserBox local scalar seeds` |
+| Next | `Sum variant_project exact route tag cleanup, then UserBox local scalar seeds` |
 | After Next | `next .inc raw-analysis deletion candidate` |
 
 ## Current Read
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-103-sum-variant-tag-seed-route-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -47,7 +47,8 @@ Related:
 12. `phase-292x substring_views_only_micro exact seed function route tag` landed
 13. `phase-292x substring_concat_loop_ascii exact seed function route tag` landed
 14. `phase-292x array_rmw_add1_leaf exact seed function route tag` landed
-15. `phase-292x remaining exact seed ladders to function-level backend route tags`
+15. `phase-292x sum_variant_tag_local exact seed function route tag` landed
+16. `phase-292x remaining exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

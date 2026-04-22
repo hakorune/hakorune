@@ -8,8 +8,12 @@
     {
       "name": "Result",
       "variants": [
-        { "name": "Ok" },
-        { "name": "Err" }
+        {
+          "name": "Ok"
+        },
+        {
+          "name": "Err"
+        }
       ]
     }
   ],
@@ -24,7 +28,10 @@
             {
               "op": "const",
               "dst": 1,
-              "value": { "type": "i64", "value": 41 }
+              "value": {
+                "type": "i64",
+                "value": 41
+              }
             },
             {
               "op": "variant_make",
@@ -151,7 +158,33 @@
             "layout": "tag_i64_payload",
             "reason": "selected local aggregate uses i64 payload lane"
           }
-        ]
+        ],
+        "sum_variant_tag_seed_route": {
+          "kind": "variant_tag_copy_local_i64",
+          "enum": "Result",
+          "variant": "Ok",
+          "subject": "Result::Ok",
+          "layout": "tag_i64_payload",
+          "variant_tag": 0,
+          "make_block": 0,
+          "make_instruction_index": 1,
+          "tag_block": 0,
+          "tag_instruction_index": 3,
+          "sum_value": 2,
+          "tag_value": 4,
+          "tag_source_value": 3,
+          "copy_value": 3,
+          "payload_value": 1,
+          "proof": "sum_variant_tag_local_aggregate_seed",
+          "consumer_capability": "direct_sum_variant_tag_local",
+          "publication_boundary": "none"
+        },
+        "exact_seed_backend_route": {
+          "tag": "sum_variant_tag_local",
+          "source_route": "sum_variant_tag_seed_route",
+          "proof": "sum_variant_tag_local_aggregate_seed",
+          "selected_value": null
+        }
       }
     }
   ]

@@ -95,9 +95,10 @@ Related:
   - fifth slice landed: `array_rmw_add1_leaf` gets a whole-function
     `array_rmw_add1_leaf_seed_route` layered over the existing
     `array_rmw_window_routes` inner proof
-  - next state: Sum local seed family is the recommended next slice; continue
-    one exact seed ladder family at a time and add a MIR metadata owner first
-    when existing metadata only proves an inner window
+  - sixth slice landed: `292x-103` moved the Sum `variant_tag` local/copy
+    seed family behind `sum_variant_tag_seed_route`
+  - next state: migrate the remaining Sum `variant_project` seed family, then
+    UserBox local scalar seeds
 
 ## Follow-up Cards
 

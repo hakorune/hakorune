@@ -17,8 +17,8 @@ Current no-growth baseline:
 
 - `.inc` files: 76
 - `.inc` lines: 19,533
-- analysis-debt files: 24
-- analysis-debt lines: 297
+- analysis-debt files: 23
+- analysis-debt lines: 257
 
 Compact current status is mirrored in `292x-STATUS.toml`. This ledger keeps
 the deletion history and the reason for baseline changes.
@@ -144,3 +144,18 @@ The guard counts lines matching:
   - `hako_llvmc_ffi_array_micro_seed.inc`: `8 -> 4`
   - `hako_llvmc_ffi_pure_compile.inc`: `29 -> 28`
   - current analysis-debt baseline is `297`
+
+Sum `variant_tag` exact seed backend route:
+
+- added `FunctionMetadata.sum_variant_tag_seed_route` for the current local and
+  copy `variant_tag` exact seed family
+- converted the five `hako_llvmc_match_variant_tag_*seed` C matchers into
+  `hako_llvmc_consume_sum_variant_tag_seed_route`
+- updated metadata-bearing tag fixtures to carry `sum_variant_tag_seed_route`
+  and `exact_seed_backend_route`
+- pinned route traces in `phase163x_boundary_sum_metadata_keep_min.sh`
+- lowered allowlist:
+  - `hako_llvmc_ffi_sum_local_seed_matchers_tag.inc`: `35 -> 0` and removed
+    from the baseline
+  - `hako_llvmc_ffi_pure_compile.inc`: `28 -> 23`
+  - current analysis-debt baseline is `257`

@@ -171,3 +171,13 @@ Each boundary smoke must observe:
 - The route is pinned with
   `phase137x_direct_emit_array_rmw_add1_leaf_contract.sh`.
 - The analysis-debt baseline is now `297` lines.
+
+## Sixth Slice Result
+
+- Added `FunctionMetadata.sum_variant_tag_seed_route`.
+- `ExactSeedBackendRouteKind` includes `sum_variant_tag_local`.
+- The five Sum `variant_tag` local/copy matchers now flow through
+  `hako_llvmc_consume_sum_variant_tag_seed_route`, which validates metadata and
+  emits the selected helper without scanning raw MIR JSON blocks.
+- The route is pinned with `phase163x_boundary_sum_metadata_keep_min.sh`.
+- The analysis-debt baseline is now `257` lines.

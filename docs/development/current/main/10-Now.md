@@ -34,7 +34,7 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-103-sum-variant-tag-seed-route-card.md`
   - current implementation focus: move exact seed ladders to function-level backend route tags
   - current phase goal:
     - make `.inc` a thin boundary glue layer
@@ -42,8 +42,9 @@ Related:
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-    - latest landed exact route tag: `array_rmw_add1_leaf`
-    - next best cleanup target: Sum local seed family, then UserBox local scalar seeds
+    - latest landed exact route tag: `sum_variant_tag_local`
+    - guard baseline: 23 `.inc` files / 257 analysis-debt lines
+    - next best cleanup target: Sum `variant_project` seed family, then UserBox local scalar seeds
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent

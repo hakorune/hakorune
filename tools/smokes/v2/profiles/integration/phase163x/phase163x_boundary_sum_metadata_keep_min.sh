@@ -101,6 +101,23 @@ for FIXTURE in "${FIXTURES[@]}"; do
         test_fail "phase163x_boundary_sum_metadata_keep_min: boundary route unexpectedly replayed compat lane for metadata-bearing sum shape fixture=${BASENAME}"
         exit 1
     fi
+
+    case "$BASENAME" in
+        sum_result_ok_tag_only_local_min|sum_result_ok_tag_local_f64_min|sum_result_ok_tag_local_handle_min|sum_result_ok_tag_local_i64_min|sum_result_ok_tag_copy_local_i64_min)
+            if ! grep -Fq "stage=exact_seed_backend_route result=hit reason=mir_route_metadata extra=sum_variant_tag_local" "$BUILD_LOG"; then
+                echo "[INFO] compile output:"
+                tail -n 120 "$BUILD_LOG" || true
+                test_fail "phase163x_boundary_sum_metadata_keep_min: sum variant_tag fixture did not hit exact route metadata fixture=${BASENAME}"
+                exit 1
+            fi
+            if ! grep -Fq "stage=sum_variant_tag_local result=emit reason=exact_match" "$BUILD_LOG"; then
+                echo "[INFO] compile output:"
+                tail -n 120 "$BUILD_LOG" || true
+                test_fail "phase163x_boundary_sum_metadata_keep_min: sum variant_tag fixture did not emit from route metadata fixture=${BASENAME}"
+                exit 1
+            fi
+            ;;
+    esac
 done
 
 test_pass "phase163x_boundary_sum_metadata_keep_min: PASS (metadata-bearing sum JSON fixtures stay green on boundary pure-first owner lane, including direct and copied variant_project, tag-only, tag-f64, tag-handle, direct variant_tag, and copied variant_tag aliases)"

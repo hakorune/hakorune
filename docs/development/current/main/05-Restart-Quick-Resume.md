@@ -40,8 +40,9 @@ cargo check -q
   - `.inc` is boundary glue, not planner
   - `tools/checks/inc_codegen_thin_shim_guard.sh` pins the no-growth baseline
   - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-  - latest landed exact route tag: `array_rmw_add1_leaf`
-  - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time; Sum local seed family is the recommended next cleanup slice
+  - latest landed exact route tag: `sum_variant_tag_local`
+  - guard baseline: 23 `.inc` files / 257 analysis-debt lines
+  - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time; Sum `variant_project` seed family is the recommended next cleanup slice
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -58,7 +59,7 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-292x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
+  - `docs/development/current/main/phases/phase-292x/292x-103-sum-variant-tag-seed-route-card.md`
 - current blocker token:
   - `move exact seed ladders to function-level backend route tags`
 
@@ -95,7 +96,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - select the next remaining exact seed ladder and move its function-level backend route to MIR metadata; prefer Sum local seed family before UserBox local scalar seeds
+  - select the next remaining exact seed ladder and move its function-level backend route to MIR metadata; prefer remaining Sum `variant_project` seed family before UserBox local scalar seeds
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

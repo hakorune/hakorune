@@ -24,6 +24,7 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md
   - docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md
   - docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md
+  - docs/development/current/main/phases/phase-292x/292x-103-sum-variant-tag-seed-route-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -40,8 +41,8 @@ Related:
 - Landed sixth target: delete legacy `array_rmw_window` C analyzer
 - Landed seventh target: string concat / direct-set windows metadata-only
 - Landed eighth target: `generic_method.has` route policy metadata
-- Landed exact-seed slice: `array_rmw_add1_leaf` whole-function route metadata
-- Next exact-seed cleanup target: Sum local seed family
+- Landed exact-seed slice: Sum `variant_tag` local/copy route metadata
+- Next exact-seed cleanup target: remaining Sum `variant_project` local/copy family
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -71,9 +72,10 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 2. `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 3. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
 4. `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
-5. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-6. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
-7. Historical per-slice cards as needed:
+5. `docs/development/current/main/phases/phase-292x/292x-103-sum-variant-tag-seed-route-card.md`
+6. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+7. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+8. Historical per-slice cards as needed:
    - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
@@ -101,7 +103,7 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 24 `.inc` files, 297 analysis-debt lines
+- baseline: 23 `.inc` files, 257 analysis-debt lines
 - current inventory: 76 `.inc` files, 19,533 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 - compact phase status lives in `292x-STATUS.toml`
@@ -185,5 +187,6 @@ exact seed ladders to function-level backend route tags
   -> third slice landed for substring_views_only_micro
   -> fourth slice landed for substring_concat_loop_ascii with selected plan value
   -> fifth slice landed for array_rmw_add1_leaf whole-function metadata
-  -> next recommended slice is Sum local seed family, then UserBox local scalar seeds
+  -> sixth slice landed for Sum variant_tag local/copy metadata
+  -> next recommended slice is remaining Sum variant_project family, then UserBox local scalar seeds
 ```
