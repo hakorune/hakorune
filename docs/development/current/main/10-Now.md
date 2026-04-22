@@ -52,7 +52,8 @@ Related:
     - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
     - `substring_views_only_micro` function-level exact seed backend route tag is landed
     - `substring_concat_loop_ascii` function-level exact seed backend route tag is landed with selected plan value
-    - remaining exact seed ladders stay one-family follow-up cleanup
+    - `array_rmw_add1_leaf` function-level exact seed backend route tag is landed with a new whole-function seed route over the existing `array_rmw_window_routes` inner proof
+    - remaining exact seed ladders stay one-family follow-up cleanup; next best cleanup target is the Sum local seed family, then UserBox local scalar seeds
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent

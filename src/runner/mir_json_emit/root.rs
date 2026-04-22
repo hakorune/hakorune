@@ -476,6 +476,21 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }),
+            "array_rmw_add1_leaf_seed_route": f.metadata.array_rmw_add1_leaf_seed_route.as_ref().map(|route| {
+                json!({
+                    "size": route.size,
+                    "ops": route.ops,
+                    "init_push_count": route.init_push_count,
+                    "final_get_count": route.final_get_count,
+                    "selected_rmw_block": route.selected_rmw_block.as_u32(),
+                    "selected_rmw_instruction_index": route.selected_rmw_instruction_index,
+                    "selected_rmw_set_instruction_index": route.selected_rmw_set_instruction_index,
+                    "proof": route.proof.to_string(),
+                    "rmw_proof": route.rmw_proof.to_string(),
+                    "consumer_capability": "direct_stack_array_rmw_add1_leaf",
+                    "publication_boundary": "none",
+                })
+            }),
             "concat_const_suffix_micro_seed_route": f.metadata.concat_const_suffix_micro_seed_route.as_ref().map(|route| {
                 json!({
                     "seed": route.seed.as_str(),

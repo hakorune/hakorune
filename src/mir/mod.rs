@@ -10,6 +10,7 @@ pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
 pub(crate) mod array_receiver_proof; // shared RuntimeDataBox -> ArrayBox receiver proof
+pub mod array_rmw_add1_leaf_seed_plan; // MIR-owned route plan for temporary array RMW add1 leaf seed bridge
 pub mod array_rmw_window_plan; // MIR-owned route plans for array get/+1/set windows
 pub mod array_string_len_window_plan; // MIR-owned route plans for array get/length windows
 pub mod array_string_store_micro_seed_plan; // MIR-owned route plan for temporary array string-store micro seed bridge
@@ -114,6 +115,11 @@ pub(crate) use builder::detect_parse_string_shape;
 pub use agg_local_scalarization::{
     refresh_function_agg_local_scalarization_routes, refresh_module_agg_local_scalarization_routes,
     AggLocalScalarizationKind, AggLocalScalarizationRoute,
+};
+pub use array_rmw_add1_leaf_seed_plan::{
+    refresh_function_array_rmw_add1_leaf_seed_route,
+    refresh_module_array_rmw_add1_leaf_seed_routes, ArrayRmwAdd1LeafSeedProof,
+    ArrayRmwAdd1LeafSeedRoute,
 };
 pub use array_rmw_window_plan::{
     refresh_function_array_rmw_window_routes, refresh_module_array_rmw_window_routes,

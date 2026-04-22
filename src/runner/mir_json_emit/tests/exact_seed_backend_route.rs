@@ -1,6 +1,10 @@
 use super::super::build_mir_json_root;
 use super::make_function;
-use crate::mir::{ExactSeedBackendRoute, ExactSeedBackendRouteKind, MirModule, ValueId};
+use crate::mir::{
+    ArrayRmwAdd1LeafSeedProof, ArrayRmwAdd1LeafSeedRoute, ArrayRmwWindowProof,
+    ExactSeedBackendRoute, ExactSeedBackendRouteKind, MirModule, ValueId,
+};
+use hakorune_mir_core::BasicBlockId;
 
 #[test]
 fn build_mir_json_root_emits_exact_seed_backend_route() {
@@ -42,6 +46,49 @@ fn build_mir_json_root_emits_concat_const_suffix_exact_seed_backend_route() {
         "concat_const_suffix_micro_seed_route"
     );
     assert_eq!(route["proof"], "kilo_micro_concat_const_suffix_5block");
+    assert!(route["selected_value"].is_null());
+}
+
+#[test]
+fn build_mir_json_root_emits_array_rmw_add1_leaf_seed_and_exact_route() {
+    let mut function = make_function("main", true);
+    function.metadata.array_rmw_add1_leaf_seed_route = Some(ArrayRmwAdd1LeafSeedRoute {
+        size: 128,
+        ops: 2_000_000,
+        init_push_count: 1,
+        final_get_count: 2,
+        selected_rmw_block: BasicBlockId::new(23),
+        selected_rmw_instruction_index: 8,
+        selected_rmw_set_instruction_index: 13,
+        proof: ArrayRmwAdd1LeafSeedProof::KiloLeafArrayRmwAdd1SevenBlock,
+        rmw_proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
+    });
+    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
+        tag: ExactSeedBackendRouteKind::ArrayRmwAdd1Leaf,
+        source_route: "array_rmw_add1_leaf_seed_route".to_string(),
+        proof: "kilo_leaf_array_rmw_add1_7block".to_string(),
+        selected_value: None,
+    });
+    let mut module = MirModule::new("json_array_rmw_add1_leaf_route_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let metadata = &root["functions"][0]["metadata"];
+    let seed_route = &metadata["array_rmw_add1_leaf_seed_route"];
+    assert_eq!(seed_route["size"], 128);
+    assert_eq!(seed_route["ops"], 2_000_000);
+    assert_eq!(seed_route["init_push_count"], 1);
+    assert_eq!(seed_route["final_get_count"], 2);
+    assert_eq!(seed_route["selected_rmw_block"], 23);
+    assert_eq!(seed_route["selected_rmw_instruction_index"], 8);
+    assert_eq!(seed_route["selected_rmw_set_instruction_index"], 13);
+    assert_eq!(seed_route["proof"], "kilo_leaf_array_rmw_add1_7block");
+    assert_eq!(seed_route["rmw_proof"], "array_get_add1_set_same_slot");
+
+    let route = &metadata["exact_seed_backend_route"];
+    assert_eq!(route["tag"], "array_rmw_add1_leaf");
+    assert_eq!(route["source_route"], "array_rmw_add1_leaf_seed_route");
+    assert_eq!(route["proof"], "kilo_leaf_array_rmw_add1_7block");
     assert!(route["selected_value"].is_null());
 }
 

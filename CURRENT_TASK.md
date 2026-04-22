@@ -99,7 +99,8 @@ Scope: current lane / next lane / restart order only.
     - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
     - `substring_views_only_micro` function-level exact seed backend route tag is landed
     - `substring_concat_loop_ascii` function-level exact seed backend route tag is landed with selected plan value
-    - next cleanup remains remaining exact seed ladders, one metadata-owned family at a time
+    - `array_rmw_add1_leaf` function-level exact seed backend route tag is landed with a new whole-function seed route over the existing `array_rmw_window_routes` inner proof
+    - next cleanup remains remaining exact seed ladders, one metadata-owned family at a time; worker inventory recommends Sum local seed family next, then UserBox local scalar seeds
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`

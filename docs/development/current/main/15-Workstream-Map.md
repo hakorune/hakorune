@@ -18,7 +18,7 @@ Related:
 | Front | `array/string windows, generic_method.has, and first exact seed tags migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `move exact seed ladders to function-level backend route tags` |
-| Next | `exact seed ladders to function-level backend route tags` |
+| Next | `Sum local seed exact route tag cleanup, then UserBox local scalar seeds` |
 | After Next | `next .inc raw-analysis deletion candidate` |
 
 ## Current Read
@@ -45,7 +45,8 @@ Related:
 11. `phase-292x concat_const_suffix_micro exact seed function route tag` landed
 12. `phase-292x substring_views_only_micro exact seed function route tag` landed
 13. `phase-292x substring_concat_loop_ascii exact seed function route tag` landed
-14. `phase-292x remaining exact seed ladders to function-level backend route tags`
+14. `phase-292x array_rmw_add1_leaf exact seed function route tag` landed
+15. `phase-292x remaining exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

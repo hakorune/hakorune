@@ -50,7 +50,8 @@ cargo check -q
   - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
   - `substring_views_only_micro` function-level exact seed backend route tag is landed
   - `substring_concat_loop_ascii` function-level exact seed backend route tag is landed with selected plan value
-  - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time
+  - `array_rmw_add1_leaf` function-level exact seed backend route tag is landed with a new whole-function seed route over the existing `array_rmw_window_routes` inner proof
+  - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time; Sum local seed family is the recommended next cleanup slice
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -104,7 +105,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - select the next remaining exact seed ladder and move its function-level backend route to MIR metadata
+  - select the next remaining exact seed ladder and move its function-level backend route to MIR metadata; prefer Sum local seed family before UserBox local scalar seeds
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

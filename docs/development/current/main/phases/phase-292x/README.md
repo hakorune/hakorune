@@ -38,7 +38,8 @@ Related:
 - Landed sixth target: delete legacy `array_rmw_window` C analyzer
 - Landed seventh target: string concat / direct-set windows metadata-only
 - Landed eighth target: `generic_method.has` route policy metadata
-- Next implementation target: exact seed ladders to function-level backend route tags
+- Landed exact-seed slice: `array_rmw_add1_leaf` whole-function route metadata
+- Next exact-seed cleanup target: Sum local seed family
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless this cleanup reopens a real app/perf blocker.
@@ -173,5 +174,6 @@ exact seed ladders to function-level backend route tags
   -> second slice landed for concat_const_suffix_micro
   -> third slice landed for substring_views_only_micro
   -> fourth slice landed for substring_concat_loop_ascii with selected plan value
-  -> continue one exact seed ladder at a time for remaining metadata-owned seeds
+  -> fifth slice landed for array_rmw_add1_leaf whole-function metadata
+  -> next recommended slice is Sum local seed family, then UserBox local scalar seeds
 ```

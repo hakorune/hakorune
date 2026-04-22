@@ -16,9 +16,9 @@ Related:
 Current no-growth baseline:
 
 - `.inc` files: 76
-- `.inc` lines: 19,553
-- analysis-debt files: 25
-- analysis-debt lines: 308
+- `.inc` lines: 19,533
+- analysis-debt files: 24
+- analysis-debt lines: 297
 
 The baseline is not a permission slip to add more C analysis. It is a deletion
 ledger. Reductions are expected as route families move to MIR-owned metadata.
@@ -116,3 +116,28 @@ The guard counts lines matching:
   - removed now-clean `hako_llvmc_ffi_string_loop_seed_views_only.inc`
   - `hako_llvmc_ffi_pure_compile.inc`: `32 -> 31`
   - current analysis-debt baseline is `308`
+
+`substring_concat_loop_ascii` exact seed backend route:
+
+- extended `exact_seed_backend_route` to select a concrete
+  `string_kernel_plans.loop_payload` entry via `selected_value`
+- removed the redundant substring-concat seed wrapper; the selected metadata
+  consumer chooses the len emitter from MIR-owned stable-length metadata
+- pinned the route with
+  `phase137x_direct_emit_substring_concat_route_contract.sh`
+- current analysis-debt baseline after this slice was `302`
+
+`array_rmw_add1_leaf` exact seed backend route:
+
+- added `FunctionMetadata.array_rmw_add1_leaf_seed_route` for the current
+  whole-function 7-block direct MIR seed shape
+- kept the inner RMW legality delegated to
+  `array_rmw_window_routes[*].proof = "array_get_add1_set_same_slot"`
+- converted `hako_llvmc_match_array_rmw_add1_leaf_seed` into
+  `hako_llvmc_consume_array_rmw_add1_leaf_route`
+- pinned the route with
+  `phase137x_direct_emit_array_rmw_add1_leaf_contract.sh`
+- lowered allowlist:
+  - `hako_llvmc_ffi_array_micro_seed.inc`: `8 -> 4`
+  - `hako_llvmc_ffi_pure_compile.inc`: `29 -> 28`
+  - current analysis-debt baseline is `297`

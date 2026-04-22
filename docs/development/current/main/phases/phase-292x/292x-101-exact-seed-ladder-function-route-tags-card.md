@@ -61,6 +61,20 @@ Fourth slice:
 - selected source route: `string_kernel_plans.loop_payload`
 - proof: `string_kernel_plan_concat_triplet_loop_payload`
 
+Fifth slice:
+
+- exact seed ladder: `array_rmw_add1_leaf`
+- new route owner: `FunctionMetadata.array_rmw_add1_leaf_seed_route`
+- relationship to existing route metadata:
+  - `array_rmw_window_routes` still owns the inner
+    `array.get(i) -> +1 -> array.set(i, ...)` legality proof
+  - `array_rmw_add1_leaf_seed_route` owns the whole-function exact seed
+    payload (`size`, `ops`, init push loop, and final first/last reads)
+- function-level tag: `metadata.exact_seed_backend_route.tag =
+  "array_rmw_add1_leaf"`
+- selected source route: `array_rmw_add1_leaf_seed_route`
+- proof: `kilo_leaf_array_rmw_add1_7block`
+
 `.inc` may keep only:
 
 - metadata reader / field validation
@@ -82,6 +96,7 @@ bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substr
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_route_contract.sh
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_phi_merge_contract.sh
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_post_sink_shape.sh
+bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_rmw_add1_leaf_contract.sh
 ```
 
 Each boundary smoke must observe:
@@ -135,3 +150,19 @@ Each boundary smoke must observe:
   MIR route tag, selected plan value, and exact emitter trace.
 - The older substring-concat shape smokes now pin current metadata invariants
   instead of stale hard-coded value ids.
+
+## Fifth Slice Result
+
+- Added `FunctionMetadata.array_rmw_add1_leaf_seed_route`.
+- The route requires the current 7-block direct MIR shape and the already-proven
+  `array_rmw_window_routes[*].proof = "array_get_add1_set_same_slot"` inner
+  window.
+- `ExactSeedBackendRouteKind` includes `array_rmw_add1_leaf`.
+- `hako_llvmc_match_array_rmw_add1_leaf_seed` was converted into
+  `hako_llvmc_consume_array_rmw_add1_leaf_route`, which validates metadata and
+  emits the selected helper without scanning raw MIR JSON blocks.
+- `hako_llvmc_ffi_array_micro_seed.inc` still carries
+  `array_getset_micro_seed` raw scan debt; that is a separate owner card.
+- The route is pinned with
+  `phase137x_direct_emit_array_rmw_add1_leaf_contract.sh`.
+- The analysis-debt baseline is now `297` lines.

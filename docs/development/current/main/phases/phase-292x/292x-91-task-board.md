@@ -84,8 +84,12 @@ Related:
   - fourth slice landed: `substring_concat_loop_ascii` uses the same
     function-level tag plus `selected_value` to select a concrete
     `string_kernel_plans.loop_payload` entry
-  - next state: continue one exact seed ladder at a time for remaining
-    metadata-owned seeds
+  - fifth slice landed: `array_rmw_add1_leaf` gets a whole-function
+    `array_rmw_add1_leaf_seed_route` layered over the existing
+    `array_rmw_window_routes` inner proof
+  - next state: Sum local seed family is the recommended next slice; continue
+    one exact seed ladder family at a time and add a MIR metadata owner first
+    when existing metadata only proves an inner window
 
 ## Follow-up Cards
 

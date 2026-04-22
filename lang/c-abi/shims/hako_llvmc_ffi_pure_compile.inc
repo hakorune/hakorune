@@ -9,6 +9,12 @@ static int hako_llvmc_exact_seed_backend_route_supported(
       selected_value == 0) {
     return 1;
   }
+  if (strcmp(tag, "array_rmw_add1_leaf") == 0 &&
+      strcmp(source_route, "array_rmw_add1_leaf_seed_route") == 0 &&
+      strcmp(proof, "kilo_leaf_array_rmw_add1_7block") == 0 &&
+      selected_value == 0) {
+    return 1;
+  }
   if (strcmp(tag, "concat_const_suffix_micro") == 0 &&
       strcmp(source_route, "concat_const_suffix_micro_seed_route") == 0 &&
       strcmp(proof, "kilo_micro_concat_const_suffix_5block") == 0 &&
@@ -158,6 +164,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
         return set_err_owned(err_out, "exact_seed_backend_route array_string_store_micro failed");
       }
+      if (strcmp(exact_seed_tag, "array_rmw_add1_leaf") == 0) {
+        if (hako_llvmc_consume_array_rmw_add1_leaf_route(json_in, obj_out) == 0) {
+          return 0;
+        }
+        return set_err_owned(err_out, "exact_seed_backend_route array_rmw_add1_leaf failed");
+      }
       if (strcmp(exact_seed_tag, "concat_const_suffix_micro") == 0) {
         if (hako_llvmc_consume_concat_const_suffix_micro_route(json_in, obj_out) == 0) {
           return 0;
@@ -192,7 +204,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_consume_array_string_store_micro_route(json_in, obj_out) == 0) {
     return 0;
   }
-  if (hako_llvmc_match_array_rmw_add1_leaf_seed(json_in, obj_out) == 0) {
+  if (hako_llvmc_consume_array_rmw_add1_leaf_route(json_in, obj_out) == 0) {
     return 0;
   }
   if (hako_llvmc_match_array_getset_micro_seed(json_in, obj_out) == 0) {

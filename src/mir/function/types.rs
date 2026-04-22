@@ -1,5 +1,6 @@
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
+    array_rmw_add1_leaf_seed_plan::ArrayRmwAdd1LeafSeedRoute,
     array_rmw_window_plan::ArrayRmwWindowRoute,
     array_string_len_window_plan::ArrayStringLenWindowRoute,
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
@@ -225,6 +226,12 @@ pub struct FunctionMetadata {
     /// metadata so the C backend can select an emitter without re-planning raw
     /// MIR JSON.
     pub array_string_store_micro_seed_route: Option<ArrayStringStoreMicroSeedRoute>,
+
+    /// Backend-consumable exact array RMW add1 leaf seed route.
+    /// This route owns the current whole-function temporary exact bridge and
+    /// references the inner `array_rmw_window_routes` proof instead of asking
+    /// the C backend to rescan raw MIR JSON blocks.
+    pub array_rmw_add1_leaf_seed_route: Option<ArrayRmwAdd1LeafSeedRoute>,
 
     /// Backend-consumable exact concat-const-suffix micro seed route.
     /// This keeps the current temporary exact bridge proof in MIR metadata so
