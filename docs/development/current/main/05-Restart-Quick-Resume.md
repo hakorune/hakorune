@@ -35,22 +35,12 @@ cargo check -q
   - compiler cleanup lane is primary
   - current-state token: `phase-292x .inc codegen thin tag cleanup`
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
+  - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - current focus:
   - `.inc` is boundary glue, not planner
   - `tools/checks/inc_codegen_thin_shim_guard.sh` pins the no-growth baseline
-  - first implementation card `array_rmw_window` MIR-owned route tag is landed
-  - `array_string_len_window` len-only MIR-owned route tag is landed
-  - `array_string_len_window` keep-live source reuse MIR-owned route tag is landed
-  - `array_string_len_window` source-only direct-set reuse MIR-owned route tag is landed
-  - legacy `array_string_len_window` C analyzer deletion is landed
-  - legacy `array_rmw_window` C analyzer deletion is landed
-  - string direct-set source-window metadata is landed
-  - `generic_method.has` route policy metadata is landed
-  - `array_string_store_micro` function-level exact seed backend route tag is landed
-  - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
-  - `substring_views_only_micro` function-level exact seed backend route tag is landed
-  - `substring_concat_loop_ascii` function-level exact seed backend route tag is landed with selected plan value
-  - `array_rmw_add1_leaf` function-level exact seed backend route tag is landed with a new whole-function seed route over the existing `array_rmw_window_routes` inner proof
+  - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
+  - latest landed exact route tag: `array_rmw_add1_leaf`
   - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time; Sum local seed family is the recommended next cleanup slice
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and

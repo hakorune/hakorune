@@ -20,6 +20,9 @@ Current no-growth baseline:
 - analysis-debt files: 24
 - analysis-debt lines: 297
 
+Compact current status is mirrored in `292x-STATUS.toml`. This ledger keeps
+the deletion history and the reason for baseline changes.
+
 The baseline is not a permission slip to add more C analysis. It is a deletion
 ledger. Reductions are expected as route families move to MIR-owned metadata.
 

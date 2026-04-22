@@ -5,6 +5,7 @@ Scope: Phase 292x task board for `.inc` thin tag cleanup.
 Related:
   - docs/development/current/main/phases/phase-292x/README.md
   - docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md
+  - docs/development/current/main/phases/phase-292x/292x-STATUS.toml
 ---
 
 # 292x-91: Task Board
@@ -70,10 +71,17 @@ Related:
     compatibility classification
   - trace proof: `[llvm-route/trace] stage=generic_method_has_route result=hit reason=mir_route_metadata`
 
+- [x] A6 phase docs update simplification
+  - design: `292x-102-doc-update-simplification-card.md`
+  - state: `292x-STATUS.toml` is the compact phase status SSOT; current
+    mirrors should only carry lane/blocker/next-slice summaries instead of
+    repeating every slice result
+
 ## Active Card
 
 - [ ] A5 exact seed ladders to function-level backend route tags
   - design: `292x-101-exact-seed-ladder-function-route-tags-card.md`
+  - compact status: `292x-STATUS.toml`
   - first slice landed: `array_string_store_micro` now uses
     `metadata.exact_seed_backend_route` to select the already-proven
     `array_string_store_micro_seed_route`

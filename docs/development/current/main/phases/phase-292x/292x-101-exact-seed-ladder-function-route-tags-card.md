@@ -4,11 +4,16 @@ Date: 2026-04-22
 Scope: next cleanup card for moving exact seed ladders toward function-level backend route tags.
 Related:
   - docs/development/current/main/phases/phase-292x/README.md
+  - docs/development/current/main/phases/phase-292x/292x-STATUS.toml
   - docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md
   - docs/development/current/main/phases/phase-292x/292x-91-task-board.md
 ---
 
 # 292x-101: Exact Seed Ladder Function Route Tags
+
+Compact status for landed slices, guard baseline, and remaining backlog is
+`292x-STATUS.toml`. This card keeps the design and result notes for the active
+exact-seed migration family.
 
 ## Problem
 

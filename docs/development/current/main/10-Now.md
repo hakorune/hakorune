@@ -32,6 +32,7 @@ Related:
   - compiler cleanup lane is primary
   - current-state token: `phase-292x .inc codegen thin tag cleanup`
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
+  - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
   - current implementation focus: move exact seed ladders to function-level backend route tags
@@ -40,20 +41,9 @@ Related:
     - move route legality and shape ownership to MIR-owned metadata
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
-    - `array_rmw_window` metadata-first route is landed; legacy C analyzer is fallback-only until deletion coverage is pinned
-    - `array_string_len_window` len-only metadata-first route is landed
-    - `array_string_len_window` keep-live source reuse metadata-first route is landed
-    - `array_string_len_window` source-only direct-set reuse metadata-first route is landed
-    - legacy `array_string_len_window` C analyzer deletion is landed
-    - legacy `array_rmw_window` C analyzer deletion is landed
-    - string direct-set source-window metadata is landed
-    - `generic_method.has` route policy metadata is landed
-    - `array_string_store_micro` function-level exact seed backend route tag is landed
-    - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
-    - `substring_views_only_micro` function-level exact seed backend route tag is landed
-    - `substring_concat_loop_ascii` function-level exact seed backend route tag is landed with selected plan value
-    - `array_rmw_add1_leaf` function-level exact seed backend route tag is landed with a new whole-function seed route over the existing `array_rmw_window_routes` inner proof
-    - remaining exact seed ladders stay one-family follow-up cleanup; next best cleanup target is the Sum local seed family, then UserBox local scalar seeds
+    - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
+    - latest landed exact route tag: `array_rmw_add1_leaf`
+    - next best cleanup target: Sum local seed family, then UserBox local scalar seeds
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent

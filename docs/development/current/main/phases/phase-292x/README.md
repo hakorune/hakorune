@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md
   - docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md
   - docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md
+  - docs/development/current/main/phases/phase-292x/292x-STATUS.toml
   - docs/development/current/main/phases/phase-292x/292x-91-task-board.md
   - docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md
   - docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md
@@ -22,6 +23,7 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md
   - docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md
   - docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md
+  - docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -40,6 +42,7 @@ Related:
 - Landed eighth target: `generic_method.has` route policy metadata
 - Landed exact-seed slice: `array_rmw_add1_leaf` whole-function route metadata
 - Next exact-seed cleanup target: Sum local seed family
+- Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless this cleanup reopens a real app/perf blocker.
@@ -65,36 +68,43 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 ## Reading Order
 
 1. `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-2. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
-3. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-4. `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
-5. `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
-6. `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
-7. `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
-8. `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
-9. `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
-10. `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
-11. `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
-12. `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
-13. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+2. `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
+3. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
+4. `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
+5. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+6. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+7. Historical per-slice cards as needed:
+   - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
+   - `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
+   - `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
+   - `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
+   - `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
+   - `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
+   - `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
+   - `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
+8. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
 
 ## Current Rule
 
 - docs-first before code
+- phase status first before mirror updates
 - route legality belongs to MIR metadata, not `.inc`
 - `.inc` may only consume tags, validate fields, emit, skip, or fail fast
 - no benchmark-name or helper-name semantic ownership in C
 - no new `.inc` raw MIR scan debt beyond the no-growth baseline
 - old C analyzers are fallback-only during migration and must be removed family by family
+- current mirrors should point to `292x-STATUS.toml`; do not duplicate full
+  per-slice ledgers outside the active card
 
 ## Implementation State
 
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 24 `.inc` files, 302 analysis-debt lines
-- current inventory: 76 `.inc` files, 19,553 `.inc` lines
+- baseline: 24 `.inc` files, 297 analysis-debt lines
+- current inventory: 76 `.inc` files, 19,533 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
+- compact phase status lives in `292x-STATUS.toml`
 
 Landed first card:
 

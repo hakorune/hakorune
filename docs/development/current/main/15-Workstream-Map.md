@@ -25,6 +25,7 @@ Related:
 
   - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
+  - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`

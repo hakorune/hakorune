@@ -1,0 +1,154 @@
+# Phase 292x status SSOT
+#
+# Purpose:
+# - Keep the active `.inc` thinning snapshot in one compact, machine-readable file.
+# - Stop duplicating every slice result across README / task board / current mirrors.
+# - Human-authored mirrors should point here unless the active lane or blocker changes.
+
+status = "Active"
+date = "2026-04-22"
+phase = "phase-292x"
+title = ".inc codegen thin tag cleanup"
+
+active_lane = "phase-292x .inc codegen thin tag cleanup"
+current_blocker_token = "move exact seed ladders to function-level backend route tags"
+method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md"
+
+purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
+update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
+
+inc_file_count = 76
+inc_line_count = 19533
+analysis_debt_files = 24
+analysis_debt_lines = 297
+remaining_seed_matcher_defs = 27
+
+last_landed_slice = "array_rmw_add1_leaf"
+next_recommended_slice = "sum_local_seed_family"
+next_recommended_reason = "largest metadata-ready exact seed family; 11 variant_* matchers can collapse behind Sum placement metadata before UserBox seeds."
+
+verification_min = [
+  "cargo fmt --check",
+  "cargo test -q exact_seed_backend_route --lib",
+  "bash tools/build_hako_llvmc_ffi.sh",
+  "bash tools/checks/inc_codegen_thin_shim_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+
+[[landed_slice]]
+id = "array_rmw_window"
+kind = "window_route"
+owner = "FunctionMetadata.array_rmw_window_routes"
+backend_tag = "array.rmw_add1.window"
+status = "landed"
+smoke = "metadata-first lowering; legacy analyzer later deleted"
+
+[[landed_slice]]
+id = "array_string_len_window"
+kind = "window_route"
+owner = "FunctionMetadata.array_string_len_window_routes"
+backend_tag = "array.string_len.window"
+status = "landed"
+smoke = "len-only / keep-live / source-only direct-set slices landed"
+
+[[landed_slice]]
+id = "array_string_len_window_c_analyzer_deletion"
+kind = "c_analyzer_deletion"
+owner = "FunctionMetadata.array_string_len_window_routes"
+backend_tag = "array.string_len.window"
+status = "landed"
+smoke = "legacy C analyzer removed"
+
+[[landed_slice]]
+id = "array_rmw_window_c_analyzer_deletion"
+kind = "c_analyzer_deletion"
+owner = "FunctionMetadata.array_rmw_window_routes"
+backend_tag = "array.rmw_add1.window"
+status = "landed"
+smoke = "legacy C analyzer removed"
+
+[[landed_slice]]
+id = "string_direct_set_window"
+kind = "window_route"
+owner = "FunctionMetadata.string_direct_set_window_routes"
+backend_tag = "string.direct_set.source_window"
+status = "landed"
+smoke = "substring/direct-set lowering consumes metadata"
+
+[[landed_slice]]
+id = "generic_method_has"
+kind = "method_policy_route"
+owner = "FunctionMetadata.generic_method_routes"
+backend_tag = "generic_method.has"
+status = "landed"
+smoke = "generic_method.has route trace pins mir_route_metadata"
+
+[[landed_slice]]
+id = "array_string_store_micro"
+kind = "exact_seed_backend_route"
+owner = "FunctionMetadata.array_string_store_micro_seed_route"
+backend_tag = "array_string_store_micro"
+status = "landed"
+smoke = "phase137x_direct_emit_array_store_string_contract.sh"
+
+[[landed_slice]]
+id = "concat_const_suffix_micro"
+kind = "exact_seed_backend_route"
+owner = "FunctionMetadata.concat_const_suffix_micro_seed_route"
+backend_tag = "concat_const_suffix_micro"
+status = "landed"
+smoke = "phase137x_direct_emit_concat_const_suffix_contract.sh"
+
+[[landed_slice]]
+id = "substring_views_only_micro"
+kind = "exact_seed_backend_route"
+owner = "FunctionMetadata.substring_views_micro_seed_route"
+backend_tag = "substring_views_only_micro"
+status = "landed"
+smoke = "phase137x_direct_emit_substring_views_contract.sh"
+
+[[landed_slice]]
+id = "substring_concat_loop_ascii"
+kind = "exact_seed_backend_route"
+owner = "FunctionMetadata.string_kernel_plans.loop_payload"
+backend_tag = "substring_concat_loop_ascii"
+status = "landed"
+smoke = "phase137x_direct_emit_substring_concat_route_contract.sh"
+
+[[landed_slice]]
+id = "array_rmw_add1_leaf"
+kind = "exact_seed_backend_route"
+owner = "FunctionMetadata.array_rmw_add1_leaf_seed_route"
+backend_tag = "array_rmw_add1_leaf"
+status = "landed"
+smoke = "phase137x_direct_emit_array_rmw_add1_leaf_contract.sh"
+
+[[backlog]]
+id = "sum_local_seed_family"
+priority = 1
+remaining_matchers = 11
+owner_status = "metadata exists: placement_effect_routes / sum_placement_facts / sum_placement_selections / sum_placement_layouts / thin_entry_selections"
+note = "Collapse variant tag/project local/copy exact seeds into one metadata route consumer family."
+
+[[backlog]]
+id = "userbox_local_scalar_seeds"
+priority = 2
+remaining_matchers = 8
+owner_status = "metadata exists: placement_effect_routes first, thin_entry_selections fallback, user_box_decls"
+note = "Start with Point / Flag / PointF local/copy plus point_add_micro and flag_toggle_micro."
+
+[[backlog]]
+id = "userbox_known_receiver_method_seeds"
+priority = 3
+remaining_matchers = 7
+owner_status = "metadata exists, but phase163x smokes may still pin stale block/value shapes"
+note = "Clean brittle smokes before route consumer migration."
+
+[[backlog]]
+id = "array_getset_micro"
+priority = 4
+remaining_matchers = 1
+owner_status = "needs new whole-function MIR owner"
+note = "Defer until FunctionMetadata.array_getset_micro_seed_route or equivalent exists."

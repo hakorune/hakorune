@@ -29,37 +29,39 @@ Scope: current lane / next lane / restart order only.
 15. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 16. `docs/development/current/main/phases/phase-137x/README.md`
 17. `docs/development/current/main/phases/phase-292x/README.md`
-18. `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-19. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
-20. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-21. `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
-22. `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
-23. `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
-24. `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
-25. `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
-26. `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
-27. `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
-28. `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
-29. `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
-30. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
-31. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
-32. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-33. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-34. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-35. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
-36. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
-37. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-38. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-39. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
-40. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-41. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-42. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-43. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-44. `docs/development/current/main/design/string-birth-sink-ssot.md`
-45. `docs/development/current/main/15-Workstream-Map.md`
-46. `git status -sb`
-47. `tools/checks/dev_gate.sh quick`
-48. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+18. `docs/development/current/main/phases/phase-292x/292x-STATUS.toml` (`phase-292x` compact status SSOT)
+19. `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
+20. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
+21. `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
+22. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+23. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+24. `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
+25. `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
+26. `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
+27. `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
+28. `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
+29. `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
+30. `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
+31. `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
+32. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+33. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
+34. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+35. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+36. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+37. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+38. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+39. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+40. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+41. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
+42. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+43. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+44. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+45. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+46. `docs/development/current/main/design/string-birth-sink-ssot.md`
+47. `docs/development/current/main/15-Workstream-Map.md`
+48. `git status -sb`
+49. `tools/checks/dev_gate.sh quick`
+50. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -72,6 +74,8 @@ Scope: current lane / next lane / restart order only.
     - `phase-292x .inc codegen thin tag cleanup`
   - active phase:
     - `docs/development/current/main/phases/phase-292x/README.md`
+  - phase status SSOT:
+    - `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor:
     - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard:
@@ -87,19 +91,8 @@ Scope: current lane / next lane / restart order only.
     - move route legality and shape ownership to MIR-owned metadata
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
-    - first implementation card `array_rmw_window` is landed as metadata-first lowering
-    - `array_string_len_window` len-only route is landed as metadata-first lowering
-    - `array_string_len_window` keep-live source reuse is landed as metadata-first lowering
-    - `array_string_len_window` source-only direct-set reuse is landed as metadata-first lowering
-    - legacy `array_string_len_window` C analyzer deletion is landed
-    - legacy `array_rmw_window` C analyzer deletion is landed
-    - string direct-set source-window metadata is landed
-    - `generic_method.has` route policy metadata is landed
-    - `array_string_store_micro` function-level exact seed backend route tag is landed
-    - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
-    - `substring_views_only_micro` function-level exact seed backend route tag is landed
-    - `substring_concat_loop_ascii` function-level exact seed backend route tag is landed with selected plan value
-    - `array_rmw_add1_leaf` function-level exact seed backend route tag is landed with a new whole-function seed route over the existing `array_rmw_window_routes` inner proof
+    - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
+    - latest landed exact route tag: `array_rmw_add1_leaf`
     - next cleanup remains remaining exact seed ladders, one metadata-owned family at a time; worker inventory recommends Sum local seed family next, then UserBox local scalar seeds
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
