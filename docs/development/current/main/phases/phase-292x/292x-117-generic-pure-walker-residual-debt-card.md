@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-23
 Scope: Inventory and shrink the remaining `.inc` analysis-debt guard rows after `pure_compile_minimal_paths` removal.
 Related:
@@ -55,6 +55,11 @@ substrate.
 - removed the caller-side raw `instructions` re-fetch in cross-block string
   const refinement
 - lowered the guard from 3 files / 5 lines to 3 files / 4 lines
+
+## Closeout
+
+The card is complete. Remaining guard hits are live generic pure walker
+substrate and are carried by `292x-118-generic-pure-walker-view-extraction-card.md`.
 
 ## Acceptance
 

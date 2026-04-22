@@ -32,14 +32,15 @@ Scope: current lane / next lane / restart order only.
 18. `docs/development/current/main/phases/phase-292x/292x-STATUS.toml` (`phase-292x` compact status SSOT)
 19. `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
 20. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
-21. `docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md`
-22. `docs/development/current/main/phases/phase-292x/292x-116-pure-compile-minimal-string-const-eval-card.md`
-23. `docs/development/current/main/phases/phase-292x/292x-115-pure-compile-minimal-map-array-deletion-card.md`
-24. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
-25. `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
-26. `docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md`
-27. `docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md`
-28. `docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md`
+21. `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
+22. `docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md`
+23. `docs/development/current/main/phases/phase-292x/292x-116-pure-compile-minimal-string-const-eval-card.md`
+24. `docs/development/current/main/phases/phase-292x/292x-115-pure-compile-minimal-map-array-deletion-card.md`
+25. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+26. `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
+27. `docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md`
+28. `docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md`
+29. `docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md`
 29. `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
 30. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
 29. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
@@ -87,7 +88,7 @@ Scope: current lane / next lane / restart order only.
   - method anchor:
     - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md`
+    - `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
   - current app slice:
     - phase-291x CoreBox surface catalog is landed
     - StringBox / MapBox catalog seams are pinned
@@ -110,7 +111,7 @@ Scope: current lane / next lane / restart order only.
     - generic pure cross-block use API tightening is landed
     - guard baseline: 3 `.inc` files / 4 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is removed; next cleanup is live generic pure walker residual debt
+      is removed; next cleanup is generic pure walker view extraction
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -123,7 +124,7 @@ Scope: current lane / next lane / restart order only.
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `generic pure walker residual debt split`
+    - `generic pure walker view extraction`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

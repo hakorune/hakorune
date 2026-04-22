@@ -17,8 +17,8 @@ Related:
 | Now | `phase-292x .inc codegen thin tag cleanup` |
 | Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, array_getset_micro, MapBox duplicate receiver, Hako LL/provider fix, and all pure_compile_minimal_paths deletions landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `generic pure walker residual debt split` |
-| Next | `split remaining 4 guard lines into generic walker substrate vs route-legality debt` |
+| Blocker | `generic pure walker view extraction` |
+| Next | `extract a named generic pure walker view without local debt shaving` |
 | After Next | `post-walker residual .inc guard cleanup` |
 
 ## Current Read
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -65,7 +65,7 @@ Related:
 30. `phase-292x pure_compile_minimal_paths String const-eval deletion` landed
 31. `phase-292x string loop seed copy-graph helper deletion` landed
 32. `phase-292x generic pure cross-block use API tightening` landed
-33. `phase-292x generic pure walker residual debt split`
+33. `phase-292x generic pure walker view extraction`
 
 ## Parked Corridor
 

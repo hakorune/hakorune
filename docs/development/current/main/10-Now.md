@@ -34,8 +34,8 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md`
-  - current implementation focus: classify generic pure walker residual debt
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
+  - current implementation focus: generic pure walker view extraction
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
@@ -52,7 +52,7 @@ Related:
     - generic pure cross-block use API tightening is landed
     - guard baseline: 3 `.inc` files / 4 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is removed; next cleanup is live generic pure walker residual debt
+      is removed; next cleanup is generic pure walker view extraction
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -64,7 +64,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `generic pure walker residual debt split`
+  - current blocker token: `generic pure walker view extraction`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

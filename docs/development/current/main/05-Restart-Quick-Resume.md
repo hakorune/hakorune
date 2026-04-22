@@ -47,8 +47,8 @@ cargo check -q
     is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
     restored, then landed; path #3 Map, path #4 Array, and paths #5/#6 String
     const-eval deletions are also landed; the string loop seed copy-graph helper
-    is deleted; cross-block use API tightening is landed; next cleanup is live
-    generic pure walker residual debt
+    is deleted; cross-block use API tightening is landed; next cleanup is
+    generic pure walker view extraction
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -65,9 +65,9 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-292x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md`
+  - `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
 - current blocker token:
-  - `generic pure walker residual debt split`
+  - `generic pure walker view extraction`
 
 ## Current Perf Snapshot
 
@@ -102,7 +102,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - split live generic pure walker substrate from route-legality debt
+  - plan generic pure walker view extraction without local debt shaving
   - `pure_compile_minimal_paths` is removed; the guard is now 3 files / 4 debt lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
@@ -125,7 +125,7 @@ cargo check -q
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
 - the current docs front is phase-292x `.inc` thin tag cleanup.
 - phase-291x CoreBox first catalog and cleanup slices are landed references.
-- active cleanup card is `292x-117-generic-pure-walker-residual-debt-card.md`;
+- active cleanup card is `292x-118-generic-pure-walker-view-extraction-card.md`;
   `292x-112` deleted path #1/#2 after `292x-114` fixed the predelete blockers,
   `292x-115` deleted paths #3/#4, `292x-116` deleted paths #5/#6,
   `292x-117a` deleted the string loop seed copy-graph helper, and `292x-117b`

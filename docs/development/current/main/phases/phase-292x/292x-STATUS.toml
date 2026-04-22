@@ -11,9 +11,9 @@ phase = "phase-292x"
 title = ".inc codegen thin tag cleanup"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-current_blocker_token = "generic pure walker residual debt split"
+current_blocker_token = "generic pure walker view extraction"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md"
 
 purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
@@ -25,8 +25,8 @@ analysis_debt_lines = 4
 remaining_seed_matcher_defs = 0
 
 last_landed_slice = "generic_pure_cross_block_use_api_tightening"
-next_recommended_slice = "generic_pure_walker_live_debt_split"
-next_recommended_reason = "292x-117b removed the caller-side cross-block instructions re-fetch and lowered the guard to 3 files / 4 debt lines. The remaining hits are live generic pure walker/shared substrate."
+next_recommended_slice = "generic_pure_walker_view_extraction"
+next_recommended_reason = "292x-117b removed the caller-side cross-block instructions re-fetch and lowered the guard to 3 files / 4 debt lines. 292x-118 should extract a named generic pure walker view instead of shaving local JSON reads."
 
 verification_min = [
   "cargo fmt --check",
@@ -268,3 +268,10 @@ priority = 1
 remaining_matchers = 0
 owner_status = "copy-graph helper deleted and cross-block use API tightened; remaining guard debt is live generic walker/shared substrate"
 note = "Guard is 3 files / 4 debt lines; further reduction needs a wider generic walker API split, not a local shave."
+
+[[backlog]]
+id = "generic_pure_walker_view_extraction"
+priority = 1
+remaining_matchers = 0
+owner_status = "active; use 292x-118 to split generic walker substrate from boundary glue"
+note = "Do not hide JSON access in same-layer helpers; the next keeper must introduce a named view/recipe seam."
