@@ -669,11 +669,17 @@
             return 1;
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_SUBSTRING:
-            if (!emit_generic_method_substring_by_policy(
-                    f, ii, ilen, insts, recv, dst, a0, a1, skip_inst, ab, ab_cap)) {
+          {
+            int handled = emit_generic_method_substring_by_policy(
+                f, bid, ii, ilen, insts, recv, dst, a0, a1, skip_inst, ab, ab_cap);
+            if (handled < 0) {
+              return -1;
+            }
+            if (!handled) {
               return -1;
             }
             return 1;
+          }
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS:
             if (!emit_generic_method_has_by_policy(

@@ -1,18 +1,15 @@
       auto int try_emit_piecewise_concat3_direct_set_source_window_call(
           FILE* f,
+          long long bid,
           size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
           long long recv,
           long long dst,
           unsigned char* skip_inst) {
-        struct ArrayStringPiecewiseDirectSetSourceReuseMatch match;
-        long long resolved_recv = resolve_copy_source_reg(
-            resolve_copy_chain_source_reg(insts, ii + 1, recv));
+        struct StringDirectSetWindowRouteMetadata match;
         char route_extra[256];
 
-        if (!match_array_string_piecewise_concat3_direct_set_source_reuse(
-                ii, ilen, insts, resolved_recv, &match)) {
+        if (!match_string_direct_set_window_route_metadata(bid, ii, &match)) {
+          if (match.invalid) return -1;
           return 0;
         }
         if (dst && match.prefix_dst != dst) return 0;
@@ -31,14 +28,9 @@
           set_origin(match.result_reg, ORG_STRING);
           set_scan_origin(match.result_reg, ORG_STRING);
         }
-        skip_inst[match.second_ii] = 1;
-        for (int ci = 0; ci < match.prefix_copy_n && ci < 8; ci++) {
-          skip_inst[match.prefix_copy_iis[ci]] = 1;
+        for (int si = 0; si < match.skip_n; si++) {
+          skip_inst[match.skip_iis[si]] = 1;
         }
-        for (int ci = 0; ci < match.suffix_copy_n && ci < 8; ci++) {
-          skip_inst[match.suffix_copy_iis[ci]] = 1;
-        }
-        skip_inst[match.concat_ii] = 1;
         if (hako_llvmc_route_trace_enabled()) {
           snprintf(
               route_extra,
@@ -57,7 +49,7 @@
           hako_llvmc_emit_route_trace(
               "string_substring_route",
               "piecewise_concat3_direct_set_source_window",
-              "direct_set_consumer",
+              "mir_route_metadata",
               route_extra);
         }
         return 1;
@@ -379,6 +371,7 @@
 
       auto int emit_generic_method_substring_by_policy(
           FILE* f,
+          long long bid,
           size_t ii,
           size_t ilen,
           yyjson_val* insts,
@@ -406,8 +399,12 @@
         long long piecewise_next_dst = 0;
         long long piecewise_next_start = 0;
         long long piecewise_next_end = 0;
-        if (try_emit_piecewise_concat3_direct_set_source_window_call(
-                f, ii, ilen, insts, recv, dst, skip_inst)) {
+        int piecewise_direct_set = try_emit_piecewise_concat3_direct_set_source_window_call(
+            f, bid, ii, recv, dst, skip_inst);
+        if (piecewise_direct_set < 0) {
+          return -1;
+        }
+        if (piecewise_direct_set) {
           return 1;
         }
         if (try_emit_string_insert_mid_window_call(

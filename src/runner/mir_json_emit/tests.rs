@@ -10,6 +10,7 @@ mod function_attrs;
 mod ordering;
 mod placement;
 mod string_corridor;
+mod string_direct_set_routes;
 mod thin_entry;
 
 fn make_function(name: &str, is_entry_point: bool) -> MirFunction {

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-22
 Scope: next cleanup card for moving string concat/direct-set source-window matching out of `.inc` analysis and into MIR-owned metadata.
 Related:
@@ -36,7 +36,20 @@ may keep only:
 
 ```bash
 bash tools/build_hako_llvmc_ffi.sh
+bash tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_insert_mid_direct_set_min.sh
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_piecewise_direct_set_min.sh
 bash tools/checks/inc_codegen_thin_shim_guard.sh
 ```
+
+## Result
+
+- Added MIR-owned `StringDirectSetWindowRoute` metadata for
+  `substring + substring + substring_concat3_hhhii -> direct set`.
+- `.inc` no longer contains `ArrayStringPiecewiseDirectSetSourceReuseMatch` or
+  `match_array_string_piecewise_concat3_direct_set_source_reuse`.
+- `hako_llvmc_ffi_generic_method_substring_policy.inc` now consumes
+  `string_direct_set_window_routes` and records the deferred piecewise route
+  from metadata.
+- Updated stale boundary smokes so route-only probes pass when the current
+  boundary recipe stops after `unsupported pure shape`.

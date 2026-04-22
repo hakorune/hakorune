@@ -15,18 +15,18 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array_string_len_window and array_rmw_window C analyzers deleted` |
+| Front | `array/string window analyzers migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `move string direct-set source-window matching to MIR metadata` |
-| Next | `string direct-set source-window metadata` |
-| After Next | `generic method route policy metadata` |
+| Blocker | `move generic method route policy to MIR metadata` |
+| Next | `generic method route policy metadata` |
+| After Next | `exact seed ladders to function-level backend route tags` |
 
 ## Current Read
 
   - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -39,7 +39,7 @@ Related:
 5. `phase-292x array_string_len_window source-only direct-set metadata route`
 6. `phase-292x delete legacy array_string_len_window C analyzer` landed
 7. `phase-292x delete legacy array_rmw_window C analyzer` landed
-8. `phase-292x string concat / direct-set windows metadata-only`
+8. `phase-292x string concat / direct-set windows metadata-only` landed
 9. `phase-292x generic method route policy metadata`
 10. `phase-292x exact seed ladders to function-level backend route tags`
 

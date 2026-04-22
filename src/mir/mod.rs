@@ -76,6 +76,7 @@ pub(crate) mod string_corridor_names; // helper-name vocabulary quarantine
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
 pub(crate) mod string_corridor_recognizer; // shared pure shape recognizers for string corridor
 pub mod string_corridor_relation; // string-corridor relation layer over generic PHI queries
+pub mod string_direct_set_window_plan; // MIR-owned string direct-set source-window route plans
 pub mod string_kernel_plan; // backend-consumable string plan seam derived from corridor candidates
 pub mod substring_views_micro_seed_plan; // MIR-owned route plan for temporary substring views micro seed bridge
 pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
@@ -215,6 +216,11 @@ pub use string_corridor_placement::{
 pub use string_corridor_relation::{
     refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,
     StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
+};
+pub use string_direct_set_window_plan::{
+    refresh_function_string_direct_set_window_routes,
+    refresh_module_string_direct_set_window_routes, StringDirectSetWindowProof,
+    StringDirectSetWindowRoute,
 };
 pub use string_kernel_plan::{
     derive_string_kernel_plan, infer_string_kernel_text_consumer,

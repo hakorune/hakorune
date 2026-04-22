@@ -57,16 +57,21 @@ Related:
     are deleted; `.inc` keeps metadata validation / emit / skip / fail-fast
     for the migrated family
 
+- [x] A4 string concat / direct-set windows metadata-only consumption
+  - design: `292x-99-string-direct-set-window-metadata-card.md`
+  - state: `StringDirectSetWindowRoute` owns the piecewise source-window
+    direct-set proof; `.inc` reads metadata and no longer rediscovers
+    `substring + substring + substring_concat3_hhhii` shapes
+
 ## Active Card
 
-- [ ] A4 string concat / direct-set windows metadata-only consumption
-  - design: `292x-99-string-direct-set-window-metadata-card.md`
-  - desired state: source-window direct-set matching moves to MIR metadata and
-    `.inc` stops rediscovering piecewise string shapes
+- [ ] A3 generic method route policy metadata
+  - design: `292x-100-generic-method-route-policy-metadata-card.md`
+  - desired state: select one narrow generic method route-policy family and
+    move its legality decision to MIR metadata
 
 ## Follow-up Cards
 
-- [ ] A3 generic method route policy metadata
 - [ ] A5 exact seed ladders to function-level backend route tags
 
 ## Done Definition

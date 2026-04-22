@@ -14,6 +14,27 @@
             "direct_set_consumer": true
           }
         },
+        "string_direct_set_window_routes": [
+          {
+            "route_id": "string.direct_set_source_window",
+            "block": 0,
+            "instruction_index": 11,
+            "second_instruction_index": 12,
+            "concat_instruction_index": 17,
+            "source_value": 5,
+            "prefix_value": 11,
+            "suffix_value": 12,
+            "middle_value": 13,
+            "split_value": 9,
+            "result_value": 17,
+            "subrange_start": 14,
+            "subrange_end": 16,
+            "skip_instruction_indices": [12, 17],
+            "proof": "piecewise_concat3_direct_set_source_window",
+            "consumer": "direct_set",
+            "effects": ["observe.substring", "defer.piecewise", "direct.set.consumer"]
+          }
+        ],
         "array_string_len_window_routes": [
           {
             "route_id": "array.string_len.window",

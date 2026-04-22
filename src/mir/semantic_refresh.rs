@@ -21,10 +21,10 @@ use super::{
     function::ModuleMetadata, placement_effect::refresh_function_placement_effect_routes,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
-    refresh_function_string_kernel_plans, refresh_function_sum_placement_facts,
-    refresh_function_sum_placement_layouts, refresh_function_sum_placement_selections,
-    refresh_function_thin_entry_candidates, refresh_function_thin_entry_selections,
-    refresh_function_value_consumer_facts,
+    refresh_function_string_direct_set_window_routes, refresh_function_string_kernel_plans,
+    refresh_function_sum_placement_facts, refresh_function_sum_placement_layouts,
+    refresh_function_sum_placement_selections, refresh_function_thin_entry_candidates,
+    refresh_function_thin_entry_selections, refresh_function_value_consumer_facts,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     MirFunction, MirModule,
 };
@@ -60,6 +60,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_placement_effect_routes(function);
     refresh_function_value_consumer_facts(function);
     refresh_function_string_kernel_plans(function);
+    refresh_function_string_direct_set_window_routes(function);
     refresh_function_array_rmw_window_routes(function);
     refresh_function_array_string_len_window_routes(function);
     refresh_function_array_text_loopcarry_len_store_routes(function);

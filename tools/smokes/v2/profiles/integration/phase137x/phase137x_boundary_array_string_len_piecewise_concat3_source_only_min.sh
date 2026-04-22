@@ -94,6 +94,20 @@ if ! grep -Fq "proof=array_get_len_source_only_direct_set" "$BUILD_LOG"; then
     exit 1
 fi
 
+if ! grep -Fq "stage=string_direct_set_source_window result=hit reason=mir_route_metadata" "$BUILD_LOG"; then
+    echo "[INFO] route trace output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "$SMOKE_NAME: string direct-set source window did not use MIR metadata"
+    exit 1
+fi
+
+if ! grep -Fq "stage=string_substring_route result=piecewise_concat3_direct_set_source_window reason=mir_route_metadata" "$BUILD_LOG"; then
+    echo "[INFO] route trace output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "$SMOKE_NAME: substring route did not consume direct-set metadata"
+    exit 1
+fi
+
 for needle in \
     "call i64 @nyash.array.string_len_hi" \
     "call i64 @nyash.array.string_insert_mid_subrange_store_hisiiii"

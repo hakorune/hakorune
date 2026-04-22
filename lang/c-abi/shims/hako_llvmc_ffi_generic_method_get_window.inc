@@ -45,18 +45,16 @@
         long long middle_reg;
         long long middle_len;
       };
-      struct ArrayStringPiecewiseDirectSetSourceReuseMatch {
+      struct StringDirectSetWindowRouteMetadata {
+        int matched;
+        int invalid;
+        size_t skip_iis[32];
+        int skip_n;
         size_t second_ii;
         size_t concat_ii;
-        size_t prefix_copy_iis[8];
-        size_t suffix_copy_iis[8];
-        int prefix_copy_n;
-        int suffix_copy_n;
         long long source_reg;
         long long prefix_dst;
         long long suffix_dst;
-        long long prefix_final;
-        long long suffix_final;
         long long middle_reg;
         long long split_reg;
         long long result_reg;
@@ -87,6 +85,17 @@
       }
       auto void array_string_len_window_route_skip(
           struct ArrayStringLenWindowRouteMetadata* out,
+          size_t ii) {
+        if (!out || ii == (size_t)-1) return;
+        for (int i = 0; i < out->skip_n; i++) {
+          if (out->skip_iis[i] == ii) return;
+        }
+        if (out->skip_n < (int)(sizeof(out->skip_iis) / sizeof(out->skip_iis[0]))) {
+          out->skip_iis[out->skip_n++] = ii;
+        }
+      }
+      auto void string_direct_set_window_route_skip(
+          struct StringDirectSetWindowRouteMetadata* out,
           size_t ii) {
         if (!out || ii == (size_t)-1) return;
         for (int i = 0; i < out->skip_n; i++) {
@@ -843,172 +852,130 @@
         }
         return 0;
       }
-      auto int match_array_string_piecewise_concat3_direct_set_source_reuse(
+      auto int match_string_direct_set_window_route_metadata(
+          long long bid,
           size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
-          long long source_reg,
-          struct ArrayStringPiecewiseDirectSetSourceReuseMatch* out) {
-        yyjson_val* first_ins = NULL;
-        yyjson_val* first_mc = NULL;
-        yyjson_val* first_cal = NULL;
-        yyjson_val* first_args = NULL;
-        yyjson_val* second_ins = NULL;
-        yyjson_val* second_mc = NULL;
-        yyjson_val* second_cal = NULL;
-        yyjson_val* second_args = NULL;
-        yyjson_val* concat_ins = NULL;
-        yyjson_val* concat_mc = NULL;
-        yyjson_val* concat_cal = NULL;
-        yyjson_val* concat_args = NULL;
-        const char* first_op = NULL;
-        const char* first_ctype = NULL;
-        const char* first_mname = NULL;
-        const char* second_op = NULL;
-        const char* second_ctype = NULL;
-        const char* second_mname = NULL;
-        const char* concat_op = NULL;
-        const char* concat_ctype = NULL;
-        const char* concat_mname = NULL;
-        long long first_recv = 0;
-        long long first_start = 0;
-        long long first_end = 0;
-        long long first_dst = 0;
-        long long second_recv = 0;
-        long long second_start = 0;
-        long long second_dst = 0;
-        long long zero = 0;
-        size_t prefix_use_ii = 0;
-        size_t suffix_use_ii = 0;
-        size_t prefix_copy_iis[8];
-        size_t suffix_copy_iis[8];
-        int prefix_copy_n = 0;
-        int suffix_copy_n = 0;
-        long long prefix_final = 0;
-        long long suffix_final = 0;
-        long long concat_dst = 0;
-        long long concat_prefix = 0;
-        long long concat_middle = 0;
-        long long concat_suffix = 0;
-        long long concat_start = 0;
-        long long concat_end = 0;
-
+          struct StringDirectSetWindowRouteMetadata* out) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
         if (out) memset(out, 0, sizeof(*out));
-        source_reg = resolve_copy_source_reg(
-            resolve_copy_chain_source_reg(insts, ii + 1, source_reg));
-        if (!(source_reg && ii + 1 < ilen)) return 0;
-
-        first_ins = yyjson_arr_get(insts, ii);
-        first_op = first_ins ? read_str(first_ins, "op") : NULL;
-        if (!(first_op && !strcmp(first_op, "mir_call"))) return 0;
-        first_mc = yyjson_obj_get(first_ins, "mir_call");
-        first_cal = first_mc ? yyjson_obj_get(first_mc, "callee") : NULL;
-        first_args = first_mc ? yyjson_obj_get(first_mc, "args") : NULL;
-        if (!(first_cal && first_args && yyjson_is_arr(first_args) &&
-              yyjson_arr_size(first_args) == 2)) return 0;
-        first_ctype = read_str(first_cal, "type");
-        first_mname = read_str(first_cal, "method");
-        if (!first_mname) first_mname = read_str(first_cal, "name");
-        if (!(first_ctype && !strcmp(first_ctype, "Method") &&
-              first_mname && !strcmp(first_mname, "substring"))) return 0;
-        first_recv = resolve_copy_source_reg(
-            resolve_copy_chain_source_reg(
-                insts, ii + 1, read_int(first_cal, "receiver")));
-        first_start = (long long)yyjson_get_sint(yyjson_arr_get(first_args, 0));
-        first_end = (long long)yyjson_get_sint(yyjson_arr_get(first_args, 1));
-        first_dst = read_int(first_ins, "dst");
-        if (first_recv != source_reg) return 0;
-        if (!(has_const(first_start, &zero) && zero == 0)) return 0;
-
-        second_ins = yyjson_arr_get(insts, ii + 1);
-        second_op = second_ins ? read_str(second_ins, "op") : NULL;
-        if (!(second_op && !strcmp(second_op, "mir_call"))) return 0;
-        second_mc = yyjson_obj_get(second_ins, "mir_call");
-        second_cal = second_mc ? yyjson_obj_get(second_mc, "callee") : NULL;
-        second_args = second_mc ? yyjson_obj_get(second_mc, "args") : NULL;
-        if (!(second_cal && second_args && yyjson_is_arr(second_args) &&
-              yyjson_arr_size(second_args) == 2)) return 0;
-        second_ctype = read_str(second_cal, "type");
-        second_mname = read_str(second_cal, "method");
-        if (!second_mname) second_mname = read_str(second_cal, "name");
-        if (!(second_ctype && !strcmp(second_ctype, "Method") &&
-              second_mname && !strcmp(second_mname, "substring"))) return 0;
-        second_recv = resolve_copy_source_reg(
-            resolve_copy_chain_source_reg(
-                insts, ii + 2, read_int(second_cal, "receiver")));
-        second_start = (long long)yyjson_get_sint(yyjson_arr_get(second_args, 0));
-        second_dst = read_int(second_ins, "dst");
-        if (!(second_recv == source_reg &&
-              resolve_copy_source_reg(
-                  resolve_copy_chain_source_reg(insts, ii + 2, second_start)) ==
-                  resolve_copy_source_reg(
-                      resolve_copy_chain_source_reg(insts, ii + 1, first_end)))) {
-          return 0;
-        }
-
-        if (!follow_single_use_copy_chain_to_use(
-                ii + 2, ilen, insts, first_dst, &prefix_use_ii, &prefix_final,
-                prefix_copy_iis, &prefix_copy_n)) return 0;
-        if (!follow_single_use_copy_chain_to_use(
-                ii + 2, ilen, insts, second_dst, &suffix_use_ii, &suffix_final,
-                suffix_copy_iis, &suffix_copy_n)) return 0;
-        if (prefix_use_ii != suffix_use_ii) return 0;
-
-        concat_ins = yyjson_arr_get(insts, prefix_use_ii);
-        concat_op = concat_ins ? read_str(concat_ins, "op") : NULL;
-        if (!(concat_op && !strcmp(concat_op, "mir_call"))) return 0;
-        concat_mc = yyjson_obj_get(concat_ins, "mir_call");
-        concat_cal = concat_mc ? yyjson_obj_get(concat_mc, "callee") : NULL;
-        concat_args = concat_mc ? yyjson_obj_get(concat_mc, "args") : NULL;
-        concat_ctype = concat_cal ? read_str(concat_cal, "type") : NULL;
-        concat_mname = concat_cal ? (read_str(concat_cal, "method")
-                                        ? read_str(concat_cal, "method")
-                                        : read_str(concat_cal, "name"))
-                                  : NULL;
-        if (!(concat_ctype && !strcmp(concat_ctype, "Extern") &&
-              concat_mname && !strcmp(concat_mname, "nyash.string.substring_concat3_hhhii") &&
-              concat_args && yyjson_is_arr(concat_args) &&
-              yyjson_arr_size(concat_args) == 5)) return 0;
-        concat_dst = read_int(concat_ins, "dst");
-        concat_prefix = resolve_copy_chain_source_reg(
-            insts, prefix_use_ii + 1,
-            (long long)yyjson_get_sint(yyjson_arr_get(concat_args, 0)));
-        concat_middle = resolve_copy_chain_source_reg(
-            insts, prefix_use_ii + 1,
-            (long long)yyjson_get_sint(yyjson_arr_get(concat_args, 1)));
-        concat_suffix = resolve_copy_chain_source_reg(
-            insts, prefix_use_ii + 1,
-            (long long)yyjson_get_sint(yyjson_arr_get(concat_args, 2)));
-        concat_start = (long long)yyjson_get_sint(yyjson_arr_get(concat_args, 3));
-        concat_end = (long long)yyjson_get_sint(yyjson_arr_get(concat_args, 4));
-        if (!(concat_dst &&
-              concat_prefix == prefix_final &&
-              concat_suffix == suffix_final &&
-              concat_middle &&
-              get_str_const(concat_middle))) return 0;
-        if (!hako_llvmc_value_has_direct_set_consumer(concat_dst)) return 0;
-
-        if (out) {
-          out->second_ii = ii + 1;
-          out->concat_ii = prefix_use_ii;
-          out->prefix_copy_n = prefix_copy_n;
-          out->suffix_copy_n = suffix_copy_n;
-          for (int ci = 0; ci < prefix_copy_n && ci < 8; ci++) {
-            out->prefix_copy_iis[ci] = prefix_copy_iis[ci];
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "string_direct_set_window_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* block_val = route ? yyjson_obj_get(route, "block") : NULL;
+          yyjson_val* index_val = route ? yyjson_obj_get(route, "instruction_index") : NULL;
+          yyjson_val* second_val = route ? yyjson_obj_get(route, "second_instruction_index") : NULL;
+          yyjson_val* concat_val = route ? yyjson_obj_get(route, "concat_instruction_index") : NULL;
+          yyjson_val* source_val = route ? yyjson_obj_get(route, "source_value") : NULL;
+          yyjson_val* prefix_val = route ? yyjson_obj_get(route, "prefix_value") : NULL;
+          yyjson_val* suffix_val = route ? yyjson_obj_get(route, "suffix_value") : NULL;
+          yyjson_val* middle_val = route ? yyjson_obj_get(route, "middle_value") : NULL;
+          yyjson_val* split_val = route ? yyjson_obj_get(route, "split_value") : NULL;
+          yyjson_val* result_val = route ? yyjson_obj_get(route, "result_value") : NULL;
+          yyjson_val* start_val = route ? yyjson_obj_get(route, "subrange_start") : NULL;
+          yyjson_val* end_val = route ? yyjson_obj_get(route, "subrange_end") : NULL;
+          yyjson_val* skip_vals = route ? yyjson_obj_get(route, "skip_instruction_indices") : NULL;
+          yyjson_val* effects = route ? yyjson_obj_get(route, "effects") : NULL;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* proof = route ? read_str(route, "proof") : NULL;
+          const char* consumer = route ? read_str(route, "consumer") : NULL;
+          if (!(block_val && index_val &&
+                yyjson_is_num(block_val) && yyjson_is_num(index_val))) {
+            continue;
           }
-          for (int ci = 0; ci < suffix_copy_n && ci < 8; ci++) {
-            out->suffix_copy_iis[ci] = suffix_copy_iis[ci];
+          if ((long long)yyjson_get_sint(block_val) != bid ||
+              (size_t)yyjson_get_sint(index_val) != ii) {
+            continue;
           }
-          out->source_reg = source_reg;
-          out->prefix_dst = first_dst;
-          out->suffix_dst = second_dst;
-          out->prefix_final = prefix_final;
-          out->suffix_final = suffix_final;
-          out->middle_reg = concat_middle;
-          out->split_reg = first_end;
-          out->result_reg = concat_dst;
-          out->subrange_start = concat_start;
-          out->subrange_end = concat_end;
+          if (!(route_id && !strcmp(route_id, "string.direct_set_source_window") &&
+                proof && !strcmp(proof, "piecewise_concat3_direct_set_source_window") &&
+                consumer && !strcmp(consumer, "direct_set") &&
+                second_val && yyjson_is_num(second_val) &&
+                concat_val && yyjson_is_num(concat_val) &&
+                source_val && yyjson_is_num(source_val) &&
+                prefix_val && yyjson_is_num(prefix_val) &&
+                suffix_val && yyjson_is_num(suffix_val) &&
+                middle_val && yyjson_is_num(middle_val) &&
+                split_val && yyjson_is_num(split_val) &&
+                result_val && yyjson_is_num(result_val) &&
+                start_val && yyjson_is_num(start_val) &&
+                end_val && yyjson_is_num(end_val) &&
+                skip_vals && yyjson_is_arr(skip_vals) &&
+                array_text_residence_string_array_eq3(
+                    effects, "observe.substring", "defer.piecewise",
+                    "direct.set.consumer"))) {
+            if (hako_llvmc_route_trace_enabled()) {
+              hako_llvmc_emit_route_trace(
+                  "string_direct_set_source_window",
+                  "miss",
+                  "malformed_mir_route_metadata",
+                  "");
+            }
+            if (out) out->invalid = 1;
+            return 0;
+          }
+          if (out) {
+            out->matched = 1;
+            out->second_ii = (size_t)yyjson_get_sint(second_val);
+            out->concat_ii = (size_t)yyjson_get_sint(concat_val);
+            out->source_reg = (long long)yyjson_get_sint(source_val);
+            out->prefix_dst = (long long)yyjson_get_sint(prefix_val);
+            out->suffix_dst = (long long)yyjson_get_sint(suffix_val);
+            out->middle_reg = (long long)yyjson_get_sint(middle_val);
+            out->split_reg = (long long)yyjson_get_sint(split_val);
+            out->result_reg = (long long)yyjson_get_sint(result_val);
+            out->subrange_start = (long long)yyjson_get_sint(start_val);
+            out->subrange_end = (long long)yyjson_get_sint(end_val);
+            for (size_t si = 0; si < yyjson_arr_size(skip_vals); si++) {
+              yyjson_val* skip_val = yyjson_arr_get(skip_vals, si);
+              if (!(skip_val && yyjson_is_num(skip_val))) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  hako_llvmc_emit_route_trace(
+                      "string_direct_set_source_window",
+                      "miss",
+                      "malformed_mir_route_skip",
+                      "");
+                }
+                out->invalid = 1;
+                return 0;
+              }
+              size_t skip_ii = (size_t)yyjson_get_sint(skip_val);
+              if (skip_ii == ii) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  hako_llvmc_emit_route_trace(
+                      "string_direct_set_source_window",
+                      "miss",
+                      "metadata_skips_current_instruction",
+                      "");
+                }
+                out->invalid = 1;
+                return 0;
+              }
+              string_direct_set_window_route_skip(out, skip_ii);
+            }
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[256];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "ii=%zu source=%lld middle=%lld split=%lld result=%lld concat_ii=%zu skip_n=%d",
+                ii,
+                out ? out->source_reg : (long long)yyjson_get_sint(source_val),
+                out ? out->middle_reg : (long long)yyjson_get_sint(middle_val),
+                out ? out->split_reg : (long long)yyjson_get_sint(split_val),
+                out ? out->result_reg : (long long)yyjson_get_sint(result_val),
+                out ? out->concat_ii : (size_t)yyjson_get_sint(concat_val),
+                out ? out->skip_n : 0);
+            hako_llvmc_emit_route_trace(
+                "string_direct_set_source_window",
+                "hit",
+                "mir_route_metadata",
+                extra);
+          }
+          return 1;
         }
-        return 1;
+        return 0;
       }

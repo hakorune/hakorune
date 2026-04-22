@@ -9,6 +9,11 @@
       "name": "main",
       "params": [],
       "metadata": {
+        "value_consumer_facts": {
+          "10": {
+            "direct_set_consumer": true
+          }
+        },
         "string_corridor_candidates": {
           "7": [
             {

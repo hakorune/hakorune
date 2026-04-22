@@ -12,7 +12,9 @@ use crate::mir::{
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     placement_effect::PlacementEffectRoute, storage_class::StorageClass,
     string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
-    string_corridor_relation::StringCorridorRelation, string_kernel_plan::StringKernelPlan,
+    string_corridor_relation::StringCorridorRelation,
+    string_direct_set_window_plan::StringDirectSetWindowRoute,
+    string_kernel_plan::StringKernelPlan,
     substring_views_micro_seed_plan::SubstringViewsMicroSeedRoute, sum_placement::SumPlacementFact,
     sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
     thin_entry::ThinEntryCandidate, thin_entry_selection::ThinEntrySelection,
@@ -161,6 +163,12 @@ pub struct FunctionMetadata {
     /// stays a derived view over corridor candidates, not a new canonical
     /// semantic owner.
     pub string_kernel_plans: BTreeMap<ValueId, StringKernelPlan>,
+
+    /// Backend-consumable string direct-set source-window route plans.
+    /// These own the `substring + substring + substring_concat3_hhhii`
+    /// direct-set legality proof in MIR so backend shims can only consume
+    /// metadata and record the deferred piecewise route.
+    pub string_direct_set_window_routes: Vec<StringDirectSetWindowRoute>,
 
     /// Backend-consumable array RMW route plans.
     /// These own `array.get(i) -> + 1 -> array.set(i, ...)` legality in MIR

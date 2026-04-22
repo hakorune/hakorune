@@ -16,7 +16,7 @@ Related:
 Current no-growth baseline:
 
 - `.inc` files: 76
-- `.inc` lines: 19,264
+- `.inc` lines: 19,234
 - analysis-debt files: 28
 - analysis-debt lines: 314
 
@@ -65,3 +65,11 @@ The guard counts lines matching:
 - removed now-clean allowlist rows:
   - `hako_llvmc_ffi_generic_method_get_lowering.inc`
   - `hako_llvmc_ffi_generic_method_get_window.inc`
+
+`string_direct_set_window_routes`:
+
+- deleted hidden C matcher:
+  - `ArrayStringPiecewiseDirectSetSourceReuseMatch`
+  - `match_array_string_piecewise_concat3_direct_set_source_reuse`
+- note: this matcher was not counted by the no-growth regex baseline, so the
+  analysis-debt line count stays `314`; the `.inc` total shrank to `19,234`.
