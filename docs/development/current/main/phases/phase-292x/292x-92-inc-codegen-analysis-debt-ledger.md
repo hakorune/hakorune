@@ -16,9 +16,9 @@ Related:
 Current no-growth baseline:
 
 - `.inc` files: 76
-- `.inc` lines: 19,542
-- analysis-debt files: 26
-- analysis-debt lines: 310
+- `.inc` lines: 19,553
+- analysis-debt files: 25
+- analysis-debt lines: 308
 
 The baseline is not a permission slip to add more C analysis. It is a deletion
 ledger. Reductions are expected as route families move to MIR-owned metadata.
@@ -104,3 +104,15 @@ The guard counts lines matching:
   - removed now-clean `hako_llvmc_ffi_concat_const_suffix_seed.inc`
   - `hako_llvmc_ffi_pure_compile.inc`: `33 -> 32`
   - current analysis-debt baseline is `310`
+
+`substring_views_only_micro` exact seed backend route:
+
+- extended `exact_seed_backend_route` to select the already MIR-owned
+  `substring_views_micro_seed_route`
+- renamed the backend consumer away from the legacy `hako_llvmc_match_*seed`
+  debt pattern
+- pinned the route with `phase137x_direct_emit_substring_views_contract.sh`
+- lowered allowlist:
+  - removed now-clean `hako_llvmc_ffi_string_loop_seed_views_only.inc`
+  - `hako_llvmc_ffi_pure_compile.inc`: `32 -> 31`
+  - current analysis-debt baseline is `308`

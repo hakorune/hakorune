@@ -12,6 +12,7 @@ use super::{MirFunction, MirModule};
 pub enum ExactSeedBackendRouteKind {
     ArrayStringStoreMicro,
     ConcatConstSuffixMicro,
+    SubstringViewsOnlyMicro,
 }
 
 impl ExactSeedBackendRouteKind {
@@ -19,6 +20,7 @@ impl ExactSeedBackendRouteKind {
         match self {
             Self::ArrayStringStoreMicro => "array_string_store_micro",
             Self::ConcatConstSuffixMicro => "concat_const_suffix_micro",
+            Self::SubstringViewsOnlyMicro => "substring_views_only_micro",
         }
     }
 
@@ -26,6 +28,7 @@ impl ExactSeedBackendRouteKind {
         match self {
             Self::ArrayStringStoreMicro => "array_string_store_micro_seed_route",
             Self::ConcatConstSuffixMicro => "concat_const_suffix_micro_seed_route",
+            Self::SubstringViewsOnlyMicro => "substring_views_micro_seed_route",
         }
     }
 }
@@ -73,6 +76,19 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
                 .to_string(),
             proof: route.proof.to_string(),
         })
+        .or_else(|| {
+            function
+                .metadata
+                .substring_views_micro_seed_route
+                .as_ref()
+                .map(|route| ExactSeedBackendRoute {
+                    tag: ExactSeedBackendRouteKind::SubstringViewsOnlyMicro,
+                    source_route: ExactSeedBackendRouteKind::SubstringViewsOnlyMicro
+                        .source_route_field()
+                        .to_string(),
+                    proof: route.proof.to_string(),
+                })
+        })
 }
 
 #[cfg(test)]
@@ -81,7 +97,7 @@ mod tests {
     use crate::mir::{
         ArrayStringStoreMicroSeedProof, ArrayStringStoreMicroSeedRoute,
         ConcatConstSuffixMicroSeedProof, ConcatConstSuffixMicroSeedRoute, EffectMask,
-        FunctionSignature, MirType,
+        FunctionSignature, MirType, SubstringViewsMicroSeedProof, SubstringViewsMicroSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -147,6 +163,27 @@ mod tests {
         assert_eq!(route.tag.as_str(), "concat_const_suffix_micro");
         assert_eq!(route.source_route, "concat_const_suffix_micro_seed_route");
         assert_eq!(route.proof, "kilo_micro_concat_const_suffix_5block");
+    }
+
+    #[test]
+    fn exact_seed_backend_route_selects_substring_views_metadata() {
+        let mut function = make_function();
+        function.metadata.substring_views_micro_seed_route = Some(SubstringViewsMicroSeedRoute {
+            source: "line-seed-abcdef".to_string(),
+            source_len: 16,
+            loop_bound: 300000,
+            proof: SubstringViewsMicroSeedProof::KiloMicroSubstringViewsOnly5Block,
+        });
+
+        refresh_function_exact_seed_backend_route(&mut function);
+
+        let route = function
+            .metadata
+            .exact_seed_backend_route
+            .expect("exact seed backend route");
+        assert_eq!(route.tag.as_str(), "substring_views_only_micro");
+        assert_eq!(route.source_route, "substring_views_micro_seed_route");
+        assert_eq!(route.proof, "kilo_micro_substring_views_only_5block");
     }
 
     #[test]

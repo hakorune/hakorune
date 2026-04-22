@@ -79,6 +79,8 @@ Related:
     `array_string_store_micro_seed_route`
   - second slice landed: `concat_const_suffix_micro` now uses the same
     function-level tag to select `concat_const_suffix_micro_seed_route`
+  - third slice landed: `substring_views_only_micro` now uses the same
+    function-level tag to select `substring_views_micro_seed_route`
   - next state: continue one exact seed ladder at a time for remaining
     metadata-owned seeds
 

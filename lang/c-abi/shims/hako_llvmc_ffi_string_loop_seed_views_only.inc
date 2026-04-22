@@ -1,5 +1,5 @@
 
-static int hako_llvmc_match_substring_views_only_micro_seed(
+static int hako_llvmc_consume_substring_views_only_micro_route(
     const char* json_in,
     const char* obj_out) {
   yyjson_read_err rerr;

@@ -48,6 +48,7 @@ cargo check -q
   - `generic_method.has` route policy metadata is landed
   - `array_string_store_micro` function-level exact seed backend route tag is landed
   - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
+  - `substring_views_only_micro` function-level exact seed backend route tag is landed
   - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and

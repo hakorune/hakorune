@@ -12,6 +12,11 @@ static int hako_llvmc_exact_seed_backend_route_supported(
       strcmp(proof, "kilo_micro_concat_const_suffix_5block") == 0) {
     return 1;
   }
+  if (strcmp(tag, "substring_views_only_micro") == 0 &&
+      strcmp(source_route, "substring_views_micro_seed_route") == 0 &&
+      strcmp(proof, "kilo_micro_substring_views_only_5block") == 0) {
+    return 1;
+  }
   return 0;
 }
 
@@ -131,6 +136,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
         return set_err_owned(err_out, "exact_seed_backend_route concat_const_suffix_micro failed");
       }
+      if (strcmp(exact_seed_tag, "substring_views_only_micro") == 0) {
+        if (hako_llvmc_consume_substring_views_only_micro_route(json_in, obj_out) == 0) {
+          return 0;
+        }
+        return set_err_owned(err_out, "exact_seed_backend_route substring_views_only_micro failed");
+      }
       return set_err_owned(err_out, "unsupported exact_seed_backend_route tag");
     }
   }
@@ -141,7 +152,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_substring_concat_len_ascii_seed(json_in, obj_out) == 0) {
     return 0;
   }
-  if (hako_llvmc_match_substring_views_only_micro_seed(json_in, obj_out) == 0) {
+  if (hako_llvmc_consume_substring_views_only_micro_route(json_in, obj_out) == 0) {
     return 0;
   }
   if (hako_llvmc_consume_concat_const_suffix_micro_route(json_in, obj_out) == 0) {

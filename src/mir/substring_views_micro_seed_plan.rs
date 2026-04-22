@@ -54,15 +54,15 @@ fn match_substring_views_micro_seed_route(
     }
 
     let b0 = interesting(blocks[0]);
-    expect_ops(&b0, &["const", "const", "mir_call", "const", "jump"])?;
-    let source = const_string(b0[0])?;
-    if source != "line-seed-abcdef" || const_string(b0[1])? != source {
+    let (source_inst, length_inst, zero_inst) = match_substring_views_entry_prefix(&b0)?;
+    let source = const_string(source_inst)?;
+    if source != "line-seed-abcdef" {
         return None;
     }
     let source_len = source.len() as i64;
     if source_len != 16
-        || !method_call_is(b0[2], &["StringBox"], "length", 0)
-        || const_i64(b0[3])? != 0
+        || !method_call_is(length_inst, &["StringBox"], "length", 0)
+        || const_i64(zero_inst)? != 0
     {
         return None;
     }
@@ -75,18 +75,23 @@ fn match_substring_views_micro_seed_route(
     }
 
     let b2 = interesting(blocks[2]);
-    expect_ops(
-        &b2,
-        &[
-            "const", "const", "binop", "const", "mir_call", "mir_call", "jump",
-        ],
-    )?;
-    if const_i64(b2[0])? != 0
-        || const_i64(b2[1])? != 2
-        || !binop_is(b2[2], BinaryOp::Div)
-        || const_string(b2[3])? != source
-        || !method_call_is(b2[4], &["RuntimeDataBox", "StringBox"], "substring", 2)
-        || !method_call_is(b2[5], &["RuntimeDataBox", "StringBox"], "substring", 2)
+    let (zero_inst, split_const_inst, split_inst, first_substring_inst, second_substring_inst) =
+        match_substring_views_body_prefix(&b2, source)?;
+    if const_i64(zero_inst)? != 0
+        || const_i64(split_const_inst)? != 2
+        || !binop_is(split_inst, BinaryOp::Div)
+        || !method_call_is(
+            first_substring_inst,
+            &["RuntimeDataBox", "StringBox"],
+            "substring",
+            2,
+        )
+        || !method_call_is(
+            second_substring_inst,
+            &["RuntimeDataBox", "StringBox"],
+            "substring",
+            2,
+        )
     {
         return None;
     }
@@ -147,6 +152,81 @@ fn expect_ops(insts: &[&MirInstruction], expected: &[&str]) -> Option<()> {
     Some(())
 }
 
+fn match_substring_views_entry_prefix<'a>(
+    insts: &'a [&MirInstruction],
+) -> Option<(&'a MirInstruction, &'a MirInstruction, &'a MirInstruction)> {
+    match insts {
+        [source, duplicate_source, length, zero, jump] => {
+            if op_name(source) != "const"
+                || op_name(duplicate_source) != "const"
+                || op_name(length) != "mir_call"
+                || op_name(zero) != "const"
+                || op_name(jump) != "jump"
+            {
+                return None;
+            }
+            if const_string(duplicate_source)? != const_string(source)? {
+                return None;
+            }
+            Some((source, length, zero))
+        }
+        [source, length, zero, jump] => {
+            if op_name(source) != "const"
+                || op_name(length) != "mir_call"
+                || op_name(zero) != "const"
+                || op_name(jump) != "jump"
+            {
+                return None;
+            }
+            Some((source, length, zero))
+        }
+        _ => None,
+    }
+}
+
+fn match_substring_views_body_prefix<'a>(
+    insts: &'a [&MirInstruction],
+    source: &str,
+) -> Option<(
+    &'a MirInstruction,
+    &'a MirInstruction,
+    &'a MirInstruction,
+    &'a MirInstruction,
+    &'a MirInstruction,
+)> {
+    match insts {
+        [zero, split_const, split, source_inst, first_substring, second_substring, jump] => {
+            if op_name(zero) != "const"
+                || op_name(split_const) != "const"
+                || op_name(split) != "binop"
+                || op_name(source_inst) != "const"
+                || op_name(first_substring) != "mir_call"
+                || op_name(second_substring) != "mir_call"
+                || op_name(jump) != "jump"
+            {
+                return None;
+            }
+            if const_string(source_inst)? != source {
+                return None;
+            }
+            Some((zero, split_const, split, first_substring, second_substring))
+        }
+        [zero, split_const, split, first_substring, second_substring, jump] => {
+            if op_name(zero) != "const"
+                || op_name(split_const) != "const"
+                || op_name(split) != "binop"
+                || op_name(first_substring) != "mir_call"
+                || op_name(second_substring) != "mir_call"
+                || op_name(jump) != "jump"
+            {
+                return None;
+            }
+            Some((zero, split_const, split, first_substring, second_substring))
+        }
+        _ => None,
+    }
+}
+
 fn op_name(inst: &MirInstruction) -> &'static str {
     match inst {
         MirInstruction::Const { .. } => "const",
@@ -204,8 +284,11 @@ fn method_call_is(
             args,
             ..
         } => {
+            let matches_legacy_arg_shape = args.len() == expected_arg_count;
+            let matches_unified_string_receiver_shape =
+                expected_arg_count == 0 && args.len() == 1 && box_name == "StringBox";
             method == expected_method
-                && args.len() == expected_arg_count
+                && (matches_legacy_arg_shape || matches_unified_string_receiver_shape)
                 && allowed_box_names.iter().any(|allowed| *allowed == box_name)
         }
         _ => false,
@@ -248,6 +331,54 @@ mod tests {
         refresh_function_substring_views_micro_seed_route(&mut function);
 
         assert!(function.metadata.substring_views_micro_seed_route.is_none());
+    }
+
+    #[test]
+    fn detects_current_unified_string_length_receiver_arg_shape() {
+        let mut function = build_exact_function();
+        let entry = function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block");
+        if let MirInstruction::Call { args, .. } = &mut entry.instructions[2] {
+            args.push(ValueId::new(99));
+        } else {
+            panic!("expected initial length call");
+        }
+
+        let exit = function
+            .get_block_mut(BasicBlockId::new(21))
+            .expect("exit block");
+        if let Some(MirInstruction::Call { args, .. }) = exit.instructions.first_mut() {
+            args.push(ValueId::new(100));
+        } else {
+            panic!("expected left length call");
+        }
+        if let Some(MirInstruction::Call { args, .. }) = exit.instructions.get_mut(1) {
+            args.push(ValueId::new(101));
+        } else {
+            panic!("expected right length call");
+        }
+
+        refresh_function_substring_views_micro_seed_route(&mut function);
+
+        assert!(function.metadata.substring_views_micro_seed_route.is_some());
+    }
+
+    #[test]
+    fn detects_current_copy_elided_source_shapes() {
+        let mut function = build_exact_function();
+        let entry = function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block");
+        entry.instructions.remove(1);
+        let body = function
+            .get_block_mut(BasicBlockId::new(19))
+            .expect("body block");
+        body.instructions.remove(3);
+
+        refresh_function_substring_views_micro_seed_route(&mut function);
+
+        assert!(function.metadata.substring_views_micro_seed_route.is_some());
     }
 
     fn build_exact_function() -> MirFunction {

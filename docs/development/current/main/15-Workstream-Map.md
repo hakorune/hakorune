@@ -43,7 +43,8 @@ Related:
 9. `phase-292x generic_method.has route policy metadata` landed
 10. `phase-292x array_string_store_micro exact seed function route tag` landed
 11. `phase-292x concat_const_suffix_micro exact seed function route tag` landed
-12. `phase-292x remaining exact seed ladders to function-level backend route tags`
+12. `phase-292x substring_views_only_micro exact seed function route tag` landed
+13. `phase-292x remaining exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

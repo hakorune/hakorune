@@ -41,6 +41,15 @@ Second slice:
 - selected source route: `concat_const_suffix_micro_seed_route`
 - proof: `kilo_micro_concat_const_suffix_5block`
 
+Third slice:
+
+- exact seed ladder: `substring_views_only_micro`
+- existing route owner: `FunctionMetadata.substring_views_micro_seed_route`
+- function-level tag: `metadata.exact_seed_backend_route.tag =
+  "substring_views_only_micro"`
+- selected source route: `substring_views_micro_seed_route`
+- proof: `kilo_micro_substring_views_only_5block`
+
 `.inc` may keep only:
 
 - metadata reader / field validation
@@ -58,6 +67,7 @@ cargo test -q exact_seed_backend_route
 cargo test -q build_mir_json_root_emits_exact_seed_backend_route
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_concat_const_suffix_contract.sh
+bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_views_contract.sh
 ```
 
 Each boundary smoke must observe:
@@ -82,4 +92,14 @@ Each boundary smoke must observe:
 - `hako_llvmc_ffi_concat_const_suffix_seed.inc` no longer contributes to the
   `hako_llvmc_match_*seed` debt baseline.
 - `phase137x_direct_emit_concat_const_suffix_contract.sh` pins the direct MIR
+  route tag and the exact emitter trace.
+
+## Third Slice Result
+
+- `ExactSeedBackendRouteKind` includes `substring_views_only_micro`.
+- `compile_json_compat_pure` dispatches that tag before the compatibility
+  ladder.
+- `hako_llvmc_ffi_string_loop_seed_views_only.inc` no longer contributes to the
+  `hako_llvmc_match_*seed` debt baseline.
+- `phase137x_direct_emit_substring_views_contract.sh` pins the direct MIR
   route tag and the exact emitter trace.
