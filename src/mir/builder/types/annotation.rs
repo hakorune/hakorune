@@ -67,9 +67,6 @@ pub(crate) fn infer_return_type(func_name: &str) -> Option<MirType> {
     if func_name.ends_with(".is_alpha_char/1") {
         return Some(MirType::Bool);
     }
-    if func_name.ends_with("MapBox.has/1") {
-        return Some(MirType::Bool);
-    }
     // Fallback: none (変更なし)
     None
 }
@@ -96,6 +93,16 @@ pub(crate) fn infer_method_return_type(
         };
         if let Some(method_id) = method_id {
             return infer_array_method_return_type(method_id);
+        }
+    }
+
+    if box_name == Some("MapBox") {
+        let method_id = match arity {
+            Some(arity) => crate::boxes::MapMethodId::from_name_and_arity(method, arity),
+            None => crate::boxes::MapMethodId::from_name(method),
+        };
+        if let Some(method_id) = method_id {
+            return infer_map_method_return_type(method_id);
         }
     }
 
@@ -159,6 +166,19 @@ fn infer_array_method_return_type(method: crate::boxes::array::ArrayMethodId) ->
     }
 }
 
+fn infer_map_method_return_type(method: crate::boxes::MapMethodId) -> Option<MirType> {
+    match method {
+        crate::boxes::MapMethodId::Size | crate::boxes::MapMethodId::Len => Some(MirType::Integer),
+        crate::boxes::MapMethodId::Has => Some(MirType::Bool),
+        crate::boxes::MapMethodId::Get
+        | crate::boxes::MapMethodId::Set
+        | crate::boxes::MapMethodId::Delete
+        | crate::boxes::MapMethodId::Keys
+        | crate::boxes::MapMethodId::Values
+        | crate::boxes::MapMethodId::Clear => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,5 +212,7 @@ mod tests {
         assert_eq!(infer_return_type("ArrayBox.get/1"), None);
         assert_eq!(infer_return_type("MapBox.size/0"), Some(MirType::Integer));
         assert_eq!(infer_return_type("MapBox.len/0"), Some(MirType::Integer));
+        assert_eq!(infer_return_type("MapBox.has/1"), Some(MirType::Bool));
+        assert_eq!(infer_return_type("MapBox.get/1"), None);
     }
 }

@@ -132,10 +132,14 @@ Landed first slice and follow-up:
   sentinels.
 - thirteenth implementation moved `MapBox.len` after adding a focused
   receiver-shape fixture and preserving `MapBox.has` fallback sentinels.
-- remaining router cleanup after MapBox len: ArrayBox `get`, `set`, `pop`,
-  `remove`, `insert` and remaining MapBox rows.
+- fourteenth implementation moved `MapBox.has` after adding a focused
+  receiver-plus-key fixture and preserving `MapBox.get` fallback sentinels.
+- remaining router inventory order after MapBox has: ArrayBox `get`, `pop`,
+  `set`, `remove`, `insert`, then MapBox `get` and `set`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
+- hold MapBox `keys` / `values` / `delete` / `remove` / `clear` until their
+  `.hako` owner and return/write contract are pinned.
 
 ## MapBox Current Duplication
 

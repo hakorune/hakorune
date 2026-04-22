@@ -28,6 +28,7 @@ Landed route slices:
 - `ArrayBox.slice`
 - `MapBox.size`
 - `MapBox.len`
+- `MapBox.has`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -119,6 +120,8 @@ arity-zero, and publishes a fixed `Integer` result without collapsing the
 separate `len` slot.
 `MapBox.len` is a separate read-only current-vtable row with the same fixed
 `Integer` result, kept distinct from `size` and without adding `length`.
+`MapBox.has` is the first keyed MapBox read slice because it has a fixed
+`Bool` result without touching stored value materialization.
 
 ## Implementation Snapshot
 
@@ -132,8 +135,8 @@ separate `len` slot.
   `ArrayMethodId::Length`, `ArrayMethodId::Push`, and `ArrayMethodId::Slice`
   families to `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
-  `MapMethodId::Size` and `MapMethodId::Len` rows to `Route::Unified`;
-  remaining MapBox rows still use the family-wide fallback.
+  `MapMethodId::Size`, `MapMethodId::Len`, and `MapMethodId::Has` rows to
+  `Route::Unified`; remaining MapBox rows still use the family-wide fallback.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -159,7 +162,8 @@ separate `len` slot.
   shape and stays `Void`; `ArrayBox.slice` uses the
   receiver-plus-start-plus-end shape and publishes `Box(ArrayBox)`;
   `MapBox.size` and `MapBox.len` use the arity-zero receiver shape and publish
-  `MirType::Integer`; `lastIndexOf/2`, `ArrayBox.get`, and `MapBox.has`
+  `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
+  publishes `MirType::Bool`; `lastIndexOf/2`, `ArrayBox.get`, and `MapBox.get`
   remain pinned as BoxCall fallback sentinels.
 
 ## Acceptance
@@ -189,11 +193,14 @@ implemented.
 
 ## Remaining Work
 
-- remaining ArrayBox method rows: `get`, `set`, `pop`, `remove`, `insert`
-- remaining `MapBox` route flips
-
-Remaining cleanup after the MapBox len route: ArrayBox generic/value rows,
-ArrayBox write rows, and remaining MapBox rows.
+- remaining router inventory order after `MapBox.has`: `ArrayBox.get`,
+  `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`,
+  `MapBox.get`, then `MapBox.set`
+- contract-first backlog: two-arg `StringBox.lastIndexOf(needle, start_pos)`,
+  `MapBox.length`, `MapBox.keys` / `values`, `MapBox.delete` / `remove` /
+  `clear`, and MapBox write-return / bad-key normalization
+- non-router cleanup backlog: String semantic owner cleanup, alias SSOT
+  cleanup, and Map compat/source cleanup
 
 Each method family needs its own fixture and route assertion before the
 family-wide CoreBox fallback can shrink further.

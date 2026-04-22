@@ -59,7 +59,8 @@ StringBox surface catalog
 | `291x-S12` | done | prove `ArrayBox.slice` through the same MIR router Unified value path |
 | `291x-S13` | done | prove `MapBox.size` through the same MIR router Unified value path |
 | `291x-S14` | done | prove `MapBox.len` through the same MIR router Unified value path |
-| `291x-S15` | parked | move the next CoreBox method family through the same route pattern |
+| `291x-S15` | done | prove `MapBox.has` through the same MIR router Unified value path |
+| `291x-S16` | parked | move the next CoreBox method family through the same route pattern |
 
 ## First Stable Surface Target
 
@@ -122,15 +123,18 @@ This StringBox slice is done when:
 - `ArrayBox.push` is the first collection write route slice
 - `ArrayBox.slice` is the next read-only route slice with an explicit
   `ArrayBox` return annotation
-- `MapBox.size` is the first MapBox route slice; `len` is still a separate
-  current-vtable row and stays deferred
+- `MapBox.size` is the first MapBox route slice; `len` was kept as a separate
+  current-vtable row and handled in its own slice
 - `MapBox.len` is the second MapBox route slice; it stays a separate row from
   `size` and does not introduce a `length` alias
+- `MapBox.has` is the first keyed MapBox read route slice and publishes a
+  fixed `Bool` result
 - next safe cleanup is not a whole-CoreBox flip; it should allowlist one
-  proven CoreBox method family, with remaining ArrayBox rows and MapBox as
-  separate candidates
-- remaining router cleanup after MapBox len: ArrayBox `get` / `set` /
-  `pop` / `remove` / `insert` and remaining MapBox rows
+  proven CoreBox method family at a time
+- remaining router inventory order after MapBox has: ArrayBox `get`, `pop`,
+  `set`, `remove`, `insert`, then MapBox `get` and `set`
+- MapBox `keys` / `values` / `delete` / `remove` / `clear` stay
+  contract-first until their `.hako` owner and return contract are pinned
 - two-arg `lastIndexOf(needle, start_pos)` remains deferred and must stay off
   the allowlist until a dedicated runtime card lands
 - tracking card: `291x-96-corebox-router-unified-value-path-card.md`
