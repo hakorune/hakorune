@@ -1,20 +1,30 @@
 static int hako_llvmc_exact_seed_backend_route_supported(
     const char* tag,
     const char* source_route,
-    const char* proof) {
+    const char* proof,
+    long long selected_value) {
   if (strcmp(tag, "array_string_store_micro") == 0 &&
       strcmp(source_route, "array_string_store_micro_seed_route") == 0 &&
-      strcmp(proof, "kilo_micro_array_string_store_8block") == 0) {
+      strcmp(proof, "kilo_micro_array_string_store_8block") == 0 &&
+      selected_value == 0) {
     return 1;
   }
   if (strcmp(tag, "concat_const_suffix_micro") == 0 &&
       strcmp(source_route, "concat_const_suffix_micro_seed_route") == 0 &&
-      strcmp(proof, "kilo_micro_concat_const_suffix_5block") == 0) {
+      strcmp(proof, "kilo_micro_concat_const_suffix_5block") == 0 &&
+      selected_value == 0) {
     return 1;
   }
   if (strcmp(tag, "substring_views_only_micro") == 0 &&
       strcmp(source_route, "substring_views_micro_seed_route") == 0 &&
-      strcmp(proof, "kilo_micro_substring_views_only_5block") == 0) {
+      strcmp(proof, "kilo_micro_substring_views_only_5block") == 0 &&
+      selected_value == 0) {
+    return 1;
+  }
+  if (strcmp(tag, "substring_concat_loop_ascii") == 0 &&
+      strcmp(source_route, "string_kernel_plans.loop_payload") == 0 &&
+      strcmp(proof, "string_kernel_plan_concat_triplet_loop_payload") == 0 &&
+      selected_value > 0) {
     return 1;
   }
   return 0;
@@ -24,6 +34,7 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
     const char* json_in,
     char* tag_out,
     size_t tag_out_len,
+    long long* selected_value_out,
     char** err_out) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
@@ -35,9 +46,11 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
   yyjson_val* tag_val;
   yyjson_val* source_route_val;
   yyjson_val* proof_val;
+  yyjson_val* selected_value_val;
   const char* tag;
   const char* source_route;
   const char* proof;
+  long long selected_value = 0;
 
   if (!tag_out || tag_out_len == 0) {
     return set_err_owned(err_out, "invalid exact seed backend route tag buffer");
@@ -69,16 +82,24 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
   tag_val = yyjson_obj_get(route, "tag");
   source_route_val = yyjson_obj_get(route, "source_route");
   proof_val = yyjson_obj_get(route, "proof");
+  selected_value_val = yyjson_obj_get(route, "selected_value");
   tag = tag_val && yyjson_is_str(tag_val) ? yyjson_get_str(tag_val) : NULL;
   source_route =
       source_route_val && yyjson_is_str(source_route_val) ? yyjson_get_str(source_route_val) : NULL;
   proof = proof_val && yyjson_is_str(proof_val) ? yyjson_get_str(proof_val) : NULL;
+  if (selected_value_val && !yyjson_is_null(selected_value_val)) {
+    if (!yyjson_is_num(selected_value_val)) {
+      yyjson_doc_free(doc);
+      return set_err_owned(err_out, "malformed exact_seed_backend_route selected_value");
+    }
+    selected_value = (long long)yyjson_get_sint(selected_value_val);
+  }
 
   if (!tag || !source_route || !proof) {
     yyjson_doc_free(doc);
     return set_err_owned(err_out, "malformed exact_seed_backend_route fields");
   }
-  if (!hako_llvmc_exact_seed_backend_route_supported(tag, source_route, proof)) {
+  if (!hako_llvmc_exact_seed_backend_route_supported(tag, source_route, proof, selected_value)) {
     yyjson_doc_free(doc);
     return set_err_owned(err_out, "unsupported exact_seed_backend_route metadata");
   }
@@ -87,6 +108,7 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
     return set_err_owned(err_out, "exact_seed_backend_route tag too long");
   }
   strcpy(tag_out, tag);
+  if (selected_value_out) *selected_value_out = selected_value;
   yyjson_doc_free(doc);
   return 1;
 }
@@ -111,8 +133,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
 
   {
     char exact_seed_tag[64];
+    long long exact_seed_selected_value = 0;
     int exact_seed_route =
-        hako_llvmc_read_exact_seed_backend_route_tag(json_in, exact_seed_tag, sizeof(exact_seed_tag), err_out);
+        hako_llvmc_read_exact_seed_backend_route_tag(
+            json_in,
+            exact_seed_tag,
+            sizeof(exact_seed_tag),
+            &exact_seed_selected_value,
+            err_out);
     if (exact_seed_route < 0) {
       return -1;
     }
@@ -142,16 +170,19 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
         return set_err_owned(err_out, "exact_seed_backend_route substring_views_only_micro failed");
       }
+      if (strcmp(exact_seed_tag, "substring_concat_loop_ascii") == 0) {
+        if (hako_llvmc_consume_substring_concat_loop_ascii_route(
+                json_in,
+                obj_out,
+                exact_seed_selected_value) == 0) {
+          return 0;
+        }
+        return set_err_owned(err_out, "exact_seed_backend_route substring_concat_loop_ascii failed");
+      }
       return set_err_owned(err_out, "unsupported exact_seed_backend_route tag");
     }
   }
 
-  if (hako_llvmc_match_substring_concat_loop_ascii_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_match_substring_concat_len_ascii_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
   if (hako_llvmc_consume_substring_views_only_micro_route(json_in, obj_out) == 0) {
     return 0;
   }

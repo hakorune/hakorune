@@ -51,6 +51,7 @@ Related:
     - `array_string_store_micro` function-level exact seed backend route tag is landed
     - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
     - `substring_views_only_micro` function-level exact seed backend route tag is landed
+    - `substring_concat_loop_ascii` function-level exact seed backend route tag is landed with selected plan value
     - remaining exact seed ladders stay one-family follow-up cleanup
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
@@ -419,6 +420,7 @@ Related:
     - exact route proof: `array_string_store_micro result=emit reason=exact_match`
     - concat exact route proof: `concat_const_suffix_micro result=emit reason=exact_match`
     - substring views exact route proof: `substring_views_only_micro result=emit reason=exact_match`
+    - substring concat exact route proof: `substring_concat_loop_ascii result=emit reason=exact_match`
     - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
     - `ny_main` hot edit path is `array.string_len_hi -> array.string_insert_mid_store_hisii`

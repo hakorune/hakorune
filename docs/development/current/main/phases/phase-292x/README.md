@@ -91,7 +91,7 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 25 `.inc` files, 308 analysis-debt lines
+- baseline: 24 `.inc` files, 302 analysis-debt lines
 - current inventory: 76 `.inc` files, 19,553 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 
@@ -172,5 +172,6 @@ exact seed ladders to function-level backend route tags
   -> first slice landed for array_string_store_micro
   -> second slice landed for concat_const_suffix_micro
   -> third slice landed for substring_views_only_micro
+  -> fourth slice landed for substring_concat_loop_ascii with selected plan value
   -> continue one exact seed ladder at a time for remaining metadata-owned seeds
 ```

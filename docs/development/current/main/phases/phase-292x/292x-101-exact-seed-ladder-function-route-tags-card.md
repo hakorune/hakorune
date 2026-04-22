@@ -50,6 +50,17 @@ Third slice:
 - selected source route: `substring_views_micro_seed_route`
 - proof: `kilo_micro_substring_views_only_5block`
 
+Fourth slice:
+
+- exact seed ladder: `substring_concat_loop_ascii`
+- existing route owner: `FunctionMetadata.string_kernel_plans[*].loop_payload`
+- selected value: `metadata.exact_seed_backend_route.selected_value`
+  points at the preselected `StringKernelPlan` key
+- function-level tag: `metadata.exact_seed_backend_route.tag =
+  "substring_concat_loop_ascii"`
+- selected source route: `string_kernel_plans.loop_payload`
+- proof: `string_kernel_plan_concat_triplet_loop_payload`
+
 `.inc` may keep only:
 
 - metadata reader / field validation
@@ -68,6 +79,9 @@ cargo test -q build_mir_json_root_emits_exact_seed_backend_route
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_concat_const_suffix_contract.sh
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_views_contract.sh
+bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_route_contract.sh
+bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_phi_merge_contract.sh
+bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_post_sink_shape.sh
 ```
 
 Each boundary smoke must observe:
@@ -103,3 +117,21 @@ Each boundary smoke must observe:
   `hako_llvmc_match_*seed` debt baseline.
 - `phase137x_direct_emit_substring_views_contract.sh` pins the direct MIR
   route tag and the exact emitter trace.
+
+## Fourth Slice Result
+
+- `ExactSeedBackendRouteKind` includes `substring_concat_loop_ascii`.
+- `exact_seed_backend_route.selected_value` selects the concrete
+  `StringKernelPlan` entry so `.inc` does not rediscover the plan by scanning
+  every `string_kernel_plans` key.
+- `compile_json_compat_pure` dispatches that tag before the compatibility
+  ladder.
+- The redundant `substring_concat_len_ascii_seed` wrapper is removed; the
+  selected substring-concat consumer still chooses the len emitter when MIR
+  metadata exposes `stable_length_scalar`.
+- `hako_llvmc_ffi_string_loop_seed_substring_concat.inc` no longer contributes
+  to the `hako_llvmc_match_*seed` debt baseline.
+- `phase137x_direct_emit_substring_concat_route_contract.sh` pins the direct
+  MIR route tag, selected plan value, and exact emitter trace.
+- The older substring-concat shape smokes now pin current metadata invariants
+  instead of stale hard-coded value ids.

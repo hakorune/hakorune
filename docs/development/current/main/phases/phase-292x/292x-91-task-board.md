@@ -81,6 +81,9 @@ Related:
     function-level tag to select `concat_const_suffix_micro_seed_route`
   - third slice landed: `substring_views_only_micro` now uses the same
     function-level tag to select `substring_views_micro_seed_route`
+  - fourth slice landed: `substring_concat_loop_ascii` uses the same
+    function-level tag plus `selected_value` to select a concrete
+    `string_kernel_plans.loop_payload` entry
   - next state: continue one exact seed ladder at a time for remaining
     metadata-owned seeds
 

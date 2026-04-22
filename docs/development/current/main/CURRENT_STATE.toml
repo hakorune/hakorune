@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-04-22"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; array_string_store_micro, concat_const_suffix_micro, and substring_views_only_micro exact seed route tags landed; remaining exact seed route tags next"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; array_string_store_micro, concat_const_suffix_micro, substring_views_only_micro, and substring_concat_loop_ascii exact seed route tags landed; remaining exact seed route tags next"
 active_phase = "docs/development/current/main/phases/phase-292x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md"
@@ -31,6 +31,7 @@ opened_successors = [
   "array_string_store_micro exact seed backend route tag landed",
   "concat_const_suffix_micro exact seed backend route tag landed",
   "substring_views_only_micro exact seed backend route tag landed",
+  "substring_concat_loop_ascii exact seed backend route tag landed",
 ]
 
 blocked_successors = [

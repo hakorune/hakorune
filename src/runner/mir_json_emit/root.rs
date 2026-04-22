@@ -504,6 +504,7 @@ pub(super) fn build_mir_json_root(
                     "tag": route.tag.as_str(),
                     "source_route": route.source_route.as_str(),
                     "proof": route.proof.as_str(),
+                    "selected_value": route.selected_value.map(|value| value.as_u32()),
                 })
             }),
             "array_text_state_residence_route": f.metadata.array_text_state_residence_route.as_ref().map(|route| {
