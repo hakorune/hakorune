@@ -54,6 +54,7 @@ fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
                 | crate::boxes::basic::StringMethodId::Trim
                 | crate::boxes::basic::StringMethodId::Contains
                 | crate::boxes::basic::StringMethodId::LastIndexOf
+                | crate::boxes::basic::StringMethodId::Replace
         )
     )
 }
@@ -112,6 +113,11 @@ mod tests {
     }
 
     #[test]
+    fn string_replace_family_uses_unified_value_path() {
+        assert_eq!(route("StringBox", "replace", 2), Route::Unified);
+    }
+
+    #[test]
     fn non_allowlisted_corebox_methods_stay_boxcall() {
         assert_eq!(route("StringBox", "length", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "substring", 1), Route::BoxCall);
@@ -119,6 +125,7 @@ mod tests {
         assert_eq!(route("StringBox", "trim", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "contains", 0), Route::BoxCall);
         assert_eq!(route("StringBox", "lastIndexOf", 2), Route::BoxCall);
+        assert_eq!(route("StringBox", "replace", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "indexOf", 1), Route::BoxCall);
         assert_eq!(route("ArrayBox", "length", 0), Route::BoxCall);
         assert_eq!(route("MapBox", "size", 0), Route::BoxCall);

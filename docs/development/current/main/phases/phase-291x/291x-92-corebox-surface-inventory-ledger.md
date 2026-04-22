@@ -84,8 +84,9 @@ Confirmed route seam:
 - `src/mir/builder/router/policy.rs` routes only `StringBox.length` / `len` /
   `size`, `StringBox.substring` / `substr`, `StringBox.concat`, and
   `StringBox.trim`, `StringBox.contains`, and one-arg `StringBox.lastIndexOf`
-  through the Unified value path; other `StringBox`, `ArrayBox`, and `MapBox`
-  methods still use the family-wide `core_box` BoxCall fallback.
+  and `StringBox.replace` through the Unified value path; other `StringBox`,
+  `ArrayBox`, and `MapBox` methods still use the family-wide `core_box` BoxCall
+  fallback.
 - `src/mir/builder/utils/boxcall_emit.rs` maps `MirType::String` receivers to
   `"StringBox"` before calling `choose_route(...)`.
 
@@ -111,10 +112,13 @@ Landed first slice and follow-up:
 - sixth implementation moved one-arg `lastIndexOf` after adding a focused
   receiver-plus-needle fixture, Integer return-type publication assertion, and
   a `lastIndexOf/2` fallback assertion.
-- remaining router cleanup count after one-arg `lastIndexOf`: 4
-  family-equivalents: `replace`, `indexOf` / `find`, `ArrayBox`, and `MapBox`.
+- seventh implementation moved `replace` after adding a focused
+  receiver-plus-old-plus-new fixture and String return-type publication
+  assertion.
+- remaining router cleanup count after `replace`: 3 family-equivalents:
+  `indexOf` / `find`, `ArrayBox`, and `MapBox`.
 - next implementation should move one more StringBox method family, likely
-  `replace`, after adding the focused fixture.
+  `indexOf` / `find`, after adding one-arg and two-arg fixtures.
 - `ArrayBox` and `MapBox` must stay out of the next StringBox router flip.
 
 ## MapBox Current Duplication

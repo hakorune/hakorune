@@ -21,6 +21,7 @@ Landed route slices:
 - `StringBox.trim`
 - `StringBox.contains`
 - `StringBox.lastIndexOf` one-arg
+- `StringBox.replace`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -94,14 +95,16 @@ receiver-plus-one-argument shape for the first non-zero-arity string value call.
 `contains` proves the first Bool-return StringBox value-path family.
 one-arg `lastIndexOf` proves an Integer-return reverse-search family while
 leaving the two-arg overload explicitly deferred.
+`replace` proves the first two-argument String-return mutation-like read
+surface without changing StringBox immutability.
 
 ## Implementation Snapshot
 
 - `src/mir/builder/router/policy.rs` now allowlists the catalog-backed
   `StringMethodId::Length`, `StringMethodId::Substring`, and
   `StringMethodId::Concat`, `StringMethodId::Trim`, and
-  `StringMethodId::Contains`, and `StringMethodId::LastIndexOf` families to
-  `Route::Unified`.
+  `StringMethodId::Contains`, `StringMethodId::LastIndexOf`, and
+  `StringMethodId::Replace` families to `Route::Unified`.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -118,8 +121,9 @@ leaving the two-arg overload explicitly deferred.
   uses the arity-zero Unified receiver-arg shape; `contains` uses the
   receiver-plus-needle shape and publishes `MirType::Bool`; one-arg
   `lastIndexOf` uses the receiver-plus-needle shape and publishes
-  `MirType::Integer`; `lastIndexOf/2` and `indexOf` remain pinned BoxCall
-  fallback sentinels.
+  `MirType::Integer`; `replace` uses the receiver-plus-old-plus-new shape and
+  publishes `MirType::String`; `lastIndexOf/2` and `indexOf` remain pinned
+  BoxCall fallback sentinels.
 
 ## Acceptance
 
@@ -147,11 +151,10 @@ implemented.
 
 ## Remaining Work
 
-- `StringBox.replace`
 - `StringBox.indexOf` / `find`
 - `ArrayBox` and `MapBox` route flips
 
-Remaining cleanup count after the one-arg `lastIndexOf` slice: 4 family-equivalents.
+Remaining cleanup count after the `replace` slice: 3 family-equivalents.
 
 Each method family needs its own fixture and route assertion before the
 family-wide CoreBox fallback can shrink further.

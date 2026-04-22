@@ -52,7 +52,8 @@ StringBox surface catalog
 | `291x-S5` | done | prove `StringBox.trim` through the same MIR router Unified value path |
 | `291x-S6` | done | prove `StringBox.contains` through the same MIR router Unified value path with Bool return publication |
 | `291x-S7` | done | prove one-arg `StringBox.lastIndexOf` through the same MIR router Unified value path |
-| `291x-S8` | parked | move the next StringBox method family through the same route pattern |
+| `291x-S8` | done | prove `StringBox.replace` through the same MIR router Unified value path |
+| `291x-S9` | parked | move the next StringBox method family through the same route pattern |
 
 ## First Stable Surface Target
 
@@ -107,12 +108,12 @@ This StringBox slice is done when:
 
 - current router policy allowlists only these StringBox families to
   `Route::Unified`: `length` / `len` / `size`, `substring` / `substr`, and
-  `concat`, `trim`, `contains`, and one-arg `lastIndexOf`
+  `concat`, `trim`, `contains`, one-arg `lastIndexOf`, and `replace`
 - `boxcall_emit.rs` still bridges `MirType::String` receivers to `StringBox`
   before route selection
 - next safe cleanup is not a whole-family flip; it should allowlist one proven
-  method family, with `replace` as the likely next candidate
-- remaining router cleanup count after one-arg `lastIndexOf`: 4 family-equivalents
+  method family, with `indexOf` / `find` as the likely next candidate
+- remaining router cleanup count after `replace`: 3 family-equivalents
 - two-arg `lastIndexOf(needle, start_pos)` remains deferred and must stay off
   the allowlist until a dedicated runtime card lands
 - tracking card: `291x-96-corebox-router-unified-value-path-card.md`
