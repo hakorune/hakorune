@@ -23,8 +23,8 @@ use crate::mir::{
     sum_variant_tag_seed_plan::SumVariantTagSeedRoute, thin_entry::ThinEntryCandidate,
     thin_entry_selection::ThinEntrySelection,
     userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
-    value_consumer::ValueConsumerFacts, BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType,
-    ValueId,
+    userbox_loop_micro_seed_plan::UserBoxLoopMicroSeedRoute, value_consumer::ValueConsumerFacts,
+    BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -261,6 +261,12 @@ pub struct FunctionMetadata {
     /// only carries the temporary Point local/copy exact seed payload for the C
     /// backend.
     pub userbox_local_scalar_seed_route: Option<UserBoxLocalScalarSeedRoute>,
+
+    /// Backend-consumable exact UserBox loop micro seed route.
+    /// Thin-entry metadata owns the primitive field surface proof; this route
+    /// carries the current point-add / flag-toggle loop micro seed payload so
+    /// the C backend can stay an emitter selector.
+    pub userbox_loop_micro_seed_route: Option<UserBoxLoopMicroSeedRoute>,
 
     /// Function-level backend route tag for one already-proven exact seed.
     /// Payload legality remains owned by the selected `*_micro_seed_route`;

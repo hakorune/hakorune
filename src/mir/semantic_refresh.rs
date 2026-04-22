@@ -29,7 +29,7 @@ use super::{
     refresh_function_sum_placement_selections, refresh_function_sum_variant_project_seed_route,
     refresh_function_sum_variant_tag_seed_route, refresh_function_thin_entry_candidates,
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
-    refresh_function_value_consumer_facts,
+    refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     MirFunction, MirModule,
 };
@@ -81,6 +81,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_sum_variant_tag_seed_route(function);
     refresh_function_sum_variant_project_seed_route(function);
     refresh_function_userbox_local_scalar_seed_route(function);
+    refresh_function_userbox_loop_micro_seed_route(function);
     refresh_function_exact_seed_backend_route(function);
     refresh_function_array_text_state_residence_route(function);
 }

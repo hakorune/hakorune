@@ -221,3 +221,22 @@ UserBox Flag/PointF local scalar exact seed backend route:
     and removed from the baseline
   - `hako_llvmc_ffi_pure_compile.inc`: `15 -> 11`
   - current analysis-debt baseline is `141`
+
+UserBox loop micro exact seed backend route:
+
+- added `FunctionMetadata.userbox_loop_micro_seed_route` for the current
+  `point_add_micro` and `flag_toggle_micro` loop-count-coupled exact seed pair
+- added backend tag `userbox_loop_micro`
+- replaced the two `hako_llvmc_match_userbox_{point_add,flag_toggle}_micro_seed`
+  C matchers with `hako_llvmc_consume_userbox_loop_micro_route`
+- kept `point_add_micro` and `flag_toggle_micro` emit helpers as emitter-only
+  include files
+- pinned direct MIR metadata and boundary route traces in
+  `phase163x_boundary_user_box_loop_micro_route_min.sh`
+- lowered allowlist:
+  - `hako_llvmc_ffi_user_box_micro_seed_point_add_micro.inc`: `4 -> 0` and
+    removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_flag_toggle_micro.inc`: `4 -> 0` and
+    removed from the baseline
+  - `hako_llvmc_ffi_pure_compile.inc`: `11 -> 9`
+  - current analysis-debt baseline is `131`

@@ -23,6 +23,7 @@ pub enum ExactSeedBackendRouteKind {
     SumVariantProjectLocal,
     UserBoxPointLocalScalar,
     UserBoxFlagPointFLocalScalar,
+    UserBoxLoopMicro,
 }
 
 impl ExactSeedBackendRouteKind {
@@ -37,6 +38,7 @@ impl ExactSeedBackendRouteKind {
             Self::SumVariantProjectLocal => "sum_variant_project_local",
             Self::UserBoxPointLocalScalar => "userbox_point_local_scalar",
             Self::UserBoxFlagPointFLocalScalar => "userbox_flag_pointf_local_scalar",
+            Self::UserBoxLoopMicro => "userbox_loop_micro",
         }
     }
 
@@ -51,6 +53,7 @@ impl ExactSeedBackendRouteKind {
             Self::SumVariantProjectLocal => "sum_variant_project_seed_route",
             Self::UserBoxPointLocalScalar => "userbox_local_scalar_seed_route",
             Self::UserBoxFlagPointFLocalScalar => "userbox_local_scalar_seed_route",
+            Self::UserBoxLoopMicro => "userbox_loop_micro_seed_route",
         }
     }
 }
@@ -143,6 +146,16 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
         });
     }
 
+    if let Some(route) = function.metadata.userbox_loop_micro_seed_route.as_ref() {
+        let tag = ExactSeedBackendRouteKind::UserBoxLoopMicro;
+        return Some(ExactSeedBackendRoute {
+            tag,
+            source_route: tag.source_route_field().to_string(),
+            proof: route.proof.to_string(),
+            selected_value: None,
+        });
+    }
+
     function
         .metadata
         .concat_const_suffix_micro_seed_route
@@ -213,7 +226,8 @@ mod tests {
         SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
         SumVariantTagSeedKind, SumVariantTagSeedProof, SumVariantTagSeedRoute,
         UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof,
-        UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload,
+        UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind,
+        UserBoxLoopMicroSeedProof, UserBoxLoopMicroSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -450,6 +464,38 @@ mod tests {
         assert_eq!(route.tag.as_str(), "userbox_flag_pointf_local_scalar");
         assert_eq!(route.source_route, "userbox_local_scalar_seed_route");
         assert_eq!(route.proof, "userbox_flag_field_local_scalar_seed");
+        assert_eq!(route.selected_value, None);
+    }
+
+    #[test]
+    fn exact_seed_backend_route_selects_userbox_loop_micro_metadata() {
+        let mut function = make_function();
+        function.metadata.userbox_loop_micro_seed_route = Some(UserBoxLoopMicroSeedRoute {
+            kind: UserBoxLoopMicroSeedKind::FlagToggleMicro,
+            box_name: "Flag".to_string(),
+            block_count: 4,
+            newbox_block: BasicBlockId::new(0),
+            newbox_instruction_index: 0,
+            box_value: ValueId::new(9),
+            ops: 2_000_000,
+            flip_at: Some(1_000_000),
+            field_get_count: 2,
+            field_set_count: 2,
+            compare_lt_count: 2,
+            compare_eq_count: 2,
+            binop_count: 3,
+            proof: UserBoxLoopMicroSeedProof::FlagToggleLoopMicroSeed,
+        });
+
+        refresh_function_exact_seed_backend_route(&mut function);
+
+        let route = function
+            .metadata
+            .exact_seed_backend_route
+            .expect("exact seed backend route");
+        assert_eq!(route.tag.as_str(), "userbox_loop_micro");
+        assert_eq!(route.source_route, "userbox_loop_micro_seed_route");
+        assert_eq!(route.proof, "userbox_flag_toggle_loop_micro_seed");
         assert_eq!(route.selected_value, None);
     }
 

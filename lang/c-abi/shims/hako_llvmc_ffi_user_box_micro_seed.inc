@@ -13,3 +13,4 @@
 #include "hako_llvmc_ffi_user_box_micro_seed_flag_pointf_route.inc"
 #include "hako_llvmc_ffi_user_box_micro_seed_point_add_micro.inc"
 #include "hako_llvmc_ffi_user_box_micro_seed_flag_toggle_micro.inc"
+#include "hako_llvmc_ffi_user_box_micro_seed_loop_micro_route.inc"

@@ -28,6 +28,7 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-104-sum-variant-project-seed-route-card.md
   - docs/development/current/main/phases/phase-292x/292x-105-userbox-point-local-scalar-seed-route-card.md
   - docs/development/current/main/phases/phase-292x/292x-106-userbox-flag-pointf-local-scalar-seed-route-card.md
+  - docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -44,8 +45,8 @@ Related:
 - Landed sixth target: delete legacy `array_rmw_window` C analyzer
 - Landed seventh target: string concat / direct-set windows metadata-only
 - Landed eighth target: `generic_method.has` route policy metadata
-- Landed exact-seed slice: UserBox Flag/PointF local/copy scalar route metadata
-- Next exact-seed cleanup target: UserBox loop micro seeds
+- Landed exact-seed slice: UserBox loop micro route metadata
+- Next exact-seed cleanup target: UserBox known-receiver method seeds
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -79,8 +80,9 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 6. `docs/development/current/main/phases/phase-292x/292x-104-sum-variant-project-seed-route-card.md`
 7. `docs/development/current/main/phases/phase-292x/292x-105-userbox-point-local-scalar-seed-route-card.md`
 8. `docs/development/current/main/phases/phase-292x/292x-106-userbox-flag-pointf-local-scalar-seed-route-card.md`
-9. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-10. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+9. `docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md`
+10. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+11. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
 11. Historical per-slice cards as needed:
    - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
@@ -109,8 +111,8 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 15 `.inc` files, 141 analysis-debt lines
-- current inventory: 74 `.inc` files, 17,896 `.inc` lines
+- baseline: 13 `.inc` files, 131 analysis-debt lines
+- current inventory: 75 `.inc` files, 17,842 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 - compact phase status lives in `292x-STATUS.toml`
 
@@ -196,6 +198,7 @@ exact seed ladders to function-level backend route tags
   -> sixth slice landed for Sum variant_tag local/copy metadata
   -> seventh slice landed for Sum variant_project local/copy metadata
   -> eighth slice landed for UserBox Point local/copy scalar metadata
-  -> next recommended slice is Flag/PointF local scalar metadata
-  -> UserBox loop micro seeds remain a later follow-up slice
+  -> ninth slice landed for UserBox Flag/PointF local/copy scalar metadata
+  -> tenth slice landed for UserBox loop micro metadata
+  -> next recommended slice is UserBox known-receiver method seeds
 ```

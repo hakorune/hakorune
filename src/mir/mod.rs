@@ -91,6 +91,7 @@ pub mod thin_entry; // thin-entry inventory for known local routes
 pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub mod userbox_local_scalar_seed_plan; // MIR-owned route plan for temporary UserBox local scalar exact seeds
+pub mod userbox_loop_micro_seed_plan; // MIR-owned route plan for temporary UserBox loop micro exact seeds
 pub mod value_consumer; // generic consumer capability facts for backend emitters
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
@@ -293,6 +294,10 @@ pub use userbox_local_scalar_seed_plan::{
     refresh_module_userbox_local_scalar_seed_routes, UserBoxLocalScalarSeedKind,
     UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
     UserBoxLocalScalarSeedSinglePayload,
+};
+pub use userbox_loop_micro_seed_plan::{
+    refresh_function_userbox_loop_micro_seed_route, refresh_module_userbox_loop_micro_seed_routes,
+    UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedProof, UserBoxLoopMicroSeedRoute,
 };
 pub use value_consumer::{
     refresh_function_value_consumer_facts, refresh_module_value_consumer_facts, ValueConsumerFacts,

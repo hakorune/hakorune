@@ -33,7 +33,7 @@ pub(super) fn build_mir_json_root(
         let params: Vec<_> = f.params.iter().map(|v| v.as_u32()).collect();
 
         // Phase 131-11-F: Build metadata JSON from MIR metadata (SSOT)
-        let metadata_json = json!({
+        let mut metadata_json = json!({
             "value_types": f.metadata.value_types.iter().map(|(k, v)| {
                 let type_str = match v {
                     MirType::Integer => json!("i64"),
@@ -730,6 +730,16 @@ pub(super) fn build_mir_json_root(
                 &f.metadata.placement_effect_routes,
             ),
         });
+        if let serde_json::Value::Object(obj) = &mut metadata_json {
+            obj.insert(
+                "userbox_loop_micro_seed_route".to_string(),
+                f.metadata
+                    .userbox_loop_micro_seed_route
+                    .as_ref()
+                    .map(build_userbox_loop_micro_seed_route_json)
+                    .unwrap_or(serde_json::Value::Null),
+            );
+        }
         let attrs_json = json!({
             "runes": f
                 .metadata
@@ -790,6 +800,44 @@ pub(super) fn build_mir_json_root(
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
     Ok(root)
+}
+
+fn build_userbox_loop_micro_seed_route_json(
+    route: &crate::mir::UserBoxLoopMicroSeedRoute,
+) -> serde_json::Value {
+    let mut obj = serde_json::Map::new();
+    obj.insert("kind".to_string(), json!(route.kind.to_string()));
+    obj.insert("box".to_string(), json!(route.box_name.as_str()));
+    obj.insert("block_count".to_string(), json!(route.block_count));
+    obj.insert(
+        "newbox_block".to_string(),
+        json!(route.newbox_block.as_u32()),
+    );
+    obj.insert(
+        "newbox_instruction_index".to_string(),
+        json!(route.newbox_instruction_index),
+    );
+    obj.insert("box_value".to_string(), json!(route.box_value.as_u32()));
+    obj.insert("ops".to_string(), json!(route.ops));
+    obj.insert("flip_at".to_string(), json!(route.flip_at));
+    obj.insert("field_get_count".to_string(), json!(route.field_get_count));
+    obj.insert("field_set_count".to_string(), json!(route.field_set_count));
+    obj.insert(
+        "compare_lt_count".to_string(),
+        json!(route.compare_lt_count),
+    );
+    obj.insert(
+        "compare_eq_count".to_string(),
+        json!(route.compare_eq_count),
+    );
+    obj.insert("binop_count".to_string(), json!(route.binop_count));
+    obj.insert("proof".to_string(), json!(route.proof.to_string()));
+    obj.insert(
+        "consumer_capability".to_string(),
+        json!("direct_userbox_loop_micro"),
+    );
+    obj.insert("publication_boundary".to_string(), json!("none"));
+    serde_json::Value::Object(obj)
 }
 
 fn build_array_text_state_residence_route_json(

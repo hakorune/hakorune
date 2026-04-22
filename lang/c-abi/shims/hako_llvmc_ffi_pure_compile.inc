@@ -40,6 +40,13 @@ static int hako_llvmc_exact_seed_backend_route_supported(
       selected_value == 0) {
     return 1;
   }
+  if (strcmp(tag, "userbox_loop_micro") == 0 &&
+      strcmp(source_route, "userbox_loop_micro_seed_route") == 0 &&
+      (strcmp(proof, "userbox_point_add_loop_micro_seed") == 0 ||
+       strcmp(proof, "userbox_flag_toggle_loop_micro_seed") == 0) &&
+      selected_value == 0) {
+    return 1;
+  }
   if (strcmp(tag, "concat_const_suffix_micro") == 0 &&
       strcmp(source_route, "concat_const_suffix_micro_seed_route") == 0 &&
       strcmp(proof, "kilo_micro_concat_const_suffix_5block") == 0 &&
@@ -219,6 +226,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
         return set_err_owned(err_out, "exact_seed_backend_route userbox_flag_pointf_local_scalar failed");
       }
+      if (strcmp(exact_seed_tag, "userbox_loop_micro") == 0) {
+        if (hako_llvmc_consume_userbox_loop_micro_route(json_in, obj_out) == 0) {
+          return 0;
+        }
+        return set_err_owned(err_out, "exact_seed_backend_route userbox_loop_micro failed");
+      }
       if (strcmp(exact_seed_tag, "concat_const_suffix_micro") == 0) {
         if (hako_llvmc_consume_concat_const_suffix_micro_route(json_in, obj_out) == 0) {
           return 0;
@@ -268,6 +281,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_consume_userbox_flag_pointf_local_scalar_route(json_in, obj_out) == 0) {
     return 0;
   }
+  if (hako_llvmc_consume_userbox_loop_micro_route(json_in, obj_out) == 0) {
+    return 0;
+  }
   if (hako_llvmc_match_array_getset_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
@@ -290,12 +306,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     return 0;
   }
   if (hako_llvmc_match_userbox_point_sum_micro_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_match_userbox_point_add_micro_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_match_userbox_flag_toggle_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
     // --- Generic CFG/PHI lowering (minimal i64 subset) ---
