@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-22
 Scope: cleanup card for deleting the legacy `.inc` `array_rmw_window` analyzer after the MIR metadata route is canonical.
 Related:
@@ -45,6 +45,14 @@ bash tools/build_hako_llvmc_ffi.sh
 bash tools/checks/inc_codegen_thin_shim_guard.sh
 ```
 
-If no focused smoke exists yet, add one or run an equivalent route-trace check
-that proves `array_rmw_window result=hit reason=mir_route_metadata` before
-deleting the fallback.
+## Result
+
+- `.inc` no longer contains `analyze_array_rmw_window_candidate` or its trace
+  fallback.
+- `array_rmw_window` route selection is metadata-only for the migrated family.
+- The live `benchmarks/bench_kilo_micro_array_getset.hako` route-trace check
+  still reports `stage=array_rmw_window result=hit reason=mir_route_metadata`.
+- `tools/checks/inc_codegen_thin_shim_debt_allowlist.tsv` removed the now-clean
+  rows for:
+  - `hako_llvmc_ffi_generic_method_get_lowering.inc`
+  - `hako_llvmc_ffi_generic_method_get_window.inc`

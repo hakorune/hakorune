@@ -26,6 +26,12 @@ Related:
     temporary fallback only
   - trace proof: `[llvm-route/trace] stage=array_rmw_window result=hit reason=mir_route_metadata`
 
+- [x] A1b delete legacy `array_rmw_window` C analyzer
+  - design: `292x-98-array-rmw-c-analyzer-deletion-card.md`
+  - state: `analyze_array_rmw_window_candidate` and its fallback branch are
+    deleted; `.inc` keeps metadata validation / emit / skip / fail-fast for
+    the migrated family
+
 - [x] A2a `array_string_len_window` len-only MIR-owned route tag
   - design: `292x-94-array-string-len-window-route-card.md`
   - state: MIR metadata is emitted for len-only get/copy*/length windows;
@@ -53,15 +59,14 @@ Related:
 
 ## Active Card
 
-- [ ] A1b delete legacy `array_rmw_window` C analyzer
-  - design: `292x-98-array-rmw-c-analyzer-deletion-card.md`
-  - desired state: `.inc` keeps only metadata validation / emit / skip /
-    fail-fast for the migrated `array_rmw_window` family
+- [ ] A4 string concat / direct-set windows metadata-only consumption
+  - design: `292x-99-string-direct-set-window-metadata-card.md`
+  - desired state: source-window direct-set matching moves to MIR metadata and
+    `.inc` stops rediscovering piecewise string shapes
 
 ## Follow-up Cards
 
 - [ ] A3 generic method route policy metadata
-- [ ] A4 string concat / direct-set windows metadata-only consumption
 - [ ] A5 exact seed ladders to function-level backend route tags
 
 ## Done Definition
