@@ -23,6 +23,7 @@ Landed route slices:
 - `StringBox.lastIndexOf` one-arg
 - `StringBox.replace`
 - `StringBox.indexOf` / `StringBox.find` one-arg and two-arg
+- `ArrayBox.length` / `ArrayBox.size` / `ArrayBox.len`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -55,7 +56,8 @@ Do not flip all CoreBoxes to `Route::Unified` in one edit.
 
 The first implementation slice must be narrow:
 
-- start with `StringBox` only
+- start with `StringBox` only, then move collection boxes one proven method
+  family at a time
 - allowlist one proven method family at a time
 - keep `ArrayBox` and `MapBox` on `Route::BoxCall` until their receiver and
   return-type paths are proven
@@ -101,6 +103,9 @@ surface without changing StringBox immutability.
 `indexOf` / `find` proves the current forward-search family, including the
 stable start-position overload that already exists in the StringBox catalog and
 runtime dispatch.
+`ArrayBox.length` / `size` / `len` is the first collection slice because it is
+read-only, arity-zero, and publishes a fixed `Integer` result without touching
+generic element-return methods.
 
 ## Implementation Snapshot
 
@@ -110,12 +115,15 @@ runtime dispatch.
   `StringMethodId::Contains`, `StringMethodId::LastIndexOf`, and
   `StringMethodId::Replace`, `StringMethodId::IndexOf`, and
   `StringMethodId::IndexOfFrom` families to `Route::Unified`.
+- `src/mir/builder/router/policy.rs` also allowlists the catalog-backed
+  `ArrayMethodId::Length` family to `Route::Unified`.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
 - `src/mir/builder/types/annotation.rs` now reads `StringMethodId` for
   StringBox return-type publication, so aliases such as `substr` use the same
-  return contract as their canonical method.
+  return contract as their canonical method. It also reads `ArrayMethodId` for
+  fixed ArrayBox return rows, starting with `length` / `size` / `len`.
 - `src/mir/join_ir/lowering/method_return_hint.rs` consumes the same builder
   return-type helper instead of duplicating the primitive method table.
 - `src/backend/mir_interpreter/handlers/calls/method.rs` strips an exact
@@ -129,7 +137,9 @@ runtime dispatch.
   `MirType::Integer`; `replace` uses the receiver-plus-old-plus-new shape and
   publishes `MirType::String`; `indexOf` / `find` use receiver-plus-needle
   and receiver-plus-needle-plus-start shapes and publish `MirType::Integer`;
-  `lastIndexOf/2` remains pinned as the BoxCall fallback sentinel.
+  `ArrayBox.length` / `size` / `len` use the arity-zero receiver shape and
+  publish `MirType::Integer`; `lastIndexOf/2`, `ArrayBox.get`, and
+  `MapBox.size` remain pinned as BoxCall fallback sentinels.
 
 ## Acceptance
 
@@ -137,17 +147,18 @@ runtime dispatch.
   - `UnknownBox`
   - user instance names that do not end with `Box`
   - non-allowlisted `StringBox` / `ArrayBox` / `MapBox` methods
-- the allowlisted `StringBox` method families reach `Route::Unified`
+- the allowlisted CoreBox method families reach `Route::Unified`
   only when the Unified call env is enabled
 - a direct `MirType::String` receiver fixture proves the chosen method no
   longer depends on the broad CoreBox BoxCall guard
-- existing StringBox and MapBox surface smokes stay green
-- no broad route change is made for `ArrayBox` or `MapBox`
+- existing ArrayBox, StringBox, and MapBox surface smokes stay green
+- no broad route change is made for remaining `ArrayBox` rows or `MapBox`
 
 ## Verification Commands
 
 ```bash
 cargo test -q router
+bash tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_vm.sh
 ```
@@ -157,10 +168,12 @@ implemented.
 
 ## Remaining Work
 
-- `ArrayBox` and `MapBox` route flips
+- remaining ArrayBox method rows: `get`, `set`, `push`, `pop`, `slice`,
+  `remove`, `insert`
+- `MapBox` route flips
 
-Remaining cleanup count after the `indexOf` / `find` slice: 2
-family-equivalents.
+Remaining cleanup after the ArrayBox length slice: ArrayBox non-length rows and
+MapBox.
 
 Each method family needs its own fixture and route assertion before the
 family-wide CoreBox fallback can shrink further.

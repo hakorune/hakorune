@@ -89,6 +89,16 @@ pub(crate) fn infer_method_return_type(
         }
     }
 
+    if box_name == Some("ArrayBox") {
+        let method_id = match arity {
+            Some(arity) => crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity),
+            None => crate::boxes::array::ArrayMethodId::from_name(method),
+        };
+        if let Some(method_id) = method_id {
+            return infer_array_method_return_type(method_id);
+        }
+    }
+
     if arity.is_some() {
         return None;
     }
@@ -136,12 +146,25 @@ fn infer_string_method_return_type(method: crate::boxes::basic::StringMethodId) 
     }
 }
 
+fn infer_array_method_return_type(method: crate::boxes::array::ArrayMethodId) -> Option<MirType> {
+    match method {
+        crate::boxes::array::ArrayMethodId::Length => Some(MirType::Integer),
+        crate::boxes::array::ArrayMethodId::Set
+        | crate::boxes::array::ArrayMethodId::Push
+        | crate::boxes::array::ArrayMethodId::Insert => Some(MirType::Void),
+        crate::boxes::array::ArrayMethodId::Slice => Some(MirType::Box("ArrayBox".to_string())),
+        crate::boxes::array::ArrayMethodId::Get
+        | crate::boxes::array::ArrayMethodId::Pop
+        | crate::boxes::array::ArrayMethodId::Remove => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn string_surface_aliases_use_catalog_return_type() {
+    fn corebox_surface_aliases_use_catalog_return_type() {
         assert_eq!(
             infer_return_type("StringBox.substr/2"),
             Some(MirType::String)
@@ -155,5 +178,12 @@ mod tests {
             Some(MirType::Bool)
         );
         assert_eq!(infer_return_type("StringBox.substring/1"), None);
+        assert_eq!(
+            infer_return_type("ArrayBox.length/0"),
+            Some(MirType::Integer)
+        );
+        assert_eq!(infer_return_type("ArrayBox.size/0"), Some(MirType::Integer));
+        assert_eq!(infer_return_type("ArrayBox.len/0"), Some(MirType::Integer));
+        assert_eq!(infer_return_type("ArrayBox.get/1"), None);
     }
 }

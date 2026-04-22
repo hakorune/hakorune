@@ -118,11 +118,13 @@ Landed first slice and follow-up:
 - eighth implementation moved `indexOf` / `find` after adding focused one-arg
   and two-arg receiver-shape fixtures and Integer return-type publication
   assertions.
-- remaining router cleanup count after `indexOf` / `find`: 2
-  family-equivalents: `ArrayBox` and `MapBox`.
-- next implementation should choose one collection CoreBox family and keep it
-  separate from the other route flip.
-- `ArrayBox` and `MapBox` must stay separate route-flip cards.
+- ninth implementation moved `ArrayBox.length` / `size` / `len` after adding
+  focused arity-zero receiver-shape fixtures and Integer return-type
+  publication assertions.
+- remaining router cleanup after ArrayBox length: ArrayBox non-length rows
+  (`get`, `set`, `push`, `pop`, `slice`, `remove`, `insert`) and MapBox.
+- next implementation should choose one remaining CoreBox method family and
+  keep it separate from the other route flips.
 
 ## MapBox Current Duplication
 

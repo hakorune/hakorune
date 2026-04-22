@@ -19,6 +19,7 @@ mod tests {
         // ArrayBox
         assert_eq!(resolve_slot_by_name("ArrayBox", "get", 1), Some(100));
         assert_eq!(resolve_slot_by_name("ArrayBox", "set", 2), Some(101));
+        assert_eq!(resolve_slot_by_name("ArrayBox", "length", 0), Some(102));
         assert_eq!(resolve_slot_by_name("ArrayBox", "len", 0), Some(102));
         assert_eq!(resolve_slot_by_name("ArrayBox", "size", 0), Some(102));
         assert_eq!(resolve_slot_by_name("ArrayBox", "remove", 1), Some(112));

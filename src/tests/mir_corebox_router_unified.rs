@@ -368,3 +368,66 @@ static box Main {
         "StringBox.find should publish Integer result types"
     );
 }
+
+#[test]
+fn array_value_length_aliases_use_unified_receiver_arg_shape_and_integer_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push(7)
+    local n1 = a.length()
+    local n2 = a.size()
+    local n3 = a.len()
+    return n3
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let length_arg_lens = method_call_arg_lens(&module, "ArrayBox", "length");
+    let length_result_types = method_call_result_types(&module, "ArrayBox", "length");
+    let size_arg_lens = method_call_arg_lens(&module, "ArrayBox", "size");
+    let size_result_types = method_call_result_types(&module, "ArrayBox", "size");
+    let len_arg_lens = method_call_arg_lens(&module, "ArrayBox", "len");
+    let len_result_types = method_call_result_types(&module, "ArrayBox", "len");
+    let push_arg_lens = method_call_arg_lens(&module, "ArrayBox", "push");
+
+    assert_eq!(
+        length_arg_lens,
+        vec![1],
+        "ArrayBox.length should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        length_result_types,
+        vec![Some(MirType::Integer)],
+        "ArrayBox.length should publish an Integer result type"
+    );
+    assert_eq!(
+        size_arg_lens,
+        vec![1],
+        "ArrayBox.size should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        size_result_types,
+        vec![Some(MirType::Integer)],
+        "ArrayBox.size should publish an Integer result type"
+    );
+    assert_eq!(
+        len_arg_lens,
+        vec![1],
+        "ArrayBox.len should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        len_result_types,
+        vec![Some(MirType::Integer)],
+        "ArrayBox.len should publish an Integer result type"
+    );
+    assert_eq!(
+        push_arg_lens,
+        vec![1],
+        "ArrayBox.push is still deferred and should stay on the BoxCall fallback shape"
+    );
+}
