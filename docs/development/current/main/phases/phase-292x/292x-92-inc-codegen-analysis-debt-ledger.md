@@ -267,3 +267,25 @@ UserBox known-receiver local method exact seed backend route:
     `7 -> 0` and removed from the baseline
   - `hako_llvmc_ffi_pure_compile.inc`: `9 -> 5`
   - current analysis-debt baseline is `99`
+
+UserBox known-receiver chain/micro method exact seed backend route:
+
+- extended `FunctionMetadata.userbox_known_receiver_method_seed_route` to cover
+  `Counter.step_chain`, `Counter.step` micro, and `Point.sum` micro shapes
+- deleted `hako_llvmc_match_userbox_counter_step_chain_micro_seed`
+- replaced `hako_llvmc_match_userbox_counter_step_micro_seed` and
+  `hako_llvmc_match_userbox_point_sum_micro_seed` with route metadata
+  consumption while keeping their emit helpers
+- updated the `Counter.step_chain` prebuilt fixture to carry
+  `userbox_known_receiver_method_seed_route` and `exact_seed_backend_route`
+- relaxed direct known-receiver smokes away from value-id pins and toward
+  route payload / call-subject contracts
+- lowered allowlist:
+  - `hako_llvmc_ffi_user_box_micro_seed_counter_step_chain_micro.inc`:
+    `19 -> 0` and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_counter_step_micro.inc`:
+    `7 -> 0` and removed from the baseline
+  - `hako_llvmc_ffi_user_box_micro_seed_point_sum_micro.inc`:
+    `18 -> 0` and removed from the baseline
+  - `hako_llvmc_ffi_pure_compile.inc`: `5 -> 2`
+  - current analysis-debt baseline is `52`

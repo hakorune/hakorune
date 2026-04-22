@@ -109,8 +109,10 @@ Related:
   - eleventh slice landed: `292x-108` moved the `Counter.step` and
     `Point.sum` local/copy known-receiver method seeds behind
     `userbox_known_receiver_method_seed_route`
-  - next state: route the remaining UserBox known-receiver chain/micro method
-    seed matchers, then the unrelated `array_getset_micro` matcher
+  - twelfth slice landed: `292x-109` moved the remaining `Counter.step_chain`,
+    `Counter.step` micro, and `Point.sum` micro known-receiver method seeds
+    behind `userbox_known_receiver_method_seed_route`
+  - next state: route the unrelated `array_getset_micro` matcher
 
 ## Follow-up Cards
 

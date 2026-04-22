@@ -58,6 +58,23 @@ if method_fn is None:
     raise SystemExit("missing Counter.step/0 function")
 
 selections = main_fn.get("metadata", {}).get("thin_entry_selections", [])
+route = main_fn.get("metadata", {}).get("userbox_known_receiver_method_seed_route")
+exact = main_fn.get("metadata", {}).get("exact_seed_backend_route")
+if route is None:
+    raise SystemExit("missing userbox_known_receiver_method_seed_route")
+if route.get("kind") != "counter_step_micro" or route.get("proof") != "userbox_counter_step_micro_seed":
+    raise SystemExit(f"unexpected Counter.step route: {route}")
+if route.get("ops") != 2000000 or route.get("base_i64") != 41 or route.get("delta_i64") != 2 or route.get("step_i64") != 43:
+    raise SystemExit(f"unexpected Counter.step route payload: {route}")
+if route.get("known_receiver_count") != 2 or route.get("field_set_count") != 1:
+    raise SystemExit(f"unexpected Counter.step route counts: {route}")
+if exact != {
+    "tag": "userbox_known_receiver_method_seed",
+    "source_route": "userbox_known_receiver_method_seed_route",
+    "proof": "userbox_counter_step_micro_seed",
+    "selected_value": None,
+}:
+    raise SystemExit(f"unexpected exact route tag: {exact}")
 field_rows = [
     row for row in selections
     if row.get("manifest_row") == "user_box_field_set.inline_scalar"
@@ -75,36 +92,28 @@ known_rows = [
     and row.get("subject") == "Counter.step"
     and row.get("selected_entry") == "thin_internal_entry"
 ]
-if sorted(row.get("value") for row in known_rows) != [24, 44]:
-    raise SystemExit(f"unexpected Counter.step known_receiver values: {known_rows}")
+if len(known_rows) != 2:
+    raise SystemExit(f"unexpected Counter.step known_receiver rows: {known_rows}")
 
-def find_block(fn, block_id):
+def iter_insts(fn):
     for block in fn.get("blocks", []):
-        if block.get("id") == block_id:
-            return block
-    raise SystemExit(f"missing block {block_id}")
+        for inst in block.get("instructions", []):
+            yield inst
 
-def require_method_call(block_id, inst_idx, receiver, dst):
-    block = find_block(main_fn, block_id)
-    instructions = block.get("instructions", [])
-    if inst_idx >= len(instructions):
-        raise SystemExit(f"missing instruction {block_id}#{inst_idx}")
-    inst = instructions[inst_idx]
+main_calls = []
+for inst in iter_insts(main_fn):
     if inst.get("op") != "mir_call":
-        raise SystemExit(f"expected mir_call at {block_id}#{inst_idx}")
+        continue
     mc = inst.get("mir_call", {})
     cal = mc.get("callee", {})
-    if cal.get("type") != "Method":
-        raise SystemExit(f"expected Method callee at {block_id}#{inst_idx}: {cal}")
-    if cal.get("box_name") != "Counter" or cal.get("certainty") != "Known" or cal.get("name") != "step":
-        raise SystemExit(f"unexpected method callee at {block_id}#{inst_idx}: {cal}")
-    if cal.get("receiver") != receiver or mc.get("args") != [] or inst.get("dst") != dst:
-        raise SystemExit(
-            f"unexpected receiver/args/dst at {block_id}#{inst_idx}: receiver={cal.get('receiver')} args={mc.get('args')} dst={inst.get('dst')}"
-        )
-
-require_method_call(22, 3, 33, 24)
-require_method_call(24, 3, 47, 44)
+    if cal.get("type") == "Method" and cal.get("box_name") == "Counter" and cal.get("name") == "step":
+        if cal.get("certainty") != "Known" or mc.get("args") != [] or cal.get("receiver") is None:
+            raise SystemExit(f"unexpected Counter.step call shape: {inst}")
+        main_calls.append(inst)
+if len(main_calls) != 2:
+    raise SystemExit(f"unexpected Counter.step call count: {main_calls}")
+if sorted(row.get("value") for row in known_rows) != sorted(inst.get("dst") for inst in main_calls):
+    raise SystemExit(f"known_receiver rows do not match call dsts: rows={known_rows} calls={main_calls}")
 
 step_blocks = method_fn.get("blocks", [])
 if len(step_blocks) != 1:

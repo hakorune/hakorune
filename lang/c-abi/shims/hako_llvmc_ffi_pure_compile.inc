@@ -50,7 +50,11 @@ static int hako_llvmc_exact_seed_backend_route_supported(
   if (strcmp(tag, "userbox_known_receiver_method_seed") == 0 &&
       strcmp(source_route, "userbox_known_receiver_method_seed_route") == 0 &&
       (strcmp(proof, "userbox_counter_step_local_i64_seed") == 0 ||
-       strcmp(proof, "userbox_point_sum_local_i64_seed") == 0) &&
+       strcmp(proof, "userbox_counter_step_chain_local_i64_seed") == 0 ||
+       strcmp(proof, "userbox_counter_step_chain_micro_seed") == 0 ||
+       strcmp(proof, "userbox_counter_step_micro_seed") == 0 ||
+       strcmp(proof, "userbox_point_sum_local_i64_seed") == 0 ||
+       strcmp(proof, "userbox_point_sum_micro_seed") == 0) &&
       selected_value == 0) {
     return 1;
   }
@@ -301,15 +305,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     return 0;
   }
   if (hako_llvmc_match_array_getset_micro_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_match_userbox_counter_step_chain_micro_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_match_userbox_counter_step_micro_seed(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_match_userbox_point_sum_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
     // --- Generic CFG/PHI lowering (minimal i64 subset) ---

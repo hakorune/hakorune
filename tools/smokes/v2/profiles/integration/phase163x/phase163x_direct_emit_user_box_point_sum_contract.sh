@@ -48,6 +48,23 @@ if method_fn is None:
     raise SystemExit("missing Point.sum/0 function")
 
 selections = main_fn.get("metadata", {}).get("thin_entry_selections", [])
+route = main_fn.get("metadata", {}).get("userbox_known_receiver_method_seed_route")
+exact = main_fn.get("metadata", {}).get("exact_seed_backend_route")
+if route is None:
+    raise SystemExit("missing userbox_known_receiver_method_seed_route")
+if route.get("kind") != "point_sum_micro" or route.get("proof") != "userbox_point_sum_micro_seed":
+    raise SystemExit(f"unexpected Point.sum route: {route}")
+if route.get("ops") != 2000000 or route.get("x_i64") != 1 or route.get("y_i64") != 2 or route.get("sum_i64") != 3:
+    raise SystemExit(f"unexpected Point.sum route payload: {route}")
+if route.get("known_receiver_count") != 2 or route.get("field_set_count") != 2:
+    raise SystemExit(f"unexpected Point.sum route counts: {route}")
+if exact != {
+    "tag": "userbox_known_receiver_method_seed",
+    "source_route": "userbox_known_receiver_method_seed_route",
+    "proof": "userbox_point_sum_micro_seed",
+    "selected_value": None,
+}:
+    raise SystemExit(f"unexpected exact route tag: {exact}")
 
 def require_row(surface, subject, manifest_row):
     rows = [
@@ -70,36 +87,28 @@ known_rows = [
     and row.get("subject") == "Point.sum"
     and row.get("selected_entry") == "thin_internal_entry"
 ]
-if sorted(row.get("value") for row in known_rows) != [27, 47]:
-    raise SystemExit(f"unexpected Point.sum known_receiver values: {known_rows}")
+if len(known_rows) != 2:
+    raise SystemExit(f"unexpected Point.sum known_receiver rows: {known_rows}")
 
-def find_block(fn, block_id):
+def iter_insts(fn):
     for block in fn.get("blocks", []):
-        if block.get("id") == block_id:
-            return block
-    raise SystemExit(f"missing block {block_id}")
+        for inst in block.get("instructions", []):
+            yield inst
 
-def require_method_call(block_id, inst_idx, receiver, dst):
-    block = find_block(main_fn, block_id)
-    instructions = block.get("instructions", [])
-    if inst_idx >= len(instructions):
-        raise SystemExit(f"missing instruction {block_id}#{inst_idx}")
-    inst = instructions[inst_idx]
+main_calls = []
+for inst in iter_insts(main_fn):
     if inst.get("op") != "mir_call":
-        raise SystemExit(f"expected mir_call at {block_id}#{inst_idx}")
+        continue
     mc = inst.get("mir_call", {})
     cal = mc.get("callee", {})
-    if cal.get("type") != "Method":
-        raise SystemExit(f"expected Method callee at {block_id}#{inst_idx}: {cal}")
-    if cal.get("box_name") != "Point" or cal.get("certainty") != "Known" or cal.get("name") != "sum":
-        raise SystemExit(f"unexpected method callee at {block_id}#{inst_idx}: {cal}")
-    if cal.get("receiver") != receiver or mc.get("args") != [] or inst.get("dst") != dst:
-        raise SystemExit(
-            f"unexpected receiver/args/dst at {block_id}#{inst_idx}: receiver={cal.get('receiver')} args={mc.get('args')} dst={inst.get('dst')}"
-        )
-
-require_method_call(22, 3, 36, 27)
-require_method_call(24, 3, 50, 47)
+    if cal.get("type") == "Method" and cal.get("box_name") == "Point" and cal.get("name") == "sum":
+        if cal.get("certainty") != "Known" or mc.get("args") != [] or cal.get("receiver") is None:
+            raise SystemExit(f"unexpected Point.sum call shape: {inst}")
+        main_calls.append(inst)
+if len(main_calls) != 2:
+    raise SystemExit(f"unexpected Point.sum call count: {main_calls}")
+if sorted(row.get("value") for row in known_rows) != sorted(inst.get("dst") for inst in main_calls):
+    raise SystemExit(f"known_receiver rows do not match call dsts: rows={known_rows} calls={main_calls}")
 
 step_blocks = method_fn.get("blocks", [])
 if len(step_blocks) != 1:

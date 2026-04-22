@@ -59,10 +59,29 @@ if chain_fn is None:
 if leaf_fn is None:
     raise SystemExit("missing Counter.step/0 function")
 
-if len(main_fn.get("blocks", [])) != 5:
+if len(main_fn.get("blocks", [])) < 4:
     raise SystemExit(f"unexpected main block count: {len(main_fn.get('blocks', []))}")
 
 selections = main_fn.get("metadata", {}).get("thin_entry_selections", [])
+route = main_fn.get("metadata", {}).get("userbox_known_receiver_method_seed_route")
+exact = main_fn.get("metadata", {}).get("exact_seed_backend_route")
+if route is None:
+    raise SystemExit("missing userbox_known_receiver_method_seed_route")
+if route.get("kind") != "counter_step_chain_micro" or route.get("proof") != "userbox_counter_step_chain_micro_seed":
+    raise SystemExit(f"unexpected Counter.step_chain route: {route}")
+if route.get("ops") != 2000000 or route.get("base_i64") != 41 or route.get("delta_i64") != 2:
+    raise SystemExit(f"unexpected Counter.step_chain route payload: {route}")
+if route.get("known_receiver_count") != 2 or route.get("field_set_count") != 1:
+    raise SystemExit(f"unexpected Counter.step_chain route counts: {route}")
+if route.get("leaf_method_function") != "Counter.step/0":
+    raise SystemExit(f"unexpected Counter.step_chain leaf: {route}")
+if exact != {
+    "tag": "userbox_known_receiver_method_seed",
+    "source_route": "userbox_known_receiver_method_seed_route",
+    "proof": "userbox_counter_step_chain_micro_seed",
+    "selected_value": None,
+}:
+    raise SystemExit(f"unexpected exact route tag: {exact}")
 
 def require_row(surface, subject, manifest_row):
     rows = [

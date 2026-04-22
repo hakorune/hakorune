@@ -17,20 +17,24 @@ Current direct JSON is already stable after `phase-167x`:
 - `Counter.step_chain/0` is always a canonical known-receiver `Method` call
 - repeated release direct emit stays green (`6/6`)
 
-The remaining failure is narrower:
+The original failure was narrower:
 
 - direct contract smoke still expects `Counter.step_chain/0` to have two receiver copies before the call
-- `hako_llvmc_match_userbox_counter_step_chain_micro_seed()` enforces the same 4-instruction forwarding shape
+- the legacy C matcher enforced the same 4-instruction forwarding shape
 - current direct JSON now emits the function as:
   - `copy`
   - `mir_call`
   - `ret`
 - the seed therefore returns `-1`, the backend falls back to generic walk, sees `main:newbox`, and stops on `unsupported pure shape`
 
+Phase 292x later superseded the legacy matcher with
+`FunctionMetadata.userbox_known_receiver_method_seed_route`, so this document
+now remains historical context for the direct-contract refresh only.
+
 ## Authority
 
 1. direct canonical MIR contract
-2. exact pure-first seed matcher
+2. exact pure-first seed route metadata
 3. asm/perf keepers
 
 This phase refreshes step 2 to follow step 1 again.
@@ -45,11 +49,11 @@ This phase refreshes step 2 to follow step 1 again.
   - canonical known-receiver `Method Counter.step`
   - return of call result
 
-### 2. Refresh pure-first exact matcher
+### 2. Refresh pure-first exact route
 
-- `hako_llvmc_ffi_user_box_micro_seed.inc`
-- accept the same narrow forwarding body for `Counter.step_chain/0`
-- keep leaf/body checks for `Counter.step/0` unchanged
+- `FunctionMetadata.userbox_known_receiver_method_seed_route`
+- publish the same narrow forwarding body for `Counter.step_chain/0`
+- keep leaf/body proof for `Counter.step/0` in the MIR owner
 
 ### 3. Re-lock exact evidence
 

@@ -18,9 +18,12 @@ static int hako_llvmc_userbox_known_receiver_method_route_shape_ok(
     long long result_value) {
   if (!(kind && box_name && method && method_function && proof &&
         consumer_capability && publication_boundary &&
-        hako_llvmc_str_eq(consumer_capability, "direct_userbox_known_receiver_method_local") &&
+        (hako_llvmc_str_eq(
+             consumer_capability, "direct_userbox_known_receiver_method_local") ||
+         hako_llvmc_str_eq(
+             consumer_capability, "direct_userbox_known_receiver_method_micro")) &&
         hako_llvmc_str_eq(publication_boundary, "none") &&
-        block_count == 1 &&
+        block_count >= 1 &&
         method_block_count == 1 &&
         block >= 0 &&
         method_block >= 0 &&
@@ -33,6 +36,9 @@ static int hako_llvmc_userbox_known_receiver_method_route_shape_ok(
 
   if (hako_llvmc_str_eq(kind, "counter_step_local_i64")) {
     return hako_llvmc_str_eq(box_name, "Counter") &&
+           hako_llvmc_str_eq(
+               consumer_capability, "direct_userbox_known_receiver_method_local") &&
+           block_count == 1 &&
            hako_llvmc_str_eq(method, "step") &&
            hako_llvmc_str_eq(method_function, "Counter.step/1") &&
            hako_llvmc_str_eq(proof, "userbox_counter_step_local_i64_seed") &&
@@ -44,6 +50,9 @@ static int hako_llvmc_userbox_known_receiver_method_route_shape_ok(
 
   if (hako_llvmc_str_eq(kind, "counter_step_copy_local_i64")) {
     return hako_llvmc_str_eq(box_name, "Counter") &&
+           hako_llvmc_str_eq(
+               consumer_capability, "direct_userbox_known_receiver_method_local") &&
+           block_count == 1 &&
            hako_llvmc_str_eq(method, "step") &&
            hako_llvmc_str_eq(method_function, "Counter.step/1") &&
            hako_llvmc_str_eq(proof, "userbox_counter_step_local_i64_seed") &&
@@ -53,8 +62,49 @@ static int hako_llvmc_userbox_known_receiver_method_route_shape_ok(
            copy_value > 0;
   }
 
+  if (hako_llvmc_str_eq(kind, "counter_step_chain_local_i64")) {
+    return hako_llvmc_str_eq(box_name, "Counter") &&
+           hako_llvmc_str_eq(
+               consumer_capability, "direct_userbox_known_receiver_method_local") &&
+           block_count == 1 &&
+           hako_llvmc_str_eq(method, "step_chain") &&
+           hako_llvmc_str_eq(method_function, "Counter.step_chain/1") &&
+           hako_llvmc_str_eq(proof, "userbox_counter_step_chain_local_i64_seed") &&
+           newbox_instruction_index == 1 &&
+           copy_instruction_index == 3 &&
+           call_instruction_index == 4 &&
+           copy_value > 0;
+  }
+
+  if (hako_llvmc_str_eq(kind, "counter_step_chain_micro")) {
+    return hako_llvmc_str_eq(box_name, "Counter") &&
+           hako_llvmc_str_eq(
+               consumer_capability, "direct_userbox_known_receiver_method_local") &&
+           block_count >= 4 &&
+           hako_llvmc_str_eq(method, "step_chain") &&
+           hako_llvmc_str_eq(method_function, "Counter.step_chain/0") &&
+           hako_llvmc_str_eq(proof, "userbox_counter_step_chain_micro_seed") &&
+           copy_instruction_index == 0 &&
+           copy_value == 0;
+  }
+
+  if (hako_llvmc_str_eq(kind, "counter_step_micro")) {
+    return hako_llvmc_str_eq(box_name, "Counter") &&
+           hako_llvmc_str_eq(
+               consumer_capability, "direct_userbox_known_receiver_method_micro") &&
+           block_count >= 4 &&
+           hako_llvmc_str_eq(method, "step") &&
+           hako_llvmc_str_eq(method_function, "Counter.step/0") &&
+           hako_llvmc_str_eq(proof, "userbox_counter_step_micro_seed") &&
+           copy_instruction_index == 0 &&
+           copy_value == 0;
+  }
+
   if (hako_llvmc_str_eq(kind, "point_sum_local_i64")) {
     return hako_llvmc_str_eq(box_name, "Point") &&
+           hako_llvmc_str_eq(
+               consumer_capability, "direct_userbox_known_receiver_method_local") &&
+           block_count == 1 &&
            hako_llvmc_str_eq(method, "sum") &&
            hako_llvmc_str_eq(method_function, "Point.sum/1") &&
            hako_llvmc_str_eq(proof, "userbox_point_sum_local_i64_seed") &&
@@ -66,6 +116,9 @@ static int hako_llvmc_userbox_known_receiver_method_route_shape_ok(
 
   if (hako_llvmc_str_eq(kind, "point_sum_copy_local_i64")) {
     return hako_llvmc_str_eq(box_name, "Point") &&
+           hako_llvmc_str_eq(
+               consumer_capability, "direct_userbox_known_receiver_method_local") &&
+           block_count == 1 &&
            hako_llvmc_str_eq(method, "sum") &&
            hako_llvmc_str_eq(method_function, "Point.sum/1") &&
            hako_llvmc_str_eq(proof, "userbox_point_sum_local_i64_seed") &&
@@ -73,6 +126,18 @@ static int hako_llvmc_userbox_known_receiver_method_route_shape_ok(
            copy_instruction_index == 5 &&
            call_instruction_index == 6 &&
            copy_value > 0;
+  }
+
+  if (hako_llvmc_str_eq(kind, "point_sum_micro")) {
+    return hako_llvmc_str_eq(box_name, "Point") &&
+           hako_llvmc_str_eq(
+               consumer_capability, "direct_userbox_known_receiver_method_micro") &&
+           block_count >= 4 &&
+           hako_llvmc_str_eq(method, "sum") &&
+           hako_llvmc_str_eq(method_function, "Point.sum/0") &&
+           hako_llvmc_str_eq(proof, "userbox_point_sum_micro_seed") &&
+           copy_instruction_index == 0 &&
+           copy_value == 0;
   }
 
   return 0;
@@ -87,6 +152,7 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
   yyjson_val* fns;
   yyjson_val* fn;
   yyjson_val* method_fn;
+  yyjson_val* leaf_method_fn = NULL;
   yyjson_val* metadata;
   yyjson_val* route;
   hako_llvmc_entry_rune_selection selection;
@@ -94,6 +160,7 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
   const char* box_name = NULL;
   const char* method = NULL;
   const char* method_function = NULL;
+  const char* leaf_method_function = NULL;
   const char* proof = NULL;
   const char* consumer_capability = NULL;
   const char* publication_boundary = NULL;
@@ -111,6 +178,18 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
   long long delta_i64 = 0;
   long long x_i64 = 0;
   long long y_i64 = 0;
+  long long ops = 0;
+  long long step_i64 = 0;
+  long long sum_i64 = 0;
+  long long known_receiver_count = 0;
+  long long field_set_count = 0;
+  long long compare_lt_count = 0;
+  long long branch_count = 0;
+  long long jump_count = 0;
+  long long ret_count = 0;
+  long long add_count = 0;
+  long long leaf_method_block_count = 0;
+  long long leaf_method_block = -1;
   char extra[128];
   int rc = -1;
 
@@ -135,6 +214,7 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
   box_name = yyjson_get_str(yyjson_obj_get(route, "box"));
   method = yyjson_get_str(yyjson_obj_get(route, "method"));
   method_function = yyjson_get_str(yyjson_obj_get(route, "method_function"));
+  leaf_method_function = yyjson_get_str(yyjson_obj_get(route, "leaf_method_function"));
   proof = yyjson_get_str(yyjson_obj_get(route, "proof"));
   consumer_capability = yyjson_get_str(yyjson_obj_get(route, "consumer_capability"));
   publication_boundary = yyjson_get_str(yyjson_obj_get(route, "publication_boundary"));
@@ -211,6 +291,101 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
     return rc;
   }
 
+  if (hako_llvmc_str_eq(kind, "counter_step_chain_local_i64") ||
+      hako_llvmc_str_eq(kind, "counter_step_chain_micro")) {
+    if (!(leaf_method_function &&
+          hako_llvmc_userbox_route_get_i64(route, "base_i64", &base_i64) &&
+          hako_llvmc_userbox_route_get_i64(route, "delta_i64", &delta_i64) &&
+          hako_llvmc_userbox_route_get_i64(
+              route, "known_receiver_count", &known_receiver_count) &&
+          hako_llvmc_userbox_route_get_i64(route, "field_set_count", &field_set_count) &&
+          hako_llvmc_userbox_route_get_i64(
+              route, "leaf_method_block_count", &leaf_method_block_count) &&
+          hako_llvmc_userbox_route_get_i64(
+              route, "leaf_method_block", &leaf_method_block) &&
+          base_i64 == 41 &&
+          delta_i64 == 2 &&
+          field_set_count == 1 &&
+          leaf_method_block_count == 1 &&
+          leaf_method_block >= 0 &&
+          hako_llvmc_userbox_counter_decl_ok(root) &&
+          hako_llvmc_userbox_has_inline_scalar_selection(
+              fn, "user_box_field_set", "Counter.value") &&
+          hako_llvmc_userbox_has_known_receiver_selection(fn, "Counter.step_chain"))) {
+      yyjson_doc_free(doc);
+      return -1;
+    }
+
+    leaf_method_fn = hako_llvmc_find_named_function(fns, leaf_method_function);
+    if (!(leaf_method_fn &&
+          hako_llvmc_userbox_has_inline_scalar_selection(
+              leaf_method_fn, "user_box_field_get", "Counter.value"))) {
+      yyjson_doc_free(doc);
+      return -1;
+    }
+
+    if (hako_llvmc_str_eq(kind, "counter_step_chain_micro")) {
+      if (!(hako_llvmc_userbox_route_get_i64(route, "ops", &ops) &&
+            ops == 2000000 &&
+            known_receiver_count == 2 &&
+            hako_llvmc_userbox_has_known_receiver_selection(
+                method_fn, "Counter.step"))) {
+        yyjson_doc_free(doc);
+        return -1;
+      }
+    } else if (known_receiver_count != 1) {
+      yyjson_doc_free(doc);
+      return -1;
+    }
+
+    if (hako_llvmc_route_trace_enabled()) {
+      snprintf(extra, sizeof(extra), "%s mir_route_plan", kind);
+      hako_llvmc_emit_route_trace(
+          "userbox_known_receiver_method_seed",
+          "emit",
+          "exact_match",
+          extra);
+    }
+    rc = hako_llvmc_emit_userbox_counter_step_local_i64_ir(
+        obj_out, &selection, base_i64, delta_i64);
+    yyjson_doc_free(doc);
+    return rc;
+  }
+
+  if (hako_llvmc_str_eq(kind, "counter_step_micro")) {
+    if (!(hako_llvmc_userbox_route_get_i64(route, "base_i64", &base_i64) &&
+          hako_llvmc_userbox_route_get_i64(route, "delta_i64", &delta_i64) &&
+          hako_llvmc_userbox_route_get_i64(route, "ops", &ops) &&
+          hako_llvmc_userbox_route_get_i64(route, "step_i64", &step_i64) &&
+          hako_llvmc_userbox_route_get_i64(
+              route, "known_receiver_count", &known_receiver_count) &&
+          hako_llvmc_userbox_route_get_i64(route, "field_set_count", &field_set_count) &&
+          base_i64 == 41 &&
+          delta_i64 == 2 &&
+          step_i64 == 43 &&
+          ops == 2000000 &&
+          known_receiver_count == 2 &&
+          field_set_count == 1 &&
+          hako_llvmc_userbox_counter_decl_ok(root) &&
+          hako_llvmc_userbox_counter_inline_scalar_selection_ok(fn, method_fn) &&
+          hako_llvmc_userbox_has_known_receiver_selection(fn, "Counter.step"))) {
+      yyjson_doc_free(doc);
+      return -1;
+    }
+    if (hako_llvmc_route_trace_enabled()) {
+      snprintf(extra, sizeof(extra), "%s mir_route_plan", kind);
+      hako_llvmc_emit_route_trace(
+          "userbox_known_receiver_method_seed",
+          "emit",
+          "exact_match",
+          extra);
+    }
+    rc = hako_llvmc_emit_userbox_counter_step_micro_ir(
+        obj_out, &selection, ops, step_i64);
+    yyjson_doc_free(doc);
+    return rc;
+  }
+
   if (hako_llvmc_str_eq(kind, "point_sum_local_i64") ||
       hako_llvmc_str_eq(kind, "point_sum_copy_local_i64")) {
     if (!(hako_llvmc_userbox_route_get_i64(route, "x_i64", &x_i64) &&
@@ -231,6 +406,51 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
     }
     rc = hako_llvmc_emit_userbox_point_sum_local_i64_ir(
         obj_out, &selection, x_i64, y_i64);
+    yyjson_doc_free(doc);
+    return rc;
+  }
+
+  if (hako_llvmc_str_eq(kind, "point_sum_micro")) {
+    if (!(hako_llvmc_userbox_route_get_i64(route, "x_i64", &x_i64) &&
+          hako_llvmc_userbox_route_get_i64(route, "y_i64", &y_i64) &&
+          hako_llvmc_userbox_route_get_i64(route, "ops", &ops) &&
+          hako_llvmc_userbox_route_get_i64(route, "sum_i64", &sum_i64) &&
+          hako_llvmc_userbox_route_get_i64(
+              route, "known_receiver_count", &known_receiver_count) &&
+          hako_llvmc_userbox_route_get_i64(route, "field_set_count", &field_set_count) &&
+          hako_llvmc_userbox_route_get_i64(
+              route, "compare_lt_count", &compare_lt_count) &&
+          hako_llvmc_userbox_route_get_i64(route, "branch_count", &branch_count) &&
+          hako_llvmc_userbox_route_get_i64(route, "jump_count", &jump_count) &&
+          hako_llvmc_userbox_route_get_i64(route, "ret_count", &ret_count) &&
+          hako_llvmc_userbox_route_get_i64(route, "add_count", &add_count) &&
+          x_i64 == 1 &&
+          y_i64 == 2 &&
+          sum_i64 == 3 &&
+          ops == 2000000 &&
+          known_receiver_count == 2 &&
+          field_set_count == 2 &&
+          compare_lt_count == 1 &&
+          branch_count == 1 &&
+          jump_count >= 2 &&
+          ret_count == 1 &&
+          add_count >= 3 &&
+          hako_llvmc_userbox_point_decl_ok(root) &&
+          hako_llvmc_userbox_point_sum_local_i64_selection_ok(fn, method_fn) &&
+          hako_llvmc_userbox_has_known_receiver_selection(fn, "Point.sum"))) {
+      yyjson_doc_free(doc);
+      return -1;
+    }
+    if (hako_llvmc_route_trace_enabled()) {
+      snprintf(extra, sizeof(extra), "%s mir_route_plan", kind);
+      hako_llvmc_emit_route_trace(
+          "userbox_known_receiver_method_seed",
+          "emit",
+          "exact_match",
+          extra);
+    }
+    rc = hako_llvmc_emit_userbox_point_sum_micro_ir(
+        obj_out, &selection, ops, sum_i64);
     yyjson_doc_free(doc);
     return rc;
   }

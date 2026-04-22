@@ -34,7 +34,7 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
   - current implementation focus: move exact seed ladders to function-level backend route tags
   - current phase goal:
     - make `.inc` a thin boundary glue layer
@@ -43,8 +43,8 @@ Related:
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
     - latest landed exact route tag: `userbox_known_receiver_method_seed`
-    - guard baseline: 9 `.inc` files / 99 analysis-debt lines
-    - next cleanup target: UserBox known-receiver chain/micro method seed tags
+    - guard baseline: 6 `.inc` files / 52 analysis-debt lines
+    - next cleanup target: `array_getset_micro`
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent

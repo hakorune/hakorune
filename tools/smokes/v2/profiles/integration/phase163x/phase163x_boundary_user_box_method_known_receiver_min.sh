@@ -100,7 +100,7 @@ for FIXTURE in "${FIXTURES[@]}"; do
     fi
 
     case "$BASENAME" in
-        user_box_counter_step_local_i64_min|user_box_counter_step_copy_local_i64_min|user_box_point_sum_local_i64_min|user_box_point_sum_copy_local_i64_min)
+        user_box_counter_step_local_i64_min|user_box_counter_step_copy_local_i64_min|user_box_counter_step_chain_local_i64_min|user_box_point_sum_local_i64_min|user_box_point_sum_copy_local_i64_min)
             if ! grep -Fq "[llvm-route/trace] stage=exact_seed_backend_route result=hit reason=mir_route_metadata extra=userbox_known_receiver_method_seed" "$BUILD_LOG"; then
                 echo "[INFO] compile output:"
                 tail -n 120 "$BUILD_LOG" || true
@@ -117,4 +117,4 @@ for FIXTURE in "${FIXTURES[@]}"; do
     esac
 done
 
-test_pass "phase163x_boundary_user_box_method_known_receiver_min: PASS (Counter.step and Point.sum local/copy known_receiver seeds use MIR-owned route metadata without compat replay; Counter.step_chain remains green for the next route slice)"
+test_pass "phase163x_boundary_user_box_method_known_receiver_min: PASS (Counter.step, Counter.step_chain, and Point.sum known_receiver seeds use MIR-owned route metadata without compat replay)"

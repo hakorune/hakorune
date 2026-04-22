@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array/string windows, generic_method.has, Sum seeds, UserBox scalar seeds, and UserBox loop micro seeds migrated to MIR metadata` |
+| Front | `array/string windows, generic_method.has, Sum seeds, UserBox scalar seeds, UserBox loop micro seeds, and UserBox known-receiver seeds migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `move exact seed ladders to function-level backend route tags` |
-| Next | `UserBox known-receiver method seed cleanup` |
+| Next | `array_getset_micro exact seed cleanup` |
 | After Next | `next .inc raw-analysis deletion candidate` |
 
 ## Current Read
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -52,8 +52,9 @@ Related:
 17. `phase-292x userbox_point_local_scalar exact seed function route tag` landed
 18. `phase-292x userbox_flag_pointf_local_scalar exact seed function route tag` landed
 19. `phase-292x userbox_loop_micro exact seed function route tag` landed
-20. `phase-292x userbox_known_receiver_method_seed exact seed function route tag` landed
-21. `phase-292x remaining exact seed ladders to function-level backend route tags`
+20. `phase-292x userbox_known_receiver_method_seed local/copy exact seed function route tag` landed
+21. `phase-292x userbox_known_receiver_method_seed chain/micro exact seed function route tag` landed
+22. `phase-292x remaining exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

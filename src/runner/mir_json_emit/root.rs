@@ -900,17 +900,121 @@ fn build_userbox_known_receiver_method_seed_route_json(
             obj.insert("delta_i64".to_string(), json!(*delta_i64));
             obj.insert("x_i64".to_string(), serde_json::Value::Null);
             obj.insert("y_i64".to_string(), serde_json::Value::Null);
+            obj.insert("ops".to_string(), serde_json::Value::Null);
+            obj.insert("step_i64".to_string(), serde_json::Value::Null);
+            obj.insert("sum_i64".to_string(), serde_json::Value::Null);
+            obj.insert("leaf_method_function".to_string(), serde_json::Value::Null);
         }
         crate::mir::UserBoxKnownReceiverMethodSeedPayload::PointSumI64 { x_i64, y_i64 } => {
             obj.insert("base_i64".to_string(), serde_json::Value::Null);
             obj.insert("delta_i64".to_string(), serde_json::Value::Null);
             obj.insert("x_i64".to_string(), json!(*x_i64));
             obj.insert("y_i64".to_string(), json!(*y_i64));
+            obj.insert("ops".to_string(), serde_json::Value::Null);
+            obj.insert("step_i64".to_string(), serde_json::Value::Null);
+            obj.insert("sum_i64".to_string(), serde_json::Value::Null);
+            obj.insert("leaf_method_function".to_string(), serde_json::Value::Null);
+        }
+        crate::mir::UserBoxKnownReceiverMethodSeedPayload::CounterStepLoopMicro {
+            base_i64,
+            delta_i64,
+            ops,
+            step_i64,
+            known_receiver_count,
+            field_set_count,
+        } => {
+            obj.insert("base_i64".to_string(), json!(*base_i64));
+            obj.insert("delta_i64".to_string(), json!(*delta_i64));
+            obj.insert("x_i64".to_string(), serde_json::Value::Null);
+            obj.insert("y_i64".to_string(), serde_json::Value::Null);
+            obj.insert("ops".to_string(), json!(*ops));
+            obj.insert("step_i64".to_string(), json!(*step_i64));
+            obj.insert("sum_i64".to_string(), serde_json::Value::Null);
+            obj.insert(
+                "known_receiver_count".to_string(),
+                json!(*known_receiver_count),
+            );
+            obj.insert("field_set_count".to_string(), json!(*field_set_count));
+            obj.insert("leaf_method_function".to_string(), serde_json::Value::Null);
+        }
+        crate::mir::UserBoxKnownReceiverMethodSeedPayload::CounterStepChainI64 {
+            base_i64,
+            delta_i64,
+            leaf_method_function,
+            leaf_method_block_count,
+            leaf_method_block,
+            ops,
+            known_receiver_count,
+            field_set_count,
+        } => {
+            obj.insert("base_i64".to_string(), json!(*base_i64));
+            obj.insert("delta_i64".to_string(), json!(*delta_i64));
+            obj.insert("x_i64".to_string(), serde_json::Value::Null);
+            obj.insert("y_i64".to_string(), serde_json::Value::Null);
+            obj.insert("ops".to_string(), json!(*ops));
+            obj.insert("step_i64".to_string(), serde_json::Value::Null);
+            obj.insert("sum_i64".to_string(), serde_json::Value::Null);
+            obj.insert(
+                "leaf_method_function".to_string(),
+                json!(leaf_method_function.as_str()),
+            );
+            obj.insert(
+                "leaf_method_block_count".to_string(),
+                json!(*leaf_method_block_count),
+            );
+            obj.insert(
+                "leaf_method_block".to_string(),
+                json!(leaf_method_block.as_u32()),
+            );
+            obj.insert(
+                "known_receiver_count".to_string(),
+                json!(*known_receiver_count),
+            );
+            obj.insert("field_set_count".to_string(), json!(*field_set_count));
+        }
+        crate::mir::UserBoxKnownReceiverMethodSeedPayload::PointSumLoopMicro {
+            x_i64,
+            y_i64,
+            ops,
+            sum_i64,
+            known_receiver_count,
+            field_set_count,
+            compare_lt_count,
+            branch_count,
+            jump_count,
+            ret_count,
+            add_count,
+        } => {
+            obj.insert("base_i64".to_string(), serde_json::Value::Null);
+            obj.insert("delta_i64".to_string(), serde_json::Value::Null);
+            obj.insert("x_i64".to_string(), json!(*x_i64));
+            obj.insert("y_i64".to_string(), json!(*y_i64));
+            obj.insert("ops".to_string(), json!(*ops));
+            obj.insert("step_i64".to_string(), serde_json::Value::Null);
+            obj.insert("sum_i64".to_string(), json!(*sum_i64));
+            obj.insert(
+                "known_receiver_count".to_string(),
+                json!(*known_receiver_count),
+            );
+            obj.insert("field_set_count".to_string(), json!(*field_set_count));
+            obj.insert("compare_lt_count".to_string(), json!(*compare_lt_count));
+            obj.insert("branch_count".to_string(), json!(*branch_count));
+            obj.insert("jump_count".to_string(), json!(*jump_count));
+            obj.insert("ret_count".to_string(), json!(*ret_count));
+            obj.insert("add_count".to_string(), json!(*add_count));
+            obj.insert("leaf_method_function".to_string(), serde_json::Value::Null);
         }
     }
+    let consumer_capability = match route.kind {
+        crate::mir::UserBoxKnownReceiverMethodSeedKind::CounterStepMicro
+        | crate::mir::UserBoxKnownReceiverMethodSeedKind::PointSumMicro => {
+            "direct_userbox_known_receiver_method_micro"
+        }
+        _ => "direct_userbox_known_receiver_method_local",
+    };
     obj.insert(
         "consumer_capability".to_string(),
-        json!("direct_userbox_known_receiver_method_local"),
+        json!(consumer_capability),
     );
     obj.insert("publication_boundary".to_string(), json!("none"));
     serde_json::Value::Object(obj)
