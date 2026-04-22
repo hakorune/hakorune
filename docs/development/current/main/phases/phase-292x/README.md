@@ -59,7 +59,8 @@ Related:
 - Landed deletion: `pure_compile_minimal_paths` path #1/#2
 - Landed deletion: `pure_compile_minimal_paths` path #4 Array
 - Landed deletion: `pure_compile_minimal_paths` path #3 Map
-- Next cleanup target: `pure_compile_minimal_paths` String const-eval decision
+- Landed deletion: `pure_compile_minimal_paths` String const-eval
+- Next cleanup target: generic pure walker residual debt
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`

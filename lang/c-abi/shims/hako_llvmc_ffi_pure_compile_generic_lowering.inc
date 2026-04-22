@@ -762,6 +762,12 @@
               yyjson_val* nb0 = nb_args && yyjson_is_arr(nb_args) ? yyjson_arr_get_first(nb_args) : NULL;
               long long arg0 = nb0 ? (long long)yyjson_get_sint(nb0) : 0;
               if (dst && arg0) {
+                if (should_skip_hoisted_string_const_box(arg0) &&
+                    !string_const_box_was_emitted(arg0) &&
+                    !emit_materialized_string_const_box_result(f, arg0)) {
+                  yyjson_doc_free(d);
+                  goto GEN_ABORT;
+                }
                 set_copy_alias(dst, resolve_copy_source_reg(arg0));
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);

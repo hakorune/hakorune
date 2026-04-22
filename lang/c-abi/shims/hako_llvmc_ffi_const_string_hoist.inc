@@ -9,6 +9,7 @@
               str_consts[sci].reg,
               slen + 1,
               str_consts[sci].reg);
+          mark_string_const_box_emitted(str_consts[sci].reg);
           set_type(str_consts[sci].reg, T_I64);
           set_origin(str_consts[sci].reg, ORG_STRING);
           set_scan_origin(str_consts[sci].reg, ORG_STRING);

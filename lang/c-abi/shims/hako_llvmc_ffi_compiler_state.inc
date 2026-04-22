@@ -102,6 +102,21 @@
           str_const_box_skip_n++;
         }
       }
+      auto int string_const_box_was_emitted(long long r){
+        long long base = resolve_copy_source_reg(r);
+        for (size_t i=0;i<str_const_box_emitted_n;i++){
+          if (str_const_box_emitted[i].reg==r || str_const_box_emitted[i].reg==base) return 1;
+        }
+        return 0;
+      }
+      auto void mark_string_const_box_emitted(long long r){
+        long long base = resolve_copy_source_reg(r);
+        if (!base || string_const_box_was_emitted(base)) return;
+        if (str_const_box_emitted_n < 512) {
+          str_const_box_emitted[str_const_box_emitted_n].reg = base;
+          str_const_box_emitted_n++;
+        }
+      }
       auto int is_plain_i64_value(long long r){
         if (!r) return 0;
         if (get_type(r) != T_I64) return 0;

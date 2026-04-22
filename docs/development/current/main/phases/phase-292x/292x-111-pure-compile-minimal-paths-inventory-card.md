@@ -21,8 +21,8 @@ contains six C-side raw MIR recognizers that read `blocks`, `instructions`, and
 
 This file is the next primary cleanup target after the exact-seed ladder work:
 
-- current no-growth baseline: 5 `.inc` files / 21 analysis-debt lines
-- this bucket: 14 analysis-debt lines
+- current no-growth baseline: 4 `.inc` files / 7 analysis-debt lines
+- this bucket: deleted
 - rule: no new path may be added here
 - cleanup mode: prove each path has a non-C route owner, then delete or replace
   it with MIR-owned metadata consumption
@@ -35,8 +35,8 @@ This file is the next primary cleanup target after the exact-seed ladder work:
 | #2 | const compare branch with two const arms and merge ret | route legality owner plus fallback hook | deleted in `292x-112`; llvmlite compare monitor remains green |
 | #3 | `MapBox` constructor, `set`, `size/len`, `ret` | CoreBox method shortcut | deleted in `292x-115`; smoke updated to canonical Method callee metadata |
 | #4 | `ArrayBox` constructor, `push`, `len/length/size`, `ret` | CoreBox method shortcut | deleted in `292x-115`; pure historical and pure keep remain green |
-| #5 | const ASCII string, `StringBox.length/size`, folded ret | string const-eval shortcut | choose delete vs MIR-owned const-eval route; C must not own the fold |
-| #6 | const ASCII haystack/needle, `StringBox.indexOf`, folded ret | string const-eval shortcut | choose delete vs MIR-owned const-eval route; C must not own the fold |
+| #5 | const ASCII string, `StringBox.length/size`, folded ret | string const-eval shortcut | deleted in `292x-116`; generic pure lowering owns the boundary |
+| #6 | const ASCII haystack/needle, `StringBox.indexOf`, folded ret | string const-eval shortcut | deleted in `292x-116`; generic pure lowering materializes needed StringBox handles |
 
 ## Cleanup Order
 
@@ -48,10 +48,8 @@ This file is the next primary cleanup target after the exact-seed ladder work:
    - First try deletion with generic constructor/method lowering canaries.
    - If generic lowering is missing a real contract, add MIR-owned route
      metadata. Do not add another `.inc` shape recognizer.
-3. Decide paths #5 and #6 as a pair.
-   - If the constant fold is required, add a MIR-owned const-eval route carrying
-     the proof and result.
-   - If the fold is not required, delete and rely on generic runtime method
+3. Decide paths #5 and #6 as a pair. (landed in `292x-116`)
+   - Deleted the const-eval shortcuts and relied on generic runtime method
      lowering.
 4. Prune the allowlist after each successful deletion slice.
 

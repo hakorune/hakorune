@@ -1,9 +1,9 @@
 #!/bin/bash
-# Phase 29ck boundary legacy pure-first StringBox.indexOf lock
+# Phase 29ck boundary generic pure-first StringBox.indexOf lock
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route accepts a narrow
-#    `StringBox.indexOf("b")` v1 seed.
+#    `StringBox.indexOf("b")` v1 Method MIR.
 # 2) the supported seed emits an object without falling through to
 #    `ny-llvmc --driver harness`.
 # 3) breaking `NYASH_NY_LLVM_COMPILER` must not break that supported seed.
@@ -74,4 +74,4 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_string_indexof_min: PASS (legacy boundary lock still emits StringBox.indexOf seed without ny-llvmc harness fallback)"
+test_pass "phase29ck_boundary_pure_string_indexof_min: PASS (generic boundary emits StringBox.indexOf without ny-llvmc harness fallback)"

@@ -11,22 +11,22 @@ phase = "phase-292x"
 title = ".inc codegen thin tag cleanup"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-current_blocker_token = "pure_compile_minimal_paths String const-eval decision"
+current_blocker_token = "generic pure walker residual debt split"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-116-pure-compile-minimal-string-const-eval-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md"
 
 purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
-inc_file_count = 73
-inc_line_count = 16006
-analysis_debt_files = 5
-analysis_debt_lines = 21
+inc_file_count = 72
+inc_line_count = 15866
+analysis_debt_files = 4
+analysis_debt_lines = 7
 remaining_seed_matcher_defs = 0
 
-last_landed_slice = "pure_compile_minimal_paths_map_set_size_deletion"
-next_recommended_slice = "pure_compile_minimal_paths_string_const_eval_decision"
-next_recommended_reason = "292x-115 updated the stale Map set-size smoke to canonical MIR, deleted path #3, and lowered the guard to 21 debt lines. Next decide whether paths #5/#6 should delete outright or consume MIR-owned const-eval metadata."
+last_landed_slice = "pure_compile_minimal_paths_string_const_eval_deletion"
+next_recommended_slice = "generic_pure_walker_residual_debt_split"
+next_recommended_reason = "292x-116 removed pure_compile_minimal_paths entirely and lowered the guard to 4 files / 7 debt lines. Next classify the remaining generic walker/copy-graph hits before deleting anything else."
 
 verification_min = [
   "cargo fmt --check",
@@ -231,9 +231,24 @@ backend_tag = "none"
 status = "landed"
 smoke = "pure-historical Map smoke updated to canonical MIR; pure-historical 5/5; pure-keep 2/2; llvmlite-monitor-keep 3/3"
 
+[[landed_slice]]
+id = "pure_compile_minimal_paths_string_const_eval_deletion"
+kind = "c_analyzer_deletion"
+owner = "generic pure StringBox/RuntimeDataBox method lowering"
+backend_tag = "none"
+status = "landed"
+smoke = "string length/runtime-data length/indexOf boundary smokes green; daily owner smokes green"
+
 [[backlog]]
 id = "pure_compile_minimal_paths_inventory"
 priority = 1
 remaining_matchers = 0
-owner_status = "paths #1/#2 deleted in 292x-112; paths #3/#4 deleted in 292x-115"
-note = "Largest remaining debt bucket is hako_llvmc_ffi_pure_compile_minimal_paths.inc at 14 lines; next String const-eval decision."
+owner_status = "paths #1/#2 deleted in 292x-112; paths #3/#4 deleted in 292x-115; paths #5/#6 deleted in 292x-116"
+note = "Bucket closed; hako_llvmc_ffi_pure_compile_minimal_paths.inc is removed."
+
+[[backlog]]
+id = "generic_pure_walker_residual_debt_split"
+priority = 1
+remaining_matchers = 0
+owner_status = "remaining guard debt is generic walker/copy-graph substrate, not pure_compile_minimal_paths"
+note = "Guard is 4 files / 7 debt lines; classify before next deletion."

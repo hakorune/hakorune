@@ -36,7 +36,7 @@
                 "callee": {
                   "type": "Method",
                   "box_name": "StringBox",
-                  "name": "length",
+                  "method": "length",
                   "receiver": 2
                 },
                 "args": [],

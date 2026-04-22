@@ -1,9 +1,9 @@
 #!/bin/bash
-# Phase 29ck boundary legacy pure-first string-length lock
+# Phase 29ck boundary generic pure-first string-length lock
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route accepts a narrow ASCII
-#    `StringBox.length()` v1 seed.
+#    `StringBox.length()` v1 Method MIR.
 # 2) the supported seed emits an object without falling through to
 #    `ny-llvmc --driver harness`.
 # 3) breaking `NYASH_NY_LLVM_COMPILER` must not break that supported seed.
@@ -74,4 +74,4 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_string_length_min: PASS (legacy boundary lock still emits ASCII StringBox.length seed without ny-llvmc harness fallback)"
+test_pass "phase29ck_boundary_pure_string_length_min: PASS (generic boundary emits ASCII StringBox.length without ny-llvmc harness fallback)"

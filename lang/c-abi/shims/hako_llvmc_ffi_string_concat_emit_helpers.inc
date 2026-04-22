@@ -243,6 +243,26 @@
             dst,
             slen + 1,
             dst);
+        mark_string_const_box_emitted(dst);
+        finalize_string_concat_result(dst);
+        return 1;
+      }
+
+      auto int emit_materialized_string_const_box_result(FILE* f, long long dst) {
+        const char* sval = get_str_const(dst);
+        if (!sval) return 0;
+        if (string_const_box_was_emitted(dst)) {
+          finalize_string_concat_result(dst);
+          return 1;
+        }
+        size_t slen = strlen(sval);
+        fprintf(
+            f,
+            "  %%r%lld = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0))\n",
+            dst,
+            slen + 1,
+            dst);
+        mark_string_const_box_emitted(dst);
         finalize_string_concat_result(dst);
         return 1;
       }

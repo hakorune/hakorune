@@ -1,9 +1,9 @@
 #!/bin/bash
-# Phase 29ck legacy boundary pure-first RuntimeDataBox.length canary
+# Phase 29ck generic boundary pure-first RuntimeDataBox.length canary
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route accepts a narrow
-#    `RuntimeDataBox.length()` v1 seed when the receiver is a StringBox.
+#    `RuntimeDataBox.length()` v1 Method MIR when the receiver is a StringBox.
 # 2) the supported seed emits an object without falling through to
 #    `ny-llvmc --driver harness`.
 # 3) breaking `NYASH_NY_LLVM_COMPILER` must not break that supported seed.
@@ -74,4 +74,4 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_runtime_data_length_min: PASS (boundary default emits RuntimeDataBox.length(StringBox) seed without ny-llvmc harness fallback)"
+test_pass "phase29ck_boundary_pure_runtime_data_length_min: PASS (generic boundary emits RuntimeDataBox.length(StringBox) without ny-llvmc harness fallback)"

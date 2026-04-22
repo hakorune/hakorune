@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-23
 Scope: Decide and retire `pure_compile_minimal_paths` paths #5 and #6.
 Related:
@@ -30,6 +30,20 @@ must not own string method legality or rediscover constant-foldable shapes.
 
 Do not add another C-side raw MIR recognizer.
 
+## Current Result
+
+- Deleted `hako_llvmc_ffi_pure_compile_minimal_paths.inc` and removed its
+  include from `hako_llvmc_ffi_pure_compile.inc`.
+- Deleted paths #5 and #6 instead of adding MIR-owned const-eval metadata.
+- Kept the generic pure lowering owner by materializing skipped StringBox
+  constants at the `newbox StringBox` boundary when a later method needs a
+  handle.
+- Updated the boundary smokes from legacy seed wording to generic boundary
+  wording and moved the hand-authored fixtures from `callee.name` to
+  `callee.method`.
+- Guard moved from 5 files / 21 analysis-debt lines to 4 files / 7
+  analysis-debt lines.
+
 ## Plan
 
 1. Inventory the smokes that still exercise path #5 / #6.
@@ -39,6 +53,12 @@ Do not add another C-side raw MIR recognizer.
 4. If a smoke fails because no runtime/generic owner exists, add the smallest
    MIR-owned route or const-eval contract before deleting.
 5. Prune the allowlist after the guard reports the reduced count.
+
+## Follow-Up
+
+The remaining guard debt is no longer `pure_compile_minimal_paths`; it is the
+generic pure walker / copy-graph residual bucket. Continue with
+`292x-117-generic-pure-walker-residual-debt-card.md`.
 
 ## Acceptance
 

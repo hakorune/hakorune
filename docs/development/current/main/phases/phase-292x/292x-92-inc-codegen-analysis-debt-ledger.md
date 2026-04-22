@@ -334,3 +334,16 @@ Pure compile minimal Map path deletion:
 - lowered allowlist:
   - `hako_llvmc_ffi_pure_compile_minimal_paths.inc`: `21 -> 14`
   - current analysis-debt baseline is `21`
+
+Pure compile minimal String const-eval deletion:
+
+- deleted `pure_compile_minimal_paths` paths #5/#6 and removed
+  `hako_llvmc_ffi_pure_compile_minimal_paths.inc`
+- moved the surviving ownership to generic pure lowering by materializing
+  skipped StringBox constants at the `newbox StringBox` boundary when a later
+  method needs a handle
+- updated string length / runtime-data length / indexOf boundary smokes from
+  legacy seed wording to generic boundary wording
+- lowered allowlist:
+  - removed `hako_llvmc_ffi_pure_compile_minimal_paths.inc`: `14 -> 0`
+  - current analysis-debt baseline is `7`

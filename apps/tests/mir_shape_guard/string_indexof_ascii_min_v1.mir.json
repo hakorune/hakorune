@@ -53,7 +53,7 @@
                 "callee": {
                   "type": "Method",
                   "box_name": "StringBox",
-                  "name": "indexOf",
+                  "method": "indexOf",
                   "receiver": 2
                 },
                 "args": [4],

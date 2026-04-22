@@ -34,8 +34,8 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-116-pure-compile-minimal-string-const-eval-card.md`
-  - current implementation focus: decide pure compile minimal String const-eval ownership
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md`
+  - current implementation focus: classify generic pure walker residual debt
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
@@ -47,9 +47,10 @@ Related:
     - minimal paths #1/#2 deletion is landed
     - minimal path #3 Map deletion is landed
     - minimal path #4 Array deletion is landed
-    - guard baseline: 5 `.inc` files / 21 analysis-debt lines
+    - minimal String const-eval paths #5/#6 deletion is landed
+    - guard baseline: 4 `.inc` files / 7 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is inventoried in `292x-111`; next cleanup is String const-eval ownership
+      is removed; next cleanup is generic pure walker residual debt
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -61,7 +62,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `pure_compile_minimal_paths String const-eval decision`
+  - current blocker token: `generic pure walker residual debt split`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

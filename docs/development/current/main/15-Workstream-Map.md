@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, array_getset_micro, MapBox duplicate receiver, Hako LL/provider fix, pure minimal path #1/#2, Map path #3, and Array path #4 deletions landed` |
+| Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, array_getset_micro, MapBox duplicate receiver, Hako LL/provider fix, and all pure_compile_minimal_paths deletions landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `pure_compile_minimal_paths String const-eval decision` |
-| Next | `String const-eval owner decision, then delete or metadata-own paths #5/#6` |
-| After Next | `remaining .inc debt bucket after String const-eval` |
+| Blocker | `generic pure walker residual debt split` |
+| Next | `classify remaining 7 guard lines, then shrink copy-graph/generic walker debt` |
+| After Next | `post-walker residual .inc guard cleanup` |
 
 ## Current Read
 
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-116-pure-compile-minimal-string-const-eval-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-117-generic-pure-walker-residual-debt-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -62,7 +62,8 @@ Related:
 27. `phase-292x pure_compile_minimal_paths delete-probe #1/#2` landed
 28. `phase-292x pure_compile_minimal_paths delete-probe #4 Array` landed
 29. `phase-292x pure_compile_minimal_paths path #3 Map deletion` landed
-30. `phase-292x pure_compile_minimal_paths String const-eval decision`
+30. `phase-292x pure_compile_minimal_paths String const-eval deletion` landed
+31. `phase-292x generic pure walker residual debt split`
 
 ## Parked Corridor
 

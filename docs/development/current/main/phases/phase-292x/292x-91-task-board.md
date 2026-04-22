@@ -143,12 +143,17 @@ Related:
   - state: path #4 ArrayBox push-len and path #3 MapBox set-size deleted; guard is now 5 files / 21
     analysis-debt lines
 
+- [x] A12 pure compile minimal String const-eval decision
+  - design: `292x-116-pure-compile-minimal-string-const-eval-card.md`
+  - state: paths #5/#6 and `hako_llvmc_ffi_pure_compile_minimal_paths.inc`
+    deleted; guard is now 4 files / 7 analysis-debt lines
+
 ## Active Card
 
-- [ ] A12 pure compile minimal String const-eval decision
-  - design: `292x-116-pure-compile-minimal-string-const-eval-card.md`
-  - next families: path #5 StringBox length const-fold and path #6
-    StringBox indexOf const-fold
+- [ ] A13 generic pure walker residual debt
+  - design: `292x-117-generic-pure-walker-residual-debt-card.md`
+  - next families: classify the remaining 7 guard lines as walker substrate vs
+    route-legality debt
 
 ## Done Definition
 

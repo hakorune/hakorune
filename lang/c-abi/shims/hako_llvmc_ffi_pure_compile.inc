@@ -344,6 +344,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       struct { long long reg; long long len; } known_string_lens[2048]; size_t known_string_lens_n = 0;
       char* owned_str_consts[512]; size_t owned_str_consts_n = 0;
       struct { long long reg; } str_const_box_skip[512]; size_t str_const_box_skip_n = 0;
+      struct { long long reg; } str_const_box_emitted[512]; size_t str_const_box_emitted_n = 0;
       struct { long long reg; int ty; } types[2048]; size_t types_n = 0;
       struct { long long reg; long long src; } copy_alias[2048]; size_t copy_alias_n = 0;
       struct { long long reg; int kind; } scan_origin[2048]; size_t scan_origin_n = 0;
@@ -417,7 +418,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           long long reg);
 
       #include "hako_llvmc_ffi_pure_compile_generic_lowering.inc"
-      #include "hako_llvmc_ffi_pure_compile_minimal_paths.inc"
   if (compat_harness_replay_enabled()) {
     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }
