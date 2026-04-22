@@ -177,7 +177,17 @@
             match_array_string_len_window_route_metadata(
                 bid, ii, &string_len_route_match)) {
           if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
+          if (string_len_route_match.keep_get_live) {
+            hako_llvmc_emit_array_slot_load(
+                f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF);
+            if (dst && runtime_array_string) {
+              remember_array_string_get_source(dst, recv, a0);
+            }
+          }
           hako_llvmc_emit_array_string_len(f, string_len_route_match.len_dst, ab);
+          if (string_len_route_match.keep_get_live && dst) {
+            remember_string_length_call(string_len_route_match.len_dst, dst);
+          }
           for (int si = 0; si < string_len_route_match.skip_n; si++) {
             skip_inst[string_len_route_match.skip_iis[si]] = 1;
           }

@@ -33,15 +33,17 @@ Related:
   - current-state token: `phase-292x .inc codegen thin tag cleanup`
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
-  - current implementation focus: `array_string_len_window` source-reuse modes after len-only metadata route
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
+  - current implementation focus: `array_string_len_window` source-only direct-set reuse after keep-live metadata route
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - `array_rmw_window` metadata-first route is landed; legacy C analyzer is fallback-only until deletion coverage is pinned
-    - `array_string_len_window` len-only metadata-first route is landed; live-source/source-reuse modes remain fallback-only
+    - `array_string_len_window` len-only metadata-first route is landed
+    - `array_string_len_window` keep-live source reuse metadata-first route is landed
+    - source-only direct-set reuse remains the active fallback before C analyzer deletion
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -52,7 +54,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `array_string_len_window source-reuse modes must move to MIR-owned route metadata before C analyzer deletion`
+  - current blocker token: `array_string_len_window source_only_insert_mid must move to MIR-owned route metadata before C analyzer deletion`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

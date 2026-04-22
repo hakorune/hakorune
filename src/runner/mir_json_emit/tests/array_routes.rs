@@ -67,11 +67,27 @@ fn build_mir_json_root_emits_array_string_len_window_routes() {
             mode: ArrayStringLenWindowMode::LenOnly,
             proof: ArrayStringLenWindowProof::ArrayGetLenNoLaterSourceUse,
         });
+    function
+        .metadata
+        .array_string_len_window_routes
+        .push(ArrayStringLenWindowRoute {
+            block: BasicBlockId::new(8),
+            instruction_index: 4,
+            array_value: ValueId::new(20),
+            index_value: ValueId::new(21),
+            source_value: ValueId::new(22),
+            len_instruction_index: 6,
+            len_value: ValueId::new(23),
+            skip_instruction_indices: vec![6],
+            mode: ArrayStringLenWindowMode::KeepGetLive,
+            proof: ArrayStringLenWindowProof::ArrayGetLenKeepSourceLive,
+        });
     let mut module = crate::mir::MirModule::new("json_array_string_len_routes_test".to_string());
     module.add_function(function);
 
     let root = build_mir_json_root(&module).expect("mir json root");
-    let route = &root["functions"][0]["metadata"]["array_string_len_window_routes"][0];
+    let routes = &root["functions"][0]["metadata"]["array_string_len_window_routes"];
+    let route = &routes[0];
     assert_eq!(route["route_id"], "array.string_len.window");
     assert_eq!(route["block"], 7);
     assert_eq!(route["instruction_index"], 3);
@@ -84,8 +100,33 @@ fn build_mir_json_root_emits_array_string_len_window_routes() {
     assert_eq!(route["mode"], "len_only");
     assert_eq!(route["proof"], "array_get_len_no_later_source_use");
     assert_eq!(route["emit_symbol"], "nyash.array.string_len_hi");
+    assert_eq!(route["keep_get_live"], false);
+    assert_eq!(route["source_only_insert_mid"], false);
     assert_eq!(
         route["effects"],
         serde_json::json!(["load.cell", "observe.len"])
+    );
+
+    let keep_live_route = &routes[1];
+    assert_eq!(keep_live_route["route_id"], "array.string_len.window");
+    assert_eq!(keep_live_route["block"], 8);
+    assert_eq!(keep_live_route["instruction_index"], 4);
+    assert_eq!(keep_live_route["array_value"], 20);
+    assert_eq!(keep_live_route["index_value"], 21);
+    assert_eq!(keep_live_route["source_value"], 22);
+    assert_eq!(keep_live_route["len_instruction_index"], 6);
+    assert_eq!(keep_live_route["len_value"], 23);
+    assert_eq!(
+        keep_live_route["skip_instruction_indices"],
+        serde_json::json!([6])
+    );
+    assert_eq!(keep_live_route["mode"], "keep_get_live");
+    assert_eq!(keep_live_route["proof"], "array_get_len_keep_source_live");
+    assert_eq!(keep_live_route["emit_symbol"], "nyash.array.string_len_hi");
+    assert_eq!(keep_live_route["keep_get_live"], true);
+    assert_eq!(keep_live_route["source_only_insert_mid"], false);
+    assert_eq!(
+        keep_live_route["effects"],
+        serde_json::json!(["load.cell", "observe.len", "keep.source.live"])
     );
 }

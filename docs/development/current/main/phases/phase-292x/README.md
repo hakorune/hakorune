@@ -15,6 +15,8 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md
   - docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md
   - docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md
+  - docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md
+  - docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -25,7 +27,8 @@ Related:
   pre-decided tag を読むだけの boundary glue に寄せる。
 - First implementation target: `array_rmw_window` (landed)
 - Landed second target: `array_string_len_window` len-only route
-- Next implementation target: `array_string_len_window` source-reuse modes
+- Landed third target: `array_string_len_window` keep-live source reuse
+- Next implementation target: `array_string_len_window` source-only direct-set reuse
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless this cleanup reopens a real app/perf blocker.
@@ -55,7 +58,9 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 3. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
 4. `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
 5. `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
-6. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+6. `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
+7. `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
+8. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
 
 ## Current Rule
 
@@ -95,11 +100,20 @@ array_string_len_window len-only
   -> legacy analyzer fallback only for live-source/source-reuse modes
 ```
 
+Landed third card:
+
+```text
+array_string_len_window keep-live source reuse
+  -> keep_get_live metadata route
+  -> .inc emits slot_load + string_len from metadata
+  -> source_only_insert_mid remains A2c fallback until separately tagged
+```
+
 Next open card:
 
 ```text
-array_string_len_window source-reuse modes
-  -> keep_get_live metadata route
+array_string_len_window source-only direct-set reuse
   -> source_only_insert_mid metadata route
-  -> delete C analyzer only after both modes are metadata-owned
+  -> piecewise concat direct-set route tag
+  -> delete C analyzer after both fallback fixtures require metadata
 ```

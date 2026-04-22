@@ -13,19 +13,21 @@ use super::array_receiver_proof::{
 };
 use super::string_corridor_recognizer::match_len_call;
 use super::{
-    build_value_def_map, BasicBlock, BasicBlockId, MirFunction, MirInstruction, MirModule,
+    build_value_def_map, BasicBlock, BasicBlockId, Callee, MirFunction, MirInstruction, MirModule,
     ValueDefMap, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArrayStringLenWindowMode {
     LenOnly,
+    KeepGetLive,
 }
 
 impl std::fmt::Display for ArrayStringLenWindowMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::LenOnly => f.write_str("len_only"),
+            Self::KeepGetLive => f.write_str("keep_get_live"),
         }
     }
 }
@@ -33,12 +35,14 @@ impl std::fmt::Display for ArrayStringLenWindowMode {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArrayStringLenWindowProof {
     ArrayGetLenNoLaterSourceUse,
+    ArrayGetLenKeepSourceLive,
 }
 
 impl std::fmt::Display for ArrayStringLenWindowProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::ArrayGetLenNoLaterSourceUse => f.write_str("array_get_len_no_later_source_use"),
+            Self::ArrayGetLenKeepSourceLive => f.write_str("array_get_len_keep_source_live"),
         }
     }
 }
@@ -108,6 +112,12 @@ fn same_root(function: &MirFunction, def_map: &ValueDefMap, lhs: ValueId, rhs: V
     same_value_root(function, def_map, lhs, rhs)
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum LaterSourceUse {
+    NoUse,
+    SafeSubstring,
+}
+
 fn skip_copy_chain(
     function: &MirFunction,
     def_map: &ValueDefMap,
@@ -127,24 +137,62 @@ fn skip_copy_chain(
     (index, carried)
 }
 
-fn has_later_source_use(
+fn classify_later_source_use(
     function: &MirFunction,
     def_map: &ValueDefMap,
     instructions: &[MirInstruction],
     from_index: usize,
     source_values: &[ValueId],
-) -> bool {
+) -> Option<LaterSourceUse> {
     let source_roots: Vec<ValueId> = source_values
         .iter()
         .copied()
         .map(|value| resolve_array_value_root(function, def_map, value))
         .collect();
-    instructions.iter().skip(from_index).any(|inst| {
-        inst.used_values().into_iter().any(|value| {
+    let mut saw_safe_substring = false;
+    for inst in instructions.iter().skip(from_index) {
+        let uses_source = inst.used_values().into_iter().any(|value| {
             let value_root = resolve_array_value_root(function, def_map, value);
             source_roots.iter().any(|source| *source == value_root)
-        })
+        });
+        if !uses_source {
+            continue;
+        }
+        if inst_is_safe_substring_source_reuse(function, def_map, inst, &source_roots) {
+            saw_safe_substring = true;
+            continue;
+        }
+        return None;
+    }
+    Some(if saw_safe_substring {
+        LaterSourceUse::SafeSubstring
+    } else {
+        LaterSourceUse::NoUse
     })
+}
+
+fn inst_is_safe_substring_source_reuse(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &MirInstruction,
+    source_roots: &[ValueId],
+) -> bool {
+    match inst {
+        MirInstruction::Call {
+            callee:
+                Some(Callee::Method {
+                    box_name,
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            ..
+        } if box_name == "RuntimeDataBox" && method == "substring" => {
+            let receiver_root = resolve_array_value_root(function, def_map, *receiver);
+            source_roots.iter().any(|source| *source == receiver_root)
+        }
+        _ => false,
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -159,31 +207,45 @@ fn match_len_only_route(
     source_value: ValueId,
 ) -> Option<ArrayStringLenWindowRoute> {
     let instructions = block.instructions.as_slice();
-    let mut skip = Vec::new();
+    let mut copy_skip = Vec::new();
     let (cursor, carried) = skip_copy_chain(
         function,
         def_map,
         instructions,
         instruction_index + 1,
         source_value,
-        &mut skip,
+        &mut copy_skip,
     );
 
     let (len_value, len_receiver, _) = match_len_call(instructions.get(cursor)?)?;
     if !same_root(function, def_map, len_receiver, carried) {
         return None;
     }
-    skip.push(cursor);
 
-    if has_later_source_use(
+    let later_use = classify_later_source_use(
         function,
         def_map,
         instructions,
         cursor + 1,
         &[source_value, carried],
-    ) {
-        return None;
-    }
+    )?;
+
+    let (skip_instruction_indices, mode, proof) = match later_use {
+        LaterSourceUse::NoUse => {
+            let mut skip = copy_skip;
+            skip.push(cursor);
+            (
+                skip,
+                ArrayStringLenWindowMode::LenOnly,
+                ArrayStringLenWindowProof::ArrayGetLenNoLaterSourceUse,
+            )
+        }
+        LaterSourceUse::SafeSubstring => (
+            vec![cursor],
+            ArrayStringLenWindowMode::KeepGetLive,
+            ArrayStringLenWindowProof::ArrayGetLenKeepSourceLive,
+        ),
+    };
 
     Some(ArrayStringLenWindowRoute {
         block: block_id,
@@ -193,9 +255,9 @@ fn match_len_only_route(
         source_value,
         len_instruction_index: cursor,
         len_value,
-        skip_instruction_indices: skip,
-        mode: ArrayStringLenWindowMode::LenOnly,
-        proof: ArrayStringLenWindowProof::ArrayGetLenNoLaterSourceUse,
+        skip_instruction_indices,
+        mode,
+        proof,
     })
 }
 
@@ -279,7 +341,35 @@ mod tests {
     }
 
     #[test]
-    fn rejects_keep_get_live_shape_for_follow_up_card() {
+    fn detects_keep_get_live_shape() {
+        let mut function = test_function(MirType::Box("ArrayBox".to_string()));
+        let block = entry_block(&mut function);
+        block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
+        block.add_instruction(copy(11, 10));
+        block.add_instruction(length_call(12, "RuntimeDataBox", "length", 11));
+        block.add_instruction(method_call(
+            Some(13),
+            "RuntimeDataBox",
+            "substring",
+            11,
+            vec![ValueId::new(3), ValueId::new(4)],
+        ));
+
+        refresh_function_array_string_len_window_routes(&mut function);
+
+        assert_eq!(function.metadata.array_string_len_window_routes.len(), 1);
+        let route = &function.metadata.array_string_len_window_routes[0];
+        assert_eq!(route.len_instruction_index, 2);
+        assert_eq!(route.skip_instruction_indices, vec![2]);
+        assert_eq!(route.mode, ArrayStringLenWindowMode::KeepGetLive);
+        assert_eq!(
+            route.proof,
+            ArrayStringLenWindowProof::ArrayGetLenKeepSourceLive
+        );
+    }
+
+    #[test]
+    fn rejects_substring_arg_source_use_when_receiver_is_not_source() {
         let mut function = test_function(MirType::Box("ArrayBox".to_string()));
         let block = entry_block(&mut function);
         block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
@@ -288,8 +378,8 @@ mod tests {
             Some(13),
             "RuntimeDataBox",
             "substring",
-            10,
-            vec![ValueId::new(3), ValueId::new(4)],
+            20,
+            vec![ValueId::new(10), ValueId::new(4)],
         ));
 
         refresh_function_array_string_len_window_routes(&mut function);

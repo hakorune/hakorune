@@ -28,6 +28,8 @@
       struct ArrayStringLenWindowRouteMetadata {
         int matched;
         int invalid;
+        int keep_get_live;
+        int source_only_insert_mid;
         size_t skip_iis[16];
         int skip_n;
         size_t len_ii;
@@ -140,6 +142,33 @@
         s0 = yyjson_get_str(v0);
         s1 = yyjson_get_str(v1);
         return s0 && s1 && !strcmp(s0, first) && !strcmp(s1, second);
+      }
+      auto int array_text_residence_string_array_eq3(
+          yyjson_val* vals,
+          const char* first,
+          const char* second,
+          const char* third) {
+        yyjson_val* v0 = NULL;
+        yyjson_val* v1 = NULL;
+        yyjson_val* v2 = NULL;
+        const char* s0 = NULL;
+        const char* s1 = NULL;
+        const char* s2 = NULL;
+        if (!(vals && yyjson_is_arr(vals) && yyjson_arr_size(vals) == 3)) return 0;
+        v0 = yyjson_arr_get(vals, 0);
+        v1 = yyjson_arr_get(vals, 1);
+        v2 = yyjson_arr_get(vals, 2);
+        if (!(v0 && v1 && v2 &&
+              yyjson_is_str(v0) && yyjson_is_str(v1) && yyjson_is_str(v2))) {
+          return 0;
+        }
+        s0 = yyjson_get_str(v0);
+        s1 = yyjson_get_str(v1);
+        s2 = yyjson_get_str(v2);
+        return s0 && s1 && s2 &&
+               !strcmp(s0, first) &&
+               !strcmp(s1, second) &&
+               !strcmp(s2, third);
       }
       auto int array_text_residence_read_i64_field(
           yyjson_val* obj,
@@ -718,10 +747,25 @@
           yyjson_val* len_val = route ? yyjson_obj_get(route, "len_value") : NULL;
           yyjson_val* skip_vals = route ? yyjson_obj_get(route, "skip_instruction_indices") : NULL;
           yyjson_val* effects = route ? yyjson_obj_get(route, "effects") : NULL;
+          yyjson_val* keep_val = route ? yyjson_obj_get(route, "keep_get_live") : NULL;
+          yyjson_val* source_only_val = route ? yyjson_obj_get(route, "source_only_insert_mid") : NULL;
           const char* route_id = route ? read_str(route, "route_id") : NULL;
           const char* mode = route ? read_str(route, "mode") : NULL;
           const char* proof = route ? read_str(route, "proof") : NULL;
           const char* emit_symbol = route ? read_str(route, "emit_symbol") : NULL;
+          int mode_len_only = mode && !strcmp(mode, "len_only");
+          int mode_keep_get_live = mode && !strcmp(mode, "keep_get_live");
+          int keep_get_live = keep_val && yyjson_is_bool(keep_val) && yyjson_get_bool(keep_val);
+          int source_only_insert_mid =
+              source_only_val && yyjson_is_bool(source_only_val) &&
+              yyjson_get_bool(source_only_val);
+          const char* expected_proof = mode_keep_get_live
+              ? "array_get_len_keep_source_live"
+              : "array_get_len_no_later_source_use";
+          int effects_ok = mode_keep_get_live
+              ? array_text_residence_string_array_eq3(
+                    effects, "load.cell", "observe.len", "keep.source.live")
+              : array_text_residence_string_array_eq2(effects, "load.cell", "observe.len");
           if (!(block_val && index_val &&
                 yyjson_is_num(block_val) && yyjson_is_num(index_val))) {
             continue;
@@ -731,8 +775,8 @@
             continue;
           }
           if (!(route_id && !strcmp(route_id, "array.string_len.window") &&
-                mode && !strcmp(mode, "len_only") &&
-                proof && !strcmp(proof, "array_get_len_no_later_source_use") &&
+                (mode_len_only || mode_keep_get_live) &&
+                proof && !strcmp(proof, expected_proof) &&
                 emit_symbol && !strcmp(emit_symbol, "nyash.array.string_len_hi") &&
                 array_val && yyjson_is_num(array_val) &&
                 idx_val && yyjson_is_num(idx_val) &&
@@ -740,7 +784,11 @@
                 len_index_val && yyjson_is_num(len_index_val) &&
                 len_val && yyjson_is_num(len_val) &&
                 skip_vals && yyjson_is_arr(skip_vals) &&
-                array_text_residence_string_array_eq2(effects, "load.cell", "observe.len"))) {
+                keep_val && yyjson_is_bool(keep_val) &&
+                source_only_val && yyjson_is_bool(source_only_val) &&
+                keep_get_live == mode_keep_get_live &&
+                !source_only_insert_mid &&
+                effects_ok)) {
             if (hako_llvmc_route_trace_enabled()) {
               hako_llvmc_emit_route_trace(
                   "array_string_len_window",
@@ -753,6 +801,8 @@
           }
           if (out) {
             out->matched = 1;
+            out->keep_get_live = keep_get_live;
+            out->source_only_insert_mid = source_only_insert_mid;
             out->len_ii = (size_t)yyjson_get_sint(len_index_val);
             out->len_dst = (long long)yyjson_get_sint(len_val);
             for (size_t si = 0; si < yyjson_arr_size(skip_vals); si++) {
@@ -788,11 +838,14 @@
             snprintf(
                 extra,
                 sizeof(extra),
-                "ii=%zu len_ii=%zu len_dst=%lld source_only_insert_mid=0 keep_get_live=0 skip_n=%d proof=array_get_len_no_later_source_use",
+                "ii=%zu len_ii=%zu len_dst=%lld source_only_insert_mid=%d keep_get_live=%d skip_n=%d proof=%s",
                 ii,
                 out ? out->len_ii : (size_t)yyjson_get_sint(len_index_val),
                 out ? out->len_dst : (long long)yyjson_get_sint(len_val),
-                out ? out->skip_n : 0);
+                source_only_insert_mid,
+                keep_get_live,
+                out ? out->skip_n : 0,
+                expected_proof);
             hako_llvmc_emit_route_trace(
                 "array_string_len_window",
                 "hit",

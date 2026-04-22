@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array_rmw_window route tag landed -> array_string_len_window len-only route tag landed` |
+| Front | `array_rmw_window route tag landed -> array_string_len_window len-only + keep-live route tags landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `array_string_len_window source-reuse modes must move to MIR-owned route metadata before C analyzer deletion` |
-| Next | `array_string_len_window source-reuse modes` |
+| Blocker | `array_string_len_window source_only_insert_mid must move to MIR-owned route metadata before C analyzer deletion` |
+| Next | `array_string_len_window source-only direct-set reuse` |
 | After Next | `generic method route policy metadata` |
 
 ## Current Read
@@ -26,7 +26,7 @@ Related:
   - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -35,10 +35,11 @@ Related:
 1. `phase-291x CoreBox surface catalog` landed
 2. `phase-292x docs-first .inc thin tag phase cut`
 3. `phase-292x array_rmw_window MIR-owned route tag`
-4. `phase-292x array_string_len_window source-reuse metadata routes`
-5. `phase-292x generic method route policy metadata`
-6. `phase-292x string concat / direct-set windows metadata-only`
-7. `phase-292x exact seed ladders to function-level backend route tags`
+4. `phase-292x array_string_len_window len-only + keep-live metadata routes`
+5. `phase-292x array_string_len_window source-only direct-set metadata route`
+6. `phase-292x generic method route policy metadata`
+7. `phase-292x string concat / direct-set windows metadata-only`
+8. `phase-292x exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

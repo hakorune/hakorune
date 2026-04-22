@@ -8,6 +8,27 @@
     {
       "name": "main",
       "params": [],
+      "metadata": {
+        "array_string_len_window_routes": [
+          {
+            "route_id": "array.string_len.window",
+            "block": 0,
+            "instruction_index": 6,
+            "array_value": 5,
+            "index_value": 4,
+            "source_value": 6,
+            "len_instruction_index": 9,
+            "len_value": 9,
+            "skip_instruction_indices": [9],
+            "mode": "keep_get_live",
+            "proof": "array_get_len_keep_source_live",
+            "emit_symbol": "nyash.array.string_len_hi",
+            "keep_get_live": true,
+            "source_only_insert_mid": false,
+            "effects": ["load.cell", "observe.len", "keep.source.live"]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,

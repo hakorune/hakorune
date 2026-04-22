@@ -79,10 +79,24 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-if ! grep -F 'stage=array_string_len_window result=hit' "$BUILD_LOG" >/dev/null 2>&1; then
+if ! grep -F 'stage=array_string_len_window result=hit reason=mir_route_metadata' "$BUILD_LOG" >/dev/null 2>&1; then
     echo "[INFO] route trace output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "phase29ck_boundary_pure_array_string_len_live_after_get_min: exact array-string get->len reuse recipe was not accepted"
+    test_fail "phase29ck_boundary_pure_array_string_len_live_after_get_min: keep-live route did not use MIR metadata"
+    exit 1
+fi
+
+if ! grep -F 'keep_get_live=1' "$BUILD_LOG" >/dev/null 2>&1; then
+    echo "[INFO] route trace output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "phase29ck_boundary_pure_array_string_len_live_after_get_min: keep-live metadata route was not selected"
+    exit 1
+fi
+
+if ! grep -F 'proof=array_get_len_keep_source_live' "$BUILD_LOG" >/dev/null 2>&1; then
+    echo "[INFO] route trace output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "phase29ck_boundary_pure_array_string_len_live_after_get_min: keep-live proof tag missing"
     exit 1
 fi
 
