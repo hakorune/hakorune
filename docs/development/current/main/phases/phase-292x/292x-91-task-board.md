@@ -157,8 +157,9 @@ Related:
 
 - [ ] A14 generic pure walker view extraction
   - design: `292x-118-generic-pure-walker-view-extraction-card.md`
-  - next families: extract a named generic pure walker view instead of shaving
-    local JSON reads
+  - state: GenericPureProgramView shell is landed; guard stays at 3 files / 4
+    analysis-debt lines
+  - next families: split pre-scan state population behind the named view
 
 ## Done Definition
 

@@ -85,6 +85,32 @@ static int hako_llvmc_exact_seed_backend_route_supported(
   return 0;
 }
 
+typedef struct hako_llvmc_generic_pure_program_view {
+  yyjson_val* fn;
+  yyjson_val* metadata;
+  yyjson_val* blocks;
+  size_t block_count;
+  hako_llvmc_entry_rune_selection selection;
+} hako_llvmc_generic_pure_program_view;
+
+static int hako_llvmc_read_generic_pure_program_view(
+    yyjson_val* root,
+    hako_llvmc_generic_pure_program_view* out) {
+  yyjson_val* fns;
+  if (!out) return 0;
+  memset(out, 0, sizeof(*out));
+  fns = yyjson_obj_get(root, "functions");
+  out->fn = hako_llvmc_find_entry_function(fns);
+  if (!(out->fn && yyjson_is_obj(out->fn))) return 0;
+  out->metadata = yyjson_obj_get(out->fn, "metadata");
+  out->blocks = yyjson_obj_get(out->fn, "blocks");
+  if (!(out->blocks && yyjson_is_arr(out->blocks))) return 0;
+  out->block_count = yyjson_arr_size(out->blocks);
+  if (out->block_count < 1) return 0;
+  hako_llvmc_select_entry_runes(out->fn, &out->selection);
+  return 1;
+}
+
 static int hako_llvmc_read_exact_seed_backend_route_tag(
     const char* json_in,
     char* tag_out,
@@ -325,14 +351,13 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       yyjson_read_err rerr_g; yyjson_doc* d = yyjson_read_file(json_in, 0, NULL, &rerr_g);
       if (!d) break;
       yyjson_val* root = yyjson_doc_get_root(d);
-      yyjson_val* fns = yyjson_obj_get(root, "functions");
-      yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
-      hako_llvmc_entry_rune_selection selection;
-      yyjson_val* fn_metadata =
-          fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "metadata") : NULL;
-      yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
-      if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) >= 1)) { yyjson_doc_free(d); break; }
-      hako_llvmc_select_entry_runes(fn0, &selection);
+      hako_llvmc_generic_pure_program_view program;
+      if (!hako_llvmc_read_generic_pure_program_view(root, &program)) { yyjson_doc_free(d); break; }
+      yyjson_val* fn0 = program.fn;
+      yyjson_val* fn_metadata = program.metadata;
+      yyjson_val* blocks = program.blocks;
+      size_t generic_pure_block_count = program.block_count;
+      hako_llvmc_entry_rune_selection selection = program.selection;
       if (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
           hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0) {
         yyjson_doc_free(d);

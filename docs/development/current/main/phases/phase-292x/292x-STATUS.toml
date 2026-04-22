@@ -19,14 +19,14 @@ purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected hel
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
 inc_file_count = 71
-inc_line_count = 15786
+inc_line_count = 15811
 analysis_debt_files = 3
 analysis_debt_lines = 4
 remaining_seed_matcher_defs = 0
 
-last_landed_slice = "generic_pure_cross_block_use_api_tightening"
+last_landed_slice = "generic_pure_program_view_shell"
 next_recommended_slice = "generic_pure_walker_view_extraction"
-next_recommended_reason = "292x-117b removed the caller-side cross-block instructions re-fetch and lowered the guard to 3 files / 4 debt lines. 292x-118 should extract a named generic pure walker view instead of shaving local JSON reads."
+next_recommended_reason = "292x-118a introduced GenericPureProgramView without changing accepted shapes. Next split one walker phase, starting with pre-scan state population."
 
 verification_min = [
   "cargo fmt --check",
@@ -255,6 +255,14 @@ backend_tag = "none"
 status = "landed"
 smoke = "inc_codegen_thin_shim_guard 3 files / 4 debt lines"
 
+[[landed_slice]]
+id = "generic_pure_program_view_shell"
+kind = "walker_view_extraction"
+owner = "hako_llvmc_generic_pure_program_view"
+backend_tag = "none"
+status = "landed"
+smoke = "build_hako_llvmc_ffi; inc_codegen_thin_shim_guard 3 files / 4 debt lines"
+
 [[backlog]]
 id = "pure_compile_minimal_paths_inventory"
 priority = 1
@@ -273,5 +281,5 @@ note = "Guard is 3 files / 4 debt lines; further reduction needs a wider generic
 id = "generic_pure_walker_view_extraction"
 priority = 1
 remaining_matchers = 0
-owner_status = "active; use 292x-118 to split generic walker substrate from boundary glue"
-note = "Do not hide JSON access in same-layer helpers; the next keeper must introduce a named view/recipe seam."
+owner_status = "active; GenericPureProgramView shell landed; split generic walker phases from boundary glue one seam at a time"
+note = "Do not hide JSON access in same-layer helpers; next target is pre-scan state population."

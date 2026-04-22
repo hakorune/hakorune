@@ -47,8 +47,8 @@ cargo check -q
     is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
     restored, then landed; path #3 Map, path #4 Array, and paths #5/#6 String
     const-eval deletions are also landed; the string loop seed copy-graph helper
-    is deleted; cross-block use API tightening is landed; next cleanup is
-    generic pure walker view extraction
+    is deleted; cross-block use API tightening and GenericPureProgramView shell
+    are landed; next cleanup is generic pure walker view extraction
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -129,7 +129,8 @@ cargo check -q
   `292x-112` deleted path #1/#2 after `292x-114` fixed the predelete blockers,
   `292x-115` deleted paths #3/#4, `292x-116` deleted paths #5/#6,
   `292x-117a` deleted the string loop seed copy-graph helper, and `292x-117b`
-  tightened cross-block use lookup.
+  tightened cross-block use lookup; `292x-118a` introduced the generic pure
+  program view shell.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.

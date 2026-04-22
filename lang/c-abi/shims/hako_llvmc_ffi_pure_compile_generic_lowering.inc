@@ -1,7 +1,7 @@
       // Pre-scan: consts + phis + needed method decls
       struct GenericPureNeedFlags needs;
       memset(&needs, 0, sizeof(needs));
-      size_t blen = yyjson_arr_size(blocks);
+      size_t blen = generic_pure_block_count;
       for (size_t bi=0; bi<blen; bi++) {
         yyjson_val* b = yyjson_arr_get(blocks, bi);
         long long bid = read_int(b, "id");

@@ -65,7 +65,8 @@ Related:
 30. `phase-292x pure_compile_minimal_paths String const-eval deletion` landed
 31. `phase-292x string loop seed copy-graph helper deletion` landed
 32. `phase-292x generic pure cross-block use API tightening` landed
-33. `phase-292x generic pure walker view extraction`
+33. `phase-292x GenericPureProgramView shell` landed
+34. `phase-292x generic pure walker view extraction`
 
 ## Parked Corridor
 

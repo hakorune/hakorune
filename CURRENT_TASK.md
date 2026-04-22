@@ -109,6 +109,7 @@ Scope: current lane / next lane / restart order only.
     - minimal String const-eval paths #5/#6 deletion is landed
     - string loop seed copy-graph helper deletion is landed
     - generic pure cross-block use API tightening is landed
+    - GenericPureProgramView shell is landed
     - guard baseline: 3 `.inc` files / 4 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
       is removed; next cleanup is generic pure walker view extraction

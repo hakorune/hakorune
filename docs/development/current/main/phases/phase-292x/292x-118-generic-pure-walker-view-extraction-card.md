@@ -47,6 +47,15 @@ Then extract only one API seam at a time. The first implementation slice should
 not change accepted MIR shapes; it should only make one walker phase consume a
 named view or recipe produced earlier.
 
+## Slice 118a Result
+
+- introduced `hako_llvmc_generic_pure_program_view`
+- moved entry function, metadata, blocks, block count, and rune selection setup
+  behind `hako_llvmc_read_generic_pure_program_view(...)`
+- kept accepted MIR shapes unchanged
+- kept the guard at 3 files / 4 lines; this slice names the boundary, it does
+  not hide or shave the remaining walker substrate
+
 ## Acceptance
 
 ```bash
