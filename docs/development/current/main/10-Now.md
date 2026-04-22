@@ -33,8 +33,8 @@ Related:
   - current-state token: `phase-292x .inc codegen thin tag cleanup`
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
-  - current implementation focus: move generic method route policy to MIR metadata
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
+  - current implementation focus: move exact seed ladders to function-level backend route tags
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
@@ -47,7 +47,8 @@ Related:
     - legacy `array_string_len_window` C analyzer deletion is landed
     - legacy `array_rmw_window` C analyzer deletion is landed
     - string direct-set source-window metadata is landed
-    - generic method route policy metadata is the active cleanup
+    - `generic_method.has` route policy metadata is landed
+    - exact seed ladders to function-level backend route tags is the active cleanup
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -58,7 +59,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `move generic method route policy to MIR metadata`
+  - current blocker token: `move exact seed ladders to function-level backend route tags`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

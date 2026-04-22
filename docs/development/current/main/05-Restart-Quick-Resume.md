@@ -45,7 +45,8 @@ cargo check -q
   - legacy `array_string_len_window` C analyzer deletion is landed
   - legacy `array_rmw_window` C analyzer deletion is landed
   - string direct-set source-window metadata is landed
-  - next implementation card is generic method route policy metadata
+  - `generic_method.has` route policy metadata is landed
+  - next implementation card is exact seed ladders to function-level backend route tags
   - CoreBox surface catalog work is landed and now a reference lane
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
@@ -54,9 +55,9 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-292x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
+  - `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
 - current blocker token:
-  - `move generic method route policy to MIR metadata`
+  - `move exact seed ladders to function-level backend route tags`
 
 ## Current Perf Snapshot
 
@@ -91,7 +92,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - select the next generic method route-policy family and move it to MIR metadata
+  - select the next exact seed ladder and move its function-level backend route to MIR metadata
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

@@ -40,25 +40,26 @@ Scope: current lane / next lane / restart order only.
 26. `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
 27. `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
 28. `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
-29. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
-30. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
-31. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-32. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-33. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-34. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
-35. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
-36. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-37. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-38. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
-39. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-40. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-41. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-42. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-43. `docs/development/current/main/design/string-birth-sink-ssot.md`
-44. `docs/development/current/main/15-Workstream-Map.md`
-45. `git status -sb`
-46. `tools/checks/dev_gate.sh quick`
-47. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+29. `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
+30. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+31. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
+32. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+33. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+34. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+35. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+36. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+37. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+38. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+39. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
+40. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+41. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+42. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+43. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+44. `docs/development/current/main/design/string-birth-sink-ssot.md`
+45. `docs/development/current/main/15-Workstream-Map.md`
+46. `git status -sb`
+47. `tools/checks/dev_gate.sh quick`
+48. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -74,7 +75,7 @@ Scope: current lane / next lane / restart order only.
   - method anchor:
     - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
+    - `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
   - current app slice:
     - phase-291x CoreBox surface catalog is landed
     - StringBox / MapBox catalog seams are pinned
@@ -93,7 +94,8 @@ Scope: current lane / next lane / restart order only.
     - legacy `array_string_len_window` C analyzer deletion is landed
     - legacy `array_rmw_window` C analyzer deletion is landed
     - string direct-set source-window metadata is landed
-    - next implementation card is generic method route policy metadata
+    - `generic_method.has` route policy metadata is landed
+    - next implementation card is exact seed ladders to function-level backend route tags
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -103,7 +105,7 @@ Scope: current lane / next lane / restart order only.
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `move generic method route policy to MIR metadata`
+    - `move exact seed ladders to function-level backend route tags`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

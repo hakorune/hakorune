@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-22
 Scope: next cleanup card for moving generic method route-policy decisions out of `.inc` raw MIR inspection and into MIR-owned metadata.
 Related:
@@ -28,12 +28,40 @@ narrow method family. `.inc` may keep only:
 - skip marking
 - fail-fast on malformed metadata
 
+Selected first family:
+
+- `has` generic method route policy
+- MIR route id: `generic_method.has`
+- route kinds:
+  - `runtime_data_contains_any` -> `nyash.runtime_data.has_hh`
+  - `map_contains_any` -> `nyash.map.probe_hh`
+
+This is deliberately narrower than `get` / `set` / `len`: `has` has no
+window/placement fast path and no publication-side objectization policy, so it
+can prove the metadata-first boundary with minimal coupling.
+
 ## Acceptance
 
-Define the first narrow family before editing code, then pin it with:
+Pin the first route-policy leaf with:
 
 ```bash
 bash tools/build_hako_llvmc_ffi.sh
 bash tools/checks/inc_codegen_thin_shim_guard.sh
-cargo test -q <focused-route-test>
+cargo test -q generic_method_route
+cargo test -q build_mir_json_root_emits_generic_method_routes
+bash tools/smokes/v2/profiles/integration/phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_map_has_min.sh
+bash tools/smokes/v2/profiles/integration/phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_array_has_min.sh
 ```
+
+## Result
+
+- Added MIR-owned `GenericMethodRoute` metadata for the `has` family.
+- JSON now emits `generic_method_routes` entries with `route_id`,
+  `route_kind`, helper symbol, proof, receiver/key values, and effects.
+- `hako_llvmc_ffi_generic_method_has_policy.inc` now consumes
+  `generic_method.has` metadata first and fail-fasts on malformed matching
+  entries; legacy classification remains only as compatibility fallback when
+  metadata is absent.
+- RuntimeDataBox has boundary fixtures now carry the route metadata, and the
+  smokes require `stage=generic_method_has_route result=hit
+  reason=mir_route_metadata`.

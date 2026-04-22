@@ -8,6 +8,27 @@
     {
       "name": "main",
       "params": [],
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.has",
+            "block": 0,
+            "instruction_index": 2,
+            "box_name": "RuntimeDataBox",
+            "method": "has",
+            "arity": 1,
+            "receiver_value": 1,
+            "key_value": 2,
+            "result_value": 3,
+            "emit_kind": "has",
+            "route_kind": "runtime_data_contains_any",
+            "helper_symbol": "nyash.runtime_data.has_hh",
+            "proof": "has_surface_policy",
+            "value_demand": "read_ref",
+            "effects": ["probe.key"]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,

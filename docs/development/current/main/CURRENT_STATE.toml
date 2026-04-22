@@ -9,12 +9,12 @@ status = "Active"
 date = "2026-04-22"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; next generic method route policy metadata"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; next exact seed ladder route tags"
 active_phase = "docs/development/current/main/phases/phase-292x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md"
 
-current_blocker_token = "move generic method route policy to MIR metadata"
+current_blocker_token = "move exact seed ladders to function-level backend route tags"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -26,6 +26,7 @@ opened_successors = [
   "MapBox surface catalog first implementation slice landed",
   "CoreBox legacy cleanup first safe deletions landed",
   "MapStd prelude cleanup landed",
+  "generic_method.has route policy metadata landed",
 ]
 
 blocked_successors = [
@@ -46,4 +47,5 @@ stale_pointer_patterns = [
   "StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs",
   "current implementation focus: `.hako` MapBox extended-route cleanup decision after safe stub deletions",
   "active cleanup card is `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`",
+  "move generic method route policy to MIR metadata",
 ]

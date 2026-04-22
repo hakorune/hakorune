@@ -682,11 +682,17 @@
           }
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS:
-            if (!emit_generic_method_has_by_policy(
-                    f, bname, dst, a0, &plan, ab, ab_cap)) {
+          {
+            int handled = emit_generic_method_has_by_policy(
+                f, bid, ii, bname, dst, recv, a0, &plan, ab, ab_cap);
+            if (handled < 0) {
+              return -1;
+            }
+            if (!handled) {
               return -1;
             }
             return 1;
+          }
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE:
           default:

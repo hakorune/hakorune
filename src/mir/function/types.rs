@@ -10,8 +10,9 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
-    placement_effect::PlacementEffectRoute, storage_class::StorageClass,
-    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
+    generic_method_route_plan::GenericMethodRoute, placement_effect::PlacementEffectRoute,
+    storage_class::StorageClass, string_corridor::StringCorridorFact,
+    string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
@@ -169,6 +170,11 @@ pub struct FunctionMetadata {
     /// direct-set legality proof in MIR so backend shims can only consume
     /// metadata and record the deferred piecewise route.
     pub string_direct_set_window_routes: Vec<StringDirectSetWindowRoute>,
+
+    /// Backend-consumable generic method route plans.
+    /// These own narrow method-surface policy decisions in MIR so backend
+    /// shims can emit selected helpers without reclassifying method strings.
+    pub generic_method_routes: Vec<GenericMethodRoute>,
 
     /// Backend-consumable array RMW route plans.
     /// These own `array.get(i) -> + 1 -> array.set(i, ...)` legality in MIR

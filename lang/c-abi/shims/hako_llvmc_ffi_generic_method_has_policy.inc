@@ -5,6 +5,168 @@
         HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY,
       };
 
+      struct GenericMethodHasRouteMetadata {
+        int matched;
+        int invalid;
+        enum GenericMethodHasRouteKind route;
+        long long receiver_reg;
+        long long key_reg;
+      };
+
+      auto int generic_method_has_route_read_i64_field(
+          yyjson_val* obj,
+          const char* key,
+          long long* out) {
+        yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
+        if (!(val && yyjson_is_num(val))) return 0;
+        if (out) *out = (long long)yyjson_get_sint(val);
+        return 1;
+      }
+
+      auto const char* generic_method_has_helper_symbol(
+          enum GenericMethodHasRouteKind route) {
+        switch (route) {
+          case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY:
+            return "nyash.runtime_data.has_hh";
+          case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY:
+            return "nyash.map.probe_hh";
+          case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_ARRAY_CONTAINS_ANY:
+          case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE:
+          default:
+            return NULL;
+        }
+      }
+
+      auto enum GenericMethodHasRouteKind generic_method_has_route_kind_from_metadata(
+          const char* route_kind) {
+        if (route_kind && !strcmp(route_kind, "runtime_data_contains_any")) {
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY;
+        }
+        if (route_kind && !strcmp(route_kind, "map_contains_any")) {
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY;
+        }
+        return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
+      }
+
+      auto int generic_method_has_route_effects_valid(yyjson_val* effects) {
+        yyjson_val* e0 = NULL;
+        const char* effect = NULL;
+        if (!(effects && yyjson_is_arr(effects) && yyjson_arr_size(effects) == 1)) {
+          return 0;
+        }
+        e0 = yyjson_arr_get(effects, 0);
+        if (!(e0 && yyjson_is_str(e0))) return 0;
+        effect = yyjson_get_str(e0);
+        return effect && !strcmp(effect, "probe.key");
+      }
+
+      auto int match_generic_method_has_route_metadata(
+          long long bid,
+          size_t ii,
+          const char* bname,
+          long long recv,
+          long long a0,
+          struct GenericMethodHasRouteMetadata* out) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
+        if (!routes) return 0;
+        if (!yyjson_is_arr(routes)) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          long long block = 0;
+          long long inst = 0;
+          long long receiver_reg = 0;
+          long long key_reg = 0;
+          long long arity = 0;
+          const char* route_box = NULL;
+          const char* method = NULL;
+          const char* emit_kind = NULL;
+          const char* route_kind_raw = NULL;
+          const char* helper_symbol = NULL;
+          const char* proof = NULL;
+          const char* value_demand = NULL;
+          enum GenericMethodHasRouteKind route_kind =
+              HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
+          if (!(route_id && !strcmp(route_id, "generic_method.has"))) {
+            continue;
+          }
+          if (!generic_method_has_route_read_i64_field(route, "block", &block) ||
+              !generic_method_has_route_read_i64_field(
+                  route,
+                  "instruction_index",
+                  &inst)) {
+            if (out) out->invalid = 1;
+            return 0;
+          }
+          if (block != bid || (size_t)inst != ii) {
+            continue;
+          }
+          route_box = read_str(route, "box_name");
+          method = read_str(route, "method");
+          emit_kind = read_str(route, "emit_kind");
+          route_kind_raw = read_str(route, "route_kind");
+          helper_symbol = read_str(route, "helper_symbol");
+          proof = read_str(route, "proof");
+          value_demand = read_str(route, "value_demand");
+          route_kind = generic_method_has_route_kind_from_metadata(route_kind_raw);
+          if (!(route_box && bname && !strcmp(route_box, bname)) ||
+              !(method && !strcmp(method, "has")) ||
+              !(emit_kind && !strcmp(emit_kind, "has")) ||
+              !(proof && !strcmp(proof, "has_surface_policy")) ||
+              !(value_demand && !strcmp(value_demand, "read_ref")) ||
+              route_kind == HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE ||
+              !generic_method_has_route_read_i64_field(route, "arity", &arity) ||
+              arity != 1 ||
+              !generic_method_has_route_read_i64_field(
+                  route,
+                  "receiver_value",
+                  &receiver_reg) ||
+              !generic_method_has_route_read_i64_field(route, "key_value", &key_reg) ||
+              receiver_reg != recv ||
+              key_reg != a0 ||
+              !helper_symbol ||
+              strcmp(helper_symbol, generic_method_has_helper_symbol(route_kind)) ||
+              !generic_method_has_route_effects_valid(
+                  yyjson_obj_get(route, "effects"))) {
+            if (out) out->invalid = 1;
+            return 0;
+          }
+          if (out) {
+            out->matched = 1;
+            out->route = route_kind;
+            out->receiver_reg = receiver_reg;
+            out->key_reg = key_reg;
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[192];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "bid=%lld ii=%zu recv=%lld key=%lld route_kind=%s helper=%s",
+                bid,
+                ii,
+                receiver_reg,
+                key_reg,
+                route_kind_raw,
+                helper_symbol);
+            hako_llvmc_emit_route_trace(
+                "generic_method_has_route",
+                "hit",
+                "mir_route_metadata",
+                extra);
+          }
+          return 1;
+        }
+        return 0;
+      }
+
       auto enum GenericMethodHasRouteKind classify_generic_method_has_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
@@ -26,14 +188,35 @@
 
       auto int emit_generic_method_has_by_policy(
           FILE* f,
+          long long bid,
+          size_t ii,
           const char* bname,
           long long dst,
+          long long recv,
           long long a0,
           const struct GenericMethodEmitPlan* plan,
           char* ab,
           size_t ab_cap) {
+        struct GenericMethodHasRouteMetadata metadata;
+        int metadata_result = 0;
         if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-        enum GenericMethodHasRouteKind route = classify_generic_method_has_route(bname, plan);
+        metadata_result =
+            match_generic_method_has_route_metadata(bid, ii, bname, recv, a0, &metadata);
+        if (metadata.invalid) {
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[128];
+            snprintf(extra, sizeof(extra), "bid=%lld ii=%zu recv=%lld key=%lld", bid, ii, recv, a0);
+            hako_llvmc_emit_route_trace(
+                "generic_method_has_route",
+                "miss",
+                "malformed_mir_route_metadata",
+                extra);
+          }
+          return -1;
+        }
+        enum GenericMethodHasRouteKind route = metadata_result
+            ? metadata.route
+            : classify_generic_method_has_route(bname, plan);
         int value_demand_read_ref =
             classify_generic_method_has_value_demand_read_ref(route);
         (void)value_demand_read_ref;

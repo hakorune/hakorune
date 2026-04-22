@@ -63,16 +63,21 @@ Related:
     direct-set proof; `.inc` reads metadata and no longer rediscovers
     `substring + substring + substring_concat3_hhhii` shapes
 
+- [x] A3 generic method route policy metadata
+  - design: `292x-100-generic-method-route-policy-metadata-card.md`
+  - state: `GenericMethodRoute` owns the first `has` route-policy leaf;
+    `.inc` reads `generic_method.has` metadata before falling back to legacy
+    compatibility classification
+  - trace proof: `[llvm-route/trace] stage=generic_method_has_route result=hit reason=mir_route_metadata`
+
 ## Active Card
 
-- [ ] A3 generic method route policy metadata
-  - design: `292x-100-generic-method-route-policy-metadata-card.md`
-  - desired state: select one narrow generic method route-policy family and
-    move its legality decision to MIR metadata
+- [ ] A5 exact seed ladders to function-level backend route tags
+  - design: `292x-101-exact-seed-ladder-function-route-tags-card.md`
+  - desired state: pick one existing exact seed ladder and move its
+    function-level backend route selection to a single MIR-owned tag
 
 ## Follow-up Cards
-
-- [ ] A5 exact seed ladders to function-level backend route tags
 
 ## Done Definition
 

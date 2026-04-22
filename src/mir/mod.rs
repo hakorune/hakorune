@@ -30,6 +30,7 @@ pub mod diagnostics; // freeze diagnostics helpers (SSOT)
 pub mod effect;
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub mod function;
+pub mod generic_method_route_plan; // MIR-owned generic method route policy plans
 pub mod if_in_loop_phi; // Phase 187-2: Minimal if-in-loop PHI emitter (extracted from loop_builder)
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub mod instruction;
@@ -180,6 +181,10 @@ pub use escape_barrier::{classify_escape_uses, EscapeBarrier, EscapeUse};
 pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
     UserBoxFieldDecl,
+};
+pub use generic_method_route_plan::{
+    refresh_function_generic_method_routes, refresh_module_generic_method_routes,
+    GenericMethodRoute, GenericMethodRouteKind, GenericMethodRouteProof,
 };
 pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};

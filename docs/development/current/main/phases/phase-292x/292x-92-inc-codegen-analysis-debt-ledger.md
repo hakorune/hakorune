@@ -16,7 +16,7 @@ Related:
 Current no-growth baseline:
 
 - `.inc` files: 76
-- `.inc` lines: 19,234
+- `.inc` lines: 19,423
 - analysis-debt files: 28
 - analysis-debt lines: 314
 
@@ -73,3 +73,10 @@ The guard counts lines matching:
   - `match_array_string_piecewise_concat3_direct_set_source_reuse`
 - note: this matcher was not counted by the no-growth regex baseline, so the
   analysis-debt line count stays `314`; the `.inc` total shrank to `19,234`.
+
+`generic_method.has`:
+
+- moved the first generic method route-policy leaf to MIR metadata
+  (`GenericMethodRoute`)
+- note: this adds metadata reader / validation glue, not raw MIR analysis; the
+  analysis-debt baseline remains `314`.

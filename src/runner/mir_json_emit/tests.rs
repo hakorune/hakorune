@@ -7,6 +7,7 @@ mod array_routes;
 mod debug;
 mod decl_values;
 mod function_attrs;
+mod generic_method_routes;
 mod ordering;
 mod placement;
 mod string_corridor;

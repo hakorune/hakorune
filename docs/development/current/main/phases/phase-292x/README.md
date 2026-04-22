@@ -21,6 +21,7 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md
   - docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md
   - docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md
+  - docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -36,7 +37,8 @@ Related:
 - Landed fifth target: delete legacy `array_string_len_window` C analyzer
 - Landed sixth target: delete legacy `array_rmw_window` C analyzer
 - Landed seventh target: string concat / direct-set windows metadata-only
-- Next implementation target: generic method route policy metadata
+- Landed eighth target: `generic_method.has` route policy metadata
+- Next implementation target: exact seed ladders to function-level backend route tags
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless this cleanup reopens a real app/perf blocker.
@@ -72,7 +74,8 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 9. `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
 10. `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
 11. `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
-12. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+12. `docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md`
+13. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
 
 ## Current Rule
 
@@ -89,7 +92,7 @@ Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
 - baseline: 28 `.inc` files, 314 analysis-debt lines
-- current inventory: 76 `.inc` files, 19,234 `.inc` lines
+- current inventory: 76 `.inc` files, 19,423 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 
 Landed first card:
@@ -154,10 +157,18 @@ string concat / direct-set windows metadata-only
   -> keep .inc substring/direct-set lowering as route-tag consumer glue
 ```
 
+Landed eighth card:
+
+```text
+generic_method.has route policy metadata
+  -> move has helper selection to MIR metadata
+  -> keep .inc has lowering as metadata validation / helper emission glue
+```
+
 Next open card:
 
 ```text
-generic method route policy metadata
-  -> pick one narrow method-policy family
-  -> move route legality to MIR metadata before deleting more C-side fallback
+exact seed ladders to function-level backend route tags
+  -> pick one exact seed ladder with existing MIR metadata ownership
+  -> move function-level backend route selection to a single metadata tag
 ```

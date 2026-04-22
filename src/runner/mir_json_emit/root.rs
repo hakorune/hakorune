@@ -160,6 +160,25 @@ pub(super) fn build_mir_json_root(
                     "effects": ["observe.substring", "defer.piecewise", "direct.set.consumer"],
                 })
             }).collect::<Vec<_>>(),
+            "generic_method_routes": f.metadata.generic_method_routes.iter().map(|route| {
+                json!({
+                    "route_id": "generic_method.has",
+                    "block": route.block.as_u32(),
+                    "instruction_index": route.instruction_index,
+                    "box_name": route.box_name.as_str(),
+                    "method": route.method.as_str(),
+                    "arity": 1,
+                    "receiver_value": route.receiver_value.as_u32(),
+                    "key_value": route.key_value.as_u32(),
+                    "result_value": route.result_value.map(|value| value.as_u32()),
+                    "emit_kind": "has",
+                    "route_kind": route.route_kind.to_string(),
+                    "helper_symbol": route.route_kind.helper_symbol(),
+                    "proof": route.proof.to_string(),
+                    "value_demand": "read_ref",
+                    "effects": ["probe.key"],
+                })
+            }).collect::<Vec<_>>(),
             "array_rmw_window_routes": f.metadata.array_rmw_window_routes.iter().map(|route| {
                 json!({
                     "route_id": "array.rmw_add1.window",
