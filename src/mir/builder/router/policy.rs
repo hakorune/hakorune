@@ -10,7 +10,8 @@ pub enum Route {
 /// Decide routing policy for a method call (Unified vs BoxCall) without changing behavior.
 /// Rules (behavior-preserving):
 /// - UnknownBox → BoxCall (unified is unstable for unknown receivers)
-/// - Core boxes: StringBox/ArrayBox/MapBox → BoxCall (legacy path preferred)
+/// - Core boxes: StringBox/ArrayBox/MapBox → BoxCall unless a catalog-backed
+///   method family has an explicit Unified value-path proof
 /// - User boxes: names not ending with "Box" → BoxCall
 /// - Otherwise Unified
 pub fn choose_route(box_name: &str, method: &str, certainty: TypeCertainty, arity: usize) -> Route {
@@ -18,6 +19,9 @@ pub fn choose_route(box_name: &str, method: &str, certainty: TypeCertainty, arit
     let route = if box_name == "UnknownBox" {
         reason = "unknown_recv";
         Route::BoxCall
+    } else if is_stringbox_unified_value_path(method, arity) && box_name == "StringBox" {
+        reason = "stringbox_value_path";
+        Route::Unified
     } else if matches!(box_name, "StringBox" | "ArrayBox" | "MapBox") {
         reason = "core_box";
         Route::BoxCall
@@ -40,7 +44,51 @@ pub fn choose_route(box_name: &str, method: &str, certainty: TypeCertainty, arit
 }
 
 #[inline]
+fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
+    matches!(
+        crate::boxes::basic::StringMethodId::from_name_and_arity(method, arity),
+        Some(crate::boxes::basic::StringMethodId::Length)
+    )
+}
+
+#[inline]
 fn router_trace_enabled() -> bool {
     static ON: OnceLock<bool> = OnceLock::new();
     *ON.get_or_init(crate::config::env::builder_router_trace)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn route(box_name: &str, method: &str, arity: usize) -> Route {
+        choose_route(box_name, method, TypeCertainty::Known, arity)
+    }
+
+    #[test]
+    fn unknown_and_user_instance_stay_boxcall() {
+        assert_eq!(route("UnknownBox", "length", 0), Route::BoxCall);
+        assert_eq!(route("UserThing", "length", 0), Route::BoxCall);
+    }
+
+    #[test]
+    fn string_length_family_uses_unified_value_path() {
+        assert_eq!(route("StringBox", "length", 0), Route::Unified);
+        assert_eq!(route("StringBox", "len", 0), Route::Unified);
+        assert_eq!(route("StringBox", "size", 0), Route::Unified);
+    }
+
+    #[test]
+    fn non_allowlisted_corebox_methods_stay_boxcall() {
+        assert_eq!(route("StringBox", "substring", 2), Route::BoxCall);
+        assert_eq!(route("StringBox", "length", 1), Route::BoxCall);
+        assert_eq!(route("ArrayBox", "length", 0), Route::BoxCall);
+        assert_eq!(route("MapBox", "size", 0), Route::BoxCall);
+    }
+
+    #[test]
+    fn non_core_box_names_keep_unified_route() {
+        assert_eq!(route("FileBox", "read", 0), Route::Unified);
+        assert_eq!(route("ConsoleBox", "log", 1), Route::Unified);
+    }
 }

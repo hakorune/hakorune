@@ -46,7 +46,8 @@ StringBox surface catalog
 | `291x-S1c` | done | convert TypeRegistry / method resolution / effect analysis readers |
 | `291x-S1d` | done | route Rust VM slot dispatch and `.hako` VM-facing `StringCoreBox` through the cataloged surface rows where receiver is `StringBox`/`String` |
 | `291x-S1e` | done | add stable StringBox surface smoke |
-| `291x-S2` | parked | prove a catalog-backed `StringBox` method family through the MIR router Unified value path |
+| `291x-S2` | done | prove `StringBox.length` / `len` / `size` through the MIR router Unified value path |
+| `291x-S3` | parked | move the next StringBox method family through the same route pattern |
 
 ## First Stable Surface Target
 
@@ -97,12 +98,12 @@ This StringBox slice is done when:
 - legacy diagnostic stub `apps/std/string2.hako` was deleted after the catalog
   landed; it was not a full surface owner and had no active import route.
 
-## Parked Router Follow-up
+## Router Follow-up
 
-- current router policy forces `StringBox` to `Route::BoxCall` as part of the
-  broad CoreBox guard
-- `boxcall_emit.rs` bridges `MirType::String` receivers to `StringBox` before
-  route selection
-- first safe cleanup is not a whole-family flip; it should allowlist one proven
-  method family, starting with `length` / `len` / `size`
+- current router policy allowlists only `StringBox.length` / `len` / `size` to
+  `Route::Unified`
+- `boxcall_emit.rs` still bridges `MirType::String` receivers to `StringBox`
+  before route selection
+- next safe cleanup is not a whole-family flip; it should allowlist one proven
+  method family, with `substring` / `substr` as the likely next candidate
 - tracking card: `291x-96-corebox-router-unified-value-path-card.md`

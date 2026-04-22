@@ -246,6 +246,11 @@ impl MirInterpreter {
                 }
             };
             let dev_trace = env::env_bool("NYASH_VM_TRACE");
+            let args_without_duplicate_receiver = if args.first().copied() == Some(*recv_id) {
+                &args[1..]
+            } else {
+                args
+            };
             // Fast bridge for builtin boxes (Array) and common methods.
             // Preserve legacy semantics when plugins are absent.
             if let VMValue::BoxRef(bx) = &recv_val {
@@ -255,23 +260,35 @@ impl MirInterpreter {
                         return Ok(VMValue::Void);
                     }
                     if let Some(method_id) = ArrayMethodId::from_name(method) {
-                        return self.invoke_array_surface(arr, method_id, args);
+                        return self.invoke_array_surface(
+                            arr,
+                            method_id,
+                            args_without_duplicate_receiver,
+                        );
                     }
                 }
             }
             // Minimal bridge for birth(): delegate to BoxCall handler and return Void
             if method == "birth" {
-                let _ = self.handle_box_call(None, *recv_id, &method.to_string(), args)?;
+                let _ = self.handle_box_call(
+                    None,
+                    *recv_id,
+                    &method.to_string(),
+                    args_without_duplicate_receiver,
+                )?;
                 return Ok(VMValue::Void);
             }
             let is_kw = method == "keyword_to_token_type";
             if dev_trace && is_kw {
-                let a0 = args.get(0).and_then(|id| self.reg_load(*id).ok());
+                let a0 = args_without_duplicate_receiver
+                    .get(0)
+                    .and_then(|id| self.reg_load(*id).ok());
                 get_global_ring0()
                     .log
                     .debug(&format!("[vm-trace] mcall {} argv0={:?}", method, a0));
             }
-            let method_args = self.normalize_plugin_method_args(&recv_val, args);
+            let method_args =
+                self.normalize_plugin_method_args(&recv_val, args_without_duplicate_receiver);
             let out = self.execute_method_call(&recv_val, method, method_args)?;
             if dev_trace && is_kw {
                 get_global_ring0()

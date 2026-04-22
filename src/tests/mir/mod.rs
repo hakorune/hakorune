@@ -5,6 +5,8 @@ pub mod mir_breakfinder_ssa;
 pub mod mir_controlflow_extras;
 #[path = "../mir_core13_normalize.rs"]
 pub mod mir_core13_normalize;
+#[path = "../mir_corebox_router_unified.rs"]
+pub mod mir_corebox_router_unified;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_ctrlflow_break_continue.rs"]
 pub mod mir_ctrlflow_break_continue;

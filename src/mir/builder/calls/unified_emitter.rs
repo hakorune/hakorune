@@ -468,7 +468,13 @@ impl UnifiedCallEmitterBox {
         // Prepare annotation BEFORE moving values into instruction
         let annotation_info = if let Some(dst) = mir_call.dst {
             use super::annotation::callee_sig_name;
-            let arity = args_local.len(); // arity = args count (receiver not included)
+            let arity = match &callee {
+                Callee::Method {
+                    receiver: Some(recv),
+                    ..
+                } if args_local.first() == Some(recv) => args_local.len().saturating_sub(1),
+                _ => args_local.len(),
+            };
             callee_sig_name(&callee, arity).map(|func_name| (dst, func_name))
         } else {
             None

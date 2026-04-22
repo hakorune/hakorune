@@ -1,5 +1,5 @@
 ---
-Status: Parked
+Status: Landed first slice
 Date: 2026-04-22
 Scope: CoreBox receiver routing seam for Value World / Unified call migration.
 Related:
@@ -13,9 +13,12 @@ Related:
 
 ## Status
 
-Parked follow-up. This is not the active phase-292x `.inc` boundary-thinning
-blocker. Keep it as the next CoreBox value-first cleanup candidate after the
-current backend route-tag work has a clean stopping point.
+First slice landed for `StringBox.length` / `StringBox.len` /
+`StringBox.size`.
+
+This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
+remaining method-family flips as CoreBox value-first cleanup candidates after
+the current backend route-tag work has a clean stopping point.
 
 ## Finding
 
@@ -66,7 +69,7 @@ move a working call into an incomplete path.
 
 ## First Safe Slice
 
-Recommended first code card:
+Landed first code card:
 
 ```text
 String value receiver
@@ -76,9 +79,22 @@ String value receiver
   -> focused smoke
 ```
 
-Prefer `length` / `len` / `size` as the first route flip because the method
-family is already cataloged, read-only, and arity-zero. Move `substring` only
-after the return-type and argument path is covered by a focused fixture.
+`length` / `len` / `size` was the first route flip because the method family is
+already cataloged, read-only, and arity-zero. Move `substring` only after the
+return-type and argument path is covered by a focused fixture.
+
+## Implementation Snapshot
+
+- `src/mir/builder/router/policy.rs` now allowlists only the catalog-backed
+  `StringMethodId::Length` family to `Route::Unified`.
+- `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
+  arity without the duplicated receiver arg, preserving `StringBox.length/0`
+  return-type publication.
+- `src/backend/mir_interpreter/handlers/calls/method.rs` strips an exact
+  duplicate receiver `ValueId` at the VM method boundary before slot dispatch.
+- `src/tests/mir_corebox_router_unified.rs` pins direct string value receiver
+  shape: `length` uses the Unified receiver-arg shape, while `substring` stays
+  on the BoxCall fallback shape.
 
 ## Acceptance
 
@@ -103,6 +119,16 @@ bash tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_
 
 Use a narrower focused MIR-builder smoke if one exists by the time this card is
 implemented.
+
+## Remaining Work
+
+- `StringBox.substring` / `substr`
+- `StringBox.concat`
+- `StringBox.indexOf` / `find`
+- `ArrayBox` and `MapBox` route flips
+
+Each method family needs its own fixture and route assertion before the
+family-wide CoreBox fallback can shrink further.
 
 ## Exit Condition
 
