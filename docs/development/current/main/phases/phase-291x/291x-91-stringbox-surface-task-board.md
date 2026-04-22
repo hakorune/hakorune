@@ -47,7 +47,8 @@ StringBox surface catalog
 | `291x-S1d` | done | route Rust VM slot dispatch and `.hako` VM-facing `StringCoreBox` through the cataloged surface rows where receiver is `StringBox`/`String` |
 | `291x-S1e` | done | add stable StringBox surface smoke |
 | `291x-S2` | done | prove `StringBox.length` / `len` / `size` through the MIR router Unified value path |
-| `291x-S3` | parked | move the next StringBox method family through the same route pattern |
+| `291x-S3` | done | prove `StringBox.substring` / `substr` through the same MIR router Unified value path |
+| `291x-S4` | parked | move the next StringBox method family through the same route pattern |
 
 ## First Stable Surface Target
 
@@ -100,10 +101,10 @@ This StringBox slice is done when:
 
 ## Router Follow-up
 
-- current router policy allowlists only `StringBox.length` / `len` / `size` to
-  `Route::Unified`
+- current router policy allowlists only these StringBox families to
+  `Route::Unified`: `length` / `len` / `size`, and `substring` / `substr`
 - `boxcall_emit.rs` still bridges `MirType::String` receivers to `StringBox`
   before route selection
 - next safe cleanup is not a whole-family flip; it should allowlist one proven
-  method family, with `substring` / `substr` as the likely next candidate
+  method family, with `concat` as the likely next candidate
 - tracking card: `291x-96-corebox-router-unified-value-path-card.md`

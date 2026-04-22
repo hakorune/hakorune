@@ -1,5 +1,5 @@
 ---
-Status: Landed first slice
+Status: Active follow-up
 Date: 2026-04-22
 Scope: CoreBox receiver routing seam for Value World / Unified call migration.
 Related:
@@ -13,8 +13,10 @@ Related:
 
 ## Status
 
-First slice landed for `StringBox.length` / `StringBox.len` /
-`StringBox.size`.
+Landed route slices:
+
+- `StringBox.length` / `StringBox.len` / `StringBox.size`
+- `StringBox.substring` / `StringBox.substr`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -80,21 +82,28 @@ String value receiver
 ```
 
 `length` / `len` / `size` was the first route flip because the method family is
-already cataloged, read-only, and arity-zero. Move `substring` only after the
-return-type and argument path is covered by a focused fixture.
+already cataloged, read-only, and arity-zero. `substring` / `substr` followed
+after the Unified receiver-argument shape and catalog-backed return-type
+publication were fixed by focused fixtures.
 
 ## Implementation Snapshot
 
-- `src/mir/builder/router/policy.rs` now allowlists only the catalog-backed
-  `StringMethodId::Length` family to `Route::Unified`.
+- `src/mir/builder/router/policy.rs` now allowlists the catalog-backed
+  `StringMethodId::Length` and `StringMethodId::Substring` families to
+  `Route::Unified`.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
+- `src/mir/builder/types/annotation.rs` now reads `StringMethodId` for
+  StringBox return-type publication, so aliases such as `substr` use the same
+  return contract as their canonical method.
+- `src/mir/join_ir/lowering/method_return_hint.rs` consumes the same builder
+  return-type helper instead of duplicating the primitive method table.
 - `src/backend/mir_interpreter/handlers/calls/method.rs` strips an exact
   duplicate receiver `ValueId` at the VM method boundary before slot dispatch.
 - `src/tests/mir_corebox_router_unified.rs` pins direct string value receiver
-  shape: `length` uses the Unified receiver-arg shape, while `substring` stays
-  on the BoxCall fallback shape.
+  shape: `length`, `substring`, and `substr` use the Unified receiver-arg
+  shape, while `concat` stays on the BoxCall fallback shape.
 
 ## Acceptance
 
@@ -102,7 +111,7 @@ return-type and argument path is covered by a focused fixture.
   - `UnknownBox`
   - user instance names that do not end with `Box`
   - non-allowlisted `StringBox` / `ArrayBox` / `MapBox` methods
-- the first allowlisted `StringBox` method family reaches `Route::Unified`
+- the allowlisted `StringBox` method families reach `Route::Unified`
   only when the Unified call env is enabled
 - a direct `MirType::String` receiver fixture proves the chosen method no
   longer depends on the broad CoreBox BoxCall guard
@@ -122,9 +131,12 @@ implemented.
 
 ## Remaining Work
 
-- `StringBox.substring` / `substr`
 - `StringBox.concat`
 - `StringBox.indexOf` / `find`
+- `StringBox.replace`
+- `StringBox.trim`
+- `StringBox.lastIndexOf`
+- `StringBox.contains`
 - `ArrayBox` and `MapBox` route flips
 
 Each method family needs its own fixture and route assertion before the

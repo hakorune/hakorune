@@ -54,6 +54,7 @@ Related:
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
     - StringBox surface SSOT is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
+    - CoreBox router follow-up has moved `StringBox.length/len/size` and `StringBox.substring/substr` to the Unified value path; `concat` is the next single-family candidate
     - MapBox Rust vtable surface is cataloged; legacy `apps/std/map_std.hako` and unused `map_keys_values_bridge.hako` prototype were deleted
     - `apps/lib/boxes/map_std.hako` prelude debt is closed; `OpsCalls.map_has(...)` owns the remaining `pref == "ny"` Map-only wrapper
     - static-box `me.*` friction remains a separate semantics/diagnostics topic

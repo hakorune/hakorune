@@ -82,8 +82,9 @@ Completed cleanup:
 Confirmed route seam:
 
 - `src/mir/builder/router/policy.rs` routes only `StringBox.length` / `len` /
-  `size` through the Unified value path; other `StringBox`, `ArrayBox`, and
-  `MapBox` methods still use the family-wide `core_box` BoxCall fallback.
+  `size` and `StringBox.substring` / `substr` through the Unified value path;
+  other `StringBox`, `ArrayBox`, and `MapBox` methods still use the
+  family-wide `core_box` BoxCall fallback.
 - `src/mir/builder/utils/boxcall_emit.rs` maps `MirType::String` receivers to
   `"StringBox"` before calling `choose_route(...)`.
 
@@ -98,8 +99,10 @@ Landed first slice and follow-up:
 
 - `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
 - first implementation was StringBox-only and method-allowlisted.
+- second implementation moved `substring` / `substr` after adding a focused
+  fixture and catalog-backed return-type alias publication.
 - next implementation should move one more StringBox method family, likely
-  `substring` / `substr`, after adding the focused fixture.
+  `concat`, after adding the focused fixture.
 - `ArrayBox` and `MapBox` must stay out of the next StringBox router flip.
 
 ## MapBox Current Duplication

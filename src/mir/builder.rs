@@ -107,6 +107,10 @@ mod type_context; // Phase 136 follow-up: TypeContext extraction
 mod type_facts; // Phase 136 follow-up: Type inference facts box
 pub(crate) mod type_registry;
 mod types; // types::annotation / inference（型注釈/推論の箱: 推論は後段）
+pub(crate) use types::annotation::{
+    infer_method_return_type as infer_known_method_return_type,
+    infer_return_type as infer_known_return_type,
+};
 mod utils;
 mod vars; // variables/scope helpers // small loop helpers (header/exit context) // TypeRegistryBox（型情報管理の一元化）
           // Phase 288 Box化: repl_session moved to src/runner/repl/repl_session.rs

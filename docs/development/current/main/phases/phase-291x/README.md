@@ -115,10 +115,11 @@ Remaining MapBox follow-up:
 Landed CoreBox router first slice:
 
 - `src/mir/builder/router/policy.rs` now routes only the catalog-backed
-  `StringBox.length` / `len` / `size` family through `Route::Unified`.
+  `StringBox.length` / `len` / `size` and `StringBox.substring` / `substr`
+  families through `Route::Unified`.
 - `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
   `StringBox` before route selection; uncovered methods remain on the BoxCall
   fallback.
-- `StringBox.substring` / `substr`, wider StringBox families, ArrayBox, and
-  MapBox remain follow-up work.
+- `StringBox.concat`, wider StringBox families, ArrayBox, and MapBox remain
+  follow-up work.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

@@ -109,40 +109,11 @@ impl MethodReturnHintBox {
 
     /// MethodCall から戻り値型を推論
     fn infer_from_boxcall(box_type: Option<&MirType>, method: &str) -> Option<MirType> {
-        // TypeAnnotationBox と同じロジックを適用
-        // メソッド名だけで判定できるケース
-        if method == "length" || method == "size" || method == "len" {
-            return Some(MirType::Integer);
-        }
-        if method == "str" {
-            return Some(MirType::String);
-        }
-        if method == "substring" {
-            return Some(MirType::String);
-        }
-        if method == "esc_json" {
-            return Some(MirType::String);
-        }
-        if method == "indexOf" || method == "lastIndexOf" {
-            return Some(MirType::Integer);
-        }
-        if method == "is_digit_char" || method == "is_hex_digit_char" || method == "is_alpha_char" {
-            return Some(MirType::Bool);
-        }
-        if method == "has" {
-            // MapBox.has → Bool
-            if let Some(MirType::Box(name)) = box_type {
-                if name == "MapBox" {
-                    return Some(MirType::Bool);
-                }
-            }
-        }
-        // push は void (Unit) を返す
-        if method == "push" {
-            return Some(MirType::Void);
-        }
-
-        None
+        let box_name = match box_type {
+            Some(MirType::Box(name)) => Some(name.as_str()),
+            _ => None,
+        };
+        crate::mir::builder::infer_known_method_return_type(box_name, method, None)
     }
 
     /// Callee から戻り値型を推論
@@ -157,22 +128,7 @@ impl MethodReturnHintBox {
                 let box_type = Some(MirType::Box(box_name.clone()));
                 Self::infer_from_boxcall(box_type.as_ref(), method)
             }
-            Callee::Global(func_name) => {
-                // TypeAnnotationBox::infer_return_type と同じロジック
-                if func_name.ends_with(".str/0") {
-                    return Some(MirType::String);
-                }
-                if func_name.ends_with(".length/0")
-                    || func_name.ends_with(".size/0")
-                    || func_name.ends_with(".len/0")
-                {
-                    return Some(MirType::Integer);
-                }
-                if func_name.ends_with(".substring/2") {
-                    return Some(MirType::String);
-                }
-                None
-            }
+            Callee::Global(func_name) => crate::mir::builder::infer_known_return_type(func_name),
             _ => None,
         }
     }

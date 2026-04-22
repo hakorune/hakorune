@@ -47,7 +47,9 @@ cargo check -q
   - string direct-set source-window metadata is landed
   - `generic_method.has` route policy metadata is landed
   - next implementation card is exact seed ladders to function-level backend route tags
-  - CoreBox surface catalog work is landed and now a reference lane
+  - CoreBox surface catalog work is landed and now a reference lane;
+    `StringBox.length/len/size` and `StringBox.substring/substr` are on the
+    Unified value path, with `concat` as the next single-family candidate
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
