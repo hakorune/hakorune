@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array/string windows, generic_method.has, Sum seeds, UserBox scalar seeds, UserBox loop micro seeds, and UserBox known-receiver seeds migrated to MIR metadata` |
+| Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, and array_getset_micro migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `move exact seed ladders to function-level backend route tags` |
-| Next | `array_getset_micro exact seed cleanup` |
+| Blocker | `inventory remaining generic/minimal raw scanner debt` |
+| Next | `pure_compile_minimal_paths inventory` |
 | After Next | `next .inc raw-analysis deletion candidate` |
 
 ## Current Read
@@ -54,7 +54,7 @@ Related:
 19. `phase-292x userbox_loop_micro exact seed function route tag` landed
 20. `phase-292x userbox_known_receiver_method_seed local/copy exact seed function route tag` landed
 21. `phase-292x userbox_known_receiver_method_seed chain/micro exact seed function route tag` landed
-22. `phase-292x remaining exact seed ladders to function-level backend route tags`
+22. `phase-292x generic/minimal raw scanner debt inventory`
 
 ## Parked Corridor
 

@@ -35,16 +35,17 @@ Related:
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
-  - current implementation focus: move exact seed ladders to function-level backend route tags
+  - current implementation focus: inventory remaining generic/minimal raw scanner debt
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-    - latest landed exact route tag: `userbox_known_receiver_method_seed`
-    - guard baseline: 6 `.inc` files / 52 analysis-debt lines
-    - next cleanup target: `array_getset_micro`
+    - latest landed exact route tag: `array_getset_micro`
+    - guard baseline: 5 `.inc` files / 47 analysis-debt lines
+    - no `hako_llvmc_match_*seed` definitions remain; next cleanup target is
+      `pure_compile_minimal_paths_inventory`
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -56,7 +57,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `move exact seed ladders to function-level backend route tags`
+  - current blocker token: `inventory remaining generic/minimal raw scanner debt`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

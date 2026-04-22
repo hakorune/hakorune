@@ -40,9 +40,11 @@ cargo check -q
   - `.inc` is boundary glue, not planner
   - `tools/checks/inc_codegen_thin_shim_guard.sh` pins the no-growth baseline
   - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-  - latest landed exact route tag: `userbox_known_receiver_method_seed`
-  - guard baseline: 6 `.inc` files / 52 analysis-debt lines
-  - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time; `array_getset_micro` is the recommended next cleanup slice
+  - latest landed exact route tag: `array_getset_micro`
+  - guard baseline: 5 `.inc` files / 47 analysis-debt lines
+  - no `hako_llvmc_match_*seed` definitions remain; next cleanup should
+    inventory `pure_compile_minimal_paths` before editing generic fallback
+    scanners
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -61,7 +63,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
 - current blocker token:
-  - `move exact seed ladders to function-level backend route tags`
+  - `inventory remaining generic/minimal raw scanner debt`
 
 ## Current Perf Snapshot
 
@@ -96,7 +98,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - select the next remaining exact seed ladder and move its function-level backend route to MIR metadata; prefer `array_getset_micro` next
+  - create a dedicated owner card for the remaining generic/minimal-path raw
+    scanner bucket before editing it
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

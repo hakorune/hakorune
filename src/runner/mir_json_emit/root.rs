@@ -732,6 +732,14 @@ pub(super) fn build_mir_json_root(
         });
         if let serde_json::Value::Object(obj) = &mut metadata_json {
             obj.insert(
+                "array_getset_micro_seed_route".to_string(),
+                f.metadata
+                    .array_getset_micro_seed_route
+                    .as_ref()
+                    .map(build_array_getset_micro_seed_route_json)
+                    .unwrap_or(serde_json::Value::Null),
+            );
+            obj.insert(
                 "userbox_loop_micro_seed_route".to_string(),
                 f.metadata
                     .userbox_loop_micro_seed_route
@@ -808,6 +816,30 @@ pub(super) fn build_mir_json_root(
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
     Ok(root)
+}
+
+fn build_array_getset_micro_seed_route_json(
+    route: &crate::mir::ArrayGetSetMicroSeedRoute,
+) -> serde_json::Value {
+    json!({
+        "size": route.size,
+        "ops": route.ops,
+        "init_push_count": route.init_push_count,
+        "loop_get_count": route.loop_get_count,
+        "loop_set_count": route.loop_set_count,
+        "final_get_count": route.final_get_count,
+        "selected_rmw_block": route.selected_rmw_block.as_u32(),
+        "selected_rmw_instruction_index": route.selected_rmw_instruction_index,
+        "selected_rmw_set_instruction_index": route.selected_rmw_set_instruction_index,
+        "loop_index_phi_value": route.loop_index_phi_value.as_u32(),
+        "accumulator_phi_value": route.accumulator_phi_value.as_u32(),
+        "accumulator_next_value": route.accumulator_next_value.as_u32(),
+        "return_value": route.return_value.as_u32(),
+        "proof": route.proof.to_string(),
+        "rmw_proof": route.rmw_proof.to_string(),
+        "consumer_capability": "direct_stack_array_getset_micro",
+        "publication_boundary": "none",
+    })
 }
 
 fn build_userbox_loop_micro_seed_route_json(

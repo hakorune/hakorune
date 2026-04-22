@@ -289,3 +289,19 @@ UserBox known-receiver chain/micro method exact seed backend route:
     `18 -> 0` and removed from the baseline
   - `hako_llvmc_ffi_pure_compile.inc`: `5 -> 2`
   - current analysis-debt baseline is `52`
+
+Array get/set micro exact seed backend route:
+
+- added `FunctionMetadata.array_getset_micro_seed_route` for the current
+  7-block `bench_kilo_micro_array_getset.hako` direct MIR shape
+- kept the inner RMW legality proof owned by `array_rmw_window_routes`
+- replaced `hako_llvmc_match_array_getset_micro_seed` with
+  `hako_llvmc_consume_array_getset_micro_route`
+- added `phase137x_direct_emit_array_getset_micro_contract.sh` to pin route
+  payload, exact backend tag dispatch, and stack-array emitter selection
+- lowered allowlist:
+  - `hako_llvmc_ffi_array_micro_seed.inc`: `4 -> 0` and removed from the
+    baseline
+  - `hako_llvmc_ffi_pure_compile.inc`: `2 -> 1`
+  - current analysis-debt baseline is `47`
+- there are no remaining `hako_llvmc_match_*seed` definitions

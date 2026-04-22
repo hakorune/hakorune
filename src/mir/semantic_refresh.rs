@@ -8,6 +8,7 @@
 
 use super::{
     agg_local_scalarization::refresh_function_agg_local_scalarization_routes,
+    array_getset_micro_seed_plan::refresh_function_array_getset_micro_seed_route,
     array_rmw_add1_leaf_seed_plan::refresh_function_array_rmw_add1_leaf_seed_route,
     array_rmw_window_plan::refresh_function_array_rmw_window_routes,
     array_string_len_window_plan::refresh_function_array_string_len_window_routes,
@@ -79,6 +80,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_array_text_observer_routes(function);
     refresh_function_array_text_combined_region_routes(function);
     refresh_function_array_string_store_micro_seed_route(function);
+    refresh_function_array_getset_micro_seed_route(function);
     refresh_function_array_rmw_add1_leaf_seed_route(function);
     refresh_function_concat_const_suffix_micro_seed_route(function);
     refresh_function_substring_views_micro_seed_route(function);

@@ -92,9 +92,11 @@ Scope: current lane / next lane / restart order only.
     - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-    - latest landed exact route tag: `userbox_known_receiver_method_seed`
-    - guard baseline: 6 `.inc` files / 52 analysis-debt lines
-    - next cleanup remains remaining exact seed ladders, one metadata-owned family at a time; route `array_getset_micro` next
+    - latest landed exact route tag: `array_getset_micro`
+    - guard baseline: 5 `.inc` files / 47 analysis-debt lines
+    - no `hako_llvmc_match_*seed` definitions remain; next cleanup should
+      inventory `pure_compile_minimal_paths` before editing generic fallback
+      scanners
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -107,7 +109,7 @@ Scope: current lane / next lane / restart order only.
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `move exact seed ladders to function-level backend route tags`
+    - `inventory remaining generic/minimal raw scanner debt`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

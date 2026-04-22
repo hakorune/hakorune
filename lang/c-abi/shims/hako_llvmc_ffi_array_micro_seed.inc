@@ -80,7 +80,7 @@ static int hako_llvmc_emit_array_getset_micro_ir(
   return rc == 0 ? 0 : -1;
 }
 
-static int hako_llvmc_match_array_getset_micro_seed(
+static int hako_llvmc_consume_array_getset_micro_route(
     const char* json_in,
     const char* obj_out) {
   yyjson_read_err rerr;
@@ -88,18 +88,26 @@ static int hako_llvmc_match_array_getset_micro_seed(
   yyjson_val* root;
   yyjson_val* fns;
   yyjson_val* fn = NULL;
-  yyjson_val* blocks;
+  yyjson_val* metadata;
+  yyjson_val* route;
   size_t bi;
   hako_llvmc_entry_rune_selection selection;
-  int saw_newbox_array = 0;
-  int saw_size_128 = 0;
-  int saw_ops_2m = 0;
-  int push_count = 0;
-  int saw_runtime_get = 0;
-  int saw_runtime_set = 0;
-  int saw_arraybox_get = 0;
+  const char* proof;
+  const char* rmw_proof;
   long long size = 0;
   long long ops = 0;
+  long long init_push_count = 0;
+  long long loop_get_count = 0;
+  long long loop_set_count = 0;
+  long long final_get_count = 0;
+  long long selected_rmw_block = 0;
+  long long selected_rmw_instruction_index = 0;
+  long long selected_rmw_set_instruction_index = 0;
+  long long loop_index_phi_value = 0;
+  long long accumulator_phi_value = 0;
+  long long accumulator_next_value = 0;
+  long long return_value = 0;
+  int rc;
 
   if (!doc) return -1;
   root = yyjson_doc_get_root(doc);
@@ -123,78 +131,75 @@ static int hako_llvmc_match_array_getset_micro_seed(
   }
   hako_llvmc_select_entry_runes(fn, &selection);
 
-  blocks = yyjson_obj_get(fn, "blocks");
-  if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) == 9)) {
+  metadata = yyjson_obj_get(fn, "metadata");
+  route = metadata ? yyjson_obj_get(metadata, "array_getset_micro_seed_route") : NULL;
+  if (!(route && yyjson_is_obj(route))) {
     yyjson_doc_free(doc);
     return -1;
   }
 
-  for (bi = 0; bi < yyjson_arr_size(blocks); bi++) {
-    yyjson_val* block = yyjson_arr_get(blocks, bi);
-    yyjson_val* insts = block ? yyjson_obj_get(block, "instructions") : NULL;
-    size_t ii;
-    if (!(insts && yyjson_is_arr(insts))) {
-      yyjson_doc_free(doc);
-      return -1;
+  proof = yyjson_get_str(yyjson_obj_get(route, "proof"));
+  rmw_proof = yyjson_get_str(yyjson_obj_get(route, "rmw_proof"));
+  size = (long long)yyjson_get_sint(yyjson_obj_get(route, "size"));
+  ops = (long long)yyjson_get_sint(yyjson_obj_get(route, "ops"));
+  init_push_count = (long long)yyjson_get_sint(yyjson_obj_get(route, "init_push_count"));
+  loop_get_count = (long long)yyjson_get_sint(yyjson_obj_get(route, "loop_get_count"));
+  loop_set_count = (long long)yyjson_get_sint(yyjson_obj_get(route, "loop_set_count"));
+  final_get_count = (long long)yyjson_get_sint(yyjson_obj_get(route, "final_get_count"));
+  selected_rmw_block = (long long)yyjson_get_sint(yyjson_obj_get(route, "selected_rmw_block"));
+  selected_rmw_instruction_index =
+      (long long)yyjson_get_sint(yyjson_obj_get(route, "selected_rmw_instruction_index"));
+  selected_rmw_set_instruction_index =
+      (long long)yyjson_get_sint(yyjson_obj_get(route, "selected_rmw_set_instruction_index"));
+  loop_index_phi_value =
+      (long long)yyjson_get_sint(yyjson_obj_get(route, "loop_index_phi_value"));
+  accumulator_phi_value =
+      (long long)yyjson_get_sint(yyjson_obj_get(route, "accumulator_phi_value"));
+  accumulator_next_value =
+      (long long)yyjson_get_sint(yyjson_obj_get(route, "accumulator_next_value"));
+  return_value = (long long)yyjson_get_sint(yyjson_obj_get(route, "return_value"));
+
+  if (!(proof && rmw_proof &&
+        hako_llvmc_str_eq(proof, "kilo_micro_array_getset_7block") &&
+        hako_llvmc_str_eq(rmw_proof, "array_get_add1_set_same_slot") &&
+        size == 128 &&
+        ops == 2000000 &&
+        init_push_count == 1 &&
+        loop_get_count == 1 &&
+        loop_set_count == 1 &&
+        final_get_count == 0 &&
+        selected_rmw_block == 23 &&
+        selected_rmw_instruction_index == 8 &&
+        selected_rmw_set_instruction_index == 13 &&
+        loop_index_phi_value > 0 &&
+        accumulator_phi_value > 0 &&
+        accumulator_next_value > 0 &&
+        return_value == accumulator_phi_value)) {
+    if (hako_llvmc_route_trace_enabled()) {
+      hako_llvmc_emit_route_trace(
+          "array_getset_micro",
+          "skip",
+          "metadata_contract_mismatch",
+          "array_getset_micro_seed_route");
     }
-    for (ii = 0; ii < yyjson_arr_size(insts); ii++) {
-      yyjson_val* ins = yyjson_arr_get(insts, ii);
-      const char* op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
-      if (!op) continue;
-      if (strcmp(op, "newbox") == 0) {
-        const char* box_type = yyjson_get_str(yyjson_obj_get(ins, "type"));
-        if (box_type && strcmp(box_type, "ArrayBox") == 0) {
-          saw_newbox_array = 1;
-        }
-      } else if (strcmp(op, "const") == 0) {
-        yyjson_val* vobj = yyjson_obj_get(ins, "value");
-        const char* kind = vobj ? yyjson_get_str(yyjson_obj_get(vobj, "type")) : NULL;
-        long long iv = vobj ? (long long)yyjson_get_sint(yyjson_obj_get(vobj, "value")) : 0;
-        if (kind && strcmp(kind, "i64") == 0) {
-          if (iv == 128) { saw_size_128 = 1; size = 128; }
-          if (iv == 2000000) { saw_ops_2m = 1; ops = 2000000; }
-        }
-      } else if (strcmp(op, "mir_call") == 0) {
-        yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
-        yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-        const char* box_name = cal ? (yyjson_get_str(yyjson_obj_get(cal, "box_name")) ? yyjson_get_str(yyjson_obj_get(cal, "box_name")) : yyjson_get_str(yyjson_obj_get(cal, "box_type"))) : NULL;
-        const char* name = cal ? (yyjson_get_str(yyjson_obj_get(cal, "method")) ? yyjson_get_str(yyjson_obj_get(cal, "method")) : yyjson_get_str(yyjson_obj_get(cal, "name"))) : NULL;
-        yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
-        if (box_name && name && strcmp(box_name, "RuntimeDataBox") == 0) {
-          if (strcmp(name, "push") == 0 && argc == 1) {
-            push_count++;
-          } else if (strcmp(name, "get") == 0 && argc == 1) {
-            saw_runtime_get++;
-          } else if (strcmp(name, "set") == 0 && argc == 2) {
-            saw_runtime_set++;
-          }
-        } else if (box_name && name && strcmp(box_name, "ArrayBox") == 0 && strcmp(name, "get") == 0 && argc == 1) {
-          saw_arraybox_get++;
-        }
-      }
-    }
-  }
-
-  if (!(saw_newbox_array && saw_size_128 && saw_ops_2m && push_count == 1 &&
-        saw_runtime_get == 1 && saw_runtime_set == 1 && saw_arraybox_get == 0)) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  if (!(size == 128 && ops == 2000000)) {
     yyjson_doc_free(doc);
     return -1;
   }
 
-  {
-    int rc = hako_llvmc_emit_array_getset_micro_ir(
-        obj_out,
-        &selection,
-        size,
-        ops);
-    yyjson_doc_free(doc);
-    return rc;
+  if (hako_llvmc_route_trace_enabled()) {
+    hako_llvmc_emit_route_trace(
+        "array_getset_micro",
+        "emit",
+        "exact_match",
+        "kilo_micro_array_getset mir_route_plan");
   }
+  rc = hako_llvmc_emit_array_getset_micro_ir(
+      obj_out,
+      &selection,
+      size,
+      ops);
+  yyjson_doc_free(doc);
+  return rc;
 }
 
 static int hako_llvmc_emit_array_rmw_add1_leaf_ir(

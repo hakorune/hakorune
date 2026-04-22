@@ -47,8 +47,8 @@ Related:
 - Landed sixth target: delete legacy `array_rmw_window` C analyzer
 - Landed seventh target: string concat / direct-set windows metadata-only
 - Landed eighth target: `generic_method.has` route policy metadata
-- Landed exact-seed slice: UserBox known-receiver chain/micro method route metadata
-- Next exact-seed cleanup target: `array_getset_micro`
+- Landed exact-seed slice: `array_getset_micro` route metadata
+- Next cleanup target: `pure_compile_minimal_paths_inventory`
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -85,9 +85,10 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 9. `docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md`
 10. `docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md`
 11. `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
-12. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-13. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
-14. Historical per-slice cards as needed:
+12. `docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md`
+13. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+14. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+15. Historical per-slice cards as needed:
    - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
@@ -115,8 +116,8 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 6 `.inc` files, 52 analysis-debt lines
-- current inventory: 73 `.inc` files, 16,319 `.inc` lines
+- baseline: 5 `.inc` files, 47 analysis-debt lines
+- current inventory: 73 `.inc` files, 16,336 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 - compact phase status lives in `292x-STATUS.toml`
 
@@ -190,7 +191,7 @@ generic_method.has route policy metadata
   -> keep .inc has lowering as metadata validation / helper emission glue
 ```
 
-Active follow-up card:
+Completed exact-seed route card:
 
 ```text
 exact seed ladders to function-level backend route tags
@@ -206,5 +207,7 @@ exact seed ladders to function-level backend route tags
   -> tenth slice landed for UserBox loop micro metadata
   -> eleventh slice landed for UserBox known-receiver local/copy method metadata
   -> twelfth slice landed for UserBox known-receiver chain/micro method metadata
-  -> next recommended slice is array_getset_micro
+  -> thirteenth slice landed for array_getset_micro metadata
+  -> no hako_llvmc_match_*seed definitions remain
+  -> next recommended slice is pure_compile_minimal_paths_inventory
 ```

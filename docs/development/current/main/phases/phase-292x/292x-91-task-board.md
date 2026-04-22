@@ -112,7 +112,11 @@ Related:
   - twelfth slice landed: `292x-109` moved the remaining `Counter.step_chain`,
     `Counter.step` micro, and `Point.sum` micro known-receiver method seeds
     behind `userbox_known_receiver_method_seed_route`
-  - next state: route the unrelated `array_getset_micro` matcher
+  - thirteenth slice landed: `292x-110` moved the unrelated
+    `array_getset_micro` whole-function seed behind
+    `array_getset_micro_seed_route`
+  - next state: no exact seed matchers remain; inventory the
+    generic/minimal-path raw scanner bucket before editing it
 
 ## Follow-up Cards
 

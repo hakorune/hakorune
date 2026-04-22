@@ -15,6 +15,7 @@ use crate::mir::{
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExactSeedBackendRouteKind {
     ArrayStringStoreMicro,
+    ArrayGetSetMicro,
     ArrayRmwAdd1Leaf,
     ConcatConstSuffixMicro,
     SubstringViewsOnlyMicro,
@@ -31,6 +32,7 @@ impl ExactSeedBackendRouteKind {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::ArrayStringStoreMicro => "array_string_store_micro",
+            Self::ArrayGetSetMicro => "array_getset_micro",
             Self::ArrayRmwAdd1Leaf => "array_rmw_add1_leaf",
             Self::ConcatConstSuffixMicro => "concat_const_suffix_micro",
             Self::SubstringViewsOnlyMicro => "substring_views_only_micro",
@@ -47,6 +49,7 @@ impl ExactSeedBackendRouteKind {
     pub fn source_route_field(self) -> &'static str {
         match self {
             Self::ArrayStringStoreMicro => "array_string_store_micro_seed_route",
+            Self::ArrayGetSetMicro => "array_getset_micro_seed_route",
             Self::ArrayRmwAdd1Leaf => "array_rmw_add1_leaf_seed_route",
             Self::ConcatConstSuffixMicro => "concat_const_suffix_micro_seed_route",
             Self::SubstringViewsOnlyMicro => "substring_views_micro_seed_route",
@@ -88,6 +91,17 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
         return Some(ExactSeedBackendRoute {
             tag: ExactSeedBackendRouteKind::ArrayStringStoreMicro,
             source_route: ExactSeedBackendRouteKind::ArrayStringStoreMicro
+                .source_route_field()
+                .to_string(),
+            proof: route.proof.to_string(),
+            selected_value: None,
+        });
+    }
+
+    if let Some(route) = function.metadata.array_getset_micro_seed_route.as_ref() {
+        return Some(ExactSeedBackendRoute {
+            tag: ExactSeedBackendRouteKind::ArrayGetSetMicro,
+            source_route: ExactSeedBackendRouteKind::ArrayGetSetMicro
                 .source_route_field()
                 .to_string(),
             proof: route.proof.to_string(),
@@ -233,20 +247,21 @@ mod tests {
     use super::*;
     use crate::mir::string_kernel_plan::StringKernelPlanLoopPayload;
     use crate::mir::{
-        ArrayRmwAdd1LeafSeedProof, ArrayRmwAdd1LeafSeedRoute, ArrayStringStoreMicroSeedProof,
-        ArrayStringStoreMicroSeedRoute, ConcatConstSuffixMicroSeedProof,
-        ConcatConstSuffixMicroSeedRoute, EffectMask, FunctionSignature, MirType, StringKernelPlan,
-        StringKernelPlanBorrowContract, StringKernelPlanConsumer, StringKernelPlanFamily,
-        StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
-        StringKernelPlanRetainedForm, StringKernelPlanVerifierOwner, SubstringViewsMicroSeedProof,
-        SubstringViewsMicroSeedRoute, SumLocalAggregateLayout, SumVariantProjectSeedKind,
-        SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
-        SumVariantTagSeedKind, SumVariantTagSeedProof, SumVariantTagSeedRoute,
-        UserBoxKnownReceiverMethodSeedKind, UserBoxKnownReceiverMethodSeedPayload,
-        UserBoxKnownReceiverMethodSeedProof, UserBoxKnownReceiverMethodSeedRoute,
-        UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof,
-        UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind,
-        UserBoxLoopMicroSeedProof, UserBoxLoopMicroSeedRoute,
+        ArrayGetSetMicroSeedProof, ArrayGetSetMicroSeedRoute, ArrayRmwAdd1LeafSeedProof,
+        ArrayRmwAdd1LeafSeedRoute, ArrayStringStoreMicroSeedProof, ArrayStringStoreMicroSeedRoute,
+        ConcatConstSuffixMicroSeedProof, ConcatConstSuffixMicroSeedRoute, EffectMask,
+        FunctionSignature, MirType, StringKernelPlan, StringKernelPlanBorrowContract,
+        StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
+        StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
+        StringKernelPlanVerifierOwner, SubstringViewsMicroSeedProof, SubstringViewsMicroSeedRoute,
+        SumLocalAggregateLayout, SumVariantProjectSeedKind, SumVariantProjectSeedPayload,
+        SumVariantProjectSeedProof, SumVariantProjectSeedRoute, SumVariantTagSeedKind,
+        SumVariantTagSeedProof, SumVariantTagSeedRoute, UserBoxKnownReceiverMethodSeedKind,
+        UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedProof,
+        UserBoxKnownReceiverMethodSeedRoute, UserBoxLocalScalarSeedKind,
+        UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
+        UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedProof,
+        UserBoxLoopMicroSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -340,6 +355,39 @@ mod tests {
         assert_eq!(route.tag.as_str(), "array_rmw_add1_leaf");
         assert_eq!(route.source_route, "array_rmw_add1_leaf_seed_route");
         assert_eq!(route.proof, "kilo_leaf_array_rmw_add1_7block");
+        assert_eq!(route.selected_value, None);
+    }
+
+    #[test]
+    fn exact_seed_backend_route_selects_array_getset_micro_metadata() {
+        let mut function = make_function();
+        function.metadata.array_getset_micro_seed_route = Some(ArrayGetSetMicroSeedRoute {
+            size: 128,
+            ops: 2_000_000,
+            init_push_count: 1,
+            loop_get_count: 1,
+            loop_set_count: 1,
+            final_get_count: 0,
+            selected_rmw_block: BasicBlockId::new(23),
+            selected_rmw_instruction_index: 8,
+            selected_rmw_set_instruction_index: 13,
+            loop_index_phi_value: ValueId::new(29),
+            accumulator_phi_value: ValueId::new(33),
+            accumulator_next_value: ValueId::new(40),
+            return_value: ValueId::new(33),
+            proof: ArrayGetSetMicroSeedProof::KiloMicroArrayGetSetSevenBlock,
+            rmw_proof: crate::mir::ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
+        });
+
+        refresh_function_exact_seed_backend_route(&mut function);
+
+        let route = function
+            .metadata
+            .exact_seed_backend_route
+            .expect("exact seed backend route");
+        assert_eq!(route.tag.as_str(), "array_getset_micro");
+        assert_eq!(route.source_route, "array_getset_micro_seed_route");
+        assert_eq!(route.proof, "kilo_micro_array_getset_7block");
         assert_eq!(route.selected_value, None);
     }
 
