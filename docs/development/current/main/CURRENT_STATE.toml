@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-04-22"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; next exact seed ladder route tags"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; array_string_store_micro exact seed route tag landed; remaining exact seed route tags next"
 active_phase = "docs/development/current/main/phases/phase-292x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-292x/292x-101-exact-seed-ladder-function-route-tags-card.md"
@@ -28,6 +28,7 @@ opened_successors = [
   "CoreBox legacy cleanup first safe deletions landed",
   "MapStd prelude cleanup landed",
   "generic_method.has route policy metadata landed",
+  "array_string_store_micro exact seed backend route tag landed",
 ]
 
 blocked_successors = [

@@ -10,9 +10,9 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
-    generic_method_route_plan::GenericMethodRoute, placement_effect::PlacementEffectRoute,
-    storage_class::StorageClass, string_corridor::StringCorridorFact,
-    string_corridor_placement::StringCorridorCandidate,
+    exact_seed_backend_route::ExactSeedBackendRoute, generic_method_route_plan::GenericMethodRoute,
+    placement_effect::PlacementEffectRoute, storage_class::StorageClass,
+    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
@@ -235,6 +235,12 @@ pub struct FunctionMetadata {
     /// Borrowed-slice windows stay in `string_kernel_plans`; this only carries
     /// the temporary emitter payload that generic plans do not expose yet.
     pub substring_views_micro_seed_route: Option<SubstringViewsMicroSeedRoute>,
+
+    /// Function-level backend route tag for one already-proven exact seed.
+    /// Payload legality remains owned by the selected `*_micro_seed_route`;
+    /// this only lets the C boundary choose the first helper without walking
+    /// the helper-specific ladder.
+    pub exact_seed_backend_route: Option<ExactSeedBackendRoute>,
 }
 
 /// Function statistics for profiling and optimization

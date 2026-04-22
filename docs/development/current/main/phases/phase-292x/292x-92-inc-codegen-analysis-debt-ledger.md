@@ -16,9 +16,9 @@ Related:
 Current no-growth baseline:
 
 - `.inc` files: 76
-- `.inc` lines: 19,423
-- analysis-debt files: 28
-- analysis-debt lines: 314
+- `.inc` lines: 19,521
+- analysis-debt files: 27
+- analysis-debt lines: 312
 
 The baseline is not a permission slip to add more C analysis. It is a deletion
 ledger. Reductions are expected as route families move to MIR-owned metadata.
@@ -79,4 +79,15 @@ The guard counts lines matching:
 - moved the first generic method route-policy leaf to MIR metadata
   (`GenericMethodRoute`)
 - note: this adds metadata reader / validation glue, not raw MIR analysis; the
-  analysis-debt baseline remains `314`.
+  analysis-debt baseline stayed `314` for that card.
+
+`array_string_store_micro` exact seed backend route:
+
+- added function-level `exact_seed_backend_route` metadata for the already
+  MIR-owned `array_string_store_micro_seed_route`
+- renamed the backend consumer away from the legacy `hako_llvmc_match_*seed`
+  debt pattern
+- lowered allowlist:
+  - removed now-clean `hako_llvmc_ffi_array_string_store_seed.inc`
+  - `hako_llvmc_ffi_pure_compile.inc`: `34 -> 33`
+  - current analysis-debt baseline is `312`

@@ -95,7 +95,8 @@ Scope: current lane / next lane / restart order only.
     - legacy `array_rmw_window` C analyzer deletion is landed
     - string direct-set source-window metadata is landed
     - `generic_method.has` route policy metadata is landed
-    - next implementation card is exact seed ladders to function-level backend route tags
+    - `array_string_store_micro` function-level exact seed backend route tag is landed
+    - next cleanup remains remaining exact seed ladders, one metadata-owned family at a time
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -130,7 +131,7 @@ Scope: current lane / next lane / restart order only.
     - `137x-H` runtime cleanup: removed dead `ValueLaneAction::PublishBoundary`; array string store now selects `TextCellResidence` or `GenericBoxResidence` once and the executor path only consumes the preselected action
     - `137x-H` backend cleanup: `string_concat_emit_routes` now uses `kernel_plan_read_publication_boundary_window` for publication-boundary checks and no longer replays the corridor fallback in the insert-mid shared-receiver branch
     - `137x-H` backend cleanup: `match_piecewise_slot_hop_substring_consumer` is retired; slot-hop substring continuation is now MIR-owned `StringKernelPlan.slot_hop_substring` metadata
-    - `137x-H` backend cleanup: the exact array-string seed bridge no longer rescans raw 8-block MIR JSON; it consumes MIR-owned `array_string_store_micro_seed_route` metadata and only selects the existing temporary specialized emitter
+    - `137x-H` backend cleanup: the exact array-string seed bridge no longer rescans raw 8-block MIR JSON; it consumes MIR-owned `array_string_store_micro_seed_route` metadata and is now selected through function-level `exact_seed_backend_route`
     - `137x-H` backend cleanup: removed unused `hako_llvmc_string_corridor_read_insert_mid_window_plan_values`; kernel-plan reader is now the only insert-mid window SSOT
     - `137x-H` backend cleanup: removed the standalone corridor triplet reader; `direct_kernel_entry` substring proof now goes through centralized `hako_llvmc_string_kernel_plan_read_concat_triplet_values` (kernel-first, corridor compat fallback)
     - `137x-H1` MIR string value lowering cleanup is closed
@@ -1259,6 +1260,7 @@ Scope: current lane / next lane / restart order only.
           - still requires `slot_load_hi` when later substring values remain live
         - perf/asm proof:
           - exact keeper: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
+          - function-level route proof: `exact_seed_backend_route result=hit reason=mir_route_metadata`
           - exact route proof: `array_string_store_micro result=emit reason=exact_match`
           - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
           - strict whole: `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
@@ -1961,8 +1963,8 @@ Scope: current lane / next lane / restart order only.
 3. preserve landed `137x-D` proof as baseline evidence
    - proof card: `137x-D exact array store route-shape proof`
    - front: `kilo_micro_array_string_store`
-   - implementation: MIR owns the compact 8-block direct shape as `metadata.array_string_store_micro_seed_route`; `hako_llvmc_match_array_string_store_micro_seed(...)` now only reads that metadata and selects the existing specialized stack-array emitter
-   - smoke: `phase137x_direct_emit_array_store_string_contract.sh` requires exact seed emitter selection and no runtime/public helper calls in `ny_main`
+   - implementation: MIR owns the compact 8-block direct shape as `metadata.array_string_store_micro_seed_route`; `exact_seed_backend_route` now selects `array_string_store_micro` before the helper ladder
+   - smoke: `phase137x_direct_emit_array_store_string_contract.sh` requires `exact_seed_backend_route` selection, exact seed emitter selection, and no runtime/public helper calls in `ny_main`
    - guard results:
      - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 10 ms`, `ny_aot_instr=26922384`
      - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=129614388`

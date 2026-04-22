@@ -18,7 +18,8 @@ use super::{
     array_text_residence_session_plan::refresh_function_array_text_residence_session_routes,
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
-    function::ModuleMetadata, generic_method_route_plan::refresh_function_generic_method_routes,
+    exact_seed_backend_route::refresh_function_exact_seed_backend_route, function::ModuleMetadata,
+    generic_method_route_plan::refresh_function_generic_method_routes,
     placement_effect::refresh_function_placement_effect_routes,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
@@ -73,6 +74,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_array_string_store_micro_seed_route(function);
     refresh_function_concat_const_suffix_micro_seed_route(function);
     refresh_function_substring_views_micro_seed_route(function);
+    refresh_function_exact_seed_backend_route(function);
     refresh_function_array_text_state_residence_route(function);
 }
 

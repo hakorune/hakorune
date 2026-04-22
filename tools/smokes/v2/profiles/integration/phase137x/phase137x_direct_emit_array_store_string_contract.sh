@@ -124,6 +124,13 @@ if ! grep -Fq "stage=array_string_store_micro result=emit reason=exact_match" "$
     exit 1
 fi
 
+if ! grep -Fq "stage=exact_seed_backend_route result=hit reason=mir_route_metadata" "$BUILD_LOG"; then
+    echo "[INFO] compile log:"
+    tail -n 160 "$BUILD_LOG" || true
+    test_fail "$SMOKE_NAME: exact seed backend route tag was not consumed"
+    exit 1
+fi
+
 if ! extract_ir_entry_function "$OUT_LL" "$OUT_MAIN"; then
     test_fail "$SMOKE_NAME: entry function not found in dumped IR"
     exit 1

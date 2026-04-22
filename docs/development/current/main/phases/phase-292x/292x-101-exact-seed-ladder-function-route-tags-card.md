@@ -23,6 +23,15 @@ Do not widen accepted MIR shapes in this card. Pick one exact seed ladder that
 already has a MIR metadata owner, then move the function-level selection to a
 single backend route tag.
 
+First slice:
+
+- exact seed ladder: `array_string_store_micro`
+- existing route owner: `FunctionMetadata.array_string_store_micro_seed_route`
+- new function-level tag: `metadata.exact_seed_backend_route.tag =
+  "array_string_store_micro"`
+- selected source route: `array_string_store_micro_seed_route`
+- proof: `kilo_micro_array_string_store_8block`
+
 `.inc` may keep only:
 
 - metadata reader / field validation
@@ -31,11 +40,26 @@ single backend route tag.
 
 ## Acceptance
 
-Define the exact seed ladder before code edits, then pin it with:
+Pin the first slice with:
 
 ```bash
 bash tools/build_hako_llvmc_ffi.sh
 bash tools/checks/inc_codegen_thin_shim_guard.sh
-cargo test -q <focused-route-test>
-bash <focused-boundary-smoke>
+cargo test -q exact_seed_backend_route
+cargo test -q build_mir_json_root_emits_exact_seed_backend_route
+bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh
 ```
+
+The boundary smoke must observe both:
+
+- `stage=exact_seed_backend_route result=hit reason=mir_route_metadata`
+- `stage=array_string_store_micro result=emit reason=exact_match`
+
+## First Slice Result
+
+- `FunctionMetadata.exact_seed_backend_route` selects the existing
+  `array_string_store_micro_seed_route`.
+- `compile_json_compat_pure` consumes the function-level tag before walking the
+  remaining compatibility ladder.
+- `hako_llvmc_ffi_array_string_store_seed.inc` no longer contributes to the
+  `hako_llvmc_match_*seed` debt baseline.

@@ -74,8 +74,11 @@ Related:
 
 - [ ] A5 exact seed ladders to function-level backend route tags
   - design: `292x-101-exact-seed-ladder-function-route-tags-card.md`
-  - desired state: pick one existing exact seed ladder and move its
-    function-level backend route selection to a single MIR-owned tag
+  - first slice landed: `array_string_store_micro` now uses
+    `metadata.exact_seed_backend_route` to select the already-proven
+    `array_string_store_micro_seed_route`
+  - next state: continue one exact seed ladder at a time for remaining
+    metadata-owned seeds
 
 ## Follow-up Cards
 

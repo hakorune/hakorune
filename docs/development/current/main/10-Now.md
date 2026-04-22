@@ -48,7 +48,8 @@ Related:
     - legacy `array_rmw_window` C analyzer deletion is landed
     - string direct-set source-window metadata is landed
     - `generic_method.has` route policy metadata is landed
-    - exact seed ladders to function-level backend route tags is the active cleanup
+    - `array_string_store_micro` function-level exact seed backend route tag is landed
+    - remaining exact seed ladders stay one-family follow-up cleanup
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -412,6 +413,7 @@ Related:
     - live-after-get regression: `phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
   - perf/asm proof:
     - exact keeper: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
+    - function-level route proof: `exact_seed_backend_route result=hit reason=mir_route_metadata`
     - exact route proof: `array_string_store_micro result=emit reason=exact_match`
     - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)

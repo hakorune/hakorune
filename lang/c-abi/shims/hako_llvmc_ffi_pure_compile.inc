@@ -1,3 +1,76 @@
+static int hako_llvmc_read_exact_seed_backend_route_tag(
+    const char* json_in,
+    char* tag_out,
+    size_t tag_out_len,
+    char** err_out) {
+  yyjson_read_err rerr;
+  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
+  yyjson_val* root;
+  yyjson_val* fns;
+  yyjson_val* fn;
+  yyjson_val* metadata;
+  yyjson_val* route;
+  yyjson_val* tag_val;
+  yyjson_val* source_route_val;
+  yyjson_val* proof_val;
+  const char* tag;
+  const char* source_route;
+  const char* proof;
+
+  if (!tag_out || tag_out_len == 0) {
+    return set_err_owned(err_out, "invalid exact seed backend route tag buffer");
+  }
+  tag_out[0] = '\0';
+  if (!doc) {
+    return 0;
+  }
+
+  root = yyjson_doc_get_root(doc);
+  fns = yyjson_obj_get(root, "functions");
+  fn = hako_llvmc_find_entry_function(fns);
+  if (!fn) {
+    yyjson_doc_free(doc);
+    return 0;
+  }
+
+  metadata = yyjson_obj_get(fn, "metadata");
+  route = metadata ? yyjson_obj_get(metadata, "exact_seed_backend_route") : NULL;
+  if (!route || yyjson_is_null(route)) {
+    yyjson_doc_free(doc);
+    return 0;
+  }
+  if (!yyjson_is_obj(route)) {
+    yyjson_doc_free(doc);
+    return set_err_owned(err_out, "malformed exact_seed_backend_route metadata");
+  }
+
+  tag_val = yyjson_obj_get(route, "tag");
+  source_route_val = yyjson_obj_get(route, "source_route");
+  proof_val = yyjson_obj_get(route, "proof");
+  tag = tag_val && yyjson_is_str(tag_val) ? yyjson_get_str(tag_val) : NULL;
+  source_route =
+      source_route_val && yyjson_is_str(source_route_val) ? yyjson_get_str(source_route_val) : NULL;
+  proof = proof_val && yyjson_is_str(proof_val) ? yyjson_get_str(proof_val) : NULL;
+
+  if (!tag || !source_route || !proof) {
+    yyjson_doc_free(doc);
+    return set_err_owned(err_out, "malformed exact_seed_backend_route fields");
+  }
+  if (strcmp(tag, "array_string_store_micro") != 0 ||
+      strcmp(source_route, "array_string_store_micro_seed_route") != 0 ||
+      strcmp(proof, "kilo_micro_array_string_store_8block") != 0) {
+    yyjson_doc_free(doc);
+    return set_err_owned(err_out, "unsupported exact_seed_backend_route metadata");
+  }
+  if (strlen(tag) + 1 > tag_out_len) {
+    yyjson_doc_free(doc);
+    return set_err_owned(err_out, "exact_seed_backend_route tag too long");
+  }
+  strcpy(tag_out, tag);
+  yyjson_doc_free(doc);
+  return 1;
+}
+
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out) {
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
   // then fall back to a few pattern lowers, and finally to AOT helper.
@@ -16,6 +89,31 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     yyjson_doc_free(d);
   } while (0);
 
+  {
+    char exact_seed_tag[64];
+    int exact_seed_route =
+        hako_llvmc_read_exact_seed_backend_route_tag(json_in, exact_seed_tag, sizeof(exact_seed_tag), err_out);
+    if (exact_seed_route < 0) {
+      return -1;
+    }
+    if (exact_seed_route > 0) {
+      if (hako_llvmc_route_trace_enabled()) {
+        hako_llvmc_emit_route_trace(
+            "exact_seed_backend_route",
+            "hit",
+            "mir_route_metadata",
+            exact_seed_tag);
+      }
+      if (strcmp(exact_seed_tag, "array_string_store_micro") == 0) {
+        if (hako_llvmc_consume_array_string_store_micro_route(json_in, obj_out) == 0) {
+          return 0;
+        }
+        return set_err_owned(err_out, "exact_seed_backend_route array_string_store_micro failed");
+      }
+      return set_err_owned(err_out, "unsupported exact_seed_backend_route tag");
+    }
+  }
+
   if (hako_llvmc_match_substring_concat_loop_ascii_seed(json_in, obj_out) == 0) {
     return 0;
   }
@@ -28,7 +126,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_concat_const_suffix_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
-  if (hako_llvmc_match_array_string_store_micro_seed(json_in, obj_out) == 0) {
+  if (hako_llvmc_consume_array_string_store_micro_route(json_in, obj_out) == 0) {
     return 0;
   }
   if (hako_llvmc_match_array_rmw_add1_leaf_seed(json_in, obj_out) == 0) {

@@ -499,6 +499,13 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }),
+            "exact_seed_backend_route": f.metadata.exact_seed_backend_route.as_ref().map(|route| {
+                json!({
+                    "tag": route.tag.as_str(),
+                    "source_route": route.source_route.as_str(),
+                    "proof": route.proof.as_str(),
+                })
+            }),
             "array_text_state_residence_route": f.metadata.array_text_state_residence_route.as_ref().map(|route| {
                 build_array_text_state_residence_route_json(route)
             }),

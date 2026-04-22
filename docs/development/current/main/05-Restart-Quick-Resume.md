@@ -46,7 +46,8 @@ cargo check -q
   - legacy `array_rmw_window` C analyzer deletion is landed
   - string direct-set source-window metadata is landed
   - `generic_method.has` route policy metadata is landed
-  - next implementation card is exact seed ladders to function-level backend route tags
+  - `array_string_store_micro` function-level exact seed backend route tag is landed
+  - next cleanup is the remaining exact seed ladders, one metadata-owned family at a time
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -100,7 +101,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - select the next exact seed ladder and move its function-level backend route to MIR metadata
+  - select the next remaining exact seed ladder and move its function-level backend route to MIR metadata
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

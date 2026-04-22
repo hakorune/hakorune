@@ -261,8 +261,11 @@ fn method_call_is(
             args,
             ..
         } => {
+            let matches_legacy_arg_shape = args.len() == expected_arg_count;
+            let matches_unified_string_receiver_shape =
+                expected_arg_count == 0 && args.len() == 1 && box_name == "StringBox";
             method == expected_method
-                && args.len() == expected_arg_count
+                && (matches_legacy_arg_shape || matches_unified_string_receiver_shape)
                 && allowed_box_names.iter().any(|allowed| *allowed == box_name)
         }
         _ => false,
@@ -297,6 +300,26 @@ mod tests {
             route.proof,
             ArrayStringStoreMicroSeedProof::KiloMicroArrayStringStore8Block
         );
+    }
+
+    #[test]
+    fn detects_current_unified_string_length_receiver_arg_shape() {
+        let mut function = build_exact_function();
+        let exit = function
+            .get_block_mut(BasicBlockId::new(25))
+            .expect("exit block");
+        if let Some(MirInstruction::Call { args, .. }) = exit.instructions.first_mut() {
+            args.push(ValueId::new(99));
+        } else {
+            panic!("expected final length call");
+        }
+
+        refresh_function_array_string_store_micro_seed_route(&mut function);
+
+        assert!(function
+            .metadata
+            .array_string_store_micro_seed_route
+            .is_some());
     }
 
     #[test]

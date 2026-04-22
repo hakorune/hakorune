@@ -91,8 +91,8 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 28 `.inc` files, 314 analysis-debt lines
-- current inventory: 76 `.inc` files, 19,423 `.inc` lines
+- baseline: 27 `.inc` files, 312 analysis-debt lines
+- current inventory: 76 `.inc` files, 19,521 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 
 Landed first card:
@@ -165,10 +165,10 @@ generic_method.has route policy metadata
   -> keep .inc has lowering as metadata validation / helper emission glue
 ```
 
-Next open card:
+Active follow-up card:
 
 ```text
 exact seed ladders to function-level backend route tags
-  -> pick one exact seed ladder with existing MIR metadata ownership
-  -> move function-level backend route selection to a single metadata tag
+  -> first slice landed for array_string_store_micro
+  -> continue one exact seed ladder at a time for remaining metadata-owned seeds
 ```
