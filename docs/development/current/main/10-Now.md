@@ -34,8 +34,8 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
-  - current implementation focus: delete-probe pure compile minimal paths #1/#2
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
+  - current implementation focus: triage Hako LL/provider stack overflow before retrying pure compile minimal paths #1/#2 deletion
   - current phase goal:
     - make `.inc` a thin boundary glue layer
     - move route legality and shape ownership to MIR-owned metadata
@@ -43,9 +43,11 @@ Related:
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
     - latest landed exact route tag: `array_getset_micro`
+    - MapBox duplicate receiver predelete fix is landed
     - guard baseline: 5 `.inc` files / 47 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is inventoried in `292x-111`; next cleanup target is delete-probe #1/#2
+      is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
+      restored until the Hako LL/provider stack overflow is resolved
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -57,7 +59,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `inventory remaining generic/minimal raw scanner debt`
+  - current blocker token: `hako ll/provider stack overflow blocks minimal path deletion`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

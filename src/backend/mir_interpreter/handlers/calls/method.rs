@@ -171,6 +171,26 @@ impl MirInterpreter {
         }
     }
 
+    fn normalize_duplicate_receiver_method_args<'a>(
+        &mut self,
+        receiver: &VMValue,
+        args: &'a [ValueId],
+    ) -> &'a [ValueId] {
+        let Some(first_arg) = args.first() else {
+            return args;
+        };
+
+        if let Ok(VMValue::BoxRef(arg_bx)) = self.reg_load(*first_arg) {
+            if let VMValue::BoxRef(recv_bx) = receiver {
+                if std::sync::Arc::ptr_eq(&arg_bx, recv_bx) {
+                    return &args[1..];
+                }
+            }
+        }
+
+        self.normalize_plugin_method_args(receiver, args)
+    }
+
     pub(super) fn execute_method_callee(
         &mut self,
         box_name: &str,
@@ -287,8 +307,10 @@ impl MirInterpreter {
                     .log
                     .debug(&format!("[vm-trace] mcall {} argv0={:?}", method, a0));
             }
-            let method_args =
-                self.normalize_plugin_method_args(&recv_val, args_without_duplicate_receiver);
+            let method_args = self.normalize_duplicate_receiver_method_args(
+                &recv_val,
+                args_without_duplicate_receiver,
+            );
             let out = self.execute_method_call(&recv_val, method, method_args)?;
             if dev_trace && is_kw {
                 get_global_ring0()

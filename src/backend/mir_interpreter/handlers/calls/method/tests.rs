@@ -1,10 +1,15 @@
 use super::*;
 use crate::backend::vm_types::VMError;
 use crate::box_trait::StringBox;
+use crate::boxes::MapBox;
 use std::sync::Arc;
 
 fn stringbox_receiver(text: &str) -> VMValue {
     VMValue::BoxRef(Arc::new(StringBox::new(text)))
+}
+
+fn mapbox_receiver() -> VMValue {
+    VMValue::BoxRef(Arc::new(MapBox::new()))
 }
 
 #[test]
@@ -75,4 +80,28 @@ fn method_callee_raw_string_len_strips_duplicate_receiver_arg() {
         .expect("String.len should tolerate unified duplicate receiver arg");
 
     assert_eq!(got, VMValue::Integer(4));
+}
+
+#[test]
+fn method_callee_mapbox_set_get_strips_duplicate_receiver_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let key = ValueId(2);
+    let val = ValueId(3);
+    let recv_alias = ValueId(4);
+    interp.regs.insert(recv, mapbox_receiver());
+    let alias_value = interp.regs.get(&recv).expect("receiver inserted").clone();
+    interp.regs.insert(recv_alias, alias_value);
+    interp.regs.insert(key, VMValue::String("a".to_string()));
+    interp.regs.insert(val, VMValue::String("b".to_string()));
+
+    interp
+        .execute_method_callee("MapBox", "set", &Some(recv), &[recv_alias, key, val])
+        .expect("MapBox.set should tolerate unified duplicate receiver arg");
+
+    let got = interp
+        .execute_method_callee("MapBox", "get", &Some(recv), &[recv_alias, key])
+        .expect("MapBox.get should tolerate unified duplicate receiver arg");
+
+    assert_eq!(got.to_string(), "b");
 }

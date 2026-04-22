@@ -41,10 +41,11 @@ cargo check -q
   - `tools/checks/inc_codegen_thin_shim_guard.sh` pins the no-growth baseline
   - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
   - latest landed exact route tag: `array_getset_micro`
+  - MapBox duplicate receiver predelete fix is landed
   - guard baseline: 5 `.inc` files / 47 analysis-debt lines
   - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-    is inventoried in `292x-111`; next cleanup should delete-probe minimal
-    paths #1/#2 before pruning the allowlist
+    is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
+    restored; next cleanup is Hako LL/provider stack overflow triage
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -61,9 +62,9 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-292x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+  - `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
 - current blocker token:
-  - `inventory remaining generic/minimal raw scanner debt`
+  - `hako ll/provider stack overflow blocks minimal path deletion`
 
 ## Current Perf Snapshot
 
@@ -98,8 +99,10 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - delete-probe `pure_compile_minimal_paths` paths #1/#2 with pure keep,
-    historical ternary, and llvmlite compare canaries
+  - triage the Hako LL/provider stack overflow that blocks
+    `pure_compile_minimal_paths` paths #1/#2 deletion
+  - retry the deletion probe only after the daily Hako LL and llvmlite monitor
+    canaries are green or explicitly replaced by a newer owner
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references
@@ -121,7 +124,9 @@ cargo check -q
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
 - the current docs front is phase-292x `.inc` thin tag cleanup.
 - phase-291x CoreBox first catalog and cleanup slices are landed references.
-- active cleanup card is the next phase-292x metadata route card; `292x-93-array-rmw-window-route-card.md` is landed evidence.
+- active cleanup card is `292x-114-hako-ll-stack-overflow-predelete-card.md`;
+  `292x-112` is a blocked deletion probe until the stack overflow owner is fixed
+  or the stale canaries are explicitly replaced.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.

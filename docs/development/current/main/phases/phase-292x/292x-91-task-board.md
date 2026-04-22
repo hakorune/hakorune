@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-22
+Date: 2026-04-23
 Scope: Phase 292x task board for `.inc` thin tag cleanup.
 Related:
   - docs/development/current/main/phases/phase-292x/README.md
@@ -122,14 +122,28 @@ Related:
     ret-const, compare-branch, MapBox set-size, ArrayBox push-len,
     StringBox length const-fold, and StringBox indexOf const-fold
 
+- [x] A9 MapBox duplicate receiver unified dispatch
+  - design: `292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md`
+  - state: Rust VM method dispatch now strips duplicate BoxRef receiver aliases
+    before invoking MapBox/StringBox surface methods
+
 ## Active Card
+
+- [ ] A10 Hako LL stack overflow predelete
+  - design: `292x-114-hako-ll-stack-overflow-predelete-card.md`
+  - next state: identify and fix or retire the Hako LL/provider recursion that
+    makes the ret/branch deletion canaries abort after `292x-113`
+
+## Follow-up Cards
 
 - [ ] A8 pure compile minimal ret/branch deletion
   - design: `292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
-  - next state: delete-probe paths #1/#2 with pure keep, historical ternary,
-    and llvmlite compare canaries before pruning the allowlist
+  - state: probed but not landed; local deletion reduced guard debt from
+    47 to 34 lines, then was restored because Hako LL and llvmlite monitor
+    canaries stack overflow after the MapBox duplicate-receiver fix
 
-## Follow-up Cards
+Retry A8 only after A10 makes the daily Hako LL and llvmlite monitor canaries
+green or explicitly replaces stale canaries with a newer owner.
 
 ## Done Definition
 

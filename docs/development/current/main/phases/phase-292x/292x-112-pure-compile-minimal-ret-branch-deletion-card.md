@@ -1,9 +1,11 @@
 ---
-Status: Active
+Status: Blocked
 Date: 2026-04-23
 Scope: Delete-probe `pure_compile_minimal_paths` path #1 and #2.
 Related:
   - docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md
+  - docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md
+  - docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md
   - docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md
   - lang/c-abi/shims/hako_llvmc_ffi_pure_compile_minimal_paths.inc
   - tools/checks/inc_codegen_thin_shim_guard.sh
@@ -38,6 +40,24 @@ MIR/Hako LL route, not another `.inc` pattern matcher.
 4. If all pass, prune `hako_llvmc_ffi_pure_compile_minimal_paths.inc` in
    `tools/checks/inc_codegen_thin_shim_debt_allowlist.tsv` to the guard's new
    debt count.
+
+## Probe Result
+
+The 2026-04-23 deletion probe did not land.
+
+- Deleting path #1/#2 locally reduced the thin-shim guard from 47 to 34 debt
+  lines, but the `.inc` deletion was restored because the required canaries
+  were not green.
+- `archive/pure-historical` and `compat/pure-keep` pass. The
+  `pure-historical` runner root fix landed separately as a smoke-only commit.
+- The first failed canaries exposed a Rust VM duplicate-receiver bug for
+  `MapBox.set/get`; that predelete bug is fixed in `292x-113`.
+- After `292x-113`, `phase29x_backend_owner_daily_ret_const_min.sh` and
+  `compat/llvmlite-monitor-keep` move past `route_profile` missing and abort
+  with stack overflow.
+
+Next required card before this deletion can be retried:
+`292x-114-hako-ll-stack-overflow-predelete-card.md`.
 
 ## Acceptance
 

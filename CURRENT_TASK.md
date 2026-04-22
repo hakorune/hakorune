@@ -32,39 +32,41 @@ Scope: current lane / next lane / restart order only.
 18. `docs/development/current/main/phases/phase-292x/292x-STATUS.toml` (`phase-292x` compact status SSOT)
 19. `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
 20. `docs/development/current/main/phases/phase-292x/292x-91-task-board.md`
-21. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
-22. `docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md`
-23. `docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md`
-24. `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
-25. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
-26. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-27. `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
-28. `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
-29. `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
-30. `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
-31. `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
-32. `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
-33. `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
-34. `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
-35. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
-36. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
-37. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-38. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-39. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-40. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
-41. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
-42. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-43. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-44. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
-45. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-46. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-47. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-48. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-49. `docs/development/current/main/design/string-birth-sink-ssot.md`
-50. `docs/development/current/main/15-Workstream-Map.md`
-51. `git status -sb`
-52. `tools/checks/dev_gate.sh quick`
-53. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+21. `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
+22. `docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md`
+23. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+24. `docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md`
+25. `docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md`
+26. `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
+27. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+28. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+29. `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
+30. `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
+31. `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
+32. `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
+33. `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
+34. `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
+35. `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
+36. `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
+37. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+38. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
+39. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+40. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+41. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+42. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+43. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+44. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+45. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+46. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
+47. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+48. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+49. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+50. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+51. `docs/development/current/main/design/string-birth-sink-ssot.md`
+52. `docs/development/current/main/15-Workstream-Map.md`
+53. `git status -sb`
+54. `tools/checks/dev_gate.sh quick`
+55. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -82,7 +84,7 @@ Scope: current lane / next lane / restart order only.
   - method anchor:
     - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+    - `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
   - current app slice:
     - phase-291x CoreBox surface catalog is landed
     - StringBox / MapBox catalog seams are pinned
@@ -96,10 +98,11 @@ Scope: current lane / next lane / restart order only.
     - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
     - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
     - latest landed exact route tag: `array_getset_micro`
+    - MapBox duplicate receiver predelete fix is landed
     - guard baseline: 5 `.inc` files / 47 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is inventoried in `292x-111`; next cleanup should delete-probe paths
-      #1/#2 before pruning the allowlist
+      is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
+      restored until the Hako LL/provider stack overflow is resolved
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
@@ -112,7 +115,7 @@ Scope: current lane / next lane / restart order only.
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `inventory remaining generic/minimal raw scanner debt`
+    - `hako ll/provider stack overflow blocks minimal path deletion`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

@@ -11,9 +11,9 @@ phase = "phase-292x"
 title = ".inc codegen thin tag cleanup"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-current_blocker_token = "inventory remaining generic/minimal raw scanner debt"
+current_blocker_token = "hako ll/provider stack overflow blocks minimal path deletion"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md"
 
 purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
@@ -24,16 +24,16 @@ analysis_debt_files = 5
 analysis_debt_lines = 47
 remaining_seed_matcher_defs = 0
 
-last_landed_slice = "array_getset_micro"
-next_recommended_slice = "pure_compile_minimal_paths_delete_probe_1_2"
-next_recommended_reason = "292x-111 inventories pure_compile_minimal_paths; 292x-112 is the active delete-probe for the ret-const and compare-branch minimal path recognizers."
+last_landed_slice = "mapbox_duplicate_receiver_unified_dispatch"
+next_recommended_slice = "hako_ll_provider_stack_overflow_predelete"
+next_recommended_reason = "292x-112 deletion probe restored the C recognizers because daily Hako LL and llvmlite monitor canaries now stack overflow after the MapBox duplicate-receiver fix; first inventory points at ArrayBox clone recursion and stale monitor ownership."
 
 verification_min = [
   "cargo fmt --check",
-  "cargo test -q array_getset_micro_seed --lib",
-  "cargo test -q exact_seed_backend_route --lib",
-  "bash tools/build_hako_llvmc_ffi.sh",
-  "bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_getset_micro_contract.sh",
+  "cargo test -q method_callee_mapbox_set_get_strips_duplicate_receiver_arg --lib",
+  "cargo test -q method_callee_stringbox_length_strips_duplicate_receiver_arg --lib",
+  "bash tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh",
+  "bash tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh",
   "bash tools/checks/inc_codegen_thin_shim_guard.sh",
   "bash tools/checks/current_state_pointer_guard.sh",
   "git diff --check",
@@ -191,9 +191,17 @@ backend_tag = "array_getset_micro"
 status = "landed"
 smoke = "phase137x_direct_emit_array_getset_micro_contract.sh"
 
+[[landed_slice]]
+id = "mapbox_duplicate_receiver_unified_dispatch"
+kind = "predelete_gate_fix"
+owner = "MirInterpreter::normalize_duplicate_receiver_method_args"
+backend_tag = "none"
+status = "landed"
+smoke = "cargo test method_callee_mapbox_set_get_strips_duplicate_receiver_arg; manual MapBox set/get probe"
+
 [[backlog]]
 id = "pure_compile_minimal_paths_inventory"
 priority = 1
 remaining_matchers = 0
 owner_status = "documented in 292x-111; no code change yet"
-note = "Largest remaining debt bucket is hako_llvmc_ffi_pure_compile_minimal_paths.inc at 40 lines; cleanup order is delete-probe #1/#2, then Map/Array, then String const-eval decision."
+note = "Largest remaining debt bucket is hako_llvmc_ffi_pure_compile_minimal_paths.inc at 40 lines; path #1/#2 deletion is blocked by Hako LL/provider stack overflow, then Map/Array, then String const-eval decision."
