@@ -58,7 +58,8 @@ StringBox surface catalog
 | `291x-S11` | done | prove `ArrayBox.push` through the same MIR router Unified value path |
 | `291x-S12` | done | prove `ArrayBox.slice` through the same MIR router Unified value path |
 | `291x-S13` | done | prove `MapBox.size` through the same MIR router Unified value path |
-| `291x-S14` | parked | move the next CoreBox method family through the same route pattern |
+| `291x-S14` | done | prove `MapBox.len` through the same MIR router Unified value path |
+| `291x-S15` | parked | move the next CoreBox method family through the same route pattern |
 
 ## First Stable Surface Target
 
@@ -123,10 +124,12 @@ This StringBox slice is done when:
   `ArrayBox` return annotation
 - `MapBox.size` is the first MapBox route slice; `len` is still a separate
   current-vtable row and stays deferred
+- `MapBox.len` is the second MapBox route slice; it stays a separate row from
+  `size` and does not introduce a `length` alias
 - next safe cleanup is not a whole-CoreBox flip; it should allowlist one
   proven CoreBox method family, with remaining ArrayBox rows and MapBox as
   separate candidates
-- remaining router cleanup after MapBox size: ArrayBox `get` / `set` /
+- remaining router cleanup after MapBox len: ArrayBox `get` / `set` /
   `pop` / `remove` / `insert` and remaining MapBox rows
 - two-arg `lastIndexOf(needle, start_pos)` remains deferred and must stay off
   the allowlist until a dedicated runtime card lands

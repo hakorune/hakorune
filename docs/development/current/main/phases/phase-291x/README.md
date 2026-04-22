@@ -119,11 +119,12 @@ Landed CoreBox router first slice:
   and `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
   `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
   `find`, plus `ArrayBox.length` / `size` / `len`, `ArrayBox.push`,
-  `ArrayBox.slice`, and `MapBox.size` families through `Route::Unified`.
+  `ArrayBox.slice`, `MapBox.size`, and `MapBox.len` rows through
+  `Route::Unified`.
 - `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
   `StringBox` before route selection; uncovered methods remain on the BoxCall
   fallback.
-- remaining router cleanup after MapBox size: ArrayBox `get` / `set` /
+- remaining router cleanup after MapBox len: ArrayBox `get` / `set` /
   `pop` / `remove` / `insert` and remaining MapBox rows.
 - two-arg `lastIndexOf` remains deferred, and remaining ArrayBox rows / MapBox
   remain separate route-flip cards.

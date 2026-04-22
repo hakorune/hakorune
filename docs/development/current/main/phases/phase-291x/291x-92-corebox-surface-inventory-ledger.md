@@ -130,7 +130,9 @@ Landed first slice and follow-up:
 - twelfth implementation moved `MapBox.size` after adding a focused
   receiver-shape fixture and preserving `MapBox.len` / `MapBox.has` fallback
   sentinels.
-- remaining router cleanup after MapBox size: ArrayBox `get`, `set`, `pop`,
+- thirteenth implementation moved `MapBox.len` after adding a focused
+  receiver-shape fixture and preserving `MapBox.has` fallback sentinels.
+- remaining router cleanup after MapBox len: ArrayBox `get`, `set`, `pop`,
   `remove`, `insert` and remaining MapBox rows.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.

@@ -27,6 +27,7 @@ Landed route slices:
 - `ArrayBox.push`
 - `ArrayBox.slice`
 - `MapBox.size`
+- `MapBox.len`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -116,6 +117,8 @@ explicit `ArrayBox`, without touching generic element-return methods.
 `MapBox.size` is the first MapBox route slice because it is read-only,
 arity-zero, and publishes a fixed `Integer` result without collapsing the
 separate `len` slot.
+`MapBox.len` is a separate read-only current-vtable row with the same fixed
+`Integer` result, kept distinct from `size` and without adding `length`.
 
 ## Implementation Snapshot
 
@@ -129,8 +132,8 @@ separate `len` slot.
   `ArrayMethodId::Length`, `ArrayMethodId::Push`, and `ArrayMethodId::Slice`
   families to `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
-  `MapMethodId::Size` row to `Route::Unified`; remaining MapBox rows still
-  use the family-wide fallback.
+  `MapMethodId::Size` and `MapMethodId::Len` rows to `Route::Unified`;
+  remaining MapBox rows still use the family-wide fallback.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -155,7 +158,7 @@ separate `len` slot.
   publish `MirType::Integer`; `ArrayBox.push` uses the receiver-plus-value
   shape and stays `Void`; `ArrayBox.slice` uses the
   receiver-plus-start-plus-end shape and publishes `Box(ArrayBox)`;
-  `MapBox.size` uses the arity-zero receiver shape and publishes
+  `MapBox.size` and `MapBox.len` use the arity-zero receiver shape and publish
   `MirType::Integer`; `lastIndexOf/2`, `ArrayBox.get`, and `MapBox.has`
   remain pinned as BoxCall fallback sentinels.
 
@@ -189,7 +192,7 @@ implemented.
 - remaining ArrayBox method rows: `get`, `set`, `pop`, `remove`, `insert`
 - remaining `MapBox` route flips
 
-Remaining cleanup after the MapBox size route: ArrayBox generic/value rows,
+Remaining cleanup after the MapBox len route: ArrayBox generic/value rows,
 ArrayBox write rows, and remaining MapBox rows.
 
 Each method family needs its own fixture and route assertion before the

@@ -531,3 +531,40 @@ static box Main {
         "MapBox.has is still deferred and should stay on the BoxCall fallback shape"
     );
 }
+
+#[test]
+fn map_value_len_uses_unified_receiver_arg_shape_and_integer_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local m = new MapBox()
+    local n = m.len()
+    local h = m.has("k")
+    return n
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let len_arg_lens = method_call_arg_lens(&module, "MapBox", "len");
+    let len_result_types = method_call_result_types(&module, "MapBox", "len");
+    let has_arg_lens = method_call_arg_lens(&module, "MapBox", "has");
+
+    assert_eq!(
+        len_arg_lens,
+        vec![1],
+        "MapBox.len should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        len_result_types,
+        vec![Some(MirType::Integer)],
+        "MapBox.len should publish an Integer result type"
+    );
+    assert_eq!(
+        has_arg_lens,
+        vec![1],
+        "MapBox.has is still deferred and should stay on the BoxCall fallback shape"
+    );
+}

@@ -191,5 +191,6 @@ mod tests {
         );
         assert_eq!(infer_return_type("ArrayBox.get/1"), None);
         assert_eq!(infer_return_type("MapBox.size/0"), Some(MirType::Integer));
+        assert_eq!(infer_return_type("MapBox.len/0"), Some(MirType::Integer));
     }
 }
