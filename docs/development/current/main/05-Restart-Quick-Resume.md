@@ -50,9 +50,9 @@ cargo check -q
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
-    `StringBox.lastIndexOf`, and `StringBox.replace` are on the Unified value
-    path; remaining cleanup is about 3 family-equivalents, starting with
-    `indexOf` / `find`
+    `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
+    `find` are on the Unified value path; remaining cleanup is about 2
+    family-equivalents: `ArrayBox` and `MapBox`
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:

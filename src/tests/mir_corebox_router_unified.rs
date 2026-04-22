@@ -325,25 +325,46 @@ static box Main {
 }
 
 #[test]
-fn string_value_index_of_stays_boxcall_arg_shape() {
+fn string_value_index_of_and_find_use_unified_receiver_arg_shape_and_integer_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
     let src = r#"
 static box Main {
   main() {
     local s = "banana"
-    local idx = s.indexOf("a")
-    return idx
+    local idx1 = s.indexOf("a")
+    local idx2 = s.indexOf("a", 2)
+    local alias1 = s.find("a")
+    local alias2 = s.find("a", 2)
+    return alias2
   }
 }
 "#;
 
     let module = compile_src(src);
-    let arg_lens = method_call_arg_lens(&module, "StringBox", "indexOf");
+    let index_arg_lens = method_call_arg_lens(&module, "StringBox", "indexOf");
+    let index_result_types = method_call_result_types(&module, "StringBox", "indexOf");
+    let find_arg_lens = method_call_arg_lens(&module, "StringBox", "find");
+    let find_result_types = method_call_result_types(&module, "StringBox", "find");
 
     assert_eq!(
-        arg_lens,
-        vec![1],
-        "StringBox.indexOf is not allowlisted yet and should stay on the BoxCall fallback shape"
+        index_arg_lens,
+        vec![2, 3],
+        "StringBox.indexOf/1 and indexOf/2 should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        index_result_types,
+        vec![Some(MirType::Integer), Some(MirType::Integer)],
+        "StringBox.indexOf should publish Integer result types"
+    );
+    assert_eq!(
+        find_arg_lens,
+        vec![2, 3],
+        "StringBox.find/1 and find/2 should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        find_result_types,
+        vec![Some(MirType::Integer), Some(MirType::Integer)],
+        "StringBox.find should publish Integer result types"
     );
 }

@@ -115,11 +115,14 @@ Landed first slice and follow-up:
 - seventh implementation moved `replace` after adding a focused
   receiver-plus-old-plus-new fixture and String return-type publication
   assertion.
-- remaining router cleanup count after `replace`: 3 family-equivalents:
-  `indexOf` / `find`, `ArrayBox`, and `MapBox`.
-- next implementation should move one more StringBox method family, likely
-  `indexOf` / `find`, after adding one-arg and two-arg fixtures.
-- `ArrayBox` and `MapBox` must stay out of the next StringBox router flip.
+- eighth implementation moved `indexOf` / `find` after adding focused one-arg
+  and two-arg receiver-shape fixtures and Integer return-type publication
+  assertions.
+- remaining router cleanup count after `indexOf` / `find`: 2
+  family-equivalents: `ArrayBox` and `MapBox`.
+- next implementation should choose one collection CoreBox family and keep it
+  separate from the other route flip.
+- `ArrayBox` and `MapBox` must stay separate route-flip cards.
 
 ## MapBox Current Duplication
 

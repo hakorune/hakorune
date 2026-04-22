@@ -55,6 +55,8 @@ fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
                 | crate::boxes::basic::StringMethodId::Contains
                 | crate::boxes::basic::StringMethodId::LastIndexOf
                 | crate::boxes::basic::StringMethodId::Replace
+                | crate::boxes::basic::StringMethodId::IndexOf
+                | crate::boxes::basic::StringMethodId::IndexOfFrom
         )
     )
 }
@@ -118,6 +120,14 @@ mod tests {
     }
 
     #[test]
+    fn string_index_of_family_uses_unified_value_path() {
+        assert_eq!(route("StringBox", "indexOf", 1), Route::Unified);
+        assert_eq!(route("StringBox", "indexOf", 2), Route::Unified);
+        assert_eq!(route("StringBox", "find", 1), Route::Unified);
+        assert_eq!(route("StringBox", "find", 2), Route::Unified);
+    }
+
+    #[test]
     fn non_allowlisted_corebox_methods_stay_boxcall() {
         assert_eq!(route("StringBox", "length", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "substring", 1), Route::BoxCall);
@@ -126,7 +136,10 @@ mod tests {
         assert_eq!(route("StringBox", "contains", 0), Route::BoxCall);
         assert_eq!(route("StringBox", "lastIndexOf", 2), Route::BoxCall);
         assert_eq!(route("StringBox", "replace", 1), Route::BoxCall);
-        assert_eq!(route("StringBox", "indexOf", 1), Route::BoxCall);
+        assert_eq!(route("StringBox", "indexOf", 0), Route::BoxCall);
+        assert_eq!(route("StringBox", "indexOf", 3), Route::BoxCall);
+        assert_eq!(route("StringBox", "find", 0), Route::BoxCall);
+        assert_eq!(route("StringBox", "find", 3), Route::BoxCall);
         assert_eq!(route("ArrayBox", "length", 0), Route::BoxCall);
         assert_eq!(route("MapBox", "size", 0), Route::BoxCall);
     }
