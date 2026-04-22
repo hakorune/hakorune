@@ -186,7 +186,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         owned_str_consts_n = 0;
       }
       int array_rmw_trace_budget = 8;
-      int array_string_len_trace_budget = 8;
       int generic_walk_trace_budget = 24;
       int generic_call_trace_budget = 24;
       int generic_method_trace_budget = 24;

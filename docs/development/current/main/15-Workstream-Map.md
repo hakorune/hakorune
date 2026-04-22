@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array_rmw_window route tag landed -> array_string_len_window len-only + keep-live + source-only route tags landed` |
+| Front | `array_string_len_window routes metadata-owned -> legacy C analyzer deleted` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `delete legacy array_string_len_window C analyzer after source-only metadata route landed` |
-| Next | `delete legacy array_string_len_window C analyzer` |
+| Blocker | `delete legacy array_rmw_window C analyzer after metadata route landed` |
+| Next | `delete legacy array_rmw_window C analyzer` |
 | After Next | `generic method route policy metadata` |
 
 ## Current Read
@@ -26,7 +26,7 @@ Related:
   - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -37,10 +37,11 @@ Related:
 3. `phase-292x array_rmw_window MIR-owned route tag`
 4. `phase-292x array_string_len_window len-only + keep-live metadata routes`
 5. `phase-292x array_string_len_window source-only direct-set metadata route`
-6. `phase-292x delete legacy array_string_len_window C analyzer`
-7. `phase-292x generic method route policy metadata`
-8. `phase-292x string concat / direct-set windows metadata-only`
-9. `phase-292x exact seed ladders to function-level backend route tags`
+6. `phase-292x delete legacy array_string_len_window C analyzer` landed
+7. `phase-292x delete legacy array_rmw_window C analyzer`
+8. `phase-292x generic method route policy metadata`
+9. `phase-292x string concat / direct-set windows metadata-only`
+10. `phase-292x exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

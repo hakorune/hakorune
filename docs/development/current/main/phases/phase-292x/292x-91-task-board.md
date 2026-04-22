@@ -14,7 +14,7 @@ Related:
 - [x] G1 `.inc` analysis-debt no-growth guard
   - command: `tools/checks/inc_codegen_thin_shim_guard.sh`
   - integrated into: `tools/checks/dev_gate.sh quick`
-- [ ] G2 route-family deletion accounting
+- [x] G2 route-family deletion accounting
   - when a C analyzer is retired, reduce
     `tools/checks/inc_codegen_thin_shim_debt_allowlist.tsv` in the same commit
 
@@ -28,8 +28,8 @@ Related:
 
 - [x] A2a `array_string_len_window` len-only MIR-owned route tag
   - design: `292x-94-array-string-len-window-route-card.md`
-  - state: MIR metadata is emitted for len-only get/copy*/length windows; `.inc` reads metadata first and treats the old C
-    analyzer as temporary fallback for live-source/source-reuse modes
+  - state: MIR metadata is emitted for len-only get/copy*/length windows;
+    `.inc` reads metadata and the old analyzer was retired in A2d
   - trace proof: `[llvm-route/trace] stage=array_string_len_window result=hit reason=mir_route_metadata`
 
 - [x] A2b `array_string_len_window` keep-live MIR-owned route tag
@@ -45,13 +45,18 @@ Related:
     `reason=mir_route_metadata`
   - trace proof: `[llvm-route/trace] stage=array_string_len_window result=hit reason=mir_route_metadata ... source_only_insert_mid=1`
 
+- [x] A2d delete legacy `array_string_len_window` C analyzer
+  - design: `292x-97-array-string-len-c-analyzer-deletion-card.md`
+  - state: `analyze_array_string_len_window_candidate` and its fallback branch
+    are deleted; `.inc` keeps metadata validation / emit / skip / fail-fast
+    for the migrated family
+
 ## Active Card
 
-- [ ] A2d delete legacy `array_string_len_window` C analyzer
-  - design: `292x-97-array-string-len-c-analyzer-deletion-card.md`
-  - current owner leak: `analyze_array_string_len_window_candidate`
+- [ ] A1b delete legacy `array_rmw_window` C analyzer
+  - design: `292x-98-array-rmw-c-analyzer-deletion-card.md`
   - desired state: `.inc` keeps only metadata validation / emit / skip /
-    fail-fast for the migrated family
+    fail-fast for the migrated `array_rmw_window` family
 
 ## Follow-up Cards
 

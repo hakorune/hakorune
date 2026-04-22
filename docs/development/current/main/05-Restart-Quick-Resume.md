@@ -42,7 +42,8 @@ cargo check -q
   - `array_string_len_window` len-only MIR-owned route tag is landed
   - `array_string_len_window` keep-live source reuse MIR-owned route tag is landed
   - `array_string_len_window` source-only direct-set reuse MIR-owned route tag is landed
-  - next implementation card is legacy `array_string_len_window` C analyzer deletion
+  - legacy `array_string_len_window` C analyzer deletion is landed
+  - next implementation card is legacy `array_rmw_window` C analyzer deletion
   - CoreBox surface catalog work is landed and now a reference lane
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
@@ -51,9 +52,9 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-292x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
+  - `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
 - current blocker token:
-  - `delete legacy array_string_len_window C analyzer after source-only metadata route landed`
+  - `delete legacy array_rmw_window C analyzer after metadata route landed`
 
 ## Current Perf Snapshot
 
@@ -88,7 +89,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - delete the legacy `array_string_len_window` C analyzer now that all current modes are MIR-owned route tags
+  - delete the legacy `array_rmw_window` C analyzer now that its metadata route is canonical
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

@@ -17,6 +17,8 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md
   - docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md
   - docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md
+  - docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md
+  - docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -29,7 +31,8 @@ Related:
 - Landed second target: `array_string_len_window` len-only route
 - Landed third target: `array_string_len_window` keep-live source reuse
 - Landed fourth target: `array_string_len_window` source-only direct-set reuse
-- Next implementation target: delete legacy `array_string_len_window` C analyzer
+- Landed fifth target: delete legacy `array_string_len_window` C analyzer
+- Next implementation target: delete legacy `array_rmw_window` C analyzer
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless this cleanup reopens a real app/perf blocker.
@@ -62,7 +65,8 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 6. `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
 7. `docs/development/current/main/phases/phase-292x/292x-96-array-string-len-source-only-route-card.md`
 8. `docs/development/current/main/phases/phase-292x/292x-97-array-string-len-c-analyzer-deletion-card.md`
-9. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+9. `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
+10. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
 
 ## Current Rule
 
@@ -78,7 +82,7 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 30 `.inc` files, 324 analysis-debt lines
+- baseline: 30 `.inc` files, 319 analysis-debt lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 
 Landed first card:
@@ -119,10 +123,18 @@ array_string_len_window source-only direct-set reuse
   -> source-only smokes require MIR metadata route
 ```
 
-Next open card:
+Landed fifth card:
 
 ```text
 array_string_len_window C analyzer deletion
   -> delete analyze_array_string_len_window_candidate
+  -> keep only metadata validation / emit / skip / fail-fast
+```
+
+Next open card:
+
+```text
+array_rmw_window C analyzer deletion
+  -> delete analyze_array_rmw_window_candidate
   -> keep only metadata validation / emit / skip / fail-fast
 ```

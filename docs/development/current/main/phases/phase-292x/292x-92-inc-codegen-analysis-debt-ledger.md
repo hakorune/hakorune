@@ -16,9 +16,9 @@ Related:
 Current no-growth baseline:
 
 - `.inc` files: 76
-- `.inc` lines: 19,481
+- `.inc` lines: 19,478
 - analysis-debt files: 30
-- analysis-debt lines: 324
+- analysis-debt lines: 319
 
 The baseline is not a permission slip to add more C analysis. It is a deletion
 ledger. Reductions are expected as route families move to MIR-owned metadata.
@@ -47,3 +47,13 @@ The guard counts lines matching:
 - current C function: `analyze_array_rmw_window_candidate`
 - target: route tag emitted by MIR, consumed by
   `hako_llvmc_ffi_generic_method_get_lowering.inc`
+
+## Landed Reduction
+
+`array_string_len_window`:
+
+- deleted C function: `analyze_array_string_len_window_candidate`
+- deleted trace fallback: `trace_array_string_len_window_candidate`
+- lowered allowlist:
+  - `hako_llvmc_ffi_generic_method_get_lowering.inc`: `4 -> 2`
+  - `hako_llvmc_ffi_generic_method_get_window.inc`: `6 -> 3`

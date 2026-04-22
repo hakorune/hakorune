@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-22
 Scope: A2d cleanup card for deleting the legacy `.inc` `array_string_len_window` analyzer after all modes are MIR metadata-owned.
 Related:
@@ -35,16 +35,22 @@ Missing metadata may fall through to generic lowering for legacy JSON, but
 route-required fixtures and app smokes must assert `reason=mir_route_metadata`
 so coverage regressions are visible.
 
-## Delete Candidates
+## Deleted
 
 - `struct ArrayStringLenWindowMatch`
-- `struct ArrayStringPiecewiseDirectSetSourceReuseMatch`
 - `inst_is_array_string_len_safe_reuse`
-- `match_array_string_piecewise_concat3_direct_set_source_reuse`
 - `inst_is_array_string_len_insert_mid_source_reuse`
 - `trace_array_string_len_window_candidate`
 - `analyze_array_string_len_window_candidate`
 - fallback branches in `hako_llvmc_ffi_generic_method_get_lowering.inc`
+
+## Kept
+
+- `struct ArrayStringPiecewiseDirectSetSourceReuseMatch`
+- `match_array_string_piecewise_concat3_direct_set_source_reuse`
+
+These still belong to the separate substring/direct-set policy path. They are
+not part of the retired `array_string_len_window` route owner.
 
 ## Acceptance
 
@@ -59,3 +65,13 @@ bash tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_bo
 bash tools/checks/inc_codegen_thin_shim_guard.sh
 ```
 
+## Result
+
+- `.inc` no longer contains `analyze_array_string_len_window_candidate` or its
+  trace fallback.
+- `array_string_len_window` route selection is metadata-only for the migrated
+  family.
+- `tools/checks/inc_codegen_thin_shim_debt_allowlist.tsv` was reduced in the
+  same slice:
+  - `hako_llvmc_ffi_generic_method_get_lowering.inc`: `4 -> 2`
+  - `hako_llvmc_ffi_generic_method_get_window.inc`: `6 -> 3`
