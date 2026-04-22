@@ -77,9 +77,7 @@ Related:
     mirrors should only carry lane/blocker/next-slice summaries instead of
     repeating every slice result
 
-## Active Card
-
-- [ ] A5 exact seed ladders to function-level backend route tags
+- [x] A5 exact seed ladders to function-level backend route tags
   - design: `292x-101-exact-seed-ladder-function-route-tags-card.md`
   - compact status: `292x-STATUS.toml`
   - first slice landed: `array_string_store_micro` now uses
@@ -115,8 +113,21 @@ Related:
   - thirteenth slice landed: `292x-110` moved the unrelated
     `array_getset_micro` whole-function seed behind
     `array_getset_micro_seed_route`
-  - next state: no exact seed matchers remain; inventory the
-    generic/minimal-path raw scanner bucket before editing it
+  - final state: no exact seed matchers remain; the next bucket is
+    `pure_compile_minimal_paths`
+
+- [x] A7 pure compile minimal paths inventory
+  - design: `292x-111-pure-compile-minimal-paths-inventory-card.md`
+  - state: the remaining 40-line debt bucket is split into six paths:
+    ret-const, compare-branch, MapBox set-size, ArrayBox push-len,
+    StringBox length const-fold, and StringBox indexOf const-fold
+
+## Active Card
+
+- [ ] A8 pure compile minimal ret/branch deletion
+  - design: `292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+  - next state: delete-probe paths #1/#2 with pure keep, historical ternary,
+    and llvmlite compare canaries before pruning the allowlist
 
 ## Follow-up Cards
 

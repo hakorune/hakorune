@@ -31,6 +31,9 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-107-userbox-loop-micro-seed-route-card.md
   - docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md
   - docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md
+  - docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md
+  - docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md
+  - docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -48,7 +51,7 @@ Related:
 - Landed seventh target: string concat / direct-set windows metadata-only
 - Landed eighth target: `generic_method.has` route policy metadata
 - Landed exact-seed slice: `array_getset_micro` route metadata
-- Next cleanup target: `pure_compile_minimal_paths_inventory`
+- Next cleanup target: `pure_compile_minimal_paths_delete_probe_1_2`
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -86,9 +89,11 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 10. `docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md`
 11. `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
 12. `docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md`
-13. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-14. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
-15. Historical per-slice cards as needed:
+13. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+14. `docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md`
+15. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+16. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+17. Historical per-slice cards as needed:
    - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
@@ -97,7 +102,7 @@ only as temporary fallback while each family gets a MIR-owned route tag.
    - `docs/development/current/main/phases/phase-292x/292x-98-array-rmw-c-analyzer-deletion-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-99-string-direct-set-window-metadata-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-100-generic-method-route-policy-metadata-card.md`
-15. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
+18. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
 
 ## Current Rule
 
@@ -209,5 +214,6 @@ exact seed ladders to function-level backend route tags
   -> twelfth slice landed for UserBox known-receiver chain/micro method metadata
   -> thirteenth slice landed for array_getset_micro metadata
   -> no hako_llvmc_match_*seed definitions remain
-  -> next recommended slice is pure_compile_minimal_paths_inventory
+  -> pure_compile_minimal_paths inventory card is documented
+  -> next recommended slice is delete-probe for minimal paths #1/#2
 ```

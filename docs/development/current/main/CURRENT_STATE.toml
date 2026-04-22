@@ -9,11 +9,11 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; array_string_store_micro, concat_const_suffix_micro, substring_views_only_micro, substring_concat_loop_ascii, array_rmw_add1_leaf, sum_variant_tag_local, sum_variant_project_local, userbox_point_local_scalar, userbox_flag_pointf_local_scalar, userbox_loop_micro, userbox_known_receiver_method_seed local/chain/micro, and array_getset_micro exact seed route tags landed; no hako_llvmc_match_*seed definitions remain; next cleanup should inventory pure_compile_minimal_paths"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; array_string_store_micro, concat_const_suffix_micro, substring_views_only_micro, substring_concat_loop_ascii, array_rmw_add1_leaf, sum_variant_tag_local, sum_variant_project_local, userbox_point_local_scalar, userbox_flag_pointf_local_scalar, userbox_loop_micro, userbox_known_receiver_method_seed local/chain/micro, and array_getset_micro exact seed route tags landed; no hako_llvmc_match_*seed definitions remain; pure_compile_minimal_paths inventory is documented; next cleanup should delete-probe minimal paths #1/#2"
 active_phase = "docs/development/current/main/phases/phase-292x/README.md"
 phase_status = "docs/development/current/main/phases/phase-292x/292x-STATUS.toml"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md"
 
 current_blocker_token = "inventory remaining generic/minimal raw scanner debt"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"

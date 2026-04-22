@@ -18,7 +18,7 @@ Related:
 | Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, and array_getset_micro migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `inventory remaining generic/minimal raw scanner debt` |
-| Next | `pure_compile_minimal_paths inventory` |
+| Next | `pure_compile_minimal_paths delete-probe #1/#2` |
 | After Next | `next .inc raw-analysis deletion candidate` |
 
 ## Current Read
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
   - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -54,7 +54,8 @@ Related:
 19. `phase-292x userbox_loop_micro exact seed function route tag` landed
 20. `phase-292x userbox_known_receiver_method_seed local/copy exact seed function route tag` landed
 21. `phase-292x userbox_known_receiver_method_seed chain/micro exact seed function route tag` landed
-22. `phase-292x generic/minimal raw scanner debt inventory`
+22. `phase-292x pure_compile_minimal_paths inventory` landed
+23. `phase-292x pure_compile_minimal_paths delete-probe #1/#2`
 
 ## Parked Corridor
 

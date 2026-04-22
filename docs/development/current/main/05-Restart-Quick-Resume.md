@@ -42,9 +42,9 @@ cargo check -q
   - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
   - latest landed exact route tag: `array_getset_micro`
   - guard baseline: 5 `.inc` files / 47 analysis-debt lines
-  - no `hako_llvmc_match_*seed` definitions remain; next cleanup should
-    inventory `pure_compile_minimal_paths` before editing generic fallback
-    scanners
+  - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
+    is inventoried in `292x-111`; next cleanup should delete-probe minimal
+    paths #1/#2 before pruning the allowlist
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -61,7 +61,7 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-292x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
+  - `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
 - current blocker token:
   - `inventory remaining generic/minimal raw scanner debt`
 
@@ -98,8 +98,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - create a dedicated owner card for the remaining generic/minimal-path raw
-    scanner bucket before editing it
+  - delete-probe `pure_compile_minimal_paths` paths #1/#2 with pure keep,
+    historical ternary, and llvmlite compare canaries
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references

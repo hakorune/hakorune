@@ -13,7 +13,7 @@ title = ".inc codegen thin tag cleanup"
 active_lane = "phase-292x .inc codegen thin tag cleanup"
 current_blocker_token = "inventory remaining generic/minimal raw scanner debt"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md"
 
 purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
@@ -25,8 +25,8 @@ analysis_debt_lines = 47
 remaining_seed_matcher_defs = 0
 
 last_landed_slice = "array_getset_micro"
-next_recommended_slice = "pure_compile_minimal_paths_inventory"
-next_recommended_reason = "No hako_llvmc_match_*seed definitions remain; the largest remaining .inc analysis debt is the generic/minimal-path raw block scanner bucket."
+next_recommended_slice = "pure_compile_minimal_paths_delete_probe_1_2"
+next_recommended_reason = "292x-111 inventories pure_compile_minimal_paths; 292x-112 is the active delete-probe for the ret-const and compare-branch minimal path recognizers."
 
 verification_min = [
   "cargo fmt --check",
@@ -195,5 +195,5 @@ smoke = "phase137x_direct_emit_array_getset_micro_contract.sh"
 id = "pure_compile_minimal_paths_inventory"
 priority = 1
 remaining_matchers = 0
-owner_status = "needs owner card before editing generic/minimal fallback scanners"
-note = "Largest remaining debt bucket is hako_llvmc_ffi_pure_compile_minimal_paths.inc at 40 lines; split only after documenting which paths are true fallback glue."
+owner_status = "documented in 292x-111; no code change yet"
+note = "Largest remaining debt bucket is hako_llvmc_ffi_pure_compile_minimal_paths.inc at 40 lines; cleanup order is delete-probe #1/#2, then Map/Array, then String const-eval decision."
