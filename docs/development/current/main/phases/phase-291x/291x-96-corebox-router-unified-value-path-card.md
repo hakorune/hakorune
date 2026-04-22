@@ -26,6 +26,7 @@ Landed route slices:
 - `ArrayBox.length` / `ArrayBox.size` / `ArrayBox.len`
 - `ArrayBox.push`
 - `ArrayBox.slice`
+- `ArrayBox.get`
 - `MapBox.size`
 - `MapBox.len`
 - `MapBox.has`
@@ -115,6 +116,9 @@ generic element-return methods.
 argument, has a catalog-backed `WriteHeap` effect, and returns `Void`.
 `ArrayBox.slice` is the next read-only slice because its return type is an
 explicit `ArrayBox`, without touching generic element-return methods.
+`ArrayBox.get` is the first generic element-return slice; it moves routing to
+the Unified receiver-plus-index shape while intentionally leaving the MIR
+result type `Unknown` because the element type is data-dependent.
 `MapBox.size` is the first MapBox route slice because it is read-only,
 arity-zero, and publishes a fixed `Integer` result without collapsing the
 separate `len` slot.
@@ -132,8 +136,8 @@ separate `len` slot.
   `StringMethodId::Replace`, `StringMethodId::IndexOf`, and
   `StringMethodId::IndexOfFrom` families to `Route::Unified`.
 - `src/mir/builder/router/policy.rs` also allowlists the catalog-backed
-  `ArrayMethodId::Length`, `ArrayMethodId::Push`, and `ArrayMethodId::Slice`
-  families to `Route::Unified`.
+  `ArrayMethodId::Length`, `ArrayMethodId::Push`, `ArrayMethodId::Slice`, and
+  `ArrayMethodId::Get` families to `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, and `MapMethodId::Has` rows to
   `Route::Unified`; remaining MapBox rows still use the family-wide fallback.
@@ -161,9 +165,11 @@ separate `len` slot.
   publish `MirType::Integer`; `ArrayBox.push` uses the receiver-plus-value
   shape and stays `Void`; `ArrayBox.slice` uses the
   receiver-plus-start-plus-end shape and publishes `Box(ArrayBox)`;
+  `ArrayBox.get` uses the receiver-plus-index shape and intentionally stays
+  `MirType::Unknown`;
   `MapBox.size` and `MapBox.len` use the arity-zero receiver shape and publish
   `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
-  publishes `MirType::Bool`; `lastIndexOf/2`, `ArrayBox.get`, and `MapBox.get`
+  publishes `MirType::Bool`; `lastIndexOf/2`, `ArrayBox.pop`, and `MapBox.get`
   remain pinned as BoxCall fallback sentinels.
 
 ## Acceptance
@@ -193,9 +199,9 @@ implemented.
 
 ## Remaining Work
 
-- remaining router inventory order after `MapBox.has`: `ArrayBox.get`,
-  `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`,
-  `MapBox.get`, then `MapBox.set`
+- remaining router inventory order after `ArrayBox.get`: `ArrayBox.pop`,
+  `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.get`, then
+  `MapBox.set`
 - contract-first backlog: two-arg `StringBox.lastIndexOf(needle, start_pos)`,
   `MapBox.length`, `MapBox.keys` / `values`, `MapBox.delete` / `remove` /
   `clear`, and MapBox write-return / bad-key normalization

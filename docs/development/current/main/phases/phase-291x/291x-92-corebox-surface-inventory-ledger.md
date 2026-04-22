@@ -134,8 +134,11 @@ Landed first slice and follow-up:
   receiver-shape fixture and preserving `MapBox.has` fallback sentinels.
 - fourteenth implementation moved `MapBox.has` after adding a focused
   receiver-plus-key fixture and preserving `MapBox.get` fallback sentinels.
-- remaining router inventory order after MapBox has: ArrayBox `get`, `pop`,
-  `set`, `remove`, `insert`, then MapBox `get` and `set`.
+- fifteenth implementation moved `ArrayBox.get` after adding a focused
+  receiver-plus-index fixture while keeping its generic result type
+  `Unknown` and preserving `ArrayBox.pop` fallback sentinels.
+- remaining router inventory order after ArrayBox get: ArrayBox `pop`, `set`,
+  `remove`, `insert`, then MapBox `get` and `set`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
 - hold MapBox `keys` / `values` / `delete` / `remove` / `clear` until their

@@ -75,6 +75,7 @@ fn is_arraybox_unified_value_path(method: &str, arity: usize) -> bool {
             crate::boxes::array::ArrayMethodId::Length
                 | crate::boxes::array::ArrayMethodId::Push
                 | crate::boxes::array::ArrayMethodId::Slice
+                | crate::boxes::array::ArrayMethodId::Get
         )
     )
 }
@@ -175,6 +176,11 @@ mod tests {
     }
 
     #[test]
+    fn array_get_family_uses_unified_value_path() {
+        assert_eq!(route("ArrayBox", "get", 1), Route::Unified);
+    }
+
+    #[test]
     fn map_size_row_uses_unified_value_path() {
         assert_eq!(route("MapBox", "size", 0), Route::Unified);
     }
@@ -203,7 +209,8 @@ mod tests {
         assert_eq!(route("StringBox", "find", 0), Route::BoxCall);
         assert_eq!(route("StringBox", "find", 3), Route::BoxCall);
         assert_eq!(route("ArrayBox", "length", 1), Route::BoxCall);
-        assert_eq!(route("ArrayBox", "get", 1), Route::BoxCall);
+        assert_eq!(route("ArrayBox", "get", 0), Route::BoxCall);
+        assert_eq!(route("ArrayBox", "get", 2), Route::BoxCall);
         assert_eq!(route("ArrayBox", "set", 2), Route::BoxCall);
         assert_eq!(route("ArrayBox", "push", 0), Route::BoxCall);
         assert_eq!(route("ArrayBox", "push", 2), Route::BoxCall);

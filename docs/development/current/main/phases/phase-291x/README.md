@@ -119,13 +119,15 @@ Landed CoreBox router first slice:
   and `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
   `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
   `find`, plus `ArrayBox.length` / `size` / `len`, `ArrayBox.push`,
-  `ArrayBox.slice`, `MapBox.size`, `MapBox.len`, and `MapBox.has` rows through
-  `Route::Unified`.
+  `ArrayBox.slice`, `ArrayBox.get`, `MapBox.size`, `MapBox.len`, and
+  `MapBox.has` rows through `Route::Unified`.
 - `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
   `StringBox` before route selection; uncovered methods remain on the BoxCall
   fallback.
-- remaining router inventory order after MapBox has: ArrayBox `get`, `pop`,
-  `set`, `remove`, `insert`, then MapBox `get` and `set`.
+- `ArrayBox.get` intentionally stays `MirType::Unknown`; the returned element
+  type remains data-dependent.
+- remaining router inventory order after ArrayBox get: ArrayBox `pop`, `set`,
+  `remove`, `insert`, then MapBox `get` and `set`.
 - two-arg `lastIndexOf`, `MapBox.length`, MapBox extended rows, and MapBox
   write-return / bad-key normalization remain contract-first cleanup cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
