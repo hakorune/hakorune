@@ -77,6 +77,8 @@ Related:
   - first slice landed: `array_string_store_micro` now uses
     `metadata.exact_seed_backend_route` to select the already-proven
     `array_string_store_micro_seed_route`
+  - second slice landed: `concat_const_suffix_micro` now uses the same
+    function-level tag to select `concat_const_suffix_micro_seed_route`
   - next state: continue one exact seed ladder at a time for remaining
     metadata-owned seeds
 

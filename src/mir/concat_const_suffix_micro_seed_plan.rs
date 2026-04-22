@@ -58,22 +58,19 @@ fn match_concat_const_suffix_micro_seed_route(
     }
 
     let b0 = interesting(blocks[0])?;
-    expect_ops(
-        &b0,
-        &["const", "const", "mir_call", "const", "const", "jump"],
-    )?;
-    let seed = const_string(b0[0])?;
-    if seed != "line-seed-abcdef" || const_string(b0[1])? != seed {
+    let (seed_inst, length_inst, i_zero_inst, acc_zero_inst) = match_concat_entry_prefix(&b0)?;
+    let seed = const_string(seed_inst)?;
+    if seed != "line-seed-abcdef" {
         return None;
     }
     let seed_len = seed.len() as i64;
     if seed_len != 16 {
         return None;
     }
-    if !method_call_is(b0[2], &["StringBox"], "length", 0) {
+    if !method_call_is(length_inst, &["StringBox"], "length", 0) {
         return None;
     }
-    if const_i64(b0[3])? != 0 || const_i64(b0[4])? != 0 {
+    if const_i64(i_zero_inst)? != 0 || const_i64(acc_zero_inst)? != 0 {
         return None;
     }
 
@@ -170,6 +167,45 @@ fn expect_ops(insts: &[&MirInstruction], expected: &[&str]) -> Option<()> {
     Some(())
 }
 
+fn match_concat_entry_prefix<'a>(
+    insts: &'a [&MirInstruction],
+) -> Option<(
+    &'a MirInstruction,
+    &'a MirInstruction,
+    &'a MirInstruction,
+    &'a MirInstruction,
+)> {
+    match insts {
+        [seed, duplicate_seed, length, i_zero, acc_zero, jump] => {
+            if op_name(seed) != "const"
+                || op_name(duplicate_seed) != "const"
+                || op_name(length) != "mir_call"
+                || op_name(i_zero) != "const"
+                || op_name(acc_zero) != "const"
+                || op_name(jump) != "jump"
+            {
+                return None;
+            }
+            if const_string(duplicate_seed)? != const_string(seed)? {
+                return None;
+            }
+            Some((seed, length, i_zero, acc_zero))
+        }
+        [seed, length, i_zero, acc_zero, jump] => {
+            if op_name(seed) != "const"
+                || op_name(length) != "mir_call"
+                || op_name(i_zero) != "const"
+                || op_name(acc_zero) != "const"
+                || op_name(jump) != "jump"
+            {
+                return None;
+            }
+            Some((seed, length, i_zero, acc_zero))
+        }
+        _ => None,
+    }
+}
+
 fn op_name(inst: &MirInstruction) -> &'static str {
     match inst {
         MirInstruction::Const { .. } => "const",
@@ -227,8 +263,11 @@ fn method_call_is(
             args,
             ..
         } => {
+            let matches_legacy_arg_shape = args.len() == expected_arg_count;
+            let matches_unified_string_receiver_shape =
+                expected_arg_count == 0 && args.len() == 1 && box_name == "StringBox";
             method == expected_method
-                && args.len() == expected_arg_count
+                && (matches_legacy_arg_shape || matches_unified_string_receiver_shape)
                 && allowed_box_names.iter().any(|allowed| *allowed == box_name)
         }
         _ => false,
@@ -277,6 +316,51 @@ mod tests {
             .metadata
             .concat_const_suffix_micro_seed_route
             .is_none());
+    }
+
+    #[test]
+    fn detects_current_unified_string_length_receiver_arg_shape() {
+        let mut function = build_exact_function();
+        let entry = function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block");
+        if let MirInstruction::Call { args, .. } = &mut entry.instructions[2] {
+            args.push(ValueId::new(99));
+        } else {
+            panic!("expected initial length call");
+        }
+
+        let exit = function
+            .get_block_mut(BasicBlockId::new(21))
+            .expect("exit block");
+        if let Some(MirInstruction::Call { args, .. }) = exit.instructions.first_mut() {
+            args.push(ValueId::new(100));
+        } else {
+            panic!("expected final length call");
+        }
+
+        refresh_function_concat_const_suffix_micro_seed_route(&mut function);
+
+        assert!(function
+            .metadata
+            .concat_const_suffix_micro_seed_route
+            .is_some());
+    }
+
+    #[test]
+    fn detects_current_copy_elided_entry_seed_shape() {
+        let mut function = build_exact_function();
+        let entry = function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block");
+        entry.instructions.remove(1);
+
+        refresh_function_concat_const_suffix_micro_seed_route(&mut function);
+
+        assert!(function
+            .metadata
+            .concat_const_suffix_micro_seed_route
+            .is_some());
     }
 
     fn build_exact_function() -> MirFunction {

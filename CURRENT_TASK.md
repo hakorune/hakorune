@@ -96,6 +96,7 @@ Scope: current lane / next lane / restart order only.
     - string direct-set source-window metadata is landed
     - `generic_method.has` route policy metadata is landed
     - `array_string_store_micro` function-level exact seed backend route tag is landed
+    - `concat_const_suffix_micro` function-level exact seed backend route tag is landed
     - next cleanup remains remaining exact seed ladders, one metadata-owned family at a time
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
@@ -1262,6 +1263,7 @@ Scope: current lane / next lane / restart order only.
           - exact keeper: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
           - function-level route proof: `exact_seed_backend_route result=hit reason=mir_route_metadata`
           - exact route proof: `array_string_store_micro result=emit reason=exact_match`
+          - concat exact route proof: `concat_const_suffix_micro result=emit reason=exact_match`
           - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
           - strict whole: `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
           - `ny_main` now emits:

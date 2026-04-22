@@ -11,18 +11,21 @@ use super::{MirFunction, MirModule};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExactSeedBackendRouteKind {
     ArrayStringStoreMicro,
+    ConcatConstSuffixMicro,
 }
 
 impl ExactSeedBackendRouteKind {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::ArrayStringStoreMicro => "array_string_store_micro",
+            Self::ConcatConstSuffixMicro => "concat_const_suffix_micro",
         }
     }
 
     pub fn source_route_field(self) -> &'static str {
         match self {
             Self::ArrayStringStoreMicro => "array_string_store_micro_seed_route",
+            Self::ConcatConstSuffixMicro => "concat_const_suffix_micro_seed_route",
         }
     }
 }
@@ -45,13 +48,27 @@ pub fn refresh_function_exact_seed_backend_route(function: &mut MirFunction) {
 }
 
 fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBackendRoute> {
-    function
+    if let Some(route) = function
         .metadata
         .array_string_store_micro_seed_route
         .as_ref()
-        .map(|route| ExactSeedBackendRoute {
+    {
+        return Some(ExactSeedBackendRoute {
             tag: ExactSeedBackendRouteKind::ArrayStringStoreMicro,
             source_route: ExactSeedBackendRouteKind::ArrayStringStoreMicro
+                .source_route_field()
+                .to_string(),
+            proof: route.proof.to_string(),
+        });
+    }
+
+    function
+        .metadata
+        .concat_const_suffix_micro_seed_route
+        .as_ref()
+        .map(|route| ExactSeedBackendRoute {
+            tag: ExactSeedBackendRouteKind::ConcatConstSuffixMicro,
+            source_route: ExactSeedBackendRouteKind::ConcatConstSuffixMicro
                 .source_route_field()
                 .to_string(),
             proof: route.proof.to_string(),
@@ -62,7 +79,8 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
 mod tests {
     use super::*;
     use crate::mir::{
-        ArrayStringStoreMicroSeedProof, ArrayStringStoreMicroSeedRoute, EffectMask,
+        ArrayStringStoreMicroSeedProof, ArrayStringStoreMicroSeedRoute,
+        ConcatConstSuffixMicroSeedProof, ConcatConstSuffixMicroSeedRoute, EffectMask,
         FunctionSignature, MirType,
     };
     use hakorune_mir_core::BasicBlockId;
@@ -104,6 +122,31 @@ mod tests {
         assert_eq!(route.tag.as_str(), "array_string_store_micro");
         assert_eq!(route.source_route, "array_string_store_micro_seed_route");
         assert_eq!(route.proof, "kilo_micro_array_string_store_8block");
+    }
+
+    #[test]
+    fn exact_seed_backend_route_selects_concat_const_suffix_metadata() {
+        let mut function = make_function();
+        function.metadata.concat_const_suffix_micro_seed_route =
+            Some(ConcatConstSuffixMicroSeedRoute {
+                seed: "line-seed-abcdef".to_string(),
+                seed_len: 16,
+                suffix: "xy".to_string(),
+                suffix_len: 2,
+                ops: 600000,
+                result_len: 18,
+                proof: ConcatConstSuffixMicroSeedProof::KiloMicroConcatConstSuffix5Block,
+            });
+
+        refresh_function_exact_seed_backend_route(&mut function);
+
+        let route = function
+            .metadata
+            .exact_seed_backend_route
+            .expect("exact seed backend route");
+        assert_eq!(route.tag.as_str(), "concat_const_suffix_micro");
+        assert_eq!(route.source_route, "concat_const_suffix_micro_seed_route");
+        assert_eq!(route.proof, "kilo_micro_concat_const_suffix_5block");
     }
 
     #[test]

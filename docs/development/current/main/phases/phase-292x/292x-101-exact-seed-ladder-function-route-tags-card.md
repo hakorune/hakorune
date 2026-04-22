@@ -32,6 +32,15 @@ First slice:
 - selected source route: `array_string_store_micro_seed_route`
 - proof: `kilo_micro_array_string_store_8block`
 
+Second slice:
+
+- exact seed ladder: `concat_const_suffix_micro`
+- existing route owner: `FunctionMetadata.concat_const_suffix_micro_seed_route`
+- function-level tag: `metadata.exact_seed_backend_route.tag =
+  "concat_const_suffix_micro"`
+- selected source route: `concat_const_suffix_micro_seed_route`
+- proof: `kilo_micro_concat_const_suffix_5block`
+
 `.inc` may keep only:
 
 - metadata reader / field validation
@@ -40,7 +49,7 @@ First slice:
 
 ## Acceptance
 
-Pin the first slice with:
+Pin the active slices with:
 
 ```bash
 bash tools/build_hako_llvmc_ffi.sh
@@ -48,12 +57,13 @@ bash tools/checks/inc_codegen_thin_shim_guard.sh
 cargo test -q exact_seed_backend_route
 cargo test -q build_mir_json_root_emits_exact_seed_backend_route
 bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh
+bash tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_concat_const_suffix_contract.sh
 ```
 
-The boundary smoke must observe both:
+Each boundary smoke must observe:
 
 - `stage=exact_seed_backend_route result=hit reason=mir_route_metadata`
-- `stage=array_string_store_micro result=emit reason=exact_match`
+- its selected exact seed emitter with `result=emit reason=exact_match`
 
 ## First Slice Result
 
@@ -63,3 +73,13 @@ The boundary smoke must observe both:
   remaining compatibility ladder.
 - `hako_llvmc_ffi_array_string_store_seed.inc` no longer contributes to the
   `hako_llvmc_match_*seed` debt baseline.
+
+## Second Slice Result
+
+- `ExactSeedBackendRouteKind` includes `concat_const_suffix_micro`.
+- `compile_json_compat_pure` dispatches that tag before the compatibility
+  ladder.
+- `hako_llvmc_ffi_concat_const_suffix_seed.inc` no longer contributes to the
+  `hako_llvmc_match_*seed` debt baseline.
+- `phase137x_direct_emit_concat_const_suffix_contract.sh` pins the direct MIR
+  route tag and the exact emitter trace.

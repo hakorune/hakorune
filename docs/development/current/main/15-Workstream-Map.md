@@ -15,7 +15,7 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array/string windows, generic_method.has, and first exact seed tag migrated to MIR metadata` |
+| Front | `array/string windows, generic_method.has, and first exact seed tags migrated to MIR metadata` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | `move exact seed ladders to function-level backend route tags` |
 | Next | `exact seed ladders to function-level backend route tags` |
@@ -42,7 +42,8 @@ Related:
 8. `phase-292x string concat / direct-set windows metadata-only` landed
 9. `phase-292x generic_method.has route policy metadata` landed
 10. `phase-292x array_string_store_micro exact seed function route tag` landed
-11. `phase-292x remaining exact seed ladders to function-level backend route tags`
+11. `phase-292x concat_const_suffix_micro exact seed function route tag` landed
+12. `phase-292x remaining exact seed ladders to function-level backend route tags`
 
 ## Parked Corridor
 

@@ -678,14 +678,14 @@ Fifth slice result:
 
 Sixth slice plan:
 - add MIR-owned metadata for the active `kilo_micro_concat_const_suffix` route proof
-- make `hako_llvmc_match_concat_const_suffix_micro_seed(...)` consume that metadata and select the existing temporary emitter
+- make the concat const-suffix backend consumer read that metadata and select the existing temporary emitter
 - delete the raw C-side 5-block scanner macros and per-block callee checks from `hako_llvmc_ffi_concat_const_suffix_seed.inc`
 - keep the emitter temporary until the generic string lane can match the exact front without a dedicated bridge
 
 Sixth slice result:
 - `FunctionMetadata.concat_const_suffix_micro_seed_route` now records the active 5-block exact seed route: seed, seed length, suffix, suffix length, ops, result length, and proof
 - MIR JSON exports `metadata.concat_const_suffix_micro_seed_route` for `kilo_micro_concat_const_suffix`
-- `hako_llvmc_match_concat_const_suffix_micro_seed(...)` now only reads MIR route metadata and selects the existing temporary emitter
+- `hako_llvmc_consume_concat_const_suffix_micro_route(...)` now only reads MIR route metadata and selects the existing temporary emitter
 - the previous raw C-side 5-block scanner macros and per-block callee checks were deleted from `hako_llvmc_ffi_concat_const_suffix_seed.inc`
 - verification:
   - direct MIR metadata probe shows `metadata.concat_const_suffix_micro_seed_route` with `seed_len=16`, `suffix_len=2`, `ops=600000`, `result_len=18`, and proof `kilo_micro_concat_const_suffix_5block`
@@ -1978,7 +1978,7 @@ Rules:
 - retired in `137x-H13`: `match_piecewise_slot_hop_substring_consumer(...)` is deleted; slot-hop substring consumer, window, and skip indices are now MIR-owned `StringKernelPlan.slot_hop_substring` metadata.
 - retired in `137x-H13`: the raw C-side 8-block scanner in `hako_llvmc_match_array_string_store_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.array_string_store_micro_seed_route`.
 - retired in `137x-H13`: `hako_llvmc_ffi_concat_hh_len_seed.inc` is deleted; the current `kilo_micro_concat_hh_len` direct front stays green through generic/metadata lowering and no longer needs a dedicated exact bridge.
-- retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_concat_const_suffix_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.concat_const_suffix_micro_seed_route`.
+- retired in `137x-H13`: the raw C-side 5-block scanner formerly in `hako_llvmc_match_concat_const_suffix_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.concat_const_suffix_micro_seed_route`.
 - retired in `137x-H13`: the raw C-side block/op scanner in `hako_llvmc_match_substring_concat_loop_ascii_seed(...)` is deleted; exact seed bridge selection now consumes existing MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata.
 - retired in `137x-H13`: the raw C-side 5-block scanner in `hako_llvmc_match_substring_views_only_micro_seed(...)` is deleted; exact seed bridge selection now consumes MIR-owned `metadata.substring_views_micro_seed_route`, while borrowed-window legality stays in `StringKernelPlan`.
 - retired in `137x-H13`: `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc` and `hako_llvmc_emit_string_length_hot_loop_ir(...)` are deleted; current length-hot fronts use generic/metadata lowering instead of the obsolete 5/6-block exact matcher family.

@@ -61,7 +61,7 @@ static int hako_llvmc_emit_concat_const_suffix_micro_ir(
   return rc == 0 ? 0 : -1;
 }
 
-static int hako_llvmc_match_concat_const_suffix_micro_seed(
+static int hako_llvmc_consume_concat_const_suffix_micro_route(
     const char* json_in,
     const char* obj_out) {
   yyjson_read_err rerr;

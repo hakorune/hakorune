@@ -1,3 +1,20 @@
+static int hako_llvmc_exact_seed_backend_route_supported(
+    const char* tag,
+    const char* source_route,
+    const char* proof) {
+  if (strcmp(tag, "array_string_store_micro") == 0 &&
+      strcmp(source_route, "array_string_store_micro_seed_route") == 0 &&
+      strcmp(proof, "kilo_micro_array_string_store_8block") == 0) {
+    return 1;
+  }
+  if (strcmp(tag, "concat_const_suffix_micro") == 0 &&
+      strcmp(source_route, "concat_const_suffix_micro_seed_route") == 0 &&
+      strcmp(proof, "kilo_micro_concat_const_suffix_5block") == 0) {
+    return 1;
+  }
+  return 0;
+}
+
 static int hako_llvmc_read_exact_seed_backend_route_tag(
     const char* json_in,
     char* tag_out,
@@ -56,9 +73,7 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
     yyjson_doc_free(doc);
     return set_err_owned(err_out, "malformed exact_seed_backend_route fields");
   }
-  if (strcmp(tag, "array_string_store_micro") != 0 ||
-      strcmp(source_route, "array_string_store_micro_seed_route") != 0 ||
-      strcmp(proof, "kilo_micro_array_string_store_8block") != 0) {
+  if (!hako_llvmc_exact_seed_backend_route_supported(tag, source_route, proof)) {
     yyjson_doc_free(doc);
     return set_err_owned(err_out, "unsupported exact_seed_backend_route metadata");
   }
@@ -110,6 +125,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
         return set_err_owned(err_out, "exact_seed_backend_route array_string_store_micro failed");
       }
+      if (strcmp(exact_seed_tag, "concat_const_suffix_micro") == 0) {
+        if (hako_llvmc_consume_concat_const_suffix_micro_route(json_in, obj_out) == 0) {
+          return 0;
+        }
+        return set_err_owned(err_out, "exact_seed_backend_route concat_const_suffix_micro failed");
+      }
       return set_err_owned(err_out, "unsupported exact_seed_backend_route tag");
     }
   }
@@ -123,7 +144,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_substring_views_only_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
-  if (hako_llvmc_match_concat_const_suffix_micro_seed(json_in, obj_out) == 0) {
+  if (hako_llvmc_consume_concat_const_suffix_micro_route(json_in, obj_out) == 0) {
     return 0;
   }
   if (hako_llvmc_consume_array_string_store_micro_route(json_in, obj_out) == 0) {
