@@ -435,7 +435,7 @@ static box Main {
   main() {
     local a = new ArrayBox()
     a.push(7)
-    local p = a.pop()
+    a.set(0, 8)
     return a.length()
   }
 }
@@ -443,7 +443,7 @@ static box Main {
 
     let module = compile_src(src);
     let push_arg_lens = method_call_arg_lens(&module, "ArrayBox", "push");
-    let pop_arg_lens = method_call_arg_lens(&module, "ArrayBox", "pop");
+    let set_arg_lens = method_call_arg_lens(&module, "ArrayBox", "set");
 
     assert_eq!(
         push_arg_lens,
@@ -451,9 +451,9 @@ static box Main {
         "ArrayBox.push should use the Unified method-call shape with receiver in args"
     );
     assert_eq!(
-        pop_arg_lens,
-        vec![0],
-        "ArrayBox.pop is still deferred and should stay on the BoxCall fallback shape"
+        set_arg_lens,
+        vec![2],
+        "ArrayBox.set is still deferred and should stay on the BoxCall fallback shape"
     );
 }
 
@@ -467,7 +467,7 @@ static box Main {
     local a = new ArrayBox()
     a.push(7)
     local s = a.slice(0, 1)
-    local p = a.pop()
+    a.set(0, 8)
     return a.length()
   }
 }
@@ -476,7 +476,7 @@ static box Main {
     let module = compile_src(src);
     let slice_arg_lens = method_call_arg_lens(&module, "ArrayBox", "slice");
     let slice_result_types = method_call_result_types(&module, "ArrayBox", "slice");
-    let pop_arg_lens = method_call_arg_lens(&module, "ArrayBox", "pop");
+    let set_arg_lens = method_call_arg_lens(&module, "ArrayBox", "set");
 
     assert_eq!(
         slice_arg_lens,
@@ -489,9 +489,9 @@ static box Main {
         "ArrayBox.slice should publish an ArrayBox result type"
     );
     assert_eq!(
-        pop_arg_lens,
-        vec![0],
-        "ArrayBox.pop is still deferred and should stay on the BoxCall fallback shape"
+        set_arg_lens,
+        vec![2],
+        "ArrayBox.set is still deferred and should stay on the BoxCall fallback shape"
     );
 }
 
@@ -505,7 +505,7 @@ static box Main {
     local a = new ArrayBox()
     a.push(7)
     local x = a.get(0)
-    local p = a.pop()
+    a.set(0, 8)
     return a.length()
   }
 }
@@ -514,7 +514,7 @@ static box Main {
     let module = compile_src(src);
     let get_arg_lens = method_call_arg_lens(&module, "ArrayBox", "get");
     let get_result_types = method_call_result_types(&module, "ArrayBox", "get");
-    let pop_arg_lens = method_call_arg_lens(&module, "ArrayBox", "pop");
+    let set_arg_lens = method_call_arg_lens(&module, "ArrayBox", "set");
 
     assert_eq!(
         get_arg_lens,
@@ -527,9 +527,48 @@ static box Main {
         "ArrayBox.get returns a data-dependent element and should stay MIR-unknown"
     );
     assert_eq!(
+        set_arg_lens,
+        vec![2],
+        "ArrayBox.set is still deferred and should stay on the BoxCall fallback shape"
+    );
+}
+
+#[test]
+fn array_value_pop_uses_unified_receiver_arg_shape_and_generic_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push(7)
+    local p = a.pop()
+    a.push(9)
+    a.set(0, 8)
+    return a.length()
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let pop_arg_lens = method_call_arg_lens(&module, "ArrayBox", "pop");
+    let pop_result_types = method_call_result_types(&module, "ArrayBox", "pop");
+    let set_arg_lens = method_call_arg_lens(&module, "ArrayBox", "set");
+
+    assert_eq!(
         pop_arg_lens,
-        vec![0],
-        "ArrayBox.pop is still deferred and should stay on the BoxCall fallback shape"
+        vec![1],
+        "ArrayBox.pop should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        pop_result_types,
+        vec![Some(MirType::Unknown)],
+        "ArrayBox.pop returns a data-dependent element and should stay MIR-unknown"
+    );
+    assert_eq!(
+        set_arg_lens,
+        vec![2],
+        "ArrayBox.set is still deferred and should stay on the BoxCall fallback shape"
     );
 }
 

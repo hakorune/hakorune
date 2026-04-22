@@ -137,7 +137,10 @@ Landed first slice and follow-up:
 - fifteenth implementation moved `ArrayBox.get` after adding a focused
   receiver-plus-index fixture while keeping its generic result type
   `Unknown` and preserving `ArrayBox.pop` fallback sentinels.
-- remaining router inventory order after ArrayBox get: ArrayBox `pop`, `set`,
+- sixteenth implementation moved `ArrayBox.pop` after adding a focused
+  receiver-only fixture while keeping its generic result type `Unknown` and
+  preserving `ArrayBox.set` fallback sentinels.
+- remaining router inventory order after ArrayBox pop: ArrayBox `set`,
   `remove`, `insert`, then MapBox `get` and `set`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
