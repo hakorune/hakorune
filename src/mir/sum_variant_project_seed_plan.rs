@@ -1,0 +1,810 @@
+/*!
+ * MIR-owned route plan for temporary Sum variant_project exact seed bridges.
+ *
+ * The route is a backend-consumable view over existing Sum placement metadata.
+ * It carries the literal payload required by the current exact helper so `.inc`
+ * can emit without rediscovering legality from raw MIR JSON blocks.
+ */
+
+use super::{
+    sum_placement::SumPlacementState,
+    sum_placement_layout::{SumLocalAggregateLayout, SumPlacementLayout},
+    sum_placement_selection::{SumPlacementPath, SumPlacementSelection},
+    thin_entry::{ThinEntryPreferredEntry, ThinEntrySurface},
+    thin_entry_selection::ThinEntrySelection,
+    BasicBlock, BasicBlockId, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SumVariantProjectSeedKind {
+    LocalI64,
+    LocalF64,
+    LocalHandle,
+    CopyLocalI64,
+    CopyLocalF64,
+    CopyLocalHandle,
+}
+
+impl std::fmt::Display for SumVariantProjectSeedKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::LocalI64 => f.write_str("variant_project_local_i64"),
+            Self::LocalF64 => f.write_str("variant_project_local_f64"),
+            Self::LocalHandle => f.write_str("variant_project_local_handle"),
+            Self::CopyLocalI64 => f.write_str("variant_project_copy_local_i64"),
+            Self::CopyLocalF64 => f.write_str("variant_project_copy_local_f64"),
+            Self::CopyLocalHandle => f.write_str("variant_project_copy_local_handle"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum SumVariantProjectSeedPayload {
+    I64(i64),
+    F64(f64),
+    String(String),
+}
+
+impl SumVariantProjectSeedPayload {
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Self::I64(_) => "i64",
+            Self::F64(_) => "f64",
+            Self::String(_) => "string",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SumVariantProjectSeedProof {
+    LocalAggregateProjectSeed,
+}
+
+impl std::fmt::Display for SumVariantProjectSeedProof {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::LocalAggregateProjectSeed => {
+                f.write_str("sum_variant_project_local_aggregate_seed")
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SumVariantProjectSeedRoute {
+    pub kind: SumVariantProjectSeedKind,
+    pub enum_name: String,
+    pub variant: String,
+    pub subject: String,
+    pub layout: SumLocalAggregateLayout,
+    pub variant_tag: u32,
+    pub make_block: BasicBlockId,
+    pub make_instruction_index: usize,
+    pub project_block: BasicBlockId,
+    pub project_instruction_index: usize,
+    pub sum_value: ValueId,
+    pub project_value: ValueId,
+    pub project_source_value: ValueId,
+    pub copy_value: Option<ValueId>,
+    pub payload_value: ValueId,
+    pub payload: SumVariantProjectSeedPayload,
+    pub proof: SumVariantProjectSeedProof,
+}
+
+pub fn refresh_module_sum_variant_project_seed_routes(module: &mut MirModule) {
+    for function in module.functions.values_mut() {
+        refresh_function_sum_variant_project_seed_route(function);
+    }
+}
+
+pub fn refresh_function_sum_variant_project_seed_route(function: &mut MirFunction) {
+    function.metadata.sum_variant_project_seed_route =
+        match_sum_variant_project_seed_route(function);
+}
+
+fn match_sum_variant_project_seed_route(
+    function: &MirFunction,
+) -> Option<SumVariantProjectSeedRoute> {
+    let blocks = ordered_blocks(function);
+    if blocks.len() != 1 {
+        return None;
+    }
+    let block = blocks[0];
+    let insts = instructions_with_terminator(block)?;
+
+    if let Some(route) = match_direct_project(function, block.id, &insts) {
+        return Some(route);
+    }
+    match_copy_project(function, block.id, &insts)
+}
+
+fn match_direct_project(
+    function: &MirFunction,
+    block_id: BasicBlockId,
+    insts: &[&MirInstruction],
+) -> Option<SumVariantProjectSeedRoute> {
+    expect_ops(insts, &["const", "variant_make", "variant_project", "ret"])?;
+    let payload_site = const_payload(insts[0])?;
+    let make = make_info(insts[1])?;
+    if make.payload_value != Some(payload_site.value) {
+        return None;
+    }
+    let project = project_info(insts[2])?;
+    let ret_value = return_value(insts[3])?;
+    if ret_value != project.dst || project.source_value != make.dst {
+        return None;
+    }
+    let (kind, layout) = direct_kind_and_layout(&payload_site.payload, make.payload_type)?;
+    build_route(
+        function,
+        kind,
+        &make,
+        &project,
+        layout,
+        block_id,
+        1,
+        2,
+        None,
+        payload_site,
+    )
+}
+
+fn match_copy_project(
+    function: &MirFunction,
+    block_id: BasicBlockId,
+    insts: &[&MirInstruction],
+) -> Option<SumVariantProjectSeedRoute> {
+    expect_ops(
+        insts,
+        &["const", "variant_make", "copy", "variant_project", "ret"],
+    )?;
+    let payload_site = const_payload(insts[0])?;
+    let make = make_info(insts[1])?;
+    if make.payload_value != Some(payload_site.value) {
+        return None;
+    }
+    let MirInstruction::Copy {
+        dst: copy_value,
+        src: copy_src,
+    } = insts[2]
+    else {
+        return None;
+    };
+    if copy_src != &make.dst {
+        return None;
+    }
+    let project = project_info(insts[3])?;
+    let ret_value = return_value(insts[4])?;
+    if ret_value != project.dst || project.source_value != *copy_value {
+        return None;
+    }
+    let (kind, layout) = copy_kind_and_layout(&payload_site.payload, make.payload_type)?;
+    build_route(
+        function,
+        kind,
+        &make,
+        &project,
+        layout,
+        block_id,
+        1,
+        3,
+        Some(*copy_value),
+        payload_site,
+    )
+}
+
+fn build_route(
+    function: &MirFunction,
+    kind: SumVariantProjectSeedKind,
+    make: &VariantMakeInfo<'_>,
+    project: &VariantProjectInfo<'_>,
+    layout: SumLocalAggregateLayout,
+    block: BasicBlockId,
+    make_instruction_index: usize,
+    project_instruction_index: usize,
+    copy_value: Option<ValueId>,
+    payload_site: ConstPayload,
+) -> Option<SumVariantProjectSeedRoute> {
+    if make.enum_name != project.enum_name
+        || make.variant != project.variant
+        || make.tag != project.tag
+        || make.payload_type != project.payload_type
+    {
+        return None;
+    }
+    let subject = format!("{}::{}", make.enum_name, make.variant);
+    if !has_thin_selection(
+        &function.metadata.thin_entry_selections,
+        block,
+        make_instruction_index,
+        Some(make.dst),
+        ThinEntrySurface::VariantMake,
+        &subject,
+        "variant_make.aggregate_local",
+    ) || !has_thin_selection(
+        &function.metadata.thin_entry_selections,
+        block,
+        project_instruction_index,
+        Some(project.dst),
+        ThinEntrySurface::VariantProject,
+        &subject,
+        "variant_project.payload_local",
+    ) {
+        return None;
+    }
+    if !has_sum_fact(
+        &function.metadata.sum_placement_facts,
+        block,
+        make_instruction_index,
+        Some(make.dst),
+        ThinEntrySurface::VariantMake,
+        &subject,
+        None,
+    ) {
+        return None;
+    }
+    if !has_sum_selection(
+        &function.metadata.sum_placement_selections,
+        block,
+        make_instruction_index,
+        Some(make.dst),
+        ThinEntrySurface::VariantMake,
+        &subject,
+        None,
+        "variant_make.local_aggregate",
+    ) || !has_sum_selection(
+        &function.metadata.sum_placement_selections,
+        block,
+        project_instruction_index,
+        Some(project.dst),
+        ThinEntrySurface::VariantProject,
+        &subject,
+        Some(make.dst),
+        "variant_project.local_aggregate",
+    ) {
+        return None;
+    }
+    if !has_sum_layout(
+        &function.metadata.sum_placement_layouts,
+        block,
+        make_instruction_index,
+        Some(make.dst),
+        &subject,
+        layout,
+    ) {
+        return None;
+    }
+
+    Some(SumVariantProjectSeedRoute {
+        kind,
+        enum_name: make.enum_name.to_string(),
+        variant: make.variant.to_string(),
+        subject,
+        layout,
+        variant_tag: make.tag,
+        make_block: block,
+        make_instruction_index,
+        project_block: block,
+        project_instruction_index,
+        sum_value: make.dst,
+        project_value: project.dst,
+        project_source_value: project.source_value,
+        copy_value,
+        payload_value: payload_site.value,
+        payload: payload_site.payload,
+        proof: SumVariantProjectSeedProof::LocalAggregateProjectSeed,
+    })
+}
+
+#[derive(Clone)]
+struct ConstPayload {
+    value: ValueId,
+    payload: SumVariantProjectSeedPayload,
+}
+
+struct VariantMakeInfo<'a> {
+    dst: ValueId,
+    enum_name: &'a str,
+    variant: &'a str,
+    tag: u32,
+    payload_value: Option<ValueId>,
+    payload_type: Option<&'a MirType>,
+}
+
+struct VariantProjectInfo<'a> {
+    dst: ValueId,
+    source_value: ValueId,
+    enum_name: &'a str,
+    variant: &'a str,
+    tag: u32,
+    payload_type: Option<&'a MirType>,
+}
+
+fn const_payload(inst: &MirInstruction) -> Option<ConstPayload> {
+    match inst {
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::Integer(value),
+        } => Some(ConstPayload {
+            value: *dst,
+            payload: SumVariantProjectSeedPayload::I64(*value),
+        }),
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::Float(value),
+        } => Some(ConstPayload {
+            value: *dst,
+            payload: SumVariantProjectSeedPayload::F64(*value),
+        }),
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::String(value),
+        } => Some(ConstPayload {
+            value: *dst,
+            payload: SumVariantProjectSeedPayload::String(value.clone()),
+        }),
+        _ => None,
+    }
+}
+
+fn make_info(inst: &MirInstruction) -> Option<VariantMakeInfo<'_>> {
+    match inst {
+        MirInstruction::VariantMake {
+            dst,
+            enum_name,
+            variant,
+            tag,
+            payload,
+            payload_type,
+        } => Some(VariantMakeInfo {
+            dst: *dst,
+            enum_name,
+            variant,
+            tag: *tag,
+            payload_value: *payload,
+            payload_type: payload_type.as_ref(),
+        }),
+        _ => None,
+    }
+}
+
+fn project_info(inst: &MirInstruction) -> Option<VariantProjectInfo<'_>> {
+    match inst {
+        MirInstruction::VariantProject {
+            dst,
+            value,
+            enum_name,
+            variant,
+            tag,
+            payload_type,
+        } => Some(VariantProjectInfo {
+            dst: *dst,
+            source_value: *value,
+            enum_name,
+            variant,
+            tag: *tag,
+            payload_type: payload_type.as_ref(),
+        }),
+        _ => None,
+    }
+}
+
+fn direct_kind_and_layout(
+    payload: &SumVariantProjectSeedPayload,
+    payload_type: Option<&MirType>,
+) -> Option<(SumVariantProjectSeedKind, SumLocalAggregateLayout)> {
+    match (payload, payload_type) {
+        (SumVariantProjectSeedPayload::I64(_), Some(MirType::Integer)) => Some((
+            SumVariantProjectSeedKind::LocalI64,
+            SumLocalAggregateLayout::TagI64Payload,
+        )),
+        (SumVariantProjectSeedPayload::F64(_), Some(MirType::Float)) => Some((
+            SumVariantProjectSeedKind::LocalF64,
+            SumLocalAggregateLayout::TagF64Payload,
+        )),
+        (SumVariantProjectSeedPayload::String(_), Some(MirType::String)) => Some((
+            SumVariantProjectSeedKind::LocalHandle,
+            SumLocalAggregateLayout::TagHandlePayload,
+        )),
+        _ => None,
+    }
+}
+
+fn copy_kind_and_layout(
+    payload: &SumVariantProjectSeedPayload,
+    payload_type: Option<&MirType>,
+) -> Option<(SumVariantProjectSeedKind, SumLocalAggregateLayout)> {
+    match (payload, payload_type) {
+        (SumVariantProjectSeedPayload::I64(_), Some(MirType::Integer)) => Some((
+            SumVariantProjectSeedKind::CopyLocalI64,
+            SumLocalAggregateLayout::TagI64Payload,
+        )),
+        (SumVariantProjectSeedPayload::F64(_), Some(MirType::Float)) => Some((
+            SumVariantProjectSeedKind::CopyLocalF64,
+            SumLocalAggregateLayout::TagF64Payload,
+        )),
+        (SumVariantProjectSeedPayload::String(_), Some(MirType::String)) => Some((
+            SumVariantProjectSeedKind::CopyLocalHandle,
+            SumLocalAggregateLayout::TagHandlePayload,
+        )),
+        _ => None,
+    }
+}
+
+fn return_value(inst: &MirInstruction) -> Option<ValueId> {
+    match inst {
+        MirInstruction::Return { value: Some(value) } => Some(*value),
+        _ => None,
+    }
+}
+
+fn has_thin_selection(
+    selections: &[ThinEntrySelection],
+    block: BasicBlockId,
+    instruction_index: usize,
+    value: Option<ValueId>,
+    surface: ThinEntrySurface,
+    subject: &str,
+    manifest_row: &str,
+) -> bool {
+    selections.iter().any(|selection| {
+        selection.block == block
+            && selection.instruction_index == instruction_index
+            && selection.value == value
+            && selection.surface == surface
+            && selection.subject == subject
+            && selection.manifest_row == manifest_row
+            && selection.selected_entry == ThinEntryPreferredEntry::ThinInternalEntry
+    })
+}
+
+fn has_sum_fact(
+    facts: &[super::sum_placement::SumPlacementFact],
+    block: BasicBlockId,
+    instruction_index: usize,
+    value: Option<ValueId>,
+    surface: ThinEntrySurface,
+    subject: &str,
+    source_sum: Option<ValueId>,
+) -> bool {
+    facts.iter().any(|fact| {
+        fact.block == block
+            && fact.instruction_index == instruction_index
+            && fact.value == value
+            && fact.surface == surface
+            && fact.subject == subject
+            && fact.source_sum == source_sum
+            && fact.state == SumPlacementState::LocalAggregateCandidate
+    })
+}
+
+fn has_sum_selection(
+    selections: &[SumPlacementSelection],
+    block: BasicBlockId,
+    instruction_index: usize,
+    value: Option<ValueId>,
+    surface: ThinEntrySurface,
+    subject: &str,
+    source_sum: Option<ValueId>,
+    manifest_row: &str,
+) -> bool {
+    selections.iter().any(|selection| {
+        selection.block == block
+            && selection.instruction_index == instruction_index
+            && selection.value == value
+            && selection.surface == surface
+            && selection.subject == subject
+            && selection.source_sum == source_sum
+            && selection.manifest_row == manifest_row
+            && selection.selected_path == SumPlacementPath::LocalAggregate
+    })
+}
+
+fn has_sum_layout(
+    layouts: &[SumPlacementLayout],
+    block: BasicBlockId,
+    instruction_index: usize,
+    value: Option<ValueId>,
+    subject: &str,
+    layout: SumLocalAggregateLayout,
+) -> bool {
+    layouts.iter().any(|candidate| {
+        candidate.block == block
+            && candidate.instruction_index == instruction_index
+            && candidate.value == value
+            && candidate.surface == ThinEntrySurface::VariantMake
+            && candidate.subject == subject
+            && candidate.source_sum.is_none()
+            && candidate.layout == layout
+    })
+}
+
+fn ordered_blocks(function: &MirFunction) -> Vec<&BasicBlock> {
+    let mut ids: Vec<BasicBlockId> = function.blocks.keys().copied().collect();
+    ids.sort();
+    ids.into_iter()
+        .filter_map(|id| function.blocks.get(&id))
+        .collect()
+}
+
+fn instructions_with_terminator(block: &BasicBlock) -> Option<Vec<&MirInstruction>> {
+    let mut insts: Vec<&MirInstruction> = block.instructions.iter().collect();
+    insts.push(block.terminator.as_ref()?);
+    Some(insts)
+}
+
+fn expect_ops(insts: &[&MirInstruction], expected: &[&str]) -> Option<()> {
+    if insts.len() != expected.len() {
+        return None;
+    }
+    for (inst, expected) in insts.iter().zip(expected.iter().copied()) {
+        if op_name(inst) != expected {
+            return None;
+        }
+    }
+    Some(())
+}
+
+fn op_name(inst: &MirInstruction) -> &'static str {
+    match inst {
+        MirInstruction::Const { .. } => "const",
+        MirInstruction::VariantMake { .. } => "variant_make",
+        MirInstruction::VariantProject { .. } => "variant_project",
+        MirInstruction::Copy { .. } => "copy",
+        MirInstruction::Return { .. } => "ret",
+        _ => "other",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{
+        sum_placement::{SumObjectizationBarrier, SumPlacementFact},
+        thin_entry::{ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryValueClass},
+        thin_entry_selection::ThinEntrySelectionState,
+        EffectMask, FunctionSignature,
+    };
+
+    fn make_function() -> MirFunction {
+        MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        )
+    }
+
+    fn push_metadata(
+        function: &mut MirFunction,
+        make_idx: usize,
+        project_idx: usize,
+        enum_name: &str,
+        variant: &str,
+        sum_value: ValueId,
+        project_value: ValueId,
+        layout: SumLocalAggregateLayout,
+    ) {
+        let subject = format!("{enum_name}::{variant}");
+        function.metadata.thin_entry_selections = vec![
+            ThinEntrySelection {
+                block: BasicBlockId::new(0),
+                instruction_index: make_idx,
+                value: Some(sum_value),
+                surface: ThinEntrySurface::VariantMake,
+                subject: subject.clone(),
+                manifest_row: "variant_make.aggregate_local",
+                selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+                state: ThinEntrySelectionState::Candidate,
+                current_carrier: ThinEntryCurrentCarrier::CompatBox,
+                value_class: ThinEntryValueClass::AggLocal,
+                demand: ThinEntryDemand::LocalAggregate,
+                reason: "test make".to_string(),
+            },
+            ThinEntrySelection {
+                block: BasicBlockId::new(0),
+                instruction_index: project_idx,
+                value: Some(project_value),
+                surface: ThinEntrySurface::VariantProject,
+                subject: subject.clone(),
+                manifest_row: "variant_project.payload_local",
+                selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+                state: ThinEntrySelectionState::Candidate,
+                current_carrier: ThinEntryCurrentCarrier::CompatBox,
+                value_class: ThinEntryValueClass::AggLocal,
+                demand: ThinEntryDemand::LocalAggregate,
+                reason: "test project".to_string(),
+            },
+        ];
+        function.metadata.sum_placement_facts = vec![SumPlacementFact {
+            block: BasicBlockId::new(0),
+            instruction_index: make_idx,
+            value: Some(sum_value),
+            surface: ThinEntrySurface::VariantMake,
+            subject: subject.clone(),
+            source_sum: None,
+            value_class: ThinEntryValueClass::AggLocal,
+            state: SumPlacementState::LocalAggregateCandidate,
+            tag_reads: 0,
+            project_reads: 1,
+            barriers: Vec::<SumObjectizationBarrier>::new(),
+            reason: "test make fact".to_string(),
+        }];
+        function.metadata.sum_placement_selections = vec![
+            SumPlacementSelection {
+                block: BasicBlockId::new(0),
+                instruction_index: make_idx,
+                value: Some(sum_value),
+                surface: ThinEntrySurface::VariantMake,
+                subject: subject.clone(),
+                source_sum: None,
+                manifest_row: "variant_make.local_aggregate",
+                selected_path: SumPlacementPath::LocalAggregate,
+                reason: "test make selection".to_string(),
+            },
+            SumPlacementSelection {
+                block: BasicBlockId::new(0),
+                instruction_index: project_idx,
+                value: Some(project_value),
+                surface: ThinEntrySurface::VariantProject,
+                subject: subject.clone(),
+                source_sum: Some(sum_value),
+                manifest_row: "variant_project.local_aggregate",
+                selected_path: SumPlacementPath::LocalAggregate,
+                reason: "test project selection".to_string(),
+            },
+        ];
+        function.metadata.sum_placement_layouts = vec![SumPlacementLayout {
+            block: BasicBlockId::new(0),
+            instruction_index: make_idx,
+            value: Some(sum_value),
+            surface: ThinEntrySurface::VariantMake,
+            subject,
+            source_sum: None,
+            layout,
+            reason: "test layout".to_string(),
+        }];
+    }
+
+    #[test]
+    fn sum_variant_project_seed_detects_i64_route_from_metadata() {
+        let mut function = make_function();
+        let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(73),
+        });
+        block.add_instruction(MirInstruction::VariantMake {
+            dst: ValueId::new(2),
+            enum_name: "ResultInt".to_string(),
+            variant: "Ok".to_string(),
+            tag: 0,
+            payload: Some(ValueId::new(1)),
+            payload_type: Some(MirType::Integer),
+        });
+        block.add_instruction(MirInstruction::VariantProject {
+            dst: ValueId::new(3),
+            value: ValueId::new(2),
+            enum_name: "ResultInt".to_string(),
+            variant: "Ok".to_string(),
+            tag: 0,
+            payload_type: Some(MirType::Integer),
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        push_metadata(
+            &mut function,
+            1,
+            2,
+            "ResultInt",
+            "Ok",
+            ValueId::new(2),
+            ValueId::new(3),
+            SumLocalAggregateLayout::TagI64Payload,
+        );
+
+        refresh_function_sum_variant_project_seed_route(&mut function);
+
+        let route = function
+            .metadata
+            .sum_variant_project_seed_route
+            .expect("sum variant project route");
+        assert_eq!(route.kind, SumVariantProjectSeedKind::LocalI64);
+        assert_eq!(route.subject, "ResultInt::Ok");
+        assert_eq!(route.payload, SumVariantProjectSeedPayload::I64(73));
+        assert_eq!(route.copy_value, None);
+    }
+
+    #[test]
+    fn sum_variant_project_seed_detects_copy_handle_route_from_metadata() {
+        let mut function = make_function();
+        let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::String("hako".to_string()),
+        });
+        block.add_instruction(MirInstruction::VariantMake {
+            dst: ValueId::new(2),
+            enum_name: "ResultHandle".to_string(),
+            variant: "Ok".to_string(),
+            tag: 0,
+            payload: Some(ValueId::new(1)),
+            payload_type: Some(MirType::String),
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(2),
+        });
+        block.add_instruction(MirInstruction::VariantProject {
+            dst: ValueId::new(4),
+            value: ValueId::new(3),
+            enum_name: "ResultHandle".to_string(),
+            variant: "Ok".to_string(),
+            tag: 0,
+            payload_type: Some(MirType::String),
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(4)),
+        });
+        push_metadata(
+            &mut function,
+            1,
+            3,
+            "ResultHandle",
+            "Ok",
+            ValueId::new(2),
+            ValueId::new(4),
+            SumLocalAggregateLayout::TagHandlePayload,
+        );
+
+        refresh_function_sum_variant_project_seed_route(&mut function);
+
+        let route = function
+            .metadata
+            .sum_variant_project_seed_route
+            .expect("sum variant project route");
+        assert_eq!(route.kind, SumVariantProjectSeedKind::CopyLocalHandle);
+        assert_eq!(route.copy_value, Some(ValueId::new(3)));
+        assert_eq!(
+            route.payload,
+            SumVariantProjectSeedPayload::String("hako".to_string())
+        );
+    }
+
+    #[test]
+    fn sum_variant_project_seed_rejects_missing_metadata() {
+        let mut function = make_function();
+        let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(73),
+        });
+        block.add_instruction(MirInstruction::VariantMake {
+            dst: ValueId::new(2),
+            enum_name: "ResultInt".to_string(),
+            variant: "Ok".to_string(),
+            tag: 0,
+            payload: Some(ValueId::new(1)),
+            payload_type: Some(MirType::Integer),
+        });
+        block.add_instruction(MirInstruction::VariantProject {
+            dst: ValueId::new(3),
+            value: ValueId::new(2),
+            enum_name: "ResultInt".to_string(),
+            variant: "Ok".to_string(),
+            tag: 0,
+            payload_type: Some(MirType::Integer),
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+
+        refresh_function_sum_variant_project_seed_route(&mut function);
+
+        assert!(function.metadata.sum_variant_project_seed_route.is_none());
+    }
+}

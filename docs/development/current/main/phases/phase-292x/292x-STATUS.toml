@@ -13,20 +13,20 @@ title = ".inc codegen thin tag cleanup"
 active_lane = "phase-292x .inc codegen thin tag cleanup"
 current_blocker_token = "move exact seed ladders to function-level backend route tags"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-103-sum-variant-tag-seed-route-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-104-sum-variant-project-seed-route-card.md"
 
 purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected helper, skip/trace/fail-fast; do not own raw MIR route legality."
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
-inc_file_count = 76
-inc_line_count = 19533
-analysis_debt_files = 23
-analysis_debt_lines = 257
-remaining_seed_matcher_defs = 22
+inc_file_count = 75
+inc_line_count = 18153
+analysis_debt_files = 21
+analysis_debt_lines = 206
+remaining_seed_matcher_defs = 16
 
-last_landed_slice = "sum_variant_tag_local"
-next_recommended_slice = "sum_variant_project_seed_family"
-next_recommended_reason = "remaining metadata-ready Sum local exact seed subset; 6 variant_project local/copy matchers can collapse behind Sum placement metadata before UserBox seeds."
+last_landed_slice = "sum_variant_project_local"
+next_recommended_slice = "userbox_local_scalar_seeds"
+next_recommended_reason = "Sum local exact seeds are metadata-routed; remaining highest-value seed family is UserBox local scalar, with 8 Point/Flag/PointF local/copy matchers."
 
 verification_min = [
   "cargo fmt --check",
@@ -133,30 +133,31 @@ backend_tag = "sum_variant_tag_local"
 status = "landed"
 smoke = "phase163x_boundary_sum_metadata_keep_min.sh"
 
-[[backlog]]
-id = "sum_variant_project_seed_family"
-priority = 1
-remaining_matchers = 6
-owner_status = "metadata exists: placement_effect_routes / sum_placement_facts / sum_placement_selections / sum_placement_layouts / thin_entry_selections"
-note = "Collapse remaining variant_project local/copy exact seeds into one metadata route consumer family."
+[[landed_slice]]
+id = "sum_variant_project_local"
+kind = "exact_seed_backend_route"
+owner = "FunctionMetadata.sum_variant_project_seed_route"
+backend_tag = "sum_variant_project_local"
+status = "landed"
+smoke = "phase163x_boundary_sum_metadata_keep_min.sh"
 
 [[backlog]]
 id = "userbox_local_scalar_seeds"
-priority = 2
+priority = 1
 remaining_matchers = 8
 owner_status = "metadata exists: placement_effect_routes first, thin_entry_selections fallback, user_box_decls"
 note = "Start with Point / Flag / PointF local/copy plus point_add_micro and flag_toggle_micro."
 
 [[backlog]]
 id = "userbox_known_receiver_method_seeds"
-priority = 3
+priority = 2
 remaining_matchers = 7
 owner_status = "metadata exists, but phase163x smokes may still pin stale block/value shapes"
 note = "Clean brittle smokes before route consumer migration."
 
 [[backlog]]
 id = "array_getset_micro"
-priority = 4
+priority = 3
 remaining_matchers = 1
 owner_status = "needs new whole-function MIR owner"
 note = "Defer until FunctionMetadata.array_getset_micro_seed_route or equivalent exists."

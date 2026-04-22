@@ -97,8 +97,9 @@ Related:
     `array_rmw_window_routes` inner proof
   - sixth slice landed: `292x-103` moved the Sum `variant_tag` local/copy
     seed family behind `sum_variant_tag_seed_route`
-  - next state: migrate the remaining Sum `variant_project` seed family, then
-    UserBox local scalar seeds
+  - seventh slice landed: `292x-104` moved the Sum `variant_project`
+    local/copy seed family behind `sum_variant_project_seed_route`
+  - next state: migrate UserBox local scalar seeds
 
 ## Follow-up Cards
 

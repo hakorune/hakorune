@@ -19,6 +19,7 @@ pub enum ExactSeedBackendRouteKind {
     SubstringViewsOnlyMicro,
     SubstringConcatLoopAscii,
     SumVariantTagLocal,
+    SumVariantProjectLocal,
 }
 
 impl ExactSeedBackendRouteKind {
@@ -30,6 +31,7 @@ impl ExactSeedBackendRouteKind {
             Self::SubstringViewsOnlyMicro => "substring_views_only_micro",
             Self::SubstringConcatLoopAscii => "substring_concat_loop_ascii",
             Self::SumVariantTagLocal => "sum_variant_tag_local",
+            Self::SumVariantProjectLocal => "sum_variant_project_local",
         }
     }
 
@@ -41,6 +43,7 @@ impl ExactSeedBackendRouteKind {
             Self::SubstringViewsOnlyMicro => "substring_views_micro_seed_route",
             Self::SubstringConcatLoopAscii => "string_kernel_plans.loop_payload",
             Self::SumVariantTagLocal => "sum_variant_tag_seed_route",
+            Self::SumVariantProjectLocal => "sum_variant_project_seed_route",
         }
     }
 }
@@ -94,6 +97,17 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
         return Some(ExactSeedBackendRoute {
             tag: ExactSeedBackendRouteKind::SumVariantTagLocal,
             source_route: ExactSeedBackendRouteKind::SumVariantTagLocal
+                .source_route_field()
+                .to_string(),
+            proof: route.proof.to_string(),
+            selected_value: None,
+        });
+    }
+
+    if let Some(route) = function.metadata.sum_variant_project_seed_route.as_ref() {
+        return Some(ExactSeedBackendRoute {
+            tag: ExactSeedBackendRouteKind::SumVariantProjectLocal,
+            source_route: ExactSeedBackendRouteKind::SumVariantProjectLocal
                 .source_route_field()
                 .to_string(),
             proof: route.proof.to_string(),
@@ -167,8 +181,9 @@ mod tests {
         StringKernelPlanBorrowContract, StringKernelPlanConsumer, StringKernelPlanFamily,
         StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
         StringKernelPlanRetainedForm, StringKernelPlanVerifierOwner, SubstringViewsMicroSeedProof,
-        SubstringViewsMicroSeedRoute, SumLocalAggregateLayout, SumVariantTagSeedKind,
-        SumVariantTagSeedProof, SumVariantTagSeedRoute,
+        SubstringViewsMicroSeedRoute, SumLocalAggregateLayout, SumVariantProjectSeedKind,
+        SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
+        SumVariantTagSeedKind, SumVariantTagSeedProof, SumVariantTagSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -296,6 +311,41 @@ mod tests {
         assert_eq!(route.tag.as_str(), "sum_variant_tag_local");
         assert_eq!(route.source_route, "sum_variant_tag_seed_route");
         assert_eq!(route.proof, "sum_variant_tag_local_aggregate_seed");
+        assert_eq!(route.selected_value, None);
+    }
+
+    #[test]
+    fn exact_seed_backend_route_selects_sum_variant_project_metadata() {
+        let mut function = make_function();
+        function.metadata.sum_variant_project_seed_route = Some(SumVariantProjectSeedRoute {
+            kind: SumVariantProjectSeedKind::LocalI64,
+            enum_name: "ResultInt".to_string(),
+            variant: "Ok".to_string(),
+            subject: "ResultInt::Ok".to_string(),
+            layout: SumLocalAggregateLayout::TagI64Payload,
+            variant_tag: 0,
+            make_block: BasicBlockId::new(0),
+            make_instruction_index: 1,
+            project_block: BasicBlockId::new(0),
+            project_instruction_index: 2,
+            sum_value: ValueId::new(2),
+            project_value: ValueId::new(3),
+            project_source_value: ValueId::new(2),
+            copy_value: None,
+            payload_value: ValueId::new(1),
+            payload: SumVariantProjectSeedPayload::I64(73),
+            proof: SumVariantProjectSeedProof::LocalAggregateProjectSeed,
+        });
+
+        refresh_function_exact_seed_backend_route(&mut function);
+
+        let route = function
+            .metadata
+            .exact_seed_backend_route
+            .expect("exact seed backend route");
+        assert_eq!(route.tag.as_str(), "sum_variant_project_local");
+        assert_eq!(route.source_route, "sum_variant_project_seed_route");
+        assert_eq!(route.proof, "sum_variant_project_local_aggregate_seed");
         assert_eq!(route.selected_value, None);
     }
 

@@ -19,6 +19,7 @@ use crate::mir::{
     string_kernel_plan::StringKernelPlan,
     substring_views_micro_seed_plan::SubstringViewsMicroSeedRoute, sum_placement::SumPlacementFact,
     sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
+    sum_variant_project_seed_plan::SumVariantProjectSeedRoute,
     sum_variant_tag_seed_plan::SumVariantTagSeedRoute, thin_entry::ThinEntryCandidate,
     thin_entry_selection::ThinEntrySelection, value_consumer::ValueConsumerFacts, BasicBlock,
     BasicBlockId, ConstValue, EffectMask, MirType, ValueId,
@@ -247,6 +248,11 @@ pub struct FunctionMetadata {
     /// Sum placement metadata owns the local aggregate proof; this route only
     /// owns the temporary whole-function exact seed payload for the C backend.
     pub sum_variant_tag_seed_route: Option<SumVariantTagSeedRoute>,
+
+    /// Backend-consumable exact Sum variant_project seed route.
+    /// Sum placement metadata owns the local aggregate proof; this route carries
+    /// the temporary literal payload required by the exact backend helper.
+    pub sum_variant_project_seed_route: Option<SumVariantProjectSeedRoute>,
 
     /// Function-level backend route tag for one already-proven exact seed.
     /// Payload legality remains owned by the selected `*_micro_seed_route`;

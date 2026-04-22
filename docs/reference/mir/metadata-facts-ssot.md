@@ -26,6 +26,7 @@ placement/entry decisions without guessing from helper names.
 | `sum_placement_selections` | array | Selected sum path (`local_aggregate` vs compat fallback) |
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
 | `sum_variant_tag_seed_route` | object or null | Exact Sum `variant_tag` seed route selected from Sum placement metadata |
+| `sum_variant_project_seed_route` | object or null | Exact Sum `variant_project` seed route selected from Sum placement metadata |
 | `exact_seed_backend_route` | object or null | Function-level backend route tag for one already-proven exact seed payload |
 
 ## Value maps
@@ -254,6 +255,26 @@ it does not replace canonical `variant_make` / `variant_tag` instructions.
 | `consumer_capability` | `direct_sum_variant_tag_local` |
 | `publication_boundary` | `none` |
 
+### `sum_variant_project_seed_route`
+
+`sum_variant_project_seed_route` is the exact-seed bridge for the current
+`variant_project` local/copy seed family. It carries the literal payload needed
+by the temporary backend helper while route legality stays in Sum placement
+metadata.
+
+| Field | Meaning |
+| --- | --- |
+| `kind` | `variant_project_local_i64`, `variant_project_local_f64`, `variant_project_local_handle`, `variant_project_copy_local_i64`, `variant_project_copy_local_f64`, or `variant_project_copy_local_handle` |
+| `enum`, `variant`, `subject` | Enum and variant identity |
+| `layout` | Selected local aggregate layout |
+| `variant_tag` | Expected discriminant for the projected variant |
+| `make_block`, `make_instruction_index`, `project_block`, `project_instruction_index` | MIR sites proven by the route |
+| `sum_value`, `project_value`, `project_source_value`, `copy_value`, `payload_value` | Value ids needed by backend validation |
+| `payload_literal_kind`, `payload_i64`, `payload_f64`, `payload_string` | Literal payload for the exact helper |
+| `proof` | `sum_variant_project_local_aggregate_seed` |
+| `consumer_capability` | `direct_sum_variant_project_local` |
+| `publication_boundary` | `none` |
+
 ### `exact_seed_backend_route`
 
 `exact_seed_backend_route` lets the backend choose one already-proven exact seed
@@ -262,7 +283,7 @@ payload before walking any legacy compatibility ladder.
 | Field | Meaning |
 | --- | --- |
 | `tag` | Stable backend tag such as `sum_variant_tag_local` |
-| `source_route` | Metadata field that owns the payload, such as `sum_variant_tag_seed_route` |
+| `source_route` | Metadata field that owns the payload, such as `sum_variant_tag_seed_route` or `sum_variant_project_seed_route` |
 | `proof` | Proof string copied from the selected source route |
 | `selected_value` | Optional value id for plan-indexed routes; null for Sum variant_tag |
 

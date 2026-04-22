@@ -8,8 +8,12 @@
     {
       "name": "ResultFloat",
       "variants": [
-        { "name": "Ok" },
-        { "name": "Err" }
+        {
+          "name": "Ok"
+        },
+        {
+          "name": "Err"
+        }
       ]
     }
   ],
@@ -24,7 +28,10 @@
             {
               "op": "const",
               "dst": 1,
-              "value": { "type": "f64", "value": 1.5 }
+              "value": {
+                "type": "f64",
+                "value": 1.5
+              }
             },
             {
               "op": "variant_make",
@@ -140,7 +147,37 @@
             "layout": "tag_f64_payload",
             "reason": "selected local aggregate uses f64 payload lane"
           }
-        ]
+        ],
+        "sum_variant_project_seed_route": {
+          "kind": "variant_project_copy_local_f64",
+          "enum": "ResultFloat",
+          "variant": "Ok",
+          "subject": "ResultFloat::Ok",
+          "layout": "tag_f64_payload",
+          "variant_tag": 0,
+          "make_block": 0,
+          "make_instruction_index": 1,
+          "project_block": 0,
+          "project_instruction_index": 3,
+          "sum_value": 2,
+          "project_value": 4,
+          "project_source_value": 3,
+          "copy_value": 3,
+          "payload_value": 1,
+          "payload_literal_kind": "f64",
+          "payload_i64": null,
+          "payload_f64": 1.5,
+          "payload_string": null,
+          "proof": "sum_variant_project_local_aggregate_seed",
+          "consumer_capability": "direct_sum_variant_project_local",
+          "publication_boundary": "none"
+        },
+        "exact_seed_backend_route": {
+          "tag": "sum_variant_project_local",
+          "source_route": "sum_variant_project_seed_route",
+          "proof": "sum_variant_project_local_aggregate_seed",
+          "selected_value": null
+        }
       }
     }
   ]

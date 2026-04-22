@@ -85,6 +85,7 @@ pub mod substring_views_micro_seed_plan; // MIR-owned route plan for temporary s
 pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
 pub mod sum_placement_layout; // LLVM-side payload-lane choices for selected local sums
 pub mod sum_placement_selection; // selection pilot over sum-local placement facts
+pub mod sum_variant_project_seed_plan; // MIR-owned route plan for temporary Sum variant_project exact seed bridge
 pub mod sum_variant_tag_seed_plan; // MIR-owned route plan for temporary Sum variant_tag exact seed bridge
 pub mod thin_entry; // thin-entry inventory for known local routes
 pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
@@ -264,6 +265,11 @@ pub use sum_placement_layout::{
 pub use sum_placement_selection::{
     refresh_function_sum_placement_selections, refresh_module_sum_placement_selections,
     SumPlacementPath, SumPlacementSelection,
+};
+pub use sum_variant_project_seed_plan::{
+    refresh_function_sum_variant_project_seed_route,
+    refresh_module_sum_variant_project_seed_routes, SumVariantProjectSeedKind,
+    SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
 };
 pub use sum_variant_tag_seed_plan::{
     refresh_function_sum_variant_tag_seed_route, refresh_module_sum_variant_tag_seed_routes,

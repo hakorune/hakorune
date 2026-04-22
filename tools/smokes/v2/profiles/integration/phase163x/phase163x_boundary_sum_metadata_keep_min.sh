@@ -117,6 +117,20 @@ for FIXTURE in "${FIXTURES[@]}"; do
                 exit 1
             fi
             ;;
+        sum_option_project_local_i64_min|sum_result_ok_local_i64_min|sum_result_ok_project_copy_local_i64_min|sum_result_ok_project_copy_local_f64_min|sum_result_ok_project_copy_local_handle_min|sum_result_ok_project_local_f64_min|sum_result_ok_project_local_handle_min)
+            if ! grep -Fq "stage=exact_seed_backend_route result=hit reason=mir_route_metadata extra=sum_variant_project_local" "$BUILD_LOG"; then
+                echo "[INFO] compile output:"
+                tail -n 120 "$BUILD_LOG" || true
+                test_fail "phase163x_boundary_sum_metadata_keep_min: sum variant_project fixture did not hit exact route metadata fixture=${BASENAME}"
+                exit 1
+            fi
+            if ! grep -Fq "stage=sum_variant_project_local result=emit reason=exact_match" "$BUILD_LOG"; then
+                echo "[INFO] compile output:"
+                tail -n 120 "$BUILD_LOG" || true
+                test_fail "phase163x_boundary_sum_metadata_keep_min: sum variant_project fixture did not emit from route metadata fixture=${BASENAME}"
+                exit 1
+            fi
+            ;;
     esac
 done
 

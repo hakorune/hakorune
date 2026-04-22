@@ -536,6 +536,37 @@ pub(super) fn build_mir_json_root(
                     "publication_boundary": "none",
                 })
             }),
+            "sum_variant_project_seed_route": f.metadata.sum_variant_project_seed_route.as_ref().map(|route| {
+                let (payload_i64, payload_f64, payload_string) = match &route.payload {
+                    crate::mir::SumVariantProjectSeedPayload::I64(value) => (Some(*value), None, None),
+                    crate::mir::SumVariantProjectSeedPayload::F64(value) => (None, Some(*value), None),
+                    crate::mir::SumVariantProjectSeedPayload::String(value) => (None, None, Some(value.as_str())),
+                };
+                let mut obj = serde_json::Map::new();
+                obj.insert("kind".to_string(), json!(route.kind.to_string()));
+                obj.insert("enum".to_string(), json!(route.enum_name.as_str()));
+                obj.insert("variant".to_string(), json!(route.variant.as_str()));
+                obj.insert("subject".to_string(), json!(route.subject.as_str()));
+                obj.insert("layout".to_string(), json!(route.layout.to_string()));
+                obj.insert("variant_tag".to_string(), json!(route.variant_tag));
+                obj.insert("make_block".to_string(), json!(route.make_block.as_u32()));
+                obj.insert("make_instruction_index".to_string(), json!(route.make_instruction_index));
+                obj.insert("project_block".to_string(), json!(route.project_block.as_u32()));
+                obj.insert("project_instruction_index".to_string(), json!(route.project_instruction_index));
+                obj.insert("sum_value".to_string(), json!(route.sum_value.as_u32()));
+                obj.insert("project_value".to_string(), json!(route.project_value.as_u32()));
+                obj.insert("project_source_value".to_string(), json!(route.project_source_value.as_u32()));
+                obj.insert("copy_value".to_string(), json!(route.copy_value.map(|value| value.as_u32())));
+                obj.insert("payload_value".to_string(), json!(route.payload_value.as_u32()));
+                obj.insert("payload_literal_kind".to_string(), json!(route.payload.kind()));
+                obj.insert("payload_i64".to_string(), json!(payload_i64));
+                obj.insert("payload_f64".to_string(), json!(payload_f64));
+                obj.insert("payload_string".to_string(), json!(payload_string));
+                obj.insert("proof".to_string(), json!(route.proof.to_string()));
+                obj.insert("consumer_capability".to_string(), json!("direct_sum_variant_project_local"));
+                obj.insert("publication_boundary".to_string(), json!("none"));
+                serde_json::Value::Object(obj)
+            }),
             "exact_seed_backend_route": f.metadata.exact_seed_backend_route.as_ref().map(|route| {
                 json!({
                     "tag": route.tag.as_str(),

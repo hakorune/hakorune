@@ -15,10 +15,10 @@ Related:
 
 Current no-growth baseline:
 
-- `.inc` files: 76
-- `.inc` lines: 19,533
-- analysis-debt files: 23
-- analysis-debt lines: 257
+- `.inc` files: 75
+- `.inc` lines: 18,153
+- analysis-debt files: 21
+- analysis-debt lines: 206
 
 Compact current status is mirrored in `292x-STATUS.toml`. This ledger keeps
 the deletion history and the reason for baseline changes.
@@ -159,3 +159,22 @@ Sum `variant_tag` exact seed backend route:
     from the baseline
   - `hako_llvmc_ffi_pure_compile.inc`: `28 -> 23`
   - current analysis-debt baseline is `257`
+
+Sum `variant_project` exact seed backend route:
+
+- added `FunctionMetadata.sum_variant_project_seed_route` for the current
+  local and copy `variant_project` exact seed family
+- replaced the six `hako_llvmc_match_variant_project_*seed` C matchers with
+  `hako_llvmc_consume_sum_variant_project_seed_route`
+- deleted the old project local/copy matcher include files and added
+  `hako_llvmc_ffi_sum_local_seed_project_route.inc`
+- updated metadata-bearing project fixtures to carry
+  `sum_variant_project_seed_route` and `exact_seed_backend_route`
+- pinned route traces in `phase163x_boundary_sum_metadata_keep_min.sh`
+- lowered allowlist:
+  - `hako_llvmc_ffi_sum_local_seed_matchers_project_copy.inc`: `24 -> 0` and
+    removed from the baseline
+  - `hako_llvmc_ffi_sum_local_seed_matchers_project_local.inc`: `21 -> 0` and
+    removed from the baseline
+  - `hako_llvmc_ffi_pure_compile.inc`: `23 -> 17`
+  - current analysis-debt baseline is `206`

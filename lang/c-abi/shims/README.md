@@ -61,10 +61,9 @@ Current partitions:
 - `hako_llvmc_ffi_sum_local_seed_matchers_tag.inc`
   - metadata consumer for the Sum `variant_tag` exact seed route
   - consumes MIR `sum_variant_tag_seed_route`; do not regrow raw block scanners here
-- `hako_llvmc_ffi_sum_local_seed_matchers_project_copy.inc`
-  - project-through-copy matcher family
-- `hako_llvmc_ffi_sum_local_seed_matchers_project_local.inc`
-  - direct local project matcher family
+- `hako_llvmc_ffi_sum_local_seed_project_route.inc`
+  - metadata consumer for the Sum `variant_project` exact seed route
+  - consumes MIR `sum_variant_project_seed_route`; do not regrow raw block scanners here
 - `hako_llvmc_ffi_concat_const_suffix_seed.inc`
   - metadata reader plus temporary exact-micro emitter for `kilo_micro_concat_const_suffix`
   - route-shape proof is MIR-owned `concat_const_suffix_micro_seed_route`; do not regrow raw block scanners here

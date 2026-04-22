@@ -3,12 +3,10 @@
 # Reductions are allowed. New debt files or per-file debt-line growth fail.
 lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc	4
 lang/c-abi/shims/hako_llvmc_ffi_compiler_state.inc	1
-lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc	23
+lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc	17
 lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc	3
 lang/c-abi/shims/hako_llvmc_ffi_pure_compile_minimal_paths.inc	40
 lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed_copy_graph.inc	2
-lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_matchers_project_copy.inc	24
-lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_matchers_project_local.inc	21
 lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_counter_step_chain_micro.inc	19
 lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_counter_step_copy_local_i64.inc	7
 lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_counter_step_local_i64.inc	7

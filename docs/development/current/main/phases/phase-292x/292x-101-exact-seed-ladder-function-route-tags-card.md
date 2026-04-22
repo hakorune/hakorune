@@ -181,3 +181,13 @@ Each boundary smoke must observe:
   emits the selected helper without scanning raw MIR JSON blocks.
 - The route is pinned with `phase163x_boundary_sum_metadata_keep_min.sh`.
 - The analysis-debt baseline is now `257` lines.
+
+## Seventh Slice Result
+
+- Added `FunctionMetadata.sum_variant_project_seed_route`.
+- `ExactSeedBackendRouteKind` includes `sum_variant_project_local`.
+- The six Sum `variant_project` local/copy matchers now flow through
+  `hako_llvmc_consume_sum_variant_project_seed_route`, which validates metadata
+  and emits the selected helper without scanning raw MIR JSON blocks.
+- The route is pinned with `phase163x_boundary_sum_metadata_keep_min.sh`.
+- The analysis-debt baseline is now `206` lines.
