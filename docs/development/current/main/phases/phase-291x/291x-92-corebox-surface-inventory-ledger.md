@@ -152,7 +152,11 @@ Landed first slice and follow-up:
 - twentieth implementation moved `MapBox.get` after adding a focused
   receiver-plus-key fixture while keeping its stored-value result type
   `Unknown` and preserving `MapBox.set` fallback sentinels.
-- remaining router inventory order after MapBox get: MapBox `set`.
+- twenty-first implementation moved `MapBox.set` after adding a focused
+  receiver-plus-key-plus-value fixture while keeping its write-return type
+  `Unknown` and preserving `MapBox.delete` fallback sentinels.
+- remaining route-only CoreBox rows are closed for ArrayBox stable rows and
+  MapBox `size/len/has/get/set`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
 - hold MapBox `keys` / `values` / `delete` / `remove` / `clear` until their

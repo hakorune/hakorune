@@ -140,6 +140,9 @@ separate `len` slot.
 `Bool` result without touching stored value materialization.
 `MapBox.get` is the first stored-value MapBox read slice; it moves to the
 Unified receiver-plus-key shape while keeping the MIR result type `Unknown`.
+`MapBox.set` is the first stored-value MapBox write slice; it moves to the
+Unified receiver-plus-key-plus-value shape while keeping the current visible
+write-return opaque as `Unknown`.
 
 ## Implementation Snapshot
 
@@ -156,8 +159,8 @@ Unified receiver-plus-key shape while keeping the MIR result type `Unknown`.
   `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, `MapMethodId::Has`, and
-  `MapMethodId::Get` rows to `Route::Unified`; remaining MapBox rows still use
-  the family-wide fallback.
+  `MapMethodId::Get`, and `MapMethodId::Set` rows to `Route::Unified`;
+  remaining MapBox rows still use the family-wide fallback.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -192,8 +195,10 @@ Unified receiver-plus-key shape while keeping the MIR result type `Unknown`.
   `MapBox.size` and `MapBox.len` use the arity-zero receiver shape and publish
   `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
   publishes `MirType::Bool`; `MapBox.get` uses the receiver-plus-key shape and
-  intentionally stays `MirType::Unknown`; `lastIndexOf/2` and `MapBox.set`
-  remain pinned as BoxCall fallback sentinels.
+  intentionally stays `MirType::Unknown`; `MapBox.set` uses the
+  receiver-plus-key-plus-value shape and intentionally stays
+  `MirType::Unknown`; `lastIndexOf/2` and `MapBox.delete` remain pinned as
+  BoxCall fallback sentinels.
 
 ## Acceptance
 
@@ -222,7 +227,8 @@ implemented.
 
 ## Remaining Work
 
-- remaining router inventory order after `MapBox.get`: `MapBox.set`
+- remaining route-only CoreBox rows are closed for the current ArrayBox stable
+  rows and MapBox `size` / `len` / `has` / `get` / `set`
 - contract-first backlog: two-arg `StringBox.lastIndexOf(needle, start_pos)`,
   Array generic element-result publication (`get` / `pop` / `remove` as `T`
   instead of `Unknown`), `MapBox.length`, `MapBox.keys` / `values`,

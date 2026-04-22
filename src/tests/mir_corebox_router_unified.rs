@@ -611,7 +611,7 @@ static box Main {
     a.push(7)
     local inserted = a.insert(0, 9)
     local m = new MapBox()
-    m.set("k", 1)
+    m.delete("k")
     return a.length()
   }
 }
@@ -620,7 +620,7 @@ static box Main {
     let module = compile_src(src);
     let insert_arg_lens = method_call_arg_lens(&module, "ArrayBox", "insert");
     let insert_result_types = method_call_result_types(&module, "ArrayBox", "insert");
-    let map_set_arg_lens = method_call_arg_lens(&module, "MapBox", "set");
+    let map_delete_arg_lens = method_call_arg_lens(&module, "MapBox", "delete");
 
     assert_eq!(
         insert_arg_lens,
@@ -633,9 +633,9 @@ static box Main {
         "ArrayBox.insert should publish a Void result type"
     );
     assert_eq!(
-        map_set_arg_lens,
-        vec![2],
-        "MapBox.set is still deferred and should stay on the BoxCall fallback shape"
+        map_delete_arg_lens,
+        vec![1],
+        "MapBox.delete is still deferred and should stay on the BoxCall fallback shape"
     );
 }
 
@@ -648,7 +648,7 @@ static box Main {
   main() {
     local m = new MapBox()
     local n = m.size()
-    m.set("k", 1)
+    m.delete("k")
     return n
   }
 }
@@ -657,7 +657,7 @@ static box Main {
     let module = compile_src(src);
     let size_arg_lens = method_call_arg_lens(&module, "MapBox", "size");
     let size_result_types = method_call_result_types(&module, "MapBox", "size");
-    let set_arg_lens = method_call_arg_lens(&module, "MapBox", "set");
+    let delete_arg_lens = method_call_arg_lens(&module, "MapBox", "delete");
 
     assert_eq!(
         size_arg_lens,
@@ -670,9 +670,9 @@ static box Main {
         "MapBox.size should publish an Integer result type"
     );
     assert_eq!(
-        set_arg_lens,
-        vec![2],
-        "MapBox.set is still deferred and should stay on the BoxCall fallback shape"
+        delete_arg_lens,
+        vec![1],
+        "MapBox.delete is still deferred and should stay on the BoxCall fallback shape"
     );
 }
 
@@ -685,7 +685,7 @@ static box Main {
   main() {
     local m = new MapBox()
     local n = m.len()
-    m.set("k", 1)
+    m.delete("k")
     return n
   }
 }
@@ -694,7 +694,7 @@ static box Main {
     let module = compile_src(src);
     let len_arg_lens = method_call_arg_lens(&module, "MapBox", "len");
     let len_result_types = method_call_result_types(&module, "MapBox", "len");
-    let set_arg_lens = method_call_arg_lens(&module, "MapBox", "set");
+    let delete_arg_lens = method_call_arg_lens(&module, "MapBox", "delete");
 
     assert_eq!(
         len_arg_lens,
@@ -707,9 +707,9 @@ static box Main {
         "MapBox.len should publish an Integer result type"
     );
     assert_eq!(
-        set_arg_lens,
-        vec![2],
-        "MapBox.set is still deferred and should stay on the BoxCall fallback shape"
+        delete_arg_lens,
+        vec![1],
+        "MapBox.delete is still deferred and should stay on the BoxCall fallback shape"
     );
 }
 
@@ -722,7 +722,7 @@ static box Main {
   main() {
     local m = new MapBox()
     local h = m.has("k")
-    m.set("k", 1)
+    m.delete("k")
     return h
   }
 }
@@ -731,7 +731,7 @@ static box Main {
     let module = compile_src(src);
     let has_arg_lens = method_call_arg_lens(&module, "MapBox", "has");
     let has_result_types = method_call_result_types(&module, "MapBox", "has");
-    let set_arg_lens = method_call_arg_lens(&module, "MapBox", "set");
+    let delete_arg_lens = method_call_arg_lens(&module, "MapBox", "delete");
 
     assert_eq!(
         has_arg_lens,
@@ -744,9 +744,9 @@ static box Main {
         "MapBox.has should publish a Bool result type"
     );
     assert_eq!(
-        set_arg_lens,
-        vec![2],
-        "MapBox.set is still deferred and should stay on the BoxCall fallback shape"
+        delete_arg_lens,
+        vec![1],
+        "MapBox.delete is still deferred and should stay on the BoxCall fallback shape"
     );
 }
 
@@ -758,7 +758,7 @@ fn map_value_get_uses_unified_receiver_arg_shape_and_generic_return() {
 static box Main {
   main() {
     local m = new MapBox()
-    m.set("k", 41)
+    m.delete("missing")
     local g = m.get("k")
     return m.size()
   }
@@ -768,7 +768,7 @@ static box Main {
     let module = compile_src(src);
     let get_arg_lens = method_call_arg_lens(&module, "MapBox", "get");
     let get_result_types = method_call_result_types(&module, "MapBox", "get");
-    let set_arg_lens = method_call_arg_lens(&module, "MapBox", "set");
+    let delete_arg_lens = method_call_arg_lens(&module, "MapBox", "delete");
 
     assert_eq!(
         get_arg_lens,
@@ -781,8 +781,45 @@ static box Main {
         "MapBox.get returns a data-dependent stored value and should stay MIR-unknown"
     );
     assert_eq!(
+        delete_arg_lens,
+        vec![1],
+        "MapBox.delete is still deferred and should stay on the BoxCall fallback shape"
+    );
+}
+
+#[test]
+fn map_value_set_uses_unified_receiver_arg_shape_and_opaque_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local m = new MapBox()
+    local s = m.set("k", 41)
+    m.delete("k")
+    return m.size()
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let set_arg_lens = method_call_arg_lens(&module, "MapBox", "set");
+    let set_result_types = method_call_result_types(&module, "MapBox", "set");
+    let delete_arg_lens = method_call_arg_lens(&module, "MapBox", "delete");
+
+    assert_eq!(
         set_arg_lens,
-        vec![2],
-        "MapBox.set is still deferred and should stay on the BoxCall fallback shape"
+        vec![3],
+        "MapBox.set should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        set_result_types,
+        vec![Some(MirType::Unknown)],
+        "MapBox.set keeps the current visible write-return opaque at MIR level"
+    );
+    assert_eq!(
+        delete_arg_lens,
+        vec![1],
+        "MapBox.delete is still deferred and should stay on the BoxCall fallback shape"
     );
 }

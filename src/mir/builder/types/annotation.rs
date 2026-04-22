@@ -218,5 +218,6 @@ mod tests {
         assert_eq!(infer_return_type("MapBox.len/0"), Some(MirType::Integer));
         assert_eq!(infer_return_type("MapBox.has/1"), Some(MirType::Bool));
         assert_eq!(infer_return_type("MapBox.get/1"), None);
+        assert_eq!(infer_return_type("MapBox.set/2"), None);
     }
 }
