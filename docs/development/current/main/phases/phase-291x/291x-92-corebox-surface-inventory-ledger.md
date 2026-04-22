@@ -149,8 +149,10 @@ Landed first slice and follow-up:
 - nineteenth implementation moved `ArrayBox.insert` after adding a focused
   receiver-plus-index-plus-value fixture and preserving MapBox fallback
   sentinels.
-- remaining router inventory order after ArrayBox insert: MapBox `get`, then
-  `set`.
+- twentieth implementation moved `MapBox.get` after adding a focused
+  receiver-plus-key fixture while keeping its stored-value result type
+  `Unknown` and preserving `MapBox.set` fallback sentinels.
+- remaining router inventory order after MapBox get: MapBox `set`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
 - hold MapBox `keys` / `values` / `delete` / `remove` / `clear` until their

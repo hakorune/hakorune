@@ -54,8 +54,8 @@ cargo check -q
     `find`, plus `ArrayBox.length/size/len`, `ArrayBox.push`,
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
     `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.len`, and
-    `MapBox.has`, are on the Unified value path; remaining cleanup is MapBox
-    rows
+    `MapBox.has`, and `MapBox.get`, are on the Unified value path; remaining
+    cleanup is MapBox `set` and extended rows
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:

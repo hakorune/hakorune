@@ -65,7 +65,8 @@ StringBox surface catalog
 | `291x-S18` | done | prove `ArrayBox.set` through the same MIR router Unified value path |
 | `291x-S19` | done | prove `ArrayBox.remove` through the same MIR router Unified value path |
 | `291x-S20` | done | prove `ArrayBox.insert` through the same MIR router Unified value path |
-| `291x-S21` | parked | move the next CoreBox method family through the same route pattern |
+| `291x-S21` | done | prove `MapBox.get` through the same MIR router Unified value path |
+| `291x-S22` | parked | move the next CoreBox method family through the same route pattern |
 
 ## First Stable Surface Target
 
@@ -145,10 +146,11 @@ This StringBox slice is done when:
   `size` and does not introduce a `length` alias
 - `MapBox.has` is the first keyed MapBox read route slice and publishes a
   fixed `Bool` result
+- `MapBox.get` is the first stored-value MapBox read route slice; its MIR
+  result type intentionally stays `Unknown`
 - next safe cleanup is not a whole-CoreBox flip; it should allowlist one
   proven CoreBox method family at a time
-- remaining router inventory order after ArrayBox insert: MapBox `get`, then
-  `set`
+- remaining router inventory order after MapBox get: MapBox `set`
 - MapBox `keys` / `values` / `delete` / `remove` / `clear` stay
   contract-first until their `.hako` owner and return contract are pinned
 - two-arg `lastIndexOf(needle, start_pos)` remains deferred and must stay off

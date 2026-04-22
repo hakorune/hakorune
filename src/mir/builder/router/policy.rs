@@ -92,6 +92,7 @@ fn is_mapbox_unified_value_path(method: &str, arity: usize) -> bool {
             crate::boxes::MapMethodId::Size
                 | crate::boxes::MapMethodId::Len
                 | crate::boxes::MapMethodId::Has
+                | crate::boxes::MapMethodId::Get
         )
     )
 }
@@ -220,6 +221,11 @@ mod tests {
     }
 
     #[test]
+    fn map_get_row_uses_unified_value_path() {
+        assert_eq!(route("MapBox", "get", 1), Route::Unified);
+    }
+
+    #[test]
     fn non_allowlisted_corebox_methods_stay_boxcall() {
         assert_eq!(route("StringBox", "length", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "substring", 1), Route::BoxCall);
@@ -250,7 +256,9 @@ mod tests {
         assert_eq!(route("MapBox", "len", 1), Route::BoxCall);
         assert_eq!(route("MapBox", "has", 0), Route::BoxCall);
         assert_eq!(route("MapBox", "has", 2), Route::BoxCall);
-        assert_eq!(route("MapBox", "get", 1), Route::BoxCall);
+        assert_eq!(route("MapBox", "get", 0), Route::BoxCall);
+        assert_eq!(route("MapBox", "get", 2), Route::BoxCall);
+        assert_eq!(route("MapBox", "set", 2), Route::BoxCall);
     }
 
     #[test]

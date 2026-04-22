@@ -138,6 +138,8 @@ separate `len` slot.
 `Integer` result, kept distinct from `size` and without adding `length`.
 `MapBox.has` is the first keyed MapBox read slice because it has a fixed
 `Bool` result without touching stored value materialization.
+`MapBox.get` is the first stored-value MapBox read slice; it moves to the
+Unified receiver-plus-key shape while keeping the MIR result type `Unknown`.
 
 ## Implementation Snapshot
 
@@ -153,8 +155,9 @@ separate `len` slot.
   `ArrayMethodId::Remove`, and `ArrayMethodId::Insert` families to
   `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
-  `MapMethodId::Size`, `MapMethodId::Len`, and `MapMethodId::Has` rows to
-  `Route::Unified`; remaining MapBox rows still use the family-wide fallback.
+  `MapMethodId::Size`, `MapMethodId::Len`, `MapMethodId::Has`, and
+  `MapMethodId::Get` rows to `Route::Unified`; remaining MapBox rows still use
+  the family-wide fallback.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -188,8 +191,9 @@ separate `len` slot.
   receiver-plus-index-plus-value shape and stays `Void`;
   `MapBox.size` and `MapBox.len` use the arity-zero receiver shape and publish
   `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
-  publishes `MirType::Bool`; `lastIndexOf/2` and `MapBox.get` remain pinned as
-  BoxCall fallback sentinels.
+  publishes `MirType::Bool`; `MapBox.get` uses the receiver-plus-key shape and
+  intentionally stays `MirType::Unknown`; `lastIndexOf/2` and `MapBox.set`
+  remain pinned as BoxCall fallback sentinels.
 
 ## Acceptance
 
@@ -218,8 +222,7 @@ implemented.
 
 ## Remaining Work
 
-- remaining router inventory order after `ArrayBox.insert`: `MapBox.get`, then
-  `MapBox.set`
+- remaining router inventory order after `MapBox.get`: `MapBox.set`
 - contract-first backlog: two-arg `StringBox.lastIndexOf(needle, start_pos)`,
   Array generic element-result publication (`get` / `pop` / `remove` as `T`
   instead of `Unknown`), `MapBox.length`, `MapBox.keys` / `values`,
