@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-23
 Scope: Delete-probe `pure_compile_minimal_paths` path #1 and #2.
 Related:
@@ -52,6 +52,19 @@ MIR/Hako LL route, not another `.inc` pattern matcher.
 
 Retry this card by deleting path #1/#2 again and pruning the allowlist if the
 guard moves to the new lower count.
+
+## Landed Result
+
+The retry landed:
+
+- Removed path #1 `const* -> ret const`.
+- Removed path #2 const compare branch with merge ret.
+- Pruned `hako_llvmc_ffi_pure_compile_minimal_paths.inc` allowlist
+  `40 -> 27`.
+- Guard moved from 5 files / 47 analysis-debt lines to 5 files / 34
+  analysis-debt lines.
+
+Next cleanup: `292x-115-pure-compile-minimal-map-array-deletion-card.md`.
 
 ## Previous Probe Result
 

@@ -21,8 +21,8 @@ contains six C-side raw MIR recognizers that read `blocks`, `instructions`, and
 
 This file is the next primary cleanup target after the exact-seed ladder work:
 
-- current no-growth baseline: 5 `.inc` files / 47 analysis-debt lines
-- this bucket: 40 analysis-debt lines
+- current no-growth baseline: 5 `.inc` files / 34 analysis-debt lines
+- this bucket: 27 analysis-debt lines
 - rule: no new path may be added here
 - cleanup mode: prove each path has a non-C route owner, then delete or replace
   it with MIR-owned metadata consumption
@@ -31,8 +31,8 @@ This file is the next primary cleanup target after the exact-seed ladder work:
 
 | Path | Current C Recognizer | Classification | Next Action |
 | --- | --- | --- | --- |
-| #1 | single-block `const* -> ret const` | route legality owner | delete-only probe; generic pure lowering and Hako LL daily owner already cover the shape |
-| #2 | const compare branch with two const arms and merge ret | route legality owner plus fallback hook | delete-only probe after pure keep / historical ternary / llvmlite compare canaries pass |
+| #1 | single-block `const* -> ret const` | route legality owner | deleted in `292x-112`; Hako LL daily owner covers the shape |
+| #2 | const compare branch with two const arms and merge ret | route legality owner plus fallback hook | deleted in `292x-112`; llvmlite compare monitor remains green |
 | #3 | `MapBox` constructor, `set`, `size/len`, `ret` | CoreBox method shortcut | prove generic `mir_call` lowering owns the path, otherwise add MIR metadata route |
 | #4 | `ArrayBox` constructor, `push`, `len/length/size`, `ret` | CoreBox method shortcut | prove generic `mir_call` lowering owns the path, otherwise add MIR metadata route |
 | #5 | const ASCII string, `StringBox.length/size`, folded ret | string const-eval shortcut | choose delete vs MIR-owned const-eval route; C must not own the fold |
@@ -40,11 +40,11 @@ This file is the next primary cleanup target after the exact-seed ladder work:
 
 ## Cleanup Order
 
-1. Delete-probe paths #1 and #2.
+1. Delete-probe paths #1 and #2. (landed in `292x-112`)
    - These are language/control-flow shapes, not backend helper special cases.
    - Acceptance must cover ret const, compare branch, pure keep, and historical
      ternary collection.
-2. Retire paths #3 and #4.
+2. Retire paths #3 and #4. (active: `292x-115`)
    - First try deletion with generic constructor/method lowering canaries.
    - If generic lowering is missing a real contract, add MIR-owned route
      metadata. Do not add another `.inc` shape recognizer.

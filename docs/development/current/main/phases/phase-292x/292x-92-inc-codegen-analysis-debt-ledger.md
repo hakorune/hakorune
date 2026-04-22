@@ -305,3 +305,13 @@ Array get/set micro exact seed backend route:
   - `hako_llvmc_ffi_pure_compile.inc`: `2 -> 1`
   - current analysis-debt baseline is `47`
 - there are no remaining `hako_llvmc_match_*seed` definitions
+
+Pure compile minimal ret/branch deletion:
+
+- deleted `pure_compile_minimal_paths` path #1 `const* -> ret const`
+- deleted `pure_compile_minimal_paths` path #2 const compare branch with merge
+  ret
+- kept the Hako LL daily owner and llvmlite monitor canaries green
+- lowered allowlist:
+  - `hako_llvmc_ffi_pure_compile_minimal_paths.inc`: `40 -> 27`
+  - current analysis-debt baseline is `34`

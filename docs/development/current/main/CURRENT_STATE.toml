@@ -9,13 +9,13 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; exact seed route tags through array_getset_micro landed; no hako_llvmc_match_*seed definitions remain; pure_compile_minimal_paths inventory is documented; MapBox duplicate receiver and Hako LL/provider stack overflow predelete fixes landed; next cleanup should retry minimal paths #1/#2 deletion"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; exact seed route tags through array_getset_micro landed; no hako_llvmc_match_*seed definitions remain; pure_compile_minimal_paths path #1/#2 deletion landed; guard is 5 files / 34 debt lines; next cleanup should delete-probe minimal paths #3/#4 Map/Array"
 active_phase = "docs/development/current/main/phases/phase-292x/README.md"
 phase_status = "docs/development/current/main/phases/phase-292x/292x-STATUS.toml"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md"
+taskboard = "docs/development/current/main/phases/phase-292x/292x-115-pure-compile-minimal-map-array-deletion-card.md"
 
-current_blocker_token = "retry pure_compile_minimal_paths #1/#2 deletion"
+current_blocker_token = "pure_compile_minimal_paths Map/Array path cleanup"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -43,6 +43,7 @@ opened_successors = [
   "userbox_known_receiver_method_seed chain/micro exact seed backend route tag landed",
   "MapBox duplicate receiver predelete fix landed",
   "Hako LL/provider stack overflow predelete fix landed",
+  "pure_compile_minimal_paths path #1/#2 deletion landed",
 ]
 
 blocked_successors = [
@@ -65,4 +66,5 @@ stale_pointer_patterns = [
   "active cleanup card is `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`",
   "move generic method route policy to MIR metadata",
   "hako ll/provider stack overflow blocks minimal path deletion",
+  "retry pure_compile_minimal_paths #1/#2 deletion",
 ]

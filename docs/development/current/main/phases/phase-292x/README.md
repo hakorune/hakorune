@@ -36,6 +36,7 @@ Related:
   - docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md
   - docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md
   - docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md
+  - docs/development/current/main/phases/phase-292x/292x-115-pure-compile-minimal-map-array-deletion-card.md
 ---
 
 # Phase 292x: `.inc` codegen thin tag cleanup
@@ -55,7 +56,8 @@ Related:
 - Landed exact-seed slice: `array_getset_micro` route metadata
 - Landed predelete fix: `mapbox_duplicate_receiver_unified_dispatch`
 - Landed predelete fix: `hako_ll_provider_stack_overflow_predelete`
-- Next cleanup target: retry `pure_compile_minimal_paths` path #1/#2 deletion
+- Landed deletion: `pure_compile_minimal_paths` path #1/#2
+- Next cleanup target: `pure_compile_minimal_paths` path #3/#4 Map/Array
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -93,13 +95,14 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 10. `docs/development/current/main/phases/phase-292x/292x-108-userbox-known-receiver-local-method-seed-route-card.md`
 11. `docs/development/current/main/phases/phase-292x/292x-109-userbox-known-receiver-chain-micro-method-seed-route-card.md`
 12. `docs/development/current/main/phases/phase-292x/292x-110-array-getset-micro-seed-route-card.md`
-13. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
-14. `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
-15. `docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md`
-16. `docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md`
-17. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
-18. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
-19. Historical per-slice cards as needed:
+13. `docs/development/current/main/phases/phase-292x/292x-115-pure-compile-minimal-map-array-deletion-card.md`
+14. `docs/development/current/main/phases/phase-292x/292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+15. `docs/development/current/main/phases/phase-292x/292x-114-hako-ll-stack-overflow-predelete-card.md`
+16. `docs/development/current/main/phases/phase-292x/292x-113-mapbox-duplicate-receiver-unified-dispatch-card.md`
+17. `docs/development/current/main/phases/phase-292x/292x-111-pure-compile-minimal-paths-inventory-card.md`
+18. `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+19. `docs/development/current/main/phases/phase-292x/292x-102-doc-update-simplification-card.md`
+20. Historical per-slice cards as needed:
    - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-94-array-string-len-window-route-card.md`
    - `docs/development/current/main/phases/phase-292x/292x-95-array-string-len-keep-live-route-card.md`
@@ -127,8 +130,8 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 5 `.inc` files, 47 analysis-debt lines
-- current inventory: 73 `.inc` files, 16,336 `.inc` lines
+- baseline: 5 `.inc` files, 34 analysis-debt lines
+- current inventory: 73 `.inc` files, 16,146 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 - compact phase status lives in `292x-STATUS.toml`
 
@@ -223,6 +226,6 @@ exact seed ladders to function-level backend route tags
   -> pure_compile_minimal_paths inventory card is documented
   -> MapBox duplicate receiver predelete fix is landed
   -> Hako LL/provider stack overflow predelete fix is landed
-  -> minimal paths #1/#2 deletion was probed but restored
-  -> next recommended slice is retrying path #1/#2 deletion
+  -> minimal paths #1/#2 deletion is landed
+  -> next recommended slice is path #3/#4 Map/Array deletion
 ```

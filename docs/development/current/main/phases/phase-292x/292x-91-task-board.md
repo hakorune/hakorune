@@ -133,20 +133,23 @@ Related:
     duplicate receiver aliases are stripped arity-aware, daily Hako LL and
     llvmlite monitor canaries are green
 
+- [x] A8 pure compile minimal ret/branch deletion
+  - design: `292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
+  - state: path #1/#2 deleted; allowlist pruned; guard is now 5 files / 34
+    analysis-debt lines
+
 ## Active Card
 
-- [ ] A8 pure compile minimal ret/branch deletion
-  - design: `292x-112-pure-compile-minimal-ret-branch-deletion-card.md`
-  - state: probed but not landed; local deletion reduced guard debt from
-    47 to 34 lines, then was restored because Hako LL and llvmlite monitor
-    canaries stack-overflowed after the MapBox duplicate-receiver fix
-  - next state: retry path #1/#2 deletion now that A10 is green
+- [ ] A11 pure compile minimal Map/Array deletion
+  - design: `292x-115-pure-compile-minimal-map-array-deletion-card.md`
+  - next state: delete-probe path #3/#4 and prove generic/CoreBox lowering owns
+    the MapBox and ArrayBox shapes
 
 ## Follow-up Cards
 
 - [ ] Continue pure compile minimal paths after A8
   - design: `292x-111-pure-compile-minimal-paths-inventory-card.md`
-  - next families: Map/Array paths, then String const-eval decision
+  - next families: String const-eval decision after A11
 
 ## Done Definition
 
