@@ -124,8 +124,11 @@ Landed first slice and follow-up:
 - tenth implementation moved `ArrayBox.push` after adding a focused
   receiver-plus-value fixture and preserving the remaining ArrayBox fallback
   sentinels.
-- remaining router cleanup after ArrayBox push: ArrayBox `get`, `set`, `pop`,
-  `slice`, `remove`, `insert` and MapBox.
+- eleventh implementation moved `ArrayBox.slice` after adding a focused
+  receiver-plus-start-plus-end fixture and preserving the generic/value and
+  write fallback sentinels.
+- remaining router cleanup after ArrayBox slice: ArrayBox `get`, `set`, `pop`,
+  `remove`, `insert` and MapBox.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
 

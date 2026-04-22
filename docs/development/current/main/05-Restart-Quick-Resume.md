@@ -51,9 +51,9 @@ cargo check -q
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
     `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
-    `find`, plus `ArrayBox.length/size/len` and `ArrayBox.push`, are on the
-    Unified value path; remaining cleanup is ArrayBox
-    `get/set/pop/slice/remove/insert` and MapBox
+    `find`, plus `ArrayBox.length/size/len`, `ArrayBox.push`, and
+    `ArrayBox.slice`, are on the Unified value path; remaining cleanup is
+    ArrayBox `get/set/pop/remove/insert` and MapBox
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:

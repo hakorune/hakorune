@@ -68,7 +68,11 @@ fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
 fn is_arraybox_unified_value_path(method: &str, arity: usize) -> bool {
     matches!(
         crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity),
-        Some(crate::boxes::array::ArrayMethodId::Length | crate::boxes::array::ArrayMethodId::Push)
+        Some(
+            crate::boxes::array::ArrayMethodId::Length
+                | crate::boxes::array::ArrayMethodId::Push
+                | crate::boxes::array::ArrayMethodId::Slice
+        )
     )
 }
 
@@ -151,6 +155,11 @@ mod tests {
     }
 
     #[test]
+    fn array_slice_family_uses_unified_value_path() {
+        assert_eq!(route("ArrayBox", "slice", 2), Route::Unified);
+    }
+
+    #[test]
     fn non_allowlisted_corebox_methods_stay_boxcall() {
         assert_eq!(route("StringBox", "length", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "substring", 1), Route::BoxCall);
@@ -169,7 +178,8 @@ mod tests {
         assert_eq!(route("ArrayBox", "push", 0), Route::BoxCall);
         assert_eq!(route("ArrayBox", "push", 2), Route::BoxCall);
         assert_eq!(route("ArrayBox", "pop", 0), Route::BoxCall);
-        assert_eq!(route("ArrayBox", "slice", 2), Route::BoxCall);
+        assert_eq!(route("ArrayBox", "slice", 1), Route::BoxCall);
+        assert_eq!(route("ArrayBox", "slice", 3), Route::BoxCall);
         assert_eq!(route("ArrayBox", "remove", 1), Route::BoxCall);
         assert_eq!(route("ArrayBox", "insert", 2), Route::BoxCall);
         assert_eq!(route("MapBox", "size", 0), Route::BoxCall);
