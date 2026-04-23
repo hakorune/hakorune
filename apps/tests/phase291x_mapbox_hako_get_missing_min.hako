@@ -1,0 +1,11 @@
+// Phase 291x fixture: source-level vm-hako MapBox.get(missing-key) contract.
+// Contract:
+// - vm-hako route returns the stable `[map/missing] Key not found: <key>` text.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    print(m.get("nope"))
+    return 0
+  }
+}

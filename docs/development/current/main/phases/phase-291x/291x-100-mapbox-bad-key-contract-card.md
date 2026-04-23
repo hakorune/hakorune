@@ -76,5 +76,5 @@ Field rows keep their separate field-name text:
 
 ## Next Slice
 
-Move to `MapBox.get(missing-key)` contract review or defer it behind element
-publication.
+Move to
+`docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md`.

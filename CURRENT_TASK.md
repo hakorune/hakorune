@@ -112,8 +112,8 @@ Scope: current lane / next lane / restart order only.
       now; element publication is deferred behind the 291x-98 gates
     - MapBox write-return receipt implementation is landed and pinned
     - MapBox bad-key normalization implementation is landed and pinned
-    - review `MapBox.get(missing-key)` contract without mixing element
-      publication
+    - `MapBox.get(missing-key)` contract is landed and pinned
+    - keep `MapBox.get(existing-key)` element publication out of this row
     - keep `MapBox.length()` landed as a Rust catalog alias; do not reopen slot
       unification in the extended-row card
     - keep `.inc` closed as boundary glue; phase-292x guard remains the no-growth
@@ -129,13 +129,14 @@ Scope: current lane / next lane / restart order only.
     - source-level vm-hako `MapBox.remove(key)` alias is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_remove_vm.sh`
     - source-level vm-hako `MapBox.clear()` state reset is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_clear_vm.sh`
     - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
-    - next cleanup after `MapBox.clear`: get missing-key contract review
-    - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, non-empty `MapBox.keys/values`, `MapBox.delete/remove/clear`, MapBox write-return and bad-key normalization, String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
+    - source-level vm-hako `MapBox.get(missing-key)` is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
+    - post-contract next slice is not selected yet; keep keys/values element publication deferred
+    - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, MapBox keys/values element publication, String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `MapBox get missing-key contract review`
+    - `MapBox post-contract next-slice selection`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

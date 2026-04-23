@@ -51,7 +51,8 @@ cargo check -q
     element publication is deferred behind the 291x-98 gates
   - MapBox write-return receipt implementation is landed and pinned
   - MapBox bad-key normalization implementation is landed and pinned
-  - active implementation is MapBox get missing-key contract review
+  - active implementation is MapBox post-contract next-slice selection
+  - MapBox get missing-key contract is landed and pinned
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -71,7 +72,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
-  - `MapBox get missing-key contract review`
+  - `MapBox post-contract next-slice selection`
 
 ## Current Perf Snapshot
 
@@ -106,8 +107,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - review MapBox get missing-key contract without mixing keys/values element
-    publication
+  - keep keys/values element publication deferred until a dedicated card
+  - do not reopen the landed MapBox get missing-key contract without an owner-path change
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
@@ -149,6 +150,7 @@ cargo check -q
   - `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md`
   - `docs/development/current/main/phases/phase-292x/README.md`
   - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`

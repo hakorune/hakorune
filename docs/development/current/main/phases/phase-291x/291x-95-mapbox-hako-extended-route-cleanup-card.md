@@ -76,6 +76,8 @@ metadata over treating the synthetic register id as a runtime array handle.
   S0 `boxcall(clear)`, so size/has/keys observe the same reset state.
 - `MapBox.set/delete/remove/clear` write returns now publish receipt strings
   through the S0 state owner.
+- `MapBox.get(missing-key)` already publishes the stable tagged read-miss text
+  through the same S0 state owner.
 - MIR `copy` previously copied scalar/kind/handle/file payload but not
   VM-local receiver metadata; this card may extend copy metadata propagation
   only for existing local metadata keys.
@@ -120,6 +122,8 @@ metadata over treating the synthetic register id as a runtime array handle.
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`
+- Smoke:
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
 
 ## Rejected Owner Choices
 
@@ -169,9 +173,14 @@ metadata over treating the synthetic register id as a runtime array handle.
     `291x-100` and must not mix missing-key or element publication.
 11. Landed: implement MapBox bad-key normalization and pin it with
     `phase291x_mapbox_hako_bad_key_vm.sh` plus `map_bad_key_has_vm.sh`.
-12. Active next: review `MapBox.get(missing-key)` contract.
-13. Reactivate or replace stale archive witnesses only when they match the new
-   owner path and have a valid helper source path.
+12. Landed decision: `MapBox.get(missing-key)` keeps the tagged
+    `[map/missing] Key not found: <key>` contract; implementation/pinning is
+    tracked by `291x-101` and must not mix successful-read element publication.
+13. Landed: pin the MapBox get missing-key contract with
+    `phase291x_mapbox_hako_get_missing_vm.sh`.
+14. Active next: MapBox post-contract next-slice selection.
+15. Reactivate or replace stale archive witnesses only when they match the new
+    owner path and have a valid helper source path.
 
 ## Out Of Scope
 
