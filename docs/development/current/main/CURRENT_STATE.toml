@@ -9,13 +9,13 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-291x CoreBox MapBox contract-first cleanup"
-active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length and empty MapBox.values source-route slices are landed; current lane continues with MapBox source-level set multi-arg cleanup"
+active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, empty MapBox.values, and MapBox.set duplicate-receiver slices are landed; current lane continues with MapBox non-empty extended state parity"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md"
 
-current_blocker_token = "MapBox source-level set multi-arg cleanup"
+current_blocker_token = "MapBox non-empty extended state parity"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -56,6 +56,7 @@ opened_successors = [
   "phase-292x .inc cleanup closed with guard 0 debt lines plus explicit view-owner accounting",
   "MapBox.length read-only alias landed",
   "MapBox.values empty source-route shape landed",
+  "MapBox.set duplicate receiver source-route cleanup landed",
 ]
 
 blocked_successors = [
@@ -64,7 +65,7 @@ blocked_successors = [
   "MapBox alias normalization or return-contract changes mixed into the first MapBox catalog slice",
   "std.string sugar treated as semantic owner",
   "apps.lib.boxes.map_std reintroduced as a second Map surface owner",
-  "non-empty MapBox.keys/values smoke before source-level MapBox.set multi-arg cleanup",
+  "non-empty MapBox.keys/values smoke before state-owner parity decision",
 ]
 
 stale_pointer_patterns = [

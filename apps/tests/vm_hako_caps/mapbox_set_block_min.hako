@@ -1,6 +1,7 @@
-// RVP-C17 blocked fixture
+// RVP-C17 legacy filename retained for old references.
 // Contract:
-// - vm-hako route currently stops at subset-check with `boxcall(set:args>1)`.
+// - vm-hako route accepts `MapBox.set(key, value)` even when Unified MIR
+//   passes a duplicate receiver alias as the first BoxCall arg.
 
 static box Main {
   main() {

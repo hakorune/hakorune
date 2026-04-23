@@ -29,6 +29,10 @@ static box MirVmS0BoxcallBuiltinBox {
     return MirVmS0ArgsPhiBox._args_has_third(seg)
   }
 
+  _args_count(seg) {
+    return MirVmS0ArgsPhiBox._args_count(seg)
+  }
+
   _args_first(seg) {
     return MirVmS0ArgsPhiBox._args_first(seg)
   }
@@ -39,6 +43,36 @@ static box MirVmS0BoxcallBuiltinBox {
 
   _args_third(seg) {
     return MirVmS0ArgsPhiBox._args_third(seg)
+  }
+
+  _args_nth(seg, index) {
+    return MirVmS0ArgsPhiBox._args_nth(seg, index)
+  }
+
+  _first_arg_is_duplicate_receiver(seg, box_recv, regs) {
+    local arg0 = me._args_first(seg)
+    if arg0 == null || box_recv == null { return 0 }
+    if arg0 == box_recv { return 1 }
+    local recv_h = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+    if recv_h <= 0 { return 0 }
+    local arg_h = MirVmS0StateOpsBox.reg_i64_get(regs, arg0)
+    if arg_h == recv_h { return 1 }
+    return 0
+  }
+
+  _map_arg_offset(seg, box_recv, regs, expected_arity) {
+    local count = me._args_count(seg)
+    if count <= expected_arity { return 0 }
+    if count == expected_arity + 1 {
+      if me._first_arg_is_duplicate_receiver(seg, box_recv, regs) == 1 {
+        return 1
+      }
+    }
+    return -1
+  }
+
+  _map_arg(seg, offset, index) {
+    return me._args_nth(seg, offset + index)
   }
 
   apply_birth(box_birth, dst_birth, regs, kinds, array_lens) {
@@ -311,9 +345,10 @@ static box MirVmS0BoxcallBuiltinBox {
     }
 
     if method == "set" {
-      if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
-      local set_arg0 = me._args_first(seg)
-      local set_arg1 = me._args_second(seg)
+      local set_offset = me._map_arg_offset(seg, box_recv, regs, 2)
+      if set_offset < 0 { return "[vm-hako/unimplemented op=boxcall args>2]" }
+      local set_arg0 = me._map_arg(seg, set_offset, 0)
+      local set_arg1 = me._map_arg(seg, set_offset, 1)
       local dst_set = me._find_int(seg, "dst")
       local box_key_set = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
       return MapStateCoreBox.apply_set(box_key_set, set_arg0, set_arg1, dst_set, "[map/bad-key] key must be string", regs, kinds, array_lens, handle_regs)
@@ -335,10 +370,11 @@ static box MirVmS0BoxcallBuiltinBox {
     }
 
     if method == "get" {
-      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local get_offset = me._map_arg_offset(seg, box_recv, regs, 1)
+      if get_offset < 0 { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local dst_get = me._find_int(seg, "dst")
       if dst_get == null { return "[vm-hako/contract][boxcall-missing-dst]" }
-      local get_arg0 = me._args_first(seg)
+      local get_arg0 = me._map_arg(seg, get_offset, 0)
       local box_key_get = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
       return MapStateCoreBox.apply_get(box_key_get, get_arg0, dst_get, "[map/bad-key] key must be string", regs, kinds, array_lens, handle_regs)
     }
@@ -361,18 +397,20 @@ static box MirVmS0BoxcallBuiltinBox {
     }
 
     if method == "has" {
-      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local has_offset = me._map_arg_offset(seg, box_recv, regs, 1)
+      if has_offset < 0 { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local dst_has = me._find_int(seg, "dst")
       if dst_has == null { return "[vm-hako/contract][boxcall-missing-dst]" }
-      local has_arg0 = me._args_first(seg)
+      local has_arg0 = me._map_arg(seg, has_offset, 0)
       local box_key_has = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
       return MapStateCoreBox.apply_has(box_key_has, has_arg0, dst_has, "[vm-hako/unimplemented op=boxcall1 method=has]", regs, kinds, array_lens, handle_regs)
     }
 
     if method == "delete" {
-      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local delete_offset = me._map_arg_offset(seg, box_recv, regs, 1)
+      if delete_offset < 0 { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local dst_delete = me._find_int(seg, "dst")
-      local delete_arg0 = me._args_first(seg)
+      local delete_arg0 = me._map_arg(seg, delete_offset, 0)
       local box_key_delete = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
       return MapStateCoreBox.apply_delete(box_key_delete, delete_arg0, dst_delete, "[map/bad-key] key must be string", regs, kinds, array_lens, handle_regs)
     }

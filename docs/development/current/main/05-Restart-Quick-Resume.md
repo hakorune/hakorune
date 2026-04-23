@@ -43,7 +43,8 @@ cargo check -q
   - `MapBox.length()` is landed as a read-only contract-first alias for the
     existing Map size surface
   - empty source-level vm-hako `MapBox.values().size()` is landed and pinned
-  - active implementation is the MapBox source-level `set(...)` multi-arg cleanup
+  - source-level vm-hako `MapBox.set(...)` duplicate-receiver routing is landed
+  - active implementation is MapBox non-empty extended state parity
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -62,7 +63,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
-  - `MapBox source-level set multi-arg cleanup`
+  - `MapBox non-empty extended state parity`
 
 ## Current Perf Snapshot
 
@@ -97,8 +98,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - fix source-level vm-hako `MapBox.set(...)` multi-arg routing before
-    promoting non-empty `keys` / `values` / `remove` parity
+  - decide non-empty `keys` / `values` state-owner parity before promoting
+    `remove` or content enumeration
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only

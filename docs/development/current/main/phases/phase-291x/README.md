@@ -27,8 +27,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: source-level vm-hako `MapBox.set(...)`
-  multi-arg cleanup before non-empty MapBox extended-row parity
+- Next implementation target: MapBox non-empty extended state parity before
+  `remove` / content enumeration
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -114,9 +114,12 @@ Remaining MapBox follow-up:
 - source-level vm-hako empty `MapBox.values().size()` shape is landed and
   pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`.
-- source-level vm-hako `MapBox.set(...)` still has a multi-arg blocker; fix
-  that before pinning non-empty `keys()` / `values()` state parity or
-  `remove(key)` behavior.
+- source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is landed
+  and pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`.
+- non-empty `keys()` / `values()` state parity still needs one owner decision:
+  `set()` updates S0 `MapStateCoreBox` state, while v1 `values()` currently
+  reads `MapCoreBox` state.
 - `.hako` VM `keys` / `remove` / `clear` source-route behavior must still be
   promoted one row at a time and smoke-pinned.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.

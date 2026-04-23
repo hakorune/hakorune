@@ -1,0 +1,12 @@
+// Phase 291x vm-hako source-route fixture for MapBox.set().
+// Contract:
+// - Unified MIR may pass receiver-alias, key, value to the S0 BoxCall owner.
+// - vm-hako strips the duplicate receiver arg and accepts set(key, value).
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 42)
+    return 0
+  }
+}

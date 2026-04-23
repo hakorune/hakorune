@@ -28,10 +28,11 @@ remains the S0 BoxCall state owner reached from
 Rust VM/vtable owner. Do not cross-call between those lanes.
 
 First promotion slice: empty-map `MapBox.values()` as an ArrayBox-like shape
-whose `size()` is `0`. Non-empty state parity is deferred because source-level
-vm-hako `MapBox.set(...)` still has an independent multi-arg BoxCall blocker.
-Content enumeration is deferred until a separate shape contract pins key/value
-ordering and element publication.
+whose `size()` is `0`. The next slice strips the Unified duplicate receiver arg
+for source-level vm-hako `MapBox.set(...)`. Non-empty `values()` parity is still
+deferred because `values()` currently observes the v1 `MapCoreBox` state while
+`set()` updates the S0 `MapStateCoreBox` state. Content enumeration is deferred
+until a separate shape contract pins key/value ordering and element publication.
 
 Implementation note: the source route returns an ArrayBox-like value through
 ordinary MIR `copy` instructions before `values().size()` observes it. Therefore
@@ -50,8 +51,11 @@ call loses the ArrayBox hint and falls into String size behavior.
   `MapStateCoreBox`.
 - S0 BoxCall rows for `values` and the `remove` alias were absent before this
   card and must not be silently promoted.
-- source-level vm-hako `MapBox.set(...)` still exposes a separate multi-arg
-  BoxCall blocker; do not fold that into the `values()` shape card.
+- source-level vm-hako `MapBox.set(...)` used to expose a multi-arg BoxCall
+  blocker when Unified MIR passed `[receiver_alias, key, value]`; this card
+  strips that duplicate receiver arg in the S0 MapBox owner.
+- non-empty `MapBox.values()` still needs a state-owner parity decision because
+  the source route and S0 route currently observe different length stores.
 - MIR `copy` previously copied scalar/kind/handle/file payload but not
   VM-local receiver metadata; this card may extend copy metadata propagation
   only for existing local metadata keys.
@@ -65,8 +69,12 @@ call loses the ArrayBox hint and falls into String size behavior.
   for the same surface method.
 - `MirVmS0StateOpsBox.copy_reg_payload(...)` propagates existing VM-local
   receiver metadata across MIR `copy`.
+- `MirVmS0BoxcallBuiltinBox` strips a duplicate receiver arg for MapBox
+  `set/get/has/delete` rows when Unified MIR emits `expected_arity + 1` args.
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
+- Smoke:
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
 
 ## Rejected Owner Choices
 
@@ -93,12 +101,16 @@ call loses the ArrayBox hint and falls into String size behavior.
 1. Landed: promote empty-map `values()` through `MapCoreBox` and pin
    `values().size() == 0`; add the matching S0 BoxCall row through
    `MapStateCoreBox`.
-2. Fix or replace the source-level vm-hako multi-arg `MapBox.set(...)` witness
-   before pinning non-empty `keys()` / `values()` state parity.
-3. Promote `remove(key)` as an alias of `delete(key)` with its own smoke.
-4. Reactivate or replace stale archive witnesses only when they match the new
+2. Landed: fix the source-level vm-hako multi-arg `MapBox.set(...)` witness by
+   stripping the Unified duplicate receiver arg in the S0 MapBox BoxCall owner.
+   This mirrors the Rust VM `execute_method_callee(...)` contract and must stay
+   local to MapBox method rows.
+3. Active next: decide the non-empty `keys()` / `values()` state owner parity
+   instead of reading one length store in `set()` and another in `values()`.
+4. Promote `remove(key)` as an alias of `delete(key)` with its own smoke.
+5. Reactivate or replace stale archive witnesses only when they match the new
    owner path and have a valid helper source path.
-5. Decide whether `keys()/values()` content enumeration is ordered, unordered,
+6. Decide whether `keys()/values()` content enumeration is ordered, unordered,
    or intentionally size-only in vm-hako.
 
 ## Out Of Scope
