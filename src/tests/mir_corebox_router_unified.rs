@@ -211,6 +211,49 @@ static box Main {
 }
 
 #[test]
+fn string_value_case_conversion_uses_unified_receiver_arg_shape_and_string_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local s = "banana"
+    local u = s.toUpper()
+    local l = "BANANA".toLower()
+    return l
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let upper_arg_lens = method_call_arg_lens(&module, "StringBox", "toUpper");
+    let upper_result_types = method_call_result_types(&module, "StringBox", "toUpper");
+    let lower_arg_lens = method_call_arg_lens(&module, "StringBox", "toLower");
+    let lower_result_types = method_call_result_types(&module, "StringBox", "toLower");
+
+    assert_eq!(
+        upper_arg_lens,
+        vec![1],
+        "StringBox.toUpper should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        upper_result_types,
+        vec![Some(MirType::String)],
+        "StringBox.toUpper should publish a String result type"
+    );
+    assert_eq!(
+        lower_arg_lens,
+        vec![1],
+        "StringBox.toLower should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        lower_result_types,
+        vec![Some(MirType::String)],
+        "StringBox.toLower should publish a String result type"
+    );
+}
+
+#[test]
 fn string_value_contains_uses_unified_receiver_arg_shape_and_bool_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");

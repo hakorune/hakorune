@@ -57,6 +57,9 @@ cargo check -q
   - `291x-110` landed: `MapBox.get(existing-key)` publishes `V` only for
     receiver-local homogeneous Map facts with tracked literal keys; mixed,
     untyped, and missing-key reads stay `Unknown`
+  - `291x-111` landed: StringBox `toUpper` / `toLower` now live in the stable
+    catalog rows, and `toUpperCase` / `toLowerCase` remain compatibility
+    aliases on the same rows
   - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
     291x-103 acceptance smoke
   - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
@@ -133,7 +136,8 @@ cargo check -q
 
 - app priority:
   - rank the next phase-291x cleanup card without reopening the landed
-    `291x-110` MapBox get(existing-key) typing contract, compat/source boundary,
+    `291x-111` StringBox case-conversion rows, `291x-110`
+    MapBox get(existing-key) typing contract, compat/source boundary,
     alias SSOT split, or router witnesses
   - do not reopen the landed MapBox get missing-key contract or the new
     existing-key publication rule without an owner-path change

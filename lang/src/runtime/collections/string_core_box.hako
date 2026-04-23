@@ -3,7 +3,7 @@
 // - provide VM-low-level i64 length path without std-layer coupling
 // - consume the phase-291x stable StringBox surface rows for the `.hako` VM lane
 // - delegate visible StringBox search semantics to `.hako` string-kernel owners
-// - keep this file as a VM-facing wrapper residue only (`size alias` / `substring` / delegated search wrappers / simple surface forwarding)
+// - keep this file as a VM-facing wrapper residue only (`size alias` / `substring` / case conversion / delegated search wrappers / simple surface forwarding)
 // - do not let wrapper-local helpers turn back into string semantic owners
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
@@ -218,6 +218,18 @@ static box StringCoreBox {
     return 1
   }
 
+  _upper_wrapper_runtime(regs, kinds, handle_regs, dst, text) {
+    me._write_text_dst(regs, kinds, handle_regs, dst, text.toUpperCase())
+    me._trace("[vm/adapter/string_core:upper]")
+    return 1
+  }
+
+  _lower_wrapper_runtime(regs, kinds, handle_regs, dst, text) {
+    me._write_text_dst(regs, kinds, handle_regs, dst, text.toLowerCase())
+    me._trace("[vm/adapter/string_core:lower]")
+    return 1
+  }
+
   _lastindexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
     local offset = me._arg_offset_search(seg, regs, handle_regs, text)
     local arg0_rt = me._arg_register(seg, 0, offset)
@@ -282,6 +294,12 @@ static box StringCoreBox {
     }
     if mname == "trim" {
       return me._trim_wrapper_runtime(regs, kinds, handle_regs, dst, text)
+    }
+    if mname == "toUpper" || mname == "toUpperCase" {
+      return me._upper_wrapper_runtime(regs, kinds, handle_regs, dst, text)
+    }
+    if mname == "toLower" || mname == "toLowerCase" {
+      return me._lower_wrapper_runtime(regs, kinds, handle_regs, dst, text)
     }
     if mname == "lastIndexOf" {
       return me._lastindexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text)

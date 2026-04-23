@@ -53,6 +53,10 @@ static box Main {
     print(s.concat("!"))
     print(s.replace("na", "NA"))
     print(s.trim())
+    print(s.toUpper())
+    print("BANANA".toLower())
+    print(s.toUpperCase())
+    print("BANANA".toLowerCase())
     print(s.lastIndexOf("na"))
     print(s.lastIndexOf("na", 3))
     print(s.lastIndexOf("na", 1))
@@ -75,14 +79,14 @@ HCODE
     exit 1
   fi
 
-  if echo "$out" | rg -q '\[vm/method/stub:(length|len|size|substring|substr|concat|indexOf|find|replace|trim|lastIndexOf|contains)\]'; then
+  if echo "$out" | rg -q '\[vm/method/stub:(length|len|size|substring|substr|concat|indexOf|find|replace|trim|toUpper|toLower|toUpperCase|toLowerCase|lastIndexOf|contains)\]'; then
     echo "$out" | tail -n 120 >&2 || true
     test_fail "$SMOKE_NAME: stable StringBox method hit VM stub"
     exit 1
   fi
 
   local actual expected
-  actual=$(printf '%s\n' "$out" | awk '/^(6|ana|2|4|-1|banana!|baNANA|banana|true|OK: string-surface)$/ { print }')
+  actual=$(printf '%s\n' "$out" | awk '/^(6|ana|2|4|-1|banana!|baNANA|banana|BANANA|true|OK: string-surface)$/ { print }')
   expected=$(cat <<'EXPECT'
 6
 6
@@ -94,6 +98,10 @@ ana
 4
 banana!
 baNANA
+banana
+BANANA
+banana
+BANANA
 banana
 4
 2

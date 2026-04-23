@@ -77,6 +77,7 @@ StringBox surface catalog
 | `291x-S27` | done | prove `MapBox.clear` through the same MIR router Unified value path |
 | `291x-S28` | done | land alias SSOT cleanup for manifest alias vs imported static-box binding vs type-name lowering |
 | `291x-S29` | done | land conservative `MapBox.get(existing-key)` value publication for literal-key homogeneous receivers |
+| `291x-S30` | done | land StringBox case-conversion catalog promotion for `toUpper` / `toLower` plus compatibility aliases |
 
 ## First Stable Surface Target
 
@@ -90,6 +91,8 @@ StringBox surface catalog
 - `find` alias
 - `replace`
 - `trim`
+- `toUpper` with `toUpperCase` compatibility alias
+- `toLower` with `toLowerCase` compatibility alias
 - `lastIndexOf` one-arg and two-arg
 - `contains`
 
@@ -98,7 +101,6 @@ StringBox surface catalog
 - `split`
 - `startsWith`
 - `endsWith`
-- uppercase/lowercase name family
 - `charAt`
 - `equals` method surface
 - MapBox implementation
@@ -131,13 +133,17 @@ This StringBox slice is done when:
 - `291x-108` landed the alias SSOT cleanup: manifest alias lookup stays in
   `hako.toml`, imported static-box alias binding stays in runner text merge, and
   MIR static-call lowering consumes only the explicit alias -> box binding.
+- `291x-111` landed StringBox case conversion as stable surface rows:
+  `toUpper` / `toLower` now come from the catalog, and `toUpperCase` /
+  `toLowerCase` stay pinned as compatibility aliases.
 
 ## Router Follow-up
 
 - current router policy allowlists only these StringBox families to
   `Route::Unified`: `length` / `len` / `size`, `substring` / `substr`, and
-  `concat`, `trim`, `contains`, one-arg and two-arg `lastIndexOf`, `replace`,
-  and `indexOf` / `find`
+  `concat`, `trim`, `toUpper` / `toUpperCase`, `toLower` / `toLowerCase`,
+  `contains`, one-arg and two-arg `lastIndexOf`, `replace`, and `indexOf` /
+  `find`
 - `boxcall_emit.rs` still bridges `MirType::String` receivers to `StringBox`
   before route selection
 - `ArrayBox.length` / `size` / `len` is the first collection route slice

@@ -30,6 +30,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-108-alias-ssot-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-109-map-compat-source-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-110-mapbox-get-existing-key-typing-card.md
+  - docs/development/current/main/phases/phase-291x/291x-111-stringbox-case-conversion-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -40,7 +41,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-110` MapBox get(existing-key) typing
+- Latest landed cleanup target: `291x-111` StringBox case-conversion cleanup
 - Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -87,6 +88,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 19. `docs/development/current/main/phases/phase-291x/291x-108-alias-ssot-cleanup-card.md`
 20. `docs/development/current/main/phases/phase-291x/291x-109-map-compat-source-cleanup-card.md`
 21. `docs/development/current/main/phases/phase-291x/291x-110-mapbox-get-existing-key-typing-card.md`
+22. `docs/development/current/main/phases/phase-291x/291x-111-stringbox-case-conversion-card.md`
 
 ## Current Rule
 
@@ -128,6 +130,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   `MapBox.get(existing-key)`: publish `V` only for receiver-local homogeneous
   Map facts with tracked literal keys; mixed, untyped, and missing-key reads
   stay `Unknown`
+- `291x-111` landed StringBox case conversion as stable surface rows:
+  `toUpper` / `toLower` live in the catalog and keep
+  `toUpperCase` / `toLowerCase` as compatibility aliases
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -213,6 +218,10 @@ Remaining MapBox follow-up:
 - `MapBox.get(existing-key)` typing is landed and pinned by focused MIR tests in
   `src/tests/mir_corebox_router_unified.rs`; publish `V` only for
   receiver-local homogeneous Map facts with tracked literal keys.
+- `StringBox` case conversion is landed and pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
+  plus focused MIR tests; `toUpperCase` / `toLowerCase` remain compatibility
+  aliases on the same stable rows.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.

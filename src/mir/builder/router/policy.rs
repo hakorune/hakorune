@@ -53,16 +53,18 @@ pub fn choose_route(box_name: &str, method: &str, certainty: TypeCertainty, arit
 fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
     matches!(
         crate::boxes::basic::StringMethodId::from_name_and_arity(method, arity),
-        Some(
-            crate::boxes::basic::StringMethodId::Length
-                | crate::boxes::basic::StringMethodId::Substring
-                | crate::boxes::basic::StringMethodId::Concat
-                | crate::boxes::basic::StringMethodId::Trim
-                | crate::boxes::basic::StringMethodId::Contains
-                | crate::boxes::basic::StringMethodId::LastIndexOf
-                | crate::boxes::basic::StringMethodId::LastIndexOfFrom
-                | crate::boxes::basic::StringMethodId::Replace
-                | crate::boxes::basic::StringMethodId::IndexOf
+            Some(
+                crate::boxes::basic::StringMethodId::Length
+                    | crate::boxes::basic::StringMethodId::Substring
+                    | crate::boxes::basic::StringMethodId::Concat
+                    | crate::boxes::basic::StringMethodId::Trim
+                    | crate::boxes::basic::StringMethodId::Upper
+                    | crate::boxes::basic::StringMethodId::Lower
+                    | crate::boxes::basic::StringMethodId::Contains
+                    | crate::boxes::basic::StringMethodId::LastIndexOf
+                    | crate::boxes::basic::StringMethodId::LastIndexOfFrom
+                    | crate::boxes::basic::StringMethodId::Replace
+                    | crate::boxes::basic::StringMethodId::IndexOf
                 | crate::boxes::basic::StringMethodId::IndexOfFrom
         )
     )
@@ -144,6 +146,14 @@ mod tests {
     #[test]
     fn string_trim_family_uses_unified_value_path() {
         assert_eq!(route("StringBox", "trim", 0), Route::Unified);
+    }
+
+    #[test]
+    fn string_case_conversion_family_uses_unified_value_path() {
+        assert_eq!(route("StringBox", "toUpper", 0), Route::Unified);
+        assert_eq!(route("StringBox", "toLower", 0), Route::Unified);
+        assert_eq!(route("StringBox", "toUpperCase", 0), Route::Unified);
+        assert_eq!(route("StringBox", "toLowerCase", 0), Route::Unified);
     }
 
     #[test]

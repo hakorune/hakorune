@@ -153,7 +153,9 @@ fn infer_string_method_return_type(method: crate::boxes::basic::StringMethodId) 
         crate::boxes::basic::StringMethodId::Substring
         | crate::boxes::basic::StringMethodId::Concat
         | crate::boxes::basic::StringMethodId::Replace
-        | crate::boxes::basic::StringMethodId::Trim => MirType::String,
+        | crate::boxes::basic::StringMethodId::Trim
+        | crate::boxes::basic::StringMethodId::Upper
+        | crate::boxes::basic::StringMethodId::Lower => MirType::String,
     }
 }
 

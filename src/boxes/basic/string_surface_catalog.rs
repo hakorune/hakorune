@@ -11,6 +11,8 @@ pub enum StringMethodId {
     IndexOfFrom,
     Replace,
     Trim,
+    Upper,
+    Lower,
     LastIndexOf,
     LastIndexOfFrom,
     Contains,
@@ -132,6 +134,26 @@ pub const STRING_SURFACE_METHODS: &[StringMethodSpec] = &[
         aliases: &[],
         arity: 0,
         slot: 305,
+        effect: StringSurfaceEffect::Read,
+        returns: StringSurfaceReturn::Value,
+        exposure: StringExposureState::STABLE,
+    },
+    StringMethodSpec {
+        id: StringMethodId::Upper,
+        canonical: "toUpper",
+        aliases: &["toUpperCase"],
+        arity: 0,
+        slot: 306,
+        effect: StringSurfaceEffect::Read,
+        returns: StringSurfaceReturn::Value,
+        exposure: StringExposureState::STABLE,
+    },
+    StringMethodSpec {
+        id: StringMethodId::Lower,
+        canonical: "toLower",
+        aliases: &["toLowerCase"],
+        arity: 0,
+        slot: 307,
         effect: StringSurfaceEffect::Read,
         returns: StringSurfaceReturn::Value,
         exposure: StringExposureState::STABLE,
@@ -351,6 +373,8 @@ impl StringBox {
                 )))
             }
             StringMethodId::Trim => StringSurfaceInvokeResult::Value(self.trim()),
+            StringMethodId::Upper => StringSurfaceInvokeResult::Value(self.to_upper()),
+            StringMethodId::Lower => StringSurfaceInvokeResult::Value(self.to_lower()),
             StringMethodId::LastIndexOf => {
                 let needle = arg_text(
                     args.next()
@@ -431,6 +455,22 @@ mod tests {
             Some(StringMethodId::LastIndexOfFrom)
         );
         assert_eq!(
+            StringMethodId::from_name("toUpperCase"),
+            Some(StringMethodId::Upper)
+        );
+        assert_eq!(
+            StringMethodId::from_name("toLowerCase"),
+            Some(StringMethodId::Lower)
+        );
+        assert_eq!(
+            StringMethodId::from_slot_and_arity(306, 0),
+            Some(StringMethodId::Upper)
+        );
+        assert_eq!(
+            StringMethodId::from_slot_and_arity(307, 0),
+            Some(StringMethodId::Lower)
+        );
+        assert_eq!(
             StringMethodId::from_slot_and_arity(308, 2),
             Some(StringMethodId::LastIndexOfFrom)
         );
@@ -503,6 +543,24 @@ mod tests {
         match contains {
             StringSurfaceInvokeResult::Value(value) => {
                 assert_eq!(value.as_bool_fast(), Some(true));
+            }
+        }
+
+        let upper = text
+            .invoke_surface(StringMethodId::from_name("toUpperCase").unwrap(), vec![])
+            .unwrap();
+        match upper {
+            StringSurfaceInvokeResult::Value(value) => {
+                assert_eq!(value.to_string_box().value, "BANANA");
+            }
+        }
+
+        let lower = StringBox::new("BANANA")
+            .invoke_surface(StringMethodId::Lower, vec![])
+            .unwrap();
+        match lower {
+            StringSurfaceInvokeResult::Value(value) => {
+                assert_eq!(value.to_string_box().value, "banana");
             }
         }
     }

@@ -278,7 +278,10 @@ impl MirInterpreter {
 
     fn string_surface_args_match(&mut self, method_id: StringMethodId, args: &[ValueId]) -> bool {
         match method_id {
-            StringMethodId::Length | StringMethodId::Trim => args.is_empty(),
+            StringMethodId::Length
+            | StringMethodId::Trim
+            | StringMethodId::Upper
+            | StringMethodId::Lower => args.is_empty(),
             StringMethodId::Substring => {
                 args.len() == 2 && self.arg_is_integer(args[0]) && self.arg_is_integer(args[1])
             }

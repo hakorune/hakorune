@@ -23,7 +23,7 @@ pub(super) const SPECS: &[CoreMethodSpec] = &[
         is_pure: true,
         allowed_in_condition: false,
         allowed_in_init: true,
-        vtable_slot: None,
+        vtable_slot: Some(306),
     },
     CoreMethodSpec {
         id: CoreMethodId::StringLower,
@@ -34,7 +34,7 @@ pub(super) const SPECS: &[CoreMethodSpec] = &[
         is_pure: true,
         allowed_in_condition: false,
         allowed_in_init: true,
-        vtable_slot: None,
+        vtable_slot: Some(307),
     },
     CoreMethodSpec {
         id: CoreMethodId::StringConcat,

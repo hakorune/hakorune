@@ -70,7 +70,9 @@ Remaining drift:
   should stay clearly internal.
 - `apps/std/string_std.hako` is a dead public scaffold and should be removed
   instead of being treated as a second String owner.
-- `toUpper` / `toLower` exposure exists in TypeRegistry extras, but route ownership is not clear enough for the first catalog slice.
+- former `toUpper` / `toLower` TypeRegistry-extras drift is closed by `291x-111`;
+  route ownership now lives in the String surface catalog, with
+  `toUpperCase` / `toLowerCase` pinned as compatibility aliases.
 
 Completed first implementation:
 
@@ -94,6 +96,9 @@ Completed cleanup:
 - `291x-110` is the `MapBox.get(existing-key)` typing card; it publishes `V`
   only for receiver-local homogeneous Map facts with tracked literal keys while
   preserving `Unknown` for mixed, untyped, and missing-key reads.
+- `291x-111` promotes StringBox case conversion into the stable surface catalog:
+  `toUpper` / `toLower` are no longer TypeRegistry extras, and
+  `toUpperCase` / `toLowerCase` stay as compatibility aliases on the same rows.
 
 ## Router / Value World Follow-up
 
