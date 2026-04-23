@@ -243,7 +243,7 @@ pub(super) const SPECS: &[CoreMethodSpec] = &[
         box_id: CoreBoxId::Map,
         name: "set",
         arity: 2,
-        return_type_name: "Void",
+        return_type_name: "StringBox",
         is_pure: false,
         allowed_in_condition: false,
         allowed_in_init: false,

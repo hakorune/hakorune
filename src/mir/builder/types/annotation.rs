@@ -170,10 +170,10 @@ fn infer_map_method_return_type(method: crate::boxes::MapMethodId) -> Option<Mir
     match method {
         crate::boxes::MapMethodId::Size | crate::boxes::MapMethodId::Len => Some(MirType::Integer),
         crate::boxes::MapMethodId::Has => Some(MirType::Bool),
-        crate::boxes::MapMethodId::Get
-        | crate::boxes::MapMethodId::Set
+        crate::boxes::MapMethodId::Get => None,
+        crate::boxes::MapMethodId::Set
         | crate::boxes::MapMethodId::Delete
-        | crate::boxes::MapMethodId::Clear => None,
+        | crate::boxes::MapMethodId::Clear => Some(MirType::String),
         crate::boxes::MapMethodId::Keys | crate::boxes::MapMethodId::Values => {
             Some(MirType::Box("ArrayBox".to_string()))
         }
@@ -220,6 +220,9 @@ mod tests {
         assert_eq!(infer_return_type("MapBox.len/0"), Some(MirType::Integer));
         assert_eq!(infer_return_type("MapBox.has/1"), Some(MirType::Bool));
         assert_eq!(infer_return_type("MapBox.get/1"), None);
-        assert_eq!(infer_return_type("MapBox.set/2"), None);
+        assert_eq!(infer_return_type("MapBox.set/2"), Some(MirType::String));
+        assert_eq!(infer_return_type("MapBox.delete/1"), Some(MirType::String));
+        assert_eq!(infer_return_type("MapBox.remove/1"), Some(MirType::String));
+        assert_eq!(infer_return_type("MapBox.clear/0"), Some(MirType::String));
     }
 }

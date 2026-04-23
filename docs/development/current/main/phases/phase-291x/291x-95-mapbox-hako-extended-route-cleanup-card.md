@@ -158,8 +158,10 @@ metadata over treating the synthetic register id as a runtime array handle.
 8. Landed decision: `set`, `delete` / `remove`, and `clear` write-return rows
    use Rust-vtable-compatible receipt strings; implementation is tracked by
    `291x-99` and must not mix bad-key normalization or element publication.
-9. Active next: implement the MapBox write-return receipt contract.
-10. Reactivate or replace stale archive witnesses only when they match the new
+9. Landed: implement the MapBox write-return receipt contract and pin it with
+   `phase291x_mapbox_hako_write_return_vm.sh`.
+10. Active next: decide MapBox bad-key normalization.
+11. Reactivate or replace stale archive witnesses only when they match the new
    owner path and have a valid helper source path.
 
 ## Out Of Scope

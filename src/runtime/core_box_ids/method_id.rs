@@ -188,6 +188,7 @@ mod tests {
         assert_eq!(CoreMethodId::StringUpper.return_type_name(), "StringBox");
         assert_eq!(CoreMethodId::BoolNot.return_type_name(), "BoolBox");
         assert_eq!(CoreMethodId::ArrayPush.return_type_name(), "Void");
+        assert_eq!(CoreMethodId::MapSet.return_type_name(), "StringBox");
     }
 
     #[test]

@@ -29,7 +29,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox write-return implementation
+- Next implementation target: MapBox bad-key normalization decision
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -134,9 +134,9 @@ Remaining MapBox follow-up:
 - `keys()/values()` content enumeration is intentionally size-only in
   source-level vm-hako for now; element publication is deferred to
   `291x-98`.
-- `MapBox.set/delete/remove/clear` source-level write-return contract is
-  decided in `291x-99`; implementation is next and must not mix bad-key
-  normalization.
+- `MapBox.set/delete/remove/clear` source-level write-return receipt contract
+  is landed and pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
@@ -172,8 +172,8 @@ Landed CoreBox router first slice:
 - `MapBox.get` intentionally stays `MirType::Unknown` because stored map values
   are data-dependent.
 - `MapBox.set`, `MapBox.delete` / `remove`, and `MapBox.clear` write-return
-  rows have a receipt-string contract in `291x-99`; implementation should
-  update source-level vm-hako publication and matching type hints together.
+  rows have a landed receipt-string contract in `291x-99`; source-level
+  vm-hako publication and matching type hints are synced.
 - two-arg `lastIndexOf`, MapBox keys/values element publication, MapBox
   bad-key normalization remain contract-first cleanup cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

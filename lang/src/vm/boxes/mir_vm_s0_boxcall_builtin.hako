@@ -351,7 +351,7 @@ static box MirVmS0BoxcallBuiltinBox {
       local set_arg1 = me._map_arg(seg, set_offset, 1)
       local dst_set = me._find_int(seg, "dst")
       local box_key_set = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
-      return MapStateCoreBox.apply_set(box_key_set, set_arg0, set_arg1, dst_set, "[map/bad-key] key must be string", regs, kinds, array_lens, handle_regs)
+      return MapStateCoreBox.apply_set(box_key_set, set_arg0, set_arg1, dst_set, "Set key: ", "[map/bad-key] key must be string", regs, kinds, array_lens, handle_regs)
     }
 
     if method == "size" {
@@ -393,7 +393,7 @@ static box MirVmS0BoxcallBuiltinBox {
       local set_field_arg1 = me._args_second(seg)
       local dst_set_field = me._find_int(seg, "dst")
       local box_key_set_field = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
-      return MapStateCoreBox.apply_set(box_key_set_field, set_field_arg0, set_field_arg1, dst_set_field, "[map/bad-key] field name must be string", regs, kinds, array_lens, handle_regs)
+      return MapStateCoreBox.apply_set(box_key_set_field, set_field_arg0, set_field_arg1, dst_set_field, null, "[map/bad-key] field name must be string", regs, kinds, array_lens, handle_regs)
     }
 
     if method == "has" {
@@ -433,7 +433,7 @@ static box MirVmS0BoxcallBuiltinBox {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local dst_clear = me._find_int(seg, "dst")
       local box_key_clear = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
-      return MapStateCoreBox.apply_clear(box_key_clear, dst_clear, regs, kinds, array_lens)
+      return MapStateCoreBox.apply_clear(box_key_clear, dst_clear, regs, kinds, array_lens, handle_regs)
     }
 
     return ""

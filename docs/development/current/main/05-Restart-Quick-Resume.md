@@ -49,8 +49,8 @@ cargo check -q
   - source-level vm-hako `MapBox.set(...)` duplicate-receiver routing is landed
   - `keys()/values()` content enumeration is explicitly size-only for now;
     element publication is deferred behind the 291x-98 gates
-  - MapBox write-return receipt contract is decided; active implementation is
-    source-level vm-hako receipt publication
+  - MapBox write-return receipt implementation is landed and pinned
+  - active implementation is MapBox bad-key normalization decision
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -70,7 +70,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
-  - `MapBox write-return implementation`
+  - `MapBox bad-key normalization decision`
 
 ## Current Perf Snapshot
 
@@ -105,7 +105,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - implement MapBox write-return receipts without mixing bad-key normalization
+  - decide MapBox bad-key normalization without mixing get missing-key or
+    keys/values element publication
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-23
 Scope: MapBox write-return contract after source-route state parity.
 Related:
@@ -65,7 +65,17 @@ matching type hints/tests:
   `Set key: a`, `Deleted key: a`, `Key not found: z`, and `Map cleared`.
 - bad-key smokes must remain unchanged.
 
+## Landed Slice
+
+- `MapStateCoreBox.apply_set(...)` publishes `Set key: <key>` for `MapBox.set`.
+- `MapStateCoreBox.apply_delete(...)` publishes `Deleted key: <key>` for
+  existing keys and `Key not found: <key>` for missing keys.
+- `MapStateCoreBox.apply_clear(...)` publishes `Map cleared`.
+- `CoreMethodId::MapSet` and the MIR return-type hint paths now report
+  `StringBox` / `MirType::String` for the write receipt contract.
+- Smoke:
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`
+
 ## Next Slice
 
-Implement the source-level vm-hako receipt contract, then move to the separate
-MapBox bad-key normalization decision.
+Move to the separate MapBox bad-key normalization decision.

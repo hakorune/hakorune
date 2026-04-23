@@ -17,9 +17,9 @@ Related:
 | Now | `phase-291x CoreBox MapBox contract-first cleanup` |
 | Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `MapBox write-return implementation` |
-| Next | `publish write receipt strings without mixing bad-key normalization` |
-| After Next | `MapBox bad-key normalization or deferred element publication, one card at a time` |
+| Blocker | `MapBox bad-key normalization decision` |
+| Next | `decide bad-key behavior without mixing get missing-key or element publication` |
+| After Next | `MapBox get missing-key or deferred element publication, one card at a time` |
 
 ## Current Read
 
@@ -80,7 +80,8 @@ Related:
 45. `phase-291x MapBox.clear source-route parity` landed
 46. `phase-291x MapBox keys/values content enumeration contract` landed
 47. `phase-291x MapBox write-return contract decision` landed
-48. `phase-291x MapBox write-return implementation`
+48. `phase-291x MapBox write-return implementation` landed
+49. `phase-291x MapBox bad-key normalization decision`
 
 ## Parked Corridor
 

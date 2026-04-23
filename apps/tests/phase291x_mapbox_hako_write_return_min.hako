@@ -1,0 +1,15 @@
+// Phase 291x vm-hako source-route fixture for MapBox write returns.
+// Contract:
+// - write rows publish Rust-vtable-compatible receipt strings.
+// - bad-key behavior is intentionally out of scope for this fixture.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    print(m.set("a", 1))
+    print(m.delete("a"))
+    print(m.remove("z"))
+    print(m.clear())
+    return 0
+  }
+}

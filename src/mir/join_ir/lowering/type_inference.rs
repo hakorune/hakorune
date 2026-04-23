@@ -49,10 +49,10 @@ pub fn infer_method_return_type(receiver_type: &MirType, method_name: &str) -> O
                         Some(MirType::Integer)
                     }
                     crate::boxes::MapMethodId::Has => Some(MirType::Bool),
-                    crate::boxes::MapMethodId::Get
-                    | crate::boxes::MapMethodId::Set
+                    crate::boxes::MapMethodId::Get => None,
+                    crate::boxes::MapMethodId::Set
                     | crate::boxes::MapMethodId::Delete
-                    | crate::boxes::MapMethodId::Clear => None,
+                    | crate::boxes::MapMethodId::Clear => Some(MirType::String),
                     crate::boxes::MapMethodId::Keys | crate::boxes::MapMethodId::Values => {
                         Some(MirType::Box("ArrayBox".to_string()))
                     }
@@ -172,8 +172,23 @@ mod tests {
             infer_method_return_type(&map_type, "has"),
             Some(MirType::Bool)
         );
-        // P3-C: get は Phase 66+
         assert_eq!(infer_method_return_type(&map_type, "get"), None);
+        assert_eq!(
+            infer_method_return_type(&map_type, "set"),
+            Some(MirType::String)
+        );
+        assert_eq!(
+            infer_method_return_type(&map_type, "delete"),
+            Some(MirType::String)
+        );
+        assert_eq!(
+            infer_method_return_type(&map_type, "remove"),
+            Some(MirType::String)
+        );
+        assert_eq!(
+            infer_method_return_type(&map_type, "clear"),
+            Some(MirType::String)
+        );
     }
 
     #[test]

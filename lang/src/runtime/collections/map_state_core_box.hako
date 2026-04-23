@@ -1,6 +1,7 @@
 // MapStateCoreBox — stateful MapBox helper owner for collections ring1.
 // Responsibility:
 // - own vm-hako-visible MapBox state/value bookkeeping for set/get/has/delete/keys/clear
+// - publish source-level MapBox write receipt strings
 // - keep key normalization and visible bad-key/missing-key contract out of vm builtin routing
 // Non-responsibility:
 // - ABI exports
@@ -58,6 +59,10 @@ static box MapStateCoreBox {
   }
 
   _write_bad_key_handle(regs, kinds, handle_regs, dst_box, message) {
+    return me._write_handle_return(regs, kinds, handle_regs, dst_box, message)
+  }
+
+  _write_handle_return(regs, kinds, handle_regs, dst_box, message) {
     if dst_box != null {
       regs.set("" + dst_box, "0")
       kinds.set("" + dst_box, "handle")
@@ -75,7 +80,7 @@ static box MapStateCoreBox {
     return key_text
   }
 
-  apply_set(box_key, key_reg, value_reg, dst_box, bad_key_message, regs, kinds, array_lens, handle_regs) {
+  apply_set(box_key, key_reg, value_reg, dst_box, success_message_prefix, bad_key_message, regs, kinds, array_lens, handle_regs) {
     if key_reg == null || value_reg == null { return "[vm-hako/contract][boxcall-set-arg-missing]" }
     local arg0_kind = kinds.get("" + key_reg)
     if arg0_kind != "handle" {
@@ -103,6 +108,9 @@ static box MapStateCoreBox {
       if value_raw == null { value_raw = "0" }
       array_lens.set(kind_key, "scalar")
       array_lens.set(raw_key, "" + value_raw)
+    }
+    if success_message_prefix != null {
+      return me._write_handle_return(regs, kinds, handle_regs, dst_box, success_message_prefix + key_text)
     }
     if dst_box != null {
       regs.set("" + dst_box, "0")
@@ -168,26 +176,7 @@ static box MapStateCoreBox {
     local raw_key = me._value_raw_key(box_key, key_text)
     local had = MirVmS0StateOpsBox.map_get_or_null(array_lens, pres_key)
     if had == null {
-      if dst_box != null {
-        regs.set("" + dst_box, "0")
-        kinds.set("" + dst_box, "handle")
-        MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "Key not found: " + key_text)
-      }
-      return "__NEXT__"
-    }
-
-    local value_kind = MirVmS0StateOpsBox.map_get_or_null(array_lens, kind_key)
-    local value_raw = MirVmS0StateOpsBox.map_get_or_null(array_lens, raw_key)
-    if dst_box != null {
-      if value_kind == "handle" && value_raw != null {
-        regs.set("" + dst_box, "0")
-        kinds.set("" + dst_box, "handle")
-        MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, value_raw)
-      } else {
-        if value_raw == null { value_raw = "0" }
-        regs.set("" + dst_box, "" + value_raw)
-        kinds.set("" + dst_box, "scalar")
-      }
+      return me._write_handle_return(regs, kinds, handle_regs, dst_box, "Key not found: " + key_text)
     }
 
     array_lens.set(pres_key, null)
@@ -197,7 +186,7 @@ static box MapStateCoreBox {
     if cur_len > 0 {
       MirVmS0StateOpsBox.box_len_set(array_lens, box_key, cur_len - 1)
     }
-    return "__NEXT__"
+    return me._write_handle_return(regs, kinds, handle_regs, dst_box, "Deleted key: " + key_text)
   }
 
   apply_keys(box_key, dst_box, regs, kinds, array_lens) {
@@ -212,7 +201,7 @@ static box MapStateCoreBox {
     return "__NEXT__"
   }
 
-  apply_clear(box_key, dst_box, regs, kinds, array_lens) {
+  apply_clear(box_key, dst_box, regs, kinds, array_lens, handle_regs) {
     local pres_prefix = "mk:" + box_key + ":"
     local kind_prefix = "mkind:" + box_key + ":"
     local raw_prefix = "mval:" + box_key + ":"
@@ -229,10 +218,6 @@ static box MapStateCoreBox {
       }
     }
     MirVmS0StateOpsBox.box_len_set(array_lens, box_key, 0)
-    if dst_box != null {
-      regs.set("" + dst_box, "0")
-      kinds.set("" + dst_box, "scalar")
-    }
-    return "__NEXT__"
+    return me._write_handle_return(regs, kinds, handle_regs, dst_box, "Map cleared")
   }
 }
