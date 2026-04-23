@@ -196,6 +196,14 @@ static box MapStateCoreBox {
     return "__NEXT__"
   }
 
+  apply_values(box_key, dst_box, regs, kinds, array_lens) {
+    if dst_box == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+    regs.set("" + dst_box, "" + dst_box)
+    kinds.set("" + dst_box, "box")
+    MirVmS0StateOpsBox.box_len_set(array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
+    return "__NEXT__"
+  }
+
   apply_clear(box_key, dst_box, regs, kinds, array_lens) {
     local pres_prefix = "mk:" + box_key + ":"
     local kind_prefix = "mkind:" + box_key + ":"

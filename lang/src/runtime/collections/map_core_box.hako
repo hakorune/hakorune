@@ -20,6 +20,11 @@ static box MapCoreBox {
     return "__vm.handle:" + StringHelpers.int_to_str(vid)
   }
 
+  _recv_box_key(rid) {
+    if rid == null { return null }
+    return "__vm.recv.box:" + StringHelpers.int_to_str(rid)
+  }
+
   _is_i64_text(s) {
     if s == null { return 0 }
     local t = "" + s
@@ -259,6 +264,19 @@ static box MapCoreBox {
     return 1
   }
 
+  _write_array_like_shape_dst(regs, dst, length) {
+    if dst == null { return 0 }
+    regs.setField(StringHelpers.int_to_str(dst), StringHelpers.int_to_str(dst))
+    local recv_key = me._recv_box_key(dst)
+    if recv_key != null {
+      regs.setField(recv_key, "ArrayBox")
+    }
+    local per_recv = me._size_state_per_recv()
+    local len_key = MethodAliasPolicy.recv_len_key(per_recv, dst)
+    regs.setField(len_key, StringHelpers.int_to_str(length))
+    return 1
+  }
+
   try_handle(seg, regs, handle_regs, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
     local per_recv = me._size_state_per_recv()
@@ -317,6 +335,10 @@ static box MapCoreBox {
         return me._size_alias_runtime(regs, dst, recv_h)
       }
       return me._size_alias_state_only(regs, dst, cur_len)
+    }
+
+    if mname == "values" {
+      return me._write_array_like_shape_dst(regs, dst, cur_len)
     }
 
     return 0

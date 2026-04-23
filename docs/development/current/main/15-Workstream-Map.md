@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox MapBox contract-first cleanup` |
-| Front | `phase-292x closed with .inc analysis debt at 0 lines; CoreBox MapBox length alias landed` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length and empty values route landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `MapBox extended rows owner decision` |
-| Next | `choose owner path for keys / values / delete / remove / clear` |
+| Blocker | `MapBox source-level set multi-arg cleanup` |
+| Next | `fix source-level set before non-empty keys / values / remove parity` |
 | After Next | `MapBox extended rows or return-contract cleanup, one card at a time` |
 
 ## Current Read
@@ -71,7 +71,9 @@ Related:
 36. `phase-292x generic pure view-owner guard split` landed
 37. `phase-292x generic pure walker view extraction` closed
 38. `phase-291x MapBox.length contract-first alias` landed
-39. `phase-291x MapBox extended rows owner decision`
+39. `phase-291x MapBox extended rows owner decision` landed
+40. `phase-291x empty MapBox.values source-route shape` landed
+41. `phase-291x MapBox source-level set multi-arg cleanup`
 
 ## Parked Corridor
 

@@ -384,6 +384,13 @@ static box MirVmS0BoxcallBuiltinBox {
       return MapStateCoreBox.apply_keys(box_key_keys, dst_keys, regs, kinds, array_lens)
     }
 
+    if method == "values" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_values = me._find_int(seg, "dst")
+      local box_key_values = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return MapStateCoreBox.apply_values(box_key_values, dst_values, regs, kinds, array_lens)
+    }
+
     if method == "clear" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local dst_clear = me._find_int(seg, "dst")

@@ -1,0 +1,12 @@
+// Phase 291x vm-hako source-route fixture for MapBox.values().
+// Contract:
+// - empty-map `values()` returns an ArrayBox-like box with size 0.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    local vs = m.values()
+    print(vs.size())
+    return 0
+  }
+}

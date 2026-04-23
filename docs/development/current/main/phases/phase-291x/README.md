@@ -27,7 +27,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: `.hako` MapBox extended-route owner decision
+- Next implementation target: source-level vm-hako `MapBox.set(...)`
+  multi-arg cleanup before non-empty MapBox extended-row parity
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -110,7 +111,14 @@ Landed smoke:
 
 Remaining MapBox follow-up:
 
-- `.hako` VM `keys` / `values` / `remove` / `clear` source route still has stub/debt behavior and must not be silently promoted.
+- source-level vm-hako empty `MapBox.values().size()` shape is landed and
+  pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`.
+- source-level vm-hako `MapBox.set(...)` still has a multi-arg blocker; fix
+  that before pinning non-empty `keys()` / `values()` state parity or
+  `remove(key)` behavior.
+- `.hako` VM `keys` / `remove` / `clear` source-route behavior must still be
+  promoted one row at a time and smoke-pinned.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.

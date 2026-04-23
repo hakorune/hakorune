@@ -8,6 +8,18 @@ static box MirVmS0StateOpsBox {
   _missing_prefix() { return "[map/missing]" }
   _missing_prefix_len() { return me._missing_prefix().length() }
 
+  _recv_box_key(id) {
+    return "__vm.recv.box:" + StringHelpers.int_to_str(id)
+  }
+
+  _shadow_handle_key(id) {
+    return "__vm.handle:" + StringHelpers.int_to_str(id)
+  }
+
+  _per_recv_len_key(id) {
+    return "__vm_len:" + StringHelpers.int_to_str(id)
+  }
+
   _is_missing_map_value(v) {
     if v == null { return 1 }
     local s = "" + v
@@ -111,12 +123,28 @@ static box MirVmS0StateOpsBox {
     }
   }
 
+  copy_reg_metadata_between(src_regs, dst_regs, dst, src) {
+    local recv_box = me.map_get_or_null(src_regs, me._recv_box_key(src))
+    if recv_box != null {
+      dst_regs.set(me._recv_box_key(dst), "" + recv_box)
+    }
+    local shadow_handle = me.map_get_or_null(src_regs, me._shadow_handle_key(src))
+    if shadow_handle != null {
+      dst_regs.set(me._shadow_handle_key(dst), "" + shadow_handle)
+    }
+    local per_recv_len = me.map_get_or_null(src_regs, me._per_recv_len_key(src))
+    if per_recv_len != null {
+      dst_regs.set(me._per_recv_len_key(dst), "" + per_recv_len)
+    }
+  }
+
   copy_reg_payload(regs, kinds, array_lens, handle_regs, file_boxes, dst, src) {
     MirVmS0RegUtilsBox._reg_set(regs, dst, MirVmS0RegUtilsBox._reg_get(regs, src))
     MirVmS0RegUtilsBox._reg_kind_copy(kinds, dst, src)
     me.box_len_copy(array_lens, dst, src)
     me.handle_copy(handle_regs, dst, src)
     me.file_box_copy(file_boxes, dst, src)
+    me.copy_reg_metadata_between(regs, regs, dst, src)
   }
 
   copy_reg_payload_between(src_regs, src_kinds, src_array_lens, src_handle_regs, src_file_boxes, dst_regs, dst_kinds, dst_array_lens, dst_handle_regs, dst_file_boxes, dst, src) {
@@ -131,6 +159,7 @@ static box MirVmS0StateOpsBox {
     if file_obj != null {
       me.file_box_set(dst_file_boxes, dst, file_obj)
     }
+    me.copy_reg_metadata_between(src_regs, dst_regs, dst, src)
   }
 
   filebox_token_for_newbox(box_type, dst) {
