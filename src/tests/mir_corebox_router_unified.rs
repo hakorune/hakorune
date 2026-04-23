@@ -531,6 +531,50 @@ static box Main {
 }
 
 #[test]
+fn array_value_slice_result_followup_uses_arraybox_receiver_path() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push(7)
+    a.push(8)
+    local s = a.slice(0, 1)
+    local n = s.length()
+    return n
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let slice_arg_lens = method_call_arg_lens(&module, "ArrayBox", "slice");
+    let slice_result_types = method_call_result_types(&module, "ArrayBox", "slice");
+    let array_length_arg_lens = method_call_arg_lens(&module, "ArrayBox", "length");
+    let runtime_data_length_arg_lens = method_call_arg_lens(&module, "RuntimeDataBox", "length");
+
+    assert_eq!(
+        slice_arg_lens,
+        vec![3],
+        "ArrayBox.slice should keep the Unified receiver-plus-start-plus-end shape"
+    );
+    assert_eq!(
+        slice_result_types,
+        vec![Some(MirType::Box("ArrayBox".to_string()))],
+        "ArrayBox.slice should publish an ArrayBox result type for follow-up calls"
+    );
+    assert_eq!(
+        array_length_arg_lens,
+        vec![1],
+        "slice().length() should use the ArrayBox receiver path"
+    );
+    assert!(
+        runtime_data_length_arg_lens.is_empty(),
+        "slice().length() must not degrade to RuntimeDataBox.length"
+    );
+}
+
+#[test]
 fn array_value_get_uses_unified_receiver_arg_shape_and_element_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");

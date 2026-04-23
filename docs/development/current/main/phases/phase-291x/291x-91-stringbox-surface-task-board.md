@@ -16,6 +16,7 @@ Related:
    - docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md
    - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
    - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
+   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
 ---
 
 # StringBox Surface Task Board
@@ -90,6 +91,7 @@ StringBox surface catalog
 | `291x-S34` | done | promote `ArrayBox.join` as a catalog-backed receiver-plus-delimiter read-`String` Unified row |
 | `291x-S35` | done | promote `ArrayBox.reverse` as a catalog-backed receiver-only write-`String` Unified row |
 | `291x-S36` | done | promote `ArrayBox.sort` as a catalog-backed receiver-only write-`String` Unified row |
+| `291x-S37` | done | pin `ArrayBox.slice()` result follow-up calls on the `ArrayBox` receiver path |
 
 ## First Stable Surface Target
 
@@ -165,6 +167,9 @@ This StringBox slice is done when:
 - `291x-117` landed `ArrayBox.sort()` as the final deferred Array order row:
   catalog-backed, receiver-only, and receipt `String` on the Unified value
   path.
+- `291x-118` landed the `ArrayBox.slice()` result-receiver pin: direct source
+  `slice().length()` stays on the `ArrayBox` receiver path and does not lower
+  as `RuntimeDataBox.length`.
 
 ## Router Follow-up
 
@@ -198,6 +203,8 @@ This StringBox slice is done when:
   receiver-only Unified shape
 - `ArrayBox.sort` follows the same mutating String-receipt contract, with a
   receiver-only Unified shape
+- `ArrayBox.slice()` result follow-up calls stay on the `ArrayBox` receiver
+  path; direct source `slice().length()` must not lower as `RuntimeDataBox.length`
 - `ArrayBox.remove` follows the same generic element-return contract as
   `get` / `pop`; its MIR result type intentionally stays `Unknown`
 - `ArrayBox.insert` follows the same write-`Void` contract as `push` / `set`,

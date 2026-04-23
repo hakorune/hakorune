@@ -72,6 +72,9 @@ cargo check -q
     Unified receiver-only path, and publishes the `String` receipt
   - `291x-117` landed: `ArrayBox.sort()` is now catalog-backed, uses the
     Unified receiver-only path, and publishes the `String` receipt
+  - `291x-118` landed: direct source `ArrayBox.slice()` result follow-up calls
+    stay on the `ArrayBox` receiver path and do not lower as
+    `RuntimeDataBox.length`
   - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
     291x-103 acceptance smoke
   - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed

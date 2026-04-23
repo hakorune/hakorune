@@ -237,7 +237,9 @@ write-return contract.
   `MirType::Integer`; `ArrayBox.join` uses the receiver-plus-delimiter shape
   and publishes `MirType::String`; `ArrayBox.reverse` uses the receiver-only
   shape and publishes `MirType::String`; `ArrayBox.sort` uses the
-  receiver-only shape and publishes `MirType::String`;
+  receiver-only shape and publishes `MirType::String`; direct source
+  `ArrayBox.slice()` result follow-up calls are pinned by `291x-118` to stay on
+  the `ArrayBox` receiver path, with no `RuntimeDataBox.length` fallback;
   `MapBox.size`, `MapBox.length`, and `MapBox.len` use the arity-zero receiver
   shape and publish `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
   publishes `MirType::Bool`; `MapBox.get` uses the receiver-plus-key shape and

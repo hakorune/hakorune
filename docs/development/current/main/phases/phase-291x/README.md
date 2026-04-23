@@ -37,6 +37,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -47,7 +48,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-117` ArrayBox.sort router promotion
+- Latest landed cleanup target: `291x-118` ArrayBox.slice result receiver pin
 - Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -101,6 +102,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 26. `docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md`
 27. `docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md`
 28. `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
+29. `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
 
 ## Current Rule
 
@@ -157,6 +159,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   write-`String` receipt row on the Unified value path
 - `291x-117` landed `ArrayBox.sort()` as a catalog-backed receiver-only
   write-`String` receipt row on the Unified value path
+- `291x-118` landed the `ArrayBox.slice()` result-receiver pin: direct source
+  `slice().length()` stays on the `ArrayBox` receiver path and does not degrade
+  to `RuntimeDataBox.length`
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -170,7 +175,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
   `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
   quarantine
-- next cleanup must be selected after `291x-117`; do not reopen the landed
+- next cleanup must be selected after `291x-118`; do not reopen the landed
   ArrayBox.clear / contains / indexOf / join / reverse / sort rows or the older existing-key
   typing rule without an owner-path change.
 
@@ -291,6 +296,9 @@ Landed CoreBox router first slice:
   receiver-only Unified shape.
 - `ArrayBox.sort` follows the same mutating String-receipt contract, with a
   receiver-only Unified shape.
+- `ArrayBox.slice()` result follow-up calls are pinned by `291x-118`; direct
+  source `slice().length()` stays on `ArrayBox.length` and must not lower as
+  `RuntimeDataBox.length`.
 - `ArrayBox.insert` follows the same write-`Void` contract already used by
   `ArrayBox.push` / `ArrayBox.set`.
 - `MapBox.get` intentionally stays `MirType::Unknown` because stored map values
@@ -310,3 +318,4 @@ Landed CoreBox router first slice:
   - `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`

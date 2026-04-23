@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
 ---
 
 # CoreBox Surface Inventory Ledger
@@ -41,9 +42,10 @@ Stable rows:
 - `remove`
 - `insert`
 
-Deferred:
+Completed follow-up:
 
-- direct source `slice()` result follow-up calls through `RuntimeDataBox` union receiver
+- direct source `slice()` result follow-up calls stay on the `ArrayBox`
+  receiver path and are pinned by `291x-118`
 
 ## StringBox Landing Snapshot
 
@@ -118,6 +120,9 @@ Completed cleanup:
   and retires the next Array-only TypeRegistry extra row.
 - `291x-117` promotes `ArrayBox.sort` into the stable Array surface catalog and
   retires the final Array-only TypeRegistry extra row.
+- `291x-118` pins `ArrayBox.slice()` result follow-up receiver publication:
+  direct source `slice().length()` emits `ArrayBox.length` and does not degrade
+  to `RuntimeDataBox.length`.
 
 ## Router / Value World Follow-up
 
@@ -235,6 +240,9 @@ Landed first slice and follow-up:
 - `291x-117` then promoted `ArrayBox.sort` as a receiver-only write-`String`
   receipt route and added it to the stable Array surface smoke:
   `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
+- `291x-118` then pinned direct source `ArrayBox.slice()` result follow-up calls
+  on the `ArrayBox` receiver path:
+  `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
 - remaining route-only CoreBox rows are closed for the current stable ArrayBox
   and MapBox rows.
 - next implementation should choose one remaining CoreBox method family and
