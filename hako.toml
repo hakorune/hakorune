@@ -109,6 +109,9 @@ search_paths = ["target/release"]
 "apps.lib.boxes.string_std" = "apps/lib/boxes/string_std.hako"
 "apps.lib.boxes.array_std" = "apps/lib/boxes/array_std.hako"
 
+# Public std sugar helpers
+"apps.std.string" = "apps/std/string.hako"
+
 # Shared tools (prod profile friendly)
 "tools.hako_shared.json_parser" = "tools/hako_shared/json_parser.hako"
 # Map logical namespaces to Nyash source paths (consumed by runner)

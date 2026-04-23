@@ -1,4 +1,6 @@
-// StringStd — minimal standard string helpers (commonized API)
+// StringStd — internal selfhost-runtime string helpers.
+// This file is not the public std.string owner; it exists for the
+// selfhost-runtime `pref == "ny"` compatibility route.
 
 static box StringStd {
   length(s) {
@@ -36,4 +38,3 @@ static box StringStd {
     return out
   }
 }
-

@@ -25,7 +25,7 @@ box OpsCalls {
       if method == "print" { return new ConsoleStd().log(args.get(0)) }
       if method == "println" { return new ConsoleStd().log(args.get(0)) }
       if method == "log" { return new ConsoleStd().log(args.get(0)) }
-      // String
+      // String via the internal StringStd helper; public std sugar stays separate.
       if method == "length" { return new StringStd().length(recv) }
       if method == "substring" { return new StringStd().substring(recv, args.get(0), args.get(1)) }
       if method == "indexOf" { return new StringStd().indexOf(recv, args.get(0), args.get(1)) }

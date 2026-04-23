@@ -2,7 +2,7 @@
 static box Main {
   main() {
     local S
-    using "apps/std/string.hako" as S
+    using apps.std.string as S
     local fails
     fails = 0
 

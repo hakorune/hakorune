@@ -66,6 +66,10 @@ Remaining drift:
 - `lastIndexOf` one-arg and two-arg are implemented through the catalog and
   Unified value path; `291x-103` owns the landing snapshot.
 - `apps/std/string.hako` implements `string_index_of` manually instead of being the semantic owner.
+- `apps/lib/boxes/string_std.hako` is still a selfhost-runtime helper and
+  should stay clearly internal.
+- `apps/std/string_std.hako` is a dead public scaffold and should be removed
+  instead of being treated as a second String owner.
 - `toUpper` / `toLower` exposure exists in TypeRegistry extras, but route ownership is not clear enough for the first catalog slice.
 
 Completed first implementation:
@@ -78,6 +82,9 @@ Completed first implementation:
 Completed cleanup:
 
 - legacy `std.string2.hako` diagnostic residue was retired in a follow-up cleanup
+- `291x-107` is the owner-clarity cleanup card for public sugar vs internal
+  selfhost helper vs dead scaffold, and pins the public sugar smoke through
+  the exact manifest alias `apps.std.string`
 
 ## Router / Value World Follow-up
 

@@ -124,6 +124,11 @@ Scope: current lane / next lane / restart order only.
     - `ArrayBox.get/pop/remove` element-result publication landed in
       `291x-106`; publish `T` only for known `Array<T>` receivers and keep
       `Unknown` for mixed or untyped receivers
+    - `291x-107` landed for String semantic owner cleanup: keep the Rust
+      catalog as owner, keep `apps/std/string.hako` as public sugar, keep
+      `apps/lib/boxes/string_std.hako` internal, retire dead
+      `apps/std/string_std.hako`, and pin the public sugar smoke through
+      `apps.std.string`
     - MapBox write-return receipt implementation is landed and pinned
     - MapBox bad-key normalization implementation is landed and pinned
     - `MapBox.get(missing-key)` contract is landed and pinned
@@ -148,12 +153,14 @@ Scope: current lane / next lane / restart order only.
     - `ArrayCoreBox.get` VM-local-first metadata check is landed (291x-102 slice 2)
     - `MapBox.keys()/values()` element publication is landed (291x-102 slice 3)
       and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_keys_values_elements_vm.sh`
-    - contract-first / owner-first backlog: String semantic owner cleanup, alias SSOT cleanup, Map compat/source cleanup, then MapBox get(existing-key) typing if an owner-path contract is pinned
+    - contract-first / owner-first backlog: alias SSOT cleanup pending, then
+      Map compat/source cleanup, then
+      MapBox get(existing-key) typing if an owner-path contract is pinned
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` start-position behavior is landed and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_lastindexof_start_vm.sh`
   - current blocker token:
-    - `phase-291x String semantic owner cleanup pending`
+    - `phase-291x alias SSOT cleanup pending`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

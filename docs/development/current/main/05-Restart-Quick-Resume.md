@@ -63,6 +63,10 @@ cargo check -q
   - `ArrayBox.get/pop/remove` element-result publication landed as `291x-106`:
     publish `T` only for known `Array<T>` receivers and keep `Unknown` for mixed
     or untyped receivers
+  - `291x-107` landed for String semantic owner cleanup: Rust catalog owner,
+    public std sugar, internal selfhost helper, dead scaffold removal, and
+    exact manifest alias `apps.std.string` for the public sugar smoke
+  - alias SSOT cleanup is the next pending doc-first card
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`,
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and
@@ -84,7 +88,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 - current blocker token:
-  - `phase-291x String semantic owner cleanup pending`
+  - `phase-291x alias SSOT cleanup pending`
 
 ## Current Perf Snapshot
 
@@ -119,8 +123,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - select the String semantic owner cleanup card without reopening the landed
-    291x router witnesses or std.string sugar as a second owner
+  - start alias SSOT cleanup without reopening the landed 291x router
+    witnesses or widening public std.string packaging
   - do not reopen the landed MapBox get missing-key contract without an owner-path change
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines

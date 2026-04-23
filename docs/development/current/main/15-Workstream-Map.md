@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox surface contract cleanup` |
-| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed; StringBox lastIndexOf/2, MapBox delete/remove/clear router promotion, and ArrayBox element-result publication landed` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed; StringBox lastIndexOf/2, MapBox delete/remove/clear router promotion, ArrayBox element-result publication, and 291x-107 String owner cleanup landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x String semantic owner cleanup pending` |
-| Next | `select String semantic owner cleanup card without reopening std.string sugar as owner` |
-| After Next | `MapBox get(existing-key) typing / alias SSOT cleanup / Map compat-source cleanup` |
+| Blocker | `phase-291x alias SSOT cleanup pending` |
+| Next | `start alias SSOT cleanup after 291x-107 landed` |
+| After Next | `Map compat-source cleanup / MapBox get(existing-key) typing` |
 
 ## Current Read
 
@@ -90,7 +90,8 @@ Related:
 55. `phase-291x MapBox delete/remove router promotion landed`
 56. `phase-291x MapBox clear router promotion landed`
 57. `phase-291x ArrayBox element-result publication landed`
-58. `phase-291x String semantic owner cleanup pending`
+58. `phase-291x 291x-107 String semantic owner cleanup landed`
+59. `phase-291x alias SSOT cleanup pending`
 
 ## Parked Corridor
 

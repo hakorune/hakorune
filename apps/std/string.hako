@@ -1,12 +1,13 @@
-// std.string (Ny) - Phase15 MVP
+// std.string public sugar helpers.
 // Usage:
-//   include "apps/std/string.hako"
-//   StdStringNy.string_length("abc"), StdStringNy.string_concat("a","b"),
-//   StdStringNy.string_slice("hello",1,4), StdStringNy.string_index_of("banana","na"), StdStringNy.string_equals("x","y")
+//   using apps.std.string as S
+//   S.string_length("abc"), S.string_concat("a", "b"),
+//   S.string_slice("hello", 1, 4), S.string_index_of("banana", "na"),
+//   S.string_equals("x", "y")
 // Notes:
-//   - ASCII only; slice clamps [start,end)
-//   - index_of returns -1 when not found
-//   - Pure functions; no side effects
+//   - This file is public std sugar, not the String semantic owner.
+//   - The semantic owner for stable String surface rows is the Rust catalog.
+//   - Pure helper wrappers only; no side effects.
 
 static box StdStringNy {
   // Return length of string s (Integer)

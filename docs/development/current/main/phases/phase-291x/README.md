@@ -26,6 +26,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-106-arraybox-element-result-publication-card.md
+  - docs/development/current/main/phases/phase-291x/291x-107-string-semantic-owner-cleanup-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -36,8 +37,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `ArrayBox.get/pop/remove` element-result publication
-- Next implementation target: String semantic owner cleanup card selection
+- Latest landed cleanup target: `291x-107` String semantic owner cleanup
+- Next implementation target: `alias SSOT cleanup` (pending card)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -79,6 +80,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 15. `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
 16. `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
 17. `docs/development/current/main/phases/phase-291x/291x-106-arraybox-element-result-publication-card.md`
+18. `docs/development/current/main/phases/phase-291x/291x-107-string-semantic-owner-cleanup-card.md`
 
 ## Current Rule
 
@@ -87,6 +89,11 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
 - `apps/std/string.hako` is sugar, not the semantic owner
+- `apps.std.string` is the exact manifest alias that pins the current public
+  sugar smoke; this is not a broader `std.string` packaging decision
+- `apps/lib/boxes/string_std.hako` is an internal selfhost helper, not a
+  public std owner
+- `apps/std/string_std.hako` is dead scaffold and is removed by `291x-107`
 - legacy `apps/std/string2.hako` diagnostic residue was deleted by an explicit cleanup card
 - `MapBox` first slice cataloged current Rust vtable rows only
 - do not add `length` as a Rust vtable alias in the first MapBox commit

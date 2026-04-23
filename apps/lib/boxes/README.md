@@ -4,8 +4,11 @@ Shared `.hako` box library sources.
 
 ## Runtime status (phase29cc)
 
-- `array_std.hako`, `console_std.hako`, `string_std.hako`:
-  standard library boxes used by current app/runtime paths.
+- `array_std.hako`, `console_std.hako`:
+  shared `.hako` helpers still used by current app/runtime paths.
+- `string_std.hako`:
+  internal selfhost-runtime helper for the `pref == "ny"` String route.
+  It is not the public std.string semantic owner.
 - `map_std.hako` was retired in phase-291x; `OpsCalls.map_has(...)` owns the
   remaining selfhost-runtime Map-only wrapper behavior.
 - `wasm_canvas_box.hako`, `wasm_display_box.hako`:
