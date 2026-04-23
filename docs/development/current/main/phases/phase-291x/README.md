@@ -20,6 +20,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -30,7 +31,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox get missing-key contract review
+- Next implementation target: MapBox post-contract next-slice selection
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -66,6 +67,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 9. `docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md`
 10. `docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md`
 11. `docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md`
+12. `docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md`
 
 ## Current Rule
 
@@ -87,6 +89,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `MapBox` source-visible bad-key rows now have a contract decision:
   non-string `set/get/has/delete/remove` keys publish
   `[map/bad-key] key must be string`; field rows keep the field-name variant
+- `MapBox.get(missing-key)` keeps the stable tagged read-miss text
+  `[map/missing] Key not found: <key>`; successful `get(existing-key)` element
+  publication remains data-dependent and out of scope here
 
 ## Implementation State
 
@@ -137,14 +142,19 @@ Remaining MapBox follow-up:
   and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`.
 - `keys()/values()` content enumeration is intentionally size-only in
-  source-level vm-hako for now; element publication is deferred to
-  `291x-98`.
+  source-level vm-hako for now; element publication is deferred to `291x-98`.
+  Rust audit (2026-04-23): `keys()` sorts deterministically; `values()` does
+  NOT sort to match key order — future promotion requires a Rust-side fix to
+  `values()` in addition to the source-level publication path.
 - `MapBox.set/delete/remove/clear` source-level write-return receipt contract
   is landed and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`.
 - `MapBox` bad-key normalization is landed and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_bad_key_vm.sh`
   and `tools/smokes/v2/profiles/quick/core/map/map_bad_key_has_vm.sh`.
+- `MapBox.get(missing-key)` is landed and pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
+  and `tools/smokes/v2/profiles/quick/core/map/map_missing_key_tag_vm.sh`.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
@@ -182,6 +192,8 @@ Landed CoreBox router first slice:
 - `MapBox.set`, `MapBox.delete` / `remove`, and `MapBox.clear` write-return
   rows have a landed receipt-string contract in `291x-99`; source-level
   vm-hako publication and matching type hints are synced.
-- two-arg `lastIndexOf`, MapBox keys/values element publication, and
-  `MapBox.get(missing-key)` normalization remain contract-first cleanup cards.
+- `MapBox.get(missing-key)` keeps its landed tagged read-miss contract in
+  `291x-101`; successful `get(existing-key)` typing remains data-dependent.
+- two-arg `lastIndexOf` and MapBox keys/values element publication remain
+  contract-first cleanup cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

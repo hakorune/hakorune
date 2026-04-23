@@ -20,14 +20,31 @@ unsupported forever. It prevents `keys().get(i)` / `values().get(i)` from being
 silently treated as valid before the ArrayBox-like publication path can preserve
 element kind, handle text, ordering, and copy metadata.
 
+## Ordering Audit Note (verified 2026-04-23)
+
+Current Rust source state in `src/boxes/map_box.rs`:
+
+- `keys()` (lines 199-210): collects all keys then calls `.sort()` —
+  deterministic lexical order is confirmed.
+- `values()` (lines 212-224): iterates `self.data.read().unwrap().values()`
+  directly without sorting — iteration order matches the underlying `HashMap`
+  hash order, which is **NOT** the same as the sorted key order returned by
+  `keys()`.
+
+Therefore, any future element enumeration that pairs `keys().get(i)` with
+`values().get(i)` requires a Rust-side fix to `values()` (sort by key before
+collecting) in addition to the source-level vm-hako publication path.
+Do not claim that current Rust `values()` already returns in key order.
+
 ## Required Future Contract
 
-When content enumeration is promoted, use the same visible order as the Rust
-`MapBox` surface:
+When content enumeration is promoted, the desired contract is:
 
-- `keys()` returns keys in deterministic lexical key order.
-- `values()` returns values in the same key order as `keys()`, not hash storage
-  iteration order.
+- `keys()` returns keys in deterministic lexical key order (already true in
+  Rust; confirmed by audit).
+- `values()` **must be fixed** to return values in the same sorted key order as
+  `keys()`, not the current hash storage iteration order.  This is a desired
+  future state, not a description of current Rust behaviour.
 - source-level vm-hako must publish ArrayBox-like element state through the
   same owner as `MapStateCoreBox`, not through a deleted bridge or runtime
   handle fallback.
