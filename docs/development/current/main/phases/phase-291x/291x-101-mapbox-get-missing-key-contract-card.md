@@ -6,6 +6,8 @@ Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md
+  - docs/development/current/main/phases/phase-291x/291x-124-mapbox-element-publication-deferred-closeout-card.md
 ---
 
 # MapBox Get Missing-Key Contract Card
@@ -62,5 +64,5 @@ read stays a tagged string witness rather than falling back to a stale scalar
 
 ## Next Slice
 
-Keep `keys()/values()` element publication deferred until a dedicated card; do
-not reopen this missing-key contract unless the owner path changes.
+`keys()/values()` element publication is landed in `291x-102`. Do not reopen
+this missing-key contract unless the owner path changes.

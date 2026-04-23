@@ -5,20 +5,34 @@ Scope: MapBox `keys()` / `values()` content enumeration contract after source-ro
 Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md
+  - docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md
+  - docs/development/current/main/phases/phase-291x/291x-124-mapbox-element-publication-deferred-closeout-card.md
 ---
 
 # MapBox Content Enumeration Contract Card
 
 ## Decision
 
-For source-level vm-hako in this phase, `MapBox.keys()` and `MapBox.values()`
-are promoted only as ArrayBox-like shape rows with correct `size()` parity.
-Element enumeration is explicitly deferred.
+At this card's landing time, source-level vm-hako promoted `MapBox.keys()` and
+`MapBox.values()` only as ArrayBox-like shape rows with correct `size()` parity.
+That provisional element-enumeration deferral is now superseded by `291x-102`.
 
 This is a provisional size-only contract, not a claim that element reads are
 unsupported forever. It prevents `keys().get(i)` / `values().get(i)` from being
 silently treated as valid before the ArrayBox-like publication path can preserve
 element kind, handle text, ordering, and copy metadata.
+
+## Closeout Note (2026-04-24)
+
+This provisional size-only decision was superseded by `291x-102`.
+
+Current landed contract:
+
+- Rust `values()` follows the same sorted-key order as `keys()`.
+- source-level vm-hako publishes `keys()/values()` element state through the S0
+  state owner.
+- `keys().get(i)` and `values().get(i)` are pinned by the 291x-102 acceptance
+  smoke.
 
 ## Ordering Audit Note (verified 2026-04-23)
 
@@ -31,27 +45,25 @@ Current Rust source state in `src/boxes/map_box.rs`:
   hash order, which is **NOT** the same as the sorted key order returned by
   `keys()`.
 
-Therefore, any future element enumeration that pairs `keys().get(i)` with
-`values().get(i)` requires a Rust-side fix to `values()` (sort by key before
-collecting) in addition to the source-level vm-hako publication path.
-Do not claim that current Rust `values()` already returns in key order.
+Therefore, the later element-enumeration promotion needed a Rust-side fix to
+`values()` (sort by key before collecting) in addition to the source-level
+vm-hako publication path. That fix is landed in `291x-102`; do not use this
+audit note as the current Rust behavior.
 
-## Required Future Contract
+## Superseded Future Contract
 
-When content enumeration is promoted, the desired contract is:
+When content enumeration was promoted, the desired contract was:
 
-- `keys()` returns keys in deterministic lexical key order (already true in
-  Rust; confirmed by audit).
-- `values()` **must be fixed** to return values in the same sorted key order as
-  `keys()`, not the current hash storage iteration order.  This is a desired
-  future state, not a description of current Rust behaviour.
+- `keys()` returns keys in deterministic lexical key order.
+- `values()` returns values in the same sorted key order as `keys()`, not hash
+  storage iteration order.
 - source-level vm-hako must publish ArrayBox-like element state through the
   same owner as `MapStateCoreBox`, not through a deleted bridge or runtime
   handle fallback.
 
-## Implementation Gate For Future Promotion
+## Historical Implementation Gate
 
-Do not implement element enumeration until all of these are true:
+Element enumeration was not allowed until all of these were true:
 
 - `ArrayCoreBox.get` can read VM-local ArrayBox-like element metadata before
   attempting runtime-handle `get_i64`.
@@ -71,6 +83,6 @@ Current source-level vm-hako acceptance remains:
 
 ## Next Slice
 
-Write-return (`291x-99`), bad-key (`291x-100`), and get-missing-key (`291x-101`)
-contracts are all landed. Keep `keys()/values()` element publication deferred
-until a dedicated follow-up card; do not reopen already-landed slices.
+Write-return (`291x-99`), bad-key (`291x-100`), get-missing-key (`291x-101`),
+and keys/values element publication (`291x-102`) contracts are all landed. Do
+not reopen already-landed slices without an owner-path change.

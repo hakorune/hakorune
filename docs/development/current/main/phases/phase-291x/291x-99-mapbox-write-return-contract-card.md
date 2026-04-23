@@ -6,6 +6,8 @@ Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md
+  - docs/development/current/main/phases/phase-291x/291x-124-mapbox-element-publication-deferred-closeout-card.md
 ---
 
 # MapBox Write Return Contract Card
@@ -79,5 +81,5 @@ matching type hints/tests:
 ## Next Slice
 
 Bad-key normalization is landed in `291x-100`; get-missing-key is landed in
-`291x-101`. No further open MapBox contract slices remain; `keys()/values()`
-element publication stays deferred to a dedicated follow-up card.
+`291x-101`; keys/values element publication is landed in `291x-102`. No further
+open MapBox contract slices remain in this card.
