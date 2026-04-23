@@ -30,9 +30,85 @@ Pairing `keys().get(i)` with `values().get(i)` is therefore incorrect with
 current Rust code.  A Rust-side fix to `values()` is a hard prerequisite for
 this card.
 
+## Sliced Implementation Plan
+
+The full card decomposes into three rollback-safe slices.  Each slice is one
+commit boundary.  A later slice may not land until all earlier slices are green.
+
+### Slice 1 — Rust `values()` sort fix  ← **first code step**
+
+**In scope (Slice 1 only):**
+
+| File | Change |
+| --- | --- |
+| `src/boxes/map_box.rs` | `values()`: collect keys sorted, return values in that key order |
+
+**Validation (Slice 1):**
+
+- All existing smokes pass unchanged (they pin size only; order is not observed
+  yet).
+- Manually verify: a two-key map with keys `"b"` and `"a"` returns
+  `values()[0]` = value for `"a"` after the fix.
+- Fast gate: `tools/checks/dev_gate.sh quick` green.
+- Exact command:
+  ```
+  cargo test -p nyash-rust --lib 2>&1 | tail -20
+  tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh
+  tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh
+  ```
+
+**Deferred from Slice 1:**
+
+- `array_core_box.hako` (`_try_handle_get` VM-local-first check) — Slice 2.
+- `map_state_core_box.hako` element publication — Slice 3.
+- New smoke fixtures — Slice 3.
+- All four implementation gates — Slices 2–3.
+
+---
+
+### Slice 2 — Gate 1: `array_core_box.hako` VM-local-first `get`
+
+**In scope (Slice 2 only):**
+
+| File | Change |
+| --- | --- |
+| `lang/src/runtime/collections/array_core_box.hako` | `_try_handle_get`: check VM-local element state (value_state path) before the runtime-handle `get_i64` path |
+
+Prerequisite: Slice 1 landed and green.
+
+**Validation (Slice 2):**
+
+- Existing smokes pass unchanged (existing tests do not exercise `keys().get(i)`
+  yet, so no new failures are expected).
+- Fast gate: `tools/checks/dev_gate.sh quick` green.
+
+**Deferred from Slice 2:**
+
+- `map_state_core_box.hako` element publication — Slice 3.
+- New smoke fixtures — Slice 3.
+
+---
+
+### Slice 3 — Element publication + acceptance smoke
+
+**In scope (Slice 3 only):**
+
+| File | Change |
+| --- | --- |
+| `lang/src/runtime/collections/map_state_core_box.hako` | `apply_keys`: publish per-element key strings into dst_box element state |
+| `lang/src/runtime/collections/map_state_core_box.hako` | `apply_values`: publish per-element values (sorted-key order) into dst_box element state |
+| `apps/tests/` | new fixture `.hako` for the acceptance smoke |
+| `tools/smokes/v2/profiles/integration/apps/` | new acceptance smoke script |
+
+Prerequisites: Slices 1 and 2 landed and green.
+
+**Validation (Slice 3):** See **Acceptance Smoke** section below.
+
+---
+
 ## Required Rust Fix (must land before or with element promotion)
 
-In `src/boxes/map_box.rs` `values()` implementation:
+In `src/boxes/map_box.rs` `values()` implementation (this is **Slice 1** above):
 
 - Collect keys in sorted order.
 - Return values in the same sorted-key order, not in `HashMap` iteration order.
