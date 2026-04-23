@@ -234,7 +234,7 @@ fn slot_insert_box_raw_preserves_text_lane() {
 }
 
 #[test]
-fn invoke_surface_routes_insert_remove_clear_contains_and_length_alias() {
+fn invoke_surface_routes_insert_remove_clear_contains_indexof_and_length_alias() {
     let array = ArrayBox::new();
     assert!(matches!(
         array
@@ -304,6 +304,19 @@ fn invoke_surface_routes_insert_remove_clear_contains_and_length_alias() {
             assert_eq!(value.to_string_box().value, "true");
         }
         ArraySurfaceInvokeResult::Void => panic!("contains must return a value"),
+    }
+
+    let index = array
+        .invoke_surface(
+            ArrayMethodId::IndexOf,
+            vec![Box::new(StringBox::new("Alpha")) as Box<dyn NyashBox>],
+        )
+        .unwrap();
+    match index {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "1");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("indexOf must return a value"),
     }
 
     let slice = array

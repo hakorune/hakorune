@@ -125,12 +125,7 @@ fn map_surface_method_entries() -> Vec<MethodEntry> {
 }
 
 const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
-    // P1: indexOf/join
-    MethodEntry {
-        name: "indexOf",
-        arity: 1,
-        slot: 107,
-    },
+    // P1: join
     MethodEntry {
         name: "join",
         arity: 1,

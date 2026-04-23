@@ -10,6 +10,7 @@ pub enum ArrayMethodId {
     Pop,
     Clear,
     Contains,
+    IndexOf,
     Slice,
     Remove,
     Insert,
@@ -133,6 +134,16 @@ pub const ARRAY_SURFACE_METHODS: &[ArrayMethodSpec] = &[
         aliases: &[],
         arity: 1,
         slot: 106,
+        effect: ArraySurfaceEffect::Read,
+        returns: ArraySurfaceReturn::Value,
+        exposure: ArrayExposureState::STABLE,
+    },
+    ArrayMethodSpec {
+        id: ArrayMethodId::IndexOf,
+        canonical: "indexOf",
+        aliases: &[],
+        arity: 1,
+        slot: 107,
         effect: ArraySurfaceEffect::Read,
         returns: ArraySurfaceReturn::Value,
         exposure: ArrayExposureState::STABLE,
@@ -290,6 +301,10 @@ impl ArrayBox {
                 let value = args.next().expect("validated ArrayBox.contains value");
                 ArraySurfaceInvokeResult::Value(self.contains(value))
             }
+            ArrayMethodId::IndexOf => {
+                let value = args.next().expect("validated ArrayBox.indexOf value");
+                ArraySurfaceInvokeResult::Value(self.indexOf(value))
+            }
             ArrayMethodId::Slice => {
                 let start = args.next().expect("validated ArrayBox.slice start");
                 let end = args.next().expect("validated ArrayBox.slice end");
@@ -341,6 +356,7 @@ mod tests {
         assert_eq!(ArrayMethodId::from_slot(104), Some(ArrayMethodId::Pop));
         assert_eq!(ArrayMethodId::from_slot(105), Some(ArrayMethodId::Clear));
         assert_eq!(ArrayMethodId::from_slot(106), Some(ArrayMethodId::Contains));
+        assert_eq!(ArrayMethodId::from_slot(107), Some(ArrayMethodId::IndexOf));
         assert_eq!(ArrayMethodId::from_slot(111), Some(ArrayMethodId::Slice));
         assert_eq!(ArrayMethodId::from_slot(112), Some(ArrayMethodId::Remove));
         assert_eq!(ArrayMethodId::from_slot(113), Some(ArrayMethodId::Insert));

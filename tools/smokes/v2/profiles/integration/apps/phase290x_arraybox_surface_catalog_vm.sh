@@ -27,7 +27,7 @@ run_catalog_unit_lock() {
   fi
 
   set +e
-  out=$(cargo test invoke_surface_routes_insert_remove_clear_contains_and_length_alias --lib 2>&1)
+  out=$(cargo test invoke_surface_routes_insert_remove_clear_contains_indexof_and_length_alias --lib 2>&1)
   rc=$?
   set -e
   if [ "$rc" -ne 0 ]; then
@@ -53,7 +53,7 @@ run_vm_surface_route_lock() {
     exit 1
   fi
 
-  if echo "$out" | rg -q '\[vm/method/stub:(length|size|len|get|set|push|pop|clear|contains|slice|remove|insert)\]'; then
+  if echo "$out" | rg -q '\[vm/method/stub:(length|size|len|get|set|push|pop|clear|contains|indexOf|slice|remove|insert)\]'; then
     echo "$out" | tail -n 120 >&2 || true
     test_fail "$SMOKE_NAME: stable ArrayBox method hit VM stub"
     exit 1
@@ -69,6 +69,7 @@ run_vm_surface_route_lock() {
 3
 15
 true
+1
 15
 2
 25

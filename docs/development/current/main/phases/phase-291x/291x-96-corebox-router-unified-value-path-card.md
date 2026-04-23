@@ -33,6 +33,7 @@ Landed route slices:
 - `ArrayBox.remove`
 - `ArrayBox.insert`
 - `ArrayBox.contains`
+- `ArrayBox.indexOf`
 - `MapBox.size`
 - `MapBox.length`
 - `MapBox.len`
@@ -144,6 +145,8 @@ keeping the MIR result type `Unknown`.
 `push` / `set`, with receiver-plus-index-plus-value Unified shape.
 `ArrayBox.contains` follows the read-only Bool-return contract already proven
 by `StringBox.contains`, with receiver-plus-value Unified shape.
+`ArrayBox.indexOf` follows the read-only Integer-return contract already
+proven by StringBox search rows, with receiver-plus-value Unified shape.
 `MapBox.size` is the first MapBox route slice because it is read-only,
 arity-zero, and publishes a fixed `Integer` result without collapsing the
 separate `len` slot.
@@ -178,7 +181,8 @@ write-return contract.
   `ArrayMethodId::Length`, `ArrayMethodId::Push`, `ArrayMethodId::Slice`, and
   `ArrayMethodId::Get`, `ArrayMethodId::Pop`, `ArrayMethodId::Set`, and
   `ArrayMethodId::Clear`, `ArrayMethodId::Remove`, `ArrayMethodId::Insert`, and
-  `ArrayMethodId::Contains` families to `Route::Unified`.
+  `ArrayMethodId::Contains`, and `ArrayMethodId::IndexOf` families to
+  `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, `MapMethodId::Has`, and
   `MapMethodId::Get`, `MapMethodId::Set`, `MapMethodId::Delete`,
@@ -219,6 +223,8 @@ write-return contract.
   `MirType::Unknown`; `ArrayBox.insert` uses the
   receiver-plus-index-plus-value shape and stays `Void`; `ArrayBox.contains`
   uses the receiver-plus-value shape and publishes `MirType::Bool`;
+  `ArrayBox.indexOf` uses the receiver-plus-value shape and publishes
+  `MirType::Integer`;
   `MapBox.size`, `MapBox.length`, and `MapBox.len` use the arity-zero receiver
   shape and publish `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
   publishes `MirType::Bool`; `MapBox.get` uses the receiver-plus-key shape and
@@ -256,8 +262,8 @@ implemented.
 ## Remaining Work
 
 - remaining route-only CoreBox rows are closed for the current ArrayBox stable
-  rows including `contains`, and MapBox `size` / `length` / `len` / `has` /
-  `get` / `set` / `keys` / `values` / `delete` / `remove` / `clear`
+  rows including `contains` / `indexOf`, and MapBox `size` / `length` / `len`
+  / `has` / `get` / `set` / `keys` / `values` / `delete` / `remove` / `clear`
 - contract-first backlog: Array generic element-result publication (`get` /
   `pop` / `remove` as `T` instead of `Unknown`) landed in
   `291x-106-arraybox-element-result-publication-card.md`
