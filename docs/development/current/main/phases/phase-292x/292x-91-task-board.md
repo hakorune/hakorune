@@ -157,9 +157,10 @@ Related:
 
 - [ ] A14 generic pure walker view extraction
   - design: `292x-118-generic-pure-walker-view-extraction-card.md`
-  - state: GenericPureProgramView shell is landed; guard stays at 3 files / 4
-    analysis-debt lines
-  - next families: split pre-scan state population behind the named view
+  - state: GenericPureProgramView and GenericPureBlockView shells are landed;
+    guard is now 3 files / 3 analysis-debt lines
+  - next families: split cross-block use facts or declaration-needs behind the
+    named view
 
 ## Done Definition
 

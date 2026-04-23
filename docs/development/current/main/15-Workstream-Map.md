@@ -66,7 +66,8 @@ Related:
 31. `phase-292x string loop seed copy-graph helper deletion` landed
 32. `phase-292x generic pure cross-block use API tightening` landed
 33. `phase-292x GenericPureProgramView shell` landed
-34. `phase-292x generic pure walker view extraction`
+34. `phase-292x GenericPureBlockView accessor` landed
+35. `phase-292x generic pure walker view extraction`
 
 ## Parked Corridor
 

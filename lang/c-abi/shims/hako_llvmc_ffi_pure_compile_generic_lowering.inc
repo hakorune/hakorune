@@ -2,11 +2,30 @@
       struct GenericPureNeedFlags needs;
       memset(&needs, 0, sizeof(needs));
       size_t blen = generic_pure_block_count;
+      struct GenericPureBlockView {
+        yyjson_val* block;
+        yyjson_val* instructions;
+        size_t instruction_count;
+        long long id;
+      };
+      auto int read_generic_pure_block_view(size_t bi, struct GenericPureBlockView* out) {
+        yyjson_val* b = bi < blen ? yyjson_arr_get(blocks, bi) : NULL;
+        yyjson_val* insts = b ? yyjson_obj_get(b, "instructions") : NULL;
+        if (!out) return 0;
+        memset(out, 0, sizeof(*out));
+        if (!insts || !yyjson_is_arr(insts)) return 0;
+        out->block = b;
+        out->instructions = insts;
+        out->instruction_count = yyjson_arr_size(insts);
+        out->id = read_int(b, "id");
+        return 1;
+      }
       for (size_t bi=0; bi<blen; bi++) {
-        yyjson_val* b = yyjson_arr_get(blocks, bi);
-        long long bid = read_int(b, "id");
-        yyjson_val* insts = yyjson_obj_get(b, "instructions"); if (!insts || !yyjson_is_arr(insts)) continue;
-        size_t ilen = yyjson_arr_size(insts);
+        struct GenericPureBlockView block;
+        if (!read_generic_pure_block_view(bi, &block)) continue;
+        long long bid = block.id;
+        yyjson_val* insts = block.instructions;
+        size_t ilen = block.instruction_count;
         for (size_t ii=0; ii<ilen; ii++) {
           yyjson_val* ins = yyjson_arr_get(insts, ii);
           const char* op = read_str(ins, "op"); if (!op) continue;
@@ -630,8 +649,10 @@
       }
 
       for (size_t bi=0; bi<blen; bi++) {
-        yyjson_val* b = yyjson_arr_get(blocks, bi);
-        long long bid = read_int(b, "id");
+        struct GenericPureBlockView block;
+        if (!read_generic_pure_block_view(bi, &block)) continue;
+        yyjson_val* b = block.block;
+        long long bid = block.id;
         if (active_combined_region_emitted &&
             (bid == active_combined_region.header_block ||
              bid == active_combined_region.edit_block ||
@@ -696,8 +717,8 @@
         if (bi == 0) {
           emit_hoisted_string_const_defs(f);
         }
-        yyjson_val* insts = yyjson_obj_get(b, "instructions"); if (!insts || !yyjson_is_arr(insts)) continue;
-        size_t ilen = yyjson_arr_size(insts);
+        yyjson_val* insts = block.instructions;
+        size_t ilen = block.instruction_count;
         unsigned char skip_inst[ilen ? ilen : 1];
         memset(skip_inst, 0, sizeof(skip_inst));
         for (size_t ii=0; ii<ilen; ii++) {
