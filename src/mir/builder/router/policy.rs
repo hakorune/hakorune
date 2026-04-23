@@ -98,6 +98,7 @@ fn is_mapbox_unified_value_path(method: &str, arity: usize) -> bool {
                 | crate::boxes::MapMethodId::Delete
                 | crate::boxes::MapMethodId::Keys
                 | crate::boxes::MapMethodId::Values
+                | crate::boxes::MapMethodId::Clear
         )
     )
 }
@@ -262,6 +263,11 @@ mod tests {
     }
 
     #[test]
+    fn map_clear_row_uses_unified_value_path() {
+        assert_eq!(route("MapBox", "clear", 0), Route::Unified);
+    }
+
+    #[test]
     fn non_allowlisted_corebox_methods_stay_boxcall() {
         assert_eq!(route("StringBox", "length", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "substring", 1), Route::BoxCall);
@@ -303,7 +309,7 @@ mod tests {
         assert_eq!(route("MapBox", "remove", 2), Route::BoxCall);
         assert_eq!(route("MapBox", "keys", 1), Route::BoxCall);
         assert_eq!(route("MapBox", "values", 1), Route::BoxCall);
-        assert_eq!(route("MapBox", "clear", 0), Route::BoxCall);
+        assert_eq!(route("MapBox", "clear", 1), Route::BoxCall);
     }
 
     #[test]

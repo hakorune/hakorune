@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-23
+Date: 2026-04-24
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -58,6 +58,8 @@ cargo check -q
     291x-103 acceptance smoke
   - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
     Unified value path and pinned by the 291x-104 acceptance tests
+  - `MapBox.clear()` is landed on the catalog-backed Unified value path and
+    pinned by the 291x-105 acceptance tests
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`,
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and
@@ -66,9 +68,10 @@ cargo check -q
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
     `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
     `MapBox.len`, and `MapBox.has`, `MapBox.get`, `MapBox.set`,
-    `MapBox.keys`, `MapBox.values`, `MapBox.delete`, and `MapBox.remove`, are
-    on the Unified value path;
-    remaining cleanup is MapBox contract-first rows
+    `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and
+    `MapBox.clear`, are on the Unified value path;
+    remaining cleanup is CoreBox contract cleanup outside the closed MapBox
+    router-only backlog
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
@@ -78,7 +81,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 - current blocker token:
-  - `phase-291x MapBox delete/remove router promotion landed — next app card selection pending`
+  - `phase-291x MapBox clear router promotion landed — next app card selection pending`
 
 ## Current Perf Snapshot
 

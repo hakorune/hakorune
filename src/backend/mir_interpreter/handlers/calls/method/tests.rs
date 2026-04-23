@@ -346,6 +346,35 @@ fn method_callee_mapbox_delete_remove_strips_duplicate_receiver_arg() {
 }
 
 #[test]
+fn method_callee_mapbox_clear_strips_duplicate_receiver_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let key = ValueId(2);
+    let val = ValueId(3);
+    let recv_alias = ValueId(4);
+    interp.regs.insert(recv, mapbox_receiver());
+    let alias_value = interp.regs.get(&recv).expect("receiver inserted").clone();
+    interp.regs.insert(recv_alias, alias_value);
+    interp.regs.insert(key, VMValue::String("a".to_string()));
+    interp.regs.insert(val, VMValue::String("one".to_string()));
+
+    interp
+        .execute_method_callee("MapBox", "set", &Some(recv), &[key, val])
+        .expect("MapBox.set should seed clear key");
+    let cleared = interp
+        .execute_method_callee("MapBox", "clear", &Some(recv), &[recv_alias])
+        .expect("MapBox.clear should tolerate unified duplicate receiver arg");
+
+    assert_eq!(cleared.to_string(), "Map cleared");
+
+    let size = interp
+        .execute_method_callee("MapBox", "size", &Some(recv), &[])
+        .expect("MapBox.size should observe the clear result");
+
+    assert_eq!(size, VMValue::Integer(0));
+}
+
+#[test]
 fn method_callee_arraybox_get_strips_duplicate_receiver_alias_arg() {
     let mut interp = MirInterpreter::new();
     let recv = ValueId(1);

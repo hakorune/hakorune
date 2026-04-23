@@ -209,8 +209,11 @@ static box MapStateCoreBox {
     loop(ki < n) {
       local k = "" + all_keys.get(ki)
       if me._starts_with(k, pres_prefix) == 1 {
-        local key_text = k.substring(pres_prefix_len, k.length())
-        collected.push(key_text)
+        local present = MirVmS0StateOpsBox.map_get_or_null(array_lens, k)
+        if present != null {
+          local key_text = k.substring(pres_prefix_len, k.length())
+          collected.push(key_text)
+        }
       }
       ki = ki + 1
     }

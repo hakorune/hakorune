@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-22
+Date: 2026-04-24
 Scope: CoreBox surface catalog の棚卸し ledger。結論だけ current docs に反映する。
 Related:
   - docs/development/current/main/phases/phase-291x/README.md
@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
+  - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
 ---
 
 # CoreBox Surface Inventory Ledger
@@ -88,7 +89,7 @@ Confirmed route seam:
   `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
   `find`, plus the current ArrayBox stable rows and MapBox
   `size` / `length` / `len` / `has` / `get` / `set` / `keys` / `values` /
-  `delete` / `remove` through the Unified value path.
+  `delete` / `remove` / `clear` through the Unified value path.
   Non-allowlisted `StringBox`, `ArrayBox`, and `MapBox` methods still use the
   family-wide `core_box` BoxCall fallback.
 - `src/mir/builder/utils/boxcall_emit.rs` maps `MirType::String` receivers to
@@ -168,12 +169,15 @@ Landed first slice and follow-up:
   focused route, MIR shape, receipt-string type, duplicate-receiver, and
   source smoke coverage:
   `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
+- twenty-fifth implementation moved `MapBox.clear` after adding focused route,
+  MIR shape, receipt-string type, duplicate-receiver, source smoke coverage,
+  and a live-presence filter for source-level `keys()` / `values()` after
+  `clear()`:
+  `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
 - remaining route-only CoreBox rows are closed for ArrayBox stable rows and
-  MapBox `size/length/len/has/get/set/keys/values/delete/remove`.
+  MapBox `size/length/len/has/get/set/keys/values/delete/remove/clear`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
-- hold MapBox `clear` router promotion until its route fixture and
-  return/write contract witness are pinned.
 
 ## MapBox Current Duplication
 
@@ -200,7 +204,7 @@ Known drift:
   card.
 - `set` / `delete` / `remove` / `clear` source-level write-return receipt
   contracts are landed; router promotion for `delete` / `remove` is landed in
-  `291x-104`, while `clear` remains separate.
+  `291x-104`, and `clear` is landed in `291x-105`.
 - bad-key validation is normalized for the source-visible rows.
 - raw substrate helpers are already better separated than StringBox, so MapBox should be cataloged after StringBox rather than before it.
 
@@ -257,8 +261,7 @@ Remaining drift:
 - `size` and `len` keep separate slots.
 - visible surface and compat ABI remain split.
 - `delete` / `remove` router promotion is landed in `291x-104`; `clear`
-  router promotion remains separate from the landed source-owner/write-return
-  contracts.
+  router promotion is landed in `291x-105`.
 
 Completed cleanup:
 

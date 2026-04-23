@@ -40,6 +40,7 @@ Landed route slices:
 - `MapBox.keys`
 - `MapBox.values`
 - `MapBox.delete` / `MapBox.remove`
+- `MapBox.clear`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -156,6 +157,9 @@ receipt-string write-return contract.
 `MapBox.delete` / `remove` is the first mutating MapBox delete row; it moves to
 the Unified receiver-plus-key shape and publishes the same landed receipt-string
 write-return contract while leaving `clear` out of scope.
+`MapBox.clear` is the final mutating MapBox current catalog row; it moves to
+the Unified receiver-only shape and publishes the same landed receipt-string
+write-return contract.
 
 ## Implementation Snapshot
 
@@ -174,9 +178,9 @@ write-return contract while leaving `clear` out of scope.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, `MapMethodId::Has`, and
   `MapMethodId::Get`, `MapMethodId::Set`, `MapMethodId::Delete`,
-  `MapMethodId::Keys`, and `MapMethodId::Values` rows to `Route::Unified`;
-  `MapBox.length` is covered by the `MapMethodId::Size` alias; `MapBox.clear`
-  still uses the family-wide fallback.
+  `MapMethodId::Keys`, `MapMethodId::Values`, and `MapMethodId::Clear` rows
+  to `Route::Unified`;
+  `MapBox.length` is covered by the `MapMethodId::Size` alias.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -215,8 +219,8 @@ write-return contract while leaving `clear` out of scope.
   intentionally stays `MirType::Unknown`; `MapBox.set` uses the
   receiver-plus-key-plus-value shape and publishes `MirType::String`;
   `MapBox.delete` and `MapBox.remove` use the receiver-plus-key shape and
-  publish `MirType::String`; `MapBox.clear` remains pinned as a BoxCall
-  fallback sentinel.
+  publish `MirType::String`; `MapBox.clear` uses the receiver-only shape and
+  publishes `MirType::String`.
 
 ## Acceptance
 
@@ -247,10 +251,9 @@ implemented.
 
 - remaining route-only CoreBox rows are closed for the current ArrayBox stable
   rows and MapBox `size` / `length` / `len` / `has` / `get` / `set` /
-  `keys` / `values` / `delete` / `remove`
+  `keys` / `values` / `delete` / `remove` / `clear`
 - contract-first backlog: Array generic element-result publication (`get` /
-  `pop` / `remove` as `T`
-  instead of `Unknown`) and `MapBox.clear` router promotion
+  `pop` / `remove` as `T` instead of `Unknown`)
 - non-router cleanup backlog: String semantic owner cleanup, alias SSOT
   cleanup, and Map compat/source cleanup
 

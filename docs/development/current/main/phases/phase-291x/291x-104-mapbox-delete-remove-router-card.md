@@ -75,8 +75,8 @@ needs its own route fixture before promotion.
   with `clear` fallback sentinels.
 - `src/backend/mir_interpreter/handlers/calls/method/tests.rs` pins
   duplicate-receiver stripping for `delete` and `remove` dispatch.
-- `MapBox.clear()` remains the only mutating MapBox row still on the
-  route-only fallback backlog.
+- `MapBox.clear()` was intentionally left for the separate
+  `291x-105-mapbox-clear-router-card.md`.
 
 ## Acceptance
 

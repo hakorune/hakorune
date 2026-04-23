@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-23
+Date: 2026-04-24
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -15,9 +15,9 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox surface contract cleanup` |
-| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed; StringBox lastIndexOf/2 and MapBox delete/remove router promotion landed` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed; StringBox lastIndexOf/2 and MapBox delete/remove/clear router promotion landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x MapBox delete/remove router promotion landed — next app card selection pending` |
+| Blocker | `phase-291x MapBox clear router promotion landed — next app card selection pending` |
 | Next | `select the next explicit app card without reopening 291x witnesses` |
 | After Next | `Array generic element result / String semantic owner cleanup / alias SSOT cleanup` |
 
@@ -88,6 +88,7 @@ Related:
 53. `phase-291x MapBox keys/values element publication landed`
 54. `phase-291x StringBox lastIndexOf start-position catalog + Unified route landed`
 55. `phase-291x MapBox delete/remove router promotion landed`
+56. `phase-291x MapBox clear router promotion landed`
 
 ## Parked Corridor
 

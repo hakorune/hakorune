@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-23
+Date: 2026-04-24
 Scope: CoreBox surface catalog を ArrayBox から StringBox / MapBox へ広げる phase front。
 Related:
   - CURRENT_TASK.md
@@ -24,6 +24,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md
   - docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md
   - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -34,7 +35,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `MapBox.delete/remove` catalog-backed Unified value path
+- Latest landed cleanup target: `MapBox.clear` catalog-backed Unified value path
 - Next implementation target: select the next explicit app cleanup card
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -75,6 +76,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 13. `docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md`
 14. `docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md`
 15. `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
+16. `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
 
 ## Current Rule
 
@@ -101,9 +103,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   publication remains data-dependent and out of scope here
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
-- `MapBox.delete(key)` and `MapBox.remove(key)` now use the catalog-backed
-  Unified receiver-plus-key value path; `MapBox.clear()` remains a separate
-  route-only follow-up
+- `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
+  receiver-plus-key value path
+- `MapBox.clear()` now uses the catalog-backed Unified receiver-only value path
 
 ## Implementation State
 
@@ -190,8 +192,8 @@ Landed CoreBox router first slice:
   `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
   `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
   `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and
-  `MapBox.values`, `MapBox.delete`, and `MapBox.remove` rows through
-  `Route::Unified`.
+  `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and `MapBox.clear` rows
+  through `Route::Unified`.
 - `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
   `StringBox` before route selection; uncovered methods remain on the BoxCall
   fallback.
@@ -211,7 +213,7 @@ Landed CoreBox router first slice:
   rows have a landed receipt-string contract in `291x-99`; source-level
   vm-hako publication and matching type hints are synced.
 - `MapBox.delete` / `remove` router promotion is landed in `291x-104`;
-  `MapBox.clear` is intentionally not promoted by that card.
+  `MapBox.clear` is landed in `291x-105`.
 - `MapBox.get(missing-key)` keeps its landed tagged read-miss contract in
   `291x-101`; successful `get(existing-key)` typing remains data-dependent.
 - two-arg `lastIndexOf` is landed in `291x-103`; MapBox keys/values element
@@ -219,3 +221,4 @@ Landed CoreBox router first slice:
 - task cards:
   - `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
