@@ -15,7 +15,7 @@ mod tests {
         assert_eq!(resolve_slot_by_name("MapBox", "keys", 0), Some(206));
         assert_eq!(resolve_slot_by_name("MapBox", "values", 0), Some(207));
         assert_eq!(resolve_slot_by_name("MapBox", "clear", 0), Some(208));
-        assert_eq!(resolve_slot_by_name("MapBox", "length", 0), None);
+        assert_eq!(resolve_slot_by_name("MapBox", "length", 0), Some(200));
         // ArrayBox
         assert_eq!(resolve_slot_by_name("ArrayBox", "get", 1), Some(100));
         assert_eq!(resolve_slot_by_name("ArrayBox", "set", 2), Some(101));
@@ -36,6 +36,7 @@ mod tests {
         // Known methods listing should include representative entries
         let mm = known_methods_for("MapBox").expect("map methods");
         assert!(mm.contains(&"size"));
+        assert!(mm.contains(&"length"));
         assert!(mm.contains(&"get"));
         assert!(mm.contains(&"set"));
     }
