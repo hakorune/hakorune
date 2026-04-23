@@ -650,6 +650,37 @@ static box Main {
 }
 
 #[test]
+fn array_value_contains_uses_unified_receiver_arg_shape_and_bool_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push(7)
+    local ok = a.contains(7)
+    return ok
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let contains_arg_lens = method_call_arg_lens(&module, "ArrayBox", "contains");
+    let contains_result_types = method_call_result_types(&module, "ArrayBox", "contains");
+
+    assert_eq!(
+        contains_arg_lens,
+        vec![2],
+        "ArrayBox.contains should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        contains_result_types,
+        vec![Some(MirType::Bool)],
+        "ArrayBox.contains should publish a Bool result type"
+    );
+}
+
+#[test]
 fn array_value_remove_uses_unified_receiver_arg_shape_and_element_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");

@@ -30,13 +30,14 @@ Stable rows:
 - `push`
 - `pop`
 - `clear`
+- `contains`
 - `slice`
 - `remove`
 - `insert`
 
 Deferred:
 
-- `contains/indexOf/join/sort/reverse`
+- `indexOf/join/sort/reverse`
 - direct source `slice()` result follow-up calls through `RuntimeDataBox` union receiver
 
 ## StringBox Landing Snapshot
@@ -102,6 +103,8 @@ Completed cleanup:
   `toUpperCase` / `toLowerCase` stay as compatibility aliases on the same rows.
 - `291x-112` promotes `ArrayBox.clear` into the stable Array surface catalog and
   retires the last Array-only TypeRegistry extra for the current vtable rows.
+- `291x-113` promotes `ArrayBox.contains` into the stable Array surface
+  catalog and retires the next Array-only TypeRegistry extra row.
 
 ## Router / Value World Follow-up
 
@@ -204,6 +207,9 @@ Landed first slice and follow-up:
 - `291x-112` then promoted `ArrayBox.clear` as a receiver-only write-`Void`
   route and added it to the stable Array surface smoke:
   `docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md`
+- `291x-113` then promoted `ArrayBox.contains` as a receiver-plus-value
+  read-`Bool` route and added it to the stable Array surface smoke:
+  `docs/development/current/main/phases/phase-291x/291x-113-arraybox-contains-router-card.md`
 - remaining route-only CoreBox rows are closed for the current stable ArrayBox
   and MapBox rows.
 - next implementation should choose one remaining CoreBox method family and

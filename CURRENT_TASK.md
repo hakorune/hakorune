@@ -63,6 +63,7 @@ Scope: current lane / next lane / restart order only.
 45. `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
 46. `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
 47. `docs/development/current/main/phases/phase-291x/291x-106-arraybox-element-result-publication-card.md`
+48. `docs/development/current/main/phases/phase-291x/291x-113-arraybox-contains-router-card.md`
 41. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
 42. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
 43. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
@@ -150,6 +151,8 @@ Scope: current lane / next lane / restart order only.
     - `291x-112` landed: `ArrayBox.clear()` is now catalog-backed, uses the
       Unified receiver-only path, and publishes `Void` like `push` / `set` /
       `insert`
+    - `291x-113` landed: `ArrayBox.contains(value)` is now catalog-backed,
+      uses the Unified receiver-plus-value path, and publishes `Bool`
     - keep `MapBox.length()` landed as a Rust catalog alias; do not reopen slot
       unification in the extended-row card
     - keep `.inc` closed as boundary glue; phase-292x guard remains the no-growth
@@ -159,7 +162,7 @@ Scope: current lane / next lane / restart order only.
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - `apps/std/string.hako` is std sugar; the old diagnostic `apps/std/string2.hako` stub was deleted during cleanup triage
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.toUpper/toUpperCase`, `StringBox.toLower/toLowerCase`, `StringBox.contains`, one-arg and two-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.clear`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and `MapBox.clear` to the Unified value path; latest cleanup is `291x-112` ArrayBox.clear router promotion
+    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.toUpper/toUpperCase`, `StringBox.toLower/toLowerCase`, `StringBox.contains`, one-arg and two-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.clear`, `ArrayBox.contains`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and `MapBox.clear` to the Unified value path; latest cleanup is `291x-113` ArrayBox.contains router promotion
     - source-level vm-hako non-empty `MapBox.values()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
     - source-level vm-hako non-empty `MapBox.keys()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`
     - source-level vm-hako `MapBox.remove(key)` alias is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_remove_vm.sh`
@@ -171,7 +174,7 @@ Scope: current lane / next lane / restart order only.
     - `MapBox.keys()/values()` element publication is landed (291x-102 slice 3)
       and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_keys_values_elements_vm.sh`
     - contract-first / owner-first backlog: choose the next phase-291x cleanup
-      card after `291x-112`
+      card after `291x-113`
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` start-position behavior is landed and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_lastindexof_start_vm.sh`

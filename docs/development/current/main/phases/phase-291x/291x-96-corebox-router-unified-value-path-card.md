@@ -29,8 +29,10 @@ Landed route slices:
 - `ArrayBox.get`
 - `ArrayBox.pop`
 - `ArrayBox.set`
+- `ArrayBox.clear`
 - `ArrayBox.remove`
 - `ArrayBox.insert`
+- `ArrayBox.contains`
 - `MapBox.size`
 - `MapBox.length`
 - `MapBox.len`
@@ -140,6 +142,8 @@ to the Unified receiver-only shape while keeping the MIR result type
 keeping the MIR result type `Unknown`.
 `ArrayBox.insert` follows the write-`Void` contract already proven by
 `push` / `set`, with receiver-plus-index-plus-value Unified shape.
+`ArrayBox.contains` follows the read-only Bool-return contract already proven
+by `StringBox.contains`, with receiver-plus-value Unified shape.
 `MapBox.size` is the first MapBox route slice because it is read-only,
 arity-zero, and publishes a fixed `Integer` result without collapsing the
 separate `len` slot.
@@ -173,8 +177,8 @@ write-return contract.
 - `src/mir/builder/router/policy.rs` also allowlists the catalog-backed
   `ArrayMethodId::Length`, `ArrayMethodId::Push`, `ArrayMethodId::Slice`, and
   `ArrayMethodId::Get`, `ArrayMethodId::Pop`, `ArrayMethodId::Set`, and
-  `ArrayMethodId::Remove`, and `ArrayMethodId::Insert` families to
-  `Route::Unified`.
+  `ArrayMethodId::Clear`, `ArrayMethodId::Remove`, `ArrayMethodId::Insert`, and
+  `ArrayMethodId::Contains` families to `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, `MapMethodId::Has`, and
   `MapMethodId::Get`, `MapMethodId::Set`, `MapMethodId::Delete`,
@@ -209,10 +213,12 @@ write-return contract.
   `ArrayBox.get` uses the receiver-plus-index shape and intentionally stays
   `MirType::Unknown`; `ArrayBox.pop` uses the receiver-only shape and also
   intentionally stays `MirType::Unknown`; `ArrayBox.set` uses the
-  receiver-plus-index-plus-value shape and stays `Void`; `ArrayBox.remove`
+  receiver-plus-index-plus-value shape and stays `Void`; `ArrayBox.clear` uses
+  the receiver-only shape and stays `Void`; `ArrayBox.remove`
   uses the receiver-plus-index shape and intentionally stays
   `MirType::Unknown`; `ArrayBox.insert` uses the
-  receiver-plus-index-plus-value shape and stays `Void`;
+  receiver-plus-index-plus-value shape and stays `Void`; `ArrayBox.contains`
+  uses the receiver-plus-value shape and publishes `MirType::Bool`;
   `MapBox.size`, `MapBox.length`, and `MapBox.len` use the arity-zero receiver
   shape and publish `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
   publishes `MirType::Bool`; `MapBox.get` uses the receiver-plus-key shape and
@@ -250,8 +256,8 @@ implemented.
 ## Remaining Work
 
 - remaining route-only CoreBox rows are closed for the current ArrayBox stable
-  rows and MapBox `size` / `length` / `len` / `has` / `get` / `set` /
-  `keys` / `values` / `delete` / `remove` / `clear`
+  rows including `contains`, and MapBox `size` / `length` / `len` / `has` /
+  `get` / `set` / `keys` / `values` / `delete` / `remove` / `clear`
 - contract-first backlog: Array generic element-result publication (`get` /
   `pop` / `remove` as `T` instead of `Unknown`) landed in
   `291x-106-arraybox-element-result-publication-card.md`

@@ -53,18 +53,18 @@ pub fn choose_route(box_name: &str, method: &str, certainty: TypeCertainty, arit
 fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
     matches!(
         crate::boxes::basic::StringMethodId::from_name_and_arity(method, arity),
-            Some(
-                crate::boxes::basic::StringMethodId::Length
-                    | crate::boxes::basic::StringMethodId::Substring
-                    | crate::boxes::basic::StringMethodId::Concat
-                    | crate::boxes::basic::StringMethodId::Trim
-                    | crate::boxes::basic::StringMethodId::Upper
-                    | crate::boxes::basic::StringMethodId::Lower
-                    | crate::boxes::basic::StringMethodId::Contains
-                    | crate::boxes::basic::StringMethodId::LastIndexOf
-                    | crate::boxes::basic::StringMethodId::LastIndexOfFrom
-                    | crate::boxes::basic::StringMethodId::Replace
-                    | crate::boxes::basic::StringMethodId::IndexOf
+        Some(
+            crate::boxes::basic::StringMethodId::Length
+                | crate::boxes::basic::StringMethodId::Substring
+                | crate::boxes::basic::StringMethodId::Concat
+                | crate::boxes::basic::StringMethodId::Trim
+                | crate::boxes::basic::StringMethodId::Upper
+                | crate::boxes::basic::StringMethodId::Lower
+                | crate::boxes::basic::StringMethodId::Contains
+                | crate::boxes::basic::StringMethodId::LastIndexOf
+                | crate::boxes::basic::StringMethodId::LastIndexOfFrom
+                | crate::boxes::basic::StringMethodId::Replace
+                | crate::boxes::basic::StringMethodId::IndexOf
                 | crate::boxes::basic::StringMethodId::IndexOfFrom
         )
     )
@@ -81,6 +81,7 @@ fn is_arraybox_unified_value_path(method: &str, arity: usize) -> bool {
                 | crate::boxes::array::ArrayMethodId::Get
                 | crate::boxes::array::ArrayMethodId::Pop
                 | crate::boxes::array::ArrayMethodId::Clear
+                | crate::boxes::array::ArrayMethodId::Contains
                 | crate::boxes::array::ArrayMethodId::Set
                 | crate::boxes::array::ArrayMethodId::Remove
                 | crate::boxes::array::ArrayMethodId::Insert
@@ -223,6 +224,11 @@ mod tests {
     }
 
     #[test]
+    fn array_contains_family_uses_unified_value_path() {
+        assert_eq!(route("ArrayBox", "contains", 1), Route::Unified);
+    }
+
+    #[test]
     fn array_remove_family_uses_unified_value_path() {
         assert_eq!(route("ArrayBox", "remove", 1), Route::Unified);
     }
@@ -305,6 +311,8 @@ mod tests {
         assert_eq!(route("ArrayBox", "push", 2), Route::BoxCall);
         assert_eq!(route("ArrayBox", "pop", 1), Route::BoxCall);
         assert_eq!(route("ArrayBox", "clear", 1), Route::BoxCall);
+        assert_eq!(route("ArrayBox", "contains", 0), Route::BoxCall);
+        assert_eq!(route("ArrayBox", "contains", 2), Route::BoxCall);
         assert_eq!(route("ArrayBox", "slice", 1), Route::BoxCall);
         assert_eq!(route("ArrayBox", "slice", 3), Route::BoxCall);
         assert_eq!(route("ArrayBox", "remove", 0), Route::BoxCall);

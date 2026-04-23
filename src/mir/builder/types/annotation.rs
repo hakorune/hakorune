@@ -162,6 +162,7 @@ fn infer_string_method_return_type(method: crate::boxes::basic::StringMethodId) 
 fn infer_array_method_return_type(method: crate::boxes::array::ArrayMethodId) -> Option<MirType> {
     match method {
         crate::boxes::array::ArrayMethodId::Length => Some(MirType::Integer),
+        crate::boxes::array::ArrayMethodId::Contains => Some(MirType::Bool),
         crate::boxes::array::ArrayMethodId::Set
         | crate::boxes::array::ArrayMethodId::Push
         | crate::boxes::array::ArrayMethodId::Clear
@@ -219,6 +220,10 @@ mod tests {
         assert_eq!(infer_return_type("ArrayBox.push/1"), Some(MirType::Void));
         assert_eq!(infer_return_type("ArrayBox.set/2"), Some(MirType::Void));
         assert_eq!(infer_return_type("ArrayBox.clear/0"), Some(MirType::Void));
+        assert_eq!(
+            infer_return_type("ArrayBox.contains/1"),
+            Some(MirType::Bool)
+        );
         assert_eq!(infer_return_type("ArrayBox.insert/2"), Some(MirType::Void));
         assert_eq!(
             infer_return_type("ArrayBox.slice/2"),

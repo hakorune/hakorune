@@ -234,7 +234,7 @@ fn slot_insert_box_raw_preserves_text_lane() {
 }
 
 #[test]
-fn invoke_surface_routes_insert_remove_clear_and_length_alias() {
+fn invoke_surface_routes_insert_remove_clear_contains_and_length_alias() {
     let array = ArrayBox::new();
     assert!(matches!(
         array
@@ -293,6 +293,19 @@ fn invoke_surface_routes_insert_remove_clear_and_length_alias() {
         ArraySurfaceInvokeResult::Void => panic!("length must return a value"),
     }
 
+    let contains = array
+        .invoke_surface(
+            ArrayMethodId::Contains,
+            vec![Box::new(StringBox::new("Alpha")) as Box<dyn NyashBox>],
+        )
+        .unwrap();
+    match contains {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "true");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("contains must return a value"),
+    }
+
     let slice = array
         .invoke_surface(
             ArrayMethodId::Slice,
@@ -333,9 +346,7 @@ fn invoke_surface_routes_insert_remove_clear_and_length_alias() {
     let cleared = array.invoke_surface(ArrayMethodId::Clear, vec![]).unwrap();
     assert!(matches!(cleared, ArraySurfaceInvokeResult::Void));
 
-    let length_after_clear = array
-        .invoke_surface(ArrayMethodId::Length, vec![])
-        .unwrap();
+    let length_after_clear = array.invoke_surface(ArrayMethodId::Length, vec![]).unwrap();
     match length_after_clear {
         ArraySurfaceInvokeResult::Value(value) => {
             assert_eq!(value.to_string_box().value, "0");

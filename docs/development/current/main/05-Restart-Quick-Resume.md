@@ -62,6 +62,8 @@ cargo check -q
     aliases on the same rows
   - `291x-112` landed: `ArrayBox.clear()` is now catalog-backed, uses the
     Unified receiver-only value path, and publishes `Void`
+  - `291x-113` landed: `ArrayBox.contains(value)` is now catalog-backed, uses
+    the Unified receiver-plus-value path, and publishes `Bool`
   - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
     291x-103 acceptance smoke
   - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
@@ -87,8 +89,9 @@ cargo check -q
     two-arg `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
     `find`, plus `ArrayBox.length/size/len`, `ArrayBox.push`,
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
-    `ArrayBox.clear`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
-    `MapBox.len`, and `MapBox.has`, `MapBox.get`, `MapBox.set`,
+    `ArrayBox.clear`, `ArrayBox.contains`, `ArrayBox.remove`,
+    `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, and
+    `MapBox.has`, `MapBox.get`, `MapBox.set`,
     `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and
     `MapBox.clear`, are on the Unified value path;
     remaining cleanup is CoreBox contract cleanup outside the closed MapBox

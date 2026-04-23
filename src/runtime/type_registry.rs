@@ -125,12 +125,7 @@ fn map_surface_method_entries() -> Vec<MethodEntry> {
 }
 
 const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
-    // P1: contains/indexOf/join
-    MethodEntry {
-        name: "contains",
-        arity: 1,
-        slot: 106,
-    },
+    // P1: indexOf/join
     MethodEntry {
         name: "indexOf",
         arity: 1,
@@ -141,7 +136,7 @@ const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
         arity: 1,
         slot: 108,
     },
-    // P2: sort/reverse/slice
+    // P2: sort/reverse
     MethodEntry {
         name: "sort",
         arity: 0,

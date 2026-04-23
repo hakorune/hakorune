@@ -31,6 +31,8 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-109-map-compat-source-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-110-mapbox-get-existing-key-typing-card.md
   - docs/development/current/main/phases/phase-291x/291x-111-stringbox-case-conversion-card.md
+  - docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-113-arraybox-contains-router-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -41,7 +43,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-112` ArrayBox.clear router promotion
+- Latest landed cleanup target: `291x-113` ArrayBox.contains router promotion
 - Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -90,6 +92,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 21. `docs/development/current/main/phases/phase-291x/291x-110-mapbox-get-existing-key-typing-card.md`
 22. `docs/development/current/main/phases/phase-291x/291x-111-stringbox-case-conversion-card.md`
 23. `docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md`
+24. `docs/development/current/main/phases/phase-291x/291x-113-arraybox-contains-router-card.md`
 
 ## Current Rule
 
@@ -136,6 +139,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   `toUpperCase` / `toLowerCase` as compatibility aliases
 - `291x-112` landed `ArrayBox.clear()` as a catalog-backed receiver-only
   write-`Void` row on the Unified value path
+- `291x-113` landed `ArrayBox.contains(value)` as a catalog-backed
+  receiver-plus-value read-`Bool` row on the Unified value path
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -149,9 +154,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
   `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
   quarantine
-- next cleanup must be selected after `291x-112`; do not reopen the landed
-  ArrayBox.clear row or the older existing-key typing rule without an
-  owner-path change.
+- next cleanup must be selected after `291x-113`; do not reopen the landed
+  ArrayBox.clear / contains rows or the older existing-key typing rule without
+  an owner-path change.
 
 ## Implementation State
 
@@ -243,8 +248,9 @@ Landed CoreBox router first slice:
   `StringBox.indexOf` /
   `find`, plus `ArrayBox.length` / `size` / `len`, `ArrayBox.push`,
   `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
-  `ArrayBox.clear`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
-  `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and
+  `ArrayBox.clear`, `ArrayBox.contains`, `ArrayBox.remove`,
+  `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`,
+  `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and
   `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and `MapBox.clear` rows
   through `Route::Unified`.
 - `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
@@ -258,6 +264,8 @@ Landed CoreBox router first slice:
   `ArrayBox.push`.
 - `ArrayBox.clear` follows the same receiver-only write-`Void` contract already
   used by `ArrayBox.push` / `set` / `insert`.
+- `ArrayBox.contains` follows the read-only Bool-return contract already proven
+  by `StringBox.contains`, with a receiver-plus-value Unified shape.
 - `ArrayBox.insert` follows the same write-`Void` contract already used by
   `ArrayBox.push` / `ArrayBox.set`.
 - `MapBox.get` intentionally stays `MirType::Unknown` because stored map values

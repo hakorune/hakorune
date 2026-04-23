@@ -9,6 +9,7 @@ pub enum ArrayMethodId {
     Push,
     Pop,
     Clear,
+    Contains,
     Slice,
     Remove,
     Insert,
@@ -124,6 +125,16 @@ pub const ARRAY_SURFACE_METHODS: &[ArrayMethodSpec] = &[
         slot: 105,
         effect: ArraySurfaceEffect::WriteHeap,
         returns: ArraySurfaceReturn::Void,
+        exposure: ArrayExposureState::STABLE,
+    },
+    ArrayMethodSpec {
+        id: ArrayMethodId::Contains,
+        canonical: "contains",
+        aliases: &[],
+        arity: 1,
+        slot: 106,
+        effect: ArraySurfaceEffect::Read,
+        returns: ArraySurfaceReturn::Value,
         exposure: ArrayExposureState::STABLE,
     },
     ArrayMethodSpec {
@@ -275,6 +286,10 @@ impl ArrayBox {
                 let _ = self.clear();
                 ArraySurfaceInvokeResult::Void
             }
+            ArrayMethodId::Contains => {
+                let value = args.next().expect("validated ArrayBox.contains value");
+                ArraySurfaceInvokeResult::Value(self.contains(value))
+            }
             ArrayMethodId::Slice => {
                 let start = args.next().expect("validated ArrayBox.slice start");
                 let end = args.next().expect("validated ArrayBox.slice end");
@@ -325,6 +340,7 @@ mod tests {
         assert_eq!(ArrayMethodId::from_slot(103), Some(ArrayMethodId::Push));
         assert_eq!(ArrayMethodId::from_slot(104), Some(ArrayMethodId::Pop));
         assert_eq!(ArrayMethodId::from_slot(105), Some(ArrayMethodId::Clear));
+        assert_eq!(ArrayMethodId::from_slot(106), Some(ArrayMethodId::Contains));
         assert_eq!(ArrayMethodId::from_slot(111), Some(ArrayMethodId::Slice));
         assert_eq!(ArrayMethodId::from_slot(112), Some(ArrayMethodId::Remove));
         assert_eq!(ArrayMethodId::from_slot(113), Some(ArrayMethodId::Insert));

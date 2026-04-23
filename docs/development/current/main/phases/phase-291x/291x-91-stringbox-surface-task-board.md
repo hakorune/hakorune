@@ -11,6 +11,7 @@ Related:
    - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
    - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
    - docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md
+   - docs/development/current/main/phases/phase-291x/291x-113-arraybox-contains-router-card.md
 ---
 
 # StringBox Surface Task Board
@@ -80,6 +81,7 @@ StringBox surface catalog
 | `291x-S29` | done | land conservative `MapBox.get(existing-key)` value publication for literal-key homogeneous receivers |
 | `291x-S30` | done | land StringBox case-conversion catalog promotion for `toUpper` / `toLower` plus compatibility aliases |
 | `291x-S31` | done | promote `ArrayBox.clear` as a catalog-backed receiver-only write-`Void` Unified row |
+| `291x-S32` | done | promote `ArrayBox.contains` as a catalog-backed receiver-plus-value read-`Bool` Unified row |
 
 ## First Stable Surface Target
 
@@ -140,6 +142,9 @@ This StringBox slice is done when:
   `toLowerCase` stay pinned as compatibility aliases.
 - `291x-112` landed `ArrayBox.clear()` as the next stable Array write row:
   catalog-backed, receiver-only, and `Void` on the Unified value path.
+- `291x-113` landed `ArrayBox.contains(value)` as the next stable Array read
+  row: catalog-backed, receiver-plus-value, and `Bool` on the Unified value
+  path.
 
 ## Router Follow-up
 
@@ -163,6 +168,8 @@ This StringBox slice is done when:
   receiver-plus-index-plus-value Unified shape
 - `ArrayBox.clear` follows the same write-`Void` contract as `push` / `set` /
   `insert`, with a receiver-only Unified shape
+- `ArrayBox.contains` follows the read-only Bool-return contract, with a
+  receiver-plus-value Unified shape
 - `ArrayBox.remove` follows the same generic element-return contract as
   `get` / `pop`; its MIR result type intentionally stays `Unknown`
 - `ArrayBox.insert` follows the same write-`Void` contract as `push` / `set`,
