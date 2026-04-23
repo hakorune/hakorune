@@ -24,12 +24,22 @@ trap cleanup EXIT
 
 vm_hako_caps_require_fixture "$SMOKE_NAME" "$INPUT" || exit 1
 
-vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$INPUT" || exit 1
-vm_hako_caps_assert_mir_jq \
-  "$SMOKE_NAME" \
-  "$TMP_MIR" \
-  '.functions[]?.blocks[]?.instructions[]? | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="MapBox" and .mir_call.callee.name=="values" and (.mir_call.args|length)==0)' \
-  "MIR missing mir_call(MapBox.values,args=0) shape" || exit 1
+set +e
+EMIT_OUT=$(vm_hako_caps_timeout_profile "$RUN_TIMEOUT_SECS" \
+  env NYASH_MIR_UNIFIED_CALL=1 "$NYASH_BIN" --emit-mir-json "$TMP_MIR" "$INPUT" 2>&1)
+EMIT_RC=$?
+set -e
+if [ "$EMIT_RC" -ne 0 ]; then
+  echo "$EMIT_OUT" | tail -n 120 >&2 || true
+  test_fail "$SMOKE_NAME: unified emit failed rc=$EMIT_RC"
+  exit 1
+fi
+if ! jq -e '.functions[]?.blocks[]?.instructions[]? | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="MapBox" and .mir_call.callee.name=="values" and (.mir_call.args|length)==1)' \
+  "$TMP_MIR" >/dev/null 2>&1; then
+  jq '.functions[]?.blocks[]?.instructions[]? | select(.op=="mir_call")' "$TMP_MIR" >&2 || true
+  test_fail "$SMOKE_NAME: MIR missing MapBox.values receiver-mirror shape"
+  exit 1
+fi
 
 vm_hako_caps_run_vm_hako_or_fail_timeout "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$INPUT" || exit 1
 
@@ -44,9 +54,9 @@ if printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^\[vm-hako/contract'; then
   test_fail "$SMOKE_NAME: unexpected vm-hako contract tag"
   exit 1
 fi
-if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^0$'; then
+if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^2$'; then
   echo "$OUTPUT_CLEAN" | tail -n 120 || true
-  test_fail "$SMOKE_NAME: expected printed empty values size 0"
+  test_fail "$SMOKE_NAME: expected printed values size 2"
   exit 1
 fi
 if [ "$VM_HAKO_CAPS_EXIT_CODE" -ne 0 ]; then

@@ -53,8 +53,10 @@ pub fn infer_method_return_type(receiver_type: &MirType, method_name: &str) -> O
                     | crate::boxes::MapMethodId::Set
                     | crate::boxes::MapMethodId::Delete
                     | crate::boxes::MapMethodId::Keys
-                    | crate::boxes::MapMethodId::Values
                     | crate::boxes::MapMethodId::Clear => None,
+                    crate::boxes::MapMethodId::Values => {
+                        Some(MirType::Box("ArrayBox".to_string()))
+                    }
                 }
             }),
             _ => None,

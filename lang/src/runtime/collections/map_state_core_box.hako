@@ -45,6 +45,18 @@ static box MapStateCoreBox {
     return "mval:" + box_id + ":" + key_text
   }
 
+  _recv_box_key(box_id) {
+    return "__vm.recv.box:" + box_id
+  }
+
+  _write_array_like_shape(regs, kinds, array_lens, dst_box, length) {
+    regs.set("" + dst_box, "" + dst_box)
+    kinds.set("" + dst_box, "box")
+    regs.set(me._recv_box_key(dst_box), "ArrayBox")
+    regs.set(MirVmS0StateOpsBox._per_recv_len_key(dst_box), "" + length)
+    MirVmS0StateOpsBox.box_len_set(array_lens, dst_box, length)
+  }
+
   _write_bad_key_handle(regs, kinds, handle_regs, dst_box, message) {
     if dst_box != null {
       regs.set("" + dst_box, "0")
@@ -190,17 +202,13 @@ static box MapStateCoreBox {
 
   apply_keys(box_key, dst_box, regs, kinds, array_lens) {
     if dst_box == null { return "[vm-hako/contract][boxcall-missing-dst]" }
-    regs.set("" + dst_box, "" + dst_box)
-    kinds.set("" + dst_box, "box")
-    MirVmS0StateOpsBox.box_len_set(array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
+    me._write_array_like_shape(regs, kinds, array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
     return "__NEXT__"
   }
 
   apply_values(box_key, dst_box, regs, kinds, array_lens) {
     if dst_box == null { return "[vm-hako/contract][boxcall-missing-dst]" }
-    regs.set("" + dst_box, "" + dst_box)
-    kinds.set("" + dst_box, "box")
-    MirVmS0StateOpsBox.box_len_set(array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
+    me._write_array_like_shape(regs, kinds, array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
     return "__NEXT__"
   }
 

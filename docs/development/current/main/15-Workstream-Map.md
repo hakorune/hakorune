@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox MapBox contract-first cleanup` |
-| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / empty values / set duplicate receiver landed` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `MapBox non-empty extended state parity` |
-| Next | `decide shared state owner for non-empty keys / values before remove` |
+| Blocker | `MapBox.keys non-empty state parity` |
+| Next | `promote keys through the same S0 state owner before remove` |
 | After Next | `MapBox extended rows or return-contract cleanup, one card at a time` |
 
 ## Current Read
@@ -74,7 +74,8 @@ Related:
 39. `phase-291x MapBox extended rows owner decision` landed
 40. `phase-291x empty MapBox.values source-route shape` landed
 41. `phase-291x MapBox source-level set multi-arg cleanup` landed
-42. `phase-291x MapBox non-empty extended state parity`
+42. `phase-291x MapBox non-empty values state parity` landed
+43. `phase-291x MapBox.keys non-empty state parity`
 
 ## Parked Corridor
 

@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-22
+Date: 2026-04-23
 Scope: CoreBox surface catalog を ArrayBox から StringBox / MapBox へ広げる phase front。
 Related:
   - CURRENT_TASK.md
@@ -22,12 +22,12 @@ Related:
 # Phase 291x: CoreBox surface catalog
 
 - Status: Active
-- Date: 2026-04-22
+- Date: 2026-04-23
 - Purpose: phase-290x の `ArrayBox` catalog/invoke seam を、CoreBox surface の横断ルールへ上げる。
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox non-empty extended state parity before
+- Next implementation target: MapBox.keys non-empty state parity before
   `remove` / content enumeration
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -111,15 +111,15 @@ Landed smoke:
 
 Remaining MapBox follow-up:
 
-- source-level vm-hako empty `MapBox.values().size()` shape is landed and
+- source-level vm-hako non-empty `MapBox.values().size()` state-owner shape is landed and
   pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`.
 - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is landed
   and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`.
-- non-empty `keys()` / `values()` state parity still needs one owner decision:
-  `set()` updates S0 `MapStateCoreBox` state, while v1 `values()` currently
-  reads `MapCoreBox` state.
+- non-empty `keys()` state parity still needs the same owner promotion:
+  `set()` updates S0 `MapStateCoreBox` state, so source-level `keys()` must
+  read that owner before `remove` / content enumeration is promoted.
 - `.hako` VM `keys` / `remove` / `clear` source-route behavior must still be
   promoted one row at a time and smoke-pinned.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.

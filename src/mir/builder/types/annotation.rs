@@ -174,8 +174,8 @@ fn infer_map_method_return_type(method: crate::boxes::MapMethodId) -> Option<Mir
         | crate::boxes::MapMethodId::Set
         | crate::boxes::MapMethodId::Delete
         | crate::boxes::MapMethodId::Keys
-        | crate::boxes::MapMethodId::Values
         | crate::boxes::MapMethodId::Clear => None,
+        crate::boxes::MapMethodId::Values => Some(MirType::Box("ArrayBox".to_string())),
     }
 }
 

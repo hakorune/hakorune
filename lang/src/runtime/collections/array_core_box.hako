@@ -228,6 +228,17 @@ static box ArrayCoreBox {
     return JsonFragBox._str_to_int(cur_len_raw)
   }
 
+  _vm_local_array_len_or_null(regs, rid) {
+    local recv_key = me._recv_box_key(rid)
+    if recv_key == null { return null }
+    local recv_box = MirVmS0StateOpsBox.map_get_or_null(regs, recv_key)
+    if recv_box != "ArrayBox" { return null }
+    local len_key = MirVmS0StateOpsBox._per_recv_len_key(rid)
+    local len_raw = MirVmS0StateOpsBox.map_get_or_null(regs, len_key)
+    if len_raw == null { return null }
+    return JsonFragBox._str_to_int("" + len_raw)
+  }
+
   _size_alias_runtime(regs, dst, recv_h) {
     local len_i64 = me.len_i64(recv_h)
     me._write_i64_dst(regs, dst, len_i64)
@@ -244,6 +255,11 @@ static box ArrayCoreBox {
 
   _try_handle_size_alias(regs, mname, dst, rid, recv_h) {
     if MethodAliasPolicy.is_size_alias(mname) != 1 { return 0 }
+    local vm_local_len = me._vm_local_array_len_or_null(regs, rid)
+    if vm_local_len != null {
+      me._write_i64_dst(regs, dst, vm_local_len)
+      return 1
+    }
     if recv_h != null && recv_h > 0 {
       return me._size_alias_runtime(regs, dst, recv_h)
     }

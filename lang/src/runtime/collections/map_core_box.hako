@@ -274,6 +274,7 @@ static box MapCoreBox {
     local per_recv = me._size_state_per_recv()
     local len_key = MethodAliasPolicy.recv_len_key(per_recv, dst)
     regs.setField(len_key, StringHelpers.int_to_str(length))
+    regs.setField(MirVmS0StateOpsBox._per_recv_len_key(dst), StringHelpers.int_to_str(length))
     return 1
   }
 
