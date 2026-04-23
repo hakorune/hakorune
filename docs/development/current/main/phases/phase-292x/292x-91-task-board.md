@@ -158,9 +158,10 @@ Related:
 - [ ] A14 generic pure walker view extraction
   - design: `292x-118-generic-pure-walker-view-extraction-card.md`
   - state: GenericPureProgramView and GenericPureBlockView shells are landed;
-    guard is now 3 files / 3 analysis-debt lines
-  - next families: split cross-block use facts or declaration-needs behind the
-    named view
+    raw walker access is consolidated into the view owner; guard is now 1 file /
+    2 analysis-debt lines
+  - next families: decide whether root view reads are acceptable boundary
+    substrate or should move into MIR-owned metadata
 
 ## Done Definition
 

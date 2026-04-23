@@ -2,24 +2,6 @@
       struct GenericPureNeedFlags needs;
       memset(&needs, 0, sizeof(needs));
       size_t blen = generic_pure_block_count;
-      struct GenericPureBlockView {
-        yyjson_val* block;
-        yyjson_val* instructions;
-        size_t instruction_count;
-        long long id;
-      };
-      auto int read_generic_pure_block_view(size_t bi, struct GenericPureBlockView* out) {
-        yyjson_val* b = bi < blen ? yyjson_arr_get(blocks, bi) : NULL;
-        yyjson_val* insts = b ? yyjson_obj_get(b, "instructions") : NULL;
-        if (!out) return 0;
-        memset(out, 0, sizeof(*out));
-        if (!insts || !yyjson_is_arr(insts)) return 0;
-        out->block = b;
-        out->instructions = insts;
-        out->instruction_count = yyjson_arr_size(insts);
-        out->id = read_int(b, "id");
-        return 1;
-      }
       for (size_t bi=0; bi<blen; bi++) {
         struct GenericPureBlockView block;
         if (!read_generic_pure_block_view(bi, &block)) continue;
@@ -373,8 +355,6 @@
         int dead_copy_chain = 0;
         if (!reg || should_skip_hoisted_string_const_box(reg)) continue;
         if (!find_single_effective_use_across_blocks(
-                blocks,
-                blen,
                 reg,
                 &use_ii,
                 &use_insts,

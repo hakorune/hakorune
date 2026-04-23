@@ -176,8 +176,6 @@
         return 0;
       }
       auto int find_single_effective_use_across_blocks(
-          yyjson_val* blocks,
-          size_t blen,
           long long reg,
           size_t* use_ii_out,
           yyjson_val** use_insts_out,
@@ -197,11 +195,11 @@
           size_t use_ilen = 0;
           yyjson_val* use_ins = NULL;
           const char* op = NULL;
-          for (size_t bi = 0; bi < blen; bi++) {
-            yyjson_val* b = yyjson_arr_get(blocks, bi);
-            yyjson_val* insts = b ? yyjson_obj_get(b, "instructions") : NULL;
-            if (!insts || !yyjson_is_arr(insts)) continue;
-            size_t ilen = yyjson_arr_size(insts);
+          for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
+            struct GenericPureBlockView block;
+            if (!read_generic_pure_block_view(bi, &block)) continue;
+            yyjson_val* insts = block.instructions;
+            size_t ilen = block.instruction_count;
             for (size_t ii = 0; ii < ilen; ii++) {
               yyjson_val* ins = yyjson_arr_get(insts, ii);
               if (!inst_uses_reg(ins, cur)) continue;

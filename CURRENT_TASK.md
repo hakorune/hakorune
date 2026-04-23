@@ -110,7 +110,8 @@ Scope: current lane / next lane / restart order only.
     - string loop seed copy-graph helper deletion is landed
     - generic pure cross-block use API tightening is landed
     - GenericPureProgramView and GenericPureBlockView shells are landed
-    - guard baseline: 3 `.inc` files / 3 analysis-debt lines
+    - raw walker access is consolidated into the view owner
+    - guard baseline: 1 `.inc` file / 2 analysis-debt lines
     - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
       is removed; next cleanup is generic pure walker view extraction
   - current app/runtime gap read:

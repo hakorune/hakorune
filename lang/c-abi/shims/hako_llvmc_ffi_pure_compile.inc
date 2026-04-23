@@ -384,6 +384,24 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #define ARR_LEN(a) ((int)(sizeof(a)/sizeof((a)[0])))
       auto long long read_int(yyjson_val* obj, const char* key);
       auto const char* read_str(yyjson_val* obj, const char* key);
+      struct GenericPureBlockView {
+        yyjson_val* block;
+        yyjson_val* instructions;
+        size_t instruction_count;
+        long long id;
+      };
+      auto int read_generic_pure_block_view(size_t bi, struct GenericPureBlockView* out) {
+        yyjson_val* b = bi < generic_pure_block_count ? yyjson_arr_get(blocks, bi) : NULL;
+        yyjson_val* insts = b ? yyjson_obj_get(b, "instructions") : NULL;
+        if (!out) return 0;
+        memset(out, 0, sizeof(*out));
+        if (!insts || !yyjson_is_arr(insts)) return 0;
+        out->block = b;
+        out->instructions = insts;
+        out->instruction_count = yyjson_arr_size(insts);
+        out->id = read_int(b, "id");
+        return 1;
+      }
       #include "hako_llvmc_ffi_compiler_state.inc"
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<512){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }

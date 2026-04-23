@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; exact seed route tags through array_getset_micro landed; no hako_llvmc_match_*seed definitions remain; pure_compile_minimal_paths is fully removed; copy-graph helper is deleted; cross-block use API is tightened; GenericPureProgramView and GenericPureBlockView shells are landed; guard is 3 files / 3 debt lines; next cleanup is generic pure walker view extraction"
+active_lane_status = "active; .inc analysis-debt no-growth guard landed; array/string window analyzers migrated; generic_method.has metadata landed; exact seed route tags through array_getset_micro landed; no hako_llvmc_match_*seed definitions remain; pure_compile_minimal_paths is fully removed; copy-graph helper is deleted; cross-block use API is tightened; GenericPureProgramView and GenericPureBlockView shells are landed; raw walker access is consolidated into the view owner; guard is 1 file / 2 debt lines; next cleanup is generic pure walker view extraction"
 active_phase = "docs/development/current/main/phases/phase-292x/README.md"
 phase_status = "docs/development/current/main/phases/phase-292x/292x-STATUS.toml"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
@@ -51,6 +51,7 @@ opened_successors = [
   "generic pure cross-block use API tightening landed",
   "GenericPureProgramView shell landed",
   "GenericPureBlockView accessor landed",
+  "generic pure view owner consolidation landed",
 ]
 
 blocked_successors = [
@@ -80,4 +81,6 @@ stale_pointer_patterns = [
   "remaining 7 guard lines",
   "guard is 3 files / 4 debt lines",
   "3 `.inc` files / 4 analysis-debt lines",
+  "guard is 3 files / 3 debt lines",
+  "3 `.inc` files / 3 analysis-debt lines",
 ]

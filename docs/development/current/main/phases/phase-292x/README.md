@@ -64,6 +64,7 @@ Related:
 - Landed tightening: generic pure cross-block use lookup API
 - Landed extraction: GenericPureProgramView shell
 - Landed extraction: GenericPureBlockView accessor
+- Landed extraction: generic pure view owner consolidation
 - Next cleanup target: generic pure walker view extraction
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:

@@ -19,14 +19,14 @@ purpose = ".inc is boundary glue: validate MIR-owned metadata, emit selected hel
 update_policy = "Update this file plus the active slice card on every landed slice. Update CURRENT_TASK.md / 10-Now.md / 05-Restart-Quick-Resume.md / 15-Workstream-Map.md only when lane, blocker, next recommended slice, or guard baseline changes."
 
 inc_file_count = 71
-inc_line_count = 15832
-analysis_debt_files = 3
-analysis_debt_lines = 3
+inc_line_count = 15828
+analysis_debt_files = 1
+analysis_debt_lines = 2
 remaining_seed_matcher_defs = 0
 
-last_landed_slice = "generic_pure_block_view_accessor"
+last_landed_slice = "generic_pure_view_owner_consolidation"
 next_recommended_slice = "generic_pure_walker_view_extraction"
-next_recommended_reason = "292x-118b introduced GenericPureBlockView and lowered the guard to 3 files / 3 debt lines. Next split cross-block use facts or declaration-needs out of the walker."
+next_recommended_reason = "292x-118c consolidated raw walker access into the generic pure view owner and lowered the guard to 1 file / 2 debt lines. Next decide whether those two root view reads are acceptable boundary substrate."
 
 verification_min = [
   "cargo fmt --check",
@@ -271,6 +271,14 @@ backend_tag = "none"
 status = "landed"
 smoke = "build_hako_llvmc_ffi; inc_codegen_thin_shim_guard 3 files / 3 debt lines"
 
+[[landed_slice]]
+id = "generic_pure_view_owner_consolidation"
+kind = "walker_view_extraction"
+owner = "hako_llvmc_generic_pure_program_view"
+backend_tag = "none"
+status = "landed"
+smoke = "build_hako_llvmc_ffi; inc_codegen_thin_shim_guard 1 file / 2 debt lines"
+
 [[backlog]]
 id = "pure_compile_minimal_paths_inventory"
 priority = 1
@@ -289,5 +297,5 @@ note = "Guard is 3 files / 4 debt lines; further reduction needs a wider generic
 id = "generic_pure_walker_view_extraction"
 priority = 1
 remaining_matchers = 0
-owner_status = "active; GenericPureProgramView and GenericPureBlockView shells landed; split generic walker phases from boundary glue one seam at a time"
-note = "Do not hide JSON access in unrelated helpers; next target is cross-block use facts or declaration-needs."
+owner_status = "active; raw walker access is consolidated into the generic pure view owner"
+note = "Guard is 1 file / 2 debt lines; remaining reads are root view construction, not scattered walker analysis."

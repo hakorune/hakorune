@@ -12,13 +12,11 @@ Related:
 
 ## Current Debt
 
-`tools/checks/inc_codegen_thin_shim_guard.sh` reports 3 files / 3
+`tools/checks/inc_codegen_thin_shim_guard.sh` reports 1 file / 2
 analysis-debt lines:
 
 - `hako_llvmc_ffi_pure_compile.inc`: entry-function `blocks` read
-- `hako_llvmc_ffi_pure_compile_generic_lowering.inc`: generic block
-  `instructions` view accessor
-- `hako_llvmc_ffi_compiler_state.inc`: cross-block use finder instruction walk
+- `hako_llvmc_ffi_pure_compile.inc`: generic block `instructions` view accessor
 
 These are no longer dead helper rows or route-specific exact matchers. They are
 the remaining generic pure walker substrate that still reads MIR shape directly.
@@ -63,6 +61,16 @@ named view or recipe produced earlier.
 - kept the raw `instructions` access visible in one accessor rather than hiding
   it behind unrelated helpers
 - lowered the guard from 3 files / 4 lines to 3 files / 3 lines
+
+## Slice 118c Result
+
+- lifted `GenericPureBlockView` to the generic pure view owner in
+  `pure_compile.inc`
+- made cross-block use lookup consume the same block view accessor as pre-scan
+  and emission
+- removed raw walker access from `compiler_state.inc` and
+  `pure_compile_generic_lowering.inc`
+- lowered the guard from 3 files / 3 lines to 1 file / 2 lines
 
 ## Acceptance
 
