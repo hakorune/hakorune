@@ -39,6 +39,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
   - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -49,7 +50,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-119` docs/status closeout
+- Latest landed cleanup target: `291x-120` MapBox taskboard closeout
 - Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -105,6 +106,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 28. `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
 29. `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
 30. `docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md`
+31. `docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md`
 
 ## Current Rule
 
@@ -166,6 +168,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   to `RuntimeDataBox.length`
 - `291x-119` closed stale status/deferred wording as docs-only BoxShape
   cleanup; no CoreBox behavior changed
+- `291x-120` closed stale MapBox taskboard follow-up wording as docs-only
+  BoxShape cleanup; future-risk rows remain explicitly deferred
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -179,7 +183,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
   `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
   quarantine
-- next cleanup must be selected after `291x-119`; do not reopen the landed
+- next cleanup must be selected after `291x-120`; do not reopen the landed
   ArrayBox.clear / contains / indexOf / join / reverse / sort rows or the older existing-key
   typing rule without an owner-path change.
 
@@ -324,3 +328,4 @@ Landed CoreBox router first slice:
   - `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md`

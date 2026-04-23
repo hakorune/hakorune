@@ -36,8 +36,8 @@ cargo check -q
   - current-state token: `phase-291x CoreBox surface contract cleanup`
   - active phase: `docs/development/current/main/phases/phase-291x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
-  - current focus: successor cleanup card selection after `291x-119`
-    docs/status closeout
+  - current focus: successor cleanup card selection after `291x-120`
+    MapBox taskboard closeout
   - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
     1 file / 2 explicit view-owner lines guarded separately
   - `.inc` remains boundary glue, not planner
@@ -78,6 +78,8 @@ cargo check -q
     `RuntimeDataBox.length`
   - `291x-119` landed: phase-291x stale status/deferred wording is closed as
     docs-only BoxShape cleanup
+  - `291x-120` landed: MapBox taskboard stale follow-up wording is closed as
+    docs-only BoxShape cleanup
   - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
     291x-103 acceptance smoke
   - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
@@ -109,8 +111,8 @@ cargo check -q
     `MapBox.has`, `MapBox.get`, `MapBox.set`,
     `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and
     `MapBox.clear`, are on the Unified value path;
-    latest cleanup is `291x-119` docs/status closeout; remaining cleanup is
-    CoreBox contract cleanup outside the closed MapBox router-only backlog
+    latest cleanup is `291x-120` MapBox taskboard closeout; remaining cleanup
+    is CoreBox contract cleanup outside the closed MapBox router-only backlog
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:

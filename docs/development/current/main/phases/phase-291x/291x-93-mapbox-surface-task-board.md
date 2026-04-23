@@ -1,11 +1,12 @@
 ---
 Status: Landed
-Date: 2026-04-22
+Date: 2026-04-24
 Scope: phase-291x second implementation target, `MapBox` surface catalog first slice.
 Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
+  - docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md
 ---
 
 # MapBox Surface Task Board
@@ -54,9 +55,29 @@ MapBox surface catalog
 | `values` | 0 | 207 | Read | Value | array value |
 | `clear` | 0 | 208 | WriteHeap | Value | current receipt value unchanged |
 
-## Explicitly Deferred
+## Completed Follow-Ups
 
-- `length` alias
+- `length` alias is landed in
+  `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`.
+- write-return receipt rows are landed in
+  `docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md`.
+- bad-key and missing-key contracts are landed in
+  `docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md`
+  and
+  `docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md`.
+- keys/values element publication is landed in
+  `docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md`.
+- source-route and compat/source cleanup are landed in
+  `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+  and
+  `docs/development/current/main/phases/phase-291x/291x-109-map-compat-source-cleanup-card.md`.
+- router promotion for `delete` / `remove` and `clear` is landed in
+  `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
+  and
+  `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`.
+
+## Explicitly Deferred Future Rows
+
 - `size` / `len` slot unification
 - `getField` / `setField` policy
 - `birth`
@@ -99,7 +120,7 @@ This MapBox slice is done when:
   `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`;
 - `MapBox.clear` router promotion is landed in
   `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`.
-- `291x-109` is the remaining boundary cleanup card for the surviving
+- `291x-109` is the landed boundary cleanup card for the surviving
   selfhost-runtime `OpsCalls.map_has(...)` wrapper and the compat-only Rust ABI
   quarantine in `crates/nyash_kernel/src/plugin/map_compat.rs`.
 - `291x-110` is the successful-read typing card for `MapBox.get(existing-key)`;
