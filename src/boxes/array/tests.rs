@@ -234,7 +234,7 @@ fn slot_insert_box_raw_preserves_text_lane() {
 }
 
 #[test]
-fn invoke_surface_routes_insert_remove_clear_contains_indexof_join_and_length_alias() {
+fn invoke_surface_routes_insert_remove_clear_contains_indexof_join_reverse_and_length_alias() {
     let array = ArrayBox::new();
     assert!(matches!(
         array
@@ -331,6 +331,34 @@ fn invoke_surface_routes_insert_remove_clear_contains_indexof_join_and_length_al
         }
         ArraySurfaceInvokeResult::Void => panic!("join must return a value"),
     }
+
+    let reversed = array
+        .invoke_surface(ArrayMethodId::Reverse, vec![])
+        .unwrap();
+    match reversed {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "ok");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("reverse must return a value"),
+    }
+
+    let first_after_reverse = array
+        .invoke_surface(
+            ArrayMethodId::Get,
+            vec![Box::new(IntegerBox::new(0)) as Box<dyn NyashBox>],
+        )
+        .unwrap();
+    match first_after_reverse {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "Alpha");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("get after reverse must return a value"),
+    }
+
+    let restore_order = array
+        .invoke_surface(ArrayMethodId::Reverse, vec![])
+        .unwrap();
+    assert!(matches!(restore_order, ArraySurfaceInvokeResult::Value(_)));
 
     let slice = array
         .invoke_surface(

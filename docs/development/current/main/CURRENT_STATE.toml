@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-04-24"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, MapBox.clear source-route, MapBox write-return receipt, MapBox bad-key normalization, MapBox get missing-key, 291x-102 MapBox keys/values element publication, 291x-103 StringBox lastIndexOf/2 start-position cleanup, 291x-104 MapBox delete/remove router promotion, 291x-105 MapBox clear router promotion, 291x-106 ArrayBox element-result publication, 291x-107 String semantic owner cleanup, 291x-108 alias SSOT cleanup, 291x-109 Map compat/source cleanup, 291x-110 MapBox get(existing-key) typing, 291x-111 StringBox case-conversion cleanup, 291x-112 ArrayBox.clear router promotion, 291x-113 ArrayBox.contains router promotion, 291x-114 ArrayBox.indexOf router promotion, and 291x-115 ArrayBox.join router promotion are landed; successor cleanup card selection is pending"
+active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, MapBox.clear source-route, MapBox write-return receipt, MapBox bad-key normalization, MapBox get missing-key, 291x-102 MapBox keys/values element publication, 291x-103 StringBox lastIndexOf/2 start-position cleanup, 291x-104 MapBox delete/remove router promotion, 291x-105 MapBox clear router promotion, 291x-106 ArrayBox element-result publication, 291x-107 String semantic owner cleanup, 291x-108 alias SSOT cleanup, 291x-109 Map compat/source cleanup, 291x-110 MapBox get(existing-key) typing, 291x-111 StringBox case-conversion cleanup, 291x-112 ArrayBox.clear router promotion, 291x-113 ArrayBox.contains router promotion, 291x-114 ArrayBox.indexOf router promotion, 291x-115 ArrayBox.join router promotion, and 291x-116 ArrayBox.reverse router promotion are landed; successor cleanup card selection is pending"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
@@ -24,7 +24,7 @@ opened_successors = [
   "phase-290x ArrayBox surface catalog landed",
   "phase-291x CoreBox surface catalog reference lane",
   "StringBox surface catalog first implementation slice landed",
-  "StringBox router length, substring, concat, trim, contains, one-arg and two-arg lastIndexOf, replace, and indexOf/find families plus ArrayBox length, push, slice, get, pop, set, clear, contains, indexOf, join, remove, and insert plus MapBox size, length, len, has, get, set, keys, values, delete, remove, and clear moved to Unified value path",
+  "StringBox router length, substring, concat, trim, contains, one-arg and two-arg lastIndexOf, replace, and indexOf/find families plus ArrayBox length, push, slice, get, pop, set, clear, contains, indexOf, join, reverse, remove, and insert plus MapBox size, length, len, has, get, set, keys, values, delete, remove, and clear moved to Unified value path",
   "MapBox surface catalog first implementation slice landed",
   "CoreBox legacy cleanup first safe deletions landed",
   "MapStd prelude cleanup landed",
@@ -80,6 +80,7 @@ opened_successors = [
   "291x-113 ArrayBox.contains router promotion landed",
   "291x-114 ArrayBox.indexOf router promotion landed",
   "291x-115 ArrayBox.join router promotion landed",
+  "291x-116 ArrayBox.reverse router promotion landed",
 ]
 
 blocked_successors = [

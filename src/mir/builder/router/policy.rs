@@ -84,6 +84,7 @@ fn is_arraybox_unified_value_path(method: &str, arity: usize) -> bool {
                 | crate::boxes::array::ArrayMethodId::Contains
                 | crate::boxes::array::ArrayMethodId::IndexOf
                 | crate::boxes::array::ArrayMethodId::Join
+                | crate::boxes::array::ArrayMethodId::Reverse
                 | crate::boxes::array::ArrayMethodId::Set
                 | crate::boxes::array::ArrayMethodId::Remove
                 | crate::boxes::array::ArrayMethodId::Insert
@@ -241,6 +242,11 @@ mod tests {
     }
 
     #[test]
+    fn array_reverse_family_uses_unified_value_path() {
+        assert_eq!(route("ArrayBox", "reverse", 0), Route::Unified);
+    }
+
+    #[test]
     fn array_remove_family_uses_unified_value_path() {
         assert_eq!(route("ArrayBox", "remove", 1), Route::Unified);
     }
@@ -329,6 +335,7 @@ mod tests {
         assert_eq!(route("ArrayBox", "indexOf", 2), Route::BoxCall);
         assert_eq!(route("ArrayBox", "join", 0), Route::BoxCall);
         assert_eq!(route("ArrayBox", "join", 2), Route::BoxCall);
+        assert_eq!(route("ArrayBox", "reverse", 1), Route::BoxCall);
         assert_eq!(route("ArrayBox", "slice", 1), Route::BoxCall);
         assert_eq!(route("ArrayBox", "slice", 3), Route::BoxCall);
         assert_eq!(route("ArrayBox", "remove", 0), Route::BoxCall);

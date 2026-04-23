@@ -27,7 +27,7 @@ run_catalog_unit_lock() {
   fi
 
   set +e
-  out=$(cargo test invoke_surface_routes_insert_remove_clear_contains_indexof_join_and_length_alias --lib 2>&1)
+  out=$(cargo test invoke_surface_routes_insert_remove_clear_contains_indexof_join_reverse_and_length_alias --lib 2>&1)
   rc=$?
   set -e
   if [ "$rc" -ne 0 ]; then
@@ -53,14 +53,14 @@ run_vm_surface_route_lock() {
     exit 1
   fi
 
-  if echo "$out" | rg -q '\[vm/method/stub:(length|size|len|get|set|push|pop|clear|contains|indexOf|join|slice|remove|insert)\]'; then
+  if echo "$out" | rg -q '\[vm/method/stub:(length|size|len|get|set|push|pop|clear|contains|indexOf|join|reverse|slice|remove|insert)\]'; then
     echo "$out" | tail -n 120 >&2 || true
     test_fail "$SMOKE_NAME: stable ArrayBox method hit VM stub"
     exit 1
   fi
 
   local actual expected
-  actual=$(printf '%s\n' "$out" | awk '/^(-?[0-9]+|true|false|10:15:25|OK: array-surface)$/ { print }')
+  actual=$(printf '%s\n' "$out" | awk '/^(-?[0-9]+|true|false|10:15:25|ok|OK: array-surface)$/ { print }')
   expected=$(cat <<'EXPECT'
 2
 2
@@ -71,6 +71,8 @@ run_vm_surface_route_lock() {
 true
 1
 10:15:25
+ok
+25
 15
 2
 25

@@ -12,6 +12,7 @@ pub enum ArrayMethodId {
     Contains,
     IndexOf,
     Join,
+    Reverse,
     Slice,
     Remove,
     Insert,
@@ -156,6 +157,16 @@ pub const ARRAY_SURFACE_METHODS: &[ArrayMethodSpec] = &[
         arity: 1,
         slot: 108,
         effect: ArraySurfaceEffect::Read,
+        returns: ArraySurfaceReturn::Value,
+        exposure: ArrayExposureState::STABLE,
+    },
+    ArrayMethodSpec {
+        id: ArrayMethodId::Reverse,
+        canonical: "reverse",
+        aliases: &[],
+        arity: 0,
+        slot: 110,
+        effect: ArraySurfaceEffect::WriteHeap,
         returns: ArraySurfaceReturn::Value,
         exposure: ArrayExposureState::STABLE,
     },
@@ -320,6 +331,7 @@ impl ArrayBox {
                 let delimiter = args.next().expect("validated ArrayBox.join delimiter");
                 ArraySurfaceInvokeResult::Value(self.join(delimiter))
             }
+            ArrayMethodId::Reverse => ArraySurfaceInvokeResult::Value(self.reverse()),
             ArrayMethodId::Slice => {
                 let start = args.next().expect("validated ArrayBox.slice start");
                 let end = args.next().expect("validated ArrayBox.slice end");
@@ -373,6 +385,7 @@ mod tests {
         assert_eq!(ArrayMethodId::from_slot(106), Some(ArrayMethodId::Contains));
         assert_eq!(ArrayMethodId::from_slot(107), Some(ArrayMethodId::IndexOf));
         assert_eq!(ArrayMethodId::from_slot(108), Some(ArrayMethodId::Join));
+        assert_eq!(ArrayMethodId::from_slot(110), Some(ArrayMethodId::Reverse));
         assert_eq!(ArrayMethodId::from_slot(111), Some(ArrayMethodId::Slice));
         assert_eq!(ArrayMethodId::from_slot(112), Some(ArrayMethodId::Remove));
         assert_eq!(ArrayMethodId::from_slot(113), Some(ArrayMethodId::Insert));

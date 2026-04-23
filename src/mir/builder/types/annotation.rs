@@ -163,7 +163,9 @@ fn infer_array_method_return_type(method: crate::boxes::array::ArrayMethodId) ->
     match method {
         crate::boxes::array::ArrayMethodId::Length
         | crate::boxes::array::ArrayMethodId::IndexOf => Some(MirType::Integer),
-        crate::boxes::array::ArrayMethodId::Join => Some(MirType::String),
+        crate::boxes::array::ArrayMethodId::Join | crate::boxes::array::ArrayMethodId::Reverse => {
+            Some(MirType::String)
+        }
         crate::boxes::array::ArrayMethodId::Contains => Some(MirType::Bool),
         crate::boxes::array::ArrayMethodId::Set
         | crate::boxes::array::ArrayMethodId::Push
@@ -231,6 +233,10 @@ mod tests {
             Some(MirType::Integer)
         );
         assert_eq!(infer_return_type("ArrayBox.join/1"), Some(MirType::String));
+        assert_eq!(
+            infer_return_type("ArrayBox.reverse/0"),
+            Some(MirType::String)
+        );
         assert_eq!(infer_return_type("ArrayBox.insert/2"), Some(MirType::Void));
         assert_eq!(
             infer_return_type("ArrayBox.slice/2"),

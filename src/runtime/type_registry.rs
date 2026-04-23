@@ -125,16 +125,11 @@ fn map_surface_method_entries() -> Vec<MethodEntry> {
 }
 
 const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
-    // P2: sort/reverse
+    // P2: sort
     MethodEntry {
         name: "sort",
         arity: 0,
         slot: 109,
-    },
-    MethodEntry {
-        name: "reverse",
-        arity: 0,
-        slot: 110,
     },
 ];
 
