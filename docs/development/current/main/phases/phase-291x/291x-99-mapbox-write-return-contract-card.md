@@ -78,4 +78,6 @@ matching type hints/tests:
 
 ## Next Slice
 
-Move to the separate MapBox bad-key normalization decision.
+Bad-key normalization is landed in `291x-100`; get-missing-key is landed in
+`291x-101`. No further open MapBox contract slices remain; `keys()/values()`
+element publication stays deferred to a dedicated follow-up card.

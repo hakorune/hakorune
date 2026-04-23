@@ -71,6 +71,6 @@ Current source-level vm-hako acceptance remains:
 
 ## Next Slice
 
-Move next to MapBox write-return contract decision. Return normalization is
-separate from content enumeration and should not be mixed with element
-publication.
+Write-return (`291x-99`), bad-key (`291x-100`), and get-missing-key (`291x-101`)
+contracts are all landed. Keep `keys()/values()` element publication deferred
+until a dedicated follow-up card; do not reopen already-landed slices.
