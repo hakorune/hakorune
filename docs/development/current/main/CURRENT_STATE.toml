@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-121"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-121-doc-update-simplification-contract.md"
-latest_card_summary = "Docs update policy simplified: per-card work updates CURRENT_STATE latest-card fields and the active card; mirrors update only on lane, blocker, restart-order, phase-status, or durable policy changes."
+latest_card = "291x-122"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-122-corebox-inventory-ledger-closeout-card.md"
+latest_card_summary = "CoreBox inventory ledger wording closed: landed facts, intentional compatibility boundaries, and future-risk rows are separated without changing behavior."
 
 current_blocker_token = "phase-291x successor cleanup card selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,9 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "291x-119 docs/status closeout landed",
   "291x-120 MapBox taskboard closeout landed",
   "291x-121 docs update simplification landed",
+  "291x-122 CoreBox inventory ledger closeout landed",
 ]
 
 stale_pointer_patterns = [

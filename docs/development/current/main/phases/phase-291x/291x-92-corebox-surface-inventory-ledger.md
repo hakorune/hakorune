@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
   - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-122-corebox-inventory-ledger-closeout-card.md
 ---
 
 # CoreBox Surface Inventory Ledger
@@ -71,15 +72,15 @@ Landed fix:
 - Rust VM dispatch and `.hako` VM-facing `StringCoreBox` consume the same stable rows.
 - `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh` pins aliases, values, and no-stub VM drift.
 
-Remaining drift:
+Closed / intentional boundary notes:
 
 - `lastIndexOf` one-arg and two-arg are implemented through the catalog and
   Unified value path; `291x-103` owns the landing snapshot.
-- `apps/std/string.hako` implements `string_index_of` manually instead of being the semantic owner.
-- `apps/lib/boxes/string_std.hako` is still a selfhost-runtime helper and
-  should stay clearly internal.
-- `apps/std/string_std.hako` is a dead public scaffold and should be removed
-  instead of being treated as a second String owner.
+- `apps/std/string.hako` remains public sugar, not the semantic owner, even
+  where it has small helper functions.
+- `apps/lib/boxes/string_std.hako` remains an internal selfhost-runtime helper.
+- `apps/std/string_std.hako` was a dead public scaffold and was removed by the
+  owner-clarity cleanup.
 - former `toUpper` / `toLower` TypeRegistry-extras drift is closed by `291x-111`;
   route ownership now lives in the String surface catalog, with
   `toUpperCase` / `toLowerCase` pinned as compatibility aliases.
@@ -266,19 +267,19 @@ Primary files to inventory before coding:
 - `lang/src/mir/builder/internal/lower_method_map_size_box.hako`
 - `docs/development/current/main/phases/phase-29cm/README.md`
 
-Known drift:
+Closed / intentional boundary notes:
 
 - visible surface and compat ABI are split.
 - current vtable rows register `size` at slot `200` and `len` at slot `201`;
   `length` is now a catalog alias for the existing size surface.
 - `remove` is registered as the same slot as `delete`; source-level remove
-  parity is landed, while router promotion remains a separate mutating-row
-  card.
+  parity and router promotion are landed.
 - `set` / `delete` / `remove` / `clear` source-level write-return receipt
   contracts are landed; router promotion for `delete` / `remove` is landed in
   `291x-104`, and `clear` is landed in `291x-105`.
 - bad-key validation is normalized for the source-visible rows.
-- raw substrate helpers are already better separated than StringBox, so MapBox should be cataloged after StringBox rather than before it.
+- raw substrate helpers are intentionally separate from the visible MapBox
+  surface and compat ABI lanes.
 
 Current slot inventory:
 
@@ -288,21 +289,21 @@ Current slot inventory:
 | `len` | size-equivalent | 0 | 201 | read-only count |
 | `has` |  | 1 | 202 | read-only boolean |
 | `get` | `getField` bridge outside vtable | 1 | 203 | read-only value/missing path |
-| `set` | `setField` bridge outside vtable | 2 | 204 | mutates; return contract drift |
-| `delete` | `remove` in TypeRegistry | 1 | 205 | mutates; alias drift |
+| `set` | `setField` bridge outside vtable | 2 | 204 | mutates; receipt contract landed |
+| `delete` | `remove` in TypeRegistry | 1 | 205 | mutates; alias contract landed |
 | `keys` |  | 0 | 206 | read-only array |
 | `values` |  | 0 | 207 | read-only array |
-| `clear` |  | 0 | 208 | mutates; return contract drift |
+| `clear` |  | 0 | 208 | mutates; receipt contract landed |
 
-MapBox first safe slice after StringBox:
+MapBox first safe slice after StringBox (landed):
 
-- create catalog rows for current vtable rows only
-- add a guard that TypeRegistry slot lookup matches the catalog
-- do not normalize aliases or return contracts in the first MapBox commit
-- keep `length`, `birth`, `getField`, `setField`, `forEach`, and `toJSON` in a
-  non-vtable/debt section until a policy card accepts them
+- created catalog rows for current vtable rows only
+- made TypeRegistry slot lookup match the catalog
+- kept `size` / `len` slot unification out of the first MapBox commit
+- kept `birth`, `getField`, `setField`, `forEach`, and `toJSON` in a
+  non-vtable/future-risk section until a policy card accepts them
 
-First slice owner decision:
+Landed first slice owner decision:
 
 - Rust catalog owner: `src/boxes/map_surface_catalog.rs`
 - Rust invoke seam: `MapBox::invoke_surface(...)`
@@ -328,12 +329,12 @@ Landed first implementation:
 - `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_vm.sh`
   pins Rust catalog rows and the hako-visible `size/len/set/get/has` VM subset.
 
-Remaining drift:
+Intentional remaining boundaries:
 
 - `size` and `len` keep separate slots.
 - visible surface and compat ABI remain split.
-- `delete` / `remove` router promotion is landed in `291x-104`; `clear`
-  router promotion is landed in `291x-105`.
+- non-vtable rows (`birth`, `getField`, `setField`, `forEach`, `toJSON`) need
+  dedicated policy cards before implementation.
 
 Completed cleanup:
 
@@ -344,3 +345,5 @@ Completed cleanup:
 - `apps/lib/boxes/map_std.hako` was deleted after moving the remaining live
   `pref == "ny"` Map-only wrapper to `OpsCalls.map_has(...)` and refreshing the
   stage1 module snapshot.
+- `delete` / `remove` router promotion is landed in `291x-104`; `clear`
+  router promotion is landed in `291x-105`.
