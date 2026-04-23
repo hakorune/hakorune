@@ -155,9 +155,11 @@ metadata over treating the synthetic register id as a runtime array handle.
 7. Landed decision: `keys()/values()` content enumeration is provisionally
    size-only in source-level vm-hako; element publication is deferred to
    `291x-98`.
-8. Active next: decide the MapBox write-return contract without mixing bad-key
-   normalization or element publication.
-9. Reactivate or replace stale archive witnesses only when they match the new
+8. Landed decision: `set`, `delete` / `remove`, and `clear` write-return rows
+   use Rust-vtable-compatible receipt strings; implementation is tracked by
+   `291x-99` and must not mix bad-key normalization or element publication.
+9. Active next: implement the MapBox write-return receipt contract.
+10. Reactivate or replace stale archive witnesses only when they match the new
    owner path and have a valid helper source path.
 
 ## Out Of Scope

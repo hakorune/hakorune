@@ -9,13 +9,13 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-291x CoreBox MapBox contract-first cleanup"
-active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, and MapBox.clear source-route slices are landed; MapBox keys/values content enumeration is explicitly size-only for now; current lane continues with MapBox write-return contract decision"
+active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, and MapBox.clear source-route slices are landed; MapBox keys/values content enumeration is explicitly size-only for now; MapBox write-return receipt contract is decided; current lane continues with MapBox write-return implementation"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md"
 
-current_blocker_token = "MapBox write-return contract decision"
+current_blocker_token = "MapBox write-return implementation"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -60,6 +60,7 @@ opened_successors = [
   "MapBox.remove alias source-route parity landed",
   "MapBox.clear source-route parity landed",
   "MapBox keys/values content enumeration contract decided size-only",
+  "MapBox write-return receipt contract decided",
   "MapBox.set duplicate receiver source-route cleanup landed",
 ]
 

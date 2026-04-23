@@ -18,6 +18,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
   - docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md
   - docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -28,7 +29,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox write-return contract decision
+- Next implementation target: MapBox write-return implementation
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -62,6 +63,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 7. `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
 8. `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
 9. `docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md`
+10. `docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md`
 
 ## Current Rule
 
@@ -77,6 +79,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - do not normalize `set` / `delete` / `clear` return contracts in the first MapBox commit
 - `MapBox.length` is now a separate contract-first alias slice; it must not
   promote `keys` / `values` / `delete` / `remove` / `clear`
+- `MapBox` source-level write rows now have a contract decision: `set`,
+  `delete` / `remove`, and `clear` return Rust-vtable-compatible receipt
+  strings; bad-key normalization remains separate
 
 ## Implementation State
 
@@ -129,6 +134,9 @@ Remaining MapBox follow-up:
 - `keys()/values()` content enumeration is intentionally size-only in
   source-level vm-hako for now; element publication is deferred to
   `291x-98`.
+- `MapBox.set/delete/remove/clear` source-level write-return contract is
+  decided in `291x-99`; implementation is next and must not mix bad-key
+  normalization.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
@@ -163,8 +171,9 @@ Landed CoreBox router first slice:
   `ArrayBox.push` / `ArrayBox.set`.
 - `MapBox.get` intentionally stays `MirType::Unknown` because stored map values
   are data-dependent.
-- `MapBox.set` intentionally stays `MirType::Unknown`; current visible
-  write-return and bad-key behavior stay contract-first cleanup.
+- `MapBox.set`, `MapBox.delete` / `remove`, and `MapBox.clear` write-return
+  rows have a receipt-string contract in `291x-99`; implementation should
+  update source-level vm-hako publication and matching type hints together.
 - two-arg `lastIndexOf`, MapBox keys/values element publication, MapBox
-  write-return, and bad-key normalization remain contract-first cleanup cards.
+  bad-key normalization remain contract-first cleanup cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

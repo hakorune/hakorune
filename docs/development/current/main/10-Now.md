@@ -35,7 +35,7 @@ Related:
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-  - current implementation focus: MapBox write-return contract decision
+  - current implementation focus: MapBox write-return implementation
   - current phase goal:
     - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
       1 file / 2 explicit view-owner lines guarded separately
@@ -51,8 +51,8 @@ Related:
       landed and pinned
     - `keys()/values()` content enumeration is explicitly size-only for now;
       element publication is deferred behind the 291x-98 gates
-    - next row decides MapBox write-return behavior without mixing bad-key
-      normalization
+    - MapBox write-return receipt contract is decided; next row implements it
+      without mixing bad-key normalization
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -69,7 +69,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `MapBox write-return contract decision`
+  - current blocker token: `MapBox write-return implementation`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
