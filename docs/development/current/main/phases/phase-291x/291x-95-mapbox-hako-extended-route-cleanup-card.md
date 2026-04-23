@@ -35,9 +35,9 @@ source-level vm-hako `MapBox.set(...)` duplicate receiver stripping,
 non-empty `values()` parity, and non-empty `keys()` parity through the same S0
 state owner as `set()` via
 `src/runner/reference/vm_hako/payload_normalize.rs`. `remove(key)` is also
-landed as a `delete(key)` owner alias. The next slice is `clear()`. Content
-enumeration is deferred until a separate shape contract pins key/value ordering
-and element publication.
+landed as a `delete(key)` owner alias, and `clear()` is landed as a state reset
+row. Content enumeration is deferred until a separate shape contract pins
+key/value ordering and element publication.
 
 Implementation note: the source route returns an ArrayBox-like value through
 ordinary MIR `copy` instructions before `values().size()` observes it. Therefore
@@ -71,6 +71,8 @@ metadata over treating the synthetic register id as a runtime array handle.
 - `MapBox.remove(key)` now goes through payload normalization to
   S0 `boxcall(delete)`, so it mutates the same `MapStateCoreBox` state store
   as `delete(key)`.
+- `MapBox.clear()` now goes through payload normalization to
+  S0 `boxcall(clear)`, so size/has/keys observe the same reset state.
 - MIR `copy` previously copied scalar/kind/handle/file payload but not
   VM-local receiver metadata; this card may extend copy metadata propagation
   only for existing local metadata keys.
@@ -92,6 +94,8 @@ metadata over treating the synthetic register id as a runtime array handle.
   into S0 `boxcall(keys)`, preserving the optional receiver-mirror arg.
 - vm-hako payload normalization rewrites source-level `mir_call(MapBox.remove)`
   into S0 `boxcall(delete)`.
+- vm-hako payload normalization rewrites source-level `mir_call(MapBox.clear)`
+  into S0 `boxcall(clear)`.
 - `MapStateCoreBox` writes ArrayBox-like per-receiver length metadata for
   `keys()` / `values()`, and `ArrayCoreBox` consumes that metadata before
   runtime handle length for VM-local ArrayBox-like shapes.
@@ -99,12 +103,16 @@ metadata over treating the synthetic register id as a runtime array handle.
 - source-level non-empty `MapBox.keys().size()` is pinned at `2`.
 - source-level `MapBox.remove(key)` is pinned by `has(key)==false` and
   `size()==1`.
+- source-level `MapBox.clear()` is pinned by `size()==0`, `has(key)==false`,
+  and `keys().size()==0`.
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_remove_vm.sh`
+- Smoke:
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_clear_vm.sh`
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
 
@@ -142,12 +150,12 @@ metadata over treating the synthetic register id as a runtime array handle.
 4. Landed: land non-empty `keys()` state-owner parity through payload
    normalization into the same S0 owner.
 5. Landed: promote `remove(key)` as an alias of `delete(key)` with its own smoke.
-6. Active next: promote `clear()` through the same S0 state owner with its own
+6. Landed: promote `clear()` through the same S0 state owner with its own
    smoke.
-7. Reactivate or replace stale archive witnesses only when they match the new
+7. Active next: decide whether `keys()/values()` content enumeration is
+   ordered, unordered, or intentionally size-only in vm-hako.
+8. Reactivate or replace stale archive witnesses only when they match the new
    owner path and have a valid helper source path.
-8. Decide whether `keys()/values()` content enumeration is ordered, unordered,
-   or intentionally size-only in vm-hako.
 
 ## Out Of Scope
 

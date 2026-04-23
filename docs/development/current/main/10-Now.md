@@ -35,7 +35,7 @@ Related:
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-  - current implementation focus: MapBox.clear source-route parity
+  - current implementation focus: MapBox keys/values content enumeration contract
   - current phase goal:
     - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
       1 file / 2 explicit view-owner lines guarded separately
@@ -46,10 +46,11 @@ Related:
     - non-empty source-level vm-hako `MapBox.values().size()` is landed and pinned
     - non-empty source-level vm-hako `MapBox.keys().size()` is landed and pinned
     - source-level vm-hako `MapBox.remove(key)` delete-owner alias is landed and pinned
+    - source-level vm-hako `MapBox.clear()` state reset is landed and pinned
     - source-level vm-hako `MapBox.set(...)` duplicate-receiver routing is
       landed and pinned
-    - next row promotes `clear()` through the same S0 state owner before
-      content enumeration
+    - next row decides whether `keys()/values()` content enumeration is
+      ordered, unordered, or intentionally size-only before implementation
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
@@ -60,12 +61,13 @@ Related:
     - source-level vm-hako non-empty `MapBox.values()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
     - source-level vm-hako non-empty `MapBox.keys()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`
     - source-level vm-hako `MapBox.remove(key)` alias is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_remove_vm.sh`
+    - source-level vm-hako `MapBox.clear()` state reset is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_clear_vm.sh`
     - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
     - `apps/lib/boxes/map_std.hako` prelude debt is closed; `OpsCalls.map_has(...)` owns the remaining `pref == "ny"` Map-only wrapper
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `MapBox.clear source-route parity`
+  - current blocker token: `MapBox keys/values content enumeration contract`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

@@ -1,0 +1,17 @@
+// Phase 291x vm-hako source-route fixture for MapBox.clear().
+// Contract:
+// - `clear()` resets size/has/keys through the same S0 map state owner.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    m.clear()
+    print(m.size())
+    print(m.has("a"))
+    local ks = m.keys()
+    print(ks.size())
+    return 0
+  }
+}
