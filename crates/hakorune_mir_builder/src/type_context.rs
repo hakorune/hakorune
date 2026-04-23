@@ -32,6 +32,16 @@ pub struct TypeContext {
     /// Maps a ValueId to the class name if it was produced by NewBox of that class
     /// Phase 25.1: BTreeMap for deterministic iteration
     pub value_origin_newbox: BTreeMap<ValueId, String>,
+
+    /// String literal payloads keyed by SSA value for conservative literal-aware
+    /// collection typing.
+    pub string_literals: BTreeMap<ValueId, String>,
+
+    /// Receiver-local homogeneous MapBox value type facts.
+    pub map_value_types: BTreeMap<ValueId, MirType>,
+
+    /// Receiver-local literal-key MapBox value facts.
+    pub map_literal_value_types: BTreeMap<(ValueId, String), MirType>,
 }
 
 #[derive(Debug, Default)]
@@ -39,6 +49,9 @@ pub struct TypeContextSnapshot {
     value_types: BTreeMap<ValueId, MirType>,
     value_kinds: HashMap<ValueId, MirValueKind>,
     value_origin_newbox: BTreeMap<ValueId, String>,
+    string_literals: BTreeMap<ValueId, String>,
+    map_value_types: BTreeMap<ValueId, MirType>,
+    map_literal_value_types: BTreeMap<(ValueId, String), MirType>,
 }
 
 #[allow(dead_code)]
@@ -93,6 +106,9 @@ impl TypeContext {
             value_types: std::mem::take(&mut self.value_types),
             value_kinds: std::mem::take(&mut self.value_kinds),
             value_origin_newbox: std::mem::take(&mut self.value_origin_newbox),
+            string_literals: std::mem::take(&mut self.string_literals),
+            map_value_types: std::mem::take(&mut self.map_value_types),
+            map_literal_value_types: std::mem::take(&mut self.map_literal_value_types),
         }
     }
 
@@ -101,5 +117,8 @@ impl TypeContext {
         self.value_types = snapshot.value_types;
         self.value_kinds = snapshot.value_kinds;
         self.value_origin_newbox = snapshot.value_origin_newbox;
+        self.string_literals = snapshot.string_literals;
+        self.map_value_types = snapshot.map_value_types;
+        self.map_literal_value_types = snapshot.map_literal_value_types;
     }
 }

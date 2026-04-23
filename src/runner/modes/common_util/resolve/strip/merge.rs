@@ -8,7 +8,7 @@ struct TextMergePlan {
     imports: std::collections::HashMap<String, String>,
 }
 
-/// Merge prelude ASTs with the main AST into a single Program node.
+/// Legacy/compatibility helper: merge prelude ASTs with the main AST into a single Program node.
 /// - Collects statements from each prelude Program in order, then appends
 ///   statements from the main Program.
 /// - If the main AST is not a Program, returns it unchanged (defensive).
@@ -36,7 +36,7 @@ pub fn merge_prelude_asts_with_main(
     }
 }
 
-/// Text-based prelude merge: simpler and faster than AST merge.
+/// Text-based prelude merge: the default route for `using` expansion.
 /// Recursively resolves using dependencies, strips using lines from each file,
 /// and concatenates prelude text followed by main source text.
 /// Returns merged source text ready for compilation.
@@ -50,8 +50,10 @@ pub fn merge_prelude_text(
 
 /// Text-based prelude merge plus explicit imported static-box bindings.
 ///
-/// The returned `imports` map is the runner-side SSOT for `using ... as Alias`
-/// static box calls after text merge has stripped the original `using` lines.
+/// The returned `imports` map is the Layer 2 runner binding table for
+/// `using ... as Alias` after strip/text-merge has removed the original
+/// `using` lines. Manifest ownership stays in hako.toml; the MIR builder
+/// consumes this table when lowering `Alias.method(...)`.
 pub fn merge_prelude_text_with_imports(
     runner: &NyashRunner,
     source: &str,

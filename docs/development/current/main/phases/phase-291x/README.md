@@ -27,6 +27,9 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-106-arraybox-element-result-publication-card.md
   - docs/development/current/main/phases/phase-291x/291x-107-string-semantic-owner-cleanup-card.md
+  - docs/development/current/main/phases/phase-291x/291x-108-alias-ssot-cleanup-card.md
+  - docs/development/current/main/phases/phase-291x/291x-109-map-compat-source-cleanup-card.md
+  - docs/development/current/main/phases/phase-291x/291x-110-mapbox-get-existing-key-typing-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -37,8 +40,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-107` String semantic owner cleanup
-- Next implementation target: `alias SSOT cleanup` (pending card)
+- Latest landed cleanup target: `291x-110` MapBox get(existing-key) typing
+- Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -81,6 +84,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 16. `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
 17. `docs/development/current/main/phases/phase-291x/291x-106-arraybox-element-result-publication-card.md`
 18. `docs/development/current/main/phases/phase-291x/291x-107-string-semantic-owner-cleanup-card.md`
+19. `docs/development/current/main/phases/phase-291x/291x-108-alias-ssot-cleanup-card.md`
+20. `docs/development/current/main/phases/phase-291x/291x-109-map-compat-source-cleanup-card.md`
+21. `docs/development/current/main/phases/phase-291x/291x-110-mapbox-get-existing-key-typing-card.md`
 
 ## Current Rule
 
@@ -91,6 +97,15 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `apps/std/string.hako` is sugar, not the semantic owner
 - `apps.std.string` is the exact manifest alias that pins the current public
   sugar smoke; this is not a broader `std.string` packaging decision
+- alias ownership is split on purpose:
+  - manifest alias / module lookup lives in `hako.toml`
+  - imported static-box alias binding lives in the runner text-merge strip path
+  - static receiver/type-name lowering lives in the MIR builder only
+- `using apps.std.string as S` resolves `apps.std.string` as a manifest alias,
+  then binds `S` to the exported `StdStringNy` static box for `S.method(...)`
+  calls after merge
+- imported static-box aliases are not namespace roots; they do not imply
+  `new Alias.BoxName()` or `new apps.std.string.BoxName()`
 - `apps/lib/boxes/string_std.hako` is an internal selfhost helper, not a
   public std owner
 - `apps/std/string_std.hako` is dead scaffold and is removed by `291x-107`
@@ -108,8 +123,11 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   non-string `set/get/has/delete/remove` keys publish
   `[map/bad-key] key must be string`; field rows keep the field-name variant
 - `MapBox.get(missing-key)` keeps the stable tagged read-miss text
-  `[map/missing] Key not found: <key>`; successful `get(existing-key)` element
-  publication remains data-dependent and out of scope here
+  `[map/missing] Key not found: <key>`
+- `291x-110` landed the conservative successful-read rule for
+  `MapBox.get(existing-key)`: publish `V` only for receiver-local homogeneous
+  Map facts with tracked literal keys; mixed, untyped, and missing-key reads
+  stay `Unknown`
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -118,6 +136,13 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `ArrayBox.get/pop/remove` element-result publication is landed:
   publish `T` only when the receiver has a known `MirType::Array(T)`; keep
   `Unknown` for mixed or untyped receivers.
+- alias SSOT cleanup is landed in `291x-108`
+- Map compat/source cleanup is landed in `291x-109`: keep `OpsCalls.map_has(...)`
+  as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
+  `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
+  quarantine
+- next cleanup must be selected after `291x-110`; do not reopen the landed
+  existing-key typing rule without an owner-path change.
 
 ## Implementation State
 
@@ -185,6 +210,9 @@ Remaining MapBox follow-up:
 - `MapBox.get(missing-key)` is landed and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
   and `tools/smokes/v2/profiles/quick/core/map/map_missing_key_tag_vm.sh`.
+- `MapBox.get(existing-key)` typing is landed and pinned by focused MIR tests in
+  `src/tests/mir_corebox_router_unified.rs`; publish `V` only for
+  receiver-local homogeneous Map facts with tracked literal keys.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.

@@ -54,6 +54,9 @@ cargo check -q
   - Rust `MapBox.values()` sorted-key order fix is landed (291x-102 slice 1)
   - `ArrayCoreBox.get` VM-local-first metadata check is landed (291x-102 slice 2)
   - MapBox get missing-key contract is landed and pinned
+  - `291x-110` landed: `MapBox.get(existing-key)` publishes `V` only for
+    receiver-local homogeneous Map facts with tracked literal keys; mixed,
+    untyped, and missing-key reads stay `Unknown`
   - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
     291x-103 acceptance smoke
   - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
@@ -66,7 +69,13 @@ cargo check -q
   - `291x-107` landed for String semantic owner cleanup: Rust catalog owner,
     public std sugar, internal selfhost helper, dead scaffold removal, and
     exact manifest alias `apps.std.string` for the public sugar smoke
-  - alias SSOT cleanup is the next pending doc-first card
+  - `291x-108` landed for alias SSOT cleanup: manifest alias lookup stays in
+    `hako.toml`, imported static-box alias binding stays in runner text merge,
+    and static receiver/type-name lowering stays scoped to `Alias.method(...)`
+  - `291x-109` landed for Map compat/source cleanup: keep
+    `OpsCalls.map_has(...)` as the only remaining selfhost-runtime
+    `pref == "ny"` Map wrapper, and keep `map_compat.rs` as compat-only legacy
+    ABI quarantine
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`,
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and
@@ -88,7 +97,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 - current blocker token:
-  - `phase-291x alias SSOT cleanup pending`
+  - `phase-291x successor cleanup card selection pending`
 
 ## Current Perf Snapshot
 
@@ -123,9 +132,11 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - start alias SSOT cleanup without reopening the landed 291x router
-    witnesses or widening public std.string packaging
-  - do not reopen the landed MapBox get missing-key contract without an owner-path change
+  - rank the next phase-291x cleanup card without reopening the landed
+    `291x-110` MapBox get(existing-key) typing contract, compat/source boundary,
+    alias SSOT split, or router witnesses
+  - do not reopen the landed MapBox get missing-key contract or the new
+    existing-key publication rule without an owner-path change
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only

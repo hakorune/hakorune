@@ -2,13 +2,16 @@ use crate::runner::NyashRunner;
 
 /// Collect using targets and strip using lines (no inlining).
 /// Returns (cleaned_source, prelude_paths, imports) where:
-/// - `prelude_paths` are resolved file paths to be parsed separately and AST-merged (when `NYASH_USING_AST=1`)
-/// - `imports` is a HashMap mapping alias names to box types (for MirBuilder resolution)
+/// - `prelude_paths` are resolved file paths for the default text-merge route
+///   (the optional AST compatibility path reuses the same list when `NYASH_USING_AST=1`)
+/// - `imports` is the Layer 2 alias table: imported alias name -> concrete
+///   static box name for builder-side `Alias.method(...)` lowering
 ///
 /// Notes
 /// - This function enforces profile policies (prod: disallow file-using; only
-///   packages/aliases from nyash.toml are accepted).
-/// - SSOT: Resolution sources and aliases come exclusively from nyash.toml.
+///   packages/aliases from hako.toml are accepted; nyash.toml remains a compatibility fallback).
+/// - Manifest SSOT lives in hako.toml; this strip path only materializes the
+///   runner-side alias bindings derived from that manifest.
 /// - All runner modes use this static path to avoid logic drift.
 pub fn collect_using_and_strip(
     runner: &NyashRunner,
@@ -52,10 +55,10 @@ fn apply_using_strip_plan(
         out.push_str(&line);
         out.push('\n');
     }
-    // Optional prelude boundary comment (helps manual inspection; parser ignores comments)
+    // Optional boundary comment for strip/text-merge inspection; parser ignores comments.
     if crate::config::env::resolve_seam_debug() {
         let mut with_marker = String::with_capacity(out.len() + 64);
-        with_marker.push_str("\n/* --- using boundary (AST) --- */\n");
+        with_marker.push_str("\n/* --- using boundary (strip/text-merge) --- */\n");
         with_marker.push_str(&out);
         out = with_marker;
     }
@@ -138,7 +141,7 @@ fn plan_using_strip(
                 // can organize their modules via file paths.
                 if (prod || !crate::config::env::allow_using_file()) && !inside_pkg {
                     return Err(format!(
-                        "{}:{}: using: file paths are disallowed in this profile. Add it to nyash.toml [using]/[modules] and reference by name: {}\n  suggestions: using \"alias.name\" as Name  |  dev/test: set NYASH_PREINCLUDE=1 to expand includes ahead of VM\n  docs: see docs/reference/using.md",
+                        "{}:{}: using: file paths are disallowed in this profile. Add it to hako.toml [using]/[modules] (nyash.toml compatibility still works) and reference by name: {}\n  suggestions: using \"alias.name\" as Name  |  dev/test: set NYASH_PREINCLUDE=1 to expand includes ahead of VM\n  docs: see docs/reference/using.md",
                         filename,
                         line_no,
                         target
@@ -240,7 +243,8 @@ fn plan_using_strip(
             }
             // Resolve namespaces/packages
             if prod {
-                // prod: allow only names present in aliases/modules/packages (nyash.toml)
+                // prod: allow only names present in the manifest alias/module tables
+                // (hako.toml primary, nyash.toml compatibility fallback).
                 let mut name: String = target_unquoted.clone();
                 if let Some(v) = using_ctx.aliases.get(&target_unquoted) {
                     name = v.clone();
@@ -432,7 +436,7 @@ fn plan_using_strip(
                         .collect();
 
                     let mut err_msg = format!(
-                        "{}:{}: using: '{}' not found in nyash.toml [using]/[modules]",
+                        "{}:{}: using: '{}' not found in hako.toml [using]/[modules] (nyash.toml compatibility fallback)",
                         filename, line_no, target_unquoted
                     );
 
@@ -454,7 +458,7 @@ fn plan_using_strip(
                     }
 
                     err_msg.push_str("\n\n📝 Suggestions:");
-                    err_msg.push_str("\n   - Add an alias in nyash.toml: [using.aliases] YourModule = \"path/to/module\"");
+                    err_msg.push_str("\n   - Add an alias in hako.toml: [using.aliases] YourModule = \"path/to/module\" (nyash.toml is compatibility-only)");
                     err_msg.push_str("\n   - Use the alias: using YourModule as YourModule");
                     err_msg.push_str("\n   - Dev/test mode: NYASH_PREINCLUDE=1");
                     err_msg.push_str("\n\n🔍 Debug: NYASH_DEBUG_USING=1 for detailed logs");
@@ -575,6 +579,10 @@ fn plan_using_strip(
     })
 }
 
+/// Layer 2 alias split:
+/// - manifest ownership stays in hako.toml / nyash.toml compatibility
+/// - the runner strip path records `Alias -> StaticBox`
+/// - the MIR builder consumes this table for `Alias.method(...)`
 fn remember_import_binding(
     imports: &mut std::collections::HashMap<String, String>,
     alias_name: Option<&str>,

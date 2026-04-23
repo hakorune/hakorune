@@ -4,6 +4,9 @@ use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
 
 // Compat-only exports consumed by historical pure/legacy surfaces.
+// Keep this file as quarantine for the legacy `nyash.map.*` ABI names; current
+// MapBox surface authoring lives in `src/boxes/map_surface_catalog.rs` and the
+// active source owners stay in the vm-hako/selfhost-runtime lanes.
 // entry_count_h: compatibility alias for historical callers.
 #[export_name = "nyash.map.entry_count_h"]
 pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {

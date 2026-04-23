@@ -35,7 +35,7 @@ Related:
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
-  - current implementation focus: `alias SSOT cleanup` (pending after 291x-107)
+  - current implementation focus: `successor cleanup card selection` (after 291x-110)
   - current phase goal:
     - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
       1 file / 2 explicit view-owner lines guarded separately
@@ -63,20 +63,28 @@ Related:
     - MapBox write-return receipt implementation is landed and pinned
     - MapBox bad-key normalization implementation is landed and pinned
     - MapBox get missing-key contract is landed and pinned
-    - keep `MapBox.get(existing-key)` element publication out of this row
+    - `291x-110` landed: `MapBox.get(existing-key)` publishes `V` only for
+      receiver-local homogeneous Map facts with tracked literal keys; mixed,
+      untyped, and missing-key reads stay `Unknown`
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
     - StringBox surface SSOT is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and two-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and `MapBox.clear` to the Unified value path; latest cleanup is ArrayBox element-result publication
+    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and two-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and `MapBox.clear` to the Unified value path; latest cleanup is `291x-110` MapBox get(existing-key) typing
     - `291x-107` landed: keep `src/boxes/basic/string_surface_catalog.rs` as
       the String semantic owner, keep `apps/std/string.hako` as public sugar,
       keep `apps/lib/boxes/string_std.hako` internal, delete dead
       `apps/std/string_std.hako`, and pin the public sugar smoke through
       `apps.std.string`
-    - alias SSOT cleanup is the next pending doc-first card; keep namespace /
-      static-box / type-name resolution scope separate from String owner cleanup
+    - `291x-108` landed: keep manifest alias lookup in `hako.toml`, keep
+      imported static-box alias binding in the runner text-merge strip path,
+      and keep static receiver/type-name lowering scoped to `Alias.method(...)`
+      instead of treating imported aliases as namespace roots
+    - `291x-109` landed: keep `OpsCalls.map_has(...)` as the only remaining
+      selfhost-runtime `pref == "ny"` Map wrapper, and keep
+      `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
+      quarantine instead of a forward route owner
     - MapBox Rust vtable surface is cataloged; legacy `apps/std/map_std.hako` and unused `map_keys_values_bridge.hako` prototype were deleted
     - source-level vm-hako non-empty `MapBox.values()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
     - source-level vm-hako non-empty `MapBox.keys()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`
@@ -87,7 +95,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` is landed and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_lastindexof_start_vm.sh`
-  - current blocker token: `phase-291x alias SSOT cleanup pending`
+  - current blocker token: `phase-291x successor cleanup card selection pending`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

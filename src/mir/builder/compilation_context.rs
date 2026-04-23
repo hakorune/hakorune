@@ -82,8 +82,11 @@ pub(crate) struct CompilationContext {
 
     /// Explicit imported static-box bindings: alias -> concrete static box name.
     ///
-    /// Source routes that strip `using` lines before parsing must pass this table
-    /// into the builder so `Alias.method(...)` can still lower as a static call.
+    /// This is Layer 3 of the alias split:
+    /// - Layer 1: manifest alias/module ownership in hako.toml
+    /// - Layer 2: runner strip/text-merge binds imported aliases
+    /// - Layer 3: builder consumes that table so `Alias.method(...)` lowers as
+    ///   a static call even after `using` lines were stripped from source.
     pub using_import_boxes: HashMap<String, String>,
 
     /// Fast lookup: method+arity tail → candidate function names (e.g., ".str/0" → ["JsonNode.str/0", ...])

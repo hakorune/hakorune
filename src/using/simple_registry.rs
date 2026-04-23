@@ -130,3 +130,47 @@ fn scan_static_boxes(content: &str) -> Vec<String> {
     }
     out
 }
+
+#[cfg(test)]
+mod tests {
+    use super::resolve_imported_static_box;
+    use std::path::PathBuf;
+
+    fn repo_path(rel: &str) -> String {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join(rel)
+            .to_string_lossy()
+            .into_owned()
+    }
+
+    #[test]
+    fn single_export_binds_arbitrary_alias_to_std_string_box() {
+        let path = repo_path("apps/std/string.hako");
+
+        assert_eq!(
+            resolve_imported_static_box(&path, "S"),
+            Some("StdStringNy".to_string())
+        );
+    }
+
+    #[test]
+    fn single_export_binds_internal_string_std_alias() {
+        let path = repo_path("apps/lib/boxes/string_std.hako");
+
+        assert_eq!(
+            resolve_imported_static_box(&path, "AliasDoesNotMatter"),
+            Some("StringStd".to_string())
+        );
+    }
+
+    #[test]
+    fn multi_export_requires_exact_alias_match() {
+        let path = repo_path("apps/selfhost-runtime/boxes_std.hako");
+
+        assert_eq!(
+            resolve_imported_static_box(&path, "BoxesStd"),
+            Some("BoxesStd".to_string())
+        );
+        assert_eq!(resolve_imported_static_box(&path, "S"), None);
+    }
+}

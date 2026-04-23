@@ -18,8 +18,10 @@ use crate::ast::ASTNode;
 impl MirBuilder {
     /// Try static receiver method call: BoxName.method(args)
     ///
-    /// Phase 287 P4: Fix toString() method resolution bug
-    /// Guard: If object is a local variable, don't treat as static box name
+    /// Layer 3 alias split hook:
+    /// - first consult runner-provided imported static-box aliases
+    /// - then fall back to direct static box names
+    /// - if the receiver is a local variable, do not treat it as a static box
     pub(super) fn try_build_static_receiver_method_call(
         &mut self,
         object: &ASTNode,

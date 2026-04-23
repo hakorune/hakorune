@@ -2,6 +2,11 @@ use super::map_box::MapBox;
 use crate::box_trait::NyashBox;
 use std::fmt;
 
+// Catalog owner for the active MapBox surface only.
+// Keep compat-only `nyash.map.*` ABI exports in `map_compat.rs` separate from
+// this table so phase-291x cleanup can retire source/compat drift one seam at a
+// time without reopening the current route owner.
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MapMethodId {
     Size,

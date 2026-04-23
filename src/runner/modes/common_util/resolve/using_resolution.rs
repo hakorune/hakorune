@@ -9,7 +9,9 @@ use std::path::{Path, PathBuf};
 
 /// 📦 UsingResolutionBox - using文解決の専門家！
 ///
-/// using文の解析、パス解決、重複チェックを一手に引き受ける箱にゃ！
+/// 3層alias splitの Layer 1 を担当する箱だよ。
+/// hako.toml の manifest（nyash.toml は互換fallback）を前提に、
+/// using文の解析、パス解決、重複チェックを一手に引き受けるにゃ。
 pub struct UsingResolutionBox<'a> {
     runner: &'a NyashRunner,
     config: UsingConfig,
@@ -140,7 +142,7 @@ impl<'a> UsingResolutionBox<'a> {
         // ファイルusingチェック
         if (self.config.prod || !self.config.allow_file_using) && !self.inside_pkg {
             return Err(format!(
-                "{}:{}: using: file paths are disallowed in this profile. Add it to nyash.toml [using]/[modules] and reference by name: {}\n  suggestions: using \"alias.name\" as Name  |  dev/test: set NYASH_PREINCLUDE=1 to expand includes ahead of VM\n  docs: see docs/reference/using.md",
+                "{}:{}: using: file paths are disallowed in this profile. Add it to hako.toml [using]/[modules] (nyash.toml compatibility still works) and reference by name: {}\n  suggestions: using \"alias.name\" as Name  |  dev/test: set NYASH_PREINCLUDE=1 to expand includes ahead of VM\n  docs: see docs/reference/using.md",
                 "filename", // TODO: 実際のファイル名を渡す
                 target.line_no,
                 target.target

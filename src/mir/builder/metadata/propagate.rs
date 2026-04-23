@@ -26,6 +26,25 @@ pub fn propagate(builder: &mut MirBuilder, src: ValueId, dst: ValueId) {
             builder.type_ctx.value_origin_newbox.insert(dst, cls);
         }
     }
+    if let Some(text) = builder.type_ctx.string_literals.get(&src).cloned() {
+        builder.type_ctx.string_literals.insert(dst, text);
+    }
+    if let Some(map_value_type) = builder.type_ctx.map_value_types.get(&src).cloned() {
+        builder.type_ctx.map_value_types.insert(dst, map_value_type);
+    }
+    let literal_facts: Vec<(String, MirType)> = builder
+        .type_ctx
+        .map_literal_value_types
+        .iter()
+        .filter(|((value_id, _), _)| *value_id == src)
+        .map(|((_, key), ty)| (key.clone(), ty.clone()))
+        .collect();
+    for (key, ty) in literal_facts {
+        builder
+            .type_ctx
+            .map_literal_value_types
+            .insert((dst, key), ty);
+    }
     type_trace::propagate("meta", src, dst);
 }
 

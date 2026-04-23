@@ -490,6 +490,25 @@ fn ensure_inner(
                     .insert(loc, crate::mir::MirType::Box(cls));
             }
         }
+        if let Some(text) = builder.type_ctx.string_literals.get(&v).cloned() {
+            builder.type_ctx.string_literals.insert(loc, text);
+        }
+        if let Some(map_value_type) = builder.type_ctx.map_value_types.get(&v).cloned() {
+            builder.type_ctx.map_value_types.insert(loc, map_value_type);
+        }
+        let literal_facts: Vec<(String, crate::mir::MirType)> = builder
+            .type_ctx
+            .map_literal_value_types
+            .iter()
+            .filter(|((value_id, _), _)| *value_id == v)
+            .map(|((_, key), ty)| (key.clone(), ty.clone()))
+            .collect();
+        for (key, ty) in literal_facts {
+            builder
+                .type_ctx
+                .map_literal_value_types
+                .insert((loc, key), ty);
+        }
         builder.local_ssa_map.insert(key, loc);
         // Debug trace for newly created loc
         if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {

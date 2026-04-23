@@ -1,5 +1,9 @@
 // OpsCalls — Selfhost runtime BoxCall dispatcher (skeleton)
 // - pref: "plugin" (default) or "ny" (use lib std boxes)
+// - phase-291x boundary: MapBox source cleanup leaves only `map_has(...)` here.
+//   The wrapper is still needed because `has` keeps the old null/get fallback
+//   contract for selfhost-runtime `pref == "ny"`, while size/get/set/toString
+//   already route through generic receiver owners or the landed MapBox routes.
 
 box OpsCalls {
   pref
@@ -38,7 +42,8 @@ box OpsCalls {
       if method == "set" { return new ArrayStd().set(recv, args.get(0), args.get(1)) }
       if method == "push" { return new ArrayStd().push(recv, args.get(0)) }
       if method == "toString" { return new ArrayStd().toString(recv) }
-      // Map-only wrapper; size/get/set/toString already use the generic receiver wrappers above.
+      // Map-only wrapper; keep this isolated so the remaining Map source
+      // compatibility does not spread beyond `has`.
       if method == "has" { return me.map_has(recv, args.get(0)) }
     }
     // Fallback: direct method invocation on receiver

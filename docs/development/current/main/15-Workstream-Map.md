@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox surface contract cleanup` |
-| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed; StringBox lastIndexOf/2, MapBox delete/remove/clear router promotion, ArrayBox element-result publication, and 291x-107 String owner cleanup landed` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed; StringBox lastIndexOf/2, MapBox delete/remove/clear router promotion, ArrayBox element-result publication, 291x-107 String owner cleanup, and 291x-108 alias SSOT cleanup landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x alias SSOT cleanup pending` |
-| Next | `start alias SSOT cleanup after 291x-107 landed` |
-| After Next | `Map compat-source cleanup / MapBox get(existing-key) typing` |
+| Blocker | `phase-291x successor cleanup card selection pending` |
+| Next | `rank the next phase-291x cleanup card after 291x-110 landed` |
+| After Next | `TBD by successor card` |
 
 ## Current Read
 
@@ -91,7 +91,10 @@ Related:
 56. `phase-291x MapBox clear router promotion landed`
 57. `phase-291x ArrayBox element-result publication landed`
 58. `phase-291x 291x-107 String semantic owner cleanup landed`
-59. `phase-291x alias SSOT cleanup pending`
+59. `phase-291x 291x-108 alias SSOT cleanup landed`
+60. `phase-291x 291x-109 Map compat/source cleanup landed`
+61. `phase-291x 291x-110 MapBox get(existing-key) typing landed`
+62. `phase-291x successor cleanup card selection pending`
 
 ## Parked Corridor
 

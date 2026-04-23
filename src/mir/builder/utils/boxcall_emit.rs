@@ -133,6 +133,21 @@ impl super::super::MirBuilder {
                 &semantic_args,
             );
         }
+        if bx_name == "MapBox" {
+            let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&bx_name);
+            let semantic_callee = crate::mir::Callee::Method {
+                box_name: bx_name.clone(),
+                method: method.clone(),
+                receiver: Some(semantic_box_val),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
+                box_kind,
+            };
+            crate::mir::builder::types::map_value::observe_map_write_call(
+                self,
+                &semantic_callee,
+                &semantic_args,
+            );
+        }
         if super::builder_debug_enabled() || crate::config::env::builder_local_ssa_trace() {
             if matches!(
                 method.as_str(),

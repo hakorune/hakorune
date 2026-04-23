@@ -1,12 +1,15 @@
 /*!
- * Using resolver utilities — static resolution line (SSOT + AST) 📦
+ * Using resolver utilities — static resolution line (manifest + strip) 📦
  *
  * 箱化モジュール化で綺麗綺麗になったにゃ！🎉
  *
  * Separation of concerns:
- * - Static (using-time): Resolve packages/aliases from nyash.toml (SSOT),
- *   strip `using` lines, collect prelude file paths, and (when enabled)
- *   parse/merge them as AST before macro expansion.
+ * - Layer 1 (manifest): Resolve package/module aliases from hako.toml
+ *   (with nyash.toml compatibility fallback).
+ * - Layer 2 (runner strip/text-merge): strip `using` lines, collect prelude
+ *   file paths, and record imported static-box alias bindings for `using ... as Alias`.
+ * - Optional compatibility path: parse/merge preludes as AST when
+ *   `NYASH_USING_AST=1`, but the default route is strip + text merge + imports.
  * - Dynamic (runtime): Plugin/extern dispatch only. User instance BoxCall
  *   fallback is disallowed in prod; builder must rewrite obj.method() to
  *   a function call.

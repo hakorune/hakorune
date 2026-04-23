@@ -75,6 +75,8 @@ StringBox surface catalog
 | `291x-S25` | done | prove two-arg `StringBox.lastIndexOf(needle, start_pos)` through the catalog and Unified value path |
 | `291x-S26` | done | prove `MapBox.delete` / `remove` through the same MIR router Unified value path |
 | `291x-S27` | done | prove `MapBox.clear` through the same MIR router Unified value path |
+| `291x-S28` | done | land alias SSOT cleanup for manifest alias vs imported static-box binding vs type-name lowering |
+| `291x-S29` | done | land conservative `MapBox.get(existing-key)` value publication for literal-key homogeneous receivers |
 
 ## First Stable Surface Target
 
@@ -126,6 +128,9 @@ This StringBox slice is done when:
 - `StringBox.lastIndexOf(needle, start_pos)` is landed through the catalog and
   Unified value path; the dedicated smoke pins the optional start-position
   behavior.
+- `291x-108` landed the alias SSOT cleanup: manifest alias lookup stays in
+  `hako.toml`, imported static-box alias binding stays in runner text merge, and
+  MIR static-call lowering consumes only the explicit alias -> box binding.
 
 ## Router Follow-up
 
@@ -157,7 +162,9 @@ This StringBox slice is done when:
 - `MapBox.has` is the first keyed MapBox read route slice and publishes a
   fixed `Bool` result
 - `MapBox.get` is the first stored-value MapBox read route slice; its MIR
-  result type intentionally stays `Unknown`
+  result type initially stayed `Unknown`; `291x-S29` now publishes `V` only for
+  receiver-local homogeneous Map facts with tracked literal keys and keeps
+  `Unknown` for mixed, untyped, and missing-key reads
 - `MapBox.set` is the first stored-value MapBox write route slice; its
   visible write-return is the landed receipt `String`
 - `MapBox.delete` / `remove` is the first mutating delete row route slice; its

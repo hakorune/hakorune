@@ -5,8 +5,9 @@ use super::using::collect_using_and_strip;
 
 /// Profile-aware prelude resolution wrapper (single entrypoint).
 /// - Delegates to `collect_using_and_strip` for the first pass.
-/// - When AST using is enabled, resolves nested preludes via DFS and injects
-///   OperatorBox preludes when available (stringify/compare/add).
+/// - Resolves nested preludes via DFS for the default text-merge route and the
+///   optional AST compatibility route, then injects OperatorBox preludes when
+///   available (stringify/compare/add).
 /// - All runners call this helper; do not fork resolution logic elsewhere.
 pub fn resolve_prelude_paths_profiled(
     runner: &NyashRunner,
@@ -15,7 +16,8 @@ pub fn resolve_prelude_paths_profiled(
 ) -> Result<(String, Vec<String>), String> {
     // First pass: strip using from the main source and collect direct prelude paths
     let (cleaned, direct, _imports) = collect_using_and_strip(runner, code, filename)?;
-    // Recursively collect nested preludes (DFS) for both AST/text merges.
+    // Recursively collect nested preludes (DFS) for the default text-merge
+    // route and the optional AST compatibility route.
     // Rationale: even when we merge via text, nested `using` inside preludes
     // must be discovered so that their definitions are present at runtime
     // (e.g., runner_min -> lower_* boxes). Previously this only ran when
@@ -81,13 +83,14 @@ pub fn resolve_prelude_paths_profiled(
             }
         }
     }
-    // If AST merge is disabled, still return the discovered nested prelude list
-    // so that the text merger can inline all dependencies. This keeps behavior
-    // consistent across strategies and fixes nested `using` resolution.
+    // Even when the AST compatibility path is disabled, still return the
+    // discovered nested prelude list so that the text merger can inline all
+    // dependencies. This keeps behavior consistent across strategies and fixes
+    // nested `using` resolution.
     Ok((cleaned, out))
 }
 
-/// Parse prelude source files into ASTs (single helper for all runner modes).
+/// Parse prelude source files into ASTs for the optional compatibility path.
 /// - Reads each path, strips nested `using`, and parses to AST.
 /// - Returns a Vec of Program ASTs (one per prelude file), preserving DFS order.
 pub fn parse_preludes_to_asts(

@@ -85,6 +85,15 @@ Completed cleanup:
 - `291x-107` is the owner-clarity cleanup card for public sugar vs internal
   selfhost helper vs dead scaffold, and pins the public sugar smoke through
   the exact manifest alias `apps.std.string`
+- `291x-108` is the alias-clarity cleanup card for manifest alias vs imported
+  static-box alias binding vs MIR static receiver/type-name lowering; it keeps
+  `apps.std.string` as a manifest alias and `StdStringNy` as the exported box.
+- `291x-109` is the Map compat/source cleanup card for the last selfhost-runtime
+  `pref == "ny"` wrapper (`OpsCalls.map_has(...)`) and the compat-only Rust ABI
+  quarantine in `crates/nyash_kernel/src/plugin/map_compat.rs`.
+- `291x-110` is the `MapBox.get(existing-key)` typing card; it publishes `V`
+  only for receiver-local homogeneous Map facts with tracked literal keys while
+  preserving `Unknown` for mixed, untyped, and missing-key reads.
 
 ## Router / Value World Follow-up
 
@@ -162,8 +171,11 @@ Landed first slice and follow-up:
   receiver-plus-index-plus-value fixture and preserving MapBox fallback
   sentinels.
 - twentieth implementation moved `MapBox.get` after adding a focused
-  receiver-plus-key fixture while keeping its stored-value result type
+  receiver-plus-key fixture while initially keeping its stored-value result type
   `Unknown` and preserving `MapBox.set` fallback sentinels.
+- later cleanup card `291x-110` adds conservative successful-read publication:
+  publish `V` only for receiver-local homogeneous Map facts with tracked literal
+  keys; missing, mixed, and untyped reads stay `Unknown`.
 - twenty-first implementation moved `MapBox.set` after adding a focused
   receiver-plus-key-plus-value fixture while keeping its write-return type
   `Unknown` and preserving `MapBox.delete` fallback sentinels.

@@ -50,16 +50,18 @@ pub fn emit_float(b: &mut MirBuilder, val: f64) -> Result<ValueId, String> {
 
 #[inline]
 pub fn emit_string<S: Into<String>>(b: &mut MirBuilder, s: S) -> Result<ValueId, String> {
+    let s = s.into();
     let dst = b.next_value_id();
     b.emit_instruction(MirInstruction::Const {
         dst,
-        value: ConstValue::String(s.into()),
+        value: ConstValue::String(s.clone()),
     })?;
     // 137x-H1: string constants are value-world text. Runtime method dispatch may
     // still route through StringBox, but const emission must not create object origin.
     b.type_ctx
         .value_types
         .insert(dst, crate::mir::MirType::String);
+    b.type_ctx.string_literals.insert(dst, s);
     Ok(dst)
 }
 

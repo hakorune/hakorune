@@ -396,6 +396,7 @@ impl UnifiedCallEmitterBox {
         // LocalSSA receiver copy created below. Record writes before
         // finalization so later calls on the same source value see Array<T>.
         super::super::types::array_element::observe_array_write_call(builder, &callee, &args);
+        super::super::types::map_value::observe_map_write_call(builder, &callee, &args);
 
         // Finalize operands in current block (EmitGuardBox wrapper)
         let mut callee = callee;
@@ -514,6 +515,7 @@ impl UnifiedCallEmitterBox {
             super::super::types::array_element::annotate_array_element_result(
                 builder, dst, &callee, &args,
             );
+            super::super::types::map_value::annotate_map_get_result(builder, dst, &callee, &args);
         }
 
         // Dev-only: verify block schedule invariants after emitting call
