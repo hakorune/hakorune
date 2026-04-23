@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox MapBox contract-first cleanup` |
-| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys landed` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `MapBox.remove alias source-route parity` |
-| Next | `promote remove as a delete-owner alias with its own smoke` |
+| Blocker | `MapBox.clear source-route parity` |
+| Next | `promote clear through the S0 state owner with its own smoke` |
 | After Next | `MapBox extended rows or return-contract cleanup, one card at a time` |
 
 ## Current Read
@@ -76,7 +76,8 @@ Related:
 41. `phase-291x MapBox source-level set multi-arg cleanup` landed
 42. `phase-291x MapBox non-empty values state parity` landed
 43. `phase-291x MapBox.keys non-empty state parity` landed
-44. `phase-291x MapBox.remove alias source-route parity`
+44. `phase-291x MapBox.remove alias source-route parity` landed
+45. `phase-291x MapBox.clear source-route parity`
 
 ## Parked Corridor
 

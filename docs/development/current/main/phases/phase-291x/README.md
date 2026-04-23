@@ -27,8 +27,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox.remove alias source-route parity before
-  `clear` / content enumeration
+- Next implementation target: MapBox.clear source-route parity before content
+  enumeration
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -117,11 +117,14 @@ Remaining MapBox follow-up:
 - source-level vm-hako non-empty `MapBox.keys().size()` state-owner shape is landed and
   pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`.
+- source-level vm-hako `MapBox.remove(key)` delete-owner alias is landed and
+  pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_remove_vm.sh`.
 - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is landed
   and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`.
-- `.hako` VM `remove` / `clear` source-route behavior must still be
-  promoted one row at a time and smoke-pinned.
+- `.hako` VM `clear` source-route behavior must still be promoted and
+  smoke-pinned.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
@@ -158,6 +161,6 @@ Landed CoreBox router first slice:
   are data-dependent.
 - `MapBox.set` intentionally stays `MirType::Unknown`; current visible
   write-return and bad-key behavior stay contract-first cleanup.
-- two-arg `lastIndexOf`, MapBox remove/clear rows, and MapBox write-return /
+- two-arg `lastIndexOf`, MapBox clear row, and MapBox write-return /
   bad-key normalization remain contract-first cleanup cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

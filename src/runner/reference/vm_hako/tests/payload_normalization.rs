@@ -455,6 +455,62 @@ fn extract_payload_rewrites_map_keys_to_boxcall_keys() {
 }
 
 #[test]
+fn extract_payload_rewrites_map_remove_alias_to_boxcall_delete() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "mir_call",
+                        "dst": 1,
+                        "mir_call": {
+                            "callee": { "type": "Constructor", "box_type": "MapBox" },
+                            "args": [],
+                            "effects": [],
+                            "flags": {}
+                        }
+                    },
+                    {
+                        "op": "mir_call",
+                        "dst": 4,
+                        "mir_call": {
+                            "callee": {
+                                "type": "Method",
+                                "box_name": "MapBox",
+                                "name": "remove",
+                                "receiver": 1
+                            },
+                            "args": [3],
+                            "effects": [],
+                            "flags": {}
+                        }
+                    },
+                    { "op": "ret", "value": 4 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+
+    let payload = extract_main_payload_json(&mir_json).expect("payload");
+    let payload_v: serde_json::Value = serde_json::from_str(&payload).expect("payload json");
+    let insts = payload_v["blocks"][0]["instructions"]
+        .as_array()
+        .expect("instructions");
+
+    let delete_inst = insts
+        .iter()
+        .find(|inst| inst["op"] == json!("boxcall") && inst["method"] == json!("delete"))
+        .expect("rewritten delete boxcall");
+    assert_eq!(delete_inst["box"], json!(1));
+    assert_eq!(delete_inst["args"], json!([3]));
+    assert_eq!(delete_inst["dst"], json!(4));
+}
+
+#[test]
 fn extract_payload_rewrites_map_values_to_boxcall_values() {
     let mir_json = json!({
         "functions": [{

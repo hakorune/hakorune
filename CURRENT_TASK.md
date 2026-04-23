@@ -101,10 +101,11 @@ Scope: current lane / next lane / restart order only.
   - current phase goal:
     - source-level vm-hako non-empty `MapBox.values().size()` is landed and pinned
     - source-level vm-hako non-empty `MapBox.keys().size()` is landed and pinned
+    - source-level vm-hako `MapBox.remove(key)` delete-owner alias is landed and pinned
     - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is
       landed and pinned
-    - promote `MapBox.remove(key)` as a `delete(key)` owner alias before
-      `clear` or content enumeration
+    - promote `MapBox.clear()` through the same S0 state owner before content
+      enumeration
     - keep `MapBox.length()` landed as a Rust catalog alias; do not reopen slot
       unification in the extended-row card
     - keep `.inc` closed as boundary glue; phase-292x guard remains the no-growth
@@ -117,14 +118,15 @@ Scope: current lane / next lane / restart order only.
     - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and `MapBox.values` to the Unified value path; active cleanup is MapBox source route parity
     - source-level vm-hako non-empty `MapBox.values()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
     - source-level vm-hako non-empty `MapBox.keys()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`
+    - source-level vm-hako `MapBox.remove(key)` alias is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_remove_vm.sh`
     - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
-    - next cleanup after `MapBox.keys`: `remove` alias, write-return, and bad-key normalization
+    - next cleanup after `MapBox.remove`: `clear`, write-return, and bad-key normalization
     - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, non-empty `MapBox.keys/values`, `MapBox.delete/remove/clear`, MapBox write-return and bad-key normalization, String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `MapBox.remove alias source-route parity`
+    - `MapBox.clear source-route parity`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

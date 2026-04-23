@@ -9,13 +9,13 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-291x CoreBox MapBox contract-first cleanup"
-active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, and non-empty MapBox.keys state parity slices are landed; current lane continues with MapBox.remove alias source-route parity"
+active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, and MapBox.remove alias slices are landed; current lane continues with MapBox.clear source-route parity"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md"
 
-current_blocker_token = "MapBox.remove alias source-route parity"
+current_blocker_token = "MapBox.clear source-route parity"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -57,6 +57,7 @@ opened_successors = [
   "MapBox.length read-only alias landed",
   "MapBox.values non-empty state parity landed",
   "MapBox.keys non-empty state parity landed",
+  "MapBox.remove alias source-route parity landed",
   "MapBox.set duplicate receiver source-route cleanup landed",
 ]
 
@@ -66,7 +67,7 @@ blocked_successors = [
   "MapBox alias normalization or return-contract changes mixed into the first MapBox catalog slice",
   "std.string sugar treated as semantic owner",
   "apps.lib.boxes.map_std reintroduced as a second Map surface owner",
-  "MapBox.remove alias smoke before delete-owner parity implementation",
+  "MapBox.clear smoke before S0 owner parity implementation",
 ]
 
 stale_pointer_patterns = [

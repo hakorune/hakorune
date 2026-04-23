@@ -1,0 +1,15 @@
+// Phase 291x vm-hako source-route fixture for MapBox.remove().
+// Contract:
+// - `remove(key)` is a source alias for the same state owner as `delete(key)`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    m.remove("a")
+    print(m.has("a"))
+    print(m.size())
+    return 0
+  }
+}
