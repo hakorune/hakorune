@@ -29,6 +29,7 @@ impl super::super::MirBuilder {
         let box_name = match box_ty {
             super::super::MirType::Box(name) => name.as_str(),
             super::super::MirType::String => "StringBox", // String → StringBox として扱う
+            super::super::MirType::Array(_) => "ArrayBox",
             _ => return None,
         };
 
@@ -85,6 +86,9 @@ impl super::super::MirBuilder {
         args: Vec<super::super::ValueId>,
         effects: super::super::EffectMask,
     ) -> Result<(), String> {
+        let semantic_box_val = box_val;
+        let semantic_args = args.clone();
+
         // Ensure receiver has a definition in the current block to avoid undefined use across
         // block boundaries (LoopForm/header, if-joins, etc.).
         // LocalSSA: ensure receiver has an in-block definition (kind=0 = recv)
@@ -100,6 +104,7 @@ impl super::super::MirBuilder {
             if let Some(t) = self.type_ctx.value_types.get(&box_val) {
                 match t {
                     super::super::MirType::String => box_type = Some("StringBox".to_string()),
+                    super::super::MirType::Array(_) => box_type = Some("ArrayBox".to_string()),
                     super::super::MirType::Box(name) => box_type = Some(name.clone()),
                     _ => {}
                 }
@@ -113,6 +118,21 @@ impl super::super::MirBuilder {
             crate::mir::definitions::call_unified::TypeCertainty::Union,
             args.len(),
         );
+        if bx_name == "ArrayBox" {
+            let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&bx_name);
+            let semantic_callee = crate::mir::Callee::Method {
+                box_name: bx_name.clone(),
+                method: method.clone(),
+                receiver: Some(semantic_box_val),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
+                box_kind,
+            };
+            crate::mir::builder::types::array_element::observe_array_write_call(
+                self,
+                &semantic_callee,
+                &semantic_args,
+            );
+        }
         if super::builder_debug_enabled() || crate::config::env::builder_local_ssa_trace() {
             if matches!(
                 method.as_str(),
@@ -176,6 +196,7 @@ impl super::super::MirBuilder {
                 if let Some(t) = self.type_ctx.value_types.get(&box_val) {
                     match t {
                         super::super::MirType::String => recv_box = Some("StringBox".to_string()),
+                        super::super::MirType::Array(_) => recv_box = Some("ArrayBox".to_string()),
                         super::super::MirType::Box(name) => recv_box = Some(name.clone()),
                         _ => {}
                     }

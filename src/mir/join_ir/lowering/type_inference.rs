@@ -24,6 +24,20 @@ use crate::runtime::core_method_aliases::canonical_method_name;
 pub fn infer_method_return_type(receiver_type: &MirType, method_name: &str) -> Option<MirType> {
     let canonical = canonical_method_name(method_name);
     if let Some(core_box_id) = core_box_id_for_receiver(receiver_type) {
+        if let MirType::Array(element_type) = receiver_type {
+            let method_id =
+                crate::boxes::array::ArrayMethodId::from_name(method_name).filter(|method_id| {
+                    matches!(
+                        method_id,
+                        crate::boxes::array::ArrayMethodId::Get
+                            | crate::boxes::array::ArrayMethodId::Pop
+                            | crate::boxes::array::ArrayMethodId::Remove
+                    )
+                });
+            if method_id.is_some() && !matches!(**element_type, MirType::Unknown | MirType::Void) {
+                return Some((**element_type).clone());
+            }
+        }
         if let Some(method_id) = CoreMethodId::iter()
             .find(|method_id| method_id.box_id() == core_box_id && method_id.name() == canonical)
         {
@@ -100,6 +114,7 @@ fn core_box_id_for_receiver(receiver_type: &MirType) -> Option<CoreBoxId> {
         MirType::String => Some(CoreBoxId::String),
         MirType::Integer => Some(CoreBoxId::Integer),
         MirType::Bool => Some(CoreBoxId::Bool),
+        MirType::Array(_) => Some(CoreBoxId::Array),
         MirType::Box(box_name) => CoreBoxId::from_name(box_name),
         _ => None,
     }
@@ -155,6 +170,18 @@ mod tests {
         );
         // P3-C: get は Phase 66+
         assert_eq!(infer_method_return_type(&array_type, "get"), None);
+        assert_eq!(
+            infer_method_return_type(&MirType::Array(Box::new(MirType::Integer)), "get"),
+            Some(MirType::Integer)
+        );
+        assert_eq!(
+            infer_method_return_type(&MirType::Array(Box::new(MirType::String)), "pop"),
+            Some(MirType::String)
+        );
+        assert_eq!(
+            infer_method_return_type(&MirType::Array(Box::new(MirType::Unknown)), "remove"),
+            None
+        );
     }
 
     #[test]

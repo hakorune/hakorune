@@ -60,6 +60,9 @@ cargo check -q
     Unified value path and pinned by the 291x-104 acceptance tests
   - `MapBox.clear()` is landed on the catalog-backed Unified value path and
     pinned by the 291x-105 acceptance tests
+  - `ArrayBox.get/pop/remove` element-result publication landed as `291x-106`:
+    publish `T` only for known `Array<T>` receivers and keep `Unknown` for mixed
+    or untyped receivers
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`,
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and
@@ -81,7 +84,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 - current blocker token:
-  - `phase-291x MapBox clear router promotion landed — next app card selection pending`
+  - `phase-291x String semantic owner cleanup pending`
 
 ## Current Perf Snapshot
 
@@ -116,7 +119,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - select the next app cleanup card without reopening the landed 291x witnesses
+  - select the String semantic owner cleanup card without reopening the landed
+    291x router witnesses or std.string sugar as a second owner
   - do not reopen the landed MapBox get missing-key contract without an owner-path change
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines

@@ -253,7 +253,8 @@ implemented.
   rows and MapBox `size` / `length` / `len` / `has` / `get` / `set` /
   `keys` / `values` / `delete` / `remove` / `clear`
 - contract-first backlog: Array generic element-result publication (`get` /
-  `pop` / `remove` as `T` instead of `Unknown`)
+  `pop` / `remove` as `T` instead of `Unknown`) landed in
+  `291x-106-arraybox-element-result-publication-card.md`
 - non-router cleanup backlog: String semantic owner cleanup, alias SSOT
   cleanup, and Map compat/source cleanup
 

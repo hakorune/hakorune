@@ -488,7 +488,7 @@ static box Main {
 }
 
 #[test]
-fn array_value_get_uses_unified_receiver_arg_shape_and_generic_return() {
+fn array_value_get_uses_unified_receiver_arg_shape_and_element_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
     let src = r#"
@@ -513,13 +513,13 @@ static box Main {
     );
     assert_eq!(
         get_result_types,
-        vec![Some(MirType::Unknown)],
-        "ArrayBox.get returns a data-dependent element and should stay MIR-unknown"
+        vec![Some(MirType::Integer)],
+        "ArrayBox.get should publish the element type for a known Array<Integer>"
     );
 }
 
 #[test]
-fn array_value_pop_uses_unified_receiver_arg_shape_and_generic_return() {
+fn array_value_pop_uses_unified_receiver_arg_shape_and_element_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
     let src = r#"
@@ -545,8 +545,8 @@ static box Main {
     );
     assert_eq!(
         pop_result_types,
-        vec![Some(MirType::Unknown)],
-        "ArrayBox.pop returns a data-dependent element and should stay MIR-unknown"
+        vec![Some(MirType::Integer)],
+        "ArrayBox.pop should publish the element type for a known Array<Integer>"
     );
 }
 
@@ -576,7 +576,7 @@ static box Main {
 }
 
 #[test]
-fn array_value_remove_uses_unified_receiver_arg_shape_and_generic_return() {
+fn array_value_remove_uses_unified_receiver_arg_shape_and_element_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
     let src = r#"
@@ -601,8 +601,49 @@ static box Main {
     );
     assert_eq!(
         remove_result_types,
+        vec![Some(MirType::Integer)],
+        "ArrayBox.remove should publish the element type for a known Array<Integer>"
+    );
+}
+
+#[test]
+fn array_value_mixed_element_results_stay_unknown() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push(7)
+    a.push("seven")
+    local x = a.get(0)
+    local p = a.pop()
+    a.push(9)
+    local r = a.remove(0)
+    return a.length()
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let get_result_types = method_call_result_types(&module, "ArrayBox", "get");
+    let pop_result_types = method_call_result_types(&module, "ArrayBox", "pop");
+    let remove_result_types = method_call_result_types(&module, "ArrayBox", "remove");
+
+    assert_eq!(
+        get_result_types,
         vec![Some(MirType::Unknown)],
-        "ArrayBox.remove returns a data-dependent element and should stay MIR-unknown"
+        "mixed ArrayBox.get should preserve the previous Unknown contract"
+    );
+    assert_eq!(
+        pop_result_types,
+        vec![Some(MirType::Unknown)],
+        "mixed ArrayBox.pop should preserve the previous Unknown contract"
+    );
+    assert_eq!(
+        remove_result_types,
+        vec![Some(MirType::Unknown)],
+        "mixed ArrayBox.remove should preserve the previous Unknown contract"
     );
 }
 

@@ -396,8 +396,15 @@ impl super::MirBuilder {
                     arr_id,
                     &super::MirType::Box("ArrayBox".to_string()),
                 );
+                let mut element_types = Vec::new();
                 for e in elements {
                     let v = self.build_expression_impl(e)?;
+                    let element_type = self.type_ctx.value_types.get(&v).cloned().or_else(|| {
+                        self.type_ctx
+                            .value_origin_newbox
+                            .get(&v)
+                            .map(|box_name| super::MirType::Box(box_name.clone()))
+                    });
                     self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
                         None,
                         arr_id,
@@ -407,7 +414,13 @@ impl super::MirBuilder {
                         super::EffectMask::MUT,
                         crate::mir::definitions::call_unified::TypeCertainty::Known,
                     ))?;
+                    element_types.push(element_type);
                 }
+                crate::mir::builder::types::array_element::record_array_literal_elements(
+                    self,
+                    arr_id,
+                    &element_types,
+                );
                 Ok(arr_id)
             }
             ASTNode::MapLiteral { entries, .. } => {

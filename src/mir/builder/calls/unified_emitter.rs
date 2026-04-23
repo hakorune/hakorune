@@ -392,6 +392,11 @@ impl UnifiedCallEmitterBox {
             }
         }
 
+        // Array element facts belong to the semantic receiver, not to the
+        // LocalSSA receiver copy created below. Record writes before
+        // finalization so later calls on the same source value see Array<T>.
+        super::super::types::array_element::observe_array_write_call(builder, &callee, &args);
+
         // Finalize operands in current block (EmitGuardBox wrapper)
         let mut callee = callee;
         let mut args_local: Vec<ValueId> = args;
@@ -443,6 +448,9 @@ impl UnifiedCallEmitterBox {
 
         // Create MirCall instruction using the new module (pure data composition)
         let mir_call = call_unified::create_mir_call(dst, callee.clone(), args_local.clone());
+        let array_element_annotation = mir_call
+            .dst
+            .map(|dst| (dst, callee.clone(), args_local.clone()));
 
         // Dev trace: show final callee/recv right before emission (guarded)
         if crate::config::env::builder_local_ssa_trace()
@@ -501,6 +509,11 @@ impl UnifiedCallEmitterBox {
                 ));
             }
             super::annotation::annotate_call_result_from_func_name(builder, dst, &func_name);
+        }
+        if let Some((dst, callee, args)) = array_element_annotation {
+            super::super::types::array_element::annotate_array_element_result(
+                builder, dst, &callee, &args,
+            );
         }
 
         // Dev-only: verify block schedule invariants after emitting call

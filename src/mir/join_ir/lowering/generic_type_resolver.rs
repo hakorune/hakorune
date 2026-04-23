@@ -49,8 +49,9 @@ impl GenericTypeResolver {
     /// - `false`: P3-A/P3-B で処理可能、または未対応
     pub fn is_generic_method(receiver_type: &MirType, method_name: &str) -> bool {
         match receiver_type {
+            MirType::Array(_) => matches!(method_name, "get" | "pop" | "remove"),
             MirType::Box(box_name) => match box_name.as_str() {
-                "ArrayBox" => matches!(method_name, "get" | "pop" | "first" | "last"),
+                "ArrayBox" => matches!(method_name, "get" | "pop" | "remove" | "first" | "last"),
                 "MapBox" => matches!(method_name, "get"),
                 _ => false,
             },
@@ -131,8 +132,16 @@ mod tests {
         // P3-C 対象
         assert!(GenericTypeResolver::is_generic_method(&array_type, "get"));
         assert!(GenericTypeResolver::is_generic_method(&array_type, "pop"));
+        assert!(GenericTypeResolver::is_generic_method(
+            &array_type,
+            "remove"
+        ));
         assert!(GenericTypeResolver::is_generic_method(&array_type, "first"));
         assert!(GenericTypeResolver::is_generic_method(&array_type, "last"));
+        assert!(GenericTypeResolver::is_generic_method(
+            &MirType::Array(Box::new(MirType::Integer)),
+            "remove"
+        ));
 
         // P3-A/P3-B 対象（非 P3-C）
         assert!(!GenericTypeResolver::is_generic_method(&array_type, "size"));

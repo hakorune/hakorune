@@ -101,7 +101,7 @@ impl<'a> CalleeResolverBox<'a> {
                 let has_runtime_receiver_type = self
                     .value_types
                     .get(&receiver)
-                    .map(|t| matches!(t, MirType::Box(_) | MirType::String))
+                    .map(|t| matches!(t, MirType::Box(_) | MirType::String | MirType::Array(_)))
                     .unwrap_or(false);
                 let certainty = if self.value_origin_newbox.contains_key(&receiver)
                     || has_runtime_receiver_type
@@ -251,6 +251,7 @@ impl<'a> CalleeResolverBox<'a> {
             let from_type = self.value_types.get(&receiver).and_then(|t| match t {
                 MirType::Box(box_name) => Some(box_name.clone()),
                 MirType::String => Some("StringBox".to_string()),
+                MirType::Array(_) => Some("ArrayBox".to_string()),
                 _ => None,
             });
             let from_origin = self.value_origin_newbox.get(&receiver).cloned();

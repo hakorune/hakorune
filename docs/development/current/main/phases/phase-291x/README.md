@@ -25,6 +25,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md
   - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-106-arraybox-element-result-publication-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -35,8 +36,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `MapBox.clear` catalog-backed Unified value path
-- Next implementation target: select the next explicit app cleanup card
+- Latest landed cleanup target: `ArrayBox.get/pop/remove` element-result publication
+- Next implementation target: String semantic owner cleanup card selection
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -77,6 +78,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 14. `docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md`
 15. `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
 16. `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
+17. `docs/development/current/main/phases/phase-291x/291x-106-arraybox-element-result-publication-card.md`
 
 ## Current Rule
 
@@ -106,6 +108,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
   receiver-plus-key value path
 - `MapBox.clear()` now uses the catalog-backed Unified receiver-only value path
+- `ArrayBox.get/pop/remove` element-result publication is landed:
+  publish `T` only when the receiver has a known `MirType::Array(T)`; keep
+  `Unknown` for mixed or untyped receivers.
 
 ## Implementation State
 
@@ -178,7 +183,7 @@ Remaining MapBox follow-up:
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
 - landed alias card:
   `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
-- active extended-route card:
+- landed extended-route card:
   `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 
 Landed CoreBox router first slice:
@@ -197,14 +202,12 @@ Landed CoreBox router first slice:
 - `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
   `StringBox` before route selection; uncovered methods remain on the BoxCall
   fallback.
-- `ArrayBox.get` intentionally stays `MirType::Unknown`; the returned element
-  type remains data-dependent.
-- `ArrayBox.pop` intentionally stays `MirType::Unknown` for the same
-  data-dependent element-return reason.
+- `ArrayBox.get` / `pop` / `remove` intentionally stayed `MirType::Unknown` in
+  the route-only slice; `291x-106` landed the dedicated element-result
+  publication card that narrows them only when the receiver has a known
+  `Array<T>` MIR fact.
 - `ArrayBox.set` follows the write-`Void` contract already used by
   `ArrayBox.push`.
-- `ArrayBox.remove` intentionally stays `MirType::Unknown` for the same
-  data-dependent element-return reason as `get` / `pop`.
 - `ArrayBox.insert` follows the same write-`Void` contract already used by
   `ArrayBox.push` / `ArrayBox.set`.
 - `MapBox.get` intentionally stays `MirType::Unknown` because stored map values
