@@ -207,18 +207,16 @@ impl MapBox {
         Box::new(array)
     }
 
-    /// 全ての値を取得
+    /// 全ての値を取得 (keys() と同じソート済みキー順で返す)
     pub fn values(&self) -> Box<dyn NyashBox> {
-        let values: Vec<Box<dyn NyashBox>> = self
-            .data
-            .read()
-            .unwrap()
-            .values()
-            .map(|value| Self::clone_for_visible_read(value.as_ref()))
-            .collect();
+        let data = self.data.read().unwrap();
+        let mut keys: Vec<&String> = data.keys().collect();
+        keys.sort();
         let array = ArrayBox::new();
-        for value in values {
-            array.push(value);
+        for key in keys {
+            if let Some(value) = data.get(key) {
+                array.push(Self::clone_for_visible_read(value.as_ref()));
+            }
         }
         Box::new(array)
     }
@@ -401,5 +399,68 @@ impl Debug for MapBox {
             .field("size", &data.len())
             .field("keys", &data.keys().collect::<Vec<_>>())
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn str_val(b: &Box<dyn NyashBox>) -> String {
+        b.to_string_box().value
+    }
+
+    /// Slice 1 — values() must follow sorted key order (same as keys()).
+    #[test]
+    fn test_values_sorted_key_order() {
+        let map = MapBox::new();
+        map.set(Box::new(StringBox::new("b")), Box::new(StringBox::new("val_b")));
+        map.set(Box::new(StringBox::new("a")), Box::new(StringBox::new("val_a")));
+        map.set(Box::new(StringBox::new("c")), Box::new(StringBox::new("val_c")));
+
+        let keys = map.keys();
+        let values = map.values();
+
+        let keys_arr = keys.as_any().downcast_ref::<ArrayBox>().expect("keys() must return ArrayBox");
+        let vals_arr = values.as_any().downcast_ref::<ArrayBox>().expect("values() must return ArrayBox");
+
+        assert_eq!(keys_arr.len(), 3);
+        assert_eq!(vals_arr.len(), 3);
+
+        // keys() order: a, b, c
+        assert_eq!(str_val(&keys_arr.get_index_i64(0)), "a");
+        assert_eq!(str_val(&keys_arr.get_index_i64(1)), "b");
+        assert_eq!(str_val(&keys_arr.get_index_i64(2)), "c");
+
+        // values() must match: val_a, val_b, val_c
+        assert_eq!(str_val(&vals_arr.get_index_i64(0)), "val_a");
+        assert_eq!(str_val(&vals_arr.get_index_i64(1)), "val_b");
+        assert_eq!(str_val(&vals_arr.get_index_i64(2)), "val_c");
+    }
+
+    /// keys()[i] and values()[i] must be paired correctly for all indices.
+    #[test]
+    fn test_keys_values_index_parity() {
+        let map = MapBox::new();
+        map.set(Box::new(StringBox::new("z")), Box::new(StringBox::new("26")));
+        map.set(Box::new(StringBox::new("m")), Box::new(StringBox::new("13")));
+        map.set(Box::new(StringBox::new("a")), Box::new(StringBox::new("1")));
+
+        let keys = map.keys();
+        let values = map.values();
+        let keys_arr = keys.as_any().downcast_ref::<ArrayBox>().unwrap();
+        let vals_arr = values.as_any().downcast_ref::<ArrayBox>().unwrap();
+
+        assert_eq!(keys_arr.len(), vals_arr.len());
+        for i in 0..keys_arr.len() {
+            let k = str_val(&keys_arr.get_index_i64(i as i64));
+            let v = str_val(&vals_arr.get_index_i64(i as i64));
+            match k.as_str() {
+                "a" => assert_eq!(v, "1"),
+                "m" => assert_eq!(v, "13"),
+                "z" => assert_eq!(v, "26"),
+                _ => panic!("unexpected key: {k}"),
+            }
+        }
     }
 }
