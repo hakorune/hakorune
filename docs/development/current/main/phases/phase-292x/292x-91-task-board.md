@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-04-23
 Scope: Phase 292x task board for `.inc` thin tag cleanup.
 Related:
@@ -157,15 +157,21 @@ Related:
   - state: copy-graph helper deleted and cross-block use API tightened; guard
     is now 3 files / 4 analysis-debt lines
 
-## Active Card
+## Completed Closeout Card
 
-- [ ] A14 generic pure walker view extraction
+- [x] A14 generic pure walker view extraction
   - design: `292x-118-generic-pure-walker-view-extraction-card.md`
   - state: GenericPureProgramView and GenericPureBlockView shells are landed;
     raw walker access is consolidated into the view owner; guard is now 0 files
     / 0 analysis-debt lines plus 1 file / 2 view-owner lines
-  - next families: keep view-owner reads as explicit boundary substrate unless
-    MIR-owned metadata grows a replacement view
+  - closeout: keep view-owner reads as explicit boundary substrate unless
+    MIR-owned metadata grows a replacement view in a future phase
+
+## Handoff
+
+- phase-292x is closed.
+- current lane resumes at
+  `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`.
 
 ## Done Definition
 

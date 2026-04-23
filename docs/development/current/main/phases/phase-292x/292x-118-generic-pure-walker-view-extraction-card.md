@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-04-23
 Scope: Plan the remaining generic pure walker split after 292x-117 reduced the guard to 3 files / 4 lines.
 Related:
@@ -96,3 +96,16 @@ bash tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh
 bash tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/run_llvmlite_monitor_keep.sh
 git diff --check
 ```
+
+## Closeout
+
+Phase-292x stops here. The useful cleanup is no longer another same-layer
+`.inc` shave:
+
+- active `.inc` analysis debt is 0 files / 0 lines
+- explicit view-owner construction remains 1 file / 2 lines
+- `tools/checks/inc_codegen_thin_shim_guard.sh` prevents raw MIR analysis debt
+  from growing again
+
+Future work may replace this view owner with MIR/codegen-owned metadata, but
+that is a new phase, not active phase-292x debt.

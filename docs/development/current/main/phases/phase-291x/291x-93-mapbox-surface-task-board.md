@@ -85,6 +85,8 @@ This MapBox slice is done when:
 
 ## Follow-Up Cleanup Candidates
 
+- `length` is handled by
+  `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`.
 - `.hako` VM source route still stubs `keys` / `values` / `remove` / `clear`; promote only with a separate state-owner card.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted after inventory; do not recreate it as a second std owner.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; do not recreate it outside the active VM route owner.

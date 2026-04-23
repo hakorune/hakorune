@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-04-23
 Scope: `.inc` codegen を pre-decided tag consumer だけに薄くする phase front。
 Related:
@@ -41,7 +41,7 @@ Related:
 
 # Phase 292x: `.inc` codegen thin tag cleanup
 
-- Status: Active
+- Status: Closed
 - Date: 2026-04-23
 - Purpose: `.inc` を MIR JSON の形解析 owner から外し、MIR-owned
   pre-decided tag を読むだけの boundary glue に寄せる。
@@ -66,7 +66,10 @@ Related:
 - Landed extraction: GenericPureBlockView accessor
 - Landed extraction: generic pure view owner consolidation
 - Landed guard split: generic pure view-owner reads are accounted separately
-- Next cleanup target: generic pure walker view extraction
+- Closeout target: generic pure walker view extraction completed as explicit
+  view-owner accounting
+- Handoff target:
+  `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -145,6 +148,13 @@ Landed guardrail:
 - current inventory: 71 `.inc` files, 15,832 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 - compact phase status lives in `292x-STATUS.toml`
+
+Closeout state:
+
+- phase-292x is closed
+- active `.inc` analysis-debt lines: 0
+- explicit view-owner lines: 2
+- next implementation lane: phase-291x MapBox contract-first cleanup
 
 Landed first card:
 

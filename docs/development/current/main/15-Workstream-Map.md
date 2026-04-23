@@ -14,21 +14,21 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-292x .inc codegen thin tag cleanup` |
-| Front | `array/string windows, generic_method.has, Sum seeds, UserBox seeds, array_getset_micro, MapBox duplicate receiver, Hako LL/provider fix, and all pure_compile_minimal_paths deletions landed` |
+| Now | `phase-291x CoreBox MapBox contract-first cleanup` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; CoreBox MapBox length alias is active` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `generic pure walker view extraction` |
-| Next | `extract a named generic pure walker view without local debt shaving` |
-| After Next | `post-walker residual .inc guard cleanup` |
+| Blocker | `MapBox.length alias contract-first slice` |
+| Next | `add MapBox.length as a read-only catalog alias and Unified value-path row` |
+| After Next | `MapBox extended rows or return-contract cleanup, one card at a time` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-292x/README.md`
-  - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
-  - phase brief: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
-  - inventory: `docs/development/current/main/phases/phase-292x/292x-92-inc-codegen-analysis-debt-ledger.md`
+  - implementation lane: `docs/development/current/main/phases/phase-291x/README.md`
+  - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
+  - phase brief: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+  - closed .inc cleanup: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Immediate Sequence
@@ -69,7 +69,8 @@ Related:
 34. `phase-292x GenericPureBlockView accessor` landed
 35. `phase-292x generic pure view owner consolidation` landed
 36. `phase-292x generic pure view-owner guard split` landed
-37. `phase-292x generic pure walker view extraction`
+37. `phase-292x generic pure walker view extraction` closed
+38. `phase-291x MapBox.length contract-first alias`
 
 ## Parked Corridor
 

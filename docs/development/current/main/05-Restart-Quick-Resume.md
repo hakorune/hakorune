@@ -33,25 +33,15 @@ cargo check -q
 
 - lane:
   - compiler cleanup lane is primary
-  - current-state token: `phase-292x .inc codegen thin tag cleanup`
-  - active phase: `docs/development/current/main/phases/phase-292x/README.md`
-  - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
+  - current-state token: `phase-291x CoreBox MapBox contract-first cleanup`
+  - active phase: `docs/development/current/main/phases/phase-291x/README.md`
+  - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - current focus:
-  - `.inc` is boundary glue, not planner
-  - `tools/checks/inc_codegen_thin_shim_guard.sh` pins the no-growth baseline
-  - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-  - latest landed exact route tag: `array_getset_micro`
-  - MapBox duplicate receiver predelete fix is landed
-  - guard baseline: 0 `.inc` files / 0 analysis-debt lines, plus 1 `.inc`
-    file / 2 view-owner lines
-  - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-    is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
-    restored, then landed; path #3 Map, path #4 Array, and paths #5/#6 String
-    const-eval deletions are also landed; the string loop seed copy-graph helper
-    is deleted; cross-block use API tightening, GenericPureProgramView shell,
-    GenericPureBlockView accessor, and generic pure view owner consolidation are
-    landed; view-owner guard split is landed; next cleanup is generic pure
-    walker view extraction
+  - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
+    1 file / 2 explicit view-owner lines guarded separately
+  - `.inc` remains boundary glue, not planner
+  - active implementation is `MapBox.length()` as a read-only contract-first
+    alias for the existing Map size surface
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -64,13 +54,13 @@ cargo check -q
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
-  - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
+  - `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 - active entry:
-  - `docs/development/current/main/phases/phase-292x/README.md`
+  - `docs/development/current/main/phases/phase-291x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
 - current blocker token:
-  - `generic pure walker view extraction`
+  - `MapBox.length alias contract-first slice`
 
 ## Current Perf Snapshot
 
@@ -105,9 +95,9 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - plan generic pure walker view extraction without local debt shaving
-  - `pure_compile_minimal_paths` is removed; analysis debt is now 0 files / 0
-    lines, with 1 file / 2 view-owner lines
+  - implement `MapBox.length()` as the first contract-first MapBox cleanup row
+  - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
+    files / 0 lines, with 1 file / 2 view-owner lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references
@@ -127,9 +117,9 @@ cargo check -q
 
 - worktree should be clean after the last commit.
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
-- the current docs front is phase-292x `.inc` thin tag cleanup.
+- the current docs front is phase-291x CoreBox MapBox contract-first cleanup.
 - phase-291x CoreBox first catalog and cleanup slices are landed references.
-- active cleanup card is `292x-118-generic-pure-walker-view-extraction-card.md`;
+- phase-292x closeout card was `292x-118-generic-pure-walker-view-extraction-card.md`;
   `292x-112` deleted path #1/#2 after `292x-114` fixed the predelete blockers,
   `292x-115` deleted paths #3/#4, `292x-116` deleted paths #5/#6,
   `292x-117a` deleted the string loop seed copy-graph helper, and `292x-117b`

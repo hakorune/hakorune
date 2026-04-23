@@ -55,7 +55,8 @@ Scope: current lane / next lane / restart order only.
 37. `docs/development/current/main/investigations/phase137x-inc-codegen-thin-tag-inventory-2026-04-22.md`
 38. `docs/development/current/main/phases/phase-291x/README.md` (`CoreBox surface catalog` landed reference)
 39. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-40. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+40. `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+41. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 41. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
 42. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
 43. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
@@ -80,54 +81,44 @@ Scope: current lane / next lane / restart order only.
 - active lane:
   - compiler cleanup lane is primary now
   - current-state token:
-    - `phase-292x .inc codegen thin tag cleanup`
+    - `phase-291x CoreBox MapBox contract-first cleanup`
   - active phase:
-    - `docs/development/current/main/phases/phase-292x/README.md`
+    - `docs/development/current/main/phases/phase-291x/README.md`
   - phase status SSOT:
-    - `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
+    - `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor:
-    - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
+    - `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
+    - `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
   - current app slice:
-    - phase-291x CoreBox surface catalog is landed
+    - phase-292x `.inc` cleanup is closed with 0 analysis-debt lines and 2
+      explicit view-owner lines
+    - phase-291x CoreBox surface catalog is the active implementation lane
     - StringBox / MapBox catalog seams are pinned
     - safe legacy std/debt deletions are landed
   - phase-137x remains observe-only
   - current perf blocker stays recorded as `137x-H46 text-cell residence/materialization design`, but it does not preempt app work unless app implementation is actually blocked
   - current phase goal:
-    - make `.inc` a thin boundary glue layer
-    - move route legality and shape ownership to MIR-owned metadata
-    - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
-    - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
-    - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-    - latest landed exact route tag: `array_getset_micro`
-    - MapBox duplicate receiver and Hako LL/provider stack overflow predelete fixes are landed
-    - minimal paths #1/#2 deletion is landed
-    - minimal path #3 Map deletion is landed
-    - minimal path #4 Array deletion is landed
-    - minimal String const-eval paths #5/#6 deletion is landed
-    - string loop seed copy-graph helper deletion is landed
-    - generic pure cross-block use API tightening is landed
-    - GenericPureProgramView and GenericPureBlockView shells are landed
-    - raw walker access is consolidated into the view owner
-    - guard baseline: 0 `.inc` files / 0 analysis-debt lines, plus 1 `.inc`
-      file / 2 view-owner lines
-    - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is removed; next cleanup is generic pure walker view extraction
+    - implement `MapBox.length()` as a read-only catalog alias for the existing
+      Map size surface
+    - keep `size` slot 200 and `len` slot 201 separate
+    - do not promote `keys` / `values` / `delete` / `remove` / `clear` in this
+      slice
+    - keep `.inc` closed as boundary glue; phase-292x guard remains the no-growth
+      check for raw `.inc` analysis debt
   - current app/runtime gap read:
     - ArrayBox surface catalog is landed and phase-290x is closed
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - `apps/std/string.hako` is std sugar; the old diagnostic `apps/std/string2.hako` stub was deleted during cleanup triage
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.len`, `MapBox.has`, `MapBox.get`, and `MapBox.set` to the Unified value path; remaining CoreBox route-only candidates are contract-first rows
-    - next cleanup after `MapBox.set`: contract-first MapBox `length`, extended rows, write-return, and bad-key normalization
+    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.len`, `MapBox.has`, `MapBox.get`, and `MapBox.set` to the Unified value path; active cleanup is `MapBox.length`
+    - next cleanup after `MapBox.length`: contract-first MapBox extended rows, write-return, and bad-key normalization
     - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, `MapBox.length` alias, `MapBox.keys/values`, `MapBox.delete/remove/clear`, MapBox write-return and bad-key normalization, String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `generic pure walker view extraction`
+    - `MapBox.length alias contract-first slice`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
+  - docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -26,7 +27,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: `.hako` MapBox extended-route cleanup decision
+- Next implementation target: `MapBox.length` read-only alias
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -58,6 +59,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 5. `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
 6. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 7. `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
+8. `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
 
 ## Current Rule
 
@@ -71,6 +73,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - do not add `length` as a Rust vtable alias in the first MapBox commit
 - do not collapse `size` and `len` slots in the first MapBox commit
 - do not normalize `set` / `delete` / `clear` return contracts in the first MapBox commit
+- `MapBox.length` is now a separate contract-first alias slice; it must not
+  promote `keys` / `values` / `delete` / `remove` / `clear`
 
 ## Implementation State
 
@@ -110,7 +114,10 @@ Remaining MapBox follow-up:
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
-- next card: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+- active card:
+  `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+- next extended-route card:
+  `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 
 Landed CoreBox router first slice:
 

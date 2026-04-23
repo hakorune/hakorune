@@ -67,7 +67,7 @@ StringBox surface catalog
 | `291x-S20` | done | prove `ArrayBox.insert` through the same MIR router Unified value path |
 | `291x-S21` | done | prove `MapBox.get` through the same MIR router Unified value path |
 | `291x-S22` | done | prove `MapBox.set` through the same MIR router Unified value path |
-| `291x-S23` | parked | decide the next contract-first MapBox cleanup row |
+| `291x-S23` | active | add `MapBox.length` as the first contract-first MapBox cleanup row |
 
 ## First Stable Surface Target
 
@@ -151,6 +151,8 @@ This StringBox slice is done when:
   result type intentionally stays `Unknown`
 - `MapBox.set` is the first stored-value MapBox write route slice; its current
   visible write-return stays opaque as `Unknown`
+- `MapBox.length` is the next read-only alias slice; it maps to the existing
+  Map size surface without unifying the `size` and `len` slots
 - next safe cleanup is not a whole-CoreBox flip; it should allowlist one
   proven CoreBox method family at a time
 - remaining route-only CoreBox rows are closed for ArrayBox stable rows and

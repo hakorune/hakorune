@@ -30,44 +30,31 @@ Related:
 
 - current lane:
   - compiler cleanup lane is primary
-  - current-state token: `phase-292x .inc codegen thin tag cleanup`
-  - active phase: `docs/development/current/main/phases/phase-292x/README.md`
-  - phase status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
-  - method anchor: `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md`
-  - current implementation focus: generic pure walker view extraction
+  - current-state token: `phase-291x CoreBox MapBox contract-first cleanup`
+  - active phase: `docs/development/current/main/phases/phase-291x/README.md`
+  - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
+  - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+  - current implementation focus: MapBox.length alias contract-first slice
   - current phase goal:
-    - make `.inc` a thin boundary glue layer
-    - move route legality and shape ownership to MIR-owned metadata
-    - keep `.inc` on metadata read / field validation / emit / skip / fail-fast only
-    - prevent new `.inc` raw MIR analysis debt with `tools/checks/inc_codegen_thin_shim_guard.sh`
-    - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
-    - latest landed exact route tag: `array_getset_micro`
-    - MapBox duplicate receiver and Hako LL/provider stack overflow predelete fixes are landed
-    - minimal paths #1/#2 deletion is landed
-    - minimal path #3 Map deletion is landed
-    - minimal path #4 Array deletion is landed
-    - minimal String const-eval paths #5/#6 deletion is landed
-    - string loop seed copy-graph helper deletion is landed
-    - generic pure cross-block use API tightening is landed
-    - GenericPureProgramView and GenericPureBlockView shells are landed
-    - raw walker access is consolidated into the view owner
-    - guard baseline: 0 `.inc` files / 0 analysis-debt lines, plus 1 `.inc`
-      file / 2 view-owner lines
-    - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
-      is removed; next cleanup is generic pure walker view extraction
+    - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
+      1 file / 2 explicit view-owner lines guarded separately
+    - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
+    - resume CoreBox cleanup one contract row at a time
+    - first row: `MapBox.length()` as a read-only alias for the existing Map
+      size surface
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
     - StringBox surface SSOT is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.len`, `MapBox.has`, `MapBox.get`, and `MapBox.set` to the Unified value path; remaining cleanup is MapBox contract-first rows
+    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.len`, `MapBox.has`, `MapBox.get`, and `MapBox.set` to the Unified value path; active cleanup is `MapBox.length`
     - MapBox Rust vtable surface is cataloged; legacy `apps/std/map_std.hako` and unused `map_keys_values_bridge.hako` prototype were deleted
     - `apps/lib/boxes/map_std.hako` prelude debt is closed; `OpsCalls.map_has(...)` owns the remaining `pref == "ny"` Map-only wrapper
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `generic pure walker view extraction`
+  - current blocker token: `MapBox.length alias contract-first slice`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

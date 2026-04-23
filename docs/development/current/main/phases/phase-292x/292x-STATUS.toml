@@ -5,13 +5,13 @@
 # - Stop duplicating every slice result across README / task board / current mirrors.
 # - Human-authored mirrors should point here unless the active lane or blocker changes.
 
-status = "Active"
+status = "Closed"
 date = "2026-04-23"
 phase = "phase-292x"
 title = ".inc codegen thin tag cleanup"
 
 active_lane = "phase-292x .inc codegen thin tag cleanup"
-current_blocker_token = "generic pure walker view extraction"
+current_blocker_token = "none; phase closed"
 method_anchor = "docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-292x/292x-118-generic-pure-walker-view-extraction-card.md"
 
@@ -27,8 +27,8 @@ view_owner_lines = 2
 remaining_seed_matcher_defs = 0
 
 last_landed_slice = "generic_pure_view_owner_guard_split"
-next_recommended_slice = "generic_pure_walker_view_extraction"
-next_recommended_reason = "292x-118d split view-owner construction from analysis debt. The guard is now 0 files / 0 debt lines plus 1 file / 2 view-owner lines."
+next_recommended_slice = "phase-291x MapBox.length alias contract-first slice"
+next_recommended_reason = "phase-292x reached its closeout target: .inc analysis debt is 0 files / 0 lines, and the only remaining raw shape reads are the explicit generic_pure_view boundary owner at 1 file / 2 lines."
 
 verification_min = [
   "cargo fmt --check",
@@ -307,5 +307,5 @@ note = "Guard is 3 files / 4 debt lines; further reduction needs a wider generic
 id = "generic_pure_walker_view_extraction"
 priority = 1
 remaining_matchers = 0
-owner_status = "active; raw walker access is consolidated into the generic pure view owner and accounted separately from analysis debt"
-note = "Guard is 0 files / 0 debt lines plus 1 file / 2 view-owner lines."
+owner_status = "closed for phase-292x; raw walker access is consolidated into the generic pure view owner and accounted separately from analysis debt"
+note = "Guard is 0 files / 0 debt lines plus 1 file / 2 view-owner lines. Future MIR-owned replacement views can reopen this as a new phase, but there is no active .inc analysis-debt implementation lane left here."
