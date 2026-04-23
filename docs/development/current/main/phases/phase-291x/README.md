@@ -27,8 +27,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox.keys non-empty state parity before
-  `remove` / content enumeration
+- Next implementation target: MapBox.remove alias source-route parity before
+  `clear` / content enumeration
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -114,13 +114,13 @@ Remaining MapBox follow-up:
 - source-level vm-hako non-empty `MapBox.values().size()` state-owner shape is landed and
   pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`.
+- source-level vm-hako non-empty `MapBox.keys().size()` state-owner shape is landed and
+  pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`.
 - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is landed
   and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`.
-- non-empty `keys()` state parity still needs the same owner promotion:
-  `set()` updates S0 `MapStateCoreBox` state, so source-level `keys()` must
-  read that owner before `remove` / content enumeration is promoted.
-- `.hako` VM `keys` / `remove` / `clear` source-route behavior must still be
+- `.hako` VM `remove` / `clear` source-route behavior must still be
   promoted one row at a time and smoke-pinned.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
@@ -139,8 +139,8 @@ Landed CoreBox router first slice:
   `find`, plus `ArrayBox.length` / `size` / `len`, `ArrayBox.push`,
   `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
   `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
-  `MapBox.len`, and `MapBox.has`, `MapBox.get`, and `MapBox.set` rows through
-  `Route::Unified`.
+  `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and
+  `MapBox.values` rows through `Route::Unified`.
 - `src/mir/builder/utils/boxcall_emit.rs` still bridges `MirType::String` to
   `StringBox` before route selection; uncovered methods remain on the BoxCall
   fallback.
@@ -158,6 +158,6 @@ Landed CoreBox router first slice:
   are data-dependent.
 - `MapBox.set` intentionally stays `MirType::Unknown`; current visible
   write-return and bad-key behavior stay contract-first cleanup.
-- two-arg `lastIndexOf`, MapBox extended rows, and MapBox write-return /
+- two-arg `lastIndexOf`, MapBox remove/clear rows, and MapBox write-return /
   bad-key normalization remain contract-first cleanup cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

@@ -31,11 +31,12 @@ executor owner, and Rust `MapBox::invoke_surface(...)` remains the Rust
 VM/vtable owner. Do not cross-call between those lanes.
 
 Landed promotion slices: empty-map `MapBox.values()` as an ArrayBox-like shape,
-source-level vm-hako `MapBox.set(...)` duplicate receiver stripping, and
-non-empty `values()` parity through the same S0 state owner as `set()` via
+source-level vm-hako `MapBox.set(...)` duplicate receiver stripping,
+non-empty `values()` parity, and non-empty `keys()` parity through the same S0
+state owner as `set()` via
 `src/runner/reference/vm_hako/payload_normalize.rs`. The next slice is
-non-empty `keys()` parity through the same owner. Content enumeration is
-deferred until a separate shape contract pins key/value ordering and element
+`remove(key)` as a `delete(key)` owner alias. Content enumeration is deferred
+until a separate shape contract pins key/value ordering and element
 publication.
 
 Implementation note: the source route returns an ArrayBox-like value through
@@ -64,6 +65,9 @@ metadata over treating the synthetic register id as a runtime array handle.
 - non-empty `MapBox.values()` now goes through payload normalization to
   S0 `boxcall(values)` and reads the same `MapStateCoreBox` length store
   written by `set()`.
+- non-empty `MapBox.keys()` now goes through payload normalization to
+  S0 `boxcall(keys)` and reads the same `MapStateCoreBox` length store
+  written by `set()`.
 - MIR `copy` previously copied scalar/kind/handle/file payload but not
   VM-local receiver metadata; this card may extend copy metadata propagation
   only for existing local metadata keys.
@@ -81,12 +85,17 @@ metadata over treating the synthetic register id as a runtime array handle.
   `set/get/has/delete` rows when Unified MIR emits `expected_arity + 1` args.
 - vm-hako payload normalization rewrites source-level `mir_call(MapBox.values)`
   into S0 `boxcall(values)`, preserving the optional receiver-mirror arg.
+- vm-hako payload normalization rewrites source-level `mir_call(MapBox.keys)`
+  into S0 `boxcall(keys)`, preserving the optional receiver-mirror arg.
 - `MapStateCoreBox` writes ArrayBox-like per-receiver length metadata for
   `keys()` / `values()`, and `ArrayCoreBox` consumes that metadata before
   runtime handle length for VM-local ArrayBox-like shapes.
 - source-level non-empty `MapBox.values().size()` is pinned at `2`.
+- source-level non-empty `MapBox.keys().size()` is pinned at `2`.
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
+- Smoke:
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
 
@@ -121,9 +130,9 @@ metadata over treating the synthetic register id as a runtime array handle.
    local to MapBox method rows.
 3. Landed: land non-empty `values()` state-owner parity through payload
    normalization into the S0 `MapStateCoreBox` owner.
-4. Active next: land non-empty `keys()` state-owner parity through payload
+4. Landed: land non-empty `keys()` state-owner parity through payload
    normalization into the same S0 owner.
-5. Promote `remove(key)` as an alias of `delete(key)` with its own smoke.
+5. Active next: promote `remove(key)` as an alias of `delete(key)` with its own smoke.
 6. Reactivate or replace stale archive witnesses only when they match the new
    owner path and have a valid helper source path.
 7. Decide whether `keys()/values()` content enumeration is ordered, unordered,

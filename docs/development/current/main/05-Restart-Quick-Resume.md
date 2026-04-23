@@ -43,8 +43,9 @@ cargo check -q
   - `MapBox.length()` is landed as a read-only contract-first alias for the
     existing Map size surface
   - non-empty source-level vm-hako `MapBox.values().size()` is landed and pinned
+  - non-empty source-level vm-hako `MapBox.keys().size()` is landed and pinned
   - source-level vm-hako `MapBox.set(...)` duplicate-receiver routing is landed
-  - active implementation is MapBox.keys non-empty state parity
+  - active implementation is MapBox.remove alias source-route parity
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -52,8 +53,9 @@ cargo check -q
     `find`, plus `ArrayBox.length/size/len`, `ArrayBox.push`,
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
     `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
-    `MapBox.len`, and `MapBox.has`, `MapBox.get`, and `MapBox.set`, are on the
-    Unified value path; remaining cleanup is MapBox contract-first rows
+    `MapBox.len`, and `MapBox.has`, `MapBox.get`, `MapBox.set`,
+    `MapBox.keys`, and `MapBox.values`, are on the Unified value path;
+    remaining cleanup is MapBox contract-first rows
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
@@ -63,7 +65,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
-  - `MapBox.keys non-empty state parity`
+  - `MapBox.remove alias source-route parity`
 
 ## Current Perf Snapshot
 
@@ -98,8 +100,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - promote non-empty `keys()` through the same S0 state owner before
-    `remove` or content enumeration
+  - promote `remove(key)` as a `delete(key)` owner alias before `clear` or
+    content enumeration
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only

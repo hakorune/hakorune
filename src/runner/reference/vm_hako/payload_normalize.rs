@@ -375,6 +375,7 @@ fn canonical_map_boxcall_method(method: &str) -> Option<&'static str> {
         "getField" => Some("getField"),
         "setField" => Some("setField"),
         "delete" => Some("delete"),
+        "keys" => Some("keys"),
         "values" => Some("values"),
         "size" | "len" | "length" => Some("size"),
         _ => None,
