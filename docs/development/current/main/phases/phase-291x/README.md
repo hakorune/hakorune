@@ -21,6 +21,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -31,7 +32,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox post-contract next-slice selection
+- Next implementation target: `291x-102` — MapBox keys()/values() element publication (Open; gates not yet met)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -68,6 +69,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 10. `docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md`
 11. `docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md`
 12. `docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md`
+13. `docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md`
 
 ## Current Rule
 
