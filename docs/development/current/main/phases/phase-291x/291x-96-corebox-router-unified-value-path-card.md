@@ -1,12 +1,13 @@
 ---
-Status: Active follow-up
-Date: 2026-04-22
+Status: Landed
+Date: 2026-04-24
 Scope: CoreBox receiver routing seam for Value World / Unified call migration.
 Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
+  - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
 ---
 
 # CoreBox Router Unified Value Path Card
@@ -48,9 +49,9 @@ Landed route slices:
 - `MapBox.delete` / `MapBox.remove`
 - `MapBox.clear`
 
-This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
-remaining method-family flips as CoreBox value-first cleanup candidates after
-the current backend route-tag work has a clean stopping point.
+This is not the active phase-292x `.inc` boundary-thinning blocker. The current
+StringBox, ArrayBox, and MapBox route rows are closed as a landed reference.
+Future method-family flips need new one-family cards.
 
 ## Finding
 
@@ -260,7 +261,8 @@ write-return contract.
 - a direct `MirType::String` receiver fixture proves the chosen method no
   longer depends on the broad CoreBox BoxCall guard
 - existing ArrayBox, StringBox, and MapBox surface smokes stay green
-- no broad route change is made for remaining `ArrayBox` rows or `MapBox`
+- no broad route change was made; promoted rows moved one proven family at a
+  time
 
 ## Verification Commands
 
@@ -274,20 +276,21 @@ bash tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_
 Use a narrower focused MIR-builder smoke if one exists by the time this card is
 implemented.
 
-## Remaining Work
+## Closed Work
 
-- remaining route-only CoreBox rows are closed for the current ArrayBox stable
+- route-only CoreBox rows are closed for the current ArrayBox stable
   rows including `contains` / `indexOf` / `join` / `reverse` / `sort`, and MapBox `size` /
   `length` / `len` / `has` / `get` / `set` / `keys` / `values` / `delete` /
   `remove` / `clear`
 - contract-first backlog: Array generic element-result publication (`get` /
   `pop` / `remove` as `T` instead of `Unknown`) landed in
   `291x-106-arraybox-element-result-publication-card.md`
-- non-router cleanup backlog: String semantic owner cleanup, alias SSOT
-  cleanup, and Map compat/source cleanup
+- non-router cleanup backlog entries String semantic owner cleanup, alias SSOT
+  cleanup, and Map compat/source cleanup are landed in `291x-107`, `291x-108`,
+  and `291x-109`
 
-Each method family needs its own fixture and route assertion before the
-family-wide CoreBox fallback can shrink further.
+Each future method family still needs its own fixture and route assertion
+before the family-wide CoreBox fallback can shrink further.
 
 ## Exit Condition
 

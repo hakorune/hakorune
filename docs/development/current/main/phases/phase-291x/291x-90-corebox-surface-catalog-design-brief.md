@@ -1,6 +1,6 @@
 ---
-Status: Active
-Date: 2026-04-22
+Status: Landed reference
+Date: 2026-04-24
 Scope: CoreBox surface catalog の横断 vocabulary / first rows / implementation boundaries。
 Related:
   - docs/development/current/main/phases/phase-291x/README.md
@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
   - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
   - docs/development/current/main/phases/phase-290x/README.md
+  - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
 ---
 
 # CoreBox Surface Catalog Design Brief
@@ -48,7 +49,7 @@ Each stable surface row must carry:
 | --- | --- | --- |
 | `ArrayBox` | landed in phase-290x | `src/boxes/array/surface_catalog.rs` |
 | `StringBox` | landed in phase-291x first slice | `src/boxes/basic/string_surface_catalog.rs` |
-| `MapBox` | active first catalog slice | `src/boxes/map_surface_catalog.rs` |
+| `MapBox` | landed in phase-291x | `src/boxes/map_surface_catalog.rs` |
 
 ## StringBox First Stable Rows
 
@@ -94,7 +95,7 @@ rows and dispatch behavior, then makes existing consumers read the catalog.
 | `set` |  | 2 | 204 | WriteHeap | Value | current Rust path returns a receipt value; do not normalize |
 | `delete` | `remove` | 1 | 205 | WriteHeap | Value | preserve existing TypeRegistry alias only |
 | `keys` |  | 0 | 206 | Read | Value | deterministic key order comes from `MapBox::keys()` |
-| `values` |  | 0 | 207 | Read | Value | current value order remains storage order |
+| `values` |  | 0 | 207 | Read | Value | landed contract follows sorted-key order with `keys()` |
 | `clear` |  | 0 | 208 | WriteHeap | Value | current Rust path returns a receipt value; do not normalize |
 
 Explicitly deferred from the first MapBox code slice:

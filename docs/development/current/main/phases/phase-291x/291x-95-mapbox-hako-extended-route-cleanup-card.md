@@ -1,12 +1,13 @@
 ---
-Status: Active
-Date: 2026-04-23
+Status: Landed
+Date: 2026-04-24
 Scope: `.hako` MapBox extended-route cleanup decision after Rust catalog and std scaffold cleanup.
 Related:
   - docs/development/current/main/phases/phase-291x/README.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
   - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md
+  - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
 ---
 
 # MapBox Hako Extended Route Cleanup Card
@@ -37,8 +38,8 @@ state owner as `set()` via
 `src/runner/reference/vm_hako/payload_normalize.rs`. `remove(key)` is also
 landed as a `delete(key)` owner alias, and `clear()` is landed as a state reset
 row. Write-return receipt publication is landed for `set`, `delete` /
-`remove`, and `clear`. Content enumeration is deferred until a separate shape
-contract pins key/value ordering and element publication.
+`remove`, and `clear`. The original content-enumeration deferral is superseded
+by `291x-102`; key/value ordering and element publication are landed there.
 
 Implementation note: the source route returns an ArrayBox-like value through
 ordinary MIR `copy` instructions before `values().size()` / `keys().get(i)`

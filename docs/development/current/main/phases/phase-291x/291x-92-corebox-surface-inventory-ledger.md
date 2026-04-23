@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed reference
 Date: 2026-04-24
 Scope: CoreBox surface catalog の棚卸し ledger。結論だけ current docs に反映する。
 Related:
@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
+  - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
 ---
 
 # CoreBox Surface Inventory Ledger
@@ -123,6 +124,8 @@ Completed cleanup:
 - `291x-118` pins `ArrayBox.slice()` result follow-up receiver publication:
   direct source `slice().length()` emits `ArrayBox.length` and does not degrade
   to `RuntimeDataBox.length`.
+- `291x-119` closes stale phase-291x status/deferred wording as docs-only
+  BoxShape cleanup.
 
 ## Router / Value World Follow-up
 
@@ -245,8 +248,8 @@ Landed first slice and follow-up:
   `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
 - remaining route-only CoreBox rows are closed for the current stable ArrayBox
   and MapBox rows.
-- next implementation should choose one remaining CoreBox method family and
-  keep it separate from the other route flips.
+- next implementation should choose one future CoreBox cleanup family and keep
+  BoxShape status closeout separate from BoxCount feature rows.
 
 ## MapBox Current Duplication
 

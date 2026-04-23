@@ -38,17 +38,18 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
+  - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
 
-- Status: Active
-- Date: 2026-04-23
+- Status: Active reference lane
+- Date: 2026-04-24
 - Purpose: phase-290x の `ArrayBox` catalog/invoke seam を、CoreBox surface の横断ルールへ上げる。
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-118` ArrayBox.slice result receiver pin
+- Latest landed cleanup target: `291x-119` docs/status closeout
 - Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -103,6 +104,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 27. `docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md`
 28. `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
 29. `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
+30. `docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md`
 
 ## Current Rule
 
@@ -162,6 +164,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-118` landed the `ArrayBox.slice()` result-receiver pin: direct source
   `slice().length()` stays on the `ArrayBox` receiver path and does not degrade
   to `RuntimeDataBox.length`
+- `291x-119` closed stale status/deferred wording as docs-only BoxShape
+  cleanup; no CoreBox behavior changed
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -175,7 +179,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
   `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
   quarantine
-- next cleanup must be selected after `291x-118`; do not reopen the landed
+- next cleanup must be selected after `291x-119`; do not reopen the landed
   ArrayBox.clear / contains / indexOf / join / reverse / sort rows or the older existing-key
   typing rule without an owner-path change.
 
@@ -215,7 +219,7 @@ Landed smoke:
 
 - `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_vm.sh`
 
-Remaining MapBox follow-up:
+Landed MapBox follow-up:
 
 - source-level vm-hako non-empty `MapBox.values().size()` state-owner shape is landed and
   pinned by
@@ -319,3 +323,4 @@ Landed CoreBox router first slice:
   - `docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md`

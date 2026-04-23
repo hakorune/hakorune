@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed reference
 Date: 2026-04-24
 Scope: phase-291x first implementation target, `StringBox` surface catalog。
 Related:
@@ -17,6 +17,7 @@ Related:
    - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
    - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
    - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
+   - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
 ---
 
 # StringBox Surface Task Board
@@ -110,14 +111,13 @@ StringBox surface catalog
 - `lastIndexOf` one-arg and two-arg
 - `contains`
 
-## Explicitly Deferred
+## Explicitly Deferred StringBox Rows
 
 - `split`
 - `startsWith`
 - `endsWith`
 - `charAt`
 - `equals` method surface
-- MapBox implementation
 
 ## Exit Condition
 
