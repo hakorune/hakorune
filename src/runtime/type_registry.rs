@@ -124,15 +124,6 @@ fn map_surface_method_entries() -> Vec<MethodEntry> {
     entries
 }
 
-const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
-    // P2: sort
-    MethodEntry {
-        name: "sort",
-        arity: 0,
-        slot: 109,
-    },
-];
-
 // --- ConsoleBox --- (WASM v2 unified dispatch 用の雛形)
 // 400: log(..), 401: warn(..), 402: error(..), 403: clear()
 const CONSOLE_METHOD_EXTRAS: &[MethodEntry] = &[
@@ -157,7 +148,7 @@ fn arraybox_typebox() -> &'static TypeBox {
     ARRAYBOX_TB.get_or_init(|| {
         let mut core = core_method_entries_for_box(CoreBoxId::Array);
         core.extend(array_surface_method_entries());
-        let methods = merge_method_entries(core, ARRAY_METHOD_EXTRAS);
+        let methods = merge_method_entries(core, &[]);
         TypeBox::new_with("ArrayBox", methods)
     })
 }

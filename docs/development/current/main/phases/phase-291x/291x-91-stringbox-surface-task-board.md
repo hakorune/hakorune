@@ -15,6 +15,7 @@ Related:
    - docs/development/current/main/phases/phase-291x/291x-114-arraybox-indexof-router-card.md
    - docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md
    - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
+   - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
 ---
 
 # StringBox Surface Task Board
@@ -88,6 +89,7 @@ StringBox surface catalog
 | `291x-S33` | done | promote `ArrayBox.indexOf` as a catalog-backed receiver-plus-value read-`Integer` Unified row |
 | `291x-S34` | done | promote `ArrayBox.join` as a catalog-backed receiver-plus-delimiter read-`String` Unified row |
 | `291x-S35` | done | promote `ArrayBox.reverse` as a catalog-backed receiver-only write-`String` Unified row |
+| `291x-S36` | done | promote `ArrayBox.sort` as a catalog-backed receiver-only write-`String` Unified row |
 
 ## First Stable Surface Target
 
@@ -160,6 +162,9 @@ This StringBox slice is done when:
 - `291x-116` landed `ArrayBox.reverse()` as the next stable Array mutating
   row: catalog-backed, receiver-only, and receipt `String` on the Unified value
   path.
+- `291x-117` landed `ArrayBox.sort()` as the final deferred Array order row:
+  catalog-backed, receiver-only, and receipt `String` on the Unified value
+  path.
 
 ## Router Follow-up
 
@@ -190,6 +195,8 @@ This StringBox slice is done when:
 - `ArrayBox.join` follows the read-only String-return contract, with a
   receiver-plus-delimiter Unified shape
 - `ArrayBox.reverse` follows the mutating String-receipt contract, with a
+  receiver-only Unified shape
+- `ArrayBox.sort` follows the same mutating String-receipt contract, with a
   receiver-only Unified shape
 - `ArrayBox.remove` follows the same generic element-return contract as
   `get` / `pop`; its MIR result type intentionally stays `Unknown`

@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
   - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
 ---
 
 # CoreBox Surface Inventory Ledger
@@ -34,6 +35,7 @@ Stable rows:
 - `contains`
 - `indexOf`
 - `join`
+- `sort`
 - `reverse`
 - `slice`
 - `remove`
@@ -41,7 +43,6 @@ Stable rows:
 
 Deferred:
 
-- `sort`
 - direct source `slice()` result follow-up calls through `RuntimeDataBox` union receiver
 
 ## StringBox Landing Snapshot
@@ -115,6 +116,8 @@ Completed cleanup:
   retires the next Array-only TypeRegistry extra row.
 - `291x-116` promotes `ArrayBox.reverse` into the stable Array surface catalog
   and retires the next Array-only TypeRegistry extra row.
+- `291x-117` promotes `ArrayBox.sort` into the stable Array surface catalog and
+  retires the final Array-only TypeRegistry extra row.
 
 ## Router / Value World Follow-up
 
@@ -229,6 +232,9 @@ Landed first slice and follow-up:
 - `291x-116` then promoted `ArrayBox.reverse` as a receiver-only
   write-`String` receipt route and added it to the stable Array surface smoke:
   `docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md`
+- `291x-117` then promoted `ArrayBox.sort` as a receiver-only write-`String`
+  receipt route and added it to the stable Array surface smoke:
+  `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
 - remaining route-only CoreBox rows are closed for the current stable ArrayBox
   and MapBox rows.
 - next implementation should choose one remaining CoreBox method family and

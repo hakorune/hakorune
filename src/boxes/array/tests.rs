@@ -355,10 +355,26 @@ fn invoke_surface_routes_insert_remove_clear_contains_indexof_join_reverse_and_l
         ArraySurfaceInvokeResult::Void => panic!("get after reverse must return a value"),
     }
 
-    let restore_order = array
-        .invoke_surface(ArrayMethodId::Reverse, vec![])
+    let sorted = array.invoke_surface(ArrayMethodId::Sort, vec![]).unwrap();
+    match sorted {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "ok");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("sort must return a value"),
+    }
+
+    let first_after_sort = array
+        .invoke_surface(
+            ArrayMethodId::Get,
+            vec![Box::new(IntegerBox::new(0)) as Box<dyn NyashBox>],
+        )
         .unwrap();
-    assert!(matches!(restore_order, ArraySurfaceInvokeResult::Value(_)));
+    match first_after_sort {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "11");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("get after sort must return a value"),
+    }
 
     let slice = array
         .invoke_surface(

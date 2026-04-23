@@ -36,6 +36,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-114-arraybox-indexof-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md
   - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -46,7 +47,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-116` ArrayBox.reverse router promotion
+- Latest landed cleanup target: `291x-117` ArrayBox.sort router promotion
 - Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -99,6 +100,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 25. `docs/development/current/main/phases/phase-291x/291x-114-arraybox-indexof-router-card.md`
 26. `docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md`
 27. `docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md`
+28. `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`
 
 ## Current Rule
 
@@ -153,6 +155,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   receiver-plus-delimiter read-`String` row on the Unified value path
 - `291x-116` landed `ArrayBox.reverse()` as a catalog-backed receiver-only
   write-`String` receipt row on the Unified value path
+- `291x-117` landed `ArrayBox.sort()` as a catalog-backed receiver-only
+  write-`String` receipt row on the Unified value path
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -166,8 +170,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
   `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
   quarantine
-- next cleanup must be selected after `291x-116`; do not reopen the landed
-  ArrayBox.clear / contains / indexOf / join / reverse rows or the older existing-key
+- next cleanup must be selected after `291x-117`; do not reopen the landed
+  ArrayBox.clear / contains / indexOf / join / reverse / sort rows or the older existing-key
   typing rule without an owner-path change.
 
 ## Implementation State
@@ -261,7 +265,7 @@ Landed CoreBox router first slice:
   `find`, plus `ArrayBox.length` / `size` / `len`, `ArrayBox.push`,
   `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
   `ArrayBox.clear`, `ArrayBox.contains`, `ArrayBox.indexOf`, `ArrayBox.join`,
-  `ArrayBox.reverse`,
+  `ArrayBox.reverse`, `ArrayBox.sort`,
   `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`,
   `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and
   `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and `MapBox.clear` rows
@@ -285,6 +289,8 @@ Landed CoreBox router first slice:
   by StringBox read rows, with a receiver-plus-delimiter Unified shape.
 - `ArrayBox.reverse` follows the mutating String-receipt contract, with a
   receiver-only Unified shape.
+- `ArrayBox.sort` follows the same mutating String-receipt contract, with a
+  receiver-only Unified shape.
 - `ArrayBox.insert` follows the same write-`Void` contract already used by
   `ArrayBox.push` / `ArrayBox.set`.
 - `MapBox.get` intentionally stays `MirType::Unknown` because stored map values
@@ -303,3 +309,4 @@ Landed CoreBox router first slice:
   - `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md`

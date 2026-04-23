@@ -53,7 +53,7 @@ run_vm_surface_route_lock() {
     exit 1
   fi
 
-  if echo "$out" | rg -q '\[vm/method/stub:(length|size|len|get|set|push|pop|clear|contains|indexOf|join|reverse|slice|remove|insert)\]'; then
+  if echo "$out" | rg -q '\[vm/method/stub:(length|size|len|get|set|push|pop|clear|contains|indexOf|join|sort|reverse|slice|remove|insert)\]'; then
     echo "$out" | tail -n 120 >&2 || true
     test_fail "$SMOKE_NAME: stable ArrayBox method hit VM stub"
     exit 1
@@ -73,6 +73,8 @@ true
 10:15:25
 ok
 25
+ok
+10
 15
 2
 25
