@@ -62,7 +62,8 @@ Landed fix:
 
 Remaining drift:
 
-- `lastIndexOf` one-arg is implemented; two-arg is documented as a gap.
+- `lastIndexOf` one-arg and two-arg are implemented through the catalog and
+  Unified value path; `291x-103` owns the landing snapshot.
 - `apps/std/string.hako` implements `string_index_of` manually instead of being the semantic owner.
 - `toUpper` / `toLower` exposure exists in TypeRegistry extras, but route ownership is not clear enough for the first catalog slice.
 
@@ -83,10 +84,11 @@ Confirmed route seam:
 
 - `src/mir/builder/router/policy.rs` routes only `StringBox.length` / `len` /
   `size`, `StringBox.substring` / `substr`, `StringBox.concat`, and
-  `StringBox.trim`, `StringBox.contains`, and one-arg `StringBox.lastIndexOf`
-  and `StringBox.replace` through the Unified value path; other `StringBox`,
-  `ArrayBox`, and `MapBox` methods still use the family-wide `core_box` BoxCall
-  fallback.
+  `StringBox.trim`, `StringBox.contains`, one-arg and two-arg
+  `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
+  `find` through the Unified value path.
+  Non-allowlisted `StringBox`, `ArrayBox`, and `MapBox` methods still use the
+  family-wide `core_box` BoxCall fallback.
 - `src/mir/builder/utils/boxcall_emit.rs` maps `MirType::String` receivers to
   `"StringBox"` before calling `choose_route(...)`.
 
@@ -157,12 +159,15 @@ Landed first slice and follow-up:
   `Unknown` and preserving `MapBox.delete` fallback sentinels.
 - twenty-second implementation added `MapBox.length` as a read-only alias for
   the existing size surface, with no new slot and no extended-row promotion.
+- twenty-third implementation moved StringBox `lastIndexOf/2` after adding
+  focused catalog, return-type, duplicate-receiver, and vm-hako smoke coverage:
+  `docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md`
 - remaining route-only CoreBox rows are closed for ArrayBox stable rows and
-  MapBox `size/length/len/has/get/set`.
+  MapBox `size/length/len/has/get/set/keys/values`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
-- hold MapBox `keys` / `values` / `delete` / `remove` / `clear` until their
-  `.hako` owner and return/write contract are pinned.
+- hold MapBox `delete` / `remove` / `clear` router promotion until their route
+  fixture and return/write contract witness are pinned.
 
 ## MapBox Current Duplication
 
@@ -183,14 +188,14 @@ Known drift:
 
 - visible surface and compat ABI are split.
 - current vtable rows register `size` at slot `200` and `len` at slot `201`;
-  `.hako` owner paths also accept `length`, but `length` is not currently a
-  vtable-registered Rust alias.
-- `remove` is registered as the same slot as `delete`, but not all dispatch
-  paths accept it as a visible alias.
-- `set` / `delete` / `clear` return contracts differ between Rust VM, core
-  specs, and `.hako` state paths.
-- bad-key validation is enforced in the Rust `boxes_map.rs` path but can be
-  bypassed by direct slot dispatch.
+  `length` is now a catalog alias for the existing size surface.
+- `remove` is registered as the same slot as `delete`; source-level remove
+  parity is landed, while router promotion remains a separate mutating-row
+  card.
+- `set` / `delete` / `remove` / `clear` source-level write-return receipt
+  contracts are landed; router promotion for the mutating delete/remove/clear
+  rows remains separate.
+- bad-key validation is normalized for the source-visible rows.
 - raw substrate helpers are already better separated than StringBox, so MapBox should be cataloged after StringBox rather than before it.
 
 Current slot inventory:
@@ -243,10 +248,10 @@ Landed first implementation:
 
 Remaining drift:
 
-- `.hako` VM source route still stubs `keys` / `values` / `remove` / `clear`.
-- `length` remains `.hako` compatibility/debt and is not a Rust vtable alias.
 - `size` and `len` keep separate slots.
-- `set` / `delete` / `clear` current Rust receipt values are unchanged.
+- visible surface and compat ABI remain split.
+- `delete` / `remove` / `clear` router promotion remains separate from the
+  landed source-owner/write-return contracts.
 
 Completed cleanup:
 

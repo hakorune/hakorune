@@ -20,7 +20,7 @@ Landed route slices:
 - `StringBox.concat`
 - `StringBox.trim`
 - `StringBox.contains`
-- `StringBox.lastIndexOf` one-arg
+- `StringBox.lastIndexOf` one-arg and two-arg
 - `StringBox.replace`
 - `StringBox.indexOf` / `StringBox.find` one-arg and two-arg
 - `ArrayBox.length` / `ArrayBox.size` / `ArrayBox.len`
@@ -29,9 +29,16 @@ Landed route slices:
 - `ArrayBox.get`
 - `ArrayBox.pop`
 - `ArrayBox.set`
+- `ArrayBox.remove`
+- `ArrayBox.insert`
 - `MapBox.size`
+- `MapBox.length`
 - `MapBox.len`
 - `MapBox.has`
+- `MapBox.get`
+- `MapBox.set`
+- `MapBox.keys`
+- `MapBox.values`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -104,8 +111,8 @@ publication were fixed by focused fixtures. `concat` then proved the same
 receiver-plus-one-argument shape for the first non-zero-arity string value call.
 `trim` extends the arity-zero read-only String-return family beyond `length`.
 `contains` proves the first Bool-return StringBox value-path family.
-one-arg `lastIndexOf` proves an Integer-return reverse-search family while
-leaving the two-arg overload explicitly deferred.
+one-arg `lastIndexOf` proves an Integer-return reverse-search family. The
+two-arg overload landed in `291x-103` after its runtime contract was pinned.
 `replace` proves the first two-argument String-return mutation-like read
 surface without changing StringBox immutability.
 `indexOf` / `find` proves the current forward-search family, including the
@@ -143,8 +150,8 @@ same fixed `Integer` result and does not add a new slot.
 `MapBox.get` is the first stored-value MapBox read slice; it moves to the
 Unified receiver-plus-key shape while keeping the MIR result type `Unknown`.
 `MapBox.set` is the first stored-value MapBox write slice; it moves to the
-Unified receiver-plus-key-plus-value shape while keeping the current visible
-write-return opaque as `Unknown`.
+Unified receiver-plus-key-plus-value shape and publishes the landed
+receipt-string write-return contract.
 
 ## Implementation Snapshot
 
@@ -152,8 +159,9 @@ write-return opaque as `Unknown`.
   `StringMethodId::Length`, `StringMethodId::Substring`, and
   `StringMethodId::Concat`, `StringMethodId::Trim`, and
   `StringMethodId::Contains`, `StringMethodId::LastIndexOf`, and
-  `StringMethodId::Replace`, `StringMethodId::IndexOf`, and
-  `StringMethodId::IndexOfFrom` families to `Route::Unified`.
+  `StringMethodId::LastIndexOfFrom`, `StringMethodId::Replace`,
+  `StringMethodId::IndexOf`, and `StringMethodId::IndexOfFrom` families to
+  `Route::Unified`.
 - `src/mir/builder/router/policy.rs` also allowlists the catalog-backed
   `ArrayMethodId::Length`, `ArrayMethodId::Push`, `ArrayMethodId::Slice`, and
   `ArrayMethodId::Get`, `ArrayMethodId::Pop`, `ArrayMethodId::Set`, and
@@ -161,7 +169,8 @@ write-return opaque as `Unknown`.
   `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, `MapMethodId::Has`, and
-  `MapMethodId::Get`, and `MapMethodId::Set` rows to `Route::Unified`;
+  `MapMethodId::Get`, `MapMethodId::Set`, `MapMethodId::Keys`, and
+  `MapMethodId::Values` rows to `Route::Unified`;
   `MapBox.length` is covered by the `MapMethodId::Size` alias; remaining
   MapBox rows still use the family-wide fallback.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
@@ -179,10 +188,11 @@ write-return opaque as `Unknown`.
   shape: `length`, `substring`, and `substr` use the Unified receiver-arg
   shape; `concat` uses the same Unified receiver-plus-argument shape; `trim`
   uses the arity-zero Unified receiver-arg shape; `contains` uses the
-  receiver-plus-needle shape and publishes `MirType::Bool`; one-arg
-  `lastIndexOf` uses the receiver-plus-needle shape and publishes
-  `MirType::Integer`; `replace` uses the receiver-plus-old-plus-new shape and
-  publishes `MirType::String`; `indexOf` / `find` use receiver-plus-needle
+  receiver-plus-needle shape and publishes `MirType::Bool`; one-arg and
+  two-arg `lastIndexOf` use the receiver-plus-needle shape and
+  receiver-plus-needle-plus-start shape and publish `MirType::Integer`;
+  `replace` uses the receiver-plus-old-plus-new shape and publishes
+  `MirType::String`; `indexOf` / `find` use receiver-plus-needle
   and receiver-plus-needle-plus-start shapes and publish `MirType::Integer`;
   `ArrayBox.length` / `size` / `len` use the arity-zero receiver shape and
   publish `MirType::Integer`; `ArrayBox.push` uses the receiver-plus-value
@@ -199,9 +209,8 @@ write-return opaque as `Unknown`.
   shape and publish `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
   publishes `MirType::Bool`; `MapBox.get` uses the receiver-plus-key shape and
   intentionally stays `MirType::Unknown`; `MapBox.set` uses the
-  receiver-plus-key-plus-value shape and intentionally stays
-  `MirType::Unknown`; `lastIndexOf/2` and `MapBox.delete` remain pinned as
-  BoxCall fallback sentinels.
+  receiver-plus-key-plus-value shape and publishes `MirType::String`;
+  `MapBox.delete` remains pinned as a BoxCall fallback sentinel.
 
 ## Acceptance
 
@@ -231,12 +240,12 @@ implemented.
 ## Remaining Work
 
 - remaining route-only CoreBox rows are closed for the current ArrayBox stable
-  rows and MapBox `size` / `length` / `len` / `has` / `get` / `set`
-- contract-first backlog: two-arg `StringBox.lastIndexOf(needle, start_pos)`,
-  Array generic element-result publication (`get` / `pop` / `remove` as `T`
-  instead of `Unknown`), `MapBox.keys` / `values`, `MapBox.delete` / `remove`
-  / `clear`, and MapBox write-return / bad-key
-  normalization
+  rows and MapBox `size` / `length` / `len` / `has` / `get` / `set` /
+  `keys` / `values`
+- contract-first backlog: Array generic element-result publication (`get` /
+  `pop` / `remove` as `T`
+  instead of `Unknown`) and `MapBox.delete` / `remove` / `clear` router
+  promotion
 - non-router cleanup backlog: String semantic owner cleanup, alias SSOT
   cleanup, and Map compat/source cleanup
 

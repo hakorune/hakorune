@@ -54,6 +54,8 @@ static box Main {
     print(s.replace("na", "NA"))
     print(s.trim())
     print(s.lastIndexOf("na"))
+    print(s.lastIndexOf("na", 3))
+    print(s.lastIndexOf("na", 1))
     print(s.contains("nan"))
     print("OK: string-surface")
     return 0
@@ -80,7 +82,7 @@ HCODE
   fi
 
   local actual expected
-  actual=$(printf '%s\n' "$out" | awk '/^(6|ana|2|4|banana!|baNANA|banana|true|OK: string-surface)$/ { print }')
+  actual=$(printf '%s\n' "$out" | awk '/^(6|ana|2|4|-1|banana!|baNANA|banana|true|OK: string-surface)$/ { print }')
   expected=$(cat <<'EXPECT'
 6
 6
@@ -94,6 +96,8 @@ banana!
 baNANA
 banana
 4
+2
+-1
 true
 OK: string-surface
 EXPECT

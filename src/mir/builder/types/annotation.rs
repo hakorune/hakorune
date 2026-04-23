@@ -58,6 +58,9 @@ pub(crate) fn infer_return_type(func_name: &str) -> Option<MirType> {
     if func_name.ends_with(".lastIndexOf/1") {
         return Some(MirType::Integer);
     }
+    if func_name.ends_with(".lastIndexOf/2") {
+        return Some(MirType::Integer);
+    }
     if func_name.ends_with(".is_digit_char/1") {
         return Some(MirType::Bool);
     }
@@ -144,7 +147,8 @@ fn infer_string_method_return_type(method: crate::boxes::basic::StringMethodId) 
         crate::boxes::basic::StringMethodId::Length
         | crate::boxes::basic::StringMethodId::IndexOf
         | crate::boxes::basic::StringMethodId::IndexOfFrom
-        | crate::boxes::basic::StringMethodId::LastIndexOf => MirType::Integer,
+        | crate::boxes::basic::StringMethodId::LastIndexOf
+        | crate::boxes::basic::StringMethodId::LastIndexOfFrom => MirType::Integer,
         crate::boxes::basic::StringMethodId::Contains => MirType::Bool,
         crate::boxes::basic::StringMethodId::Substring
         | crate::boxes::basic::StringMethodId::Concat
@@ -192,6 +196,10 @@ mod tests {
         );
         assert_eq!(
             infer_return_type("StringBox.find/1"),
+            Some(MirType::Integer)
+        );
+        assert_eq!(
+            infer_return_type("StringBox.lastIndexOf/2"),
             Some(MirType::Integer)
         );
         assert_eq!(

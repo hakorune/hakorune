@@ -64,12 +64,12 @@ expected by current runtime/docs/smoke paths.
 | `indexOf` | `find` | 2 | 303 | Read | Value | second arg is start position |
 | `replace` |  | 2 | 304 | Read | Value | existing primitive/StringBox routes differ on all-vs-first replacement; do not widen this card |
 | `trim` |  | 0 | 305 | Read | Value | existing route |
-| `lastIndexOf` |  | 1 | 308 | Read | Value | two-arg form is deferred |
+| `lastIndexOf` |  | 1 | 308 | Read | Value | full-string reverse search |
+| `lastIndexOf` |  | 2 | 308 | Read | Value | reverse search from `start_pos`; landed by `291x-103` |
 | `contains` |  | 1 | 309 | Read | Value | returns boolean |
 
 Explicitly not in the first stable row set:
 
-- `lastIndexOf(needle, start_pos)`
 - `split`
 - `startsWith` / `endsWith`
 - `toUpper` / `toLower` / `toUpperCase` / `toLowerCase`

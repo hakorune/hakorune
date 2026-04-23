@@ -14,12 +14,12 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-291x CoreBox MapBox contract-first cleanup` |
-| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed` |
+| Now | `phase-291x CoreBox surface contract cleanup` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed; StringBox lastIndexOf/2 landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x MapBox element publication landed — next app card selection pending` |
+| Blocker | `phase-291x StringBox lastIndexOf start-position landed — next app card selection pending` |
 | Next | `select the next explicit app card without reopening 291x witnesses` |
-| After Next | `Array generic element result / String lastIndexOf(needle,start_pos) / String semantic owner cleanup` |
+| After Next | `Array generic element result / String semantic owner cleanup / alias SSOT cleanup` |
 
 ## Current Read
 
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-291x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - phase brief: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
   - closed .inc cleanup: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -86,6 +86,7 @@ Related:
 51. `phase-291x MapBox get missing-key contract landed`
 52. `phase-291x post-contract next-slice selection`
 53. `phase-291x MapBox keys/values element publication landed`
+54. `phase-291x StringBox lastIndexOf start-position catalog + Unified route landed`
 
 ## Parked Corridor
 

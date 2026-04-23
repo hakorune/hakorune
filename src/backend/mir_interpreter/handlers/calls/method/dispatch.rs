@@ -88,14 +88,14 @@ impl MirInterpreter {
             ("String", 308) => {
                 // lastIndexOf
                 if let VMValue::String(s) = receiver {
-                    let needle = parse_last_index_of_args(
+                    let (needle, start) = parse_last_index_of_args(
                         self,
                         args,
                         ArgParsePolicy::LENIENT,
-                        "String.lastIndexOf: requires 1 argument",
+                        "String.lastIndexOf: requires 1 or 2 arguments",
                     )?;
                     let mode = string_ops::index_mode_from_env();
-                    let idx = string_ops::last_index_of(s, &needle, mode);
+                    let idx = string_ops::last_index_of_from(s, &needle, start, mode);
                     Ok(VMValue::Integer(idx))
                 } else {
                     Err(self.err_invalid("String.lastIndexOf: invalid receiver"))
@@ -319,17 +319,20 @@ impl MirInterpreter {
                 if let VMValue::BoxRef(bx) = receiver {
                     let s_box = bx.to_string_box();
                     let s = s_box.value;
-                    let needle = parse_last_index_of_args(
+                    let (needle, start) = parse_last_index_of_args(
                         self,
                         args,
                         ArgParsePolicy::STRICT,
-                        "StringBox.lastIndexOf: requires 1 argument",
+                        "StringBox.lastIndexOf: requires 1 or 2 arguments",
                     )?;
                     let helper = crate::boxes::string_box::StringBox::new(s);
-                    let result_box = helper.lastIndexOf(&needle);
+                    let result_box = match start {
+                        Some(start) => helper.lastIndexOf_from(&needle, start),
+                        None => helper.lastIndexOf(&needle),
+                    };
                     return Ok(VMValue::from_nyash_box(result_box));
                 }
-                Err(self.err_invalid("StringBox.lastIndexOf: requires 1 argument"))
+                Err(self.err_invalid("StringBox.lastIndexOf: requires 1 or 2 arguments"))
             }
             ("StringBox", 303) => {
                 // indexOf/find

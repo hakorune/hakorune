@@ -8,14 +8,14 @@
 status = "Active"
 date = "2026-04-23"
 
-active_lane = "phase-291x CoreBox MapBox contract-first cleanup"
-active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, MapBox.clear source-route, MapBox write-return receipt, MapBox bad-key normalization, MapBox get missing-key, and 291x-102 MapBox keys/values element publication slices are landed; next app card selection is pending"
+active_lane = "phase-291x CoreBox surface contract cleanup"
+active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, MapBox.clear source-route, MapBox write-return receipt, MapBox bad-key normalization, MapBox get missing-key, 291x-102 MapBox keys/values element publication, and 291x-103 StringBox lastIndexOf/2 start-position cleanup are landed; next app card selection is pending"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md"
+taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-current_blocker_token = "phase-291x MapBox element publication landed — next app card selection pending"
+current_blocker_token = "phase-291x StringBox lastIndexOf start-position landed — next app card selection pending"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -24,7 +24,7 @@ opened_successors = [
   "phase-290x ArrayBox surface catalog landed",
   "phase-291x CoreBox surface catalog reference lane",
   "StringBox surface catalog first implementation slice landed",
-  "StringBox router length, substring, concat, trim, contains, one-arg lastIndexOf, replace, and indexOf/find families plus ArrayBox length, push, slice, get, pop, set, remove, and insert plus MapBox size, length, len, has, get, set, keys, and values moved to Unified value path",
+  "StringBox router length, substring, concat, trim, contains, one-arg and two-arg lastIndexOf, replace, and indexOf/find families plus ArrayBox length, push, slice, get, pop, set, remove, and insert plus MapBox size, length, len, has, get, set, keys, and values moved to Unified value path",
   "MapBox surface catalog first implementation slice landed",
   "CoreBox legacy cleanup first safe deletions landed",
   "MapStd prelude cleanup landed",
@@ -67,11 +67,11 @@ opened_successors = [
   "MapBox get missing-key contract landed",
   "MapBox.set duplicate receiver source-route cleanup landed",
   "MapBox keys/values element publication landed",
+  "StringBox lastIndexOf start-position catalog + Unified route landed",
 ]
 
 blocked_successors = [
   "phase-137x perf reopen without app blocker evidence",
-  "StringBox lastIndexOf two-arg implementation in the catalog commit",
   "MapBox alias normalization or return-contract changes mixed into the first MapBox catalog slice",
   "std.string sugar treated as semantic owner",
   "apps.lib.boxes.map_std reintroduced as a second Map surface owner",
@@ -90,6 +90,8 @@ stale_pointer_patterns = [
   "active app slice: `apps/kilo_nyash/enhanced_kilo_editor.hako`",
   "phase-290x ArrayBox surface canonicalization active",
   "current-state token: `phase-290x ArrayBox surface canonicalization`",
+  "phase-291x CoreBox MapBox contract-first cleanup",
+  "phase-291x MapBox element publication landed — next app card selection pending",
   "StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs",
   "current implementation focus: `.hako` MapBox extended-route cleanup decision after safe stub deletions",
   "active cleanup card is `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`",

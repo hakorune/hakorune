@@ -100,6 +100,17 @@ impl StringBox {
         Box::new(IntegerBox::new(idx))
     }
 
+    /// Return the last index of `search` at or before `start`, or -1 if not found.
+    /// Env gate: NYASH_STR_CP=1 → indices are codepoint-based; default is byte index.
+    #[allow(non_snake_case)]
+    pub fn lastIndexOf_from(&self, search: &str, start: i64) -> Box<dyn NyashBox> {
+        use crate::boxes::integer_box::IntegerBox;
+        let mode = crate::boxes::string_ops::index_mode_from_env();
+        let idx =
+            crate::boxes::string_ops::last_index_of_from(&self.value, search, Some(start), mode);
+        Box::new(IntegerBox::new(idx))
+    }
+
     /// Trim whitespace from both ends
     pub fn trim(&self) -> Box<dyn NyashBox> {
         Box::new(StringBox::new(self.value.trim()))

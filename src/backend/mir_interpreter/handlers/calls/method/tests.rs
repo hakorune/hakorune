@@ -92,6 +92,190 @@ fn method_callee_raw_string_len_strips_duplicate_receiver_arg() {
 }
 
 #[test]
+fn method_callee_raw_string_overloads_strip_duplicate_receiver_alias_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let needle = ValueId(2);
+    let start = ValueId(3);
+    let recv_alias = ValueId(4);
+    interp
+        .regs
+        .insert(recv, VMValue::String("banana".to_string()));
+    interp
+        .regs
+        .insert(recv_alias, VMValue::String("banana".to_string()));
+    interp
+        .regs
+        .insert(needle, VMValue::String("na".to_string()));
+    interp.regs.insert(start, VMValue::Integer(3));
+
+    let found = interp
+        .execute_method_callee(
+            "StringBox",
+            "indexOf",
+            &Some(recv),
+            &[recv_alias, needle, start],
+        )
+        .expect("String.indexOf/2 should strip duplicate receiver alias arg");
+    let last = interp
+        .execute_method_callee(
+            "StringBox",
+            "lastIndexOf",
+            &Some(recv),
+            &[recv_alias, needle, start],
+        )
+        .expect("String.lastIndexOf/2 should strip duplicate receiver alias arg");
+
+    assert_eq!(found, VMValue::Integer(4));
+    assert_eq!(last, VMValue::Integer(2));
+}
+
+#[test]
+fn method_callee_raw_string_one_arg_overload_strips_duplicate_receiver_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let needle = ValueId(2);
+    interp
+        .regs
+        .insert(recv, VMValue::String("banana".to_string()));
+    interp
+        .regs
+        .insert(needle, VMValue::String("na".to_string()));
+
+    let got = interp
+        .execute_method_callee("StringBox", "indexOf", &Some(recv), &[recv, needle])
+        .expect("String.indexOf/1 should strip duplicate receiver when current arity is invalid");
+
+    assert_eq!(got, VMValue::Integer(2));
+}
+
+#[test]
+fn method_callee_raw_string_last_index_of_keeps_receiver_text_needle_with_start() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let start = ValueId(2);
+    interp
+        .regs
+        .insert(recv, VMValue::String("banana".to_string()));
+    interp.regs.insert(start, VMValue::Integer(0));
+
+    let got = interp
+        .execute_method_callee("StringBox", "lastIndexOf", &Some(recv), &[recv, start])
+        .expect("String.lastIndexOf/2 should keep a legitimate receiver-text needle");
+
+    assert_eq!(got, VMValue::Integer(0));
+}
+
+#[test]
+fn method_callee_stringbox_overloads_strip_duplicate_receiver_alias_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let needle = ValueId(2);
+    let start = ValueId(3);
+    let recv_alias = ValueId(4);
+    interp.regs.insert(recv, stringbox_receiver("banana"));
+    interp.regs.insert(recv_alias, stringbox_receiver("banana"));
+    interp
+        .regs
+        .insert(needle, VMValue::String("na".to_string()));
+    interp.regs.insert(start, VMValue::Integer(3));
+
+    let found = interp
+        .execute_method_callee(
+            "StringBox",
+            "indexOf",
+            &Some(recv),
+            &[recv_alias, needle, start],
+        )
+        .expect("StringBox.indexOf/2 should strip duplicate receiver alias arg");
+    let last = interp
+        .execute_method_callee(
+            "StringBox",
+            "lastIndexOf",
+            &Some(recv),
+            &[recv_alias, needle, start],
+        )
+        .expect("StringBox.lastIndexOf/2 should strip duplicate receiver alias arg");
+
+    assert_eq!(found, VMValue::Integer(4));
+    assert_eq!(last, VMValue::Integer(2));
+}
+
+#[test]
+fn method_callee_stringbox_overloads_strip_string_value_receiver_alias_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let needle = ValueId(2);
+    let start = ValueId(3);
+    let recv_alias = ValueId(4);
+    interp.regs.insert(recv, stringbox_receiver("banana"));
+    interp
+        .regs
+        .insert(recv_alias, VMValue::String("banana".to_string()));
+    interp
+        .regs
+        .insert(needle, VMValue::String("na".to_string()));
+    interp.regs.insert(start, VMValue::Integer(3));
+
+    let last = interp
+        .execute_method_callee(
+            "StringBox",
+            "lastIndexOf",
+            &Some(recv),
+            &[recv_alias, needle, start],
+        )
+        .expect("StringBox.lastIndexOf/2 should strip duplicate string-value receiver alias arg");
+
+    assert_eq!(last, VMValue::Integer(2));
+}
+
+#[test]
+fn direct_method_call_string_surface_strips_duplicate_receiver_value_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv_alias = ValueId(1);
+    let needle = ValueId(2);
+    let start = ValueId(3);
+    interp
+        .regs
+        .insert(recv_alias, VMValue::String("banana".to_string()));
+    interp
+        .regs
+        .insert(needle, VMValue::String("na".to_string()));
+    interp.regs.insert(start, VMValue::Integer(3));
+
+    let got = interp
+        .execute_method_call(
+            &VMValue::String("banana".to_string()),
+            "lastIndexOf",
+            &[recv_alias, needle, start],
+        )
+        .expect("direct String.lastIndexOf/2 dispatch should strip duplicate receiver value arg");
+
+    assert_eq!(got, VMValue::Integer(2));
+}
+
+#[test]
+fn direct_method_call_string_surface_keeps_receiver_text_needle_with_start() {
+    let mut interp = MirInterpreter::new();
+    let needle = ValueId(1);
+    let start = ValueId(2);
+    interp
+        .regs
+        .insert(needle, VMValue::String("banana".to_string()));
+    interp.regs.insert(start, VMValue::Integer(0));
+
+    let got = interp
+        .execute_method_call(
+            &VMValue::String("banana".to_string()),
+            "lastIndexOf",
+            &[needle, start],
+        )
+        .expect("direct String.lastIndexOf/2 should keep a legitimate receiver-text needle");
+
+    assert_eq!(got, VMValue::Integer(0));
+}
+
+#[test]
 fn method_callee_mapbox_set_get_strips_duplicate_receiver_arg() {
     let mut interp = MirInterpreter::new();
     let recv = ValueId(1);

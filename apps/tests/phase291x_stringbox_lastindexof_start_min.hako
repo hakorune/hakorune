@@ -1,0 +1,13 @@
+// Phase 291x: StringBox.lastIndexOf(needle, start_pos) fixture.
+// Expected output: 4 / 2 / -1 / 3.
+
+static box Main {
+  main() {
+    local s = "banana"
+    print(s.lastIndexOf("na"))
+    print(s.lastIndexOf("na", 3))
+    print(s.lastIndexOf("na", 1))
+    print(s.lastIndexOf("", 3))
+    return 0
+  }
+}

@@ -146,6 +146,27 @@ impl MirInterpreter {
             return true;
         }
 
+        if let VMValue::String(recv_text) = receiver {
+            return self
+                .reg_load(arg)
+                .map(|arg_value| match arg_value {
+                    VMValue::String(arg_text) => arg_text == *recv_text,
+                    VMValue::BoxRef(arg_bx) if arg_bx.type_name() == "StringBox" => {
+                        arg_bx.to_string_box().value == *recv_text
+                    }
+                    _ => false,
+                })
+                .unwrap_or(false);
+        }
+
+        if let VMValue::BoxRef(recv_bx) = receiver {
+            if recv_bx.type_name() == "StringBox" {
+                if let Ok(VMValue::String(arg_text)) = self.reg_load(arg) {
+                    return recv_bx.to_string_box().value == arg_text;
+                }
+            }
+        }
+
         let Ok(VMValue::BoxRef(arg_bx)) = self.reg_load(arg) else {
             return false;
         };
@@ -155,6 +176,10 @@ impl MirInterpreter {
 
         if std::sync::Arc::ptr_eq(&arg_bx, recv_bx) {
             return true;
+        }
+
+        if recv_bx.type_name() == "StringBox" && arg_bx.type_name() == "StringBox" {
+            return recv_bx.to_string_box().value == arg_bx.to_string_box().value;
         }
 
         let Some(recv_plugin) = recv_bx
@@ -193,18 +218,171 @@ impl MirInterpreter {
     }
 
     fn core_surface_expected_arity(receiver: &VMValue, method: &str) -> Option<usize> {
+        Self::core_surface_arity_for(receiver, method, None)
+    }
+
+    fn core_surface_arity_for(
+        receiver: &VMValue,
+        method: &str,
+        arity: Option<usize>,
+    ) -> Option<usize> {
         match receiver {
-            VMValue::String(_) => StringMethodId::from_name(method).map(|id| id.arity()),
+            VMValue::String(_) => match arity {
+                Some(arity) => StringMethodId::from_name_and_arity(method, arity),
+                None => StringMethodId::from_name(method),
+            }
+            .map(|id| id.arity()),
             VMValue::BoxRef(bx) if bx.as_any().downcast_ref::<ArrayBox>().is_some() => {
-                ArrayMethodId::from_name(method).map(|id| id.arity())
+                match arity {
+                    Some(arity) => ArrayMethodId::from_name_and_arity(method, arity),
+                    None => ArrayMethodId::from_name(method),
+                }
+                .map(|id| id.arity())
+            }
+            VMValue::BoxRef(bx) if bx.as_any().downcast_ref::<MapBox>().is_some() => match arity {
+                Some(arity) => MapMethodId::from_name_and_arity(method, arity),
+                None => MapMethodId::from_name(method),
+            }
+            .map(|id| id.arity()),
+            VMValue::BoxRef(bx) if bx.type_name() == "StringBox" => match arity {
+                Some(arity) => StringMethodId::from_name_and_arity(method, arity),
+                None => StringMethodId::from_name(method),
+            }
+            .map(|id| id.arity()),
+            _ => None,
+        }
+    }
+
+    fn core_surface_args_match(
+        &mut self,
+        receiver: &VMValue,
+        method: &str,
+        args: &[ValueId],
+    ) -> bool {
+        match receiver {
+            VMValue::String(_) => StringMethodId::from_name_and_arity(method, args.len())
+                .is_some_and(|method_id| self.string_surface_args_match(method_id, args)),
+            VMValue::BoxRef(bx) if bx.type_name() == "StringBox" => {
+                StringMethodId::from_name_and_arity(method, args.len())
+                    .is_some_and(|method_id| self.string_surface_args_match(method_id, args))
+            }
+            VMValue::BoxRef(bx) if bx.as_any().downcast_ref::<ArrayBox>().is_some() => {
+                ArrayMethodId::from_name_and_arity(method, args.len()).is_some()
             }
             VMValue::BoxRef(bx) if bx.as_any().downcast_ref::<MapBox>().is_some() => {
-                MapMethodId::from_name(method).map(|id| id.arity())
+                MapMethodId::from_name_and_arity(method, args.len()).is_some()
             }
-            VMValue::BoxRef(bx) if bx.type_name() == "StringBox" => {
-                StringMethodId::from_name(method).map(|id| id.arity())
+            _ => false,
+        }
+    }
+
+    fn string_surface_args_match(&mut self, method_id: StringMethodId, args: &[ValueId]) -> bool {
+        match method_id {
+            StringMethodId::Length | StringMethodId::Trim => args.is_empty(),
+            StringMethodId::Substring => {
+                args.len() == 2 && self.arg_is_integer(args[0]) && self.arg_is_integer(args[1])
             }
-            _ => None,
+            StringMethodId::Concat
+            | StringMethodId::IndexOf
+            | StringMethodId::LastIndexOf
+            | StringMethodId::Contains => args.len() == 1,
+            StringMethodId::IndexOfFrom | StringMethodId::LastIndexOfFrom => {
+                args.len() == 2 && self.arg_is_integer(args[1])
+            }
+            StringMethodId::Replace => args.len() == 2,
+        }
+    }
+
+    fn arg_is_integer(&mut self, arg: ValueId) -> bool {
+        self.reg_load(arg)
+            .ok()
+            .and_then(|value| value.as_integer().ok())
+            .is_some()
+    }
+
+    fn strip_duplicate_receiver_arg_for_core_surface<'a>(
+        &mut self,
+        receiver: &VMValue,
+        receiver_id: ValueId,
+        method: &str,
+        args: &'a [ValueId],
+    ) -> &'a [ValueId] {
+        let current_args_match = self.core_surface_args_match(receiver, method, args);
+        let stripped_arity_supported = args
+            .len()
+            .checked_sub(1)
+            .and_then(|arity| Self::core_surface_arity_for(receiver, method, Some(arity)))
+            .is_some();
+
+        if !stripped_arity_supported {
+            return args;
+        }
+
+        let Some(first_arg) = args.first().copied() else {
+            return args;
+        };
+
+        let duplicate_receiver_value =
+            self.is_duplicate_receiver_arg(receiver, receiver_id, first_arg);
+
+        if duplicate_receiver_value && !current_args_match {
+            &args[1..]
+        } else {
+            args
+        }
+    }
+
+    fn is_duplicate_receiver_value_arg(&mut self, receiver: &VMValue, arg: ValueId) -> bool {
+        match receiver {
+            VMValue::String(recv_text) => self
+                .reg_load(arg)
+                .map(|arg_value| match arg_value {
+                    VMValue::String(arg_text) => arg_text == *recv_text,
+                    VMValue::BoxRef(arg_bx) if arg_bx.type_name() == "StringBox" => {
+                        arg_bx.to_string_box().value == *recv_text
+                    }
+                    _ => false,
+                })
+                .unwrap_or(false),
+            VMValue::BoxRef(recv_bx) => match self.reg_load(arg) {
+                Ok(VMValue::BoxRef(arg_bx)) => {
+                    std::sync::Arc::ptr_eq(&arg_bx, recv_bx)
+                        || (recv_bx.type_name() == "StringBox"
+                            && arg_bx.type_name() == "StringBox"
+                            && recv_bx.to_string_box().value == arg_bx.to_string_box().value)
+                }
+                Ok(VMValue::String(arg_text)) if recv_bx.type_name() == "StringBox" => {
+                    recv_bx.to_string_box().value == arg_text
+                }
+                _ => false,
+            },
+            _ => false,
+        }
+    }
+
+    fn strip_duplicate_receiver_value_arg_for_core_surface<'a>(
+        &mut self,
+        receiver: &VMValue,
+        method: &str,
+        args: &'a [ValueId],
+    ) -> &'a [ValueId] {
+        let current_args_match = self.core_surface_args_match(receiver, method, args);
+        let stripped_arity_supported = args
+            .len()
+            .checked_sub(1)
+            .and_then(|arity| Self::core_surface_arity_for(receiver, method, Some(arity)))
+            .is_some();
+
+        if !current_args_match
+            && stripped_arity_supported
+            && args
+                .first()
+                .copied()
+                .is_some_and(|arg| self.is_duplicate_receiver_value_arg(receiver, arg))
+        {
+            &args[1..]
+        } else {
+            args
         }
     }
 
@@ -310,12 +488,13 @@ impl MirInterpreter {
                 return Ok(VMValue::Void);
             }
             let is_kw = method == "keyword_to_token_type";
-            let method_args =
-                if let Some(expected) = Self::core_surface_expected_arity(&recv_val, method) {
-                    self.strip_duplicate_receiver_arg_for_arity(&recv_val, *recv_id, args, expected)
-                } else {
-                    args
-                };
+            let method_args = if Self::core_surface_expected_arity(&recv_val, method).is_some() {
+                self.strip_duplicate_receiver_arg_for_core_surface(
+                    &recv_val, *recv_id, method, args,
+                )
+            } else {
+                args
+            };
             if dev_trace && is_kw {
                 let a0 = method_args.get(0).and_then(|id| self.reg_load(*id).ok());
                 get_global_ring0()
@@ -368,26 +547,19 @@ impl MirInterpreter {
             VMValue::WeakBox(_) => "WeakRef", // Phase 285A0
         };
 
+        let method_args =
+            self.strip_duplicate_receiver_value_arg_for_core_surface(receiver, method, args);
+
         // 2. Lookup type in TypeRegistry and get slot
-        // Note: Try exact arity first, then try with args.len()-1 (in case receiver is duplicated in args)
-        let slot =
-            crate::runtime::type_registry::resolve_slot_by_name(type_name, method, args.len())
-                .or_else(|| {
-                    // Fallback: try with one less argument (receiver might be in args)
-                    if args.len() > 0 {
-                        crate::runtime::type_registry::resolve_slot_by_name(
-                            type_name,
-                            method,
-                            args.len() - 1,
-                        )
-                    } else {
-                        None
-                    }
-                });
+        let slot = crate::runtime::type_registry::resolve_slot_by_name(
+            type_name,
+            method,
+            method_args.len(),
+        );
 
         if let Some(slot) = slot {
             // 3. Use unified dispatch
-            return self.dispatch_by_slot(receiver, type_name, slot, args);
+            return self.dispatch_by_slot(receiver, type_name, slot, method_args);
         }
 
         // Fallback: Special methods not in TypeRegistry yet

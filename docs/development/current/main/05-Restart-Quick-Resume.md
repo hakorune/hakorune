@@ -33,7 +33,7 @@ cargo check -q
 
 - lane:
   - compiler cleanup lane is primary
-  - current-state token: `phase-291x CoreBox MapBox contract-first cleanup`
+  - current-state token: `phase-291x CoreBox surface contract cleanup`
   - active phase: `docs/development/current/main/phases/phase-291x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - current focus:
@@ -54,10 +54,12 @@ cargo check -q
   - Rust `MapBox.values()` sorted-key order fix is landed (291x-102 slice 1)
   - `ArrayCoreBox.get` VM-local-first metadata check is landed (291x-102 slice 2)
   - MapBox get missing-key contract is landed and pinned
+  - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
+    291x-103 acceptance smoke
   - CoreBox surface catalog work is landed and now a reference lane;
-    `StringBox.length/len/size`, `StringBox.substring/substr`, and
-    `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
-    `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
+    `StringBox.length/len/size`, `StringBox.substring/substr`,
+    `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and
+    two-arg `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
     `find`, plus `ArrayBox.length/size/len`, `ArrayBox.push`,
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
     `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
@@ -71,9 +73,9 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-291x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 - current blocker token:
-  - `phase-291x MapBox element publication landed — next app card selection pending`
+  - `phase-291x StringBox lastIndexOf start-position landed — next app card selection pending`
 
 ## Current Perf Snapshot
 
@@ -131,7 +133,7 @@ cargo check -q
 
 - worktree should be clean after the last commit.
 - branch may be ahead of `hakorune/public-main`; do not push unless requested.
-- the current docs front is phase-291x CoreBox MapBox contract-first cleanup.
+- the current docs front is phase-291x CoreBox surface contract cleanup.
 - phase-291x CoreBox first catalog and cleanup slices are landed references.
 - phase-292x closeout card was `292x-118-generic-pure-walker-view-extraction-card.md`;
   `292x-112` deleted path #1/#2 after `292x-114` fixed the predelete blockers,
@@ -150,6 +152,7 @@ cargo check -q
   - `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
   - `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md`
   - `docs/development/current/main/phases/phase-292x/README.md`

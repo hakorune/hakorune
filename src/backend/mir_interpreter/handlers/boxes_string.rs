@@ -157,18 +157,18 @@ pub(super) fn try_handle_string_box(
             return Ok(true);
         }
         "lastIndexOf" => {
-            let needle = parse_last_index_of_args(
+            let (needle, start) = parse_last_index_of_args(
                 this,
                 args,
                 ArgParsePolicy::STRICT,
-                "lastIndexOf requires 1 argument",
+                "lastIndexOf expects 1 or 2 args (search [, fromIndex])",
             )?;
             let mode = string_ops::index_mode_from_env();
-            let idx = string_ops::last_index_of(&sb_norm.value, &needle, mode);
+            let idx = string_ops::last_index_of_from(&sb_norm.value, &needle, start, mode);
             if trace {
                 get_global_ring0().log.debug(&format!(
-                    "[provider/trace][string_box] lastIndexOf needle={:?} mode={:?} -> {}",
-                    needle, mode, idx
+                    "[provider/trace][string_box] lastIndexOf needle={:?} start={:?} mode={:?} -> {}",
+                    needle, start, mode, idx
                 ));
             }
             this.write_result(dst, VMValue::Integer(idx));

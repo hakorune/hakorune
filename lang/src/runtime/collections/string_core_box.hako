@@ -91,6 +91,43 @@ static box StringCoreBox {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
 
+  _arg_count_upto3(seg) {
+    if MiniMirV1Scan.first_arg_register(seg) == null { return 0 }
+    if MiniMirV1Scan.nth_arg_register(seg, 1) == null { return 1 }
+    if MiniMirV1Scan.nth_arg_register(seg, 2) == null { return 2 }
+    return 3
+  }
+
+  _first_arg_is_receiver_text(seg, regs, handle_regs, text) {
+    local arg0 = MiniMirV1Scan.first_arg_register(seg)
+    if arg0 == null { return 0 }
+    local raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
+    if raw == null { return 0 }
+    if ("" + raw) == text { return 1 }
+    return 0
+  }
+
+  _arg_offset_exact(seg, regs, handle_regs, text, expected) {
+    if me._arg_count_upto3(seg) == expected + 1 {
+      if me._first_arg_is_receiver_text(seg, regs, handle_regs, text) == 1 { return 1 }
+    }
+    return 0
+  }
+
+  _arg_offset_search(seg, regs, handle_regs, text) {
+    local count = me._arg_count_upto3(seg)
+    if count == 2 || count == 3 {
+      if me._first_arg_is_receiver_text(seg, regs, handle_regs, text) == 1 { return 1 }
+    }
+    return 0
+  }
+
+  _arg_register(seg, logical_idx, offset) {
+    local physical = logical_idx + offset
+    if physical == 0 { return MiniMirV1Scan.first_arg_register(seg) }
+    return MiniMirV1Scan.nth_arg_register(seg, physical)
+  }
+
   _write_text_dst(regs, kinds, handle_regs, dst, text) {
     if dst != null {
       regs.setField(StringHelpers.int_to_str(dst), "0")
@@ -143,10 +180,11 @@ static box StringCoreBox {
   }
 
   _indexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
-    local arg0 = MiniMirV1Scan.first_arg_register(seg)
+    local offset = me._arg_offset_search(seg, regs, handle_regs, text)
+    local arg0 = me._arg_register(seg, 0, offset)
     local needle_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
     local needle = needle_raw == null ? "" : ("" + needle_raw)
-    local start = me._read_reg_int_or_zero(regs, MiniMirV1Scan.nth_arg_register(seg, 1))
+    local start = me._read_reg_int_or_zero(regs, me._arg_register(seg, 1, offset))
     local idx = StringSearchKernelBox.find_index_from(text, needle, start)
     me._write_scalar_dst(regs, kinds, dst, idx)
     me._trace("[vm/adapter/string_core:indexof]")
@@ -154,7 +192,8 @@ static box StringCoreBox {
   }
 
   _concat_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text) {
-    local arg0 = MiniMirV1Scan.first_arg_register(seg)
+    local offset = me._arg_offset_exact(seg, regs, handle_regs, text, 1)
+    local arg0 = me._arg_register(seg, 0, offset)
     local rhs_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
     local rhs = rhs_raw == null ? "" : ("" + rhs_raw)
     me._write_text_dst(regs, kinds, handle_regs, dst, text + rhs)
@@ -163,8 +202,9 @@ static box StringCoreBox {
   }
 
   _replace_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text) {
-    local old_raw = me._read_reg_text_or_null(regs, handle_regs, MiniMirV1Scan.first_arg_register(seg))
-    local new_raw = me._read_reg_text_or_null(regs, handle_regs, MiniMirV1Scan.nth_arg_register(seg, 1))
+    local offset = me._arg_offset_exact(seg, regs, handle_regs, text, 2)
+    local old_raw = me._read_reg_text_or_null(regs, handle_regs, me._arg_register(seg, 0, offset))
+    local new_raw = me._read_reg_text_or_null(regs, handle_regs, me._arg_register(seg, 1, offset))
     local old_text = old_raw == null ? "" : ("" + old_raw)
     local new_text = new_raw == null ? "" : ("" + new_raw)
     me._write_text_dst(regs, kinds, handle_regs, dst, text.replace(old_text, new_text))
@@ -179,17 +219,26 @@ static box StringCoreBox {
   }
 
   _lastindexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
-    local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
+    local offset = me._arg_offset_search(seg, regs, handle_regs, text)
+    local arg0_rt = me._arg_register(seg, 0, offset)
     local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
     local needle = needle_rt == null ? "" : ("" + needle_rt)
-    local idx = StringSearchKernelBox.last_index(text, needle)
+    local arg1_rt = me._arg_register(seg, 1, offset)
+    local idx = 0
+    if arg1_rt == null {
+      idx = StringSearchKernelBox.last_index(text, needle)
+    } else {
+      local start = me._read_reg_int_or_zero(regs, arg1_rt)
+      idx = StringSearchKernelBox.last_index_from(text, needle, start)
+    }
     me._write_scalar_dst(regs, kinds, dst, idx)
     me._trace("[vm/adapter/string_core:lastindexof]")
     return 1
   }
 
   _contains_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
-    local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
+    local offset = me._arg_offset_exact(seg, regs, handle_regs, text, 1)
+    local arg0_rt = me._arg_register(seg, 0, offset)
     local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
     local needle = needle_rt == null ? "" : ("" + needle_rt)
     me._write_bool_dst(regs, kinds, dst, StringSearchKernelBox.contains(text, needle))
@@ -198,8 +247,9 @@ static box StringCoreBox {
   }
 
   _substring_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text) {
-    local start_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.first_arg_register(seg))
-    local end_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.nth_arg_register(seg, 1))
+    local offset = me._arg_offset_exact(seg, regs, handle_regs, text, 2)
+    local start_raw = me._read_reg_int_or_zero(regs, me._arg_register(seg, 0, offset))
+    local end_raw = me._read_reg_int_or_zero(regs, me._arg_register(seg, 1, offset))
     local n = text.length()
     local start = me._clamp_index(start_raw, n)
     local end = me._clamp_index(end_raw, n)

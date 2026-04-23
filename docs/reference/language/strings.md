@@ -33,6 +33,7 @@ Text (UTF‑8/CP): implemented by `StringBox` delegating to `Utf8CursorBox`.
 - `length() -> i64` — number of code points.
 - `substring(i,j) -> StringBox` — CP slice.
 - `indexOf(substr, from=0) -> i64` — CP index or `-1`.
+- `lastIndexOf(substr, from=length()) -> i64` — last CP index at or before `from`, or `-1`.
 - Optional helpers: `startsWith/endsWith/replace/split/trim` as sugar.
 
 Bytes: handled by `ByteCursorBox`.

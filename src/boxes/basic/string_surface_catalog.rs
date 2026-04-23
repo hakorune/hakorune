@@ -12,6 +12,7 @@ pub enum StringMethodId {
     Replace,
     Trim,
     LastIndexOf,
+    LastIndexOfFrom,
     Contains,
 }
 
@@ -140,6 +141,16 @@ pub const STRING_SURFACE_METHODS: &[StringMethodSpec] = &[
         canonical: "lastIndexOf",
         aliases: &[],
         arity: 1,
+        slot: 308,
+        effect: StringSurfaceEffect::Read,
+        returns: StringSurfaceReturn::Value,
+        exposure: StringExposureState::STABLE,
+    },
+    StringMethodSpec {
+        id: StringMethodId::LastIndexOfFrom,
+        canonical: "lastIndexOf",
+        aliases: &[],
+        arity: 2,
         slot: 308,
         effect: StringSurfaceEffect::Read,
         returns: StringSurfaceReturn::Value,
@@ -350,6 +361,26 @@ impl StringBox {
                 let idx = crate::boxes::string_ops::last_index_of(&self.value, &needle, mode);
                 StringSurfaceInvokeResult::Value(Box::new(IntegerBox::new(idx)))
             }
+            StringMethodId::LastIndexOfFrom => {
+                let needle = arg_text(
+                    args.next()
+                        .expect("validated StringBox.lastIndexOf needle")
+                        .as_ref(),
+                );
+                let start = arg_i64(
+                    args.next()
+                        .expect("validated StringBox.lastIndexOf start")
+                        .as_ref(),
+                );
+                let mode = crate::boxes::string_ops::index_mode_from_env();
+                let idx = crate::boxes::string_ops::last_index_of_from(
+                    &self.value,
+                    &needle,
+                    Some(start),
+                    mode,
+                );
+                StringSurfaceInvokeResult::Value(Box::new(IntegerBox::new(idx)))
+            }
             StringMethodId::Contains => {
                 let needle = arg_text(
                     args.next()
@@ -395,6 +426,14 @@ mod tests {
             StringMethodId::from_slot_and_arity(303, 2),
             Some(StringMethodId::IndexOfFrom)
         );
+        assert_eq!(
+            StringMethodId::from_name_and_arity("lastIndexOf", 2),
+            Some(StringMethodId::LastIndexOfFrom)
+        );
+        assert_eq!(
+            StringMethodId::from_slot_and_arity(308, 2),
+            Some(StringMethodId::LastIndexOfFrom)
+        );
     }
 
     #[test]
@@ -437,6 +476,21 @@ mod tests {
         match found {
             StringSurfaceInvokeResult::Value(value) => {
                 assert_eq!(value.to_string_box().value, "4");
+            }
+        }
+
+        let last_from = text
+            .invoke_surface(
+                StringMethodId::LastIndexOfFrom,
+                vec![
+                    Box::new(StringBox::new("na")) as Box<dyn NyashBox>,
+                    Box::new(IntegerBox::new(3)) as Box<dyn NyashBox>,
+                ],
+            )
+            .unwrap();
+        match last_from {
+            StringSurfaceInvokeResult::Value(value) => {
+                assert_eq!(value.to_string_box().value, "2");
             }
         }
 

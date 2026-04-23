@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
-- active lane:
-  - compiler cleanup lane is primary now
+  - active lane:
+    - compiler cleanup lane is primary now
   - current-state token:
-    - `phase-291x CoreBox MapBox contract-first cleanup`
+    - `phase-291x CoreBox surface contract cleanup`
   - active phase:
     - `docs/development/current/main/phases/phase-291x/README.md`
   - phase status SSOT:
@@ -92,7 +92,7 @@ Scope: current lane / next lane / restart order only.
   - method anchor:
     - `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard:
-    - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+    - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
   - current app slice:
     - phase-292x `.inc` cleanup is closed with 0 analysis-debt lines and 2
       explicit view-owner lines
@@ -110,6 +110,9 @@ Scope: current lane / next lane / restart order only.
       landed and pinned
     - `MapBox.keys()/values()` element publication is landed through the S0
       state owner and pinned by the 291x-102 acceptance smoke
+    - `StringBox.lastIndexOf(needle, start_pos)` is landed through the
+      catalog-backed Unified value path and pinned by the 291x-103 acceptance
+      smoke
     - MapBox write-return receipt implementation is landed and pinned
     - MapBox bad-key normalization implementation is landed and pinned
     - `MapBox.get(missing-key)` contract is landed and pinned
@@ -123,7 +126,7 @@ Scope: current lane / next lane / restart order only.
     - StringBox surface catalog is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - `apps/std/string.hako` is std sugar; the old diagnostic `apps/std/string2.hako` stub was deleted during cleanup triage
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and `MapBox.values` to the Unified value path; active cleanup is MapBox source route parity
+    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and two-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and `MapBox.values` to the Unified value path; next app cleanup card selection is pending
     - source-level vm-hako non-empty `MapBox.values()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
     - source-level vm-hako non-empty `MapBox.keys()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`
     - source-level vm-hako `MapBox.remove(key)` alias is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_remove_vm.sh`
@@ -134,12 +137,12 @@ Scope: current lane / next lane / restart order only.
     - `ArrayCoreBox.get` VM-local-first metadata check is landed (291x-102 slice 2)
     - `MapBox.keys()/values()` element publication is landed (291x-102 slice 3)
       and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_keys_values_elements_vm.sh`
-    - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
+    - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
-    - two-arg `lastIndexOf` remains a separate runtime gap
+    - two-arg `lastIndexOf` start-position behavior is landed and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_lastindexof_start_vm.sh`
   - current blocker token:
-    - `phase-291x MapBox element publication landed — next app card selection pending`
+    - `phase-291x StringBox lastIndexOf start-position landed — next app card selection pending`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

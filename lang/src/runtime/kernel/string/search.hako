@@ -62,14 +62,19 @@ static box StringSearchKernelBox {
     return me.find_index_from(hay, needle, 0)
   }
 
-  last_index(hay, needle) {
+  last_index_from(hay, needle, start_pos) {
     if hay == null { return -1 }
     local needle_text = me._normalize_needle(needle)
     local n = hay.length()
     local m = needle_text.length()
-    if m == 0 { return n }
+    local start = start_pos
+    if start < 0 { start = 0 }
+    if start > n { start = n }
+    if m == 0 { return start }
     if n < m { return -1 }
-    local i = n - m
+    local i = start
+    local max_i = n - m
+    if i > max_i { i = max_i }
     loop(i >= 0) {
       if me._starts_with_at_norm(hay, i, needle_text) == 1 {
         return i
@@ -77,6 +82,11 @@ static box StringSearchKernelBox {
       i = i - 1
     }
     return -1
+  }
+
+  last_index(hay, needle) {
+    if hay == null { return -1 }
+    return me.last_index_from(hay, needle, hay.length())
   }
 
   starts_with(hay, needle) {

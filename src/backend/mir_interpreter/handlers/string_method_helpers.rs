@@ -43,14 +43,19 @@ pub(super) fn parse_last_index_of_args(
     args: &[ValueId],
     policy: ArgParsePolicy,
     err_label: &str,
-) -> Result<String, VMError> {
+) -> Result<(String, Option<i64>), VMError> {
     if args.is_empty() {
         return Err(this.err_invalid(err_label));
     }
-    if !policy.allow_extra && args.len() > 1 {
+    let start = if args.len() >= 2 {
+        Some(this.reg_load(args[1])?.as_integer().unwrap_or(0))
+    } else {
+        None
+    };
+    if !policy.allow_extra && args.len() > 2 {
         return Err(this.err_invalid(err_label));
     }
-    Ok(this.reg_load(args[0])?.to_string())
+    Ok((this.reg_load(args[0])?.to_string(), start))
 }
 
 pub(super) fn parse_substring_args(

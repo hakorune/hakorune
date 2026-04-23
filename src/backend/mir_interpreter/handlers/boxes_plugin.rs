@@ -65,14 +65,14 @@ pub(super) fn invoke_plugin_box(
         let s = s_box.value;
         match method {
             "lastIndexOf" => {
-                let needle = parse_last_index_of_args(
+                let (needle, start) = parse_last_index_of_args(
                     this,
                     args,
                     ArgParsePolicy::STRICT,
-                    "lastIndexOf requires 1 argument",
+                    "lastIndexOf requires 1 or 2 arguments",
                 )?;
                 let mode = crate::boxes::string_ops::index_mode_from_env();
-                let idx = crate::boxes::string_ops::last_index_of(&s, &needle, mode);
+                let idx = crate::boxes::string_ops::last_index_of_from(&s, &needle, start, mode);
                 this.write_result(dst, VMValue::Integer(idx));
                 Ok(())
             }

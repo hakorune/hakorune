@@ -22,6 +22,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md
+  - docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -32,7 +33,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: next app cleanup card selection (291x-102 landed)
+- Latest landed cleanup target: `StringBox.lastIndexOf(needle, start_pos)` catalog + Unified value path
+- Next implementation target: select the next explicit app cleanup card
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -70,13 +72,14 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 11. `docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md`
 12. `docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md`
 13. `docs/development/current/main/phases/phase-291x/291x-102-mapbox-keys-values-element-publication-card.md`
+14. `docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md`
 
 ## Current Rule
 
 - docs-first before code
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
-- `StringBox.lastIndexOf(needle, start_pos)` remains explicitly deferred until a separate card
+- `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
 - `apps/std/string.hako` is sugar, not the semantic owner
 - legacy `apps/std/string2.hako` diagnostic residue was deleted by an explicit cleanup card
 - `MapBox` first slice cataloged current Rust vtable rows only
@@ -112,6 +115,10 @@ String surface catalog
 Landed smoke:
 
 - `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
+
+Landed StringBox cleanup smoke:
+
+- `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_lastindexof_start_vm.sh`
 
 MapBox is now the next CoreBox catalog target.
 
@@ -171,8 +178,9 @@ Landed CoreBox router first slice:
 
 - `src/mir/builder/router/policy.rs` now routes only the catalog-backed
   `StringBox.length` / `len` / `size` and `StringBox.substring` / `substr`
-  and `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
-  `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
+  and `StringBox.concat`, `StringBox.trim`, `StringBox.contains`,
+  `StringBox.lastIndexOf` one-arg and two-arg, `StringBox.replace`, and
+  `StringBox.indexOf` /
   `find`, plus `ArrayBox.length` / `size` / `len`, `ArrayBox.push`,
   `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
   `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
@@ -198,6 +206,6 @@ Landed CoreBox router first slice:
   vm-hako publication and matching type hints are synced.
 - `MapBox.get(missing-key)` keeps its landed tagged read-miss contract in
   `291x-101`; successful `get(existing-key)` typing remains data-dependent.
-- two-arg `lastIndexOf` remains a contract-first cleanup card; MapBox
-  keys/values element publication is landed in `291x-102`.
+- two-arg `lastIndexOf` is landed in `291x-103`; MapBox keys/values element
+  publication is landed in `291x-102`.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
