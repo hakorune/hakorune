@@ -162,3 +162,4 @@ consult-*.zip
 
 # Artifacts (local generated bundles / logs / consult packs)
 /artifacts/
+*.db
