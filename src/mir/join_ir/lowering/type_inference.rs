@@ -43,11 +43,20 @@ pub fn infer_method_return_type(receiver_type: &MirType, method_name: &str) -> O
                 "push" => Some(MirType::Void),
                 _ => None,
             },
-            "MapBox" => match canonical {
-                "size" => Some(MirType::Integer),
-                "has" => Some(MirType::Bool),
-                _ => None,
-            },
+            "MapBox" => crate::boxes::MapMethodId::from_name(method_name).and_then(|method_id| {
+                match method_id {
+                    crate::boxes::MapMethodId::Size | crate::boxes::MapMethodId::Len => {
+                        Some(MirType::Integer)
+                    }
+                    crate::boxes::MapMethodId::Has => Some(MirType::Bool),
+                    crate::boxes::MapMethodId::Get
+                    | crate::boxes::MapMethodId::Set
+                    | crate::boxes::MapMethodId::Delete
+                    | crate::boxes::MapMethodId::Keys
+                    | crate::boxes::MapMethodId::Values
+                    | crate::boxes::MapMethodId::Clear => None,
+                }
+            }),
             _ => None,
         },
         _ => None,
@@ -152,6 +161,10 @@ mod tests {
         let map_type = MirType::Box("MapBox".to_string());
         assert_eq!(
             infer_method_return_type(&map_type, "size"),
+            Some(MirType::Integer)
+        );
+        assert_eq!(
+            infer_method_return_type(&map_type, "length"),
             Some(MirType::Integer)
         );
         assert_eq!(

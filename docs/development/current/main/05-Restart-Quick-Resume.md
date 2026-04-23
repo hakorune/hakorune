@@ -40,17 +40,18 @@ cargo check -q
   - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
     1 file / 2 explicit view-owner lines guarded separately
   - `.inc` remains boundary glue, not planner
-  - active implementation is `MapBox.length()` as a read-only contract-first
-    alias for the existing Map size surface
+  - `MapBox.length()` is landed as a read-only contract-first alias for the
+    existing Map size surface
+  - active implementation is the MapBox extended rows owner decision
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
     `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
     `find`, plus `ArrayBox.length/size/len`, `ArrayBox.push`,
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
-    `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.len`, and
-    `MapBox.has`, `MapBox.get`, and `MapBox.set`, are on the Unified value
-    path; remaining cleanup is MapBox contract-first rows
+    `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
+    `MapBox.len`, and `MapBox.has`, `MapBox.get`, and `MapBox.set`, are on the
+    Unified value path; remaining cleanup is MapBox contract-first rows
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
 - method anchor:
@@ -58,9 +59,9 @@ cargo check -q
 - active entry:
   - `docs/development/current/main/phases/phase-291x/README.md`
 - taskboard:
-  - `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
-  - `MapBox.length alias contract-first slice`
+  - `MapBox extended rows owner decision`
 
 ## Current Perf Snapshot
 
@@ -95,7 +96,8 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - implement `MapBox.length()` as the first contract-first MapBox cleanup row
+  - decide the MapBox extended-row owner path before promoting `keys` /
+    `values` / `delete` / `remove` / `clear`
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
@@ -136,6 +138,7 @@ cargo check -q
   - `docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md`
   - `docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
   - `docs/development/current/main/phases/phase-292x/README.md`
   - `docs/development/current/main/phases/phase-292x/292x-90-inc-codegen-thin-tag-design-brief.md`
   - `docs/development/current/main/phases/phase-292x/292x-93-array-rmw-window-route-card.md`

@@ -1,5 +1,5 @@
 ---
-Status: Ready
+Status: Landed
 Date: 2026-04-23
 Scope: MapBox `length` alias contract-first cleanup after phase-292x closeout.
 Related:
@@ -46,3 +46,13 @@ bash tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landing Snapshot
+
+- `MapMethodId::Size` now owns `length` as an alias.
+- No new MapBox slot was added; `size` remains slot `200`, and `len` remains
+  slot `201`.
+- `MapBox.length/0` publishes `MirType::Integer` and routes through the Unified
+  value path.
+- The MapBox surface smoke now runs through the direct Rust VM catalog route so
+  vm-hako subset BoxCall debt does not own this Rust surface contract.

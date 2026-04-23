@@ -9,13 +9,13 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-291x CoreBox MapBox contract-first cleanup"
-active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; current lane resumes CoreBox contract-first cleanup with MapBox.length as the first read-only alias slice"
+active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length read-only alias slice is landed; current lane continues with MapBox extended rows owner decision"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
-taskboard = "docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md"
+taskboard = "docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md"
 
-current_blocker_token = "MapBox.length alias contract-first slice"
+current_blocker_token = "MapBox extended rows owner decision"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -54,6 +54,7 @@ opened_successors = [
   "generic pure view owner consolidation landed",
   "generic pure view owner guard split landed",
   "phase-292x .inc cleanup closed with guard 0 debt lines plus explicit view-owner accounting",
+  "MapBox.length read-only alias landed",
 ]
 
 blocked_successors = [

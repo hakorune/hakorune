@@ -43,6 +43,7 @@ static box Main {
   main() {
     local m = new MapBox()
     print(m.size())
+    print(m.length())
     print(m.len())
     m.set("a", 1)
     m.set("b", 2)
@@ -58,18 +59,38 @@ static box Main {
 HCODE
 )
 
-  local out
+  local tmpfile out_file out
+  tmpfile="$(mktemp /tmp/phase291x_mapbox_surface.XXXXXX.hako)"
+  out_file="$(mktemp /tmp/phase291x_mapbox_surface.XXXXXX.out)"
+  printf '%s\n' "$code" >"$tmpfile"
+
   set +e
-  out=$(run_nyash_vm -c "$code" --dev 2>&1)
-  local rc=$?
+  # This smoke pins the Rust CoreBox catalog + MIR router surface. Use the
+  # direct Rust VM path so vm-hako subset BoxCall debt does not own the result.
+  env \
+    -u NYASH_USING_AST \
+    -u NYASH_ROOT \
+    -u HAKO_JOINIR_STRICT \
+    -u NYASH_JOINIR_DEV \
+    -u HAKO_SILENT_TAGS \
+    -u HAKO_TRACE_EXECUTION \
+    -u HAKO_VERIFY_SHOW_LOGS \
+    -u NYASH_DEBUG_FUEL \
+    -u NYASH_LOAD_NY_PLUGINS \
+    -u NYASH_CLI_VERBOSE \
+    NYASH_FEATURES=stage3 NYASH_MIR_UNIFIED_CALL=1 \
+    "$NYASH_BIN" --backend vm --dev "$tmpfile" 2>&1 | filter_noise >"$out_file"
+  local rc=${PIPESTATUS[0]}
   set -e
+  out="$(<"$out_file")"
+  rm -f "$tmpfile" "$out_file"
   if [ "$rc" -ne 0 ]; then
     echo "$out" | tail -n 120 >&2 || true
     test_fail "$SMOKE_NAME: VM surface route failed rc=$rc"
     exit 1
   fi
 
-  if echo "$out" | rg -q '\[vm/method/stub:(size|len|has|get|set)\]'; then
+  if echo "$out" | rg -q '\[vm/method/stub:(size|length|len|has|get|set)\]'; then
     echo "$out" | tail -n 120 >&2 || true
     test_fail "$SMOKE_NAME: stable MapBox method hit VM stub"
     exit 1
@@ -78,6 +99,7 @@ HCODE
   local actual expected
   actual=$(printf '%s\n' "$out" | awk '/^(0|1|2|true|false|OK: map-surface)$/ { print }')
   expected=$(cat <<'EXPECT'
+0
 0
 0
 true

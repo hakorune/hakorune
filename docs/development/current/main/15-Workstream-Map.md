@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-291x CoreBox MapBox contract-first cleanup` |
-| Front | `phase-292x closed with .inc analysis debt at 0 lines; CoreBox MapBox length alias is active` |
+| Front | `phase-292x closed with .inc analysis debt at 0 lines; CoreBox MapBox length alias landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `MapBox.length alias contract-first slice` |
-| Next | `add MapBox.length as a read-only catalog alias and Unified value-path row` |
+| Blocker | `MapBox extended rows owner decision` |
+| Next | `choose owner path for keys / values / delete / remove / clear` |
 | After Next | `MapBox extended rows or return-contract cleanup, one card at a time` |
 
 ## Current Read
@@ -27,7 +27,7 @@ Related:
   - implementation lane: `docs/development/current/main/phases/phase-291x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - phase brief: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
   - closed .inc cleanup: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 
@@ -70,7 +70,8 @@ Related:
 35. `phase-292x generic pure view owner consolidation` landed
 36. `phase-292x generic pure view-owner guard split` landed
 37. `phase-292x generic pure walker view extraction` closed
-38. `phase-291x MapBox.length contract-first alias`
+38. `phase-291x MapBox.length contract-first alias` landed
+39. `phase-291x MapBox extended rows owner decision`
 
 ## Parked Corridor
 

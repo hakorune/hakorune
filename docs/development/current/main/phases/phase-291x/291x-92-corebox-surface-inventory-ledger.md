@@ -155,8 +155,10 @@ Landed first slice and follow-up:
 - twenty-first implementation moved `MapBox.set` after adding a focused
   receiver-plus-key-plus-value fixture while keeping its write-return type
   `Unknown` and preserving `MapBox.delete` fallback sentinels.
+- twenty-second implementation added `MapBox.length` as a read-only alias for
+  the existing size surface, with no new slot and no extended-row promotion.
 - remaining route-only CoreBox rows are closed for ArrayBox stable rows and
-  MapBox `size/len/has/get/set`.
+  MapBox `size/length/len/has/get/set`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
 - hold MapBox `keys` / `values` / `delete` / `remove` / `clear` until their

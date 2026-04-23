@@ -136,6 +136,8 @@ arity-zero, and publishes a fixed `Integer` result without collapsing the
 separate `len` slot.
 `MapBox.len` is a separate read-only current-vtable row with the same fixed
 `Integer` result, kept distinct from `size` and without adding `length`.
+`MapBox.length` is a read-only alias for the existing size surface; it uses the
+same fixed `Integer` result and does not add a new slot.
 `MapBox.has` is the first keyed MapBox read slice because it has a fixed
 `Bool` result without touching stored value materialization.
 `MapBox.get` is the first stored-value MapBox read slice; it moves to the
@@ -160,7 +162,8 @@ write-return opaque as `Unknown`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, `MapMethodId::Has`, and
   `MapMethodId::Get`, and `MapMethodId::Set` rows to `Route::Unified`;
-  remaining MapBox rows still use the family-wide fallback.
+  `MapBox.length` is covered by the `MapMethodId::Size` alias; remaining
+  MapBox rows still use the family-wide fallback.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -192,8 +195,8 @@ write-return opaque as `Unknown`.
   uses the receiver-plus-index shape and intentionally stays
   `MirType::Unknown`; `ArrayBox.insert` uses the
   receiver-plus-index-plus-value shape and stays `Void`;
-  `MapBox.size` and `MapBox.len` use the arity-zero receiver shape and publish
-  `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
+  `MapBox.size`, `MapBox.length`, and `MapBox.len` use the arity-zero receiver
+  shape and publish `MirType::Integer`; `MapBox.has` uses the receiver-plus-key shape and
   publishes `MirType::Bool`; `MapBox.get` uses the receiver-plus-key shape and
   intentionally stays `MirType::Unknown`; `MapBox.set` uses the
   receiver-plus-key-plus-value shape and intentionally stays
@@ -228,11 +231,11 @@ implemented.
 ## Remaining Work
 
 - remaining route-only CoreBox rows are closed for the current ArrayBox stable
-  rows and MapBox `size` / `len` / `has` / `get` / `set`
+  rows and MapBox `size` / `length` / `len` / `has` / `get` / `set`
 - contract-first backlog: two-arg `StringBox.lastIndexOf(needle, start_pos)`,
   Array generic element-result publication (`get` / `pop` / `remove` as `T`
-  instead of `Unknown`), `MapBox.length`, `MapBox.keys` / `values`,
-  `MapBox.delete` / `remove` / `clear`, and MapBox write-return / bad-key
+  instead of `Unknown`), `MapBox.keys` / `values`, `MapBox.delete` / `remove`
+  / `clear`, and MapBox write-return / bad-key
   normalization
 - non-router cleanup backlog: String semantic owner cleanup, alias SSOT
   cleanup, and Map compat/source cleanup

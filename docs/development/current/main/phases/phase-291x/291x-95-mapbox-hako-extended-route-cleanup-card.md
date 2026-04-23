@@ -48,6 +48,6 @@ The next implementation must choose one owner path for `keys`, `values`,
 
 ## Out Of Scope
 
-- `length` alias for MapBox Rust vtable.
+- `length` alias for MapBox Rust vtable; landed in `291x-97`.
 - `size`/`len` slot unification.
 - `crates/nyash_kernel/src/plugin/map_compat.rs` deletion.

@@ -87,7 +87,7 @@ rows and dispatch behavior, then makes existing consumers read the catalog.
 
 | Canonical | Aliases | Arity | Slot | Effect | Return | Notes |
 | --- | --- | ---: | ---: | --- | --- | --- |
-| `size` |  | 0 | 200 | Read | Value | keep distinct from `len` for this slice |
+| `size` | `length` | 0 | 200 | Read | Value | `length` is an alias; keep distinct from `len` |
 | `len` |  | 0 | 201 | Read | Value | legacy slot remains distinct |
 | `has` |  | 1 | 202 | Read | Value | returns boolean |
 | `get` |  | 1 | 203 | Read | Value | missing-key behavior is unchanged |
@@ -99,7 +99,6 @@ rows and dispatch behavior, then makes existing consumers read the catalog.
 
 Explicitly deferred from the first MapBox code slice:
 
-- registering `length` as a Rust vtable alias
 - collapsing `size` and `len` into one slot row
 - changing `set` / `delete` / `clear` return contracts
 - changing bad-key validation behavior across VM routes

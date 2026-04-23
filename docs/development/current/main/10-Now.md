@@ -34,27 +34,29 @@ Related:
   - active phase: `docs/development/current/main/phases/phase-291x/README.md`
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-  - taskboard: `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
-  - current implementation focus: MapBox.length alias contract-first slice
+  - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+  - current implementation focus: MapBox extended rows owner decision
   - current phase goal:
     - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
       1 file / 2 explicit view-owner lines guarded separately
     - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
     - resume CoreBox cleanup one contract row at a time
-    - first row: `MapBox.length()` as a read-only alias for the existing Map
+    - `MapBox.length()` is landed as a read-only alias for the existing Map
       size surface
+    - next row decides the owner path for `keys` / `values` / `delete` /
+      `remove` / `clear`
   - current app gap read:
     - ArrayBox surface SSOT is landed for `length/size/len/get/set/push/pop/slice/remove/insert`
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
     - StringBox surface SSOT is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.len`, `MapBox.has`, `MapBox.get`, and `MapBox.set` to the Unified value path; active cleanup is `MapBox.length`
+    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, and `MapBox.set` to the Unified value path; active cleanup is MapBox extended rows
     - MapBox Rust vtable surface is cataloged; legacy `apps/std/map_std.hako` and unused `map_keys_values_bridge.hako` prototype were deleted
     - `apps/lib/boxes/map_std.hako` prelude debt is closed; `OpsCalls.map_has(...)` owns the remaining `pref == "ny"` Map-only wrapper
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `MapBox.length alias contract-first slice`
+  - current blocker token: `MapBox extended rows owner decision`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

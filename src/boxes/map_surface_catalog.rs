@@ -69,7 +69,7 @@ pub const MAP_SURFACE_METHODS: &[MapMethodSpec] = &[
     MapMethodSpec {
         id: MapMethodId::Size,
         canonical: "size",
-        aliases: &[],
+        aliases: &["length"],
         arity: 0,
         slot: 200,
         effect: MapSurfaceEffect::Read,
@@ -299,6 +299,10 @@ mod tests {
             Some(MapMethodId::Size)
         );
         assert_eq!(
+            MapMethodId::from_name_and_arity("length", 0),
+            Some(MapMethodId::Size)
+        );
+        assert_eq!(
             MapMethodId::from_name_and_arity("len", 0),
             Some(MapMethodId::Len)
         );
@@ -306,7 +310,7 @@ mod tests {
             MapMethodId::from_name_and_arity("remove", 1),
             Some(MapMethodId::Delete)
         );
-        assert_eq!(MapMethodId::from_name_and_arity("length", 0), None);
+        assert_eq!(MapMethodId::from_name_and_arity("length", 1), None);
 
         assert_eq!(
             MapMethodId::from_slot_and_arity(200, 0),
@@ -365,6 +369,19 @@ mod tests {
             .downcast_ref::<IntegerBox>()
             .expect("MapBox.size returns IntegerBox");
         assert_eq!(size_int.value, 1);
+
+        let length = map
+            .invoke_surface(
+                MapMethodId::from_name_and_arity("length", 0).expect("MapBox.length alias"),
+                vec![],
+            )
+            .expect("MapBox.length invoke");
+        let MapSurfaceInvokeResult::Value(length_value) = length;
+        let length_int = length_value
+            .as_any()
+            .downcast_ref::<IntegerBox>()
+            .expect("MapBox.length returns IntegerBox");
+        assert_eq!(length_int.value, 1);
 
         let len = map
             .invoke_surface(MapMethodId::Len, vec![])

@@ -217,6 +217,11 @@ mod tests {
     }
 
     #[test]
+    fn map_length_alias_uses_unified_value_path() {
+        assert_eq!(route("MapBox", "length", 0), Route::Unified);
+    }
+
+    #[test]
     fn map_has_row_uses_unified_value_path() {
         assert_eq!(route("MapBox", "has", 1), Route::Unified);
     }
@@ -260,6 +265,7 @@ mod tests {
         assert_eq!(route("ArrayBox", "insert", 3), Route::BoxCall);
         assert_eq!(route("MapBox", "size", 1), Route::BoxCall);
         assert_eq!(route("MapBox", "len", 1), Route::BoxCall);
+        assert_eq!(route("MapBox", "length", 1), Route::BoxCall);
         assert_eq!(route("MapBox", "has", 0), Route::BoxCall);
         assert_eq!(route("MapBox", "has", 2), Route::BoxCall);
         assert_eq!(route("MapBox", "get", 0), Route::BoxCall);
