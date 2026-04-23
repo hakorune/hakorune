@@ -7,17 +7,18 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
   - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
-   - docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md
-   - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
-   - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
-   - docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md
-   - docs/development/current/main/phases/phase-291x/291x-113-arraybox-contains-router-card.md
-   - docs/development/current/main/phases/phase-291x/291x-114-arraybox-indexof-router-card.md
-   - docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md
-   - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
-   - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
-   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
-   - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md
+  - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-113-arraybox-contains-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-114-arraybox-indexof-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-116-arraybox-reverse-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-117-arraybox-sort-router-card.md
+  - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
+  - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-123-stringbox-taskboard-router-closeout-card.md
 ---
 
 # StringBox Surface Task Board
@@ -223,14 +224,14 @@ This StringBox slice is done when:
   visible write-return is the landed receipt `String`
 - `MapBox.delete` / `remove` is the first mutating delete row route slice; its
   visible write-return is the landed receipt `String`
-- `MapBox.clear` is the remaining mutating reset row route slice; its visible
+- `MapBox.clear` is the landed final mutating reset row route slice; its visible
   write-return is the landed receipt `String`
 - `MapBox.length` is landed as a read-only alias slice; it maps to the
   existing Map size surface without unifying the `size` and `len` slots
-- next safe cleanup is not a whole-CoreBox flip; it should allowlist one
-  proven CoreBox method family at a time
-- remaining route-only CoreBox rows are closed for ArrayBox stable rows and
+- current stable route-only CoreBox rows are closed for ArrayBox stable rows and
   MapBox `size/length/len/has/get/set/keys/values/delete/remove/clear`
+- future route work must be opened as a new one-family card; do not do a
+  whole-CoreBox flip
 - two-arg `lastIndexOf(needle, start_pos)` is landed in the `291x-103`
   runtime card and enters the allowlist through its catalog row
 - tracking card: `291x-96-corebox-router-unified-value-path-card.md`
