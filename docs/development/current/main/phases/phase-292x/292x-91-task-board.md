@@ -18,6 +18,10 @@ Related:
 - [x] G2 route-family deletion accounting
   - when a C analyzer is retired, reduce
     `tools/checks/inc_codegen_thin_shim_debt_allowlist.tsv` in the same commit
+- [x] G3 view-owner accounting
+  - explicit boundary view construction is pinned by
+    `tools/checks/inc_codegen_thin_shim_view_allowlist.tsv`, outside analysis
+    debt
 
 ## Completed Cards
 
@@ -158,10 +162,10 @@ Related:
 - [ ] A14 generic pure walker view extraction
   - design: `292x-118-generic-pure-walker-view-extraction-card.md`
   - state: GenericPureProgramView and GenericPureBlockView shells are landed;
-    raw walker access is consolidated into the view owner; guard is now 1 file /
-    2 analysis-debt lines
-  - next families: decide whether root view reads are acceptable boundary
-    substrate or should move into MIR-owned metadata
+    raw walker access is consolidated into the view owner; guard is now 0 files
+    / 0 analysis-debt lines plus 1 file / 2 view-owner lines
+  - next families: keep view-owner reads as explicit boundary substrate unless
+    MIR-owned metadata grows a replacement view
 
 ## Done Definition
 

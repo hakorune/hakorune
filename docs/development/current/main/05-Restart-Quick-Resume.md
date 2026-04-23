@@ -42,14 +42,16 @@ cargo check -q
   - compact landed-slice / debt / backlog status lives in `292x-STATUS.toml`
   - latest landed exact route tag: `array_getset_micro`
   - MapBox duplicate receiver predelete fix is landed
-  - guard baseline: 1 `.inc` file / 2 analysis-debt lines
+  - guard baseline: 0 `.inc` files / 0 analysis-debt lines, plus 1 `.inc`
+    file / 2 view-owner lines
   - no `hako_llvmc_match_*seed` definitions remain; `pure_compile_minimal_paths`
     is inventoried in `292x-111`; minimal paths #1/#2 deletion was probed but
     restored, then landed; path #3 Map, path #4 Array, and paths #5/#6 String
     const-eval deletions are also landed; the string loop seed copy-graph helper
     is deleted; cross-block use API tightening, GenericPureProgramView shell,
     GenericPureBlockView accessor, and generic pure view owner consolidation are
-    landed; next cleanup is generic pure walker view extraction
+    landed; view-owner guard split is landed; next cleanup is generic pure
+    walker view extraction
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -104,7 +106,8 @@ cargo check -q
 
 - app priority:
   - plan generic pure walker view extraction without local debt shaving
-  - `pure_compile_minimal_paths` is removed; the guard is now 1 file / 2 debt lines
+  - `pure_compile_minimal_paths` is removed; analysis debt is now 0 files / 0
+    lines, with 1 file / 2 view-owner lines
   - keep `.inc` on metadata read / validation / emit / skip / fail-fast only
   - old C analyzers are temporary fallback only until each route family is pinned
   - keep `src/boxes/array/surface_catalog.rs` and `src/boxes/basic/string_surface_catalog.rs` as CoreBox precedent references
@@ -132,7 +135,8 @@ cargo check -q
   `292x-117a` deleted the string loop seed copy-graph helper, and `292x-117b`
   tightened cross-block use lookup; `292x-118a` introduced the generic pure
   program view shell, and `292x-118b` introduced the generic pure block view
-  accessor; `292x-118c` consolidated raw walker access into the view owner.
+  accessor; `292x-118c` consolidated raw walker access into the view owner;
+  `292x-118d` split view-owner reads out of analysis debt.
 - rejected slot-store boundary probe stays parked in `stash@{0}` as
   `wip/concat-slot-store-window-probe`; do not resurrect it unless explicitly
   reopening that rejected card.

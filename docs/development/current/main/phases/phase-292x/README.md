@@ -65,6 +65,7 @@ Related:
 - Landed extraction: GenericPureProgramView shell
 - Landed extraction: GenericPureBlockView accessor
 - Landed extraction: generic pure view owner consolidation
+- Landed guard split: generic pure view-owner reads are accounted separately
 - Next cleanup target: generic pure walker view extraction
 - Status SSOT: `docs/development/current/main/phases/phase-292x/292x-STATUS.toml`
 - Sibling guardrail:
@@ -138,8 +139,10 @@ only as temporary fallback while each family gets a MIR-owned route tag.
 Landed guardrail:
 
 - `tools/checks/inc_codegen_thin_shim_guard.sh`
-- baseline: 5 `.inc` files, 28 analysis-debt lines
-- current inventory: 73 `.inc` files, 16,079 `.inc` lines
+- initial baseline: 5 `.inc` files, 28 analysis-debt lines
+- current baseline: 0 `.inc` analysis-debt lines, plus 1 `.inc` file / 2
+  view-owner lines
+- current inventory: 71 `.inc` files, 15,832 `.inc` lines
 - `tools/checks/dev_gate.sh quick` runs the guard
 - compact phase status lives in `292x-STATUS.toml`
 

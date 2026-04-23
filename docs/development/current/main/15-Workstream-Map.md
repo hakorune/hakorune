@@ -68,7 +68,8 @@ Related:
 33. `phase-292x GenericPureProgramView shell` landed
 34. `phase-292x GenericPureBlockView accessor` landed
 35. `phase-292x generic pure view owner consolidation` landed
-36. `phase-292x generic pure walker view extraction`
+36. `phase-292x generic pure view-owner guard split` landed
+37. `phase-292x generic pure walker view extraction`
 
 ## Parked Corridor
 

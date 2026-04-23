@@ -367,3 +367,16 @@ Generic pure cross-block use API tightening:
 - lowered allowlist:
   - `hako_llvmc_ffi_pure_compile_generic_lowering.inc`: `3 -> 2`
   - current analysis-debt baseline is `4`
+
+Generic pure view owner extraction and guard split:
+
+- introduced `hako_llvmc_generic_pure_program_view` and `GenericPureBlockView`
+- moved pre-scan, emission, and cross-block use lookup through the named block
+  view accessor
+- added explicit `inc-codegen-view-owner` regions for boundary view
+  construction
+- added `tools/checks/inc_codegen_thin_shim_view_allowlist.tsv`
+- lowered allowlist:
+  - removed the final analysis-debt row
+  - current analysis-debt baseline is `0`
+  - view-owner allowance is `1` file / `2` lines

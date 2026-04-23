@@ -12,14 +12,14 @@ Related:
 
 ## Current Debt
 
-`tools/checks/inc_codegen_thin_shim_guard.sh` reports 1 file / 2
-analysis-debt lines:
+`tools/checks/inc_codegen_thin_shim_guard.sh` reports 0 files / 0
+analysis-debt lines, plus 1 file / 2 view-owner shape-read lines:
 
-- `hako_llvmc_ffi_pure_compile.inc`: entry-function `blocks` read
-- `hako_llvmc_ffi_pure_compile.inc`: generic block `instructions` view accessor
+- view owner: `hako_llvmc_ffi_pure_compile.inc` / `generic_pure_view`
 
-These are no longer dead helper rows or route-specific exact matchers. They are
-the remaining generic pure walker substrate that still reads MIR shape directly.
+These are no longer dead helper rows, route-specific exact matchers, or
+scattered generic walker scans. They are the explicit boundary view construction
+surface.
 
 ## Decision
 
@@ -31,6 +31,8 @@ next useful cleanup is a real boundary split:
 - `.inc` consumes that view for validation and emission.
 - Route legality remains MIR-owned; `.inc` must not rediscover special method
   families while walking.
+- The guard distinguishes analysis debt from view-owner construction. New raw
+  MIR shape reads outside explicit view-owner regions fail.
 
 ## Next Slice
 
@@ -71,6 +73,16 @@ named view or recipe produced earlier.
 - removed raw walker access from `compiler_state.inc` and
   `pure_compile_generic_lowering.inc`
 - lowered the guard from 3 files / 3 lines to 1 file / 2 lines
+
+## Slice 118d Result
+
+- added explicit `inc-codegen-view-owner` markers around the generic pure view
+  construction reads
+- added `tools/checks/inc_codegen_thin_shim_view_allowlist.tsv`
+- updated `inc_codegen_thin_shim_guard.sh` so view-owner construction is
+  accounted separately from analysis debt
+- lowered analysis debt from 1 file / 2 lines to 0 files / 0 lines while keeping
+  the view owner pinned at 1 file / 2 lines
 
 ## Acceptance
 

@@ -85,6 +85,7 @@ static int hako_llvmc_exact_seed_backend_route_supported(
   return 0;
 }
 
+/* inc-codegen-view-owner: generic_pure_view begin */
 typedef struct hako_llvmc_generic_pure_program_view {
   yyjson_val* fn;
   yyjson_val* metadata;
@@ -110,6 +111,7 @@ static int hako_llvmc_read_generic_pure_program_view(
   hako_llvmc_select_entry_runes(out->fn, &out->selection);
   return 1;
 }
+/* inc-codegen-view-owner: generic_pure_view end */
 
 static int hako_llvmc_read_exact_seed_backend_route_tag(
     const char* json_in,
@@ -384,6 +386,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #define ARR_LEN(a) ((int)(sizeof(a)/sizeof((a)[0])))
       auto long long read_int(yyjson_val* obj, const char* key);
       auto const char* read_str(yyjson_val* obj, const char* key);
+      /* inc-codegen-view-owner: generic_pure_view begin */
       struct GenericPureBlockView {
         yyjson_val* block;
         yyjson_val* instructions;
@@ -402,6 +405,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         out->id = read_int(b, "id");
         return 1;
       }
+      /* inc-codegen-view-owner: generic_pure_view end */
       #include "hako_llvmc_ffi_compiler_state.inc"
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<512){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }

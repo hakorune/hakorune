@@ -1,0 +1,4 @@
+# path<TAB>label<TAB>max_view_lines
+# Explicit boundary-view construction may read MIR shape fields, but only in
+# named view owner regions. These lines are not counted as analysis debt.
+lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc	generic_pure_view	2
