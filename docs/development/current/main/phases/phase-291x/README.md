@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
+  - docs/development/current/main/design/current-docs-update-policy-ssot.md
   - docs/development/current/main/phases/phase-290x/README.md
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
@@ -40,6 +41,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
   - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-121-doc-update-simplification-contract.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -50,7 +52,8 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-120` MapBox taskboard closeout
+- Latest landed cleanup target: read `latest_card_path` in
+  `docs/development/current/main/CURRENT_STATE.toml`
 - Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -107,10 +110,14 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 29. `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
 30. `docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md`
 31. `docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md`
+32. `docs/development/current/main/phases/phase-291x/291x-121-doc-update-simplification-contract.md`
 
 ## Current Rule
 
 - docs-first before code
+- current docs update policy is
+  `docs/development/current/main/design/current-docs-update-policy-ssot.md`;
+  do not append landed history to current mirrors for every card
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
@@ -170,6 +177,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   cleanup; no CoreBox behavior changed
 - `291x-120` closed stale MapBox taskboard follow-up wording as docs-only
   BoxShape cleanup; future-risk rows remain explicitly deferred
+- `291x-121` simplified current docs update policy: current mirrors stay thin,
+  and latest-card history lives in `CURRENT_STATE.toml` plus the active card
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -183,7 +192,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
   `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
   quarantine
-- next cleanup must be selected after `291x-120`; do not reopen the landed
+- next cleanup must be selected after the `latest_card_path` recorded in
+  `CURRENT_STATE.toml`; do not reopen the landed
   ArrayBox.clear / contains / indexOf / join / reverse / sort rows or the older existing-key
   typing rule without an owner-path change.
 
@@ -329,3 +339,4 @@ Landed CoreBox router first slice:
   - `docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md`
   - `docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md`
+  - `docs/development/current/main/phases/phase-291x/291x-121-doc-update-simplification-contract.md`

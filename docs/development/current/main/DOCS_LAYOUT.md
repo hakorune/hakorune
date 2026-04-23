@@ -13,8 +13,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 
 - `CURRENT_TASK.md`
   - root restart anchor
-  - the only live status pointer
-  - current order / current next / canonical owner links only
+  - thin entry that points to `CURRENT_STATE.toml`
+  - not a landed-history ledger
+- `CURRENT_STATE.toml`
+  - machine-readable current lane / blocker / latest-card pointer SSOT
 - `10-Now.md`
   - docs-side thin mirror/dashboard
   - one-screen summary + links only
@@ -26,6 +28,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - canonical rough task-order SSOT
 - `design/perf-owner-first-optimization-ssot.md`
   - optimization lane の `front split` / `owner transition` / `keeper-revert stop-line` owner
+- `design/current-docs-update-policy-ssot.md`
+  - current docs update policy and mirror-thinning contract
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `lang/README.md`
@@ -40,10 +44,13 @@ Rule:
 - do not let `CURRENT_TASK.md` or `10-Now.md` regrow into landed-history ledgers.
 - do not let `05-Restart-Quick-Resume.md` or `15-Workstream-Map.md` regrow into landed-history ledgers either.
 - if a block already has a better owner, replace it with a short summary plus a link.
-- phase closeout should normally touch:
-  - the active phase docs
-  - `CURRENT_TASK.md`
-  - optionally `10-Now.md` only when `Now/Next/After Next` changes
+- normal card closeout should touch:
+  - the active card
+  - `CURRENT_STATE.toml` latest-card fields
+  - code/test docs only when their contract changes
+- update `CURRENT_TASK.md`, `10-Now.md`, `05-Restart-Quick-Resume.md`, phase
+  README, taskboards, or ledgers only when lane / blocker / restart order /
+  phase status / durable policy changes.
 - `phases/README.md` is an index, not a full chronology.
 - archive historical docs per area:
   - `docs/development/current/main/design/archive/`

@@ -56,22 +56,48 @@ expect_fixed() {
 }
 
 active_lane="$(require_scalar active_lane)"
+active_phase="$(require_scalar active_phase)"
+phase_status="$(require_scalar phase_status)"
 method_anchor="$(require_scalar method_anchor)"
 taskboard="$(require_scalar taskboard)"
 blocker_token="$(require_scalar current_blocker_token)"
+latest_card="$(require_scalar latest_card)"
+latest_card_path="$(require_scalar latest_card_path)"
+current_update_policy="$(require_scalar current_update_policy)"
 pre_perf_gate="$(require_scalar pre_perf_gate)"
 pre_perf_gate_status="$(require_scalar pre_perf_gate_status)"
 optimization_return_lane="$(require_scalar optimization_return_lane)"
 
-echo "[$TAG] checking current state mirrors"
+require_repo_file() {
+  local rel="$1"
+  local label="$2"
+  if [[ "$rel" = /* ]]; then
+    guard_fail "$TAG" "$label must be repo-relative: $rel"
+  fi
+  if [[ ! -f "$ROOT_DIR/$rel" ]]; then
+    guard_fail "$TAG" "$label points to missing file: $rel"
+  fi
+}
+
+echo "[$TAG] checking compact current state"
+
+require_repo_file "$active_phase" "active_phase"
+require_repo_file "$phase_status" "phase_status"
+require_repo_file "$method_anchor" "method_anchor"
+require_repo_file "$taskboard" "taskboard"
+require_repo_file "$latest_card_path" "latest_card_path"
+require_repo_file "$current_update_policy" "current_update_policy"
+
+if [[ "$latest_card_path" != *"$latest_card"* ]]; then
+  guard_fail "$TAG" "latest_card_path does not contain latest_card: $latest_card -> $latest_card_path"
+fi
 
 for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC" "$PHASE137X_README"; do
   expect_fixed "$active_lane" "$doc"
 done
 
 for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
-  expect_fixed "$method_anchor" "$doc"
-  expect_fixed "$taskboard" "$doc"
+  expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$doc"
   expect_fixed "$blocker_token" "$doc"
 done
 
