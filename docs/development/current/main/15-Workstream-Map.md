@@ -17,7 +17,7 @@ Related:
 | Now | `phase-291x CoreBox MapBox contract-first cleanup` |
 | Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `MapBox post-contract next-slice selection` |
+| Blocker | `291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open` |
 | Next | `keep keys/values element publication deferred until a dedicated card` |
 | After Next | `select the next explicit app card without reopening 291x witnesses` |
 

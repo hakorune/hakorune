@@ -51,7 +51,8 @@ cargo check -q
     element publication is deferred behind the 291x-98 gates
   - MapBox write-return receipt implementation is landed and pinned
   - MapBox bad-key normalization implementation is landed and pinned
-  - active implementation is MapBox post-contract next-slice selection
+  - Rust `MapBox.values()` sorted-key order fix is landed (291x-102 slice 1)
+  - `ArrayCoreBox.get` VM-local-first metadata check is landed (291x-102 slice 2)
   - MapBox get missing-key contract is landed and pinned
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
@@ -72,7 +73,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
-  - `MapBox post-contract next-slice selection`
+  - `291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open`
 
 ## Current Perf Snapshot
 

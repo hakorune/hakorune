@@ -9,13 +9,13 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-291x CoreBox MapBox contract-first cleanup"
-active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, MapBox.clear source-route, MapBox write-return receipt, MapBox bad-key normalization, and MapBox get missing-key contract slices are landed; MapBox keys/values content enumeration is explicitly size-only for now; next slice is 291x-102 (keys/values element publication; gates not yet met)"
+active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, MapBox.clear source-route, MapBox write-return receipt, MapBox bad-key normalization, and MapBox get missing-key contract slices are landed; 291x-102 slice 1 (Rust MapBox.values() sorted-key order) and slice 2 (ArrayCoreBox.get VM-local-first metadata check) are landed; 291x-102 slice 3 (map_state_core_box element publication + acceptance smoke) is open"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md"
 
-current_blocker_token = "291x-102 MapBox keys/values element publication — gates not yet met"
+current_blocker_token = "291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -75,6 +75,9 @@ blocked_successors = [
   "std.string sugar treated as semantic owner",
   "apps.lib.boxes.map_std reintroduced as a second Map surface owner",
   "MapBox keys/values element publication card scoped as 291x-102 (gates not yet met)",
+  "291x-102 MapBox keys/values element publication — gates not yet met",
+  "MapBox post-contract next-slice selection",
+  "current implementation focus: MapBox post-contract next-slice selection",
   "MapBox bad-key normalization mixed into write-return decision",
   "MapBox get missing-key normalization mixed into bad-key implementation",
 ]

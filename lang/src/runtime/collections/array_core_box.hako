@@ -412,6 +412,19 @@ static box ArrayCoreBox {
     if idx_i64 != null && idx_i64 < 0 {
       return me._fail_get_oob(regs, dst)
     }
+    // Gate 1: prefer VM-local element state before runtime-handle get_i64.
+    // A receiver tagged as a VM-local ArrayBox (e.g. from keys()/values()) has its
+    // register value set to the box-id, not a real runtime handle.  Calling get_i64
+    // with a box-id would silently return 0.  Detect via _vm_local_array_len_or_null
+    // (same predicate used by _try_handle_size_alias) and route to state exclusively.
+    local vm_local_len = me._vm_local_array_len_or_null(regs, rid)
+    if vm_local_len != null {
+      local idx = me._read_reg_int_or_zero(regs, arg0_i)
+      if idx < 0 {
+        return me._fail_get_oob(regs, dst)
+      }
+      return me._get_visible_owner_state_only(regs, rid, per_recv, dst, idx)
+    }
     if recv_h != null && idx_i64 != null {
       return me._get_visible_owner_runtime(regs, dst, recv_h, idx_i64)
     }

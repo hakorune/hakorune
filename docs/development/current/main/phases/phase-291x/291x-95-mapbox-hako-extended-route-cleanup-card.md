@@ -178,7 +178,7 @@ metadata over treating the synthetic register id as a runtime array handle.
     tracked by `291x-101` and must not mix successful-read element publication.
 13. Landed: pin the MapBox get missing-key contract with
     `phase291x_mapbox_hako_get_missing_vm.sh`.
-14. Active next: MapBox post-contract next-slice selection.
+14. Landed: 291x-102 slice 1 (Rust MapBox.values() sorted-key order) and slice 2 (ArrayCoreBox.get VM-local-first metadata check); next is 291x-102 slice 3 (map_state_core_box element publication).
 15. Reactivate or replace stale archive witnesses only when they match the new
     owner path and have a valid helper source path.
 

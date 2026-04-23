@@ -130,13 +130,14 @@ Scope: current lane / next lane / restart order only.
     - source-level vm-hako `MapBox.clear()` state reset is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_clear_vm.sh`
     - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
     - source-level vm-hako `MapBox.get(missing-key)` is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
-    - post-contract next slice is not selected yet; keep keys/values element publication deferred
-    - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, MapBox keys/values element publication, String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
+    - Rust `MapBox.values()` sorted-key order fix is landed (291x-102 slice 1)
+    - `ArrayCoreBox.get` VM-local-first metadata check is landed (291x-102 slice 2)
+    - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, MapBox keys/values element publication (slice 3), String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `MapBox post-contract next-slice selection`
+    - `291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback
