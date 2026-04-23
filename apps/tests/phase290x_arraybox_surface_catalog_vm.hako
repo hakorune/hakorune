@@ -1,0 +1,24 @@
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push(10)
+    a.push(20)
+    a.set(1, 25)
+    print(a.length())
+    print(a.size())
+    print(a.len())
+    print(a.get(1))
+    a.insert(1, 15)
+    print(a.length())
+    print(a.get(1))
+    print(a.remove(1))
+    print(a.length())
+    print(a.pop())
+    print(a.length())
+    local s = a.slice(0, 1)
+    a.clear()
+    print(a.length())
+    print("OK: array-surface")
+    return 0
+  }
+}

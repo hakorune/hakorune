@@ -416,3 +416,27 @@ fn method_callee_arraybox_push_keeps_legitimate_self_argument() {
         other => panic!("expected ArrayBox, got {:?}", other),
     }
 }
+
+#[test]
+fn method_callee_arraybox_clear_strips_duplicate_receiver_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let recv_alias = ValueId(2);
+    let index = ValueId(3);
+    interp.regs.insert(recv, arraybox_receiver(&["row"]));
+    let alias_value = interp.regs.get(&recv).expect("receiver inserted").clone();
+    interp.regs.insert(recv_alias, alias_value);
+    interp.regs.insert(index, VMValue::Integer(0));
+
+    let cleared = interp
+        .execute_method_callee("ArrayBox", "clear", &Some(recv), &[recv_alias])
+        .expect("ArrayBox.clear should tolerate unified duplicate receiver arg");
+
+    assert_eq!(cleared, VMValue::Void);
+
+    let size = interp
+        .execute_method_callee("ArrayBox", "length", &Some(recv), &[])
+        .expect("ArrayBox.length should observe the clear result");
+
+    assert_eq!(size, VMValue::Integer(0));
+}

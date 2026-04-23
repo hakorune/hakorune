@@ -234,7 +234,7 @@ fn slot_insert_box_raw_preserves_text_lane() {
 }
 
 #[test]
-fn invoke_surface_routes_insert_remove_and_length_alias() {
+fn invoke_surface_routes_insert_remove_clear_and_length_alias() {
     let array = ArrayBox::new();
     assert!(matches!(
         array
@@ -328,6 +328,19 @@ fn invoke_surface_routes_insert_remove_and_length_alias() {
             assert_eq!(value.to_string_box().value, "11");
         }
         ArraySurfaceInvokeResult::Void => panic!("pop must return a value"),
+    }
+
+    let cleared = array.invoke_surface(ArrayMethodId::Clear, vec![]).unwrap();
+    assert!(matches!(cleared, ArraySurfaceInvokeResult::Void));
+
+    let length_after_clear = array
+        .invoke_surface(ArrayMethodId::Length, vec![])
+        .unwrap();
+    match length_after_clear {
+        ArraySurfaceInvokeResult::Value(value) => {
+            assert_eq!(value.to_string_box().value, "0");
+        }
+        ArraySurfaceInvokeResult::Void => panic!("length after clear must return a value"),
     }
 }
 

@@ -41,7 +41,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Latest landed cleanup target: `291x-111` StringBox case-conversion cleanup
+- Latest landed cleanup target: `291x-112` ArrayBox.clear router promotion
 - Next implementation target: `successor cleanup card selection` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -89,6 +89,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 20. `docs/development/current/main/phases/phase-291x/291x-109-map-compat-source-cleanup-card.md`
 21. `docs/development/current/main/phases/phase-291x/291x-110-mapbox-get-existing-key-typing-card.md`
 22. `docs/development/current/main/phases/phase-291x/291x-111-stringbox-case-conversion-card.md`
+23. `docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md`
 
 ## Current Rule
 
@@ -133,6 +134,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-111` landed StringBox case conversion as stable surface rows:
   `toUpper` / `toLower` live in the catalog and keep
   `toUpperCase` / `toLowerCase` as compatibility aliases
+- `291x-112` landed `ArrayBox.clear()` as a catalog-backed receiver-only
+  write-`Void` row on the Unified value path
 - `MapBox.keys()/values()` element publication is landed through the S0 state
   owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 - `MapBox.delete(key)` and `MapBox.remove(key)` use the catalog-backed Unified
@@ -146,8 +149,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
   `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
   quarantine
-- next cleanup must be selected after `291x-110`; do not reopen the landed
-  existing-key typing rule without an owner-path change.
+- next cleanup must be selected after `291x-112`; do not reopen the landed
+  ArrayBox.clear row or the older existing-key typing rule without an
+  owner-path change.
 
 ## Implementation State
 
@@ -239,7 +243,7 @@ Landed CoreBox router first slice:
   `StringBox.indexOf` /
   `find`, plus `ArrayBox.length` / `size` / `len`, `ArrayBox.push`,
   `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
-  `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
+  `ArrayBox.clear`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
   `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and
   `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and `MapBox.clear` rows
   through `Route::Unified`.
@@ -252,6 +256,8 @@ Landed CoreBox router first slice:
   `Array<T>` MIR fact.
 - `ArrayBox.set` follows the write-`Void` contract already used by
   `ArrayBox.push`.
+- `ArrayBox.clear` follows the same receiver-only write-`Void` contract already
+  used by `ArrayBox.push` / `set` / `insert`.
 - `ArrayBox.insert` follows the same write-`Void` contract already used by
   `ArrayBox.push` / `ArrayBox.set`.
 - `MapBox.get` intentionally stays `MirType::Unknown` because stored map values

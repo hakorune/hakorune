@@ -54,7 +54,7 @@ pub fn infer_method_return_type(receiver_type: &MirType, method_name: &str) -> O
         MirType::Box(box_name) => match box_name.as_str() {
             "ArrayBox" => match canonical {
                 "size" => Some(MirType::Integer),
-                "push" => Some(MirType::Void),
+                "push" | "clear" => Some(MirType::Void),
                 _ => None,
             },
             "MapBox" => crate::boxes::MapMethodId::from_name(method_name).and_then(|method_id| {
@@ -166,6 +166,10 @@ mod tests {
         );
         assert_eq!(
             infer_method_return_type(&array_type, "push"),
+            Some(MirType::Void)
+        );
+        assert_eq!(
+            infer_method_return_type(&array_type, "clear"),
             Some(MirType::Void)
         );
         // P3-C: get は Phase 66+

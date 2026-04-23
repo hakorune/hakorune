@@ -164,6 +164,7 @@ fn infer_array_method_return_type(method: crate::boxes::array::ArrayMethodId) ->
         crate::boxes::array::ArrayMethodId::Length => Some(MirType::Integer),
         crate::boxes::array::ArrayMethodId::Set
         | crate::boxes::array::ArrayMethodId::Push
+        | crate::boxes::array::ArrayMethodId::Clear
         | crate::boxes::array::ArrayMethodId::Insert => Some(MirType::Void),
         crate::boxes::array::ArrayMethodId::Slice => Some(MirType::Box("ArrayBox".to_string())),
         crate::boxes::array::ArrayMethodId::Get
@@ -217,6 +218,7 @@ mod tests {
         assert_eq!(infer_return_type("ArrayBox.len/0"), Some(MirType::Integer));
         assert_eq!(infer_return_type("ArrayBox.push/1"), Some(MirType::Void));
         assert_eq!(infer_return_type("ArrayBox.set/2"), Some(MirType::Void));
+        assert_eq!(infer_return_type("ArrayBox.clear/0"), Some(MirType::Void));
         assert_eq!(infer_return_type("ArrayBox.insert/2"), Some(MirType::Void));
         assert_eq!(
             infer_return_type("ArrayBox.slice/2"),

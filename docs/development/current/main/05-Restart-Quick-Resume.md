@@ -60,6 +60,8 @@ cargo check -q
   - `291x-111` landed: StringBox `toUpper` / `toLower` now live in the stable
     catalog rows, and `toUpperCase` / `toLowerCase` remain compatibility
     aliases on the same rows
+  - `291x-112` landed: `ArrayBox.clear()` is now catalog-backed, uses the
+    Unified receiver-only value path, and publishes `Void`
   - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
     291x-103 acceptance smoke
   - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
@@ -85,7 +87,7 @@ cargo check -q
     two-arg `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
     `find`, plus `ArrayBox.length/size/len`, `ArrayBox.push`,
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
-    `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
+    `ArrayBox.clear`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
     `MapBox.len`, and `MapBox.has`, `MapBox.get`, `MapBox.set`,
     `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and
     `MapBox.clear`, are on the Unified value path;

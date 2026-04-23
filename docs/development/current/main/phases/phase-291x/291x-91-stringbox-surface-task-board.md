@@ -7,9 +7,10 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
   - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
-  - docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md
-  - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
-  - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
+   - docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md
+   - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
+   - docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md
+   - docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md
 ---
 
 # StringBox Surface Task Board
@@ -78,6 +79,7 @@ StringBox surface catalog
 | `291x-S28` | done | land alias SSOT cleanup for manifest alias vs imported static-box binding vs type-name lowering |
 | `291x-S29` | done | land conservative `MapBox.get(existing-key)` value publication for literal-key homogeneous receivers |
 | `291x-S30` | done | land StringBox case-conversion catalog promotion for `toUpper` / `toLower` plus compatibility aliases |
+| `291x-S31` | done | promote `ArrayBox.clear` as a catalog-backed receiver-only write-`Void` Unified row |
 
 ## First Stable Surface Target
 
@@ -136,6 +138,8 @@ This StringBox slice is done when:
 - `291x-111` landed StringBox case conversion as stable surface rows:
   `toUpper` / `toLower` now come from the catalog, and `toUpperCase` /
   `toLowerCase` stay pinned as compatibility aliases.
+- `291x-112` landed `ArrayBox.clear()` as the next stable Array write row:
+  catalog-backed, receiver-only, and `Void` on the Unified value path.
 
 ## Router Follow-up
 
@@ -157,6 +161,8 @@ This StringBox slice is done when:
   its MIR result type intentionally stays `Unknown`
 - `ArrayBox.set` follows the same write-`Void` contract as `push`, with a
   receiver-plus-index-plus-value Unified shape
+- `ArrayBox.clear` follows the same write-`Void` contract as `push` / `set` /
+  `insert`, with a receiver-only Unified shape
 - `ArrayBox.remove` follows the same generic element-return contract as
   `get` / `pop`; its MIR result type intentionally stays `Unknown`
 - `ArrayBox.insert` follows the same write-`Void` contract as `push` / `set`,

@@ -12,6 +12,7 @@ source "$ROOT/tools/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase290x_arraybox_surface_catalog_vm"
+INPUT="${1:-$ROOT/apps/tests/phase290x_arraybox_surface_catalog_vm.hako}"
 
 run_catalog_unit_lock() {
   local out
@@ -26,7 +27,7 @@ run_catalog_unit_lock() {
   fi
 
   set +e
-  out=$(cargo test invoke_surface_routes_insert_remove_and_length_alias --lib 2>&1)
+  out=$(cargo test invoke_surface_routes_insert_remove_clear_and_length_alias --lib 2>&1)
   rc=$?
   set -e
   if [ "$rc" -ne 0 ]; then
@@ -37,36 +38,13 @@ run_catalog_unit_lock() {
 }
 
 run_vm_surface_route_lock() {
-  local code
-  code=$(cat <<'HCODE'
-static box Main {
-  main() {
-    local a = new ArrayBox()
-    a.push(10)
-    a.push(20)
-    a.set(1, 25)
-    print(a.length())
-    print(a.size())
-    print(a.len())
-    print(a.get(1))
-    a.insert(1, 15)
-    print(a.length())
-    print(a.get(1))
-    print(a.remove(1))
-    print(a.length())
-    print(a.pop())
-    print(a.length())
-    local s = a.slice(0, 1)
-    print("OK: array-surface")
-    return 0
-  }
-}
-HCODE
-)
-
   local out
+  local timeout_secs="${RUN_TIMEOUT_SECS:-30}"
   set +e
-  out=$(run_nyash_vm -c "$code" --dev 2>&1)
+  out=$(timeout "$timeout_secs" env -i \
+    PATH="$PATH" \
+    HOME="$HOME" \
+    "$NYASH_BIN" --backend vm "$INPUT" --dev 2>&1)
   local rc=$?
   set -e
   if [ "$rc" -ne 0 ]; then
@@ -75,7 +53,7 @@ HCODE
     exit 1
   fi
 
-  if echo "$out" | rg -q '\[vm/method/stub:(length|size|len|get|set|push|pop|slice|remove|insert)\]'; then
+  if echo "$out" | rg -q '\[vm/method/stub:(length|size|len|get|set|push|pop|clear|slice|remove|insert)\]'; then
     echo "$out" | tail -n 120 >&2 || true
     test_fail "$SMOKE_NAME: stable ArrayBox method hit VM stub"
     exit 1
@@ -94,6 +72,7 @@ HCODE
 2
 25
 1
+0
 OK: array-surface
 EXPECT
 )

@@ -22,6 +22,7 @@ mod tests {
         assert_eq!(resolve_slot_by_name("ArrayBox", "length", 0), Some(102));
         assert_eq!(resolve_slot_by_name("ArrayBox", "len", 0), Some(102));
         assert_eq!(resolve_slot_by_name("ArrayBox", "size", 0), Some(102));
+        assert_eq!(resolve_slot_by_name("ArrayBox", "clear", 0), Some(105));
         assert_eq!(resolve_slot_by_name("ArrayBox", "remove", 1), Some(112));
         assert_eq!(resolve_slot_by_name("ArrayBox", "insert", 2), Some(113));
         // StringBox

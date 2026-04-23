@@ -29,13 +29,14 @@ Stable rows:
 - `set`
 - `push`
 - `pop`
+- `clear`
 - `slice`
 - `remove`
 - `insert`
 
 Deferred:
 
-- `clear/contains/indexOf/join/sort/reverse`
+- `contains/indexOf/join/sort/reverse`
 - direct source `slice()` result follow-up calls through `RuntimeDataBox` union receiver
 
 ## StringBox Landing Snapshot
@@ -99,6 +100,8 @@ Completed cleanup:
 - `291x-111` promotes StringBox case conversion into the stable surface catalog:
   `toUpper` / `toLower` are no longer TypeRegistry extras, and
   `toUpperCase` / `toLowerCase` stay as compatibility aliases on the same rows.
+- `291x-112` promotes `ArrayBox.clear` into the stable Array surface catalog and
+  retires the last Array-only TypeRegistry extra for the current vtable rows.
 
 ## Router / Value World Follow-up
 
@@ -198,8 +201,11 @@ Landed first slice and follow-up:
   and a live-presence filter for source-level `keys()` / `values()` after
   `clear()`:
   `docs/development/current/main/phases/phase-291x/291x-105-mapbox-clear-router-card.md`
-- remaining route-only CoreBox rows are closed for ArrayBox stable rows and
-  MapBox `size/length/len/has/get/set/keys/values/delete/remove/clear`.
+- `291x-112` then promoted `ArrayBox.clear` as a receiver-only write-`Void`
+  route and added it to the stable Array surface smoke:
+  `docs/development/current/main/phases/phase-291x/291x-112-arraybox-clear-router-card.md`
+- remaining route-only CoreBox rows are closed for the current stable ArrayBox
+  and MapBox rows.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
 

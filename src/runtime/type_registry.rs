@@ -125,11 +125,6 @@ fn map_surface_method_entries() -> Vec<MethodEntry> {
 }
 
 const ARRAY_METHOD_EXTRAS: &[MethodEntry] = &[
-    MethodEntry {
-        name: "clear",
-        arity: 0,
-        slot: 105,
-    },
     // P1: contains/indexOf/join
     MethodEntry {
         name: "contains",
@@ -263,6 +258,11 @@ const PRIMITIVE_ARRAY_EXTRAS: &[MethodEntry] = &[
         arity: 0,
         slot: 102,
     },
+    MethodEntry {
+        name: "clear",
+        arity: 0,
+        slot: 105,
+    },
 ];
 
 static PRIMITIVE_STRING_TB: OnceLock<TypeBox> = OnceLock::new();
@@ -374,6 +374,30 @@ mod tests {
                     resolve_slot_by_name("MapBox", alias, spec.arity as usize),
                     Some(spec.slot),
                     "MapBox.{}({}) alias should resolve to slot {}",
+                    alias,
+                    spec.arity,
+                    spec.slot
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_array_slots_resolve_from_surface_catalog() {
+        for spec in crate::boxes::array::ARRAY_SURFACE_METHODS {
+            assert_eq!(
+                resolve_slot_by_name("ArrayBox", spec.canonical, spec.arity as usize),
+                Some(spec.slot),
+                "ArrayBox.{}({}) should resolve to slot {}",
+                spec.canonical,
+                spec.arity,
+                spec.slot
+            );
+            for alias in spec.aliases {
+                assert_eq!(
+                    resolve_slot_by_name("ArrayBox", alias, spec.arity as usize),
+                    Some(spec.slot),
+                    "ArrayBox.{}({}) alias should resolve to slot {}",
                     alias,
                     spec.arity,
                     spec.slot

@@ -619,6 +619,37 @@ static box Main {
 }
 
 #[test]
+fn array_value_clear_uses_unified_receiver_arg_shape_and_void_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local a = new ArrayBox()
+    a.push(7)
+    local c = a.clear()
+    return a.length()
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let clear_arg_lens = method_call_arg_lens(&module, "ArrayBox", "clear");
+    let clear_result_types = method_call_result_types(&module, "ArrayBox", "clear");
+
+    assert_eq!(
+        clear_arg_lens,
+        vec![1],
+        "ArrayBox.clear should use the Unified receiver-only shape"
+    );
+    assert_eq!(
+        clear_result_types,
+        vec![Some(MirType::Void)],
+        "ArrayBox.clear should publish a Void result type"
+    );
+}
+
+#[test]
 fn array_value_remove_uses_unified_receiver_arg_shape_and_element_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
