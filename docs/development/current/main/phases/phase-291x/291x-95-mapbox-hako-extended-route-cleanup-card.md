@@ -167,8 +167,10 @@ metadata over treating the synthetic register id as a runtime array handle.
 10. Landed decision: `MapBox` non-string `set/get/has/delete/remove` keys
     publish `[map/bad-key] key must be string`; implementation is tracked by
     `291x-100` and must not mix missing-key or element publication.
-11. Active next: implement MapBox bad-key normalization.
-12. Reactivate or replace stale archive witnesses only when they match the new
+11. Landed: implement MapBox bad-key normalization and pin it with
+    `phase291x_mapbox_hako_bad_key_vm.sh` plus `map_bad_key_has_vm.sh`.
+12. Active next: review `MapBox.get(missing-key)` contract.
+13. Reactivate or replace stale archive witnesses only when they match the new
    owner path and have a valid helper source path.
 
 ## Out Of Scope

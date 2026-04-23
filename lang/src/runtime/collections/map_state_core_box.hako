@@ -148,10 +148,12 @@ static box MapStateCoreBox {
     return "__NEXT__"
   }
 
-  apply_has(box_key, key_reg, dst_box, bad_key_tag, regs, kinds, array_lens, handle_regs) {
+  apply_has(box_key, key_reg, dst_box, bad_key_message, regs, kinds, array_lens, handle_regs) {
     if key_reg == null { return "[vm-hako/contract][boxcall-has-arg0-missing]" }
     local arg0_kind = kinds.get("" + key_reg)
-    if arg0_kind != "handle" { return bad_key_tag }
+    if arg0_kind != "handle" {
+      return me._write_bad_key_handle(regs, kinds, handle_regs, dst_box, bad_key_message)
+    }
     local key_text = me._map_key_text_or_contract(key_reg, handle_regs, "[vm-hako/contract][boxcall-has-key-handle-missing]")
     if me._starts_with(key_text, "[vm-hako/contract]") == 1 { return key_text }
     local pres_key = me._presence_key(box_key, key_text)

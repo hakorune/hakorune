@@ -30,7 +30,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox bad-key normalization implementation
+- Next implementation target: MapBox get missing-key contract review
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -142,8 +142,9 @@ Remaining MapBox follow-up:
 - `MapBox.set/delete/remove/clear` source-level write-return receipt contract
   is landed and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`.
-- `MapBox` bad-key normalization is decided in `291x-100`; implementation is
-  next and must not mix `get(missing-key)` or element publication.
+- `MapBox` bad-key normalization is landed and pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_bad_key_vm.sh`
+  and `tools/smokes/v2/profiles/quick/core/map/map_bad_key_has_vm.sh`.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.

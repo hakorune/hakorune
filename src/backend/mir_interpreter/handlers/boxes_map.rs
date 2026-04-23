@@ -89,6 +89,14 @@ pub(super) fn try_handle_map_box(
             }
             "has" => {
                 this.validate_args_exact("MapBox.has", args, 1)?;
+                let k_vm = this.reg_load(args[0])?;
+                if !matches!(k_vm, VMValue::String(_)) {
+                    this.write_result(
+                        dst,
+                        VMValue::String("[map/bad-key] key must be string".to_string()),
+                    );
+                    return Ok(true);
+                }
                 let k = this.load_as_box(args[0])?;
                 let ret = mb.has(k);
                 this.write_result(dst, VMValue::from_nyash_box(ret));

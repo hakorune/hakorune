@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-23
 Scope: MapBox bad-key normalization after source-route write-return parity.
 Related:
@@ -61,7 +61,20 @@ Field rows keep their separate field-name text:
   lines without touching missing-key behavior.
 - Add or reactivate a quick VM smoke for `MapBox.has(non-string)`.
 
+## Landed Slice
+
+- `MapStateCoreBox.apply_has(...)` now publishes
+  `[map/bad-key] key must be string` as a handle/string return for
+  non-string keys.
+- Rust VM source-visible `MapBox.has(non-string)` now returns the same bad-key
+  text as `set/get/delete`.
+- source-level vm-hako smoke pins `set/get/has/delete/remove` bad-key lines.
+- quick VM smoke pins `MapBox.has(non-string)`.
+- Smokes:
+  - `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_bad_key_vm.sh`
+  - `tools/smokes/v2/profiles/quick/core/map/map_bad_key_has_vm.sh`
+
 ## Next Slice
 
-Implement the bad-key normalization, then move to `MapBox.get(missing-key)`
-contract review or defer it behind element publication.
+Move to `MapBox.get(missing-key)` contract review or defer it behind element
+publication.

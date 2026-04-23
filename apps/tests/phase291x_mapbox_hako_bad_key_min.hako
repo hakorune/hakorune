@@ -1,0 +1,16 @@
+// Phase 291x vm-hako source-route fixture for MapBox bad-key normalization.
+// Contract:
+// - non-string set/get/has/delete/remove keys publish the same bad-key text.
+// - missing-key behavior is intentionally out of scope for this fixture.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    print(m.set(123, 1))
+    print(m.get(123))
+    print(m.has(123))
+    print(m.delete(123))
+    print(m.remove(123))
+    return 0
+  }
+}
