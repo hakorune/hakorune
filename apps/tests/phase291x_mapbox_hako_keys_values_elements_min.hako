@@ -1,0 +1,24 @@
+// Phase 291x slice 3: vm-hako MapBox keys()/values() element publication fixture.
+// Contract:
+//   keys().get(i) returns the i-th key in deterministic lexical order.
+//   values().get(i) returns the value for the i-th key in sorted-key order.
+// Map: "a"->1, "b"->2 (expected output: 2 / a / b / 2 / 1 / 2 / a).
+// The final keys().get(0) after values() pins independent element state per result.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    local ks = m.keys()
+    print(ks.size())
+    print(ks.get(0))
+    print(ks.get(1))
+    local vs = m.values()
+    print(vs.size())
+    print(vs.get(0))
+    print(vs.get(1))
+    print(ks.get(0))
+    return 0
+  }
+}

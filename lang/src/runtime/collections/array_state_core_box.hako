@@ -59,11 +59,32 @@ static box ArrayStateCoreBox {
   clear_state_value(regs, per_recv, rid, idx) {
     local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
     regs.setField(val_key, null)
+    local kind_key = MethodAliasPolicy.recv_arr_kind_key(per_recv, rid, idx)
+    regs.setField(kind_key, null)
   }
 
   set_state_value(regs, per_recv, rid, idx, value) {
     local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
     regs.setField(val_key, "" + value)
+  }
+
+  get_state_kind(regs, per_recv, rid, idx) {
+    local kind_key = MethodAliasPolicy.recv_arr_kind_key(per_recv, rid, idx)
+    return MirVmS0StateOpsBox.storage_get_or_null(regs, kind_key)
+  }
+
+  set_state_kind(regs, per_recv, rid, idx, kind) {
+    local kind_key = MethodAliasPolicy.recv_arr_kind_key(per_recv, rid, idx)
+    if kind == null {
+      regs.setField(kind_key, null)
+    } else {
+      regs.setField(kind_key, "" + kind)
+    }
+  }
+
+  set_state_value_kind(regs, per_recv, rid, idx, value, kind) {
+    me.set_state_value(regs, per_recv, rid, idx, value)
+    me.set_state_kind(regs, per_recv, rid, idx, kind)
   }
 
   record_insert_state(regs, per_recv, rid, idx, cur_len, value_state, arg_id) {

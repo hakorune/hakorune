@@ -414,15 +414,30 @@ mod tests {
     #[test]
     fn test_values_sorted_key_order() {
         let map = MapBox::new();
-        map.set(Box::new(StringBox::new("b")), Box::new(StringBox::new("val_b")));
-        map.set(Box::new(StringBox::new("a")), Box::new(StringBox::new("val_a")));
-        map.set(Box::new(StringBox::new("c")), Box::new(StringBox::new("val_c")));
+        map.set(
+            Box::new(StringBox::new("b")),
+            Box::new(StringBox::new("val_b")),
+        );
+        map.set(
+            Box::new(StringBox::new("a")),
+            Box::new(StringBox::new("val_a")),
+        );
+        map.set(
+            Box::new(StringBox::new("c")),
+            Box::new(StringBox::new("val_c")),
+        );
 
         let keys = map.keys();
         let values = map.values();
 
-        let keys_arr = keys.as_any().downcast_ref::<ArrayBox>().expect("keys() must return ArrayBox");
-        let vals_arr = values.as_any().downcast_ref::<ArrayBox>().expect("values() must return ArrayBox");
+        let keys_arr = keys
+            .as_any()
+            .downcast_ref::<ArrayBox>()
+            .expect("keys() must return ArrayBox");
+        let vals_arr = values
+            .as_any()
+            .downcast_ref::<ArrayBox>()
+            .expect("values() must return ArrayBox");
 
         assert_eq!(keys_arr.len(), 3);
         assert_eq!(vals_arr.len(), 3);
@@ -442,8 +457,14 @@ mod tests {
     #[test]
     fn test_keys_values_index_parity() {
         let map = MapBox::new();
-        map.set(Box::new(StringBox::new("z")), Box::new(StringBox::new("26")));
-        map.set(Box::new(StringBox::new("m")), Box::new(StringBox::new("13")));
+        map.set(
+            Box::new(StringBox::new("z")),
+            Box::new(StringBox::new("26")),
+        );
+        map.set(
+            Box::new(StringBox::new("m")),
+            Box::new(StringBox::new("13")),
+        );
         map.set(Box::new(StringBox::new("a")), Box::new(StringBox::new("1")));
 
         let keys = map.keys();

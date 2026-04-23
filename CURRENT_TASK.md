@@ -108,8 +108,8 @@ Scope: current lane / next lane / restart order only.
     - source-level vm-hako `MapBox.clear()` state reset is landed and pinned
     - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is
       landed and pinned
-    - `MapBox.keys()/values()` content enumeration is explicitly size-only for
-      now; element publication is deferred behind the 291x-98 gates
+    - `MapBox.keys()/values()` element publication is landed through the S0
+      state owner and pinned by the 291x-102 acceptance smoke
     - MapBox write-return receipt implementation is landed and pinned
     - MapBox bad-key normalization implementation is landed and pinned
     - `MapBox.get(missing-key)` contract is landed and pinned
@@ -132,12 +132,14 @@ Scope: current lane / next lane / restart order only.
     - source-level vm-hako `MapBox.get(missing-key)` is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
     - Rust `MapBox.values()` sorted-key order fix is landed (291x-102 slice 1)
     - `ArrayCoreBox.get` VM-local-first metadata check is landed (291x-102 slice 2)
-    - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, MapBox keys/values element publication (slice 3), String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
+    - `MapBox.keys()/values()` element publication is landed (291x-102 slice 3)
+      and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_keys_values_elements_vm.sh`
+    - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open`
+    - `phase-291x MapBox element publication landed — next app card selection pending`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

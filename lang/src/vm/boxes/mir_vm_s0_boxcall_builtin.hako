@@ -6,6 +6,7 @@ using selfhost.vm.helpers.mir_s0_args_phi as MirVmS0ArgsPhiBox
 using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 using lang.runtime.collections.map_state_core_box as MapStateCoreBox
+using lang.runtime.collections.array_state_core_box as ArrayStateCoreBox
 
 static box MirVmS0BoxcallBuiltinBox {
   _starts_with(text, prefix) {
@@ -376,6 +377,28 @@ static box MirVmS0BoxcallBuiltinBox {
       if dst_get == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       local get_arg0 = me._map_arg(seg, get_offset, 0)
       local box_key_get = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      // Detect VM-local ArrayBox (result of keys()/values()) and use array-index semantics.
+      local vm_arr_recv = MirVmS0StateOpsBox.map_get_or_null(regs, "__vm.recv.box:" + box_key_get)
+      if vm_arr_recv == "ArrayBox" {
+        local idx = MirVmS0StateOpsBox.reg_i64_get(regs, get_arg0)
+        local elem_val = ArrayStateCoreBox.get_state_value(regs, "1", box_key_get, idx)
+        local elem_kind = ArrayStateCoreBox.get_state_kind(regs, "1", box_key_get, idx)
+        if elem_val == null { elem_val = "" }
+        // elem_kind == "scalar"/"bool" → value element; "handle" → string handle (keys or string values).
+        if elem_kind == "scalar" || elem_kind == "bool" {
+          regs.set("" + dst_get, "" + MirVmS0JsonScanBox._to_i64(elem_val))
+          if elem_kind == "bool" {
+            kinds.set("" + dst_get, "bool")
+          } else {
+            kinds.set("" + dst_get, "scalar")
+          }
+        } else {
+          regs.set("" + dst_get, "0")
+          kinds.set("" + dst_get, "handle")
+          MirVmS0StateOpsBox.handle_set(handle_regs, dst_get, "" + elem_val)
+        }
+        return "__NEXT__"
+      }
       return MapStateCoreBox.apply_get(box_key_get, get_arg0, dst_get, "[map/bad-key] key must be string", regs, kinds, array_lens, handle_regs)
     }
 

@@ -49,6 +49,13 @@ box MiniMap {
     }
     return last
   }
+  // has(key): returns 1 if key exists, 0 otherwise.
+  // Required by storage_get_or_null (used for VM-local array element reads).
+  has(key) {
+    local v = me.get(key)
+    if v == null { return 0 }
+    return 1
+  }
   // Compatibility: hv1 helpers expect getField/setField
   getField(key) { return me.get(key) }
 }

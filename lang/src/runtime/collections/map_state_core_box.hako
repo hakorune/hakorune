@@ -9,6 +9,7 @@
 // - kernel promotion
 
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+using selfhost.runtime.collections.array_state_core_box as ArrayStateCoreBox
 
 static box MapStateCoreBox {
   _starts_with(text, prefix) {
@@ -106,7 +107,11 @@ static box MapStateCoreBox {
     } else {
       local value_raw = regs.get("" + value_reg)
       if value_raw == null { value_raw = "0" }
-      array_lens.set(kind_key, "scalar")
+      if value_kind == "bool" {
+        array_lens.set(kind_key, "bool")
+      } else {
+        array_lens.set(kind_key, "scalar")
+      }
       array_lens.set(raw_key, "" + value_raw)
     }
     if success_message_prefix != null {
@@ -191,15 +196,83 @@ static box MapStateCoreBox {
     return me._write_handle_return(regs, kinds, handle_regs, dst_box, "Deleted key: " + key_text)
   }
 
+  // Collect all key texts for a given map box from array_lens presence entries,
+  // sorted in deterministic lexical order.  Returned as a fresh ArrayBox.
+  _collect_and_sort_map_keys(box_key, array_lens) {
+    local pres_prefix = "mk:" + box_key + ":"
+    local pres_prefix_len = pres_prefix.length()
+    local all_keys = array_lens.keys()
+    local collected = new ArrayBox()
+    if all_keys == null { return collected }
+    local n = all_keys.length()
+    local ki = 0
+    loop(ki < n) {
+      local k = "" + all_keys.get(ki)
+      if me._starts_with(k, pres_prefix) == 1 {
+        local key_text = k.substring(pres_prefix_len, k.length())
+        collected.push(key_text)
+      }
+      ki = ki + 1
+    }
+    me._sort_string_array_in_place(collected)
+    return collected
+  }
+
+  // Insertion sort for a small ArrayBox of strings (lexicographic, ascending).
+  _sort_string_array_in_place(arr) {
+    local m = arr.length()
+    if m <= 1 { return }
+    local si = 1
+    loop(si < m) {
+      local item = "" + arr.get(si)
+      local sj = si - 1
+      local done = 0
+      loop(sj >= 0 && done == 0) {
+        local prev = "" + arr.get(sj)
+        if prev > item {
+          arr.set(sj + 1, prev)
+          sj = sj - 1
+        }
+        if prev <= item { done = 1 }
+      }
+      arr.set(sj + 1, item)
+      si = si + 1
+    }
+  }
+
   apply_keys(box_key, dst_box, regs, kinds, array_lens) {
     if dst_box == null { return "[vm-hako/contract][boxcall-missing-dst]" }
-    me._write_array_like_shape(regs, kinds, array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
+    local sorted_keys = me._collect_and_sort_map_keys(box_key, array_lens)
+    local length = sorted_keys.length()
+    me._write_array_like_shape(regs, kinds, array_lens, dst_box, length)
+    // Publish per-element key strings as a VM-local ArrayBox payload.
+    local i = 0
+    loop(i < length) {
+      ArrayStateCoreBox.set_state_value_kind(regs, "1", dst_box, i, "" + sorted_keys.get(i), "handle")
+      i = i + 1
+    }
     return "__NEXT__"
   }
 
   apply_values(box_key, dst_box, regs, kinds, array_lens) {
     if dst_box == null { return "[vm-hako/contract][boxcall-missing-dst]" }
-    me._write_array_like_shape(regs, kinds, array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
+    local sorted_keys = me._collect_and_sort_map_keys(box_key, array_lens)
+    local length = sorted_keys.length()
+    me._write_array_like_shape(regs, kinds, array_lens, dst_box, length)
+    // Publish per-element values and kinds in sorted-key order.
+    // kind tag is needed so the get dispatch can return scalar vs handle correctly.
+    local i = 0
+    loop(i < length) {
+      local key_text = "" + sorted_keys.get(i)
+      local raw_key = me._value_raw_key(box_key, key_text)
+      local val_raw = MirVmS0StateOpsBox.map_get_or_null(array_lens, raw_key)
+      if val_raw == null { val_raw = "0" }
+      local kind_key_map = "mkind:" + box_key + ":" + key_text
+      local val_kind = MirVmS0StateOpsBox.map_get_or_null(array_lens, kind_key_map)
+      if val_kind == null { val_kind = "scalar" }
+      ArrayStateCoreBox.set_state_value_kind(regs, "1", dst_box, i, "" + val_raw, "" + val_kind)
+      i = i + 1
+    }
     return "__NEXT__"
   }
 

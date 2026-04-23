@@ -17,9 +17,9 @@ Related:
 | Now | `phase-291x CoreBox MapBox contract-first cleanup` |
 | Front | `phase-292x closed with .inc analysis debt at 0 lines; MapBox.length / set duplicate receiver / non-empty values+keys / remove / clear landed` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open` |
-| Next | `keep keys/values element publication deferred until a dedicated card` |
-| After Next | `select the next explicit app card without reopening 291x witnesses` |
+| Blocker | `phase-291x MapBox element publication landed — next app card selection pending` |
+| Next | `select the next explicit app card without reopening 291x witnesses` |
+| After Next | `Array generic element result / String lastIndexOf(needle,start_pos) / String semantic owner cleanup` |
 
 ## Current Read
 
@@ -85,6 +85,7 @@ Related:
 50. `phase-291x MapBox bad-key normalization implementation` landed
 51. `phase-291x MapBox get missing-key contract landed`
 52. `phase-291x post-contract next-slice selection`
+53. `phase-291x MapBox keys/values element publication landed`
 
 ## Parked Corridor
 

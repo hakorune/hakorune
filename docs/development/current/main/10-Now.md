@@ -35,7 +35,7 @@ Related:
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
-  - current implementation focus: `291x-102` MapBox keys()/values() element publication — gate 1 landed, slice 3 (element publication) open
+  - current implementation focus: `291x-102` MapBox keys()/values() element publication landed; next app card selection pending
   - current phase goal:
     - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
       1 file / 2 explicit view-owner lines guarded separately
@@ -49,8 +49,8 @@ Related:
     - source-level vm-hako `MapBox.clear()` state reset is landed and pinned
     - source-level vm-hako `MapBox.set(...)` duplicate-receiver routing is
       landed and pinned
-    - `keys()/values()` content enumeration is explicitly size-only for now;
-      element publication is deferred behind the 291x-98 gates
+    - `keys()/values()` element publication is landed and pinned by the
+      291x-102 acceptance smoke
     - MapBox write-return receipt implementation is landed and pinned
     - MapBox bad-key normalization implementation is landed and pinned
     - MapBox get missing-key contract is landed and pinned
@@ -71,7 +71,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` remains a separate runtime gap
-  - current blocker token: `291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open`
+  - current blocker token: `phase-291x MapBox element publication landed — next app card selection pending`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

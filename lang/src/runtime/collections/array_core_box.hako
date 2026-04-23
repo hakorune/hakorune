@@ -228,15 +228,37 @@ static box ArrayCoreBox {
     return JsonFragBox._str_to_int(cur_len_raw)
   }
 
-  _vm_local_array_len_or_null(regs, rid) {
+  _vm_local_array_id_or_null(regs, rid) {
+    // Primary lookup: metadata keyed by the VALUE stored in the register.
+    // VM-local ArrayBox results may be copied through several registers; the payload
+    // remains owned by the original box id stored as the register value.
+    local box_id = me._read_reg_i64_or_null(regs, rid)
+    if box_id != null && box_id > 0 {
+      local recv_key_v = me._recv_box_key(box_id)
+      if recv_key_v != null {
+        local recv_box_v = MirVmS0StateOpsBox.map_get_or_null(regs, recv_key_v)
+        if recv_box_v == "ArrayBox" { return box_id }
+      }
+    }
+    // Fallback: metadata keyed by register ID, for legacy callers that still
+    // pass the box handle directly as rid.
     local recv_key = me._recv_box_key(rid)
-    if recv_key == null { return null }
-    local recv_box = MirVmS0StateOpsBox.map_get_or_null(regs, recv_key)
-    if recv_box != "ArrayBox" { return null }
-    local len_key = MirVmS0StateOpsBox._per_recv_len_key(rid)
-    local len_raw = MirVmS0StateOpsBox.map_get_or_null(regs, len_key)
-    if len_raw == null { return null }
-    return JsonFragBox._str_to_int("" + len_raw)
+    if recv_key != null {
+      local recv_box = MirVmS0StateOpsBox.map_get_or_null(regs, recv_key)
+      if recv_box == "ArrayBox" {
+        return rid
+      }
+    }
+    return null
+  }
+
+  _vm_local_array_len_or_null(regs, rid) {
+    local box_id = me._vm_local_array_id_or_null(regs, rid)
+    if box_id == null { return null }
+    local len_key_v = MirVmS0StateOpsBox._per_recv_len_key(box_id)
+    local len_raw_v = MirVmS0StateOpsBox.map_get_or_null(regs, len_key_v)
+    if len_raw_v == null { return null }
+    return JsonFragBox._str_to_int("" + len_raw_v)
   }
 
   _size_alias_runtime(regs, dst, recv_h) {
@@ -394,19 +416,34 @@ static box ArrayCoreBox {
     return 1
   }
 
-  _get_visible_owner_state_only(regs, rid, per_recv, dst, idx) {
+  _get_visible_owner_state_only(regs, kinds, handle_regs, rid, per_recv, dst, idx) {
     local val_str = ArrayStateCoreBox.get_state_value(regs, per_recv, rid, idx)
     if dst != null {
       if val_str != null {
-        regs.setField(StringHelpers.int_to_str(dst), "" + val_str)
+        local val_kind = ArrayStateCoreBox.get_state_kind(regs, per_recv, rid, idx)
+        if val_kind == "handle" {
+          regs.setField(StringHelpers.int_to_str(dst), "0")
+          if kinds != null { MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "handle") }
+          if handle_regs != null { MirVmS0StateOpsBox.handle_set(handle_regs, dst, "" + val_str) }
+        } else {
+          regs.setField(StringHelpers.int_to_str(dst), "" + val_str)
+          if kinds != null {
+            if val_kind == "bool" {
+              MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "bool")
+            } else {
+              MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "scalar")
+            }
+          }
+        }
       } else {
         regs.setField(StringHelpers.int_to_str(dst), "0")
+        if kinds != null { MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "scalar") }
       }
     }
     return 1
   }
 
-  _try_handle_get(seg, regs, rid, per_recv, value_state, recv_h, dst) {
+  _try_handle_get(seg, regs, kinds, handle_regs, rid, per_recv, value_state, recv_h, dst) {
     local arg0_i = MiniMirV1Scan.first_arg_register(seg)
     local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
     if idx_i64 != null && idx_i64 < 0 {
@@ -415,15 +452,25 @@ static box ArrayCoreBox {
     // Gate 1: prefer VM-local element state before runtime-handle get_i64.
     // A receiver tagged as a VM-local ArrayBox (e.g. from keys()/values()) has its
     // register value set to the box-id, not a real runtime handle.  Calling get_i64
-    // with a box-id would silently return 0.  Detect via _vm_local_array_len_or_null
-    // (same predicate used by _try_handle_size_alias) and route to state exclusively.
-    local vm_local_len = me._vm_local_array_len_or_null(regs, rid)
-    if vm_local_len != null {
-      local idx = me._read_reg_int_or_zero(regs, arg0_i)
+    // with a box-id would silently return 0.  Detect via _vm_local_array_id_or_null
+    // and route to state exclusively.
+    local vm_local_box = me._vm_local_array_id_or_null(regs, rid)
+    if vm_local_box != null {
+      // In mir_call format, args[0] is a receiver copy (holds the box-id, not an index).
+      // Detect this by comparing args[0]'s value to the receiver's value; if equal,
+      // the actual index is at args[1].
+      local idx_rid = arg0_i
+      local arg0_val = me._read_reg_i64_or_null(regs, arg0_i)
+      local box_id_check = me._read_reg_i64_or_null(regs, rid)
+      if arg0_val != null && box_id_check != null && arg0_val == box_id_check {
+        local arg1_rid = MiniMirV1Scan.nth_arg_register(seg, 1)
+        if arg1_rid != null { idx_rid = arg1_rid }
+      }
+      local idx = me._read_reg_int_or_zero(regs, idx_rid)
       if idx < 0 {
         return me._fail_get_oob(regs, dst)
       }
-      return me._get_visible_owner_state_only(regs, rid, per_recv, dst, idx)
+      return me._get_visible_owner_state_only(regs, kinds, handle_regs, vm_local_box, "1", dst, idx)
     }
     if recv_h != null && idx_i64 != null {
       return me._get_visible_owner_runtime(regs, dst, recv_h, idx_i64)
@@ -433,7 +480,7 @@ static box ArrayCoreBox {
       if idx < 0 {
         return me._fail_get_oob(regs, dst)
       }
-      return me._get_visible_owner_state_only(regs, rid, per_recv, dst, idx)
+      return me._get_visible_owner_state_only(regs, kinds, handle_regs, rid, per_recv, dst, idx)
     }
     return 0
   }
@@ -616,7 +663,7 @@ static box ArrayCoreBox {
     if mname == "get" {
       local per_recv = me._size_state_per_recv()
       local value_state = me._value_state()
-      return me._try_handle_get(seg, regs, rid, per_recv, value_state, recv_h, dst)
+      return me._try_handle_get(seg, regs, kinds, handle_regs, rid, per_recv, value_state, recv_h, dst)
     }
 
     if mname == "push" {

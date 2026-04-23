@@ -32,7 +32,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: `291x-102` — MapBox keys()/values() element publication (Open; gates not yet met)
+- Next implementation target: next app cleanup card selection (291x-102 landed)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -94,6 +94,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `MapBox.get(missing-key)` keeps the stable tagged read-miss text
   `[map/missing] Key not found: <key>`; successful `get(existing-key)` element
   publication remains data-dependent and out of scope here
+- `MapBox.keys()/values()` element publication is landed through the S0 state
+  owner; `keys().get(i)` and `values().get(i)` are pinned in sorted-key order
 
 ## Implementation State
 
@@ -143,11 +145,11 @@ Remaining MapBox follow-up:
 - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is landed
   and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`.
-- `keys()/values()` content enumeration is intentionally size-only in
-  source-level vm-hako for now; element publication is deferred to `291x-98`.
-  Rust audit (2026-04-23): `keys()` sorts deterministically; `values()` does
-  NOT sort to match key order — future promotion requires a Rust-side fix to
-  `values()` in addition to the source-level publication path.
+- `keys()/values()` element publication is landed in source-level vm-hako and
+  pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_keys_values_elements_vm.sh`.
+  Rust audit/fix (2026-04-23): `keys()` sorts deterministically and
+  `values()` now follows the same sorted-key order for the promoted contract.
 - `MapBox.set/delete/remove/clear` source-level write-return receipt contract
   is landed and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`.
@@ -196,6 +198,6 @@ Landed CoreBox router first slice:
   vm-hako publication and matching type hints are synced.
 - `MapBox.get(missing-key)` keeps its landed tagged read-miss contract in
   `291x-101`; successful `get(existing-key)` typing remains data-dependent.
-- two-arg `lastIndexOf` and MapBox keys/values element publication remain
-  contract-first cleanup cards.
+- two-arg `lastIndexOf` remains a contract-first cleanup card; MapBox
+  keys/values element publication is landed in `291x-102`.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`

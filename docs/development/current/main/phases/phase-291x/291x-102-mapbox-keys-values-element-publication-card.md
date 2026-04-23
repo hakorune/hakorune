@@ -1,5 +1,5 @@
 ---
-Status: Open
+Status: Landed
 Date: 2026-04-23
 Scope: MapBox keys()/values() element publication — promotion from size-only to element-readable.
 Related:
@@ -12,11 +12,11 @@ Related:
 
 ## Purpose
 
-This card scopes the promotion of `MapBox.keys()` and `MapBox.values()` from
-their current size-only contract (landed in `291x-98`) to element-readable
-ArrayBox-like state.  It does not implement anything; it records the required
-preconditions, the Rust-side fix, and the desired contract so the work can start
-cleanly when the gates are met.
+This card scopes and records the promotion of `MapBox.keys()` and
+`MapBox.values()` from the size-only contract (landed in `291x-98`) to
+element-readable ArrayBox-like state.  The landed implementation keeps
+publication in the S0 `MapStateCoreBox` owner and reads elements through the
+ArrayBox state path.
 
 ## Ordering Audit (from 291x-98, not to be restated)
 
@@ -89,7 +89,7 @@ Prerequisite: Slice 1 landed and green.
 
 ---
 
-### Slice 3 — Element publication + acceptance smoke
+### Slice 3 — Element publication + acceptance smoke  ← **landed**
 
 **In scope (Slice 3 only):**
 
@@ -103,6 +103,18 @@ Prerequisite: Slice 1 landed and green.
 Prerequisites: Slices 1 and 2 landed and green.
 
 **Validation (Slice 3):** See **Acceptance Smoke** section below.
+
+**Landed notes (Slice 3):**
+
+- `MapStateCoreBox.apply_keys(...)` publishes key elements as handle-kind
+  ArrayBox payload.
+- `MapStateCoreBox.apply_values(...)` publishes values and preserves
+  `scalar` / `bool` / `handle` kind.
+- `ArrayCoreBox.get` resolves VM-local ArrayBox payloads by the original box id
+  stored in the receiver register, so ordinary MIR `copy` rows do not move the
+  element owner.
+- Acceptance smoke also reads `keys().get(0)` after `values()` to pin
+  independent result-array element state.
 
 ---
 
@@ -171,14 +183,17 @@ A phase-291x smoke must pin:
 keys().size()       // two-entry map
 keys().get(0)       // first key in lexical order
 keys().get(1)       // second key in lexical order
+values().size()     // two-entry values result
 values().get(0)     // value for first key
 values().get(1)     // value for second key
+keys().get(0)       // still first key after values() was published
 ```
 
-All five assertions must hold in one smoke run without tolerance for hash-order
-non-determinism.
+All seven assertions must hold in one smoke run without tolerance for hash-order
+non-determinism or cross-result element overwrite.
 
 ## Next Slice
 
 No further MapBox work is scoped after this card in phase-291x.
-Once this card is promoted, phase-291x MapBox work is complete.
+This card is promoted; phase-291x MapBox work is complete unless a new explicit
+app card reopens it.

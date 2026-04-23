@@ -25,6 +25,13 @@ static box MethodAliasPolicy {
     }
     return "__vm_arr:" + idx_s
   }
+  recv_arr_kind_key(per_recv, rid, idx) {
+    local idx_s = StringHelpers.int_to_str(idx)
+    if ("" + per_recv) == "1" {
+      return "__vm_arr_kind:" + ("" + rid) + ":" + idx_s
+    }
+    return "__vm_arr_kind:" + idx_s
+  }
   recv_map_key(per_recv, rid, key) {
     if ("" + per_recv) == "1" {
       return "__vm_map:" + ("" + rid) + ":" + ("" + key)
@@ -35,4 +42,3 @@ static box MethodAliasPolicy {
 }
 
 static box MethodAliasPolicyMain { method main(args) { return 0 } }
-

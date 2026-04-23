@@ -47,8 +47,8 @@ cargo check -q
   - source-level vm-hako `MapBox.remove(key)` delete-owner alias is landed and pinned
   - source-level vm-hako `MapBox.clear()` state reset is landed and pinned
   - source-level vm-hako `MapBox.set(...)` duplicate-receiver routing is landed
-  - `keys()/values()` content enumeration is explicitly size-only for now;
-    element publication is deferred behind the 291x-98 gates
+  - `keys()/values()` element publication is landed and pinned by the
+    291x-102 acceptance smoke
   - MapBox write-return receipt implementation is landed and pinned
   - MapBox bad-key normalization implementation is landed and pinned
   - Rust `MapBox.values()` sorted-key order fix is landed (291x-102 slice 1)
@@ -73,7 +73,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
-  - `291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open`
+  - `phase-291x MapBox element publication landed — next app card selection pending`
 
 ## Current Perf Snapshot
 
@@ -108,7 +108,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - keep keys/values element publication deferred until a dedicated card
+  - select the next app cleanup card without reopening the landed 291x witnesses
   - do not reopen the landed MapBox get missing-key contract without an owner-path change
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines

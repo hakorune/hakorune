@@ -41,13 +41,17 @@ row. Write-return receipt publication is landed for `set`, `delete` /
 contract pins key/value ordering and element publication.
 
 Implementation note: the source route returns an ArrayBox-like value through
-ordinary MIR `copy` instructions before `values().size()` observes it. Therefore
+ordinary MIR `copy` instructions before `values().size()` / `keys().get(i)`
+observes it. Therefore
 `MirVmS0StateOpsBox.copy_reg_payload(...)` must propagate VM-local receiver
 metadata such as `__vm.recv.box:*`; otherwise the later `RuntimeDataBox.size`
 call loses the ArrayBox hint and falls into String size behavior.
 The ArrayBox-like shape must also carry per-receiver length metadata
 (`__vm_len:*`), and `ArrayCoreBox.size/len/length` must prefer that VM-local
 metadata over treating the synthetic register id as a runtime array handle.
+Element payloads must be owned by the original VM-local box id, not by later
+copy-register ids, and `ArrayCoreBox.get` must preserve element kind when
+publishing the read result.
 
 ## Current Facts
 
@@ -78,6 +82,8 @@ metadata over treating the synthetic register id as a runtime array handle.
   through the S0 state owner.
 - `MapBox.get(missing-key)` already publishes the stable tagged read-miss text
   through the same S0 state owner.
+- `MapBox.keys()/values()` element publication is landed through the same S0
+  state owner and reads back through `ArrayCoreBox.get`.
 - MIR `copy` previously copied scalar/kind/handle/file payload but not
   VM-local receiver metadata; this card may extend copy metadata propagation
   only for existing local metadata keys.
@@ -110,6 +116,9 @@ metadata over treating the synthetic register id as a runtime array handle.
   `size()==1`.
 - source-level `MapBox.clear()` is pinned by `size()==0`, `has(key)==false`,
   and `keys().size()==0`.
+- source-level `MapBox.keys()/values()` element reads are pinned in sorted-key
+  order, and an extra `keys().get(0)` after `values()` proves result arrays do
+  not overwrite each other's element state.
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
 - Smoke:
@@ -124,6 +133,8 @@ metadata over treating the synthetic register id as a runtime array handle.
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
+- Smoke:
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_keys_values_elements_vm.sh`
 
 ## Rejected Owner Choices
 
@@ -160,9 +171,9 @@ metadata over treating the synthetic register id as a runtime array handle.
 5. Landed: promote `remove(key)` as an alias of `delete(key)` with its own smoke.
 6. Landed: promote `clear()` through the same S0 state owner with its own
    smoke.
-7. Landed decision: `keys()/values()` content enumeration is provisionally
-   size-only in source-level vm-hako; element publication is deferred to
-   `291x-98`.
+7. Superseded decision: `keys()/values()` content enumeration was initially
+   size-only in source-level vm-hako; element publication is now landed in
+   `291x-102`.
 8. Landed decision: `set`, `delete` / `remove`, and `clear` write-return rows
    use Rust-vtable-compatible receipt strings; implementation is tracked by
    `291x-99` and must not mix bad-key normalization or element publication.
@@ -178,7 +189,9 @@ metadata over treating the synthetic register id as a runtime array handle.
     tracked by `291x-101` and must not mix successful-read element publication.
 13. Landed: pin the MapBox get missing-key contract with
     `phase291x_mapbox_hako_get_missing_vm.sh`.
-14. Landed: 291x-102 slice 1 (Rust MapBox.values() sorted-key order) and slice 2 (ArrayCoreBox.get VM-local-first metadata check); next is 291x-102 slice 3 (map_state_core_box element publication).
+14. Landed: 291x-102 slice 1 (Rust MapBox.values() sorted-key order), slice 2
+    (ArrayCoreBox.get VM-local-first metadata check), and slice 3
+    (S0 MapStateCoreBox element publication plus acceptance smoke).
 15. Reactivate or replace stale archive witnesses only when they match the new
     owner path and have a valid helper source path.
 
