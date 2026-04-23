@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
   - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
   - docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md
+  - docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md
 ---
 
 # StringBox Surface Task Board
@@ -71,6 +72,7 @@ StringBox surface catalog
 | `291x-S23` | done | add `MapBox.length` as the first contract-first MapBox cleanup row |
 | `291x-S24` | done | decide and land the MapBox extended owner path for `keys` / `values` / `delete` / `remove` / `clear` |
 | `291x-S25` | done | prove two-arg `StringBox.lastIndexOf(needle, start_pos)` through the catalog and Unified value path |
+| `291x-S26` | done | prove `MapBox.delete` / `remove` through the same MIR router Unified value path |
 
 ## First Stable Surface Target
 
@@ -156,15 +158,16 @@ This StringBox slice is done when:
   result type intentionally stays `Unknown`
 - `MapBox.set` is the first stored-value MapBox write route slice; its
   visible write-return is the landed receipt `String`
+- `MapBox.delete` / `remove` is the first mutating delete row route slice; its
+  visible write-return is the landed receipt `String`
 - `MapBox.length` is landed as a read-only alias slice; it maps to the
   existing Map size surface without unifying the `size` and `len` slots
 - next safe cleanup is not a whole-CoreBox flip; it should allowlist one
   proven CoreBox method family at a time
 - remaining route-only CoreBox rows are closed for ArrayBox stable rows and
-  MapBox `size/length/len/has/get/set/keys/values`; remaining mutating
-  MapBox rows are contract-first
-- MapBox `delete` / `remove` / `clear` stay contract-first until their router
-  promotion is pinned
+  MapBox `size/length/len/has/get/set/keys/values/delete/remove`; remaining
+  mutating MapBox row is `clear`
+- MapBox `clear` stays contract-first until its router promotion is pinned
 - two-arg `lastIndexOf(needle, start_pos)` is landed in the `291x-103`
   runtime card and enters the allowlist through its catalog row
 - tracking card: `291x-96-corebox-router-unified-value-path-card.md`

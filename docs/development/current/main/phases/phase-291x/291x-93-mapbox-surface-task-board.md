@@ -90,7 +90,12 @@ This MapBox slice is done when:
 - `MapBox.get(missing-key)` tagged read-miss contract is documented in
   `docs/development/current/main/phases/phase-291x/291x-101-mapbox-get-missing-key-contract-card.md`;
   successful `get(existing-key)` return typing remains data-dependent.
-- `.hako` VM source route still stubs `keys` / `values` / `remove` / `clear`; promote only with a separate state-owner card.
+- `.hako` VM source routes for `keys` / `values` / `remove` / `clear` are
+  landed through separate state-owner cards; do not reopen them in router-only
+  cleanup.
+- `MapBox.delete` / `remove` router promotion is landed in
+  `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`;
+  keep `clear` as a separate route-only card.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted after inventory; do not recreate it as a second std owner.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; do not recreate it outside the active VM route owner.
 - `apps/lib/boxes/map_std.hako` was deleted after `OpsCalls.map_has(...)` took the remaining Map-only wrapper behavior.

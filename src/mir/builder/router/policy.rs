@@ -95,6 +95,7 @@ fn is_mapbox_unified_value_path(method: &str, arity: usize) -> bool {
                 | crate::boxes::MapMethodId::Has
                 | crate::boxes::MapMethodId::Get
                 | crate::boxes::MapMethodId::Set
+                | crate::boxes::MapMethodId::Delete
                 | crate::boxes::MapMethodId::Keys
                 | crate::boxes::MapMethodId::Values
         )
@@ -245,6 +246,12 @@ mod tests {
     }
 
     #[test]
+    fn map_delete_remove_row_uses_unified_value_path() {
+        assert_eq!(route("MapBox", "delete", 1), Route::Unified);
+        assert_eq!(route("MapBox", "remove", 1), Route::Unified);
+    }
+
+    #[test]
     fn map_values_row_uses_unified_value_path() {
         assert_eq!(route("MapBox", "values", 0), Route::Unified);
     }
@@ -290,9 +297,13 @@ mod tests {
         assert_eq!(route("MapBox", "get", 2), Route::BoxCall);
         assert_eq!(route("MapBox", "set", 1), Route::BoxCall);
         assert_eq!(route("MapBox", "set", 3), Route::BoxCall);
+        assert_eq!(route("MapBox", "delete", 0), Route::BoxCall);
+        assert_eq!(route("MapBox", "delete", 2), Route::BoxCall);
+        assert_eq!(route("MapBox", "remove", 0), Route::BoxCall);
+        assert_eq!(route("MapBox", "remove", 2), Route::BoxCall);
         assert_eq!(route("MapBox", "keys", 1), Route::BoxCall);
         assert_eq!(route("MapBox", "values", 1), Route::BoxCall);
-        assert_eq!(route("MapBox", "delete", 1), Route::BoxCall);
+        assert_eq!(route("MapBox", "clear", 0), Route::BoxCall);
     }
 
     #[test]

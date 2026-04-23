@@ -300,6 +300,52 @@ fn method_callee_mapbox_set_get_strips_duplicate_receiver_arg() {
 }
 
 #[test]
+fn method_callee_mapbox_delete_remove_strips_duplicate_receiver_arg() {
+    let mut interp = MirInterpreter::new();
+    let recv = ValueId(1);
+    let key_a = ValueId(2);
+    let val_a = ValueId(3);
+    let recv_alias = ValueId(4);
+    let key_b = ValueId(5);
+    let val_b = ValueId(6);
+    interp.regs.insert(recv, mapbox_receiver());
+    let alias_value = interp.regs.get(&recv).expect("receiver inserted").clone();
+    interp.regs.insert(recv_alias, alias_value);
+    interp.regs.insert(key_a, VMValue::String("a".to_string()));
+    interp
+        .regs
+        .insert(val_a, VMValue::String("one".to_string()));
+    interp.regs.insert(key_b, VMValue::String("b".to_string()));
+    interp
+        .regs
+        .insert(val_b, VMValue::String("two".to_string()));
+
+    interp
+        .execute_method_callee("MapBox", "set", &Some(recv), &[key_a, val_a])
+        .expect("MapBox.set should seed delete key");
+    let deleted = interp
+        .execute_method_callee("MapBox", "delete", &Some(recv), &[recv_alias, key_a])
+        .expect("MapBox.delete should tolerate unified duplicate receiver arg");
+
+    assert_eq!(deleted.to_string(), "Deleted key: a");
+
+    let has_a = interp
+        .execute_method_callee("MapBox", "has", &Some(recv), &[key_a])
+        .expect("MapBox.has should observe the delete result");
+
+    assert_eq!(has_a, VMValue::Bool(false));
+
+    interp
+        .execute_method_callee("MapBox", "set", &Some(recv), &[key_b, val_b])
+        .expect("MapBox.set should seed remove key");
+    let removed = interp
+        .execute_method_callee("MapBox", "remove", &Some(recv), &[recv_alias, key_b])
+        .expect("MapBox.remove should tolerate unified duplicate receiver arg");
+
+    assert_eq!(removed.to_string(), "Deleted key: b");
+}
+
+#[test]
 fn method_callee_arraybox_get_strips_duplicate_receiver_alias_arg() {
     let mut interp = MirInterpreter::new();
     let recv = ValueId(1);

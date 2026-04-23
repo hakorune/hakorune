@@ -86,7 +86,9 @@ Confirmed route seam:
   `size`, `StringBox.substring` / `substr`, `StringBox.concat`, and
   `StringBox.trim`, `StringBox.contains`, one-arg and two-arg
   `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
-  `find` through the Unified value path.
+  `find`, plus the current ArrayBox stable rows and MapBox
+  `size` / `length` / `len` / `has` / `get` / `set` / `keys` / `values` /
+  `delete` / `remove` through the Unified value path.
   Non-allowlisted `StringBox`, `ArrayBox`, and `MapBox` methods still use the
   family-wide `core_box` BoxCall fallback.
 - `src/mir/builder/utils/boxcall_emit.rs` maps `MirType::String` receivers to
@@ -162,12 +164,16 @@ Landed first slice and follow-up:
 - twenty-third implementation moved StringBox `lastIndexOf/2` after adding
   focused catalog, return-type, duplicate-receiver, and vm-hako smoke coverage:
   `docs/development/current/main/phases/phase-291x/291x-103-stringbox-lastindexof-start-card.md`
+- twenty-fourth implementation moved `MapBox.delete` / `remove` after adding
+  focused route, MIR shape, receipt-string type, duplicate-receiver, and
+  source smoke coverage:
+  `docs/development/current/main/phases/phase-291x/291x-104-mapbox-delete-remove-router-card.md`
 - remaining route-only CoreBox rows are closed for ArrayBox stable rows and
-  MapBox `size/length/len/has/get/set/keys/values`.
+  MapBox `size/length/len/has/get/set/keys/values/delete/remove`.
 - next implementation should choose one remaining CoreBox method family and
   keep it separate from the other route flips.
-- hold MapBox `delete` / `remove` / `clear` router promotion until their route
-  fixture and return/write contract witness are pinned.
+- hold MapBox `clear` router promotion until its route fixture and
+  return/write contract witness are pinned.
 
 ## MapBox Current Duplication
 
@@ -193,8 +199,8 @@ Known drift:
   parity is landed, while router promotion remains a separate mutating-row
   card.
 - `set` / `delete` / `remove` / `clear` source-level write-return receipt
-  contracts are landed; router promotion for the mutating delete/remove/clear
-  rows remains separate.
+  contracts are landed; router promotion for `delete` / `remove` is landed in
+  `291x-104`, while `clear` remains separate.
 - bad-key validation is normalized for the source-visible rows.
 - raw substrate helpers are already better separated than StringBox, so MapBox should be cataloged after StringBox rather than before it.
 
@@ -250,8 +256,9 @@ Remaining drift:
 
 - `size` and `len` keep separate slots.
 - visible surface and compat ABI remain split.
-- `delete` / `remove` / `clear` router promotion remains separate from the
-  landed source-owner/write-return contracts.
+- `delete` / `remove` router promotion is landed in `291x-104`; `clear`
+  router promotion remains separate from the landed source-owner/write-return
+  contracts.
 
 Completed cleanup:
 

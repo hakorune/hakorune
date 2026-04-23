@@ -35,7 +35,7 @@ Related:
   - phase status SSOT: `docs/development/current/main/phases/phase-291x/README.md`
   - method anchor: `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
   - taskboard: `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
-  - current implementation focus: `291x-103` StringBox lastIndexOf(needle,start_pos) landed; next app card selection pending
+  - current implementation focus: `291x-104` MapBox delete/remove router promotion landed; next app card selection pending
   - current phase goal:
     - phase-292x is closed: `.inc` analysis debt is 0 files / 0 lines, with
       1 file / 2 explicit view-owner lines guarded separately
@@ -53,6 +53,8 @@ Related:
       291x-102 acceptance smoke
     - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
       291x-103 acceptance smoke
+    - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
+      Unified value path and pinned by the 291x-104 acceptance tests
     - MapBox write-return receipt implementation is landed and pinned
     - MapBox bad-key normalization implementation is landed and pinned
     - MapBox get missing-key contract is landed and pinned
@@ -62,7 +64,7 @@ Related:
     - `tools/smokes/v2/profiles/integration/apps/phase290x_arraybox_surface_catalog_vm.sh` pins the ArrayBox precedent
     - StringBox surface SSOT is landed for the first stable rows and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
     - first StringBox stable target is `length/len/size/substr/substring/concat/indexOf/find/replace/trim/lastIndexOf/contains`
-    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and two-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, and `MapBox.values` to the Unified value path; next app cleanup card selection is pending
+    - CoreBox router follow-up has moved `StringBox.length/len/size`, `StringBox.substring/substr`, `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and two-arg `StringBox.lastIndexOf`, `StringBox.replace`, `StringBox.indexOf/find`, `ArrayBox.length/size/len`, `ArrayBox.push`, `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`, `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, `MapBox.has`, `MapBox.get`, `MapBox.set`, `MapBox.keys`, `MapBox.values`, `MapBox.delete`, and `MapBox.remove` to the Unified value path; next app cleanup card selection is pending
     - MapBox Rust vtable surface is cataloged; legacy `apps/std/map_std.hako` and unused `map_keys_values_bridge.hako` prototype were deleted
     - source-level vm-hako non-empty `MapBox.values()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_values_vm.sh`
     - source-level vm-hako non-empty `MapBox.keys()` state-owner shape is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_keys_vm.sh`
@@ -73,7 +75,7 @@ Related:
     - static-box `me.*` friction remains a separate semantics/diagnostics topic
     - direct source `slice()` result follow-up calls still lower through `RuntimeDataBox` union receiver; keep that as a separate return-type topic
     - two-arg `lastIndexOf(needle, start_pos)` is landed and pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_lastindexof_start_vm.sh`
-  - current blocker token: `phase-291x StringBox lastIndexOf start-position landed — next app card selection pending`
+  - current blocker token: `phase-291x MapBox delete/remove router promotion landed — next app card selection pending`
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning

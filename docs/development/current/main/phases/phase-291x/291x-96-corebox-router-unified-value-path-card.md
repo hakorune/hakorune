@@ -39,6 +39,7 @@ Landed route slices:
 - `MapBox.set`
 - `MapBox.keys`
 - `MapBox.values`
+- `MapBox.delete` / `MapBox.remove`
 
 This is not the active phase-292x `.inc` boundary-thinning blocker. Keep the
 remaining method-family flips as CoreBox value-first cleanup candidates after
@@ -152,6 +153,9 @@ Unified receiver-plus-key shape while keeping the MIR result type `Unknown`.
 `MapBox.set` is the first stored-value MapBox write slice; it moves to the
 Unified receiver-plus-key-plus-value shape and publishes the landed
 receipt-string write-return contract.
+`MapBox.delete` / `remove` is the first mutating MapBox delete row; it moves to
+the Unified receiver-plus-key shape and publishes the same landed receipt-string
+write-return contract while leaving `clear` out of scope.
 
 ## Implementation Snapshot
 
@@ -169,10 +173,10 @@ receipt-string write-return contract.
   `Route::Unified`.
 - `src/mir/builder/router/policy.rs` allowlists the catalog-backed
   `MapMethodId::Size`, `MapMethodId::Len`, `MapMethodId::Has`, and
-  `MapMethodId::Get`, `MapMethodId::Set`, `MapMethodId::Keys`, and
-  `MapMethodId::Values` rows to `Route::Unified`;
-  `MapBox.length` is covered by the `MapMethodId::Size` alias; remaining
-  MapBox rows still use the family-wide fallback.
+  `MapMethodId::Get`, `MapMethodId::Set`, `MapMethodId::Delete`,
+  `MapMethodId::Keys`, and `MapMethodId::Values` rows to `Route::Unified`;
+  `MapBox.length` is covered by the `MapMethodId::Size` alias; `MapBox.clear`
+  still uses the family-wide fallback.
 - `src/mir/builder/calls/unified_emitter.rs` computes method-result annotation
   arity without the duplicated receiver arg, preserving `StringBox.length/0`
   return-type publication.
@@ -210,7 +214,9 @@ receipt-string write-return contract.
   publishes `MirType::Bool`; `MapBox.get` uses the receiver-plus-key shape and
   intentionally stays `MirType::Unknown`; `MapBox.set` uses the
   receiver-plus-key-plus-value shape and publishes `MirType::String`;
-  `MapBox.delete` remains pinned as a BoxCall fallback sentinel.
+  `MapBox.delete` and `MapBox.remove` use the receiver-plus-key shape and
+  publish `MirType::String`; `MapBox.clear` remains pinned as a BoxCall
+  fallback sentinel.
 
 ## Acceptance
 
@@ -241,11 +247,10 @@ implemented.
 
 - remaining route-only CoreBox rows are closed for the current ArrayBox stable
   rows and MapBox `size` / `length` / `len` / `has` / `get` / `set` /
-  `keys` / `values`
+  `keys` / `values` / `delete` / `remove`
 - contract-first backlog: Array generic element-result publication (`get` /
   `pop` / `remove` as `T`
-  instead of `Unknown`) and `MapBox.delete` / `remove` / `clear` router
-  promotion
+  instead of `Unknown`) and `MapBox.clear` router promotion
 - non-router cleanup backlog: String semantic owner cleanup, alias SSOT
   cleanup, and Map compat/source cleanup
 

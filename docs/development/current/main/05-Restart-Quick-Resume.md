@@ -56,6 +56,8 @@ cargo check -q
   - MapBox get missing-key contract is landed and pinned
   - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
     291x-103 acceptance smoke
+  - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
+    Unified value path and pinned by the 291x-104 acceptance tests
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`,
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, one-arg and
@@ -64,7 +66,8 @@ cargo check -q
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
     `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`,
     `MapBox.len`, and `MapBox.has`, `MapBox.get`, `MapBox.set`,
-    `MapBox.keys`, and `MapBox.values`, are on the Unified value path;
+    `MapBox.keys`, `MapBox.values`, `MapBox.delete`, and `MapBox.remove`, are
+    on the Unified value path;
     remaining cleanup is MapBox contract-first rows
 - perf blocker (observe-only):
   - `137x-H46 text-cell residence/materialization design`
@@ -75,7 +78,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
 - current blocker token:
-  - `phase-291x StringBox lastIndexOf start-position landed — next app card selection pending`
+  - `phase-291x MapBox delete/remove router promotion landed — next app card selection pending`
 
 ## Current Perf Snapshot
 

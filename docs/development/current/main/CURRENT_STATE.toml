@@ -9,13 +9,13 @@ status = "Active"
 date = "2026-04-23"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, MapBox.clear source-route, MapBox write-return receipt, MapBox bad-key normalization, MapBox get missing-key, 291x-102 MapBox keys/values element publication, and 291x-103 StringBox lastIndexOf/2 start-position cleanup are landed; next app card selection is pending"
+active_lane_status = "phase-292x is closed with .inc analysis debt at 0 files / 0 lines plus 1 file / 2 view-owner lines; MapBox.length, MapBox.set duplicate-receiver, non-empty MapBox.values, non-empty MapBox.keys, MapBox.remove alias, MapBox.clear source-route, MapBox write-return receipt, MapBox bad-key normalization, MapBox get missing-key, 291x-102 MapBox keys/values element publication, 291x-103 StringBox lastIndexOf/2 start-position cleanup, and 291x-104 MapBox delete/remove router promotion are landed; next app card selection is pending"
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-current_blocker_token = "phase-291x StringBox lastIndexOf start-position landed — next app card selection pending"
+current_blocker_token = "phase-291x MapBox delete/remove router promotion landed — next app card selection pending"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
@@ -68,6 +68,7 @@ opened_successors = [
   "MapBox.set duplicate receiver source-route cleanup landed",
   "MapBox keys/values element publication landed",
   "StringBox lastIndexOf start-position catalog + Unified route landed",
+  "MapBox delete/remove router promotion landed",
 ]
 
 blocked_successors = [
@@ -79,6 +80,7 @@ blocked_successors = [
   "current implementation focus: MapBox post-contract next-slice selection",
   "MapBox bad-key normalization mixed into write-return decision",
   "MapBox get missing-key normalization mixed into bad-key implementation",
+  "MapBox.clear router promotion mixed into delete/remove card",
 ]
 
 stale_pointer_patterns = [
@@ -111,4 +113,5 @@ stale_pointer_patterns = [
   "active cleanup card is `292x-118-generic-pure-walker-view-extraction-card.md`",
   "291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open",
   "291x-102 slice 3 (map_state_core_box element publication + acceptance smoke) is open",
+  "phase-291x StringBox lastIndexOf start-position landed — next app card selection pending",
 ]
