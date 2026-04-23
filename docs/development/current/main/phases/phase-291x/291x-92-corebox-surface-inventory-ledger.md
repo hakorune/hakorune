@@ -32,13 +32,14 @@ Stable rows:
 - `clear`
 - `contains`
 - `indexOf`
+- `join`
 - `slice`
 - `remove`
 - `insert`
 
 Deferred:
 
-- `join/sort/reverse`
+- `sort/reverse`
 - direct source `slice()` result follow-up calls through `RuntimeDataBox` union receiver
 
 ## StringBox Landing Snapshot
@@ -108,6 +109,8 @@ Completed cleanup:
   catalog and retires the next Array-only TypeRegistry extra row.
 - `291x-114` promotes `ArrayBox.indexOf` into the stable Array surface catalog
   and retires the next Array-only TypeRegistry extra row.
+- `291x-115` promotes `ArrayBox.join` into the stable Array surface catalog and
+  retires the next Array-only TypeRegistry extra row.
 
 ## Router / Value World Follow-up
 
@@ -216,6 +219,9 @@ Landed first slice and follow-up:
 - `291x-114` then promoted `ArrayBox.indexOf` as a receiver-plus-value
   read-`Integer` route and added it to the stable Array surface smoke:
   `docs/development/current/main/phases/phase-291x/291x-114-arraybox-indexof-router-card.md`
+- `291x-115` then promoted `ArrayBox.join` as a receiver-plus-delimiter
+  read-`String` route and added it to the stable Array surface smoke:
+  `docs/development/current/main/phases/phase-291x/291x-115-arraybox-join-router-card.md`
 - remaining route-only CoreBox rows are closed for the current stable ArrayBox
   and MapBox rows.
 - next implementation should choose one remaining CoreBox method family and

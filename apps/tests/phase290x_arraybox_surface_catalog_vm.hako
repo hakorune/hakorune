@@ -13,6 +13,7 @@ static box Main {
     print(a.get(1))
     print(a.contains(15))
     print(a.indexOf(15))
+    print(a.join(":"))
     print(a.remove(1))
     print(a.length())
     print(a.pop())

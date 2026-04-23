@@ -66,6 +66,8 @@ cargo check -q
     the Unified receiver-plus-value path, and publishes `Bool`
   - `291x-114` landed: `ArrayBox.indexOf(value)` is now catalog-backed, uses
     the Unified receiver-plus-value path, and publishes `Integer`
+  - `291x-115` landed: `ArrayBox.join(delimiter)` is now catalog-backed, uses
+    the Unified receiver-plus-delimiter path, and publishes `String`
   - `StringBox.lastIndexOf(needle, start_pos)` is landed and pinned by the
     291x-103 acceptance smoke
   - `MapBox.delete(key)` / `remove(key)` is landed on the catalog-backed
@@ -91,8 +93,8 @@ cargo check -q
     two-arg `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
     `find`, plus `ArrayBox.length/size/len`, `ArrayBox.push`,
     `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,
-    `ArrayBox.clear`, `ArrayBox.contains`, `ArrayBox.indexOf`, `ArrayBox.remove`,
-    `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, and
+    `ArrayBox.clear`, `ArrayBox.contains`, `ArrayBox.indexOf`, `ArrayBox.join`,
+    `ArrayBox.remove`, `ArrayBox.insert`, `MapBox.size`, `MapBox.length`, `MapBox.len`, and
     `MapBox.has`, `MapBox.get`, `MapBox.set`,
     `MapBox.keys`, `MapBox.values`, `MapBox.delete`, `MapBox.remove`, and
     `MapBox.clear`, are on the Unified value path;
