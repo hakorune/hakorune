@@ -57,6 +57,7 @@ Scope: current lane / next lane / restart order only.
 39. `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 40. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 41. `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+42. `docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md`
 41. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
 42. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
 43. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
@@ -105,8 +106,9 @@ Scope: current lane / next lane / restart order only.
     - source-level vm-hako `MapBox.clear()` state reset is landed and pinned
     - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is
       landed and pinned
-    - decide whether `MapBox.keys()/values()` content enumeration is ordered,
-      unordered, or intentionally size-only before implementation
+    - `MapBox.keys()/values()` content enumeration is explicitly size-only for
+      now; element publication is deferred behind the 291x-98 gates
+    - decide MapBox write-return behavior without mixing bad-key normalization
     - keep `MapBox.length()` landed as a Rust catalog alias; do not reopen slot
       unification in the extended-row card
     - keep `.inc` closed as boundary glue; phase-292x guard remains the no-growth
@@ -122,13 +124,13 @@ Scope: current lane / next lane / restart order only.
     - source-level vm-hako `MapBox.remove(key)` alias is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_remove_vm.sh`
     - source-level vm-hako `MapBox.clear()` state reset is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_clear_vm.sh`
     - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is pinned by `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
-    - next cleanup after `MapBox.clear`: `keys()/values()` content enumeration contract, then write-return and bad-key normalization
+    - next cleanup after `MapBox.clear`: write-return contract decision, then bad-key normalization
     - contract-first / owner-first backlog: Array generic element-result publication (`get/pop/remove` as `T` instead of `Unknown`), two-arg `StringBox.lastIndexOf(needle, start_pos)`, non-empty `MapBox.keys/values`, `MapBox.delete/remove/clear`, MapBox write-return and bad-key normalization, String semantic owner cleanup, alias SSOT cleanup, and Map compat/source cleanup
     - MapBox Rust vtable surface is now cataloged; legacy `apps/std/map_std.hako`, unused `map_keys_values_bridge.hako`, and live `apps/lib/boxes/map_std.hako` prelude scaffold were deleted, while compat ABI, MIR lowering, and `.hako` extended routes remain separate cleanup cards
     - static-box receiver friction remains a semantics/diagnostics issue
     - two-arg `lastIndexOf` remains a separate runtime gap
   - current blocker token:
-    - `MapBox keys/values content enumeration contract`
+    - `MapBox write-return contract decision`
   - stop rule:
     - app lane is primary; phase-137x is observe-only unless app work is actually blocked
     - helper-local perf reopen is closed; new perf cards need one-family owner pin plus one-card rollback

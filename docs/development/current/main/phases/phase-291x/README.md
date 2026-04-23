@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md
   - docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md
+  - docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -27,7 +28,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox keys/values content enumeration contract
+- Next implementation target: MapBox write-return contract decision
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -60,6 +61,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 6. `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 7. `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
 8. `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
+9. `docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md`
 
 ## Current Rule
 
@@ -124,8 +126,9 @@ Remaining MapBox follow-up:
 - source-level vm-hako `MapBox.set(...)` duplicate receiver stripping is landed
   and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`.
-- `keys()/values()` content enumeration is still intentionally unpromoted until
-  ordering and element publication are decided.
+- `keys()/values()` content enumeration is intentionally size-only in
+  source-level vm-hako for now; element publication is deferred to
+  `291x-98`.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
@@ -162,6 +165,6 @@ Landed CoreBox router first slice:
   are data-dependent.
 - `MapBox.set` intentionally stays `MirType::Unknown`; current visible
   write-return and bad-key behavior stay contract-first cleanup.
-- two-arg `lastIndexOf`, MapBox keys/values content enumeration, and MapBox write-return /
-  bad-key normalization remain contract-first cleanup cards.
+- two-arg `lastIndexOf`, MapBox keys/values element publication, MapBox
+  write-return, and bad-key normalization remain contract-first cleanup cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
