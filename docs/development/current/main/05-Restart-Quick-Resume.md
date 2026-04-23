@@ -50,7 +50,8 @@ cargo check -q
   - `keys()/values()` content enumeration is explicitly size-only for now;
     element publication is deferred behind the 291x-98 gates
   - MapBox write-return receipt implementation is landed and pinned
-  - active implementation is MapBox bad-key normalization decision
+  - MapBox bad-key normalization contract is decided
+  - active implementation is MapBox bad-key normalization implementation
   - CoreBox surface catalog work is landed and now a reference lane;
     `StringBox.length/len/size`, `StringBox.substring/substr`, and
     `StringBox.concat`, `StringBox.trim`, `StringBox.contains`, and one-arg
@@ -70,7 +71,7 @@ cargo check -q
 - taskboard:
   - `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
 - current blocker token:
-  - `MapBox bad-key normalization decision`
+  - `MapBox bad-key normalization implementation`
 
 ## Current Perf Snapshot
 
@@ -105,7 +106,7 @@ cargo check -q
 ## Immediate Next
 
 - app priority:
-  - decide MapBox bad-key normalization without mixing get missing-key or
+  - implement MapBox bad-key normalization without mixing get missing-key or
     keys/values element publication
   - `pure_compile_minimal_paths` is removed; phase-292x analysis debt is now 0
     files / 0 lines, with 1 file / 2 view-owner lines

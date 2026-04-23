@@ -36,8 +36,9 @@ non-empty `values()` parity, and non-empty `keys()` parity through the same S0
 state owner as `set()` via
 `src/runner/reference/vm_hako/payload_normalize.rs`. `remove(key)` is also
 landed as a `delete(key)` owner alias, and `clear()` is landed as a state reset
-row. Content enumeration is deferred until a separate shape contract pins
-key/value ordering and element publication.
+row. Write-return receipt publication is landed for `set`, `delete` /
+`remove`, and `clear`. Content enumeration is deferred until a separate shape
+contract pins key/value ordering and element publication.
 
 Implementation note: the source route returns an ArrayBox-like value through
 ordinary MIR `copy` instructions before `values().size()` observes it. Therefore
@@ -57,8 +58,8 @@ metadata over treating the synthetic register id as a runtime array handle.
   through `MapCoreBox`; missing rows fall to `[vm/method/stub:*]`.
 - S0 BoxCall rows for `keys`, `values`, `delete`, and `clear` already route through
   `MapStateCoreBox`.
-- The S0 BoxCall row for the `remove` alias is still absent and must not be
-  silently promoted.
+- The source-level `remove` alias is normalized to the existing S0 `delete`
+  owner; do not add a second `remove` owner.
 - source-level vm-hako `MapBox.set(...)` used to expose a multi-arg BoxCall
   blocker when Unified MIR passed `[receiver_alias, key, value]`; this card
   strips that duplicate receiver arg in the S0 MapBox owner.
@@ -73,6 +74,8 @@ metadata over treating the synthetic register id as a runtime array handle.
   as `delete(key)`.
 - `MapBox.clear()` now goes through payload normalization to
   S0 `boxcall(clear)`, so size/has/keys observe the same reset state.
+- `MapBox.set/delete/remove/clear` write returns now publish receipt strings
+  through the S0 state owner.
 - MIR `copy` previously copied scalar/kind/handle/file payload but not
   VM-local receiver metadata; this card may extend copy metadata propagation
   only for existing local metadata keys.
@@ -115,6 +118,8 @@ metadata over treating the synthetic register id as a runtime array handle.
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_extended_clear_vm.sh`
 - Smoke:
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_set_multiarg_vm.sh`
+- Smoke:
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`
 
 ## Rejected Owner Choices
 
@@ -132,8 +137,7 @@ metadata over treating the synthetic register id as a runtime array handle.
 - Keep `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_surface_catalog_vm.sh`
   as the direct Rust VM catalog smoke.
 - `remove` alias must be tested separately from `delete`.
-- `clear` return behavior must remain current or get a separate return-contract
-  decision.
+- `set/delete/remove/clear` return behavior is owned by `291x-99`.
 - `keys/values` result shape must be pinned in smoke.
 
 ## Next Slices
@@ -160,8 +164,11 @@ metadata over treating the synthetic register id as a runtime array handle.
    `291x-99` and must not mix bad-key normalization or element publication.
 9. Landed: implement the MapBox write-return receipt contract and pin it with
    `phase291x_mapbox_hako_write_return_vm.sh`.
-10. Active next: decide MapBox bad-key normalization.
-11. Reactivate or replace stale archive witnesses only when they match the new
+10. Landed decision: `MapBox` non-string `set/get/has/delete/remove` keys
+    publish `[map/bad-key] key must be string`; implementation is tracked by
+    `291x-100` and must not mix missing-key or element publication.
+11. Active next: implement MapBox bad-key normalization.
+12. Reactivate or replace stale archive witnesses only when they match the new
    owner path and have a valid helper source path.
 
 ## Out Of Scope

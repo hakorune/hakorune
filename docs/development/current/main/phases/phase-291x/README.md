@@ -19,6 +19,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md
   - docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -29,7 +30,7 @@ Related:
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
-- Next implementation target: MapBox bad-key normalization decision
+- Next implementation target: MapBox bad-key normalization implementation
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -64,6 +65,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 8. `docs/development/current/main/phases/phase-291x/291x-97-mapbox-length-alias-card.md`
 9. `docs/development/current/main/phases/phase-291x/291x-98-mapbox-content-enumeration-contract-card.md`
 10. `docs/development/current/main/phases/phase-291x/291x-99-mapbox-write-return-contract-card.md`
+11. `docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md`
 
 ## Current Rule
 
@@ -82,6 +84,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `MapBox` source-level write rows now have a contract decision: `set`,
   `delete` / `remove`, and `clear` return Rust-vtable-compatible receipt
   strings; bad-key normalization remains separate
+- `MapBox` source-visible bad-key rows now have a contract decision:
+  non-string `set/get/has/delete/remove` keys publish
+  `[map/bad-key] key must be string`; field rows keep the field-name variant
 
 ## Implementation State
 
@@ -137,6 +142,8 @@ Remaining MapBox follow-up:
 - `MapBox.set/delete/remove/clear` source-level write-return receipt contract
   is landed and pinned by
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_write_return_vm.sh`.
+- `MapBox` bad-key normalization is decided in `291x-100`; implementation is
+  next and must not mix `get(missing-key)` or element publication.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
@@ -174,6 +181,6 @@ Landed CoreBox router first slice:
 - `MapBox.set`, `MapBox.delete` / `remove`, and `MapBox.clear` write-return
   rows have a landed receipt-string contract in `291x-99`; source-level
   vm-hako publication and matching type hints are synced.
-- two-arg `lastIndexOf`, MapBox keys/values element publication, MapBox
-  bad-key normalization remain contract-first cleanup cards.
+- two-arg `lastIndexOf`, MapBox keys/values element publication, and
+  `MapBox.get(missing-key)` normalization remain contract-first cleanup cards.
 - task card: `docs/development/current/main/phases/phase-291x/291x-96-corebox-router-unified-value-path-card.md`
