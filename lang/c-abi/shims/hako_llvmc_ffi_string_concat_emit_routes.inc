@@ -743,7 +743,7 @@
             fprintf(f, "  call i64 @\"nyash.string.substring_hii\"(%s)\n", ab);
           }
           if (hako_llvmc_route_trace_enabled()) {
-            char extra[192];
+            char extra[256];
             snprintf(extra, sizeof(extra), "argc=%zu args=%s", argc, ab);
             hako_llvmc_emit_route_trace(
                 "mir_call_string_extern",
@@ -829,7 +829,7 @@
             fprintf(f, "  call i64 @\"nyash.string.substring_len_hii\"(%s)\n", ab);
           }
           if (hako_llvmc_route_trace_enabled()) {
-            char extra[192];
+            char extra[256];
             snprintf(extra, sizeof(extra), "argc=%zu args=%s", argc, ab);
             hako_llvmc_emit_route_trace(
                 "mir_call_string_extern",
