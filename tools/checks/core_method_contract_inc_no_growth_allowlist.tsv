@@ -7,10 +7,12 @@ lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_metho
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	ArrayBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	MapBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_set_route	box	RuntimeDataBox	1	runtime-data-compat	replace-with-runtime-data-set-contract-and-metadata-absent-runtime-data-set-boundary-coverage
-# Mir-call route surface mirror rows. Keep these pinned until the route policy consumes MIR-owned CoreMethod metadata.
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	MapBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	ArrayBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	StringBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	RuntimeDataBox	1	runtime-data-compat	replace-with-runtime-data-contract-or-delete-route
+# Mir-call route surface mirror rows. Remaining rows are compat sentinels; prune
+# receiver rows only after their method-surface / constructor / RuntimeData
+# blockers are gone or exact non-use is proven.
+lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	MapBox	1	core-box-contract	delete-after-has-fallback-sunset-or-prove-nonuse
+lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	ArrayBox	1	core-box-contract	delete-after-arrayhas-and-constructor-compat-sunset-or-prove-nonuse
+lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	StringBox	1	core-box-contract	delete-after-string-indexof-carrier-and-consumers
+lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	RuntimeDataBox	1	runtime-data-compat	delete-after-runtime-data-set-has-string-compat-sunset
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	has	1	core-method-contract	replace-with-arrayhas-core-method-or-retire-array-origin-runtime-data-has-fallback
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	indexOf	1	core-method-contract	replace-with-string-indexof-core-method-route-carrier-and-consumers
