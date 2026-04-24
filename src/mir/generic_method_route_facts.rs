@@ -55,6 +55,7 @@ impl std::fmt::Display for GenericMethodValueDemand {
 pub enum GenericMethodReturnShape {
     MixedRuntimeI64OrHandle,
     ScalarI64OrMissingZero,
+    ScalarI64,
 }
 
 impl GenericMethodReturnShape {
@@ -62,6 +63,7 @@ impl GenericMethodReturnShape {
         match self {
             Self::MixedRuntimeI64OrHandle => "mixed_runtime_i64_or_handle",
             Self::ScalarI64OrMissingZero => "scalar_i64_or_missing_zero",
+            Self::ScalarI64 => "scalar_i64",
         }
     }
 }

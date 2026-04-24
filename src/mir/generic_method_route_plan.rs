@@ -21,6 +21,9 @@ use crate::mir::verification::utils::compute_dominators;
 pub enum GenericMethodRouteKind {
     RuntimeDataLoadAny,
     RuntimeDataContainsAny,
+    MapEntryCount,
+    ArraySlotLen,
+    StringLen,
     MapContainsAny,
     MapContainsI64,
 }
@@ -30,6 +33,9 @@ impl GenericMethodRouteKind {
         match self {
             Self::RuntimeDataLoadAny => "nyash.runtime_data.get_hh",
             Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
+            Self::MapEntryCount => "nyash.map.entry_count_i64",
+            Self::ArraySlotLen => "nyash.array.slot_len_h",
+            Self::StringLen => "nyash.string.len_h",
             Self::MapContainsAny => "nyash.map.probe_hh",
             Self::MapContainsI64 => "nyash.map.probe_hi",
         }
@@ -41,6 +47,9 @@ impl std::fmt::Display for GenericMethodRouteKind {
         match self {
             Self::RuntimeDataLoadAny => f.write_str("runtime_data_load_any"),
             Self::RuntimeDataContainsAny => f.write_str("runtime_data_contains_any"),
+            Self::MapEntryCount => f.write_str("map_entry_count"),
+            Self::ArraySlotLen => f.write_str("array_slot_len"),
+            Self::StringLen => f.write_str("string_len"),
             Self::MapContainsAny => f.write_str("map_contains_any"),
             Self::MapContainsI64 => f.write_str("map_contains_i64"),
         }
@@ -51,6 +60,7 @@ impl std::fmt::Display for GenericMethodRouteKind {
 pub enum GenericMethodRouteProof {
     GetSurfacePolicy,
     HasSurfacePolicy,
+    LenSurfacePolicy,
     MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
 }
@@ -60,6 +70,7 @@ impl std::fmt::Display for GenericMethodRouteProof {
         match self {
             Self::GetSurfacePolicy => f.write_str("get_surface_policy"),
             Self::HasSurfacePolicy => f.write_str("has_surface_policy"),
+            Self::LenSurfacePolicy => f.write_str("len_surface_policy"),
             Self::MapSetScalarI64DominatesNoEscape => {
                 f.write_str("map_set_scalar_i64_dominates_no_escape")
             }
@@ -77,9 +88,9 @@ pub struct GenericMethodRoute {
     pub box_name: String,
     pub method: String,
     pub receiver_origin_box: Option<String>,
-    pub key_route: GenericMethodKeyRoute,
+    pub key_route: Option<GenericMethodKeyRoute>,
     pub receiver_value: ValueId,
-    pub key_value: ValueId,
+    pub key_value: Option<ValueId>,
     pub result_value: Option<ValueId>,
     pub route_kind: GenericMethodRouteKind,
     pub proof: GenericMethodRouteProof,
@@ -94,6 +105,7 @@ impl GenericMethodRoute {
         match self.method.as_str() {
             "get" => "generic_method.get",
             "has" => "generic_method.has",
+            "len" | "length" | "size" => "generic_method.len",
             _ => "generic_method.unknown",
         }
     }
@@ -102,14 +114,20 @@ impl GenericMethodRoute {
         match self.method.as_str() {
             "get" => "get",
             "has" => "has",
+            "len" | "length" | "size" => "len",
             _ => "unknown",
         }
+    }
+
+    pub fn arity(&self) -> usize {
+        usize::from(self.key_value.is_some())
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
         match self.method.as_str() {
             "get" => &["read.key"],
             "has" => &["probe.key"],
+            "len" | "length" | "size" => &["observe.len"],
             _ => &[],
         }
     }
@@ -136,6 +154,15 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                 match_generic_has_route(function, &def_map, block_id, instruction_index, inst)
                     .or_else(|| {
                         match_generic_get_route(
+                            function,
+                            &def_map,
+                            block_id,
+                            instruction_index,
+                            inst,
+                        )
+                    })
+                    .or_else(|| {
+                        match_generic_len_route(
                             function,
                             &def_map,
                             block_id,
@@ -212,9 +239,9 @@ fn match_generic_has_route(
         box_name: box_name.clone(),
         method: method.clone(),
         receiver_origin_box,
-        key_route,
+        key_route: Some(key_route),
         receiver_value: *receiver,
-        key_value: args[0],
+        key_value: Some(args[0]),
         result_value: *dst,
         route_kind,
         proof: GenericMethodRouteProof::HasSurfacePolicy,
@@ -289,9 +316,9 @@ fn match_generic_get_route(
         box_name: box_name.clone(),
         method: method.clone(),
         receiver_origin_box,
-        key_route,
+        key_route: Some(key_route),
         receiver_value: *receiver,
-        key_value: args[0],
+        key_value: Some(args[0]),
         result_value: *dst,
         route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
         proof,
@@ -303,6 +330,77 @@ fn match_generic_get_route(
         value_demand,
         publication_policy,
     })
+}
+
+fn match_generic_len_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> Option<GenericMethodRoute> {
+    let MirInstruction::Call {
+        dst,
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if !is_len_method(method) || !args.is_empty() {
+        return None;
+    }
+
+    let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| len_surface_origin_box_name(box_name).map(str::to_string));
+    let (route_kind, core_op) =
+        match len_surface_origin_box_name(box_name).or(receiver_origin_box.as_deref()) {
+            Some("MapBox") => (GenericMethodRouteKind::MapEntryCount, CoreMethodOp::MapLen),
+            Some("ArrayBox") => (GenericMethodRouteKind::ArraySlotLen, CoreMethodOp::ArrayLen),
+            Some("StringBox") => (GenericMethodRouteKind::StringLen, CoreMethodOp::StringLen),
+            _ => return None,
+        };
+
+    Some(GenericMethodRoute {
+        block,
+        instruction_index,
+        box_name: box_name.clone(),
+        method: method.clone(),
+        receiver_origin_box,
+        key_route: None,
+        receiver_value: *receiver,
+        key_value: None,
+        result_value: *dst,
+        route_kind,
+        proof: GenericMethodRouteProof::LenSurfacePolicy,
+        core_method: Some(CoreMethodOpCarrier::manifest(
+            core_op,
+            CoreMethodLoweringTier::WarmDirectAbi,
+        )),
+        return_shape: Some(GenericMethodReturnShape::ScalarI64),
+        value_demand: GenericMethodValueDemand::ScalarI64,
+        publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+    })
+}
+
+fn is_len_method(method: &str) -> bool {
+    matches!(method, "len" | "length" | "size")
+}
+
+fn len_surface_origin_box_name(box_name: &str) -> Option<&'static str> {
+    match box_name {
+        "MapBox" => Some("MapBox"),
+        "ArrayBox" => Some("ArrayBox"),
+        "StringBox" => Some("StringBox"),
+        _ => None,
+    }
 }
 
 fn map_has_route_kind_for_key(key_route: GenericMethodKeyRoute) -> GenericMethodRouteKind {
@@ -628,9 +726,9 @@ mod tests {
         assert_eq!(route.box_name, "MapBox");
         assert_eq!(route.method, "has");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
-        assert_eq!(route.key_route, GenericMethodKeyRoute::UnknownAny);
+        assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(route.receiver_value, ValueId::new(1));
-        assert_eq!(route.key_value, ValueId::new(2));
+        assert_eq!(route.key_value, Some(ValueId::new(2)));
         assert_eq!(route.result_value, Some(ValueId::new(3)));
         assert_eq!(route.route_kind, GenericMethodRouteKind::MapContainsAny);
         assert_eq!(route.proof, GenericMethodRouteProof::HasSurfacePolicy);
@@ -670,7 +768,7 @@ mod tests {
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.box_name, "RuntimeDataBox");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
-        assert_eq!(route.key_route, GenericMethodKeyRoute::UnknownAny);
+        assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(
             route.route_kind,
             GenericMethodRouteKind::RuntimeDataContainsAny
@@ -703,8 +801,101 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         assert_eq!(
             function.metadata.generic_method_routes[0].key_route,
-            GenericMethodKeyRoute::I64Const
+            Some(GenericMethodKeyRoute::I64Const)
         );
+    }
+
+    #[test]
+    fn records_direct_len_family_core_method_routes() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(method_call(Some(4), "MapBox", "size", 1, vec![]));
+        block.add_instruction(method_call(Some(5), "ArrayBox", "length", 2, vec![]));
+        block.add_instruction(method_call(Some(6), "StringBox", "len", 3, vec![]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 3);
+        let map_route = &function.metadata.generic_method_routes[0];
+        assert_eq!(map_route.route_id(), "generic_method.len");
+        assert_eq!(map_route.method, "size");
+        assert_eq!(map_route.receiver_origin_box.as_deref(), Some("MapBox"));
+        assert_eq!(map_route.key_route, None);
+        assert_eq!(map_route.key_value, None);
+        assert_eq!(map_route.route_kind, GenericMethodRouteKind::MapEntryCount);
+        assert_eq!(map_route.proof, GenericMethodRouteProof::LenSurfacePolicy);
+        let map_core = map_route.core_method.expect("MapLen carrier");
+        assert_eq!(map_core.op, CoreMethodOp::MapLen);
+        assert_eq!(
+            map_core.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(
+            map_route.return_shape,
+            Some(GenericMethodReturnShape::ScalarI64)
+        );
+        assert_eq!(map_route.value_demand, GenericMethodValueDemand::ScalarI64);
+        assert_eq!(
+            map_route.publication_policy,
+            Some(GenericMethodPublicationPolicy::NoPublication)
+        );
+
+        let array_route = &function.metadata.generic_method_routes[1];
+        assert_eq!(array_route.method, "length");
+        assert_eq!(array_route.receiver_origin_box.as_deref(), Some("ArrayBox"));
+        assert_eq!(array_route.route_kind, GenericMethodRouteKind::ArraySlotLen);
+        let array_core = array_route.core_method.expect("ArrayLen carrier");
+        assert_eq!(array_core.op, CoreMethodOp::ArrayLen);
+
+        let string_route = &function.metadata.generic_method_routes[2];
+        assert_eq!(string_route.method, "len");
+        assert_eq!(
+            string_route.receiver_origin_box.as_deref(),
+            Some("StringBox")
+        );
+        assert_eq!(string_route.route_kind, GenericMethodRouteKind::StringLen);
+        let string_core = string_route.core_method.expect("StringLen carrier");
+        assert_eq!(string_core.op, CoreMethodOp::StringLen);
+    }
+
+    #[test]
+    fn records_runtime_data_len_from_receiver_origin() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(method_call(Some(3), "RuntimeDataBox", "length", 2, vec![]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.method, "length");
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
+        assert_eq!(route.route_kind, GenericMethodRouteKind::MapEntryCount);
+        let core_method = route.core_method.expect("RuntimeData MapLen carrier");
+        assert_eq!(core_method.op, CoreMethodOp::MapLen);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(route.key_route, None);
+        assert_eq!(route.key_value, None);
+        assert_eq!(route.arity(), 0);
     }
 
     #[test]
@@ -735,7 +926,7 @@ mod tests {
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.box_name, "RuntimeDataBox");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
-        assert_eq!(route.key_route, GenericMethodKeyRoute::I64Const);
+        assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(route.route_kind, GenericMethodRouteKind::MapContainsI64);
         let core_method = route.core_method.expect("MapHas carrier");
         assert_eq!(core_method.op, CoreMethodOp::MapHas);
@@ -769,7 +960,7 @@ mod tests {
         assert_eq!(route.box_name, "RuntimeDataBox");
         assert_eq!(route.method, "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
-        assert_eq!(route.key_route, GenericMethodKeyRoute::I64Const);
+        assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(route.route_kind, GenericMethodRouteKind::RuntimeDataLoadAny);
         assert_eq!(
             route.route_kind.helper_symbol(),
@@ -825,7 +1016,7 @@ mod tests {
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.box_name, "RuntimeDataBox");
         assert_eq!(route.method, "get");
-        assert_eq!(route.key_route, GenericMethodKeyRoute::I64Const);
+        assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(
             route.proof,
             GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape

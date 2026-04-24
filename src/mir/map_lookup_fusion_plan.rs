@@ -130,7 +130,7 @@ fn is_scalar_map_get_route(route: &GenericMethodRoute) -> bool {
         .core_method
         .is_some_and(|carrier| carrier.op == CoreMethodOp::MapGet)
         && route.receiver_origin_box.as_deref() == Some("MapBox")
-        && route.key_route == GenericMethodKeyRoute::I64Const
+        && route.key_route == Some(GenericMethodKeyRoute::I64Const)
         && route.return_shape == Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
         && route.value_demand == GenericMethodValueDemand::ScalarI64
         && route.publication_policy == Some(GenericMethodPublicationPolicy::NoPublication)
@@ -141,7 +141,7 @@ fn is_i64_map_has_route(route: &GenericMethodRoute) -> bool {
         .core_method
         .is_some_and(|carrier| carrier.op == CoreMethodOp::MapHas)
         && route.receiver_origin_box.as_deref() == Some("MapBox")
-        && route.key_route == GenericMethodKeyRoute::I64Const
+        && route.key_route == Some(GenericMethodKeyRoute::I64Const)
 }
 
 fn match_same_key_get_has_pair(
@@ -157,12 +157,15 @@ fn match_same_key_get_has_pair(
     }
     let get_result_value = get_route.result_value?;
     let has_result_value = has_route.result_value?;
+    let get_key_value = get_route.key_value?;
+    let has_key_value = has_route.key_value?;
+    let get_key_route = get_route.key_route?;
     let receiver_root = resolve_value_origin(function, def_map, get_route.receiver_value);
     if receiver_root != resolve_value_origin(function, def_map, has_route.receiver_value) {
         return None;
     }
-    let key_const = const_i64_value(function, def_map, get_route.key_value)?;
-    if Some(key_const) != const_i64_value(function, def_map, has_route.key_value) {
+    let key_const = const_i64_value(function, def_map, get_key_value)?;
+    if Some(key_const) != const_i64_value(function, def_map, has_key_value) {
         return None;
     }
     if !same_block_window_keeps_receiver_stable(
@@ -182,7 +185,7 @@ fn match_same_key_get_has_pair(
         get_route.block,
         get_route.instruction_index,
         get_route.receiver_value,
-        get_route.key_value,
+        get_key_value,
     )
     .map(|fact| fact.stored_value);
     let stored_value_proof = match stored_value {
@@ -198,9 +201,9 @@ fn match_same_key_get_has_pair(
         fusion_op: MapLookupFusionOp::MapLookupSameKey,
         receiver_origin_box: get_route.receiver_origin_box.clone(),
         receiver_value: get_route.receiver_value,
-        key_value: get_route.key_value,
+        key_value: get_key_value,
         key_const,
-        key_route: get_route.key_route,
+        key_route: get_key_route,
         get_result_value,
         has_result_value,
         get_return_shape: GenericMethodReturnShape::ScalarI64OrMissingZero,

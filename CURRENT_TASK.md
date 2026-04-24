@@ -37,13 +37,13 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x generic len alias metadata preflight pending`
+- current blocker token: `phase-291x len emit-kind metadata consumer pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- inventory `len`/`length`/`size` CoreMethod metadata coverage before touching the legacy mirror rows
+- make generic emit-kind `LEN` selection consume MIR `generic_method.len` metadata before legacy alias fallback
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

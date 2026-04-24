@@ -18,9 +18,9 @@ fn build_mir_json_root_emits_generic_method_routes() {
             box_name: "MapBox".to_string(),
             method: "has".to_string(),
             receiver_origin_box: Some("MapBox".to_string()),
-            key_route: GenericMethodKeyRoute::I64Const,
+            key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(10),
-            key_value: ValueId::new(11),
+            key_value: Some(ValueId::new(11)),
             result_value: Some(ValueId::new(12)),
             route_kind: GenericMethodRouteKind::MapContainsI64,
             proof: GenericMethodRouteProof::HasSurfacePolicy,
@@ -41,9 +41,9 @@ fn build_mir_json_root_emits_generic_method_routes() {
             box_name: "RuntimeDataBox".to_string(),
             method: "get".to_string(),
             receiver_origin_box: Some("MapBox".to_string()),
-            key_route: GenericMethodKeyRoute::I64Const,
+            key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(13),
-            key_value: ValueId::new(14),
+            key_value: Some(ValueId::new(14)),
             result_value: Some(ValueId::new(15)),
             route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
             proof: GenericMethodRouteProof::GetSurfacePolicy,
@@ -64,9 +64,9 @@ fn build_mir_json_root_emits_generic_method_routes() {
             box_name: "RuntimeDataBox".to_string(),
             method: "get".to_string(),
             receiver_origin_box: Some("MapBox".to_string()),
-            key_route: GenericMethodKeyRoute::I64Const,
+            key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(16),
-            key_value: ValueId::new(17),
+            key_value: Some(ValueId::new(17)),
             result_value: Some(ValueId::new(18)),
             route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
             proof: GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
@@ -75,6 +75,29 @@ fn build_mir_json_root_emits_generic_method_routes() {
                 CoreMethodLoweringTier::ColdFallback,
             )),
             return_shape: Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+            value_demand: GenericMethodValueDemand::ScalarI64,
+            publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+        });
+    function
+        .metadata
+        .generic_method_routes
+        .push(GenericMethodRoute {
+            block: BasicBlockId::new(10),
+            instruction_index: 6,
+            box_name: "MapBox".to_string(),
+            method: "size".to_string(),
+            receiver_origin_box: Some("MapBox".to_string()),
+            key_route: None,
+            receiver_value: ValueId::new(19),
+            key_value: None,
+            result_value: Some(ValueId::new(20)),
+            route_kind: GenericMethodRouteKind::MapEntryCount,
+            proof: GenericMethodRouteProof::LenSurfacePolicy,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapLen,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            return_shape: Some(GenericMethodReturnShape::ScalarI64),
             value_demand: GenericMethodValueDemand::ScalarI64,
             publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
         });
@@ -165,4 +188,27 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(scalar_get_route["value_demand"], "scalar_i64");
     assert_eq!(scalar_get_route["publication_policy"], "no_publication");
     assert_eq!(scalar_get_route["effects"], serde_json::json!(["read.key"]));
+
+    let len_route = &root["functions"][0]["metadata"]["generic_method_routes"][3];
+    assert_eq!(len_route["route_id"], "generic_method.len");
+    assert_eq!(len_route["block"], 10);
+    assert_eq!(len_route["instruction_index"], 6);
+    assert_eq!(len_route["box_name"], "MapBox");
+    assert_eq!(len_route["method"], "size");
+    assert_eq!(len_route["receiver_origin_box"], "MapBox");
+    assert_eq!(len_route["key_route"], serde_json::Value::Null);
+    assert_eq!(len_route["arity"], 0);
+    assert_eq!(len_route["receiver_value"], 19);
+    assert_eq!(len_route["key_value"], serde_json::Value::Null);
+    assert_eq!(len_route["result_value"], 20);
+    assert_eq!(len_route["emit_kind"], "len");
+    assert_eq!(len_route["route_kind"], "map_entry_count");
+    assert_eq!(len_route["helper_symbol"], "nyash.map.entry_count_i64");
+    assert_eq!(len_route["proof"], "len_surface_policy");
+    assert_eq!(len_route["core_method"]["op"], "MapLen");
+    assert_eq!(len_route["core_method"]["lowering_tier"], "warm_direct_abi");
+    assert_eq!(len_route["return_shape"], "scalar_i64");
+    assert_eq!(len_route["value_demand"], "scalar_i64");
+    assert_eq!(len_route["publication_policy"], "no_publication");
+    assert_eq!(len_route["effects"], serde_json::json!(["observe.len"]));
 }
