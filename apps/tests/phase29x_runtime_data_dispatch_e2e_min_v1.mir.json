@@ -4,6 +4,62 @@
     {
       "name": "main",
       "entry_block": 0,
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.get",
+            "block": 0,
+            "instruction_index": 3,
+            "box_name": "RuntimeDataBox",
+            "method": "get",
+            "receiver_origin_box": "ArrayBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 1,
+            "key_value": 2,
+            "result_value": 4,
+            "emit_kind": "get",
+            "route_kind": "array_slot_load_any",
+            "helper_symbol": "nyash.array.slot_load_hi",
+            "proof": "get_surface_policy",
+            "core_method": {
+              "op": "ArrayGet",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": ["read.key"]
+          },
+          {
+            "route_id": "generic_method.get",
+            "block": 0,
+            "instruction_index": 8,
+            "box_name": "RuntimeDataBox",
+            "method": "get",
+            "receiver_origin_box": "MapBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 6,
+            "key_value": 2,
+            "result_value": 9,
+            "emit_kind": "get",
+            "route_kind": "runtime_data_load_any",
+            "helper_symbol": "nyash.runtime_data.get_hh",
+            "proof": "get_surface_policy",
+            "core_method": {
+              "op": "MapGet",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "cold_fallback"
+            },
+            "return_shape": "mixed_runtime_i64_or_handle",
+            "value_demand": "runtime_i64_or_handle",
+            "publication_policy": "runtime_data_facade",
+            "effects": ["read.key"]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,
