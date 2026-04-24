@@ -58,6 +58,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-143-mapget-scalar-return-shape-proof-card.md
   - docs/development/current/main/phases/phase-291x/291x-144-mapget-preheader-scalar-proof-card.md
   - docs/development/current/main/phases/phase-291x/291x-145-mapget-scalar-lowering-probe-card.md
+  - docs/development/current/main/phases/phase-291x/291x-146-mapget-owner-seam-selection-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -70,7 +71,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: key-conversion / lookup owner seam selection
+- Next implementation target: same-key MapGet/MapHas fusion metadata preflight
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -143,6 +144,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 46. `docs/development/current/main/phases/phase-291x/291x-143-mapget-scalar-return-shape-proof-card.md`
 47. `docs/development/current/main/phases/phase-291x/291x-144-mapget-preheader-scalar-proof-card.md`
 48. `docs/development/current/main/phases/phase-291x/291x-145-mapget-scalar-lowering-probe-card.md`
+49. `docs/development/current/main/phases/phase-291x/291x-146-mapget-owner-seam-selection-card.md`
 
 ## Current Rule
 
@@ -200,6 +202,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   `nyash.map.scalar_load_hi`: it removed `nyash.runtime_data.get_hh` from the
   loop and lowered instruction count, but cycles/IPC regressed and
   `spec_to_string` / `hash_one` remained the owner family
+- `291x-146` selects same-key MapGet/MapHas fusion metadata as the next seam;
+  native i64-key MapBox storage is deferred because it touches string-key
+  compatibility and should not be the immediate card
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

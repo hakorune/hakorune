@@ -21,9 +21,9 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x scalar MapGet helper probe rejected - key-conversion owner seam pending` |
-| Next | `key-conversion / lookup owner seam selection` |
-| After Next | `native i64-key lane or get/has lookup fusion only after evidence` |
+| Blocker | `phase-291x MapGet/MapHas fusion metadata pending` |
+| Next | `same-key MapGet/MapHas fusion metadata preflight` |
+| After Next | `lower fusion only after metadata and perf evidence` |
 
 ## Current Read
 
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Choose the next key-conversion / lookup owner seam before another MapGet lowering.
+2. Add same-key MapGet/MapHas fusion metadata before another lowering.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
