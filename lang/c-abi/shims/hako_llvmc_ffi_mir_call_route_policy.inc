@@ -3,7 +3,6 @@
         HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_BIRTH,
         HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH,
         HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH,
-        HAKO_LLVMC_MIR_CALL_RECV_FAMILY_STRING,
       };
 
       enum MirCallReceiverSurfaceKind {
@@ -59,8 +58,6 @@
             return HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH;
           case ORG_MAP_BIRTH:
             return HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH;
-          case ORG_STRING:
-            return HAKO_LLVMC_MIR_CALL_RECV_FAMILY_STRING;
           case ORG_NONE:
           default:
             return HAKO_LLVMC_MIR_CALL_RECV_FAMILY_NONE;
