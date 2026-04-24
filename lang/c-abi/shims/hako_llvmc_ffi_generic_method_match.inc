@@ -44,7 +44,8 @@
           }
           if (!(route_id &&
                 (!strcmp(route_id, "generic_method.has") ||
-                 !strcmp(route_id, "generic_method.get")))) {
+                 !strcmp(route_id, "generic_method.get") ||
+                 !strcmp(route_id, "generic_method.len")))) {
             continue;
           }
           core_method = yyjson_obj_get(route, "core_method");
@@ -71,6 +72,17 @@
               core_method_metadata_proof_is_contract_manifest(proof) &&
               core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
             return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
+          }
+          if (!invalid &&
+              op &&
+              (!strcmp(op, "ArrayLen") ||
+               !strcmp(op, "MapLen") ||
+               !strcmp(op, "StringLen")) &&
+              route_id &&
+              !strcmp(route_id, "generic_method.len") &&
+              core_method_metadata_proof_is_contract_manifest(proof) &&
+              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+            return HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN;
           }
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
         }

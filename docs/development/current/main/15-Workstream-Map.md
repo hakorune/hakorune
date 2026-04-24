@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x len emit-kind metadata consumer pending` |
-| Next | `make generic emit-kind LEN selection consume MIR generic_method.len metadata before legacy alias fallback` |
+| Blocker | `phase-291x len mirror prune decision pending` |
+| Next | `decide whether the legacy len/length/size mirror rows can be pruned or need metadata-absent fallback contracts` |
 | After Next | `avoid native storage lanes without broader owner evidence` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Make generic emit-kind `LEN` selection consume MIR `generic_method.len` metadata before legacy alias fallback.
+2. Decide whether the legacy `len`/`length`/`size` mirror rows can be pruned or need metadata-absent fallback contracts.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
