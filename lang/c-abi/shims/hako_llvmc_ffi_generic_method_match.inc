@@ -46,6 +46,7 @@
                 (!strcmp(route_id, "generic_method.has") ||
                  !strcmp(route_id, "generic_method.get") ||
                  !strcmp(route_id, "generic_method.len") ||
+                 !strcmp(route_id, "generic_method.push") ||
                  !strcmp(route_id, "generic_method.substring")))) {
             continue;
           }
@@ -84,6 +85,15 @@
               core_method_metadata_proof_is_contract_manifest(proof) &&
               core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
             return HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN;
+          }
+          if (!invalid &&
+              op &&
+              !strcmp(op, "ArrayPush") &&
+              route_id &&
+              !strcmp(route_id, "generic_method.push") &&
+              core_method_metadata_proof_is_contract_manifest(proof) &&
+              core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+            return HAKO_LLVMC_GENERIC_METHOD_EMIT_PUSH;
           }
           if (!invalid &&
               op &&
