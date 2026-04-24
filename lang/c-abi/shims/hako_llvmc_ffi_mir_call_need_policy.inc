@@ -386,18 +386,6 @@
           return HAKO_LLVMC_MIR_CALL_NEED_NONE;
         }
 
-        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_STRING_BOX) {
-          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
-            return HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN;
-          }
-          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING) {
-            return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
-          }
-          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
-            return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
-          }
-        }
-
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 

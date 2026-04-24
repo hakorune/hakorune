@@ -12,6 +12,5 @@ lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_metho
 # blockers are gone or exact non-use is proven.
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	MapBox	1	core-box-contract	delete-after-has-fallback-sunset-or-prove-nonuse
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	ArrayBox	1	core-box-contract	delete-after-arrayhas-and-constructor-compat-sunset-or-prove-nonuse
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	StringBox	1	core-box-contract	delete-after-string-indexof-carrier-and-consumers
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	RuntimeDataBox	1	runtime-data-compat	delete-after-runtime-data-set-has-string-compat-sunset
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	has	1	core-method-contract	replace-with-arrayhas-core-method-or-retire-array-origin-runtime-data-has-fallback

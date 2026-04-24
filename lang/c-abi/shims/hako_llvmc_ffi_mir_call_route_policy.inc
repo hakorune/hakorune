@@ -10,7 +10,6 @@
         HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN = 0,
         HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX,
         HAKO_LLVMC_MIR_CALL_RECV_SURFACE_ARRAY_BOX,
-        HAKO_LLVMC_MIR_CALL_RECV_SURFACE_STRING_BOX,
         HAKO_LLVMC_MIR_CALL_RECV_SURFACE_RUNTIME_DATA_BOX,
       };
 
@@ -79,7 +78,6 @@
         if (!bname) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN;
         if (!strcmp(bname, "MapBox")) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX;
         if (!strcmp(bname, "ArrayBox")) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_ARRAY_BOX;
-        if (!strcmp(bname, "StringBox")) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_STRING_BOX;
         if (!strcmp(bname, "RuntimeDataBox")) {
           return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_RUNTIME_DATA_BOX;
         }
@@ -128,19 +126,6 @@
           }
           if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS;
-          }
-          return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
-        }
-
-        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_STRING_BOX) {
-          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
-          }
-          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
-          }
-          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
           }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
