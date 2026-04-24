@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x substring emit-kind metadata consumer pending`
+- current blocker token: `phase-291x substring mirror prune decision pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- make generic emit-kind `SUBSTRING` selection consume MIR `generic_method.substring` metadata before legacy fallback
+- decide whether the legacy `substring` mirror row can be pruned or needs a metadata-absent fallback contract
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

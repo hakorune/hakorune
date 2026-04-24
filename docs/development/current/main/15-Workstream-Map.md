@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x substring emit-kind metadata consumer pending` |
-| Next | `make generic emit-kind SUBSTRING selection consume MIR generic_method.substring metadata before legacy fallback` |
+| Blocker | `phase-291x substring mirror prune decision pending` |
+| Next | `decide whether the legacy substring mirror row can be pruned or needs a metadata-absent fallback contract` |
 | After Next | `avoid native storage lanes without broader owner evidence` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Make generic emit-kind `SUBSTRING` selection consume MIR `generic_method.substring` metadata before legacy fallback.
+2. Decide whether the legacy `substring` mirror row can be pruned or needs a metadata-absent fallback contract.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
