@@ -1,5 +1,6 @@
 #include "hako_llvmc_ffi_generic_method_match.inc"
 #include "hako_llvmc_ffi_core_method_metadata.inc"
+#include "hako_llvmc_ffi_map_lookup_fusion_metadata.inc"
 #include "hako_llvmc_ffi_generic_method_has_policy.inc"
 #include "hako_llvmc_ffi_generic_method_get_policy.inc"
 #include "hako_llvmc_ffi_generic_method_get_window.inc"

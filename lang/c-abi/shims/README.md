@@ -110,6 +110,10 @@ Current partitions:
 - `hako_llvmc_ffi_core_method_metadata.inc`
   - shared CoreMethod metadata token readers for proof and lowering tier
   - consumes MIR-owned `core_method` metadata only; semantic rows remain owned by `CoreMethodContractBox`
+- `hako_llvmc_ffi_map_lookup_fusion_metadata.inc`
+  - shared MIR `map_lookup_fusion_routes` reader for the `get` / `has`
+    consumers; it validates metadata but must not rediscover MapGet/MapHas
+    legality
 - `hako_llvmc_ffi_generic_method_match.inc`
   - generic method match/plan helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_generic_method_policy.inc`
@@ -126,6 +130,8 @@ Current partitions:
   - compiler-side mirror of `.hako` generic method `substring` action route
 - `hako_llvmc_ffi_generic_method_get_policy.inc`
   - compiler-side mirror of `.hako` generic method `get` fallback route
+  - also consumes MIR `map_lookup_fusion_routes` to fold an already-proven
+    same-key constant `get` result; non-constant/mixed rows stay on fallback
 - `hako_llvmc_ffi_generic_method_get_window.inc`
   - compiler-state-heavy `GET` window helper bundle for producer-side probe logic
   - new MIR metadata readers should use `*_route_metadata` naming; do not add new cross-boundary `*_route_plan` names here

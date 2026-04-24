@@ -197,7 +197,7 @@
         }
         if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
         if (!emit_generic_method_get_fallback_by_policy(
-                f, bname, dst, plan, ab)) {
+                f, bid, ii, bname, dst, recv, a0, plan, ab)) {
           return -1;
         }
         return 1;

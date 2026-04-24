@@ -21,9 +21,9 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x remaining MapGet key conversion owner pending` |
-| Next | `select remaining RuntimeDataBox.get key conversion/hash seam` |
-| After Next | `avoid helper substitution unless cycles/IPC and owner family improve` |
+| Blocker | `phase-291x post-MapLookup fusion cleanup selection pending` |
+| Next | `select next cleanup card after MapLookupSameKey get/has const folds` |
+| After Next | `avoid native storage lanes without broader owner evidence` |
 
 ## Current Read
 
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Select the next seam for the remaining single `RuntimeDataBox.get` lookup owner.
+2. Select the next cleanup card after the MapLookupSameKey get/has const folds.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.

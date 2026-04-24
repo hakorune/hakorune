@@ -33,10 +33,68 @@
 
       auto int emit_generic_method_get_fallback_by_policy(
           FILE* f,
+          long long bid,
+          size_t ii,
           const char* bname,
           long long dst,
+          long long recv,
+          long long a0,
           const struct GenericMethodEmitPlan* plan,
           char* ab) {
+        struct MapLookupFusionRouteMetadata fusion;
+        int fusion_result = match_map_lookup_fusion_route_metadata(
+            bid,
+            ii,
+            HAKO_LLVMC_MAP_LOOKUP_FUSION_ROLE_GET,
+            dst,
+            recv,
+            a0,
+            &fusion);
+        if (fusion.invalid) {
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[128];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "bid=%lld ii=%zu recv=%lld key=%lld",
+                bid,
+                ii,
+                recv,
+                a0);
+            hako_llvmc_emit_route_trace(
+                "map_lookup_fusion_get",
+                "miss",
+                "malformed_mir_route_metadata",
+                extra);
+          }
+          return -1;
+        }
+        if (fusion_result && fusion.has_stored_value_const) {
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[224];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "bid=%lld ii=%zu recv=%lld key=%lld get=%lld has=%lld stored=%lld",
+                bid,
+                ii,
+                fusion.receiver_reg,
+                fusion.key_reg,
+                fusion.get_result_reg,
+                fusion.has_result_reg,
+                fusion.stored_value_const);
+            hako_llvmc_emit_route_trace(
+                "map_lookup_fusion_get",
+                "hit",
+                "mir_route_metadata",
+                extra);
+          }
+          if (dst) {
+            fprintf(f, "  %%r%lld = add i64 0, %lld\n", dst, fusion.stored_value_const);
+            set_type(dst, T_I64);
+          }
+          return 1;
+        }
         enum GenericMethodGetRouteKind route = classify_generic_method_get_route(bname, plan);
         int value_demand_stable_object =
             classify_generic_method_get_value_demand_stable_object(route);
