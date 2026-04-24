@@ -37,13 +37,13 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x MapGet preheader scalar proof landed - scalar lowering evidence pending`
+- current blocker token: `phase-291x scalar MapGet helper probe rejected - key-conversion owner seam pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- add evidence-backed scalar MapGet lowering only after proof metadata is consumed
+- choose the next key-conversion / lookup owner seam before attempting another MapGet lowering
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

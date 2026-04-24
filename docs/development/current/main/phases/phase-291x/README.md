@@ -57,6 +57,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-143-mapget-scalar-return-shape-proof-card.md
   - docs/development/current/main/phases/phase-291x/291x-144-mapget-preheader-scalar-proof-card.md
+  - docs/development/current/main/phases/phase-291x/291x-145-mapget-scalar-lowering-probe-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -69,7 +70,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: evidence-backed scalar MapGet lowering
+- Next implementation target: key-conversion / lookup owner seam selection
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -141,6 +142,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 45. `docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md`
 46. `docs/development/current/main/phases/phase-291x/291x-143-mapget-scalar-return-shape-proof-card.md`
 47. `docs/development/current/main/phases/phase-291x/291x-144-mapget-preheader-scalar-proof-card.md`
+48. `docs/development/current/main/phases/phase-291x/291x-145-mapget-scalar-lowering-probe-card.md`
 
 ## Current Rule
 
@@ -194,6 +196,10 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-144` extends the scalar MapGet proof to a conservative
   preheader/dominating store shape for the measured `kilo_leaf_map_getset_has`
   front; codegen and `.inc` lowering remain unchanged
+- `291x-145` rejected scalar MapGet warm-helper lowering to
+  `nyash.map.scalar_load_hi`: it removed `nyash.runtime_data.get_hh` from the
+  loop and lowered instruction count, but cycles/IPC regressed and
+  `spec_to_string` / `hash_one` remained the owner family
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
