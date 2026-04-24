@@ -40,7 +40,7 @@ static box CoreMethodContractBox {
     out.push("arity")
     out.push("effect")
     out.push("core_op")
-    out.push("hot_lowering")
+    out.push("lowering_tier")
     out.push("cold_lowering")
     out.push("runtime_owner")
     out.push("status")
@@ -69,7 +69,7 @@ static box CoreMethodContractBox {
     return new ArrayBox()
   }
 
-  _row(box_name, canonical, aliases, arity, effect, core_op, hot_lowering, cold_lowering, runtime_owner) {
+  _row(box_name, canonical, aliases, arity, effect, core_op, lowering_tier, cold_lowering, runtime_owner) {
     local row = new MapBox()
     row.set("box", box_name)
     row.set("canonical", canonical)
@@ -77,7 +77,7 @@ static box CoreMethodContractBox {
     row.set("arity", arity)
     row.set("effect", effect)
     row.set("core_op", core_op)
-    row.set("hot_lowering", hot_lowering)
+    row.set("lowering_tier", lowering_tier)
     row.set("cold_lowering", cold_lowering)
     row.set("runtime_owner", runtime_owner)
     row.set("status", me.status_seed())

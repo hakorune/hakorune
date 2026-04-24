@@ -136,7 +136,7 @@ def parse_rows(text: str) -> list[dict[str, object]]:
         "arity",
         "effect",
         "core_op",
-        "hot_lowering",
+        "lowering_tier",
         "cold_lowering",
         "runtime_owner",
     ]

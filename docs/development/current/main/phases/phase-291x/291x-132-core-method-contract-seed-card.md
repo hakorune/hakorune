@@ -58,7 +58,7 @@ Each row carries:
 - `arity`
 - `effect`
 - `core_op`
-- `hot_lowering`
+- `lowering_tier`
 - `cold_lowering`
 - `runtime_owner`
 - `status`
@@ -70,7 +70,7 @@ The seed owner is intentionally inert:
 
 - `.inc` still uses existing guarded mirror paths.
 - MIR does not consume `CoreMethodContractBox` yet.
-- `hot_lowering` is metadata only.
+- `lowering_tier` is metadata only.
 - Rust remains the cold/slow/storage substrate.
 
 ## Focused Probe

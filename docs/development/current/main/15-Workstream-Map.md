@@ -21,9 +21,9 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x CoreMethod has consumer landed - LoweringTier metadata pending` |
-| Next | `HCM-6 LoweringTier metadata` |
-| After Next | `HCM-7 HotlineGate evidence hook` |
+| Blocker | `phase-291x LoweringTier metadata landed - evidence-backed hot lowering pending` |
+| Next | `HCM-7 owner-first perf/asm evidence` |
+| After Next | `single-op hot lowering only if evidence passes HotlineGate` |
 
 ## Current Read
 

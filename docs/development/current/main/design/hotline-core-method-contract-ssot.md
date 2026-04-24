@@ -11,6 +11,7 @@ Related:
   - lang/src/runtime/meta/README.md
   - lang/src/runtime/collections/method_policy_box.hako
   - lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc
+  - lang/c-abi/shims/hako_llvmc_ffi_core_method_metadata.inc
   - src/mir/generic_method_route_plan.rs
 ---
 
@@ -66,7 +67,7 @@ Minimum row shape:
 | `arity` | accepted argument count shape |
 | `effect` | `pure_read`, `mutates_slot`, `mutates_shape`, or later vocabulary |
 | `core_op` | semantic operation id after contract resolution |
-| `hot_lowering` | intended hot lowering tier, if any |
+| `lowering_tier` | lowering tier contract data, for example `warm_direct_abi` |
 | `cold_lowering` | fallback helper / runtime route |
 | `runtime_owner` | Rust or `.hako` storage owner for slow/cold behavior |
 | `status` | `seed`, `active`, `generated`, `deleted_mirror` |
@@ -281,7 +282,7 @@ Done when:
 
 ### HCM-6 LoweringTier Metadata
 
-- Status: pending.
+- Status: landed by `291x-137`.
 
 - Add tier metadata as data, not as an optimization rewrite.
 - Default first rows to `warm_direct_abi` or `cold_fallback` unless perf/asm

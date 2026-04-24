@@ -38,6 +38,7 @@ Rule:
   - `CoreMethodContractBox.find(box_name, method_name, arity)`
   - `CoreMethodContractBox.core_op_for(box_name, method_name, arity)`
   - owns the first Array/String/Map compiler contract seed rows.
+  - carries `lowering_tier` as contract data only.
   - does not emit `.inc` code or decide hot inline lowering.
 - `generated/core_method_contract_manifest.json`
   - derived from `CoreMethodContractBox`

@@ -55,8 +55,10 @@
           int* invalid) {
         yyjson_val* core_method = route ? yyjson_obj_get(route, "core_method") : NULL;
         const char* op = NULL;
-        const char* proof = NULL;
-        const char* lowering_tier = NULL;
+        enum CoreMethodMetadataProof proof =
+            HAKO_LLVMC_CORE_METHOD_METADATA_PROOF_NONE;
+        enum CoreMethodLoweringTierMetadata lowering_tier =
+            HAKO_LLVMC_CORE_METHOD_LOWERING_TIER_NONE;
         if (present) *present = 0;
         if (invalid) *invalid = 0;
         if (!core_method || yyjson_is_null(core_method)) {
@@ -68,11 +70,11 @@
           return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
         }
         op = read_str(core_method, "op");
-        proof = read_str(core_method, "proof");
-        lowering_tier = read_str(core_method, "lowering_tier");
+        proof = read_core_method_proof_metadata(core_method, invalid);
+        lowering_tier = read_core_method_lowering_tier_metadata(core_method, invalid);
         if (op && !strcmp(op, "MapHas") &&
-            proof && !strcmp(proof, "core_method_contract_manifest") &&
-            lowering_tier && !strcmp(lowering_tier, "warm_direct_abi")) {
+            core_method_metadata_proof_is_contract_manifest(proof) &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
           return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY;
         }
         if (invalid) *invalid = 1;

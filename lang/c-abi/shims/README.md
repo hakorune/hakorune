@@ -107,6 +107,9 @@ Current partitions:
   - `mir_call` prepass scan/mutation helpers that consume the `.hako` need-vocabulary before generic pure lowering emits LLVM IR
 - `hako_llvmc_ffi_mir_call_dispatch.inc`
   - native `mir_call` dispatcher seam that consumes route/surface policy mirrors plus generic method lowering
+- `hako_llvmc_ffi_core_method_metadata.inc`
+  - shared CoreMethod metadata token readers for proof and lowering tier
+  - consumes MIR-owned `core_method` metadata only; semantic rows remain owned by `CoreMethodContractBox`
 - `hako_llvmc_ffi_generic_method_match.inc`
   - generic method match/plan helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_generic_method_policy.inc`
@@ -161,6 +164,7 @@ Rules:
 - `hako_llvmc_ffi_mir_call_route_policy.inc`, `hako_llvmc_ffi_mir_call_need_policy.inc`, and `hako_llvmc_ffi_mir_call_surface_policy.inc` bridge to `lang/src/runtime/meta/`; keep compiler semantic tables out of `pure_compile.inc`.
 - `hako_llvmc_ffi_mir_call_dispatch.inc` is the only `mir_call` dispatcher seam that `pure_compile.inc` should call directly.
 - `hako_llvmc_ffi_generic_method_policy.inc` is the compiler-side bridge to `lang/src/runtime/collections/method_policy_box.hako`; keep emit-kind names aligned and avoid re-growing `generic_method_match.inc`.
+- `hako_llvmc_ffi_core_method_metadata.inc` is the shared reader seam for `core_method.proof` and `core_method.lowering_tier`; keep action-specific route decisions in the action seams.
 - `hako_llvmc_ffi_generic_method_len_policy.inc` is the first generic-method action seam; keep `len` route ownership out of `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_generic_method_push_policy.inc` is the second generic-method action seam; keep `push` route ownership out of `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_generic_method_has_policy.inc` is the third generic-method action seam; keep `has` route ownership out of `generic_method_lowering.inc`.
