@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-149"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-149-maplookup-get-const-fold-card.md"
-latest_card_summary = "MapLookupSameKey get-const lowering landed from MIR metadata: the fused get call is folded to its stored scalar constant, nyash.runtime_data.get_hh disappears from the hot loop, instructions fall from 1.300B to 6.47M, and cycles fall from 275.3M to 2.74M."
+latest_card = "291x-150"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-150-maplookup-fusion-const-fold-guard-card.md"
+latest_card_summary = "MapLookupSameKey fusion cleanup guard landed: map_lookup_fusion_routes is restricted to the shared .inc reader seam, get/has consumers reuse that reader, and a quick smoke pins that runtime_data.get_hh, map.has_h, and map.probe_hi do not return to the fused entry IR."
 
 current_blocker_token = "phase-291x post-MapLookup fusion cleanup selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -38,6 +38,7 @@ list_profiles() {
     - tools/checks/generic_method_set_policy_mirror_guard.sh
     - tools/checks/core_method_contract_manifest_guard.sh
     - tools/checks/core_method_contract_inc_no_growth_guard.sh
+    - tools/checks/map_lookup_fusion_reader_boundary_guard.sh
     - tools/checks/route_no_fallback_guard.sh
     - cargo check --bin hakorune
     - PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
@@ -52,6 +53,7 @@ list_profiles() {
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
+    - phase291x_maplookup_fusion_const_fold_contract_vm.sh
     - phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
   hotpath:
     - quick
@@ -202,6 +204,9 @@ run_quick() {
   run_step "CoreMethodContract .inc no-growth guard" \
     bash tools/checks/core_method_contract_inc_no_growth_guard.sh
 
+  run_step "MapLookup fusion reader boundary guard" \
+    bash tools/checks/map_lookup_fusion_reader_boundary_guard.sh
+
   run_step "route no-fallback guard" \
     bash tools/checks/route_no_fallback_guard.sh
 
@@ -246,6 +251,10 @@ run_quick() {
 
   run_step "K2-wide metal keep inventory guard" \
     bash tools/checks/k2_wide_metal_keep_inventory_guard.sh
+
+  run_step "MapLookup fusion const-fold contract smoke" \
+    env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
+      bash tools/smokes/v2/profiles/integration/apps/phase291x_maplookup_fusion_const_fold_contract_vm.sh
 
   run_step "chip8 crosslang contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
