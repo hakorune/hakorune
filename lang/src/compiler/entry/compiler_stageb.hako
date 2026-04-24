@@ -18,6 +18,7 @@ using lang.compiler.entry.stageb_trace_box as StageBTraceBox
 using lang.compiler.entry.stageb_args_box as StageBArgsBox
 using lang.compiler.entry.stageb_same_source_defs_box as StageBSameSourceDefsBox
 using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
+using lang.compiler.entry.stageb_keyword_expr_strip_box as StageBKeywordExprStripBox
 
 // StageBArgsBox moved to `lang.compiler.entry.stageb_args_box`.
 // StageBBodyExtractorBox moved to `lang.compiler.entry.stageb_body_extractor_box`.
@@ -47,11 +48,11 @@ static box StageBDriverBox {
     local parser = new ParserBox()
     parser.stage3_enable(1)
     local ast_json = parser.parse_program2(body_src)
-    ast_json = me._strip_keyword_expr_nodes(ast_json, "local")
+    ast_json = StageBKeywordExprStripBox.strip(ast_json, "local")
     local defs_fragment = StageBSameSourceDefsBox.build_fragment(clean)
     local json_builder = new StageBJsonBuilderBox()
     ast_json = json_builder.inject_json_fragment(ast_json, defs_fragment)
-    return me._strip_keyword_expr_nodes(ast_json, "local")
+    return StageBKeywordExprStripBox.strip(ast_json, "local")
   }
 
   _starts_with(text, prefix) {
@@ -60,26 +61,6 @@ static box StageBDriverBox {
     local p = "" + prefix
     if s.length() < p.length() { return 0 }
     return s.substring(0, p.length()) == p
-  }
-
-  _strip_keyword_expr_nodes(json_text, keyword) {
-    if json_text == null { return "" }
-    local s = "" + json_text
-    local pat = "{\"type\":\"Expr\",\"expr\":{\"type\":\"Var\",\"name\":\"" + keyword + "\"}}"
-    local pos = s.indexOf(pat)
-    loop(pos >= 0) {
-      local start = pos
-      local end = pos + pat.length()
-      local remove_end = end
-      if end < s.length() && s.substring(end, end + 1) == "," {
-        remove_end = end + 1
-      } else if pos > 0 && s.substring(pos - 1, pos) == "," {
-        start = pos - 1
-      }
-      s = s.substring(0, start) + s.substring(remove_end, s.length())
-      pos = s.indexOf(pat, start)
-    }
-    return s
   }
 
   _strip_comments(src) {
