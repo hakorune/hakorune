@@ -73,7 +73,7 @@
               return non_indexof_method_rc;
             }
           }
-          if (mname && !strcmp(mname, "indexOf") && route.runtime_string) {
+          if (route.runtime_string_indexof) {
             if (!emit_deferred_array_string_indexof_call(
                     f, route.deferred_array_string_indexof, dst, ab)) {
               if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0] == '\0');

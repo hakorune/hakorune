@@ -15,4 +15,3 @@ lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_rece
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	StringBox	1	core-box-contract	delete-after-string-indexof-carrier-and-consumers
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	RuntimeDataBox	1	runtime-data-compat	delete-after-runtime-data-set-has-string-compat-sunset
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	has	1	core-method-contract	replace-with-arrayhas-core-method-or-retire-array-origin-runtime-data-has-fallback
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	indexOf	1	core-method-contract	replace-with-string-indexof-core-method-route-carrier-and-consumers

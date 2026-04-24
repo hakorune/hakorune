@@ -36,6 +36,7 @@
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_STRING,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING,
+        HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF,
       };
 
       struct GenericMethodRouteState {
@@ -45,6 +46,7 @@
         int runtime_array_push;
         int runtime_array_has;
         int runtime_string;
+        int runtime_string_indexof;
         int runtime_array_string;
         int array_store_string_source_preserve;
         int array_store_string_identity_demand_stable_object;
@@ -88,7 +90,6 @@
           const char* mname) {
         if (!mname) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
         if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS;
-        if (!strcmp(mname, "indexOf")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF;
         return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
       }
 
@@ -314,7 +315,7 @@
               !strcmp(op, "StringIndexOf") &&
               !strcmp(route_kind, "string_indexof") &&
               core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF;
           }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
@@ -356,6 +357,10 @@
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING:
             route->runtime_string = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF:
+            route->runtime_string = 1;
+            route->runtime_string_indexof = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK:
           default:
             break;
@@ -394,10 +399,11 @@
           method_surface = classify_mir_call_method_surface(mname);
         }
         apply_mir_call_generic_method_route_kind(route_kind, &route);
-        if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF &&
-            route.runtime_string) {
-          route.deferred_array_string_indexof =
-              find_deferred_array_string_indexof_select(bid, ii);
+        route.deferred_array_string_indexof =
+            find_deferred_array_string_indexof_select(bid, ii);
+        if (route.deferred_array_string_indexof) {
+          route.runtime_string = 1;
+          route.runtime_string_indexof = 1;
         }
         return route;
       }

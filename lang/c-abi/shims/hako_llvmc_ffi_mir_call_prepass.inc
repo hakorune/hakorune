@@ -76,6 +76,12 @@
             if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
             if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
           }
+          if (match_array_text_observer_route_metadata(bid, ii, NULL)) {
+            mark_array_string_indexof_need_flags(
+                blocks, bid, ii, ilen, insts, bname, mname, recv, a0,
+                read_int(ins, "dst"), ORG_STRING, needs);
+            return;
+          }
           route = classify_generic_method_route(bid, ii, bname, mname, recv);
           recv_family = classify_mir_call_receiver_family(route.recv_org);
           method_surface = classify_mir_call_method_surface(mname);
