@@ -54,6 +54,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-139-receiver-origin-proof-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-140-key-route-value-demand-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-141-maphas-i64-route-card.md
+  - docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -66,7 +67,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: MapGet value-demand / return-shape proof
+- Next implementation target: scalar MapGet return-shape proof
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -135,6 +136,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 42. `docs/development/current/main/phases/phase-291x/291x-139-receiver-origin-proof-metadata-card.md`
 43. `docs/development/current/main/phases/phase-291x/291x-140-key-route-value-demand-metadata-card.md`
 44. `docs/development/current/main/phases/phase-291x/291x-141-maphas-i64-route-card.md`
+45. `docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md`
 
 ## Current Rule
 
@@ -176,6 +178,10 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   `receiver_origin_box=MapBox` and `key_route=i64_const` to CoreMethod MapHas
   via `nyash.map.probe_hi`; `get` routes remain unchanged pending value-demand
   / return-shape proof
+- `291x-142` emits metadata-only `RuntimeDataBox.get` MapBox-origin routes as
+  CoreMethod MapGet with `return_shape=mixed_runtime_i64_or_handle`,
+  `publication_policy=runtime_data_facade`, and `lowering_tier=cold_fallback`;
+  codegen remains on `nyash.runtime_data.get_hh`
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

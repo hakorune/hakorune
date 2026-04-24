@@ -208,7 +208,10 @@ pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
     UserBoxFieldDecl,
 };
-pub use generic_method_route_facts::{GenericMethodKeyRoute, GenericMethodValueDemand};
+pub use generic_method_route_facts::{
+    GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
+    GenericMethodValueDemand,
+};
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
     GenericMethodRoute, GenericMethodRouteKind, GenericMethodRouteProof,

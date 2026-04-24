@@ -7,7 +7,8 @@
  */
 
 use super::generic_method_route_facts::{
-    classify_key_route, receiver_origin_box_name, GenericMethodKeyRoute, GenericMethodValueDemand,
+    classify_key_route, receiver_origin_box_name, GenericMethodKeyRoute,
+    GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
 use super::{
     build_value_def_map, BasicBlockId, Callee, CoreMethodLoweringTier, CoreMethodOp,
@@ -16,6 +17,7 @@ use super::{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodRouteKind {
+    RuntimeDataLoadAny,
     RuntimeDataContainsAny,
     MapContainsAny,
     MapContainsI64,
@@ -24,6 +26,7 @@ pub enum GenericMethodRouteKind {
 impl GenericMethodRouteKind {
     pub fn helper_symbol(self) -> &'static str {
         match self {
+            Self::RuntimeDataLoadAny => "nyash.runtime_data.get_hh",
             Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
             Self::MapContainsAny => "nyash.map.probe_hh",
             Self::MapContainsI64 => "nyash.map.probe_hi",
@@ -34,6 +37,7 @@ impl GenericMethodRouteKind {
 impl std::fmt::Display for GenericMethodRouteKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::RuntimeDataLoadAny => f.write_str("runtime_data_load_any"),
             Self::RuntimeDataContainsAny => f.write_str("runtime_data_contains_any"),
             Self::MapContainsAny => f.write_str("map_contains_any"),
             Self::MapContainsI64 => f.write_str("map_contains_i64"),
@@ -43,12 +47,14 @@ impl std::fmt::Display for GenericMethodRouteKind {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodRouteProof {
+    GetSurfacePolicy,
     HasSurfacePolicy,
 }
 
 impl std::fmt::Display for GenericMethodRouteProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::GetSurfacePolicy => f.write_str("get_surface_policy"),
             Self::HasSurfacePolicy => f.write_str("has_surface_policy"),
         }
     }
@@ -68,7 +74,35 @@ pub struct GenericMethodRoute {
     pub route_kind: GenericMethodRouteKind,
     pub proof: GenericMethodRouteProof,
     pub core_method: Option<CoreMethodOpCarrier>,
+    pub return_shape: Option<GenericMethodReturnShape>,
     pub value_demand: GenericMethodValueDemand,
+    pub publication_policy: Option<GenericMethodPublicationPolicy>,
+}
+
+impl GenericMethodRoute {
+    pub fn route_id(&self) -> &'static str {
+        match self.method.as_str() {
+            "get" => "generic_method.get",
+            "has" => "generic_method.has",
+            _ => "generic_method.unknown",
+        }
+    }
+
+    pub fn emit_kind(&self) -> &'static str {
+        match self.method.as_str() {
+            "get" => "get",
+            "has" => "has",
+            _ => "unknown",
+        }
+    }
+
+    pub fn effect_tags(&self) -> &'static [&'static str] {
+        match self.method.as_str() {
+            "get" => &["read.key"],
+            "has" => &["probe.key"],
+            _ => &[],
+        }
+    }
 }
 
 pub fn refresh_module_generic_method_routes(module: &mut MirModule) {
@@ -90,6 +124,15 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
         for (instruction_index, inst) in block.instructions.iter().enumerate() {
             if let Some(route) =
                 match_generic_has_route(function, &def_map, block_id, instruction_index, inst)
+                    .or_else(|| {
+                        match_generic_get_route(
+                            function,
+                            &def_map,
+                            block_id,
+                            instruction_index,
+                            inst,
+                        )
+                    })
             {
                 routes.push(route);
             }
@@ -166,7 +209,63 @@ fn match_generic_has_route(
         route_kind,
         proof: GenericMethodRouteProof::HasSurfacePolicy,
         core_method,
+        return_shape: None,
         value_demand: GenericMethodValueDemand::ReadRef,
+        publication_policy: None,
+    })
+}
+
+fn match_generic_get_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> Option<GenericMethodRoute> {
+    let MirInstruction::Call {
+        dst,
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if method != "get" || args.len() != 1 {
+        return None;
+    }
+
+    let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| (box_name == "MapBox").then(|| "MapBox".to_string()));
+    if box_name != "RuntimeDataBox" || receiver_origin_box.as_deref() != Some("MapBox") {
+        return None;
+    }
+
+    Some(GenericMethodRoute {
+        block,
+        instruction_index,
+        box_name: box_name.clone(),
+        method: method.clone(),
+        receiver_origin_box,
+        key_route: classify_key_route(function, def_map, args[0]),
+        receiver_value: *receiver,
+        key_value: args[0],
+        result_value: *dst,
+        route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
+        proof: GenericMethodRouteProof::GetSurfacePolicy,
+        core_method: Some(CoreMethodOpCarrier::manifest(
+            CoreMethodOp::MapGet,
+            CoreMethodLoweringTier::ColdFallback,
+        )),
+        return_shape: Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+        value_demand: GenericMethodValueDemand::RuntimeI64OrHandle,
+        publication_policy: Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
     })
 }
 
@@ -250,7 +349,9 @@ mod tests {
             "core_method_contract_manifest"
         );
         assert_eq!(core_method.lowering_tier.to_string(), "warm_direct_abi");
+        assert_eq!(route.return_shape, None);
         assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy, None);
     }
 
     #[test]
@@ -283,7 +384,9 @@ mod tests {
             GenericMethodRouteKind::RuntimeDataContainsAny
         );
         assert!(route.core_method.is_none());
+        assert_eq!(route.return_shape, None);
         assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy, None);
     }
 
     #[test]
@@ -345,6 +448,60 @@ mod tests {
         let core_method = route.core_method.expect("MapHas carrier");
         assert_eq!(core_method.op, CoreMethodOp::MapHas);
         assert_eq!(route.route_kind.helper_symbol(), "nyash.map.probe_hi");
+        assert_eq!(route.return_shape, None);
+        assert_eq!(route.publication_policy, None);
+    }
+
+    #[test]
+    fn records_runtime_data_mapbox_get_as_cold_metadata_only() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(-1),
+        });
+        block.add_instruction(method_call(Some(4), "RuntimeDataBox", "get", 1, vec![2]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.method, "get");
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
+        assert_eq!(route.key_route, GenericMethodKeyRoute::I64Const);
+        assert_eq!(route.route_kind, GenericMethodRouteKind::RuntimeDataLoadAny);
+        assert_eq!(
+            route.route_kind.helper_symbol(),
+            "nyash.runtime_data.get_hh"
+        );
+        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        let core_method = route.core_method.expect("MapGet carrier");
+        assert_eq!(core_method.op, CoreMethodOp::MapGet);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::ColdFallback
+        );
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+        );
+        assert_eq!(
+            route.value_demand,
+            GenericMethodValueDemand::RuntimeI64OrHandle
+        );
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
+        );
     }
 
     #[test]
@@ -368,6 +525,14 @@ mod tests {
         assert!(function.metadata.generic_method_routes[0]
             .core_method
             .is_none());
+        assert_eq!(
+            function.metadata.generic_method_routes[0].return_shape,
+            None
+        );
+        assert_eq!(
+            function.metadata.generic_method_routes[0].publication_policy,
+            None
+        );
     }
 
     #[test]

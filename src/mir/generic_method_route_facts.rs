@@ -31,17 +31,57 @@ impl std::fmt::Display for GenericMethodKeyRoute {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodValueDemand {
     ReadRef,
+    RuntimeI64OrHandle,
 }
 
 impl GenericMethodValueDemand {
     pub fn as_metadata_name(self) -> &'static str {
         match self {
             Self::ReadRef => "read_ref",
+            Self::RuntimeI64OrHandle => "runtime_i64_or_handle",
         }
     }
 }
 
 impl std::fmt::Display for GenericMethodValueDemand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_metadata_name())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GenericMethodReturnShape {
+    MixedRuntimeI64OrHandle,
+}
+
+impl GenericMethodReturnShape {
+    pub fn as_metadata_name(self) -> &'static str {
+        match self {
+            Self::MixedRuntimeI64OrHandle => "mixed_runtime_i64_or_handle",
+        }
+    }
+}
+
+impl std::fmt::Display for GenericMethodReturnShape {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_metadata_name())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GenericMethodPublicationPolicy {
+    RuntimeDataFacade,
+}
+
+impl GenericMethodPublicationPolicy {
+    pub fn as_metadata_name(self) -> &'static str {
+        match self {
+            Self::RuntimeDataFacade => "runtime_data_facade",
+        }
+    }
+}
+
+impl std::fmt::Display for GenericMethodPublicationPolicy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(self.as_metadata_name())
     }

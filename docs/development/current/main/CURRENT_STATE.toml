@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-24"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slice, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, and the MapHas i64-key route are landed. MapGet still requires a value-demand/return-shape proof before promotion. Detailed landed history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slice, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, and MapGet metadata-only return-shape publication are landed. MapGet scalar lowering still requires a scalar return-shape proof before promotion. Detailed landed history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-141"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-141-maphas-i64-route-card.md"
-latest_card_summary = "RuntimeDataBox.has with MapBox receiver-origin and i64_const key now promotes to CoreMethod MapHas and lowers through nyash.map.probe_hi; measured kilo_leaf_map_getset_has improves instructions/cycles."
+latest_card = "291x-142"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md"
+latest_card_summary = "RuntimeDataBox.get with MapBox receiver-origin now emits CoreMethod MapGet metadata with mixed_runtime_i64_or_handle return_shape, runtime_data_facade publication_policy, and cold_fallback lowering while keeping codegen on nyash.runtime_data.get_hh."
 
-current_blocker_token = "phase-291x MapHas i64 route landed - MapGet value-demand seam pending"
+current_blocker_token = "phase-291x MapGet metadata-only landed - scalar return-shape proof pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,9 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "291x-139 receiver-origin proof metadata landed",
   "291x-140 key-route/value-demand metadata landed",
   "291x-141 MapHas i64-key route landed",
+  "291x-142 MapGet metadata-only return-shape landed",
 ]
 
 stale_pointer_patterns = [
@@ -86,4 +86,5 @@ stale_pointer_patterns = [
   "phase-291x HCM7 preflight landed - receiver-origin CoreMethod route proof pending",
   "phase-291x receiver-origin proof landed - key-route value-demand proof pending",
   "phase-291x key-route proof landed - MapHas promotion evidence gate pending",
+  "phase-291x MapHas i64 route landed - MapGet value-demand seam pending",
 ]

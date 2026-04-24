@@ -169,7 +169,7 @@ pub(super) fn build_mir_json_root(
                     })
                 });
                 json!({
-                    "route_id": "generic_method.has",
+                    "route_id": route.route_id(),
                     "block": route.block.as_u32(),
                     "instruction_index": route.instruction_index,
                     "box_name": route.box_name.as_str(),
@@ -180,13 +180,15 @@ pub(super) fn build_mir_json_root(
                     "receiver_value": route.receiver_value.as_u32(),
                     "key_value": route.key_value.as_u32(),
                     "result_value": route.result_value.map(|value| value.as_u32()),
-                    "emit_kind": "has",
+                    "emit_kind": route.emit_kind(),
                     "route_kind": route.route_kind.to_string(),
                     "helper_symbol": route.route_kind.helper_symbol(),
                     "proof": route.proof.to_string(),
                     "core_method": core_method,
+                    "return_shape": route.return_shape.map(|shape| shape.to_string()),
                     "value_demand": route.value_demand.to_string(),
-                    "effects": ["probe.key"],
+                    "publication_policy": route.publication_policy.map(|policy| policy.to_string()),
+                    "effects": route.effect_tags(),
                 })
             }).collect::<Vec<_>>(),
             "array_rmw_window_routes": f.metadata.array_rmw_window_routes.iter().map(|route| {
