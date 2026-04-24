@@ -92,6 +92,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-177-set-mutating-carrier-preflight-card.md
   - docs/development/current/main/phases/phase-291x/291x-178-core-method-set-route-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-179-core-method-set-emit-kind-metadata-card.md
+  - docs/development/current/main/phases/phase-291x/291x-180-set-emit-kind-mirror-prune-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -104,7 +105,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: set emit-kind mirror prune probe
+- Next implementation target: set storage-route metadata preflight
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -211,6 +212,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 80. `docs/development/current/main/phases/phase-291x/291x-177-set-mutating-carrier-preflight-card.md`
 81. `docs/development/current/main/phases/phase-291x/291x-178-core-method-set-route-metadata-card.md`
 82. `docs/development/current/main/phases/phase-291x/291x-179-core-method-set-emit-kind-metadata-card.md`
+83. `docs/development/current/main/phases/phase-291x/291x-180-set-emit-kind-mirror-prune-card.md`
 
 ## Current Rule
 
@@ -362,6 +364,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-179` makes generic-method `set` emit-kind selection prefer valid
   MIR `generic_method.set` CoreMethod metadata before legacy fallback; storage
   route selection and lowering remain unchanged
+- `291x-180` rejects pruning the generic `set` emit-kind mirror row for now:
+  metadata-absent RuntimeData set boundary fixtures still require the legacy
+  fallback row
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
