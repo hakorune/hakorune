@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-24"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, and the first Stage-B adapter thinning slices are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed; the fusion const folds are keepers because they remove the target get/has lookups from the hot loop. The next seam is Stage-B same-source defs scan split. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, and the first Stage-B adapter thinning slices are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed; the fusion const folds are keepers because they remove the target get/has lookups from the hot loop. The next seam is Stage-B JSON fragment injection split. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-154"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-154-stageb-main-detection-helper-split-card.md"
-latest_card_summary = "Stage-B main detection helper split landed: MainDetectionHelper moved from compiler_stageb.hako into stageb_main_detection_box.hako, preserving Stage-A fallback and Stage-B same-source scan call sites with Stage-B binop smoke green."
+latest_card = "291x-155"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-155-stageb-same-source-defs-scan-split-card.md"
+latest_card_summary = "Stage-B same-source defs scan split landed: StageBSameSourceDefsBox moved box/method scanning out of compiler_stageb.hako while preserving Main skip and implicit me params, with Stage-B shape and funcscanner smokes green."
 
-current_blocker_token = "phase-291x Stage-B same-source defs scan split pending"
+current_blocker_token = "phase-291x Stage-B JSON fragment injection split pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -99,4 +99,5 @@ stale_pointer_patterns = [
   "phase-291x post-MapLookup fusion cleanup selection pending",
   "phase-291x Stage-B args/source resolver split pending",
   "phase-291x Stage-B main detection helper split pending",
+  "phase-291x Stage-B same-source defs scan split pending",
 ]

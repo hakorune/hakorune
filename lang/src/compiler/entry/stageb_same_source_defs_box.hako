@@ -1,0 +1,191 @@
+// Stage-B same-source defs scanner.
+// Extracted from compiler_stageb.hako to keep the entry file adapter-shaped.
+
+using lang.compiler.parser.parser_box as ParserBox
+using lang.compiler.entry.stageb_main_detection_box as MainDetectionHelper
+using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
+
+static box StageBSameSourceDefsBox {
+  build_fragment(source) {
+    if source == null { return "" }
+    local defs = new ArrayBox()
+    local s = "" + source
+    local pos = 0
+    loop(true) {
+      local k = MainDetectionHelper.findPattern(s, "box ", pos)
+      if k < 0 { break }
+      local name_info = me._read_ident_after(s, k + 4)
+      local box_name = "" + name_info.get("name")
+      local name_end = name_info.get("end")
+      if box_name == "" {
+        pos = k + 4
+        continue
+      }
+      local open = MainDetectionHelper.findPattern(s, "{", name_end)
+      local box_body = MainDetectionHelper.extractBodyFromPosition(s, name_end)
+      if box_name != "Main" && box_body != "" {
+        me._append_box_defs(defs, box_name, box_body)
+      }
+      if open < 0 {
+        pos = name_end
+      } else {
+        pos = open + box_body.length() + 2
+      }
+    }
+
+    local builder = new StageBJsonBuilderBox()
+    return builder.build_defs_json(defs)
+  }
+
+  _append_box_defs(defs, box_name, box_body) {
+    local pos = 0
+    loop(true) {
+      local lparen = MainDetectionHelper.findPattern(box_body, "(", pos)
+      if lparen < 0 { break }
+      local method_name = me._read_ident_back(box_body, lparen)
+      if me._is_method_scan_name(method_name) != 1 {
+        pos = lparen + 1
+        continue
+      }
+      local rparen = MainDetectionHelper.findPattern(box_body, ")", lparen)
+      if rparen < 0 { break }
+      local method_body = MainDetectionHelper.extractBodyFromPosition(box_body, rparen)
+      if method_body == "" {
+        pos = rparen + 1
+        continue
+      }
+      local p = new ParserBox()
+      p.stage3_enable(1)
+      local block_res = p.parse_block2("{" + method_body + "}", 0)
+      local at = block_res.lastIndexOf("@")
+      if at >= 0 {
+        local def = new MapBox()
+        def.set("name", method_name)
+        def.set("params", me._parse_params_simple(box_body.substring(lparen + 1, rparen)))
+        def.set("body_json", block_res.substring(0, at))
+        def.set("box", box_name)
+        defs.push(def)
+      }
+      local open = MainDetectionHelper.findPattern(box_body, "{", rparen)
+      if open < 0 {
+        pos = rparen + 1
+      } else {
+        pos = open + method_body.length() + 2
+      }
+    }
+  }
+
+  _read_ident_after(text, start) {
+    local out = new MapBox()
+    local s = "" + text
+    local i = start
+    local n = s.length()
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    local j = i
+    loop(j < n) {
+      local ch2 = s.substring(j, j + 1)
+      if (ch2 >= "a" && ch2 <= "z") || (ch2 >= "A" && ch2 <= "Z") || (ch2 >= "0" && ch2 <= "9") || ch2 == "_" {
+        j = j + 1
+        continue
+      }
+      break
+    }
+    if j > i {
+      out.set("name", s.substring(i, j))
+      out.set("end", j)
+    } else {
+      out.set("name", "")
+      out.set("end", i)
+    }
+    return out
+  }
+
+  _read_ident_back(text, before_pos) {
+    local s = "" + text
+    local j = before_pos - 1
+    loop(j >= 0) {
+      local ch = s.substring(j, j + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        j = j - 1
+        continue
+      }
+      break
+    }
+    local end = j + 1
+    loop(j >= 0) {
+      local ch2 = s.substring(j, j + 1)
+      if (ch2 >= "a" && ch2 <= "z") || (ch2 >= "A" && ch2 <= "Z") || (ch2 >= "0" && ch2 <= "9") || ch2 == "_" {
+        j = j - 1
+        continue
+      }
+      break
+    }
+    if end > j + 1 { return s.substring(j + 1, end) }
+    return ""
+  }
+
+  _is_method_scan_name(name) {
+    if name == null || name == "" { return 0 }
+    if name == "if" || name == "loop" || name == "while" || name == "return" || name == "print" || name == "new" || name == "else" {
+      return 0
+    }
+    return 1
+  }
+
+  _parse_params_simple(params_text) {
+    local params = new ArrayBox()
+    params.push("me")
+    if params_text == null { return params }
+    local s = "" + params_text
+    if s == "" { return params }
+    local start = 0
+    local n = s.length()
+    local i = 0
+    loop(i <= n) {
+      if i == n || s.substring(i, i + 1) == "," {
+        local token = s.substring(start, i)
+        local colon = token.indexOf(":")
+        if colon >= 0 { token = token.substring(0, colon) }
+        local eq = token.indexOf("=")
+        if eq >= 0 { token = token.substring(0, eq) }
+        token = me._trim_param_token(token)
+        if token != "" && token != "me" { params.push(token) }
+        start = i + 1
+      }
+      i = i + 1
+    }
+    return params
+  }
+
+  _trim_param_token(token) {
+    if token == null { return "" }
+    local s = "" + token
+    local i = 0
+    local j = s.length()
+    loop(i < j) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    loop(j > i) {
+      local ch2 = s.substring(j - 1, j)
+      if ch2 == " " || ch2 == "\n" || ch2 == "\r" || ch2 == "\t" {
+        j = j - 1
+        continue
+      }
+      break
+    }
+    if j > i { return s.substring(i, j) }
+    return ""
+  }
+}
