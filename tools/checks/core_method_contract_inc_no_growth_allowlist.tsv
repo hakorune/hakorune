@@ -20,6 +20,5 @@ lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_meth
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	len	1	core-method-contract	replace-with-core-method-op-id
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	length	1	core-method-contract	replace-with-core-method-op-id
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	has	1	core-method-contract	replace-with-core-method-op-id
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	push	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-push-mutating-boundary-contract
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	indexOf	1	core-method-contract	replace-with-core-method-op-id
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	substring	1	core-method-contract	replace-with-core-method-op-id
