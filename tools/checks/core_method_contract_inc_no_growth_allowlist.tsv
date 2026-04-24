@@ -12,7 +12,6 @@ lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_metho
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	has	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-runtime-data-has-contract
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	ArrayBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	MapBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
-lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_set_route	box	MapBox	1	core-box-contract	replace-with-core-method-op-route-metadata-and-metadata-absent-map-set-boundary-contract
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_set_route	box	RuntimeDataBox	1	runtime-data-compat	replace-with-runtime-data-set-contract-and-metadata-absent-runtime-data-set-boundary-coverage
 # Mir-call route surface mirror rows. Keep these pinned until the route policy consumes MIR-owned CoreMethod metadata.
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	MapBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata

@@ -136,15 +136,26 @@ if missing_routes:
     fail(f"CollectionMethodPolicyBox.set_route no longer covers expected routes: {missing_routes}")
 
 c_set_body = extract_body(c_policy, "classify_generic_method_set_route")
-c_set_returns = set(
+c_set_legacy_returns = set(
     re.findall(r"\breturn\s+(HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_[A-Z0-9_]+)\s*;", c_set_body)
 )
+metadata_set_body = extract_body(c_match, "generic_method_set_route_from_metadata_value_shape")
+c_set_metadata_returns = set(
+    re.findall(
+        r"\breturn\s+(HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_[A-Z0-9_]+)\s*;",
+        metadata_set_body,
+    )
+)
+c_set_returns = c_set_legacy_returns | c_set_metadata_returns
 unknown_c_returns = sorted(c_set_returns - set(expected_enum_names))
 missing_c_returns = sorted(set(expected_enum_names) - c_set_returns)
 if unknown_c_returns:
-    fail(f"classify_generic_method_set_route returns unknown route enums: {unknown_c_returns}")
+    fail(f"C set route consumers return unknown route enums: {unknown_c_returns}")
 if missing_c_returns:
-    fail(f"classify_generic_method_set_route no longer returns expected route enums: {missing_c_returns}")
+    fail(
+        "C set route consumers no longer cover expected route enums: "
+        f"{missing_c_returns}"
+    )
 
 for method, expected in DEMANDS:
     body = extract_body(hako, method)
