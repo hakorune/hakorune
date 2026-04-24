@@ -133,6 +133,73 @@
       }
 
       auto enum MirCallNeedKind
+      mir_call_need_kind_from_core_method_route_tokens(
+          const char* route_id,
+          const char* op,
+          const char* route_kind,
+          enum CoreMethodLoweringTierMetadata lowering_tier) {
+        if (!(route_id && op && route_kind)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        if (!strcmp(route_id, "generic_method.get") &&
+            !strcmp(op, "MapGet") &&
+            !strcmp(route_kind, "runtime_data_load_any") &&
+            core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
+        }
+        if (!strcmp(route_id, "generic_method.has") &&
+            !strcmp(op, "MapHas") &&
+            (!strcmp(route_kind, "map_contains_any") ||
+             !strcmp(route_kind, "map_contains_i64")) &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
+        }
+        if (!strcmp(route_id, "generic_method.len") &&
+            !strcmp(op, "MapLen") &&
+            !strcmp(route_kind, "map_entry_count") &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE;
+        }
+        if (!strcmp(route_id, "generic_method.len") &&
+            !strcmp(op, "ArrayLen") &&
+            !strcmp(route_kind, "array_slot_len") &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN;
+        }
+        if (!strcmp(route_id, "generic_method.push") &&
+            !strcmp(op, "ArrayPush") &&
+            !strcmp(route_kind, "array_append_any") &&
+            core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH;
+        }
+        if (!strcmp(route_id, "generic_method.set") &&
+            !strcmp(op, "ArraySet") &&
+            !strcmp(route_kind, "array_store_any") &&
+            core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
+        }
+        if (!strcmp(route_id, "generic_method.set") &&
+            !strcmp(op, "MapSet") &&
+            !strcmp(route_kind, "map_store_any") &&
+            core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_MAP_SET;
+        }
+        if (!strcmp(route_id, "generic_method.len") &&
+            !strcmp(op, "StringLen") &&
+            !strcmp(route_kind, "string_len") &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN;
+        }
+        if (!strcmp(route_id, "generic_method.substring") &&
+            !strcmp(op, "StringSubstring") &&
+            !strcmp(route_kind, "string_substring") &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
+      auto enum MirCallNeedKind
       classify_mir_call_method_need_kind_from_core_method_metadata(
           long long bid,
           size_t ii) {
@@ -165,9 +232,6 @@
               (size_t)inst != ii) {
             continue;
           }
-          if (!(route_id && !strcmp(route_id, "generic_method.set"))) {
-            continue;
-          }
           core_method = yyjson_obj_get(route, "core_method");
           if (!(core_method && yyjson_is_obj(core_method))) {
             return HAKO_LLVMC_MIR_CALL_NEED_NONE;
@@ -176,19 +240,14 @@
           proof = read_core_method_proof_metadata(core_method, &invalid);
           lowering_tier = read_core_method_lowering_tier_metadata(core_method, &invalid);
           if (invalid ||
-              !core_method_metadata_proof_is_contract_manifest(proof) ||
-              !core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+              !core_method_metadata_proof_is_contract_manifest(proof)) {
             return HAKO_LLVMC_MIR_CALL_NEED_NONE;
           }
-          if (op && !strcmp(op, "ArraySet") &&
-              route_kind && !strcmp(route_kind, "array_store_any")) {
-            return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
-          }
-          if (op && !strcmp(op, "MapSet") &&
-              route_kind && !strcmp(route_kind, "map_store_any")) {
-            return HAKO_LLVMC_MIR_CALL_NEED_MAP_SET;
-          }
-          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+          return mir_call_need_kind_from_core_method_route_tokens(
+              route_id,
+              op,
+              route_kind,
+              lowering_tier);
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
