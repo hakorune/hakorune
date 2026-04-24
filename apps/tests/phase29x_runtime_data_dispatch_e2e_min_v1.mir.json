@@ -59,6 +59,32 @@
             "effects": ["read.key"]
           },
           {
+            "route_id": "generic_method.has",
+            "block": 0,
+            "instruction_index": 7,
+            "box_name": "RuntimeDataBox",
+            "method": "has",
+            "receiver_origin_box": "MapBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 6,
+            "key_value": 2,
+            "result_value": 8,
+            "emit_kind": "has",
+            "route_kind": "map_contains_i64",
+            "helper_symbol": "nyash.map.probe_hi",
+            "proof": "has_surface_policy",
+            "core_method": {
+              "op": "MapHas",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": ["probe.key"]
+          },
+          {
             "route_id": "generic_method.get",
             "block": 0,
             "instruction_index": 8,
