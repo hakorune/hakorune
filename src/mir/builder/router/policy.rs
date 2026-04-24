@@ -61,6 +61,7 @@ fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
                 | crate::boxes::basic::StringMethodId::Upper
                 | crate::boxes::basic::StringMethodId::Lower
                 | crate::boxes::basic::StringMethodId::Contains
+                | crate::boxes::basic::StringMethodId::StartsWith
                 | crate::boxes::basic::StringMethodId::LastIndexOf
                 | crate::boxes::basic::StringMethodId::LastIndexOfFrom
                 | crate::boxes::basic::StringMethodId::Replace
@@ -165,6 +166,11 @@ mod tests {
     #[test]
     fn string_contains_family_uses_unified_value_path() {
         assert_eq!(route("StringBox", "contains", 1), Route::Unified);
+    }
+
+    #[test]
+    fn string_starts_with_family_uses_unified_value_path() {
+        assert_eq!(route("StringBox", "startsWith", 1), Route::Unified);
     }
 
     #[test]
@@ -320,6 +326,8 @@ mod tests {
         assert_eq!(route("StringBox", "concat", 0), Route::BoxCall);
         assert_eq!(route("StringBox", "trim", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "contains", 0), Route::BoxCall);
+        assert_eq!(route("StringBox", "startsWith", 0), Route::BoxCall);
+        assert_eq!(route("StringBox", "startsWith", 2), Route::BoxCall);
         assert_eq!(route("StringBox", "lastIndexOf", 3), Route::BoxCall);
         assert_eq!(route("StringBox", "replace", 1), Route::BoxCall);
         assert_eq!(route("StringBox", "indexOf", 0), Route::BoxCall);

@@ -1,0 +1,12 @@
+// Phase 291x: StringBox.startsWith(prefix) fixture.
+// Expected output: true / false / true.
+
+static box Main {
+  main() {
+    local s = "banana"
+    print(s.startsWith("ban"))
+    print(s.startsWith("nan"))
+    print(s.startsWith(""))
+    return 0
+  }
+}

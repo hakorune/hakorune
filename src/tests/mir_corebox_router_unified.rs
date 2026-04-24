@@ -284,6 +284,36 @@ static box Main {
 }
 
 #[test]
+fn string_value_starts_with_uses_unified_receiver_arg_shape_and_bool_return() {
+    let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
+    let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let src = r#"
+static box Main {
+  main() {
+    local s = "banana"
+    local ok = s.startsWith("ban")
+    return ok
+  }
+}
+"#;
+
+    let module = compile_src(src);
+    let arg_lens = method_call_arg_lens(&module, "StringBox", "startsWith");
+    let result_types = method_call_result_types(&module, "StringBox", "startsWith");
+
+    assert_eq!(
+        arg_lens,
+        vec![2],
+        "StringBox.startsWith should use the Unified method-call shape with receiver in args"
+    );
+    assert_eq!(
+        result_types,
+        vec![Some(MirType::Bool)],
+        "StringBox.startsWith should publish a Bool result type"
+    );
+}
+
+#[test]
 fn string_value_last_index_of_uses_unified_receiver_arg_shape_and_integer_return() {
     let _features = EnvGuard::set("NYASH_FEATURES", "stage3");
     let _unified = EnvGuard::set("NYASH_MIR_UNIFIED_CALL", "1");

@@ -16,6 +16,7 @@ pub enum StringMethodId {
     LastIndexOf,
     LastIndexOfFrom,
     Contains,
+    StartsWith,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -184,6 +185,16 @@ pub const STRING_SURFACE_METHODS: &[StringMethodSpec] = &[
         aliases: &[],
         arity: 1,
         slot: 309,
+        effect: StringSurfaceEffect::Read,
+        returns: StringSurfaceReturn::Value,
+        exposure: StringExposureState::STABLE,
+    },
+    StringMethodSpec {
+        id: StringMethodId::StartsWith,
+        canonical: "startsWith",
+        aliases: &[],
+        arity: 1,
+        slot: 310,
         effect: StringSurfaceEffect::Read,
         returns: StringSurfaceReturn::Value,
         exposure: StringExposureState::STABLE,
@@ -415,6 +426,16 @@ impl StringBox {
                     self.value.contains(&needle),
                 )))
             }
+            StringMethodId::StartsWith => {
+                let prefix = arg_text(
+                    args.next()
+                        .expect("validated StringBox.startsWith prefix")
+                        .as_ref(),
+                );
+                StringSurfaceInvokeResult::Value(Box::new(BoolBox::new(
+                    self.value.starts_with(&prefix),
+                )))
+            }
         };
         Ok(result)
     }
@@ -473,6 +494,14 @@ mod tests {
         assert_eq!(
             StringMethodId::from_slot_and_arity(308, 2),
             Some(StringMethodId::LastIndexOfFrom)
+        );
+        assert_eq!(
+            StringMethodId::from_name_and_arity("startsWith", 1),
+            Some(StringMethodId::StartsWith)
+        );
+        assert_eq!(
+            StringMethodId::from_slot_and_arity(310, 1),
+            Some(StringMethodId::StartsWith)
         );
     }
 
@@ -541,6 +570,18 @@ mod tests {
             )
             .unwrap();
         match contains {
+            StringSurfaceInvokeResult::Value(value) => {
+                assert_eq!(value.as_bool_fast(), Some(true));
+            }
+        }
+
+        let starts_with = text
+            .invoke_surface(
+                StringMethodId::StartsWith,
+                vec![Box::new(StringBox::new("ban")) as Box<dyn NyashBox>],
+            )
+            .unwrap();
+        match starts_with {
             StringSurfaceInvokeResult::Value(value) => {
                 assert_eq!(value.as_bool_fast(), Some(true));
             }

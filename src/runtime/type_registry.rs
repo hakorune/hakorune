@@ -323,6 +323,15 @@ mod tests {
     }
 
     #[test]
+    fn test_string_starts_with_slot_resolves_for_primitive_and_box() {
+        assert_eq!(resolve_slot_by_name("String", "startsWith", 1), Some(310));
+        assert_eq!(
+            resolve_slot_by_name("StringBox", "startsWith", 1),
+            Some(310)
+        );
+    }
+
+    #[test]
     fn test_string_trim_slot_resolves_for_primitive_and_box() {
         assert_eq!(resolve_slot_by_name("String", "trim", 0), Some(305));
         assert_eq!(resolve_slot_by_name("StringBox", "trim", 0), Some(305));

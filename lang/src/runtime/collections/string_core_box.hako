@@ -258,6 +258,16 @@ static box StringCoreBox {
     return 1
   }
 
+  _startswith_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
+    local offset = me._arg_offset_exact(seg, regs, handle_regs, text, 1)
+    local arg0_rt = me._arg_register(seg, 0, offset)
+    local prefix_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
+    local prefix = prefix_rt == null ? "" : ("" + prefix_rt)
+    me._write_bool_dst(regs, kinds, dst, StringSearchKernelBox.starts_with(text, prefix))
+    me._trace("[vm/adapter/string_core:startswith]")
+    return 1
+  }
+
   _substring_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text) {
     local offset = me._arg_offset_exact(seg, regs, handle_regs, text, 2)
     local start_raw = me._read_reg_int_or_zero(regs, me._arg_register(seg, 0, offset))
@@ -306,6 +316,9 @@ static box StringCoreBox {
     }
     if mname == "contains" {
       return me._contains_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
+    }
+    if mname == "startsWith" {
+      return me._startswith_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
     }
     if mname == "substring" || mname == "substr" {
       return me._substring_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text)

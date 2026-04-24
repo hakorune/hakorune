@@ -149,7 +149,8 @@ fn infer_string_method_return_type(method: crate::boxes::basic::StringMethodId) 
         | crate::boxes::basic::StringMethodId::IndexOfFrom
         | crate::boxes::basic::StringMethodId::LastIndexOf
         | crate::boxes::basic::StringMethodId::LastIndexOfFrom => MirType::Integer,
-        crate::boxes::basic::StringMethodId::Contains => MirType::Bool,
+        crate::boxes::basic::StringMethodId::Contains
+        | crate::boxes::basic::StringMethodId::StartsWith => MirType::Bool,
         crate::boxes::basic::StringMethodId::Substring
         | crate::boxes::basic::StringMethodId::Concat
         | crate::boxes::basic::StringMethodId::Replace
@@ -212,6 +213,10 @@ mod tests {
         );
         assert_eq!(
             infer_return_type("StringBox.contains/1"),
+            Some(MirType::Bool)
+        );
+        assert_eq!(
+            infer_return_type("StringBox.startsWith/1"),
             Some(MirType::Bool)
         );
         assert_eq!(infer_return_type("StringBox.substring/1"), None);

@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
   - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-122-corebox-inventory-ledger-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-125-stringbox-startswith-router-card.md
 ---
 
 # CoreBox Surface Inventory Ledger
@@ -84,6 +85,8 @@ Closed / intentional boundary notes:
 - former `toUpper` / `toLower` TypeRegistry-extras drift is closed by `291x-111`;
   route ownership now lives in the String surface catalog, with
   `toUpperCase` / `toLowerCase` pinned as compatibility aliases.
+- `startsWith` is implemented through the catalog and Unified value path;
+  `291x-125` owns the landing snapshot.
 
 Completed first implementation:
 
@@ -127,6 +130,8 @@ Completed cleanup:
   to `RuntimeDataBox.length`.
 - `291x-119` closes stale phase-291x status/deferred wording as docs-only
   BoxShape cleanup.
+- `291x-125` promotes `StringBox.startsWith(prefix)` into the stable String
+  surface catalog and pins Bool publication in Rust VM and vm-hako smokes.
 
 ## Router / Value World Follow-up
 
@@ -135,8 +140,8 @@ Confirmed route seam:
 - `src/mir/builder/router/policy.rs` routes only `StringBox.length` / `len` /
   `size`, `StringBox.substring` / `substr`, `StringBox.concat`, and
   `StringBox.trim`, `StringBox.contains`, one-arg and two-arg
-  `StringBox.lastIndexOf`, `StringBox.replace`, and `StringBox.indexOf` /
-  `find`, plus the current ArrayBox stable rows and MapBox
+  `StringBox.lastIndexOf`, `StringBox.startsWith`, `StringBox.replace`, and
+  `StringBox.indexOf` / `find`, plus the current ArrayBox stable rows and MapBox
   `size` / `length` / `len` / `has` / `get` / `set` / `keys` / `values` /
   `delete` / `remove` / `clear` through the Unified value path.
   Non-allowlisted `StringBox`, `ArrayBox`, and `MapBox` methods still use the

@@ -216,8 +216,10 @@ Landed smoke:
 Landed StringBox cleanup smoke:
 
 - `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_lastindexof_start_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_startswith_vm.sh`
 
-MapBox is now the next CoreBox catalog target.
+CoreBox catalog cleanup now proceeds by one-family cards. Use
+`CURRENT_STATE.toml` for the latest landed card pointer.
 
 Landed MapBox card:
 
@@ -270,6 +272,10 @@ Landed MapBox follow-up:
   `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_surface_catalog_vm.sh`
   plus focused MIR tests; `toUpperCase` / `toLowerCase` remain compatibility
   aliases on the same stable rows.
+- `StringBox.startsWith(prefix)` is landed and pinned by
+  `tools/smokes/v2/profiles/integration/apps/phase291x_stringbox_startswith_vm.sh`
+  plus the stable surface smoke; it is a read-only Bool row on the Unified
+  value path.
 - legacy `apps/std/map_std.hako` JIT-only placeholder was deleted; it was not an active module-registry/prelude route.
 - unused `lang/src/vm/hakorune-vm/map_keys_values_bridge.hako` prototype was deleted; it was not an active VM route.
 - `apps/lib/boxes/map_std.hako` prelude/module-registry dependency was deleted by the phase-291x cleanup card.
@@ -283,7 +289,8 @@ Landed CoreBox router first slice:
 - `src/mir/builder/router/policy.rs` now routes only the catalog-backed
   `StringBox.length` / `len` / `size` and `StringBox.substring` / `substr`
   and `StringBox.concat`, `StringBox.trim`, `StringBox.contains`,
-  `StringBox.lastIndexOf` one-arg and two-arg, `StringBox.replace`, and
+  `StringBox.startsWith`, `StringBox.lastIndexOf` one-arg and two-arg,
+  `StringBox.replace`, and
   `StringBox.indexOf` /
   `find`, plus `ArrayBox.length` / `size` / `len`, `ArrayBox.push`,
   `ArrayBox.slice`, `ArrayBox.get`, `ArrayBox.pop`, `ArrayBox.set`,

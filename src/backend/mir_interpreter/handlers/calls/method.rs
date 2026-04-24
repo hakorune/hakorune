@@ -288,7 +288,8 @@ impl MirInterpreter {
             StringMethodId::Concat
             | StringMethodId::IndexOf
             | StringMethodId::LastIndexOf
-            | StringMethodId::Contains => args.len() == 1,
+            | StringMethodId::Contains
+            | StringMethodId::StartsWith => args.len() == 1,
             StringMethodId::IndexOfFrom | StringMethodId::LastIndexOfFrom => {
                 args.len() == 2 && self.arg_is_integer(args[1])
             }

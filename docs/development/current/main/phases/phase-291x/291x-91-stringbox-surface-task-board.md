@@ -19,6 +19,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-118-arraybox-slice-result-receiver-card.md
   - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-123-stringbox-taskboard-router-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-125-stringbox-startswith-router-card.md
 ---
 
 # StringBox Surface Task Board
@@ -94,6 +95,7 @@ StringBox surface catalog
 | `291x-S35` | done | promote `ArrayBox.reverse` as a catalog-backed receiver-only write-`String` Unified row |
 | `291x-S36` | done | promote `ArrayBox.sort` as a catalog-backed receiver-only write-`String` Unified row |
 | `291x-S37` | done | pin `ArrayBox.slice()` result follow-up calls on the `ArrayBox` receiver path |
+| `291x-S38` | done | promote `StringBox.startsWith(prefix)` as a catalog-backed receiver-plus-prefix read-`Bool` Unified row |
 
 ## First Stable Surface Target
 
@@ -111,11 +113,11 @@ StringBox surface catalog
 - `toLower` with `toLowerCase` compatibility alias
 - `lastIndexOf` one-arg and two-arg
 - `contains`
+- `startsWith`
 
 ## Explicitly Deferred StringBox Rows
 
 - `split`
-- `startsWith`
 - `endsWith`
 - `charAt`
 - `equals` method surface
@@ -171,14 +173,17 @@ This StringBox slice is done when:
 - `291x-118` landed the `ArrayBox.slice()` result-receiver pin: direct source
   `slice().length()` stays on the `ArrayBox` receiver path and does not lower
   as `RuntimeDataBox.length`.
+- `291x-125` landed `StringBox.startsWith(prefix)` as the next stable
+  StringBox read row: catalog-backed, receiver-plus-prefix, and `Bool` on the
+  Unified value path.
 
 ## Router Follow-up
 
 - current router policy allowlists only these StringBox families to
   `Route::Unified`: `length` / `len` / `size`, `substring` / `substr`, and
   `concat`, `trim`, `toUpper` / `toUpperCase`, `toLower` / `toLowerCase`,
-  `contains`, one-arg and two-arg `lastIndexOf`, `replace`, and `indexOf` /
-  `find`
+  `contains`, `startsWith`, one-arg and two-arg `lastIndexOf`, `replace`, and
+  `indexOf` / `find`
 - `boxcall_emit.rs` still bridges `MirType::String` receivers to `StringBox`
   before route selection
 - `ArrayBox.length` / `size` / `len` is the first collection route slice
