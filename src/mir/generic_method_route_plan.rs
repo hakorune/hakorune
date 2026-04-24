@@ -7,12 +7,13 @@
  */
 
 use super::generic_method_route_facts::{
-    classify_key_route, receiver_origin_box_name, GenericMethodKeyRoute,
+    classify_key_route, const_i64_value, receiver_origin_box_name, GenericMethodKeyRoute,
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
 use super::{
-    build_value_def_map, BasicBlockId, Callee, CoreMethodLoweringTier, CoreMethodOp,
-    CoreMethodOpCarrier, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
+    build_value_def_map, resolve_value_origin, BasicBlockId, Callee, CoreMethodLoweringTier,
+    CoreMethodOp, CoreMethodOpCarrier, MirFunction, MirInstruction, MirModule, ValueDefMap,
+    ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,6 +50,7 @@ impl std::fmt::Display for GenericMethodRouteKind {
 pub enum GenericMethodRouteProof {
     GetSurfacePolicy,
     HasSurfacePolicy,
+    MapSetScalarI64SameKeyNoEscape,
 }
 
 impl std::fmt::Display for GenericMethodRouteProof {
@@ -56,6 +58,9 @@ impl std::fmt::Display for GenericMethodRouteProof {
         match self {
             Self::GetSurfacePolicy => f.write_str("get_surface_policy"),
             Self::HasSurfacePolicy => f.write_str("has_surface_policy"),
+            Self::MapSetScalarI64SameKeyNoEscape => {
+                f.write_str("map_set_scalar_i64_same_key_no_escape")
+            }
         }
     }
 }
@@ -247,25 +252,50 @@ fn match_generic_get_route(
         return None;
     }
 
+    let key_route = classify_key_route(function, def_map, args[0]);
+    let scalar_shape = prove_same_block_scalar_i64_map_get(
+        function,
+        def_map,
+        block,
+        instruction_index,
+        *receiver,
+        args[0],
+    );
+    let (proof, return_shape, value_demand, publication_policy) = if scalar_shape {
+        (
+            GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
+            Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+            GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        )
+    } else {
+        (
+            GenericMethodRouteProof::GetSurfacePolicy,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+            GenericMethodValueDemand::RuntimeI64OrHandle,
+            Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+        )
+    };
+
     Some(GenericMethodRoute {
         block,
         instruction_index,
         box_name: box_name.clone(),
         method: method.clone(),
         receiver_origin_box,
-        key_route: classify_key_route(function, def_map, args[0]),
+        key_route,
         receiver_value: *receiver,
         key_value: args[0],
         result_value: *dst,
         route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
-        proof: GenericMethodRouteProof::GetSurfacePolicy,
+        proof,
         core_method: Some(CoreMethodOpCarrier::manifest(
             CoreMethodOp::MapGet,
             CoreMethodLoweringTier::ColdFallback,
         )),
-        return_shape: Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
-        value_demand: GenericMethodValueDemand::RuntimeI64OrHandle,
-        publication_policy: Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+        return_shape,
+        value_demand,
+        publication_policy,
     })
 }
 
@@ -274,6 +304,131 @@ fn map_has_route_kind_for_key(key_route: GenericMethodKeyRoute) -> GenericMethod
         GenericMethodKeyRoute::I64Const => GenericMethodRouteKind::MapContainsI64,
         GenericMethodKeyRoute::UnknownAny => GenericMethodRouteKind::MapContainsAny,
     }
+}
+
+#[derive(Clone, Copy)]
+struct MapSetCallShape {
+    receiver: ValueId,
+    key: ValueId,
+    value: ValueId,
+}
+
+fn prove_same_block_scalar_i64_map_get(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block_id: BasicBlockId,
+    get_instruction_index: usize,
+    get_receiver: ValueId,
+    get_key: ValueId,
+) -> bool {
+    let Some(get_key_const) = const_i64_value(function, def_map, get_key) else {
+        return false;
+    };
+    let receiver_root = resolve_value_origin(function, def_map, get_receiver);
+    let Some(block) = function.blocks.get(&block_id) else {
+        return false;
+    };
+
+    for inst in block.instructions.iter().take(get_instruction_index).rev() {
+        if let Some(set_call) = map_set_call_shape(inst) {
+            if same_value_origin(function, def_map, set_call.receiver, receiver_root) {
+                let Some(set_key_const) = const_i64_value(function, def_map, set_call.key) else {
+                    return false;
+                };
+                if set_key_const != get_key_const {
+                    return false;
+                }
+                return const_i64_value(function, def_map, set_call.value).is_some();
+            }
+        }
+
+        if instruction_may_escape_or_mutate_receiver(function, def_map, inst, receiver_root) {
+            return false;
+        }
+    }
+
+    false
+}
+
+fn map_set_call_shape(inst: &MirInstruction) -> Option<MapSetCallShape> {
+    let MirInstruction::Call {
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if method != "set" || !matches!(box_name.as_str(), "MapBox" | "RuntimeDataBox") {
+        return None;
+    }
+
+    let (key, value) = match args.as_slice() {
+        [key, value] => (*key, *value),
+        // Some source routes still carry the receiver as the first argument.
+        [_receiver_arg, key, value] => (*key, *value),
+        _ => return None,
+    };
+    Some(MapSetCallShape {
+        receiver: *receiver,
+        key,
+        value,
+    })
+}
+
+fn instruction_may_escape_or_mutate_receiver(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &MirInstruction,
+    receiver_root: ValueId,
+) -> bool {
+    if !instruction_uses_origin(function, def_map, inst, receiver_root) {
+        return false;
+    }
+
+    match inst {
+        MirInstruction::Copy { .. } | MirInstruction::KeepAlive { .. } => false,
+        MirInstruction::Call {
+            callee:
+                Some(Callee::Method {
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            ..
+        } if same_value_origin(function, def_map, *receiver, receiver_root)
+            && matches!(method.as_str(), "get" | "has") =>
+        {
+            false
+        }
+        _ => true,
+    }
+}
+
+fn instruction_uses_origin(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &MirInstruction,
+    origin: ValueId,
+) -> bool {
+    inst.used_values()
+        .into_iter()
+        .any(|value| same_value_origin(function, def_map, value, origin))
+}
+
+fn same_value_origin(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    origin: ValueId,
+) -> bool {
+    resolve_value_origin(function, def_map, value) == origin
 }
 
 #[cfg(test)]
@@ -501,6 +656,176 @@ mod tests {
         assert_eq!(
             route.publication_policy,
             Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
+        );
+    }
+
+    #[test]
+    fn proves_same_block_runtime_data_get_scalar_i64_return_shape() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(-1),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        block.add_instruction(method_call(Some(4), "MapBox", "set", 1, vec![1, 2, 3]));
+        block.add_instruction(method_call(Some(5), "RuntimeDataBox", "get", 1, vec![2]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.method, "get");
+        assert_eq!(route.key_route, GenericMethodKeyRoute::I64Const);
+        assert_eq!(
+            route.proof,
+            GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape
+        );
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
+        );
+        assert_eq!(route.value_demand, GenericMethodValueDemand::ScalarI64);
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::NoPublication)
+        );
+        assert_eq!(
+            route.route_kind.helper_symbol(),
+            "nyash.runtime_data.get_hh"
+        );
+    }
+
+    #[test]
+    fn rejects_same_block_get_scalar_shape_when_store_value_is_not_i64() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(-1),
+        });
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(3),
+            box_type: "StringBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(method_call(Some(4), "MapBox", "set", 1, vec![2, 3]));
+        block.add_instruction(method_call(Some(5), "RuntimeDataBox", "get", 1, vec![2]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+        );
+        assert_eq!(
+            route.value_demand,
+            GenericMethodValueDemand::RuntimeI64OrHandle
+        );
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
+        );
+    }
+
+    #[test]
+    fn rejects_same_block_get_scalar_shape_after_unknown_same_receiver_mutation() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(-1),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        block.add_instruction(method_call(Some(4), "MapBox", "set", 1, vec![2, 3]));
+        block.add_instruction(method_call(None, "MapBox", "clear", 1, vec![]));
+        block.add_instruction(method_call(Some(5), "RuntimeDataBox", "get", 1, vec![2]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+        );
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
+        );
+    }
+
+    #[test]
+    fn rejects_same_block_get_scalar_shape_after_different_key_same_receiver_set() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(-1),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: crate::mir::ConstValue::Integer(2),
+        });
+        block.add_instruction(method_call(Some(5), "MapBox", "set", 1, vec![2, 3]));
+        block.add_instruction(method_call(Some(6), "MapBox", "set", 1, vec![4, 3]));
+        block.add_instruction(method_call(Some(7), "RuntimeDataBox", "get", 1, vec![2]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
         );
     }
 

@@ -33,13 +33,13 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x MapGet metadata-only landed - scalar return-shape proof pending`
+- current blocker token: `phase-291x MapGet scalar return-shape proof landed - scalar lowering evidence pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Immediate Next
 
-- add scalar MapGet return-shape proof before touching get lowering
+- add evidence-backed scalar MapGet lowering only after proof metadata is consumed
 - keep docs mirrors thin; update `CURRENT_STATE.toml` and the active card first
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - keep phase-137x observe-only unless app work reopens a real blocker

@@ -55,6 +55,29 @@ fn build_mir_json_root_emits_generic_method_routes() {
             value_demand: GenericMethodValueDemand::RuntimeI64OrHandle,
             publication_policy: Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
         });
+    function
+        .metadata
+        .generic_method_routes
+        .push(GenericMethodRoute {
+            block: BasicBlockId::new(9),
+            instruction_index: 5,
+            box_name: "RuntimeDataBox".to_string(),
+            method: "get".to_string(),
+            receiver_origin_box: Some("MapBox".to_string()),
+            key_route: GenericMethodKeyRoute::I64Const,
+            receiver_value: ValueId::new(16),
+            key_value: ValueId::new(17),
+            result_value: Some(ValueId::new(18)),
+            route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
+            proof: GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapGet,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            return_shape: Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+            value_demand: GenericMethodValueDemand::ScalarI64,
+            publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+        });
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
 
@@ -112,4 +135,34 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(get_route["value_demand"], "runtime_i64_or_handle");
     assert_eq!(get_route["publication_policy"], "runtime_data_facade");
     assert_eq!(get_route["effects"], serde_json::json!(["read.key"]));
+
+    let scalar_get_route = &root["functions"][0]["metadata"]["generic_method_routes"][2];
+    assert_eq!(scalar_get_route["route_id"], "generic_method.get");
+    assert_eq!(scalar_get_route["block"], 9);
+    assert_eq!(scalar_get_route["instruction_index"], 5);
+    assert_eq!(scalar_get_route["box_name"], "RuntimeDataBox");
+    assert_eq!(scalar_get_route["method"], "get");
+    assert_eq!(scalar_get_route["receiver_origin_box"], "MapBox");
+    assert_eq!(scalar_get_route["key_route"], "i64_const");
+    assert_eq!(scalar_get_route["route_kind"], "runtime_data_load_any");
+    assert_eq!(
+        scalar_get_route["helper_symbol"],
+        "nyash.runtime_data.get_hh"
+    );
+    assert_eq!(
+        scalar_get_route["proof"],
+        "map_set_scalar_i64_same_key_no_escape"
+    );
+    assert_eq!(scalar_get_route["core_method"]["op"], "MapGet");
+    assert_eq!(
+        scalar_get_route["core_method"]["lowering_tier"],
+        "cold_fallback"
+    );
+    assert_eq!(
+        scalar_get_route["return_shape"],
+        "scalar_i64_or_missing_zero"
+    );
+    assert_eq!(scalar_get_route["value_demand"], "scalar_i64");
+    assert_eq!(scalar_get_route["publication_policy"], "no_publication");
+    assert_eq!(scalar_get_route["effects"], serde_json::json!(["read.key"]));
 }

@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x MapGet metadata-only landed - scalar return-shape proof pending` |
-| Next | `scalar MapGet return-shape proof` |
+| Blocker | `phase-291x MapGet scalar return-shape proof landed - scalar lowering evidence pending` |
+| Next | `evidence-backed scalar MapGet lowering` |
 | After Next | `single-op hot lowering only after helper route is proven keeper` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Add scalar MapGet return-shape proof before touching get lowering.
+2. Add evidence-backed scalar MapGet lowering only after proof metadata is consumed.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.

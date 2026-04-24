@@ -32,6 +32,7 @@ impl std::fmt::Display for GenericMethodKeyRoute {
 pub enum GenericMethodValueDemand {
     ReadRef,
     RuntimeI64OrHandle,
+    ScalarI64,
 }
 
 impl GenericMethodValueDemand {
@@ -39,6 +40,7 @@ impl GenericMethodValueDemand {
         match self {
             Self::ReadRef => "read_ref",
             Self::RuntimeI64OrHandle => "runtime_i64_or_handle",
+            Self::ScalarI64 => "scalar_i64",
         }
     }
 }
@@ -52,12 +54,14 @@ impl std::fmt::Display for GenericMethodValueDemand {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodReturnShape {
     MixedRuntimeI64OrHandle,
+    ScalarI64OrMissingZero,
 }
 
 impl GenericMethodReturnShape {
     pub fn as_metadata_name(self) -> &'static str {
         match self {
             Self::MixedRuntimeI64OrHandle => "mixed_runtime_i64_or_handle",
+            Self::ScalarI64OrMissingZero => "scalar_i64_or_missing_zero",
         }
     }
 }
@@ -70,12 +74,14 @@ impl std::fmt::Display for GenericMethodReturnShape {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodPublicationPolicy {
+    NoPublication,
     RuntimeDataFacade,
 }
 
 impl GenericMethodPublicationPolicy {
     pub fn as_metadata_name(self) -> &'static str {
         match self {
+            Self::NoPublication => "no_publication",
             Self::RuntimeDataFacade => "runtime_data_facade",
         }
     }
@@ -106,19 +112,26 @@ pub(crate) fn classify_key_route(
     def_map: &ValueDefMap,
     key: ValueId,
 ) -> GenericMethodKeyRoute {
-    let origin = resolve_value_origin(function, def_map, key);
-    let Some((block_id, instruction_index)) = def_map.get(&origin).copied() else {
-        return GenericMethodKeyRoute::UnknownAny;
-    };
-    let Some(block) = function.blocks.get(&block_id) else {
-        return GenericMethodKeyRoute::UnknownAny;
-    };
+    match const_i64_value(function, def_map, key) {
+        Some(_) => GenericMethodKeyRoute::I64Const,
+        None => GenericMethodKeyRoute::UnknownAny,
+    }
+}
+
+pub(crate) fn const_i64_value(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<i64> {
+    let origin = resolve_value_origin(function, def_map, value);
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
     match block.instructions.get(instruction_index) {
         Some(MirInstruction::Const {
-            value: ConstValue::Integer(_),
+            value: ConstValue::Integer(value),
             ..
-        }) => GenericMethodKeyRoute::I64Const,
-        _ => GenericMethodKeyRoute::UnknownAny,
+        }) => Some(*value),
+        _ => None,
     }
 }
 

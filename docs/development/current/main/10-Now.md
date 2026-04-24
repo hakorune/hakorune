@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x MapGet metadata-only landed - scalar return-shape proof pending`
+- current blocker token: `phase-291x MapGet scalar return-shape proof landed - scalar lowering evidence pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- add scalar MapGet return-shape proof before touching get lowering
+- add evidence-backed scalar MapGet lowering only after proof metadata is consumed
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

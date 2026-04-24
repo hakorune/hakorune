@@ -55,6 +55,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-140-key-route-value-demand-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-141-maphas-i64-route-card.md
   - docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md
+  - docs/development/current/main/phases/phase-291x/291x-143-mapget-scalar-return-shape-proof-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -67,7 +68,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: scalar MapGet return-shape proof
+- Next implementation target: evidence-backed scalar MapGet lowering
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -137,6 +138,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 43. `docs/development/current/main/phases/phase-291x/291x-140-key-route-value-demand-metadata-card.md`
 44. `docs/development/current/main/phases/phase-291x/291x-141-maphas-i64-route-card.md`
 45. `docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md`
+46. `docs/development/current/main/phases/phase-291x/291x-143-mapget-scalar-return-shape-proof-card.md`
 
 ## Current Rule
 
@@ -182,6 +184,11 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   CoreMethod MapGet with `return_shape=mixed_runtime_i64_or_handle`,
   `publication_policy=runtime_data_facade`, and `lowering_tier=cold_fallback`;
   codegen remains on `nyash.runtime_data.get_hh`
+- `291x-143` adds a same-block scalar MapGet proof that emits
+  `return_shape=scalar_i64_or_missing_zero`, `value_demand=scalar_i64`, and
+  `publication_policy=no_publication` only after a same-receiver/same-i64-key
+  scalar store with no same-receiver mutation/escape; codegen remains on
+  `nyash.runtime_data.get_hh`
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
