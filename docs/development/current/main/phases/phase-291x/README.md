@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-24
+Date: 2026-04-25
 Scope: CoreBox surface catalog を ArrayBox から StringBox / MapBox へ広げる phase front。
 Related:
   - CURRENT_TASK.md
@@ -85,6 +85,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-170-core-method-substring-route-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-171-core-method-substring-emit-kind-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-172-metadata-absent-substring-fallback-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-173-push-mutating-carrier-preflight-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -97,7 +98,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: push metadata carrier preflight
+- Next implementation target: push CoreMethod route carrier implementation
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -190,6 +191,14 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 66. `docs/development/current/main/phases/phase-291x/291x-163-maphas-emit-kind-mirror-prune-card.md`
 67. `docs/development/current/main/phases/phase-291x/291x-164-metadata-absent-has-fallback-contract-card.md`
 68. `docs/development/current/main/phases/phase-291x/291x-165-core-method-mapget-emit-kind-metadata-card.md`
+69. `docs/development/current/main/phases/phase-291x/291x-166-metadata-absent-get-fallback-contract-card.md`
+70. `docs/development/current/main/phases/phase-291x/291x-167-core-method-len-route-metadata-card.md`
+71. `docs/development/current/main/phases/phase-291x/291x-168-core-method-len-emit-kind-metadata-card.md`
+72. `docs/development/current/main/phases/phase-291x/291x-169-metadata-absent-len-fallback-contract-card.md`
+73. `docs/development/current/main/phases/phase-291x/291x-170-core-method-substring-route-metadata-card.md`
+74. `docs/development/current/main/phases/phase-291x/291x-171-core-method-substring-emit-kind-metadata-card.md`
+75. `docs/development/current/main/phases/phase-291x/291x-172-metadata-absent-substring-fallback-contract-card.md`
+76. `docs/development/current/main/phases/phase-291x/291x-173-push-mutating-carrier-preflight-card.md`
 
 ## Current Rule
 
@@ -318,6 +327,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-172` rejects pruning the generic `substring` emit-kind mirror row for
   now and tightens its deletion condition to require metadata-absent substring
   boundary coverage
+- `291x-173` pins the mutating `push` carrier boundary before implementation:
+  `ArrayPush` metadata may be added next, but legacy push mirror rows require
+  metadata-absent mutating boundary coverage before any prune attempt
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

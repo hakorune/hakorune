@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-24
+Date: 2026-04-25
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,13 +33,14 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x push metadata carrier preflight pending`
+- current blocker token: `phase-291x push CoreMethod route carrier implementation pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Immediate Next
 
-- inventory `push` CoreMethod metadata coverage before touching the mutating legacy mirror row
+- implement the `push` CoreMethod route carrier after the mutating boundary preflight
+- keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
 - keep docs mirrors thin; update `CURRENT_STATE.toml` and the active card first
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - keep phase-137x observe-only unless app work reopens a real blocker

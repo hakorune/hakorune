@@ -31,6 +31,22 @@ navigation order must stay narrow and explicit.
 - `policies/`: shared policy SSOT used by builder/canonicalizer/router.
 - `region/`, `ssot/`, `type_propagation/`, `utils/`, `verification/`: supporting helpers.
 
+## Generic Method Route Metadata
+
+- `generic_method_route_plan.rs` owns MIR-derived route carriers only. It may
+  attach `CoreMethodOp` metadata after MIR facts prove the surface, but it must
+  not choose new semantic behavior for runtime methods.
+- `generic_method_route_facts.rs` owns reusable facts such as receiver origin,
+  key route, return shape, value demand, and publication policy. Keep backend
+  helper names out of this file.
+- `core_method_op.rs` owns the MIR carrier vocabulary that mirrors the
+  generated `CoreMethodContract` manifest.
+- Mutating carriers such as `ArrayPush` / `ArraySet` must not reuse key metadata
+  for value operands. Add an explicit operand/value field if a future lowering
+  needs one.
+- Legacy `.inc` mirror rows may only be pruned after a metadata-absent boundary
+  contract exists for the same method family.
+
 ## Boundary Rules
 
 - Add shared policy once under `policies/` and reuse it from the other subtrees.

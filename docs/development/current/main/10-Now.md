@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-24
+Date: 2026-04-25
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,13 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x push metadata carrier preflight pending`
+- current blocker token: `phase-291x push CoreMethod route carrier implementation pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory `push` CoreMethod metadata coverage before touching the mutating legacy mirror row
+- implement the `push` CoreMethod route carrier after the mutating boundary preflight
+- keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
