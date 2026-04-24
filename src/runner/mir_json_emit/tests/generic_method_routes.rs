@@ -22,7 +22,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(10),
             key_value: ValueId::new(11),
             result_value: Some(ValueId::new(12)),
-            route_kind: GenericMethodRouteKind::MapContainsAny,
+            route_kind: GenericMethodRouteKind::MapContainsI64,
             proof: GenericMethodRouteProof::HasSurfacePolicy,
             core_method: Some(CoreMethodOpCarrier::manifest(
                 CoreMethodOp::MapHas,
@@ -47,8 +47,8 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(route["key_value"], 11);
     assert_eq!(route["result_value"], 12);
     assert_eq!(route["emit_kind"], "has");
-    assert_eq!(route["route_kind"], "map_contains_any");
-    assert_eq!(route["helper_symbol"], "nyash.map.probe_hh");
+    assert_eq!(route["route_kind"], "map_contains_i64");
+    assert_eq!(route["helper_symbol"], "nyash.map.probe_hi");
     assert_eq!(route["proof"], "has_surface_policy");
     assert_eq!(route["core_method"]["op"], "MapHas");
     assert_eq!(

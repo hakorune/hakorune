@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x key-route proof landed - MapHas promotion evidence gate pending` |
-| Next | `MapHas promotion no-regress proof or key-specialized seam` |
+| Blocker | `phase-291x MapHas i64 route landed - MapGet value-demand seam pending` |
+| Next | `MapGet value-demand / return-shape proof` |
 | After Next | `single-op hot lowering only after helper route is proven keeper` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Make LoweringTier metadata explicit for the next warm/hot split.
+2. Add MapGet value-demand / return-shape proof before touching get lowering.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.

@@ -18,6 +18,7 @@ use super::{
 pub enum GenericMethodRouteKind {
     RuntimeDataContainsAny,
     MapContainsAny,
+    MapContainsI64,
 }
 
 impl GenericMethodRouteKind {
@@ -25,6 +26,7 @@ impl GenericMethodRouteKind {
         match self {
             Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
             Self::MapContainsAny => "nyash.map.probe_hh",
+            Self::MapContainsI64 => "nyash.map.probe_hi",
         }
     }
 }
@@ -34,6 +36,7 @@ impl std::fmt::Display for GenericMethodRouteKind {
         match self {
             Self::RuntimeDataContainsAny => f.write_str("runtime_data_contains_any"),
             Self::MapContainsAny => f.write_str("map_contains_any"),
+            Self::MapContainsI64 => f.write_str("map_contains_i64"),
         }
     }
 }
@@ -128,12 +131,24 @@ fn match_generic_has_route(
     let key_route = classify_key_route(function, def_map, args[0]);
     let (route_kind, core_method) = match box_name.as_str() {
         "MapBox" => (
-            GenericMethodRouteKind::MapContainsAny,
+            map_has_route_kind_for_key(key_route),
             Some(CoreMethodOpCarrier::manifest(
                 CoreMethodOp::MapHas,
                 CoreMethodLoweringTier::WarmDirectAbi,
             )),
         ),
+        "RuntimeDataBox"
+            if receiver_origin_box.as_deref() == Some("MapBox")
+                && key_route == GenericMethodKeyRoute::I64Const =>
+        {
+            (
+                GenericMethodRouteKind::MapContainsI64,
+                Some(CoreMethodOpCarrier::manifest(
+                    CoreMethodOp::MapHas,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                )),
+            )
+        }
         "ArrayBox" | "RuntimeDataBox" => (GenericMethodRouteKind::RuntimeDataContainsAny, None),
         _ => return None,
     };
@@ -153,6 +168,13 @@ fn match_generic_has_route(
         core_method,
         value_demand: GenericMethodValueDemand::ReadRef,
     })
+}
+
+fn map_has_route_kind_for_key(key_route: GenericMethodKeyRoute) -> GenericMethodRouteKind {
+    match key_route {
+        GenericMethodKeyRoute::I64Const => GenericMethodRouteKind::MapContainsI64,
+        GenericMethodKeyRoute::UnknownAny => GenericMethodRouteKind::MapContainsAny,
+    }
 }
 
 #[cfg(test)]
@@ -288,6 +310,41 @@ mod tests {
             function.metadata.generic_method_routes[0].key_route,
             GenericMethodKeyRoute::I64Const
         );
+    }
+
+    #[test]
+    fn promotes_runtime_data_mapbox_i64_has_to_map_contains_i64() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(-1),
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(2),
+        });
+        block.add_instruction(method_call(Some(5), "RuntimeDataBox", "has", 1, vec![3]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
+        assert_eq!(route.key_route, GenericMethodKeyRoute::I64Const);
+        assert_eq!(route.route_kind, GenericMethodRouteKind::MapContainsI64);
+        let core_method = route.core_method.expect("MapHas carrier");
+        assert_eq!(core_method.op, CoreMethodOp::MapHas);
+        assert_eq!(route.route_kind.helper_symbol(), "nyash.map.probe_hi");
     }
 
     #[test]

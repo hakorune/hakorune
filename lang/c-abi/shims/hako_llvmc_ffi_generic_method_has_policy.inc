@@ -3,6 +3,7 @@
         HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY,
         HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_ARRAY_CONTAINS_ANY,
         HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY,
+        HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64,
       };
 
       struct GenericMethodHasRouteMetadata {
@@ -30,6 +31,8 @@
             return "nyash.runtime_data.has_hh";
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY:
             return "nyash.map.probe_hh";
+          case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64:
+            return "nyash.map.probe_hi";
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_ARRAY_CONTAINS_ANY:
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE:
           default:
@@ -45,7 +48,21 @@
         if (route_kind && !strcmp(route_kind, "map_contains_any")) {
           return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY;
         }
+        if (route_kind && !strcmp(route_kind, "map_contains_i64")) {
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64;
+        }
         return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
+      }
+
+      auto enum GenericMethodHasRouteKind
+      generic_method_has_route_kind_from_core_and_route_metadata(
+          enum GenericMethodHasRouteKind core_route_kind,
+          enum GenericMethodHasRouteKind metadata_route_kind) {
+        if (core_route_kind == HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY &&
+            metadata_route_kind == HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64) {
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64;
+        }
+        return core_route_kind;
       }
 
       auto enum GenericMethodHasRouteKind
@@ -98,6 +115,16 @@
         if (!strcmp(key_route, "i64_const")) return 1;
         if (!strcmp(key_route, "unknown_any")) return 1;
         return 0;
+      }
+
+      auto int generic_method_has_route_key_route_valid(
+          enum GenericMethodHasRouteKind route_kind,
+          const char* key_route) {
+        if (!generic_method_has_key_route_valid(key_route)) return 0;
+        if (route_kind == HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64) {
+          return key_route && !strcmp(key_route, "i64_const");
+        }
+        return 1;
       }
 
       auto int match_generic_method_has_route_metadata(
@@ -170,13 +197,17 @@
               route,
               &core_method_present,
               &core_method_invalid);
-          route_kind = core_method_present ? core_route_kind : metadata_route_kind;
+          route_kind = core_method_present
+              ? generic_method_has_route_kind_from_core_and_route_metadata(
+                    core_route_kind,
+                    metadata_route_kind)
+              : metadata_route_kind;
           if (!(route_box && bname && !strcmp(route_box, bname)) ||
               !(method && !strcmp(method, "has")) ||
               !(emit_kind && !strcmp(emit_kind, "has")) ||
               !(proof && !strcmp(proof, "has_surface_policy")) ||
               !(value_demand && !strcmp(value_demand, "read_ref")) ||
-              !generic_method_has_key_route_valid(key_route) ||
+              !generic_method_has_route_key_route_valid(route_kind, key_route) ||
               (core_method_present &&
                !(receiver_origin_box && !strcmp(receiver_origin_box, "MapBox"))) ||
               core_method_invalid ||
@@ -297,6 +328,14 @@
               set_type(dst, T_I64);
             } else {
               fprintf(f, "  call i64 @\"nyash.map.probe_hh\"(%s)\n", ab);
+            }
+            return 1;
+          case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64:
+            if (dst) {
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.map.probe_hi\"(%s)\n", dst, ab);
+              set_type(dst, T_I64);
+            } else {
+              fprintf(f, "  call i64 @\"nyash.map.probe_hi\"(%s)\n", ab);
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE:
