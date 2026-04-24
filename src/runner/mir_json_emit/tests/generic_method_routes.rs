@@ -1,8 +1,9 @@
 use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::{
-    BasicBlockId, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, GenericMethodRoute,
-    GenericMethodRouteKind, GenericMethodRouteProof, ValueId,
+    BasicBlockId, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, GenericMethodKeyRoute,
+    GenericMethodRoute, GenericMethodRouteKind, GenericMethodRouteProof, GenericMethodValueDemand,
+    ValueId,
 };
 
 #[test]
@@ -17,6 +18,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
             box_name: "MapBox".to_string(),
             method: "has".to_string(),
             receiver_origin_box: Some("MapBox".to_string()),
+            key_route: GenericMethodKeyRoute::I64Const,
             receiver_value: ValueId::new(10),
             key_value: ValueId::new(11),
             result_value: Some(ValueId::new(12)),
@@ -26,6 +28,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
                 CoreMethodOp::MapHas,
                 CoreMethodLoweringTier::WarmDirectAbi,
             )),
+            value_demand: GenericMethodValueDemand::ReadRef,
         });
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
@@ -38,6 +41,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(route["box_name"], "MapBox");
     assert_eq!(route["method"], "has");
     assert_eq!(route["receiver_origin_box"], "MapBox");
+    assert_eq!(route["key_route"], "i64_const");
     assert_eq!(route["arity"], 1);
     assert_eq!(route["receiver_value"], 10);
     assert_eq!(route["key_value"], 11);

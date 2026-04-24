@@ -34,6 +34,7 @@ pub mod effect;
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
 pub mod function;
+pub(crate) mod generic_method_route_facts; // reusable facts for generic-method route planners
 pub mod generic_method_route_plan; // MIR-owned generic method route policy plans
 pub mod if_in_loop_phi; // Phase 187-2: Minimal if-in-loop PHI emitter (extracted from loop_builder)
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
@@ -207,6 +208,7 @@ pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
     UserBoxFieldDecl,
 };
+pub use generic_method_route_facts::{GenericMethodKeyRoute, GenericMethodValueDemand};
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
     GenericMethodRoute, GenericMethodRouteKind, GenericMethodRouteProof,

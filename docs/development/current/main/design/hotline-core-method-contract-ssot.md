@@ -303,6 +303,9 @@ Done when:
 - `291x-139` landed receiver-origin metadata only. Direct promotion to
   `MapHas` / `nyash.map.has_hh` was rejected because the measured front
   regressed and stayed dominated by i64 key conversion plus hashing.
+- `291x-140` landed key-route / value-demand metadata only. The measured
+  RuntimeData facade route now exposes `key_route=i64_const` while keeping
+  `core_method=null`.
 
 - Pick exactly one CoreMethodOp.
 - Run perf owner-first evidence before code edits.

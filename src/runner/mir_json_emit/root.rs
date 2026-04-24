@@ -175,6 +175,7 @@ pub(super) fn build_mir_json_root(
                     "box_name": route.box_name.as_str(),
                     "method": route.method.as_str(),
                     "receiver_origin_box": route.receiver_origin_box.as_deref(),
+                    "key_route": route.key_route.to_string(),
                     "arity": 1,
                     "receiver_value": route.receiver_value.as_u32(),
                     "key_value": route.key_value.as_u32(),
@@ -184,7 +185,7 @@ pub(super) fn build_mir_json_root(
                     "helper_symbol": route.route_kind.helper_symbol(),
                     "proof": route.proof.to_string(),
                     "core_method": core_method,
-                    "value_demand": "read_ref",
+                    "value_demand": route.value_demand.to_string(),
                     "effects": ["probe.key"],
                 })
             }).collect::<Vec<_>>(),

@@ -37,13 +37,13 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x receiver-origin proof landed - key-route value-demand proof pending`
+- current blocker token: `phase-291x key-route proof landed - MapHas promotion evidence gate pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- add key-route/value-demand proof before MapHas CoreMethod promotion
+- prove no-regress MapHas promotion or add a key-specialized seam before hot lowering
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

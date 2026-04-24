@@ -21,9 +21,9 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x receiver-origin proof landed - key-route value-demand proof pending` |
-| Next | `key-route/value-demand proof for Map get/has` |
-| After Next | `CoreMethod promotion only if perf evidence no-regresses` |
+| Blocker | `phase-291x key-route proof landed - MapHas promotion evidence gate pending` |
+| Next | `MapHas promotion no-regress proof or key-specialized seam` |
+| After Next | `single-op hot lowering only after helper route is proven keeper` |
 
 ## Current Read
 

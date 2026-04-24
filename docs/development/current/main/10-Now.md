@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x receiver-origin proof landed - key-route value-demand proof pending`
+- current blocker token: `phase-291x key-route proof landed - MapHas promotion evidence gate pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- add key-route/value-demand proof before MapHas CoreMethod promotion
+- prove no-regress MapHas promotion or add a key-specialized seam before hot lowering
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

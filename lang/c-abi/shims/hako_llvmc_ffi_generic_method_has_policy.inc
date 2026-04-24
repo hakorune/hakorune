@@ -93,6 +93,13 @@
         return effect && !strcmp(effect, "probe.key");
       }
 
+      auto int generic_method_has_key_route_valid(const char* key_route) {
+        if (!key_route) return 1; /* compat with older MIR JSON metadata */
+        if (!strcmp(key_route, "i64_const")) return 1;
+        if (!strcmp(key_route, "unknown_any")) return 1;
+        return 0;
+      }
+
       auto int match_generic_method_has_route_metadata(
           long long bid,
           size_t ii,
@@ -121,6 +128,7 @@
           const char* route_box = NULL;
           const char* method = NULL;
           const char* receiver_origin_box = NULL;
+          const char* key_route = NULL;
           const char* emit_kind = NULL;
           const char* route_kind_raw = NULL;
           const char* helper_symbol = NULL;
@@ -151,6 +159,7 @@
           route_box = read_str(route, "box_name");
           method = read_str(route, "method");
           receiver_origin_box = read_str(route, "receiver_origin_box");
+          key_route = read_str(route, "key_route");
           emit_kind = read_str(route, "emit_kind");
           route_kind_raw = read_str(route, "route_kind");
           helper_symbol = read_str(route, "helper_symbol");
@@ -167,6 +176,7 @@
               !(emit_kind && !strcmp(emit_kind, "has")) ||
               !(proof && !strcmp(proof, "has_surface_policy")) ||
               !(value_demand && !strcmp(value_demand, "read_ref")) ||
+              !generic_method_has_key_route_valid(key_route) ||
               (core_method_present &&
                !(receiver_origin_box && !strcmp(receiver_origin_box, "MapBox"))) ||
               core_method_invalid ||
@@ -198,12 +208,13 @@
             snprintf(
                 extra,
                 sizeof(extra),
-                "bid=%lld ii=%zu recv=%lld key=%lld route_kind=%s helper=%s",
+                "bid=%lld ii=%zu recv=%lld key=%lld route_kind=%s key_route=%s helper=%s",
                 bid,
                 ii,
                 receiver_reg,
                 key_reg,
                 route_kind_raw,
+                key_route ? key_route : "none",
                 helper_symbol);
             hako_llvmc_emit_route_trace(
                 "generic_method_has_route",
