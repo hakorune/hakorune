@@ -1,0 +1,187 @@
+{
+  "schema": "core_method_contract_manifest/v0",
+  "source": "lang/src/runtime/meta/core_method_contract_box.hako",
+  "fields": [
+    "box",
+    "canonical",
+    "aliases",
+    "arity",
+    "effect",
+    "core_op",
+    "hot_lowering",
+    "cold_lowering",
+    "runtime_owner",
+    "status",
+    "guards"
+  ],
+  "row_count": 11,
+  "rows": [
+    {
+      "box": "ArrayBox",
+      "canonical": "length",
+      "aliases": [
+        "len",
+        "size"
+      ],
+      "arity": "0",
+      "effect": "pure_read",
+      "core_op": "ArrayLen",
+      "hot_lowering": "warm_direct_abi",
+      "cold_lowering": "nyash.array.slot_len_h",
+      "runtime_owner": ".hako ArrayBox contract / Rust array substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "ArrayBox.length/0"
+    },
+    {
+      "box": "ArrayBox",
+      "canonical": "get",
+      "aliases": [],
+      "arity": "1",
+      "effect": "pure_read",
+      "core_op": "ArrayGet",
+      "hot_lowering": "warm_direct_abi",
+      "cold_lowering": "nyash.array.slot_load_hi",
+      "runtime_owner": ".hako ArrayBox contract / Rust array substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "ArrayBox.get/1"
+    },
+    {
+      "box": "ArrayBox",
+      "canonical": "set",
+      "aliases": [],
+      "arity": "2",
+      "effect": "mutates_slot",
+      "core_op": "ArraySet",
+      "hot_lowering": "cold_fallback",
+      "cold_lowering": "nyash.array.slot_store_*",
+      "runtime_owner": ".hako ArrayBox contract / Rust array substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "ArrayBox.set/2"
+    },
+    {
+      "box": "ArrayBox",
+      "canonical": "push",
+      "aliases": [],
+      "arity": "1",
+      "effect": "mutates_shape",
+      "core_op": "ArrayPush",
+      "hot_lowering": "cold_fallback",
+      "cold_lowering": "nyash.array.slot_append_hh",
+      "runtime_owner": ".hako ArrayBox contract / Rust array substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "ArrayBox.push/1"
+    },
+    {
+      "box": "MapBox",
+      "canonical": "get",
+      "aliases": [],
+      "arity": "1",
+      "effect": "pure_read",
+      "core_op": "MapGet",
+      "hot_lowering": "warm_direct_abi",
+      "cold_lowering": "nyash.map.slot_load_hh",
+      "runtime_owner": ".hako MapBox contract / Rust map substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "MapBox.get/1"
+    },
+    {
+      "box": "MapBox",
+      "canonical": "set",
+      "aliases": [],
+      "arity": "2",
+      "effect": "mutates_slot",
+      "core_op": "MapSet",
+      "hot_lowering": "cold_fallback",
+      "cold_lowering": "nyash.map.slot_store_hhh",
+      "runtime_owner": ".hako MapBox contract / Rust map substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "MapBox.set/2"
+    },
+    {
+      "box": "MapBox",
+      "canonical": "has",
+      "aliases": [],
+      "arity": "1",
+      "effect": "pure_read",
+      "core_op": "MapHas",
+      "hot_lowering": "warm_direct_abi",
+      "cold_lowering": "nyash.map.probe_hh",
+      "runtime_owner": ".hako MapBox contract / Rust map substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "MapBox.has/1"
+    },
+    {
+      "box": "MapBox",
+      "canonical": "size",
+      "aliases": [
+        "len",
+        "length"
+      ],
+      "arity": "0",
+      "effect": "pure_read",
+      "core_op": "MapLen",
+      "hot_lowering": "warm_direct_abi",
+      "cold_lowering": "nyash.map.entry_count_i64",
+      "runtime_owner": ".hako MapBox contract / Rust map substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "MapBox.size/0"
+    },
+    {
+      "box": "StringBox",
+      "canonical": "length",
+      "aliases": [
+        "len",
+        "size"
+      ],
+      "arity": "0",
+      "effect": "pure_read",
+      "core_op": "StringLen",
+      "hot_lowering": "warm_direct_abi",
+      "cold_lowering": "nyash.string.len_h",
+      "runtime_owner": ".hako StringBox contract / Rust string substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "StringBox.length/0"
+    },
+    {
+      "box": "StringBox",
+      "canonical": "substring",
+      "aliases": [
+        "substr"
+      ],
+      "arity": "1|2",
+      "effect": "pure_read",
+      "core_op": "StringSubstring",
+      "hot_lowering": "warm_direct_abi",
+      "cold_lowering": "nyash.string.substring_hii",
+      "runtime_owner": ".hako StringBox contract / Rust string substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "StringBox.substring/1|2"
+    },
+    {
+      "box": "StringBox",
+      "canonical": "indexOf",
+      "aliases": [
+        "find"
+      ],
+      "arity": "1|2",
+      "effect": "pure_read",
+      "core_op": "StringIndexOf",
+      "hot_lowering": "warm_direct_abi",
+      "cold_lowering": "nyash.string.indexOf_hh",
+      "runtime_owner": ".hako StringBox contract / Rust string substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "StringBox.indexOf/1|2"
+    }
+  ]
+}

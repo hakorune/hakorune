@@ -205,6 +205,7 @@ routes.
 
 ### HCM-1 Contract Owner Seed
 
+- Status: landed by `291x-132`.
 - Add the first contract owner file or table under `lang/src/runtime/meta/`.
 - Import existing vocabulary from
   `lang/src/runtime/collections/method_policy_box.hako` instead of inventing a
@@ -220,6 +221,8 @@ Done when:
 
 ### HCM-2 Generated Manifest / Enum Table
 
+- Status: landed by `291x-133` for the generated manifest; enum/table
+  consumption remains later.
 - Add the smallest generator or checked generation step.
 - Generate a stable enum/table consumed by `.inc` or a temporary guard.
 - Decide artifact placement before writing code.
@@ -234,6 +237,7 @@ Done when:
 
 ### HCM-3 Drift Guard / No-Growth Guard
 
+- Status: pending.
 - Extend or add a focused guard that rejects untracked `.inc` method-name
   classifier growth.
 - Keep the existing `Set` mirror guard intact.

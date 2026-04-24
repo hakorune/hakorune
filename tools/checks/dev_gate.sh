@@ -36,6 +36,7 @@ list_profiles() {
     - tools/checks/current_state_pointer_guard.sh
     - tools/checks/inc_codegen_thin_shim_guard.sh
     - tools/checks/generic_method_set_policy_mirror_guard.sh
+    - tools/checks/core_method_contract_manifest_guard.sh
     - tools/checks/route_no_fallback_guard.sh
     - cargo check --bin hakorune
     - PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
@@ -193,6 +194,9 @@ run_quick() {
 
   run_step "generic-method Set policy mirror guard" \
     bash tools/checks/generic_method_set_policy_mirror_guard.sh
+
+  run_step "CoreMethodContract manifest guard" \
+    bash tools/checks/core_method_contract_manifest_guard.sh
 
   run_step "route no-fallback guard" \
     bash tools/checks/route_no_fallback_guard.sh

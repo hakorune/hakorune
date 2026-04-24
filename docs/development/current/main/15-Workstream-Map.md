@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x CoreMethodContract seed landed - generated metadata and no-growth guard pending` |
-| Next | `HCM-2 generated metadata / HCM-3 no-growth guard` |
+| Blocker | `phase-291x CoreMethodContract manifest landed - .inc no-growth guard pending` |
+| Next | `HCM-3 .inc no-growth guard` |
 | After Next | `HCM-4 one-family MIR CoreMethodOp carrier` |
 
 ## Current Read
@@ -37,9 +37,9 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Add generated CoreMethodContract metadata or a checked generated-table path.
-3. Add a no-growth guard for `.inc` method-name classifier growth.
-4. Do not move `.inc` consumers before the metadata and guard exist.
+2. Add a no-growth guard for `.inc` method-name classifier growth.
+3. Do not move `.inc` consumers before the no-growth guard exists.
+4. Use `core_method_contract_manifest.json` as the generated row source for the guard.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
 
 ## Parked Corridor

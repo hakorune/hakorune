@@ -39,3 +39,7 @@ Rule:
   - `CoreMethodContractBox.core_op_for(box_name, method_name, arity)`
   - owns the first Array/String/Map compiler contract seed rows.
   - does not emit `.inc` code or decide hot inline lowering.
+- `generated/core_method_contract_manifest.json`
+  - derived from `CoreMethodContractBox`
+  - guarded by `tools/checks/core_method_contract_manifest_guard.sh`
+  - not a semantic owner; regenerate instead of hand-editing.
