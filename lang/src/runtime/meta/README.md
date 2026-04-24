@@ -42,4 +42,6 @@ Rule:
 - `generated/core_method_contract_manifest.json`
   - derived from `CoreMethodContractBox`
   - guarded by `tools/checks/core_method_contract_manifest_guard.sh`
+  - paired with `tools/checks/core_method_contract_inc_no_growth_guard.sh`
+    to stop new `.inc` method/box-name classifier growth
   - not a semantic owner; regenerate instead of hand-editing.

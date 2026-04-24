@@ -21,9 +21,9 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x CoreMethodContract manifest landed - .inc no-growth guard pending` |
-| Next | `HCM-3 .inc no-growth guard` |
-| After Next | `HCM-4 one-family MIR CoreMethodOp carrier` |
+| Blocker | `phase-291x CoreMethodContract .inc no-growth guard landed - one-family MIR CoreMethodOp carrier pending` |
+| Next | `HCM-4 one-family MIR CoreMethodOp carrier` |
+| After Next | `HCM-5 .inc table consumer slice` |
 
 ## Current Read
 
@@ -37,9 +37,9 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Add a no-growth guard for `.inc` method-name classifier growth.
-3. Do not move `.inc` consumers before the no-growth guard exists.
-4. Use `core_method_contract_manifest.json` as the generated row source for the guard.
+2. Add a one-family MIR CoreMethodOp carrier.
+3. Do not move `.inc` table consumers before the MIR carrier exists.
+4. Use `core_method_contract_manifest.json` as the generated row source for the carrier.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
 
 ## Parked Corridor

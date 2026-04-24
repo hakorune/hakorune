@@ -237,7 +237,7 @@ Done when:
 
 ### HCM-3 Drift Guard / No-Growth Guard
 
-- Status: pending.
+- Status: landed by `291x-134`.
 - Extend or add a focused guard that rejects untracked `.inc` method-name
   classifier growth.
 - Keep the existing `Set` mirror guard intact.
@@ -252,6 +252,7 @@ Done when:
 
 ### HCM-4 MIR CoreMethodOp Carrier
 
+- Status: pending.
 - Introduce a narrow metadata carrier for one family first.
 - Prefer extending the existing route-plan seam only if it does not become a
   second semantic owner.

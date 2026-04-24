@@ -1,0 +1,17 @@
+# path	function	kind	literal	max_count	manifest_anchor	deletion_condition
+# Existing generic-method `.inc` string classifiers are transitional debt.
+# Reductions are allowed; new rows or per-row count growth fail.
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	birth	1	constructor-compat	replace-with-core-method-op-or-constructor-contract
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	set	1	core-method-contract	replace-with-core-method-op-id
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	get	1	core-method-contract	replace-with-core-method-op-id
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	len	1	core-method-contract	replace-with-core-method-op-id
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	length	1	core-method-contract	replace-with-core-method-op-id
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	size	1	core-method-contract	replace-with-core-method-op-id
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	push	1	core-method-contract	replace-with-core-method-op-id
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	substring	1	core-method-contract	replace-with-core-method-op-id
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	has	1	core-method-contract	replace-with-core-method-op-id
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	ArrayBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	MapBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_set_route	box	MapBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_set_route	box	ArrayBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_set_route	box	RuntimeDataBox	1	runtime-data-compat	replace-with-runtime-data-contract-or-delete-route

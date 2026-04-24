@@ -37,16 +37,16 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x CoreMethodContract manifest landed - .inc no-growth guard pending`
+- current blocker token: `phase-291x CoreMethodContract .inc no-growth guard landed - one-family MIR CoreMethodOp carrier pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- add the `.inc` method-name-classifier no-growth guard
+- add a one-family MIR CoreMethodOp carrier
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
-- do not move `.inc` consumers until the no-growth guard is in place
+- do not move `.inc` table consumers until the MIR carrier exists
 - do not reopen landed CoreBox router rows without an owner-path change
 
 ## Detail Pointers

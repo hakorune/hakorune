@@ -46,6 +46,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md
   - docs/development/current/main/phases/phase-291x/291x-132-core-method-contract-seed-card.md
   - docs/development/current/main/phases/phase-291x/291x-133-core-method-contract-manifest-guard-card.md
+  - docs/development/current/main/phases/phase-291x/291x-134-core-method-contract-inc-no-growth-guard-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -58,7 +59,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: `.inc no-growth guard` (pending)
+- Next implementation target: HCM-4 one-family MIR CoreMethodOp carrier (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -119,6 +120,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 34. `docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md`
 35. `docs/development/current/main/phases/phase-291x/291x-132-core-method-contract-seed-card.md`
 36. `docs/development/current/main/phases/phase-291x/291x-133-core-method-contract-manifest-guard-card.md`
+37. `docs/development/current/main/phases/phase-291x/291x-134-core-method-contract-inc-no-growth-guard-card.md`
 
 ## Current Rule
 
@@ -139,6 +141,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   lowering or hot inline behavior
 - `291x-133` landed the generated CoreMethodContract manifest and drift guard;
   the manifest is derived and `.inc` consumers still have not moved
+- `291x-134` landed the `.inc` no-growth guard for the transitional generic
+  method policy mirror; `.inc` consumers still have not moved
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
