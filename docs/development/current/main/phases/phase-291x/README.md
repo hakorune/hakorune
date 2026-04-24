@@ -78,6 +78,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-163-maphas-emit-kind-mirror-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-164-metadata-absent-has-fallback-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-165-core-method-mapget-emit-kind-metadata-card.md
+  - docs/development/current/main/phases/phase-291x/291x-166-metadata-absent-get-fallback-contract-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -90,7 +91,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: MapGet mirror prune decision
+- Next implementation target: generic len/length/size metadata preflight
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -290,6 +291,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-165` makes generic-method `get` emit-kind selection prefer valid MIR
   `core_method.op=MapGet` metadata before legacy method-name fallback; helper
   selection and lowering remain unchanged
+- `291x-166` rejects pruning the generic `mname == "get"` emit-kind mirror
+  row for now and tightens its deletion condition to require metadata-absent
+  `RuntimeDataBox.get` boundary coverage
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x MapGet mirror prune decision pending`
+- current blocker token: `phase-291x generic len alias metadata preflight pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- decide whether the MapGet legacy mirror row can be pruned or needs a metadata-absent fallback contract
+- inventory `len`/`length`/`size` CoreMethod metadata coverage before touching the legacy mirror rows
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
