@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-129"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-129-generic-method-set-policy-mirror-guard-card.md"
-latest_card_summary = "Generic-method Set policy mirror guard landed; ArrayStoreString demand is now pinned as source=1 identity=0 publication=1."
+latest_card = "291x-130"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-130-stageb-parser-scanner-phi-guard-card.md"
+latest_card_summary = "Stage-B direct binop smoke restored by PHI-safe parser/scanner loops and emit-helper JoinIR-dev isolation."
 
-current_blocker_token = "phase-291x generic-method Set policy mirror guard landed - next cleanup card selection pending"
+current_blocker_token = "phase-291x Stage-B parser scanner guard landed - next cleanup card selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,9 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "291x-126 Rust warning quieting landed",
   "291x-127 Workspace warning quieting landed",
   "291x-129 Generic method Set policy mirror guard landed",
+  "291x-130 Stage-B parser scanner guard landed",
 ]
 
 stale_pointer_patterns = [

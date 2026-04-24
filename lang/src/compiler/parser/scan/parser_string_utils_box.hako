@@ -19,9 +19,15 @@ static box ParserStringUtilsBox {
     return out
   }
 
-  is_digit(ch) { return ch >= "0" && ch <= "9" }
+  is_digit(ch) {
+    if ch >= "0" && ch <= "9" { return 1 }
+    return 0
+  }
   is_space(ch) { return ch == " " || ch == "\t" || ch == "\n" || ch == "\r" }
-  is_alpha(ch) { return (ch >= "A" && ch <= "Z") || (ch >= "a" && ch <= "z") || ch == "_" }
+  is_alpha(ch) {
+    if (ch >= "A" && ch <= "Z") || (ch >= "a" && ch <= "z") || ch == "_" { return 1 }
+    return 0
+  }
 
   starts_with(src, i, pat) {
     if src == null || pat == null { return 0 }

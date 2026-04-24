@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x generic-method Set policy mirror guard landed - next cleanup card selection pending`
+- current blocker token: `phase-291x Stage-B parser scanner guard landed - next cleanup card selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- choose the next phase-291x cleanup card after the generic-method `Set` guard
+- choose the next phase-291x cleanup card after the Stage-B parser scanner guard
 - keep BoxShape and BoxCount separate
 - do not update current mirrors for every landed card
 - update `CURRENT_STATE.toml` and the active card first

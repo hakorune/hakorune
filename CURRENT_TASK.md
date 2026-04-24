@@ -37,13 +37,13 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x generic-method Set policy mirror guard landed - next cleanup card selection pending`
+- current blocker token: `phase-291x Stage-B parser scanner guard landed - next cleanup card selection pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- choose the next phase-291x cleanup card after the generic-method `Set` guard
+- choose the next phase-291x cleanup card after the Stage-B parser scanner guard
 - keep BoxShape cleanup separate from BoxCount feature rows
 - do not reopen landed CoreBox router rows without an owner-path change
 

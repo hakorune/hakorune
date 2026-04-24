@@ -22,6 +22,7 @@ stageb_compile_to_json() {
     export NYASH_VARMAP_GUARD_STRICT=0
     export NYASH_BLOCK_SCHEDULE_VERIFY=0
     # Stage-B entry currently includes nested loops in internal resolvers; avoid strict JoinIR caps here.
+    export NYASH_JOINIR_DEV=0
     export HAKO_JOINIR_STRICT=0
     # Quiet flagsは外す（print(ast_json) を観測するため）。
     export NYASH_QUIET=0
@@ -68,6 +69,7 @@ stageb_compile_to_json_with_bundles() {
     export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
     export NYASH_VARMAP_GUARD_STRICT=0
     export NYASH_BLOCK_SCHEDULE_VERIFY=0
+    export NYASH_JOINIR_DEV=0
     export HAKO_JOINIR_STRICT=0
     NYASH_QUIET=0 HAKO_QUIET=0 NYASH_CLI_VERBOSE=0 \
       cd "$NYASH_ROOT" && \
@@ -105,6 +107,7 @@ stageb_compile_to_json_with_require() {
     export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
     export NYASH_VARMAP_GUARD_STRICT=0
     export NYASH_BLOCK_SCHEDULE_VERIFY=0
+    export NYASH_JOINIR_DEV=0
     export HAKO_JOINIR_STRICT=0
     NYASH_QUIET=0 HAKO_QUIET=0 NYASH_CLI_VERBOSE=0 \
       cd "$NYASH_ROOT" && \

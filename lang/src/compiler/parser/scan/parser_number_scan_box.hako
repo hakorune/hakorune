@@ -9,17 +9,18 @@ static box ParserNumberScanBox {
     if src == null { return "{\"type\":\"Int\",\"value\":0}@" + ParserCommonUtilsBox.i2s(i) }
     local n = src.length()
     local j = i
-    // MirBuilder-friendly: explicit continue/break instead of flag
-    loop(j < n) {
-      if ParserCommonUtilsBox.is_digit(src.substring(j, j+1)) {
+    local done = 0
+    // Keep one loop exit/PHI shape; the Stage-B VM path can lose `j`
+    // updates across early `continue` in this tiny scanner.
+    loop(j < n && done == 0) {
+      if ParserCommonUtilsBox.is_digit(src.substring(j, j+1)) == 1 {
         j = j + 1
-        continue
+      } else {
+        done = 1
       }
-      break
     }
     local s = src.substring(i, j)
     if s.length() == 0 { s = "0" }
     return "{\"type\":\"Int\",\"value\":" + s + "}@" + ParserCommonUtilsBox.i2s(j)
   }
 }
-
