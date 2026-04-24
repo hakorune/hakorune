@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-216"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-216-receiver-surface-fallback-sunset-design-card.md"
-latest_card_summary = "Receiver-surface fallback rows now have explicit sunset blockers; do not prune them until has/indexOf/constructor/RuntimeData compat rows are resolved."
+latest_card = "291x-217"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-217-string-indexof-carrier-consumer-card.md"
+latest_card_summary = "StringIndexOf CoreMethod carrier and metadata consumers landed for one-argument String indexOf; legacy indexOf fallback rows remain pinned."
 
 current_blocker_token = "phase-291x remaining inc mirror cleanup selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

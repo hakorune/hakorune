@@ -30,6 +30,7 @@ pub enum GenericMethodRouteKind {
     MapStoreAny,
     StringLen,
     StringSubstring,
+    StringIndexOf,
     MapContainsAny,
     MapContainsI64,
 }
@@ -48,6 +49,7 @@ impl GenericMethodRouteKind {
             Self::MapStoreAny => "nyash.map.slot_store_hhh",
             Self::StringLen => "nyash.string.len_h",
             Self::StringSubstring => "nyash.string.substring_hii",
+            Self::StringIndexOf => "nyash.string.indexOf_hh",
             Self::MapContainsAny => "nyash.map.probe_hh",
             Self::MapContainsI64 => "nyash.map.probe_hi",
         }
@@ -68,6 +70,7 @@ impl std::fmt::Display for GenericMethodRouteKind {
             Self::MapStoreAny => f.write_str("map_store_any"),
             Self::StringLen => f.write_str("string_len"),
             Self::StringSubstring => f.write_str("string_substring"),
+            Self::StringIndexOf => f.write_str("string_indexof"),
             Self::MapContainsAny => f.write_str("map_contains_any"),
             Self::MapContainsI64 => f.write_str("map_contains_i64"),
         }
@@ -82,6 +85,7 @@ pub enum GenericMethodRouteProof {
     PushSurfacePolicy,
     SetSurfacePolicy,
     SubstringSurfacePolicy,
+    IndexOfSurfacePolicy,
     MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
 }
@@ -95,6 +99,7 @@ impl std::fmt::Display for GenericMethodRouteProof {
             Self::PushSurfacePolicy => f.write_str("push_surface_policy"),
             Self::SetSurfacePolicy => f.write_str("set_surface_policy"),
             Self::SubstringSurfacePolicy => f.write_str("substring_surface_policy"),
+            Self::IndexOfSurfacePolicy => f.write_str("indexof_surface_policy"),
             Self::MapSetScalarI64DominatesNoEscape => {
                 f.write_str("map_set_scalar_i64_dominates_no_escape")
             }
@@ -134,6 +139,7 @@ impl GenericMethodRoute {
             "push" => "generic_method.push",
             "set" => "generic_method.set",
             "substring" => "generic_method.substring",
+            "indexOf" => "generic_method.indexOf",
             _ => "generic_method.unknown",
         }
     }
@@ -146,6 +152,7 @@ impl GenericMethodRoute {
             "push" => "push",
             "set" => "set",
             "substring" => "substring",
+            "indexOf" => "indexOf",
             _ => "unknown",
         }
     }
@@ -162,6 +169,7 @@ impl GenericMethodRoute {
             "push" => &["mutate.shape"],
             "set" => &["mutate.slot"],
             "substring" => &["observe.substring"],
+            "indexOf" => &["observe.indexof"],
             _ => &[],
         }
     }
@@ -206,6 +214,15 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                     })
                     .or_else(|| {
                         match_generic_substring_route(
+                            function,
+                            &def_map,
+                            block_id,
+                            instruction_index,
+                            inst,
+                        )
+                    })
+                    .or_else(|| {
+                        match_generic_indexof_route(
                             function,
                             &def_map,
                             block_id,
@@ -581,6 +598,63 @@ fn match_generic_substring_route(
         return_shape: None,
         value_demand: GenericMethodValueDemand::ReadRef,
         publication_policy: None,
+    })
+}
+
+fn match_generic_indexof_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> Option<GenericMethodRoute> {
+    let MirInstruction::Call {
+        dst,
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if method != "indexOf" || args.len() != 1 {
+        return None;
+    }
+
+    let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| (box_name == "StringBox").then(|| "StringBox".to_string()));
+    if box_name != "StringBox"
+        && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))
+    {
+        return None;
+    }
+
+    Some(GenericMethodRoute {
+        block,
+        instruction_index,
+        box_name: box_name.clone(),
+        method: method.clone(),
+        arity: args.len(),
+        receiver_origin_box,
+        key_route: None,
+        receiver_value: *receiver,
+        key_value: None,
+        result_value: *dst,
+        route_kind: GenericMethodRouteKind::StringIndexOf,
+        proof: GenericMethodRouteProof::IndexOfSurfacePolicy,
+        core_method: Some(CoreMethodOpCarrier::manifest(
+            CoreMethodOp::StringIndexOf,
+            CoreMethodLoweringTier::WarmDirectAbi,
+        )),
+        return_shape: Some(GenericMethodReturnShape::ScalarI64),
+        value_demand: GenericMethodValueDemand::ScalarI64,
+        publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
     })
 }
 
@@ -1472,6 +1546,76 @@ mod tests {
             .core_method
             .expect("RuntimeData StringSubstring carrier");
         assert_eq!(core_method.op, CoreMethodOp::StringSubstring);
+    }
+
+    #[test]
+    fn records_direct_indexof_core_method_route() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(method_call(Some(5), "StringBox", "indexOf", 1, vec![2]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), "generic_method.indexOf");
+        assert_eq!(route.box_name, "StringBox");
+        assert_eq!(route.method, "indexOf");
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
+        assert_eq!(route.key_route, None);
+        assert_eq!(route.key_value, None);
+        assert_eq!(route.route_kind, GenericMethodRouteKind::StringIndexOf);
+        assert_eq!(route.proof, GenericMethodRouteProof::IndexOfSurfacePolicy);
+        let core_method = route.core_method.expect("StringIndexOf carrier");
+        assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(route.return_shape, Some(GenericMethodReturnShape::ScalarI64));
+        assert_eq!(route.value_demand, GenericMethodValueDemand::ScalarI64);
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::NoPublication)
+        );
+    }
+
+    #[test]
+    fn records_runtime_data_indexof_from_string_origin() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "StringBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(method_call(Some(5), "RuntimeDataBox", "indexOf", 2, vec![3]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), "generic_method.indexOf");
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.method, "indexOf");
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
+        assert_eq!(route.route_kind, GenericMethodRouteKind::StringIndexOf);
+        let core_method = route
+            .core_method
+            .expect("RuntimeData StringIndexOf carrier");
+        assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
     }
 
     #[test]

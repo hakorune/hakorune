@@ -310,6 +310,12 @@
               core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
           }
+          if (!strcmp(route_id, "generic_method.indexOf") &&
+              !strcmp(op, "StringIndexOf") &&
+              !strcmp(route_kind, "string_indexof") &&
+              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+          }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
         return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
