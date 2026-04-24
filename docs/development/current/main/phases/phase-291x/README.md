@@ -44,6 +44,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-121-doc-update-simplification-contract.md
   - docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md
+  - docs/development/current/main/phases/phase-291x/291x-132-core-method-contract-seed-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -56,7 +57,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: `CoreMethodContract SSOT seed` (pending)
+- Next implementation target: `generated metadata / no-growth guard` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -115,6 +116,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 32. `docs/development/current/main/phases/phase-291x/291x-121-doc-update-simplification-contract.md`
 33. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 34. `docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md`
+35. `docs/development/current/main/phases/phase-291x/291x-132-core-method-contract-seed-card.md`
 
 ## Current Rule
 
@@ -130,6 +132,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - existing guarded `.inc` mirrors may remain during migration, but new
   method-name classifier growth needs a contract row, deletion condition, and
   focused guard
+- `291x-132` landed `CoreMethodContractBox` as the inert Array/String/Map
+  seed owner under `lang/src/runtime/meta/`; it does not change `.inc`
+  lowering or hot inline behavior
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

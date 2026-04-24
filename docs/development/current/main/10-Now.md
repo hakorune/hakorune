@@ -20,15 +20,16 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Hotline/CoreMethodContract task plan landed - CoreMethodContract SSOT seed pending`
+- current blocker token: `phase-291x CoreMethodContract seed landed - generated metadata and no-growth guard pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- start the CoreMethodContract SSOT seed from the Hotline task plan
+- add generated CoreMethodContract metadata and a no-growth guard
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
+- do not move `.inc` consumers until generated metadata and guard are in place
 - do not update current mirrors for every landed card
 - update `CURRENT_STATE.toml` and the active card first
 

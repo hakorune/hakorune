@@ -1,0 +1,313 @@
+// CoreMethodContractBox - compiler-owned method contract seed.
+// Responsibility:
+// - own the first Array/String/Map method contract rows on the .hako side
+// - expose rows and lookup helpers for later generated metadata
+// - keep backend lowering and runtime storage mechanics out of this box
+// Non-responsibility:
+// - raw ABI dispatch
+// - C/.inc emission
+// - runtime legality checks
+// - hot inline lowering
+
+static box CoreMethodContractBox {
+  status_seed() { return "seed" }
+
+  effect_pure_read() { return "pure_read" }
+  effect_mutates_slot() { return "mutates_slot" }
+  effect_mutates_shape() { return "mutates_shape" }
+
+  tier_warm_direct_abi() { return "warm_direct_abi" }
+  tier_cold_fallback() { return "cold_fallback" }
+
+  op_none() { return "None" }
+  op_array_len() { return "ArrayLen" }
+  op_array_get() { return "ArrayGet" }
+  op_array_set() { return "ArraySet" }
+  op_array_push() { return "ArrayPush" }
+  op_map_get() { return "MapGet" }
+  op_map_set() { return "MapSet" }
+  op_map_has() { return "MapHas" }
+  op_map_len() { return "MapLen" }
+  op_string_len() { return "StringLen" }
+  op_string_substring() { return "StringSubstring" }
+  op_string_indexof() { return "StringIndexOf" }
+
+  schema_fields() {
+    local out = new ArrayBox()
+    out.push("box")
+    out.push("canonical")
+    out.push("aliases")
+    out.push("arity")
+    out.push("effect")
+    out.push("core_op")
+    out.push("hot_lowering")
+    out.push("cold_lowering")
+    out.push("runtime_owner")
+    out.push("status")
+    out.push("guards")
+    return out
+  }
+
+  _aliases0() {
+    return new ArrayBox()
+  }
+
+  _aliases1(a) {
+    local out = new ArrayBox()
+    out.push(a)
+    return out
+  }
+
+  _aliases2(a, b) {
+    local out = new ArrayBox()
+    out.push(a)
+    out.push(b)
+    return out
+  }
+
+  _guards0() {
+    return new ArrayBox()
+  }
+
+  _row(box_name, canonical, aliases, arity, effect, core_op, hot_lowering, cold_lowering, runtime_owner) {
+    local row = new MapBox()
+    row.set("box", box_name)
+    row.set("canonical", canonical)
+    row.set("aliases", aliases)
+    row.set("arity", arity)
+    row.set("effect", effect)
+    row.set("core_op", core_op)
+    row.set("hot_lowering", hot_lowering)
+    row.set("cold_lowering", cold_lowering)
+    row.set("runtime_owner", runtime_owner)
+    row.set("status", me.status_seed())
+    row.set("guards", me._guards0())
+    return row
+  }
+
+  _runtime_owner_array() { return ".hako ArrayBox contract / Rust array substrate" }
+  _runtime_owner_map() { return ".hako MapBox contract / Rust map substrate" }
+  _runtime_owner_string() { return ".hako StringBox contract / Rust string substrate" }
+
+  _array_len_row() {
+    return me._row(
+      "ArrayBox",
+      "length",
+      me._aliases2("len", "size"),
+      "0",
+      me.effect_pure_read(),
+      me.op_array_len(),
+      me.tier_warm_direct_abi(),
+      "nyash.array.slot_len_h",
+      me._runtime_owner_array()
+    )
+  }
+
+  _array_get_row() {
+    return me._row(
+      "ArrayBox",
+      "get",
+      me._aliases0(),
+      "1",
+      me.effect_pure_read(),
+      me.op_array_get(),
+      me.tier_warm_direct_abi(),
+      "nyash.array.slot_load_hi",
+      me._runtime_owner_array()
+    )
+  }
+
+  _array_set_row() {
+    return me._row(
+      "ArrayBox",
+      "set",
+      me._aliases0(),
+      "2",
+      me.effect_mutates_slot(),
+      me.op_array_set(),
+      me.tier_cold_fallback(),
+      "nyash.array.slot_store_*",
+      me._runtime_owner_array()
+    )
+  }
+
+  _array_push_row() {
+    return me._row(
+      "ArrayBox",
+      "push",
+      me._aliases0(),
+      "1",
+      me.effect_mutates_shape(),
+      me.op_array_push(),
+      me.tier_cold_fallback(),
+      "nyash.array.slot_append_hh",
+      me._runtime_owner_array()
+    )
+  }
+
+  _map_get_row() {
+    return me._row(
+      "MapBox",
+      "get",
+      me._aliases0(),
+      "1",
+      me.effect_pure_read(),
+      me.op_map_get(),
+      me.tier_warm_direct_abi(),
+      "nyash.map.slot_load_hh",
+      me._runtime_owner_map()
+    )
+  }
+
+  _map_set_row() {
+    return me._row(
+      "MapBox",
+      "set",
+      me._aliases0(),
+      "2",
+      me.effect_mutates_slot(),
+      me.op_map_set(),
+      me.tier_cold_fallback(),
+      "nyash.map.slot_store_hhh",
+      me._runtime_owner_map()
+    )
+  }
+
+  _map_has_row() {
+    return me._row(
+      "MapBox",
+      "has",
+      me._aliases0(),
+      "1",
+      me.effect_pure_read(),
+      me.op_map_has(),
+      me.tier_warm_direct_abi(),
+      "nyash.map.probe_hh",
+      me._runtime_owner_map()
+    )
+  }
+
+  _map_len_row() {
+    return me._row(
+      "MapBox",
+      "size",
+      me._aliases2("len", "length"),
+      "0",
+      me.effect_pure_read(),
+      me.op_map_len(),
+      me.tier_warm_direct_abi(),
+      "nyash.map.entry_count_i64",
+      me._runtime_owner_map()
+    )
+  }
+
+  _string_len_row() {
+    return me._row(
+      "StringBox",
+      "length",
+      me._aliases2("len", "size"),
+      "0",
+      me.effect_pure_read(),
+      me.op_string_len(),
+      me.tier_warm_direct_abi(),
+      "nyash.string.len_h",
+      me._runtime_owner_string()
+    )
+  }
+
+  _string_substring_row() {
+    return me._row(
+      "StringBox",
+      "substring",
+      me._aliases1("substr"),
+      "1|2",
+      me.effect_pure_read(),
+      me.op_string_substring(),
+      me.tier_warm_direct_abi(),
+      "nyash.string.substring_hii",
+      me._runtime_owner_string()
+    )
+  }
+
+  _string_indexof_row() {
+    return me._row(
+      "StringBox",
+      "indexOf",
+      me._aliases1("find"),
+      "1|2",
+      me.effect_pure_read(),
+      me.op_string_indexof(),
+      me.tier_warm_direct_abi(),
+      "nyash.string.indexOf_hh",
+      me._runtime_owner_string()
+    )
+  }
+
+  rows() {
+    local out = new ArrayBox()
+    out.push(me._array_len_row())
+    out.push(me._array_get_row())
+    out.push(me._array_set_row())
+    out.push(me._array_push_row())
+    out.push(me._map_get_row())
+    out.push(me._map_set_row())
+    out.push(me._map_has_row())
+    out.push(me._map_len_row())
+    out.push(me._string_len_row())
+    out.push(me._string_substring_row())
+    out.push(me._string_indexof_row())
+    return out
+  }
+
+  count() {
+    return me.rows().length()
+  }
+
+  _arity_matches(pattern, arity) {
+    local actual = "" + arity
+    if pattern == actual { return 1 }
+    if pattern == "1|2" && (actual == "1" || actual == "2") { return 1 }
+    return 0
+  }
+
+  _method_matches(row, method_name) {
+    if row.get("canonical") == method_name { return 1 }
+    local aliases = row.get("aliases")
+    local i = 0
+    local n = aliases.length()
+    loop (i < n) {
+      if aliases.get(i) == method_name { return 1 }
+      i = i + 1
+    }
+    return 0
+  }
+
+  find(box_name, method_name, arity) {
+    if box_name == null || method_name == null { return null }
+    local rows = me.rows()
+    local i = 0
+    local n = rows.length()
+    loop (i < n) {
+      local row = rows.get(i)
+      if row.get("box") == box_name && me._method_matches(row, method_name) == 1 {
+        if me._arity_matches(row.get("arity"), arity) == 1 {
+          return row
+        }
+      }
+      i = i + 1
+    }
+    return null
+  }
+
+  core_op_for(box_name, method_name, arity) {
+    local row = me.find(box_name, method_name, arity)
+    if row == null { return me.op_none() }
+    return row.get("core_op")
+  }
+
+  effect_for(box_name, method_name, arity) {
+    local row = me.find(box_name, method_name, arity)
+    if row == null { return "unknown" }
+    return row.get("effect")
+  }
+}

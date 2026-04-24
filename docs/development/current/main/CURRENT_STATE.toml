@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-24"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; next cleanup is the Hotline/CoreMethodContract SSOT seed. Detailed landed history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed is landed and generated metadata/no-growth guard are next. Detailed landed history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-131"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md"
-latest_card_summary = "Hotline/CoreMethodContract task plan landed; implementation is split into contract seed, generated metadata, drift guard, MIR carrier, .inc consumer, and later evidence-backed hot lowering."
+latest_card = "291x-132"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-132-core-method-contract-seed-card.md"
+latest_card_summary = "CoreMethodContract seed owner landed under lang/src/runtime/meta with Array/String/Map rows, lookup helpers, module export, and refreshed Stage-1 module snapshot."
 
-current_blocker_token = "phase-291x Hotline/CoreMethodContract task plan landed - CoreMethodContract SSOT seed pending"
+current_blocker_token = "phase-291x CoreMethodContract seed landed - generated metadata and no-growth guard pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,9 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "291x-129 Generic method Set policy mirror guard landed",
   "291x-130 Stage-B parser scanner guard landed",
   "291x-131 Hotline/CoreMethodContract task plan landed",
+  "291x-132 CoreMethodContract seed landed",
 ]
 
 stale_pointer_patterns = [
@@ -76,4 +76,5 @@ stale_pointer_patterns = [
   "phase-291x Stage-B parser scanner guard landed - next cleanup card selection pending",
   "phase-291x successor cleanup card selection pending",
   "rank the next phase-291x cleanup card after 291x-112 landed",
+  "phase-291x Hotline/CoreMethodContract task plan landed - CoreMethodContract SSOT seed pending",
 ]

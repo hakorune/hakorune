@@ -9,6 +9,7 @@ Responsibilities:
 - `mir_call` route policy vocabularies.
 - `mir_call` prepass need-flag tables.
 - `mir_call` constructor/global/string-extern accept surfaces.
+- `CoreMethodContract` seed rows for Array/String/Map method surfaces.
 
 Non-goals:
 - No kernel behavior.
@@ -19,3 +20,22 @@ Non-goals:
 Rule:
 - This layer owns tables and policy words only.
 - Native seams remain responsible for lowering, probing, and final code emission.
+
+## Current modules
+
+- `mir_call_route_policy_box.hako`
+  - `MirCallRoutePolicy.classify_generic_method_route(...)`
+  - owns narrow `mir_call` route words while backend lowering remains native.
+- `mir_call_need_policy_box.hako`
+  - `MirCallNeedPolicy.classify_need_flags(...)`
+  - owns `mir_call` prepass need-flag tables.
+- `mir_call_surface_policy_box.hako`
+  - `MirCallSurfacePolicy.accept_surface(...)`
+  - owns constructor/global/string-extern accept surfaces.
+- `core_method_contract_box.hako`
+  - `CoreMethodContractBox.rows()`
+  - `CoreMethodContractBox.schema_fields()`
+  - `CoreMethodContractBox.find(box_name, method_name, arity)`
+  - `CoreMethodContractBox.core_op_for(box_name, method_name, arity)`
+  - owns the first Array/String/Map compiler contract seed rows.
+  - does not emit `.inc` code or decide hot inline lowering.
