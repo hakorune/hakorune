@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x set CoreMethod route carrier implementation pending`
+- current blocker token: `phase-291x set emit-kind metadata consumer pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- implement direct `ArrayBox.set` / `MapBox.set` CoreMethod route carriers after the mutating boundary preflight
+- make generic-method `set` emit-kind selection prefer valid `ArraySet` / `MapSet` metadata
 - keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration

@@ -153,6 +153,30 @@ fn build_mir_json_root_emits_generic_method_routes() {
             value_demand: GenericMethodValueDemand::WriteAny,
             publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
         });
+    function
+        .metadata
+        .generic_method_routes
+        .push(GenericMethodRoute {
+            block: BasicBlockId::new(13),
+            instruction_index: 9,
+            box_name: "MapBox".to_string(),
+            method: "set".to_string(),
+            arity: 2,
+            receiver_origin_box: Some("MapBox".to_string()),
+            key_route: Some(GenericMethodKeyRoute::I64Const),
+            receiver_value: ValueId::new(28),
+            key_value: Some(ValueId::new(29)),
+            result_value: Some(ValueId::new(31)),
+            route_kind: GenericMethodRouteKind::MapStoreAny,
+            proof: GenericMethodRouteProof::SetSurfacePolicy,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapSet,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            return_shape: None,
+            value_demand: GenericMethodValueDemand::WriteAny,
+            publication_policy: None,
+        });
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
 
@@ -321,4 +345,27 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(push_route["value_demand"], "write_any");
     assert_eq!(push_route["publication_policy"], "no_publication");
     assert_eq!(push_route["effects"], serde_json::json!(["mutate.shape"]));
+
+    let set_route = &root["functions"][0]["metadata"]["generic_method_routes"][6];
+    assert_eq!(set_route["route_id"], "generic_method.set");
+    assert_eq!(set_route["block"], 13);
+    assert_eq!(set_route["instruction_index"], 9);
+    assert_eq!(set_route["box_name"], "MapBox");
+    assert_eq!(set_route["method"], "set");
+    assert_eq!(set_route["receiver_origin_box"], "MapBox");
+    assert_eq!(set_route["key_route"], "i64_const");
+    assert_eq!(set_route["arity"], 2);
+    assert_eq!(set_route["receiver_value"], 28);
+    assert_eq!(set_route["key_value"], 29);
+    assert_eq!(set_route["result_value"], 31);
+    assert_eq!(set_route["emit_kind"], "set");
+    assert_eq!(set_route["route_kind"], "map_store_any");
+    assert_eq!(set_route["helper_symbol"], "nyash.map.slot_store_hhh");
+    assert_eq!(set_route["proof"], "set_surface_policy");
+    assert_eq!(set_route["core_method"]["op"], "MapSet");
+    assert_eq!(set_route["core_method"]["lowering_tier"], "cold_fallback");
+    assert_eq!(set_route["return_shape"], serde_json::Value::Null);
+    assert_eq!(set_route["value_demand"], "write_any");
+    assert_eq!(set_route["publication_policy"], serde_json::Value::Null);
+    assert_eq!(set_route["effects"], serde_json::json!(["mutate.slot"]));
 }
