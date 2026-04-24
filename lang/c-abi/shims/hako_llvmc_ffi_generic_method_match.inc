@@ -42,7 +42,9 @@
               (size_t)inst != ii) {
             continue;
           }
-          if (!(route_id && !strcmp(route_id, "generic_method.has"))) {
+          if (!(route_id &&
+                (!strcmp(route_id, "generic_method.has") ||
+                 !strcmp(route_id, "generic_method.get")))) {
             continue;
           }
           core_method = yyjson_obj_get(route, "core_method");
@@ -55,9 +57,20 @@
           if (!invalid &&
               op &&
               !strcmp(op, "MapHas") &&
+              route_id &&
+              !strcmp(route_id, "generic_method.has") &&
               core_method_metadata_proof_is_contract_manifest(proof) &&
               core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
             return HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS;
+          }
+          if (!invalid &&
+              op &&
+              !strcmp(op, "MapGet") &&
+              route_id &&
+              !strcmp(route_id, "generic_method.get") &&
+              core_method_metadata_proof_is_contract_manifest(proof) &&
+              core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+            return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
           }
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
         }
