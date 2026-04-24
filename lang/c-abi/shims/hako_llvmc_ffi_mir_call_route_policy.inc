@@ -267,6 +267,18 @@
               core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
           }
+          if (!strcmp(route_id, "generic_method.get") &&
+              !strcmp(op, "MapGet") &&
+              !strcmp(route_kind, "map_load_any") &&
+              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
+          }
+          if (!strcmp(route_id, "generic_method.get") &&
+              !strcmp(op, "ArrayGet") &&
+              !strcmp(route_kind, "array_slot_load_any") &&
+              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET;
+          }
           if (!strcmp(route_id, "generic_method.has") &&
               !strcmp(op, "MapHas") &&
               (!strcmp(route_kind, "map_contains_any") ||

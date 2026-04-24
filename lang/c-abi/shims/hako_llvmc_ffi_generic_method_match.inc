@@ -73,7 +73,17 @@
               route_id &&
               !strcmp(route_id, "generic_method.get") &&
               core_method_metadata_proof_is_contract_manifest(proof) &&
-              core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+              (core_method_lowering_tier_is_cold_fallback(lowering_tier) ||
+               core_method_lowering_tier_is_warm_direct_abi(lowering_tier))) {
+            return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
+          }
+          if (!invalid &&
+              op &&
+              !strcmp(op, "ArrayGet") &&
+              route_id &&
+              !strcmp(route_id, "generic_method.get") &&
+              core_method_metadata_proof_is_contract_manifest(proof) &&
+              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
             return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
           }
           if (!invalid &&

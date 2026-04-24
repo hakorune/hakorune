@@ -177,6 +177,54 @@ fn build_mir_json_root_emits_generic_method_routes() {
             value_demand: GenericMethodValueDemand::WriteAny,
             publication_policy: None,
         });
+    function
+        .metadata
+        .generic_method_routes
+        .push(GenericMethodRoute {
+            block: BasicBlockId::new(14),
+            instruction_index: 10,
+            box_name: "MapBox".to_string(),
+            method: "get".to_string(),
+            arity: 1,
+            receiver_origin_box: Some("MapBox".to_string()),
+            key_route: Some(GenericMethodKeyRoute::UnknownAny),
+            receiver_value: ValueId::new(32),
+            key_value: Some(ValueId::new(33)),
+            result_value: Some(ValueId::new(34)),
+            route_kind: GenericMethodRouteKind::MapLoadAny,
+            proof: GenericMethodRouteProof::GetSurfacePolicy,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapGet,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            return_shape: None,
+            value_demand: GenericMethodValueDemand::ReadRef,
+            publication_policy: None,
+        });
+    function
+        .metadata
+        .generic_method_routes
+        .push(GenericMethodRoute {
+            block: BasicBlockId::new(15),
+            instruction_index: 11,
+            box_name: "ArrayBox".to_string(),
+            method: "get".to_string(),
+            arity: 1,
+            receiver_origin_box: Some("ArrayBox".to_string()),
+            key_route: Some(GenericMethodKeyRoute::I64Const),
+            receiver_value: ValueId::new(35),
+            key_value: Some(ValueId::new(36)),
+            result_value: Some(ValueId::new(37)),
+            route_kind: GenericMethodRouteKind::ArraySlotLoadAny,
+            proof: GenericMethodRouteProof::GetSurfacePolicy,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::ArrayGet,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            return_shape: None,
+            value_demand: GenericMethodValueDemand::ReadRef,
+            publication_policy: None,
+        });
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
 
@@ -368,4 +416,80 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(set_route["value_demand"], "write_any");
     assert_eq!(set_route["publication_policy"], serde_json::Value::Null);
     assert_eq!(set_route["effects"], serde_json::json!(["mutate.slot"]));
+
+    let direct_map_get_route = &root["functions"][0]["metadata"]["generic_method_routes"][7];
+    assert_eq!(direct_map_get_route["route_id"], "generic_method.get");
+    assert_eq!(direct_map_get_route["block"], 14);
+    assert_eq!(direct_map_get_route["instruction_index"], 10);
+    assert_eq!(direct_map_get_route["box_name"], "MapBox");
+    assert_eq!(direct_map_get_route["method"], "get");
+    assert_eq!(direct_map_get_route["receiver_origin_box"], "MapBox");
+    assert_eq!(direct_map_get_route["key_route"], "unknown_any");
+    assert_eq!(direct_map_get_route["arity"], 1);
+    assert_eq!(direct_map_get_route["receiver_value"], 32);
+    assert_eq!(direct_map_get_route["key_value"], 33);
+    assert_eq!(direct_map_get_route["result_value"], 34);
+    assert_eq!(direct_map_get_route["emit_kind"], "get");
+    assert_eq!(direct_map_get_route["route_kind"], "map_load_any");
+    assert_eq!(
+        direct_map_get_route["helper_symbol"],
+        "nyash.map.slot_load_hh"
+    );
+    assert_eq!(direct_map_get_route["proof"], "get_surface_policy");
+    assert_eq!(direct_map_get_route["core_method"]["op"], "MapGet");
+    assert_eq!(
+        direct_map_get_route["core_method"]["lowering_tier"],
+        "warm_direct_abi"
+    );
+    assert_eq!(
+        direct_map_get_route["return_shape"],
+        serde_json::Value::Null
+    );
+    assert_eq!(direct_map_get_route["value_demand"], "read_ref");
+    assert_eq!(
+        direct_map_get_route["publication_policy"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        direct_map_get_route["effects"],
+        serde_json::json!(["read.key"])
+    );
+
+    let direct_array_get_route = &root["functions"][0]["metadata"]["generic_method_routes"][8];
+    assert_eq!(direct_array_get_route["route_id"], "generic_method.get");
+    assert_eq!(direct_array_get_route["block"], 15);
+    assert_eq!(direct_array_get_route["instruction_index"], 11);
+    assert_eq!(direct_array_get_route["box_name"], "ArrayBox");
+    assert_eq!(direct_array_get_route["method"], "get");
+    assert_eq!(direct_array_get_route["receiver_origin_box"], "ArrayBox");
+    assert_eq!(direct_array_get_route["key_route"], "i64_const");
+    assert_eq!(direct_array_get_route["arity"], 1);
+    assert_eq!(direct_array_get_route["receiver_value"], 35);
+    assert_eq!(direct_array_get_route["key_value"], 36);
+    assert_eq!(direct_array_get_route["result_value"], 37);
+    assert_eq!(direct_array_get_route["emit_kind"], "get");
+    assert_eq!(direct_array_get_route["route_kind"], "array_slot_load_any");
+    assert_eq!(
+        direct_array_get_route["helper_symbol"],
+        "nyash.array.slot_load_hi"
+    );
+    assert_eq!(direct_array_get_route["proof"], "get_surface_policy");
+    assert_eq!(direct_array_get_route["core_method"]["op"], "ArrayGet");
+    assert_eq!(
+        direct_array_get_route["core_method"]["lowering_tier"],
+        "warm_direct_abi"
+    );
+    assert_eq!(
+        direct_array_get_route["return_shape"],
+        serde_json::Value::Null
+    );
+    assert_eq!(direct_array_get_route["value_demand"], "read_ref");
+    assert_eq!(
+        direct_array_get_route["publication_policy"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        direct_array_get_route["effects"],
+        serde_json::json!(["read.key"])
+    );
 }

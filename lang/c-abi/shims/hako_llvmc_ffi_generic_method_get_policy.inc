@@ -31,6 +31,7 @@
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:
             return "nyash.map.slot_load_hh";
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY:
+            return "nyash.array.slot_load_hi";
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE:
           default:
             return NULL;
@@ -41,6 +42,12 @@
           const char* route_kind) {
         if (route_kind && !strcmp(route_kind, "runtime_data_load_any")) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY;
+        }
+        if (route_kind && !strcmp(route_kind, "map_load_any")) {
+          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY;
+        }
+        if (route_kind && !strcmp(route_kind, "array_slot_load_any")) {
+          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY;
         }
         return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE;
       }
@@ -74,8 +81,34 @@
             core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY;
         }
+        if (op && !strcmp(op, "MapGet") &&
+            core_method_metadata_proof_is_contract_manifest(proof) &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY;
+        }
+        if (op && !strcmp(op, "ArrayGet") &&
+            core_method_metadata_proof_is_contract_manifest(proof) &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY;
+        }
         if (invalid) *invalid = 1;
         return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE;
+      }
+
+      auto int generic_method_get_receiver_origin_valid(
+          enum GenericMethodGetRouteKind route,
+          const char* receiver_origin_box) {
+        if (!receiver_origin_box) return 0;
+        switch (route) {
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY:
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:
+            return !strcmp(receiver_origin_box, "MapBox");
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY:
+            return !strcmp(receiver_origin_box, "ArrayBox");
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE:
+          default:
+            return 0;
+        }
       }
 
       auto int generic_method_get_route_effects_valid(yyjson_val* effects) {
@@ -106,6 +139,7 @@
       }
 
       auto int generic_method_get_contract_shape_valid(
+          enum GenericMethodGetRouteKind route,
           const char* return_shape,
           const char* value_demand,
           const char* publication_policy) {
@@ -119,6 +153,12 @@
             !strcmp(return_shape, "scalar_i64_or_missing_zero") &&
             !strcmp(value_demand, "scalar_i64") &&
             !strcmp(publication_policy, "no_publication")) {
+          return 1;
+        }
+        if ((route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY ||
+             route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY) &&
+            !return_shape && value_demand && !publication_policy &&
+            !strcmp(value_demand, "read_ref")) {
           return 1;
         }
         return 0;
@@ -201,16 +241,19 @@
           route_kind = core_method_present ? core_route_kind : metadata_route_kind;
           if (!(route_box && bname && !strcmp(route_box, bname)) ||
               !(method && !strcmp(method, "get")) ||
-              !(receiver_origin_box && !strcmp(receiver_origin_box, "MapBox")) ||
               !generic_method_get_key_route_valid(key_route) ||
               !(emit_kind && !strcmp(emit_kind, "get")) ||
               !generic_method_get_route_proof_valid(proof) ||
               !generic_method_get_contract_shape_valid(
+                  route_kind,
                   return_shape,
                   value_demand,
                   publication_policy) ||
               core_method_invalid ||
               route_kind == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE ||
+              !generic_method_get_receiver_origin_valid(
+                  route_kind,
+                  receiver_origin_box) ||
               !generic_method_get_route_read_i64_field(route, "arity", &arity) ||
               arity != 1 ||
               !generic_method_get_route_read_i64_field(
