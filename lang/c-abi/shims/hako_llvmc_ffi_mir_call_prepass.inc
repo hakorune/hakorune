@@ -90,14 +90,6 @@
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE) {
             need_kind = classify_mir_call_method_need_kind(bname, mname, recv_family);
           }
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE &&
-              route.runtime_string) {
-            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
-              need_kind = HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
-            } else if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING) {
-              need_kind = HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
-            }
-          }
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF) {
             mark_array_string_indexof_need_flags(
                 blocks, bid, ii, ilen, insts, bname, mname, recv, a0,
