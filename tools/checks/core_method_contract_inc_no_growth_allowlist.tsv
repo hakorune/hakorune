@@ -14,4 +14,3 @@ lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_rece
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	RuntimeDataBox	1	runtime-data-compat	replace-with-runtime-data-contract-or-delete-route
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	has	1	core-method-contract	replace-with-arrayhas-core-method-or-retire-array-origin-runtime-data-has-fallback
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	indexOf	1	core-method-contract	replace-with-string-indexof-core-method-route-carrier-and-consumers
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	substring	1	core-method-contract	replace-with-core-method-op-id

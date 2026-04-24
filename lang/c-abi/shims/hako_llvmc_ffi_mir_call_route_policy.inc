@@ -89,7 +89,6 @@
         if (!mname) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
         if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS;
         if (!strcmp(mname, "indexOf")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF;
-        if (!strcmp(mname, "substring")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING;
         return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
       }
 
