@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x metadata-absent has fallback contract pending` |
-| Next | `define metadata-absent has fallback contract before any mirror-row deletion` |
+| Blocker | `phase-291x next CoreMethod mirror candidate pending` |
+| Next | `select the next CoreMethod mirror candidate without weakening legacy fallback contracts` |
 | After Next | `avoid native storage lanes without broader owner evidence` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Define metadata-absent `has` fallback contract before any mirror-row deletion.
+2. Select the next CoreMethod mirror candidate without weakening legacy fallback contracts.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
