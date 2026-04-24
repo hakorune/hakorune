@@ -1,4 +1,4 @@
-use super::helpers::{create_local_pattern_mir, create_simple_pattern_mir, strict_if_env_guard};
+use super::helpers::{create_local_pattern_mir, create_simple_pattern_mir};
 use crate::mir::join_ir::lowering::try_lower_if_to_joinir;
 use crate::tests::helpers::joinir_env;
 

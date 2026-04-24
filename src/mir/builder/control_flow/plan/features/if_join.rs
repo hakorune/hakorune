@@ -90,7 +90,7 @@ pub(in crate::mir::builder) fn apply_if_joins(
         if let (Some(def_blocks), Some(dominators)) =
             (release_def_blocks.as_ref(), release_dominators.as_ref())
         {
-            let mut fallback_incoming =
+            let fallback_incoming =
                 |incoming: &mut ValueId,
                  branch_reaches_merge: &mut bool,
                  pred: Option<BasicBlockId>| {

@@ -74,6 +74,4 @@ pub(in crate::mir::builder) type NestedLoopMinimalFacts =
 pub(in crate::mir::builder) type BoolPredicateScanFacts =
     bool_predicate_scan_facts::BoolPredicateScanFacts;
 pub(in crate::mir::builder) type AccumConstLoopFacts = accum_const_loop_facts::AccumConstLoopFacts;
-pub(in crate::mir::builder) use match_return_facts::{
-    try_extract_match_return_facts, MatchReturnFacts, MatchReturnScrutinee,
-};
+pub(in crate::mir::builder) use match_return_facts::{MatchReturnFacts, MatchReturnScrutinee};

@@ -1,7 +1,4 @@
-use crate::mir::join_ir::lowering::try_lower_if_to_joinir;
-use crate::mir::join_ir::JoinInst;
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
-use crate::tests::helpers::joinir_env;
 use std::collections::BTreeMap;
 use std::env;
 
