@@ -13,8 +13,9 @@ use crate::mir::{
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     exact_seed_backend_route::ExactSeedBackendRoute, generic_method_route_plan::GenericMethodRoute,
-    placement_effect::PlacementEffectRoute, storage_class::StorageClass,
-    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
+    map_lookup_fusion_plan::MapLookupFusionRoute, placement_effect::PlacementEffectRoute,
+    storage_class::StorageClass, string_corridor::StringCorridorFact,
+    string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
@@ -181,6 +182,11 @@ pub struct FunctionMetadata {
     /// These own narrow method-surface policy decisions in MIR so backend
     /// shims can emit selected helpers without reclassifying method strings.
     pub generic_method_routes: Vec<GenericMethodRoute>,
+
+    /// Metadata-only MapGet/MapHas same-key fusion preflight routes.
+    /// These are derived from `generic_method_routes` and do not change
+    /// lowering; they only pin the exact pair a future plan may consume.
+    pub map_lookup_fusion_routes: Vec<MapLookupFusionRoute>,
 
     /// Backend-consumable array RMW route plans.
     /// These own `array.get(i) -> + 1 -> array.set(i, ...)` legality in MIR

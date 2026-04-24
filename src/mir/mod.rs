@@ -43,6 +43,7 @@ pub mod instruction_introspection; // Introspection helpers for tests (instructi
 pub mod instruction_kinds; // small kind-specific metadata (Const/BinOp)
 pub mod loop_api; // Minimal LoopBuilder facade (adapter-ready)
 pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST preprocessing)
+pub mod map_lookup_fusion_plan; // MIR-owned MapGet/MapHas same-key fusion metadata
 pub mod naming; // Static box / entry naming rules（NamingBox）
 pub mod optimizer;
 pub mod policies; // shared routing policies (SSOT)
@@ -218,6 +219,10 @@ pub use generic_method_route_plan::{
 };
 pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
+pub use map_lookup_fusion_plan::{
+    refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes,
+    MapLookupFusionOp, MapLookupFusionProof, MapLookupFusionRoute, MapLookupStoredValueProof,
+};
 pub use optimizer::MirOptimizer;
 pub use placement_effect::{
     refresh_function_placement_effect_routes, refresh_module_placement_effect_routes,

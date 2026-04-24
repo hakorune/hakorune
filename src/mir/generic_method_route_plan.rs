@@ -258,7 +258,7 @@ fn match_generic_get_route(
     }
 
     let key_route = classify_key_route(function, def_map, args[0]);
-    let scalar_proof = prove_scalar_i64_map_get(
+    let scalar_proof = prove_scalar_i64_map_get_store_fact(
         function,
         def_map,
         block,
@@ -269,7 +269,7 @@ fn match_generic_get_route(
     let (proof, return_shape, value_demand, publication_policy) = if let Some(proof) = scalar_proof
     {
         (
-            proof,
+            proof.route_proof,
             Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
             GenericMethodValueDemand::ScalarI64,
             Some(GenericMethodPublicationPolicy::NoPublication),
@@ -323,17 +323,24 @@ struct MapSetCallShape {
 struct MapSetCandidate {
     block: BasicBlockId,
     instruction_index: usize,
+    stored_value: i64,
 }
 
-fn prove_scalar_i64_map_get(
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ScalarI64MapGetStoreFact {
+    pub route_proof: GenericMethodRouteProof,
+    pub stored_value: i64,
+}
+
+pub(crate) fn prove_scalar_i64_map_get_store_fact(
     function: &MirFunction,
     def_map: &ValueDefMap,
     block_id: BasicBlockId,
     get_instruction_index: usize,
     get_receiver: ValueId,
     get_key: ValueId,
-) -> Option<GenericMethodRouteProof> {
-    if prove_same_block_scalar_i64_map_get(
+) -> Option<ScalarI64MapGetStoreFact> {
+    if let Some(stored_value) = prove_same_block_scalar_i64_map_get(
         function,
         def_map,
         block_id,
@@ -341,10 +348,18 @@ fn prove_scalar_i64_map_get(
         get_receiver,
         get_key,
     ) {
-        return Some(GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape);
+        return Some(ScalarI64MapGetStoreFact {
+            route_proof: GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
+            stored_value,
+        });
     }
-    if prove_dominating_scalar_i64_map_get(function, def_map, block_id, get_receiver, get_key) {
-        return Some(GenericMethodRouteProof::MapSetScalarI64DominatesNoEscape);
+    if let Some(stored_value) =
+        prove_dominating_scalar_i64_map_get(function, def_map, block_id, get_receiver, get_key)
+    {
+        return Some(ScalarI64MapGetStoreFact {
+            route_proof: GenericMethodRouteProof::MapSetScalarI64DominatesNoEscape,
+            stored_value,
+        });
     }
     None
 }
@@ -356,34 +371,34 @@ fn prove_same_block_scalar_i64_map_get(
     get_instruction_index: usize,
     get_receiver: ValueId,
     get_key: ValueId,
-) -> bool {
+) -> Option<i64> {
     let Some(get_key_const) = const_i64_value(function, def_map, get_key) else {
-        return false;
+        return None;
     };
     let receiver_root = resolve_value_origin(function, def_map, get_receiver);
     let Some(block) = function.blocks.get(&block_id) else {
-        return false;
+        return None;
     };
 
     for inst in block.instructions.iter().take(get_instruction_index).rev() {
         if let Some(set_call) = map_set_call_shape(inst) {
             if same_value_origin(function, def_map, set_call.receiver, receiver_root) {
                 let Some(set_key_const) = const_i64_value(function, def_map, set_call.key) else {
-                    return false;
+                    return None;
                 };
                 if set_key_const != get_key_const {
-                    return false;
+                    return None;
                 }
-                return const_i64_value(function, def_map, set_call.value).is_some();
+                return const_i64_value(function, def_map, set_call.value);
             }
         }
 
         if instruction_may_escape_or_mutate_receiver(function, def_map, inst, receiver_root) {
-            return false;
+            return None;
         }
     }
 
-    false
+    None
 }
 
 fn prove_dominating_scalar_i64_map_get(
@@ -392,9 +407,9 @@ fn prove_dominating_scalar_i64_map_get(
     get_block_id: BasicBlockId,
     get_receiver: ValueId,
     get_key: ValueId,
-) -> bool {
+) -> Option<i64> {
     let Some(get_key_const) = const_i64_value(function, def_map, get_key) else {
-        return false;
+        return None;
     };
     let receiver_root = resolve_value_origin(function, def_map, get_receiver);
     let dominators = compute_dominators(function);
@@ -419,17 +434,18 @@ fn prove_dominating_scalar_i64_map_get(
             if const_i64_value(function, def_map, set_call.key) != Some(get_key_const) {
                 continue;
             }
-            if const_i64_value(function, def_map, set_call.value).is_none() {
+            let Some(stored_value) = const_i64_value(function, def_map, set_call.value) else {
                 continue;
-            }
+            };
             candidates.push(MapSetCandidate {
                 block: block_id,
                 instruction_index,
+                stored_value,
             });
         }
     }
 
-    candidates.into_iter().rev().any(|candidate| {
+    candidates.into_iter().rev().find_map(|candidate| {
         dominating_candidate_has_no_same_receiver_escape(
             function,
             def_map,
@@ -437,6 +453,7 @@ fn prove_dominating_scalar_i64_map_get(
             candidate,
             receiver_root,
         )
+        .then_some(candidate.stored_value)
     })
 }
 
@@ -502,7 +519,7 @@ fn map_set_call_shape(inst: &MirInstruction) -> Option<MapSetCallShape> {
     })
 }
 
-fn instruction_may_escape_or_mutate_receiver(
+pub(crate) fn instruction_may_escape_or_mutate_receiver(
     function: &MirFunction,
     def_map: &ValueDefMap,
     inst: &MirInstruction,

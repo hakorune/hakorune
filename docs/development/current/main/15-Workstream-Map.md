@@ -21,9 +21,9 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x MapGet/MapHas fusion metadata pending` |
-| Next | `same-key MapGet/MapHas fusion metadata preflight` |
-| After Next | `lower fusion only after metadata and perf evidence` |
+| Blocker | `phase-291x MapGet/MapHas fusion lowering evidence pending` |
+| Next | `MapLookupSameKey lowering probe from MIR metadata` |
+| After Next | `keep only if cycles/IPC improve and owner family shrinks` |
 
 ## Current Read
 
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Add same-key MapGet/MapHas fusion metadata before another lowering.
+2. Probe same-key MapGet/MapHas fusion lowering only from landed metadata.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.

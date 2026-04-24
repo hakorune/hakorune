@@ -767,6 +767,16 @@ pub(super) fn build_mir_json_root(
                     .map(build_userbox_known_receiver_method_seed_route_json)
                     .unwrap_or(serde_json::Value::Null),
             );
+            obj.insert(
+                "map_lookup_fusion_routes".to_string(),
+                serde_json::Value::Array(
+                    f.metadata
+                        .map_lookup_fusion_routes
+                        .iter()
+                        .map(build_map_lookup_fusion_route_json)
+                        .collect(),
+                ),
+            );
         }
         let attrs_json = json!({
             "runes": f
@@ -1079,6 +1089,35 @@ fn build_array_text_state_residence_route_json(
             build_array_text_state_residence_indexof_seed_payload_json(payload);
     }
     obj
+}
+
+fn build_map_lookup_fusion_route_json(
+    route: &crate::mir::MapLookupFusionRoute,
+) -> serde_json::Value {
+    json!({
+        "route_id": route.route_id(),
+        "block": route.block.as_u32(),
+        "get_instruction_index": route.get_instruction_index,
+        "has_instruction_index": route.has_instruction_index,
+        "fusion_op": route.fusion_op.to_string(),
+        "receiver_origin_box": route.receiver_origin_box.as_deref(),
+        "receiver_value": route.receiver_value.as_u32(),
+        "key_value": route.key_value.as_u32(),
+        "key_const": route.key_const,
+        "key_route": route.key_route.to_string(),
+        "get_result_value": route.get_result_value.as_u32(),
+        "has_result_value": route.has_result_value.as_u32(),
+        "get_return_shape": route.get_return_shape.to_string(),
+        "get_value_demand": route.get_value_demand.to_string(),
+        "get_publication_policy": route.get_publication_policy.to_string(),
+        "has_result_shape": route.has_result_shape,
+        "stored_value_proof": route.stored_value_proof.to_string(),
+        "stored_value_const": route.stored_value_const,
+        "stored_value_known_nonzero": route.stored_value_known_nonzero,
+        "proof": route.proof.to_string(),
+        "lowering_tier": route.lowering_tier.to_string(),
+        "effects": ["read.key", "probe.key", "metadata.only"],
+    })
 }
 
 fn build_array_text_state_residence_indexof_seed_payload_json(

@@ -59,6 +59,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-144-mapget-preheader-scalar-proof-card.md
   - docs/development/current/main/phases/phase-291x/291x-145-mapget-scalar-lowering-probe-card.md
   - docs/development/current/main/phases/phase-291x/291x-146-mapget-owner-seam-selection-card.md
+  - docs/development/current/main/phases/phase-291x/291x-147-mapget-maphas-fusion-metadata-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -71,7 +72,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: same-key MapGet/MapHas fusion metadata preflight
+- Next implementation target: MapLookupSameKey lowering probe from MIR metadata
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -145,6 +146,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 47. `docs/development/current/main/phases/phase-291x/291x-144-mapget-preheader-scalar-proof-card.md`
 48. `docs/development/current/main/phases/phase-291x/291x-145-mapget-scalar-lowering-probe-card.md`
 49. `docs/development/current/main/phases/phase-291x/291x-146-mapget-owner-seam-selection-card.md`
+50. `docs/development/current/main/phases/phase-291x/291x-147-mapget-maphas-fusion-metadata-card.md`
 
 ## Current Rule
 
@@ -205,6 +207,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-146` selects same-key MapGet/MapHas fusion metadata as the next seam;
   native i64-key MapBox storage is deferred because it touches string-key
   compatibility and should not be the immediate card
+- `291x-147` lands `MapLookupSameKey` metadata for same-block scalar
+  MapGet/MapHas pairs; codegen and `.inc` remain unchanged
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
