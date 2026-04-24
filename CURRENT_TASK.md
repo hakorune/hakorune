@@ -37,13 +37,13 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x len mirror prune decision pending`
+- current blocker token: `phase-291x substring metadata carrier preflight pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- decide whether the legacy `len`/`length`/`size` mirror rows can be pruned or need metadata-absent fallback contracts
+- inventory `substring` CoreMethod metadata coverage before touching the legacy mirror row
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
