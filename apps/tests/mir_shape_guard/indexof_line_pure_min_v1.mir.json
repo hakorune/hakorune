@@ -2009,6 +2009,38 @@
         }
       ],
       "metadata": {
+        "array_text_state_residence_route": {
+          "observer_kind": "indexof",
+          "residence": "loop_local_pointer_array",
+          "result_repr": "scalar_i64",
+          "consumer_capability": "direct_array_text_state_residence",
+          "publication_boundary": "none",
+          "temporary_indexof_seed_payload": {
+            "variant": "line",
+            "rows": 64,
+            "ops": 400000,
+            "flip_period": 16,
+            "line_seed": "line-seed",
+            "line_seed_len": 9,
+            "none_seed": "none-seed",
+            "none_seed_len": 9,
+            "needle": "line",
+            "needle_len": 4,
+            "proof": "kilo_micro_indexof_line_15block",
+            "result_use": "found_predicate",
+            "backend_action": "literal_membership_predicate",
+            "candidate_outcomes": [
+              {
+                "literal": "line-seed",
+                "outcome": "found"
+              },
+              {
+                "literal": "none-seed",
+                "outcome": "not_found"
+              }
+            ]
+          }
+        },
         "value_types": {
           "1": "i64",
           "10": "i64",
