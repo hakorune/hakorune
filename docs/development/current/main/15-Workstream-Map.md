@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x Stage-B dead inline comment-strip helper removal pending` |
-| Next | `continue Stage-B adapter thinning with the dead inline comment-strip helper removal` |
+| Blocker | `phase-291x Stage-B dead helper box removal pending` |
+| Next | `continue Stage-B adapter thinning with the dead helper box removal` |
 | After Next | `avoid native storage lanes without broader owner evidence` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Continue Stage-B adapter thinning with the dead inline comment-strip helper removal.
+2. Continue Stage-B adapter thinning with the dead helper box removal.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.

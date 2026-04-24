@@ -70,6 +70,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-155-stageb-same-source-defs-scan-split-card.md
   - docs/development/current/main/phases/phase-291x/291x-156-stageb-json-fragment-injection-split-card.md
   - docs/development/current/main/phases/phase-291x/291x-157-stageb-keyword-expr-strip-split-card.md
+  - docs/development/current/main/phases/phase-291x/291x-158-stageb-dead-comment-strip-helper-removal-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -82,7 +83,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: Stage-B dead inline comment-strip helper removal
+- Next implementation target: Stage-B dead helper box removal
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -167,6 +168,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 58. `docs/development/current/main/phases/phase-291x/291x-155-stageb-same-source-defs-scan-split-card.md`
 59. `docs/development/current/main/phases/phase-291x/291x-156-stageb-json-fragment-injection-split-card.md`
 60. `docs/development/current/main/phases/phase-291x/291x-157-stageb-keyword-expr-strip-split-card.md`
+61. `docs/development/current/main/phases/phase-291x/291x-158-stageb-dead-comment-strip-helper-removal-card.md`
 
 ## Current Rule
 
@@ -254,6 +256,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   adapter helper
 - `291x-157` moves Stage-B exact keyword expression cleanup into
   `stageb_keyword_expr_strip_box.hako`
+- `291x-158` removes the dead inline Stage-B `_strip_comments(...)` duplicate;
+  comment stripping remains owned by `CommentStripperBox`
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
