@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x push emit-kind mirror prune probe pending`
+- current blocker token: `phase-291x set metadata carrier preflight pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- probe whether the generic `push` emit-kind mirror row can be pruned
+- inventory `set` CoreMethod metadata coverage before touching mutating legacy mirror rows
 - keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
