@@ -16,6 +16,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
             instruction_index: 3,
             box_name: "MapBox".to_string(),
             method: "has".to_string(),
+            receiver_origin_box: Some("MapBox".to_string()),
             receiver_value: ValueId::new(10),
             key_value: ValueId::new(11),
             result_value: Some(ValueId::new(12)),
@@ -36,6 +37,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(route["instruction_index"], 3);
     assert_eq!(route["box_name"], "MapBox");
     assert_eq!(route["method"], "has");
+    assert_eq!(route["receiver_origin_box"], "MapBox");
     assert_eq!(route["arity"], 1);
     assert_eq!(route["receiver_value"], 10);
     assert_eq!(route["key_value"], 11);

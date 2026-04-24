@@ -7,8 +7,9 @@
  */
 
 use super::{
-    BasicBlockId, Callee, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, MirFunction,
-    MirInstruction, MirModule, ValueId,
+    build_value_def_map, resolve_value_origin, BasicBlockId, Callee, CoreMethodLoweringTier,
+    CoreMethodOp, CoreMethodOpCarrier, MirFunction, MirInstruction, MirModule, ValueDefMap,
+    ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -54,6 +55,7 @@ pub struct GenericMethodRoute {
     pub instruction_index: usize,
     pub box_name: String,
     pub method: String,
+    pub receiver_origin_box: Option<String>,
     pub receiver_value: ValueId,
     pub key_value: ValueId,
     pub result_value: Option<ValueId>,
@@ -70,6 +72,7 @@ pub fn refresh_module_generic_method_routes(module: &mut MirModule) {
 
 pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
     let mut routes = Vec::new();
+    let def_map = build_value_def_map(function);
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
     block_ids.sort();
 
@@ -78,7 +81,9 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
             continue;
         };
         for (instruction_index, inst) in block.instructions.iter().enumerate() {
-            if let Some(route) = match_generic_has_route(block_id, instruction_index, inst) {
+            if let Some(route) =
+                match_generic_has_route(function, &def_map, block_id, instruction_index, inst)
+            {
                 routes.push(route);
             }
         }
@@ -89,6 +94,8 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
 }
 
 fn match_generic_has_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -112,6 +119,8 @@ fn match_generic_has_route(
         return None;
     }
 
+    let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| (box_name == "MapBox").then(|| "MapBox".to_string()));
     let (route_kind, core_method) = match box_name.as_str() {
         "MapBox" => (
             GenericMethodRouteKind::MapContainsAny,
@@ -129,6 +138,7 @@ fn match_generic_has_route(
         instruction_index,
         box_name: box_name.clone(),
         method: method.clone(),
+        receiver_origin_box,
         receiver_value: *receiver,
         key_value: args[0],
         result_value: *dst,
@@ -136,6 +146,20 @@ fn match_generic_has_route(
         proof: GenericMethodRouteProof::HasSurfacePolicy,
         core_method,
     })
+}
+
+fn receiver_origin_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+) -> Option<String> {
+    let origin = resolve_value_origin(function, def_map, receiver);
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    match block.instructions.get(instruction_index)? {
+        MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
@@ -197,6 +221,7 @@ mod tests {
         assert_eq!(route.instruction_index, 0);
         assert_eq!(route.box_name, "MapBox");
         assert_eq!(route.method, "has");
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.receiver_value, ValueId::new(1));
         assert_eq!(route.key_value, ValueId::new(2));
         assert_eq!(route.result_value, Some(ValueId::new(3)));
@@ -209,6 +234,37 @@ mod tests {
             "core_method_contract_manifest"
         );
         assert_eq!(core_method.lowering_tier.to_string(), "warm_direct_abi");
+    }
+
+    #[test]
+    fn records_runtime_data_has_mapbox_receiver_origin_without_promotion() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(method_call(Some(4), "RuntimeDataBox", "has", 2, vec![3]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
+        assert_eq!(
+            route.route_kind,
+            GenericMethodRouteKind::RuntimeDataContainsAny
+        );
+        assert!(route.core_method.is_none());
     }
 
     #[test]

@@ -120,6 +120,7 @@
           long long arity = 0;
           const char* route_box = NULL;
           const char* method = NULL;
+          const char* receiver_origin_box = NULL;
           const char* emit_kind = NULL;
           const char* route_kind_raw = NULL;
           const char* helper_symbol = NULL;
@@ -149,6 +150,7 @@
           }
           route_box = read_str(route, "box_name");
           method = read_str(route, "method");
+          receiver_origin_box = read_str(route, "receiver_origin_box");
           emit_kind = read_str(route, "emit_kind");
           route_kind_raw = read_str(route, "route_kind");
           helper_symbol = read_str(route, "helper_symbol");
@@ -165,6 +167,8 @@
               !(emit_kind && !strcmp(emit_kind, "has")) ||
               !(proof && !strcmp(proof, "has_surface_policy")) ||
               !(value_demand && !strcmp(value_demand, "read_ref")) ||
+              (core_method_present &&
+               !(receiver_origin_box && !strcmp(receiver_origin_box, "MapBox"))) ||
               core_method_invalid ||
               route_kind == HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE ||
               !generic_method_has_route_read_i64_field(route, "arity", &arity) ||

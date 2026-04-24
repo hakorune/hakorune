@@ -174,6 +174,7 @@ pub(super) fn build_mir_json_root(
                     "instruction_index": route.instruction_index,
                     "box_name": route.box_name.as_str(),
                     "method": route.method.as_str(),
+                    "receiver_origin_box": route.receiver_origin_box.as_deref(),
                     "arity": 1,
                     "receiver_value": route.receiver_value.as_u32(),
                     "key_value": route.key_value.as_u32(),

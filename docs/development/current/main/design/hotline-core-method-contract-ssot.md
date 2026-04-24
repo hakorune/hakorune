@@ -298,8 +298,11 @@ Done when:
 ### HCM-7 First Evidence-Backed Hot Lowering
 
 - Status: preflight evidence landed by `291x-138`; hot lowering is blocked
-  until receiver-origin/CoreMethod route proof makes the target front carry a
-  manifest-backed CoreMethodOp.
+  until receiver-origin/key-route proof makes the target front carry a
+  manifest-backed CoreMethodOp without regressing.
+- `291x-139` landed receiver-origin metadata only. Direct promotion to
+  `MapHas` / `nyash.map.has_hh` was rejected because the measured front
+  regressed and stayed dominated by i64 key conversion plus hashing.
 
 - Pick exactly one CoreMethodOp.
 - Run perf owner-first evidence before code edits.
