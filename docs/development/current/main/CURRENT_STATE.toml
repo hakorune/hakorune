@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-24"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, and .inc no-growth guard are landed; one-family MIR CoreMethodOp carrier is next. Detailed landed history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, and first MIR CoreMethodOp carrier are landed; .inc consumer slice is next. Detailed landed history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-134"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-134-core-method-contract-inc-no-growth-guard-card.md"
-latest_card_summary = "CoreMethodContract .inc no-growth guard landed; the transitional generic-method policy mirror is allowlisted against the generated manifest and deletion conditions."
+latest_card = "291x-135"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-135-core-method-op-carrier-card.md"
+latest_card_summary = "First MIR-side CoreMethodOp carrier landed for MapBox.has; generic method route JSON now exposes core_method metadata without changing .inc consumption."
 
-current_blocker_token = "phase-291x CoreMethodContract .inc no-growth guard landed - one-family MIR CoreMethodOp carrier pending"
+current_blocker_token = "phase-291x CoreMethodOp carrier landed - .inc consumer slice pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,9 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "291x-132 CoreMethodContract seed landed",
   "291x-133 CoreMethodContract manifest guard landed",
   "291x-134 CoreMethodContract .inc no-growth guard landed",
+  "291x-135 CoreMethodOp carrier landed",
 ]
 
 stale_pointer_patterns = [
@@ -79,4 +79,5 @@ stale_pointer_patterns = [
   "phase-291x Hotline/CoreMethodContract task plan landed - CoreMethodContract SSOT seed pending",
   "phase-291x CoreMethodContract seed landed - generated metadata and no-growth guard pending",
   "phase-291x CoreMethodContract manifest landed - .inc no-growth guard pending",
+  "phase-291x CoreMethodContract .inc no-growth guard landed - one-family MIR CoreMethodOp carrier pending",
 ]

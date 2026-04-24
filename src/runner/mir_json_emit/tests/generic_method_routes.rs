@@ -1,7 +1,8 @@
 use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::{
-    BasicBlockId, GenericMethodRoute, GenericMethodRouteKind, GenericMethodRouteProof, ValueId,
+    BasicBlockId, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, GenericMethodRoute,
+    GenericMethodRouteKind, GenericMethodRouteProof, ValueId,
 };
 
 #[test]
@@ -20,6 +21,10 @@ fn build_mir_json_root_emits_generic_method_routes() {
             result_value: Some(ValueId::new(12)),
             route_kind: GenericMethodRouteKind::MapContainsAny,
             proof: GenericMethodRouteProof::HasSurfacePolicy,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapHas,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
         });
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
@@ -39,6 +44,12 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(route["route_kind"], "map_contains_any");
     assert_eq!(route["helper_symbol"], "nyash.map.probe_hh");
     assert_eq!(route["proof"], "has_surface_policy");
+    assert_eq!(route["core_method"]["op"], "MapHas");
+    assert_eq!(
+        route["core_method"]["proof"],
+        "core_method_contract_manifest"
+    );
+    assert_eq!(route["core_method"]["lowering_tier"], "warm_direct_abi");
     assert_eq!(route["value_demand"], "read_ref");
     assert_eq!(route["effects"], serde_json::json!(["probe.key"]));
 }

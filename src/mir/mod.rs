@@ -27,6 +27,7 @@ pub mod builder;
 mod compiler;
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod contracts; // backend-core instruction contracts (SSOT)
+pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
 pub mod diagnostics; // freeze diagnostics helpers (SSOT)
 pub mod effect;
@@ -191,6 +192,9 @@ pub use concat_const_suffix_micro_seed_plan::{
     refresh_function_concat_const_suffix_micro_seed_route,
     refresh_module_concat_const_suffix_micro_seed_routes, ConcatConstSuffixMicroSeedProof,
     ConcatConstSuffixMicroSeedRoute,
+};
+pub use core_method_op::{
+    CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, CoreMethodOpProof,
 };
 pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions
 pub use effect::{Effect, EffectMask};

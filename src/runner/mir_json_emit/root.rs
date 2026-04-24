@@ -161,6 +161,13 @@ pub(super) fn build_mir_json_root(
                 })
             }).collect::<Vec<_>>(),
             "generic_method_routes": f.metadata.generic_method_routes.iter().map(|route| {
+                let core_method = route.core_method.map(|carrier| {
+                    json!({
+                        "op": carrier.op.to_string(),
+                        "proof": carrier.proof.to_string(),
+                        "lowering_tier": carrier.lowering_tier.to_string(),
+                    })
+                });
                 json!({
                     "route_id": "generic_method.has",
                     "block": route.block.as_u32(),
@@ -175,6 +182,7 @@ pub(super) fn build_mir_json_root(
                     "route_kind": route.route_kind.to_string(),
                     "helper_symbol": route.route_kind.helper_symbol(),
                     "proof": route.proof.to_string(),
+                    "core_method": core_method,
                     "value_demand": "read_ref",
                     "effects": ["probe.key"],
                 })

@@ -20,16 +20,16 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x CoreMethodContract .inc no-growth guard landed - one-family MIR CoreMethodOp carrier pending`
+- current blocker token: `phase-291x CoreMethodOp carrier landed - .inc consumer slice pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- add a one-family MIR CoreMethodOp carrier
+- convert one `.inc` consumer slice to prefer CoreMethodOp carrier metadata
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
-- do not move `.inc` table consumers until the MIR carrier exists
+- keep compatibility fallback unchanged while moving one `.inc` consumer
 - do not update current mirrors for every landed card
 - update `CURRENT_STATE.toml` and the active card first
 

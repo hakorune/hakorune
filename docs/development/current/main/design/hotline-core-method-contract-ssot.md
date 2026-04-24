@@ -252,7 +252,7 @@ Done when:
 
 ### HCM-4 MIR CoreMethodOp Carrier
 
-- Status: pending.
+- Status: landed by `291x-135` for the first `MapBox.has` carrier slice.
 - Introduce a narrow metadata carrier for one family first.
 - Prefer extending the existing route-plan seam only if it does not become a
   second semantic owner.
@@ -267,6 +267,7 @@ Done when:
 
 ### HCM-5 `.inc` Table Consumer Slice
 
+- Status: pending.
 - Convert one `.inc` family to consume generated op/table metadata.
 - Start with one small family, preferably `ArrayLen` or existing generic
   `has`, after HCM-2/HCM-3 are in place.

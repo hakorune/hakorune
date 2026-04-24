@@ -21,9 +21,9 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x CoreMethodContract .inc no-growth guard landed - one-family MIR CoreMethodOp carrier pending` |
-| Next | `HCM-4 one-family MIR CoreMethodOp carrier` |
-| After Next | `HCM-5 .inc table consumer slice` |
+| Blocker | `phase-291x CoreMethodOp carrier landed - .inc consumer slice pending` |
+| Next | `HCM-5 .inc table consumer slice` |
+| After Next | `HCM-6 LoweringTier metadata` |
 
 ## Current Read
 
@@ -37,9 +37,9 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Add a one-family MIR CoreMethodOp carrier.
-3. Do not move `.inc` table consumers before the MIR carrier exists.
-4. Use `core_method_contract_manifest.json` as the generated row source for the carrier.
+2. Convert one `.inc` consumer slice to prefer CoreMethodOp carrier metadata.
+3. Keep compatibility fallback unchanged for rows without carrier metadata.
+4. Use `generic_method_routes[*].core_method` as the backend-facing seam.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
 
 ## Parked Corridor

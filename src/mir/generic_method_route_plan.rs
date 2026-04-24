@@ -6,7 +6,10 @@
  * surfaces from backend-local strings.
  */
 
-use super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, ValueId};
+use super::{
+    BasicBlockId, Callee, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, MirFunction,
+    MirInstruction, MirModule, ValueId,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodRouteKind {
@@ -56,6 +59,7 @@ pub struct GenericMethodRoute {
     pub result_value: Option<ValueId>,
     pub route_kind: GenericMethodRouteKind,
     pub proof: GenericMethodRouteProof,
+    pub core_method: Option<CoreMethodOpCarrier>,
 }
 
 pub fn refresh_module_generic_method_routes(module: &mut MirModule) {
@@ -108,9 +112,15 @@ fn match_generic_has_route(
         return None;
     }
 
-    let route_kind = match box_name.as_str() {
-        "MapBox" => GenericMethodRouteKind::MapContainsAny,
-        "ArrayBox" | "RuntimeDataBox" => GenericMethodRouteKind::RuntimeDataContainsAny,
+    let (route_kind, core_method) = match box_name.as_str() {
+        "MapBox" => (
+            GenericMethodRouteKind::MapContainsAny,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapHas,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+        ),
+        "ArrayBox" | "RuntimeDataBox" => (GenericMethodRouteKind::RuntimeDataContainsAny, None),
         _ => return None,
     };
 
@@ -124,6 +134,7 @@ fn match_generic_has_route(
         result_value: *dst,
         route_kind,
         proof: GenericMethodRouteProof::HasSurfacePolicy,
+        core_method,
     })
 }
 
@@ -191,6 +202,13 @@ mod tests {
         assert_eq!(route.result_value, Some(ValueId::new(3)));
         assert_eq!(route.route_kind, GenericMethodRouteKind::MapContainsAny);
         assert_eq!(route.proof, GenericMethodRouteProof::HasSurfacePolicy);
+        let core_method = route.core_method.expect("MapBox.has core method op");
+        assert_eq!(core_method.op, CoreMethodOp::MapHas);
+        assert_eq!(
+            core_method.proof.to_string(),
+            "core_method_contract_manifest"
+        );
+        assert_eq!(core_method.lowering_tier.to_string(), "warm_direct_abi");
     }
 
     #[test]
@@ -211,6 +229,9 @@ mod tests {
             function.metadata.generic_method_routes[0].route_kind,
             GenericMethodRouteKind::RuntimeDataContainsAny
         );
+        assert!(function.metadata.generic_method_routes[0]
+            .core_method
+            .is_none());
     }
 
     #[test]
