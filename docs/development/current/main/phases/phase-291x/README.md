@@ -100,6 +100,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-185-runtime-data-set-fallback-contract-card.md
   - docs/development/current/main/phases/phase-291x/291x-186-mir-call-set-surface-metadata-preflight-card.md
   - docs/development/current/main/phases/phase-291x/291x-187-mir-call-set-surface-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-188-remaining-inc-mirror-inventory-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -112,7 +113,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: remaining `.inc` mirror inventory
+- Next implementation target: MIR-call route-policy metadata consumer preflight
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -227,6 +228,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 88. `docs/development/current/main/phases/phase-291x/291x-185-runtime-data-set-fallback-contract-card.md`
 89. `docs/development/current/main/phases/phase-291x/291x-186-mir-call-set-surface-metadata-preflight-card.md`
 90. `docs/development/current/main/phases/phase-291x/291x-187-mir-call-set-surface-prune-card.md`
+91. `docs/development/current/main/phases/phase-291x/291x-188-remaining-inc-mirror-inventory-card.md`
 
 ## Current Rule
 
@@ -399,6 +401,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   one-row prune probe only; generic set fallback rows stay out of scope
 - `291x-187` rejects pruning that MIR-call `set` method surface row because
   direct Array/Map pure boundaries still require it
+- `291x-188` inventories the remaining `.inc` mirror rows and selects the
+  MIR-call route-policy metadata consumer as the next structural seam
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
