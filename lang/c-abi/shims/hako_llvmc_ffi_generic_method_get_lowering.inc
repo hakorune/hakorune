@@ -196,8 +196,13 @@
           return 1;
         }
         if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-        if (!emit_generic_method_get_fallback_by_policy(
-                f, bid, ii, bname, dst, recv, a0, plan, ab)) {
+        int fallback_handled =
+            emit_generic_method_get_fallback_by_policy(
+                f, bid, ii, bname, dst, recv, a0, plan, ab);
+        if (fallback_handled < 0) {
+          return -1;
+        }
+        if (!fallback_handled) {
           return -1;
         }
         return 1;

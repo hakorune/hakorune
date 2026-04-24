@@ -44,3 +44,8 @@
           enum CoreMethodLoweringTierMetadata tier) {
         return tier == HAKO_LLVMC_CORE_METHOD_LOWERING_TIER_WARM_DIRECT_ABI;
       }
+
+      auto int core_method_lowering_tier_is_cold_fallback(
+          enum CoreMethodLoweringTierMetadata tier) {
+        return tier == HAKO_LLVMC_CORE_METHOD_LOWERING_TIER_COLD_FALLBACK;
+      }
