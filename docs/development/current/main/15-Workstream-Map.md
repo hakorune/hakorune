@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x substring mirror prune decision pending` |
-| Next | `decide whether the legacy substring mirror row can be pruned or needs a metadata-absent fallback contract` |
+| Blocker | `phase-291x push metadata carrier preflight pending` |
+| Next | `inventory push CoreMethod metadata coverage before touching the mutating legacy mirror row` |
 | After Next | `avoid native storage lanes without broader owner evidence` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Decide whether the legacy `substring` mirror row can be pruned or needs a metadata-absent fallback contract.
+2. Inventory `push` CoreMethod metadata coverage before touching the mutating legacy mirror row.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.

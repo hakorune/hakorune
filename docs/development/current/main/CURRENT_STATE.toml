@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-24"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, Stage-B adapter thinning slices, route-policy mirror preflight, MapHas/MapGet/Len/Substring metadata-first emit-kind selection, metadata-absent has/get/len fallback deletion contracts, length-family CoreMethod route carriers, and substring CoreMethod route carriers are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed. The first MapHas, MapGet, and Len mirror-row prune probes were rejected because metadata-absent boundary MIR JSON still relies on legacy fallback rows. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, Stage-B adapter thinning slices, route-policy mirror preflight, MapHas/MapGet/Len/Substring metadata-first emit-kind selection, metadata-absent has/get/len/substring fallback deletion contracts, length-family CoreMethod route carriers, and substring CoreMethod route carriers are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed. The first MapHas, MapGet, Len, and Substring mirror-row prune probes were rejected because metadata-absent boundary MIR JSON still relies on legacy fallback rows. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-171"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-171-core-method-substring-emit-kind-metadata-card.md"
-latest_card_summary = "CoreMethod substring emit-kind metadata selection landed: dispatch now prefers valid generic_method.substring metadata before legacy substring fallback while keeping corridor/window lowering unchanged."
+latest_card = "291x-172"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-172-metadata-absent-substring-fallback-contract-card.md"
+latest_card_summary = "Metadata-absent substring fallback contract landed: the substring mirror row may not be pruned by CoreMethod metadata alone; deletion also requires metadata-absent substring boundary coverage."
 
-current_blocker_token = "phase-291x substring mirror prune decision pending"
+current_blocker_token = "phase-291x push metadata carrier preflight pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -116,4 +116,5 @@ stale_pointer_patterns = [
   "phase-291x len mirror prune decision pending",
   "phase-291x substring metadata carrier preflight pending",
   "phase-291x substring emit-kind metadata consumer pending",
+  "phase-291x substring mirror prune decision pending",
 ]
