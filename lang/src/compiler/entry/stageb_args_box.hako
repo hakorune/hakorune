@@ -1,0 +1,65 @@
+// StageBArgsBox — CLI args/source resolution for Stage-B entry.
+// Extracted from compiler_stageb.hako to keep the entry file adapter-shaped.
+
+using lang.compiler.entry.stageb_trace_box as StageBTraceBox
+
+static box StageBArgsBox {
+  resolve_src(args) {
+    {
+      local trace_flag = env.get("HAKO_STAGEB_TRACE")
+      if trace_flag != null && ("" + trace_flag) == "1" {
+        print("[stageb/direct] StageBArgsBox.resolve_src ENTERED")
+      }
+    }
+    local tracer = new StageBTraceBox()
+    tracer.log("StageBArgsBox.resolve_src:enter")
+    // 1) Collect source from args or env
+    local src = null
+    local src_file = null
+    if args != null {
+      local i = 0
+      local n = args.length()
+      loop(i < n) {
+        local t = "" + args.get(i)
+        if t == "--source" && i + 1 < n { src = "" + args.get(i + 1)  break }
+        if t == "--source-file" && i + 1 < n { src_file = "" + args.get(i + 1)  i = i + 1 }
+        i = i + 1
+      }
+    }
+    // Prefer explicit source string when provided
+    // If --source-file is used, prefer env-provided content (wrapper supplies HAKO_SOURCE_FILE_CONTENT)
+    if src == null && src_file != null {
+      local inline = env.get("HAKO_SOURCE_FILE_CONTENT")
+      if inline != null { src = "" + inline }
+    }
+    // Phase 73: Fallback to HAKO_SRC env variable (unified I/O path)
+    // This eliminates the need for large argv strings (solves "Argument list too long")
+    if src == null {
+      src = env.get("HAKO_SRC")
+    }
+    if src == null { src = "return 0" }
+
+    {
+      // Trace final source length（dev専用）
+      local l = 0
+      if src != null { l = ("" + src).length() }
+      local tracer = new StageBTraceBox()
+      tracer.log("StageBArgsBox.resolve_src:return_len=" + ("" + l))
+    }
+
+    return src
+  }
+
+  resolve_stage3(args) {
+    if args != null {
+      local i = 0
+      local n = args.length()
+      loop(i < n) {
+        local t = "" + args.get(i)
+        if t == "--stage3" { return 1 }
+        i = i + 1
+      }
+    }
+    return 0
+  }
+}
