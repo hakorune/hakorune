@@ -86,9 +86,6 @@
         if (bname && !strcmp(bname, "MapBox")) {
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
         }
-        if (bname && !strcmp(bname, "ArrayBox")) {
-          arrayish = 1;
-        }
         if (plan &&
             (plan->recv_org == ORG_ARRAY_BIRTH ||
              plan->recv_org == ORG_ARRAY_STRING_BIRTH ||
