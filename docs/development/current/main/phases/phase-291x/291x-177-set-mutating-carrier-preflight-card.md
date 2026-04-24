@@ -77,14 +77,19 @@ match_generic_set_route(...)
     arity = 2
     key_route = i64_const | unknown_any
     key_value = first argument
-    return_shape = scalar_i64
     value_demand = write_any
-    publication_policy = no_publication
+    return_shape = null
+    publication_policy = null
 ```
 
 The stored value is the second argument. If a future lowering needs operand
 metadata for it, add an explicit value/argument field. Do not overload
 `key_value`.
+
+The set carrier must not claim one shared return/publication contract:
+`ArrayBox.set` is source-level `Void`, while `MapBox.set` publishes a String
+receipt. Keep `return_shape` and `publication_policy` null until a dedicated
+set-return vocabulary exists.
 
 `RuntimeDataBox.set(key, value)` is intentionally not part of the first carrier
 unless the implementation can prove receiver origin and publication semantics

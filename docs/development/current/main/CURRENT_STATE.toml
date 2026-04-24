@@ -17,7 +17,7 @@ taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-s
 
 latest_card = "291x-177"
 latest_card_path = "docs/development/current/main/phases/phase-291x/291x-177-set-mutating-carrier-preflight-card.md"
-latest_card_summary = "Set mutating-carrier preflight landed: ArraySet/MapSet metadata implementation may proceed, but set emit-kind and storage-route mirror rows cannot be pruned without metadata-absent mutating boundary coverage."
+latest_card_summary = "Set mutating-carrier preflight landed: ArraySet/MapSet metadata implementation may proceed with null return/publication metadata, but set emit-kind and storage-route mirror rows cannot be pruned without metadata-absent mutating boundary coverage."
 
 current_blocker_token = "phase-291x set CoreMethod route carrier implementation pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
