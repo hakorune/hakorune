@@ -23,6 +23,7 @@ pub enum GenericMethodRouteKind {
     RuntimeDataContainsAny,
     MapEntryCount,
     ArraySlotLen,
+    ArrayAppendAny,
     StringLen,
     StringSubstring,
     MapContainsAny,
@@ -36,6 +37,7 @@ impl GenericMethodRouteKind {
             Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
             Self::MapEntryCount => "nyash.map.entry_count_i64",
             Self::ArraySlotLen => "nyash.array.slot_len_h",
+            Self::ArrayAppendAny => "nyash.array.slot_append_hh",
             Self::StringLen => "nyash.string.len_h",
             Self::StringSubstring => "nyash.string.substring_hii",
             Self::MapContainsAny => "nyash.map.probe_hh",
@@ -51,6 +53,7 @@ impl std::fmt::Display for GenericMethodRouteKind {
             Self::RuntimeDataContainsAny => f.write_str("runtime_data_contains_any"),
             Self::MapEntryCount => f.write_str("map_entry_count"),
             Self::ArraySlotLen => f.write_str("array_slot_len"),
+            Self::ArrayAppendAny => f.write_str("array_append_any"),
             Self::StringLen => f.write_str("string_len"),
             Self::StringSubstring => f.write_str("string_substring"),
             Self::MapContainsAny => f.write_str("map_contains_any"),
@@ -64,6 +67,7 @@ pub enum GenericMethodRouteProof {
     GetSurfacePolicy,
     HasSurfacePolicy,
     LenSurfacePolicy,
+    PushSurfacePolicy,
     SubstringSurfacePolicy,
     MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
@@ -75,6 +79,7 @@ impl std::fmt::Display for GenericMethodRouteProof {
             Self::GetSurfacePolicy => f.write_str("get_surface_policy"),
             Self::HasSurfacePolicy => f.write_str("has_surface_policy"),
             Self::LenSurfacePolicy => f.write_str("len_surface_policy"),
+            Self::PushSurfacePolicy => f.write_str("push_surface_policy"),
             Self::SubstringSurfacePolicy => f.write_str("substring_surface_policy"),
             Self::MapSetScalarI64DominatesNoEscape => {
                 f.write_str("map_set_scalar_i64_dominates_no_escape")
@@ -112,6 +117,7 @@ impl GenericMethodRoute {
             "get" => "generic_method.get",
             "has" => "generic_method.has",
             "len" | "length" | "size" => "generic_method.len",
+            "push" => "generic_method.push",
             "substring" => "generic_method.substring",
             _ => "generic_method.unknown",
         }
@@ -122,6 +128,7 @@ impl GenericMethodRoute {
             "get" => "get",
             "has" => "has",
             "len" | "length" | "size" => "len",
+            "push" => "push",
             "substring" => "substring",
             _ => "unknown",
         }
@@ -136,6 +143,7 @@ impl GenericMethodRoute {
             "get" => &["read.key"],
             "has" => &["probe.key"],
             "len" | "length" | "size" => &["observe.len"],
+            "push" => &["mutate.shape"],
             "substring" => &["observe.substring"],
             _ => &[],
         }
@@ -181,6 +189,15 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                     })
                     .or_else(|| {
                         match_generic_substring_route(
+                            function,
+                            &def_map,
+                            block_id,
+                            instruction_index,
+                            inst,
+                        )
+                    })
+                    .or_else(|| {
+                        match_generic_push_route(
                             function,
                             &def_map,
                             block_id,
@@ -465,6 +482,58 @@ fn match_generic_substring_route(
         return_shape: None,
         value_demand: GenericMethodValueDemand::ReadRef,
         publication_policy: None,
+    })
+}
+
+fn match_generic_push_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> Option<GenericMethodRoute> {
+    let MirInstruction::Call {
+        dst,
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if method != "push" || args.len() != 1 || box_name != "ArrayBox" {
+        return None;
+    }
+
+    let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| Some("ArrayBox".to_string()));
+
+    Some(GenericMethodRoute {
+        block,
+        instruction_index,
+        box_name: box_name.clone(),
+        method: method.clone(),
+        arity: 1,
+        receiver_origin_box,
+        key_route: None,
+        receiver_value: *receiver,
+        key_value: None,
+        result_value: *dst,
+        route_kind: GenericMethodRouteKind::ArrayAppendAny,
+        proof: GenericMethodRouteProof::PushSurfacePolicy,
+        core_method: Some(CoreMethodOpCarrier::manifest(
+            CoreMethodOp::ArrayPush,
+            CoreMethodLoweringTier::ColdFallback,
+        )),
+        return_shape: Some(GenericMethodReturnShape::ScalarI64),
+        value_demand: GenericMethodValueDemand::WriteAny,
+        publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
     })
 }
 
@@ -1052,6 +1121,68 @@ mod tests {
             .core_method
             .expect("RuntimeData StringSubstring carrier");
         assert_eq!(core_method.op, CoreMethodOp::StringSubstring);
+    }
+
+    #[test]
+    fn records_direct_array_push_core_method_route() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(method_call(Some(4), "ArrayBox", "push", 1, vec![2]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), "generic_method.push");
+        assert_eq!(route.box_name, "ArrayBox");
+        assert_eq!(route.method, "push");
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
+        assert_eq!(route.key_route, None);
+        assert_eq!(route.key_value, None);
+        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayAppendAny);
+        assert_eq!(route.proof, GenericMethodRouteProof::PushSurfacePolicy);
+        let core_method = route.core_method.expect("ArrayPush carrier");
+        assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::ColdFallback
+        );
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::ScalarI64)
+        );
+        assert_eq!(route.value_demand, GenericMethodValueDemand::WriteAny);
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::NoPublication)
+        );
+    }
+
+    #[test]
+    fn leaves_runtime_data_push_metadata_absent_for_fallback() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(method_call(Some(4), "RuntimeDataBox", "push", 2, vec![3]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert!(function.metadata.generic_method_routes.is_empty());
     }
 
     #[test]

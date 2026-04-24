@@ -129,6 +129,30 @@ fn build_mir_json_root_emits_generic_method_routes() {
             value_demand: GenericMethodValueDemand::ScalarI64,
             publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
         });
+    function
+        .metadata
+        .generic_method_routes
+        .push(GenericMethodRoute {
+            block: BasicBlockId::new(12),
+            instruction_index: 8,
+            box_name: "ArrayBox".to_string(),
+            method: "push".to_string(),
+            arity: 1,
+            receiver_origin_box: Some("ArrayBox".to_string()),
+            key_route: None,
+            receiver_value: ValueId::new(25),
+            key_value: None,
+            result_value: Some(ValueId::new(27)),
+            route_kind: GenericMethodRouteKind::ArrayAppendAny,
+            proof: GenericMethodRouteProof::PushSurfacePolicy,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::ArrayPush,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            return_shape: Some(GenericMethodReturnShape::ScalarI64),
+            value_demand: GenericMethodValueDemand::WriteAny,
+            publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+        });
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
 
@@ -274,4 +298,27 @@ fn build_mir_json_root_emits_generic_method_routes() {
         substring_route["effects"],
         serde_json::json!(["observe.substring"])
     );
+
+    let push_route = &root["functions"][0]["metadata"]["generic_method_routes"][5];
+    assert_eq!(push_route["route_id"], "generic_method.push");
+    assert_eq!(push_route["block"], 12);
+    assert_eq!(push_route["instruction_index"], 8);
+    assert_eq!(push_route["box_name"], "ArrayBox");
+    assert_eq!(push_route["method"], "push");
+    assert_eq!(push_route["receiver_origin_box"], "ArrayBox");
+    assert_eq!(push_route["key_route"], serde_json::Value::Null);
+    assert_eq!(push_route["arity"], 1);
+    assert_eq!(push_route["receiver_value"], 25);
+    assert_eq!(push_route["key_value"], serde_json::Value::Null);
+    assert_eq!(push_route["result_value"], 27);
+    assert_eq!(push_route["emit_kind"], "push");
+    assert_eq!(push_route["route_kind"], "array_append_any");
+    assert_eq!(push_route["helper_symbol"], "nyash.array.slot_append_hh");
+    assert_eq!(push_route["proof"], "push_surface_policy");
+    assert_eq!(push_route["core_method"]["op"], "ArrayPush");
+    assert_eq!(push_route["core_method"]["lowering_tier"], "cold_fallback");
+    assert_eq!(push_route["return_shape"], "scalar_i64");
+    assert_eq!(push_route["value_demand"], "write_any");
+    assert_eq!(push_route["publication_policy"], "no_publication");
+    assert_eq!(push_route["effects"], serde_json::json!(["mutate.shape"]));
 }

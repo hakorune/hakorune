@@ -33,6 +33,7 @@ pub enum GenericMethodValueDemand {
     ReadRef,
     RuntimeI64OrHandle,
     ScalarI64,
+    WriteAny,
 }
 
 impl GenericMethodValueDemand {
@@ -41,6 +42,7 @@ impl GenericMethodValueDemand {
             Self::ReadRef => "read_ref",
             Self::RuntimeI64OrHandle => "runtime_i64_or_handle",
             Self::ScalarI64 => "scalar_i64",
+            Self::WriteAny => "write_any",
         }
     }
 }
