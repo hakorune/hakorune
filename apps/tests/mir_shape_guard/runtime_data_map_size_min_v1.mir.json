@@ -8,6 +8,36 @@
     {
       "name": "main",
       "params": [],
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.len",
+            "block": 0,
+            "instruction_index": 1,
+            "box_name": "RuntimeDataBox",
+            "method": "size",
+            "receiver_origin_box": "MapBox",
+            "key_route": null,
+            "arity": 0,
+            "receiver_value": 1,
+            "key_value": null,
+            "result_value": 2,
+            "emit_kind": "len",
+            "route_kind": "map_entry_count",
+            "helper_symbol": "nyash.map.entry_count_i64",
+            "proof": "len_surface_policy",
+            "core_method": {
+              "op": "MapLen",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": "scalar_i64",
+            "value_demand": "scalar_i64",
+            "publication_policy": "no_publication",
+            "effects": ["observe.len"]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,

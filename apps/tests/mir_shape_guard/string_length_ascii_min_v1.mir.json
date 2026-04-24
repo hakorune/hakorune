@@ -8,6 +8,36 @@
     {
       "name": "main",
       "params": [],
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.len",
+            "block": 0,
+            "instruction_index": 2,
+            "box_name": "StringBox",
+            "method": "length",
+            "receiver_origin_box": "StringBox",
+            "key_route": null,
+            "arity": 0,
+            "receiver_value": 2,
+            "key_value": null,
+            "result_value": 3,
+            "emit_kind": "len",
+            "route_kind": "string_len",
+            "helper_symbol": "nyash.string.len_h",
+            "proof": "len_surface_policy",
+            "core_method": {
+              "op": "StringLen",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": "scalar_i64",
+            "value_demand": "scalar_i64",
+            "publication_policy": "no_publication",
+            "effects": ["observe.len"]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,
