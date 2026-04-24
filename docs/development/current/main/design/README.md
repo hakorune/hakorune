@@ -11,6 +11,7 @@
 - one-screen work order: `docs/development/current/main/15-Workstream-Map.md`
 - canonical rough task order: `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
 - current axis / artifact / task placement: `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+- zero-cost hot-line / CoreMethodContract migration: `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 - current `K2-wide` technical detail:
   - `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
   - `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
@@ -114,6 +115,7 @@
 - MIR canonical callsite lane SSOT（call-site 統一の実行指示）: `docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md`
 - Stage1 MIR dialect contract SSOT（Stage0 keep / Stage1 mainline の call dialect 分離）: `docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md`
 - Stage1 MIR authority boundary SSOT（`.hako authority / Rust materializer / native consumer` の境界固定）: `docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md`
+- Hotline CoreMethodContract SSOT（zero-cost hot-line keeper gate + CoreMethodContract/CoreMethodOp migration boundary）: `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 - String helper density optimization SSOT（substring/concat/indexOf/length 最適化責務）: `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
 - Runtime hot lane optimization patterns SSOT（keeper pattern は先に固定し、generic framework 化は second winner の後に行う）: `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - Current optimization mechanisms SSOT（legacy wording を current rows に引き直す最適化機構の正本）: `docs/development/current/main/design/current-optimization-mechanisms-ssot.md`

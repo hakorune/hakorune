@@ -33,14 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Stage-B parser scanner guard landed - next cleanup card selection pending`
+- current blocker token: `phase-291x Hotline/CoreMethodContract task plan landed - CoreMethodContract SSOT seed pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Immediate Next
 
-- choose the next phase-291x cleanup card after the Stage-B parser scanner guard
+- start the CoreMethodContract SSOT seed from the Hotline task plan
 - keep docs mirrors thin; update `CURRENT_STATE.toml` and the active card first
+- keep Stage-B adapter thinning separate from CoreMethodContract migration
 - keep phase-137x observe-only unless app work reopens a real blocker
 
 ## Restart Notes

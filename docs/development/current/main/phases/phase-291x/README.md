@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/design/current-docs-update-policy-ssot.md
+  - docs/development/current/main/design/hotline-core-method-contract-ssot.md
   - docs/development/current/main/phases/phase-290x/README.md
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
@@ -42,6 +43,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-121-doc-update-simplification-contract.md
+  - docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -54,7 +56,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: `successor cleanup card selection` (pending)
+- Next implementation target: `CoreMethodContract SSOT seed` (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -111,6 +113,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 30. `docs/development/current/main/phases/phase-291x/291x-119-docs-status-closeout-card.md`
 31. `docs/development/current/main/phases/phase-291x/291x-120-mapbox-taskboard-closeout-card.md`
 32. `docs/development/current/main/phases/phase-291x/291x-121-doc-update-simplification-contract.md`
+33. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+34. `docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md`
 
 ## Current Rule
 
@@ -118,6 +122,14 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - current docs update policy is
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`;
   do not append landed history to current mirrors for every card
+- zero-cost hot boundary and CoreMethodContract migration policy lives in
+  `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+- CoreMethodContract work must stay split into contract seed, generated
+  metadata, drift guard, MIR carrier, `.inc` consumer, and later
+  evidence-backed hot lowering
+- existing guarded `.inc` mirrors may remain during migration, but new
+  method-name classifier growth needs a contract row, deletion condition, and
+  focused guard
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
@@ -192,10 +204,10 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   as the only remaining selfhost-runtime `pref == "ny"` Map wrapper, and keep
   `crates/nyash_kernel/src/plugin/map_compat.rs` as compat-only legacy ABI
   quarantine
-- next cleanup must be selected after the `latest_card_path` recorded in
-  `CURRENT_STATE.toml`; do not reopen the landed
-  ArrayBox.clear / contains / indexOf / join / reverse / sort rows or the older existing-key
-  typing rule without an owner-path change.
+- next cleanup starts from the `latest_card_path` recorded in
+  `CURRENT_STATE.toml`; do not reopen the landed ArrayBox.clear / contains /
+  indexOf / join / reverse / sort rows or the older existing-key typing rule
+  without an owner-path change
 
 ## Implementation State
 

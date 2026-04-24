@@ -28,6 +28,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - canonical rough task-order SSOT
 - `design/perf-owner-first-optimization-ssot.md`
   - optimization lane の `front split` / `owner transition` / `keeper-revert stop-line` owner
+- `design/hotline-core-method-contract-ssot.md`
+  - zero-cost hot-line keeper gate and CoreMethodContract migration owner
 - `design/current-docs-update-policy-ssot.md`
   - current docs update policy and mirror-thinning contract
 - `design/kernel-replacement-axis-ssot.md`
@@ -78,6 +80,7 @@ Rule:
 - よく参照する設計SSOT:
   - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
   - EdgeCFG Flow Fragments（Structured→CFG lowering SSOT）: `docs/development/current/main/design/edgecfg-fragments.md`
+  - Hotline CoreMethodContract（zero-cost hot-line / method contract migration SSOT）: `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 
 ### `docs/development/current/main/design/archive/`（historical design）
 

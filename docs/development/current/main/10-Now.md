@@ -20,14 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Stage-B parser scanner guard landed - next cleanup card selection pending`
+- current blocker token: `phase-291x Hotline/CoreMethodContract task plan landed - CoreMethodContract SSOT seed pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- choose the next phase-291x cleanup card after the Stage-B parser scanner guard
+- start the CoreMethodContract SSOT seed from the Hotline task plan
 - keep BoxShape and BoxCount separate
+- keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not update current mirrors for every landed card
 - update `CURRENT_STATE.toml` and the active card first
 
@@ -36,7 +37,8 @@ Related:
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/README.md`
 3. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
-4. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+4. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+5. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 
 ## Proof Bundle
 

@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/DOCS_LAYOUT.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
+  - docs/development/current/main/design/hotline-core-method-contract-ssot.md
   - docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md
   - docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md
   - docs/development/current/main/phases/phase-137x/README.md
@@ -23,6 +24,7 @@ Related:
 - `IPC近似 + cycles激増` は work explosion
 - `IPC崩壊 + cycles増` は stall collapse
 - same owner family で non-keeper が 2 回出たら stop-the-line
+- hot loop に残る abstraction boundary は keeper gate で見る
 - long docs は `CURRENT_TASK.md` / phase README / this SSOT で役割分担する
 
 ## Goal
@@ -45,6 +47,30 @@ Related:
 2. failure mode を split する
 3. owner/state transition を 1 行で固定する
 4. その owner の直上 1 seam だけを触る
+
+## Hotline Law
+
+Hotline Law の詳細SSOT:
+
+`docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+
+最適化 keeper は、owner/state transition を固定した後に target hot loop
+を確認する。次が残るなら keeper ではない。
+
+- generic method dispatch
+- method-name classification / string compare
+- tiny scalar/storage op の cross-ABI helper call
+- lock acquire/release
+- allocation fast-path function call
+- runtime legality/provenance check
+- benchmark-name / source-name specific branch
+
+例外は、external/I/O、proven cold failure path、大きな処理で call overhead
+が支配的でない場合、または asm で call boundary が inline/erased と証明
+された場合だけ。
+
+この gate は perf の代替ではない。必ず `front split -> owner/state
+transition -> one seam` の後に使う。
 
 ## Front Split
 

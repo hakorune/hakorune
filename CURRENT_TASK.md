@@ -37,14 +37,15 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Stage-B parser scanner guard landed - next cleanup card selection pending`
+- current blocker token: `phase-291x Hotline/CoreMethodContract task plan landed - CoreMethodContract SSOT seed pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- choose the next phase-291x cleanup card after the Stage-B parser scanner guard
+- start the CoreMethodContract SSOT seed from the Hotline task plan
 - keep BoxShape cleanup separate from BoxCount feature rows
+- keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not reopen landed CoreBox router rows without an owner-path change
 
 ## Detail Pointers
@@ -59,3 +60,5 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
 - Perf owner-first policy:
   `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+- Hotline/CoreMethodContract SSOT:
+  `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
