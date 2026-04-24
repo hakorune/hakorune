@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x mir-call set need metadata consumer pending`
+- current blocker token: `phase-291x mir-call set surface prune retry pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- implement metadata-first need-policy consumer for direct `ArraySet` / `MapSet`
+- retry pruning the MIR-call route-policy `set` method surface row after need metadata consumer
 - keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration

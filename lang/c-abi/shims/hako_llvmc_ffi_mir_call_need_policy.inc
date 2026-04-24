@@ -122,6 +122,77 @@
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 
+      auto int mir_call_need_route_read_i64_field(
+          yyjson_val* obj,
+          const char* key,
+          long long* out) {
+        yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
+        if (!(val && yyjson_is_num(val))) return 0;
+        if (out) *out = (long long)yyjson_get_sint(val);
+        return 1;
+      }
+
+      auto enum MirCallNeedKind
+      classify_mir_call_method_need_kind_from_core_method_metadata(
+          long long bid,
+          size_t ii) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (!fn_metadata) return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
+        if (!(routes && yyjson_is_arr(routes))) {
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* core_method = NULL;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* route_kind = route ? read_str(route, "route_kind") : NULL;
+          const char* op = NULL;
+          long long block = 0;
+          long long inst = 0;
+          int invalid = 0;
+          enum CoreMethodMetadataProof proof =
+              HAKO_LLVMC_CORE_METHOD_METADATA_PROOF_NONE;
+          enum CoreMethodLoweringTierMetadata lowering_tier =
+              HAKO_LLVMC_CORE_METHOD_LOWERING_TIER_NONE;
+          if (!mir_call_need_route_read_i64_field(route, "block", &block) ||
+              !mir_call_need_route_read_i64_field(
+                  route,
+                  "instruction_index",
+                  &inst) ||
+              block != bid ||
+              (size_t)inst != ii) {
+            continue;
+          }
+          if (!(route_id && !strcmp(route_id, "generic_method.set"))) {
+            continue;
+          }
+          core_method = yyjson_obj_get(route, "core_method");
+          if (!(core_method && yyjson_is_obj(core_method))) {
+            return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+          }
+          op = read_str(core_method, "op");
+          proof = read_core_method_proof_metadata(core_method, &invalid);
+          lowering_tier = read_core_method_lowering_tier_metadata(core_method, &invalid);
+          if (invalid ||
+              !core_method_metadata_proof_is_contract_manifest(proof) ||
+              !core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+            return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+          }
+          if (op && !strcmp(op, "ArraySet") &&
+              route_kind && !strcmp(route_kind, "array_store_any")) {
+            return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
+          }
+          if (op && !strcmp(op, "MapSet") &&
+              route_kind && !strcmp(route_kind, "map_store_any")) {
+            return HAKO_LLVMC_MIR_CALL_NEED_MAP_SET;
+          }
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
       auto enum MirCallNeedKind classify_mir_call_method_need_kind(
           const char* bname,
           const char* mname,

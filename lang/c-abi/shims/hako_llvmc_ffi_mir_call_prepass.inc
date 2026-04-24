@@ -79,7 +79,11 @@
           route = classify_generic_method_route(bid, ii, bname, mname, recv);
           recv_family = classify_mir_call_receiver_family(route.recv_org);
           method_surface = classify_mir_call_method_surface(mname);
-          need_kind = classify_mir_call_method_need_kind(bname, mname, recv_family);
+          need_kind =
+              classify_mir_call_method_need_kind_from_core_method_metadata(bid, ii);
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE) {
+            need_kind = classify_mir_call_method_need_kind(bname, mname, recv_family);
+          }
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE &&
               route.runtime_string) {
             if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
