@@ -65,9 +65,6 @@
           }
         }
         if (mname && !strcmp(mname, "set")) return HAKO_LLVMC_GENERIC_METHOD_EMIT_SET;
-        if (mname && (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size"))) {
-          return HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN;
-        }
         if (mname && !strcmp(mname, "substring") && route && route->runtime_string) {
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_SUBSTRING;
         }
