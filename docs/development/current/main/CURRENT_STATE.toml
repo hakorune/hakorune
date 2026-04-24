@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-208"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-208-len-route-surface-mirror-prune-card.md"
-latest_card_summary = "The MIR-call route-policy len/length/size method-surface mirrors are removed; length route state now relies on CoreMethod metadata."
+latest_card = "291x-209"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-209-runtime-data-map-has-metadata-fixture-card.md"
+latest_card_summary = "The RuntimeDataBox.has Map-origin boundary fixture now carries MapHas CoreMethod metadata; has mirror pruning remains blocked by Array-origin fallback coverage."
 
 current_blocker_token = "phase-291x remaining inc mirror cleanup selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

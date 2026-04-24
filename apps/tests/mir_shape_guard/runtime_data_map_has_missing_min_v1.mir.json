@@ -16,15 +16,24 @@
             "instruction_index": 2,
             "box_name": "RuntimeDataBox",
             "method": "has",
+            "receiver_origin_box": "MapBox",
+            "key_route": "i64_const",
             "arity": 1,
             "receiver_value": 1,
             "key_value": 2,
             "result_value": 3,
             "emit_kind": "has",
-            "route_kind": "runtime_data_contains_any",
-            "helper_symbol": "nyash.runtime_data.has_hh",
+            "route_kind": "map_contains_i64",
+            "helper_symbol": "nyash.map.probe_hi",
             "proof": "has_surface_policy",
+            "core_method": {
+              "op": "MapHas",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
             "value_demand": "read_ref",
+            "publication_policy": null,
             "effects": ["probe.key"]
           }
         ]
