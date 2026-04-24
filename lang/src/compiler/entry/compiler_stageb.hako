@@ -14,20 +14,7 @@
 using lang.compiler.parser.parser_box as ParserBox
 using lang.compiler.entry.comment_stripper_box as CommentStripperBox
 using lang.compiler.entry.stageb_body_extractor_box as StageBBodyExtractorBox
-
-static box StageBTraceBox {
-  log(label) {
-    local flag = env.get("HAKO_STAGEB_TRACE")
-    if flag == null { return 0 }
-    if ("" + flag) != "1" { return 0 }
-    local msg = "[stageb/trace]"
-    if label != null {
-      msg = msg + " " + ("" + label)
-    }
-    print(msg)
-    return 0
-  }
-}
+using lang.compiler.entry.stageb_trace_box as StageBTraceBox
 
 // Phase 152-B: Main Detection Helper (箱化モジュール化)
 // - Supports both legacy and modern entry point patterns

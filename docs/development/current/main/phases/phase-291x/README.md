@@ -62,6 +62,9 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-147-mapget-maphas-fusion-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-148-mapget-maphas-fusion-has-const-probe-card.md
   - docs/development/current/main/phases/phase-291x/291x-149-maplookup-get-const-fold-card.md
+  - docs/development/current/main/phases/phase-291x/291x-150-maplookup-fusion-const-fold-guard-card.md
+  - docs/development/current/main/phases/phase-291x/291x-151-core-method-get-inc-consumer-card.md
+  - docs/development/current/main/phases/phase-291x/291x-152-stageb-trace-adapter-thinning-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -74,7 +77,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: post-MapLookup fusion cleanup card selection
+- Next implementation target: Stage-B args/source resolver split
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -151,6 +154,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 50. `docs/development/current/main/phases/phase-291x/291x-147-mapget-maphas-fusion-metadata-card.md`
 51. `docs/development/current/main/phases/phase-291x/291x-148-mapget-maphas-fusion-has-const-probe-card.md`
 52. `docs/development/current/main/phases/phase-291x/291x-149-maplookup-get-const-fold-card.md`
+53. `docs/development/current/main/phases/phase-291x/291x-150-maplookup-fusion-const-fold-guard-card.md`
+54. `docs/development/current/main/phases/phase-291x/291x-151-core-method-get-inc-consumer-card.md`
+55. `docs/development/current/main/phases/phase-291x/291x-152-stageb-trace-adapter-thinning-card.md`
 
 ## Current Rule
 
@@ -217,6 +223,13 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   result to true; `nyash.map.has_h` leaves the hot loop and cycles/IPC improve
 - `291x-149` consumes the same `MapLookupSameKey` metadata to fold the proven
   constant `get` result; `nyash.runtime_data.get_hh` leaves the hot loop
+- `291x-150` pins the MapLookup fusion shared reader boundary and const-fold
+  IR smoke in quick gate coverage
+- `291x-151` moves generic-method `get` policy to prefer MIR MapGet
+  `core_method` metadata before legacy `bname` fallback while keeping the cold
+  RuntimeData facade
+- `291x-152` starts HCM-8 Stage-B thinning by removing the duplicate inline
+  Stage-B trace helper from `compiler_stageb.hako`
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
