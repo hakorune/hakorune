@@ -17,6 +17,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
             instruction_index: 3,
             box_name: "MapBox".to_string(),
             method: "has".to_string(),
+            arity: 1,
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(10),
@@ -40,6 +41,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
             instruction_index: 4,
             box_name: "RuntimeDataBox".to_string(),
             method: "get".to_string(),
+            arity: 1,
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(13),
@@ -63,6 +65,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
             instruction_index: 5,
             box_name: "RuntimeDataBox".to_string(),
             method: "get".to_string(),
+            arity: 1,
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(16),
@@ -82,10 +85,35 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
+            block: BasicBlockId::new(11),
+            instruction_index: 7,
+            box_name: "StringBox".to_string(),
+            method: "substring".to_string(),
+            arity: 2,
+            receiver_origin_box: Some("StringBox".to_string()),
+            key_route: None,
+            receiver_value: ValueId::new(21),
+            key_value: None,
+            result_value: Some(ValueId::new(24)),
+            route_kind: GenericMethodRouteKind::StringSubstring,
+            proof: GenericMethodRouteProof::SubstringSurfacePolicy,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::StringSubstring,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            return_shape: None,
+            value_demand: GenericMethodValueDemand::ReadRef,
+            publication_policy: None,
+        });
+    function
+        .metadata
+        .generic_method_routes
+        .push(GenericMethodRoute {
             block: BasicBlockId::new(10),
             instruction_index: 6,
             box_name: "MapBox".to_string(),
             method: "size".to_string(),
+            arity: 0,
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: None,
             receiver_value: ValueId::new(19),
@@ -189,7 +217,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(scalar_get_route["publication_policy"], "no_publication");
     assert_eq!(scalar_get_route["effects"], serde_json::json!(["read.key"]));
 
-    let len_route = &root["functions"][0]["metadata"]["generic_method_routes"][3];
+    let len_route = &root["functions"][0]["metadata"]["generic_method_routes"][4];
     assert_eq!(len_route["route_id"], "generic_method.len");
     assert_eq!(len_route["block"], 10);
     assert_eq!(len_route["instruction_index"], 6);
@@ -211,4 +239,39 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(len_route["value_demand"], "scalar_i64");
     assert_eq!(len_route["publication_policy"], "no_publication");
     assert_eq!(len_route["effects"], serde_json::json!(["observe.len"]));
+
+    let substring_route = &root["functions"][0]["metadata"]["generic_method_routes"][3];
+    assert_eq!(substring_route["route_id"], "generic_method.substring");
+    assert_eq!(substring_route["block"], 11);
+    assert_eq!(substring_route["instruction_index"], 7);
+    assert_eq!(substring_route["box_name"], "StringBox");
+    assert_eq!(substring_route["method"], "substring");
+    assert_eq!(substring_route["receiver_origin_box"], "StringBox");
+    assert_eq!(substring_route["key_route"], serde_json::Value::Null);
+    assert_eq!(substring_route["arity"], 2);
+    assert_eq!(substring_route["receiver_value"], 21);
+    assert_eq!(substring_route["key_value"], serde_json::Value::Null);
+    assert_eq!(substring_route["result_value"], 24);
+    assert_eq!(substring_route["emit_kind"], "substring");
+    assert_eq!(substring_route["route_kind"], "string_substring");
+    assert_eq!(
+        substring_route["helper_symbol"],
+        "nyash.string.substring_hii"
+    );
+    assert_eq!(substring_route["proof"], "substring_surface_policy");
+    assert_eq!(substring_route["core_method"]["op"], "StringSubstring");
+    assert_eq!(
+        substring_route["core_method"]["lowering_tier"],
+        "warm_direct_abi"
+    );
+    assert_eq!(substring_route["return_shape"], serde_json::Value::Null);
+    assert_eq!(substring_route["value_demand"], "read_ref");
+    assert_eq!(
+        substring_route["publication_policy"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        substring_route["effects"],
+        serde_json::json!(["observe.substring"])
+    );
 }

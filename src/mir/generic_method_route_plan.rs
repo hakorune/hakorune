@@ -24,6 +24,7 @@ pub enum GenericMethodRouteKind {
     MapEntryCount,
     ArraySlotLen,
     StringLen,
+    StringSubstring,
     MapContainsAny,
     MapContainsI64,
 }
@@ -36,6 +37,7 @@ impl GenericMethodRouteKind {
             Self::MapEntryCount => "nyash.map.entry_count_i64",
             Self::ArraySlotLen => "nyash.array.slot_len_h",
             Self::StringLen => "nyash.string.len_h",
+            Self::StringSubstring => "nyash.string.substring_hii",
             Self::MapContainsAny => "nyash.map.probe_hh",
             Self::MapContainsI64 => "nyash.map.probe_hi",
         }
@@ -50,6 +52,7 @@ impl std::fmt::Display for GenericMethodRouteKind {
             Self::MapEntryCount => f.write_str("map_entry_count"),
             Self::ArraySlotLen => f.write_str("array_slot_len"),
             Self::StringLen => f.write_str("string_len"),
+            Self::StringSubstring => f.write_str("string_substring"),
             Self::MapContainsAny => f.write_str("map_contains_any"),
             Self::MapContainsI64 => f.write_str("map_contains_i64"),
         }
@@ -61,6 +64,7 @@ pub enum GenericMethodRouteProof {
     GetSurfacePolicy,
     HasSurfacePolicy,
     LenSurfacePolicy,
+    SubstringSurfacePolicy,
     MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
 }
@@ -71,6 +75,7 @@ impl std::fmt::Display for GenericMethodRouteProof {
             Self::GetSurfacePolicy => f.write_str("get_surface_policy"),
             Self::HasSurfacePolicy => f.write_str("has_surface_policy"),
             Self::LenSurfacePolicy => f.write_str("len_surface_policy"),
+            Self::SubstringSurfacePolicy => f.write_str("substring_surface_policy"),
             Self::MapSetScalarI64DominatesNoEscape => {
                 f.write_str("map_set_scalar_i64_dominates_no_escape")
             }
@@ -87,6 +92,7 @@ pub struct GenericMethodRoute {
     pub instruction_index: usize,
     pub box_name: String,
     pub method: String,
+    pub arity: usize,
     pub receiver_origin_box: Option<String>,
     pub key_route: Option<GenericMethodKeyRoute>,
     pub receiver_value: ValueId,
@@ -106,6 +112,7 @@ impl GenericMethodRoute {
             "get" => "generic_method.get",
             "has" => "generic_method.has",
             "len" | "length" | "size" => "generic_method.len",
+            "substring" => "generic_method.substring",
             _ => "generic_method.unknown",
         }
     }
@@ -115,12 +122,13 @@ impl GenericMethodRoute {
             "get" => "get",
             "has" => "has",
             "len" | "length" | "size" => "len",
+            "substring" => "substring",
             _ => "unknown",
         }
     }
 
     pub fn arity(&self) -> usize {
-        usize::from(self.key_value.is_some())
+        self.arity
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
@@ -128,6 +136,7 @@ impl GenericMethodRoute {
             "get" => &["read.key"],
             "has" => &["probe.key"],
             "len" | "length" | "size" => &["observe.len"],
+            "substring" => &["observe.substring"],
             _ => &[],
         }
     }
@@ -163,6 +172,15 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                     })
                     .or_else(|| {
                         match_generic_len_route(
+                            function,
+                            &def_map,
+                            block_id,
+                            instruction_index,
+                            inst,
+                        )
+                    })
+                    .or_else(|| {
+                        match_generic_substring_route(
                             function,
                             &def_map,
                             block_id,
@@ -238,6 +256,7 @@ fn match_generic_has_route(
         instruction_index,
         box_name: box_name.clone(),
         method: method.clone(),
+        arity: 1,
         receiver_origin_box,
         key_route: Some(key_route),
         receiver_value: *receiver,
@@ -315,6 +334,7 @@ fn match_generic_get_route(
         instruction_index,
         box_name: box_name.clone(),
         method: method.clone(),
+        arity: 1,
         receiver_origin_box,
         key_route: Some(key_route),
         receiver_value: *receiver,
@@ -373,6 +393,7 @@ fn match_generic_len_route(
         instruction_index,
         box_name: box_name.clone(),
         method: method.clone(),
+        arity: 0,
         receiver_origin_box,
         key_route: None,
         receiver_value: *receiver,
@@ -387,6 +408,63 @@ fn match_generic_len_route(
         return_shape: Some(GenericMethodReturnShape::ScalarI64),
         value_demand: GenericMethodValueDemand::ScalarI64,
         publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+    })
+}
+
+fn match_generic_substring_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> Option<GenericMethodRoute> {
+    let MirInstruction::Call {
+        dst,
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if method != "substring" || !(args.len() == 1 || args.len() == 2) {
+        return None;
+    }
+
+    let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| (box_name == "StringBox").then(|| "StringBox".to_string()));
+    if box_name != "StringBox"
+        && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))
+    {
+        return None;
+    }
+
+    Some(GenericMethodRoute {
+        block,
+        instruction_index,
+        box_name: box_name.clone(),
+        method: method.clone(),
+        arity: args.len(),
+        receiver_origin_box,
+        key_route: None,
+        receiver_value: *receiver,
+        key_value: None,
+        result_value: *dst,
+        route_kind: GenericMethodRouteKind::StringSubstring,
+        proof: GenericMethodRouteProof::SubstringSurfacePolicy,
+        core_method: Some(CoreMethodOpCarrier::manifest(
+            CoreMethodOp::StringSubstring,
+            CoreMethodLoweringTier::WarmDirectAbi,
+        )),
+        return_shape: None,
+        value_demand: GenericMethodValueDemand::ReadRef,
+        publication_policy: None,
     })
 }
 
@@ -896,6 +974,84 @@ mod tests {
         assert_eq!(route.key_route, None);
         assert_eq!(route.key_value, None);
         assert_eq!(route.arity(), 0);
+    }
+
+    #[test]
+    fn records_direct_substring_core_method_route() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(method_call(
+            Some(5),
+            "StringBox",
+            "substring",
+            1,
+            vec![2, 3],
+        ));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), "generic_method.substring");
+        assert_eq!(route.box_name, "StringBox");
+        assert_eq!(route.method, "substring");
+        assert_eq!(route.arity(), 2);
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
+        assert_eq!(route.key_route, None);
+        assert_eq!(route.key_value, None);
+        assert_eq!(route.route_kind, GenericMethodRouteKind::StringSubstring);
+        assert_eq!(route.proof, GenericMethodRouteProof::SubstringSurfacePolicy);
+        let core_method = route.core_method.expect("StringSubstring carrier");
+        assert_eq!(core_method.op, CoreMethodOp::StringSubstring);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(route.return_shape, None);
+        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy, None);
+    }
+
+    #[test]
+    fn records_runtime_data_substring_from_string_origin() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "StringBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(method_call(
+            Some(5),
+            "RuntimeDataBox",
+            "substring",
+            2,
+            vec![3, 4],
+        ));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.method, "substring");
+        assert_eq!(route.arity(), 2);
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
+        assert_eq!(route.route_kind, GenericMethodRouteKind::StringSubstring);
+        let core_method = route
+            .core_method
+            .expect("RuntimeData StringSubstring carrier");
+        assert_eq!(core_method.op, CoreMethodOp::StringSubstring);
     }
 
     #[test]

@@ -82,6 +82,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-167-core-method-len-route-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-168-core-method-len-emit-kind-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-169-metadata-absent-len-fallback-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-170-core-method-substring-route-metadata-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -94,7 +95,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: substring metadata carrier preflight
+- Next implementation target: substring emit-kind metadata consumer
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -306,6 +307,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-169` rejects pruning the generic length alias emit-kind mirror rows
   for now and tightens their deletion condition to require metadata-absent
   length boundary coverage
+- `291x-170` adds MIR `generic_method.substring` carriers for
+  `StringSubstring`; `.inc` still uses the legacy substring fallback until the
+  consumer card lands
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
