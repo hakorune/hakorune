@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-213"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-213-substring-boundary-metadata-fixtures-card.md"
-latest_card_summary = "The metadata-absent substring boundary fixture is being converted to StringSubstring CoreMethod metadata plus exact-seed route metadata before substring mirror pruning."
+latest_card = "291x-214"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-214-substring-emit-kind-mirror-prune-card.md"
+latest_card_summary = "The generic-method substring emit-kind method-name mirror is being pruned; substring route-surface fallback remains for a later card."
 
 current_blocker_token = "phase-291x remaining inc mirror cleanup selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
