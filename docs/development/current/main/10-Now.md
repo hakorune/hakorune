@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x set emit-kind metadata consumer pending`
+- current blocker token: `phase-291x set emit-kind mirror prune probe pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- make generic-method `set` emit-kind selection prefer valid `ArraySet` / `MapSet` metadata
+- probe whether the generic `set` emit-kind mirror row can be pruned without breaking metadata-absent mutating fallback
 - keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
