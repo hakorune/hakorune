@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x MapHas mirror prune decision pending` |
-| Next | `decide whether the MapHas legacy mirror row can be pruned or must stay as fallback` |
+| Blocker | `phase-291x metadata-absent has fallback contract pending` |
+| Next | `define metadata-absent has fallback contract before any mirror-row deletion` |
 | After Next | `avoid native storage lanes without broader owner evidence` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Decide whether the MapHas legacy mirror row can be pruned or must stay as fallback.
+2. Define metadata-absent `has` fallback contract before any mirror-row deletion.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
