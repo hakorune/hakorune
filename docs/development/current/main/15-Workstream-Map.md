@@ -21,7 +21,7 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x MapGet scalar return-shape proof landed - scalar lowering evidence pending` |
+| Blocker | `phase-291x MapGet preheader scalar proof landed - scalar lowering evidence pending` |
 | Next | `evidence-backed scalar MapGet lowering` |
 | After Next | `single-op hot lowering only after helper route is proven keeper` |
 

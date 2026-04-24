@@ -134,7 +134,7 @@ instead of asking `.inc` or Rust to rediscover semantics.
 
 ## Next
 
-After this proof exists, a separate H144 lowering card may try:
+After this proof exists, a separate lowering card may try:
 
 ```text
 MapGet + i64_const key + scalar_i64_or_missing_zero + scalar_i64 demand

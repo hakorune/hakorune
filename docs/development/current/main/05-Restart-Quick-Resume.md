@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x MapGet scalar return-shape proof landed - scalar lowering evidence pending`
+- current blocker token: `phase-291x MapGet preheader scalar proof landed - scalar lowering evidence pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 

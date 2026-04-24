@@ -56,6 +56,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-141-maphas-i64-route-card.md
   - docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-143-mapget-scalar-return-shape-proof-card.md
+  - docs/development/current/main/phases/phase-291x/291x-144-mapget-preheader-scalar-proof-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -139,6 +140,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 44. `docs/development/current/main/phases/phase-291x/291x-141-maphas-i64-route-card.md`
 45. `docs/development/current/main/phases/phase-291x/291x-142-mapget-return-shape-metadata-card.md`
 46. `docs/development/current/main/phases/phase-291x/291x-143-mapget-scalar-return-shape-proof-card.md`
+47. `docs/development/current/main/phases/phase-291x/291x-144-mapget-preheader-scalar-proof-card.md`
 
 ## Current Rule
 
@@ -189,6 +191,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   `publication_policy=no_publication` only after a same-receiver/same-i64-key
   scalar store with no same-receiver mutation/escape; codegen remains on
   `nyash.runtime_data.get_hh`
+- `291x-144` extends the scalar MapGet proof to a conservative
+  preheader/dominating store shape for the measured `kilo_leaf_map_getset_has`
+  front; codegen and `.inc` lowering remain unchanged
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

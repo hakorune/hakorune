@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x MapGet scalar return-shape proof landed - scalar lowering evidence pending`
+- current blocker token: `phase-291x MapGet preheader scalar proof landed - scalar lowering evidence pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 

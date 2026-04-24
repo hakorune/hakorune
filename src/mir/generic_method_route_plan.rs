@@ -15,6 +15,7 @@ use super::{
     CoreMethodOp, CoreMethodOpCarrier, MirFunction, MirInstruction, MirModule, ValueDefMap,
     ValueId,
 };
+use crate::mir::verification::utils::compute_dominators;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodRouteKind {
@@ -50,6 +51,7 @@ impl std::fmt::Display for GenericMethodRouteKind {
 pub enum GenericMethodRouteProof {
     GetSurfacePolicy,
     HasSurfacePolicy,
+    MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
 }
 
@@ -58,6 +60,9 @@ impl std::fmt::Display for GenericMethodRouteProof {
         match self {
             Self::GetSurfacePolicy => f.write_str("get_surface_policy"),
             Self::HasSurfacePolicy => f.write_str("has_surface_policy"),
+            Self::MapSetScalarI64DominatesNoEscape => {
+                f.write_str("map_set_scalar_i64_dominates_no_escape")
+            }
             Self::MapSetScalarI64SameKeyNoEscape => {
                 f.write_str("map_set_scalar_i64_same_key_no_escape")
             }
@@ -253,7 +258,7 @@ fn match_generic_get_route(
     }
 
     let key_route = classify_key_route(function, def_map, args[0]);
-    let scalar_shape = prove_same_block_scalar_i64_map_get(
+    let scalar_proof = prove_scalar_i64_map_get(
         function,
         def_map,
         block,
@@ -261,9 +266,10 @@ fn match_generic_get_route(
         *receiver,
         args[0],
     );
-    let (proof, return_shape, value_demand, publication_policy) = if scalar_shape {
+    let (proof, return_shape, value_demand, publication_policy) = if let Some(proof) = scalar_proof
+    {
         (
-            GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
+            proof,
             Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
             GenericMethodValueDemand::ScalarI64,
             Some(GenericMethodPublicationPolicy::NoPublication),
@@ -313,6 +319,36 @@ struct MapSetCallShape {
     value: ValueId,
 }
 
+#[derive(Clone, Copy)]
+struct MapSetCandidate {
+    block: BasicBlockId,
+    instruction_index: usize,
+}
+
+fn prove_scalar_i64_map_get(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block_id: BasicBlockId,
+    get_instruction_index: usize,
+    get_receiver: ValueId,
+    get_key: ValueId,
+) -> Option<GenericMethodRouteProof> {
+    if prove_same_block_scalar_i64_map_get(
+        function,
+        def_map,
+        block_id,
+        get_instruction_index,
+        get_receiver,
+        get_key,
+    ) {
+        return Some(GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape);
+    }
+    if prove_dominating_scalar_i64_map_get(function, def_map, block_id, get_receiver, get_key) {
+        return Some(GenericMethodRouteProof::MapSetScalarI64DominatesNoEscape);
+    }
+    None
+}
+
 fn prove_same_block_scalar_i64_map_get(
     function: &MirFunction,
     def_map: &ValueDefMap,
@@ -348,6 +384,90 @@ fn prove_same_block_scalar_i64_map_get(
     }
 
     false
+}
+
+fn prove_dominating_scalar_i64_map_get(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    get_block_id: BasicBlockId,
+    get_receiver: ValueId,
+    get_key: ValueId,
+) -> bool {
+    let Some(get_key_const) = const_i64_value(function, def_map, get_key) else {
+        return false;
+    };
+    let receiver_root = resolve_value_origin(function, def_map, get_receiver);
+    let dominators = compute_dominators(function);
+    let mut candidates = Vec::new();
+
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+    for block_id in block_ids {
+        if block_id == get_block_id || !dominators.dominates(block_id, get_block_id) {
+            continue;
+        }
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for (instruction_index, inst) in block.instructions.iter().enumerate() {
+            let Some(set_call) = map_set_call_shape(inst) else {
+                continue;
+            };
+            if !same_value_origin(function, def_map, set_call.receiver, receiver_root) {
+                continue;
+            }
+            if const_i64_value(function, def_map, set_call.key) != Some(get_key_const) {
+                continue;
+            }
+            if const_i64_value(function, def_map, set_call.value).is_none() {
+                continue;
+            }
+            candidates.push(MapSetCandidate {
+                block: block_id,
+                instruction_index,
+            });
+        }
+    }
+
+    candidates.into_iter().rev().any(|candidate| {
+        dominating_candidate_has_no_same_receiver_escape(
+            function,
+            def_map,
+            &dominators,
+            candidate,
+            receiver_root,
+        )
+    })
+}
+
+fn dominating_candidate_has_no_same_receiver_escape(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    dominators: &crate::mir::verification::utils::DominatorTree,
+    candidate: MapSetCandidate,
+    receiver_root: ValueId,
+) -> bool {
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+    for block_id in block_ids {
+        if !dominators.dominates(candidate.block, block_id) {
+            continue;
+        }
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        let start = if block_id == candidate.block {
+            candidate.instruction_index + 1
+        } else {
+            0
+        };
+        for inst in block.instructions.iter().skip(start) {
+            if instruction_may_escape_or_mutate_receiver(function, def_map, inst, receiver_root) {
+                return false;
+            }
+        }
+    }
+    true
 }
 
 fn map_set_call_shape(inst: &MirInstruction) -> Option<MapSetCallShape> {
@@ -435,7 +555,7 @@ fn same_value_origin(
 mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
+    use crate::mir::{BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirType};
 
     fn method_call(
         dst: Option<u32>,
@@ -826,6 +946,99 @@ mod tests {
         assert_eq!(
             route.return_shape,
             Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+        );
+    }
+
+    #[test]
+    fn proves_dominating_preheader_scalar_i64_map_get_return_shape() {
+        let mut function = make_function();
+        let entry_id = BasicBlockId::new(0);
+        let body_id = BasicBlockId::new(1);
+        let entry = function.blocks.get_mut(&entry_id).expect("entry");
+        entry.successors.insert(body_id);
+        entry.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(-1),
+        });
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        entry.add_instruction(method_call(Some(4), "MapBox", "set", 1, vec![2, 3]));
+
+        let mut body = BasicBlock::new(body_id);
+        body.predecessors.insert(entry_id);
+        body.add_instruction(method_call(Some(5), "RuntimeDataBox", "get", 1, vec![2]));
+        function.add_block(body);
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(
+            route.proof,
+            GenericMethodRouteProof::MapSetScalarI64DominatesNoEscape
+        );
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
+        );
+        assert_eq!(route.value_demand, GenericMethodValueDemand::ScalarI64);
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::NoPublication)
+        );
+        assert_eq!(
+            route.route_kind.helper_symbol(),
+            "nyash.runtime_data.get_hh"
+        );
+    }
+
+    #[test]
+    fn rejects_dominating_preheader_scalar_shape_after_body_mutation() {
+        let mut function = make_function();
+        let entry_id = BasicBlockId::new(0);
+        let body_id = BasicBlockId::new(1);
+        let entry = function.blocks.get_mut(&entry_id).expect("entry");
+        entry.successors.insert(body_id);
+        entry.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        });
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: crate::mir::ConstValue::Integer(-1),
+        });
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        entry.add_instruction(method_call(Some(4), "MapBox", "set", 1, vec![2, 3]));
+
+        let mut body = BasicBlock::new(body_id);
+        body.predecessors.insert(entry_id);
+        body.add_instruction(method_call(Some(5), "RuntimeDataBox", "get", 1, vec![2]));
+        body.add_instruction(method_call(None, "MapBox", "clear", 1, vec![]));
+        function.add_block(body);
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+        );
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
         );
     }
 
