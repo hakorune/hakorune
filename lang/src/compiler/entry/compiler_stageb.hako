@@ -17,6 +17,7 @@ using lang.compiler.entry.stageb_body_extractor_box as StageBBodyExtractorBox
 using lang.compiler.entry.stageb_trace_box as StageBTraceBox
 using lang.compiler.entry.stageb_args_box as StageBArgsBox
 using lang.compiler.entry.stageb_same_source_defs_box as StageBSameSourceDefsBox
+using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
 
 // StageBArgsBox moved to `lang.compiler.entry.stageb_args_box`.
 // StageBBodyExtractorBox moved to `lang.compiler.entry.stageb_body_extractor_box`.
@@ -48,7 +49,8 @@ static box StageBDriverBox {
     local ast_json = parser.parse_program2(body_src)
     ast_json = me._strip_keyword_expr_nodes(ast_json, "local")
     local defs_fragment = StageBSameSourceDefsBox.build_fragment(clean)
-    ast_json = me._inject_json_fragment(ast_json, defs_fragment)
+    local json_builder = new StageBJsonBuilderBox()
+    ast_json = json_builder.inject_json_fragment(ast_json, defs_fragment)
     return me._strip_keyword_expr_nodes(ast_json, "local")
   }
 
@@ -142,19 +144,6 @@ static box StageBDriverBox {
     }
 
     return out
-  }
-
-  _inject_json_fragment(json_text, fragment) {
-    if fragment == null || fragment == "" { return json_text }
-    local s = "" + json_text
-    local j = s.length() - 1
-    loop(j >= 0) {
-      if s.substring(j, j + 1) == "}" {
-        return s.substring(0, j) + fragment + s.substring(j, s.length())
-      }
-      j = j - 1
-    }
-    return json_text
   }
 
   main(args) {

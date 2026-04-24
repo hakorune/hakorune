@@ -68,6 +68,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-153-stageb-args-source-resolver-split-card.md
   - docs/development/current/main/phases/phase-291x/291x-154-stageb-main-detection-helper-split-card.md
   - docs/development/current/main/phases/phase-291x/291x-155-stageb-same-source-defs-scan-split-card.md
+  - docs/development/current/main/phases/phase-291x/291x-156-stageb-json-fragment-injection-split-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -80,7 +81,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: Stage-B JSON fragment injection split
+- Next implementation target: Stage-B keyword expr strip helper split
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -163,6 +164,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 56. `docs/development/current/main/phases/phase-291x/291x-153-stageb-args-source-resolver-split-card.md`
 57. `docs/development/current/main/phases/phase-291x/291x-154-stageb-main-detection-helper-split-card.md`
 58. `docs/development/current/main/phases/phase-291x/291x-155-stageb-same-source-defs-scan-split-card.md`
+59. `docs/development/current/main/phases/phase-291x/291x-156-stageb-json-fragment-injection-split-card.md`
 
 ## Current Rule
 
@@ -245,6 +247,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-155` moves Stage-B same-source defs scanning into
   `stageb_same_source_defs_box.hako` and reuses `StageBJsonBuilderBox` for
   defs JSON emission
+- `291x-156` moves Stage-B JSON fragment insertion to
+  `StageBJsonBuilderBox.inject_json_fragment(...)` and removes the inline
+  adapter helper
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
