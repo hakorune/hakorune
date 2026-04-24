@@ -41,7 +41,10 @@
           trace_generic_method_route_state(
               ii, dst, recv, ctype, bname, mname, a0, a1, &route);
           enum GenericMethodEmitKind emit_kind =
-              classify_generic_method_emit_kind(bname, mname, &route, a0, a1);
+              classify_generic_method_emit_kind_from_core_method_metadata(bid, ii);
+          if (emit_kind == HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE) {
+            emit_kind = classify_generic_method_emit_kind(bname, mname, &route, a0, a1);
+          }
           append_array_string_indexof_method_receiver_args(
               route.deferred_array_string_indexof,
               recv,

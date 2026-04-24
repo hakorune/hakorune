@@ -1,5 +1,5 @@
-#include "hako_llvmc_ffi_generic_method_match.inc"
 #include "hako_llvmc_ffi_core_method_metadata.inc"
+#include "hako_llvmc_ffi_generic_method_match.inc"
 #include "hako_llvmc_ffi_map_lookup_fusion_metadata.inc"
 #include "hako_llvmc_ffi_generic_method_has_policy.inc"
 #include "hako_llvmc_ffi_generic_method_get_policy.inc"
@@ -547,7 +547,16 @@
           size_t ab_cap,
           unsigned char* skip_inst) {
         struct GenericMethodEmitPlan plan;
-        if (!classify_generic_method_emit_plan(bname, mname, route, a0, a1, &plan)) return 0;
+        if (!classify_generic_method_emit_plan(
+                bname,
+                mname,
+                route,
+                emit_kind,
+                a0,
+                a1,
+                &plan)) {
+          return 0;
+        }
         int recv_org = plan.recv_org;
         int runtime_array_len = plan.runtime_array_len;
         int runtime_array_get = plan.runtime_array_get;
