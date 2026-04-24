@@ -88,7 +88,6 @@
           const char* mname) {
         if (!mname) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
         if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET;
-        if (!strcmp(mname, "set")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SET;
         if (!strcmp(mname, "size") || !strcmp(mname, "len") || !strcmp(mname, "length")) {
           return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE;
         }

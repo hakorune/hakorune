@@ -20,14 +20,16 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x metadata-absent direct set boundary coverage pending`
+- current blocker token: `phase-291x remaining inc mirror cleanup selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- investigate metadata-absent direct Array/Map set boundary coverage before further `set` surface pruning
+- select the next remaining `.inc` mirror cleanup from the phase-291x inventory
 - keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
+- keep generic `set` emit-kind and MapBox/RuntimeData storage-route fallback
+  rows until their own fallback contracts are replaced
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

@@ -20,7 +20,6 @@ lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_rece
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	StringBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	RuntimeDataBox	1	runtime-data-compat	replace-with-runtime-data-contract-or-delete-route
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	get	1	core-method-contract	replace-with-core-method-op-id
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	set	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-set-mutating-boundary-contract
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	size	1	core-method-contract	replace-with-core-method-op-id
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	len	1	core-method-contract	replace-with-core-method-op-id
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	length	1	core-method-contract	replace-with-core-method-op-id

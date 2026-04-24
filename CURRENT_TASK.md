@@ -37,14 +37,16 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x metadata-absent direct set boundary coverage pending`
+- current blocker token: `phase-291x remaining inc mirror cleanup selection pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- investigate metadata-absent direct Array/Map set boundary coverage before further `set` surface pruning
+- select the next remaining `.inc` mirror cleanup from the phase-291x inventory
 - keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
+- keep generic `set` emit-kind and MapBox/RuntimeData storage-route fallback
+  rows until their own fallback contracts are replaced
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
