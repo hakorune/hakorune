@@ -6,7 +6,6 @@ lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_metho
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	len	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-len-boundary-contract
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	length	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-len-boundary-contract
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	size	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-len-boundary-contract
-lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	push	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-push-mutating-boundary-contract
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	substring	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-substring-boundary-contract
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	method	has	1	core-method-contract	replace-with-core-method-op-id-and-metadata-absent-runtime-data-has-contract
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	ArrayBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
