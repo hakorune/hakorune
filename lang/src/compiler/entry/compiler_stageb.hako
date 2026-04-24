@@ -19,6 +19,7 @@ using lang.compiler.entry.stageb_args_box as StageBArgsBox
 using lang.compiler.entry.stageb_same_source_defs_box as StageBSameSourceDefsBox
 using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
 using lang.compiler.entry.stageb_keyword_expr_strip_box as StageBKeywordExprStripBox
+using lang.compiler.entry.stageb_driver_guard_box as StageBDriverGuardBox
 
 // Phase 25.1c: Main driver logic
 static box StageBDriverBox {
@@ -52,50 +53,17 @@ static box StageBDriverBox {
   }
 
   main(args) {
-    // Dev trace to confirm entry dispatch
-    {
-      local trace = env.get("HAKO_STAGEB_TRACE")
-      if trace != null && ("" + trace) == "1" {
-        print("[stageb/main] enter")
-      }
-    }
-
-    // ============================================================================
-    // Phase 25.1c: Guaranteed marker for entry point confirmation (dev-only)
-    // ============================================================================
-    {
-      local marker_flag = env.get("HAKO_STAGEB_TRACE")
-      if marker_flag != null && ("" + marker_flag) == "1" {
-        print("[stageb/marker] StageBDriverBox.main:ENTRY_CONFIRMED")
-      }
-    }
-
-    // ============================================================================
-    // Depth guard: prevent accidental recursion in Stage‑B driver entry
-    // ============================================================================
-    {
-      local depth = env.get("HAKO_STAGEB_DRIVER_DEPTH")
-      if depth != null && ("" + depth) != "0" {
-        print("[stageb/error] depth_guard tripped: HAKO_STAGEB_DRIVER_DEPTH!=0")
-        return -1
-      }
-      env.set("HAKO_STAGEB_DRIVER_DEPTH", "1")
-    }
-    {
-      local trace = env.get("HAKO_STAGEB_TRACE")
-      if trace != null && ("" + trace) == "1" {
-        // Depth guard cleared → main 続行できることを明示
-        print("[stageb/main] depth ok")
-      }
-    }
+    StageBDriverGuardBox.trace_enter()
+    StageBDriverGuardBox.trace_entry_marker()
+    if StageBDriverGuardBox.enter_depth_guard() != 0 { return -1 }
+    StageBDriverGuardBox.trace_depth_ok()
 
     // Dev-only: direct FuncScanner harness
     {
       local test_flag = env.get("HAKO_STAGEB_FUNCSCAN_TEST")
       if test_flag != null && ("" + test_flag) == "1" {
         print("[stageb/info] FUNC_SCAN_TEST=1 (disabled in this build)")
-        // Clear depth guard before returning
-        env.set("HAKO_STAGEB_DRIVER_DEPTH", "0")
+        StageBDriverGuardBox.clear_depth_guard()
         return 0
       }
     }
@@ -123,35 +91,28 @@ static box StageBDriverBox {
     }
     if ast_json == null {
       print("[stageb/error] BuildBox.emit_program_json_v0 returned null")
-      env.set("HAKO_STAGEB_DRIVER_DEPTH", "0")
+      StageBDriverGuardBox.clear_depth_guard()
       return -1
     }
     if me._is_freeze_tag(ast_json) == 1 {
       print(ast_json)
-      env.set("HAKO_STAGEB_DRIVER_DEPTH", "0")
+      StageBDriverGuardBox.clear_depth_guard()
       return 1
     }
     if me._starts_with(ast_json, "[") == 1 {
       print(ast_json)
-      env.set("HAKO_STAGEB_DRIVER_DEPTH", "0")
+      StageBDriverGuardBox.clear_depth_guard()
       return 1
     }
     print("[stageb/main] before ast_json")
     print(ast_json)
     print("[stageb/main] after ast_json")
-    // Phase 71-SSA 71-11.1: Guaranteed trace after Program JSON emit
-    {
-      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
-      if marker_enabled != null && ("" + marker_enabled) == "1" {
-        print("[stageb/main] AFTER_EMIT success")
-      }
-    }
+    StageBDriverGuardBox.trace_after_emit()
     {
       local tracer = new StageBTraceBox()
       tracer.log("StageBDriverBox.main:exit rc=0")
     }
-    // Clear depth guard before returning
-    env.set("HAKO_STAGEB_DRIVER_DEPTH", "0")
+    StageBDriverGuardBox.clear_depth_guard()
     return 0
   }
 

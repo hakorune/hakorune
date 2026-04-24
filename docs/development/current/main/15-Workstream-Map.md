@@ -21,8 +21,8 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x Stage-B driver guard helper split pending` |
-| Next | `continue Stage-B adapter thinning with the driver guard helper split` |
+| Blocker | `phase-291x CoreMethod mirror-pruning preflight pending` |
+| Next | `inventory CoreMethod mirror-pruning readiness before deleting .inc mirror rows` |
 | After Next | `avoid native storage lanes without broader owner evidence` |
 
 ## Current Read
@@ -37,7 +37,7 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Continue Stage-B adapter thinning with the driver guard helper split.
+2. Inventory CoreMethod mirror-pruning readiness before deleting `.inc` mirror rows.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
 4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.

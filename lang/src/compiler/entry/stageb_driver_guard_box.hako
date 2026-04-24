@@ -1,0 +1,48 @@
+// Stage-B driver entry trace/depth guard helpers.
+// Extracted from compiler_stageb.hako to keep the entry file adapter-shaped.
+
+static box StageBDriverGuardBox {
+  trace_enter() {
+    if me._trace_enabled() == 1 {
+      print("[stageb/main] enter")
+    }
+  }
+
+  trace_entry_marker() {
+    if me._trace_enabled() == 1 {
+      print("[stageb/marker] StageBDriverBox.main:ENTRY_CONFIRMED")
+    }
+  }
+
+  enter_depth_guard() {
+    local depth = env.get("HAKO_STAGEB_DRIVER_DEPTH")
+    if depth != null && ("" + depth) != "0" {
+      print("[stageb/error] depth_guard tripped: HAKO_STAGEB_DRIVER_DEPTH!=0")
+      return -1
+    }
+    env.set("HAKO_STAGEB_DRIVER_DEPTH", "1")
+    return 0
+  }
+
+  trace_depth_ok() {
+    if me._trace_enabled() == 1 {
+      print("[stageb/main] depth ok")
+    }
+  }
+
+  clear_depth_guard() {
+    env.set("HAKO_STAGEB_DRIVER_DEPTH", "0")
+  }
+
+  trace_after_emit() {
+    if me._trace_enabled() == 1 {
+      print("[stageb/main] AFTER_EMIT success")
+    }
+  }
+
+  _trace_enabled() {
+    local trace = env.get("HAKO_STAGEB_TRACE")
+    if trace != null && ("" + trace) == "1" { return 1 }
+    return 0
+  }
+}

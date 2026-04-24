@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Stage-B driver guard helper split pending`
+- current blocker token: `phase-291x CoreMethod mirror-pruning preflight pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue Stage-B adapter thinning with the driver guard helper split
+- inventory CoreMethod mirror-pruning readiness before deleting `.inc` mirror rows
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
