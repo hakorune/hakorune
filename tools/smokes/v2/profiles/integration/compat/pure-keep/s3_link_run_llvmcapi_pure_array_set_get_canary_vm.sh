@@ -10,8 +10,9 @@ phase2120_boundary_pure_prepare "$ROOT" "s3_link_run_llvmcapi_pure_array_set_get
 # - filename is legacy
 # - current payload proves `ArrayBox.set -> get`
 # - keep the script name stable for compat pack continuity
-# JSON v1 with explicit box_name/method/receiver so generic lowering picks it up
-json='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[
+# JSON v1 with CoreMethod route metadata so generic lowering does not depend on
+# the legacy method-surface classifier.
+json='{"schema_version":"1.0","functions":[{"name":"main","metadata":{"generic_method_routes":[{"route_id":"generic_method.set","block":0,"instruction_index":3,"box_name":"ArrayBox","method":"set","receiver_origin_box":"ArrayBox","key_route":"i64_const","arity":2,"receiver_value":1,"key_value":2,"result_value":null,"emit_kind":"set","route_kind":"array_store_any","helper_symbol":"nyash.array.slot_store_*","proof":"set_surface_policy","core_method":{"op":"ArraySet","proof":"core_method_contract_manifest","lowering_tier":"cold_fallback"},"return_shape":null,"value_demand":"write_any","publication_policy":null,"effects":["mutate.slot"]}]},"blocks":[{"id":0,"instructions":[
   {"op":"const","dst":2,"value":{"type":"i64","value":0}},
   {"op":"const","dst":3,"value":{"type":"i64","value":7}},
   {"op":"mir_call","dst":1,"mir_call":{"callee":{"type":"Constructor","box_name":"ArrayBox"},"args":[],"effects":[]}},

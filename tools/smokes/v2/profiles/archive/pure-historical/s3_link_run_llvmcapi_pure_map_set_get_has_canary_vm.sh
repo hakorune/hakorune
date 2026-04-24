@@ -13,7 +13,7 @@ phase2120_boundary_pure_require_kernel_symbol "$ROOT" "nyash.map.probe_hh" "s3_l
 # - current payload locks `MapBox.set -> has`
 # - `MapBox.get -> ret` has its own dedicated canary
 # GEN2: map set/has → has returns 1 → rc=1
-json_has='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[
+json_has='{"schema_version":"1.0","functions":[{"name":"main","metadata":{"generic_method_routes":[{"route_id":"generic_method.set","block":0,"instruction_index":3,"box_name":"MapBox","method":"set","receiver_origin_box":"MapBox","key_route":"i64_const","arity":2,"receiver_value":1,"key_value":2,"result_value":null,"emit_kind":"set","route_kind":"map_store_any","helper_symbol":"nyash.map.slot_store_hhh","proof":"set_surface_policy","core_method":{"op":"MapSet","proof":"core_method_contract_manifest","lowering_tier":"cold_fallback"},"return_shape":null,"value_demand":"write_any","publication_policy":null,"effects":["mutate.slot"]}]},"blocks":[{"id":0,"instructions":[
   {"op":"const","dst":2,"value":{"type":"i64","value":5}},
   {"op":"const","dst":3,"value":{"type":"i64","value":9}},
   {"op":"mir_call","dst":1,"mir_call":{"callee":{"type":"Constructor","box_name":"MapBox"},"args":[],"effects":[]}},

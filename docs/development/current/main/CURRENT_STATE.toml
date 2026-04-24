@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-191"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-191-mir-call-set-surface-prune-retry-card.md"
-latest_card_summary = "MIR-call set surface prune retry was rejected: direct Array/Map pure set boundaries still need metadata-absent fallback coverage."
+latest_card = "291x-192"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-192-direct-set-boundary-metadata-fixtures-card.md"
+latest_card_summary = "Direct Array/Map set pure-boundary fixtures now carry CoreMethod metadata for MIR-call need-policy consumers."
 
 current_blocker_token = "phase-291x metadata-absent direct set boundary coverage pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
