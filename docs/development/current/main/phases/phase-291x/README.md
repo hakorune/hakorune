@@ -96,6 +96,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-181-set-storage-route-metadata-preflight-card.md
   - docs/development/current/main/phases/phase-291x/291x-182-core-method-set-storage-route-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-183-set-array-storage-route-mirror-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-184-set-map-storage-route-fallback-contract-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -108,7 +109,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: set MapBox storage-route fallback contract
+- Next implementation target: RuntimeData set fallback contract
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -219,6 +220,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 84. `docs/development/current/main/phases/phase-291x/291x-181-set-storage-route-metadata-preflight-card.md`
 85. `docs/development/current/main/phases/phase-291x/291x-182-core-method-set-storage-route-metadata-card.md`
 86. `docs/development/current/main/phases/phase-291x/291x-183-set-array-storage-route-mirror-prune-card.md`
+87. `docs/development/current/main/phases/phase-291x/291x-184-set-map-storage-route-fallback-contract-card.md`
 
 ## Current Rule
 
@@ -382,6 +384,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-183` prunes only the direct `ArrayBox` branch from the set
   storage-route classifier; the direct `MapBox` branch remains required by
   metadata-absent pure map boundary coverage
+- `291x-184` pins that direct `MapBox` set storage-route branch as required
+  fallback until metadata-absent map set boundary coverage exists
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-183"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-183-set-array-storage-route-mirror-prune-card.md"
-latest_card_summary = "The direct ArrayBox branch in the set storage-route classifier was pruned after metadata-first route selection; direct MapBox and RuntimeData fallback branches remain required."
+latest_card = "291x-184"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-184-set-map-storage-route-fallback-contract-card.md"
+latest_card_summary = "The direct MapBox set storage-route fallback contract is pinned: ArrayBox branch is pruned, but MapBox and RuntimeData fallback branches remain required."
 
-current_blocker_token = "phase-291x set map storage-route fallback contract pending"
+current_blocker_token = "phase-291x runtime-data set fallback contract pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
