@@ -19,7 +19,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/inc_codegen_thin_shim_guard.sh` | `.inc` codegen の raw MIR analysis debt no-growth baseline。削減は許可し、新規/増加を fail-fast で止める。明示された view-owner 領域だけは `tools/checks/inc_codegen_thin_shim_view_allowlist.tsv` で別枠固定する。 |
 | `tools/checks/generic_method_set_policy_mirror_guard.sh` | `CollectionMethodPolicyBox.set_route(...)` と C shim の generic-method `Set` route/demand mirror を固定し、`ArrayStoreString` の source/identity/publication demand drift を fail-fast で検出する。 |
 | `tools/checks/core_method_contract_manifest_guard.sh` | `CoreMethodContractBox` から生成する `core_method_contract_manifest.json` の drift を fail-fast で検出する。 |
-| `tools/checks/core_method_contract_inc_no_growth_guard.sh` | `hako_llvmc_ffi_generic_method_policy.inc` の method/box 名比較が `CoreMethodContract` manifest と撤去条件なしに増えないことを fail-fast で検出する。 |
+| `tools/checks/core_method_contract_inc_no_growth_guard.sh` | CoreMethodContract 移行中の generic-method policy / mir-call route policy `.inc` method/box 名比較が manifest と撤去条件なしに増えないことを fail-fast で検出する。 |
 | `tools/checks/map_lookup_fusion_reader_boundary_guard.sh` | `map_lookup_fusion_routes` を読む `.inc` を共有 reader seam に限定し、get/has policy が enum/table consumer に留まることを fail-fast で検出する。 |
 | `tools/checks/module_registry_hygiene_guard.sh` | `hako.toml` / `nyash.toml` の module registry 境界検証。 |
 | `tools/checks/phase29cl_by_name_mainline_guard.sh` | `nyash.plugin.invoke_by_name_i64` の owner 集合を allowlist で固定し、新しい mainline caller を fail-fast で防ぐ。 |
