@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-127"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-127-workspace-warning-quieting-card.md"
-latest_card_summary = "Workspace/all-target Rust warning quieting is pinned with warnings denied; remaining staged seams are locally annotated."
+latest_card = "291x-128"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-128-generic-method-policy-mirror-cut-card.md"
+latest_card_summary = "Generic-method Set policy mirror cut is selected as the next cleanup task; implementation must first pin route/demand drift."
 
-current_blocker_token = "phase-291x successor cleanup card selection pending"
+current_blocker_token = "phase-291x 291x-128 generic-method Set policy mirror cut pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x successor cleanup card selection pending`
+- current blocker token: `phase-291x 291x-128 generic-method Set policy mirror cut pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- choose the next phase-291x cleanup card
+- implement `291x-128` by pinning the generic-method `Set` policy mirror boundary
 - keep BoxShape and BoxCount separate
 - do not update current mirrors for every landed card
 - update `CURRENT_STATE.toml` and the active card first
