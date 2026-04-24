@@ -94,6 +94,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-179-core-method-set-emit-kind-metadata-card.md
   - docs/development/current/main/phases/phase-291x/291x-180-set-emit-kind-mirror-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-181-set-storage-route-metadata-preflight-card.md
+  - docs/development/current/main/phases/phase-291x/291x-182-core-method-set-storage-route-metadata-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -106,7 +107,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: set storage-route metadata consumer
+- Next implementation target: set storage-route mirror prune probe
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -215,6 +216,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 82. `docs/development/current/main/phases/phase-291x/291x-179-core-method-set-emit-kind-metadata-card.md`
 83. `docs/development/current/main/phases/phase-291x/291x-180-set-emit-kind-mirror-prune-card.md`
 84. `docs/development/current/main/phases/phase-291x/291x-181-set-storage-route-metadata-preflight-card.md`
+85. `docs/development/current/main/phases/phase-291x/291x-182-core-method-set-storage-route-metadata-card.md`
 
 ## Current Rule
 
@@ -372,6 +374,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-181` pins the set storage-route metadata consumer boundary: direct
   `ArraySet`/`MapSet` route_kind metadata may be consumed next, but
   RuntimeData fallback and ArrayBox value-shape discrimination must stay intact
+- `291x-182` makes set storage-route selection prefer valid
+  `ArraySet`/`MapSet` route_kind metadata before legacy fallback; helper
+  selection and lowering remain unchanged
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

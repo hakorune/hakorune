@@ -120,7 +120,91 @@
         return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
       }
 
+      auto enum GenericMethodSetRouteKind
+      generic_method_set_route_from_metadata_value_shape(
+          const char* op,
+          const char* route_kind,
+          int value_is_i64,
+          int value_is_string_handle) {
+        if (op && !strcmp(op, "MapSet") &&
+            route_kind && !strcmp(route_kind, "map_store_any")) {
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
+        }
+        if (op && !strcmp(op, "ArraySet") &&
+            route_kind && !strcmp(route_kind, "array_store_any")) {
+          if (value_is_i64) {
+            return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
+          }
+          if (value_is_string_handle) {
+            return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
+          }
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
+        }
+        return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+      }
+
+      auto enum GenericMethodSetRouteKind
+      classify_generic_method_set_route_from_core_method_metadata(
+          long long bid,
+          size_t ii,
+          int value_is_i64,
+          int value_is_string_handle) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (!fn_metadata) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+        routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
+        if (!(routes && yyjson_is_arr(routes))) {
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+        }
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* core_method = NULL;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* route_kind = route ? read_str(route, "route_kind") : NULL;
+          const char* op = NULL;
+          long long block = 0;
+          long long inst = 0;
+          int invalid = 0;
+          enum CoreMethodMetadataProof proof =
+              HAKO_LLVMC_CORE_METHOD_METADATA_PROOF_NONE;
+          enum CoreMethodLoweringTierMetadata lowering_tier =
+              HAKO_LLVMC_CORE_METHOD_LOWERING_TIER_NONE;
+          if (!generic_method_emit_kind_route_read_i64_field(route, "block", &block) ||
+              !generic_method_emit_kind_route_read_i64_field(
+                  route,
+                  "instruction_index",
+                  &inst) ||
+              block != bid ||
+              (size_t)inst != ii) {
+            continue;
+          }
+          if (!(route_id && !strcmp(route_id, "generic_method.set"))) {
+            continue;
+          }
+          core_method = yyjson_obj_get(route, "core_method");
+          if (!(core_method && yyjson_is_obj(core_method))) {
+            return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+          }
+          op = read_str(core_method, "op");
+          proof = read_core_method_proof_metadata(core_method, &invalid);
+          lowering_tier = read_core_method_lowering_tier_metadata(core_method, &invalid);
+          if (invalid ||
+              !core_method_metadata_proof_is_contract_manifest(proof) ||
+              !core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
+            return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+          }
+          return generic_method_set_route_from_metadata_value_shape(
+              op,
+              route_kind,
+              value_is_i64,
+              value_is_string_handle);
+        }
+        return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+      }
+
       auto int classify_generic_method_emit_plan(
+          long long bid,
+          size_t ii,
           const char* bname,
           const char* mname,
           const struct GenericMethodRouteState* route,
@@ -130,6 +214,7 @@
           struct GenericMethodEmitPlan* plan) {
         if (!plan) return 0;
         memset(plan, 0, sizeof(*plan));
+        plan->set_route = HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
         if (route) {
           plan->recv_org = route->recv_org;
           plan->runtime_array_len = route->runtime_array_len;
@@ -154,8 +239,18 @@
         if (plan->kind == HAKO_LLVMC_GENERIC_METHOD_EMIT_SET) {
           int value_is_i64 = a1 && is_plain_i64_value(a1);
           int value_is_string_handle = a1 && get_origin(a1) == ORG_STRING;
+          enum GenericMethodSetRouteKind metadata_set_route =
+              classify_generic_method_set_route_from_core_method_metadata(
+                  bid,
+                  ii,
+                  value_is_i64,
+                  value_is_string_handle);
           enum GenericMethodSetRouteKind set_route = classify_generic_method_set_route(
               bname, plan, value_is_i64, value_is_string_handle);
+          if (metadata_set_route != HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
+            set_route = metadata_set_route;
+          }
+          plan->set_route = set_route;
           plan->array_store_string_source_preserve =
               classify_array_store_string_source_preserve(set_route);
           plan->array_store_string_identity_demand_stable_object =

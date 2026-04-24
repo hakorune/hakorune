@@ -548,6 +548,8 @@
           unsigned char* skip_inst) {
         struct GenericMethodEmitPlan plan;
         if (!classify_generic_method_emit_plan(
+                bid,
+                ii,
                 bname,
                 mname,
                 route,
@@ -577,9 +579,11 @@
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_SET: {
             int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
             int array_set_string_handle = a1 && get_origin(a1) == ORG_STRING;
-            enum GenericMethodSetRouteKind set_route =
-                classify_generic_method_set_route(
-                    bname, &plan, array_set_plain_i64, array_set_string_handle);
+            enum GenericMethodSetRouteKind set_route = plan.set_route;
+            if (set_route == HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
+              set_route = classify_generic_method_set_route(
+                  bname, &plan, array_set_plain_i64, array_set_string_handle);
+            }
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
             if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
             switch (set_route) {

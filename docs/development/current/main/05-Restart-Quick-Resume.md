@@ -33,13 +33,13 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x set storage-route metadata consumer pending`
+- current blocker token: `phase-291x set storage-route mirror prune probe pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Immediate Next
 
-- make set storage-route selection prefer valid ArraySet/MapSet route_kind metadata before legacy fallback
+- probe whether direct set storage-route mirror branches can be pruned without breaking metadata-absent fallback
 - keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
 - keep docs mirrors thin; update `CURRENT_STATE.toml` and the active card first
 - keep Stage-B adapter thinning separate from CoreMethodContract migration

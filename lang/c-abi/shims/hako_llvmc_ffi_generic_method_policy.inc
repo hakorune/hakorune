@@ -30,6 +30,7 @@
         int array_store_string_source_preserve;
         int array_store_string_identity_demand_stable_object;
         int array_store_string_publication_demand_publish_handle;
+        enum GenericMethodSetRouteKind set_route;
         int runtime_map_get;
         int runtime_map_size;
         int runtime_map_has;

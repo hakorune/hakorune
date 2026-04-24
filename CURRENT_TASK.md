@@ -37,13 +37,13 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x set storage-route metadata consumer pending`
+- current blocker token: `phase-291x set storage-route mirror prune probe pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- make set storage-route selection prefer valid ArraySet/MapSet route_kind metadata before legacy fallback
+- probe whether direct set storage-route mirror branches can be pruned without breaking metadata-absent fallback
 - keep legacy `push` mirror rows until metadata-absent mutating boundary coverage exists
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
