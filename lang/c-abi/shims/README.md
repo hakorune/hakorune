@@ -120,6 +120,8 @@ Current partitions:
   - compiler-side mirror of `.hako` generic method `push` action route
 - `hako_llvmc_ffi_generic_method_has_policy.inc`
   - compiler-side mirror of `.hako` generic method `has` action route
+  - also consumes MIR `map_lookup_fusion_routes` to fold an already-proven
+    same-key `has` result; it must not rediscover MapGet/MapHas legality
 - `hako_llvmc_ffi_generic_method_substring_policy.inc`
   - compiler-side mirror of `.hako` generic method `substring` action route
 - `hako_llvmc_ffi_generic_method_get_policy.inc`
