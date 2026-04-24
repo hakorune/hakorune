@@ -58,6 +58,7 @@ pub(crate) fn collect_phi_carry_relations(
     out
 }
 
+#[allow(dead_code)] // Phase 291x-126: narrow query facade retained for tests / future callers.
 pub(crate) fn infer_phi_base_relation(
     function: &MirFunction,
     value: ValueId,
@@ -66,6 +67,7 @@ pub(crate) fn infer_phi_base_relation(
     infer_phi_base_query(function, value, anchors).relation
 }
 
+#[allow(dead_code)] // Phase 291x-126: narrow query facade retained for tests / future callers.
 pub(crate) fn infer_phi_base_query(
     function: &MirFunction,
     value: ValueId,

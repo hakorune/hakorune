@@ -3,6 +3,8 @@
 //! Constructs loop exit bindings and allocates post-loop ValueIds.
 //! Single-responsibility box for binding construction logic.
 
+#![allow(dead_code)] // Phase 291x-126: staged exit-binding owner seam.
+
 use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, ExitMeta};
 use crate::mir::join_ir::lowering::inline_boundary::LoopExitBinding;
 use crate::mir::ValueId;

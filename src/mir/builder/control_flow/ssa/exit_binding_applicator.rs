@@ -3,6 +3,8 @@
 //! Applies exit bindings to JoinInlineBoundary.
 //! Single-responsibility box for boundary application logic.
 
+#![allow(dead_code)] // Phase 291x-126: staged exit-binding owner seam.
+
 use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, ExitMeta};
 use crate::mir::join_ir::lowering::inline_boundary::{JoinInlineBoundary, LoopExitBinding};
 use crate::mir::ValueId;

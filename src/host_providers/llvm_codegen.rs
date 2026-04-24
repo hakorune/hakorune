@@ -29,14 +29,19 @@ pub struct Opts {
 
 mod capi_transport;
 mod defaults;
+#[allow(dead_code)] // Phase 291x-126: hako-ll compare bridge kept behind explicit recipe routing.
 mod ll_emit_compare_driver;
+#[allow(dead_code)] // Phase 291x-126: hako-ll compare bridge kept behind explicit recipe routing.
 mod ll_emit_compare_source;
 mod ll_tool_driver;
 pub mod mir_json_text_object;
 mod normalize;
 mod provider_keep;
+#[allow(dead_code)] // Phase 291x-126: hako-ll recipe route is staged, not default-owned.
 mod route;
+#[allow(dead_code)] // Phase 291x-126: includes staged hako-ll bridge temp-file helpers.
 mod transport_io;
+#[allow(dead_code)] // Phase 291x-126: includes staged hako-ll bridge path helpers.
 mod transport_paths;
 pub use defaults::boundary_default_object_opts;
 /// Compile textual LLVM IR to an object file through the thin Rust tool boundary.

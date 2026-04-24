@@ -13,6 +13,7 @@ pub(in crate::mir::builder) type LoopScanPhiSegment =
     >;
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)] // Phase 291x-126: wrapper kept for future segment-only route handoff.
 pub(in crate::mir::builder) struct LoopScanPhiVarsV0Segments {
     pub segments: Vec<LoopScanPhiSegment>,
 }
@@ -37,17 +38,26 @@ pub(in crate::mir::builder) struct LoopScanPhiVarsV0Segments {
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopScanPhiVarsV0Recipe {
     /// local var_name = "" + common_vars.get(i) (classic shape only)
+    #[allow(dead_code)]
+    // Phase 291x-126: classic-shape evidence retained for parity diagnostics.
     pub local_var_name_stmt: Option<crate::ast::ASTNode>,
     /// local j = 0
+    #[allow(dead_code)]
+    // Phase 291x-126: recipe evidence retained while nested segments own lowering.
     pub local_j_stmt: crate::ast::ASTNode,
     /// local m = break_list.length()
+    #[allow(dead_code)]
+    // Phase 291x-126: recipe evidence retained while nested segments own lowering.
     pub local_m_stmt: crate::ast::ASTNode,
     /// local found = 0 (classic shape only)
+    #[allow(dead_code)]
+    // Phase 291x-126: classic-shape evidence retained for parity diagnostics.
     pub local_found_stmt: Option<crate::ast::ASTNode>,
     /// Inner loop 1: loop(j < m) { if cond { found = 1; break } j = j + 1 }
     pub inner_loop_search: crate::ast::ASTNode,
     /// if found == 1 { ... inner loop 2 ... } (classic shape only)
     pub found_if_stmt: Option<crate::ast::ASTNode>,
     /// i = i + 1
+    #[allow(dead_code)] // Phase 291x-126: step evidence retained for route handoff/debug.
     pub step_inc_stmt: crate::ast::ASTNode,
 }

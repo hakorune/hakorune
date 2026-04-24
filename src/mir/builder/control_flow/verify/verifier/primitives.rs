@@ -79,6 +79,7 @@ pub(super) fn err(
 /// Validates that if `value_join_needed` is true, at least one exit kind is present.
 /// This is a sanity check for loop value join scenarios.
 #[cfg(debug_assertions)]
+#[allow(dead_code)] // Phase 291x-126: debug/test hook exported by verifier surface.
 pub(in crate::mir::builder) fn debug_assert_value_join_invariants(facts: &CanonicalLoopFacts) {
     if facts.value_join_needed {
         debug_assert!(
@@ -89,4 +90,5 @@ pub(in crate::mir::builder) fn debug_assert_value_join_invariants(facts: &Canoni
 }
 
 #[cfg(not(debug_assertions))]
+#[allow(dead_code)] // Phase 291x-126: keep release stub paired with debug/test hook.
 pub(in crate::mir::builder) fn debug_assert_value_join_invariants(_facts: &CanonicalLoopFacts) {}

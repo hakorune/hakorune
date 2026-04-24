@@ -20,7 +20,10 @@ pub(in crate::mir::builder) enum LinearBlockRecipe {
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopScanMethodsBlockV0Recipe {
+    #[allow(dead_code)] // Phase 291x-126: scan recipe evidence retained for handoff/debug.
     pub next_i_var: String,
+    #[allow(dead_code)]
+    // Phase 291x-126: original body evidence retained while segments own lowering.
     pub body: RecipeBody,
     pub segments: Vec<ScanSegment>,
 }

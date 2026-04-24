@@ -30,7 +30,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 /// Phase 84-3: PHI + Copy グラフ型推論箱
 pub struct PhiTypeResolver<'f> {
-    func: &'f MirFunction,
     value_types: &'f BTreeMap<ValueId, MirType>,
     definitions: BTreeMap<ValueId, DefKind>,
 }
@@ -39,7 +38,6 @@ impl<'f> PhiTypeResolver<'f> {
     /// 新しい PhiTypeResolver を作成
     pub fn new(func: &'f MirFunction, value_types: &'f BTreeMap<ValueId, MirType>) -> Self {
         Self {
-            func,
             value_types,
             definitions: Self::build_definitions(func),
         }

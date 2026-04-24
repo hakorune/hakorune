@@ -16,6 +16,7 @@ use crate::mir::builder::control_flow::recipes::RecipeBody;
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct NestedLoopRecipe {
     pub cond_view: CondBlockView,
+    #[allow(dead_code)] // Phase 291x-126: AST source retained for nested-loop diagnostics.
     pub loop_stmt: ASTNode,
     pub body: RecipeBody,
     pub body_stmt_only: Option<StmtOnlyBlockRecipe>,

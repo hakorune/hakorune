@@ -87,6 +87,8 @@ pub(in crate::mir::builder) enum LoopCondBreakContinueItem {
         then_body: LoopCondBreakContinueRecipe,
         else_body: LoopCondBreakContinueRecipe,
     },
+    #[allow(dead_code)]
+    // Phase 291x-126: recursive exit-tree vocabulary, matched before construction is widened.
     ExitLeaf {
         kind: ExitKind,
         stmt: StmtRef,

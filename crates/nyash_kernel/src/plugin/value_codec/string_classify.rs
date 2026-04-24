@@ -84,6 +84,7 @@ pub(crate) enum ArrayStoreStrSource {
 }
 
 #[inline(always)]
+#[allow(dead_code)] // Phase 291x-126: compatibility classifier kept for direct handle-source probes.
 pub(crate) fn classify_string_handle_source(
     source_obj: Option<&Arc<dyn NyashBox>>,
 ) -> StringHandleSourceKind {
@@ -214,6 +215,7 @@ pub(crate) fn with_array_store_str_source<R>(
 }
 
 #[inline(always)]
+#[allow(dead_code)] // Phase 291x-126: compatibility predicate retained for old value-codec callers.
 pub(crate) fn is_string_handle_source(source_obj: &Arc<dyn NyashBox>) -> bool {
     matches!(
         classify_string_handle_source(Some(source_obj)),

@@ -1,6 +1,8 @@
 //! Phase 282 P3: loop_simple_while extraction
 //! Phase 282 P9a: Integrated with common_helpers
 
+#![allow(dead_code)] // Phase 291x-126: staged extractor vocabulary; tests keep the contract.
+
 use crate::ast::{ASTNode, BinaryOperator};
 
 // Phase 282 P9a: Use common_helpers

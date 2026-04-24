@@ -7,6 +7,8 @@ use crate::mir::builder::control_flow::facts::canon::generic_loop::canon_update_
 pub(crate) struct IfPhiJoinParts {
     pub loop_var: String,   // Loop variable name (e.g., "i")
     pub merged_var: String, // Primary PHI carrier (e.g., "sum")
+    #[allow(dead_code)]
+    // Phase 291x-126: validation evidence, currently asserted by focused tests.
     pub carrier_count: usize, // Validation: 1-2 accumulators
                             // Note: has_else (always true), phi_like_merge (implicit) omitted
                             // AST reused from ctx - no duplication

@@ -3,6 +3,8 @@
 //! Validates consistency between CarrierInfo and ExitMeta.
 //! Single-responsibility box for validation logic.
 
+#![allow(dead_code)] // Phase 291x-126: staged exit-binding owner seam.
+
 use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, ExitMeta};
 
 /// Validate CarrierInfo and ExitMeta consistency

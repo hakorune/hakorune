@@ -5,6 +5,7 @@ use crate::ast::{
 };
 use std::collections::BTreeMap;
 
+#[cfg(test)]
 pub(super) fn program_json_v0_from_body(body: &[ASTNode]) -> Result<serde_json::Value, String> {
     program_json_v0_from_body_with_context(body, &ProgramJsonV0LoweringContext::default())
 }

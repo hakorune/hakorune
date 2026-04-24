@@ -1,3 +1,5 @@
+#![allow(dead_code)] // Phase 291x-126: no-perf observe shims intentionally compile to no-ops.
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum CacheProbeKind {
     Hit,

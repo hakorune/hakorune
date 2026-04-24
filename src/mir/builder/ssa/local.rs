@@ -709,6 +709,7 @@ pub fn finalize_compare(
 }
 
 /// Finalize field use sites: ensure base and all args are in the current block.
+#[allow(dead_code)] // Phase 291x-126: field-use finalizer seam kept for strict LocalSSA expansion.
 pub fn finalize_field_base_and_args(
     builder: &mut MirBuilder,
     base: &mut ValueId,

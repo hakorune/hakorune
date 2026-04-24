@@ -624,6 +624,7 @@ pub(crate) fn publish_owned_bytes_generic_fallback_boundary_for_site(
 }
 
 #[inline(always)]
+#[allow(dead_code)] // Phase 291x-126: explicit-api compatibility wrapper retained at value-codec seam.
 pub(crate) fn publish_owned_bytes(bytes: OwnedText) -> i64 {
     publish_owned_bytes_explicit_api_boundary(bytes)
 }
