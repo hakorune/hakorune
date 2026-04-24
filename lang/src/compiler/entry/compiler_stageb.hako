@@ -20,18 +20,6 @@ using lang.compiler.entry.stageb_same_source_defs_box as StageBSameSourceDefsBox
 using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
 using lang.compiler.entry.stageb_keyword_expr_strip_box as StageBKeywordExprStripBox
 
-// StageBArgsBox moved to `lang.compiler.entry.stageb_args_box`.
-// StageBBodyExtractorBox moved to `lang.compiler.entry.stageb_body_extractor_box`.
-
-static box StageBHelperBox {
-  test_loop(n) {
-    local i = 0
-    loop(i < 3) {
-      i = i + 1
-    }
-  }
-}
-
 // Phase 25.1c: Main driver logic
 static box StageBDriverBox {
   // Phase 28.2 Quick Win 3: SSOT compile API for compiler.hako direct call
