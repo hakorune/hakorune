@@ -203,6 +203,7 @@ pub(super) fn piecewise_subrange_kernel_text_slot_into_slot(
 }
 
 #[inline(always)]
+#[allow(dead_code)] // Phase 291x-127: KernelTextSlot substring bridge is staged for direct slot corridors.
 pub(super) fn substring_kernel_text_slot_into_slot(
     out: &mut KernelTextSlot,
     source: &KernelTextSlot,

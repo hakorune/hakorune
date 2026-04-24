@@ -57,6 +57,7 @@ impl<'a> TextPiece<'a> {
     }
 
     #[inline(always)]
+    #[allow(dead_code)] // Phase 291x-127: fallback multi-piece materializer is test-pinned for rare arity paths.
     fn append_to(&self, out: &mut String) {
         out.reserve(self.len());
         self.append_to_reserved(out);

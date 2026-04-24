@@ -145,6 +145,8 @@ impl KernelTextSlotState {
 /// These are transport/observation hints only, not semantic text carriers.
 enum KernelTextSlotBoundary {
     PublishHandle,
+    #[allow(dead_code)]
+    // Phase 291x-127: stable objectization boundary is pinned by value-codec tests.
     ObjectizeStableBox,
 }
 
@@ -640,6 +642,7 @@ pub(crate) fn publish_kernel_text_slot(slot: &mut KernelTextSlot) -> Option<i64>
 
 #[cold]
 #[inline(never)]
+#[allow(dead_code)] // Phase 291x-127: stable-box objectization seam is test-pinned until a route owns it.
 pub(crate) fn objectize_kernel_text_slot_stable_box(
     slot: &mut KernelTextSlot,
 ) -> Option<Arc<dyn NyashBox>> {

@@ -1,3 +1,5 @@
+#![allow(dead_code)] // Phase 291x-127: source-keep replacement cache is staged with borrowed-alias retargeting.
+
 use super::super::TextRef;
 use nyash_rust::box_trait::NyashBox;
 use std::{cell::RefCell, sync::Arc};

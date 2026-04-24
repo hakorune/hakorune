@@ -42,6 +42,7 @@ impl VerifiedTextSource {
     }
 
     #[inline(always)]
+    #[allow(dead_code)] // Phase 291x-127: verified-source proof callback is staged for direct store/source retarget routes.
     pub(crate) fn with_text_and_proof<R>(
         &self,
         f: impl FnOnce(TextRef<'_>, StringLikeProof) -> R,
@@ -56,6 +57,7 @@ impl VerifiedTextSource {
     }
 
     #[inline(always)]
+    #[allow(dead_code)] // Phase 291x-127: consumed keep handoff is used by staged verified-source retarget helpers.
     pub(crate) fn into_keep(self) -> SourceLifetimeKeep {
         self.keep
     }

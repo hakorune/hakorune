@@ -7,6 +7,7 @@ use nyash_rust::box_trait::{NyashBox, StringBox};
 use std::sync::Arc;
 
 #[inline(always)]
+#[allow(dead_code)] // Phase 291x-127: source-object store route is staged behind specialized array/map stores.
 pub(crate) fn store_string_box_from_source(
     source_handle: i64,
     source_obj: Option<&Arc<dyn NyashBox>>,
@@ -45,6 +46,7 @@ pub(crate) fn store_string_box_from_source_keep(
 }
 
 #[inline(always)]
+#[allow(dead_code)] // Phase 291x-127: source-keep store route is staged with borrowed-alias retargeting.
 pub(crate) fn store_string_box_from_source_keep_owned(
     source_handle: i64,
     source_keep: SourceLifetimeKeep,
@@ -60,6 +62,7 @@ pub(crate) fn store_string_box_from_source_keep_owned(
 
 #[cfg_attr(feature = "perf-observe", inline(never))]
 #[cfg_attr(not(feature = "perf-observe"), inline(always))]
+#[allow(dead_code)] // Phase 291x-127: verified-source store route is staged behind value-codec tests.
 pub(crate) fn store_string_box_from_verified_text_source(
     source_handle: i64,
     source_text: VerifiedTextSource,

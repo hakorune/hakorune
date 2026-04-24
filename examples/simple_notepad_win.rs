@@ -19,7 +19,7 @@ fn main() -> eframe::Result {
         Box::new(|cc| {
             // Configure fonts for Windows
             setup_custom_fonts(&cc.egui_ctx);
-            Ok(Box::new(NyashNotepad::default()))
+            Ok(Box::new(NyashNotepad::new()))
         }),
     )
 }
@@ -36,12 +36,13 @@ fn setup_custom_fonts(ctx: &egui::Context) {
     ctx.set_fonts(fonts);
 }
 
-#[derive(Default)]
+#[cfg(target_os = "windows")]
 struct NyashNotepad {
     text: String,
     status: String,
 }
 
+#[cfg(target_os = "windows")]
 impl NyashNotepad {
     fn new() -> Self {
         Self {

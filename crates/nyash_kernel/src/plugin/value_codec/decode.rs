@@ -11,6 +11,8 @@ use nyash_rust::{
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub(crate) enum CodecProfile {
+    #[allow(dead_code)]
+    // Phase 291x-127: generic profile is retained for test/compat decode entrypoints.
     Generic,
     ArrayFastBorrowString,
     ArrayBorrowStringOnly,
@@ -158,6 +160,7 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
 }
 
 #[inline(always)]
+#[cfg(test)]
 pub(crate) fn any_arg_to_box(arg: i64) -> Box<dyn NyashBox> {
     any_arg_to_box_with_profile(arg, CodecProfile::Generic)
 }

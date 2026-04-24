@@ -1,5 +1,6 @@
 #![deny(unused_must_use)]
 
+#[cfg(feature = "c-shim")]
 use libc::{c_uchar, size_t};
 
 #[cfg(feature = "c-shim")]

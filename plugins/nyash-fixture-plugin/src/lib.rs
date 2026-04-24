@@ -14,7 +14,6 @@ const NYB_E_INVALID_TYPE: i32 = -2;
 const NYB_E_INVALID_METHOD: i32 = -3;
 const NYB_E_INVALID_ARGS: i32 = -4;
 const NYB_E_PLUGIN_ERROR: i32 = -5;
-const NYB_E_INVALID_HANDLE: i32 = -8;
 
 // ===== Method IDs =====
 const METHOD_BIRTH: u32 = 0; // constructor
@@ -26,9 +25,7 @@ const METHOD_FINI: u32 = u32::MAX; // destructor
 const TYPE_ID_FIXTURE: u32 = 101;
 
 // ===== Instance state (optional) =====
-struct FixtureInstance {
-    alive: bool,
-}
+struct FixtureInstance;
 
 static INSTANCES: Lazy<Mutex<HashMap<u32, FixtureInstance>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
@@ -140,7 +137,7 @@ unsafe fn birth(result: *mut u8, result_len: *mut usize) -> i32 {
     }
     let id = INSTANCE_COUNTER.fetch_add(1, Ordering::Relaxed);
     if let Ok(mut map) = INSTANCES.lock() {
-        map.insert(id, FixtureInstance { alive: true });
+        map.insert(id, FixtureInstance);
     } else {
         return NYB_E_PLUGIN_ERROR;
     }

@@ -90,6 +90,7 @@ fn record_piecewise_shape(prefix_hit: bool, middle_hit: bool, suffix_hit: bool) 
 }
 
 #[inline(always)]
+#[allow(dead_code)] // Phase 291x-127: borrowed-text substring helper is retained for staged slot corridors.
 fn substring_borrowed_text_into_slot(
     out: &mut KernelTextSlot,
     text: TextRef<'_>,
@@ -249,6 +250,7 @@ pub(super) fn piecewise_subrange_kernel_text_slot_into_slot(
 }
 
 #[inline(always)]
+#[allow(dead_code)] // Phase 291x-127: KernelTextSlot substring bridge is staged for direct slot corridors.
 pub(super) fn substring_kernel_text_slot_into_slot(
     out: &mut KernelTextSlot,
     source: &KernelTextSlot,

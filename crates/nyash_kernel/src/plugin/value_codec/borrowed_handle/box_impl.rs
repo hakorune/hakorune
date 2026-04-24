@@ -1,3 +1,5 @@
+#![allow(dead_code)] // Phase 291x-127: borrowed alias cache mutation hooks are staged value-codec seams.
+
 use super::super::TextRef;
 use super::backing::{SourceLifetimeKeep, TextKeep};
 use crate::observe;

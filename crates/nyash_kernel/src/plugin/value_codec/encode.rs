@@ -19,10 +19,12 @@ pub(crate) fn box_to_handle_materializing_borrowed_string(value: Box<dyn NyashBo
     box_to_handle(value)
 }
 
+#[cfg(test)]
 pub(crate) fn box_to_runtime_i64(value: Box<dyn NyashBox>) -> i64 {
     runtime_i64_from_box_ref(value.as_ref())
 }
 
+#[cfg(test)]
 #[inline(always)]
 pub(crate) fn runtime_i64_from_box_ref(value: &dyn NyashBox) -> i64 {
     runtime_i64_from_box_ref_caller(value, BorrowedAliasEncodeCaller::Generic)

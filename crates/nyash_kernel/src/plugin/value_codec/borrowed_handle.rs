@@ -1,3 +1,5 @@
+#![allow(dead_code)] // Phase 291x-127: borrowed-alias retarget seam is staged behind specialized value-codec routes.
+
 use super::string_classify::VerifiedTextSource;
 use crate::observe;
 use nyash_rust::{

@@ -85,18 +85,16 @@ mod tests {
         let resolve = nyash_typebox_FileBox.resolve.unwrap();
 
         // Test known methods
-        unsafe {
-            let open = b"open\0";
-            assert_eq!(resolve(open.as_ptr() as *const c_char), METHOD_OPEN);
+        let open = b"open\0";
+        assert_eq!(resolve(open.as_ptr() as *const c_char), METHOD_OPEN);
 
-            let read = b"read\0";
-            assert_eq!(resolve(read.as_ptr() as *const c_char), METHOD_READ);
+        let read = b"read\0";
+        assert_eq!(resolve(read.as_ptr() as *const c_char), METHOD_READ);
 
-            let write = b"write\0";
-            assert_eq!(resolve(write.as_ptr() as *const c_char), METHOD_WRITE);
+        let write = b"write\0";
+        assert_eq!(resolve(write.as_ptr() as *const c_char), METHOD_WRITE);
 
-            let unknown = b"unknown\0";
-            assert_eq!(resolve(unknown.as_ptr() as *const c_char), 0);
-        }
+        let unknown = b"unknown\0";
+        assert_eq!(resolve(unknown.as_ptr() as *const c_char), 0);
     }
 }

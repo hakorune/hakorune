@@ -1,34 +1,25 @@
 //! Nyash ArrayBox Plugin — TypeBox v2 (minimal)
-//! Methods: birth(0), length(1), get(2), push(3), fini(u32::MAX)
+//! Methods: length(1), get(2), push(3), set(4)
 
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::os::raw::c_char;
-use std::sync::{
-    atomic::{AtomicU32, Ordering},
-    Mutex,
-};
+use std::sync::Mutex;
 
 // ===== Error Codes (aligned with existing plugins) =====
 const NYB_SUCCESS: i32 = 0;
 const NYB_E_SHORT_BUFFER: i32 = -1;
-const NYB_E_INVALID_TYPE: i32 = -2;
 const NYB_E_INVALID_METHOD: i32 = -3;
 const NYB_E_INVALID_ARGS: i32 = -4;
 const NYB_E_PLUGIN_ERROR: i32 = -5;
 const NYB_E_INVALID_HANDLE: i32 = -8;
 
 // ===== Method IDs =====
-const METHOD_BIRTH: u32 = 0; // constructor -> returns instance_id (u32 LE, no TLV)
 const METHOD_LENGTH: u32 = 1; // returns TLV i64
 const METHOD_GET: u32 = 2; // args: i64 index -> returns TLV i64
 const METHOD_PUSH: u32 = 3; // args: i64 value -> returns TLV i64 (new length)
 const METHOD_SET: u32 = 4; // args: i64 index, i64 value -> returns TLV i64 (new length)
-const METHOD_FINI: u32 = u32::MAX; // destructor
-
-// Assign a unique type_id for ArrayBox (as declared in nyash.toml)
-const TYPE_ID_ARRAY: u32 = 10;
 
 // ===== Instance state (PoC: store i64 values only) =====
 struct ArrayInstance {
@@ -37,7 +28,6 @@ struct ArrayInstance {
 
 static INSTANCES: Lazy<Mutex<HashMap<u32, ArrayInstance>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
-static INSTANCE_COUNTER: AtomicU32 = AtomicU32::new(1);
 
 // legacy v1 entry points removed
 
@@ -76,90 +66,88 @@ extern "C" fn array_invoke_id(
     result: *mut u8,
     result_len: *mut usize,
 ) -> i32 {
-    unsafe {
-        match method_id {
-            METHOD_LENGTH => {
-                if let Ok(map) = INSTANCES.lock() {
-                    if let Some(inst) = map.get(&instance_id) {
-                        return write_tlv_i64(inst.data.len() as i64, result, result_len);
-                    } else {
-                        return NYB_E_INVALID_HANDLE;
-                    }
+    match method_id {
+        METHOD_LENGTH => {
+            if let Ok(map) = INSTANCES.lock() {
+                if let Some(inst) = map.get(&instance_id) {
+                    return write_tlv_i64(inst.data.len() as i64, result, result_len);
                 } else {
-                    return NYB_E_PLUGIN_ERROR;
+                    return NYB_E_INVALID_HANDLE;
                 }
+            } else {
+                return NYB_E_PLUGIN_ERROR;
             }
-            METHOD_GET => {
-                let idx = match read_arg_i64(args, args_len, 0) {
-                    Some(v) => v,
-                    None => return NYB_E_INVALID_ARGS,
-                };
-                if idx < 0 {
-                    return NYB_E_INVALID_ARGS;
-                }
-                if let Ok(map) = INSTANCES.lock() {
-                    if let Some(inst) = map.get(&instance_id) {
-                        let i = idx as usize;
-                        if i >= inst.data.len() {
-                            return NYB_E_INVALID_ARGS;
-                        }
-                        return write_tlv_i64(inst.data[i], result, result_len);
-                    } else {
-                        return NYB_E_INVALID_HANDLE;
-                    }
-                } else {
-                    return NYB_E_PLUGIN_ERROR;
-                }
-            }
-            METHOD_SET => {
-                let idx = match read_arg_i64(args, args_len, 0) {
-                    Some(v) => v,
-                    None => return NYB_E_INVALID_ARGS,
-                };
-                let val = match read_arg_i64(args, args_len, 1) {
-                    Some(v) => v,
-                    None => return NYB_E_INVALID_ARGS,
-                };
-                if idx < 0 {
-                    return NYB_E_INVALID_ARGS;
-                }
-                if let Ok(mut map) = INSTANCES.lock() {
-                    if let Some(inst) = map.get_mut(&instance_id) {
-                        let i = idx as usize;
-                        let len = inst.data.len();
-                        if i < len {
-                            inst.data[i] = val;
-                        } else if i == len {
-                            inst.data.push(val);
-                        } else {
-                            return NYB_E_INVALID_ARGS;
-                        }
-                        return write_tlv_i64(inst.data.len() as i64, result, result_len);
-                    } else {
-                        return NYB_E_INVALID_HANDLE;
-                    }
-                } else {
-                    return NYB_E_PLUGIN_ERROR;
-                }
-            }
-            METHOD_PUSH => {
-                let val = match read_arg_i64(args, args_len, 0) {
-                    Some(v) => v,
-                    None => return NYB_E_INVALID_ARGS,
-                };
-                if let Ok(mut map) = INSTANCES.lock() {
-                    if let Some(inst) = map.get_mut(&instance_id) {
-                        inst.data.push(val);
-                        return write_tlv_i64(inst.data.len() as i64, result, result_len);
-                    } else {
-                        return NYB_E_INVALID_HANDLE;
-                    }
-                } else {
-                    return NYB_E_PLUGIN_ERROR;
-                }
-            }
-            _ => NYB_E_INVALID_METHOD,
         }
+        METHOD_GET => {
+            let idx = match read_arg_i64(args, args_len, 0) {
+                Some(v) => v,
+                None => return NYB_E_INVALID_ARGS,
+            };
+            if idx < 0 {
+                return NYB_E_INVALID_ARGS;
+            }
+            if let Ok(map) = INSTANCES.lock() {
+                if let Some(inst) = map.get(&instance_id) {
+                    let i = idx as usize;
+                    if i >= inst.data.len() {
+                        return NYB_E_INVALID_ARGS;
+                    }
+                    return write_tlv_i64(inst.data[i], result, result_len);
+                } else {
+                    return NYB_E_INVALID_HANDLE;
+                }
+            } else {
+                return NYB_E_PLUGIN_ERROR;
+            }
+        }
+        METHOD_SET => {
+            let idx = match read_arg_i64(args, args_len, 0) {
+                Some(v) => v,
+                None => return NYB_E_INVALID_ARGS,
+            };
+            let val = match read_arg_i64(args, args_len, 1) {
+                Some(v) => v,
+                None => return NYB_E_INVALID_ARGS,
+            };
+            if idx < 0 {
+                return NYB_E_INVALID_ARGS;
+            }
+            if let Ok(mut map) = INSTANCES.lock() {
+                if let Some(inst) = map.get_mut(&instance_id) {
+                    let i = idx as usize;
+                    let len = inst.data.len();
+                    if i < len {
+                        inst.data[i] = val;
+                    } else if i == len {
+                        inst.data.push(val);
+                    } else {
+                        return NYB_E_INVALID_ARGS;
+                    }
+                    return write_tlv_i64(inst.data.len() as i64, result, result_len);
+                } else {
+                    return NYB_E_INVALID_HANDLE;
+                }
+            } else {
+                return NYB_E_PLUGIN_ERROR;
+            }
+        }
+        METHOD_PUSH => {
+            let val = match read_arg_i64(args, args_len, 0) {
+                Some(v) => v,
+                None => return NYB_E_INVALID_ARGS,
+            };
+            if let Ok(mut map) = INSTANCES.lock() {
+                if let Some(inst) = map.get_mut(&instance_id) {
+                    inst.data.push(val);
+                    return write_tlv_i64(inst.data.len() as i64, result, result_len);
+                } else {
+                    return NYB_E_INVALID_HANDLE;
+                }
+            } else {
+                return NYB_E_PLUGIN_ERROR;
+            }
+        }
+        _ => NYB_E_INVALID_METHOD,
     }
 }
 
@@ -173,20 +161,6 @@ pub static nyash_typebox_ArrayBox: NyashTypeBoxFfi = NyashTypeBoxFfi {
     invoke_id: Some(array_invoke_id),
     capabilities: 0,
 };
-
-// ===== Minimal TLV helpers (compatible with host expectations) =====
-fn preflight(result: *mut u8, result_len: *mut usize, needed: usize) -> bool {
-    unsafe {
-        if result_len.is_null() {
-            return false;
-        }
-        if result.is_null() || *result_len < needed {
-            *result_len = needed;
-            return true;
-        }
-    }
-    false
-}
 
 fn write_tlv_result(payloads: &[(u8, &[u8])], result: *mut u8, result_len: *mut usize) -> i32 {
     if result_len.is_null() {

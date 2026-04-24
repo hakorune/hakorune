@@ -197,16 +197,22 @@ mod tests {
         end: usize,
     }
 
+    type TestMetadataContext = MetadataContext<TestSpan, u32>;
+
+    fn test_context() -> TestMetadataContext {
+        MetadataContext::new(TestSpan { start: 0, end: 0 })
+    }
+
     #[test]
     fn test_metadata_context_creation() {
-        let ctx = MetadataContext::new(TestSpan { start: 0, end: 0 });
+        let ctx = test_context();
         assert!(ctx.source_file.is_none());
         assert_eq!(ctx.current_region_stack.len(), 0);
     }
 
     #[test]
     fn test_span_management() {
-        let mut ctx = MetadataContext::new(TestSpan { start: 0, end: 0 });
+        let mut ctx = test_context();
         let span = TestSpan { start: 0, end: 10 };
         ctx.set_current_span(span);
         assert_eq!(ctx.current_span().start, 0);
@@ -215,7 +221,7 @@ mod tests {
 
     #[test]
     fn test_source_file_management() {
-        let mut ctx = MetadataContext::new(TestSpan { start: 0, end: 0 });
+        let mut ctx = test_context();
         ctx.set_source_file("test.hako");
         assert_eq!(ctx.current_source_file(), Some("test.hako".to_string()));
         ctx.clear_source_file();
@@ -224,7 +230,7 @@ mod tests {
 
     #[test]
     fn test_region_stack() {
-        let mut ctx = MetadataContext::new(TestSpan { start: 0, end: 0 });
+        let mut ctx = test_context();
         let region1 = 1u32;
         let region2 = 2u32;
 
@@ -239,7 +245,7 @@ mod tests {
 
     #[test]
     fn test_hint_operations_no_panic() {
-        let mut ctx = MetadataContext::new(TestSpan { start: 0, end: 0 });
+        let mut ctx = test_context();
         // These should not panic (no-op by default)
         ctx.hint_scope_enter(1);
         ctx.hint_scope_leave(1);

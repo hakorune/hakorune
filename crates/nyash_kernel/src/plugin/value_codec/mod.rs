@@ -10,11 +10,14 @@ mod text_carrier;
 pub(crate) use borrowed_handle::maybe_borrow_string_keep_with_epoch;
 #[cfg(test)]
 pub(crate) use borrowed_handle::SourceLifetimeKeep;
+#[cfg(test)]
 pub(crate) use borrowed_handle::{
     try_retarget_borrowed_string_slot_take_verified_text_source, BorrowedHandleBox,
 };
+#[cfg(test)]
+pub(crate) use decode::any_arg_to_box;
 pub(crate) use decode::{
-    any_arg_to_box, any_arg_to_box_with_profile, any_arg_to_index, decode_array_fast_value,
+    any_arg_to_box_with_profile, any_arg_to_index, decode_array_fast_value,
     owned_string_from_handle, ArrayFastDecodedValue, CodecProfile,
 };
 #[cfg(test)]
@@ -40,15 +43,15 @@ pub(crate) use string_materialize::{
     publish_owned_bytes_generic_fallback_boundary_for_site, reissue_cached_handle_boundary,
     with_kernel_text_slot_text, KernelTextSlotState, StringPublishSite,
 };
+pub(crate) use string_store::maybe_store_non_string_box_from_verified_source;
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source;
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source_keep;
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source_keep_owned;
-pub(crate) use string_store::{
-    maybe_store_non_string_box_from_verified_source, store_string_box_from_verified_text_source,
-};
+#[cfg(test)]
+pub(crate) use string_store::store_string_box_from_verified_text_source;
 pub(crate) use text_carrier::{OwnedText, TextRef};
 
 #[cfg(test)]
