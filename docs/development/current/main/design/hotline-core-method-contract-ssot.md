@@ -267,7 +267,7 @@ Done when:
 
 ### HCM-5 `.inc` Table Consumer Slice
 
-- Status: pending.
+- Status: landed by `291x-136` for the `has` consumer / `MapHas` carrier slice.
 - Convert one `.inc` family to consume generated op/table metadata.
 - Start with one small family, preferably `ArrayLen` or existing generic
   `has`, after HCM-2/HCM-3 are in place.
@@ -280,6 +280,8 @@ Done when:
 - old mirror code is marked with a concrete deletion condition
 
 ### HCM-6 LoweringTier Metadata
+
+- Status: pending.
 
 - Add tier metadata as data, not as an optimization rewrite.
 - Default first rows to `warm_direct_abi` or `cold_fallback` unless perf/asm

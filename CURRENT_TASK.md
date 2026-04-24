@@ -37,16 +37,16 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x CoreMethodOp carrier landed - .inc consumer slice pending`
+- current blocker token: `phase-291x CoreMethod has consumer landed - LoweringTier metadata pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Next
 
-- convert one `.inc` consumer slice to prefer CoreMethodOp carrier metadata
+- make LoweringTier metadata explicit for the next warm/hot split
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
-- keep compatibility fallback unchanged while moving one `.inc` consumer
+- do not add hot inline lowering without proof/evidence gate
 - do not reopen landed CoreBox router rows without an owner-path change
 
 ## Detail Pointers

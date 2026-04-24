@@ -48,6 +48,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-133-core-method-contract-manifest-guard-card.md
   - docs/development/current/main/phases/phase-291x/291x-134-core-method-contract-inc-no-growth-guard-card.md
   - docs/development/current/main/phases/phase-291x/291x-135-core-method-op-carrier-card.md
+  - docs/development/current/main/phases/phase-291x/291x-136-core-method-has-inc-consumer-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -60,7 +61,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: HCM-5 `.inc` table consumer slice (pending)
+- Next implementation target: HCM-6 LoweringTier metadata (pending)
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -123,6 +124,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 36. `docs/development/current/main/phases/phase-291x/291x-133-core-method-contract-manifest-guard-card.md`
 37. `docs/development/current/main/phases/phase-291x/291x-134-core-method-contract-inc-no-growth-guard-card.md`
 38. `docs/development/current/main/phases/phase-291x/291x-135-core-method-op-carrier-card.md`
+39. `docs/development/current/main/phases/phase-291x/291x-136-core-method-has-inc-consumer-card.md`
 
 ## Current Rule
 
@@ -147,6 +149,8 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
   method policy mirror; `.inc` consumers still have not moved
 - `291x-135` landed the first MIR-side CoreMethodOp carrier for `MapBox.has`;
   `.inc` consumers still use the compatibility route metadata
+- `291x-136` moved the generic-method `has` metadata consumer to prefer
+  `core_method.op=MapHas`, with route_kind fallback unchanged
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row

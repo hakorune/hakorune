@@ -20,16 +20,16 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x CoreMethodOp carrier landed - .inc consumer slice pending`
+- current blocker token: `phase-291x CoreMethod has consumer landed - LoweringTier metadata pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- convert one `.inc` consumer slice to prefer CoreMethodOp carrier metadata
+- make LoweringTier metadata explicit for the next warm/hot split
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
-- keep compatibility fallback unchanged while moving one `.inc` consumer
+- do not add hot inline lowering without proof/evidence gate
 - do not update current mirrors for every landed card
 - update `CURRENT_STATE.toml` and the active card first
 

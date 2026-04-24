@@ -48,6 +48,37 @@
         return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
       }
 
+      auto enum GenericMethodHasRouteKind
+      generic_method_has_route_kind_from_core_method_metadata(
+          yyjson_val* route,
+          int* present,
+          int* invalid) {
+        yyjson_val* core_method = route ? yyjson_obj_get(route, "core_method") : NULL;
+        const char* op = NULL;
+        const char* proof = NULL;
+        const char* lowering_tier = NULL;
+        if (present) *present = 0;
+        if (invalid) *invalid = 0;
+        if (!core_method || yyjson_is_null(core_method)) {
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
+        }
+        if (present) *present = 1;
+        if (!yyjson_is_obj(core_method)) {
+          if (invalid) *invalid = 1;
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
+        }
+        op = read_str(core_method, "op");
+        proof = read_str(core_method, "proof");
+        lowering_tier = read_str(core_method, "lowering_tier");
+        if (op && !strcmp(op, "MapHas") &&
+            proof && !strcmp(proof, "core_method_contract_manifest") &&
+            lowering_tier && !strcmp(lowering_tier, "warm_direct_abi")) {
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY;
+        }
+        if (invalid) *invalid = 1;
+        return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
+      }
+
       auto int generic_method_has_route_effects_valid(yyjson_val* effects) {
         yyjson_val* e0 = NULL;
         const char* effect = NULL;
@@ -92,6 +123,12 @@
           const char* helper_symbol = NULL;
           const char* proof = NULL;
           const char* value_demand = NULL;
+          int core_method_present = 0;
+          int core_method_invalid = 0;
+          enum GenericMethodHasRouteKind core_route_kind =
+              HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
+          enum GenericMethodHasRouteKind metadata_route_kind =
+              HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
           enum GenericMethodHasRouteKind route_kind =
               HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
           if (!(route_id && !strcmp(route_id, "generic_method.has"))) {
@@ -115,12 +152,18 @@
           helper_symbol = read_str(route, "helper_symbol");
           proof = read_str(route, "proof");
           value_demand = read_str(route, "value_demand");
-          route_kind = generic_method_has_route_kind_from_metadata(route_kind_raw);
+          metadata_route_kind = generic_method_has_route_kind_from_metadata(route_kind_raw);
+          core_route_kind = generic_method_has_route_kind_from_core_method_metadata(
+              route,
+              &core_method_present,
+              &core_method_invalid);
+          route_kind = core_method_present ? core_route_kind : metadata_route_kind;
           if (!(route_box && bname && !strcmp(route_box, bname)) ||
               !(method && !strcmp(method, "has")) ||
               !(emit_kind && !strcmp(emit_kind, "has")) ||
               !(proof && !strcmp(proof, "has_surface_policy")) ||
               !(value_demand && !strcmp(value_demand, "read_ref")) ||
+              core_method_invalid ||
               route_kind == HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE ||
               !generic_method_has_route_read_i64_field(route, "arity", &arity) ||
               arity != 1 ||

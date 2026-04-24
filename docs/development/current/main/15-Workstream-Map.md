@@ -21,9 +21,9 @@ Related:
 | Now | `phase-291x CoreBox surface contract cleanup` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x CoreMethodOp carrier landed - .inc consumer slice pending` |
-| Next | `HCM-5 .inc table consumer slice` |
-| After Next | `HCM-6 LoweringTier metadata` |
+| Blocker | `phase-291x CoreMethod has consumer landed - LoweringTier metadata pending` |
+| Next | `HCM-6 LoweringTier metadata` |
+| After Next | `HCM-7 HotlineGate evidence hook` |
 
 ## Current Read
 
@@ -37,9 +37,9 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Convert one `.inc` consumer slice to prefer CoreMethodOp carrier metadata.
+2. Make LoweringTier metadata explicit for the next warm/hot split.
 3. Keep compatibility fallback unchanged for rows without carrier metadata.
-4. Use `generic_method_routes[*].core_method` as the backend-facing seam.
+4. Do not add hot inline lowering without proof/evidence gate.
 5. Keep Stage-B adapter thinning as a separate BoxShape series.
 
 ## Parked Corridor
