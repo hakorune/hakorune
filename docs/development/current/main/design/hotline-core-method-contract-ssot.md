@@ -297,6 +297,10 @@ Done when:
 
 ### HCM-7 First Evidence-Backed Hot Lowering
 
+- Status: preflight evidence landed by `291x-138`; hot lowering is blocked
+  until receiver-origin/CoreMethod route proof makes the target front carry a
+  manifest-backed CoreMethodOp.
+
 - Pick exactly one CoreMethodOp.
 - Run perf owner-first evidence before code edits.
 - Apply HotlineGate to the target loop.

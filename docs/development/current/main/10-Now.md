@@ -20,13 +20,13 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x LoweringTier metadata landed - evidence-backed hot lowering pending`
+- current blocker token: `phase-291x HCM7 preflight landed - receiver-origin CoreMethod route proof pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- run owner-first perf/asm before any HCM-7 hot inline lowering
+- add receiver-origin/CoreMethod route proof before HCM-7 hot inline lowering
 - keep BoxShape and BoxCount separate
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

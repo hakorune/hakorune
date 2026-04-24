@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-24"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slice, and explicit LoweringTier metadata are landed. HCM-7 hot lowering is evidence-gated. Detailed landed history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slice, explicit LoweringTier metadata, and HCM-7 preflight evidence are landed. Receiver-origin/CoreMethod route proof is next before hot lowering. Detailed landed history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-137"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-137-lowering-tier-metadata-card.md"
-latest_card_summary = "CoreMethodContract now exposes lowering_tier explicitly; MIR and .inc tier readers are shared, with no hot inline lowering added."
+latest_card = "291x-138"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-138-hcm7-maphas-preflight-evidence-card.md"
+latest_card_summary = "HCM-7 MapHas preflight found the measured get/has front still routes through RuntimeDataBox with core_method=null; receiver-origin/CoreMethod route proof is required before hot lowering."
 
-current_blocker_token = "phase-291x LoweringTier metadata landed - evidence-backed hot lowering pending"
+current_blocker_token = "phase-291x HCM7 preflight landed - receiver-origin CoreMethod route proof pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,9 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "291x-135 CoreMethodOp carrier landed",
   "291x-136 CoreMethod has .inc consumer landed",
   "291x-137 LoweringTier metadata landed",
+  "291x-138 HCM7 MapHas preflight evidence landed",
 ]
 
 stale_pointer_patterns = [
@@ -82,4 +82,5 @@ stale_pointer_patterns = [
   "phase-291x CoreMethodContract .inc no-growth guard landed - one-family MIR CoreMethodOp carrier pending",
   "phase-291x CoreMethodOp carrier landed - .inc consumer slice pending",
   "phase-291x CoreMethod has consumer landed - LoweringTier metadata pending",
+  "phase-291x LoweringTier metadata landed - evidence-backed hot lowering pending",
 ]
