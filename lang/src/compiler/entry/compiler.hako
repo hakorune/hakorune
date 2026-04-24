@@ -5,6 +5,7 @@
 // Phase 28.2 Quick Win 3: Namespace import to keep Stage-B helper boxes isolated
 // StageBMod.StageBDriverBox.main() is the thin Stage-B adapter over Stage-B authority
 using lang.compiler.entry.compiler_stageb as StageBMod
+using lang.compiler.entry.stageb_main_detection_box as MainDetectionHelper
 
 static box Main {
   _parse_signed_int(raw) {

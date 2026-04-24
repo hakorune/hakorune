@@ -66,6 +66,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-151-core-method-get-inc-consumer-card.md
   - docs/development/current/main/phases/phase-291x/291x-152-stageb-trace-adapter-thinning-card.md
   - docs/development/current/main/phases/phase-291x/291x-153-stageb-args-source-resolver-split-card.md
+  - docs/development/current/main/phases/phase-291x/291x-154-stageb-main-detection-helper-split-card.md
 ---
 
 # Phase 291x: CoreBox surface catalog
@@ -78,7 +79,7 @@ Related:
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: Stage-B main detection helper split
+- Next implementation target: Stage-B same-source defs scan split
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -159,6 +160,7 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 54. `docs/development/current/main/phases/phase-291x/291x-151-core-method-get-inc-consumer-card.md`
 55. `docs/development/current/main/phases/phase-291x/291x-152-stageb-trace-adapter-thinning-card.md`
 56. `docs/development/current/main/phases/phase-291x/291x-153-stageb-args-source-resolver-split-card.md`
+57. `docs/development/current/main/phases/phase-291x/291x-154-stageb-main-detection-helper-split-card.md`
 
 ## Current Rule
 
@@ -235,6 +237,9 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-153` moves Stage-B args/source resolution into
   `stageb_args_box.hako` while preserving source precedence and `--stage3`
   behavior
+- `291x-154` moves Stage-B main/body pattern detection into
+  `stageb_main_detection_box.hako` while preserving Stage-A fallback and
+  Stage-B same-source scan call sites
 - `StringBox.length()` is canonical; `len()` and `size()` are compatibility aliases
 - `StringBox.indexOf(needle, start)` is stable; `find` is compatibility alias
 - `StringBox.lastIndexOf(needle, start_pos)` is landed as a StringBox-only catalog row
