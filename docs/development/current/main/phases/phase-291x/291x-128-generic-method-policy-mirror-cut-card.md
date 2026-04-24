@@ -1,5 +1,5 @@
 ---
-Status: Pending task card
+Status: Closed task card
 Date: 2026-04-24
 Scope: Cut the first clean boundary for generic-method Set policy mirrors.
 Related:
@@ -10,6 +10,10 @@ Related:
 ---
 
 # 291x-128 Generic Method Policy Mirror Cut Card
+
+Closed by:
+
+- `291x-129-generic-method-set-policy-mirror-guard-card.md`
 
 ## Goal
 

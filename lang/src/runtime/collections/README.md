@@ -124,10 +124,19 @@ phase-148x freezes the owner-to-contract reading like this:
     - `CollectionMethodPolicyBox.array_store_string_source_preserve(...)`
     - `CollectionMethodPolicyBox.array_store_string_identity_demand(...)`
     - `CollectionMethodPolicyBox.array_store_string_publication_demand(...)`
+  - demand contract for `ArrayStoreString`:
+    - `source_preserve = 1`
+    - `identity_demand = 0`
+    - `publication_demand = 1`
+  - `publication_demand` is a boundary/executor demand for public text-handle
+    publication before array-string slot store. It is not a stable-object
+    identity demand.
   - current compiler-side mirror:
     - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc`
     - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_match.inc`
     - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_lowering.inc`
+  - drift guard:
+    - `tools/checks/generic_method_set_policy_mirror_guard.sh`
   - current concrete executor path:
     - `nyash.array.set_his`
     - `crates/nyash_kernel/src/plugin/array_string_slot.rs`

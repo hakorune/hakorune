@@ -200,7 +200,9 @@ static box CollectionMethodPolicyBox {
 
   array_store_string_publication_demand(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) {
     if me.set_route(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) == me.route_array_store_string() {
-      return 0
+      // Boundary publication is required so the text-store lowering can pass a
+      // public handle into the array-string slot provider.
+      return 1
     }
     return 0
   }
