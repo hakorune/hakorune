@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-180"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-180-set-emit-kind-mirror-prune-card.md"
-latest_card_summary = "Set emit-kind mirror-row prune was rejected: metadata-absent RuntimeData set boundary still requires the legacy method-name fallback; storage-route cleanup remains separate."
+latest_card = "291x-181"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-181-set-storage-route-metadata-preflight-card.md"
+latest_card_summary = "Set storage-route metadata preflight landed: direct ArraySet/MapSet route_kind metadata may be consumed next, but RuntimeData fallback and ArrayBox value-shape discrimination must stay intact."
 
-current_blocker_token = "phase-291x set storage-route metadata preflight pending"
+current_blocker_token = "phase-291x set storage-route metadata consumer pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
