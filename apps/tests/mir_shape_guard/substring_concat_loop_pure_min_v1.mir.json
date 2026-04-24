@@ -577,6 +577,166 @@
         }
       ],
       "metadata": {
+        "exact_seed_backend_route": {
+          "tag": "substring_concat_loop_ascii",
+          "source_route": "string_kernel_plans.loop_payload",
+          "proof": "string_kernel_plan_concat_triplet_loop_payload",
+          "selected_value": 21
+        },
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.substring",
+            "block": 19,
+            "instruction_index": 9,
+            "box_name": "RuntimeDataBox",
+            "method": "substring",
+            "receiver_origin_box": "StringBox",
+            "key_route": null,
+            "arity": 2,
+            "receiver_value": 51,
+            "key_value": null,
+            "result_value": 26,
+            "emit_kind": "substring",
+            "route_kind": "string_substring",
+            "helper_symbol": "nyash.string.substring_hii",
+            "proof": "substring_surface_policy",
+            "core_method": {
+              "op": "StringSubstring",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": ["observe.substring"]
+          },
+          {
+            "route_id": "generic_method.substring",
+            "block": 19,
+            "instruction_index": 10,
+            "box_name": "RuntimeDataBox",
+            "method": "substring",
+            "receiver_origin_box": "StringBox",
+            "key_route": null,
+            "arity": 2,
+            "receiver_value": 51,
+            "key_value": null,
+            "result_value": 27,
+            "emit_kind": "substring",
+            "route_kind": "string_substring",
+            "helper_symbol": "nyash.string.substring_hii",
+            "proof": "substring_surface_policy",
+            "core_method": {
+              "op": "StringSubstring",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": ["observe.substring"]
+          },
+          {
+            "route_id": "generic_method.substring",
+            "block": 19,
+            "instruction_index": 28,
+            "box_name": "RuntimeDataBox",
+            "method": "substring",
+            "receiver_origin_box": "StringBox",
+            "key_route": null,
+            "arity": 2,
+            "receiver_value": 63,
+            "key_value": null,
+            "result_value": 36,
+            "emit_kind": "substring",
+            "route_kind": "string_substring",
+            "helper_symbol": "nyash.string.substring_hii",
+            "proof": "substring_surface_policy",
+            "core_method": {
+              "op": "StringSubstring",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": ["observe.substring"]
+          }
+        ],
+        "string_kernel_plans": {
+          "21": {
+            "version": 1,
+            "plan_value": 21,
+            "family": "concat_triplet_window",
+            "corridor_root": 21,
+            "source_root": 21,
+            "borrow_contract": "borrow_text_from_obj",
+            "publish_reason": null,
+            "publish_repr_policy": null,
+            "stable_view_provenance": null,
+            "parts": [
+              {
+                "kind": "slice",
+                "value": 26,
+                "source": 21,
+                "start": 46,
+                "end": 47
+              },
+              {
+                "kind": "const",
+                "value": 66,
+                "known_length": 2,
+                "literal": "xx"
+              },
+              {
+                "kind": "slice",
+                "value": 27,
+                "source": 21,
+                "start": 47,
+                "end": 42
+              }
+            ],
+            "known_length": 2,
+            "retained_form": "borrowed_text",
+            "publication_boundary": "first_external_boundary",
+            "publication_contract": "publish_now_not_required_before_first_external_boundary",
+            "barriers": {
+              "publication": null,
+              "materialization": null
+            },
+            "consumer": "direct_kernel_entry",
+            "text_consumer": null,
+            "carrier": null,
+            "verifier_owner": "lowering_direct_kernel_entry",
+            "direct_kernel_entry": {
+              "state": "candidate"
+            },
+            "legality": {
+              "byte_exact": true,
+              "no_publish_inside": true,
+              "requires_kernel_text_slot": false,
+              "rejects_early_stable_box_now": false,
+              "rejects_early_fresh_registry_handle": false,
+              "rejects_registry_backed_carrier": false
+            },
+            "read_alias": {
+              "same_receiver": true,
+              "source_window": true,
+              "followup_substring": false,
+              "piecewise_subrange": false,
+              "direct_set_consumer": false,
+              "shared_receiver": false
+            },
+            "slot_hop_substring": null,
+            "loop_payload": {
+              "seed_value": 3,
+              "seed_literal": "line-seed-abcdef",
+              "seed_length": 16,
+              "loop_bound": 300000,
+              "split_length": 8
+            }
+          }
+        },
         "value_types": {
           "1": "i64",
           "10": {
