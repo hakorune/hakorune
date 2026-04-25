@@ -8,6 +8,38 @@
     {
       "name": "main",
       "params": [],
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.get",
+            "block": 0,
+            "instruction_index": 2,
+            "box_name": "RuntimeDataBox",
+            "method": "get",
+            "receiver_origin_box": "MapBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 1,
+            "key_value": 2,
+            "result_value": 3,
+            "emit_kind": "get",
+            "route_kind": "runtime_data_load_any",
+            "helper_symbol": "nyash.runtime_data.get_hh",
+            "proof": "get_surface_policy",
+            "core_method": {
+              "op": "MapGet",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "cold_fallback"
+            },
+            "return_shape": "mixed_runtime_i64_or_handle",
+            "value_demand": "runtime_i64_or_handle",
+            "publication_policy": "runtime_data_facade",
+            "effects": [
+              "read.key"
+            ]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,

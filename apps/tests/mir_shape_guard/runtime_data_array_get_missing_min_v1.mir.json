@@ -8,6 +8,38 @@
     {
       "name": "main",
       "params": [],
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.get",
+            "block": 0,
+            "instruction_index": 2,
+            "box_name": "RuntimeDataBox",
+            "method": "get",
+            "receiver_origin_box": "ArrayBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 1,
+            "key_value": 2,
+            "result_value": 3,
+            "emit_kind": "get",
+            "route_kind": "array_slot_load_any",
+            "helper_symbol": "nyash.array.slot_load_hi",
+            "proof": "get_surface_policy",
+            "core_method": {
+              "op": "ArrayGet",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": [
+              "read.key"
+            ]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,

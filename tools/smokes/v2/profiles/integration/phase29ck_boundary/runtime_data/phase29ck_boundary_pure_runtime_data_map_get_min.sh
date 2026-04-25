@@ -48,6 +48,7 @@ bash "$NYASH_ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
 set +e
 BUILD_OUT=$(
+  NYASH_LLVM_ROUTE_TRACE=1 \
   NYASH_NY_LLVM_COMPILER=/__missing__/ny-llvmc \
   timeout "$RUN_TIMEOUT_SECS" \
   "$NY_LLVM_C" --in "$FIXTURE" --out "$OUT_OBJ" 2>&1
@@ -66,6 +67,14 @@ if [ "$BUILD_RC" -ne 0 ]; then
     echo "[INFO] compile output:"
     tail -n 120 "$BUILD_LOG" || true
     test_fail "phase29ck_boundary_pure_runtime_data_map_get_min: boundary default still relied on harness fallback (rc=$BUILD_RC)"
+    exit 1
+fi
+
+if ! grep -Fq 'stage=mir_call_method result=seen reason=get' "$BUILD_LOG" ||
+   ! grep -Fq 'map_get:1' "$BUILD_LOG"; then
+    echo "[INFO] compile output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "phase29ck_boundary_pure_runtime_data_map_get_min: missing map get route-state trace"
     exit 1
 fi
 
