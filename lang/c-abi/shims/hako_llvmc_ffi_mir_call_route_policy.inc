@@ -1,10 +1,3 @@
-      enum MirCallReceiverFamilyKind {
-        HAKO_LLVMC_MIR_CALL_RECV_FAMILY_NONE = 0,
-        HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_BIRTH,
-        HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH,
-        HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH,
-      };
-
       enum MirCallReceiverSurfaceKind {
         HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN = 0,
         HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX,
@@ -45,21 +38,6 @@
         struct DeferredArrayStringIndexofSelect* deferred_array_string_indexof;
       };
 
-      auto enum MirCallReceiverFamilyKind classify_mir_call_receiver_family(
-          int recv_org) {
-        switch (recv_org) {
-          case ORG_ARRAY_BIRTH:
-            return HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_BIRTH;
-          case ORG_ARRAY_STRING_BIRTH:
-            return HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH;
-          case ORG_MAP_BIRTH:
-            return HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH;
-          case ORG_NONE:
-          default:
-            return HAKO_LLVMC_MIR_CALL_RECV_FAMILY_NONE;
-        }
-      }
-
       auto enum MirCallReceiverSurfaceKind classify_mir_call_receiver_surface(
           const char* bname) {
         if (!bname) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN;
@@ -77,8 +55,7 @@
       auto enum MirCallGenericMethodRouteKind
       classify_mir_call_generic_method_route_kind(
           enum MirCallReceiverSurfaceKind recv_surface,
-          enum MirCallMethodSurfaceKind method_surface,
-          enum MirCallReceiverFamilyKind recv_family) {
+          enum MirCallMethodSurfaceKind method_surface) {
         if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN ||
             method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN) {
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
@@ -275,14 +252,12 @@
                 bid,
                 ii);
         if (route_kind == HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
-          enum MirCallReceiverFamilyKind recv_family =
-              classify_mir_call_receiver_family(route.recv_org);
           enum MirCallReceiverSurfaceKind recv_surface =
               classify_mir_call_receiver_surface(bname);
           enum MirCallMethodSurfaceKind method_surface =
               classify_mir_call_method_surface(mname);
           route_kind = classify_mir_call_generic_method_route_kind(
-              recv_surface, method_surface, recv_family);
+              recv_surface, method_surface);
         }
         apply_mir_call_generic_method_route_kind(route_kind, &route);
         route.deferred_array_string_indexof =

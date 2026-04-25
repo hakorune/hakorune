@@ -20,16 +20,17 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x BuildBox facade closeout landed; next cleanup selection pending`
+- current blocker token: `phase-291x residual MapBox.has fallback sentinel clarified; owner-path retirement pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue compiler-clean BoxShape cleanup; do not reopen metadata-absent direct
-  `MapBox.has` unless an owner-path change retires that fallback baseline
-- cleanup checkpoint: latest known landed card `291x-285`; BuildBox thinning
-  series is closed and next cleanup selection is pending
+- owner-path preflight for the residual `MapBox.has` fallback sentinel; do not
+  prune the final two rows without retiring or proving non-use of the
+  metadata-absent direct boundary
+- cleanup checkpoint: latest known landed card `291x-286`; BuildBox thinning
+  and residual MapBox.has route-family seam cleanup are closed
 - no-growth checkpoint: `classifiers=2 rows=2` remains the intentional paired
   MIR-call `MapBox + has` surface fallback baseline
 - task-order source:

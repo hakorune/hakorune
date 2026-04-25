@@ -5,4 +5,4 @@
 # receiver rows only after their method-surface / constructor / RuntimeData
 # blockers are gone or exact non-use is proven.
 lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	MapBox	1	core-box-contract	delete-after-has-fallback-sunset-or-prove-nonuse
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	has	1	core-method-contract	replace-with-arrayhas-core-method-or-retire-array-origin-runtime-data-has-fallback
+lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	has	1	core-method-contract	delete-after-mapbox-has-fallback-sunset-or-prove-nonuse
