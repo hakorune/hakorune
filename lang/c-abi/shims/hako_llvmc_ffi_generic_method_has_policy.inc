@@ -270,11 +270,6 @@
         return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
       }
 
-      auto int classify_generic_method_has_value_demand_read_ref(
-          enum GenericMethodHasRouteKind route) {
-        return route != HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
-      }
-
       auto int emit_generic_method_has_by_policy(
           FILE* f,
           long long bid,
@@ -354,9 +349,6 @@
         enum GenericMethodHasRouteKind route = metadata_result
             ? metadata.route
             : classify_generic_method_has_route(bname, plan);
-        int value_demand_read_ref =
-            classify_generic_method_has_value_demand_read_ref(route);
-        (void)value_demand_read_ref;
         switch (route) {
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY:
             if (dst) {
