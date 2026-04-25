@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-233"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-233-generic-get-metadata-output-thinning-card.md"
-latest_card_summary = "Generic get route metadata output was thinned to invalid+route; validation and helper selection remain unchanged."
+latest_card = "291x-234"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-234-maplookup-fusion-metadata-matched-field-cleanup-card.md"
+latest_card_summary = "MapLookup fusion route metadata dropped the unused matched output field; caller payloads and lowering remain unchanged."
 
 current_blocker_token = "phase-291x remaining inc mirror cleanup selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -46,6 +46,7 @@ landed_tail = [
   "291x-231 get/len/push route classifiers added to no-growth guard",
   "291x-232 dead method-specific demand helpers removed",
   "291x-233 generic get metadata output thinned",
+  "291x-234 maplookup fusion matched output removed",
 ]
 
 stale_pointer_patterns = [

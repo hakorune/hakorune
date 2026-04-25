@@ -4,7 +4,6 @@
       };
 
       struct MapLookupFusionRouteMetadata {
-        int matched;
         int invalid;
         long long receiver_reg;
         long long key_reg;
@@ -167,7 +166,6 @@
           }
 
           if (out) {
-            out->matched = 1;
             out->receiver_reg = receiver_reg;
             out->key_reg = key_reg;
             out->get_result_reg = get_result_reg;
