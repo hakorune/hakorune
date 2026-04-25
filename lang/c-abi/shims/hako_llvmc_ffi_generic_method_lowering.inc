@@ -558,14 +558,6 @@
                 &plan)) {
           return 0;
         }
-        int recv_org = plan.recv_org;
-        int runtime_array_len = plan.runtime_array_len;
-        int runtime_array_get = plan.runtime_array_get;
-        int runtime_array_push = plan.runtime_array_push;
-        int runtime_array_has = plan.runtime_array_has;
-        int runtime_array_string = plan.runtime_array_string;
-        int runtime_map_get = plan.runtime_map_get;
-        int runtime_map_has = plan.runtime_map_has;
 
         switch (emit_kind) {
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_BIRTH_ZERO:
@@ -661,8 +653,8 @@
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_GET: {
             int handled = emit_generic_method_get_by_window_or_policy(
                 f, blocks, bid, ii, ilen, insts, bname, mname, dst, recv, a0,
-                recv_org, runtime_array_get, runtime_array_string, &plan, ab,
-                ab_cap, skip_inst);
+                plan.recv_org, plan.runtime_array_get, plan.runtime_array_string,
+                &plan, ab, ab_cap, skip_inst);
             if (handled < 0) {
               return -1;
             }
