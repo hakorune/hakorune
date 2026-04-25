@@ -20,17 +20,17 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x runtime/meta MirCallRoutePolicy owner audit pending`
+- current blocker token: `phase-291x MirCallRoutePolicy export quarantine pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- audit `lang/src/runtime/meta/mir_call_route_policy_box.hako` ownership before
-  any code change
-- cleanup checkpoint: latest known landed card `291x-288`; BuildBox thinning,
-  residual MapBox.has sentinel retirement, and CoreMethodContract `.inc`
-  zero-baseline rebaseline are closed
+- quarantine or retire the `MirCallRoutePolicy` export with module snapshot
+  safety
+- cleanup checkpoint: latest known landed card `291x-289`; BuildBox thinning,
+  residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
+  zero-baseline rebaseline, and route-policy owner audit are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

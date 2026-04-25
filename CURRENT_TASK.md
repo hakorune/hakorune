@@ -37,21 +37,21 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x runtime/meta MirCallRoutePolicy owner audit pending`
+- current blocker token: `phase-291x MirCallRoutePolicy export quarantine pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-288` rebaselined the lane after the
-  CoreMethodContract `.inc` classifier baseline reached zero
+- latest known checkpoint: `291x-289` classified `MirCallRoutePolicy` as
+  registered transitional vocabulary, not the current executable route owner
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: audit `lang/src/runtime/meta/mir_call_route_policy_box.hako`
-  as the next owner-path cleanup; do not reintroduce metadata-absent direct
-  `MapBox.has` fallback support
+- resume point: quarantine or retire the `MirCallRoutePolicy` export with
+  module snapshot safety; do not reintroduce metadata-absent direct `MapBox.has`
+  fallback support
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -59,12 +59,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-288-post-inc-zero-rebaseline-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-289-mir-call-route-policy-owner-audit-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: inventory `MirCallRoutePolicy` ownership and references before any
-  code change; decide whether it is active manifest-backed policy or stale
-  transitional vocabulary
+- next: remove/quarantine `MirCallRoutePolicy` export if no real consumer is
+  introduced, then refresh the stage1 module snapshot
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -73,10 +72,11 @@ Scope: current lane / next lane / restart order only.
 ## Current Ordered Cleanup
 
 - latest cleanup card:
-  `docs/development/current/main/phases/phase-291x/291x-288-post-inc-zero-rebaseline-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-289-mir-call-route-policy-owner-audit-card.md`
 - order: BuildBox thinning series complete; residual MapBox.has sentinel
   retired; CoreMethodContract `.inc` method/box classifier baseline is zero;
-  next owner audit is runtime/meta `MirCallRoutePolicy`
+  `MirCallRoutePolicy` owner audit says the table is transitional; next step is
+  export quarantine / retirement
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

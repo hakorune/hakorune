@@ -25,7 +25,10 @@ Rule:
 
 - `mir_call_route_policy_box.hako`
   - `MirCallRoutePolicy.classify_generic_method_route(...)`
-  - owns narrow `mir_call` route words while backend lowering remains native.
+  - registered transitional reference table only as of `291x-289`.
+  - no active `.hako` or Rust caller owns route selection through this box.
+  - do not add new route behavior here unless it is first wired to a generated
+    CoreMethod/manifest contract.
 - `mir_call_need_policy_box.hako`
   - `MirCallNeedPolicy.classify_need_flags(...)`
   - owns `mir_call` prepass need-flag tables.
