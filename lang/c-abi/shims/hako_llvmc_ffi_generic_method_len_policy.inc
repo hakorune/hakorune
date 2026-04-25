@@ -9,15 +9,20 @@
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
         if (!plan) return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE;
-        if ((bname && !strcmp(bname, "MapBox")) || plan->runtime_map_size) {
+        if (plan->runtime_map_size) {
           return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_MAP_ENTRY_COUNT;
         }
-        if ((bname && !strcmp(bname, "ArrayBox")) || plan->runtime_array_len ||
-            plan->runtime_array_string) {
+        if (plan->runtime_array_len || plan->runtime_array_string) {
           return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_ARRAY_SLOT_LEN;
         }
         if (plan->runtime_string) {
           return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_STRING_LEN;
+        }
+        if (bname && !strcmp(bname, "MapBox")) {
+          return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_MAP_ENTRY_COUNT;
+        }
+        if (bname && !strcmp(bname, "ArrayBox")) {
+          return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_ARRAY_SLOT_LEN;
         }
         return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE;
       }

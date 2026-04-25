@@ -253,9 +253,6 @@
       auto enum GenericMethodHasRouteKind classify_generic_method_has_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
-        if (bname && !strcmp(bname, "MapBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY;
-        }
         if ((bname && !strcmp(bname, "ArrayBox")) ||
             (bname && !strcmp(bname, "RuntimeDataBox")) ||
             (plan && plan->runtime_map_has)) {

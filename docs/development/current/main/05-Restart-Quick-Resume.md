@@ -37,6 +37,16 @@ cargo check -q
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
+## Handoff Snapshot
+
+- latest card: `291x-246`
+- last landed work: push route mirror prune review, then len route mirror prune
+  review
+- worktree: current local diff now includes the 291x-240..246 cleanup/review
+  batch plus this restart handoff refresh
+- resume point: the next remaining `.inc` mirror cleanup from the phase-291x
+  inventory after the len/push review batch
+
 ## Immediate Next
 
 - select the next remaining `.inc` mirror cleanup from the phase-291x inventory

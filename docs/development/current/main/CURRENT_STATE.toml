@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-239"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-239-array-string-len-substring-fixture-repair-card.md"
-latest_card_summary = "Array-string len/substring boundary fixtures now carry StringSubstring and same-slot ArraySet metadata, and get-window source tracking trusts MIR len-window metadata hits."
+latest_card = "291x-246"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-246-push-route-prune-review-card.md"
+latest_card_summary = "ArrayBox push route-policy mirror row preservation confirmed: metadata-absent boundaries still require fallback, no safe prune justified."
 
 current_blocker_token = "phase-291x remaining inc mirror cleanup selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -52,6 +52,13 @@ landed_tail = [
   "291x-237 array-string push/get metadata fixtures swept",
   "291x-238 array-string indexOf observer boundary smokes repaired",
   "291x-239 array-string len/substring boundary smokes repaired",
+  "291x-240 MapBox direct get route-policy mirror pruned",
+  "291x-241 MapBox direct has route-policy mirror pruned",
+  "291x-242 len route metadata consumer: prefer metadata-first for MapLen/ArrayLen/StringLen direct boundaries",
+  "291x-243 push route metadata consumer: prefer metadata-first for ArrayPush direct boundaries, RuntimeDataBox fallback pinned",
+  "291x-244 mir_call has surface review: no safe prune; rows remain required for metadata-absent fallback",
+  "291x-245 len route prune review: bname fallback rows remain required as defensive compat guards for metadata-absent boundaries",
+  "291x-246 push route prune review: ArrayBox route-policy mirror preservation confirmed, metadata-absent boundaries require fallback",
 ]
 
 stale_pointer_patterns = [

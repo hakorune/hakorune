@@ -41,6 +41,19 @@ Scope: current lane / next lane / restart order only.
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
+## Restart Handoff
+
+- last landed: `291x-246` push route mirror prune review completed with no safe prune
+- then landed: `291x-245` len route mirror prune review completed with no safe prune
+- worktree: current slice includes the 291x-240..246 cleanup/review batch plus
+  this restart handoff refresh; next restart should treat that batch as the
+  active local diff set
+- branch: `public-main` is ahead of remote by 113 commits
+- resume point: select the next remaining `.inc` mirror cleanup from the
+  phase-291x inventory after the len/push review batch
+- restart checks: `git status -sb` -> `bash tools/checks/current_state_pointer_guard.sh` ->
+  `tools/checks/dev_gate.sh quick` when the next slice is ready
+
 ## Next
 
 - select the next remaining `.inc` mirror cleanup from the phase-291x inventory

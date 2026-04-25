@@ -278,9 +278,6 @@
       auto enum GenericMethodGetRouteKind classify_generic_method_get_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
-        if (bname && !strcmp(bname, "MapBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY;
-        }
         if ((bname && !strcmp(bname, "ArrayBox")) ||
             (plan && (plan->runtime_array_get || plan->runtime_array_string))) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY;
