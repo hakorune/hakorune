@@ -9,6 +9,64 @@
       "name": "main",
       "params": [],
       "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.push",
+            "block": 0,
+            "instruction_index": 3,
+            "box_name": "RuntimeDataBox",
+            "method": "push",
+            "receiver_origin_box": "ArrayBox",
+            "key_route": null,
+            "arity": 1,
+            "receiver_value": 3,
+            "key_value": null,
+            "result_value": null,
+            "emit_kind": "push",
+            "route_kind": "array_append_any",
+            "helper_symbol": "nyash.array.slot_append_hh",
+            "proof": "push_surface_policy",
+            "core_method": {
+              "op": "ArrayPush",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "cold_fallback"
+            },
+            "return_shape": "scalar_i64",
+            "value_demand": "write_any",
+            "publication_policy": "no_publication",
+            "effects": [
+              "mutate.shape"
+            ]
+          },
+          {
+            "route_id": "generic_method.get",
+            "block": 0,
+            "instruction_index": 6,
+            "box_name": "RuntimeDataBox",
+            "method": "get",
+            "receiver_origin_box": "ArrayBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 5,
+            "key_value": 4,
+            "result_value": 6,
+            "emit_kind": "get",
+            "route_kind": "array_slot_load_any",
+            "helper_symbol": "nyash.array.slot_load_hi",
+            "proof": "get_surface_policy",
+            "core_method": {
+              "op": "ArrayGet",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": [
+              "read.key"
+            ]
+          }
+        ],
         "array_string_len_window_routes": [
           {
             "route_id": "array.string_len.window",
