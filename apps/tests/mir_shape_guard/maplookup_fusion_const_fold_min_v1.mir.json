@@ -1,0 +1,176 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.get",
+            "block": 0,
+            "instruction_index": 2,
+            "box_name": "RuntimeDataBox",
+            "method": "get",
+            "receiver_origin_box": "MapBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 1,
+            "key_value": 2,
+            "result_value": 3,
+            "emit_kind": "get",
+            "route_kind": "runtime_data_load_any",
+            "helper_symbol": "nyash.runtime_data.get_hh",
+            "proof": "map_set_scalar_i64_same_key_no_escape",
+            "core_method": {
+              "op": "MapGet",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "cold_fallback"
+            },
+            "return_shape": "scalar_i64_or_missing_zero",
+            "value_demand": "scalar_i64",
+            "publication_policy": "no_publication",
+            "effects": [
+              "read.key"
+            ]
+          },
+          {
+            "route_id": "generic_method.has",
+            "block": 0,
+            "instruction_index": 3,
+            "box_name": "RuntimeDataBox",
+            "method": "has",
+            "receiver_origin_box": "MapBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 1,
+            "key_value": 2,
+            "result_value": 4,
+            "emit_kind": "has",
+            "route_kind": "map_contains_i64",
+            "helper_symbol": "nyash.map.probe_hi",
+            "proof": "has_surface_policy",
+            "core_method": {
+              "op": "MapHas",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "result_shape": "presence_bool",
+            "value_demand": "read_ref",
+            "effects": [
+              "probe.key"
+            ]
+          }
+        ],
+        "map_lookup_fusion_routes": [
+          {
+            "route_id": "map_lookup.same_key",
+            "block": 0,
+            "get_instruction_index": 2,
+            "has_instruction_index": 3,
+            "fusion_op": "MapLookupSameKey",
+            "receiver_origin_box": "MapBox",
+            "key_route": "i64_const",
+            "get_return_shape": "scalar_i64_or_missing_zero",
+            "get_value_demand": "scalar_i64",
+            "get_publication_policy": "no_publication",
+            "has_result_shape": "presence_bool",
+            "stored_value_proof": "scalar_i64_nonzero",
+            "proof": "same_receiver_same_i64_key_scalar_get_has",
+            "lowering_tier": "cold_fallback",
+            "receiver_value": 1,
+            "key_value": 2,
+            "get_result_value": 3,
+            "has_result_value": 4,
+            "stored_value_const": 1,
+            "effects": [
+              "read.key",
+              "probe.key",
+              "metadata.only"
+            ]
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "mir_call",
+              "dst": 1,
+              "mir_call": {
+                "callee": {
+                  "type": "Constructor",
+                  "box_name": "MapBox"
+                },
+                "args": [],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": -1
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 3,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "get",
+                  "receiver": 1,
+                  "certainty": "Union"
+                },
+                "args": [
+                  2
+                ],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 4,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "has",
+                  "receiver": 1,
+                  "certainty": "Union"
+                },
+                "args": [
+                  2
+                ],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "binop",
+              "dst": 5,
+              "dst_type": "i64",
+              "operation": "+",
+              "lhs": 3,
+              "rhs": 4
+            },
+            {
+              "op": "ret",
+              "value": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
