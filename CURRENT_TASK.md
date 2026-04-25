@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next compiler-clean cleanup card selection pending`
+- current blocker token: `phase-291x residual MapBox.has fallback baseline blocked; select next compiler-clean lane`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-273` made `nyash.runtime_data.has_hh`
-  declaration demand-driven and closed the has-route fallback series
+- latest known checkpoint: `291x-275` inventoried the remaining cleanup and
+  closed the next-card selection state
 - current no-growth baseline: `classifiers=2 rows=2`, intentionally covering
   the paired MIR-call `MapBox + has` surface fallback
 - worktree expectation: clean unless the active slice is in progress
-- resume point: choose the next compiler-clean cleanup card outside the closed
-  has fallback series
+- resume point: select the next compiler-clean lane or land a new owner-path
+  change that retires metadata-absent direct `MapBox.has`
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -61,8 +61,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: select the next compiler-clean cleanup card outside the closed has
-  fallback series
+- next: select the next compiler-clean lane or a new owner-path change for the
+  blocked `MapBox.has` fallback baseline
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate

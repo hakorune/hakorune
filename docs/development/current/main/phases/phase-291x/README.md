@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-smoke-index.md
   - docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md
   - docs/development/current/main/phases/phase-291x/291x-274-docs-smoke-operating-simplification-card.md
+  - docs/development/current/main/phases/phase-291x/291x-275-remaining-cleanup-inventory-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -21,7 +22,8 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: select the next compiler-clean cleanup card
+- Next implementation target: select the next compiler-clean lane or a new
+  owner-path change for the blocked `MapBox.has` fallback baseline
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -33,9 +35,10 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
-4. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
-5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+3. `docs/development/current/main/phases/phase-291x/291x-275-remaining-cleanup-inventory-card.md`
+4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
+5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 Detailed card history is intentionally not duplicated here. Use the numbered
 `291x-*` card files as the ledger.
@@ -74,11 +77,12 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-273`
-- has fallback series: closed
+- latest known cleanup checkpoint: `291x-275`
+- has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=2 rows=2`
 - intentional remaining fallback: paired MIR-call `MapBox + has` surface rows
-- declaration cleanup: `nyash.runtime_data.has_hh` is demand-driven
+- blocker: revisit only after metadata-absent direct `MapBox.has` is retired
+  or replaced by an explicit non-surface contract
 
 ## Task Families
 

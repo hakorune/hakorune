@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next compiler-clean cleanup card selection pending`
+- current blocker token: `phase-291x residual MapBox.has fallback baseline blocked; select next compiler-clean lane`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-273` closed the has-route fallback series and
-  made `nyash.runtime_data.has_hh` declaration demand-driven
+- latest known checkpoint: `291x-275` inventoried the remaining cleanup and
+  closed the next-card selection state
 - no-growth checkpoint: `classifiers=2 rows=2` is the intentional paired
   MIR-call `MapBox + has` fallback baseline
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- select the next compiler-clean cleanup card outside the closed has fallback
-  series
+- select the next compiler-clean lane, or land a new owner-path change that
+  retires metadata-absent direct `MapBox.has`
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
