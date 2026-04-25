@@ -7,6 +7,11 @@ lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_metho
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	ArrayBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_emit_kind	box	MapBox	1	core-box-contract	replace-with-core-method-op-receiver-metadata
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc	classify_generic_method_set_route	box	RuntimeDataBox	1	runtime-data-compat	replace-with-runtime-data-set-contract-and-metadata-absent-runtime-data-set-boundary-coverage
+# Generic has route mirror rows live in a method-specific lowering policy. They
+# are tracked here so future receiver cleanup cannot bypass the no-growth gate.
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_has_policy.inc	classify_generic_method_has_route	box	MapBox	1	core-box-contract	replace-with-maphas-core-method-metadata-for-direct-mapbox-boundaries-or-explicit-has-fallback-sunset
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_has_policy.inc	classify_generic_method_has_route	box	ArrayBox	1	core-box-contract	replace-with-arrayhas-core-method-or-retire-array-origin-runtime-data-has-fallback
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_has_policy.inc	classify_generic_method_has_route	box	RuntimeDataBox	1	runtime-data-compat	replace-with-runtime-data-has-contract-and-metadata-absent-runtime-data-has-boundary-coverage
 # Mir-call route surface mirror rows. Remaining rows are compat sentinels; prune
 # receiver rows only after their method-surface / constructor / RuntimeData
 # blockers are gone or exact non-use is proven.
