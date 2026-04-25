@@ -1,0 +1,89 @@
+// BuildBundleResolverBox - live BuildBox bundle merge/require resolver.
+// BuildBox owns source-to-Program sequencing; this box owns only bundle
+// validation and merged-prefix materialization.
+
+static box BuildBundleResolverBox {
+  resolve(bundle_srcs, bundle_names, bundle_mod_srcs, require_mods) {
+    {
+      local depth = env.get("HAKO_STAGEB_BUNDLE_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] BuildBundleResolverBox.resolve recursion detected")
+        return null
+      }
+      env.set("HAKO_STAGEB_BUNDLE_DEPTH", "1")
+    }
+
+    local name_map = new MapBox()
+    local dup_error = new ArrayBox()
+    if bundle_names != null && bundle_names.length() > 0 {
+      local i = 0
+      loop(i < bundle_names.length()) {
+        local name_i = "" + bundle_names.get(i)
+        if name_map.has(name_i) == true { dup_error.push("[bundle/duplicate] " + name_i) }
+        if dup_error.length() > 0 { break }
+        name_map.set(name_i, 1)
+        i = i + 1
+      }
+    }
+    if dup_error.length() > 0 {
+      print(dup_error.get(0))
+      return null
+    }
+
+    if require_mods != null {
+      if bundle_names == null { bundle_names = new ArrayBox() }
+      if bundle_mod_srcs == null { bundle_mod_srcs = new ArrayBox() }
+      local alias_box = new ArrayBox()
+      alias_box.push("")
+      local i0 = 0
+      loop(i0 < require_mods.length()) {
+        local need = "" + require_mods.get(i0)
+        local alias_key = "HAKO_BUNDLE_ALIAS_" + need
+        alias_box.set(0, env.get(alias_key))
+        if alias_box.get(0) == null || alias_box.get(0) == "" {
+          alias_box.set(0, env.get("NYASH_BUNDLE_ALIAS_" + need))
+        }
+        local code = alias_box.get(0)
+        if name_map.has(need) == false && code != null && code != "" {
+          bundle_names.push(need)
+          bundle_mod_srcs.push("" + code)
+          name_map.set(need, 1)
+        }
+        i0 = i0 + 1
+      }
+    }
+
+    if require_mods != null && require_mods.length() > 0 {
+      local miss_error = new ArrayBox()
+      local idx = 0
+      loop(idx < require_mods.length()) {
+        local need = "" + require_mods.get(idx)
+        if name_map.has(need) == false { miss_error.push("[bundle/missing] " + need) }
+        if miss_error.length() > 0 { break }
+        idx = idx + 1
+      }
+      if miss_error.length() > 0 {
+        print(miss_error.get(0))
+        return null
+      }
+    }
+
+    local merged = ""
+    if bundle_srcs != null {
+      local i = 0
+      loop(i < bundle_srcs.length()) {
+        merged = merged + bundle_srcs.get(i) + "\n"
+        i = i + 1
+      }
+    }
+    if bundle_mod_srcs != null {
+      local i2 = 0
+      loop(i2 < bundle_mod_srcs.length()) {
+        merged = merged + bundle_mod_srcs.get(i2) + "\n"
+        i2 = i2 + 1
+      }
+    }
+    env.set("HAKO_STAGEB_BUNDLE_DEPTH", "0")
+    return merged
+  }
+}

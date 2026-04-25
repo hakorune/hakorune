@@ -27,13 +27,15 @@ Notes
 - Live Stage-B entry uses BuildBox as the source-to-Program(JSON v0)
   authority. `lang/src/compiler/entry/bundle_resolver.hako` is a legacy compat
   and JoinIR fixture surface, not the live BuildBox dependency.
+- `BuildBundleResolverBox` owns live bundle duplicate/require validation and
+  merged-prefix materialization for BuildBox.
 - Current shape:
   - `scan_src`: full merged source, used for `FuncScannerBox` / `UsingCollectorBox`
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
   - owner-local helper split:
-    - `_prepare_scan_src(...)`: bundle/env normalization plus owner-local bundle resolve handoff
+    - `_prepare_scan_src(...)`: bundle/env normalization plus bundle resolver handoff
     - `_new_prepare_scan_src_result(...)` / `_fail_prepare_scan_src(...)` / `_apply_prepare_scan_src_result(...)` / `_resolve_prepare_scan_src_if_needed(...)`: prepared-scan-src result/error/resolve handoff only
-    - `_bundle_inputs_requested(...)` / `_resolve_scan_src_from_bundle_ctx(...)`: bundle resolve decision plus merged `scan_src` materialization only
+    - `_bundle_inputs_requested(...)` / `_resolve_scan_src_from_bundle_ctx(...)`: bundle resolve decision plus `BuildBundleResolverBox` call only
     - `_ensure_bundle_alias_arrays(...)` / `_ensure_require_mods_array(...)`: bundle ctx container setup only
     - `_fail_bundle_ctx(...)`: bundle opts validation error handoff only
     - `_collect_named_bundle_inputs(...)`: named-bundle pair validation and assign only

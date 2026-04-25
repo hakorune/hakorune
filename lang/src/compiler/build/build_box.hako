@@ -4,6 +4,7 @@ using lang.compiler.parser.parser_box as ParserBox
 using "lang.compiler.parser.using.using_collector_box" as UsingCollectorBox
 using lang.compiler.entry.func_scanner as FuncScannerBox
 using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.build.build_bundle_resolver_box as BuildBundleResolverBox
 
 static box BuildBox {
   // Return: Program(JSON v0) string or tagged error
@@ -31,90 +32,6 @@ static box BuildBox {
     if value == null { return 0 }
     if me._coerce_text(value) == "" { return 0 }
     return 1
-  }
-
-  method _resolve_bundles(bundle_srcs, bundle_names, bundle_mod_srcs, require_mods) {
-    {
-      local depth = env.get("HAKO_STAGEB_BUNDLE_DEPTH")
-      if depth != null && ("" + depth) != "0" {
-        print("[stageb/recursion] BundleResolver.resolve recursion detected")
-        return null
-      }
-      env.set("HAKO_STAGEB_BUNDLE_DEPTH", "1")
-    }
-
-    local name_map = new MapBox()
-    local dup_error = new ArrayBox()
-    if bundle_names != null && bundle_names.length() > 0 {
-      local i = 0
-      loop(i < bundle_names.length()) {
-        local name_i = "" + bundle_names.get(i)
-        if name_map.has(name_i) == true { dup_error.push("[bundle/duplicate] " + name_i) }
-        if dup_error.length() > 0 { break }
-        name_map.set(name_i, 1)
-        i = i + 1
-      }
-    }
-    if dup_error.length() > 0 {
-      print(dup_error.get(0))
-      return null
-    }
-
-    if require_mods != null {
-      if bundle_names == null { bundle_names = new ArrayBox() }
-      if bundle_mod_srcs == null { bundle_mod_srcs = new ArrayBox() }
-      local alias_box = new ArrayBox()
-      alias_box.push("")
-      local i0 = 0
-      loop(i0 < require_mods.length()) {
-        local need = "" + require_mods.get(i0)
-        local alias_key = "HAKO_BUNDLE_ALIAS_" + need
-        alias_box.set(0, env.get(alias_key))
-        if alias_box.get(0) == null || alias_box.get(0) == "" {
-          alias_box.set(0, env.get("NYASH_BUNDLE_ALIAS_" + need))
-        }
-        local code = alias_box.get(0)
-        if name_map.has(need) == false && code != null && code != "" {
-          bundle_names.push(need)
-          bundle_mod_srcs.push("" + code)
-          name_map.set(need, 1)
-        }
-        i0 = i0 + 1
-      }
-    }
-
-    if require_mods != null && require_mods.length() > 0 {
-      local miss_error = new ArrayBox()
-      local idx = 0
-      loop(idx < require_mods.length()) {
-        local need = "" + require_mods.get(idx)
-        if name_map.has(need) == false { miss_error.push("[bundle/missing] " + need) }
-        if miss_error.length() > 0 { break }
-        idx = idx + 1
-      }
-      if miss_error.length() > 0 {
-        print(miss_error.get(0))
-        return null
-      }
-    }
-
-    local merged = ""
-    if bundle_srcs != null {
-      local i = 0
-      loop(i < bundle_srcs.length()) {
-        merged = merged + bundle_srcs.get(i) + "\n"
-        i = i + 1
-      }
-    }
-    if bundle_mod_srcs != null {
-      local i2 = 0
-      loop(i2 < bundle_mod_srcs.length()) {
-        merged = merged + bundle_mod_srcs.get(i2) + "\n"
-        i2 = i2 + 1
-      }
-    }
-    env.set("HAKO_STAGEB_BUNDLE_DEPTH", "0")
-    return merged
   }
 
   method _find_main_position(src) {
@@ -218,7 +135,8 @@ static box BuildBox {
     local result = me._new_prepare_scan_src_result(src)
     // Optional: env-driven alias/require bundling (lightweight)
     // HAKO_BUNDLE_ALIAS_TABLE='Name:code|||Name2:code2', HAKO_REQUIRE_MODS='U1,U2'
-    // BuildBox では _resolve_bundles を使って前置連結のみを行う（Fail‑Fastタグは箱外へ伝播）
+    // BuildBox collects bundle inputs; BuildBundleResolverBox owns validation
+    // and merged-prefix materialization.
     local bundle_ctx = me._collect_bundle_inputs(opts)
     if bundle_ctx.has("error") == true {
       return me._fail_prepare_scan_src(result, bundle_ctx.get("error"))
@@ -262,7 +180,7 @@ static box BuildBox {
   }
 
   method _resolve_scan_src_from_bundle_ctx(src, bundle_ctx) {
-    local merged = me._resolve_bundles(bundle_ctx.get("bundles"), bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), bundle_ctx.get("require_mods"))
+    local merged = BuildBundleResolverBox.resolve(bundle_ctx.get("bundles"), bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), bundle_ctx.get("require_mods"))
     if merged == null { return null }
     return merged + src
   }
