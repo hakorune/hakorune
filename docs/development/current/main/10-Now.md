@@ -20,16 +20,17 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x CoreMethodContract inc classifier baseline zero; next cleanup selection pending`
+- current blocker token: `phase-291x runtime/meta MirCallRoutePolicy owner audit pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- choose the next compiler-clean BoxShape cleanup from phase-291x inventory or
-  close the CoreMethodContract `.inc` mirror-pruning lane
-- cleanup checkpoint: latest known landed card `291x-287`; BuildBox thinning
-  and residual MapBox.has sentinel retirement are closed
+- audit `lang/src/runtime/meta/mir_call_route_policy_box.hako` ownership before
+  any code change
+- cleanup checkpoint: latest known landed card `291x-288`; BuildBox thinning,
+  residual MapBox.has sentinel retirement, and CoreMethodContract `.inc`
+  zero-baseline rebaseline are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

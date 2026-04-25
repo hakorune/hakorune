@@ -26,6 +26,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-285-buildbox-facade-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-286-mir-call-maphas-residual-seam-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-287-mir-call-maphas-sentinel-retirement-card.md
+  - docs/development/current/main/phases/phase-291x/291x-288-post-inc-zero-rebaseline-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -33,9 +34,8 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: choose the next compiler-clean BoxShape cleanup
-  from phase-291x inventory or close the CoreMethodContract `.inc`
-  mirror-pruning lane
+- Next implementation target: audit runtime/meta `MirCallRoutePolicy`
+  ownership before code changes
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -47,7 +47,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-287-mir-call-maphas-sentinel-retirement-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-288-post-inc-zero-rebaseline-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -89,9 +89,10 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-287`
+- latest known cleanup checkpoint: `291x-288`
 - BuildBox thinning series is closed; residual MapBox.has sentinel retirement
-  is closed; next implementation target is cleanup selection from inventory
+  is closed; CoreMethodContract `.inc` classifier baseline is zero; next
+  implementation target is runtime/meta `MirCallRoutePolicy` owner audit
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=0 rows=0`
 - no `.inc` method/box string classifier rows are allowlisted
