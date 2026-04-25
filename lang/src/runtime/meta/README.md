@@ -6,7 +6,7 @@ Scope:
 - Keep host transport in `runtime/host/`.
 
 Responsibilities:
-- `mir_call` route policy vocabularies.
+- `mir_call` route-policy retirement notes and generated metadata handoff.
 - `mir_call` prepass need-flag tables.
 - `mir_call` constructor/global/string-extern accept surfaces.
 - `CoreMethodContract` seed rows for Array/String/Map method surfaces.
@@ -23,12 +23,6 @@ Rule:
 
 ## Current modules
 
-- `mir_call_route_policy_box.hako`
-  - `MirCallRoutePolicy.classify_generic_method_route(...)`
-  - registered transitional reference table only as of `291x-289`.
-  - no active `.hako` or Rust caller owns route selection through this box.
-  - do not add new route behavior here unless it is first wired to a generated
-    CoreMethod/manifest contract.
 - `mir_call_need_policy_box.hako`
   - `MirCallNeedPolicy.classify_need_flags(...)`
   - owns `mir_call` prepass need-flag tables.
@@ -49,3 +43,14 @@ Rule:
   - paired with `tools/checks/core_method_contract_inc_no_growth_guard.sh`
     to stop new `.inc` method/box-name classifier growth
   - not a semantic owner; regenerate instead of hand-editing.
+
+## Retired Modules
+
+- `mir_call_route_policy_box.hako`
+  - retired by `291x-290`.
+  - had no active `.hako` or Rust caller after the CoreMethodContract route
+    metadata migration.
+  - route selection stays metadata-first through
+    `lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc`.
+  - do not reintroduce a by-name route table unless it is generated from
+    CoreMethod/manifest metadata and wired as the actual producer.

@@ -108,9 +108,10 @@ Related:
 - `hako_llvmc_ffi_generic_method_lowering.inc` is mostly semantic owner plus final call emission.
 - `hako_llvmc_ffi_compiler_state.inc` now holds the shared copy/origin/type/const helper tables and is the first compiler-state seam landed.
 - `lang/src/runtime/meta/` is now the `.hako` owner home for compiler semantic tables that are not kernel behavior and not host transport.
-- `lang/src/runtime/meta/mir_call_route_policy_box.hako` is registered
-  transitional route vocabulary only after `291x-289`; no active `.hako` or
-  Rust caller uses it as the executable route owner.
+- `lang/src/runtime/meta/mir_call_route_policy_box.hako` was retired by
+  `291x-290`; route ownership now stays on MIR CoreMethod route metadata plus
+  the metadata-first native route consumer until a generated `.hako` producer
+  exists.
 - `lang/src/runtime/meta/mir_call_need_policy_box.hako` owns the semantic need-vocabulary used by the `mir_call` prepass.
 - `lang/src/runtime/meta/mir_call_surface_policy_box.hako` owns constructor/global/string-extern accept surfaces.
 - `hako_llvmc_ffi_mir_call_route_policy.inc` is the current executable route
@@ -125,8 +126,8 @@ Related:
 - Current bounded stop-line is now landed enough for a perf return:
   - `pure_compile.inc` owns orchestration and dispatch entry only
   - `runtime/meta/` owns or documents compiler semantic tables for `mir_call`
-    route/need/surface; route policy is transitional until export quarantine
-    or manifest-backed wiring lands
+    need/surface and the CoreMethod contract; the old `.hako` route table is
+    retired
   - analyzer-heavy `GET` windows, `indexOf` observers, and string producer-window analysis stay native compiler-state seams
 - The current bounded stop-line is the `runtime/meta/` + `mir_call` mirror landing; remaining steps below are end-state direction, not the current pre-perf expansion plan.
 - Therefore the migration problem is not “every `.inc` already fits `.hako` syntax”; the real gap is the missing split between compiler-state capability, lowering builder seam, and thin emit shim.
@@ -179,7 +180,7 @@ Note:
 - `hako_llvmc_ffi_generic_method_get_window.inc`
 - `hako_llvmc_ffi_generic_method_get_lowering.inc`
 - `hako_llvmc_ffi_string_concat_window.inc`
-- `lang/src/runtime/meta/mir_call_route_policy_box.hako`
+- `lang/src/runtime/meta/mir_call_route_policy_box.hako` (retired by `291x-290`)
 - `lang/src/runtime/meta/mir_call_need_policy_box.hako`
 - `lang/src/runtime/meta/mir_call_surface_policy_box.hako`
 - `hako_llvmc_ffi_mir_call_route_policy.inc`
