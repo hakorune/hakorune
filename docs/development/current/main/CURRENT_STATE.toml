@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-273"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-273-runtime-data-has-declare-need-flag-card.md"
-latest_card_summary = "nyash.runtime_data.has_hh declaration is now demand-driven through needs.runtime_data_has while preserving metadata and MapBox+has fallback callers."
+latest_card = "291x-274"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-274-docs-smoke-operating-simplification-card.md"
+latest_card_summary = "Current/restart docs are thinned back to checkpoint and next pointers; phase-291x smoke selection now lives in the smoke index."
 
 current_blocker_token = "phase-291x next compiler-clean cleanup card selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -86,6 +86,7 @@ landed_tail = [
   "291x-271 generic has emit-kind fallback pruned after route metadata and route-state coverage",
   "291x-272 MIR-call MapBox+has surface fallback closeout landed with intentional two-row baseline",
   "291x-273 RuntimeData has declaration need-flag cleanup landed",
+  "291x-274 docs and smoke operating simplification landed",
 ]
 
 stale_pointer_patterns = [
