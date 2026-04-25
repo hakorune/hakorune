@@ -6,11 +6,8 @@
       };
 
       struct GenericMethodHasRouteMetadata {
-        int matched;
         int invalid;
         enum GenericMethodHasRouteKind route;
-        long long receiver_reg;
-        long long key_reg;
       };
 
       auto int generic_method_has_route_read_i64_field(
@@ -227,10 +224,7 @@
             return 0;
           }
           if (out) {
-            out->matched = 1;
             out->route = route_kind;
-            out->receiver_reg = receiver_reg;
-            out->key_reg = key_reg;
           }
           if (hako_llvmc_route_trace_enabled()) {
             char extra[192];
