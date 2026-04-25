@@ -66,6 +66,29 @@
               "read.key"
             ]
           }
+        ],
+        "array_text_observer_routes": [
+          {
+            "block": 0,
+            "observer_instruction_index": 10,
+            "get_block": 0,
+            "get_instruction_index": 6,
+            "array_value": 2,
+            "index_value": 4,
+            "source_value": 6,
+            "observer_kind": "indexof",
+            "observer_arg0": 8,
+            "observer_arg0_repr": "const_utf8",
+            "observer_arg0_keep_live": false,
+            "result_value": 10,
+            "consumer_shape": "found_predicate",
+            "proof_region": "array_get_receiver_indexof",
+            "publication_boundary": "none",
+            "result_repr": "scalar_i64",
+            "keep_get_live": false,
+            "observer_arg0_text": "line",
+            "observer_arg0_byte_len": 4
+          }
         ]
       },
       "blocks": [

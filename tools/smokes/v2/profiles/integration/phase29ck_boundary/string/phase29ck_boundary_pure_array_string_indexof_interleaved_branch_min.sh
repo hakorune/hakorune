@@ -77,10 +77,10 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-if ! grep -F 'stage=array_string_indexof_interleaved_branch_window result=hit' "$BUILD_LOG" >/dev/null 2>&1; then
+if ! grep -E 'stage=mir_call_method result=seen reason=indexOf .*flags=.*string_indexof:1' "$BUILD_LOG" >/dev/null 2>&1; then
     echo "[INFO] route trace output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "phase29ck_boundary_pure_array_string_indexof_interleaved_branch_min: exact interleaved branch recipe was not accepted"
+    test_fail "phase29ck_boundary_pure_array_string_indexof_interleaved_branch_min: array-text observer metadata route was not consumed"
     exit 1
 fi
 
