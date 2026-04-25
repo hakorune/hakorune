@@ -52,9 +52,9 @@ Rule:
   - do not reintroduce a by-name route table unless it is generated from
     CoreMethod/manifest metadata and wired as the actual producer.
 - `mir_call_need_policy_box.hako`
-  - owner-audited by `291x-291`.
+  - owner-audited by `291x-291` and retired by `291x-292`.
   - had no active `.hako` or Rust caller; it is registered transitional
-    vocabulary, not the executable need-policy owner.
+    vocabulary debt, not the executable need-policy owner.
   - need flags stay native through
     `lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_policy.inc` until a
     generated producer or typed LoweringPlan owns those flags.
