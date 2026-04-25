@@ -11,7 +11,6 @@
         int arr_get;
         int arr_slot_load;
         int arr_kernel_slot_concat_by_index;
-        int arr_has;
         int arr_string_indexof;
         int arr_string_indexof_const_utf8;
         int string_const_box;
@@ -35,7 +34,6 @@
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET,
-        HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING,
@@ -80,9 +78,6 @@
           case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET:
             needs->arr_get = 1;
             needs->arr_slot_load = 1;
-            break;
-          case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS:
-            needs->arr_has = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF:
             needs->arr_string_indexof = 1;
@@ -292,7 +287,7 @@
             method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_BIRTH ||
               recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH) {
-            return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS;
+            return HAKO_LLVMC_MIR_CALL_NEED_NONE;
           }
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH) {
             return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
