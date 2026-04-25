@@ -367,16 +367,7 @@ impl super::MirBuilder {
                     box_type: "ArrayBox".to_string(),
                     args: vec![],
                 })?;
-                // Explicit birth() to satisfy runtime invariant (NewBox→birth)
-                self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
-                    None,
-                    arr_id,
-                    "ArrayBox",
-                    "birth",
-                    vec![],
-                    super::EffectMask::MUT,
-                    crate::mir::definitions::call_unified::TypeCertainty::Known,
-                ))?;
+                self.emit_constructor_birth_marker(arr_id, "ArrayBox")?;
                 self.type_ctx
                     .value_origin_newbox
                     .insert(arr_id, "ArrayBox".to_string());
@@ -430,16 +421,7 @@ impl super::MirBuilder {
                     box_type: "MapBox".to_string(),
                     args: vec![],
                 })?;
-                // Explicit birth() to satisfy runtime invariant (NewBox→birth)
-                self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
-                    None,
-                    map_id,
-                    "MapBox",
-                    "birth",
-                    vec![],
-                    super::EffectMask::MUT,
-                    crate::mir::definitions::call_unified::TypeCertainty::Known,
-                ))?;
+                self.emit_constructor_birth_marker(map_id, "MapBox")?;
                 self.type_ctx
                     .value_origin_newbox
                     .insert(map_id, "MapBox".to_string());

@@ -63,10 +63,6 @@ static box CollectionMethodPolicyBox {
     return "MapStoreAny"
   }
 
-  route_runtime_data_store_any() {
-    return "RuntimeDataStoreAny"
-  }
-
   route_array_store_i64() {
     return "ArrayStoreI64"
   }
@@ -87,6 +83,10 @@ static box CollectionMethodPolicyBox {
 
   route_map_contains_any() {
     return "MapContainsAny"
+  }
+
+  route_array_contains_any() {
+    return "ArrayContainsAny"
   }
 
   route_runtime_data_contains_any() {
@@ -111,10 +111,6 @@ static box CollectionMethodPolicyBox {
 
   route_runtime_data_load_any() {
     return "RuntimeDataLoadAny"
-  }
-
-  route_runtime_data_append_any() {
-    return "RuntimeDataAppendAny"
   }
 
   generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string) {
@@ -153,9 +149,6 @@ static box CollectionMethodPolicyBox {
   set_route(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) {
     // This owner keeps visible collection-store semantics only.
     // Concrete ABI symbols and canonical MIR spellings are compiler-side mirrors.
-    if box_name == "RuntimeDataBox" {
-      return me.route_runtime_data_store_any()
-    }
     if box_name == "MapBox" {
       return me.route_map_store_any()
     }
@@ -224,9 +217,6 @@ static box CollectionMethodPolicyBox {
   }
 
   push_route(box_name, runtime_array_push, runtime_array_string) {
-    if box_name == "RuntimeDataBox" {
-      return me.route_runtime_data_append_any()
-    }
     if runtime_array_push == 1 || runtime_array_string == 1 || box_name == "ArrayBox" {
       return me.route_array_append_any()
     }
@@ -242,7 +232,7 @@ static box CollectionMethodPolicyBox {
       return me.route_runtime_data_contains_any()
     }
     if box_name == "ArrayBox" {
-      return me.route_runtime_data_contains_any()
+      return me.route_array_contains_any()
     }
     if box_name == "MapBox" || runtime_map_has == 1 {
       return me.route_map_contains_any()

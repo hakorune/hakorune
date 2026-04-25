@@ -25,6 +25,9 @@
           yyjson_val* route = yyjson_arr_get(routes, ri);
           yyjson_val* core_method = NULL;
           const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* route_kind = route ? read_str(route, "route_kind") : NULL;
+          const char* helper_symbol = route ? read_str(route, "helper_symbol") : NULL;
+          const char* proof_raw = route ? read_str(route, "proof") : NULL;
           const char* op = NULL;
           long long block = 0;
           long long inst = 0;
@@ -51,6 +54,16 @@
                  !strcmp(route_id, "generic_method.substring")))) {
             continue;
           }
+          if (route_id &&
+              !strcmp(route_id, "generic_method.has") &&
+              route_kind &&
+              !strcmp(route_kind, "runtime_data_contains_any") &&
+              helper_symbol &&
+              !strcmp(helper_symbol, "nyash.runtime_data.has_hh") &&
+              proof_raw &&
+              !strcmp(proof_raw, "has_surface_policy")) {
+            return HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS;
+          }
           core_method = yyjson_obj_get(route, "core_method");
           if (!(core_method && yyjson_is_obj(core_method))) {
             return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
@@ -60,7 +73,8 @@
           lowering_tier = read_core_method_lowering_tier_metadata(core_method, &invalid);
           if (!invalid &&
               op &&
-              !strcmp(op, "MapHas") &&
+              (!strcmp(op, "MapHas") ||
+               !strcmp(op, "ArrayHas")) &&
               route_id &&
               !strcmp(route_id, "generic_method.has") &&
               core_method_metadata_proof_is_contract_manifest(proof) &&

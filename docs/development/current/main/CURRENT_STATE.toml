@@ -6,20 +6,20 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-04-25"
+date = "2026-04-26"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, Stage-B adapter thinning slices, route-policy mirror preflight, MapHas/MapGet/Len/Substring/Push/Set metadata-first emit-kind selection, Set storage-route metadata-first selection, set ArrayBox storage-route mirror prune, RuntimeData set fallback contract, remaining .inc mirror inventory, and MIR-call Set need metadata consumer are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed. The first MapHas, MapGet, Len, Substring, Push, Set, and MIR-call Set surface mirror-row prune probes were rejected because metadata-absent boundary MIR JSON still relies on legacy fallback rows; the post-need-consumer retry also rejected direct Array/Map set metadata-absent boundaries. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, Stage-B adapter thinning slices, route-policy mirror preflight, MapHas/MapGet/Len/Substring/Push/Set metadata-first emit-kind selection, Set storage-route metadata-first selection, set ArrayBox storage-route mirror prune, RuntimeData set fallback contract, remaining .inc mirror inventory, MIR-call Set need metadata consumer, RuntimeData get route fallback prune, RuntimeData set route fallback prune, RuntimeData push route fallback prune, ArrayHas CoreMethod carrier, ArrayBox has route fallback prune, RuntimeData has route fallback prune, generic has emit-kind fallback prune, MIR-call MapBox+has surface fallback closeout, and RuntimeData has declaration need-flag cleanup are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed. The first MapHas, MapGet, Len, Substring, Push, Set, and MIR-call Set surface mirror-row prune probes were rejected because metadata-absent boundary MIR JSON still relies on legacy fallback rows; the post-need-consumer retry also rejected direct Array/Map set metadata-absent boundaries. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-246"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-246-push-route-prune-review-card.md"
-latest_card_summary = "ArrayBox push route-policy mirror row preservation confirmed: metadata-absent boundaries still require fallback, no safe prune justified."
+latest_card = "291x-273"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-273-runtime-data-has-declare-need-flag-card.md"
+latest_card_summary = "nyash.runtime_data.has_hh declaration is now demand-driven through needs.runtime_data_has while preserving metadata and MapBox+has fallback callers."
 
-current_blocker_token = "phase-291x remaining inc mirror cleanup selection pending"
+current_blocker_token = "phase-291x next compiler-clean cleanup card selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -59,6 +59,33 @@ landed_tail = [
   "291x-244 mir_call has surface review: no safe prune; rows remain required for metadata-absent fallback",
   "291x-245 len route prune review: bname fallback rows remain required as defensive compat guards for metadata-absent boundaries",
   "291x-246 push route prune review: ArrayBox route-policy mirror preservation confirmed, metadata-absent boundaries require fallback",
+  "291x-247 ArrayBox get route-policy mirror pruned",
+  "291x-248 RuntimeDataBox get route-policy mirror review completed with no safe prune",
+  "291x-249 constructor/birth compatibility contract landed",
+  "291x-250 constructor/birth carrier design landed",
+  "291x-251 constructor/birth owner shape decision landed",
+  "291x-252 constructor/birth marker helper landed",
+  "291x-253 birth compatibility deletion criteria landed",
+  "291x-254 birth emit-kind mirror pruned",
+  "291x-255 post-birth cleanup task order landed",
+  "291x-256 MIR-call ArrayBox receiver-surface mirror pruned",
+  "291x-257 MIR-call MapBox receiver-surface review completed with no safe prune",
+  "291x-258 MIR-call RuntimeDataBox receiver-surface mirror pruned",
+  "291x-259 MIR-call MapBox.has need-policy branch pruned",
+  "291x-260 MIR-call need-policy dead method-surface fallback pruned",
+  "291x-261 has-family remaining classifier rows reviewed with no safe prune",
+  "291x-262 len route bname fallbacks pruned",
+  "291x-263 direct ArrayBox push route fallback pruned; RuntimeDataBox push remains pinned",
+  "291x-264 set emit-kind fallback pruned; RuntimeDataBox set route remains pinned",
+  "291x-265 RuntimeData get route fallback pruned; dispatch E2E set metadata boundary repaired",
+  "291x-266 RuntimeData set route fallback and RuntimeDataStoreAny vocabulary pruned",
+  "291x-267 RuntimeData push route fallback and RuntimeDataAppendAny vocabulary pruned",
+  "291x-268 ArrayHas CoreMethod carrier landed for direct ArrayBox.has and Array-origin RuntimeDataBox.has",
+  "291x-269 direct ArrayBox has route fallback pruned after ArrayHas metadata coverage",
+  "291x-270 RuntimeData has route fallback pruned after metadata coverage",
+  "291x-271 generic has emit-kind fallback pruned after route metadata and route-state coverage",
+  "291x-272 MIR-call MapBox+has surface fallback closeout landed with intentional two-row baseline",
+  "291x-273 RuntimeData has declaration need-flag cleanup landed",
 ]
 
 stale_pointer_patterns = [
@@ -141,4 +168,22 @@ stale_pointer_patterns = [
   "phase-291x substring emit-kind metadata consumer pending",
   "phase-291x substring mirror prune decision pending",
   "phase-291x metadata-absent direct set boundary coverage pending",
+  "phase-291x birth compatibility deletion criteria pending",
+  "phase-291x birth compat prune probe pending",
+  "phase-291x post-birth-prune cleanup selection pending",
+  "phase-291x mir-call ArrayBox receiver-surface prune probe pending",
+  "phase-291x mir-call MapBox receiver-surface prune probe pending",
+  "phase-291x mir-call RuntimeDataBox receiver-surface review pending",
+  "phase-291x has family cleanup pending",
+  "phase-291x len family cleanup pending",
+  "phase-291x push family cleanup pending",
+  "phase-291x set family cleanup pending",
+  "phase-291x RuntimeData get cleanup pending",
+  "phase-291x residual RuntimeData facade sentinel inventory pending",
+  "phase-291x residual has-push MIR-surface sentinel inventory pending",
+  "phase-291x residual has and MIR-surface sentinel inventory pending",
+  "phase-291x ArrayHas fallback prune evidence pending",
+  "phase-291x RuntimeData has and MIR-surface fallback evidence pending",
+  "phase-291x generic has emit-kind and MIR-surface fallback evidence pending",
+  "phase-291x MIR-call MapBox has surface fallback final review pending",
 ]

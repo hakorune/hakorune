@@ -37,11 +37,6 @@ c_route = c_route_path.read_text()
 
 ROUTES = [
     ("route_none", "None", "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE"),
-    (
-        "route_runtime_data_store_any",
-        "RuntimeDataStoreAny",
-        "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY",
-    ),
     ("route_map_store_any", "MapStoreAny", "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY"),
     ("route_array_store_i64", "ArrayStoreI64", "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64"),
     (

@@ -24,6 +24,7 @@ pub enum GenericMethodRouteKind {
     MapLoadAny,
     MapEntryCount,
     ArraySlotLoadAny,
+    ArrayContainsAny,
     ArraySlotLen,
     ArrayAppendAny,
     ArrayStoreAny,
@@ -43,6 +44,7 @@ impl GenericMethodRouteKind {
             Self::MapLoadAny => "nyash.map.slot_load_hh",
             Self::MapEntryCount => "nyash.map.entry_count_i64",
             Self::ArraySlotLoadAny => "nyash.array.slot_load_hi",
+            Self::ArrayContainsAny => "nyash.array.has_hh",
             Self::ArraySlotLen => "nyash.array.slot_len_h",
             Self::ArrayAppendAny => "nyash.array.slot_append_hh",
             Self::ArrayStoreAny => "nyash.array.slot_store_*",
@@ -64,6 +66,7 @@ impl std::fmt::Display for GenericMethodRouteKind {
             Self::MapLoadAny => f.write_str("map_load_any"),
             Self::MapEntryCount => f.write_str("map_entry_count"),
             Self::ArraySlotLoadAny => f.write_str("array_slot_load_any"),
+            Self::ArrayContainsAny => f.write_str("array_contains_any"),
             Self::ArraySlotLen => f.write_str("array_slot_len"),
             Self::ArrayAppendAny => f.write_str("array_append_any"),
             Self::ArrayStoreAny => f.write_str("array_store_any"),
@@ -285,9 +288,16 @@ fn match_generic_has_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
-        .or_else(|| (box_name == "MapBox").then(|| "MapBox".to_string()));
+        .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
     let key_route = classify_key_route(function, def_map, args[0]);
     let (route_kind, core_method) = match box_name.as_str() {
+        "ArrayBox" if receiver_origin_box.as_deref() == Some("ArrayBox") => (
+            GenericMethodRouteKind::ArrayContainsAny,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::ArrayHas,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+        ),
         "MapBox" => (
             map_has_route_kind_for_key(key_route),
             Some(CoreMethodOpCarrier::manifest(
@@ -307,7 +317,14 @@ fn match_generic_has_route(
                 )),
             )
         }
-        "ArrayBox" | "RuntimeDataBox" => (GenericMethodRouteKind::RuntimeDataContainsAny, None),
+        "RuntimeDataBox" if receiver_origin_box.as_deref() == Some("ArrayBox") => (
+            GenericMethodRouteKind::ArrayContainsAny,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::ArrayHas,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+        ),
+        "RuntimeDataBox" => (GenericMethodRouteKind::RuntimeDataContainsAny, None),
         _ => return None,
     };
 
@@ -1154,6 +1171,39 @@ mod tests {
     }
 
     #[test]
+    fn records_direct_arraybox_has_as_arrayhas_core_method_route() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block
+            .instructions
+            .push(method_call(Some(3), "ArrayBox", "has", 1, vec![2]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name, "ArrayBox");
+        assert_eq!(route.method, "has");
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
+        assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
+        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayContainsAny);
+        assert_eq!(route.route_kind.helper_symbol(), "nyash.array.has_hh");
+        assert_eq!(route.proof, GenericMethodRouteProof::HasSurfacePolicy);
+        let core_method = route.core_method.expect("ArrayBox.has core method op");
+        assert_eq!(core_method.op, CoreMethodOp::ArrayHas);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(route.return_shape, None);
+        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy, None);
+    }
+
+    #[test]
     fn records_direct_mapbox_get_as_warm_core_method_route() {
         let mut function = make_function();
         let block = function
@@ -1346,6 +1396,45 @@ mod tests {
             GenericMethodRouteKind::RuntimeDataContainsAny
         );
         assert!(route.core_method.is_none());
+        assert_eq!(route.return_shape, None);
+        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy, None);
+    }
+
+    #[test]
+    fn records_runtime_data_arraybox_has_as_arrayhas_core_method_route() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(method_call(Some(4), "RuntimeDataBox", "has", 2, vec![3]));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.method, "has");
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
+        assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
+        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayContainsAny);
+        assert_eq!(route.route_kind.helper_symbol(), "nyash.array.has_hh");
+        let core_method = route.core_method.expect("ArrayHas carrier");
+        assert_eq!(core_method.op, CoreMethodOp::ArrayHas);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
         assert_eq!(route.return_shape, None);
         assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
         assert_eq!(route.publication_policy, None);
@@ -1658,7 +1747,7 @@ mod tests {
     }
 
     #[test]
-    fn leaves_runtime_data_push_metadata_absent_for_fallback() {
+    fn records_runtime_data_arraybox_push_through_copy_as_cold_core_method_route() {
         let mut function = make_function();
         let block = function
             .blocks
@@ -1677,7 +1766,31 @@ mod tests {
 
         refresh_function_generic_method_routes(&mut function);
 
-        assert!(function.metadata.generic_method_routes.is_empty());
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), "generic_method.push");
+        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.method, "push");
+        assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
+        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayAppendAny);
+        assert_eq!(route.proof, GenericMethodRouteProof::PushSurfacePolicy);
+        let core_method = route
+            .core_method
+            .expect("RuntimeDataBox Array-origin push core method op");
+        assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::ColdFallback
+        );
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::ScalarI64)
+        );
+        assert_eq!(route.value_demand, GenericMethodValueDemand::WriteAny);
+        assert_eq!(
+            route.publication_policy,
+            Some(GenericMethodPublicationPolicy::NoPublication)
+        );
     }
 
     #[test]

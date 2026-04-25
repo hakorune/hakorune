@@ -14,7 +14,7 @@
     "status",
     "guards"
   ],
-  "row_count": 11,
+  "row_count": 12,
   "rows": [
     {
       "box": "ArrayBox",
@@ -46,6 +46,20 @@
       "status": "seed",
       "guards": [],
       "id": "ArrayBox.get/1"
+    },
+    {
+      "box": "ArrayBox",
+      "canonical": "has",
+      "aliases": [],
+      "arity": "1",
+      "effect": "pure_read",
+      "core_op": "ArrayHas",
+      "lowering_tier": "warm_direct_abi",
+      "cold_lowering": "nyash.array.has_hh",
+      "runtime_owner": ".hako ArrayBox contract / Rust array substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "ArrayBox.has/1"
     },
     {
       "box": "ArrayBox",

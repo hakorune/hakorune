@@ -394,13 +394,14 @@
       if (needs.map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_i64\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       fprintf(f, "declare i64 @\"nyash.runtime_data.get_hh\"(i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.set_hhh\"(i64, i64, i64)\n");
-      fprintf(f, "declare i64 @\"nyash.runtime_data.has_hh\"(i64, i64)\n");
+      if (needs.runtime_data_has) fprintf(f, "declare i64 @\"nyash.runtime_data.has_hh\"(i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.push_hh\"(i64, i64)\n");
       fprintf(f, "declare ptr @llvm.stacksave()\n");
       fprintf(f, "declare void @llvm.stackrestore(ptr)\n");
       if (needs.arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
       if (needs.arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
       if (needs.arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hih\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");

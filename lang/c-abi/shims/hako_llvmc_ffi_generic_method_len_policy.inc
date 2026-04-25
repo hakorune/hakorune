@@ -8,6 +8,7 @@
       auto enum GenericMethodLenRouteKind classify_generic_method_len_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
+        (void)bname;
         if (!plan) return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE;
         if (plan->runtime_map_size) {
           return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_MAP_ENTRY_COUNT;
@@ -17,12 +18,6 @@
         }
         if (plan->runtime_string) {
           return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_STRING_LEN;
-        }
-        if (bname && !strcmp(bname, "MapBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_MAP_ENTRY_COUNT;
-        }
-        if (bname && !strcmp(bname, "ArrayBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_ARRAY_SLOT_LEN;
         }
         return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE;
       }

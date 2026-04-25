@@ -8,8 +8,15 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../lib/vm_hako_caps_common.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
+  ROOT_DIR="$ROOT_GIT"
+else
+  ROOT_DIR="$(cd "$SCRIPT_DIR/../../../../../../.." && pwd)"
+fi
+
+source "$ROOT_DIR/tools/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/tools/smokes/v2/profiles/integration/vm_hako_caps/lib/vm_hako_caps_common.sh"
 require_env || exit 2
 
 SMOKE_NAME="vm_hako_caps_args_vm"

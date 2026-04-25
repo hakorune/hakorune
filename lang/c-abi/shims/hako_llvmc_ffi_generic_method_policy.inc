@@ -1,6 +1,5 @@
       enum GenericMethodEmitKind {
         HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE = 0,
-        HAKO_LLVMC_GENERIC_METHOD_EMIT_BIRTH_ZERO,
         HAKO_LLVMC_GENERIC_METHOD_EMIT_SET,
         HAKO_LLVMC_GENERIC_METHOD_EMIT_GET,
         HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN,
@@ -11,7 +10,6 @@
 
       enum GenericMethodSetRouteKind {
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE = 0,
-        HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY,
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY,
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64,
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING,
@@ -57,14 +55,11 @@
           const struct GenericMethodRouteState* route,
           long long a0,
           long long a1) {
-        (void)route;
-        if (mname && !strcmp(mname, "birth") && !a0 && !a1) {
-          if ((bname && !strcmp(bname, "ArrayBox")) || (bname && !strcmp(bname, "MapBox"))) {
-            return HAKO_LLVMC_GENERIC_METHOD_EMIT_BIRTH_ZERO;
-          }
-        }
-        if (mname && !strcmp(mname, "set")) return HAKO_LLVMC_GENERIC_METHOD_EMIT_SET;
-        if (mname && !strcmp(mname, "has")) return HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS;
+        (void)bname;
+        (void)mname;
+        (void)a0;
+        (void)a1;
+        if (route && route->runtime_map_has) return HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS;
         return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
       }
 
@@ -74,6 +69,7 @@
           int value_is_i64,
           int value_is_string_handle) {
         int arrayish = 0;
+        (void)bname;
         if (plan &&
             (plan->recv_org == ORG_ARRAY_BIRTH ||
              plan->recv_org == ORG_ARRAY_STRING_BIRTH ||
@@ -87,9 +83,6 @@
           if (value_is_i64) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
           if (value_is_string_handle) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
-        }
-        if (bname && !strcmp(bname, "RuntimeDataBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY;
         }
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
       }

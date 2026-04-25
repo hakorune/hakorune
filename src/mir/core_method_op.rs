@@ -10,6 +10,7 @@
 pub enum CoreMethodOp {
     ArrayLen,
     ArrayGet,
+    ArrayHas,
     ArraySet,
     ArrayPush,
     MapGet,
@@ -25,6 +26,7 @@ impl CoreMethodOp {
     pub const ALL: &'static [Self] = &[
         Self::ArrayLen,
         Self::ArrayGet,
+        Self::ArrayHas,
         Self::ArraySet,
         Self::ArrayPush,
         Self::MapGet,
@@ -40,6 +42,7 @@ impl CoreMethodOp {
         match self {
             Self::ArrayLen => "ArrayLen",
             Self::ArrayGet => "ArrayGet",
+            Self::ArrayHas => "ArrayHas",
             Self::ArraySet => "ArraySet",
             Self::ArrayPush => "ArrayPush",
             Self::MapGet => "MapGet",

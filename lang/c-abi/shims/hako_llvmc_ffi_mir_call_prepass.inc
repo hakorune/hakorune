@@ -69,8 +69,6 @@
           long long a0 = 0;
           long long a1 = 0;
           struct GenericMethodRouteState route;
-          enum MirCallReceiverFamilyKind recv_family;
-          enum MirCallMethodSurfaceKind method_surface;
           enum MirCallNeedKind need_kind;
           if (args && yyjson_is_arr(args)) {
             if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
@@ -83,12 +81,11 @@
             return;
           }
           route = classify_generic_method_route(bid, ii, bname, mname, recv);
-          recv_family = classify_mir_call_receiver_family(route.recv_org);
-          method_surface = classify_mir_call_method_surface(mname);
           need_kind =
               classify_mir_call_method_need_kind_from_core_method_metadata(bid, ii);
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE) {
-            need_kind = classify_mir_call_method_need_kind(bname, mname, recv_family);
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE &&
+              route.runtime_map_has) {
+            need_kind = HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS;
           }
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF) {
             mark_array_string_indexof_need_flags(

@@ -1,20 +1,14 @@
       enum GenericMethodPushRouteKind {
         HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_NONE = 0,
-        HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_RUNTIME_DATA_APPEND_ANY,
         HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_ARRAY_APPEND_ANY,
       };
 
       auto enum GenericMethodPushRouteKind classify_generic_method_push_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
+        (void)bname;
         if (plan && (plan->runtime_array_push || plan->runtime_array_string)) {
           return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_ARRAY_APPEND_ANY;
-        }
-        if (bname && !strcmp(bname, "ArrayBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_ARRAY_APPEND_ANY;
-        }
-        if (bname && !strcmp(bname, "RuntimeDataBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_RUNTIME_DATA_APPEND_ANY;
         }
         return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_NONE;
       }
@@ -38,14 +32,6 @@
         if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
         enum GenericMethodPushRouteKind route = classify_generic_method_push_route(bname, plan);
         switch (route) {
-          case HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_RUNTIME_DATA_APPEND_ANY:
-            if (dst) {
-              fprintf(f, "  %%r%lld = call i64 @\"nyash.runtime_data.push_hh\"(%s)\n", dst, ab);
-              set_type(dst, T_I64);
-            } else {
-              fprintf(f, "  call i64 @\"nyash.runtime_data.push_hh\"(%s)\n", ab);
-            }
-            return 1;
           case HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_ARRAY_APPEND_ANY:
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);

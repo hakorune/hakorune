@@ -1,0 +1,64 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "generic_method_routes": []
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "mir_call",
+              "dst": 1,
+              "mir_call": {
+                "callee": {
+                  "type": "Constructor",
+                  "box_name": "MapBox"
+                },
+                "args": [],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": 99
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 3,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "MapBox",
+                  "name": "has",
+                  "receiver": 1,
+                  "certainty": "Known"
+                },
+                "args": [2],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

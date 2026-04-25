@@ -8,6 +8,36 @@
     {
       "name": "main",
       "params": [],
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.push",
+            "block": 0,
+            "instruction_index": 2,
+            "box_name": "RuntimeDataBox",
+            "method": "push",
+            "receiver_origin_box": "ArrayBox",
+            "key_route": null,
+            "arity": 1,
+            "receiver_value": 1,
+            "key_value": null,
+            "result_value": 3,
+            "emit_kind": "push",
+            "route_kind": "array_append_any",
+            "helper_symbol": "nyash.array.slot_append_hh",
+            "proof": "push_surface_policy",
+            "core_method": {
+              "op": "ArrayPush",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "cold_fallback"
+            },
+            "return_shape": "scalar_i64",
+            "value_demand": "write_any",
+            "publication_policy": "no_publication",
+            "effects": ["mutate.shape"]
+          }
+        ]
+      },
       "blocks": [
         {
           "id": 0,

@@ -59,6 +59,32 @@
             "effects": ["read.key"]
           },
           {
+            "route_id": "generic_method.set",
+            "block": 0,
+            "instruction_index": 6,
+            "box_name": "RuntimeDataBox",
+            "method": "set",
+            "receiver_origin_box": "MapBox",
+            "key_route": "i64_const",
+            "arity": 2,
+            "receiver_value": 6,
+            "key_value": 2,
+            "result_value": 7,
+            "emit_kind": "set",
+            "route_kind": "map_store_any",
+            "helper_symbol": "nyash.map.slot_store_hhh",
+            "proof": "set_surface_policy",
+            "core_method": {
+              "op": "MapSet",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "cold_fallback"
+            },
+            "return_shape": null,
+            "value_demand": "write_any",
+            "publication_policy": null,
+            "effects": ["mutate.slot"]
+          },
+          {
             "route_id": "generic_method.has",
             "block": 0,
             "instruction_index": 7,

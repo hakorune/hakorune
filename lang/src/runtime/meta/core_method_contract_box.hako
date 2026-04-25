@@ -22,6 +22,7 @@ static box CoreMethodContractBox {
   op_none() { return "None" }
   op_array_len() { return "ArrayLen" }
   op_array_get() { return "ArrayGet" }
+  op_array_has() { return "ArrayHas" }
   op_array_set() { return "ArraySet" }
   op_array_push() { return "ArrayPush" }
   op_map_get() { return "MapGet" }
@@ -113,6 +114,20 @@ static box CoreMethodContractBox {
       me.op_array_get(),
       me.tier_warm_direct_abi(),
       "nyash.array.slot_load_hi",
+      me._runtime_owner_array()
+    )
+  }
+
+  _array_has_row() {
+    return me._row(
+      "ArrayBox",
+      "has",
+      me._aliases0(),
+      "1",
+      me.effect_pure_read(),
+      me.op_array_has(),
+      me.tier_warm_direct_abi(),
+      "nyash.array.has_hh",
       me._runtime_owner_array()
     )
   }
@@ -247,6 +262,7 @@ static box CoreMethodContractBox {
     local out = new ArrayBox()
     out.push(me._array_len_row())
     out.push(me._array_get_row())
+    out.push(me._array_has_row())
     out.push(me._array_set_row())
     out.push(me._array_push_row())
     out.push(me._map_get_row())

@@ -8,6 +8,7 @@
 use super::super::{EffectMask, MirBuilder, MirInstruction, ValueId};
 use super::CallTarget;
 use crate::mir::definitions::call_unified::Callee;
+use crate::mir::definitions::call_unified::TypeCertainty;
 
 impl MirBuilder {
     /// Unified call emission - delegates to UnifiedCallEmitterBox
@@ -135,6 +136,23 @@ impl MirBuilder {
         args: Vec<ValueId>,
     ) -> Result<(), String> {
         self.emit_unified_call(Some(dst), CallTarget::Constructor(box_type), args)
+    }
+
+    /// Emit the transitional post-NewBox birth marker for collection literals.
+    pub fn emit_constructor_birth_marker(
+        &mut self,
+        receiver: ValueId,
+        box_type: &'static str,
+    ) -> Result<(), String> {
+        self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
+            None,
+            receiver,
+            box_type,
+            "birth",
+            vec![],
+            EffectMask::MUT,
+            TypeCertainty::Known,
+        ))
     }
 
     // ========================================

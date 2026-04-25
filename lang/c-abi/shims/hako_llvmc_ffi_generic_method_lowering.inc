@@ -560,13 +560,6 @@
         }
 
         switch (emit_kind) {
-          case HAKO_LLVMC_GENERIC_METHOD_EMIT_BIRTH_ZERO:
-            if (dst) {
-              fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
-              set_type(dst, T_I64);
-            }
-            return 1;
-
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_SET: {
             int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
             int array_set_string_handle = a1 && get_origin(a1) == ORG_STRING;
@@ -578,14 +571,6 @@
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
             if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
             switch (set_route) {
-              case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY:
-                if (dst) {
-                  fprintf(f, "  %%r%lld = call i64 @\"nyash.runtime_data.set_hhh\"(%s)\n", dst, ab);
-                  set_type(dst, T_I64);
-                } else {
-                  fprintf(f, "  call i64 @\"nyash.runtime_data.set_hhh\"(%s)\n", ab);
-                }
-                break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY:
                 /* owner route: `MapStoreAny`
                  * intended canonical MIR reading: `store.map.value`

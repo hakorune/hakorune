@@ -110,16 +110,7 @@ impl super::MirBuilder {
                         self.type_ctx
                             .value_types
                             .insert(pid, super::MirType::Box("ArrayBox".to_string()));
-                        // Explicitly call birth() to initialize internal state
-                        self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
-                            None,
-                            pid,
-                            "ArrayBox",
-                            "birth",
-                            vec![],
-                            super::EffectMask::MUT,
-                            crate::mir::definitions::call_unified::TypeCertainty::Known,
-                        ))?;
+                        self.emit_constructor_birth_marker(pid, "ArrayBox")?;
                         if let Some(args) = script_args.as_ref() {
                             for arg in args {
                                 let val = crate::mir::builder::emission::constant::emit_string(

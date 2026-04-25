@@ -1,0 +1,91 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "generic_method_routes": [
+          {
+            "route_id": "generic_method.has",
+            "block": 0,
+            "instruction_index": 2,
+            "box_name": "ArrayBox",
+            "method": "has",
+            "receiver_origin_box": "ArrayBox",
+            "key_route": "i64_const",
+            "arity": 1,
+            "receiver_value": 1,
+            "key_value": 2,
+            "result_value": 3,
+            "emit_kind": "has",
+            "route_kind": "array_contains_any",
+            "helper_symbol": "nyash.array.has_hh",
+            "proof": "has_surface_policy",
+            "core_method": {
+              "op": "ArrayHas",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": ["probe.key"]
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "mir_call",
+              "dst": 1,
+              "mir_call": {
+                "callee": {
+                  "type": "Constructor",
+                  "box_name": "ArrayBox"
+                },
+                "args": [],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 3,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "ArrayBox",
+                  "name": "has",
+                  "receiver": 1,
+                  "certainty": "Known"
+                },
+                "args": [2],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

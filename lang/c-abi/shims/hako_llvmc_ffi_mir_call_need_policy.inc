@@ -4,11 +4,13 @@
         int map_size;
         int map_get;
         int map_has;
+        int runtime_data_has;
         int arr_birth;
         int arr_push;
         int arr_len;
         int arr_set;
         int arr_get;
+        int arr_has;
         int arr_slot_load;
         int arr_kernel_slot_concat_by_index;
         int arr_string_indexof;
@@ -29,11 +31,13 @@
         HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE,
         HAKO_LLVMC_MIR_CALL_NEED_MAP_GET,
         HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS,
+        HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET,
+        HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING,
@@ -63,6 +67,9 @@
           case HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS:
             needs->map_has = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS:
+            needs->runtime_data_has = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH:
             needs->arr_birth = 1;
             break;
@@ -78,6 +85,9 @@
           case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET:
             needs->arr_get = 1;
             needs->arr_slot_load = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS:
+            needs->arr_has = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF:
             needs->arr_string_indexof = 1;
@@ -128,6 +138,25 @@
       }
 
       auto enum MirCallNeedKind
+      mir_call_need_kind_from_route_metadata_tokens(
+          const char* route_id,
+          const char* route_kind,
+          const char* helper_symbol,
+          const char* proof) {
+        if (route_id &&
+            !strcmp(route_id, "generic_method.has") &&
+            route_kind &&
+            !strcmp(route_kind, "runtime_data_contains_any") &&
+            helper_symbol &&
+            !strcmp(helper_symbol, "nyash.runtime_data.has_hh") &&
+            proof &&
+            !strcmp(proof, "has_surface_policy")) {
+          return HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS;
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
+      auto enum MirCallNeedKind
       mir_call_need_kind_from_core_method_route_tokens(
           const char* route_id,
           const char* op,
@@ -160,6 +189,12 @@
              !strcmp(route_kind, "map_contains_i64")) &&
             core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
           return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
+        }
+        if (!strcmp(route_id, "generic_method.has") &&
+            !strcmp(op, "ArrayHas") &&
+            !strcmp(route_kind, "array_contains_any") &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS;
         }
         if (!strcmp(route_id, "generic_method.len") &&
             !strcmp(op, "MapLen") &&
@@ -228,6 +263,8 @@
           yyjson_val* core_method = NULL;
           const char* route_id = route ? read_str(route, "route_id") : NULL;
           const char* route_kind = route ? read_str(route, "route_kind") : NULL;
+          const char* helper_symbol = route ? read_str(route, "helper_symbol") : NULL;
+          const char* proof_raw = route ? read_str(route, "proof") : NULL;
           const char* op = NULL;
           long long block = 0;
           long long inst = 0;
@@ -244,6 +281,14 @@
               block != bid ||
               (size_t)inst != ii) {
             continue;
+          }
+          {
+            enum MirCallNeedKind route_need =
+                mir_call_need_kind_from_route_metadata_tokens(
+                    route_id, route_kind, helper_symbol, proof_raw);
+            if (route_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
+              return route_need;
+            }
           }
           core_method = yyjson_obj_get(route, "core_method");
           if (!(core_method && yyjson_is_obj(core_method))) {
@@ -262,38 +307,6 @@
               route_kind,
               lowering_tier);
         }
-        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
-      }
-
-      auto enum MirCallNeedKind classify_mir_call_method_need_kind(
-          const char* bname,
-          const char* mname,
-          enum MirCallReceiverFamilyKind recv_family) {
-        enum MirCallReceiverSurfaceKind recv_surface;
-        enum MirCallMethodSurfaceKind method_surface;
-        if (!(bname && mname)) return HAKO_LLVMC_MIR_CALL_NEED_NONE;
-        recv_surface = classify_mir_call_receiver_surface(bname);
-        method_surface = classify_mir_call_method_surface(mname);
-        if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN) {
-          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
-        }
-
-        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX &&
-            method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
-        }
-
-        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_RUNTIME_DATA_BOX &&
-            method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
-          if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_BIRTH ||
-              recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH) {
-            return HAKO_LLVMC_MIR_CALL_NEED_NONE;
-          }
-          if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH) {
-            return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
-          }
-        }
-
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 

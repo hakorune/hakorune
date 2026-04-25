@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-25
+Date: 2026-04-26
 Scope: CoreBox surface catalog を ArrayBox から StringBox / MapBox へ広げる phase front。
 Related:
   - CURRENT_TASK.md
@@ -14,6 +14,21 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
+  - docs/development/current/main/phases/phase-291x/291x-smoke-index.md
+  - docs/development/current/main/phases/phase-291x/291x-249-constructor-birth-compatibility-contract-card.md
+  - docs/development/current/main/phases/phase-291x/291x-250-constructor-birth-carrier-design-card.md
+  - docs/development/current/main/phases/phase-291x/291x-253-birth-compat-deletion-criteria-card.md
+  - docs/development/current/main/phases/phase-291x/291x-254-birth-emit-kind-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md
+  - docs/development/current/main/phases/phase-291x/291x-256-mir-call-arraybox-receiver-surface-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-257-mir-call-mapbox-receiver-surface-review-card.md
+  - docs/development/current/main/phases/phase-291x/291x-258-mir-call-runtime-data-receiver-surface-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-268-arrayhas-core-method-carrier-card.md
+  - docs/development/current/main/phases/phase-291x/291x-269-arraybox-has-route-fallback-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-270-runtime-data-has-route-fallback-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-271-generic-has-emit-kind-fallback-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-272-mir-call-maphas-surface-fallback-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-273-runtime-data-has-declare-need-flag-card.md
   - docs/development/current/main/phases/phase-291x/291x-93-mapbox-surface-task-board.md
   - docs/development/current/main/phases/phase-291x/291x-94-map-std-prelude-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md
@@ -109,14 +124,16 @@ Related:
 # Phase 291x: CoreBox surface catalog
 
 - Status: Active reference lane
-- Date: 2026-04-24
+- Date: 2026-04-26
 - Purpose: phase-290x の `ArrayBox` catalog/invoke seam を、CoreBox surface の横断ルールへ上げる。
 - Landed implementation targets:
   - `StringBox`
   - `MapBox` first current-vtable slice
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: metadata-absent direct set boundary coverage
+- Next implementation target: select next compiler-clean cleanup card
+- Canonical smoke index:
+  `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - phase-137x remains observe-only unless app work produces a real blocker
@@ -403,6 +420,33 @@ phase-291x の初回実装は `StringBox` だけに閉じる。
 - `291x-185` pins the direct `RuntimeDataBox` set storage-route branch as
   required fallback until RuntimeData set metadata or metadata-absent boundary
   coverage exists
+- `291x-265` prunes the `RuntimeDataBox.get` route-policy fallback after
+  confirming RuntimeData get metadata coverage and repairing the dispatch E2E
+  fixture's missing `RuntimeDataBox.set(MapBox)` metadata boundary
+- `291x-266` prunes the `RuntimeDataBox.set` storage-route fallback and retires
+  the `RuntimeDataStoreAny` route vocabulary; remaining no-growth rows are now
+  has/push/MIR-surface only
+- `291x-267` prunes the `RuntimeDataBox.push` route fallback and retires the
+  `RuntimeDataAppendAny` route vocabulary; remaining no-growth rows are now
+  has/MIR-surface only
+- `291x-268` lands the `ArrayHas` CoreMethod carrier for direct `ArrayBox.has`
+  and Array-origin `RuntimeDataBox.has`, but intentionally keeps the then
+  remaining five no-growth rows pinned until a separate fallback prune evidence
+  card
+- `291x-269` prunes the direct `ArrayBox.has` route fallback after ArrayHas
+  metadata coverage; remaining no-growth rows are now
+  `classifiers=4 rows=4`
+- `291x-270` prunes the `RuntimeDataBox.has` route fallback after metadata
+  coverage; remaining no-growth rows are now `classifiers=3 rows=3`
+- `291x-271` prunes the generic method-name `has` emit-kind fallback after
+  adding a metadata-absent direct `MapBox.has` fixture/smoke; remaining
+  no-growth rows are now `classifiers=2 rows=2`
+- `291x-272` closes the has-route fallback series: the final two no-growth rows
+  are intentionally retained as a paired MIR-call `MapBox + has` surface
+  fallback, pinned by `map_has_no_metadata_min_v1.mir.json`
+- `291x-273` makes `nyash.runtime_data.has_hh` declaration demand-driven via
+  `needs.runtime_data_has`; both `runtime_data_contains_any` metadata and the
+  paired `MapBox + has` fallback still declare the helper when needed
 - `291x-186` scopes the MIR-call route-policy `set` method surface row as a
   one-row prune probe only; generic set fallback rows stay out of scope
 - `291x-187` rejects pruning that MIR-call `set` method surface row because
