@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-231"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-231-method-specific-route-no-growth-guard-card.md"
-latest_card_summary = "Method-specific get/len/push route classifiers are now tracked by the .inc no-growth guard; baseline is classifiers=20 rows=20."
+latest_card = "291x-232"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-232-method-specific-dead-demand-helper-cleanup-card.md"
+latest_card_summary = "Dead get/len/push demand helper functions were removed; route selection and no-growth baseline remain unchanged."
 
 current_blocker_token = "phase-291x remaining inc mirror cleanup selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -44,6 +44,7 @@ landed_tail = [
   "291x-229 dead array has need flag removed",
   "291x-230 dead runtime_array_has route-state removed",
   "291x-231 get/len/push route classifiers added to no-growth guard",
+  "291x-232 dead method-specific demand helpers removed",
 ]
 
 stale_pointer_patterns = [
