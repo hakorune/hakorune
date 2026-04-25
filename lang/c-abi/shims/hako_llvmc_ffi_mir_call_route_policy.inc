@@ -290,9 +290,6 @@
           const char* mname,
           long long recv) {
         struct GenericMethodRouteState route;
-        enum MirCallReceiverFamilyKind recv_family;
-        enum MirCallReceiverSurfaceKind recv_surface;
-        enum MirCallMethodSurfaceKind method_surface;
         enum MirCallGenericMethodRouteKind route_kind;
         (void)bid;
         (void)ii;
@@ -306,13 +303,14 @@
                 bid,
                 ii);
         if (route_kind == HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
-          recv_family = classify_mir_call_receiver_family(route.recv_org);
-          recv_surface = classify_mir_call_receiver_surface(bname);
-          method_surface = classify_mir_call_method_surface(mname);
+          enum MirCallReceiverFamilyKind recv_family =
+              classify_mir_call_receiver_family(route.recv_org);
+          enum MirCallReceiverSurfaceKind recv_surface =
+              classify_mir_call_receiver_surface(bname);
+          enum MirCallMethodSurfaceKind method_surface =
+              classify_mir_call_method_surface(mname);
           route_kind = classify_mir_call_generic_method_route_kind(
               recv_surface, method_surface, recv_family);
-        } else {
-          method_surface = classify_mir_call_method_surface(mname);
         }
         apply_mir_call_generic_method_route_kind(route_kind, &route);
         route.deferred_array_string_indexof =
