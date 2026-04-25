@@ -29,20 +29,18 @@ Notes
   and JoinIR fixture surface, not the live BuildBox dependency.
 - `BuildBundleResolverBox` owns live bundle duplicate/require validation and
   merged-prefix materialization for BuildBox.
+- `BuildBundleInputBox` owns live bundle opts/env input collection, alias-table
+  parsing, require CSV parsing, and bundle-input presence checks for BuildBox.
 - `BodyExtractionBox` owns parse-source narrowing from wrapped `Main.main`
   sources to the method body.
 - Current shape:
   - `scan_src`: full merged source, used for `FuncScannerBox` / `UsingCollectorBox`
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
   - owner-local helper split:
-    - `_prepare_scan_src(...)`: bundle/env normalization plus bundle resolver handoff
+    - `_prepare_scan_src(...)`: bundle input collector plus resolver handoff
     - `_new_prepare_scan_src_result(...)` / `_fail_prepare_scan_src(...)` / `_apply_prepare_scan_src_result(...)` / `_resolve_prepare_scan_src_if_needed(...)`: prepared-scan-src result/error/resolve handoff only
-    - `_bundle_inputs_requested(...)` / `_resolve_scan_src_from_bundle_ctx(...)`: bundle resolve decision plus `BuildBundleResolverBox` call only
-    - `_ensure_bundle_alias_arrays(...)` / `_ensure_require_mods_array(...)`: bundle ctx container setup only
-    - `_fail_bundle_ctx(...)`: bundle opts validation error handoff only
-    - `_collect_named_bundle_inputs(...)`: named-bundle pair validation and assign only
-    - `_collect_plain_bundle_inputs(...)` / `_collect_require_mod_inputs(...)`: plain bundle / require-mod validation and assign only
-    - `_coerce_text(...)` / `_coerce_array_item_text(...)` / `_non_empty_text(...)`: owner-local legacy stringify / empty-text checks only
+    - `_resolve_scan_src_from_bundle_ctx(...)`: `BuildBundleResolverBox` call only
+    - `_coerce_text(...)`: owner-local legacy stringify only
     - `_parse_program_json(...)`: parser entry only
     - `_main_body_parse_src_if_present(...)`: parse-src narrowing helper only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only

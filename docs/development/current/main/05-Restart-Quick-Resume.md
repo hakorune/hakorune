@@ -33,15 +33,16 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x BuildBox parse-source SSOT landed; next bundle input collector split`
+- current blocker token: `phase-291x BuildBox bundle input collector split landed; next defs/imports fragment injector split`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-282` delegated BuildBox parse-source narrowing
-  to `BodyExtractionBox` and removed duplicate body scanner helpers
+- latest known checkpoint: `291x-283` delegated bundle opts/env input
+  collection, alias parsing, require CSV parsing, and requested checks to
+  `BuildBundleInputBox`
 - no-growth checkpoint: `classifiers=2 rows=2` is the intentional paired
   MIR-call `MapBox + has` fallback baseline
 - worktree expectation: clean after the last commit unless an active slice is

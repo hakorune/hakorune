@@ -37,15 +37,16 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x BuildBox parse-source SSOT landed; next bundle input collector split`
+- current blocker token: `phase-291x BuildBox bundle input collector split landed; next defs/imports fragment injector split`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-282` delegated BuildBox parse-source narrowing
-  to `BodyExtractionBox` and removed duplicate body scanner helpers
+- latest known checkpoint: `291x-283` delegated bundle opts/env input
+  collection, alias parsing, require CSV parsing, and requested checks to
+  `BuildBundleInputBox`
 - current no-growth baseline: `classifiers=2 rows=2`, intentionally covering
   the paired MIR-call `MapBox + has` surface fallback
 - worktree expectation: clean unless the active slice is in progress
@@ -71,11 +72,10 @@ Scope: current lane / next lane / restart order only.
 ## Current Ordered Cleanup
 
 - latest cleanup card:
-  `docs/development/current/main/phases/phase-291x/291x-282-buildbox-parse-source-narrowing-ssot-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-283-buildbox-bundle-input-collector-split-card.md`
 - order:
-  1. `291x-283`: BuildBox bundle input collector split
-  2. `291x-284`: BuildBox defs/imports fragment injector split
-  3. `291x-285`: BuildBox facade closeout docs/checks
+  1. `291x-284`: BuildBox defs/imports fragment injector split
+  2. `291x-285`: BuildBox facade closeout docs/checks
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
