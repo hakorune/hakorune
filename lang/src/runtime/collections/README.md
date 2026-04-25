@@ -103,8 +103,8 @@ Rule:
   - `push_route(box_name, runtime_array_push, runtime_array_string)` and `should_promote_array_string_birth_after_push(...)`
     -> second generic-method action route vocabulary for append / array-string promotion
   - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_push_policy.inc`
-  - `has_route(box_name, runtime_array_has, runtime_map_has)`
-    -> third generic-method action route vocabulary for array contains / map probe
+  - `has_route(box_name, runtime_map_has)`
+    -> third generic-method action route vocabulary for RuntimeData facade / map probe
   - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_has_policy.inc`
   - `substring_route(matches_insert_window)`
     -> fourth generic-method action route vocabulary for insert-window vs direct `substring_hii`

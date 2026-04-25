@@ -24,7 +24,6 @@
         int runtime_array_len;
         int runtime_array_get;
         int runtime_array_push;
-        int runtime_array_has;
         int runtime_string;
         int runtime_array_string;
         int array_store_string_source_preserve;
@@ -81,8 +80,7 @@
              plan->runtime_array_string ||
              plan->runtime_array_push ||
              plan->runtime_array_get ||
-             plan->runtime_array_len ||
-             plan->runtime_array_has)) {
+             plan->runtime_array_len)) {
           arrayish = 1;
         }
         if (arrayish) {
@@ -101,6 +99,5 @@
           int value_is_string_handle) {
         if (!plan || !value_is_string_handle) return 0;
         return plan->runtime_array_string || plan->runtime_array_push ||
-               plan->runtime_array_get || plan->runtime_array_len ||
-               plan->runtime_array_has;
+               plan->runtime_array_get || plan->runtime_array_len;
       }

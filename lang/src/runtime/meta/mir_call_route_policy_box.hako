@@ -27,7 +27,6 @@ static box MirCallRoutePolicy {
       if method_name == "len" || method_name == "length" || method_name == "size" { return "runtime_array_len" }
       if method_name == "get" { return "runtime_array_get" }
       if method_name == "push" { return "runtime_array_push" }
-      if method_name == "has" { return "runtime_array_has" }
       return "fallback"
     }
 
@@ -51,7 +50,6 @@ static box MirCallRoutePolicy {
         if method_name == "get" && recv_family == "ArrayStringBirth" { return "runtime_array_string" }
         if method_name == "get" { return "runtime_array_get" }
         if method_name == "push" { return "runtime_array_push" }
-        if method_name == "has" { return "runtime_array_has" }
         return "fallback"
       }
 

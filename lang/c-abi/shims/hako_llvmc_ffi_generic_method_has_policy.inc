@@ -258,7 +258,7 @@
         }
         if ((bname && !strcmp(bname, "ArrayBox")) ||
             (bname && !strcmp(bname, "RuntimeDataBox")) ||
-            (plan && (plan->runtime_array_has || plan->runtime_map_has))) {
+            (plan && plan->runtime_map_has)) {
           return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY;
         }
         return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;

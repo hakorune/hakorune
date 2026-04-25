@@ -13,7 +13,7 @@
         generic_method_trace_budget--;
         char extra[384];
         snprintf(extra, sizeof(extra),
-                 "ii=%zu dst=%lld recv=%lld recv_org=%d ctype=%s bname=%s mname=%s a0=%lld a1=%lld flags=len:%d get:%d push:%d has:%d string:%d string_indexof:%d array_string:%d map_get:%d map_size:%d map_has:%d",
+                 "ii=%zu dst=%lld recv=%lld recv_org=%d ctype=%s bname=%s mname=%s a0=%lld a1=%lld flags=len:%d get:%d push:%d string:%d string_indexof:%d array_string:%d map_get:%d map_size:%d map_has:%d",
                  ii, dst, recv, route->recv_org,
                  ctype ? ctype : "-",
                  bname ? bname : "-",
@@ -22,7 +22,6 @@
                  route->runtime_array_len,
                  route->runtime_array_get,
                  route->runtime_array_push,
-                 route->runtime_array_has,
                  route->runtime_string,
                  route->runtime_string_indexof,
                  route->runtime_array_string,

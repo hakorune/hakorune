@@ -237,11 +237,11 @@ static box CollectionMethodPolicyBox {
     return me.should_promote_array_string_birth(runtime_array_like, value_is_string_handle)
   }
 
-  has_route(box_name, runtime_array_has, runtime_map_has) {
+  has_route(box_name, runtime_map_has) {
     if box_name == "RuntimeDataBox" {
       return me.route_runtime_data_contains_any()
     }
-    if runtime_array_has == 1 {
+    if box_name == "ArrayBox" {
       return me.route_runtime_data_contains_any()
     }
     if box_name == "MapBox" || runtime_map_has == 1 {

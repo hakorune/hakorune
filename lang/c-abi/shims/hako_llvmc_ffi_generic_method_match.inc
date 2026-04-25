@@ -230,7 +230,6 @@
           plan->runtime_array_len = route->runtime_array_len;
           plan->runtime_array_get = route->runtime_array_get;
           plan->runtime_array_push = route->runtime_array_push;
-          plan->runtime_array_has = route->runtime_array_has;
           plan->runtime_string = route->runtime_string;
           plan->runtime_array_string = route->runtime_array_string;
           plan->array_store_string_source_preserve =

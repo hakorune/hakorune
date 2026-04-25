@@ -25,7 +25,6 @@
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_LEN,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH,
-        HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_STRING,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF,
@@ -36,7 +35,6 @@
         int runtime_array_len;
         int runtime_array_get;
         int runtime_array_push;
-        int runtime_array_has;
         int runtime_string;
         int runtime_string_indexof;
         int runtime_array_string;
@@ -97,11 +95,6 @@
           return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS;
         }
 
-        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_ARRAY_BOX &&
-            method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
-          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS;
-        }
-
         if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_RUNTIME_DATA_BOX &&
             method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH) {
@@ -109,7 +102,7 @@
           }
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_BIRTH ||
               recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS;
+            return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
           }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
@@ -260,9 +253,6 @@
             break;
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH:
             route->runtime_array_push = 1;
-            break;
-          case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_HAS:
-            route->runtime_array_has = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_STRING:
             route->runtime_array_string = 1;
