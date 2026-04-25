@@ -65,6 +65,90 @@
             "effects": [
               "read.key"
             ]
+          },
+          {
+            "route_id": "generic_method.substring",
+            "block": 0,
+            "instruction_index": 11,
+            "box_name": "RuntimeDataBox",
+            "method": "substring",
+            "receiver_origin_box": "StringBox",
+            "key_route": null,
+            "arity": 2,
+            "receiver_value": 6,
+            "key_value": null,
+            "result_value": 11,
+            "emit_kind": "substring",
+            "route_kind": "string_substring",
+            "helper_symbol": "nyash.string.substring_hii",
+            "proof": "substring_surface_policy",
+            "core_method": {
+              "op": "StringSubstring",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": [
+              "observe.substring"
+            ]
+          },
+          {
+            "route_id": "generic_method.substring",
+            "block": 0,
+            "instruction_index": 12,
+            "box_name": "RuntimeDataBox",
+            "method": "substring",
+            "receiver_origin_box": "StringBox",
+            "key_route": null,
+            "arity": 2,
+            "receiver_value": 6,
+            "key_value": null,
+            "result_value": 12,
+            "emit_kind": "substring",
+            "route_kind": "string_substring",
+            "helper_symbol": "nyash.string.substring_hii",
+            "proof": "substring_surface_policy",
+            "core_method": {
+              "op": "StringSubstring",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": [
+              "observe.substring"
+            ]
+          },
+          {
+            "route_id": "generic_method.set",
+            "block": 0,
+            "instruction_index": 18,
+            "box_name": "RuntimeDataBox",
+            "method": "set",
+            "receiver_origin_box": "ArrayBox",
+            "key_route": "i64_const",
+            "arity": 2,
+            "receiver_value": 2,
+            "key_value": 3,
+            "result_value": null,
+            "emit_kind": "set",
+            "route_kind": "array_store_any",
+            "helper_symbol": "nyash.array.slot_store_*",
+            "proof": "set_surface_policy",
+            "core_method": {
+              "op": "ArraySet",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "cold_fallback"
+            },
+            "return_shape": null,
+            "value_demand": "write_any",
+            "publication_policy": null,
+            "effects": [
+              "mutate.slot"
+            ]
           }
         ],
         "value_consumer_facts": {

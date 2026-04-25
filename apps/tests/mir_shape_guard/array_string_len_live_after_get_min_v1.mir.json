@@ -65,6 +65,62 @@
             "effects": [
               "read.key"
             ]
+          },
+          {
+            "route_id": "generic_method.substring",
+            "block": 0,
+            "instruction_index": 14,
+            "box_name": "RuntimeDataBox",
+            "method": "substring",
+            "receiver_origin_box": "StringBox",
+            "key_route": null,
+            "arity": 2,
+            "receiver_value": 8,
+            "key_value": null,
+            "result_value": 14,
+            "emit_kind": "substring",
+            "route_kind": "string_substring",
+            "helper_symbol": "nyash.string.substring_hii",
+            "proof": "substring_surface_policy",
+            "core_method": {
+              "op": "StringSubstring",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": [
+              "observe.substring"
+            ]
+          },
+          {
+            "route_id": "generic_method.substring",
+            "block": 0,
+            "instruction_index": 15,
+            "box_name": "RuntimeDataBox",
+            "method": "substring",
+            "receiver_origin_box": "StringBox",
+            "key_route": null,
+            "arity": 2,
+            "receiver_value": 8,
+            "key_value": null,
+            "result_value": 15,
+            "emit_kind": "substring",
+            "route_kind": "string_substring",
+            "helper_symbol": "nyash.string.substring_hii",
+            "proof": "substring_surface_policy",
+            "core_method": {
+              "op": "StringSubstring",
+              "proof": "core_method_contract_manifest",
+              "lowering_tier": "warm_direct_abi"
+            },
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": [
+              "observe.substring"
+            ]
           }
         ],
         "array_string_len_window_routes": [

@@ -158,7 +158,7 @@
                 bid, ii, &string_len_route_match)) {
           if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
           if (string_len_route_match.source_only_insert_mid) {
-            if (dst && runtime_array_string) {
+            if (dst) {
               remember_array_string_get_source(dst, recv, a0);
               set_type(dst, T_I64);
               set_origin(dst, ORG_STRING);
@@ -174,7 +174,7 @@
           if (string_len_route_match.keep_get_live) {
             hako_llvmc_emit_array_slot_load(
                 f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF);
-            if (dst && runtime_array_string) {
+            if (dst) {
               remember_array_string_get_source(dst, recv, a0);
             }
           }

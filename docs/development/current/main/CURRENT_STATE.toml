@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-238"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-238-array-string-indexof-observer-fixture-repair-card.md"
-latest_card_summary = "Active array-string indexOf boundary fixtures now carry MIR-owned observer metadata, and their smokes check current route evidence instead of retired exact-window trace tags."
+latest_card = "291x-239"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-239-array-string-len-substring-fixture-repair-card.md"
+latest_card_summary = "Array-string len/substring boundary fixtures now carry StringSubstring and same-slot ArraySet metadata, and get-window source tracking trusts MIR len-window metadata hits."
 
 current_blocker_token = "phase-291x remaining inc mirror cleanup selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -51,6 +51,7 @@ landed_tail = [
   "291x-236 maplookup fusion smoke repaired",
   "291x-237 array-string push/get metadata fixtures swept",
   "291x-238 array-string indexOf observer boundary smokes repaired",
+  "291x-239 array-string len/substring boundary smokes repaired",
 ]
 
 stale_pointer_patterns = [
