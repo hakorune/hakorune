@@ -29,6 +29,8 @@ Notes
   and JoinIR fixture surface, not the live BuildBox dependency.
 - `BuildBundleResolverBox` owns live bundle duplicate/require validation and
   merged-prefix materialization for BuildBox.
+- `BodyExtractionBox` owns parse-source narrowing from wrapped `Main.main`
+  sources to the method body.
 - Current shape:
   - `scan_src`: full merged source, used for `FuncScannerBox` / `UsingCollectorBox`
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
@@ -44,7 +46,7 @@ Notes
     - `_parse_program_json(...)`: parser entry only
     - `_main_body_parse_src_if_present(...)`: parse-src narrowing helper only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
-    - `_parse_program_json_from_scan_src(...)`: parse-source narrowing plus parser call only
+    - `_parse_program_json_from_scan_src(...)`: parse-source narrowing handoff plus parser call only
     - `_inject_stageb_fragments_json(...)`: defs/imports enrichment tail only
     - `_build_defs_fragment_json(...)`: defs-scan plus defs-fragment build only
     - `_inject_defs_json(...)` / `_inject_imports_json(...)`: Stage-B fragment injection only

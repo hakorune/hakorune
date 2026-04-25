@@ -44,6 +44,7 @@ entry.compiler = "entry/compiler.hako"
 entry.compiler_stageb = "entry/compiler_stageb.hako"
 entry.stageb.stageb_json_builder_box = "entry/stageb/stageb_json_builder_box.hako"
 entry.bundle_resolver = "entry/bundle_resolver.hako"
+entry.body_extraction_box = "entry/body_extraction_box.hako"
 entry.using_resolver = "entry/using_resolver_box.hako"
 
 # MIR builder JSON v0 helpers

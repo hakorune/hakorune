@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x BuildBox remaining cleanup order landed; next parse-source SSOT handoff`
+- current blocker token: `phase-291x BuildBox parse-source SSOT landed; next bundle input collector split`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -28,9 +28,8 @@ Related:
 
 - continue compiler-clean BoxShape cleanup; do not reopen metadata-absent direct
   `MapBox.has` unless an owner-path change retires that fallback baseline
-- cleanup checkpoint: latest known landed card `291x-281`; remaining BuildBox
-  cleanup is ordered, and next implementation is parse-source narrowing SSOT
-  handoff to `BodyExtractionBox`
+- cleanup checkpoint: latest known landed card `291x-282`; BuildBox
+  parse-source narrowing now delegates to `BodyExtractionBox`
 - no-growth checkpoint: `classifiers=2 rows=2` remains the intentional paired
   MIR-call `MapBox + has` surface fallback baseline
 - task-order source:
