@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-26"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, Stage-B adapter thinning slices, route-policy mirror preflight, MapHas/MapGet/Len/Substring/Push/Set metadata-first emit-kind selection, Set storage-route metadata-first selection, set ArrayBox storage-route mirror prune, RuntimeData set fallback contract, remaining .inc mirror inventory, MIR-call Set need metadata consumer, RuntimeData get route fallback prune, RuntimeData set route fallback prune, RuntimeData push route fallback prune, ArrayHas CoreMethod carrier, ArrayBox has route fallback prune, RuntimeData has route fallback prune, generic has emit-kind fallback prune, MIR-call MapBox+has surface fallback closeout, RuntimeData has declaration need-flag cleanup, Stage-B BuildBox handoff adapter cleanup, dead Stage-B same-source defs helper removal, Stage-B bundle CLI facade cleanup, Stage-B legacy boundary/smoke helper cleanup, BuildBox bundle resolver split, BuildBox remaining cleanup order, BuildBox parse-source narrowing SSOT handoff, and BuildBox bundle input collector split are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed. The first MapHas, MapGet, Len, Substring, Push, Set, and MIR-call Set surface mirror-row prune probes were rejected because metadata-absent boundary MIR JSON still relies on legacy fallback rows; the post-need-consumer retry also rejected direct Array/Map set metadata-absent boundaries. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, Stage-B adapter thinning slices, route-policy mirror preflight, MapHas/MapGet/Len/Substring/Push/Set metadata-first emit-kind selection, Set storage-route metadata-first selection, set ArrayBox storage-route mirror prune, RuntimeData set fallback contract, remaining .inc mirror inventory, MIR-call Set need metadata consumer, RuntimeData get route fallback prune, RuntimeData set route fallback prune, RuntimeData push route fallback prune, ArrayHas CoreMethod carrier, ArrayBox has route fallback prune, RuntimeData has route fallback prune, generic has emit-kind fallback prune, MIR-call MapBox+has surface fallback closeout, RuntimeData has declaration need-flag cleanup, Stage-B BuildBox handoff adapter cleanup, dead Stage-B same-source defs helper removal, Stage-B bundle CLI facade cleanup, Stage-B legacy boundary/smoke helper cleanup, BuildBox bundle resolver split, BuildBox remaining cleanup order, BuildBox parse-source narrowing SSOT handoff, BuildBox bundle input collector split, and BuildBox fragment injector split are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed. The first MapHas, MapGet, Len, Substring, Push, Set, and MIR-call Set surface mirror-row prune probes were rejected because metadata-absent boundary MIR JSON still relies on legacy fallback rows; the post-need-consumer retry also rejected direct Array/Map set metadata-absent boundaries. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-283"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-283-buildbox-bundle-input-collector-split-card.md"
-latest_card_summary = "BuildBox now delegates bundle opts/env input collection, alias parsing, require CSV parsing, and requested checks to BuildBundleInputBox."
+latest_card = "291x-284"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-284-buildbox-fragment-injector-split-card.md"
+latest_card_summary = "BuildBox now delegates defs/imports fragment construction and Program(JSON v0) fragment injection to BuildProgramFragmentBox."
 
-current_blocker_token = "phase-291x BuildBox bundle input collector split landed; next defs/imports fragment injector split"
+current_blocker_token = "phase-291x BuildBox fragment injector split landed; next facade closeout docs/checks"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -96,6 +96,7 @@ landed_tail = [
   "291x-281 BuildBox remaining cleanup order landed",
   "291x-282 BuildBox parse-source narrowing SSOT handoff landed",
   "291x-283 BuildBox bundle input collector split landed",
+  "291x-284 BuildBox fragment injector split landed",
 ]
 
 stale_pointer_patterns = [
@@ -197,4 +198,5 @@ stale_pointer_patterns = [
   "phase-291x generic has emit-kind and MIR-surface fallback evidence pending",
   "phase-291x MIR-call MapBox has surface fallback final review pending",
   "phase-291x BuildBox parse-source SSOT landed; next bundle input collector split",
+  "phase-291x BuildBox bundle input collector split landed; next defs/imports fragment injector split",
 ]

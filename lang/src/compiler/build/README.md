@@ -31,10 +31,12 @@ Notes
   merged-prefix materialization for BuildBox.
 - `BuildBundleInputBox` owns live bundle opts/env input collection, alias-table
   parsing, require CSV parsing, and bundle-input presence checks for BuildBox.
+- `BuildProgramFragmentBox` owns live defs/imports fragment construction,
+  using-to-imports conversion, and Program(JSON v0) fragment injection.
 - `BodyExtractionBox` owns parse-source narrowing from wrapped `Main.main`
   sources to the method body.
 - Current shape:
-  - `scan_src`: full merged source, used for `FuncScannerBox` / `UsingCollectorBox`
+  - `scan_src`: full merged source, observed by `BuildProgramFragmentBox`
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
   - owner-local helper split:
     - `_prepare_scan_src(...)`: bundle input collector plus resolver handoff
@@ -45,8 +47,4 @@ Notes
     - `_main_body_parse_src_if_present(...)`: parse-src narrowing helper only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
     - `_parse_program_json_from_scan_src(...)`: parse-source narrowing handoff plus parser call only
-    - `_inject_stageb_fragments_json(...)`: defs/imports enrichment tail only
-    - `_build_defs_fragment_json(...)`: defs-scan plus defs-fragment build only
-    - `_inject_defs_json(...)` / `_inject_imports_json(...)`: Stage-B fragment injection only
-    - `_defs_scan_enabled(...)` / `_inject_defs_fragment_if_present(...)`: defs gate and inject tail only
-    - `_build_imports_fragment_json(...)` / `_inject_imports_fragment_if_present(...)`: imports-fragment build and inject tail only
+    - `BuildProgramFragmentBox.enrich(...)`: defs/imports enrichment handoff only

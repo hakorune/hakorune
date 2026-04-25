@@ -1,0 +1,182 @@
+// BuildProgramFragmentBox - Program(JSON v0) enrichment for live BuildBox.
+// This box owns defs/imports fragment construction and JSON fragment injection.
+// It does not own source preparation or parser invocation.
+
+using "lang.compiler.parser.using.using_collector_box" as UsingCollectorBox
+using lang.compiler.entry.func_scanner as FuncScannerBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box BuildProgramFragmentBox {
+  method enrich(ast_json, scan_src) {
+    local enriched = me._inject_defs_json(ast_json, scan_src)
+    if me._is_freeze_tag(enriched) == 1 { return enriched }
+    return me._inject_imports_json(enriched, scan_src)
+  }
+
+  method _inject_defs_json(ast_json, scan_src) {
+    if me._defs_scan_enabled() != 1 { return ast_json }
+
+    local defs_json = me._build_defs_fragment_json(scan_src, ast_json)
+    if me._is_freeze_tag(defs_json) == 1 { return defs_json }
+    return me._inject_defs_fragment_if_present(ast_json, defs_json)
+  }
+
+  method _defs_scan_enabled() {
+    local func_scan_env = env.get("HAKO_STAGEB_FUNC_SCAN")
+    if func_scan_env != null && me._coerce_text(func_scan_env) == "0" { return 0 }
+    return 1
+  }
+
+  method _inject_defs_fragment_if_present(ast_json, defs_json) {
+    if defs_json == "" || defs_json.length() <= 0 { return ast_json }
+    return me.inject_json_fragment(ast_json, defs_json)
+  }
+
+  method _build_defs_fragment_json(scan_src, ast_json) {
+    // defs are collected from the same merged source handed to parser/using
+    // observers. Looking only at the original source drops bundled helper boxes.
+    local methods = FuncScannerBox.scan_all_boxes(scan_src)
+    return me._build_defs_json_with_source(methods)
+  }
+
+  method _inject_imports_json(ast_json, scan_src) {
+    local imports_frag = me._build_imports_fragment_json(scan_src)
+    return me._inject_imports_fragment_if_present(ast_json, imports_frag)
+  }
+
+  method _build_defs_json_with_source(methods) {
+    local defs = methods
+    if defs == null { defs = new ArrayBox() }
+    return me._build_defs_json(defs)
+  }
+
+  method _build_defs_json(defs) {
+    if defs == null { return "" }
+    local cnt = defs.length()
+    if cnt == 0 { return "" }
+
+    local out = ",\"defs\":["
+    local i = 0
+    loop(i < cnt) {
+      local def = defs.get(i)
+      if def == null {
+        i = i + 1
+        continue
+      }
+      local def_str = "" + def
+      if def_str == def {
+        i = i + 1
+        continue
+      }
+
+      local mname = "" + def.get("name")
+      local mparams = def.get("params")
+      local mbody = "" + def.get("body_json")
+      local mbox = "" + def.get("box")
+      local wrapped_body = "{\"version\":0,\"kind\":\"Program\",\"body\":" + mbody + "}"
+      local params_arr = me._build_params_json(mparams)
+      if i > 0 { out = out + "," }
+      out = out + "{\"name\":\"" + mname + "\",\"params\":" + params_arr + ",\"body\":" + wrapped_body + ",\"box\":\"" + mbox + "\"}"
+      i = i + 1
+    }
+    out = out + "]"
+    return out
+  }
+
+  method _build_params_json(mparams) {
+    local params_arr = "["
+    if mparams != null {
+      local pi = 0
+      local pn = mparams.length()
+      loop(pi < pn) {
+        if pi > 0 { params_arr = params_arr + "," }
+        params_arr = params_arr + "\"" + ("" + mparams.get(pi)) + "\""
+        pi = pi + 1
+      }
+    }
+    params_arr = params_arr + "]"
+    return params_arr
+  }
+
+  method _build_imports_fragment_json(scan_src) {
+    local usings_json = UsingCollectorBox.collect(scan_src)
+    if usings_json == null || usings_json == "[]" || usings_json == "" { return "" }
+    local imports_obj = me.convert_usings_to_imports(usings_json)
+    if imports_obj == null || imports_obj == "{}" || imports_obj == "" { return "" }
+    return ",\"imports\":" + imports_obj
+  }
+
+  method convert_usings_to_imports(usings_json) {
+    if usings_json == null || usings_json == "[]" || usings_json == "" {
+      return "{}"
+    }
+    local out = "{"
+    local count = 0
+    local pos = 0
+    local n = usings_json.length()
+
+    loop(pos < n) {
+      local name_idx = StringHelpers.index_of(usings_json, pos, "\"name\":\"")
+      if name_idx < 0 { break }
+
+      local name_start = name_idx + 8
+      local name_end = StringHelpers.index_of(usings_json, name_start, "\"")
+      if name_end < 0 { break }
+      local name = usings_json.substring(name_start, name_end)
+
+      local entry_end = StringHelpers.index_of(usings_json, name_idx, "}")
+      if entry_end < 0 { entry_end = n }
+
+      local path_idx = StringHelpers.index_of(usings_json, name_idx, "\"path\":\"")
+      local path = null
+      if path_idx >= 0 && path_idx < entry_end {
+        local path_start = path_idx + 8
+        local path_end = StringHelpers.index_of(usings_json, path_start, "\"")
+        if path_end >= 0 && path_end < entry_end {
+          path = usings_json.substring(path_start, path_end)
+        }
+      }
+
+      if path != null && path != "" {
+        if count > 0 { out = out + "," }
+        out = out + "\"" + name + "\":\"" + path + "\""
+        count = count + 1
+      }
+
+      pos = entry_end + 1
+    }
+
+    out = out + "}"
+    return out
+  }
+
+  method inject_json_fragment(json, fragment) {
+    if fragment == null || fragment == "" { return json }
+    local ajson = "" + json
+    local close_pos = -1
+    local j = ajson.length() - 1
+    loop(j >= 0) {
+      if ajson.substring(j, j + 1) == "}" { close_pos = j  break }
+      j = j - 1
+    }
+    if close_pos >= 0 {
+      return ajson.substring(0, close_pos) + fragment + ajson.substring(close_pos, ajson.length())
+    }
+    return json
+  }
+
+  method _inject_imports_fragment_if_present(ast_json, imports_frag) {
+    if imports_frag == "" || imports_frag.length() <= 0 { return ast_json }
+    return me.inject_json_fragment(ast_json, imports_frag)
+  }
+
+  method _is_freeze_tag(text) {
+    if text == null { return 0 }
+    if StringHelpers.starts_with("" + text, 0, "[freeze:contract]") == 1 { return 1 }
+    return 0
+  }
+
+  method _coerce_text(value) {
+    return "" + value
+  }
+}

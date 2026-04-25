@@ -22,6 +22,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-281-buildbox-remaining-cleanup-order-card.md
   - docs/development/current/main/phases/phase-291x/291x-282-buildbox-parse-source-narrowing-ssot-card.md
   - docs/development/current/main/phases/phase-291x/291x-283-buildbox-bundle-input-collector-split-card.md
+  - docs/development/current/main/phases/phase-291x/291x-284-buildbox-fragment-injector-split-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -43,7 +44,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-283-buildbox-bundle-input-collector-split-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-284-buildbox-fragment-injector-split-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -85,9 +86,9 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-283`
-- BuildBox bundle input collection delegates to `BuildBundleInputBox`; next
-  implementation target is BuildBox defs/imports fragment injector split
+- latest known cleanup checkpoint: `291x-284`
+- BuildBox fragment injection delegates to `BuildProgramFragmentBox`; next
+  implementation target is BuildBox facade closeout docs/checks
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=2 rows=2`
 - intentional remaining fallback: paired MIR-call `MapBox + has` surface rows

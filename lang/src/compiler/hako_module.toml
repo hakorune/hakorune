@@ -38,6 +38,7 @@ builder.rewrite.known = "builder/rewrite/known.hako"
 build.build_box = "build/build_box.hako"
 build.build_bundle_input_box = "build/build_bundle_input_box.hako"
 build.build_bundle_resolver_box = "build/build_bundle_resolver_box.hako"
+build.build_program_fragment_box = "build/build_program_fragment_box.hako"
 
 # Entry point modules (Phase 15 compiler infrastructure)
 entry.func_scanner = "entry/func_scanner.hako"
