@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-276"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-276-stageb-buildbox-handoff-adapter-card.md"
-latest_card_summary = "Stage-B entry now delegates source-to-Program(JSON v0) production through a BuildBox handoff adapter instead of directly importing parser/body/defs/json helpers."
+latest_card = "291x-277"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-277-stageb-dead-same-source-defs-helper-removal-card.md"
+latest_card_summary = "Dead Stage-B same-source defs helper was removed after the BuildBox handoff made it non-live."
 
 current_blocker_token = "phase-291x Stage-B BuildBox handoff landed; continue compiler-clean BoxShape cleanup"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -89,6 +89,7 @@ landed_tail = [
   "291x-274 docs and smoke operating simplification landed",
   "291x-275 remaining cleanup inventory landed; residual MapBox+has fallback baseline is blocked",
   "291x-276 Stage-B BuildBox handoff adapter cleanup landed",
+  "291x-277 dead Stage-B same-source defs helper removed",
 ]
 
 stale_pointer_patterns = [
