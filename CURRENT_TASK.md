@@ -37,15 +37,15 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Stage-B bundle CLI facade landed; continue compiler-clean BoxShape cleanup`
+- current blocker token: `phase-291x Stage-B legacy boundary cleanup landed; continue compiler-clean BoxShape cleanup`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-278` restored Stage-B bundle CLI as a thin
-  facade over BuildBox's existing env contract
+- latest known checkpoint: `291x-279` documented the live BuildBox authority vs
+  legacy Stage-B fixture boundary and centralized bundle smoke VM env
 - current no-growth baseline: `classifiers=2 rows=2`, intentionally covering
   the paired MIR-call `MapBox + has` surface fallback
 - worktree expectation: clean unless the active slice is in progress
@@ -67,6 +67,19 @@ Scope: current lane / next lane / restart order only.
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
 - do not reopen landed CoreBox router rows without an owner-path change
+
+## Current Ordered Cleanup
+
+- latest cleanup card:
+  `docs/development/current/main/phases/phase-291x/291x-279-stageb-legacy-boundary-cleanup-card.md`
+- order:
+  1. update BuildBox docs so live bundle authority matches the implementation
+  2. mark `StageBBodyExtractorBox` / `BundleResolver` as legacy compat and
+     JoinIR fixture surfaces, not live Stage-B source-to-Program authority
+  3. centralize Stage-B bundle smoke VM compile environment in the shared
+     Stage-B smoke helper
+- keep this cleanup BoxShape-only; do not change bundle semantics or reopen
+  CoreMethodContract fallback rows
 
 ## Detail Pointers
 

@@ -13,17 +13,15 @@ else
   ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../.." && pwd)"
 fi
 source "$ROOT/tools/smokes/v2/lib/test_runner.sh"
+source "$ROOT/tools/smokes/v2/lib/stageb_helpers.sh"
 require_env || exit 2
 
 main='static box Main { method main(args) { return 0 } }'
 u1='static box U1 { method id(a){ return a } }'
 
 set +e
-out=$(NYASH_CLI_VERBOSE=0 \
-  NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-  NYASH_VARMAP_GUARD_STRICT=0 NYASH_BLOCK_SCHEDULE_VERIFY=0 \
-  NYASH_JOINIR_DEV=0 HAKO_JOINIR_STRICT=0 \
-  NYASH_ALLOW_USING_FILE=0 HAKO_ALLOW_USING_FILE=0 NYASH_USING_AST=1 \
+out=$(
+  stageb_export_vm_compile_env
   bash -lc "cd '$ROOT' && '$NYASH_BIN' --backend vm '$ROOT/lang/src/compiler/entry/compiler_stageb.hako' -- --bundle-mod 'U1:$u1' --require-mod U1 --require-mod U2 --source '$main'" 2>&1)
 rc=$?
 set -e

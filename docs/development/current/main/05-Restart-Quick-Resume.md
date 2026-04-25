@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Stage-B bundle CLI facade landed; continue compiler-clean BoxShape cleanup`
+- current blocker token: `phase-291x Stage-B legacy boundary cleanup landed; continue compiler-clean BoxShape cleanup`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-278` restored Stage-B bundle CLI as a thin
-  facade over BuildBox's existing env contract
+- latest known checkpoint: `291x-279` documented the live BuildBox authority vs
+  legacy Stage-B fixture boundary and centralized bundle smoke VM env
 - no-growth checkpoint: `classifiers=2 rows=2` is the intentional paired
   MIR-call `MapBox + has` fallback baseline
 - worktree expectation: clean after the last commit unless an active slice is

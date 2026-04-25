@@ -1,4 +1,7 @@
-// bundle_resolver.hako — Stage‑B bundling resolver (Box‑first)
+// bundle_resolver.hako - legacy Stage-B bundling resolver fixture.
+// Live Stage-B source-to-Program production goes through BuildBox. Keep this
+// box for compat paths and JoinIR fixture coverage; do not add new production
+// bundle authority here.
 
 static box BundleResolver {
   // Resolve and merge bundles. Returns merged prefix string or null on error.

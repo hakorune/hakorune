@@ -24,11 +24,14 @@ Error policy
 Notes
 - Keep the box thin and stable. Heavy lifting (resolver/bridge/ny-llvmc) stays behind
   dedicated boxes to preserve a clean boundary and testability.
+- Live Stage-B entry uses BuildBox as the source-to-Program(JSON v0)
+  authority. `lang/src/compiler/entry/bundle_resolver.hako` is a legacy compat
+  and JoinIR fixture surface, not the live BuildBox dependency.
 - Current shape:
   - `scan_src`: full merged source, used for `FuncScannerBox` / `UsingCollectorBox`
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
   - owner-local helper split:
-    - `_prepare_scan_src(...)`: bundle/env normalization plus `BundleResolver.resolve(...)`
+    - `_prepare_scan_src(...)`: bundle/env normalization plus owner-local bundle resolve handoff
     - `_new_prepare_scan_src_result(...)` / `_fail_prepare_scan_src(...)` / `_apply_prepare_scan_src_result(...)` / `_resolve_prepare_scan_src_if_needed(...)`: prepared-scan-src result/error/resolve handoff only
     - `_bundle_inputs_requested(...)` / `_resolve_scan_src_from_bundle_ctx(...)`: bundle resolve decision plus merged `scan_src` materialization only
     - `_ensure_bundle_alias_arrays(...)` / `_ensure_require_mods_array(...)`: bundle ctx container setup only

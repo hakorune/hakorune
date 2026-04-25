@@ -1,5 +1,7 @@
-// StageBBodyExtractorBox — Body extraction + bundle + using + trim
-// Extracted from compiler_stageb.hako to keep the entry file small.
+// StageBBodyExtractorBox - legacy body extraction + bundle + using + trim.
+// Live Stage-B source-to-Program production goes through BuildBox. This box is
+// retained as a compat surface and JoinIR fixture target, so do not move live
+// bundle semantics back here.
 
 using hako.compiler.entry.bundle_resolver as BundleResolver
 using lang.compiler.entry.body_extraction_box as BodyExtractionBox

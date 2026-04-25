@@ -1,6 +1,27 @@
 #!/bin/bash
 # stageb_helpers.sh — Helpers to compile Hako(Stage‑B) source to Program(JSON v0)
 
+stageb_export_vm_compile_env() {
+  export NYASH_PARSER_ALLOW_SEMICOLON=1
+  export NYASH_ALLOW_USING_FILE=0
+  export HAKO_ALLOW_USING_FILE=0
+  export NYASH_USING_AST=1
+  export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
+  export NYASH_DISABLE_NY_COMPILER=1
+  export HAKO_DISABLE_NY_COMPILER=1
+  export HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0
+  export NYASH_VARMAP_GUARD_STRICT=0
+  export NYASH_BLOCK_SCHEDULE_VERIFY=0
+  # Stage-B entry includes nested compat loops; these smokes check CLI/JSON
+  # contracts, not planner-required JoinIR acceptance.
+  export NYASH_JOINIR_DEV=0
+  export HAKO_JOINIR_STRICT=0
+  export NYASH_QUIET=0
+  export HAKO_QUIET=0
+  export NYASH_CLI_VERBOSE=0
+  unset NYASH_MODULES
+}
+
 stageb_compile_to_json() {
   # Args: HAKO_CODE
   local code="$1"
@@ -10,26 +31,7 @@ stageb_compile_to_json() {
   local raw="/tmp/hako_stageb_raw_$$.txt"
   # Route A: Hako(Stage-B) entry — preferred when available (run from repo root so nyash.toml resolves)
   (
-    export NYASH_PARSER_ALLOW_SEMICOLON=1
-    export NYASH_ALLOW_USING_FILE=0
-    export HAKO_ALLOW_USING_FILE=0
-    export NYASH_USING_AST=1
-    export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
-    # Avoid inline Ny compiler timeouts and VM fail-fast on Hako-like sources
-    export NYASH_DISABLE_NY_COMPILER=1
-    export HAKO_DISABLE_NY_COMPILER=1
-    export HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0
-    export NYASH_VARMAP_GUARD_STRICT=0
-    export NYASH_BLOCK_SCHEDULE_VERIFY=0
-    # Stage-B entry currently includes nested loops in internal resolvers; avoid strict JoinIR caps here.
-    export NYASH_JOINIR_DEV=0
-    export HAKO_JOINIR_STRICT=0
-    # Quiet flagsは外す（print(ast_json) を観測するため）。
-    export NYASH_QUIET=0
-    export HAKO_QUIET=0
-    export NYASH_CLI_VERBOSE=0
-    # Module解決は nyash.toml を信用（$NYASH_ROOT から起動）
-    unset NYASH_MODULES
+    stageb_export_vm_compile_env
     cd "$NYASH_ROOT" && \
       "$NYASH_BIN" --backend vm \
         "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$(cat "$hako_tmp")"
@@ -62,17 +64,8 @@ stageb_compile_to_json_with_bundles() {
     shift
   done
   (
-    export NYASH_PARSER_ALLOW_SEMICOLON=1
-    export NYASH_ALLOW_USING_FILE=0
-    export HAKO_ALLOW_USING_FILE=0
-    export NYASH_USING_AST=1
-    export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
-    export NYASH_VARMAP_GUARD_STRICT=0
-    export NYASH_BLOCK_SCHEDULE_VERIFY=0
-    export NYASH_JOINIR_DEV=0
-    export HAKO_JOINIR_STRICT=0
-    NYASH_QUIET=0 HAKO_QUIET=0 NYASH_CLI_VERBOSE=0 \
-      cd "$NYASH_ROOT" && \
+    stageb_export_vm_compile_env
+    cd "$NYASH_ROOT" && \
       "$NYASH_BIN" --backend vm \
         "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- \
         "${extra_args[@]}" --source "$(cat "$hako_tmp")"
@@ -100,17 +93,8 @@ stageb_compile_to_json_with_require() {
     [ -n "$r" ] && extra_args+=("--require-mod" "$r")
   done
   (
-    export NYASH_PARSER_ALLOW_SEMICOLON=1
-    export NYASH_ALLOW_USING_FILE=0
-    export HAKO_ALLOW_USING_FILE=0
-    export NYASH_USING_AST=1
-    export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
-    export NYASH_VARMAP_GUARD_STRICT=0
-    export NYASH_BLOCK_SCHEDULE_VERIFY=0
-    export NYASH_JOINIR_DEV=0
-    export HAKO_JOINIR_STRICT=0
-    NYASH_QUIET=0 HAKO_QUIET=0 NYASH_CLI_VERBOSE=0 \
-      cd "$NYASH_ROOT" && \
+    stageb_export_vm_compile_env
+    cd "$NYASH_ROOT" && \
       "$NYASH_BIN" --backend vm \
         "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- \
         "${extra_args[@]}" --source "$(cat "$hako_tmp")"

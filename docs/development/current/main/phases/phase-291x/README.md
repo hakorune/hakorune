@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-275-remaining-cleanup-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-276-stageb-buildbox-handoff-adapter-card.md
   - docs/development/current/main/phases/phase-291x/291x-278-stageb-bundle-cli-facade-card.md
+  - docs/development/current/main/phases/phase-291x/291x-279-stageb-legacy-boundary-cleanup-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -38,7 +39,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-278-stageb-bundle-cli-facade-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-279-stageb-legacy-boundary-cleanup-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -80,9 +81,10 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-278`
-- Stage-B entry delegates source-to-Program production through BuildBox, and
-  bundle CLI now packages into BuildBox's existing env contract
+- latest known cleanup checkpoint: `291x-279`
+- Stage-B entry delegates source-to-Program production through BuildBox,
+  legacy BodyExtractor/BundleResolver surfaces are documented as fixture paths,
+  and bundle smoke VM env is centralized
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=2 rows=2`
 - intentional remaining fallback: paired MIR-call `MapBox + has` surface rows
