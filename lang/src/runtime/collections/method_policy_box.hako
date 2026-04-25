@@ -85,10 +85,6 @@ static box CollectionMethodPolicyBox {
     return "ArrayAppendAny"
   }
 
-  route_array_contains_any() {
-    return "ArrayContainsAny"
-  }
-
   route_map_contains_any() {
     return "MapContainsAny"
   }
@@ -246,7 +242,7 @@ static box CollectionMethodPolicyBox {
       return me.route_runtime_data_contains_any()
     }
     if runtime_array_has == 1 {
-      return me.route_array_contains_any()
+      return me.route_runtime_data_contains_any()
     }
     if box_name == "MapBox" || runtime_map_has == 1 {
       return me.route_map_contains_any()

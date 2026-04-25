@@ -1,7 +1,6 @@
       enum GenericMethodHasRouteKind {
         HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE = 0,
         HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY,
-        HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_ARRAY_CONTAINS_ANY,
         HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY,
         HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64,
       };
@@ -33,7 +32,6 @@
             return "nyash.map.probe_hh";
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_I64:
             return "nyash.map.probe_hi";
-          case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_ARRAY_CONTAINS_ANY:
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE:
           default:
             return NULL;
@@ -368,8 +366,6 @@
               fprintf(f, "  call i64 @\"nyash.runtime_data.has_hh\"(%s)\n", ab);
             }
             return 1;
-          case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_ARRAY_CONTAINS_ANY:
-            return 0;
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY:
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.map.probe_hh\"(%s)\n", dst, ab);
