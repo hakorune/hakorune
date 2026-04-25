@@ -19,6 +19,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-278-stageb-bundle-cli-facade-card.md
   - docs/development/current/main/phases/phase-291x/291x-279-stageb-legacy-boundary-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-280-buildbox-bundle-resolver-split-card.md
+  - docs/development/current/main/phases/phase-291x/291x-281-buildbox-remaining-cleanup-order-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -40,7 +41,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-280-buildbox-bundle-resolver-split-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-281-buildbox-remaining-cleanup-order-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -82,10 +83,9 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-280`
-- Stage-B entry delegates source-to-Program production through BuildBox, and
-  BuildBox delegates live bundle merge/require validation to
-  `BuildBundleResolverBox`
+- latest known cleanup checkpoint: `291x-281`
+- remaining BuildBox BoxShape cleanup is ordered; next implementation target is
+  parse-source narrowing SSOT handoff to `BodyExtractionBox`
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=2 rows=2`
 - intentional remaining fallback: paired MIR-call `MapBox + has` surface rows

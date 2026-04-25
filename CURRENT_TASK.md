@@ -37,15 +37,15 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x BuildBox bundle resolver split landed; continue compiler-clean BoxShape cleanup`
+- current blocker token: `phase-291x BuildBox remaining cleanup order landed; next parse-source SSOT handoff`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-280` split live bundle merge/require
-  validation from BuildBox into `BuildBundleResolverBox`
+- latest known checkpoint: `291x-281` ordered remaining BuildBox BoxShape
+  cleanup; next implementation is parse-source narrowing SSOT handoff
 - current no-growth baseline: `classifiers=2 rows=2`, intentionally covering
   the paired MIR-call `MapBox + has` surface fallback
 - worktree expectation: clean unless the active slice is in progress
@@ -71,14 +71,15 @@ Scope: current lane / next lane / restart order only.
 ## Current Ordered Cleanup
 
 - latest cleanup card:
-  `docs/development/current/main/phases/phase-291x/291x-280-buildbox-bundle-resolver-split-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-281-buildbox-remaining-cleanup-order-card.md`
 - order:
-  1. add `BuildBundleResolverBox` under `lang/src/compiler/build/`
-  2. make `BuildBox` call the new resolver instead of owning bundle merge
-     logic inline
-  3. update BuildBox docs and module export pointers
-- keep this cleanup BoxShape-only; do not change bundle semantics, do not
-  reuse legacy `entry/bundle_resolver.hako`, and do not reopen
+  1. `291x-282`: BuildBox parse-source narrowing SSOT handoff to
+     `BodyExtractionBox`
+  2. `291x-283`: BuildBox bundle input collector split
+  3. `291x-284`: BuildBox defs/imports fragment injector split
+  4. `291x-285`: BuildBox facade closeout docs/checks
+- keep these cleanup cards BoxShape-only; do not change bundle semantics, do
+  not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
 
 ## Detail Pointers
