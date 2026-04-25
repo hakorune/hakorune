@@ -19,6 +19,7 @@ set +e
 out=$(NYASH_CLI_VERBOSE=0 \
   NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
   NYASH_VARMAP_GUARD_STRICT=0 NYASH_BLOCK_SCHEDULE_VERIFY=0 \
+  NYASH_JOINIR_DEV=0 HAKO_JOINIR_STRICT=0 \
   NYASH_ALLOW_USING_FILE=0 HAKO_ALLOW_USING_FILE=0 NYASH_USING_AST=1 \
   "$NYASH_BIN" --backend vm \
   "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- \
@@ -33,4 +34,3 @@ echo "$out" | grep -q "\\[bundle/duplicate\\] Util" || {
 }
 echo "[PASS] stageb_bundle_duplicate_fail_vm"
 exit 0
-

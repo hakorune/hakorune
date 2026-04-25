@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Stage-B BuildBox handoff landed; continue compiler-clean BoxShape cleanup`
+- current blocker token: `phase-291x Stage-B bundle CLI facade landed; continue compiler-clean BoxShape cleanup`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -28,8 +28,8 @@ Related:
 
 - continue compiler-clean BoxShape cleanup; do not reopen metadata-absent direct
   `MapBox.has` unless an owner-path change retires that fallback baseline
-- cleanup checkpoint: latest known landed card `291x-276`; Stage-B entry now
-  delegates Program(JSON v0) production through a BuildBox handoff adapter
+- cleanup checkpoint: latest known landed card `291x-278`; Stage-B bundle CLI
+  now packages into BuildBox's existing env contract
 - no-growth checkpoint: `classifiers=2 rows=2` remains the intentional paired
   MIR-call `MapBox + has` surface fallback baseline
 - task-order source:

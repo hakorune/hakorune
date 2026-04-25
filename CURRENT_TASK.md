@@ -37,15 +37,15 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x Stage-B BuildBox handoff landed; continue compiler-clean BoxShape cleanup`
+- current blocker token: `phase-291x Stage-B bundle CLI facade landed; continue compiler-clean BoxShape cleanup`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-276` moved Stage-B entry source-to-Program
-  production behind a BuildBox handoff adapter
+- latest known checkpoint: `291x-278` restored Stage-B bundle CLI as a thin
+  facade over BuildBox's existing env contract
 - current no-growth baseline: `classifiers=2 rows=2`, intentionally covering
   the paired MIR-call `MapBox + has` surface fallback
 - worktree expectation: clean unless the active slice is in progress

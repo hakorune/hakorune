@@ -1,0 +1,64 @@
+// StageBBuildOptionsBox - Stage-B CLI token packaging for BuildBox env inputs.
+// This box does not validate bundle semantics; BuildBox owns that authority.
+
+static box StageBBuildOptionsBox {
+  apply_args(args) {
+    if args == null { return 0 }
+    local i = 0
+    local n = args.length()
+    loop(i < n) {
+      i = me._apply_arg(args, i, n)
+    }
+    return 0
+  }
+
+  _apply_arg(args, index, count) {
+    local t = "" + args.get(index)
+    if t == "--bundle-src" { return me._apply_bundle_src(args, index, count) }
+    if t == "--bundle-mod" { return me._apply_bundle_mod(args, index, count) }
+    if t == "--require-mod" { return me._apply_require_mod(args, index, count) }
+    return index + 1
+  }
+
+  _apply_bundle_src(args, index, count) {
+    if index + 1 >= count { return index + 1 }
+    local name = "__stageb_bundle_src_" + ("" + index)
+    local code = "" + args.get(index + 1)
+    me._append_alias_entry(name + ":" + code)
+    return index + 2
+  }
+
+  _apply_bundle_mod(args, index, count) {
+    if index + 1 >= count { return index + 1 }
+    me._append_alias_entry("" + args.get(index + 1))
+    return index + 2
+  }
+
+  _apply_require_mod(args, index, count) {
+    if index + 1 >= count { return index + 1 }
+    me._append_require_entry("" + args.get(index + 1))
+    return index + 2
+  }
+
+  _append_alias_entry(entry) {
+    local current = env.get("HAKO_BUNDLE_ALIAS_TABLE")
+    if current == null || current == "" { current = env.get("NYASH_BUNDLE_ALIAS_TABLE") }
+    if current == null || current == "" {
+      env.set("HAKO_BUNDLE_ALIAS_TABLE", "" + entry)
+      return 0
+    }
+    env.set("HAKO_BUNDLE_ALIAS_TABLE", ("" + current) + "|||" + ("" + entry))
+    return 0
+  }
+
+  _append_require_entry(name) {
+    local current = env.get("HAKO_REQUIRE_MODS")
+    if current == null || current == "" { current = env.get("NYASH_REQUIRE_MODS") }
+    if current == null || current == "" {
+      env.set("HAKO_REQUIRE_MODS", "" + name)
+      return 0
+    }
+    env.set("HAKO_REQUIRE_MODS", ("" + current) + "," + ("" + name))
+    return 0
+  }
+}

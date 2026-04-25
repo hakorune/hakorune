@@ -14,6 +14,7 @@ using lang.compiler.entry.stageb_trace_box as StageBTraceBox
 using lang.compiler.entry.stageb_args_box as StageBArgsBox
 using lang.compiler.entry.stageb_driver_guard_box as StageBDriverGuardBox
 using lang.compiler.entry.stageb_compile_adapter_box as StageBCompileAdapterBox
+using lang.compiler.entry.stageb_build_options_box as StageBBuildOptionsBox
 
 // Phase 25.1c: Main driver logic
 static box StageBDriverBox {
@@ -28,7 +29,8 @@ static box StageBDriverBox {
     local s = "" + text
     local p = "" + prefix
     if s.length() < p.length() { return 0 }
-    return s.substring(0, p.length()) == p
+    if s.substring(0, p.length()) == p { return 1 }
+    return 0
   }
 
   main(args) {
@@ -61,6 +63,7 @@ static box StageBDriverBox {
     }
 
     local stage3 = StageBArgsBox.resolve_stage3(args)
+    StageBBuildOptionsBox.apply_args(args)
     local ast_json = me.compile(src, null, stage3, null)
     {
       local l = 0
