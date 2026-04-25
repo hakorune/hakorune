@@ -1,6 +1,7 @@
 apps.lib.boxes.array_std
 apps.lib.boxes.console_std
 apps.lib.boxes.string_std
+apps.std.string
 apps.selfhost_runtime.ast_extractors
 apps.selfhost_runtime.mir_loader
 apps.selfhost_runtime.ops_calls
