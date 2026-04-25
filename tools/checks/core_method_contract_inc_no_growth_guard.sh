@@ -8,15 +8,18 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 ALLOWLIST="$ROOT_DIR/tools/checks/core_method_contract_inc_no_growth_allowlist.tsv"
 MANIFEST="$ROOT_DIR/lang/src/runtime/meta/generated/core_method_contract_manifest.json"
 C_GENERIC_POLICY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc"
+C_GENERIC_GET_POLICY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_policy.inc"
 C_GENERIC_HAS_POLICY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_has_policy.inc"
+C_GENERIC_LEN_POLICY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_len_policy.inc"
+C_GENERIC_PUSH_POLICY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_push_policy.inc"
 C_ROUTE_POLICY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$ALLOWLIST" "$MANIFEST" "$C_GENERIC_POLICY" "$C_GENERIC_HAS_POLICY" "$C_ROUTE_POLICY"
+guard_require_files "$TAG" "$ALLOWLIST" "$MANIFEST" "$C_GENERIC_POLICY" "$C_GENERIC_GET_POLICY" "$C_GENERIC_HAS_POLICY" "$C_GENERIC_LEN_POLICY" "$C_GENERIC_PUSH_POLICY" "$C_ROUTE_POLICY"
 
 echo "[$TAG] checking .inc method/box classifier no-growth baseline"
 
-python3 - "$ROOT_DIR" "$ALLOWLIST" "$MANIFEST" "$C_GENERIC_POLICY" "$C_GENERIC_HAS_POLICY" "$C_ROUTE_POLICY" <<'PY'
+python3 - "$ROOT_DIR" "$ALLOWLIST" "$MANIFEST" "$C_GENERIC_POLICY" "$C_GENERIC_GET_POLICY" "$C_GENERIC_HAS_POLICY" "$C_GENERIC_LEN_POLICY" "$C_GENERIC_PUSH_POLICY" "$C_ROUTE_POLICY" <<'PY'
 import collections
 import json
 import pathlib
@@ -32,7 +35,10 @@ c_policy_paths = tuple(pathlib.Path(arg).resolve() for arg in sys.argv[4:])
 TARGET_FUNCTIONS = (
     "classify_generic_method_emit_kind",
     "classify_generic_method_set_route",
+    "classify_generic_method_get_route",
     "classify_generic_method_has_route",
+    "classify_generic_method_len_route",
+    "classify_generic_method_push_route",
     "classify_mir_call_receiver_surface",
     "classify_mir_call_method_surface",
 )
