@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Prune the `mir_call_route_policy` RuntimeDataBox receiver-surface mirror after exact metadata-absent review.
 Related:

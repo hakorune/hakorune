@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Decide the remaining constructor/birth carrier split after the compatibility contract is explicit.
 Related:
@@ -85,4 +85,3 @@ shape and records the deletion condition for the transitional `birth` row.
   `birth` compatibility row.
 - The card stays docs-only and does not overlap the existing prune or review
   cards.
-

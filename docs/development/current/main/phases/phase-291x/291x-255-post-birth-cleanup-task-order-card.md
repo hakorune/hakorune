@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Fix the post-birth-prune cleanup order before taking the next `.inc` mirror task.
 Related:

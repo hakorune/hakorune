@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Prune the dead `mir_call_route_policy` ArrayBox receiver-surface classifier after constructor/birth emit-kind cleanup.
 Related:

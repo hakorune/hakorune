@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Fix the deletion criteria for the remaining generic-method `birth` compatibility row without pruning it yet.
 Related:

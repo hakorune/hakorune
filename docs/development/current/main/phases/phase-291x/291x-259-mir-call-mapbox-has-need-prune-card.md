@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Prune the redundant `mir_call` MapBox.has need-policy branch while keeping the required route-state fallback.
 Related:

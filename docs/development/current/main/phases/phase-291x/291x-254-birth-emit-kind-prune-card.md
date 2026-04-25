@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Prune the generic-method `birth` emit-kind classifier after the deletion criteria and compatibility smokes are pinned.
 Related:

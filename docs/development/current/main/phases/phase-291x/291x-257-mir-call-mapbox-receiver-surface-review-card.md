@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-04-25
 Scope: Review `mir_call_route_policy` MapBox receiver-surface pruning after the ArrayBox receiver row was removed.
 Related:

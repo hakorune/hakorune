@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-26
 Scope: Remove the dead `mir_call` need-policy method-surface fallback after has need branches were pruned.
 Related:

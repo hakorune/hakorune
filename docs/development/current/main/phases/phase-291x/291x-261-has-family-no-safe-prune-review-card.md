@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-04-26
 Scope: Close the remaining `has` family cleanup review with exact metadata-absent boundary evidence.
 Related:

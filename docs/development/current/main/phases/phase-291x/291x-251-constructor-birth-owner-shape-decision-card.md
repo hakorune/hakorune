@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Pin the constructor owner shape so the remaining `birth` compatibility row can stay thin and pinned until a real carrier split exists.
 Related:
@@ -96,4 +96,3 @@ That slice should answer:
 - The card keeps `birth` pinned as compatibility-only glue.
 - The card stays docs-only and does not overlap the existing prune or review
   cards.
-

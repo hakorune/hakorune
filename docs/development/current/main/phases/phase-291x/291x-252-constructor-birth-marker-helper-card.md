@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-25
 Scope: Move the explicit post-NewBox birth marker emission for collection literals behind a constructor-owned helper without changing lowering behavior.
 Related:
@@ -73,4 +73,3 @@ cargo check -q
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
-
