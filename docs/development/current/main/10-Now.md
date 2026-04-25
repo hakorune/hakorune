@@ -20,19 +20,18 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x residual MapBox.has fallback sentinel clarified; owner-path retirement pending`
+- current blocker token: `phase-291x CoreMethodContract inc classifier baseline zero; next cleanup selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- owner-path preflight for the residual `MapBox.has` fallback sentinel; do not
-  prune the final two rows without retiring or proving non-use of the
-  metadata-absent direct boundary
-- cleanup checkpoint: latest known landed card `291x-286`; BuildBox thinning
-  and residual MapBox.has route-family seam cleanup are closed
-- no-growth checkpoint: `classifiers=2 rows=2` remains the intentional paired
-  MIR-call `MapBox + has` surface fallback baseline
+- choose the next compiler-clean BoxShape cleanup from phase-291x inventory or
+  close the CoreMethodContract `.inc` mirror-pruning lane
+- cleanup checkpoint: latest known landed card `291x-287`; BuildBox thinning
+  and residual MapBox.has sentinel retirement are closed
+- no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
+  classifiers are allowlisted
 - task-order source:
   `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
 - detailed landed history: phase card files and `CURRENT_STATE.toml`, not this

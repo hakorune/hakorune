@@ -1,11 +1,9 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first direct MapBox.has metadata-absent canary.
+# Phase 29ck boundary pure-first direct MapBox.has metadata canary.
 #
 # Contract pin:
-# 1) direct MapBox.has(key) without generic_method.has metadata is still
-#    supported by the MIR-call MapBox+has fallback row.
-# 2) the generic mname=="has" fallback is not required; route.runtime_map_has
-#    is the only emit-kind fallback for this shape.
+# 1) direct MapBox.has(key) is accepted through MapHas metadata.
+# 2) legacy metadata-absent support is retired from the supported boundary.
 # 3) breaking NYASH_NY_LLVM_COMPILER must not break that supported seed.
 
 set -euo pipefail
@@ -70,10 +68,10 @@ if [ "$BUILD_RC" -ne 0 ]; then
     exit 1
 fi
 
-if ! rg -q 'stage=mir_call_method result=seen reason=has .*bname=MapBox .*map_has:1' "$BUILD_LOG"; then
+if ! rg -q 'stage=generic_method_has_route result=hit reason=mir_route_metadata' "$BUILD_LOG"; then
     echo "[INFO] compile output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "phase29ck_boundary_pure_map_has_no_metadata_min: missing MapBox+has MIR-surface fallback trace"
+    test_fail "phase29ck_boundary_pure_map_has_no_metadata_min: missing generic has MIR route metadata trace"
     exit 1
 fi
 
@@ -82,4 +80,4 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_map_has_no_metadata_min: PASS (metadata-absent direct MapBox.has uses MIR-surface fallback)"
+test_pass "phase29ck_boundary_pure_map_has_no_metadata_min: PASS (direct MapBox.has emits through MapHas metadata without ny-llvmc harness fallback)"

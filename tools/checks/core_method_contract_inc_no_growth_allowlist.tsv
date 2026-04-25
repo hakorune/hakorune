@@ -1,8 +1,4 @@
 # path	function	kind	literal	max_count	manifest_anchor	deletion_condition
 # Existing generic-method `.inc` string classifiers are transitional debt.
 # Reductions are allowed; new rows or per-row count growth fail.
-# Mir-call route surface mirror rows. Remaining rows are compat sentinels; prune
-# receiver rows only after their method-surface / constructor / RuntimeData
-# blockers are gone or exact non-use is proven.
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_receiver_surface	box	MapBox	1	core-box-contract	delete-after-has-fallback-sunset-or-prove-nonuse
-lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc	classify_mir_call_method_surface	method	has	1	core-method-contract	delete-after-mapbox-has-fallback-sunset-or-prove-nonuse
+# No .inc method/box string classifiers are currently allowlisted.

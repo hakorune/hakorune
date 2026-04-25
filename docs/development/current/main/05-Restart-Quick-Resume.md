@@ -33,25 +33,24 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x residual MapBox.has fallback sentinel clarified; owner-path retirement pending`
+- current blocker token: `phase-291x CoreMethodContract inc classifier baseline zero; next cleanup selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-286` closed the residual MapBox.has
-  route-family seam cleanup after the BuildBox thinning series
-- no-growth checkpoint: `classifiers=2 rows=2` is the intentional paired
-  MIR-call `MapBox + has` fallback baseline
+- latest known checkpoint: `291x-287` retired the residual MapBox.has
+  metadata-absent sentinel after the BuildBox thinning series
+- no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
+  classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
   underway
 
 ## Immediate Next
 
-- owner-path preflight for the residual `MapBox.has` fallback sentinel; do not
-  prune the final two rows without retiring or proving non-use of the
-  metadata-absent direct boundary
+- select the next compiler-clean BoxShape cleanup; do not reintroduce
+  metadata-absent direct `MapBox.has` fallback support
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

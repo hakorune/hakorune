@@ -30,7 +30,7 @@ perf card explicitly requires them.
 
 | Family | Active smoke(s) | Purpose |
 | --- | --- | --- |
-| MapBox direct has / metadata-absent fallback | `tools/smokes/v2/profiles/integration/phase29ck_boundary/map/phase29ck_boundary_pure_map_has_no_metadata_min.sh` | Pins the remaining paired MIR-call `MapBox + has` fallback rows. |
+| MapBox direct has / MapHas metadata | `tools/smokes/v2/profiles/integration/phase29ck_boundary/map/phase29ck_boundary_pure_map_has_no_metadata_min.sh` | Pins direct `MapBox.has` through `MapHas` route metadata; the filename is historical. |
 | RuntimeData has facade metadata | `tools/smokes/v2/profiles/integration/phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_has_facade_min.sh` | Pins `runtime_data_contains_any` metadata and demand-driven `nyash.runtime_data.has_hh`. |
 | ArrayBox direct has / ArrayHas metadata | `tools/smokes/v2/profiles/integration/phase29ck_boundary/array/phase29ck_boundary_pure_array_has_min.sh`<br>`tools/smokes/v2/profiles/integration/phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_array_has_min.sh` | Pins direct `ArrayBox.has` and Array-origin `RuntimeDataBox.has` through `ArrayHas` metadata. |
 | RuntimeData Array get | `tools/smokes/v2/profiles/integration/phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_array_get_min.sh`<br>`tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` | Pins Array get route-policy prune and RuntimeData dispatch boundaries. |

@@ -1,13 +1,3 @@
-      enum MirCallReceiverSurfaceKind {
-        HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN = 0,
-        HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX,
-      };
-
-      enum MirCallMethodSurfaceKind {
-        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN = 0,
-        HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS,
-      };
-
       enum MirCallGenericMethodRouteKind {
         HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK = 0,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET,
@@ -37,37 +27,6 @@
         int runtime_map_has;
         struct DeferredArrayStringIndexofSelect* deferred_array_string_indexof;
       };
-
-      auto enum MirCallReceiverSurfaceKind classify_mir_call_receiver_surface(
-          const char* bname) {
-        if (!bname) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN;
-        if (!strcmp(bname, "MapBox")) return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX;
-        return HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN;
-      }
-
-      auto enum MirCallMethodSurfaceKind classify_mir_call_method_surface(
-          const char* mname) {
-        if (!mname) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
-        if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS;
-        return HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN;
-      }
-
-      auto enum MirCallGenericMethodRouteKind
-      classify_mir_call_generic_method_route_kind(
-          enum MirCallReceiverSurfaceKind recv_surface,
-          enum MirCallMethodSurfaceKind method_surface) {
-        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_UNKNOWN ||
-            method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN) {
-          return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
-        }
-
-        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX &&
-            method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
-          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS;
-        }
-
-        return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
-      }
 
       auto int mir_call_route_policy_read_i64_field(
           yyjson_val* obj,
@@ -251,14 +210,8 @@
             classify_mir_call_generic_method_route_kind_from_core_method_metadata(
                 bid,
                 ii);
-        if (route_kind == HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
-          enum MirCallReceiverSurfaceKind recv_surface =
-              classify_mir_call_receiver_surface(bname);
-          enum MirCallMethodSurfaceKind method_surface =
-              classify_mir_call_method_surface(mname);
-          route_kind = classify_mir_call_generic_method_route_kind(
-              recv_surface, method_surface);
-        }
+        (void)bname;
+        (void)mname;
         apply_mir_call_generic_method_route_kind(route_kind, &route);
         route.deferred_array_string_indexof =
             find_deferred_array_string_indexof_select(bid, ii);
