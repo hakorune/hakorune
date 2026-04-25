@@ -33,15 +33,16 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x MirCallNeedPolicy owner audit pending`
+- current blocker token: `phase-291x MirCallNeedPolicy export quarantine pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-290` retired the unused `MirCallRoutePolicy`
-  runtime/meta export and refreshed the stage1 module snapshot
+- latest known checkpoint: `291x-291` audited `MirCallNeedPolicy` ownership
+  and fixed it as registered transitional vocabulary, not the executable
+  need-policy owner
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +50,8 @@ cargo check -q
 
 ## Immediate Next
 
-- audit `MirCallNeedPolicy` before any analogous export cleanup; do not delete
-  by analogy with the retired route-policy table
+- remove the stale `MirCallNeedPolicy` runtime/meta export if no caller is
+  introduced; keep the native need-policy shim consumer intact
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

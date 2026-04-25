@@ -7,7 +7,7 @@ Scope:
 
 Responsibilities:
 - `mir_call` route-policy retirement notes and generated metadata handoff.
-- `mir_call` prepass need-flag tables.
+- `mir_call` prepass need-flag retirement notes and generated metadata handoff.
 - `mir_call` constructor/global/string-extern accept surfaces.
 - `CoreMethodContract` seed rows for Array/String/Map method surfaces.
 
@@ -23,9 +23,6 @@ Rule:
 
 ## Current modules
 
-- `mir_call_need_policy_box.hako`
-  - `MirCallNeedPolicy.classify_need_flags(...)`
-  - owns `mir_call` prepass need-flag tables.
 - `mir_call_surface_policy_box.hako`
   - `MirCallSurfacePolicy.accept_surface(...)`
   - owns constructor/global/string-extern accept surfaces.
@@ -53,4 +50,13 @@ Rule:
   - route selection stays metadata-first through
     `lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc`.
   - do not reintroduce a by-name route table unless it is generated from
+    CoreMethod/manifest metadata and wired as the actual producer.
+- `mir_call_need_policy_box.hako`
+  - owner-audited by `291x-291`.
+  - had no active `.hako` or Rust caller; it is registered transitional
+    vocabulary, not the executable need-policy owner.
+  - need flags stay native through
+    `lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_policy.inc` until a
+    generated producer or typed LoweringPlan owns those flags.
+  - do not reintroduce a by-name need table unless it is generated from
     CoreMethod/manifest metadata and wired as the actual producer.

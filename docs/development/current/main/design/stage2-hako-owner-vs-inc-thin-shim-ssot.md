@@ -112,12 +112,18 @@ Related:
   `291x-290`; route ownership now stays on MIR CoreMethod route metadata plus
   the metadata-first native route consumer until a generated `.hako` producer
   exists.
-- `lang/src/runtime/meta/mir_call_need_policy_box.hako` owns the semantic need-vocabulary used by the `mir_call` prepass.
+- `lang/src/runtime/meta/mir_call_need_policy_box.hako` was owner-audited by
+  `291x-291` and is registered transitional vocabulary, not the current
+  executable need-policy owner.
 - `lang/src/runtime/meta/mir_call_surface_policy_box.hako` owns constructor/global/string-extern accept surfaces.
 - `hako_llvmc_ffi_mir_call_route_policy.inc` is the current executable route
-  consumer and must stay metadata-first; `hako_llvmc_ffi_mir_call_need_policy.inc`
-  and `hako_llvmc_ffi_mir_call_surface_policy.inc` remain native mirrors of
-  their `.hako` tables until separate audits say otherwise.
+  consumer and must stay metadata-first.
+- `hako_llvmc_ffi_mir_call_need_policy.inc` is the current executable
+  need-policy consumer; it must remain native until a generated producer or
+  typed LoweringPlan owns declaration / stable-object / publish /
+  invalidation need flags.
+- `hako_llvmc_ffi_mir_call_surface_policy.inc` remains a native mirror of its
+  `.hako` table until a separate audit says otherwise.
 - `hako_llvmc_ffi_mir_call_dispatch.inc` is now the single native dispatch seam consumed by `pure_compile.inc`.
 - `hako_llvmc_ffi_pure_compile.inc` remains the compiler orchestrator owner, but `mir_call` route/need/accept tables are no longer owned inline there.
 - `lang/src/runtime/collections/method_policy_box.hako` now also owns the fallback routes for `RuntimeDataBox` generic `get/set/has/push`, so runtime-data facade semantics stay in `.hako` owner vocabulary instead of re-growing box-name ladders inside the shim.
@@ -181,7 +187,8 @@ Note:
 - `hako_llvmc_ffi_generic_method_get_lowering.inc`
 - `hako_llvmc_ffi_string_concat_window.inc`
 - `lang/src/runtime/meta/mir_call_route_policy_box.hako` (retired by `291x-290`)
-- `lang/src/runtime/meta/mir_call_need_policy_box.hako`
+- `lang/src/runtime/meta/mir_call_need_policy_box.hako` (owner-audited by
+  `291x-291`; transitional vocabulary)
 - `lang/src/runtime/meta/mir_call_surface_policy_box.hako`
 - `hako_llvmc_ffi_mir_call_route_policy.inc`
 - `hako_llvmc_ffi_mir_call_need_policy.inc`
