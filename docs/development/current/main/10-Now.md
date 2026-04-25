@@ -20,16 +20,16 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x residual MapBox.has fallback baseline blocked; select next compiler-clean lane`
+- current blocker token: `phase-291x Stage-B BuildBox handoff landed; continue compiler-clean BoxShape cleanup`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- select the next compiler-clean lane, or land a new owner-path change that
-  retires metadata-absent direct `MapBox.has`
-- cleanup checkpoint: latest known landed card `291x-275`; remaining
-  phase-291x cleanup is inventoried
+- continue compiler-clean BoxShape cleanup; do not reopen metadata-absent direct
+  `MapBox.has` unless an owner-path change retires that fallback baseline
+- cleanup checkpoint: latest known landed card `291x-276`; Stage-B entry now
+  delegates Program(JSON v0) production through a BuildBox handoff adapter
 - no-growth checkpoint: `classifiers=2 rows=2` remains the intentional paired
   MIR-call `MapBox + has` surface fallback baseline
 - task-order source:

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-26"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, Stage-B adapter thinning slices, route-policy mirror preflight, MapHas/MapGet/Len/Substring/Push/Set metadata-first emit-kind selection, Set storage-route metadata-first selection, set ArrayBox storage-route mirror prune, RuntimeData set fallback contract, remaining .inc mirror inventory, MIR-call Set need metadata consumer, RuntimeData get route fallback prune, RuntimeData set route fallback prune, RuntimeData push route fallback prune, ArrayHas CoreMethod carrier, ArrayBox has route fallback prune, RuntimeData has route fallback prune, generic has emit-kind fallback prune, MIR-call MapBox+has surface fallback closeout, and RuntimeData has declaration need-flag cleanup are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed. The first MapHas, MapGet, Len, Substring, Push, Set, and MIR-call Set surface mirror-row prune probes were rejected because metadata-absent boundary MIR JSON still relies on legacy fallback rows; the post-need-consumer retry also rejected direct Array/Map set metadata-absent boundaries. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
+active_lane_status = "CoreBox surface catalog is landed as a reference lane; CoreMethodContract seed, generated manifest, .inc no-growth guard, first MIR CoreMethodOp carrier, first .inc consumer slices, explicit LoweringTier metadata, HCM-7 preflight evidence, receiver-origin metadata, key-route/value-demand metadata, the MapHas i64-key route, MapGet return-shape metadata, scalar MapGet proofs, same-key MapGet/MapHas fusion metadata, MapLookupSameKey const folds, MapLookup fusion guards, Stage-B adapter thinning slices, route-policy mirror preflight, MapHas/MapGet/Len/Substring/Push/Set metadata-first emit-kind selection, Set storage-route metadata-first selection, set ArrayBox storage-route mirror prune, RuntimeData set fallback contract, remaining .inc mirror inventory, MIR-call Set need metadata consumer, RuntimeData get route fallback prune, RuntimeData set route fallback prune, RuntimeData push route fallback prune, ArrayHas CoreMethod carrier, ArrayBox has route fallback prune, RuntimeData has route fallback prune, generic has emit-kind fallback prune, MIR-call MapBox+has surface fallback closeout, RuntimeData has declaration need-flag cleanup, and Stage-B BuildBox handoff adapter cleanup are landed. The first scalar MapGet warm-helper lowering probe was rejected because cycles/IPC regressed. The first MapHas, MapGet, Len, Substring, Push, Set, and MIR-call Set surface mirror-row prune probes were rejected because metadata-absent boundary MIR JSON still relies on legacy fallback rows; the post-need-consumer retry also rejected direct Array/Map set metadata-absent boundaries. Detailed landed/rejected history belongs to phase docs and cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-275"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-275-remaining-cleanup-inventory-card.md"
-latest_card_summary = "Remaining phase-291x compiler-clean cleanup is inventoried: the only no-growth rows left are the intentional paired MapBox+has fallback baseline."
+latest_card = "291x-276"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-276-stageb-buildbox-handoff-adapter-card.md"
+latest_card_summary = "Stage-B entry now delegates source-to-Program(JSON v0) production through a BuildBox handoff adapter instead of directly importing parser/body/defs/json helpers."
 
-current_blocker_token = "phase-291x residual MapBox.has fallback baseline blocked; select next compiler-clean lane"
+current_blocker_token = "phase-291x Stage-B BuildBox handoff landed; continue compiler-clean BoxShape cleanup"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -88,6 +88,7 @@ landed_tail = [
   "291x-273 RuntimeData has declaration need-flag cleanup landed",
   "291x-274 docs and smoke operating simplification landed",
   "291x-275 remaining cleanup inventory landed; residual MapBox+has fallback baseline is blocked",
+  "291x-276 Stage-B BuildBox handoff adapter cleanup landed",
 ]
 
 stale_pointer_patterns = [

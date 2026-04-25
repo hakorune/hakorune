@@ -1,0 +1,23 @@
+// StageBCompileAdapterBox — Stage-B entry-local handoff to BuildBox.
+// Responsibility: adapt entry/env inputs, then delegate source -> Program(JSON v0)
+// authority to BuildBox. Parser/body/defs/import scanning must not live here.
+
+using lang.compiler.build.build_box as BuildBox
+using lang.compiler.entry.stageb_keyword_expr_strip_box as StageBKeywordExprStripBox
+
+static box StageBCompileAdapterBox {
+  emit_program_json_v0(source, prefer_cfg, stage3, v1_compat) {
+    me._apply_stage3_env(stage3)
+    local program_json = BuildBox.emit_program_json_v0(source, null)
+    if program_json == null { return null }
+    return StageBKeywordExprStripBox.strip(program_json, "local")
+  }
+
+  _apply_stage3_env(stage3) {
+    if stage3 != null && stage3 != 0 {
+      env.set("NYASH_PARSER_STAGE3", "1")
+      env.set("HAKO_PARSER_STAGE3", "1")
+    }
+    return 0
+  }
+}
