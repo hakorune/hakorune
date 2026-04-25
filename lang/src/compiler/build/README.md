@@ -42,9 +42,8 @@ Notes
     - `_prepare_scan_src(...)`: bundle input collector plus resolver handoff
     - `_new_prepare_scan_src_result(...)` / `_fail_prepare_scan_src(...)` / `_apply_prepare_scan_src_result(...)` / `_resolve_prepare_scan_src_if_needed(...)`: prepared-scan-src result/error/resolve handoff only
     - `_resolve_scan_src_from_bundle_ctx(...)`: `BuildBundleResolverBox` call only
-    - `_coerce_text(...)`: owner-local legacy stringify only
     - `_parse_program_json(...)`: parser entry only
-    - `_main_body_parse_src_if_present(...)`: parse-src narrowing helper only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
     - `_parse_program_json_from_scan_src(...)`: parse-source narrowing handoff plus parser call only
+    - `_resolve_parse_src(...)`: `BodyExtractionBox` parse-source narrowing handoff only
     - `BuildProgramFragmentBox.enrich(...)`: defs/imports enrichment handoff only

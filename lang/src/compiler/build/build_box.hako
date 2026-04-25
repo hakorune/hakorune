@@ -16,13 +16,9 @@ static box BuildBox {
     // - parse_src narrows to Main.main body when available, and only then falls back
     //   to full-source parse for non-box / non-main inputs
     local prepared = me._prepare_scan_src(src, opts)
-    if prepared.has("error") == true { return me._coerce_text(prepared.get("error")) }
+    if prepared.has("error") == true { return "" + prepared.get("error") }
     local scan_src = prepared.get("scan_src")
     return me._emit_program_json_from_scan_src(scan_src)
-  }
-
-  method _coerce_text(value) {
-    return "" + value
   }
 
   method _prepare_scan_src(src, opts) {
@@ -93,15 +89,9 @@ static box BuildBox {
   }
 
   method _resolve_parse_src(scan_src) {
-    local body_src = me._main_body_parse_src_if_present(scan_src)
-    if body_src != null { return body_src }
-    return scan_src
-  }
-
-  method _main_body_parse_src_if_present(scan_src) {
     local body_src = BodyExtractionBox.extract_main_body(scan_src)
     if body_src != null && body_src != "" { return body_src }
-    return null
+    return scan_src
   }
 
   method verify_program_json_v0(json) {

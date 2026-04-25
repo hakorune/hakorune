@@ -33,16 +33,16 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x BuildBox fragment injector split landed; next facade closeout docs/checks`
+- current blocker token: `phase-291x BuildBox facade closeout landed; next cleanup selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-284` delegated defs/imports fragment
-  construction and Program(JSON v0) fragment injection to
-  `BuildProgramFragmentBox`
+- latest known checkpoint: `291x-285` closed the BuildBox thinning series;
+  BuildBox now sequences source preparation, parser call, parse-source
+  narrowing, and fragment enrichment handoffs only
 - no-growth checkpoint: `classifiers=2 rows=2` is the intentional paired
   MIR-call `MapBox + has` fallback baseline
 - worktree expectation: clean after the last commit unless an active slice is
