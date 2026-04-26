@@ -148,7 +148,7 @@ impl LoopBodyCondPromoter {
     /// - TrimLoopLowerer: Full lowering pipeline (detection + code generation)
     /// - LoopBodyCondPromoter: Detection + metadata only (no code generation)
     pub fn try_promote_for_condition(req: ConditionPromotionRequest) -> ConditionPromotionResult {
-        use crate::mir::loop_route_detection::loop_body_digitpos_promoter::{
+        use super::loop_body_digitpos_promoter::{
             DigitPosPromoter, DigitPosPromotionRequest, DigitPosPromotionResult,
         };
         use crate::mir::loop_route_detection::loop_condition_scope::CondVarScope;

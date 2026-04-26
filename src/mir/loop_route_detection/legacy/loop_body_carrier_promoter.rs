@@ -126,8 +126,8 @@ impl LoopBodyCarrierPromoter {
     /// 2. TrimDetector で純粋な検出ロジックを実行
     /// 3. 昇格可能なら TrimRouteInfo を返す
     pub fn try_promote(request: &PromotionRequest) -> PromotionResult {
+        use super::trim_detector::TrimDetector;
         use crate::mir::loop_route_detection::loop_condition_scope::CondVarScope;
-        use crate::mir::loop_route_detection::trim_detector::TrimDetector;
 
         // 1. body-local 変数を抽出
         let body_locals: Vec<&String> = request

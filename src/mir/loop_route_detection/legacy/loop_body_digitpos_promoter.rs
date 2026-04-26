@@ -99,7 +99,7 @@ impl DigitPosPromoter {
     /// 3. Build CarrierInfo with bool + int carriers
     /// 4. Record BindingId promotion (dev-only)
     pub fn try_promote(req: DigitPosPromotionRequest) -> DigitPosPromotionResult {
-        use crate::mir::loop_route_detection::digitpos_detector::DigitPosDetector;
+        use super::digitpos_detector::DigitPosDetector;
         use crate::mir::loop_route_detection::loop_condition_scope::CondVarScope;
 
         // Step 1: Extract body-local variables
