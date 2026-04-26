@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR simple-while main route gate helper pending`
+- current blocker token: `phase-291x JoinIR Case-A update-summary name-only inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-317` inventoried the simple-while `main`
-  route gate and classified it as routing policy
+- latest known checkpoint: `291x-318` replaced the simple-while `main`
+  substring gate with a `StaticMethodId`/canonical-main helper
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: replace `LoopViewBuilder` simple-while `main` substring gate
-  with a `StaticMethodId`/canonical-main helper
+- resume point: inventory Case-A shape dispatch update-summary name-only
+  fallback; do not mix with simple-while gate cleanup
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-317-joinir-simple-while-main-gate-inventory-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-318-joinir-simple-while-main-gate-helper-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR simple-while `main` route gate helper; do not mix with Case-A
-  descriptor cleanup or generic carrier-summary cleanup
+- next: JoinIR Case-A update-summary name-only inventory; do not mix with
+  simple-while gate cleanup
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-317`; detailed landed history lives in phase card
+- latest checkpoint: `291x-318`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR simple-while `main` route gate helper
+- next cleanup: JoinIR Case-A update-summary name-only inventory
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

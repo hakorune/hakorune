@@ -15,13 +15,25 @@
 //! - **拡張性**: 新しいroute追加が容易
 //! - **テスト容易性**: 独立したBoxで単体テスト可能
 
+use crate::mir::join_ir::lowering::canonical_names;
 use crate::mir::join_ir::lowering::generic_case_a;
 use crate::mir::join_ir::lowering::loop_scope_shape::{
     find_case_a_minimal_target, CaseALoweringShape, CaseAMinimalTargetKind, LoopScopeShape,
 };
 use crate::mir::join_ir::lowering::loop_update_summary; // Phase 170-C-2b
 use crate::mir::join_ir::JoinModule;
+use crate::mir::naming::StaticMethodId;
 use crate::runtime::get_global_ring0;
+
+fn is_simple_while_main_route_candidate(name: &str) -> bool {
+    if name == canonical_names::MAIN {
+        return true;
+    }
+
+    StaticMethodId::parse(name)
+        .map(|id| id.method == canonical_names::MAIN)
+        .unwrap_or(false)
+}
 
 /// Loop lowering ディスパッチ箱
 ///
@@ -109,13 +121,13 @@ impl LoopViewBuilder {
     ///
     /// # 検出条件
     ///
-    /// - 関数名に "main" が含まれる
+    /// - canonical JoinIR `main` or a static method whose method name is `main`
     /// - Pinned vars がない
     /// - Carriers が1つ以上
     ///
     /// # Phase 202-A: JoinValueSpace Integration
     fn try_loop_simple_while(&self, scope: &LoopScopeShape, name: &str) -> Option<JoinModule> {
-        if !name.contains("main") {
+        if !is_simple_while_main_route_candidate(name) {
             return None;
         }
 
@@ -275,5 +287,22 @@ mod tests {
     fn test_builder_creation() {
         let builder = LoopViewBuilder::new();
         assert!(!builder.debug || builder.debug); // Just check it compiles
+    }
+
+    #[test]
+    fn simple_while_main_route_gate_uses_static_method_identity() {
+        for name in ["main", "Main.main/0", "Main.main/1", "main.main/0"] {
+            assert!(is_simple_while_main_route_candidate(name));
+        }
+
+        for name in [
+            "",
+            "domain_loop/0",
+            "Main.remaining/0",
+            "Main.not_main/0",
+            "FuncScannerBox.trim/1",
+        ] {
+            assert!(!is_simple_while_main_route_candidate(name));
+        }
     }
 }
