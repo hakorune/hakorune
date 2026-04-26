@@ -108,7 +108,7 @@ pub fn try_lower_loop_route_to_joinir(
     use crate::mir::loop_route_detection::{classify, extract_features, LoopRouteKind};
 
     // Step 1: Extract features from LoopForm (no LoopScope needed for now)
-    let features = extract_features(loop_form, None);
+    let features = extract_features(loop_form);
 
     // Step 2: Classify route family based on structure
     let route_kind = classify(&features);

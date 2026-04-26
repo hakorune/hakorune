@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-339"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-339-joinir-loopfeatures-if-phi-stub-inventory-card.md"
-latest_card_summary = "Inventoried the LoopForm if-phi signature helper and found it is a dead reserved seam."
+latest_card = "291x-340"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-340-joinir-loopfeatures-if-phi-stub-prune-card.md"
+latest_card_summary = "Removed the dead LoopForm if-phi signature helper and unused scope parameter."
 
-current_blocker_token = "phase-291x JoinIR LoopFeatures if-phi signature stub prune pending"
+current_blocker_token = "phase-291x JoinIR LoopFeatures nesting stub inventory pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -59,4 +59,5 @@ landed_tail = [
   "291x-337 JoinIR LoopFeatures update-summary surface inventory landed",
   "291x-338 JoinIR LoopFeatures update-summary dead surface prune landed",
   "291x-339 JoinIR LoopFeatures if-phi signature stub inventory landed",
+  "291x-340 JoinIR LoopFeatures if-phi signature stub prune landed",
 ]
