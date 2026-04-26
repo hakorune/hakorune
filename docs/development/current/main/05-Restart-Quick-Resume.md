@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x stage-b adapter thinning closeout pending`
+- current blocker token: `phase-291x next lane selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-440` removed the disabled Stage-B FuncScan
-  no-op harness from the entry adapter
+- latest known checkpoint: `291x-441` closed the Stage-B adapter thinning
+  burst and returned to next lane selection
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,7 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- close out the Stage-B adapter thinning burst and choose the next lane
+- choose the next compiler-cleanliness lane; do not continue small Stage-B
+  entry edits by default
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   move to a new lane
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
