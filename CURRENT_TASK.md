@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR Case-A target descriptor table split pending`
+- current blocker token: `phase-291x JoinIR Case-A fallback dispatch descriptor consumer pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-311` inventoried Case-A name-policy
-  duplication and selected a Case-A target descriptor table split
+- latest known checkpoint: `291x-312` moved the Case-A minimal target
+  acceptance set into a local descriptor table
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: add a Case-A target descriptor table for
-  `is_case_a_minimal_target(...)` without changing fallback dispatch yet
+- resume point: make `loop_view_builder::dispatch_by_name(...)` consume the
+  Case-A descriptor route kind instead of duplicating exact function names
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-311-joinir-casea-name-policy-inventory-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-312-joinir-casea-target-descriptor-table-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR Case-A target descriptor table split; do not mix with fallback
-  dispatch cleanup
+- next: JoinIR Case-A fallback dispatch descriptor consumer; do not change the
+  accepted Case-A target set
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -84,8 +84,8 @@ Scope: current lane / next lane / restart order only.
   type-hint family table split landed; GenericTypeResolver P3-C candidate
   helper audit/retirement landed; JoinIR residual name-policy inventory landed;
   JoinIR frontend route descriptor table split landed; JoinIR Case-A
-  name-policy inventory landed; next cleanup is Case-A target descriptor table
-  split
+  name-policy inventory landed; JoinIR Case-A target descriptor table split
+  landed; next cleanup is fallback dispatch descriptor consumer
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
