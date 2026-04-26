@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector support facade add pending`
+- current blocker token: `phase-291x JoinIR route detector small support family migration pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- add `loop_route_detection::support::*` semantic facade without caller
-  migration
-- cleanup checkpoint: latest known landed card `291x-370`; detailed closed
+- migrate small support families to `support` paths (`break_condition`,
+  `locals::pinned`, `locals::mutable_accumulator`)
+- cleanup checkpoint: latest known landed card `291x-371`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

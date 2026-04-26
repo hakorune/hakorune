@@ -40,6 +40,7 @@ mod classify;
 mod features;
 mod kind;
 mod legacy;
+pub mod support;
 
 pub use classify::classify;
 pub(crate) use features::extract_features;

@@ -1,0 +1,51 @@
+//! Stable semantic facades for route detector support modules.
+//!
+//! This module owns non-legacy caller paths. The current implementation still
+//! lives in private `legacy/` storage; callers should depend on these semantic
+//! facades so physical file moves can happen later without widening `legacy`.
+
+/// Break-condition structural analysis support.
+pub mod break_condition {
+    pub use crate::mir::loop_route_detection::legacy::break_condition_analyzer::*;
+}
+
+/// Loop-body local promotion support.
+pub mod body_local {
+    /// Carrier promotion support.
+    pub mod carrier {
+        pub use crate::mir::loop_route_detection::legacy::loop_body_carrier_promoter::*;
+    }
+
+    /// Condition promotion support.
+    pub mod condition {
+        pub use crate::mir::loop_route_detection::legacy::loop_body_cond_promoter::*;
+    }
+}
+
+/// Condition-scope analysis support.
+pub mod condition_scope {
+    pub use crate::mir::loop_route_detection::legacy::loop_condition_scope::*;
+}
+
+/// Function-scope capture analysis support.
+pub mod function_scope {
+    pub use crate::mir::loop_route_detection::legacy::function_scope_capture::*;
+}
+
+/// Local-variable analyzer support.
+pub mod locals {
+    /// Mutable accumulator analysis support.
+    pub mod mutable_accumulator {
+        pub use crate::mir::loop_route_detection::legacy::mutable_accumulator_analyzer::*;
+    }
+
+    /// Pinned local analysis support.
+    pub mod pinned {
+        pub use crate::mir::loop_route_detection::legacy::pinned_local_analyzer::*;
+    }
+}
+
+/// Trim-route support.
+pub mod trim {
+    pub use crate::mir::loop_route_detection::legacy::trim_loop_helper::*;
+}
