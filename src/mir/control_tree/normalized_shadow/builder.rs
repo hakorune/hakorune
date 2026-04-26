@@ -19,8 +19,8 @@
 use crate::mir::control_tree::normalized_shadow::env_layout::{
     expected_env_field_count as calc_expected_env_fields, EnvLayout,
 };
+use crate::mir::control_tree::normalized_shadow::entry::if_only;
 use crate::mir::control_tree::normalized_shadow::if_as_last_join_k::IfAsLastJoinKLowererBox;
-use crate::mir::control_tree::normalized_shadow::legacy::LegacyLowerer;
 use crate::mir::control_tree::normalized_shadow::loop_true_break_once::LoopTrueBreakOnceBuilderBox; // Phase 131
 use crate::mir::control_tree::normalized_shadow::loop_true_if_break_continue::LoopTrueIfBreakContinueBuilderBox; // Phase 143 P0
 use crate::mir::control_tree::normalized_shadow::post_if_post_k::PostIfPostKBuilderBox; // Phase 129-C
@@ -91,8 +91,8 @@ impl StepTreeNormalizedShadowLowererBox {
             return Ok(Some((module, meta)));
         }
 
-        // Legacy path (Phase 123-128 scope)
-        LegacyLowerer::lower_if_only_to_normalized(step_tree, &env_layout)
+        // Baseline if-only entry (Phase 123-128 scope)
+        if_only::lower_if_only_to_normalized(step_tree, &env_layout)
     }
 
     /// Phase 131: Lower StepTree with loop support (loop(true) break-once only)

@@ -35,6 +35,7 @@ pub mod builder;
 pub mod common; // Phase 138: Common utilities (ReturnValueLowererBox)
 pub mod contracts;
 pub mod dev_pipeline;
+pub(crate) mod entry;
 pub mod env_layout;
 pub mod exit_reconnector; // Phase 131 P1.5: Direct variable_map reconnection (Option B)
 pub mod if_as_last_join_k;
