@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-425"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-425-normalized-shadow-public-surface-prune-card.md"
-latest_card_summary = "Pruned unused normalized-shadow root re-exports without widening warnings."
+latest_card = "291x-426"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-426-normalized-shadow-suffix-router-owner-inventory-card.md"
+latest_card_summary = "Inventoried normalized-shadow suffix router ownership before moving it under normalization."
 
-current_blocker_token = "phase-291x next compiler-cleanliness seam inventory pending"
+current_blocker_token = "phase-291x normalized-shadow suffix router owner move pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -145,4 +145,5 @@ landed_tail = [
   "291x-423 normalized-shadow ANF status wording cleanup landed",
   "291x-424 normalized-shadow public surface inventory landed",
   "291x-425 normalized-shadow public surface prune landed",
+  "291x-426 normalized-shadow suffix router owner inventory landed",
 ]
