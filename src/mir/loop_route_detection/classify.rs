@@ -39,22 +39,6 @@ use super::kind::LoopRouteKind;
 /// Both routers (`router.rs` and `loop_route_router.rs`) use this
 /// function to avoid duplicate detection logic.
 pub fn classify(features: &LoopFeatures) -> LoopRouteKind {
-    // Phase 188.1: NestedLoopMinimal (1-level only, check first after depth validation)
-    // Reject 2+ level nesting (explicit error) BEFORE any route matching
-    if features.max_loop_depth > 2 {
-        // Return Unknown to trigger explicit error in router
-        return LoopRouteKind::Unknown;
-    }
-
-    // NestedLoopMinimal: 1-level nested, simple-while-compatible inner/outer loops
-    if features.max_loop_depth == 2
-        && features.has_inner_loops
-        && !features.has_break
-        && !features.has_continue
-    {
-        return LoopRouteKind::NestedLoopMinimal;
-    }
-
     // Phase 131-11: LoopTrueEarlyExit (highest priority - most specific)
     // MUST check before LoopContinueOnly to avoid misrouting break+continue cases
     if features.is_infinite_loop && features.has_break && features.has_continue {
@@ -124,10 +108,7 @@ pub fn classify_with_diagnosis(features: &LoopFeatures) -> (LoopRouteKind, Strin
             "Simple while loop with no special control flow".to_string()
         }
         LoopRouteKind::NestedLoopMinimal => {
-            format!(
-                "Nested loop (1-level, max_loop_depth={}) with no break/continue",
-                features.max_loop_depth
-            )
+            "NestedLoopMinimal is selected by the StepTree AST route, not LoopFeatures".to_string()
         }
         LoopRouteKind::LoopTrueEarlyExit => {
             format!(

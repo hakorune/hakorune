@@ -189,25 +189,10 @@ pub fn try_lower_loop_route_to_joinir(
             }
         }
         LoopRouteKind::Unknown => {
-            // Phase 188.1: Check for explicit rejection reasons (depth > 2)
-            if features.max_loop_depth > 2 {
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = get_global_ring0();
-                    ring0.log.debug(&format!(
-                        "[try_lower_loop_route] ❌ EXPLICIT ERROR: max_loop_depth={} exceeds limit (max=2)",
-                        features.max_loop_depth
-                    ));
-                    ring0.log.debug(
-                        "[try_lower_loop_route]   Hint: Nested loops with depth > 2 not supported in Phase 188.1",
-                    );
-                }
-                // Fallback will trigger error (no silent Ok(None))
-            } else {
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    get_global_ring0().log.debug(
-                        "[try_lower_loop_route] ❌ Unknown route, fallback to existing lowering",
-                    );
-                }
+            if crate::config::env::joinir_dev::debug_enabled() {
+                get_global_ring0().log.debug(
+                    "[try_lower_loop_route] ❌ Unknown route, fallback to existing lowering",
+                );
             }
         }
     }

@@ -30,12 +30,6 @@ pub struct LoopFeatures {
 
     /// Phase 131-11: Is this an infinite loop? (condition == true)
     pub is_infinite_loop: bool,
-
-    /// Phase 188.1: Nesting depth (1 = single loop, 2 = 1-level nested, etc.)
-    pub max_loop_depth: u32,
-
-    /// Phase 188.1: Has inner loops?
-    pub has_inner_loops: bool,
 }
 
 impl Default for LoopFeatures {
@@ -49,8 +43,6 @@ impl Default for LoopFeatures {
             break_count: 0,
             continue_count: 0,
             is_infinite_loop: false,
-            max_loop_depth: 1,      // Phase 188.1: Default (no nesting)
-            has_inner_loops: false, // Phase 188.1: Default (no nesting)
         }
     }
 }
@@ -61,7 +53,7 @@ impl LoopFeatures {
     /// Returns a formatted string showing all feature values for debugging.
     pub fn debug_stats(&self) -> String {
         format!(
-            "LoopFeatures {{ break: {}, continue: {}, if: {}, if_else_phi: {}, carriers: {}, break_count: {}, continue_count: {}, infinite: {}, depth: {}, inner: {} }}",
+            "LoopFeatures {{ break: {}, continue: {}, if: {}, if_else_phi: {}, carriers: {}, break_count: {}, continue_count: {}, infinite: {} }}",
             self.has_break,
             self.has_continue,
             self.has_if,
@@ -69,9 +61,7 @@ impl LoopFeatures {
             self.carrier_count,
             self.break_count,
             self.continue_count,
-            self.is_infinite_loop,
-            self.max_loop_depth,
-            self.has_inner_loops
+            self.is_infinite_loop
         )
     }
 
@@ -121,12 +111,6 @@ pub(crate) fn extract_features(loop_form: &LoopForm) -> LoopFeatures {
     let has_if_else_phi = false;
     let has_if = false;
 
-    // Phase 188.1: Nesting detection
-    // TODO: Detect from LoopForm structure (nested LoopForm presence)
-    // For now, default to no nesting (will be detected in lowering phase)
-    let max_loop_depth = 1;
-    let has_inner_loops = false;
-
     LoopFeatures {
         has_break,
         has_continue,
@@ -136,7 +120,5 @@ pub(crate) fn extract_features(loop_form: &LoopForm) -> LoopFeatures {
         break_count,
         continue_count,
         is_infinite_loop: false, // Phase 131-11: LoopForm doesn't have condition info, default to false
-        max_loop_depth,
-        has_inner_loops,
     }
 }
