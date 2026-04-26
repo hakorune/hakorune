@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector export surface closeout review pending`
+- current blocker token: `phase-291x JoinIR route detector legacy module visibility inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-365` pruned unused convenience re-exports
-  inside `loop_route_detection/legacy` while keeping owning modules
+- latest known checkpoint: `291x-366` closed out the route detector
+  export-surface cleanup and identified legacy module visibility as next seam
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: review final `loop_route_detection` parent/legacy surface for
-  stale route API before closing this cleanup seam
+- resume point: inventory whether `pub mod legacy` can become private
+  `mod legacy` while selected compatibility exports stay public
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,10 +58,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-365-joinir-route-detector-legacy-convenience-reexport-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-366-joinir-route-detector-export-surface-closeout-review-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR route detector export surface closeout review
+- next: JoinIR route detector legacy module visibility inventory
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -71,9 +71,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-365`; detailed landed history lives in phase card
+- latest checkpoint: `291x-366`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR route detector export surface closeout review
+- next cleanup: JoinIR route detector legacy module visibility inventory
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
