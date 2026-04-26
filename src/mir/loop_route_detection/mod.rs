@@ -46,7 +46,3 @@ pub use legacy::{
     loop_body_cond_promoter, loop_condition_scope, mutable_accumulator_analyzer,
     pinned_local_analyzer, trim_loop_helper,
 };
-pub use legacy::{
-    is_if_phi_join_route, is_loop_break_route, is_loop_continue_only_route,
-    is_loop_simple_while_route,
-};

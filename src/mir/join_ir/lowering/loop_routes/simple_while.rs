@@ -80,15 +80,8 @@ use crate::mir::loop_form::LoopForm;
 ///
 /// See design.md § LoopSimpleWhile for full pseudocode.
 ///
-/// # Example Usage
-///
-/// ```rust,ignore
-/// use crate::mir::loop_route_detection::is_loop_simple_while_route;
-///
-/// if is_loop_simple_while_route(&loop_form) {
-///     lower_simple_while_to_joinir(&loop_form, &mut lowerer)?;
-/// }
-/// ```
+/// Route selection is owned by `loop_route_router` and the structure-based
+/// `LoopFeatures -> classify() -> LoopRouteKind` surface.
 pub fn lower_simple_while_to_joinir(
     _loop_form: &LoopForm,
     _lowerer: &mut LoopToJoinLowerer,

@@ -71,15 +71,8 @@ use crate::runtime::get_global_ring0;
 ///
 /// See design.md § IfPhiJoin for full pseudocode.
 ///
-/// # Example Usage
-///
-/// ```rust,ignore
-/// use crate::mir::loop_route_detection::is_if_phi_join_route;
-///
-/// if is_if_phi_join_route(&loop_form) {
-///     lower_loop_with_conditional_phi_to_joinir(&loop_form, &mut lowerer)?;
-/// }
-/// ```
+/// Route selection is owned by `loop_route_router` and the structure-based
+/// `LoopFeatures -> classify() -> LoopRouteKind` surface.
 pub fn lower_loop_with_conditional_phi_to_joinir(
     _loop_form: &LoopForm,
     _lowerer: &mut LoopToJoinLowerer,
