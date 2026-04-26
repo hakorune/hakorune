@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-316"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-316-current-pointer-thinning-card.md"
-latest_card_summary = "Moved stale-pointer guard fixtures out of CURRENT_STATE and thinned current/restart mirrors."
+latest_card = "291x-317"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-317-joinir-simple-while-main-gate-inventory-card.md"
+latest_card_summary = "Inventoried the LoopViewBuilder simple-while main route gate and classified it as routing policy."
 
-current_blocker_token = "phase-291x JoinIR simple-while main route gate inventory pending"
+current_blocker_token = "phase-291x JoinIR simple-while main route gate helper pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -36,4 +36,5 @@ landed_tail = [
   "291x-314 JoinIR Case-A context-label string inventory landed",
   "291x-315 JoinIR Case-A context-label helper cleanup landed",
   "291x-316 current pointer thinning landed",
+  "291x-317 JoinIR simple-while main route gate inventory landed",
 ]
