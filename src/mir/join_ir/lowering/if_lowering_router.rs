@@ -94,6 +94,8 @@ pub fn try_lower_if_to_joinir(
     let _debug = debug || debug_level >= 1;
 
     // 2. Phase 33-8: 関数名ガード拡張（テスト + Stage-1 rollout + 明示承認）
+    // Exact approved targets are owned by JOINIR_IF_TARGETS; this router only
+    // keeps the broader prefix gates that still need a separate policy cleanup.
     let is_allowed =
         // Test functions (always enabled)
         func.signature.name.starts_with("IfSelectTest.") ||
@@ -106,11 +108,8 @@ pub fn try_lower_if_to_joinir(
         (crate::config::env::joinir_stage1_enabled() &&
          func.signature.name.starts_with("Stage1")) ||
 
-        // Explicit approvals (Phase 33-4で検証済み, always on)
-        matches!(func.signature.name.as_str(),
-            "JsonShapeToMap._read_value_from_pair/1" |
-            "Stage1JsonScannerBox.value_start_after_key_pos/2"
-        );
+        // Exact approvals (Phase 184 SSOT table)
+        crate::mir::join_ir_vm_bridge_dispatch::is_if_lowered_function(&func.signature.name);
 
     if !is_allowed {
         if debug_level >= 2 {

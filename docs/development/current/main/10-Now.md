@@ -20,22 +20,22 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR if-target exact allowlist SSOT pending`
+- current blocker token: `phase-291x JoinIR if-target prefix policy inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- remove the exact JoinIR if-target string mirror from
-  `try_lower_if_to_joinir(...)` by consuming `is_if_lowered_function(...)`
-- cleanup checkpoint: latest known landed card `291x-301`; BuildBox thinning,
+- inventory remaining JoinIR if-target prefix policy before editing behavior
+- cleanup checkpoint: latest known landed card `291x-302`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
   closed; SurfacePolicy owner audit and export retirement are closed;
   runtime/meta live table inventory, Using support owner audit/export
   retirement, JsonShapeToMap owner audit/support quarantine, and runtime/meta
-  root closeout are closed; post-runtime-meta inventory is closed
+  root closeout are closed; post-runtime-meta inventory is closed; JoinIR
+  if-target exact allowlist SSOT is closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
