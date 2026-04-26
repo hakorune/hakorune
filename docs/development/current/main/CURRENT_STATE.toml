@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-330"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-330-joinir-loop-update-assignment-value-traversal-prune-card.md"
-latest_card_summary = "Stopped loop-update analysis from using assignment-value nested assignments as current-loop update proof."
+latest_card = "291x-331"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-331-joinir-loop-update-summary-helper-split-inventory-card.md"
+latest_card_summary = "Inventoried loop-update summary helper responsibilities before splitting traversal/classification/tests."
 
-current_blocker_token = "phase-291x JoinIR loop-update summary helper split inventory pending"
+current_blocker_token = "phase-291x JoinIR loop-update summary helper split pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -50,4 +50,5 @@ landed_tail = [
   "291x-328 JoinIR loop-update all-RHS classification landed",
   "291x-329 JoinIR loop-update assignment-value traversal inventory landed",
   "291x-330 JoinIR loop-update assignment-value traversal prune landed",
+  "291x-331 JoinIR loop-update summary helper split inventory landed",
 ]
