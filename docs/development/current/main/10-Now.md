@@ -20,15 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR loop-update assignment-value traversal prune pending`
+- current blocker token: `phase-291x JoinIR loop-update summary helper split inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- prune loop-update traversal into assignment values; keep statement-level
-  carrier assignments and current-loop if branches
-- cleanup checkpoint: latest known landed card `291x-329`; detailed closed
+- inventory loop-update summary helper split; do not mix with behavior changes
+- cleanup checkpoint: latest known landed card `291x-330`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

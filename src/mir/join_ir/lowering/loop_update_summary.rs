@@ -229,12 +229,8 @@ fn collect_assignment_rhses<'a>(
                 if let ASTNode::Variable { name, .. } = target.as_ref() {
                     if name == var_name {
                         rhses.push(value.as_ref());
-                        return;
                     }
                 }
-                // Recurse into value for nested assignment expressions that are
-                // not already the carrier assignment itself.
-                visit_node(var_name, value, rhses);
             }
             ASTNode::If {
                 then_body,
@@ -628,5 +624,17 @@ mod tests {
 
         assert_eq!(summary.counter_count(), 0);
         assert_eq!(summary.accumulation_count(), 1);
+    }
+
+    #[test]
+    fn loop_update_assignment_value_ignores_nested_assignment_expression() {
+        let names = vec!["i".to_string()];
+        let loop_body = vec![assign("other", assign("i", add(var("i"), lit_i(1))))];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert!(summary.carriers.is_empty());
+        assert_eq!(summary.counter_count(), 0);
+        assert_eq!(summary.accumulation_count(), 0);
     }
 }
