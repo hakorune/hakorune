@@ -41,24 +41,11 @@ Rule:
 
 ## Support exports pending audit
 
-- `using_resolver.hako`
-  - `UsingResolver.resolve(token)`
-  - minimal meta support stub.
-  - owner-audited by `291x-296`.
-  - no external `selfhost.meta.UsingResolver` user was found in the
-    `291x-296` inventory outside `UsingDecision`.
-  - registered transitional support utility, not the Stage1/Pipeline using
-    resolver owner.
-- `using_decision.hako`
-  - `UsingDecision.decide(token)`
-  - thin wrapper over `selfhost.meta.UsingResolver`.
-  - owner-audited by `291x-296`.
-  - retire together with `using_resolver.hako` if no caller appears.
 - `json_shape_parser.hako`
   - `JsonShapeToMap.parse(json)` and helper functions.
   - support / JoinIR fixture utility; `JsonShapeToMap._read_value_from_pair/1`
     is referenced by JoinIR bridge dispatch tests.
-  - keep separate from UsingResolver cleanup.
+  - audit separately before moving or deleting.
 
 ## Retired Modules
 
@@ -88,3 +75,11 @@ Rule:
     generated producer or typed LoweringPlan owns those flags.
   - do not reintroduce a by-name surface table unless it is generated from
     CoreMethod/manifest metadata and wired as the actual producer.
+- `using_resolver.hako`
+  - owner-audited by `291x-296` and retired by `291x-297`.
+  - no external `selfhost.meta.UsingResolver` user was found outside
+    `UsingDecision`.
+  - Stage1/Pipeline using resolver boxes remain the real compiler owners.
+- `using_decision.hako`
+  - owner-audited by `291x-296` and retired by `291x-297`.
+  - depended only on the retired `selfhost.meta.UsingResolver` support stub.

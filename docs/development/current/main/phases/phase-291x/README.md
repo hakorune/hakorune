@@ -35,6 +35,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-294-mir-call-surface-policy-export-retirement-card.md
   - docs/development/current/main/phases/phase-291x/291x-295-runtime-meta-live-table-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-296-runtime-meta-using-support-owner-audit-card.md
+  - docs/development/current/main/phases/phase-291x/291x-297-runtime-meta-using-support-export-retirement-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -42,8 +43,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: quarantine/retire stale `UsingResolver` /
-  `UsingDecision` runtime/meta support exports
+- Next implementation target: audit `JsonShapeToMap` separately
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -55,7 +55,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-296-runtime-meta-using-support-owner-audit-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-297-runtime-meta-using-support-export-retirement-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -97,12 +97,13 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-296`
+- latest known cleanup checkpoint: `291x-297`
 - BuildBox thinning series is closed; residual MapBox.has sentinel retirement
   is closed; CoreMethodContract `.inc` classifier baseline is zero;
   `MirCallRoutePolicy`, `MirCallNeedPolicy`, and `MirCallSurfacePolicy`
   exports are retired; runtime/meta live table inventory is closed; Using
-  support owner audit is closed; next cleanup is support export quarantine
+  support owner audit/export retirement is closed; next cleanup is
+  `JsonShapeToMap` owner audit
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=0 rows=0`
 - no `.inc` method/box string classifier rows are allowlisted

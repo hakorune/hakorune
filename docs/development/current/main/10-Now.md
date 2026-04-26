@@ -20,20 +20,21 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x runtime/meta using support export quarantine pending`
+- current blocker token: `phase-291x runtime/meta JsonShapeToMap owner audit pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- quarantine/retire stale `UsingResolver` / `UsingDecision` support exports
-  if no caller is introduced; keep `JsonShapeToMap` separate
-- cleanup checkpoint: latest known landed card `291x-296`; BuildBox thinning,
+- audit `JsonShapeToMap` separately because JoinIR bridge tests name it
+  directly
+- cleanup checkpoint: latest known landed card `291x-297`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
   closed; SurfacePolicy owner audit and export retirement are closed;
-  runtime/meta live table inventory and Using support owner audit are closed
+  runtime/meta live table inventory and Using support owner audit/export
+  retirement are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

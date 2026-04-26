@@ -3,7 +3,5 @@ name = "selfhost.meta"
 version = "1.0.0"
 
 [exports]
-UsingResolver = "using_resolver.hako"
-UsingDecision = "using_decision.hako"
 JsonShapeToMap = "json_shape_parser.hako"
 CoreMethodContract = "core_method_contract_box.hako"
