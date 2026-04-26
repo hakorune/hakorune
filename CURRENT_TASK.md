@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
+- current blocker token: `phase-291x normalized-shadow exit-reconnector deprecated stub cleanup pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-417` cleaned stale normalized-shadow post-if
-  fallback wording without changing lowering behavior
+- latest known checkpoint: `291x-418` inventoried normalized-shadow
+  exit-reconnector deprecated extraction stub before cleanup
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: inventory the next compiler-cleanliness seam after
-  normalized-shadow post-if fallback wording cleanup
+- resume point: remove the unused `ExitReconnectorBox::extract_k_exit_jump_args`
+  stub and its stale commented old implementation
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,10 +58,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-417-normalized-shadow-post-if-fallback-wording-cleanup-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-418-normalized-shadow-exit-reconnector-deprecated-stub-inventory-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: next compiler-cleanliness seam inventory
+- next: normalized-shadow exit-reconnector deprecated stub cleanup
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -71,9 +71,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-417`; detailed landed history lives in phase card
+- latest checkpoint: `291x-418`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: next compiler-cleanliness seam inventory
+- next cleanup: normalized-shadow exit-reconnector deprecated stub cleanup
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
