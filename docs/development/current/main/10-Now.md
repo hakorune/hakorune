@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x loop-if-break-continue placeholder review pending`
+- current blocker token: `phase-291x loop-if-break-continue scope wording cleanup pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- review loop-if-break-continue placeholder/fossil boundary under the closeout
-  cap
-- cleanup checkpoint: latest known landed card `291x-433`; detailed closed
+- clean loop-if-break-continue stale scope wording without changing generated
+  JoinIR
+- cleanup checkpoint: latest known landed card `291x-434`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - closeout cap: at most 5 more small cleanup cards before closeout review;
