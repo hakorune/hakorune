@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalization decline wording review pending`
+- current blocker token: `phase-291x normalization default-path wording cleanup pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-431` cleaned loop-if-exit out-of-scope
-  wording to route-decline terminology
+- latest known checkpoint: `291x-432` reviewed normalization decline/fallback
+  wording and selected default-path wording cleanup
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: review normalization decline/fallback wording under the
-  closeout cap
+- resume point: clean normalization wording from legacy fallback to
+  default-path route decline without changing behavior
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,10 +58,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-431-normalized-shadow-loop-if-exit-wording-cleanup-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-432-normalization-decline-wording-review-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: normalization decline/fallback wording review
+- next: normalization default-path wording cleanup
 - closeout cap: at most 5 more small cleanup cards before closeout review;
   larger findings must move to a new lane
 - keep BoxShape cleanup separate from BoxCount feature rows
@@ -73,9 +73,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-431`; detailed landed history lives in phase card
+- latest checkpoint: `291x-432`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: normalization decline/fallback wording review
+- next cleanup: normalization default-path wording cleanup
 - closeout cap: at most 5 more small cleanup cards before closeout review;
   larger findings must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
