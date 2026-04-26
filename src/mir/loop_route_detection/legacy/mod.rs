@@ -20,9 +20,6 @@ pub mod loop_body_cond_promoter;
 // Phase 224: A-4 DigitPos route promotion
 pub mod loop_body_digitpos_promoter;
 
-// Phase 200-A: Function Scope Capture Infrastructure
-pub mod function_scope_capture;
-
 // Phase 79: Pure Detection Logic (Detector/Promoter separation)
 pub mod digitpos_detector;
 pub mod trim_detector;

@@ -26,9 +26,7 @@ pub mod condition_scope {
 }
 
 /// Function-scope capture analysis support.
-pub mod function_scope {
-    pub use crate::mir::loop_route_detection::legacy::function_scope_capture::*;
-}
+pub mod function_scope;
 
 /// Local-variable analyzer support.
 pub mod locals;
