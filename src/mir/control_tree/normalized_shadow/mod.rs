@@ -48,10 +48,6 @@ pub mod post_if_post_k; // Phase 129-C: post-if with post_k continuation // Phas
 pub(crate) mod support;
 
 pub use builder::StepTreeNormalizedShadowLowererBox;
-pub use contracts::{CapabilityCheckResult, UnsupportedCapability};
-pub use env_layout::EnvLayout;
-pub use exit_reconnector::ExitReconnectorBox;
-pub use parity_contract::{MismatchKind, ShadowParityResult}; // Phase 131 P1.5
 
 pub const STEP_TREE_GATE_TAG: &str = "[phase132/gate]";
 pub const STEP_TREE_DEBUG_TAG: &str = "[phase132/debug]";
