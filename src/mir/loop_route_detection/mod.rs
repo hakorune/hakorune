@@ -5,7 +5,7 @@
 //! Current physical path: `src/mir/loop_route_detection/`
 //! Historical physical path token: `src/mir/loop_pattern_detection/`
 //!
-//! Phase 188 Task 188-4: Route-shape detection helpers for JoinIR loop lowering.
+//! Route-shape classification helpers for JoinIR loop lowering.
 //!
 //! This module provides the flat `LoopFeatures -> classify -> LoopRouteKind`
 //! route-classification surface for the current loop route families:
@@ -29,8 +29,12 @@
 //!
 //! Reference: docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md
 //!
-//! Legacy detection (Phase 188 name-based) lives under `legacy/`.
-//! Current code should use the `crate::mir::loop_route_detection::*` module surface.
+//! Implementation-backed legacy support modules live under private `legacy/`
+//! storage. Selected compatibility modules are re-exported from this parent
+//! module until their callers move to stable owner modules.
+//!
+//! Current route selection should use `classify`, `LoopFeatures`, and
+//! `LoopRouteKind`, not legacy route-shape function entry points.
 
 mod classify;
 mod features;
