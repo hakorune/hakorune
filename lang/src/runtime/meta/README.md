@@ -8,8 +8,9 @@ Scope:
 Responsibilities:
 - `mir_call` route-policy retirement notes and generated metadata handoff.
 - `mir_call` prepass need-flag retirement notes and generated metadata handoff.
-- `mir_call` constructor/global/string-extern accept surfaces.
+- `mir_call` constructor/global/string-extern surface-policy retirement notes.
 - `CoreMethodContract` seed rows for Array/String/Map method surfaces.
+- legacy/support meta utilities pending separate owner audit.
 
 Non-goals:
 - No kernel behavior.
@@ -37,6 +38,25 @@ Rule:
   - paired with `tools/checks/core_method_contract_inc_no_growth_guard.sh`
     to stop new `.inc` method/box-name classifier growth
   - not a semantic owner; regenerate instead of hand-editing.
+
+## Support exports pending audit
+
+- `using_resolver.hako`
+  - `UsingResolver.resolve(token)`
+  - minimal meta support stub.
+  - no external `selfhost.meta.UsingResolver` user was found in the
+    `291x-295` inventory outside `UsingDecision`.
+  - audit before moving or deleting; do not confuse it with the real
+    Stage1/Pipeline using resolver boxes.
+- `using_decision.hako`
+  - `UsingDecision.decide(token)`
+  - thin wrapper over `selfhost.meta.UsingResolver`.
+  - audit together with `using_resolver.hako`.
+- `json_shape_parser.hako`
+  - `JsonShapeToMap.parse(json)` and helper functions.
+  - support / JoinIR fixture utility; `JsonShapeToMap._read_value_from_pair/1`
+    is referenced by JoinIR bridge dispatch tests.
+  - keep separate from UsingResolver cleanup.
 
 ## Retired Modules
 

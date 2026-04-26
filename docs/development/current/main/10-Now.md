@@ -20,19 +20,20 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x runtime/meta live table inventory pending`
+- current blocker token: `phase-291x runtime/meta support export audit pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory remaining `runtime/meta` live tables after route / need / surface
-  mirror-table retirement
-- cleanup checkpoint: latest known landed card `291x-294`; BuildBox thinning,
+- audit `UsingResolver` / `UsingDecision` runtime/meta support exports; keep
+  `JsonShapeToMap` separate because JoinIR bridge tests name it
+- cleanup checkpoint: latest known landed card `291x-295`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
-  closed; SurfacePolicy owner audit and export retirement are closed
+  closed; SurfacePolicy owner audit and export retirement are closed;
+  runtime/meta live table inventory is closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
