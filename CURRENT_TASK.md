@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector legacy convenience re-export inventory pending`
+- current blocker token: `phase-291x JoinIR route detector legacy convenience re-export prune pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-363` deleted unused legacy route-shape
-  function definitions from `loop_route_detection/legacy`
+- latest known checkpoint: `291x-364` inventoried unused convenience
+  re-exports inside `loop_route_detection/legacy`
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: inventory convenience re-exports that remain inside
-  `legacy/mod.rs`; check legacy-internal callers before pruning
+- resume point: prune unused convenience re-exports from `legacy/mod.rs`;
+  keep owning modules exported
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-363-joinir-route-detector-legacy-route-function-definition-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-364-joinir-route-detector-legacy-convenience-reexport-inventory-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR route detector legacy convenience re-export inventory; do not
-  prune re-exports in the same card
+- next: JoinIR route detector legacy convenience re-export prune; keep owning
+  modules exported
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-363`; detailed landed history lives in phase card
+- latest checkpoint: `291x-364`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR route detector legacy convenience re-export inventory
+- next cleanup: JoinIR route detector legacy convenience re-export prune
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
