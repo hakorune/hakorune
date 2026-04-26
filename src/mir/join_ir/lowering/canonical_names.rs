@@ -34,9 +34,21 @@
 /// - JoinInlineBoundary.continuation_funcs
 /// - ExitLine/ExitMeta handling
 ///
-/// Normalized shadow keeps a compatibility name for its fixed `JoinFuncId(2)`
-/// exit continuation. See `NORMALIZED_SHADOW_K_EXIT`.
+/// Normalized shadow keeps compatibility names for fixed `JoinFuncId` routes.
+/// See `NORMALIZED_SHADOW_*` constants below.
 pub const K_EXIT: &str = "k_exit";
+
+/// Compatibility name for normalized-shadow `JoinFuncId(0)` main.
+///
+/// Used in:
+/// - normalized_shadow/loop_true_break_once.rs
+pub const NORMALIZED_SHADOW_MAIN: &str = "join_func_0";
+
+/// Compatibility name for normalized-shadow `JoinFuncId(1)` loop_step.
+///
+/// Used in:
+/// - normalized_shadow/loop_true_break_once.rs
+pub const NORMALIZED_SHADOW_LOOP_STEP: &str = "join_func_1";
 
 /// Compatibility name for normalized-shadow `JoinFuncId(2)` k_exit.
 ///
@@ -46,6 +58,18 @@ pub const K_EXIT: &str = "k_exit";
 /// This value is intentionally different from `K_EXIT`: the bridge-visible
 /// function key follows the existing normalized-shadow function id route.
 pub const NORMALIZED_SHADOW_K_EXIT: &str = "join_func_2";
+
+/// Compatibility name for normalized-shadow `JoinFuncId(3)` loop_body.
+///
+/// Used in:
+/// - normalized_shadow/loop_true_break_once.rs
+pub const NORMALIZED_SHADOW_LOOP_BODY: &str = "join_func_3";
+
+/// Compatibility name for normalized-shadow `JoinFuncId(4)` post_k.
+///
+/// Used in:
+/// - normalized_shadow/loop_true_break_once.rs
+pub const NORMALIZED_SHADOW_POST_K: &str = "join_func_4";
 
 /// Canonical name for loop step/body function
 ///
@@ -85,7 +109,11 @@ mod tests {
     #[test]
     fn test_canonical_names_are_not_empty() {
         assert!(!K_EXIT.is_empty());
+        assert!(!NORMALIZED_SHADOW_MAIN.is_empty());
+        assert!(!NORMALIZED_SHADOW_LOOP_STEP.is_empty());
         assert!(!NORMALIZED_SHADOW_K_EXIT.is_empty());
+        assert!(!NORMALIZED_SHADOW_LOOP_BODY.is_empty());
+        assert!(!NORMALIZED_SHADOW_POST_K.is_empty());
         assert!(!LOOP_STEP.is_empty());
         assert!(!MAIN.is_empty());
         assert!(!POST_K.is_empty());
@@ -95,7 +123,11 @@ mod tests {
     #[test]
     fn test_canonical_names_have_expected_values() {
         assert_eq!(K_EXIT, "k_exit");
+        assert_eq!(NORMALIZED_SHADOW_MAIN, "join_func_0");
+        assert_eq!(NORMALIZED_SHADOW_LOOP_STEP, "join_func_1");
         assert_eq!(NORMALIZED_SHADOW_K_EXIT, "join_func_2");
+        assert_eq!(NORMALIZED_SHADOW_LOOP_BODY, "join_func_3");
+        assert_eq!(NORMALIZED_SHADOW_POST_K, "join_func_4");
         assert_eq!(LOOP_STEP, "loop_step");
         assert_eq!(MAIN, "main");
         assert_eq!(POST_K, "post_k");

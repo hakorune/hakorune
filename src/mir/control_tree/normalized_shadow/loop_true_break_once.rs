@@ -53,6 +53,7 @@ use super::env_layout::EnvLayout;
 use super::loop_true_break_once_helpers as helpers;
 use super::support::expr_lowering;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
+use crate::mir::join_ir::lowering::canonical_names as cn;
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
 use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule};
@@ -155,8 +156,11 @@ impl LoopTrueBreakOnceBuilderBox {
         // main(env): <prefix> → TailCall(loop_step, env)
         // main_params allocated above in Param region. Clone for reuse.
         let mut env_main = NormalizedHelperBox::build_env_map(&env_fields, &main_params);
-        let mut main_func =
-            JoinFunction::new(main_id, "join_func_0".to_string(), main_params.clone());
+        let mut main_func = JoinFunction::new(
+            main_id,
+            cn::NORMALIZED_SHADOW_MAIN.to_string(),
+            main_params.clone(),
+        );
 
         // Lower prefix (pre-loop) statements into main
         for n in prefix_nodes {
@@ -212,8 +216,11 @@ impl LoopTrueBreakOnceBuilderBox {
         // Phase 143 fix: reuse Param region IDs for all functions
         let loop_step_params = main_params.clone();
         let env_loop_step = NormalizedHelperBox::build_env_map(&env_fields, &loop_step_params);
-        let mut loop_step_func =
-            JoinFunction::new(loop_step_id, "join_func_1".to_string(), loop_step_params);
+        let mut loop_step_func = JoinFunction::new(
+            loop_step_id,
+            cn::NORMALIZED_SHADOW_LOOP_STEP.to_string(),
+            loop_step_params,
+        );
         let loop_step_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_step)
             .map_err(|e| {
                 error_tags::freeze_with_hint(
@@ -234,8 +241,11 @@ impl LoopTrueBreakOnceBuilderBox {
         let loop_body_params = main_params.clone();
         let mut env_loop_body = NormalizedHelperBox::build_env_map(&env_fields, &loop_body_params);
         let env_loop_body_before = env_loop_body.clone();
-        let mut loop_body_func =
-            JoinFunction::new(loop_body_id, "join_func_3".to_string(), loop_body_params);
+        let mut loop_body_func = JoinFunction::new(
+            loop_body_id,
+            cn::NORMALIZED_SHADOW_LOOP_BODY.to_string(),
+            loop_body_params,
+        );
 
         // Lower body statements
         for n in body_prefix {
@@ -384,7 +394,6 @@ impl LoopTrueBreakOnceBuilderBox {
         // k_exit(env): handle post-loop or return
         // Phase 143 fix: reuse Param region IDs for all functions
         // Use the normalized-shadow compatibility name from the canonical-name SSOT.
-        use crate::mir::join_ir::lowering::canonical_names as cn;
         let k_exit_params = main_params.clone();
         let env_k_exit = NormalizedHelperBox::build_env_map(&env_fields, &k_exit_params);
         let mut k_exit_func = JoinFunction::new(
@@ -415,8 +424,11 @@ impl LoopTrueBreakOnceBuilderBox {
             // Phase 143 fix: reuse Param region IDs for all functions
             let post_k_params = main_params.clone();
             let mut env_post_k = NormalizedHelperBox::build_env_map(&env_fields, &post_k_params);
-            let mut post_k_func =
-                JoinFunction::new(post_k_id, "join_func_4".to_string(), post_k_params);
+            let mut post_k_func = JoinFunction::new(
+                post_k_id,
+                cn::NORMALIZED_SHADOW_POST_K.to_string(),
+                post_k_params,
+            );
 
             // Phase 133-P0: Lower multiple post-loop assignments
             // Split post_nodes into assigns and return (last element is return)
