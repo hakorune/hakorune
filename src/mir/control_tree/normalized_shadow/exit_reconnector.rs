@@ -58,40 +58,11 @@
 //! - **Normalized-specific**: Only used for Normalized shadow path
 //! - **Fail-Fast**: Panics if carrier not in variable_map (contract violation)
 
-use crate::mir::{BasicBlockId, MirFunction, ValueId};
+use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
 /// ExitReconnectorBox: Direct variable_map reconnection for Normalized shadow
 pub struct ExitReconnectorBox;
-
-impl ExitReconnectorBox {
-    /// Phase 131 P1.5: DEPRECATED - No longer used
-    ///
-    /// This function was used to extract k_exit jump args before the boundary approach.
-    /// Now we use MergeResult.remapped_exit_values instead (SSOT: merge owns remapper).
-    #[allow(dead_code)]
-    #[deprecated(note = "Use MergeResult.remapped_exit_values instead")]
-    pub fn extract_k_exit_jump_args(
-        _func: &MirFunction,
-        _exit_block: BasicBlockId,
-    ) -> Option<Vec<ValueId>> {
-        // Deprecated - boundary approach with remapped_exit_values is used instead
-        None
-    }
-
-    // ORIGINAL extract_k_exit_jump_args (commented out due to MIR structure changes)
-    /*
-    pub fn extract_k_exit_jump_args_old(
-        func: &MirFunction,
-        exit_block: BasicBlockId,
-    ) -> Option<Vec<ValueId>> {
-        let verbose = crate::config::env::joinir_dev_enabled();
-
-        // (Old implementation commented out - see MergeResult.remapped_exit_values instead)
-        None
-    }
-    */
-}
 
 impl ExitReconnectorBox {
     /// Reconnect k_exit env params to host variable_map
