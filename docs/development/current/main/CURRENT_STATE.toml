@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-443"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-443-generic-method-route-metadata-string-inventory-card.md"
-latest_card_summary = "Inventoried GenericMethodRoute method-string-derived metadata and selected route_kind token helpers."
+latest_card = "291x-444"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-444-generic-method-route-kind-metadata-helper-card.md"
+latest_card_summary = "Made GenericMethodRoute exported metadata tokens delegate to GenericMethodRouteKind."
 
-current_blocker_token = "phase-291x generic method route-kind metadata helper pending"
+current_blocker_token = "phase-291x generic method route metadata closeout pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -163,4 +163,5 @@ landed_tail = [
   "291x-441 Stage-B adapter thinning closeout landed",
   "291x-442 next lane selection landed",
   "291x-443 generic method route metadata string inventory landed",
+  "291x-444 generic method route-kind metadata helper landed",
 ]

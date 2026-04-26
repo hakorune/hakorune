@@ -37,6 +37,38 @@ pub enum GenericMethodRouteKind {
 }
 
 impl GenericMethodRouteKind {
+    pub fn route_id(self) -> &'static str {
+        match self {
+            Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => {
+                "generic_method.get"
+            }
+            Self::RuntimeDataContainsAny
+            | Self::ArrayContainsAny
+            | Self::MapContainsAny
+            | Self::MapContainsI64 => "generic_method.has",
+            Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => "generic_method.len",
+            Self::ArrayAppendAny => "generic_method.push",
+            Self::ArrayStoreAny | Self::MapStoreAny => "generic_method.set",
+            Self::StringSubstring => "generic_method.substring",
+            Self::StringIndexOf => "generic_method.indexOf",
+        }
+    }
+
+    pub fn emit_kind(self) -> &'static str {
+        match self {
+            Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => "get",
+            Self::RuntimeDataContainsAny
+            | Self::ArrayContainsAny
+            | Self::MapContainsAny
+            | Self::MapContainsI64 => "has",
+            Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => "len",
+            Self::ArrayAppendAny => "push",
+            Self::ArrayStoreAny | Self::MapStoreAny => "set",
+            Self::StringSubstring => "substring",
+            Self::StringIndexOf => "indexOf",
+        }
+    }
+
     pub fn helper_symbol(self) -> &'static str {
         match self {
             Self::RuntimeDataLoadAny => "nyash.runtime_data.get_hh",
@@ -54,6 +86,21 @@ impl GenericMethodRouteKind {
             Self::StringIndexOf => "nyash.string.indexOf_hh",
             Self::MapContainsAny => "nyash.map.probe_hh",
             Self::MapContainsI64 => "nyash.map.probe_hi",
+        }
+    }
+
+    pub fn effect_tags(self) -> &'static [&'static str] {
+        match self {
+            Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => &["read.key"],
+            Self::RuntimeDataContainsAny
+            | Self::ArrayContainsAny
+            | Self::MapContainsAny
+            | Self::MapContainsI64 => &["probe.key"],
+            Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => &["observe.len"],
+            Self::ArrayAppendAny => &["mutate.shape"],
+            Self::ArrayStoreAny | Self::MapStoreAny => &["mutate.slot"],
+            Self::StringSubstring => &["observe.substring"],
+            Self::StringIndexOf => &["observe.indexof"],
         }
     }
 }
@@ -135,29 +182,11 @@ pub struct GenericMethodRoute {
 
 impl GenericMethodRoute {
     pub fn route_id(&self) -> &'static str {
-        match self.method.as_str() {
-            "get" => "generic_method.get",
-            "has" => "generic_method.has",
-            "len" | "length" | "size" => "generic_method.len",
-            "push" => "generic_method.push",
-            "set" => "generic_method.set",
-            "substring" => "generic_method.substring",
-            "indexOf" => "generic_method.indexOf",
-            _ => "generic_method.unknown",
-        }
+        self.route_kind.route_id()
     }
 
     pub fn emit_kind(&self) -> &'static str {
-        match self.method.as_str() {
-            "get" => "get",
-            "has" => "has",
-            "len" | "length" | "size" => "len",
-            "push" => "push",
-            "set" => "set",
-            "substring" => "substring",
-            "indexOf" => "indexOf",
-            _ => "unknown",
-        }
+        self.route_kind.emit_kind()
     }
 
     pub fn arity(&self) -> usize {
@@ -165,16 +194,7 @@ impl GenericMethodRoute {
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
-        match self.method.as_str() {
-            "get" => &["read.key"],
-            "has" => &["probe.key"],
-            "len" | "length" | "size" => &["observe.len"],
-            "push" => &["mutate.shape"],
-            "set" => &["mutate.slot"],
-            "substring" => &["observe.substring"],
-            "indexOf" => &["observe.indexof"],
-            _ => &[],
-        }
+        self.route_kind.effect_tags()
     }
 }
 
@@ -1130,6 +1150,35 @@ mod tests {
                     "missing generic method route box={box_name} method={method} result={result_value:?}"
                 )
             })
+    }
+
+    #[test]
+    fn generic_method_route_metadata_tokens_come_from_route_kind() {
+        let route = GenericMethodRoute {
+            block: BasicBlockId::new(0),
+            instruction_index: 0,
+            box_name: "MapBox".to_string(),
+            method: "__raw_method_must_not_drive_metadata".to_string(),
+            arity: 1,
+            receiver_origin_box: Some("MapBox".to_string()),
+            key_route: Some(GenericMethodKeyRoute::I64Const),
+            receiver_value: ValueId::new(1),
+            key_value: Some(ValueId::new(2)),
+            result_value: Some(ValueId::new(3)),
+            route_kind: GenericMethodRouteKind::MapContainsI64,
+            proof: GenericMethodRouteProof::HasSurfacePolicy,
+            core_method: Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapHas,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            return_shape: None,
+            value_demand: GenericMethodValueDemand::ReadRef,
+            publication_policy: None,
+        };
+
+        assert_eq!(route.route_id(), "generic_method.has");
+        assert_eq!(route.emit_kind(), "has");
+        assert_eq!(route.effect_tags(), &["probe.key"]);
     }
 
     #[test]
