@@ -168,3 +168,27 @@ pub fn is_if_lowered_function(name: &str) -> bool {
         .iter()
         .any(|t| t.func_name == name && t.default_enabled)
 }
+
+/// Prefix-based If lowering rollout policy.
+///
+/// Exact targets belong to `JOINIR_IF_TARGETS`. This helper owns only the
+/// historical prefix families that are still intentionally broader than the
+/// table rows.
+pub fn is_if_lowering_prefix_target(name: &str, stage1_enabled: bool) -> bool {
+    name.starts_with("IfSelectTest.")
+        || name.starts_with("IfSelectLocalTest.")
+        || name.starts_with("IfMergeTest.")
+        || name.starts_with("IfToplevelTest.")
+        || name.starts_with("Stage1JsonScannerTestBox.")
+        || (stage1_enabled && name.starts_with("Stage1"))
+}
+
+/// Prefix subset used by the toplevel-if entry check.
+///
+/// This intentionally stays narrower than `is_if_lowering_prefix_target` to
+/// preserve the existing toplevel behavior while centralizing the strings.
+pub fn is_if_toplevel_prefix_target(name: &str) -> bool {
+    name.starts_with("IfSelectTest.")
+        || name.starts_with("IfToplevelTest.")
+        || name.starts_with("IfMergeTest.")
+}

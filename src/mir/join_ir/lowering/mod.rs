@@ -190,11 +190,7 @@ pub fn is_joinir_if_toplevel_target(name: &str) -> bool {
         return true;
     }
 
-    // Test prefixes (backward compatibility - allows any test function)
-    if name.starts_with("IfSelectTest.")
-        || name.starts_with("IfToplevelTest.")
-        || name.starts_with("IfMergeTest.")
-    {
+    if crate::mir::join_ir_vm_bridge_dispatch::is_if_toplevel_prefix_target(name) {
         return true;
     }
 

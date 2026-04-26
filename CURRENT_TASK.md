@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR if-target prefix helper split pending`
+- current blocker token: `phase-291x JoinIR type-hint prefix policy inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-303` inventoried remaining JoinIR if-target
-  prefix policy and selected a behavior-preserving helper split
+- latest known checkpoint: `291x-304` moved JoinIR if-target prefix strings
+  into `targets.rs` helpers without changing accepted targets
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: move JoinIR if-target prefix strings into `targets.rs` helpers
-  without changing accepted targets
+- resume point: inventory JoinIR type-hint prefix policy separately before any
+  behavior change
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-303-joinir-if-target-prefix-policy-inventory-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-304-joinir-if-target-prefix-helper-split-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR if-target prefix helper split; preserve the toplevel subset and
-  Stage1 env gate
+- next: JoinIR type-hint prefix policy inventory; do not mix with target
+  allowlist cleanup
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -79,7 +79,8 @@ Scope: current lane / next lane / restart order only.
   owner audit/export retirement landed; JsonShapeToMap owner audit/support
   quarantine landed; runtime/meta root closeout landed; post-runtime-meta
   inventory landed; JoinIR if-target exact allowlist SSOT landed; JoinIR
-  if-target prefix policy inventory landed; next cleanup is prefix helper split
+  if-target prefix policy inventory landed; JoinIR if-target prefix helper
+  split landed; next cleanup is type-hint prefix policy inventory
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

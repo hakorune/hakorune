@@ -21,7 +21,8 @@ use lower_only_routes::{
 };
 use targets::find_joinir_target;
 pub use targets::{
-    is_if_lowered_function, JoinIrBridgeKind, JoinIrTargetDesc, JOINIR_IF_TARGETS, JOINIR_TARGETS,
+    is_if_lowered_function, is_if_lowering_prefix_target, is_if_toplevel_prefix_target,
+    JoinIrBridgeKind, JoinIrTargetDesc, JOINIR_IF_TARGETS, JOINIR_TARGETS,
 };
 
 use crate::mir::MirModule;

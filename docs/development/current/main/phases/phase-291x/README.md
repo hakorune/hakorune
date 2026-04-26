@@ -42,6 +42,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-301-post-runtime-meta-cleanup-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-302-joinir-if-target-exact-allowlist-ssot-card.md
   - docs/development/current/main/phases/phase-291x/291x-303-joinir-if-target-prefix-policy-inventory-card.md
+  - docs/development/current/main/phases/phase-291x/291x-304-joinir-if-target-prefix-helper-split-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -49,7 +50,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: JoinIR if-target prefix helper split
+- Next implementation target: JoinIR type-hint prefix policy inventory
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -61,7 +62,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-303-joinir-if-target-prefix-policy-inventory-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-304-joinir-if-target-prefix-helper-split-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -103,7 +104,7 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-303`
+- latest known cleanup checkpoint: `291x-304`
 - BuildBox thinning series is closed; residual MapBox.has sentinel retirement
   is closed; CoreMethodContract `.inc` classifier baseline is zero;
   `MirCallRoutePolicy`, `MirCallNeedPolicy`, and `MirCallSurfacePolicy`
@@ -111,8 +112,8 @@ in one card.
   support owner audit/export retirement is closed; JsonShapeToMap owner
   audit/support quarantine is closed; runtime/meta root closeout is closed;
   post-runtime-meta inventory is closed; JoinIR if-target exact allowlist SSOT
-  is closed; JoinIR if-target prefix policy inventory is closed; next cleanup
-  is JoinIR if-target prefix helper split
+  is closed; JoinIR if-target prefix policy inventory/helper split are closed;
+  next cleanup is JoinIR type-hint prefix policy inventory
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=0 rows=0`
 - no `.inc` method/box string classifier rows are allowlisted

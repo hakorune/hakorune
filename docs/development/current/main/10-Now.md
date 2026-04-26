@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR if-target prefix helper split pending`
+- current blocker token: `phase-291x JoinIR type-hint prefix policy inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- move JoinIR if-target prefix strings into `targets.rs` helpers without
-  changing accepted targets
-- cleanup checkpoint: latest known landed card `291x-303`; BuildBox thinning,
+- inventory JoinIR type-hint prefix policy separately before any behavior
+  change
+- cleanup checkpoint: latest known landed card `291x-304`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
@@ -36,7 +36,8 @@ Related:
   runtime/meta live table inventory, Using support owner audit/export
   retirement, JsonShapeToMap owner audit/support quarantine, and runtime/meta
   root closeout are closed; post-runtime-meta inventory is closed; JoinIR
-  if-target exact allowlist SSOT and prefix policy inventory are closed
+  if-target exact allowlist SSOT, prefix policy inventory, and prefix helper
+  split are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
