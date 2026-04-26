@@ -1,11 +1,12 @@
 use super::features::LoopFeatures;
 use super::kind::LoopRouteKind;
 
-/// Classify loop route family based on feature vector.
+/// Classify flat loop route family based on feature vector.
 ///
-/// This function implements the route classification logic using
-/// structure-based rules. It does NOT depend on function names or
-/// variable names like "sum".
+/// This function implements flat route classification using structure-based
+/// rules. It does NOT depend on function names or variable names like "sum".
+/// NestedLoopMinimal is selected by the AST/StepTree route path, not by this
+/// `LoopFeatures` classifier.
 ///
 /// # Route Classification Rules (Phase 131-11: LoopTrueEarlyExit added)
 ///
@@ -36,8 +37,8 @@ use super::kind::LoopRouteKind;
 /// # Phase 183: Unified Detection
 ///
 /// This is the single source of truth for route classification.
-/// Both routers (`router.rs` and `loop_route_router.rs`) use this
-/// function to avoid duplicate detection logic.
+/// The AST route path uses this after its StepTree nested-loop precheck; the
+/// LoopForm router uses it for LoopForm-observable flat route facts.
 pub fn classify(features: &LoopFeatures) -> LoopRouteKind {
     // Phase 131-11: LoopTrueEarlyExit (highest priority - most specific)
     // MUST check before LoopContinueOnly to avoid misrouting break+continue cases

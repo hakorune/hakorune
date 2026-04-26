@@ -7,21 +7,24 @@
 //!
 //! Phase 188 Task 188-4: Route-shape detection helpers for JoinIR loop lowering.
 //!
-//! This module provides detection functions for the current loop route families:
+//! This module provides the flat `LoopFeatures -> classify -> LoopRouteKind`
+//! route-classification surface for the current loop route families:
 //! - `LoopSimpleWhile` (foundational)
 //! - `LoopBreak` (early exit)
 //! - `IfPhiJoin` (variable mutation)
 //! - `LoopContinueOnly` (skip iteration)
 //! - `LoopTrueEarlyExit` (`loop(true)` + early exit)
-//! - `NestedLoopMinimal` (1-level nested route)
 //!
-//! Phase 194+: Structure-based detection using LoopFeatures.
-//! Route shapes are classified based on CFG structure, not function names.
+//! `NestedLoopMinimal` remains a route kind, but its live selection is owned by
+//! the AST/StepTree routing path rather than the `LoopFeatures` classifier.
+//!
+//! Phase 194+: Structure-based flat route detection using LoopFeatures.
+//! Flat route shapes are classified based on CFG structure, not function names.
 //!
 //! # Architecture
 //!
 //! ```
-//! LoopForm → extract_features() → LoopFeatures → classify() → LoopRouteKind
+//! LoopForm → extract_features() → LoopFeatures → classify() → flat LoopRouteKind
 //! ```
 //!
 //! Reference: docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md

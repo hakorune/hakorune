@@ -20,27 +20,27 @@
 //!
 //! # Routing Strategy
 //!
-//! This router uses structure-based route classification (Phase 194):
+//! This router uses structure-based flat route classification (Phase 194):
 //! 1. Extract CFG features from LoopForm
 //! 2. Classify into a route family using `loop_route_detection::classify`
 //! 3. Route to the appropriate lowerer
 //!
 //! # Phase 183: Unified Detection
 //!
-//! This router shares route classification logic with
-//! `crate::mir::builder::control_flow::joinir::route_entry::router`.
-//! Both use `loop_route_detection::classify()` for consistent classification.
+//! This router shares flat route classification logic with the AST route path.
+//! The AST route path performs its StepTree nested-loop precheck before calling
+//! `loop_route_detection::classify()`.
 //!
 //! # Route Dispatch Order
 //!
-//! `loop_route_detection::classify()` chooses one route family, then this
+//! `loop_route_detection::classify()` chooses one flat route family, then this
 //! router dispatches to that lowerer. The current match order is:
-//! - `NestedLoopMinimal`
 //! - `LoopContinueOnly`
 //! - `IfPhiJoin`
 //! - `LoopBreak`
 //! - `LoopSimpleWhile`
 //! - `LoopTrueEarlyExit` (stub / fallback)
+//! - `NestedLoopMinimal` (enum arm retained; live selection is AST/StepTree)
 //!
 //! # Integration Points
 //!
@@ -116,9 +116,8 @@ pub fn try_lower_loop_route_to_joinir(
     // Step 3: Route to the appropriate lowerer
     match route_kind {
         LoopRouteKind::NestedLoopMinimal => {
-            // Phase 188.2: NestedLoopMinimal lowering stub (infrastructure only)
-            // classify() can reach NestedLoopMinimal when depth/features confirm
-            // a minimal nested-loop route shape, but the lowerer is still a stub.
+            // NestedLoopMinimal live selection is owned by the AST/StepTree
+            // route path. This arm is retained for route-kind exhaustiveness.
             #[cfg(debug_assertions)]
             if crate::config::env::joinir_dev::debug_enabled() {
                 get_global_ring0().log.debug(
