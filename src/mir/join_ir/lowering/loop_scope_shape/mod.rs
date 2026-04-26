@@ -15,7 +15,9 @@ mod context;
 mod shape;
 mod structural;
 
-pub(crate) use case_a::is_case_a_minimal_target;
+pub(crate) use case_a::{
+    find_case_a_minimal_target, is_case_a_minimal_target, CaseAMinimalTargetKind,
+};
 pub(crate) use case_a_lowering_shape::CaseALoweringShape;
 pub(crate) use context::CaseAContext;
 pub(crate) use shape::LoopScopeShape;

@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR Case-A fallback dispatch descriptor consumer pending`
+- current blocker token: `phase-291x JoinIR Case-A context-label string inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- make `loop_view_builder::dispatch_by_name(...)` consume the Case-A
-  descriptor route kind instead of duplicating exact function names
-- cleanup checkpoint: latest known landed card `291x-312`; BuildBox thinning,
+- inventory Case-A lowerer context-label strings separately; they are labels,
+  not acceptance policy
+- cleanup checkpoint: latest known landed card `291x-313`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
@@ -40,8 +40,8 @@ Related:
   split, type-hint prefix policy inventory, type-hint family table split, and
   GenericTypeResolver P3-C candidate helper audit/retirement, and JoinIR
   residual name-policy inventory, frontend route descriptor table split, and
-  Case-A name-policy inventory, and Case-A target descriptor table split are
-  closed
+  Case-A name-policy inventory, Case-A target descriptor table split, and
+  Case-A fallback dispatch descriptor consumer are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

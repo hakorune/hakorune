@@ -16,7 +16,9 @@
 //! - **テスト容易性**: 独立したBoxで単体テスト可能
 
 use crate::mir::join_ir::lowering::generic_case_a;
-use crate::mir::join_ir::lowering::loop_scope_shape::{CaseALoweringShape, LoopScopeShape};
+use crate::mir::join_ir::lowering::loop_scope_shape::{
+    find_case_a_minimal_target, CaseALoweringShape, CaseAMinimalTargetKind, LoopScopeShape,
+};
 use crate::mir::join_ir::lowering::loop_update_summary; // Phase 170-C-2b
 use crate::mir::join_ir::JoinModule;
 use crate::runtime::get_global_ring0;
@@ -212,8 +214,19 @@ impl LoopViewBuilder {
     /// Shape検出で未分類のループを名前で振り分ける。
     /// 将来的にはShape検出を強化してこのフォールバックを削減する。
     fn dispatch_by_name(&self, scope: LoopScopeShape, name: &str) -> Option<JoinModule> {
-        match name {
-            "Main.skip/1" => {
+        let Some(target) = find_case_a_minimal_target(name) else {
+            // No shape match AND no whitelist match
+            if self.debug && self.generic_case_a_enabled() {
+                get_global_ring0().log.debug(&format!(
+                    "[LoopViewBuilder] generic Case-A candidate: {:?} (no lowerer yet)",
+                    name
+                ));
+            }
+            return None;
+        };
+
+        match target.kind {
+            CaseAMinimalTargetKind::SkipWhitespace => {
                 if self.debug {
                     get_global_ring0()
                         .log
@@ -221,7 +234,7 @@ impl LoopViewBuilder {
                 }
                 generic_case_a::lower_case_a_skip_ws_with_scope(scope)
             }
-            "FuncScannerBox.trim/1" => {
+            CaseAMinimalTargetKind::Trim => {
                 if self.debug {
                     get_global_ring0()
                         .log
@@ -229,7 +242,7 @@ impl LoopViewBuilder {
                 }
                 generic_case_a::lower_case_a_trim_with_scope(scope)
             }
-            "FuncScannerBox.append_defs/2" => {
+            CaseAMinimalTargetKind::AppendDefs => {
                 if self.debug {
                     get_global_ring0()
                         .log
@@ -237,23 +250,13 @@ impl LoopViewBuilder {
                 }
                 generic_case_a::lower_case_a_append_defs_with_scope(scope)
             }
-            "Stage1UsingResolverBox.resolve_for_source/5" => {
+            CaseAMinimalTargetKind::Stage1UsingResolver => {
                 if self.debug {
                     get_global_ring0()
                         .log
                         .debug("[LoopViewBuilder] [fallback] dispatching to stage1 lowerer");
                 }
                 generic_case_a::lower_case_a_stage1_usingresolver_with_scope(scope)
-            }
-            _ => {
-                // No shape match AND no whitelist match
-                if self.debug && self.generic_case_a_enabled() {
-                    get_global_ring0().log.debug(&format!(
-                        "[LoopViewBuilder] generic Case-A candidate: {:?} (no lowerer yet)",
-                        name
-                    ));
-                }
-                None
             }
         }
     }
