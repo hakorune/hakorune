@@ -82,7 +82,7 @@ pub enum DigitPosPromotionResult {
         reason: String,
 
         /// List of problematic body-local variables
-        vars: Vec<String>,
+        _vars: Vec<String>,
     },
 }
 
@@ -114,7 +114,7 @@ impl DigitPosPromoter {
         if body_locals.is_empty() {
             return DigitPosPromotionResult::CannotPromote {
                 reason: "No LoopBodyLocal variables to promote".to_string(),
-                vars: vec![],
+                _vars: vec![],
             };
         }
 
@@ -133,7 +133,7 @@ impl DigitPosPromoter {
         if condition.is_none() {
             return DigitPosPromotionResult::CannotPromote {
                 reason: "No break or continue condition provided".to_string(),
-                vars: body_locals.iter().map(|s| s.to_string()).collect(),
+                _vars: body_locals.iter().map(|s| s.to_string()).collect(),
             };
         }
 
@@ -145,7 +145,7 @@ impl DigitPosPromoter {
             return DigitPosPromotionResult::CannotPromote {
                 reason: "No A-4 DigitPos route shape detected (indexOf not found or not cascading)"
                     .to_string(),
-                vars: body_locals.iter().map(|s| s.to_string()).collect(),
+                _vars: body_locals.iter().map(|s| s.to_string()).collect(),
             };
         }
 
@@ -289,7 +289,10 @@ mod tests {
         };
 
         match DigitPosPromoter::try_promote(req) {
-            DigitPosPromotionResult::CannotPromote { reason, vars } => {
+            DigitPosPromotionResult::CannotPromote {
+                reason,
+                _vars: vars,
+            } => {
                 assert!(vars.is_empty());
                 assert!(reason.contains("No LoopBodyLocal"));
             }
