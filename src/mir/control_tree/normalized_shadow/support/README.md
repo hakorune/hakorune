@@ -16,5 +16,5 @@ lowerers.
   lowerers.
 
 `expr_lowering` owns the shared assignment/minimal-compare implementation.
-Route lowerers and the legacy entry path should depend on this support path
-instead of defining helper behavior inside `legacy`.
+Route lowerers and the baseline if-only entry should depend on this support
+path instead of duplicating helper behavior.

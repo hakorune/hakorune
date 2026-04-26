@@ -37,21 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow support contract wording cleanup pending`
+- current blocker token: `phase-291x normalized-shadow k-exit legacy naming inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-406` inventoried the next
-  compiler-cleanliness seam and selected normalized-shadow support/expr
-  contract wording cleanup
+- latest known checkpoint: `291x-407` cleaned stale normalized-shadow
+  support/expr contract wording after legacy entry removal
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: clean stale normalized-shadow support/expr contract wording;
-  defer `K_EXIT_LEGACY` naming to a separate canonical-name card
+- resume point: inventory `K_EXIT_LEGACY` naming in normalized-shadow loop
+  routes and `join_ir/lowering/canonical_names.rs`
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -59,10 +58,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-406-next-compiler-cleanliness-seam-inventory-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-407-normalized-shadow-support-contract-wording-cleanup-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: normalized-shadow support/expr contract wording cleanup
+- next: normalized-shadow k-exit legacy naming inventory
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,9 +71,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-406`; detailed landed history lives in phase card
+- latest checkpoint: `291x-407`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: normalized-shadow support/expr contract wording cleanup
+- next cleanup: normalized-shadow k-exit legacy naming inventory
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

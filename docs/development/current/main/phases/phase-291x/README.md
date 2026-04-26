@@ -105,6 +105,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-404-normalized-shadow-stale-legacy-wording-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-405-normalized-shadow-stale-legacy-wording-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-406-next-compiler-cleanliness-seam-inventory-card.md
+  - docs/development/current/main/phases/phase-291x/291x-407-normalized-shadow-support-contract-wording-cleanup-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -112,7 +113,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: normalized-shadow support/expr contract wording cleanup
+- Next implementation target: normalized-shadow k-exit legacy naming inventory
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -124,7 +125,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-406-next-compiler-cleanliness-seam-inventory-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-407-normalized-shadow-support-contract-wording-cleanup-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -166,11 +167,11 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-406`
+- latest known cleanup checkpoint: `291x-407`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: normalized-shadow support/expr contract wording cleanup
+- next cleanup: normalized-shadow k-exit legacy naming inventory
 - has fallback series: closed and inventoried
 - no `.inc` method/box string classifier rows are allowlisted
 - metadata-absent direct `MapBox.has` is no longer a supported boundary

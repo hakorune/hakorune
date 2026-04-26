@@ -9,13 +9,13 @@
 //!
 //! - Current lowering is **PureOnly**.
 //! - Call/MethodCall and other impure constructs remain **out-of-scope** and must
-//!   return `Ok(None)` (fallback), preserving default behavior.
+//!   return `Ok(None)`, preserving route-decline behavior.
 //!
 //! ## Phase 141 P1 (incremental)
 //!
 //! - `WithImpure(KnownIntrinsicOnly)` allows a *small, explicit allowlist* of
 //!   "known intrinsic" method calls (still pure, fixed arity, stable type_hint).
-//! - Everything else stays out-of-scope and must return `Ok(None)` (fallback).
+//! - Everything else stays out-of-scope and must return `Ok(None)`.
 
 /// Scope selector for expression lowering.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -34,7 +34,7 @@ pub enum ImpurePolicy {
     /// Allow a small explicit allowlist of intrinsic calls only.
     ///
     /// Still must be semantics-preserving: if the intrinsic is not applicable at runtime,
-    /// it should behave the same as the legacy lowering path.
+    /// it should decline the route with the same observable behavior as the baseline path.
     KnownIntrinsicOnly,
 }
 

@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-406"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-406-next-compiler-cleanliness-seam-inventory-card.md"
-latest_card_summary = "Inventoried the next compiler-cleanliness seam and selected normalized-shadow support/expr contract wording cleanup."
+latest_card = "291x-407"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-407-normalized-shadow-support-contract-wording-cleanup-card.md"
+latest_card_summary = "Cleaned stale normalized-shadow support/expr contract wording after legacy entry removal."
 
-current_blocker_token = "phase-291x normalized-shadow support contract wording cleanup pending"
+current_blocker_token = "phase-291x normalized-shadow k-exit legacy naming inventory pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -126,4 +126,5 @@ landed_tail = [
   "291x-404 normalized-shadow stale legacy wording inventory landed",
   "291x-405 normalized-shadow stale legacy wording cleanup landed",
   "291x-406 next compiler-cleanliness seam inventory landed",
+  "291x-407 normalized-shadow support contract wording cleanup landed",
 ]

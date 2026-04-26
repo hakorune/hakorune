@@ -1,7 +1,7 @@
 //! Shared expression lowering facade for normalized-shadow routes.
 //!
-//! Route lowerers and the legacy entry path import this module instead of
-//! owning duplicate assignment/compare lowering logic.
+//! Route lowerers and the baseline if-only entry import this module instead of
+//! duplicating assignment/compare lowering logic.
 
 use std::collections::BTreeMap;
 
