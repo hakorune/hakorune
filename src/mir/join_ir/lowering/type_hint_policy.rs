@@ -5,6 +5,73 @@
 
 use crate::mir::{MirFunction, MirInstruction, MirType, ValueId};
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum TypeHintTargetKind {
+    P1IfSelect,
+    P2IfMerge,
+    P3AReadQuoted,
+    P3BNewBox,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum TypeHintMatchRule {
+    Prefix(&'static str),
+    Contains(&'static str),
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct TypeHintTargetFamily {
+    kind: TypeHintTargetKind,
+    rule: TypeHintMatchRule,
+}
+
+impl TypeHintTargetFamily {
+    fn matches(self, func_name: &str) -> bool {
+        match self.rule {
+            TypeHintMatchRule::Prefix(prefix) => func_name.starts_with(prefix),
+            TypeHintMatchRule::Contains(needle) => func_name.contains(needle),
+        }
+    }
+}
+
+const PRIMARY_TYPE_HINT_TARGETS: &[TypeHintTargetFamily] = &[
+    TypeHintTargetFamily {
+        kind: TypeHintTargetKind::P1IfSelect,
+        rule: TypeHintMatchRule::Prefix("IfSelectTest."),
+    },
+    TypeHintTargetFamily {
+        kind: TypeHintTargetKind::P2IfMerge,
+        rule: TypeHintMatchRule::Prefix("IfMergeTest."),
+    },
+    TypeHintTargetFamily {
+        kind: TypeHintTargetKind::P3AReadQuoted,
+        rule: TypeHintMatchRule::Contains("read_quoted"),
+    },
+    TypeHintTargetFamily {
+        kind: TypeHintTargetKind::P3BNewBox,
+        rule: TypeHintMatchRule::Prefix("NewBoxTest."),
+    },
+];
+
+fn matches_type_hint_family(func_name: &str, kind: TypeHintTargetKind) -> bool {
+    PRIMARY_TYPE_HINT_TARGETS
+        .iter()
+        .copied()
+        .filter(|family| family.kind == kind)
+        .any(|family| family.matches(func_name))
+}
+
+fn matches_primary_type_hint_target(func_name: &str) -> bool {
+    PRIMARY_TYPE_HINT_TARGETS
+        .iter()
+        .copied()
+        .any(|family| family.matches(func_name))
+}
+
+fn is_p3c_candidate(func_name: &str) -> bool {
+    !func_name.is_empty() && !matches_primary_type_hint_target(func_name)
+}
+
 /// Phase 65.5: 型ヒント適用ポリシー
 ///
 /// JoinIR 型ヒント経路（Route B）を使用する関数を判定する。
@@ -36,10 +103,7 @@ impl TypeHintPolicy {
     /// - `true`: 型ヒント経路（Route B）を使用
     /// - `false`: 従来ロジック（Route A）にフォールバック
     pub fn is_target(func_name: &str) -> bool {
-        Self::is_p1_target(func_name)
-            || Self::is_p2_target(func_name)
-            || Self::is_p3a_target(func_name)
-            || Self::is_p3b_target(func_name)
+        matches_primary_type_hint_target(func_name)
     }
 
     /// P1: If Select パターン判定
@@ -50,19 +114,18 @@ impl TypeHintPolicy {
     /// # Phase
     /// - Phase 63-6 で導入
     fn is_p1_target(func_name: &str) -> bool {
-        func_name.starts_with("IfSelectTest.")
+        matches_type_hint_family(func_name, TypeHintTargetKind::P1IfSelect)
     }
 
     /// P2: If Merge パターン判定
     ///
     /// # 対象
     /// - `IfMergeTest.*` - If Merge パターンのテスト関数
-    /// - `read_quoted*` - selfhost の read_quoted 系関数
     ///
     /// # Phase
     /// - Phase 64-3 で導入
     fn is_p2_target(func_name: &str) -> bool {
-        func_name.starts_with("IfMergeTest.")
+        matches_type_hint_family(func_name, TypeHintTargetKind::P2IfMerge)
     }
 
     /// P3-A: StringBox メソッド使用関数判定
@@ -72,9 +135,9 @@ impl TypeHintPolicy {
     ///
     /// # Phase
     /// - Phase 65-2-A で導入
-    /// - P2 と重複（read_quoted 系関数）
+    /// - `IfMergeTest.read_quoted*` のような名前は P2 と P3-A の両方に該当
     fn is_p3a_target(func_name: &str) -> bool {
-        func_name.contains("read_quoted")
+        matches_type_hint_family(func_name, TypeHintTargetKind::P3AReadQuoted)
     }
 
     /// P3-B: NewBox コンストラクタ使用関数判定
@@ -85,7 +148,7 @@ impl TypeHintPolicy {
     /// # Phase
     /// - Phase 65-2-B で導入
     fn is_p3b_target(func_name: &str) -> bool {
-        func_name.starts_with("NewBoxTest.")
+        matches_type_hint_family(func_name, TypeHintTargetKind::P3BNewBox)
     }
 
     /// P3-C: ジェネリック型推論対象判定（Phase 66）
@@ -98,12 +161,7 @@ impl TypeHintPolicy {
     /// - GenericTypeResolver と連携して P3-C 型推論を実行
     /// - is_target() が false の場合のフォールバック経路
     pub fn is_p3c_target(func_name: &str) -> bool {
-        // P1/P2/P3-A/P3-B に該当しない場合は P3-C 候補
-        !Self::is_p1_target(func_name)
-            && !Self::is_p2_target(func_name)
-            && !Self::is_p3a_target(func_name)
-            && !Self::is_p3b_target(func_name)
-            && !func_name.is_empty()
+        is_p3c_candidate(func_name)
     }
 
     /// PHI 命令から型ヒントを抽出
@@ -138,6 +196,17 @@ impl TypeHintPolicy {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_primary_type_hint_family_table() {
+        assert!(matches_primary_type_hint_target("IfSelectTest.simple/0"));
+        assert!(matches_primary_type_hint_target("IfMergeTest.simple/0"));
+        assert!(matches_primary_type_hint_target("read_quoted_from/1"));
+        assert!(matches_primary_type_hint_target("NewBoxTest.array/0"));
+
+        assert!(!matches_primary_type_hint_target("Main.main/0"));
+        assert!(!matches_primary_type_hint_target(""));
+    }
 
     /// Phase 65.5: P1 パターン判定テスト
     #[test]

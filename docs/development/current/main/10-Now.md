@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR type-hint family table split pending`
+- current blocker token: `phase-291x GenericTypeResolver P3-C candidate helper audit pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- split JoinIR type-hint target vocabulary into a local family table without
-  changing PHI/P3-C behavior
-- cleanup checkpoint: latest known landed card `291x-305`; BuildBox thinning,
+- audit `GenericTypeResolver::is_p3c_candidate` because function-level P3-C
+  gating is now owned by `TypeHintPolicy`
+- cleanup checkpoint: latest known landed card `291x-306`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
@@ -37,7 +37,8 @@ Related:
   retirement, JsonShapeToMap owner audit/support quarantine, and runtime/meta
   root closeout are closed; post-runtime-meta inventory is closed; JoinIR
   if-target exact allowlist SSOT, prefix policy inventory, prefix helper
-  split, and type-hint prefix policy inventory are closed
+  split, type-hint prefix policy inventory, and type-hint family table split
+  are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
