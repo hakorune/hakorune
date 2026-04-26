@@ -51,6 +51,3 @@ pub use legacy::{
     is_if_phi_join_route, is_loop_break_route, is_loop_continue_only_route,
     is_loop_simple_while_route,
 };
-pub use legacy::{
-    DigitPosDetectionResult, DigitPosDetector, TrimDetectionResult, TrimDetector, TrimLoopHelper,
-};

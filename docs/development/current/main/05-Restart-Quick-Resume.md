@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector direct legacy type export prune pending`
+- current blocker token: `phase-291x JoinIR route detector unused legacy module export inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-355` inventoried direct
-  `loop_route_detection` legacy type exports before pruning
+- latest known checkpoint: `291x-356` pruned direct
+  `loop_route_detection` legacy type exports while preserving module paths
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- prune direct legacy type re-exports from
-  `crate::mir::loop_route_detection::*`; keep module exports
+- inventory legacy module exports that have no non-legacy external callers;
+  check internal imports before pruning
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

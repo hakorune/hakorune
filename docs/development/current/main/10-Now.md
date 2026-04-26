@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector direct legacy type export prune pending`
+- current blocker token: `phase-291x JoinIR route detector unused legacy module export inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- prune direct legacy type re-exports from
-  `crate::mir::loop_route_detection::*`; keep module exports
-- cleanup checkpoint: latest known landed card `291x-355`; detailed closed
+- inventory legacy module exports that have no non-legacy external callers;
+  check internal imports before pruning
+- cleanup checkpoint: latest known landed card `291x-356`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
