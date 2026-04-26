@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR loop-update caller surface inventory pending`
+- current blocker token: `phase-291x JoinIR loop-update reserved field prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory loop-update caller surface after helper split; do not change
-  behavior
-- cleanup checkpoint: latest known landed card `291x-334`; detailed closed
+- prune `RoutePrepContext.loop_update_summary` reserved field; keep analyzer
+  API and `LoopFeatures.update_summary`
+- cleanup checkpoint: latest known landed card `291x-335`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
