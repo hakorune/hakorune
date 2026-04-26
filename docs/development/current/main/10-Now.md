@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x generic method route metadata inventory pending`
+- current blocker token: `phase-291x generic method route-kind metadata helper pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory `GenericMethodRoute` metadata tokens before code edits; do not
-  touch `.inc` behavior yet
-- cleanup checkpoint: latest known landed card `291x-442`; detailed closed
+- make `GenericMethodRoute` exported metadata tokens delegate to `route_kind`;
+  do not touch `.inc` behavior
+- cleanup checkpoint: latest known landed card `291x-443`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
