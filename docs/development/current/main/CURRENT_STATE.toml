@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-423"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-423-normalized-shadow-anf-status-wording-cleanup-card.md"
-latest_card_summary = "Cleaned stale normalized-shadow ANF P0-stub and fallback wording."
+latest_card = "291x-424"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-424-normalized-shadow-public-surface-inventory-card.md"
+latest_card_summary = "Inventoried normalized-shadow root public surface before pruning unused re-exports."
 
-current_blocker_token = "phase-291x next compiler-cleanliness seam inventory pending"
+current_blocker_token = "phase-291x normalized-shadow public surface prune pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -143,4 +143,5 @@ landed_tail = [
   "291x-421 normalized-shadow known-intrinsic comment cleanup landed",
   "291x-422 normalized-shadow ANF status wording inventory landed",
   "291x-423 normalized-shadow ANF status wording cleanup landed",
+  "291x-424 normalized-shadow public surface inventory landed",
 ]
