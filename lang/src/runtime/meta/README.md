@@ -10,7 +10,7 @@ Responsibilities:
 - `mir_call` prepass need-flag retirement notes and generated metadata handoff.
 - `mir_call` constructor/global/string-extern surface-policy retirement notes.
 - `CoreMethodContract` seed rows for Array/String/Map method surfaces.
-- legacy/support meta utilities pending separate owner audit.
+- audited support meta utilities with explicit quarantine / retirement notes.
 
 Non-goals:
 - No kernel behavior.
@@ -39,13 +39,16 @@ Rule:
     to stop new `.inc` method/box-name classifier growth
   - not a semantic owner; regenerate instead of hand-editing.
 
-## Support exports pending audit
+## Active Support Exports
 
 - `json_shape_parser.hako`
   - `JsonShapeToMap.parse(json)` and helper functions.
-  - support / JoinIR fixture utility; `JsonShapeToMap._read_value_from_pair/1`
-    is referenced by JoinIR bridge dispatch tests.
-  - audit separately before moving or deleting.
+  - owner-audited by `291x-298`.
+  - active support / JoinIR fixture utility, not a compiler semantic contract
+    table.
+  - `JsonShapeToMap._read_value_from_pair/1` is referenced by JoinIR bridge
+    dispatch and frontend tests.
+  - quarantine under a support path before considering any deletion.
 
 ## Retired Modules
 

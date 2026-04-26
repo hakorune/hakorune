@@ -127,10 +127,11 @@ Related:
 - `hako_llvmc_ffi_mir_call_surface_policy.inc` is the current executable
   surface-policy consumer; it must remain native until a generated producer or
   typed LoweringPlan owns constructor/global/string-extern surface flags.
-- After `291x-295`, the only live compiler semantic contract table under
+- After `291x-298`, the only live compiler semantic contract table under
   `lang/src/runtime/meta/` is `CoreMethodContractBox` plus its generated
-  manifest. `UsingResolver`, `UsingDecision`, and `JsonShapeToMap` are support
-  exports pending separate audits, not `mir_call` semantic owners.
+  manifest. `UsingResolver` and `UsingDecision` are retired; `JsonShapeToMap`
+  is an audited active support / JoinIR fixture export pending quarantine, not
+  a `mir_call` semantic owner.
 - `hako_llvmc_ffi_mir_call_dispatch.inc` is now the single native dispatch seam consumed by `pure_compile.inc`.
 - `hako_llvmc_ffi_pure_compile.inc` remains the compiler orchestrator owner, but `mir_call` route/need/accept tables are no longer owned inline there.
 - `lang/src/runtime/collections/method_policy_box.hako` now also owns the fallback routes for `RuntimeDataBox` generic `get/set/has/push`, so runtime-data facade semantics stay in `.hako` owner vocabulary instead of re-growing box-name ladders inside the shim.
