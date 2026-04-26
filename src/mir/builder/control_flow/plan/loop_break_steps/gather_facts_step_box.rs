@@ -10,7 +10,7 @@ use crate::mir::join_ir::lowering::condition_env::{ConditionBinding, ConditionEn
 use crate::mir::join_ir::lowering::join_value_space::JoinValueSpace;
 use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_route_detection::function_scope_capture::CapturedEnv;
+use crate::mir::loop_route_detection::support::function_scope::CapturedEnv;
 use crate::mir::ValueId;
 
 use super::super::loop_break_prep_box::LoopBreakDebugLog;
@@ -40,7 +40,7 @@ impl GatherFactsStepBox {
     ) -> Result<LoopBreakPrepFacts, String> {
         let log = LoopBreakDebugLog::new(verbose);
         use crate::mir::builder::control_flow::plan::condition_env_builder::ConditionEnvBuilder;
-        use crate::mir::loop_route_detection::function_scope_capture::{
+        use crate::mir::loop_route_detection::support::function_scope::{
             analyze_captured_vars_v2, CapturedEnv,
         };
 

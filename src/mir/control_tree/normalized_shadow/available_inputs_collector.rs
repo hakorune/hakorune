@@ -17,7 +17,7 @@
 // Phase 126: Import contexts from MirBuilder (pub(in crate::mir) visibility)
 // Since we're in crate::mir::control_tree::normalized_shadow, we can access these
 use crate::mir::builder::MirBuilder;
-use crate::mir::loop_route_detection::function_scope_capture::CapturedEnv;
+use crate::mir::loop_route_detection::support::function_scope::CapturedEnv;
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 

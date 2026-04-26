@@ -12,7 +12,7 @@ use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr;
 use crate::mir::ValueId;
 
-use crate::mir::loop_route_detection::function_scope_capture::CapturedEnv;
+use crate::mir::loop_route_detection::support::function_scope::CapturedEnv;
 
 pub(crate) struct LoopBreakDebugLog {
     verbose: bool,
