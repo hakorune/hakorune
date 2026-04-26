@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR LoopFeatures LoopForm constants inventory pending`
+- current blocker token: `phase-291x JoinIR LoopFeatures LoopForm constants prune pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-348` removed dead
-  `LoopFeatures.break_count` / `continue_count` fields
+- latest known checkpoint: `291x-349` inventoried default-only constants in
+  the LoopForm feature extractor
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: inventory LoopForm extractor constants in `LoopFeatures`; do
-  not change route behavior
+- resume point: prune default-only constants in the LoopForm feature
+  extractor; do not change route behavior
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,10 +58,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-348-joinir-loopfeatures-break-continue-count-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-349-joinir-loopfeatures-loopform-constants-inventory-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR `LoopFeatures` LoopForm constants inventory; do not change
+- next: JoinIR `LoopFeatures` LoopForm constants prune; do not change
   route behavior
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-348`; detailed landed history lives in phase card
+- latest checkpoint: `291x-349`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR `LoopFeatures` LoopForm constants inventory
+- next cleanup: JoinIR `LoopFeatures` LoopForm constants prune
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

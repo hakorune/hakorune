@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-348"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-348-joinir-loopfeatures-break-continue-count-prune-card.md"
-latest_card_summary = "Removed dead LoopFeatures break_count/continue_count fields."
+latest_card = "291x-349"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-349-joinir-loopfeatures-loopform-constants-inventory-card.md"
+latest_card_summary = "Inventoried default-only constants in the LoopForm feature extractor."
 
-current_blocker_token = "phase-291x JoinIR LoopFeatures LoopForm constants inventory pending"
+current_blocker_token = "phase-291x JoinIR LoopFeatures LoopForm constants prune pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -68,4 +68,5 @@ landed_tail = [
   "291x-346 JoinIR LoopFeatures if-phi flag redundancy prune landed",
   "291x-347 JoinIR LoopFeatures count fields inventory landed",
   "291x-348 JoinIR LoopFeatures break/continue count prune landed",
+  "291x-349 JoinIR LoopFeatures LoopForm constants inventory landed",
 ]

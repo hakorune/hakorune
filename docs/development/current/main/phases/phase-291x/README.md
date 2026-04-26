@@ -47,6 +47,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-346-joinir-loopfeatures-if-phi-flag-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-347-joinir-loopfeatures-count-fields-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-348-joinir-loopfeatures-break-continue-count-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-349-joinir-loopfeatures-loopform-constants-inventory-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -54,7 +55,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: JoinIR `LoopFeatures` LoopForm constants inventory
+- Next implementation target: JoinIR `LoopFeatures` LoopForm constants prune
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -66,7 +67,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-348-joinir-loopfeatures-break-continue-count-prune-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-349-joinir-loopfeatures-loopform-constants-inventory-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -108,11 +109,11 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-348`
+- latest known cleanup checkpoint: `291x-349`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR `LoopFeatures` LoopForm constants inventory
+- next cleanup: JoinIR `LoopFeatures` LoopForm constants prune
 - has fallback series: closed and inventoried
 - no `.inc` method/box string classifier rows are allowlisted
 - metadata-absent direct `MapBox.has` is no longer a supported boundary
