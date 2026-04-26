@@ -12,12 +12,9 @@ pub struct LoopFeatures {
     /// Has continue statement(s)?
     pub has_continue: bool,
 
-    /// Has if statement(s) in body?
+    /// If/phi route signal. This is not "any if"; producers must use the
+    /// precise route recognizer for the current frontend.
     pub has_if: bool,
-
-    /// Has if-else statement with PHI nodes?
-    /// (detected via multiple carriers or specific CFG patterns)
-    pub has_if_else_phi: bool,
 
     /// Number of carrier variables (loop variables that are updated)
     pub carrier_count: usize,
@@ -38,7 +35,6 @@ impl Default for LoopFeatures {
             has_break: false,
             has_continue: false,
             has_if: false,
-            has_if_else_phi: false,
             carrier_count: 0,
             break_count: 0,
             continue_count: 0,
@@ -67,14 +63,12 @@ pub(crate) fn extract_features(loop_form: &LoopForm) -> LoopFeatures {
     // LoopForm currently does not carry AST assignment/update observations.
     // Keep IfPhiJoin recognition in the AST feature extractor.
     let carrier_count = 0;
-    let has_if_else_phi = false;
     let has_if = false;
 
     LoopFeatures {
         has_break,
         has_continue,
         has_if,
-        has_if_else_phi,
         carrier_count,
         break_count,
         continue_count,

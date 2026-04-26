@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-345"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-345-joinir-loopfeatures-if-phi-flag-redundancy-inventory-card.md"
-latest_card_summary = "Inventoried LoopFeatures if/phi flags and found has_if_else_phi is duplicate reserved state."
+latest_card = "291x-346"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-346-joinir-loopfeatures-if-phi-flag-prune-card.md"
+latest_card_summary = "Removed duplicate LoopFeatures.has_if_else_phi and kept has_if as the live if/phi route signal."
 
-current_blocker_token = "phase-291x JoinIR LoopFeatures if-phi flag redundancy prune pending"
+current_blocker_token = "phase-291x JoinIR LoopFeatures count fields inventory pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -65,4 +65,5 @@ landed_tail = [
   "291x-343 JoinIR LoopFeatures helper surface inventory landed",
   "291x-344 JoinIR LoopFeatures helper surface prune landed",
   "291x-345 JoinIR LoopFeatures if-phi flag redundancy inventory landed",
+  "291x-346 JoinIR LoopFeatures if-phi flag redundancy prune landed",
 ]

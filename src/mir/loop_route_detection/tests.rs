@@ -112,7 +112,6 @@ fn classify_body(body: &[ASTNode]) -> LoopRouteKind {
         has_break: has_break_flag,
         has_continue: has_continue_flag,
         has_if: has_if(body),
-        has_if_else_phi: false,
         carrier_count: carrier_count(body),
         break_count: if has_break_flag { 1 } else { 0 },
         continue_count: if has_continue_flag { 1 } else { 0 },

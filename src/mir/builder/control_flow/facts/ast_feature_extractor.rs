@@ -92,14 +92,11 @@ pub(crate) fn extract_features(
     has_continue: bool,
     has_break: bool,
 ) -> LoopFeatures {
-    // Detect if-else statements with PHI pattern
-    let has_if_else_phi = detect_if_else_phi_in_body(body);
-
-    // Phase 264 P0: Use has_if_else_phi to prevent misclassification.
+    // Phase 264 P0: Use if/phi detection to prevent misclassification.
     // Previously used detect_if_in_body() which returned true for ANY if statement.
     // This caused simple conditional assignments to be classified as if_phi_join.
-    // Now we use has_if_else_phi which only returns true for actual if-sum patterns.
-    let has_if = has_if_else_phi;
+    // Now this route flag is true only for actual if-sum patterns.
+    let has_if = detect_if_else_phi_in_body(body);
 
     // Count carrier variables (approximation based on assignments)
     let carrier_count = count_carriers_in_body(body);
@@ -111,7 +108,6 @@ pub(crate) fn extract_features(
         has_break,
         has_continue,
         has_if,
-        has_if_else_phi,
         carrier_count,
         break_count: if has_break { 1 } else { 0 },
         continue_count: if has_continue { 1 } else { 0 },
