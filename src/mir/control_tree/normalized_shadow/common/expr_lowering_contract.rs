@@ -44,13 +44,12 @@ impl Default for ImpurePolicy {
     }
 }
 
-/// Phase 141 P1: "known intrinsic" method calls that are allowed under `KnownIntrinsicOnly`.
+/// Phase 141 P1: marker for method calls allowed under `KnownIntrinsicOnly`.
 ///
-/// ## Phase 141 P1.5: Metadata moved to KnownIntrinsicRegistryBox
+/// ## Metadata Owner
 ///
-/// - method_name() and arity() methods **REMOVED** (deprecated)
-/// - Use `KnownIntrinsicRegistryBox::lookup()` and `get_spec()` instead
-/// - This enum is now a simple marker; metadata lives in known_intrinsics.rs
+/// `KnownIntrinsic` carries only the semantic variant. Method name, arity, and
+/// return type metadata live in `KnownIntrinsicRegistryBox`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum KnownIntrinsic {
     /// `receiver.length()` with 0 args, expected to return Integer.
