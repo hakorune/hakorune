@@ -79,6 +79,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-378-joinir-route-detector-condition-scope-support-family-migration-card.md
   - docs/development/current/main/phases/phase-291x/291x-379-joinir-route-detector-condition-scope-compatibility-export-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-380-joinir-route-detector-body-local-support-family-migration-card.md
+  - docs/development/current/main/phases/phase-291x/291x-381-joinir-route-detector-body-local-compatibility-export-prune-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -86,8 +87,8 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: JoinIR route detector body-local compatibility
-  export prune
+- Next implementation target: JoinIR route detector compatibility module
+  ownership closeout
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -99,7 +100,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-380-joinir-route-detector-body-local-support-family-migration-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-381-joinir-route-detector-body-local-compatibility-export-prune-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -141,11 +142,11 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-380`
+- latest known cleanup checkpoint: `291x-381`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR route detector body-local compatibility export prune
+- next cleanup: JoinIR route detector compatibility module ownership closeout
 - has fallback series: closed and inventoried
 - no `.inc` method/box string classifier rows are allowlisted
 - metadata-absent direct `MapBox.has` is no longer a supported boundary

@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-380"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-380-joinir-route-detector-body-local-support-family-migration-card.md"
-latest_card_summary = "Migrated body-local promoter callers to support::body_local or owner-local legacy paths."
+latest_card = "291x-381"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-381-joinir-route-detector-body-local-compatibility-export-prune-card.md"
+latest_card_summary = "Pruned the final parent body-local compatibility exports."
 
-current_blocker_token = "phase-291x JoinIR route detector body-local compatibility export prune pending"
+current_blocker_token = "phase-291x JoinIR route detector compatibility module ownership closeout pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -100,4 +100,5 @@ landed_tail = [
   "291x-378 JoinIR route detector condition-scope support family migration landed",
   "291x-379 JoinIR route detector condition-scope compatibility export prune landed",
   "291x-380 JoinIR route detector body-local support family migration landed",
+  "291x-381 JoinIR route detector body-local compatibility export prune landed",
 ]
