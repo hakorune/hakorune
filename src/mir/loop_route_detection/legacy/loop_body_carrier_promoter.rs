@@ -70,7 +70,7 @@ impl TrimRouteInfo {
     /// - The actual host ValueId will be assigned during merge_joinir_mir_blocks
     /// - JoinInlineBoundary will handle the boundary mapping
     pub fn to_carrier_info(&self) -> crate::mir::join_ir::lowering::carrier_info::CarrierInfo {
-        use super::trim_loop_helper::TrimLoopHelper;
+        use crate::mir::loop_route_detection::support::trim::TrimLoopHelper;
         use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
         use crate::mir::ValueId;
 

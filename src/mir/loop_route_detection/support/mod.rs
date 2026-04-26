@@ -34,6 +34,4 @@ pub mod function_scope {
 pub mod locals;
 
 /// Trim-route support.
-pub mod trim {
-    pub use crate::mir::loop_route_detection::legacy::trim_loop_helper::*;
-}
+pub mod trim;

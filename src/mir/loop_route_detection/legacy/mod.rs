@@ -20,9 +20,6 @@ pub mod loop_body_cond_promoter;
 // Phase 224: A-4 DigitPos route promotion
 pub mod loop_body_digitpos_promoter;
 
-// Phase 171-C-5: Trim route helper
-pub mod trim_loop_helper;
-
 // Phase 200-A: Function Scope Capture Infrastructure
 pub mod function_scope_capture;
 

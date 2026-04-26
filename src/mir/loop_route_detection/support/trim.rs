@@ -45,7 +45,7 @@
 //! let carrier_type = helper.carrier_type(); // "Bool"
 //! ```
 
-use super::loop_body_carrier_promoter::TrimRouteInfo;
+use crate::mir::loop_route_detection::support::body_local::carrier::TrimRouteInfo;
 
 /// Helper for trim-route lowering
 ///

@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-387"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-387-joinir-route-detector-break-condition-physical-owner-move-card.md"
-latest_card_summary = "Moved route detector break-condition support into a physical support module while preserving the stable support caller path."
+latest_card = "291x-388"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-388-joinir-route-detector-trim-physical-owner-move-card.md"
+latest_card_summary = "Moved route detector trim support into a physical support module while preserving the stable support caller path."
 
-current_blocker_token = "phase-291x JoinIR route detector trim physical owner move pending"
+current_blocker_token = "phase-291x JoinIR route detector function-scope physical owner move pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -107,4 +107,5 @@ landed_tail = [
   "291x-385 JoinIR route detector legacy surface no-regrowth guard landed",
   "291x-386 JoinIR route detector locals physical owner move landed",
   "291x-387 JoinIR route detector break-condition physical owner move landed",
+  "291x-388 JoinIR route detector trim physical owner move landed",
 ]

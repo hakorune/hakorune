@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector trim physical owner move pending`
+- current blocker token: `phase-291x JoinIR route detector function-scope physical owner move pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- move the next low-risk `support::trim` family out of private `legacy/`
+- inventory and move `support::function_scope` out of private `legacy/`
   storage
-- cleanup checkpoint: latest known landed card `291x-387`; detailed closed
+- cleanup checkpoint: latest known landed card `291x-388`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
