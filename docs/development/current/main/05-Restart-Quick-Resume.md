@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow k-exit legacy naming inventory pending`
+- current blocker token: `phase-291x normalized-shadow k-exit naming cleanup pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-407` cleaned stale normalized-shadow
-  support/expr contract wording after legacy entry removal
+- latest known checkpoint: `291x-408` inventoried normalized-shadow k-exit
+  compatibility naming before source cleanup
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- inventory `K_EXIT_LEGACY` naming in normalized-shadow loop routes and
-  `join_ir/lowering/canonical_names.rs`
+- replace active-source `K_EXIT_LEGACY` naming with
+  `NORMALIZED_SHADOW_K_EXIT` while keeping the `"join_func_2"` function key
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
