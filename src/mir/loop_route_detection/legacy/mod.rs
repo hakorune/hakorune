@@ -32,9 +32,3 @@ pub mod function_scope_capture;
 // Phase 79: Pure Detection Logic (Detector/Promoter separation)
 pub mod digitpos_detector;
 pub mod trim_detector;
-
-// Phase 100 P1-2: Pinned Local Analyzer
-pub mod pinned_local_analyzer;
-
-// Phase 100 P2-1: Mutable Accumulator Analyzer
-pub mod mutable_accumulator_analyzer;

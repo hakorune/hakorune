@@ -32,7 +32,6 @@ Move low-risk families first:
 
 ```text
 support::break_condition
-support::locals::{pinned, mutable_accumulator}
 ```
 
 Then move medium/high dependency families:
@@ -42,4 +41,10 @@ support::trim
 support::function_scope
 support::condition_scope
 support::body_local::{carrier, condition}
+```
+
+Already physically moved:
+
+```text
+support::locals::{pinned, mutable_accumulator}
 ```

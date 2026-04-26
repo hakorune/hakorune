@@ -16,14 +16,20 @@ loop_route_detection::support::break_condition
 loop_route_detection::support::locals::{pinned, mutable_accumulator}
 ```
 
+Physically owned here:
+
+```text
+loop_route_detection::support::locals::{pinned, mutable_accumulator}
+```
+
 Do not add route-selection policy here. Current route selection remains:
 
 ```text
 LoopFeatures -> classify() -> LoopRouteKind
 ```
 
-Current implementation note: these modules are still re-export facades over
-private `legacy/` storage. Move files into this directory family-by-family,
-after each family has a focused validation slice.
+Current implementation note: remaining support modules are still re-export
+facades over private `legacy/` storage. Move files into this directory
+family-by-family, after each family has a focused validation slice.
 
 Do not expose `legacy` again to make a migration easier.

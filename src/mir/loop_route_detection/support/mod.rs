@@ -33,17 +33,7 @@ pub mod function_scope {
 }
 
 /// Local-variable analyzer support.
-pub mod locals {
-    /// Mutable accumulator analysis support.
-    pub mod mutable_accumulator {
-        pub use crate::mir::loop_route_detection::legacy::mutable_accumulator_analyzer::*;
-    }
-
-    /// Pinned local analysis support.
-    pub mod pinned {
-        pub use crate::mir::loop_route_detection::legacy::pinned_local_analyzer::*;
-    }
-}
+pub mod locals;
 
 /// Trim-route support.
 pub mod trim {
