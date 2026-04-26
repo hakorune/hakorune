@@ -110,7 +110,7 @@ pub(crate) fn extract_features(
         has_if,
         carrier_count,
         is_infinite_loop,
-        ..Default::default() // Phase 188.1: Use Default for nesting fields
+        ..Default::default()
     }
 }
 

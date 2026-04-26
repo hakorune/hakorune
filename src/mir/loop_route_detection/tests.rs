@@ -114,7 +114,7 @@ fn classify_body(body: &[ASTNode]) -> LoopRouteKind {
         has_if: has_if(body),
         carrier_count: carrier_count(body),
         is_infinite_loop: false, // テストでは通常ループを想定
-        ..Default::default()     // Phase 188.1: Use default for new fields
+        ..Default::default()
     };
     classify(&features)
 }

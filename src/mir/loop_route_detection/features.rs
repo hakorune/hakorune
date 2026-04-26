@@ -50,16 +50,9 @@ pub(crate) fn extract_features(loop_form: &LoopForm) -> LoopFeatures {
     let has_break = !loop_form.break_targets.is_empty();
     let has_continue = !loop_form.continue_targets.is_empty();
 
-    // LoopForm currently does not carry AST assignment/update observations.
-    // Keep IfPhiJoin recognition in the AST feature extractor.
-    let carrier_count = 0;
-    let has_if = false;
-
     LoopFeatures {
         has_break,
         has_continue,
-        has_if,
-        carrier_count,
-        is_infinite_loop: false, // Phase 131-11: LoopForm doesn't have condition info, default to false
+        ..Default::default()
     }
 }

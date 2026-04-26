@@ -144,7 +144,7 @@ impl CaseALoweringShape {
         // Carrier names alone are not an update-kind proof.
         let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count,
-            ..Default::default() // Phase 188.1: Use Default for nesting fields
+            ..Default::default()
         };
 
         Self::detect_from_features(&stub_features, carrier_count, has_progress_carrier)

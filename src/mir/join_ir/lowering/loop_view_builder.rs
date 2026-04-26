@@ -89,7 +89,7 @@ impl LoopViewBuilder {
         let carrier_count = scope.carriers.len();
         let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count,
-            ..Default::default() // Phase 188.1: Use Default for nesting fields
+            ..Default::default()
         };
 
         let has_progress_carrier = scope.progress_carrier.is_some();
