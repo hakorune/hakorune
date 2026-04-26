@@ -47,47 +47,6 @@ impl Default for LoopFeatures {
     }
 }
 
-impl LoopFeatures {
-    /// Phase 193-3: Get debug statistics string
-    ///
-    /// Returns a formatted string showing all feature values for debugging.
-    pub fn debug_stats(&self) -> String {
-        format!(
-            "LoopFeatures {{ break: {}, continue: {}, if: {}, if_else_phi: {}, carriers: {}, break_count: {}, continue_count: {}, infinite: {} }}",
-            self.has_break,
-            self.has_continue,
-            self.has_if,
-            self.has_if_else_phi,
-            self.carrier_count,
-            self.break_count,
-            self.continue_count,
-            self.is_infinite_loop
-        )
-    }
-
-    /// Phase 193-3: Count total control flow divergences
-    ///
-    /// Returns the total number of break + continue targets.
-    /// Useful for determining loop complexity.
-    pub fn total_divergences(&self) -> usize {
-        self.break_count + self.continue_count
-    }
-
-    /// Phase 193-3: Check if loop has complex control flow
-    ///
-    /// Returns true if loop has multiple divergences or multiple carriers.
-    pub fn is_complex(&self) -> bool {
-        self.total_divergences() > 1 || self.carrier_count > 1
-    }
-
-    /// Phase 193-3: Check if loop is simple (no special features)
-    ///
-    /// Returns true if loop is purely sequential.
-    pub fn is_simple(&self) -> bool {
-        !self.has_break && !self.has_continue && !self.has_if_else_phi && self.carrier_count <= 1
-    }
-}
-
 /// Extract features from LoopForm for route classification.
 ///
 /// This function is the entry point for structure-based pattern detection.

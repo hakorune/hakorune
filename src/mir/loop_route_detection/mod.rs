@@ -34,7 +34,7 @@ mod features;
 mod kind;
 pub mod legacy;
 
-pub use classify::{classify, classify_with_diagnosis};
+pub use classify::classify;
 pub(crate) use features::extract_features;
 pub use features::LoopFeatures;
 pub use kind::LoopRouteKind;
