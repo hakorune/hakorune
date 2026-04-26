@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR frontend route descriptor table split pending`
+- current blocker token: `phase-291x JoinIR Case-A name-policy inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-309` inventoried residual JoinIR name-policy
-  seams and selected frontend route descriptor table split
+- latest known checkpoint: `291x-310` unified JoinIR frontend route keys and
+  dev gates into one local descriptor table
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- split `route.rs` function routes into one descriptor table without changing
-  accepted routes or env gates
+- inventory Case-A loop name-policy seams before changing `case_a.rs` or
+  `loop_view_builder.rs`
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

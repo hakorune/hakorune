@@ -11,44 +11,96 @@ pub(crate) enum FunctionRoute {
     ReadQuoted,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum FunctionRouteGate {
+    Always,
+    NestedIfDev,
+    ReadQuotedDev,
+}
+
+impl FunctionRouteGate {
+    fn is_enabled(self) -> bool {
+        match self {
+            FunctionRouteGate::Always => true,
+            FunctionRouteGate::NestedIfDev => {
+                crate::config::env::joinir_dev_enabled()
+                    && crate::config::env::joinir_dev::nested_if_enabled()
+            }
+            FunctionRouteGate::ReadQuotedDev => {
+                crate::config::env::joinir_dev_enabled()
+                    && crate::config::env::joinir_dev::read_quoted_enabled()
+            }
+        }
+    }
+
+    fn disabled_error(self, func_name: &str) -> String {
+        match self {
+            FunctionRouteGate::Always => unreachable!("always-enabled route cannot be disabled"),
+            FunctionRouteGate::NestedIfDev => format!(
+                "[joinir/frontend] '{}' requires HAKO_JOINIR_NESTED_IF=1 (dev only; current key: nested_if_merge)",
+                func_name
+            ),
+            FunctionRouteGate::ReadQuotedDev => format!(
+                "[joinir/frontend] '{}' requires HAKO_JOINIR_READ_QUOTED=1 (dev only; current key: read_quoted)",
+                func_name
+            ),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct FunctionRouteDesc {
+    name: &'static str,
+    route: FunctionRoute,
+    gate: FunctionRouteGate,
+}
+
+const FUNCTION_ROUTES: &[FunctionRouteDesc] = &[
+    // Current Program JSON frontend entrypoints.
+    FunctionRouteDesc {
+        name: "test",
+        route: FunctionRoute::IfReturn,
+        gate: FunctionRouteGate::Always,
+    },
+    FunctionRouteDesc {
+        name: "local",
+        route: FunctionRoute::IfReturn,
+        gate: FunctionRouteGate::Always,
+    },
+    FunctionRouteDesc {
+        name: "_read_value_from_pair",
+        route: FunctionRoute::IfReturn,
+        gate: FunctionRouteGate::Always,
+    },
+    FunctionRouteDesc {
+        name: "simple",
+        route: FunctionRoute::LoopFrontend,
+        gate: FunctionRouteGate::Always,
+    },
+    // Dev-gated routes. Historical normalized-dev fixture names are retired.
+    FunctionRouteDesc {
+        name: "nested_if_merge",
+        route: FunctionRoute::NestedIf,
+        gate: FunctionRouteGate::NestedIfDev,
+    },
+    FunctionRouteDesc {
+        name: "read_quoted",
+        route: FunctionRoute::ReadQuoted,
+        gate: FunctionRouteGate::ReadQuotedDev,
+    },
+];
+
 pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, String> {
-    // By-name allowlist for current Program JSON frontend entrypoints.
-    // Historical normalized-dev fixture names are retired and tracked in the retirement SSOT.
-    const TABLE: &[(&str, FunctionRoute)] = &[
-        ("test", FunctionRoute::IfReturn),
-        ("local", FunctionRoute::IfReturn),
-        ("_read_value_from_pair", FunctionRoute::IfReturn),
-        ("simple", FunctionRoute::LoopFrontend),
-    ];
-    const NESTED_IF_KEYS: &[&str] = &["nested_if_merge"];
-    const READ_QUOTED_KEYS: &[&str] = &["read_quoted"];
-
-    if let Some((_, route)) = TABLE.iter().find(|(name, _)| *name == func_name) {
-        return Ok(*route);
-    }
-
-    if NESTED_IF_KEYS.contains(&func_name) {
-        if crate::config::env::joinir_dev_enabled()
-            && crate::config::env::joinir_dev::nested_if_enabled()
-        {
-            return Ok(FunctionRoute::NestedIf);
-        }
-        return Err(format!(
-            "[joinir/frontend] '{}' requires HAKO_JOINIR_NESTED_IF=1 (dev only; current key: nested_if_merge)",
-            func_name
-        ));
-    }
-
-    if READ_QUOTED_KEYS.contains(&func_name) {
-        if crate::config::env::joinir_dev_enabled()
-            && crate::config::env::joinir_dev::read_quoted_enabled()
-        {
-            return Ok(FunctionRoute::ReadQuoted);
-        }
-        return Err(format!(
-            "[joinir/frontend] '{}' requires HAKO_JOINIR_READ_QUOTED=1 (dev only; current key: read_quoted)",
-            func_name
-        ));
+    if let Some(desc) = FUNCTION_ROUTES
+        .iter()
+        .copied()
+        .find(|desc| desc.name == func_name)
+    {
+        return if desc.gate.is_enabled() {
+            Ok(desc.route)
+        } else {
+            Err(desc.gate.disabled_error(func_name))
+        };
     }
 
     Err(format!(
