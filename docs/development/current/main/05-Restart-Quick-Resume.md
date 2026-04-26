@@ -33,16 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x post-runtime-meta next cleanup inventory pending`
+- current blocker token: `phase-291x JoinIR if-target exact allowlist SSOT pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-300` closed the `runtime/meta` root split with
-  `CoreMethodContractBox` as the only live semantic contract owner and support
-  exports isolated under `support/`
+- latest known checkpoint: `291x-301` selected JoinIR if-target exact
+  allowlist SSOT as the next cleanup seam after runtime/meta closeout
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -50,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- inventory the next non-runtime/meta compiler cleanup candidate before editing
-  code
+- remove the exact JoinIR if-target string mirror from
+  `try_lower_if_to_joinir(...)` by consuming `is_if_lowered_function(...)`
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
