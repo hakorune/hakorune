@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector trim support family migration pending`
+- current blocker token: `phase-291x JoinIR route detector trim compatibility export prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-373` pruned zero-caller parent
-  compatibility exports for small route detector support families
+- latest known checkpoint: `291x-374` migrated `TrimLoopHelper` callers to
+  `loop_route_detection::support::trim`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,7 +49,7 @@ cargo check -q
 
 ## Immediate Next
 
-- migrate `trim_loop_helper` callers to `loop_route_detection::support::trim`
+- verify and prune zero-caller parent `trim_loop_helper` compatibility export
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

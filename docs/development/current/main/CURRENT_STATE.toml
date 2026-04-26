@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-373"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-373-joinir-route-detector-small-compatibility-export-prune-card.md"
-latest_card_summary = "Pruned zero-caller parent compatibility exports for small route detector support families."
+latest_card = "291x-374"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-374-joinir-route-detector-trim-support-family-migration-card.md"
+latest_card_summary = "Migrated TrimLoopHelper callers to loop_route_detection::support::trim."
 
-current_blocker_token = "phase-291x JoinIR route detector trim support family migration pending"
+current_blocker_token = "phase-291x JoinIR route detector trim compatibility export prune pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -93,4 +93,5 @@ landed_tail = [
   "291x-371 JoinIR route detector support facade add landed",
   "291x-372 JoinIR route detector small support family migration landed",
   "291x-373 JoinIR route detector small compatibility export prune landed",
+  "291x-374 JoinIR route detector trim support family migration landed",
 ]

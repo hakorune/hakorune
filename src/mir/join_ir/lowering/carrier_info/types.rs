@@ -149,7 +149,7 @@ pub struct CarrierInfo {
     /// Additional carrier variables (e.g., sum, printed)
     pub carriers: Vec<CarrierVar>,
     /// Phase 171-C-5: Trim pattern helper (if this CarrierInfo was created from Trim promotion)
-    pub trim_helper: Option<crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper>,
+    pub trim_helper: Option<crate::mir::loop_route_detection::support::trim::TrimLoopHelper>,
     /// Phase 224: Promoted LoopBodyLocal variables (e.g., "digit_pos" promoted to "is_digit_pos")
     ///
     /// These variables were originally LoopBodyLocal but have been promoted to carriers

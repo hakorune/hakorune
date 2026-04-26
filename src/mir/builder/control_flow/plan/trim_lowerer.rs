@@ -7,7 +7,7 @@
 
 use crate::ast::{ASTNode, Span, UnaryOperator};
 use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
-use crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper;
+use crate::mir::loop_route_detection::support::trim::TrimLoopHelper;
 use crate::mir::ValueId;
 
 pub(in crate::mir::builder) struct TrimLowerer;

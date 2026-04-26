@@ -33,7 +33,7 @@ use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::condition_env::ConditionEnv;
 use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
 use crate::mir::join_ir::JoinInst;
-use crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper;
+use crate::mir::loop_route_detection::support::trim::TrimLoopHelper;
 use crate::mir::ValueId;
 
 /// Break semantics for ConditionOnly patterns

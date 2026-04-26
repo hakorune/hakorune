@@ -229,7 +229,7 @@ impl CarrierInfo {
     /// ```
     pub fn trim_helper(
         &self,
-    ) -> Option<&crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper> {
+    ) -> Option<&crate::mir::loop_route_detection::support::trim::TrimLoopHelper> {
         self.trim_helper.as_ref()
     }
 
