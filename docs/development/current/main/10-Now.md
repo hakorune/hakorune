@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR LoopFeatures update-summary surface inventory pending`
+- current blocker token: `phase-291x JoinIR LoopFeatures update-summary dead surface prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory `LoopFeatures.update_summary` surface; do not change analyzer
-  behavior
-- cleanup checkpoint: latest known landed card `291x-336`; detailed closed
+- prune the dead `LoopFeatures.update_summary` surface; do not change route
+  behavior or analyzer behavior
+- cleanup checkpoint: latest known landed card `291x-337`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

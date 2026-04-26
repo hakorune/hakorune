@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR LoopFeatures update-summary surface inventory pending`
+- current blocker token: `phase-291x JoinIR LoopFeatures update-summary dead surface prune pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-336` removed the never-read
-  `RoutePrepContext.loop_update_summary` reserved field
+- latest known checkpoint: `291x-337` inventoried
+  `LoopFeatures.update_summary` and found it is a dead reserved surface
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: inventory `LoopFeatures.update_summary` surface; do not
-  change analyzer behavior
+- resume point: prune the dead `LoopFeatures.update_summary` surface; do not
+  change route behavior or analyzer behavior
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-336-joinir-loop-update-reserved-field-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-337-joinir-loopfeatures-update-summary-surface-inventory-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR `LoopFeatures.update_summary` surface inventory; do not
-  change analyzer behavior
+- next: JoinIR `LoopFeatures.update_summary` dead surface prune; do not
+  change route behavior or analyzer behavior
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-336`; detailed landed history lives in phase card
+- latest checkpoint: `291x-337`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR `LoopFeatures.update_summary` surface inventory
+- next cleanup: JoinIR `LoopFeatures.update_summary` dead surface prune
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
