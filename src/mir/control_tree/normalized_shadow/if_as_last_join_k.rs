@@ -4,6 +4,7 @@ use super::common::normalized_helpers::NormalizedHelperBox;
 use super::env_layout::EnvLayout;
 use super::support::expr_lowering;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
+use crate::mir::join_ir::lowering::canonical_names as cn;
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
 use crate::mir::join_ir::{
@@ -62,7 +63,7 @@ impl IfAsLastJoinKLowererBox {
         // main(env)
         // main_params allocated above in Param region. Clone for reuse.
         let mut env_main = NormalizedHelperBox::build_env_map(&env_fields, &main_params);
-        let mut main_func = JoinFunction::new(main_id, "main".to_string(), main_params.clone());
+        let mut main_func = JoinFunction::new(main_id, cn::MAIN.to_string(), main_params.clone());
 
         // Lower prefix (pre-if) statements into main
         for n in prefix_nodes {

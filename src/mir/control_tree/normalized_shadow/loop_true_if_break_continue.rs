@@ -27,6 +27,7 @@ use super::common::loop_if_exit_contract::{LoopIfExitShape, LoopIfExitThen, OutO
 use super::common::normalized_helpers::NormalizedHelperBox;
 use super::env_layout::EnvLayout;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
+use crate::mir::join_ir::lowering::canonical_names as cn;
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst, UnaryOp};
 use crate::mir::ValueId;
@@ -164,7 +165,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
         // main_params allocated above in Param region. Clone for reuse.
         let env_main = NormalizedHelperBox::build_env_map(&env_fields, &main_params);
         let main_func = {
-            let mut f = JoinFunction::new(main_id, "main".to_string(), main_params.clone());
+            let mut f = JoinFunction::new(main_id, cn::MAIN.to_string(), main_params.clone());
             // main: Call(loop_step, env)
             let loop_step_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_main)?;
             f.body.push(JoinInst::Call {
@@ -181,7 +182,8 @@ impl LoopTrueIfBreakContinueBuilderBox {
         let loop_step_params = main_params.clone();
         let env_loop_step = NormalizedHelperBox::build_env_map(&env_fields, &loop_step_params);
         let loop_step_func = {
-            let mut f = JoinFunction::new(loop_step_id, "loop_step".to_string(), loop_step_params);
+            let mut f =
+                JoinFunction::new(loop_step_id, cn::LOOP_STEP.to_string(), loop_step_params);
             // loop_step: Call(loop_cond_check, env)
             let loop_cond_check_args =
                 NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_step)?;
@@ -352,7 +354,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
         let k_exit_params = main_params.clone();
         let env_k_exit = NormalizedHelperBox::build_env_map(&env_fields, &k_exit_params);
         let k_exit_func = {
-            let mut f = JoinFunction::new(k_exit_id, "k_exit".to_string(), k_exit_params.clone());
+            let mut f = JoinFunction::new(k_exit_id, cn::K_EXIT.to_string(), k_exit_params.clone());
 
             // Phase 143 P0: Build exit values from env_layout.writes
             // Each write variable is returned as an exit value

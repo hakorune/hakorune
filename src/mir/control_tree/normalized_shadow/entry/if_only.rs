@@ -4,6 +4,7 @@ use crate::mir::control_tree::normalized_shadow::env_layout::EnvLayout;
 use crate::mir::control_tree::normalized_shadow::support::expr_lowering;
 use crate::mir::control_tree::step_tree::StepTree;
 use crate::mir::control_tree::step_tree_contract_box::StepTreeContract;
+use crate::mir::join_ir::lowering::canonical_names as cn;
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinModule};
 use crate::mir::ValueId;
@@ -55,7 +56,7 @@ pub(crate) fn lower_if_only_to_normalized(
     env_params.extend(inputs_params);
 
     // main 関数生成
-    let mut main_func = JoinFunction::new(main_func_id, "main".to_string(), env_params.clone());
+    let mut main_func = JoinFunction::new(main_func_id, cn::MAIN.to_string(), env_params.clone());
 
     // Phase 123-128: Return node lowering
     // If Phase 123-128 patterns are not supported, return Ok(None)

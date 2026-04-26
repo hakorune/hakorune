@@ -37,6 +37,7 @@ use super::common::return_value_lowerer_box::ReturnValueLowererBox;
 use super::env_layout::EnvLayout;
 use super::support::expr_lowering;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
+use crate::mir::join_ir::lowering::canonical_names as cn;
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
 use crate::mir::join_ir::{
@@ -81,7 +82,7 @@ impl PostIfPostKBuilderBox {
         // main(env)
         // main_params allocated above in Param region. Clone for reuse.
         let mut env_main = NormalizedHelperBox::build_env_map(&env_fields, &main_params);
-        let mut main_func = JoinFunction::new(main_id, "main".to_string(), main_params.clone());
+        let mut main_func = JoinFunction::new(main_id, cn::MAIN.to_string(), main_params.clone());
 
         // Lower prefix (pre-if) statements into main
         for n in prefix_nodes {
@@ -242,7 +243,7 @@ impl PostIfPostKBuilderBox {
         // Phase 143 fix: reuse Param region IDs for all functions
         let post_k_params = main_params.clone();
         let env_post_k = NormalizedHelperBox::build_env_map(&env_fields, &post_k_params);
-        let mut post_k_func = JoinFunction::new(post_k_id, "post_k".to_string(), post_k_params);
+        let mut post_k_func = JoinFunction::new(post_k_id, cn::POST_K.to_string(), post_k_params);
 
         // Lower post-if statements
         for n in post_nodes {
