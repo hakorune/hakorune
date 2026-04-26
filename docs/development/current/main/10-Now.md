@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow route-local function-name cleanup pending`
+- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- move normalized-shadow route-local `join_k`/`k_then`/`k_else`/
-  `loop_cond_check` names behind a normalized-shadow-local vocabulary
-- cleanup checkpoint: latest known landed card `291x-414`; detailed closed
+- inventory the next compiler-cleanliness seam after normalized-shadow
+  route-local function-name cleanup
+- cleanup checkpoint: latest known landed card `291x-415`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

@@ -34,6 +34,7 @@ use super::common::expr_lowerer_box::NormalizedExprLowererBox;
 use super::common::expr_lowering_contract::ExprLoweringScope;
 use super::common::normalized_helpers::NormalizedHelperBox;
 use super::common::return_value_lowerer_box::ReturnValueLowererBox;
+use super::common::route_function_names as rfn;
 use super::env_layout::EnvLayout;
 use super::support::expr_lowering;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
@@ -136,7 +137,7 @@ impl PostIfPostKBuilderBox {
         // Phase 143 fix: reuse Param region IDs for all functions
         let then_params = main_params.clone();
         let mut env_then = NormalizedHelperBox::build_env_map(&env_fields, &then_params);
-        let mut then_func = JoinFunction::new(k_then_id, "k_then".to_string(), then_params);
+        let mut then_func = JoinFunction::new(k_then_id, rfn::K_THEN.to_string(), then_params);
 
         for stmt in then_stmts {
             match stmt {
@@ -179,7 +180,7 @@ impl PostIfPostKBuilderBox {
         // Phase 143 fix: reuse Param region IDs for all functions
         let else_params = main_params.clone();
         let mut env_else = NormalizedHelperBox::build_env_map(&env_fields, &else_params);
-        let mut else_func = JoinFunction::new(k_else_id, "k_else".to_string(), else_params);
+        let mut else_func = JoinFunction::new(k_else_id, rfn::K_ELSE.to_string(), else_params);
 
         for stmt in else_stmts {
             match stmt {
@@ -222,7 +223,7 @@ impl PostIfPostKBuilderBox {
         // Phase 143 fix: reuse Param region IDs for all functions
         let join_k_params = main_params.clone();
         let env_join_k = NormalizedHelperBox::build_env_map(&env_fields, &join_k_params);
-        let mut join_k_func = JoinFunction::new(join_k_id, "join_k".to_string(), join_k_params);
+        let mut join_k_func = JoinFunction::new(join_k_id, rfn::JOIN_K.to_string(), join_k_params);
 
         let join_k_args =
             NormalizedHelperBox::collect_env_args(&env_fields, &env_join_k).map_err(|e| {

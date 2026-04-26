@@ -25,6 +25,7 @@ use super::common::expr_lowerer_box::NormalizedExprLowererBox;
 use super::common::expr_lowering_contract::ExprLoweringScope;
 use super::common::loop_if_exit_contract::{LoopIfExitShape, LoopIfExitThen, OutOfScopeReason};
 use super::common::normalized_helpers::NormalizedHelperBox;
+use super::common::route_function_names as rfn;
 use super::env_layout::EnvLayout;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
 use crate::mir::join_ir::lowering::canonical_names as cn;
@@ -204,7 +205,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
         let loop_cond_check_func = {
             let mut f = JoinFunction::new(
                 loop_cond_check_id,
-                "loop_cond_check".to_string(),
+                rfn::LOOP_COND_CHECK.to_string(),
                 loop_cond_check_params,
             );
 
@@ -336,7 +337,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
         // (e.g., else-branch support).
         // Phase 143 fix: reuse Param region IDs
         let k_then_params = main_params.clone();
-        let k_then_func = { JoinFunction::new(k_then_id, "k_then".to_string(), k_then_params) };
+        let k_then_func = { JoinFunction::new(k_then_id, rfn::K_THEN.to_string(), k_then_params) };
 
         // === k_else(env): Not used in P0 (direct Call from loop_cond_check fallthrough) ===
         // Kept for structural clarity in case future extensions need it
@@ -344,7 +345,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
         let k_else_params = main_params.clone();
         let _env_k_else = NormalizedHelperBox::build_env_map(&env_fields, &k_else_params);
         let k_else_func = {
-            let f = JoinFunction::new(k_else_id, "k_else".to_string(), k_else_params);
+            let f = JoinFunction::new(k_else_id, rfn::K_ELSE.to_string(), k_else_params);
             // Empty placeholder: P0 doesn't use this function
             f
         };

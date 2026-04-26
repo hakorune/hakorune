@@ -1,6 +1,7 @@
 //! Phase 129-B: if-as-last lowering with join_k (dev-only)
 
 use super::common::normalized_helpers::NormalizedHelperBox;
+use super::common::route_function_names as rfn;
 use super::env_layout::EnvLayout;
 use super::support::expr_lowering;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
@@ -234,7 +235,7 @@ impl IfAsLastJoinKLowererBox {
                 "ensure env layout includes the return variable in writes",
             )
         })?;
-        let mut join_k_func = JoinFunction::new(join_k_id, "join_k".to_string(), join_k_params);
+        let mut join_k_func = JoinFunction::new(join_k_id, rfn::JOIN_K.to_string(), join_k_params);
         join_k_func.body.push(JoinInst::Ret {
             value: Some(ret_vid),
         });
@@ -243,7 +244,7 @@ impl IfAsLastJoinKLowererBox {
         // Phase 143 fix: reuse Param region IDs for all functions
         let then_params = main_params.clone();
         let mut env_then = NormalizedHelperBox::build_env_map(&env_fields, &then_params);
-        let mut then_func = JoinFunction::new(k_then_id, "k_then".to_string(), then_params);
+        let mut then_func = JoinFunction::new(k_then_id, rfn::K_THEN.to_string(), then_params);
         for n in then_prefix {
             match n {
                 StepNode::Stmt { kind, .. } => match kind {
@@ -289,7 +290,7 @@ impl IfAsLastJoinKLowererBox {
         // Phase 143 fix: reuse Param region IDs for all functions
         let else_params = main_params.clone();
         let mut env_else = NormalizedHelperBox::build_env_map(&env_fields, &else_params);
-        let mut else_func = JoinFunction::new(k_else_id, "k_else".to_string(), else_params);
+        let mut else_func = JoinFunction::new(k_else_id, rfn::K_ELSE.to_string(), else_params);
         for n in else_prefix {
             match n {
                 StepNode::Stmt { kind, .. } => match kind {
