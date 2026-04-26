@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector unused legacy module export inventory pending`
+- current blocker token: `phase-291x JoinIR route detector legacy internal import owner-path migration pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory legacy module exports that have no non-legacy external callers;
-  check internal imports before pruning
-- cleanup checkpoint: latest known landed card `291x-356`; detailed closed
+- migrate legacy-internal imports for digitpos/trim detector helpers to
+  owner-local paths; do not prune exports in the same card
+- cleanup checkpoint: latest known landed card `291x-357`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
