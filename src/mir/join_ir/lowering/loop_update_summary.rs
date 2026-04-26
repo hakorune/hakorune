@@ -191,12 +191,9 @@ fn extract_assigned_variables(
                     }
                 }
             }
-            // Loop statement: recurse into body (for nested loops)
-            ASTNode::Loop { body, .. } => {
-                for stmt in body {
-                    visit_node(stmt, assigned);
-                }
-            }
+            // Nested loops are separate update scopes. Do not use their
+            // assignments as proof for the current loop body.
+            ASTNode::Loop { .. } => {}
             // Other nodes: no assignment tracking needed
             _ => {}
         }
@@ -306,14 +303,9 @@ fn find_assignment_rhs<'a>(
                 }
                 None
             }
-            ASTNode::Loop { body, .. } => {
-                for stmt in body {
-                    if let Some(rhs) = visit_node(var_name, stmt) {
-                        return Some(rhs);
-                    }
-                }
-                None
-            }
+            // Nested loops are separate update scopes. Do not use their
+            // assignments as proof for the current loop body.
+            ASTNode::Loop { .. } => None,
             _ => None,
         }
     }
@@ -429,6 +421,14 @@ mod tests {
             condition: Box::new(condition),
             then_body,
             else_body,
+            span: span(),
+        }
+    }
+
+    fn loop_with_body(body: Vec<ASTNode>) -> ASTNode {
+        ASTNode::Loop {
+            condition: Box::new(var("cond")),
+            body,
             span: span(),
         }
     }
@@ -592,5 +592,32 @@ mod tests {
 
         assert_eq!(summary.counter_count(), 1);
         assert_eq!(summary.accumulation_count(), 1);
+    }
+
+    #[test]
+    fn loop_update_nested_scope_ignores_nested_loop_assignment() {
+        let names = vec!["i".to_string()];
+        let loop_body = vec![loop_with_body(vec![assign("i", add(var("i"), lit_i(1)))])];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert!(summary.carriers.is_empty());
+        assert_eq!(summary.counter_count(), 0);
+        assert_eq!(summary.accumulation_count(), 0);
+    }
+
+    #[test]
+    fn loop_update_nested_scope_keeps_current_if_branch_assignment() {
+        let names = vec!["i".to_string()];
+        let loop_body = vec![if_with_updates(
+            var("cond"),
+            vec![assign("i", add(var("i"), lit_i(1)))],
+            None,
+        )];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert_eq!(summary.counter_count(), 1);
+        assert_eq!(summary.accumulation_count(), 0);
     }
 }

@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR loop-update nested-scope assignment prune pending`
+- current blocker token: `phase-291x JoinIR loop-update multi-assignment inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-325` inventoried loop-update nested-loop
-  traversal that treated nested assignments as current-loop updates
+- latest known checkpoint: `291x-326` stopped loop-update analysis from using
+  nested loop assignments as current-loop update proof
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: prune loop-update nested-loop assignment traversal; keep
-  current-loop if-branch traversal
+- resume point: inventory loop-update multi-assignment/first-RHS behavior; do
+  not mix with nested-scope traversal cleanup
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-325-joinir-loop-update-nested-scope-inventory-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-326-joinir-loop-update-nested-scope-prune-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR loop-update nested-scope assignment prune; keep if-branch
-  traversal
+- next: JoinIR loop-update multi-assignment inventory; do not mix with
+  nested-scope traversal cleanup
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-325`; detailed landed history lives in phase card
+- latest checkpoint: `291x-326`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR loop-update nested-scope assignment prune
+- next cleanup: JoinIR loop-update multi-assignment inventory
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
