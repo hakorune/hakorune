@@ -49,6 +49,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-308-generic-type-resolver-p3c-candidate-helper-retirement-card.md
   - docs/development/current/main/phases/phase-291x/291x-309-joinir-residual-name-policy-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-310-joinir-frontend-route-descriptor-table-card.md
+  - docs/development/current/main/phases/phase-291x/291x-311-joinir-casea-name-policy-inventory-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -56,7 +57,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: JoinIR Case-A name-policy inventory
+- Next implementation target: JoinIR Case-A target descriptor table split
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -68,7 +69,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-310-joinir-frontend-route-descriptor-table-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-311-joinir-casea-name-policy-inventory-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -110,7 +111,7 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-310`
+- latest known cleanup checkpoint: `291x-311`
 - BuildBox thinning series is closed; residual MapBox.has sentinel retirement
   is closed; CoreMethodContract `.inc` classifier baseline is zero;
   `MirCallRoutePolicy`, `MirCallNeedPolicy`, and `MirCallSurfacePolicy`
@@ -122,8 +123,9 @@ in one card.
   JoinIR type-hint prefix policy inventory is closed; JoinIR type-hint family
   table split is closed; GenericTypeResolver P3-C candidate helper
   audit/retirement is closed; JoinIR residual name-policy inventory is closed;
-  JoinIR frontend route descriptor table split is closed; next cleanup is
-  Case-A name-policy inventory
+  JoinIR frontend route descriptor table split is closed; JoinIR Case-A
+  name-policy inventory is closed; next cleanup is Case-A target descriptor
+  table split
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=0 rows=0`
 - no `.inc` method/box string classifier rows are allowlisted

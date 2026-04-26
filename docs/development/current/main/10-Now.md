@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR Case-A name-policy inventory pending`
+- current blocker token: `phase-291x JoinIR Case-A target descriptor table split pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory Case-A loop name-policy seams before changing `case_a.rs` or
-  `loop_view_builder.rs`
-- cleanup checkpoint: latest known landed card `291x-310`; BuildBox thinning,
+- add a Case-A target descriptor table for `is_case_a_minimal_target(...)`
+  without changing fallback dispatch yet
+- cleanup checkpoint: latest known landed card `291x-311`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
@@ -39,8 +39,8 @@ Related:
   if-target exact allowlist SSOT, prefix policy inventory, prefix helper
   split, type-hint prefix policy inventory, type-hint family table split, and
   GenericTypeResolver P3-C candidate helper audit/retirement, and JoinIR
-  residual name-policy inventory, and frontend route descriptor table split are
-  closed
+  residual name-policy inventory, frontend route descriptor table split, and
+  Case-A name-policy inventory are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
