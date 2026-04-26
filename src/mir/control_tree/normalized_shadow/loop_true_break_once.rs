@@ -383,12 +383,15 @@ impl LoopTrueBreakOnceBuilderBox {
 
         // k_exit(env): handle post-loop or return
         // Phase 143 fix: reuse Param region IDs for all functions
-        // Phase 256 P1.7: Use canonical name from SSOT (legacy variant for normalized shadow)
+        // Use the normalized-shadow compatibility name from the canonical-name SSOT.
         use crate::mir::join_ir::lowering::canonical_names as cn;
         let k_exit_params = main_params.clone();
         let env_k_exit = NormalizedHelperBox::build_env_map(&env_fields, &k_exit_params);
-        let mut k_exit_func =
-            JoinFunction::new(k_exit_id, cn::K_EXIT_LEGACY.to_string(), k_exit_params);
+        let mut k_exit_func = JoinFunction::new(
+            k_exit_id,
+            cn::NORMALIZED_SHADOW_K_EXIT.to_string(),
+            k_exit_params,
+        );
 
         if has_post_computation {
             // Phase 132-P4/133-P0: k_exit → TailCall(post_k, env)
@@ -520,9 +523,9 @@ impl LoopTrueBreakOnceBuilderBox {
                 exit_values: exit_values_for_meta,
             };
             let mut meta = JoinFragmentMeta::carrier_only(exit_meta);
-            // Phase 256 P1.7: Use canonical name from SSOT (legacy variant for normalized shadow)
+            // Keep continuation metadata aligned with the normalized-shadow function key.
             meta.continuation_funcs
-                .insert(cn::K_EXIT_LEGACY.to_string());
+                .insert(cn::NORMALIZED_SHADOW_K_EXIT.to_string());
 
             return Ok(Some((module, meta)));
         }
@@ -596,9 +599,9 @@ impl LoopTrueBreakOnceBuilderBox {
             exit_values: exit_values_for_meta,
         };
         let mut meta = JoinFragmentMeta::carrier_only(exit_meta);
-        // Phase 256 P1.7: Use canonical name from SSOT (legacy variant for normalized shadow)
+        // Keep continuation metadata aligned with the normalized-shadow function key.
         meta.continuation_funcs
-            .insert(cn::K_EXIT_LEGACY.to_string());
+            .insert(cn::NORMALIZED_SHADOW_K_EXIT.to_string());
 
         Ok(Some((module, meta)))
     }

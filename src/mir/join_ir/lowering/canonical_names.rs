@@ -34,18 +34,18 @@
 /// - JoinInlineBoundary.continuation_funcs
 /// - ExitLine/ExitMeta handling
 ///
-/// Historical note: Some normalized shadow code uses "join_func_2" instead.
-/// See K_EXIT_LEGACY for compatibility.
+/// Normalized shadow keeps a compatibility name for its fixed `JoinFuncId(2)`
+/// exit continuation. See `NORMALIZED_SHADOW_K_EXIT`.
 pub const K_EXIT: &str = "k_exit";
 
-/// Legacy canonical name for k_exit in normalized shadow code
+/// Compatibility name for normalized-shadow `JoinFuncId(2)` k_exit.
 ///
 /// Used in:
-/// - normalized_shadow/loop_true_break_once.rs (line 354, 460, 531)
+/// - normalized_shadow/loop_true_break_once.rs
 ///
-/// TODO (Phase 256 P1.7): Unify with K_EXIT or keep as separate const
-/// if semantic difference exists.
-pub const K_EXIT_LEGACY: &str = "join_func_2";
+/// This value is intentionally different from `K_EXIT`: the bridge-visible
+/// function key follows the existing normalized-shadow function id route.
+pub const NORMALIZED_SHADOW_K_EXIT: &str = "join_func_2";
 
 /// Canonical name for loop step/body function
 ///
@@ -85,7 +85,7 @@ mod tests {
     #[test]
     fn test_canonical_names_are_not_empty() {
         assert!(!K_EXIT.is_empty());
-        assert!(!K_EXIT_LEGACY.is_empty());
+        assert!(!NORMALIZED_SHADOW_K_EXIT.is_empty());
         assert!(!LOOP_STEP.is_empty());
         assert!(!MAIN.is_empty());
         assert!(!POST_K.is_empty());
@@ -95,7 +95,7 @@ mod tests {
     #[test]
     fn test_canonical_names_have_expected_values() {
         assert_eq!(K_EXIT, "k_exit");
-        assert_eq!(K_EXIT_LEGACY, "join_func_2");
+        assert_eq!(NORMALIZED_SHADOW_K_EXIT, "join_func_2");
         assert_eq!(LOOP_STEP, "loop_step");
         assert_eq!(MAIN, "main");
         assert_eq!(POST_K, "post_k");
@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn test_k_exit_variants_differ() {
-        // These should be different (historical reasons)
-        assert_ne!(K_EXIT, K_EXIT_LEGACY);
+        // Normalized shadow keeps the bridge-visible JoinFuncId(2) name.
+        assert_ne!(K_EXIT, NORMALIZED_SHADOW_K_EXIT);
     }
 }
