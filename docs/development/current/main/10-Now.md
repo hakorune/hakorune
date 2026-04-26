@@ -20,19 +20,19 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x MirCallSurfacePolicy export quarantine pending`
+- current blocker token: `phase-291x runtime/meta live table inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- quarantine/retire the stale `MirCallSurfacePolicy` export if no caller is
-  introduced; keep the native surface-policy shim consumer intact
-- cleanup checkpoint: latest known landed card `291x-293`; BuildBox thinning,
+- inventory remaining `runtime/meta` live tables after route / need / surface
+  mirror-table retirement
+- cleanup checkpoint: latest known landed card `291x-294`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
-  closed; SurfacePolicy owner audit is closed
+  closed; SurfacePolicy owner audit and export retirement are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

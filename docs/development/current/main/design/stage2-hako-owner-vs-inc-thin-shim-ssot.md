@@ -116,8 +116,8 @@ Related:
   `291x-291` and retired by `291x-292`; it was registered transitional
   vocabulary, not the current executable need-policy owner.
 - `lang/src/runtime/meta/mir_call_surface_policy_box.hako` was owner-audited
-  by `291x-293` and is registered transitional vocabulary, not the current
-  executable surface-policy owner.
+  by `291x-293` and retired by `291x-294`; it was registered transitional
+  vocabulary, not the current executable surface-policy owner.
 - `hako_llvmc_ffi_mir_call_route_policy.inc` is the current executable route
   consumer and must stay metadata-first.
 - `hako_llvmc_ffi_mir_call_need_policy.inc` is the current executable
@@ -191,8 +191,8 @@ Note:
 - `hako_llvmc_ffi_string_concat_window.inc`
 - `lang/src/runtime/meta/mir_call_route_policy_box.hako` (retired by `291x-290`)
 - `lang/src/runtime/meta/mir_call_need_policy_box.hako` (retired by `291x-292`)
-- `lang/src/runtime/meta/mir_call_surface_policy_box.hako` (owner-audited by
-  `291x-293`; transitional vocabulary)
+- `lang/src/runtime/meta/mir_call_surface_policy_box.hako` (retired by
+  `291x-294`)
 - `hako_llvmc_ffi_mir_call_route_policy.inc`
 - `hako_llvmc_ffi_mir_call_need_policy.inc`
 - `hako_llvmc_ffi_mir_call_surface_policy.inc`

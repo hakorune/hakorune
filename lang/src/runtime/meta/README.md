@@ -23,14 +23,6 @@ Rule:
 
 ## Current modules
 
-- `mir_call_surface_policy_box.hako`
-  - `MirCallSurfacePolicy.accept_surface(...)`
-  - owner-audited by `291x-293`.
-  - registered transitional vocabulary, not the executable surface-policy
-    owner.
-  - native surface dispatch stays in
-    `lang/c-abi/shims/hako_llvmc_ffi_mir_call_surface_policy.inc` until a
-    generated producer or typed LoweringPlan owns those surfaces.
 - `core_method_contract_box.hako`
   - `CoreMethodContractBox.rows()`
   - `CoreMethodContractBox.schema_fields()`
@@ -64,4 +56,13 @@ Rule:
     `lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_policy.inc` until a
     generated producer or typed LoweringPlan owns those flags.
   - do not reintroduce a by-name need table unless it is generated from
+    CoreMethod/manifest metadata and wired as the actual producer.
+- `mir_call_surface_policy_box.hako`
+  - owner-audited by `291x-293` and retired by `291x-294`.
+  - had no active `.hako` or Rust caller; it is registered transitional
+    vocabulary debt, not the executable surface-policy owner.
+  - constructor/global/string-extern surfaces stay native through
+    `lang/c-abi/shims/hako_llvmc_ffi_mir_call_surface_policy.inc` until a
+    generated producer or typed LoweringPlan owns those flags.
+  - do not reintroduce a by-name surface table unless it is generated from
     CoreMethod/manifest metadata and wired as the actual producer.
