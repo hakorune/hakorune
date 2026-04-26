@@ -288,7 +288,7 @@ impl PostIfPostKBuilderBox {
             post_k_func.body.push(JoinInst::Ret { value: None });
         }
 
-        // Phase 146 P0: Use lower_expr_with_scope() SSOT (legacy fallback)
+        // Phase 146 P0: try the shared expression lowerer first.
         let cond_vid = match NormalizedExprLowererBox::lower_expr_with_scope(
             ExprLoweringScope::PureOnly,
             &cond_ast.0,
@@ -298,7 +298,7 @@ impl PostIfPostKBuilderBox {
         ) {
             Ok(Some(vid)) => vid,
             Ok(None) => {
-                // Fall back to the Phase 129 baseline minimal compare route.
+                // Use the route-local Phase 129 baseline minimal compare path.
                 Self::lower_condition_baseline(
                     &cond_ast.0,
                     &env_main,

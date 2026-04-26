@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow post-if fallback wording cleanup pending`
+- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-416` inventoried stale normalized-shadow
-  post-if fallback wording before cleanup
+- latest known checkpoint: `291x-417` cleaned stale normalized-shadow post-if
+  fallback wording without changing lowering behavior
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- clean stale `post_if_post_k.rs` fallback wording without changing lowering
-  behavior
+- inventory the next compiler-cleanliness seam after normalized-shadow post-if
+  fallback wording cleanup
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
