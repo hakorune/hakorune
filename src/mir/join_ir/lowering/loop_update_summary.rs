@@ -156,56 +156,6 @@ impl LoopUpdateSummary {
     }
 }
 
-/// Phase 219: Extract all assigned variable names from loop body AST
-///
-/// Returns a set of variable names that are assigned (LHS) in the loop body.
-/// This prevents phantom carriers from non-assigned variables.
-fn extract_assigned_variables(
-    loop_body: &[crate::ast::ASTNode],
-) -> std::collections::HashSet<String> {
-    use crate::ast::ASTNode;
-    let mut assigned = std::collections::HashSet::new();
-
-    fn visit_node(node: &ASTNode, assigned: &mut std::collections::HashSet<String>) {
-        match node {
-            // Direct assignment: target = value
-            ASTNode::Assignment { target, value, .. } => {
-                if let ASTNode::Variable { name, .. } = target.as_ref() {
-                    assigned.insert(name.clone());
-                }
-                // Recurse into value (for nested assignments)
-                visit_node(value, assigned);
-            }
-            // If statement: recurse into then/else branches
-            ASTNode::If {
-                then_body,
-                else_body,
-                ..
-            } => {
-                for stmt in then_body {
-                    visit_node(stmt, assigned);
-                }
-                if let Some(else_stmts) = else_body {
-                    for stmt in else_stmts {
-                        visit_node(stmt, assigned);
-                    }
-                }
-            }
-            // Nested loops are separate update scopes. Do not use their
-            // assignments as proof for the current loop body.
-            ASTNode::Loop { .. } => {}
-            // Other nodes: no assignment tracking needed
-            _ => {}
-        }
-    }
-
-    for stmt in loop_body {
-        visit_node(stmt, &mut assigned);
-    }
-
-    assigned
-}
-
 /// Phase 219: Classify update kind from RHS expression structure
 ///
 /// Returns UpdateKind based on RHS pattern and self-reference to the assigned carrier.
@@ -264,25 +214,27 @@ fn classify_update_kind_from_rhs(var_name: &str, rhs: &crate::ast::ASTNode) -> U
 /// # Returns
 ///
 /// LoopUpdateSummary with only actually-assigned carriers
-/// Phase 219: Extract assignment RHS for a given variable
+/// Phase 219: Extract assignment RHS candidates for a given variable
 ///
-/// Returns the RHS expression of the first assignment to `var_name` in loop body.
-fn find_assignment_rhs<'a>(
+/// Returns every current-loop RHS expression assigning to `var_name`.
+fn collect_assignment_rhses<'a>(
     var_name: &str,
     loop_body: &'a [crate::ast::ASTNode],
-) -> Option<&'a crate::ast::ASTNode> {
+) -> Vec<&'a crate::ast::ASTNode> {
     use crate::ast::ASTNode;
 
-    fn visit_node<'a>(var_name: &str, node: &'a ASTNode) -> Option<&'a ASTNode> {
+    fn visit_node<'a>(var_name: &str, node: &'a ASTNode, rhses: &mut Vec<&'a ASTNode>) {
         match node {
             ASTNode::Assignment { target, value, .. } => {
                 if let ASTNode::Variable { name, .. } = target.as_ref() {
                     if name == var_name {
-                        return Some(value.as_ref());
+                        rhses.push(value.as_ref());
+                        return;
                     }
                 }
-                // Recurse into value
-                visit_node(var_name, value)
+                // Recurse into value for nested assignment expressions that are
+                // not already the carrier assignment itself.
+                visit_node(var_name, value, rhses);
             }
             ASTNode::If {
                 then_body,
@@ -290,32 +242,26 @@ fn find_assignment_rhs<'a>(
                 ..
             } => {
                 for stmt in then_body {
-                    if let Some(rhs) = visit_node(var_name, stmt) {
-                        return Some(rhs);
-                    }
+                    visit_node(var_name, stmt, rhses);
                 }
                 if let Some(else_stmts) = else_body {
                     for stmt in else_stmts {
-                        if let Some(rhs) = visit_node(var_name, stmt) {
-                            return Some(rhs);
-                        }
+                        visit_node(var_name, stmt, rhses);
                     }
                 }
-                None
             }
             // Nested loops are separate update scopes. Do not use their
             // assignments as proof for the current loop body.
-            ASTNode::Loop { .. } => None,
-            _ => None,
+            ASTNode::Loop { .. } => {}
+            _ => {}
         }
     }
 
+    let mut rhses = Vec::new();
     for stmt in loop_body {
-        if let Some(rhs) = visit_node(var_name, stmt) {
-            return Some(rhs);
-        }
+        visit_node(var_name, stmt, &mut rhses);
     }
-    None
+    rhses
 }
 
 /// Phase 219: Check if variable name looks like loop index
@@ -325,33 +271,52 @@ fn is_likely_loop_index(name: &str) -> bool {
     matches!(name, "i" | "j" | "k" | "e" | "idx" | "index" | "pos" | "n")
 }
 
+fn disambiguate_update_kind(var_name: &str, kind: UpdateKind) -> UpdateKind {
+    match kind {
+        UpdateKind::CounterLike if is_likely_loop_index(var_name) => UpdateKind::CounterLike,
+        UpdateKind::CounterLike => UpdateKind::AccumulationLike,
+        other => other,
+    }
+}
+
+fn classify_update_kind_from_rhses(
+    var_name: &str,
+    rhses: &[&crate::ast::ASTNode],
+) -> Option<UpdateKind> {
+    let mut agreed = None;
+
+    for rhs in rhses {
+        let kind = disambiguate_update_kind(var_name, classify_update_kind_from_rhs(var_name, rhs));
+
+        if kind == UpdateKind::Other {
+            return Some(UpdateKind::Other);
+        }
+
+        match agreed {
+            None => agreed = Some(kind),
+            Some(previous) if previous == kind => {}
+            Some(_) => return Some(UpdateKind::Other),
+        }
+    }
+
+    agreed
+}
+
 pub fn analyze_loop_updates_from_ast(
     carrier_names: &[String],
     loop_body: &[crate::ast::ASTNode],
 ) -> LoopUpdateSummary {
-    // Phase 219-1: Extract assigned variables from loop body
-    let assigned_vars = extract_assigned_variables(loop_body);
-
-    // Phase 219-2: Filter carriers to only assigned ones and classify by RHS
+    // Phase 219-2: Filter carriers to only assigned ones and classify by all
+    // current-loop RHS candidates.
     let mut carriers = Vec::new();
     for name in carrier_names {
-        if assigned_vars.contains(name) {
+        let rhses = collect_assignment_rhses(name, loop_body);
+        if let Some(kind) = classify_update_kind_from_rhses(name, &rhses) {
             // Phase 219-3: Classify by RHS/self-reference first.
             // Name is only a tie-breaker for the proven `x = x + 1` shape:
             // - likely loop index names (i, j, k) -> CounterLike
             // - other names -> AccumulationLike
-            let kind = if let Some(rhs) = find_assignment_rhs(name, loop_body) {
-                let classified = classify_update_kind_from_rhs(name, rhs);
-                match classified {
-                    UpdateKind::CounterLike if is_likely_loop_index(name) => {
-                        UpdateKind::CounterLike
-                    }
-                    UpdateKind::CounterLike => UpdateKind::AccumulationLike,
-                    other => other,
-                }
-            } else {
-                UpdateKind::Other
-            };
+            // Multiple RHS candidates must agree after this tie-breaker.
 
             carriers.push(CarrierUpdateInfo {
                 name: name.clone(),
@@ -619,5 +584,49 @@ mod tests {
 
         assert_eq!(summary.counter_count(), 1);
         assert_eq!(summary.accumulation_count(), 0);
+    }
+
+    #[test]
+    fn loop_update_multi_assignment_rejects_conflicting_updates() {
+        let names = vec!["i".to_string()];
+        let loop_body = vec![assign("i", lit_i(0)), assign("i", add(var("i"), lit_i(1)))];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert_eq!(summary.carriers.len(), 1);
+        assert_eq!(summary.carriers[0].kind, UpdateKind::Other);
+        assert_eq!(summary.counter_count(), 0);
+        assert_eq!(summary.accumulation_count(), 0);
+    }
+
+    #[test]
+    fn loop_update_multi_assignment_rejects_mixed_update_kinds() {
+        let names = vec!["i".to_string()];
+        let loop_body = vec![
+            assign("i", add(var("i"), lit_i(1))),
+            assign("i", add(var("i"), lit_i(2))),
+        ];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert_eq!(summary.carriers.len(), 1);
+        assert_eq!(summary.carriers[0].kind, UpdateKind::Other);
+        assert_eq!(summary.counter_count(), 0);
+        assert_eq!(summary.accumulation_count(), 0);
+    }
+
+    #[test]
+    fn loop_update_multi_assignment_accepts_agreeing_if_branches() {
+        let names = vec!["sum".to_string()];
+        let loop_body = vec![if_with_updates(
+            var("cond"),
+            vec![assign("sum", add(var("sum"), lit_i(1)))],
+            Some(vec![assign("sum", add(var("sum"), lit_i(2)))]),
+        )];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert_eq!(summary.counter_count(), 0);
+        assert_eq!(summary.accumulation_count(), 1);
     }
 }

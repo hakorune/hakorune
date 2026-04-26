@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR loop-update all-RHS classification pending`
+- current blocker token: `phase-291x JoinIR loop-update assignment-value traversal inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- classify loop updates from all current-loop RHS assignments; do not mix with
-  branch-sensitive PHI modeling
-- cleanup checkpoint: latest known landed card `291x-327`; detailed closed
+- inventory loop-update traversal into assignment values; do not mix with
+  all-RHS classification
+- cleanup checkpoint: latest known landed card `291x-328`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
