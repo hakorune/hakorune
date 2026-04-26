@@ -24,13 +24,13 @@
 //! - Condition: Simple equality chain (e.g., `ch == " " || ch == "\t"`)
 //! - Route shape: identical to existing trim route
 
+use super::loop_body_carrier_promoter::{
+    LoopBodyCarrierPromoter, PromotionRequest, PromotionResult,
+};
 use super::loop_condition_scope::LoopConditionScope;
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_route_detection::loop_body_carrier_promoter::{
-    LoopBodyCarrierPromoter, PromotionRequest, PromotionResult,
-};
 
 /// Promotion request for condition variables
 ///

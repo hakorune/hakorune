@@ -1,6 +1,6 @@
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_route_detection::loop_body_cond_promoter::ConditionPromotionRequest;
+use crate::mir::loop_route_detection::support::body_local::condition::ConditionPromotionRequest;
 use crate::mir::loop_route_detection::support::condition_scope::{
     CondVarScope, LoopConditionScope,
 };

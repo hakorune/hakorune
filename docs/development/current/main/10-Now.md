@@ -20,15 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector body-local support family migration pending`
+- current blocker token: `phase-291x JoinIR route detector body-local compatibility export prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- migrate `loop_body_carrier_promoter` and `loop_body_cond_promoter` callers
-  to `support::body_local`
-- cleanup checkpoint: latest known landed card `291x-379`; detailed closed
+- verify and prune zero-caller parent body-local compatibility exports
+- cleanup checkpoint: latest known landed card `291x-380`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

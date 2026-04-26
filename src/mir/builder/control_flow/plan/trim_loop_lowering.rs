@@ -46,7 +46,7 @@ use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::common::condition_only_emitter::BreakSemantics;
 use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_route_detection::loop_body_carrier_promoter::{
+use crate::mir::loop_route_detection::support::body_local::carrier::{
     LoopBodyCarrierPromoter, PromotionRequest, PromotionResult,
 };
 use crate::mir::ValueId;
