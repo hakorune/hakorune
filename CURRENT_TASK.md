@@ -37,20 +37,21 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR type-hint prefix policy inventory pending`
+- current blocker token: `phase-291x JoinIR type-hint family table split pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-304` moved JoinIR if-target prefix strings
-  into `targets.rs` helpers without changing accepted targets
+- latest known checkpoint: `291x-305` inventoried JoinIR type-hint
+  prefix/contains families and selected a behavior-preserving family table
+  split
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: inventory JoinIR type-hint prefix policy separately before any
-  behavior change
+- resume point: split JoinIR type-hint target vocabulary into a local family
+  table without changing PHI/P3-C behavior
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +59,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-304-joinir-if-target-prefix-helper-split-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-305-joinir-type-hint-prefix-policy-inventory-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR type-hint prefix policy inventory; do not mix with target
-  allowlist cleanup
+- next: JoinIR type-hint family table split; do not mix with target allowlist
+  cleanup
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -80,7 +81,8 @@ Scope: current lane / next lane / restart order only.
   quarantine landed; runtime/meta root closeout landed; post-runtime-meta
   inventory landed; JoinIR if-target exact allowlist SSOT landed; JoinIR
   if-target prefix policy inventory landed; JoinIR if-target prefix helper
-  split landed; next cleanup is type-hint prefix policy inventory
+  split landed; JoinIR type-hint prefix policy inventory landed; next cleanup
+  is type-hint family table split
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

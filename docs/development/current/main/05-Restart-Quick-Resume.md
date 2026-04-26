@@ -33,15 +33,16 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR type-hint prefix policy inventory pending`
+- current blocker token: `phase-291x JoinIR type-hint family table split pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-304` moved JoinIR if-target prefix strings
-  into `targets.rs` helpers without changing accepted targets
+- latest known checkpoint: `291x-305` inventoried JoinIR type-hint
+  prefix/contains families and selected a behavior-preserving family table
+  split
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +50,8 @@ cargo check -q
 
 ## Immediate Next
 
-- inventory JoinIR type-hint prefix policy separately before any behavior
-  change
+- split JoinIR type-hint target vocabulary into a local family table without
+  changing PHI/P3-C behavior
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
