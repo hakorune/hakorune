@@ -20,14 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector legacy surface no-regrowth guard pending`
+- current blocker token: `phase-291x JoinIR route detector support facade physical move inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- add a guard preventing parent legacy-surface regrowth
-- cleanup checkpoint: latest known landed card `291x-384`; detailed closed
+- inventory and start family-sized physical owner moves from `legacy/` into
+  `support/`
+- cleanup checkpoint: latest known landed card `291x-385`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

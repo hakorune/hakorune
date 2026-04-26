@@ -39,6 +39,7 @@ list_profiles() {
     - tools/checks/core_method_contract_manifest_guard.sh
     - tools/checks/core_method_contract_inc_no_growth_guard.sh
     - tools/checks/map_lookup_fusion_reader_boundary_guard.sh
+    - tools/checks/route_detector_legacy_surface_guard.sh
     - tools/checks/route_no_fallback_guard.sh
     - cargo check --bin hakorune
     - PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
@@ -206,6 +207,9 @@ run_quick() {
 
   run_step "MapLookup fusion reader boundary guard" \
     bash tools/checks/map_lookup_fusion_reader_boundary_guard.sh
+
+  run_step "route detector legacy-surface guard" \
+    bash tools/checks/route_detector_legacy_surface_guard.sh
 
   run_step "route no-fallback guard" \
     bash tools/checks/route_no_fallback_guard.sh
