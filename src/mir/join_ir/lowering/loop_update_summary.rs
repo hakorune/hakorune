@@ -211,8 +211,8 @@ fn extract_assigned_variables(
 
 /// Phase 219: Classify update kind from RHS expression structure
 ///
-/// Returns UpdateKind based on RHS pattern, NOT variable name.
-fn classify_update_kind_from_rhs(rhs: &crate::ast::ASTNode) -> UpdateKind {
+/// Returns UpdateKind based on RHS pattern and self-reference to the assigned carrier.
+fn classify_update_kind_from_rhs(var_name: &str, rhs: &crate::ast::ASTNode) -> UpdateKind {
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
     match rhs {
@@ -225,21 +225,24 @@ fn classify_update_kind_from_rhs(rhs: &crate::ast::ASTNode) -> UpdateKind {
             ..
         } => {
             if matches!(operator, BinaryOperator::Add) {
-                // Check if left is self-reference (will be validated by caller)
-                if matches!(left.as_ref(), ASTNode::Variable { .. }) {
-                    // Check right operand
-                    if let ASTNode::Literal { value, .. } = right.as_ref() {
-                        if let LiteralValue::Integer(n) = value {
-                            if *n == 1 {
-                                return UpdateKind::CounterLike; // x = x + 1
-                            } else {
-                                return UpdateKind::AccumulationLike; // x = x + n
-                            }
+                let is_self_reference =
+                    matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == var_name);
+                if !is_self_reference {
+                    return UpdateKind::Other;
+                }
+
+                // Check right operand
+                if let ASTNode::Literal { value, .. } = right.as_ref() {
+                    if let LiteralValue::Integer(n) = value {
+                        if *n == 1 {
+                            return UpdateKind::CounterLike; // x = x + 1
+                        } else {
+                            return UpdateKind::AccumulationLike; // x = x + n
                         }
-                    } else {
-                        // x = x + expr (variable accumulation)
-                        return UpdateKind::AccumulationLike;
                     }
+                } else {
+                    // x = x + expr (variable accumulation)
+                    return UpdateKind::AccumulationLike;
                 }
             }
             UpdateKind::Other
@@ -341,15 +344,17 @@ pub fn analyze_loop_updates_from_ast(
     let mut carriers = Vec::new();
     for name in carrier_names {
         if assigned_vars.contains(name) {
-            // Phase 219-3: Classify by variable name + RHS structure
-            // - Loop index-like names (i, j, k) with `x = x + 1` → CounterLike
-            // - Other names with `x = x + 1` or `x = x + expr` → AccumulationLike
-            let kind = if is_likely_loop_index(name) {
-                UpdateKind::CounterLike
-            } else if let Some(rhs) = find_assignment_rhs(name, loop_body) {
-                let classified = classify_update_kind_from_rhs(rhs);
+            // Phase 219-3: Classify by RHS/self-reference first.
+            // Name is only a tie-breaker for the proven `x = x + 1` shape:
+            // - likely loop index names (i, j, k) -> CounterLike
+            // - other names -> AccumulationLike
+            let kind = if let Some(rhs) = find_assignment_rhs(name, loop_body) {
+                let classified = classify_update_kind_from_rhs(name, rhs);
                 match classified {
-                    UpdateKind::CounterLike => UpdateKind::AccumulationLike, // Override: non-index + `x=x+1` → accumulation
+                    UpdateKind::CounterLike if is_likely_loop_index(name) => {
+                        UpdateKind::CounterLike
+                    }
+                    UpdateKind::CounterLike => UpdateKind::AccumulationLike,
                     other => other,
                 }
             } else {
@@ -548,6 +553,44 @@ mod tests {
 
         assert!(!summary.is_simple_if_sum_pattern());
         assert_eq!(summary.counter_count(), 2);
+        assert_eq!(summary.accumulation_count(), 1);
+    }
+
+    #[test]
+    fn loop_update_rhs_first_index_name_requires_self_increment() {
+        let names = vec!["i".to_string()];
+        let loop_body = vec![assign("i", lit_i(0))];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert_eq!(summary.counter_count(), 0);
+        assert_eq!(summary.accumulation_count(), 0);
+        assert_eq!(summary.carriers[0].kind, UpdateKind::Other);
+    }
+
+    #[test]
+    fn loop_update_rhs_first_rejects_non_self_reference() {
+        let names = vec!["i".to_string()];
+        let loop_body = vec![assign("i", add(var("j"), lit_i(1)))];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert_eq!(summary.counter_count(), 0);
+        assert_eq!(summary.accumulation_count(), 0);
+        assert_eq!(summary.carriers[0].kind, UpdateKind::Other);
+    }
+
+    #[test]
+    fn loop_update_rhs_first_self_plus_one_uses_name_only_as_tiebreaker() {
+        let names = vec!["i".to_string(), "sum".to_string()];
+        let loop_body = vec![
+            assign("i", add(var("i"), lit_i(1))),
+            assign("sum", add(var("sum"), lit_i(1))),
+        ];
+
+        let summary = analyze_loop_updates_from_ast(&names, &loop_body);
+
+        assert_eq!(summary.counter_count(), 1);
         assert_eq!(summary.accumulation_count(), 1);
     }
 }

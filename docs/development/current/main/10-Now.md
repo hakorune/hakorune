@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR loop-update RHS-first classification pending`
+- current blocker token: `phase-291x JoinIR loop-update nested-scope assignment inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- make loop-update classification RHS/self-reference first; do not mix with
-  Case-A route changes
-- cleanup checkpoint: latest known landed card `291x-323`; detailed closed
+- inventory loop-update nested-scope assignment traversal; do not mix with
+  RHS-first classification
+- cleanup checkpoint: latest known landed card `291x-324`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
