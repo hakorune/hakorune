@@ -38,7 +38,6 @@ use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::join_ir::lowering::condition_env::ConditionEnv;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr;
-use crate::mir::join_ir::lowering::loop_update_summary::LoopUpdateSummary; // Phase 213
 use crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper;
 use crate::mir::BasicBlockId;
 use crate::mir::ValueId;
@@ -121,10 +120,6 @@ pub(crate) struct RoutePrepContext {
     /// Loop body AST nodes
     /// Used by if-sum variant to extract if statement for if-sum lowering
     pub loop_body: Option<Vec<ASTNode>>,
-
-    /// Loop update summary with then/else expressions
-    /// Used by if-sum variant for dynamic carrier update lowering
-    pub loop_update_summary: Option<LoopUpdateSummary>,
 }
 
 /// Route variant selector
@@ -308,11 +303,10 @@ pub(crate) fn build_route_prep_context(
         break_condition,
         loop_condition,
         loop_body,
-        loop_update_summary,
     ) = match variant {
         RouteVariant::LoopSimpleWhile => {
             // Simple while variant: no additional preprocessing needed
-            (None, None, None, None, None, None, None, None)
+            (None, None, None, None, None, None, None)
         }
         RouteVariant::IfPhiJoin => {
             // If-sum variant: Phase 213 stores loop condition/body for AST-based lowering.
@@ -324,7 +318,6 @@ pub(crate) fn build_route_prep_context(
                 None,                    // No break_condition
                 Some(condition.clone()), // loop_condition (Phase 213)
                 Some(body.to_vec()),     // loop_body (Phase 213)
-                None,                    // loop_update_summary (reserved for future use)
             )
         }
         RouteVariant::LoopBreak | RouteVariant::LoopContinueOnly => {
@@ -337,7 +330,7 @@ pub(crate) fn build_route_prep_context(
             // - Trim pattern promotion
             // This remains in dedicated break/continue paths for now and will be
             // gradually migrated into this pipeline in future phases.
-            (None, None, None, None, None, None, None, None)
+            (None, None, None, None, None, None, None)
         }
     };
 
@@ -351,9 +344,8 @@ pub(crate) fn build_route_prep_context(
         carrier_updates,
         trim_helper,
         break_condition,
-        loop_condition,      // Phase 213
-        loop_body,           // Phase 213
-        loop_update_summary, // Phase 213
+        loop_condition, // Phase 213
+        loop_body,      // Phase 213
     })
 }
 
@@ -425,9 +417,8 @@ mod tests {
             carrier_updates: None,
             trim_helper: None,
             break_condition: None,
-            loop_condition: None,      // Phase 213
-            loop_body: None,           // Phase 213
-            loop_update_summary: None, // Phase 213
+            loop_condition: None, // Phase 213
+            loop_body: None,      // Phase 213
         };
 
         assert_eq!(ctx.carrier_count(), 2);
@@ -468,9 +459,8 @@ mod tests {
                 whitespace_chars: vec![" ".to_string(), "\t".to_string()],
             }),
             break_condition: None,
-            loop_condition: None,      // Phase 213
-            loop_body: None,           // Phase 213
-            loop_update_summary: None, // Phase 213
+            loop_condition: None, // Phase 213
+            loop_body: None,      // Phase 213
         };
 
         assert!(ctx.is_trim_pattern());
