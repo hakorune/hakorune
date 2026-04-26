@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-397"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-397-normalized-shadow-shared-expr-implementation-extract-card.md"
-latest_card_summary = "Moved normalized-shadow shared expression helper implementation into support::expr_lowering and made the legacy entry path consume that owner."
+latest_card = "291x-398"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-398-normalized-shadow-legacy-entry-surface-inventory-card.md"
+latest_card_summary = "Inventoried the remaining normalized-shadow LegacyLowerer public surface and selected helper visibility pruning as the next BoxShape seam."
 
-current_blocker_token = "phase-291x normalized-shadow legacy entry surface inventory pending"
+current_blocker_token = "phase-291x normalized-shadow legacy internal helper privacy prune pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -117,4 +117,5 @@ landed_tail = [
   "291x-395 normalized-shadow legacy lowerer inventory landed",
   "291x-396 normalized-shadow shared expression facade landed",
   "291x-397 normalized-shadow shared expression implementation extract landed",
+  "291x-398 normalized-shadow legacy entry surface inventory landed",
 ]
