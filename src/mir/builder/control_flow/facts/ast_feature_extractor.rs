@@ -19,7 +19,7 @@
 //!
 //! # Phase 33-23: Refactoring
 //!
-//! - Break condition analysis moved to `break_condition_analyzer.rs`
+//! - Break condition analysis moved to `loop_route_detection::support::break_condition`
 //! - This module now focuses on high-level feature extraction
 //! - Delegates to specialized analyzers for break/continue logic
 //!

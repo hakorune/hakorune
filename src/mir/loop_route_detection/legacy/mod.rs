@@ -23,9 +23,6 @@ pub mod loop_body_digitpos_promoter;
 // Phase 171-C-5: Trim route helper
 pub mod trim_loop_helper;
 
-// Phase 33-23: Break Condition Analysis (Stage 2, Issue 6)
-pub mod break_condition_analyzer;
-
 // Phase 200-A: Function Scope Capture Infrastructure
 pub mod function_scope_capture;
 

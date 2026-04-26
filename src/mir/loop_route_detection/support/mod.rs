@@ -5,9 +5,7 @@
 //! facades so physical file moves can happen later without widening `legacy`.
 
 /// Break-condition structural analysis support.
-pub mod break_condition {
-    pub use crate::mir::loop_route_detection::legacy::break_condition_analyzer::*;
-}
+pub mod break_condition;
 
 /// Loop-body local promotion support.
 pub mod body_local {

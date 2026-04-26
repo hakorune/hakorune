@@ -19,6 +19,7 @@ loop_route_detection::support::locals::{pinned, mutable_accumulator}
 Physically owned here:
 
 ```text
+loop_route_detection::support::break_condition
 loop_route_detection::support::locals::{pinned, mutable_accumulator}
 ```
 

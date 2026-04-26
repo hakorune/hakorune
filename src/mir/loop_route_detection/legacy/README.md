@@ -28,12 +28,6 @@ LoopFeatures -> classify() -> LoopRouteKind
 
 The semantic owner paths are already available under `support/`.
 
-Move low-risk families first:
-
-```text
-support::break_condition
-```
-
 Then move medium/high dependency families:
 
 ```text
@@ -46,5 +40,6 @@ support::body_local::{carrier, condition}
 Already physically moved:
 
 ```text
+support::break_condition
 support::locals::{pinned, mutable_accumulator}
 ```
