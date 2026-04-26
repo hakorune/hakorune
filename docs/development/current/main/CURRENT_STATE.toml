@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-403"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-403-normalized-shadow-legacy-physical-storage-move-card.md"
-latest_card_summary = "Moved the normalized-shadow baseline if-only implementation into entry::if_only and removed the legacy module."
+latest_card = "291x-404"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-404-normalized-shadow-stale-legacy-wording-inventory-card.md"
+latest_card_summary = "Inventoried stale normalized-shadow fallback-to-legacy wording and selected live source/docs wording cleanup."
 
-current_blocker_token = "phase-291x normalized-shadow stale legacy wording inventory pending"
+current_blocker_token = "phase-291x normalized-shadow stale legacy wording cleanup pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -123,4 +123,5 @@ landed_tail = [
   "291x-401 normalized-shadow if-only entry facade landed",
   "291x-402 normalized-shadow legacy physical storage inventory landed",
   "291x-403 normalized-shadow legacy physical storage move landed",
+  "291x-404 normalized-shadow stale legacy wording inventory landed",
 ]
