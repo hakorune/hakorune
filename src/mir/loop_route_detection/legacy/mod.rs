@@ -22,7 +22,6 @@ pub mod loop_body_digitpos_promoter;
 
 // Phase 171-C-5: Trim route helper
 pub mod trim_loop_helper;
-pub use trim_loop_helper::TrimLoopHelper;
 
 // Phase 33-23: Break Condition Analysis (Stage 2, Issue 6)
 pub mod break_condition_analyzer;
@@ -33,8 +32,6 @@ pub mod function_scope_capture;
 // Phase 79: Pure Detection Logic (Detector/Promoter separation)
 pub mod digitpos_detector;
 pub mod trim_detector;
-pub use digitpos_detector::{DigitPosDetectionResult, DigitPosDetector};
-pub use trim_detector::{TrimDetectionResult, TrimDetector};
 
 // Phase 100 P1-2: Pinned Local Analyzer
 pub mod pinned_local_analyzer;
