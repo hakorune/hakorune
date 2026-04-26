@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
+- current blocker token: `phase-291x normalized-shadow generic function-name cleanup pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory the next compiler-cleanliness seam after normalized-shadow fixed
-  function-name cleanup
-- cleanup checkpoint: latest known landed card `291x-411`; detailed closed
+- replace normalized-shadow raw `main`/`loop_step`/`k_exit`/`post_k` names with
+  existing canonical-name constants
+- cleanup checkpoint: latest known landed card `291x-412`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

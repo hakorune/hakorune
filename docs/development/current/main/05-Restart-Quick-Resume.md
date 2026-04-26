@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
+- current blocker token: `phase-291x normalized-shadow generic function-name cleanup pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-411` moved normalized-shadow fixed
-  `join_func_*` names behind canonical-name constants without emitted-name changes
+- latest known checkpoint: `291x-412` inventoried normalized-shadow generic
+  function-name literals before canonical-name cleanup
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- inventory the next compiler-cleanliness seam after normalized-shadow fixed
-  function-name cleanup
+- replace normalized-shadow raw `main`/`loop_step`/`k_exit`/`post_k` names with
+  existing canonical-name constants
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
