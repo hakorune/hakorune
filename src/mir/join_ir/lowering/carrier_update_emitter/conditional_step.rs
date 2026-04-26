@@ -47,7 +47,8 @@ pub fn emit_conditional_step_update(
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     // Step 1: Lower the condition expression
-    // Phase 92 P2-2: No body-local support in legacy emitter (use common/conditional_step_emitter instead)
+    // Phase 92 P2-2: This conditional-step path has no body-local support; use
+    // common/conditional_step_emitter for body-local-aware lowering.
     let (cond_id, cond_insts) =
         lower_condition_to_joinir_no_body_locals(cond_ast, alloc_value, env)?;
     instructions.extend(cond_insts);

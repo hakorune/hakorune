@@ -42,6 +42,18 @@ fn test_carrier(name: &str, host_id: u32) -> CarrierVar {
     }
 }
 
+fn emit_with_condition_env(
+    carrier: &CarrierVar,
+    update: &UpdateExpr,
+    alloc_value: &mut dyn FnMut() -> ValueId,
+    env: &ConditionEnv,
+    instructions: &mut Vec<JoinInst>,
+) -> Result<ValueId, String> {
+    let body_env = LoopBodyLocalEnv::new();
+    let update_env = UpdateEnv::new(env, &body_env, &[]);
+    emit_carrier_update_with_env(carrier, update, alloc_value, &update_env, instructions)
+}
+
 #[test]
 fn test_emit_const_update() {
     // Test: count = count + 1 (UpdateExpr::Const)
@@ -57,7 +69,8 @@ fn test_emit_const_update() {
     };
 
     let mut instructions = Vec::new();
-    let result = emit_carrier_update(&carrier, &update, &mut alloc_value, &env, &mut instructions);
+    let result =
+        emit_with_condition_env(&carrier, &update, &mut alloc_value, &env, &mut instructions);
 
     assert!(result.is_ok());
     let result_id = result.unwrap();
@@ -107,7 +120,8 @@ fn test_emit_binop_update_with_const() {
     };
 
     let mut instructions = Vec::new();
-    let result = emit_carrier_update(&carrier, &update, &mut alloc_value, &env, &mut instructions);
+    let result =
+        emit_with_condition_env(&carrier, &update, &mut alloc_value, &env, &mut instructions);
 
     assert!(result.is_ok());
     let result_id = result.unwrap();
@@ -157,7 +171,8 @@ fn test_emit_binop_update_with_variable() {
     };
 
     let mut instructions = Vec::new();
-    let result = emit_carrier_update(&carrier, &update, &mut alloc_value, &env, &mut instructions);
+    let result =
+        emit_with_condition_env(&carrier, &update, &mut alloc_value, &env, &mut instructions);
 
     assert!(result.is_ok());
     let result_id = result.unwrap();
@@ -194,7 +209,8 @@ fn test_emit_update_carrier_not_in_env() {
     };
 
     let mut instructions = Vec::new();
-    let result = emit_carrier_update(&carrier, &update, &mut alloc_value, &env, &mut instructions);
+    let result =
+        emit_with_condition_env(&carrier, &update, &mut alloc_value, &env, &mut instructions);
 
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("Carrier 'unknown' not found"));
@@ -219,7 +235,8 @@ fn test_emit_update_lhs_mismatch() {
     };
 
     let mut instructions = Vec::new();
-    let result = emit_carrier_update(&carrier, &update, &mut alloc_value, &env, &mut instructions);
+    let result =
+        emit_with_condition_env(&carrier, &update, &mut alloc_value, &env, &mut instructions);
 
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("doesn't match carrier"));
@@ -244,7 +261,8 @@ fn test_emit_update_rhs_variable_not_found() {
     };
 
     let mut instructions = Vec::new();
-    let result = emit_carrier_update(&carrier, &update, &mut alloc_value, &env, &mut instructions);
+    let result =
+        emit_with_condition_env(&carrier, &update, &mut alloc_value, &env, &mut instructions);
 
     assert!(result.is_err());
     assert!(result

@@ -164,24 +164,20 @@ pub(crate) fn emit_carrier_updates(
             )
         })?;
 
-        let updated_value = if let Some(body_env) = body_env_ref {
-            let update_env = UpdateEnv::new(env, body_env, &carrier_info.promoted_body_locals);
-            carrier_update_emitter::emit_carrier_update_with_env(
-                carrier,
-                update_expr,
-                alloc_local_fn,
-                &update_env,
-                carrier_update_block,
-            )?
+        let empty_body_env;
+        let update_env = if let Some(body_env) = body_env_ref {
+            UpdateEnv::new(env, body_env, &carrier_info.promoted_body_locals)
         } else {
-            carrier_update_emitter::emit_carrier_update(
-                carrier,
-                update_expr,
-                alloc_local_fn,
-                env,
-                carrier_update_block,
-            )?
+            empty_body_env = LoopBodyLocalEnv::new();
+            UpdateEnv::new(env, &empty_body_env, &carrier_info.promoted_body_locals)
         };
+        let updated_value = carrier_update_emitter::emit_carrier_update_with_env(
+            carrier,
+            update_expr,
+            alloc_local_fn,
+            &update_env,
+            carrier_update_block,
+        )?;
 
         updated_carrier_values.push(updated_value);
 

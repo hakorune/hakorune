@@ -37,21 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR carrier update legacy emitter prune pending`
+- current blocker token: `phase-291x normalized-shadow legacy lowerer inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-393` selected carrier_update_emitter legacy
-  pruning as the next small compiler-cleanliness seam after route detector
-  closeout
+- latest known checkpoint: `291x-394` pruned the JoinIR carrier update legacy
+  emitter and routed all carrier updates through the `UpdateEnv` emitter
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: prune `carrier_update_emitter/legacy.rs` by routing the
-  remaining caller through `emit_carrier_update_with_env`
+- resume point: inventory `src/mir/control_tree/normalized_shadow/legacy/`
+  before any physical refactor
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -59,10 +58,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-393-next-compiler-cleanliness-seam-inventory-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-394-joinir-carrier-update-legacy-emitter-prune-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR carrier update legacy emitter prune
+- next: normalized-shadow legacy lowerer inventory
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,9 +71,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-393`; detailed landed history lives in phase card
+- latest checkpoint: `291x-394`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR carrier update legacy emitter prune
+- next cleanup: normalized-shadow legacy lowerer inventory
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
