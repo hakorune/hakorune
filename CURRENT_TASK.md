@@ -37,21 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR residual name-policy inventory pending`
+- current blocker token: `phase-291x JoinIR frontend route descriptor table split pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-308` removed the duplicate
-  `GenericTypeResolver::is_p3c_candidate` helper; `TypeHintPolicy` remains the
-  function-level P3-C gate
+- latest known checkpoint: `291x-309` inventoried residual JoinIR name-policy
+  seams and selected frontend route descriptor table split
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: inventory remaining JoinIR name-based policies before another
-  cleanup slice
+- resume point: split `route.rs` function routes into one descriptor table
+  without changing accepted routes or env gates
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -59,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-308-generic-type-resolver-p3c-candidate-helper-retirement-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-309-joinir-residual-name-policy-inventory-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: inventory remaining JoinIR name-based policies; do not mix with PHI
-  resolver order changes
+- next: JoinIR frontend route descriptor table split; do not mix with Case-A
+  loop fallback dispatch cleanup
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -83,8 +82,8 @@ Scope: current lane / next lane / restart order only.
   if-target prefix policy inventory landed; JoinIR if-target prefix helper
   split landed; JoinIR type-hint prefix policy inventory landed; JoinIR
   type-hint family table split landed; GenericTypeResolver P3-C candidate
-  helper audit/retirement landed; next cleanup is JoinIR residual name-policy
-  inventory
+  helper audit/retirement landed; JoinIR residual name-policy inventory landed;
+  next cleanup is frontend route descriptor table split
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
