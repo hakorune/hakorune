@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-394"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-394-joinir-carrier-update-legacy-emitter-prune-card.md"
-latest_card_summary = "Pruned the JoinIR carrier update legacy emitter and routed all carrier updates through the UpdateEnv emitter."
+latest_card = "291x-395"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-395-normalized-shadow-legacy-lowerer-inventory-card.md"
+latest_card_summary = "Inventoried normalized-shadow legacy lowerer responsibilities and selected a shared expression lowering facade as the next BoxShape seam."
 
-current_blocker_token = "phase-291x normalized-shadow legacy lowerer inventory pending"
+current_blocker_token = "phase-291x normalized-shadow shared expression lowering facade pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -114,4 +114,5 @@ landed_tail = [
   "291x-392 JoinIR route detector physical owner closeout review landed",
   "291x-393 next compiler-cleanliness seam inventory landed",
   "291x-394 JoinIR carrier update legacy emitter prune landed",
+  "291x-395 normalized-shadow legacy lowerer inventory landed",
 ]

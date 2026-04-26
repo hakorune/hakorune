@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow legacy lowerer inventory pending`
+- current blocker token: `phase-291x normalized-shadow shared expression lowering facade pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory `src/mir/control_tree/normalized_shadow/legacy/` before any
-  physical refactor
-- cleanup checkpoint: latest known landed card `291x-394`; detailed closed
+- add a normalized-shadow shared expression lowering facade before touching the
+  full legacy entry path
+- cleanup checkpoint: latest known landed card `291x-395`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
