@@ -59,23 +59,6 @@ impl GenericTypeResolver {
         }
     }
 
-    /// P3-C 対象関数かどうかを判定（TypeHintPolicy 連携用）
-    ///
-    /// # 用途
-    ///
-    /// TypeHintPolicy.is_target() で P1/P2/P3-A/P3-B に該当しない場合、
-    /// この関数で P3-C 候補かどうかを判定する。
-    ///
-    /// # 現在の実装
-    ///
-    /// ArrayBox/MapBox を使用する関数を P3-C 候補として判定。
-    /// 関数名ベースのフィルタリングは行わない（汎用判定）。
-    pub fn is_p3c_candidate(func_name: &str) -> bool {
-        // Phase 66: 現在は全関数を P3-C 候補とみなす
-        // 将来的に関数内の ArrayBox.get/MapBox.get 使用を解析して判定
-        !func_name.is_empty() // 常に true（P1/P2/P3-A/B 以外は全て P3-C 候補）
-    }
-
     /// PHI 解析によるジェネリック型推論
     ///
     /// # 責務
@@ -171,15 +154,5 @@ mod tests {
             &MirType::String,
             "length"
         ));
-    }
-
-    #[test]
-    fn test_is_p3c_candidate() {
-        // 全関数が P3-C 候補（P1/P2/P3-A/B 以外）
-        assert!(GenericTypeResolver::is_p3c_candidate("Main.main/0"));
-        assert!(GenericTypeResolver::is_p3c_candidate("FuncScanner.parse/1"));
-
-        // 空文字列は false
-        assert!(!GenericTypeResolver::is_p3c_candidate(""));
     }
 }

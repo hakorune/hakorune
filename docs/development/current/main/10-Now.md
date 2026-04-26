@@ -20,15 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x GenericTypeResolver P3-C candidate helper retirement pending`
+- current blocker token: `phase-291x JoinIR residual name-policy inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- retire `GenericTypeResolver::is_p3c_candidate` and its local unit test; keep
-  `TypeHintPolicy` as the function-level P3-C gate
-- cleanup checkpoint: latest known landed card `291x-307`; BuildBox thinning,
+- inventory remaining JoinIR name-based policies before another cleanup slice
+- cleanup checkpoint: latest known landed card `291x-308`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
@@ -38,7 +37,7 @@ Related:
   root closeout are closed; post-runtime-meta inventory is closed; JoinIR
   if-target exact allowlist SSOT, prefix policy inventory, prefix helper
   split, type-hint prefix policy inventory, type-hint family table split, and
-  GenericTypeResolver P3-C candidate helper audit are closed
+  GenericTypeResolver P3-C candidate helper audit/retirement are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

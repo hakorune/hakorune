@@ -46,6 +46,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-305-joinir-type-hint-prefix-policy-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-306-joinir-type-hint-family-table-split-card.md
   - docs/development/current/main/phases/phase-291x/291x-307-generic-type-resolver-p3c-candidate-helper-audit-card.md
+  - docs/development/current/main/phases/phase-291x/291x-308-generic-type-resolver-p3c-candidate-helper-retirement-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -53,7 +54,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: GenericTypeResolver P3-C candidate helper retirement
+- Next implementation target: JoinIR residual name-policy inventory
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -65,7 +66,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-307-generic-type-resolver-p3c-candidate-helper-audit-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-308-generic-type-resolver-p3c-candidate-helper-retirement-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -107,7 +108,7 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-307`
+- latest known cleanup checkpoint: `291x-308`
 - BuildBox thinning series is closed; residual MapBox.has sentinel retirement
   is closed; CoreMethodContract `.inc` classifier baseline is zero;
   `MirCallRoutePolicy`, `MirCallNeedPolicy`, and `MirCallSurfacePolicy`
@@ -117,8 +118,9 @@ in one card.
   post-runtime-meta inventory is closed; JoinIR if-target exact allowlist SSOT
   is closed; JoinIR if-target prefix policy inventory/helper split are closed;
   JoinIR type-hint prefix policy inventory is closed; JoinIR type-hint family
-  table split is closed; GenericTypeResolver P3-C candidate helper audit is
-  closed; next cleanup is helper retirement
+  table split is closed; GenericTypeResolver P3-C candidate helper
+  audit/retirement is closed; next cleanup is JoinIR residual name-policy
+  inventory
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=0 rows=0`
 - no `.inc` method/box string classifier rows are allowlisted
