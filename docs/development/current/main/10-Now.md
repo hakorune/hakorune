@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x stage-b output boundary helper pending`
+- current blocker token: `phase-291x stage-b disabled funcscan harness cleanup pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- extract Stage-B output/result handling from `compiler_stageb.hako` without
+- inventory and prune/quarantine the disabled Stage-B FuncScan harness without
   moving `BuildBox` authority
-- cleanup checkpoint: latest known landed card `291x-438`; detailed closed
+- cleanup checkpoint: latest known landed card `291x-439`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings

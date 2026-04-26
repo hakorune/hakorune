@@ -1,0 +1,38 @@
+// StageBOutputBox - Program(JSON v0) output boundary for Stage-B entry.
+// Keeps compiler_stageb.hako as orchestration only; BuildBox owns production.
+
+static box StageBOutputBox {
+  emit_program_result(program_json) {
+    if program_json == null {
+      print("[stageb/error] BuildBox.emit_program_json_v0 returned null")
+      return -1
+    }
+    if me._is_freeze_tag(program_json) == 1 {
+      print(program_json)
+      return 1
+    }
+    if me._starts_with(program_json, "[") == 1 {
+      print(program_json)
+      return 1
+    }
+    print("[stageb/main] before ast_json")
+    print(program_json)
+    print("[stageb/main] after ast_json")
+    return 0
+  }
+
+  _is_freeze_tag(text) {
+    if text == null { return 0 }
+    if me._starts_with(text, "[freeze:contract]") == 1 { return 1 }
+    return 0
+  }
+
+  _starts_with(text, prefix) {
+    if text == null { return 0 }
+    local s = "" + text
+    local p = "" + prefix
+    if s.length() < p.length() { return 0 }
+    if s.substring(0, p.length()) == p { return 1 }
+    return 0
+  }
+}
