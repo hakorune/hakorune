@@ -6,10 +6,6 @@
 #[cfg(test)]
 mod tests;
 
-// Phase 170-D: Loop Condition Scope Analysis Boxes
-pub mod condition_var_analyzer;
-pub mod loop_condition_scope;
-
 // Phase 171-C: LoopBodyLocal Carrier Promotion
 pub mod loop_body_carrier_promoter;
 

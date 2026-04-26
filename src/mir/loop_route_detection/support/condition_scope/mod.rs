@@ -14,6 +14,8 @@ use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use std::collections::HashSet;
 
+mod var_analyzer;
+
 /// Scope classification for a condition variable
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CondVarScope {
@@ -136,10 +138,10 @@ impl LoopConditionScopeBox {
     ///
     /// # Algorithm
     ///
-    /// 1. Extract all variables from condition AST nodes using condition_var_analyzer
+    /// 1. Extract all variables from condition AST nodes using the local variable analyzer
     /// 2. Classify each variable:
     ///    - If matches loop_param_name → LoopParam
-    ///    - Else if in outer scope (via condition_var_analyzer) → OuterLocal
+    ///    - Else if in outer scope (via the local variable analyzer) → OuterLocal
     ///    - Else → `LoopBodyLocal` (conservative body-local default)
     #[allow(dead_code)]
     pub(crate) fn analyze(
@@ -150,9 +152,9 @@ impl LoopConditionScopeBox {
         let mut result = LoopConditionScope::new();
         let mut found_vars = HashSet::new();
 
-        // Phase 170-D-impl-2: Use condition_var_analyzer for extraction
+        // Phase 170-D-impl-2: Use condition variable analyzer for extraction
         for node in condition_nodes {
-            let vars = super::condition_var_analyzer::extract_all_variables(node);
+            let vars = var_analyzer::extract_all_variables(node);
             found_vars.extend(vars);
         }
 
@@ -160,7 +162,7 @@ impl LoopConditionScopeBox {
         for var_name in found_vars {
             let var_scope = if var_name == loop_param_name {
                 CondVarScope::LoopParam
-            } else if super::condition_var_analyzer::is_outer_scope_variable(&var_name, scope) {
+            } else if var_analyzer::is_outer_scope_variable(&var_name, scope) {
                 CondVarScope::OuterLocal
             } else {
                 // Default: assume it is body-local if not identified as outer

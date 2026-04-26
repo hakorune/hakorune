@@ -33,10 +33,10 @@
 //! | Condition | Equality (==) | Comparison (<, >, !=) |
 //! | Structure | OR chain | Single comparison |
 
-use super::loop_condition_scope::LoopConditionScope;
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
+use crate::mir::loop_route_detection::support::condition_scope::LoopConditionScope;
 use crate::mir::ValueId;
 
 /// Promotion request for A-4 digit position pattern
@@ -100,7 +100,7 @@ impl DigitPosPromoter {
     /// 4. Record BindingId promotion (dev-only)
     pub fn try_promote(req: DigitPosPromotionRequest) -> DigitPosPromotionResult {
         use super::digitpos_detector::DigitPosDetector;
-        use super::loop_condition_scope::CondVarScope;
+        use crate::mir::loop_route_detection::support::condition_scope::CondVarScope;
 
         // Step 1: Extract body-local variables
         let body_locals: Vec<&String> = req
@@ -221,8 +221,10 @@ impl DigitPosPromoter {
 
 #[cfg(test)]
 mod tests {
-    use super::super::loop_condition_scope::{CondVarScope, LoopConditionScope};
     use super::*;
+    use crate::mir::loop_route_detection::support::condition_scope::{
+        CondVarScope, LoopConditionScope,
+    };
     use crate::ast::{BinaryOperator, LiteralValue, Span};
 
     fn cond_scope_with_body_locals(vars: &[&str]) -> LoopConditionScope {

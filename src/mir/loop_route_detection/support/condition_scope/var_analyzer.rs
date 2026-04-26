@@ -466,7 +466,7 @@ mod tests {
     #[test]
     fn test_scope_priority_in_add_var() {
         // Test Phase 170-ultrathink scope priority system
-        use super::super::loop_condition_scope::{CondVarScope, LoopConditionScope};
+        use super::super::{CondVarScope, LoopConditionScope};
 
         let mut scope = LoopConditionScope::new();
 

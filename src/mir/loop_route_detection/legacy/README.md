@@ -31,7 +31,6 @@ The semantic owner paths are already available under `support/`.
 Then move medium/high dependency families:
 
 ```text
-support::condition_scope
 support::body_local::{carrier, condition}
 ```
 
@@ -41,5 +40,6 @@ Already physically moved:
 support::break_condition
 support::trim
 support::function_scope
+support::condition_scope
 support::locals::{pinned, mutable_accumulator}
 ```

@@ -27,10 +27,10 @@
 use super::loop_body_carrier_promoter::{
     LoopBodyCarrierPromoter, PromotionRequest, PromotionResult,
 };
-use super::loop_condition_scope::LoopConditionScope;
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
+use crate::mir::loop_route_detection::support::condition_scope::LoopConditionScope;
 
 /// Promotion request for condition variables
 ///
@@ -151,7 +151,7 @@ impl LoopBodyCondPromoter {
         use super::loop_body_digitpos_promoter::{
             DigitPosPromoter, DigitPosPromotionRequest, DigitPosPromotionResult,
         };
-        use super::loop_condition_scope::CondVarScope;
+        use crate::mir::loop_route_detection::support::condition_scope::CondVarScope;
 
         // P0 constraint: Need LoopScopeShape for LoopBodyCarrierPromoter
         let scope_shape = match req.scope_shape {
@@ -305,8 +305,10 @@ impl LoopBodyCondPromoter {
 
 #[cfg(test)]
 mod tests {
-    use super::super::loop_condition_scope::{CondVarScope, LoopConditionScope};
     use super::*;
+    use crate::mir::loop_route_detection::support::condition_scope::{
+        CondVarScope, LoopConditionScope,
+    };
     use crate::ast::{BinaryOperator, LiteralValue, Span};
     use crate::mir::BasicBlockId;
     use std::collections::{BTreeMap, BTreeSet};

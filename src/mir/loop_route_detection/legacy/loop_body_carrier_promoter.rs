@@ -20,9 +20,9 @@
 //! - `ch == " " || ch == "\t" ...` の等価比較検出
 //! - `is_whitespace` bool carrier への変換情報生成
 
-use super::loop_condition_scope::LoopConditionScope;
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
+use crate::mir::loop_route_detection::support::condition_scope::LoopConditionScope;
 
 /// 昇格リクエスト
 pub struct PromotionRequest<'a> {
@@ -126,7 +126,7 @@ impl LoopBodyCarrierPromoter {
     /// 2. TrimDetector で純粋な検出ロジックを実行
     /// 3. 昇格可能なら TrimRouteInfo を返す
     pub fn try_promote(request: &PromotionRequest) -> PromotionResult {
-        use super::loop_condition_scope::CondVarScope;
+        use crate::mir::loop_route_detection::support::condition_scope::CondVarScope;
         use super::trim_detector::TrimDetector;
 
         // 1. body-local 変数を抽出
@@ -205,7 +205,9 @@ impl LoopBodyCarrierPromoter {
 
 #[cfg(test)]
 mod tests {
-    use super::super::loop_condition_scope::{CondVarScope, LoopConditionScope};
+    use crate::mir::loop_route_detection::support::condition_scope::{
+        CondVarScope, LoopConditionScope,
+    };
     use super::*;
     use crate::ast::{BinaryOperator, LiteralValue, Span};
     use crate::mir::BasicBlockId;
