@@ -20,19 +20,18 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next lane selection pending`
+- current blocker token: `phase-291x stage-b adapter thinning inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- choose the next lane; do not continue normalized-shadow wording cleanup by
-  default
-- cleanup checkpoint: latest known landed card `291x-436`; detailed closed
+- inventory `compiler_stageb.hako` responsibilities before touching code
+- cleanup checkpoint: latest known landed card `291x-437`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
-- closeout cap: at most 5 more small cleanup cards before closeout review;
-  larger findings move to a new lane
+- normalized-shadow / normalization cleanup burst is closed; larger findings
+  move to a new lane
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

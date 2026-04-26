@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next lane selection pending`
+- current blocker token: `phase-291x stage-b adapter thinning inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-436` closed the normalized-shadow /
-  normalization cleanup burst and deferred larger work to new lanes
+- latest known checkpoint: `291x-437` selected Stage-B adapter thinning as the
+  next compiler-cleanliness lane
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: choose the next lane; do not continue normalized-shadow wording
-  cleanup by default
+- resume point: inventory `compiler_stageb.hako` responsibilities before
+  touching code
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,10 +58,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-436-cleanup-burst-closeout-review-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-437-next-lane-selection-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: next lane selection
+- next: `291x-438-stageb-adapter-thinning-inventory`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep BoxShape cleanup separate from BoxCount feature rows
@@ -73,9 +73,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-436`; detailed landed history lives in phase card
+- latest checkpoint: `291x-437`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: next lane selection
+- next cleanup: Stage-B adapter thinning inventory
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
