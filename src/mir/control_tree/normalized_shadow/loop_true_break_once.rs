@@ -50,8 +50,8 @@
 use super::common::normalized_helpers::NormalizedHelperBox;
 use super::common::return_value_lowerer_box::ReturnValueLowererBox;
 use super::env_layout::EnvLayout;
-use super::legacy::LegacyLowerer;
 use super::loop_true_break_once_helpers as helpers;
+use super::support::expr_lowering;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
@@ -166,7 +166,7 @@ impl LoopTrueBreakOnceBuilderBox {
                         ref target,
                         ref value_ast,
                     } => {
-                        if LegacyLowerer::lower_assign_stmt(
+                        if expr_lowering::lower_assign_stmt(
                             target,
                             value_ast,
                             &mut main_func.body,
@@ -245,7 +245,7 @@ impl LoopTrueBreakOnceBuilderBox {
                         ref target,
                         ref value_ast,
                     } => {
-                        if LegacyLowerer::lower_assign_stmt(
+                        if expr_lowering::lower_assign_stmt(
                             target,
                             value_ast,
                             &mut loop_body_func.body,
@@ -433,7 +433,7 @@ impl LoopTrueBreakOnceBuilderBox {
                 else {
                     return Ok(None);
                 };
-                if LegacyLowerer::lower_assign_stmt(
+                if expr_lowering::lower_assign_stmt(
                     target,
                     value_ast,
                     &mut post_k_func.body,

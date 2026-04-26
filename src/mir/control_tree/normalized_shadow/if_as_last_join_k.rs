@@ -2,7 +2,7 @@
 
 use super::common::normalized_helpers::NormalizedHelperBox;
 use super::env_layout::EnvLayout;
-use super::legacy::LegacyLowerer;
+use super::support::expr_lowering;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
@@ -69,7 +69,7 @@ impl IfAsLastJoinKLowererBox {
             match n {
                 StepNode::Stmt { kind, .. } => match kind {
                     StepStmtKind::Assign { target, value_ast } => {
-                        if LegacyLowerer::lower_assign_stmt(
+                        if expr_lowering::lower_assign_stmt(
                             target,
                             value_ast,
                             &mut main_func.body,
@@ -247,7 +247,7 @@ impl IfAsLastJoinKLowererBox {
             match n {
                 StepNode::Stmt { kind, .. } => match kind {
                     StepStmtKind::Assign { target, value_ast } => {
-                        if LegacyLowerer::lower_assign_stmt(
+                        if expr_lowering::lower_assign_stmt(
                             target,
                             value_ast,
                             &mut then_func.body,
@@ -293,7 +293,7 @@ impl IfAsLastJoinKLowererBox {
             match n {
                 StepNode::Stmt { kind, .. } => match kind {
                     StepStmtKind::Assign { target, value_ast } => {
-                        if LegacyLowerer::lower_assign_stmt(
+                        if expr_lowering::lower_assign_stmt(
                             target,
                             value_ast,
                             &mut else_func.body,
@@ -331,7 +331,7 @@ impl IfAsLastJoinKLowererBox {
         });
 
         // main: cond compare + conditional jump to k_then, else to k_else
-        let (lhs_var, op, rhs_literal) = LegacyLowerer::parse_minimal_compare(&cond_ast.0)?;
+        let (lhs_var, op, rhs_literal) = expr_lowering::parse_minimal_compare(&cond_ast.0)?;
         let lhs_vid = env_main.get(&lhs_var).copied().ok_or_else(|| {
             error_tags::freeze_with_hint(
                 "phase129/join_k/cond_lhs_missing",

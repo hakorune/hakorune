@@ -35,7 +35,7 @@ use super::common::expr_lowering_contract::ExprLoweringScope;
 use super::common::normalized_helpers::NormalizedHelperBox;
 use super::common::return_value_lowerer_box::ReturnValueLowererBox;
 use super::env_layout::EnvLayout;
-use super::legacy::LegacyLowerer;
+use super::support::expr_lowering;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
@@ -88,7 +88,7 @@ impl PostIfPostKBuilderBox {
             match n {
                 StepNode::Stmt { kind, .. } => match kind {
                     StepStmtKind::Assign { target, value_ast } => {
-                        if LegacyLowerer::lower_assign_stmt(
+                        if expr_lowering::lower_assign_stmt(
                             target,
                             value_ast,
                             &mut main_func.body,
@@ -140,7 +140,7 @@ impl PostIfPostKBuilderBox {
         for stmt in then_stmts {
             match stmt {
                 StepStmtKind::Assign { target, value_ast } => {
-                    if LegacyLowerer::lower_assign_stmt(
+                    if expr_lowering::lower_assign_stmt(
                         target,
                         value_ast,
                         &mut then_func.body,
@@ -183,7 +183,7 @@ impl PostIfPostKBuilderBox {
         for stmt in else_stmts {
             match stmt {
                 StepStmtKind::Assign { target, value_ast } => {
-                    if LegacyLowerer::lower_assign_stmt(
+                    if expr_lowering::lower_assign_stmt(
                         target,
                         value_ast,
                         &mut else_func.body,
@@ -296,8 +296,8 @@ impl PostIfPostKBuilderBox {
         ) {
             Ok(Some(vid)) => vid,
             Ok(None) => {
-                // Fallback to legacy minimal compare (Phase 129 baseline)
-                Self::lower_condition_legacy(
+                // Fall back to the Phase 129 baseline minimal compare route.
+                Self::lower_condition_baseline(
                     &cond_ast.0,
                     &env_main,
                     &mut main_func.body,
@@ -400,17 +400,17 @@ impl PostIfPostKBuilderBox {
         }
     }
 
-    /// Phase 146 P0: Legacy condition lowering (fallback for out-of-scope cases)
+    /// Phase 146 P0: Baseline condition lowering for out-of-scope ANF cases.
     ///
     /// When ANF routing is unavailable (e.g., PureOnly scope, HAKO_ANF_DEV=0),
     /// fall back to Phase 129 baseline minimal compare lowering.
-    fn lower_condition_legacy(
+    fn lower_condition_baseline(
         cond_ast: &crate::ast::ASTNode,
         env: &BTreeMap<String, ValueId>,
         body: &mut Vec<JoinInst>,
         next_value_id: &mut u32,
     ) -> Result<ValueId, String> {
-        let (lhs_var, op, rhs_literal) = LegacyLowerer::parse_minimal_compare(cond_ast)?;
+        let (lhs_var, op, rhs_literal) = expr_lowering::parse_minimal_compare(cond_ast)?;
         let lhs_vid = env.get(&lhs_var).copied().ok_or_else(|| {
             error_tags::freeze_with_hint(
                 "phase146/p0/cond_lhs_missing",

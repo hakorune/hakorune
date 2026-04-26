@@ -33,16 +33,16 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow shared expression lowering facade pending`
+- current blocker token: `phase-291x normalized-shadow shared expression implementation extraction pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-395` inventoried normalized-shadow legacy
-  lowerer responsibilities and selected a shared expression lowering facade as
-  the next BoxShape seam
+- latest known checkpoint: `291x-396` added a normalized-shadow support facade
+  for shared expression lowering and migrated route lowerers away from legacy
+  helper imports
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -50,8 +50,8 @@ cargo check -q
 
 ## Immediate Next
 
-- add a normalized-shadow shared expression lowering facade before touching the
-  full legacy entry path
+- physically move shared expression helper implementation from legacy storage
+  into the support facade
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
