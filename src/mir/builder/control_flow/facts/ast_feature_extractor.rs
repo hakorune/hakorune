@@ -109,8 +109,6 @@ pub(crate) fn extract_features(
         has_continue,
         has_if,
         carrier_count,
-        break_count: if has_break { 1 } else { 0 },
-        continue_count: if has_continue { 1 } else { 0 },
         is_infinite_loop,
         ..Default::default() // Phase 188.1: Use Default for nesting fields
     }

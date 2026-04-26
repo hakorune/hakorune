@@ -19,12 +19,6 @@ pub struct LoopFeatures {
     /// Number of carrier variables (loop variables that are updated)
     pub carrier_count: usize,
 
-    /// Number of break targets
-    pub break_count: usize,
-
-    /// Number of continue targets
-    pub continue_count: usize,
-
     /// Phase 131-11: Is this an infinite loop? (condition == true)
     pub is_infinite_loop: bool,
 }
@@ -36,8 +30,6 @@ impl Default for LoopFeatures {
             has_continue: false,
             has_if: false,
             carrier_count: 0,
-            break_count: 0,
-            continue_count: 0,
             is_infinite_loop: false,
         }
     }
@@ -57,8 +49,6 @@ pub(crate) fn extract_features(loop_form: &LoopForm) -> LoopFeatures {
     // Phase 194: Basic feature extraction from LoopForm
     let has_break = !loop_form.break_targets.is_empty();
     let has_continue = !loop_form.continue_targets.is_empty();
-    let break_count = loop_form.break_targets.len();
-    let continue_count = loop_form.continue_targets.len();
 
     // LoopForm currently does not carry AST assignment/update observations.
     // Keep IfPhiJoin recognition in the AST feature extractor.
@@ -70,8 +60,6 @@ pub(crate) fn extract_features(loop_form: &LoopForm) -> LoopFeatures {
         has_continue,
         has_if,
         carrier_count,
-        break_count,
-        continue_count,
         is_infinite_loop: false, // Phase 131-11: LoopForm doesn't have condition info, default to false
     }
 }
