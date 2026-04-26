@@ -20,7 +20,6 @@ use crate::mir::join_ir::lowering::generic_case_a;
 use crate::mir::join_ir::lowering::loop_scope_shape::{
     find_case_a_minimal_target, CaseALoweringShape, CaseAMinimalTargetKind, LoopScopeShape,
 };
-use crate::mir::join_ir::lowering::loop_update_summary; // Phase 170-C-2b
 use crate::mir::join_ir::JoinModule;
 use crate::mir::naming::StaticMethodId;
 use crate::runtime::get_global_ring0;
@@ -85,20 +84,18 @@ impl LoopViewBuilder {
             return Some(result);
         }
 
-        // Phase 170-A-2: Structure-based routing with CaseALoweringShape
-        let carrier_names: Vec<String> = scope.carriers.iter().cloned().collect();
-        let update_summary = loop_update_summary::analyze_loop_updates_by_name(&carrier_names);
-
+        // Phase 170-A-2: Structure-based routing with CaseALoweringShape.
+        // No AST/MIR update observation is available here, so update_summary
+        // must stay absent. Name-only carrier data is not an update-kind proof.
+        let carrier_count = scope.carriers.len();
         let stub_features = crate::mir::loop_route_detection::LoopFeatures {
-            carrier_count: scope.carriers.len(),
-            update_summary: Some(update_summary),
+            carrier_count,
             ..Default::default() // Phase 188.1: Use Default for nesting fields
         };
 
         let has_progress_carrier = scope.progress_carrier.is_some();
-        let carrier_count = scope.carriers.len();
 
-        let shape = CaseALoweringShape::detect_with_updates(
+        let shape = CaseALoweringShape::detect_from_features(
             &stub_features,
             carrier_count,
             has_progress_carrier,
@@ -109,7 +106,7 @@ impl LoopViewBuilder {
                 "[LoopViewBuilder] Phase 170-C-2b: shape={:?}, name={:?}, carriers={:?}",
                 shape.name(),
                 name,
-                carrier_names
+                scope.carriers_ordered()
             ));
         }
 

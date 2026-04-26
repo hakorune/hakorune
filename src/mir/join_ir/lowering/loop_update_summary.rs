@@ -6,13 +6,15 @@
 //! ## 設計思想
 //!
 //! - 責務: AST のループ body から「各キャリアがどう更新されているか」を判定
-//! - 差し替え可能: 名前ヒューリスティック → AST 解析 → MIR 解析と段階的に精度向上
+//! - 差し替え可能: AST 解析 → MIR 解析と段階的に精度向上
 //! - LoopFeatures / CaseALoweringShape から独立したモジュール
+//! - No body observation means no update summary; carrier names alone are not
+//!   update-kind proof.
 //!
 //! ## 使用例
 //!
 //! ```ignore
-//! let summary = analyze_loop_updates_by_name(&carrier_names);
+//! let summary = analyze_loop_updates_from_ast(&carrier_names, loop_body);
 //! if summary.has_single_counter() {
 //!     // StringExamination 系ルート候補
 //! }
@@ -362,24 +364,6 @@ pub fn analyze_loop_updates_from_ast(
             });
         }
     }
-
-    LoopUpdateSummary { carriers }
-}
-
-/// Name-only heuristic for loop update summary (legacy compatibility)
-///
-/// This path is kept for callers that only have carrier names (no AST).
-/// Prefer `analyze_loop_updates_from_ast()` when loop body is available.
-pub fn analyze_loop_updates_by_name(carrier_names: &[String]) -> LoopUpdateSummary {
-    let carriers = carrier_names
-        .iter()
-        .map(|name| CarrierUpdateInfo {
-            name: name.clone(),
-            kind: UpdateKind::AccumulationLike, // Default to accumulation
-            then_expr: None,
-            else_expr: None,
-        })
-        .collect();
 
     LoopUpdateSummary { carriers }
 }

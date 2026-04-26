@@ -173,14 +173,9 @@ pub(crate) fn extract_features(
     // For now, infer from has_if_else_phi (IfPhiJoin signature heuristic)
     let has_if = has_if_else_phi;
 
-    // Phase 170-C-2b: Build update_summary from carrier names
-    // Note: carriers is BTreeSet<String>, so each item is already a String
-    let update_summary = scope.map(|s| {
-        let carrier_names: Vec<String> = s.carriers.iter().cloned().collect();
-        crate::mir::join_ir::lowering::loop_update_summary::analyze_loop_updates_by_name(
-            &carrier_names,
-        )
-    });
+    // Carrier names alone are not update-kind proof. Leave update_summary
+    // absent until an AST/MIR update observer populates it.
+    let update_summary = None;
 
     // Phase 188.1: Nesting detection
     // TODO: Detect from LoopForm structure (nested LoopForm presence)

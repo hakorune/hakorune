@@ -6,6 +6,7 @@ Related:
   - src/mir/join_ir/lowering/loop_view_builder.rs
   - src/mir/join_ir/lowering/loop_update_summary.rs
   - src/mir/join_ir/lowering/loop_scope_shape/case_a_lowering_shape.rs
+  - src/mir/loop_route_detection/features.rs
   - docs/development/current/main/phases/phase-291x/291x-318-joinir-simple-while-main-gate-helper-card.md
 ---
 
@@ -36,6 +37,9 @@ The deprecated `CaseALoweringShape::detect(scope)` wrapper has the same seam:
 ```text
 LoopScopeShape carrier names -> synthetic AccumulationLike summary
 ```
+
+`loop_route_detection::extract_features(...)` also builds the same synthetic
+summary when only `LoopScopeShape` is available.
 
 This is BoxShape debt:
 

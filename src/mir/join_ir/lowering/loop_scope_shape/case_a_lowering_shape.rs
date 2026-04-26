@@ -297,22 +297,15 @@ impl CaseALoweringShape {
         let has_progress_carrier = scope.progress_carrier.is_some();
         let carrier_count = scope.carriers.len();
 
-        // Phase 170-C-2b: Build update_summary from carrier names
-        // Note: carriers is BTreeSet<String>, so each item is already a String
-        let carrier_names: Vec<String> = scope.carriers.iter().cloned().collect();
-        let update_summary =
-            crate::mir::join_ir::lowering::loop_update_summary::analyze_loop_updates_by_name(
-                &carrier_names,
-            );
-
-        // Create stub features (Phase 170-B will use real LoopFeatures)
+        // Create stub features without update_summary. Carrier names alone are
+        // not an update-kind proof; only observed AST/MIR updates may populate
+        // LoopFeatures.update_summary.
         let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count,
-            update_summary: Some(update_summary),
             ..Default::default() // Phase 188.1: Use Default for nesting fields
         };
 
-        Self::detect_with_updates(&stub_features, carrier_count, has_progress_carrier)
+        Self::detect_from_features(&stub_features, carrier_count, has_progress_carrier)
     }
 
     /// Is this a recognized lowering shape?
@@ -339,6 +332,8 @@ impl CaseALoweringShape {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::BasicBlockId;
+    use std::collections::{BTreeMap, BTreeSet};
 
     #[test]
     fn test_shape_display() {
@@ -365,5 +360,34 @@ mod tests {
         assert!(CaseALoweringShape::IterationWithAccumulation.is_recognized());
         assert!(!CaseALoweringShape::Generic.is_recognized());
         assert!(!CaseALoweringShape::NotCaseA.is_recognized());
+    }
+
+    fn scope_with_carriers(
+        carriers: &[&str],
+        progress_carrier: Option<&str>,
+    ) -> super::super::shape::LoopScopeShape {
+        super::super::shape::LoopScopeShape {
+            header: BasicBlockId::new(1),
+            body: BasicBlockId::new(2),
+            latch: BasicBlockId::new(3),
+            exit: BasicBlockId::new(4),
+            pinned: BTreeSet::new(),
+            carriers: carriers.iter().map(|name| (*name).to_string()).collect(),
+            body_locals: BTreeSet::new(),
+            exit_live: BTreeSet::new(),
+            progress_carrier: progress_carrier.map(str::to_string),
+            variable_definitions: BTreeMap::new(),
+        }
+    }
+
+    #[test]
+    #[allow(deprecated)]
+    fn case_a_update_summary_name_only_does_not_synthesize_accumulation() {
+        let scope = scope_with_carriers(&["defs"], Some("defs"));
+
+        assert_eq!(
+            CaseALoweringShape::detect(&scope),
+            CaseALoweringShape::Generic
+        );
     }
 }

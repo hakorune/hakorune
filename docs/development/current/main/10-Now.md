@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR Case-A update-summary name-only prune pending`
+- current blocker token: `phase-291x JoinIR Case-A carrier-count heuristic inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- prune Case-A name-only synthetic update-summary; do not mix with broader
-  carrier-count heuristic cleanup
-- cleanup checkpoint: latest known landed card `291x-319`; detailed closed
+- inventory Case-A carrier-count heuristic fallback; do not mix with
+  update-summary pruning
+- cleanup checkpoint: latest known landed card `291x-320`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
