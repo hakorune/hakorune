@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR loop-update assignment-value traversal inventory pending`
+- current blocker token: `phase-291x JoinIR loop-update assignment-value traversal prune pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-328` made loop-update classification inspect
-  all current-loop RHS assignments and reject conflicting carrier updates
+- latest known checkpoint: `291x-329` inventoried loop-update analyzer
+  traversal into assignment values
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: inventory loop-update traversal into assignment values; do not
-  mix with all-RHS classification
+- resume point: prune loop-update traversal into assignment values; keep
+  statement-level carrier assignments and current-loop if branches
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-328-joinir-loop-update-all-rhs-classification-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-329-joinir-loop-update-assignment-value-traversal-inventory-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR loop-update assignment-value traversal inventory; do not mix
-  with all-RHS classification
+- next: JoinIR loop-update assignment-value traversal prune; keep
+  statement-level carrier assignments and current-loop if branches
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-328`; detailed landed history lives in phase card
+- latest checkpoint: `291x-329`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR loop-update assignment-value traversal inventory
+- next cleanup: JoinIR loop-update assignment-value traversal prune
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
