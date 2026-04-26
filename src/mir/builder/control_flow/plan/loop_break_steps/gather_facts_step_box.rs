@@ -100,7 +100,7 @@ impl GatherFactsStepBox {
             builder.variable_ctx.variable_map.keys().cloned().collect();
 
         if !candidate_locals.is_empty() {
-            use crate::mir::loop_route_detection::pinned_local_analyzer::analyze_pinned_locals;
+            use crate::mir::loop_route_detection::support::locals::pinned::analyze_pinned_locals;
 
             match analyze_pinned_locals(body, &candidate_locals) {
                 Ok(pinned_names) => {
@@ -141,7 +141,7 @@ impl GatherFactsStepBox {
             }
         }
 
-        use crate::mir::loop_route_detection::mutable_accumulator_analyzer::{
+        use crate::mir::loop_route_detection::support::locals::mutable_accumulator::{
             AccumulatorKind, MutableAccumulatorAnalyzer, RhsExprKind,
         };
 

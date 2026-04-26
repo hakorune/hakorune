@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector small support family migration pending`
+- current blocker token: `phase-291x JoinIR route detector small compatibility export prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- migrate small support families to `support` paths (`break_condition`,
-  `locals::pinned`, `locals::mutable_accumulator`)
-- cleanup checkpoint: latest known landed card `291x-371`; detailed closed
+- verify and prune zero-caller parent compatibility exports for small support
+  families
+- cleanup checkpoint: latest known landed card `291x-372`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

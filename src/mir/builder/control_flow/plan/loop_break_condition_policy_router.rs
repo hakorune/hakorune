@@ -12,7 +12,7 @@
 use crate::ast::ASTNode;
 use crate::ast::LiteralValue;
 use crate::ast::UnaryOperator;
-use crate::mir::loop_route_detection::break_condition_analyzer::BreakConditionAnalyzer;
+use crate::mir::loop_route_detection::support::break_condition::BreakConditionAnalyzer;
 
 use crate::mir::builder::control_flow::cleanup::policies::loop_true_read_digits_policy;
 use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
