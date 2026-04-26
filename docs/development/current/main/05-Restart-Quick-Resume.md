@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR loop-update nested-scope assignment inventory pending`
+- current blocker token: `phase-291x JoinIR loop-update nested-scope assignment prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-324` made loop-update classification validate
-  RHS self-reference before carrier names can disambiguate CounterLike
+- latest known checkpoint: `291x-325` inventoried loop-update nested-loop
+  traversal that treated nested assignments as current-loop updates
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- inventory loop-update nested-scope assignment traversal; do not mix with
-  RHS-first classification
+- prune loop-update nested-loop assignment traversal; keep current-loop
+  if-branch traversal
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
