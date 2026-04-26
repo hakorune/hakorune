@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR Case-A carrier-count heuristic inventory pending`
+- current blocker token: `phase-291x JoinIR Case-A carrier-count heuristic prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory Case-A carrier-count heuristic fallback; do not mix with
-  update-summary pruning
-- cleanup checkpoint: latest known landed card `291x-320`; detailed closed
+- prune Case-A carrier-count-only specialized shape selection; keep exact
+  known targets on descriptor fallback
+- cleanup checkpoint: latest known landed card `291x-321`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
