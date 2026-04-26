@@ -20,14 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector trim compatibility export prune pending`
+- current blocker token: `phase-291x JoinIR route detector function-scope support family migration pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- verify and prune zero-caller parent `trim_loop_helper` compatibility export
-- cleanup checkpoint: latest known landed card `291x-374`; detailed closed
+- migrate `function_scope_capture` callers to
+  `loop_route_detection::support::function_scope`
+- cleanup checkpoint: latest known landed card `291x-375`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
