@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-342"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-342-joinir-loopfeatures-nesting-stub-prune-card.md"
-latest_card_summary = "Removed the dead LoopFeatures nesting fields; StepTree remains the nesting owner."
+latest_card = "291x-343"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-343-joinir-loopfeatures-helper-surface-inventory-card.md"
+latest_card_summary = "Inventoried the remaining LoopFeatures helper surface and found it is dead diagnostic scaffolding."
 
-current_blocker_token = "phase-291x JoinIR LoopFeatures helper surface inventory pending"
+current_blocker_token = "phase-291x JoinIR LoopFeatures helper surface prune pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -62,4 +62,5 @@ landed_tail = [
   "291x-340 JoinIR LoopFeatures if-phi signature stub prune landed",
   "291x-341 JoinIR LoopFeatures nesting stub inventory landed",
   "291x-342 JoinIR LoopFeatures nesting stub prune landed",
+  "291x-343 JoinIR LoopFeatures helper surface inventory landed",
 ]
