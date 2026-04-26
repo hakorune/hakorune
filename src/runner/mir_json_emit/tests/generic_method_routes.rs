@@ -3,7 +3,8 @@ use super::make_function;
 use crate::mir::{
     BasicBlockId, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, GenericMethodKeyRoute,
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodRoute,
-    GenericMethodRouteKind, GenericMethodRouteProof, GenericMethodValueDemand, ValueId,
+    GenericMethodRouteKind, GenericMethodRouteProof, GenericMethodRouteSurface,
+    GenericMethodValueDemand, ValueId,
 };
 
 #[test]
@@ -15,9 +16,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(7),
             instruction_index: 3,
-            box_name: "MapBox".to_string(),
-            method: "has".to_string(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new("MapBox", "has", 1),
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(10),
@@ -39,9 +38,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(8),
             instruction_index: 4,
-            box_name: "RuntimeDataBox".to_string(),
-            method: "get".to_string(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new("RuntimeDataBox", "get", 1),
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(13),
@@ -63,9 +60,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(9),
             instruction_index: 5,
-            box_name: "RuntimeDataBox".to_string(),
-            method: "get".to_string(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new("RuntimeDataBox", "get", 1),
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(16),
@@ -87,9 +82,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(11),
             instruction_index: 7,
-            box_name: "StringBox".to_string(),
-            method: "substring".to_string(),
-            arity: 2,
+            surface: GenericMethodRouteSurface::new("StringBox", "substring", 2),
             receiver_origin_box: Some("StringBox".to_string()),
             key_route: None,
             receiver_value: ValueId::new(21),
@@ -111,9 +104,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(10),
             instruction_index: 6,
-            box_name: "MapBox".to_string(),
-            method: "size".to_string(),
-            arity: 0,
+            surface: GenericMethodRouteSurface::new("MapBox", "size", 0),
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: None,
             receiver_value: ValueId::new(19),
@@ -135,9 +126,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(12),
             instruction_index: 8,
-            box_name: "ArrayBox".to_string(),
-            method: "push".to_string(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new("ArrayBox", "push", 1),
             receiver_origin_box: Some("ArrayBox".to_string()),
             key_route: None,
             receiver_value: ValueId::new(25),
@@ -159,9 +148,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(13),
             instruction_index: 9,
-            box_name: "MapBox".to_string(),
-            method: "set".to_string(),
-            arity: 2,
+            surface: GenericMethodRouteSurface::new("MapBox", "set", 2),
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(28),
@@ -183,9 +170,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(14),
             instruction_index: 10,
-            box_name: "MapBox".to_string(),
-            method: "get".to_string(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new("MapBox", "get", 1),
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::UnknownAny),
             receiver_value: ValueId::new(32),
@@ -207,9 +192,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .push(GenericMethodRoute {
             block: BasicBlockId::new(15),
             instruction_index: 11,
-            box_name: "ArrayBox".to_string(),
-            method: "get".to_string(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new("ArrayBox", "get", 1),
             receiver_origin_box: Some("ArrayBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(35),

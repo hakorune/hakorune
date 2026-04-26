@@ -161,12 +161,27 @@ impl std::fmt::Display for GenericMethodRouteProof {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct GenericMethodRoute {
-    pub block: BasicBlockId,
-    pub instruction_index: usize,
+pub struct GenericMethodRouteSurface {
     pub box_name: String,
     pub method: String,
     pub arity: usize,
+}
+
+impl GenericMethodRouteSurface {
+    pub fn new(box_name: impl Into<String>, method: impl Into<String>, arity: usize) -> Self {
+        Self {
+            box_name: box_name.into(),
+            method: method.into(),
+            arity,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GenericMethodRoute {
+    pub block: BasicBlockId,
+    pub instruction_index: usize,
+    pub surface: GenericMethodRouteSurface,
     pub receiver_origin_box: Option<String>,
     pub key_route: Option<GenericMethodKeyRoute>,
     pub receiver_value: ValueId,
@@ -181,6 +196,14 @@ pub struct GenericMethodRoute {
 }
 
 impl GenericMethodRoute {
+    pub fn box_name(&self) -> &str {
+        self.surface.box_name.as_str()
+    }
+
+    pub fn method(&self) -> &str {
+        self.surface.method.as_str()
+    }
+
     pub fn route_id(&self) -> &'static str {
         self.route_kind.route_id()
     }
@@ -190,7 +213,7 @@ impl GenericMethodRoute {
     }
 
     pub fn arity(&self) -> usize {
-        self.arity
+        self.surface.arity
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
@@ -351,9 +374,7 @@ fn match_generic_has_route(
     Some(GenericMethodRoute {
         block,
         instruction_index,
-        box_name: box_name.clone(),
-        method: method.clone(),
-        arity: 1,
+        surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
         receiver_origin_box,
         key_route: Some(key_route),
         receiver_value: *receiver,
@@ -402,9 +423,7 @@ fn match_generic_get_route(
         return Some(GenericMethodRoute {
             block,
             instruction_index,
-            box_name: box_name.clone(),
-            method: method.clone(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
             receiver_origin_box,
             key_route: Some(key_route),
             receiver_value: *receiver,
@@ -426,9 +445,7 @@ fn match_generic_get_route(
         return Some(GenericMethodRoute {
             block,
             instruction_index,
-            box_name: box_name.clone(),
-            method: method.clone(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
             receiver_origin_box,
             key_route: Some(key_route),
             receiver_value: *receiver,
@@ -450,9 +467,7 @@ fn match_generic_get_route(
         return Some(GenericMethodRoute {
             block,
             instruction_index,
-            box_name: box_name.clone(),
-            method: method.clone(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
             receiver_origin_box,
             key_route: Some(key_route),
             receiver_value: *receiver,
@@ -502,9 +517,7 @@ fn match_generic_get_route(
     Some(GenericMethodRoute {
         block,
         instruction_index,
-        box_name: box_name.clone(),
-        method: method.clone(),
-        arity: 1,
+        surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
         receiver_origin_box,
         key_route: Some(key_route),
         receiver_value: *receiver,
@@ -561,9 +574,7 @@ fn match_generic_len_route(
     Some(GenericMethodRoute {
         block,
         instruction_index,
-        box_name: box_name.clone(),
-        method: method.clone(),
-        arity: 0,
+        surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 0),
         receiver_origin_box,
         key_route: None,
         receiver_value: *receiver,
@@ -618,9 +629,7 @@ fn match_generic_substring_route(
     Some(GenericMethodRoute {
         block,
         instruction_index,
-        box_name: box_name.clone(),
-        method: method.clone(),
-        arity: args.len(),
+        surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         receiver_origin_box,
         key_route: None,
         receiver_value: *receiver,
@@ -675,9 +684,7 @@ fn match_generic_indexof_route(
     Some(GenericMethodRoute {
         block,
         instruction_index,
-        box_name: box_name.clone(),
-        method: method.clone(),
-        arity: args.len(),
+        surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         receiver_origin_box,
         key_route: None,
         receiver_value: *receiver,
@@ -732,9 +739,7 @@ fn match_generic_push_route(
     Some(GenericMethodRoute {
         block,
         instruction_index,
-        box_name: box_name.clone(),
-        method: method.clone(),
-        arity: 1,
+        surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
         receiver_origin_box,
         key_route: None,
         receiver_value: *receiver,
@@ -793,9 +798,7 @@ fn match_generic_set_route(
     Some(GenericMethodRoute {
         block,
         instruction_index,
-        box_name: box_name.clone(),
-        method: method.clone(),
-        arity: 2,
+        surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 2),
         receiver_origin_box,
         key_route: Some(key_route),
         receiver_value: *receiver,
@@ -1141,8 +1144,8 @@ mod tests {
             .generic_method_routes
             .iter()
             .find(|route| {
-                route.box_name == box_name
-                    && route.method == method
+                route.box_name() == box_name
+                    && route.method() == method
                     && route.result_value == result_value
             })
             .unwrap_or_else(|| {
@@ -1157,9 +1160,11 @@ mod tests {
         let route = GenericMethodRoute {
             block: BasicBlockId::new(0),
             instruction_index: 0,
-            box_name: "MapBox".to_string(),
-            method: "__raw_method_must_not_drive_metadata".to_string(),
-            arity: 1,
+            surface: GenericMethodRouteSurface::new(
+                "MapBox",
+                "__raw_method_must_not_drive_metadata",
+                1,
+            ),
             receiver_origin_box: Some("MapBox".to_string()),
             key_route: Some(GenericMethodKeyRoute::I64Const),
             receiver_value: ValueId::new(1),
@@ -1198,8 +1203,8 @@ mod tests {
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.block, BasicBlockId::new(0));
         assert_eq!(route.instruction_index, 0);
-        assert_eq!(route.box_name, "MapBox");
-        assert_eq!(route.method, "has");
+        assert_eq!(route.box_name(), "MapBox");
+        assert_eq!(route.method(), "has");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(route.receiver_value, ValueId::new(1));
@@ -1234,8 +1239,8 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.box_name, "ArrayBox");
-        assert_eq!(route.method, "has");
+        assert_eq!(route.box_name(), "ArrayBox");
+        assert_eq!(route.method(), "has");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayContainsAny);
@@ -1268,8 +1273,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.get");
-        assert_eq!(route.box_name, "MapBox");
-        assert_eq!(route.method, "get");
+        assert_eq!(route.box_name(), "MapBox");
+        assert_eq!(route.method(), "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(route.route_kind, GenericMethodRouteKind::MapLoadAny);
@@ -1302,8 +1307,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.get");
-        assert_eq!(route.box_name, "ArrayBox");
-        assert_eq!(route.method, "get");
+        assert_eq!(route.box_name(), "ArrayBox");
+        assert_eq!(route.method(), "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(route.route_kind, GenericMethodRouteKind::ArraySlotLoadAny);
@@ -1343,8 +1348,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.push");
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "push");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "push");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, None);
         assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayAppendAny);
@@ -1395,8 +1400,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.get");
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "get");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(route.route_kind, GenericMethodRouteKind::ArraySlotLoadAny);
@@ -1437,7 +1442,7 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(
@@ -1472,8 +1477,8 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "has");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "has");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayContainsAny);
@@ -1531,7 +1536,7 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 3);
         let map_route = &function.metadata.generic_method_routes[0];
         assert_eq!(map_route.route_id(), "generic_method.len");
-        assert_eq!(map_route.method, "size");
+        assert_eq!(map_route.method(), "size");
         assert_eq!(map_route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(map_route.key_route, None);
         assert_eq!(map_route.key_value, None);
@@ -1554,14 +1559,14 @@ mod tests {
         );
 
         let array_route = &function.metadata.generic_method_routes[1];
-        assert_eq!(array_route.method, "length");
+        assert_eq!(array_route.method(), "length");
         assert_eq!(array_route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(array_route.route_kind, GenericMethodRouteKind::ArraySlotLen);
         let array_core = array_route.core_method.expect("ArrayLen carrier");
         assert_eq!(array_core.op, CoreMethodOp::ArrayLen);
 
         let string_route = &function.metadata.generic_method_routes[2];
-        assert_eq!(string_route.method, "len");
+        assert_eq!(string_route.method(), "len");
         assert_eq!(
             string_route.receiver_origin_box.as_deref(),
             Some("StringBox")
@@ -1593,8 +1598,8 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "length");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "length");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.route_kind, GenericMethodRouteKind::MapEntryCount);
         let core_method = route.core_method.expect("RuntimeData MapLen carrier");
@@ -1628,8 +1633,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.substring");
-        assert_eq!(route.box_name, "StringBox");
-        assert_eq!(route.method, "substring");
+        assert_eq!(route.box_name(), "StringBox");
+        assert_eq!(route.method(), "substring");
         assert_eq!(route.arity(), 2);
         assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
         assert_eq!(route.key_route, None);
@@ -1675,8 +1680,8 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "substring");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "substring");
         assert_eq!(route.arity(), 2);
         assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
         assert_eq!(route.route_kind, GenericMethodRouteKind::StringSubstring);
@@ -1700,8 +1705,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.indexOf");
-        assert_eq!(route.box_name, "StringBox");
-        assert_eq!(route.method, "indexOf");
+        assert_eq!(route.box_name(), "StringBox");
+        assert_eq!(route.method(), "indexOf");
         assert_eq!(route.arity(), 1);
         assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
         assert_eq!(route.key_route, None);
@@ -1754,8 +1759,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.indexOf");
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "indexOf");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "indexOf");
         assert_eq!(route.arity(), 1);
         assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
         assert_eq!(route.route_kind, GenericMethodRouteKind::StringIndexOf);
@@ -1779,8 +1784,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.push");
-        assert_eq!(route.box_name, "ArrayBox");
-        assert_eq!(route.method, "push");
+        assert_eq!(route.box_name(), "ArrayBox");
+        assert_eq!(route.method(), "push");
         assert_eq!(route.arity(), 1);
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, None);
@@ -1827,8 +1832,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
         assert_eq!(route.route_id(), "generic_method.push");
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "push");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "push");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayAppendAny);
         assert_eq!(route.proof, GenericMethodRouteProof::PushSurfacePolicy);
@@ -1870,8 +1875,8 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 2);
         let array_route = &function.metadata.generic_method_routes[0];
         assert_eq!(array_route.route_id(), "generic_method.set");
-        assert_eq!(array_route.box_name, "ArrayBox");
-        assert_eq!(array_route.method, "set");
+        assert_eq!(array_route.box_name(), "ArrayBox");
+        assert_eq!(array_route.method(), "set");
         assert_eq!(array_route.arity(), 2);
         assert_eq!(array_route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(array_route.key_route, Some(GenericMethodKeyRoute::I64Const));
@@ -1892,7 +1897,7 @@ mod tests {
         assert_eq!(array_route.publication_policy, None);
 
         let map_route = &function.metadata.generic_method_routes[1];
-        assert_eq!(map_route.box_name, "MapBox");
+        assert_eq!(map_route.box_name(), "MapBox");
         assert_eq!(map_route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(map_route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(map_route.route_kind, GenericMethodRouteKind::MapStoreAny);
@@ -1953,7 +1958,7 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.box_name, "RuntimeDataBox");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(route.route_kind, GenericMethodRouteKind::MapContainsI64);
@@ -1986,8 +1991,8 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "get");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(route.route_kind, GenericMethodRouteKind::RuntimeDataLoadAny);
@@ -2043,8 +2048,8 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.box_name, "RuntimeDataBox");
-        assert_eq!(route.method, "get");
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "get");
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(
             route.proof,
@@ -2311,7 +2316,7 @@ mod tests {
     }
 
     #[test]
-    fn rejects_non_has_methods() {
+    fn rejects_unknown_generic_method_surface() {
         let mut function = make_function();
         let block = function
             .blocks
@@ -2319,7 +2324,7 @@ mod tests {
             .expect("entry");
         block
             .instructions
-            .push(method_call(Some(3), "MapBox", "get", 1, vec![2]));
+            .push(method_call(Some(3), "MapBox", "unknown", 1, vec![2]));
 
         refresh_function_generic_method_routes(&mut function);
 
