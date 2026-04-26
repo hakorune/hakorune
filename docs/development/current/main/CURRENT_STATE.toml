@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-434"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-434-loop-if-break-continue-placeholder-review-card.md"
-latest_card_summary = "Reviewed loop-if-break-continue placeholders and selected stale scope wording cleanup."
+latest_card = "291x-435"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-435-loop-if-break-continue-scope-wording-cleanup-card.md"
+latest_card_summary = "Cleaned loop-if-break-continue P0/P1/P2 scope wording."
 
-current_blocker_token = "phase-291x loop-if-break-continue scope wording cleanup pending"
+current_blocker_token = "phase-291x cleanup burst closeout review pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -154,4 +154,5 @@ landed_tail = [
   "291x-432 normalization decline wording review landed",
   "291x-433 normalization default-path wording cleanup landed",
   "291x-434 loop-if-break-continue placeholder review landed",
+  "291x-435 loop-if-break-continue scope wording cleanup landed",
 ]

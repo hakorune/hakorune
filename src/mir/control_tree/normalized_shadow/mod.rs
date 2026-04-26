@@ -41,7 +41,7 @@ pub mod exit_reconnector; // Phase 131 P1.5: Direct variable_map reconnection (O
 pub mod if_as_last_join_k;
 pub mod loop_true_break_once; // Phase 131: loop(true) break-once
 mod loop_true_break_once_helpers;
-pub mod loop_true_if_break_continue; // Phase 143 P0: loop(true) + if + break
+pub mod loop_true_if_break_continue; // Phase 143 P0/P1/P2: loop(true) + if + break/continue
 pub mod normalized_verifier;
 pub mod parity_contract;
 pub mod post_if_post_k; // Phase 129-C: post-if with post_k continuation // Phase 145 P0: ANF (A-Normal Form) transformation

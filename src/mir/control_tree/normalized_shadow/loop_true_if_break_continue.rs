@@ -1,4 +1,4 @@
-//! Phase 143 P0/P1: loop(true) + if + break/continue Normalized lowering
+//! Phase 143 P0/P1/P2: loop(true) + if + break/continue Normalized lowering
 //!
 //! ## Responsibility
 //!
@@ -12,8 +12,8 @@
 //! - Loop condition: `true` literal only
 //! - Loop body: Single `if` statement only
 //! - If branch: `break` (P0) or `continue` (P1)
+//! - Optional else branch: break/continue combinations (P2)
 //! - Condition expression: Pure only (variables, literals, arith, compare)
-//! - Else branch: Not supported (P2 feature)
 //!
 //! ## Return Behavior
 //!
@@ -40,7 +40,7 @@ pub struct LoopTrueIfBreakContinueBuilderBox;
 impl LoopTrueIfBreakContinueBuilderBox {
     /// Try to lower loop(true) + if + break/continue pattern to Normalized JoinModule.
     ///
-    /// Phase 143 P0/P1: Supports break (P0) and continue (P1)
+    /// Phase 143 P0/P1/P2: Supports break, continue, and optional else combinations.
     pub fn lower(
         step_tree: &StepTree,
         env_layout: &EnvLayout,
@@ -49,7 +49,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
         if crate::config::env::joinir_dev_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
-                "[phase143/debug] Attempting loop_true_if_break/continue pattern (P0/P1)"
+                "[phase143/debug] Attempting loop_true_if_break/continue pattern (P0/P1/P2)"
             ));
         }
 
@@ -86,7 +86,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
             }
         };
 
-        // Validate that shape is P2-compatible (supports break/continue with optional else)
+        // Validate with the current P2-compatible shape contract.
         if let Err(reason) = shape.validate_for_p2() {
             if crate::config::env::joinir_dev_enabled() {
                 let ring0 = crate::runtime::get_global_ring0();
@@ -330,23 +330,25 @@ impl LoopTrueIfBreakContinueBuilderBox {
             f
         };
 
-        // === k_then(env): Reserved (P2+) ===
+        // === k_then(env): Reserved structural continuation ===
         //
-        // Phase 143 P1 does not emit conditional Jump for Continue (see loop_cond_check note),
-        // so k_then is currently unused. It is kept as a placeholder for P2+ extensions
-        // (e.g., else-branch support).
+        // Current branch emission goes directly to loop_step/k_exit, so k_then is
+        // intentionally empty. Keep it as part of the 6-function normalized shape
+        // until a dedicated route-shape replacement changes that contract.
         // Phase 143 fix: reuse Param region IDs
         let k_then_params = main_params.clone();
         let k_then_func = { JoinFunction::new(k_then_id, rfn::K_THEN.to_string(), k_then_params) };
 
-        // === k_else(env): Not used in P0 (direct Call from loop_cond_check fallthrough) ===
-        // Kept for structural clarity in case future extensions need it
+        // === k_else(env): Reserved structural continuation ===
+        // Current branch emission uses direct loop_step/k_exit calls. Keep k_else
+        // as part of the 6-function normalized shape until a dedicated
+        // route-shape replacement changes that contract.
         // Phase 143 fix: reuse Param region IDs
         let k_else_params = main_params.clone();
         let _env_k_else = NormalizedHelperBox::build_env_map(&env_fields, &k_else_params);
         let k_else_func = {
             let f = JoinFunction::new(k_else_id, rfn::K_ELSE.to_string(), k_else_params);
-            // Empty placeholder: P0 doesn't use this function
+            // Intentionally empty reserved continuation.
             f
         };
 
