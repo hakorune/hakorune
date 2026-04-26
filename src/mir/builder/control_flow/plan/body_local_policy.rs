@@ -7,7 +7,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_route_detection::loop_condition_scope::LoopConditionScope;
+use crate::mir::loop_route_detection::support::condition_scope::LoopConditionScope;
 
 use super::body_local_policy_runner::classify_body_local_policy_route;
 pub use super::body_local_policy_types::BodyLocalRoute;

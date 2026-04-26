@@ -21,7 +21,7 @@ pub(super) fn prepare_promoted_inputs(
     inputs: &mut LoopBreakPrepInputs,
 ) -> Result<PromotePreparation, String> {
     use crate::mir::join_ir::lowering::digitpos_condition_normalizer::DigitPosConditionNormalizer;
-    use crate::mir::loop_route_detection::loop_condition_scope::LoopConditionScopeBox;
+    use crate::mir::loop_route_detection::support::condition_scope::LoopConditionScopeBox;
 
     let cond_scope = LoopConditionScopeBox::analyze(
         &inputs.loop_var_name,
@@ -35,7 +35,7 @@ pub(super) fn prepare_promoted_inputs(
         .filter(|v| {
             matches!(
                 v.scope,
-                crate::mir::loop_route_detection::loop_condition_scope::CondVarScope::LoopBodyLocal
+                crate::mir::loop_route_detection::support::condition_scope::CondVarScope::LoopBodyLocal
             )
         })
         .map(|v| v.name.clone())

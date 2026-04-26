@@ -5,7 +5,7 @@ use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::loop_route_detection::loop_body_cond_promoter::{
     ConditionPromotionResult, LoopBodyCondPromoter,
 };
-use crate::mir::loop_route_detection::loop_condition_scope::LoopConditionScope;
+use crate::mir::loop_route_detection::support::condition_scope::LoopConditionScope;
 
 use super::body_local_policy_helpers::{route_promoted_body_local, route_unpromoted_body_local};
 use super::body_local_policy_inputs::{
