@@ -144,6 +144,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-443-generic-method-route-metadata-string-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-444-generic-method-route-kind-metadata-helper-card.md
   - docs/development/current/main/phases/phase-291x/291x-445-generic-method-route-metadata-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-446-rustfmt-drift-cleanup-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -163,7 +164,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-445-generic-method-route-metadata-closeout-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-446-rustfmt-drift-cleanup-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -205,7 +206,7 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-445`
+- latest known cleanup checkpoint: `291x-446`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`

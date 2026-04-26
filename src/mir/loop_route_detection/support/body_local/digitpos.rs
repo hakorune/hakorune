@@ -222,10 +222,10 @@ impl DigitPosPromoter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::{BinaryOperator, LiteralValue, Span};
     use crate::mir::loop_route_detection::support::condition_scope::{
         CondVarScope, LoopConditionScope,
     };
-    use crate::ast::{BinaryOperator, LiteralValue, Span};
 
     fn cond_scope_with_body_locals(vars: &[&str]) -> LoopConditionScope {
         let mut scope = LoopConditionScope::new();

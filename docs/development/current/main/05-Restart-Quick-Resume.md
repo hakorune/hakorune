@@ -40,8 +40,8 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-445` closed the GenericMethodRoute metadata
-  string-thinning slice and returned to next lane selection
+- latest known checkpoint: `291x-446` cleaned up rustfmt drift so
+  `cargo fmt -- --check` is green before the next lane
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is

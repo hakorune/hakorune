@@ -44,8 +44,8 @@ Scope: current lane / next lane / restart order only.
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-445` closed the GenericMethodRoute metadata
-  string-thinning slice and returned to next lane selection
+- latest known checkpoint: `291x-446` cleaned up rustfmt drift so
+  `cargo fmt -- --check` is green before the next lane
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-445-generic-method-route-metadata-closeout-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-446-rustfmt-drift-cleanup-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
 - next: next lane selection
@@ -73,7 +73,7 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-445`; detailed landed history lives in phase card
+- latest checkpoint: `291x-446`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
 - next cleanup: next lane selection
 - normalized-shadow / normalization cleanup burst is closed; larger findings

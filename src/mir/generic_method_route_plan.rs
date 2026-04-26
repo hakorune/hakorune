@@ -1714,7 +1714,10 @@ mod tests {
             core_method.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
-        assert_eq!(route.return_shape, Some(GenericMethodReturnShape::ScalarI64));
+        assert_eq!(
+            route.return_shape,
+            Some(GenericMethodReturnShape::ScalarI64)
+        );
         assert_eq!(route.value_demand, GenericMethodValueDemand::ScalarI64);
         assert_eq!(
             route.publication_policy,
@@ -1738,7 +1741,13 @@ mod tests {
             dst: ValueId::new(2),
             src: ValueId::new(1),
         });
-        block.add_instruction(method_call(Some(5), "RuntimeDataBox", "indexOf", 2, vec![3]));
+        block.add_instruction(method_call(
+            Some(5),
+            "RuntimeDataBox",
+            "indexOf",
+            2,
+            vec![3],
+        ));
 
         refresh_function_generic_method_routes(&mut function);
 

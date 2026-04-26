@@ -84,7 +84,7 @@ pub enum AnfOutOfScopeReason {
     CondLoweringFailed(String),
 
     /// Unknown expression type
-///
+    ///
     /// Used when AST node is not recognized by plan_box (safe route decline).
     /// Example: `new SomeBox()`, `field.access`, etc.
     UnknownExpressionType,

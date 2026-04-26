@@ -70,8 +70,8 @@ impl TrimRouteInfo {
     /// - The actual host ValueId will be assigned during merge_joinir_mir_blocks
     /// - JoinInlineBoundary will handle the boundary mapping
     pub fn to_carrier_info(&self) -> crate::mir::join_ir::lowering::carrier_info::CarrierInfo {
-        use crate::mir::loop_route_detection::support::trim::TrimLoopHelper;
         use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
+        use crate::mir::loop_route_detection::support::trim::TrimLoopHelper;
         use crate::mir::ValueId;
 
         // Phase 171-C-4/5: Create CarrierInfo with promoted carrier as loop variable
@@ -126,8 +126,8 @@ impl LoopBodyCarrierPromoter {
     /// 2. TrimDetector で純粋な検出ロジックを実行
     /// 3. 昇格可能なら TrimRouteInfo を返す
     pub fn try_promote(request: &PromotionRequest) -> PromotionResult {
-        use crate::mir::loop_route_detection::support::condition_scope::CondVarScope;
         use super::trim_detector::TrimDetector;
+        use crate::mir::loop_route_detection::support::condition_scope::CondVarScope;
 
         // 1. body-local 変数を抽出
         let body_locals: Vec<&String> = request
@@ -205,11 +205,11 @@ impl LoopBodyCarrierPromoter {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::ast::{BinaryOperator, LiteralValue, Span};
     use crate::mir::loop_route_detection::support::condition_scope::{
         CondVarScope, LoopConditionScope,
     };
-    use super::*;
-    use crate::ast::{BinaryOperator, LiteralValue, Span};
     use crate::mir::BasicBlockId;
     use std::collections::{BTreeMap, BTreeSet};
 

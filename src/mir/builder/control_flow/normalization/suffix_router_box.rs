@@ -19,8 +19,8 @@
 //! - Uses NormalizationExecuteBox for execution (shared logic)
 //! - Phase 142 P0+: Statement-level normalization accepts LoopOnly only
 
-use crate::ast::ASTNode;
 use super::{NormalizationExecuteBox, NormalizationPlanBox, PlanKind};
+use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 
 /// Box-First: Suffix router for normalized shadow lowering

@@ -99,8 +99,7 @@ pub fn try_lower_if_to_joinir(
         crate::mir::join_ir_vm_bridge_dispatch::is_if_lowering_prefix_target(
             &func.signature.name,
             stage1_enabled,
-        ) ||
-        crate::mir::join_ir_vm_bridge_dispatch::is_if_lowered_function(&func.signature.name);
+        ) || crate::mir::join_ir_vm_bridge_dispatch::is_if_lowered_function(&func.signature.name);
 
     if !is_allowed {
         if debug_level >= 2 {

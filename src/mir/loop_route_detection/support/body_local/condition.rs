@@ -146,7 +146,9 @@ impl LoopBodyCondPromoter {
     /// - TrimLoopLowerer: Full lowering pipeline (detection + code generation)
     /// - LoopBodyCondPromoter: Detection + metadata only (no code generation)
     pub fn try_promote_for_condition(req: ConditionPromotionRequest) -> ConditionPromotionResult {
-        use super::digitpos::{DigitPosPromoter, DigitPosPromotionRequest, DigitPosPromotionResult};
+        use super::digitpos::{
+            DigitPosPromoter, DigitPosPromotionRequest, DigitPosPromotionResult,
+        };
         use crate::mir::loop_route_detection::support::condition_scope::CondVarScope;
 
         // P0 constraint: Need LoopScopeShape for LoopBodyCarrierPromoter
@@ -302,10 +304,10 @@ impl LoopBodyCondPromoter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::{BinaryOperator, LiteralValue, Span};
     use crate::mir::loop_route_detection::support::condition_scope::{
         CondVarScope, LoopConditionScope,
     };
-    use crate::ast::{BinaryOperator, LiteralValue, Span};
     use crate::mir::BasicBlockId;
     use std::collections::{BTreeMap, BTreeSet};
 
