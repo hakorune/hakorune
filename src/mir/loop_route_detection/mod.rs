@@ -46,7 +46,4 @@ pub use classify::classify;
 pub(crate) use features::extract_features;
 pub use features::LoopFeatures;
 pub use kind::LoopRouteKind;
-pub use legacy::{
-    function_scope_capture, loop_body_carrier_promoter, loop_body_cond_promoter,
-    loop_condition_scope,
-};
+pub use legacy::{loop_body_carrier_promoter, loop_body_cond_promoter, loop_condition_scope};
