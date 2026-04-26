@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x runtime/meta support export audit pending`
+- current blocker token: `phase-291x runtime/meta using support export quarantine pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-295` inventoried remaining `runtime/meta`
-  exports after mir-call mirror-table retirement
+- latest known checkpoint: `291x-296` audited `UsingResolver` /
+  `UsingDecision` runtime/meta support exports
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: audit `UsingResolver` / `UsingDecision` runtime/meta support
-  exports; keep `JsonShapeToMap` separate because JoinIR bridge tests name it
+- resume point: remove stale `UsingResolver` / `UsingDecision` runtime/meta
+  support exports if no caller is introduced; keep `JsonShapeToMap` separate
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-295-runtime-meta-live-table-inventory-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-296-runtime-meta-using-support-owner-audit-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: audit `UsingResolver` / `UsingDecision` support exports and decide
-  whether they are active owner paths or stale transitional utilities
+- next: quarantine/retire stale `UsingResolver` / `UsingDecision` support
+  exports and refresh the stage1 module snapshot if no caller appears
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -75,8 +75,8 @@ Scope: current lane / next lane / restart order only.
 - order: BuildBox thinning series complete; residual MapBox.has sentinel
   retired; CoreMethodContract `.inc` method/box classifier baseline is zero;
   `MirCallRoutePolicy`, `MirCallNeedPolicy`, and `MirCallSurfacePolicy`
-  exports retired; runtime/meta live table inventory landed; next cleanup is
-  support export audit
+  exports retired; runtime/meta live table inventory landed; Using support
+  owner audit landed; next cleanup is support export quarantine
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

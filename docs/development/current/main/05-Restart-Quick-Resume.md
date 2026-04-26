@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x runtime/meta support export audit pending`
+- current blocker token: `phase-291x runtime/meta using support export quarantine pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-295` inventoried remaining `runtime/meta`
-  exports after mir-call mirror-table retirement
+- latest known checkpoint: `291x-296` audited `UsingResolver` /
+  `UsingDecision` runtime/meta support exports
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- audit `UsingResolver` / `UsingDecision` runtime/meta support exports; keep
-  `JsonShapeToMap` separate because JoinIR bridge tests name it
+- remove stale `UsingResolver` / `UsingDecision` runtime/meta support exports
+  if no caller is introduced; keep `JsonShapeToMap` separate
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

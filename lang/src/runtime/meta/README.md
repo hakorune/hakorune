@@ -44,14 +44,16 @@ Rule:
 - `using_resolver.hako`
   - `UsingResolver.resolve(token)`
   - minimal meta support stub.
+  - owner-audited by `291x-296`.
   - no external `selfhost.meta.UsingResolver` user was found in the
-    `291x-295` inventory outside `UsingDecision`.
-  - audit before moving or deleting; do not confuse it with the real
-    Stage1/Pipeline using resolver boxes.
+    `291x-296` inventory outside `UsingDecision`.
+  - registered transitional support utility, not the Stage1/Pipeline using
+    resolver owner.
 - `using_decision.hako`
   - `UsingDecision.decide(token)`
   - thin wrapper over `selfhost.meta.UsingResolver`.
-  - audit together with `using_resolver.hako`.
+  - owner-audited by `291x-296`.
+  - retire together with `using_resolver.hako` if no caller appears.
 - `json_shape_parser.hako`
   - `JsonShapeToMap.parse(json)` and helper functions.
   - support / JoinIR fixture utility; `JsonShapeToMap._read_value_from_pair/1`
