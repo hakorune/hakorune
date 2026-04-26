@@ -1,6 +1,6 @@
-# Phase 145 P0: ANF (A-Normal Form) Module
+# Phase 145: ANF (A-Normal Form) Module
 
-**Status**: Skeleton implemented (P0 complete)
+**Status**: P1/P2 ANF paths active behind ANF gates
 **Date**: 2025-12-19
 **Purpose**: Deterministic evaluation order for impure expressions (Call/MethodCall)
 
@@ -16,8 +16,8 @@
 - Defines `AnfPlan` struct (requires_anf, impure_count)
 
 **Phase Scope**:
-- **P0**: Enum definitions only (not yet used in execute_box)
-- **P1+**: Add hoist_targets, parent_kind to AnfPlan
+- **P0**: Diagnostic/plan contract baseline
+- **P1+**: `hoist_targets` and `parent_kind` are active in planner/executor routing
 
 **Design Pattern**: Enum discrimination (prevents if-branch explosion)
 
@@ -30,7 +30,7 @@
 
 **Phase Scope**:
 - **P0**: Basic impure detection (Call/MethodCall presence)
-- **P1+**: Add whitelist check (e.g., String.length()), parent_kind detection
+- **P1+**: Whitelist check (e.g., String.length()), parent_kind detection
 
 **API**:
 ```rust
@@ -53,9 +53,9 @@ pub fn plan_expr(
 - Emit transformed JoinInsts
 
 **Phase Scope**:
-- **P0**: Stub only (always returns Ok(None), existing behavior unchanged)
-- **P1**: Implement String.length() hoist (whitelist 1 intrinsic)
-- **P2**: Implement recursive compound expression ANF
+- **P1**: String.length() hoist (whitelist 1 intrinsic)
+- **P2**: Recursive compound expression ANF
+- **Out-of-scope**: returns `Ok(None)` as a route decline
 
 **API**:
 ```rust
@@ -70,7 +70,7 @@ pub fn try_execute(
 
 **Returns**:
 - `Ok(Some(vid))`: ANF transformation succeeded, result is ValueId (P1+)
-- `Ok(None)`: Transformation not attempted (P0 stub) or out-of-scope
+- `Ok(None)`: Transformation not attempted or out-of-scope route decline
 - `Err(msg)`: Internal error (strict mode only, P1+)
 
 ---
@@ -85,7 +85,7 @@ if crate::config::env::anf_dev_enabled() {
     match AnfPlanBox::plan_expr(ast, env)? {
         Ok(Some(plan)) => match AnfExecuteBox::try_execute(plan, ast, env, body, next_value_id)? {
             Ok(Some(vid)) => return Ok(Some(vid)),  // P1+: ANF succeeded
-            Ok(None) => { /* out-of-scope, continue */ }  // P0: stub returns None
+            Ok(None) => { /* route decline, continue */ }
         },
         Ok(None) => { /* out-of-scope, continue */ }
         Err(reason) => { /* out-of-scope, continue */ }
@@ -94,33 +94,34 @@ if crate::config::env::anf_dev_enabled() {
 ```
 
 **Environment Variable**:
-- `HAKO_ANF_DEV=1`: Enable ANF routing (P0: debug logging only)
+- `HAKO_ANF_DEV=1`: Enable ANF routing
+- `HAKO_ANF_ALLOW_PURE=1`: Allow ANF routing from PureOnly lowering scope
 - Default: ANF routing disabled (0 impact on existing behavior)
 
 ---
 
 ## Phase Scope Summary
 
-### P0 (Skeleton) - Current Status
+### Current Implemented Surface
 
-**Goal**: Establish 3-layer architecture without changing existing behavior.
+**Goal**: Keep ANF routing explicit and gated while preserving default behavior.
 
 **Implemented**:
 - ✅ contract.rs: 3 enums (AnfDiagnosticTag, AnfOutOfScopeReason, AnfPlan)
 - ✅ plan_box.rs: AST walk with basic impure detection
-- ✅ execute_box.rs: Stub (always returns Ok(None))
+- ✅ execute_box.rs: String.length/compare hoist and recursive compound expression ANF
 - ✅ Integration: expr_lowerer_box.rs routing (dev-only, no impact)
-- ✅ Tests: 7 unit tests (contract: 2, plan: 4, execute: 1)
+- ✅ Tests: representative unit tests for contract, plan, and execute paths
 
 **Acceptance Criteria**:
-- ✅ cargo build --release passes
-- ✅ 7 unit tests pass
+- ✅ cargo check/build passes
+- ✅ representative unit tests pass
 - ✅ 0 regression (existing tests unchanged)
-- ✅ HAKO_ANF_DEV=1 debug logging works
+- ✅ HAKO_ANF_DEV=1 routing remains gated
 
-### P1 (String.length() hoist) - Next Phase
+### P1 (String.length() hoist)
 
-**Goal**: Implement ANF transformation for 1 known intrinsic (String.length()).
+**Goal**: ANF transformation for 1 known intrinsic (String.length()).
 
 **Pattern**:
 ```hako
@@ -131,18 +132,18 @@ result = x + t
 ```
 
 **Implementation**:
-- contract.rs: Add hoist_targets to AnfPlan
+- contract.rs: `hoist_targets` in AnfPlan
 - plan_box.rs: Whitelist check + BinaryOp pattern detection
-- execute_box.rs: Stub → implementation (hoist + rebuild AST + lower)
+- execute_box.rs: hoist + rebuild AST + lower
 
 **Acceptance Criteria**:
 - Fixture: `phase145_p1_anf_length_min.hako` (exit code 12)
 - VM + LLVM EXE parity
 - Whitelist enforcement (other methods → Ok(None))
 
-### P2 (Compound expression ANF) - Future Phase
+### P2 (Compound expression ANF)
 
-**Goal**: Implement recursive ANF for compound expressions (multiple MethodCalls).
+**Goal**: Recursive ANF for compound expressions (multiple MethodCalls).
 
 **Examples**:
 ```hako
@@ -161,7 +162,7 @@ result = x + t
 
 ## Testing Strategy
 
-### Unit Tests (7 total)
+### Unit Tests
 
 **contract.rs (2 tests)**:
 - `test_anf_plan_pure`: AnfPlan::pure() construction
@@ -174,7 +175,7 @@ result = x + t
 - `test_plan_call_out_of_scope`: Call → Err(ContainsCall)
 
 **execute_box.rs (1 test)**:
-- `test_execute_stub_returns_none`: P0 stub always returns Ok(None)
+- `test_execute_route_declines_without_targets`: pure/no-target plan returns `Ok(None)`
 
 ### Integration Tests (P1+)
 
@@ -208,3 +209,4 @@ result = x + t
 
 **Revision History**:
 - 2025-12-19: Phase 145 P0 skeleton implemented (contract/plan/execute separation)
+- 2026-04-27: Status wording synced to active P1/P2 executor paths

@@ -9,7 +9,7 @@
 //!
 //! - Returns `Ok(Some(plan))` if expression is in scope (pure or impure)
 //! - Returns `Ok(None)` if expression is out-of-scope (unknown AST node type)
-//! - Returns `Err(reason)` if expression is explicitly out-of-scope (e.g., nested impure in P0)
+//! - Returns `Err(reason)` if expression is explicitly out-of-scope (e.g., nested impure)
 //!
 //! ## Phase Scope
 //!
@@ -86,18 +86,18 @@ impl AnfPlanBox {
     /// ## Returns
     ///
     /// - `Ok(Some(plan))`: Expression is in scope (plan.requires_anf indicates if ANF needed)
-    /// - `Ok(None)`: Expression is out-of-scope (unknown AST node type, graceful fallback)
+    /// - `Ok(None)`: Expression is out-of-scope (unknown AST node type, route decline)
     /// - `Err(reason)`: Expression is explicitly out-of-scope (e.g., nested impure)
     ///
     /// ## Phase Scope
     ///
-    /// - **P0**: Detect Call/MethodCall only (no transformation yet)
-    /// - **P1+**: Add whitelist check, BinaryOp pattern detection
+    /// - **P0**: Detect Call/MethodCall presence
+    /// - **P1+**: Whitelist check, BinaryOp pattern detection
     pub fn plan_expr(
         ast: &ASTNode,
         _env: &BTreeMap<String, ValueId>, // P0: unused, P1+ for intrinsic detection
     ) -> Result<Option<AnfPlan>, AnfOutOfScopeReason> {
-        // P0: Basic impure detection (Call/MethodCall presence)
+        // Baseline impure detection (Call/MethodCall presence)
         match ast {
             // Pure expressions (no ANF transformation needed)
             ASTNode::Variable { .. } => Ok(Some(AnfPlan::pure())),
@@ -177,7 +177,7 @@ impl AnfPlanBox {
                     return Ok(Some(AnfPlan::with_hoists(hoist_targets, parent_kind)));
                 }
 
-                // P0 fallback: Recursively check operands for pure/impure
+                // Recursively check operands for pure/impure.
                 let left_plan = match Self::plan_expr(left, _env)? {
                     Some(p) => p,
                     None => return Ok(None), // Left out-of-scope → propagate
@@ -201,18 +201,18 @@ impl AnfPlanBox {
 
             // Impure expressions (ANF transformation candidates)
             ASTNode::FunctionCall { .. } | ASTNode::Call { .. } => {
-                // P0: Detect presence but do not transform (execute_box is stub)
+                // Direct Call remains out-of-scope for the current ANF route.
                 Err(AnfOutOfScopeReason::ContainsCall)
             }
 
             ASTNode::MethodCall { .. } => {
-                // P0: Detect presence but do not transform (execute_box is stub)
+                // Standalone MethodCall remains out-of-scope unless a parent plan hoists it.
                 Err(AnfOutOfScopeReason::ContainsMethodCall)
             }
 
             // Out-of-scope (unknown AST node types)
             _ => {
-                // P0: Unknown expression type → graceful fallback
+                // Unknown expression type -> route decline.
                 Ok(None)
             }
         }
@@ -234,7 +234,7 @@ impl AnfPlanBox {
     pub fn is_pure(ast: &ASTNode, env: &BTreeMap<String, ValueId>) -> bool {
         match Self::plan_expr(ast, env) {
             Ok(Some(plan)) => !plan.requires_anf,
-            Ok(None) => true, // Unknown → assume pure (conservative fallback)
+            Ok(None) => true, // Unknown -> no impure evidence for this query
             Err(_) => false,  // Contains Call/MethodCall → impure
         }
     }

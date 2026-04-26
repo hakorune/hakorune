@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow anf status wording cleanup pending`
+- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-422` inventoried stale normalized-shadow ANF
+- latest known checkpoint: `291x-423` cleaned stale normalized-shadow ANF
   status wording
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- clean stale normalized-shadow ANF status wording without changing ANF routing
-  or accepted expression shapes
+- inventory the next compiler-cleanliness seam after normalized-shadow ANF
+  status wording cleanup
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

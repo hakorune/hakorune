@@ -81,7 +81,7 @@ impl NormalizedExprLowererBox {
                             None => {
                                 if crate::config::env::joinir_dev_enabled() {
                                     get_global_ring0().log.debug(
-                                        "[phase145/debug] ANF plan found but execute returned None (P0 stub)",
+                                        "[phase145/debug] ANF plan found but execute returned None (route decline)",
                                     );
                                 }
                             }

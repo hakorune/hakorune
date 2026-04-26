@@ -4,21 +4,21 @@
 //!
 //! Defines the contract for ANF transformation in Normalized JoinIR:
 //! - **AnfDiagnosticTag**: Diagnostic categories for ANF violations
-//! - **AnfOutOfScopeReason**: Explicit out-of-scope cases (graceful Ok(None) fallback)
+//! - **AnfOutOfScopeReason**: Explicit out-of-scope route-decline cases
 //! - **AnfPlan**: What ANF transformation is needed (requires_anf?, impure_count?)
 //!
 //! ## Design Principle (Box-First)
 //!
 //! **Enum discrimination** prevents branching explosion:
-//! - P0: Skeleton only (no actual transformation)
+//! - P0: Contract/planner baseline
 //! - P1: Add whitelist check + BinaryOp pattern detection
 //! - P2: Add recursive processing for compound expressions
 //! - **No nested if-statements**: Each out-of-scope case = enum variant
 //!
 //! ## Phase Scope
 //!
-//! - **P0**: Contract definition only (execute_box is stub)
-//! - **P1+**: Add hoist_targets, parent_kind to AnfPlan
+//! - **P0**: Contract definition baseline
+//! - **P1+**: `hoist_targets` and `parent_kind` are active in ANF routing
 
 /// Diagnostic tag for ANF-related errors (SSOT for error categorization)
 ///
@@ -27,8 +27,8 @@
 ///
 /// ## Phase Scope
 ///
-/// - **P0**: Enum definition only (not yet used in execute_box)
-/// - **P1+**: Used in error_tags.rs helper functions
+/// - **P0**: Enum definition baseline
+/// - **P1+**: Available to ANF pipeline diagnostics
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AnfDiagnosticTag {
     /// Order violation: Impure expression in immediate position
@@ -50,11 +50,11 @@ pub enum AnfDiagnosticTag {
     HoistFailed,
 }
 
-/// Out-of-scope reason for ANF transformation (graceful Ok(None) fallback)
+/// Out-of-scope reason for ANF transformation (`Ok(None)` route decline)
 ///
 /// Each variant represents a specific case where ANF transformation is not applicable.
-/// Lowering code matches on these to determine whether to fall back to Ok(None) (graceful)
-/// or return an error (internal mistake).
+/// Lowering code matches on these to determine whether to decline the ANF route
+/// with `Ok(None)` or return an error for an internal mistake.
 ///
 /// ## Phase Scope
 ///
@@ -83,9 +83,9 @@ pub enum AnfOutOfScopeReason {
     /// Example: `loop(s.length() > 0) { ... }` (impure in loop condition)
     CondLoweringFailed(String),
 
-    /// P0 catch-all: Unknown expression type
-    ///
-    /// Used when AST node is not recognized by plan_box (safe fallback).
+    /// Unknown expression type
+///
+    /// Used when AST node is not recognized by plan_box (safe route decline).
     /// Example: `new SomeBox()`, `field.access`, etc.
     UnknownExpressionType,
 }

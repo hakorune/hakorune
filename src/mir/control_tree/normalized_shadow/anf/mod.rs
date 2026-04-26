@@ -9,19 +9,19 @@
 //!
 //! - **contract.rs**: Diagnostic tags, out-of-scope reasons, plan structure (SSOT)
 //! - **plan_box.rs**: AST pattern detection (requires_anf?, impure_count?)
-//! - **execute_box.rs**: ANF transformation execution (P0: stub, P1+: implementation)
+//! - **execute_box.rs**: ANF transformation execution (P1/P2 active; out-of-scope route declines)
 //!
 //! ## Phase Scope
 //!
-//! - **P0**: Skeleton only (execute_box always returns Ok(None))
+//! - **P0**: Contract/planner baseline
 //! - **P1**: String.length() hoist (whitelist 1 intrinsic)
 //! - **P2**: Compound expression ANF (recursive left-to-right linearization)
 //!
 //! ## Contract
 //!
-//! - Out-of-scope returns Ok(None) (graceful fallback)
-//! - Default behavior unchanged (P0 is non-invasive skeleton)
-//! - Strict mode (HAKO_ANF_DEV=1): Debug logging only (P0 has no fail-fast)
+//! - Out-of-scope returns Ok(None) as route decline
+//! - Default behavior remains gated/non-invasive
+//! - Strict/dev surfaces existing executor errors without widening accepted shapes
 
 pub mod contract;
 pub mod execute_box;

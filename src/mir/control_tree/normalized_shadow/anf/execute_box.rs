@@ -8,12 +8,11 @@
 //! ## Contract
 //!
 //! - Returns `Ok(Some(vid))` if ANF transformation succeeded (P1+)
-//! - Returns `Ok(None)` if transformation not attempted or failed gracefully
+//! - Returns `Ok(None)` if transformation was not attempted or route-declined
 //! - Returns `Err(msg)` only in strict mode for internal errors
 //!
 //! ## Phase Scope
 //!
-//! - **P0**: Stub only (always returns Ok(None), existing behavior unchanged)
 //! - **P1**: Implement String.length() hoist for BinaryOp (whitelist 1 intrinsic)
 //! - **P2**: Implement recursive compound expression ANF
 
@@ -46,7 +45,7 @@ impl AnfExecuteBox {
     ///
     /// ## Phase Scope
     ///
-    /// - **P0**: Always returns Ok(None) (existing behavior unchanged)
+    /// - **Out-of-scope**: returns `Ok(None)` as route decline
     /// - **P1**: Implement String.length() hoist for BinaryOp
     /// - **P2**: Implement recursive ANF for compound expressions
     pub fn try_execute(
@@ -491,8 +490,8 @@ mod tests {
     }
 
     #[test]
-    fn test_execute_stub_returns_none() {
-        // P0: execute_box is stub, always returns Ok(None)
+    fn test_execute_route_declines_without_targets() {
+        // A pure/no-target plan is not an executor-owned ANF route.
         let plan = AnfPlan::pure();
         let ast = ASTNode::Literal {
             value: LiteralValue::Integer(42),
