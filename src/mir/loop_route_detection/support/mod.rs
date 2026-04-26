@@ -1,24 +1,13 @@
-//! Stable semantic facades for route detector support modules.
+//! Stable semantic owner modules for route detector support.
 //!
-//! This module owns non-legacy caller paths. The current implementation still
-//! lives in private `legacy/` storage; callers should depend on these semantic
-//! facades so physical file moves can happen later without widening `legacy`.
+//! This module owns non-legacy caller paths. Keep new callers on these semantic
+//! paths instead of reintroducing historical implementation names.
 
 /// Break-condition structural analysis support.
 pub mod break_condition;
 
 /// Loop-body local promotion support.
-pub mod body_local {
-    /// Carrier promotion support.
-    pub mod carrier {
-        pub use crate::mir::loop_route_detection::legacy::loop_body_carrier_promoter::*;
-    }
-
-    /// Condition promotion support.
-    pub mod condition {
-        pub use crate::mir::loop_route_detection::legacy::loop_body_cond_promoter::*;
-    }
-}
+pub mod body_local;
 
 /// Condition-scope analysis support.
 pub mod condition_scope;

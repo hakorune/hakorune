@@ -29,8 +29,8 @@
 //!
 //! Reference: docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md
 //!
-//! Implementation-backed legacy support modules live under private `legacy/`
-//! storage. Stable support owner paths are exposed through `support/`.
+//! Implementation-backed support modules live under stable semantic owner paths
+//! in `support/`.
 //!
 //! Current route selection should use `classify`, `LoopFeatures`, and
 //! `LoopRouteKind`, not legacy route-shape function entry points.
@@ -38,7 +38,6 @@
 mod classify;
 mod features;
 mod kind;
-mod legacy;
 pub mod support;
 
 pub use classify::classify;

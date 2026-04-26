@@ -24,9 +24,7 @@
 //! - Condition: Simple equality chain (e.g., `ch == " " || ch == "\t"`)
 //! - Route shape: identical to existing trim route
 
-use super::loop_body_carrier_promoter::{
-    LoopBodyCarrierPromoter, PromotionRequest, PromotionResult,
-};
+use super::carrier::{LoopBodyCarrierPromoter, PromotionRequest, PromotionResult};
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
@@ -148,9 +146,7 @@ impl LoopBodyCondPromoter {
     /// - TrimLoopLowerer: Full lowering pipeline (detection + code generation)
     /// - LoopBodyCondPromoter: Detection + metadata only (no code generation)
     pub fn try_promote_for_condition(req: ConditionPromotionRequest) -> ConditionPromotionResult {
-        use super::loop_body_digitpos_promoter::{
-            DigitPosPromoter, DigitPosPromotionRequest, DigitPosPromotionResult,
-        };
+        use super::digitpos::{DigitPosPromoter, DigitPosPromotionRequest, DigitPosPromotionResult};
         use crate::mir::loop_route_detection::support::condition_scope::CondVarScope;
 
         // P0 constraint: Need LoopScopeShape for LoopBodyCarrierPromoter
