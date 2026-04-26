@@ -14,7 +14,7 @@ use crate::tests::helpers::joinir_frontend::JoinIrFrontendTestRunner;
 #[test]
 fn joinir_frontend_if_select_simple_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/joinir_if_select_simple.program.json",
+        "tests/fixtures/joinir_frontend/joinir_if_select_simple.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -33,7 +33,7 @@ fn joinir_frontend_if_select_simple_ab_test() {
 #[test]
 fn joinir_frontend_if_select_local_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/joinir_if_select_local.program.json",
+        "tests/fixtures/joinir_frontend/joinir_if_select_local.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -52,7 +52,7 @@ fn joinir_frontend_if_select_local_ab_test() {
 #[test]
 fn joinir_frontend_json_shape_read_value_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/json_shape_read_value.program.json",
+        "tests/fixtures/joinir_frontend/json_shape_read_value.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -77,7 +77,7 @@ fn joinir_frontend_json_shape_read_value_ab_test() {
 #[test]
 fn joinir_frontend_loop_simple_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/loop_frontend_simple.program.json",
+        "tests/fixtures/joinir_frontend/loop_frontend_simple.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -97,7 +97,7 @@ fn joinir_frontend_loop_simple_ab_test() {
 #[test]
 fn joinir_frontend_loop_break_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/loop_frontend_break.program.json",
+        "tests/fixtures/joinir_frontend/loop_frontend_break.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -117,7 +117,7 @@ fn joinir_frontend_loop_break_ab_test() {
 #[test]
 fn joinir_frontend_loop_continue_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/loop_frontend_continue.program.json",
+        "tests/fixtures/joinir_frontend/loop_frontend_continue.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")

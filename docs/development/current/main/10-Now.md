@@ -20,22 +20,22 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JsonShapeToMap support quarantine pending`
+- current blocker token: `phase-291x runtime/meta root closeout pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- quarantine `JsonShapeToMap` under a support path while preserving
-  `selfhost.meta.JsonShapeToMap` and
-  `JsonShapeToMap._read_value_from_pair/1`
-- cleanup checkpoint: latest known landed card `291x-298`; BuildBox thinning,
+- close out the runtime/meta root split and verify only semantic contract
+  owner material remains at the root
+- cleanup checkpoint: latest known landed card `291x-299`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
   closed; SurfacePolicy owner audit and export retirement are closed;
   runtime/meta live table inventory and Using support owner audit/export
-  retirement are closed; JsonShapeToMap owner audit is closed
+  retirement are closed; JsonShapeToMap owner audit/support quarantine is
+  closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

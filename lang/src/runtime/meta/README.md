@@ -41,14 +41,15 @@ Rule:
 
 ## Active Support Exports
 
-- `json_shape_parser.hako`
+- `support/json_shape_parser.hako`
   - `JsonShapeToMap.parse(json)` and helper functions.
   - owner-audited by `291x-298`.
+  - quarantined under `support/` by `291x-299`.
   - active support / JoinIR fixture utility, not a compiler semantic contract
     table.
   - `JsonShapeToMap._read_value_from_pair/1` is referenced by JoinIR bridge
     dispatch and frontend tests.
-  - quarantine under a support path before considering any deletion.
+  - delete only after the bridge/frontend caller count reaches zero.
 
 ## Retired Modules
 

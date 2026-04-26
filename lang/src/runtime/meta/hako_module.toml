@@ -3,5 +3,5 @@ name = "selfhost.meta"
 version = "1.0.0"
 
 [exports]
-JsonShapeToMap = "json_shape_parser.hako"
+JsonShapeToMap = "support/json_shape_parser.hako"
 CoreMethodContract = "core_method_contract_box.hako"

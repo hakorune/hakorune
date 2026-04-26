@@ -1,4 +1,4 @@
-// JsonShapeToMap — minimal, opt‑in JSON→Map builder for Using shape (skeleton)
+// JsonShapeToMap — minimal, opt-in JSON->Map builder for Using shape (skeleton)
 // Note: This is a very small adapter intended for controlled inputs produced by
 // UsingResolver.shape/1. It does not implement a general JSON parser.
 

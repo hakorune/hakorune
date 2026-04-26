@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JsonShapeToMap support quarantine pending`
+- current blocker token: `phase-291x runtime/meta root closeout pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-298` audited `JsonShapeToMap` as an active
-  JoinIR fixture/support export, not stale semantic-table debt
+- latest known checkpoint: `291x-299` quarantined `JsonShapeToMap` under
+  `runtime/meta/support` while preserving the public export and bridge function
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,9 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- quarantine `JsonShapeToMap` under a support path while preserving
-  `selfhost.meta.JsonShapeToMap` and
-  `JsonShapeToMap._read_value_from_pair/1`
+- close out the runtime/meta root split and verify only semantic contract
+  owner material remains at the root
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
