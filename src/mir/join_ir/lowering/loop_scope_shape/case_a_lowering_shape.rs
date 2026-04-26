@@ -92,8 +92,8 @@ impl CaseALoweringShape {
     /// This is the core architectural invariant that enables generic routing.
     ///
     /// # Heuristics
-    /// - Single carrier (1) → likely StringExamination or ArrayAccumulation
-    /// - Multiple carriers (2+) → likely IterationWithAccumulation
+    /// - Carrier count alone is not enough to select a specialized lowerer.
+    /// - Use `detect_with_updates()` when observed update metadata exists.
     /// - has_break/has_continue → affects Case-A eligibility
     ///
     /// # Phase 170-C Future Work
@@ -120,87 +120,14 @@ impl CaseALoweringShape {
             return CaseALoweringShape::NotCaseA;
         }
 
-        // Phase 170-A: Simple heuristic based on carrier count
+        // Carrier count alone is not update-shape proof. Keep recognized
+        // lowerer selection on observed update metadata or descriptor fallback.
         match carrier_count {
             0 => {
                 // This shouldn't happen if has_progress_carrier is true, but be safe
                 CaseALoweringShape::NotCaseA
             }
-            1 => {
-                // Single carrier: could be StringExamination or ArrayAccumulation
-                // Further distinction requires analyzing loop body (Phase 170-C)
-                // For now, return Generic to allow both paths to be tried
-                CaseALoweringShape::Generic
-            }
-            2.. => {
-                // Multiple carriers: likely Iteration with accumulation
-                // (progress carrier + accumulator)
-                CaseALoweringShape::IterationWithAccumulation
-            }
-        }
-    }
-
-    /// Phase 170-C-1: Carrier pattern を使った精度向上版
-    ///
-    /// carrier_count == 1 の場合に carrier 名パターンで StringExamination vs ArrayAccumulation を区別
-    ///
-    /// # Design Notes
-    ///
-    /// 本来は LoopUpdateAnalyzer を使って AST レベルの更新式を解析する予定だったが、
-    /// loop_to_join.rs は MIR レベルで動作するため AST にアクセスできない。
-    ///
-    /// そのため、Phase 170-C-1 では以下の簡易的なヒューリスティックを使用：
-    /// - progress carrier の名前が 'i', 'e', 'idx' などの典型的なインデックス名 → StringExamination
-    /// - それ以外 → ArrayAccumulation
-    ///
-    /// # Future Work (Phase 170-C-2+)
-    ///
-    /// - MIR 命令を解析して更新パターンを抽出（BinOp の定数加算パターンなど）
-    /// - より正確な分類を実現
-    ///
-    /// # Arguments
-    /// * `features` - LoopFeatures (structure-based)
-    /// * `carrier_count` - Number of carrier variables
-    /// * `has_progress_carrier` - Whether progress carrier exists
-    /// * `progress_carrier_name` - Name of progress carrier (if available)
-    ///
-    /// # Returns
-    /// More precise CaseALoweringShape classification
-    #[allow(dead_code)]
-    pub fn detect_with_carrier_name(
-        features: &crate::mir::loop_route_detection::LoopFeatures,
-        carrier_count: usize,
-        has_progress_carrier: bool,
-        progress_carrier_name: Option<&str>,
-    ) -> Self {
-        // Case-A requirement: must have a progress carrier
-        if !has_progress_carrier {
-            return CaseALoweringShape::NotCaseA;
-        }
-
-        // Case-A requirement: no complex control flow (continue)
-        if features.has_continue {
-            return CaseALoweringShape::NotCaseA;
-        }
-
-        match carrier_count {
-            0 => CaseALoweringShape::NotCaseA,
-            1 => {
-                // Phase 170-C-1: carrier 名パターンで StringExamination vs ArrayAccumulation を区別
-                if let Some(name) = progress_carrier_name {
-                    if Self::is_typical_index_name(name) {
-                        // 'i', 'e', 'idx' などの典型的なインデックス名 → StringExamination (skip/trim 系)
-                        CaseALoweringShape::StringExamination
-                    } else {
-                        // それ以外 → ArrayAccumulation
-                        CaseALoweringShape::ArrayAccumulation
-                    }
-                } else {
-                    // carrier 名が不明な場合は Generic（従来通り）
-                    CaseALoweringShape::Generic
-                }
-            }
-            2.. => CaseALoweringShape::IterationWithAccumulation,
+            _ => CaseALoweringShape::Generic,
         }
     }
 
@@ -254,33 +181,11 @@ impl CaseALoweringShape {
                 }
             }
 
-            // Multiple carriers without clear accumulation → IterationWithAccumulation
-            if carrier_count >= 2 {
-                return CaseALoweringShape::IterationWithAccumulation;
-            }
+            // No accumulation proof: keep shape generic. Exact known targets
+            // continue through Case-A descriptor fallback.
         }
 
-        // Fallback to carrier count heuristic
-        match carrier_count {
-            0 => CaseALoweringShape::NotCaseA,
-            1 => CaseALoweringShape::Generic,
-            2.. => CaseALoweringShape::IterationWithAccumulation,
-        }
-    }
-
-    /// Typical index variable name detection
-    ///
-    /// StringExamination パターン（skip/trim）で使われる典型的なインデックス名：
-    /// - 'i', 'e', 'idx', 'pos', 'start', 'end'
-    ///
-    /// ArrayAccumulation パターンは通常：
-    /// - より意味のある名前 ('result', 'items', 'defs' など)
-    #[allow(dead_code)]
-    fn is_typical_index_name(name: &str) -> bool {
-        matches!(
-            name,
-            "i" | "e" | "idx" | "index" | "pos" | "position" | "start" | "end"
-        )
+        Self::detect_from_features(features, carrier_count, has_progress_carrier)
     }
 
     /// Legacy wrapper: Detect from LoopScopeShape (deprecated, use detect_from_features)
@@ -332,6 +237,9 @@ impl CaseALoweringShape {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::join_ir::lowering::loop_update_summary::{
+        CarrierUpdateInfo, LoopUpdateSummary, UpdateKind,
+    };
     use crate::mir::BasicBlockId;
     use std::collections::{BTreeMap, BTreeSet};
 
@@ -388,6 +296,65 @@ mod tests {
         assert_eq!(
             CaseALoweringShape::detect(&scope),
             CaseALoweringShape::Generic
+        );
+    }
+
+    fn features_with_update_summary(
+        updates: Vec<(&str, UpdateKind)>,
+    ) -> crate::mir::loop_route_detection::LoopFeatures {
+        crate::mir::loop_route_detection::LoopFeatures {
+            carrier_count: updates.len(),
+            update_summary: Some(LoopUpdateSummary {
+                carriers: updates
+                    .into_iter()
+                    .map(|(name, kind)| CarrierUpdateInfo {
+                        name: name.to_string(),
+                        kind,
+                        then_expr: None,
+                        else_expr: None,
+                    })
+                    .collect(),
+            }),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn case_a_carrier_count_without_update_proof_stays_generic() {
+        let features = crate::mir::loop_route_detection::LoopFeatures {
+            carrier_count: 2,
+            ..Default::default()
+        };
+
+        assert_eq!(
+            CaseALoweringShape::detect_from_features(&features, 2, true),
+            CaseALoweringShape::Generic
+        );
+    }
+
+    #[test]
+    fn case_a_carrier_count_with_unclear_summary_stays_generic() {
+        let features = features_with_update_summary(vec![
+            ("i", UpdateKind::CounterLike),
+            ("value", UpdateKind::Other),
+        ]);
+
+        assert_eq!(
+            CaseALoweringShape::detect_with_updates(&features, 2, true),
+            CaseALoweringShape::Generic
+        );
+    }
+
+    #[test]
+    fn case_a_carrier_count_with_accumulation_proof_selects_iteration() {
+        let features = features_with_update_summary(vec![
+            ("i", UpdateKind::CounterLike),
+            ("sum", UpdateKind::AccumulationLike),
+        ]);
+
+        assert_eq!(
+            CaseALoweringShape::detect_with_updates(&features, 2, true),
+            CaseALoweringShape::IterationWithAccumulation
         );
     }
 }

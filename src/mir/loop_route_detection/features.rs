@@ -42,7 +42,7 @@ pub struct LoopFeatures {
     ///
     /// Contains UpdateKind (CounterLike/AccumulationLike/Other) for each carrier.
     /// Used by CaseALoweringShape for more precise shape detection.
-    /// None if carrier names are not available.
+    /// None if no AST/MIR update observation has populated it.
     pub update_summary:
         Option<crate::mir::join_ir::lowering::loop_update_summary::LoopUpdateSummary>,
 }
