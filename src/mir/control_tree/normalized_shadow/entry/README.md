@@ -7,8 +7,8 @@ This subtree owns narrow route-entry facades for normalized-shadow lowering.
 - Entry modules expose route intent, not storage history.
 - Do not perform route priority selection here; `builder.rs` owns route order.
 - Do not add new StepTree shape acceptance here.
-- Implementation may delegate to quarantined compatibility modules while a
-  physical move is in progress.
+- Keep implementation local to the entry owner unless a separate support module
+  has a clearer semantic owner.
 
 ## Current Entries
 

@@ -39,7 +39,6 @@ pub(crate) mod entry;
 pub mod env_layout;
 pub mod exit_reconnector; // Phase 131 P1.5: Direct variable_map reconnection (Option B)
 pub mod if_as_last_join_k;
-pub mod legacy;
 pub mod loop_true_break_once; // Phase 131: loop(true) break-once
 mod loop_true_break_once_helpers;
 pub mod loop_true_if_break_continue; // Phase 143 P0: loop(true) + if + break

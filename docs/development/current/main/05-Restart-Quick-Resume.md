@@ -33,16 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow legacy physical storage move pending`
+- current blocker token: `phase-291x normalized-shadow stale legacy wording inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-402` inventoried remaining normalized-shadow
-  legacy storage and selected moving the implementation into `entry::if_only`
-  as the next BoxShape seam
+- latest known checkpoint: `291x-403` moved the normalized-shadow baseline
+  if-only implementation into `entry::if_only` and removed the legacy module
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -50,8 +49,7 @@ cargo check -q
 
 ## Immediate Next
 
-- move `normalized_shadow/legacy/mod.rs` implementation into
-  `entry/if_only.rs` and remove `pub mod legacy`
+- inventory stale "fallback to legacy" wording in normalized-shadow comments/docs
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

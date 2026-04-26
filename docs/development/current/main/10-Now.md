@@ -20,15 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow legacy physical storage move pending`
+- current blocker token: `phase-291x normalized-shadow stale legacy wording inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- move `normalized_shadow/legacy/mod.rs` implementation into
-  `entry/if_only.rs` and remove `pub mod legacy`
-- cleanup checkpoint: latest known landed card `291x-402`; detailed closed
+- inventory stale "fallback to legacy" wording in normalized-shadow comments/docs
+- cleanup checkpoint: latest known landed card `291x-403`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

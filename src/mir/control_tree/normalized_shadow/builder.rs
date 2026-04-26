@@ -16,10 +16,10 @@
 //! - Returns None for out-of-scope patterns
 //! - Returns Err for patterns that should be supported but conversion failed
 
+use crate::mir::control_tree::normalized_shadow::entry::if_only;
 use crate::mir::control_tree::normalized_shadow::env_layout::{
     expected_env_field_count as calc_expected_env_fields, EnvLayout,
 };
-use crate::mir::control_tree::normalized_shadow::entry::if_only;
 use crate::mir::control_tree::normalized_shadow::if_as_last_join_k::IfAsLastJoinKLowererBox;
 use crate::mir::control_tree::normalized_shadow::loop_true_break_once::LoopTrueBreakOnceBuilderBox; // Phase 131
 use crate::mir::control_tree::normalized_shadow::loop_true_if_break_continue::LoopTrueIfBreakContinueBuilderBox; // Phase 143 P0
