@@ -10,7 +10,7 @@
 //! ## Contract
 //!
 //! - Returns Ok(Some(consumed)): Successfully processed remaining[..consumed]
-//! - Returns Ok(None): Shape not matched, use default behavior
+//! - Returns Ok(None): Shape not matched; caller continues default behavior
 //! - Returns Err(_): Internal error
 //!
 //! ## Design (Phase 134 P0, updated Phase 142 P0)
@@ -35,7 +35,7 @@ impl NormalizedShadowSuffixRouterBox {
     ///
     /// Returns:
     /// - Ok(Some(consumed)): Successfully processed remaining[..consumed]
-    /// - Ok(None): Shape not matched, use default behavior
+    /// - Ok(None): Shape not matched; caller continues default behavior
     /// - Err(_): Internal error
     pub fn try_lower_loop_suffix(
         builder: &mut MirBuilder,
@@ -112,7 +112,7 @@ impl NormalizedShadowSuffixRouterBox {
                     ));
                 }
                 trace.routing("suffix_router/error", func_name, &e);
-                Ok(None) // Non-strict: fallback
+                Ok(None) // Non-strict: decline route, keep caller default path available
             }
         }
     }

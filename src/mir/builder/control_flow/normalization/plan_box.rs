@@ -9,7 +9,7 @@
 //! ## Contract
 //!
 //! - Returns Ok(Some(plan)): Shape detected, proceed with normalization
-//! - Returns Ok(None): Not a normalized shape, use legacy fallback
+//! - Returns Ok(None): Not a normalized shape; caller continues default lowering
 //! - Returns Err(_): Internal error (malformed AST)
 
 use super::plan::NormalizationPlan;
@@ -27,7 +27,7 @@ impl NormalizationPlanBox {
     ///
     /// Returns:
     /// - Ok(Some(plan)): Normalized-eligible shape detected
-    /// - Ok(None): Not a normalized shape (use legacy)
+    /// - Ok(None): Not a normalized shape (route decline to caller default)
     /// - Err(_): Internal error
     pub fn plan_block_suffix(
         _builder: &MirBuilder,

@@ -18,7 +18,7 @@ Consolidate the two separate entry points for Normalized shadow processing into 
 
 1. **Before**: Dual entry points with scattered responsibility
    - `try_normalized_shadow()` in routing.rs
-  - `suffix_router_box` under normalization
+   - `suffix_router_box` under normalization
    - Decision logic ("what to lower") is duplicated and inconsistent
 
 2. **After**: Single decision point using Box-First architecture
@@ -85,14 +85,15 @@ pub enum PlanKind {
 - STRICT mode (JOINIR_DEV_STRICT) treats contract violations as panics
 - Clear error messages with hints for debugging
 
-### Legacy Preservation
+### Default Path Preservation
 - Existing behavior unchanged (dev-only guard)
-- Non-normalized shapes return `Ok(None)` → legacy fallback
+- Non-normalized shapes return `Ok(None)` so the caller continues default MIR
+  lowering
 - No breaking changes to existing smokes
 
 #### Removal conditions (SSOT)
 
-この legacy fallback は “残す理由/撤去条件” をキャンペーンSSOTで固定する（設計の迷走防止）。
+この default-path decline は “残す理由/撤去条件” をキャンペーンSSOTで固定する（設計の迷走防止）。
 - SSOT: `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`（Cleanliness Wave 3 / Normalization fallback）
 
 ---
@@ -134,7 +135,7 @@ pub enum PlanKind {
 
 **Returns**:
 - `Ok(Some(plan))`: Shape detected, plan specifies what to do
-- `Ok(None)`: Not a normalized shape, use legacy fallback
+- `Ok(None)`: Not a normalized shape; caller continues default MIR lowering
 - `Err(msg)`: Internal error (should not happen in well-formed AST)
 
 **Invariants**:
@@ -164,11 +165,11 @@ pub enum PlanKind {
 
 ### routing.rs
 - `try_normalized_shadow()`: Call PlanBox, if LoopOnly → ExecuteBox, return ValueId
-- Legacy path: If PlanBox returns None, continue with existing fallback
+- Default path: If PlanBox returns None, continue with existing MIR lowering
 
 ### suffix_router_box.rs
 - `try_lower_loop_suffix()`: Call PlanBox, if LoopOnly → ExecuteBox, return consumed
-- Legacy path: If PlanBox returns None, return None (existing behavior)
+- Default path: If PlanBox returns None, return None (existing behavior)
 
 ### build_block() (stmts.rs)
 - Existing while loop unchanged
