@@ -91,7 +91,9 @@ impl StepTreeNormalizedShadowLowererBox {
             return Ok(Some((module, meta)));
         }
 
-        // Baseline if-only entry (Phase 123-128 scope)
+        // Fossil baseline if-only entry (Phase 123-128 scope).
+        // New shapes should get a new route before this call; do not widen the
+        // historical placeholder/then-branch behavior here.
         if_only::lower_if_only_to_normalized(step_tree, &env_layout)
     }
 

@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow if-only fossil boundary note pending`
+- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- add fossil-boundary notes for the normalized-shadow if-only baseline without
-  changing placeholder/branch semantics
-- cleanup checkpoint: latest known landed card `291x-428`; detailed closed
+- inventory the next compiler-cleanliness seam after normalized-shadow if-only
+  fossil boundary note
+- cleanup checkpoint: latest known landed card `291x-429`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

@@ -1,4 +1,12 @@
 //! Baseline if-only normalized-shadow entry.
+//!
+//! Fossil boundary:
+//! - This is the historical Phase 123-128 baseline route.
+//! - Newer normalized-shadow routes run before this entry in `builder.rs`.
+//! - The compare-LHS placeholder and simplified then-branch emission are part
+//!   of this baseline contract. Do not silently "fix" them in cleanup cards.
+//! - Replace this baseline only with a dedicated route-replacement card and
+//!   archived-smoke expectation updates.
 
 use crate::mir::control_tree::normalized_shadow::env_layout::EnvLayout;
 use crate::mir::control_tree::normalized_shadow::support::expr_lowering;
@@ -223,9 +231,9 @@ fn lower_if_node(
             verify_branch_is_return_literal(else_br)?;
         }
 
-        // For Phase 123-124, we generate a simplified structure:
-        // The actual branching logic will be added in future phases
-        // For now, just emit the then branch return
+        // Fossil baseline: Phase 123-124 emits the simplified then branch.
+        // Preserve this until a dedicated route-replacement card updates the
+        // archived smoke expectations.
         lower_return_from_tree(then_branch, body, next_value_id, env, contract)?;
 
         Ok(())
