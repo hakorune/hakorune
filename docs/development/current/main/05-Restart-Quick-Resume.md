@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x current pointer thinning pending`
+- current blocker token: `phase-291x JoinIR simple-while main route gate inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-315` made Case-A wrapper context labels
-  consume the descriptor table while keeping Stage-B bridge labels local
+- latest known checkpoint: `291x-316` moved stale-pointer guard fixtures out
+  of `CURRENT_STATE.toml` and thinned current/restart mirrors
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- thin current pointer mirrors; keep `CURRENT_STATE.toml` compact and remove
-  stale/redundant latest-card mirrors
+- inventory `LoopViewBuilder` simple-while `main` route gate before any code
+  change; classify it as routing policy, not debug/label text
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

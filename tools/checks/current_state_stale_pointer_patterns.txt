@@ -1,0 +1,108 @@
+# Patterns that must not reappear in current/restart docs.
+# Keep this guard-owned fixture out of CURRENT_STATE.toml so the state file
+# stays a compact pointer, not a ledger.
+MapBox post-contract next-slice selection
+current implementation focus: MapBox post-contract next-slice selection
+ArrayBox.insert(index, value) = missing runtime surface
+ArrayBox.remove(index) = runtime exists, but std/docs/smoke surface is still thin
+phase-137x-H owner-first optimization return
+active app slice: `apps/kilo_nyash/enhanced_kilo_editor.hako`
+phase-290x ArrayBox surface canonicalization active
+current-state token: `phase-290x ArrayBox surface canonicalization`
+phase-291x CoreBox MapBox contract-first cleanup
+phase-291x MapBox element publication landed — next app card selection pending
+StringBox surface truth is split across runtime surface, dispatch, std sugar, and docs
+current implementation focus: `.hako` MapBox extended-route cleanup decision after safe stub deletions
+active cleanup card is `docs/development/current/main/phases/phase-291x/291x-95-mapbox-hako-extended-route-cleanup-card.md`
+move generic method route policy to MIR metadata
+hako ll/provider stack overflow blocks minimal path deletion
+retry pure_compile_minimal_paths #1/#2 deletion
+pure_compile_minimal_paths Map/Array path cleanup
+pure_compile_minimal_paths String const-eval decision
+guard is 4 files / 7 debt lines
+remaining 7 guard lines
+guard is 3 files / 4 debt lines
+3 `.inc` files / 4 analysis-debt lines
+guard is 3 files / 3 debt lines
+3 `.inc` files / 3 analysis-debt lines
+current-state token: `phase-292x .inc codegen thin tag cleanup`
+current implementation focus: generic pure walker view extraction
+active cleanup card is `292x-118-generic-pure-walker-view-extraction-card.md`
+291x-102 MapBox keys/values element publication — gate 1 landed, slice 3 open
+291x-102 slice 3 (map_state_core_box element publication + acceptance smoke) is open
+phase-291x StringBox lastIndexOf start-position landed — next app card selection pending
+phase-291x MapBox delete/remove router promotion landed — next app card selection pending
+phase-291x ArrayBox element-result publication active
+phase-291x 291x-107 String semantic owner cleanup active
+current implementation focus: `291x-107` String semantic owner cleanup
+current implementation focus: alias SSOT cleanup
+phase-291x alias SSOT cleanup pending
+phase-291x Map compat/source cleanup pending
+ArrayBox element-result publication active
+active Array generic element-result publication
+phase-291x Stage-B parser scanner guard landed - next cleanup card selection pending
+phase-291x successor cleanup card selection pending
+rank the next phase-291x cleanup card after 291x-112 landed
+phase-291x Hotline/CoreMethodContract task plan landed - CoreMethodContract SSOT seed pending
+phase-291x CoreMethodContract seed landed - generated metadata and no-growth guard pending
+phase-291x CoreMethodContract manifest landed - .inc no-growth guard pending
+phase-291x CoreMethodContract .inc no-growth guard landed - one-family MIR CoreMethodOp carrier pending
+phase-291x CoreMethodOp carrier landed - .inc consumer slice pending
+phase-291x CoreMethod has consumer landed - LoweringTier metadata pending
+phase-291x LoweringTier metadata landed - evidence-backed hot lowering pending
+phase-291x HCM7 preflight landed - receiver-origin CoreMethod route proof pending
+phase-291x receiver-origin proof landed - key-route value-demand proof pending
+phase-291x key-route proof landed - MapHas promotion evidence gate pending
+phase-291x MapHas i64 route landed - MapGet value-demand seam pending
+phase-291x MapGet metadata-only landed - scalar return-shape proof pending
+phase-291x MapGet scalar return-shape proof landed - scalar lowering evidence pending
+phase-291x MapGet preheader scalar proof landed - scalar lowering evidence pending
+phase-291x scalar MapGet helper probe rejected - key-conversion owner seam pending
+phase-291x post-MapLookup fusion cleanup selection pending
+phase-291x Stage-B args/source resolver split pending
+phase-291x Stage-B main detection helper split pending
+phase-291x Stage-B same-source defs scan split pending
+phase-291x Stage-B JSON fragment injection split pending
+phase-291x Stage-B keyword expr strip helper split pending
+phase-291x Stage-B dead inline comment-strip helper removal pending
+phase-291x Stage-B dead helper box removal pending
+phase-291x Stage-B driver guard helper split pending
+phase-291x CoreMethod mirror-pruning preflight pending
+phase-291x CoreMethod one-family mirror migration pending
+phase-291x MapHas mirror prune decision pending
+phase-291x metadata-absent has fallback contract pending
+phase-291x next CoreMethod mirror candidate pending
+phase-291x MapGet mirror prune decision pending
+phase-291x generic len alias metadata preflight pending
+phase-291x len emit-kind metadata consumer pending
+phase-291x len mirror prune decision pending
+phase-291x substring metadata carrier preflight pending
+phase-291x substring emit-kind metadata consumer pending
+phase-291x substring mirror prune decision pending
+phase-291x metadata-absent direct set boundary coverage pending
+phase-291x birth compatibility deletion criteria pending
+phase-291x birth compat prune probe pending
+phase-291x post-birth-prune cleanup selection pending
+phase-291x mir-call ArrayBox receiver-surface prune probe pending
+phase-291x mir-call MapBox receiver-surface prune probe pending
+phase-291x mir-call RuntimeDataBox receiver-surface review pending
+phase-291x has family cleanup pending
+phase-291x len family cleanup pending
+phase-291x push family cleanup pending
+phase-291x set family cleanup pending
+phase-291x RuntimeData get cleanup pending
+phase-291x residual RuntimeData facade sentinel inventory pending
+phase-291x residual has-push MIR-surface sentinel inventory pending
+phase-291x residual has and MIR-surface sentinel inventory pending
+phase-291x ArrayHas fallback prune evidence pending
+phase-291x RuntimeData has and MIR-surface fallback evidence pending
+phase-291x generic has emit-kind and MIR-surface fallback evidence pending
+phase-291x MIR-call MapBox has surface fallback final review pending
+phase-291x BuildBox parse-source SSOT landed; next bundle input collector split
+phase-291x BuildBox bundle input collector split landed; next defs/imports fragment injector split
+phase-291x BuildBox fragment injector split landed; next facade closeout docs/checks
+phase-291x BuildBox facade closeout landed; next cleanup selection pending
+phase-291x residual MapBox.has fallback sentinel clarified; owner-path retirement pending
+phase-291x CoreMethodContract inc classifier baseline zero; next cleanup selection pending
+phase-291x runtime/meta MirCallRoutePolicy owner audit pending
+phase-291x MirCallRoutePolicy export quarantine pending

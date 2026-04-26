@@ -37,20 +37,20 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x current pointer thinning pending`
+- current blocker token: `phase-291x JoinIR simple-while main route gate inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-315` made Case-A wrapper context labels
-  consume the descriptor table while keeping Stage-B bridge labels local
+- latest known checkpoint: `291x-316` moved stale-pointer guard fixtures out
+  of `CURRENT_STATE.toml` and thinned current/restart mirrors
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: thin current pointer mirrors; keep `CURRENT_STATE.toml`
-  compact and remove stale/redundant latest-card mirrors
+- resume point: inventory `LoopViewBuilder` simple-while `main` route gate;
+  classify it as routing policy before any code change
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-315-joinir-casea-context-label-helper-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-316-current-pointer-thinning-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: current pointer thinning; do not duplicate landed history or stale
-  latest-card mirrors in restart/current docs
+- next: JoinIR simple-while `main` route gate inventory; do not mix with
+  Case-A descriptor cleanup or generic carrier-summary cleanup
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,22 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- order: BuildBox thinning series complete; residual MapBox.has sentinel
-  retired; CoreMethodContract `.inc` method/box classifier baseline is zero;
-  `MirCallRoutePolicy`, `MirCallNeedPolicy`, and `MirCallSurfacePolicy`
-  exports retired; runtime/meta live table inventory landed; Using support
-  owner audit/export retirement landed; JsonShapeToMap owner audit/support
-  quarantine landed; runtime/meta root closeout landed; post-runtime-meta
-  inventory landed; JoinIR if-target exact allowlist SSOT landed; JoinIR
-  if-target prefix policy inventory landed; JoinIR if-target prefix helper
-  split landed; JoinIR type-hint prefix policy inventory landed; JoinIR
-  type-hint family table split landed; GenericTypeResolver P3-C candidate
-  helper audit/retirement landed; JoinIR residual name-policy inventory landed;
-  JoinIR frontend route descriptor table split landed; JoinIR Case-A
-  name-policy inventory landed; JoinIR Case-A target descriptor table split
-  landed; JoinIR Case-A fallback dispatch descriptor consumer landed; JoinIR
-  Case-A context-label string inventory landed; JoinIR Case-A context-label
-  helper cleanup landed; next cleanup is current pointer thinning
+- latest checkpoint: `291x-316`; detailed landed history lives in phase card
+  files and the compact `landed_tail` in `CURRENT_STATE.toml`
+- next cleanup: JoinIR simple-while `main` route gate inventory
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

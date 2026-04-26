@@ -24,6 +24,8 @@ mirrors:
 - taskboard / ledger
 - `docs/development/current/main/CURRENT_STATE.toml`
 - the active card
+- `tools/checks/current_state_stale_pointer_patterns.txt` only when stale
+  pointer guard fixtures change
 
 That made card work depend on manual ledger synchronization instead of one
 clear current-state owner.
@@ -83,7 +85,9 @@ Full landed history belongs in phase docs and cards, not in current mirrors.
 - `latest_card_path` matches `latest_card`
 - root/current/restart docs still point at `CURRENT_STATE.toml`
 - active lane and blocker tokens are present in the thin mirrors
-- stale pointer patterns are absent from current docs
+- stale pointer patterns from
+  `tools/checks/current_state_stale_pointer_patterns.txt` are absent from
+  current docs
 
 The guard must not require every current mirror to repeat latest-card history.
 

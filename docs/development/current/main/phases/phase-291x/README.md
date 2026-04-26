@@ -13,47 +13,8 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
   - docs/development/current/main/phases/phase-291x/291x-smoke-index.md
   - docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md
-  - docs/development/current/main/phases/phase-291x/291x-274-docs-smoke-operating-simplification-card.md
-  - docs/development/current/main/phases/phase-291x/291x-275-remaining-cleanup-inventory-card.md
-  - docs/development/current/main/phases/phase-291x/291x-276-stageb-buildbox-handoff-adapter-card.md
-  - docs/development/current/main/phases/phase-291x/291x-278-stageb-bundle-cli-facade-card.md
-  - docs/development/current/main/phases/phase-291x/291x-279-stageb-legacy-boundary-cleanup-card.md
-  - docs/development/current/main/phases/phase-291x/291x-280-buildbox-bundle-resolver-split-card.md
-  - docs/development/current/main/phases/phase-291x/291x-281-buildbox-remaining-cleanup-order-card.md
-  - docs/development/current/main/phases/phase-291x/291x-282-buildbox-parse-source-narrowing-ssot-card.md
-  - docs/development/current/main/phases/phase-291x/291x-283-buildbox-bundle-input-collector-split-card.md
-  - docs/development/current/main/phases/phase-291x/291x-284-buildbox-fragment-injector-split-card.md
-  - docs/development/current/main/phases/phase-291x/291x-285-buildbox-facade-closeout-card.md
-  - docs/development/current/main/phases/phase-291x/291x-286-mir-call-maphas-residual-seam-cleanup-card.md
-  - docs/development/current/main/phases/phase-291x/291x-287-mir-call-maphas-sentinel-retirement-card.md
-  - docs/development/current/main/phases/phase-291x/291x-288-post-inc-zero-rebaseline-card.md
-  - docs/development/current/main/phases/phase-291x/291x-289-mir-call-route-policy-owner-audit-card.md
-  - docs/development/current/main/phases/phase-291x/291x-290-mir-call-route-policy-export-retirement-card.md
-  - docs/development/current/main/phases/phase-291x/291x-291-mir-call-need-policy-owner-audit-card.md
-  - docs/development/current/main/phases/phase-291x/291x-292-mir-call-need-policy-export-retirement-card.md
-  - docs/development/current/main/phases/phase-291x/291x-293-mir-call-surface-policy-owner-audit-card.md
-  - docs/development/current/main/phases/phase-291x/291x-294-mir-call-surface-policy-export-retirement-card.md
-  - docs/development/current/main/phases/phase-291x/291x-295-runtime-meta-live-table-inventory-card.md
-  - docs/development/current/main/phases/phase-291x/291x-296-runtime-meta-using-support-owner-audit-card.md
-  - docs/development/current/main/phases/phase-291x/291x-297-runtime-meta-using-support-export-retirement-card.md
-  - docs/development/current/main/phases/phase-291x/291x-298-runtime-meta-json-shape-owner-audit-card.md
-  - docs/development/current/main/phases/phase-291x/291x-299-runtime-meta-json-shape-support-quarantine-card.md
-  - docs/development/current/main/phases/phase-291x/291x-300-runtime-meta-root-closeout-card.md
-  - docs/development/current/main/phases/phase-291x/291x-301-post-runtime-meta-cleanup-inventory-card.md
-  - docs/development/current/main/phases/phase-291x/291x-302-joinir-if-target-exact-allowlist-ssot-card.md
-  - docs/development/current/main/phases/phase-291x/291x-303-joinir-if-target-prefix-policy-inventory-card.md
-  - docs/development/current/main/phases/phase-291x/291x-304-joinir-if-target-prefix-helper-split-card.md
-  - docs/development/current/main/phases/phase-291x/291x-305-joinir-type-hint-prefix-policy-inventory-card.md
-  - docs/development/current/main/phases/phase-291x/291x-306-joinir-type-hint-family-table-split-card.md
-  - docs/development/current/main/phases/phase-291x/291x-307-generic-type-resolver-p3c-candidate-helper-audit-card.md
-  - docs/development/current/main/phases/phase-291x/291x-308-generic-type-resolver-p3c-candidate-helper-retirement-card.md
-  - docs/development/current/main/phases/phase-291x/291x-309-joinir-residual-name-policy-inventory-card.md
-  - docs/development/current/main/phases/phase-291x/291x-310-joinir-frontend-route-descriptor-table-card.md
-  - docs/development/current/main/phases/phase-291x/291x-311-joinir-casea-name-policy-inventory-card.md
-  - docs/development/current/main/phases/phase-291x/291x-312-joinir-casea-target-descriptor-table-card.md
-  - docs/development/current/main/phases/phase-291x/291x-313-joinir-casea-fallback-dispatch-descriptor-card.md
-  - docs/development/current/main/phases/phase-291x/291x-314-joinir-casea-context-label-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-315-joinir-casea-context-label-helper-card.md
+  - docs/development/current/main/phases/phase-291x/291x-316-current-pointer-thinning-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -61,7 +22,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: current pointer thinning
+- Next implementation target: JoinIR simple-while `main` route gate inventory
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -73,7 +34,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-315-joinir-casea-context-label-helper-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-316-current-pointer-thinning-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -115,26 +76,12 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-313`
-- BuildBox thinning series is closed; residual MapBox.has sentinel retirement
-  is closed; CoreMethodContract `.inc` classifier baseline is zero;
-  `MirCallRoutePolicy`, `MirCallNeedPolicy`, and `MirCallSurfacePolicy`
-  exports are retired; runtime/meta live table inventory is closed; Using
-  support owner audit/export retirement is closed; JsonShapeToMap owner
-  audit/support quarantine is closed; runtime/meta root closeout is closed;
-  post-runtime-meta inventory is closed; JoinIR if-target exact allowlist SSOT
-  is closed; JoinIR if-target prefix policy inventory/helper split are closed;
-  JoinIR type-hint prefix policy inventory is closed; JoinIR type-hint family
-  table split is closed; GenericTypeResolver P3-C candidate helper
-  audit/retirement is closed; JoinIR residual name-policy inventory is closed;
-  JoinIR frontend route descriptor table split is closed; JoinIR Case-A
-  name-policy inventory is closed; JoinIR Case-A target descriptor table split
-  is closed; JoinIR Case-A fallback dispatch descriptor consumer is closed;
-  JoinIR Case-A context-label string inventory is closed; JoinIR Case-A
-  context-label helper cleanup is closed; next cleanup is current pointer
-  thinning
-- has fallback series: closed and inventoried
+- latest known cleanup checkpoint: `291x-316`
 - no-growth baseline: `classifiers=0 rows=0`
+- detailed landed history lives in phase card files and the compact
+  `landed_tail` in `CURRENT_STATE.toml`
+- next cleanup: JoinIR simple-while `main` route gate inventory
+- has fallback series: closed and inventoried
 - no `.inc` method/box string classifier rows are allowlisted
 - metadata-absent direct `MapBox.has` is no longer a supported boundary
 

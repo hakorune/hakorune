@@ -11,6 +11,7 @@ NOW_DOC="$ROOT_DIR/docs/development/current/main/10-Now.md"
 RESTART_DOC="$ROOT_DIR/docs/development/current/main/05-Restart-Quick-Resume.md"
 PHASE137X_README="$ROOT_DIR/docs/development/current/main/phases/phase-137x/README.md"
 PHASE137X_TASKBOARD="$ROOT_DIR/docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
+STALE_PATTERNS_FILE="$ROOT_DIR/tools/checks/current_state_stale_pointer_patterns.txt"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" sed
@@ -21,20 +22,12 @@ guard_require_files "$TAG" \
   "$NOW_DOC" \
   "$RESTART_DOC" \
   "$PHASE137X_README" \
-  "$PHASE137X_TASKBOARD"
+  "$PHASE137X_TASKBOARD" \
+  "$STALE_PATTERNS_FILE"
 
 toml_scalar() {
   local key="$1"
   sed -n 's/^[[:space:]]*'"$key"'[[:space:]]*=[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' "$STATE_DOC" | head -n1
-}
-
-toml_array() {
-  local key="$1"
-  awk -v key="$key" '
-    $0 ~ "^[[:space:]]*" key "[[:space:]]*=" { in_array=1; next }
-    in_array && /\]/ { exit }
-    in_array { print }
-  ' "$STATE_DOC" | sed -n 's/^[[:space:]]*"\(.*\)"[[:space:]]*,\{0,1\}[[:space:]]*$/\1/p'
 }
 
 require_scalar() {
@@ -107,6 +100,7 @@ expect_fixed "$optimization_return_lane" "$PHASE137X_TASKBOARD"
 
 while IFS= read -r pattern; do
   [[ -z "$pattern" ]] && continue
+  [[ "$pattern" = \#* ]] && continue
   if hits="$(rg -n -F "$pattern" "$CURRENT_TASK_DOC" "$ROOT_DIR/docs/development/current/main" \
     --glob '!CURRENT_STATE.toml' \
     --glob '!archive/**' \
@@ -114,6 +108,6 @@ while IFS= read -r pattern; do
     printf '%s\n' "$hits" >&2
     guard_fail "$TAG" "stale current pointer pattern found: $pattern"
   fi
-done < <(toml_array stale_pointer_patterns)
+done < "$STALE_PATTERNS_FILE"
 
 echo "[$TAG] ok"

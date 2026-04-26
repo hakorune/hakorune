@@ -20,29 +20,17 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x current pointer thinning pending`
+- current blocker token: `phase-291x JoinIR simple-while main route gate inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- thin current pointer mirrors; keep `CURRENT_STATE.toml` compact and remove
-  stale/redundant latest-card mirrors
-- cleanup checkpoint: latest known landed card `291x-315`; BuildBox thinning,
-  residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
-  zero-baseline rebaseline, route-policy owner audit, and route-policy export
-  retirement are closed; NeedPolicy owner audit and export retirement are
-  closed; SurfacePolicy owner audit and export retirement are closed;
-  runtime/meta live table inventory, Using support owner audit/export
-  retirement, JsonShapeToMap owner audit/support quarantine, and runtime/meta
-  root closeout are closed; post-runtime-meta inventory is closed; JoinIR
-  if-target exact allowlist SSOT, prefix policy inventory, prefix helper
-  split, type-hint prefix policy inventory, type-hint family table split, and
-  GenericTypeResolver P3-C candidate helper audit/retirement, and JoinIR
-  residual name-policy inventory, frontend route descriptor table split, and
-  Case-A name-policy inventory, Case-A target descriptor table split, Case-A
-  fallback dispatch descriptor consumer, Case-A context-label inventory, and
-  Case-A context-label helper cleanup are closed
+- inventory `LoopViewBuilder` simple-while `main` route gate before any code
+  change; classify it as routing policy, not debug/label text
+- cleanup checkpoint: latest known landed card `291x-316`; detailed closed
+  history lives in phase card files and the compact `landed_tail` in
+  `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
