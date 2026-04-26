@@ -20,14 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR LoopFeatures nesting stub inventory pending`
+- current blocker token: `phase-291x JoinIR LoopFeatures nesting stub prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory the `LoopFeatures` nesting stub; do not change route behavior
-- cleanup checkpoint: latest known landed card `291x-340`; detailed closed
+- prune the `LoopFeatures` nesting stub; keep StepTree NestedLoopMinimal as
+  the live owner
+- cleanup checkpoint: latest known landed card `291x-341`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
