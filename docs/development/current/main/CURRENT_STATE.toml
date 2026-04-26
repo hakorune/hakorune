@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-430"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-430-cleanup-closeout-granularity-card.md"
-latest_card_summary = "Capped the current cleanup burst and selected loop-if-exit wording as the next seam."
+latest_card = "291x-431"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-431-normalized-shadow-loop-if-exit-wording-cleanup-card.md"
+latest_card_summary = "Cleaned loop-if-exit out-of-scope wording to route-decline terminology."
 
-current_blocker_token = "phase-291x normalized-shadow loop-if-exit wording cleanup pending"
+current_blocker_token = "phase-291x normalization decline wording review pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -150,4 +150,5 @@ landed_tail = [
   "291x-428 normalized-shadow if-only fossil boundary inventory landed",
   "291x-429 normalized-shadow if-only fossil boundary note landed",
   "291x-430 cleanup closeout granularity landed",
+  "291x-431 normalized-shadow loop-if-exit wording cleanup landed",
 ]

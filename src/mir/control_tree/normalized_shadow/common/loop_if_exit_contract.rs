@@ -7,7 +7,7 @@
 //!
 //! - **LoopIfExitThen**: Discriminates exit action (Break, Continue)
 //! - **LoopIfExitShape**: Captures pattern shape (has_else, then, else_, cond_scope)
-//! - **OutOfScopeReason**: Explicit out-of-scope cases (graceful Ok(None) fallback)
+//! - **OutOfScopeReason**: Explicit out-of-scope route-decline cases
 //!
 //! ## Design Principle
 //!
@@ -61,11 +61,11 @@ pub struct LoopIfExitShape {
     pub cond_scope: ExprLoweringScope,
 }
 
-/// Out-of-scope discrimination (graceful Ok(None) fallback reasons)
+/// Out-of-scope discrimination (`Ok(None)` route-decline reasons)
 ///
 /// Each variant represents a specific out-of-scope case. Lowering code
-/// matches on these to determine whether to fall back to Ok(None) (graceful)
-/// or return an error (internal mistake).
+/// matches on these to determine whether to decline this route with `Ok(None)`
+/// or return an error for an internal mistake.
 #[derive(Debug, Clone)]
 pub enum OutOfScopeReason {
     /// Loop condition is not `true` literal
@@ -122,7 +122,7 @@ impl LoopIfExitShape {
     ///
     /// Returns:
     /// - `Ok(())` if shape is P0-compatible
-    /// - `Err(OutOfScopeReason)` if violates P0 constraints (graceful fallback)
+    /// - `Err(OutOfScopeReason)` if violates P0 constraints (route decline)
     pub fn validate_for_p0(&self) -> Result<(), OutOfScopeReason> {
         // P0: No else branch allowed
         if self.has_else {

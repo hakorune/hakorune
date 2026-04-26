@@ -20,15 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow loop-if-exit wording cleanup pending`
+- current blocker token: `phase-291x normalization decline wording review pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- clean loop-if-exit route-decline wording without changing accepted
-  loop-if-exit shapes
-- cleanup checkpoint: latest known landed card `291x-430`; detailed closed
+- review normalization decline/fallback wording under the closeout cap
+- cleanup checkpoint: latest known landed card `291x-431`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - closeout cap: at most 5 more small cleanup cards before closeout review;
