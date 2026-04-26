@@ -52,6 +52,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-311-joinir-casea-name-policy-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-312-joinir-casea-target-descriptor-table-card.md
   - docs/development/current/main/phases/phase-291x/291x-313-joinir-casea-fallback-dispatch-descriptor-card.md
+  - docs/development/current/main/phases/phase-291x/291x-314-joinir-casea-context-label-inventory-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -59,7 +60,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: JoinIR Case-A context-label string inventory
+- Next implementation target: JoinIR Case-A context-label helper cleanup
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -71,7 +72,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-313-joinir-casea-fallback-dispatch-descriptor-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-314-joinir-casea-context-label-inventory-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -128,7 +129,8 @@ in one card.
   JoinIR frontend route descriptor table split is closed; JoinIR Case-A
   name-policy inventory is closed; JoinIR Case-A target descriptor table split
   is closed; JoinIR Case-A fallback dispatch descriptor consumer is closed;
-  next cleanup is context-label string inventory
+  JoinIR Case-A context-label string inventory is closed; next cleanup is
+  context-label helper cleanup
 - has fallback series: closed and inventoried
 - no-growth baseline: `classifiers=0 rows=0`
 - no `.inc` method/box string classifier rows are allowlisted
