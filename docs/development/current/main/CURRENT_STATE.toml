@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-359"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-359-joinir-route-detector-unused-module-export-prune-card.md"
-latest_card_summary = "Pruned parent exports for legacy-internal-only route detector modules."
+latest_card = "291x-360"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-360-joinir-route-detector-legacy-route-function-export-inventory-card.md"
+latest_card_summary = "Inventoried legacy route-shape function exports and stale route lowerer examples."
 
-current_blocker_token = "phase-291x JoinIR route detector legacy route function export inventory pending"
+current_blocker_token = "phase-291x JoinIR route detector legacy route function export prune pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -79,4 +79,5 @@ landed_tail = [
   "291x-357 JoinIR route detector unused module export inventory landed",
   "291x-358 JoinIR route detector legacy internal import owner-path landed",
   "291x-359 JoinIR route detector unused module export prune landed",
+  "291x-360 JoinIR route detector legacy route function export inventory landed",
 ]
