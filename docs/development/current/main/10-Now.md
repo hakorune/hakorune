@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-26
+Date: 2026-04-27
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,15 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector physical owner closeout review pending`
+- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- run route detector physical-owner closeout review and choose the next
-  compiler-cleanliness seam
-- cleanup checkpoint: latest known landed card `291x-391`; detailed closed
+- inventory the next compiler-cleanliness seam before editing more code
+- cleanup checkpoint: latest known landed card `291x-392`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

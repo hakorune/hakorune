@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-04-26"
+date = "2026-04-27"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
 active_lane_status = "CoreBox/CoreMethodContract cleanup is active. The .inc method/box classifier baseline is zero, BuildBox/runtime-meta cleanup is closed, and current JoinIR cleanup is working through routing-policy seams. Detailed landed/rejected history belongs to phase cards, not current mirrors."
@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-391"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-391-joinir-route-detector-body-local-physical-owner-closeout-card.md"
-latest_card_summary = "Moved the remaining route detector body-local support family into physical support modules and closed legacy storage."
+latest_card = "291x-392"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-392-joinir-route-detector-physical-owner-closeout-review-card.md"
+latest_card_summary = "Closed the route detector physical owner migration review and refreshed stale live docs that pointed at deleted legacy storage."
 
-current_blocker_token = "phase-291x JoinIR route detector physical owner closeout review pending"
+current_blocker_token = "phase-291x next compiler-cleanliness seam inventory pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -111,4 +111,5 @@ landed_tail = [
   "291x-389 JoinIR route detector function-scope physical owner move landed",
   "291x-390 JoinIR route detector condition-scope physical owner move landed",
   "291x-391 JoinIR route detector body-local physical owner closeout landed",
+  "291x-392 JoinIR route detector physical owner closeout review landed",
 ]

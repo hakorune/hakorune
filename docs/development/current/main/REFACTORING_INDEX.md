@@ -103,8 +103,8 @@ impl ExitLinePolicy {
 
 **Trim と DigitPos Promoter に重複コード**
 
-- `loop_body_carrier_promoter.rs` (658行)
-- `loop_body_digitpos_promoter.rs` (713行)
+- `src/mir/loop_route_detection/support/body_local/carrier.rs` (425行)
+- `src/mir/loop_route_detection/support/body_local/digitpos.rs` (499行)
 
 **同じ関数が2箇所に存在**:
 - `is_substring_method_call()` - 完全に同一
@@ -215,8 +215,8 @@ Phase 229 実装時：
 
 - [ ] CarrierInfo::resolve_promoted_carrier() 実装
 - [ ] pattern2_with_break.rs の condition_aliases ループ削除
-- [ ] loop_body_carrier_promoter.rs 修正
-- [ ] loop_body_digitpos_promoter.rs 修正
+- [ ] `support/body_local/carrier.rs` 修正
+- [ ] `support/body_local/digitpos.rs` 修正
 - [ ] ConditionAlias 型削除
 - [ ] pattern4_carrier_analyzer.rs 修正
 - [ ] route_prep_pipeline.rs 修正

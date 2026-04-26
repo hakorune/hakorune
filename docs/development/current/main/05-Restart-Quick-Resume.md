@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-26
+Date: 2026-04-27
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,16 +33,16 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector physical owner closeout review pending`
+- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-391` moved the remaining route detector
-  body-local support family into physical `support` modules and closed legacy
-  storage
+- latest known checkpoint: `291x-392` closed the route detector physical owner
+  migration review and refreshed stale live docs that pointed at deleted
+  legacy storage
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -50,8 +50,7 @@ cargo check -q
 
 ## Immediate Next
 
-- run route detector physical-owner closeout review and choose the next
-  compiler-cleanliness seam
+- inventory the next compiler-cleanliness seam before editing more code
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
