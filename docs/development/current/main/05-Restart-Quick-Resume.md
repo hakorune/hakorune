@@ -33,15 +33,16 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow stale legacy wording cleanup pending`
+- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-404` inventoried stale normalized-shadow
-  fallback-to-legacy wording and selected live source/docs wording cleanup
+- latest known checkpoint: `291x-405` replaced stale normalized-shadow
+  fallback-to-legacy wording with out-of-scope route and route-chaining
+  terminology
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +50,8 @@ cargo check -q
 
 ## Immediate Next
 
-- replace live normalized-shadow "fallback to legacy" wording with out-of-scope
-  route / route-chaining wording
+- inventory the next compiler-cleanliness seam after normalized-shadow legacy
+  storage and wording cleanup
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

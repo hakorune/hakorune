@@ -66,7 +66,7 @@ impl AnfExecuteBox {
             ));
         }
 
-        // P1: No hoist targets → fallback to legacy
+        // P1: No hoist targets → out of scope for the ANF route
         if plan.hoist_targets.is_empty() {
             return Ok(None);
         }

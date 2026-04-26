@@ -6,9 +6,9 @@
 //!
 //! Expression lowering is delegated to `NormalizedExprLowererBox` (SSOT).
 //!
-//! ## Fallback
+//! ## Route Chaining
 //!
-//! Out-of-scope patterns return `Ok(None)` for legacy routing
+//! Out-of-scope patterns return `Ok(None)` so the caller can decline the route.
 //!
 //! ## Usage
 //!
@@ -30,7 +30,7 @@ impl ReturnValueLowererBox {
     ///
     /// Returns:
     /// - Ok(Some(vid)): Successfully lowered to ValueId
-    /// - Ok(None): Out of scope (fallback to legacy routing)
+    /// - Ok(None): Out of scope (caller declines this route)
     /// - Err(_): Internal error (should not happen for valid AST)
     ///
     /// Note: Does NOT return Err for unsupported patterns - returns Ok(None) instead

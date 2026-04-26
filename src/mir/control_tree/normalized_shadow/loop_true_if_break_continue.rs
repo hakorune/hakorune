@@ -18,7 +18,7 @@
 //! ## Return Behavior
 //!
 //! - Ok(Some((module, meta))): Successfully lowered
-//! - Ok(None): Out of scope (fallback to legacy)
+//! - Ok(None): Out of scope (try the next route)
 //! - Err(msg): In scope but failed (internal error, strict mode freeze)
 
 use super::common::expr_lowerer_box::NormalizedExprLowererBox;
@@ -133,9 +133,11 @@ impl LoopTrueIfBreakContinueBuilderBox {
             Ok(None) => {
                 if crate::config::env::joinir_dev_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[phase143/debug] Condition is not pure (impure/out-of-scope), falling back to legacy"));
+                    ring0.log.debug(&format!(
+                        "[phase143/debug] Condition is not pure (impure/out-of-scope for this route)"
+                    ));
                 }
-                return Ok(None); // Condition not pure, fallback to legacy
+                return Ok(None); // Condition not pure; out of scope for this route
             }
             Err(e) => {
                 return Err(format!("phase143/condition_lowering: {}", e));

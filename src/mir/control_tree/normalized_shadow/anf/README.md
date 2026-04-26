@@ -85,7 +85,7 @@ if crate::config::env::anf_dev_enabled() {
     match AnfPlanBox::plan_expr(ast, env)? {
         Ok(Some(plan)) => match AnfExecuteBox::try_execute(plan, ast, env, body, next_value_id)? {
             Ok(Some(vid)) => return Ok(Some(vid)),  // P1+: ANF succeeded
-            Ok(None) => { /* fallback to legacy */ }  // P0: stub returns None
+            Ok(None) => { /* out-of-scope, continue */ }  // P0: stub returns None
         },
         Ok(None) => { /* out-of-scope, continue */ }
         Err(reason) => { /* out-of-scope, continue */ }

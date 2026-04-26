@@ -25,7 +25,7 @@
 //!
 //! ## Fail-Fast
 //!
-//! - Out of scope → Ok(None) (fallback to legacy)
+//! - Out of scope → Ok(None) (try the next route)
 //! - In scope but conversion failed → Err (with freeze_with_hint in strict mode)
 
 use std::collections::BTreeMap;
@@ -52,7 +52,7 @@ impl PostIfPostKBuilderBox {
     ///
     /// Returns:
     /// - Ok(Some((module, meta))): Successfully lowered
-    /// - Ok(None): Out of scope (fallback to legacy)
+    /// - Ok(None): Out of scope (try the next route)
     /// - Err(msg): In scope but failed (internal error)
     pub fn lower(
         step_tree: &StepTree,

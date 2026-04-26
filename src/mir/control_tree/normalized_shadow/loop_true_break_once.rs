@@ -35,7 +35,7 @@
 //!   - Variable: env lookup
 //!   - Integer literal: Const generation
 //!   - Add expr (Phase 137): x + 2 → BinOp(Add, env[x], Const(2))
-//! - Fallback: Out-of-scope patterns return `Ok(None)` for legacy routing
+//! - Route chaining: out-of-scope patterns return `Ok(None)`
 //!
 //! ### Usage
 //!
@@ -44,7 +44,7 @@
 //!
 //! ## Fail-Fast
 //!
-//! - Out of scope → Ok(None) (fallback to legacy)
+//! - Out of scope → Ok(None) (try the next route)
 //! - In scope but conversion failed → Err (with freeze_with_hint in strict mode)
 
 use super::common::normalized_helpers::NormalizedHelperBox;
@@ -76,7 +76,7 @@ impl LoopTrueBreakOnceBuilderBox {
     ///
     /// Returns:
     /// - Ok(Some((module, meta))): Successfully lowered
-    /// - Ok(None): Out of scope (fallback to legacy)
+    /// - Ok(None): Out of scope (try the next route)
     /// - Err(msg): In scope but failed (internal error)
     pub fn lower(
         step_tree: &StepTree,

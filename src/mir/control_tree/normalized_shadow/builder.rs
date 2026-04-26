@@ -115,7 +115,7 @@ impl StepTreeNormalizedShadowLowererBox {
             return Ok(Some((module, meta)));
         }
 
-        // Not supported: fall back to legacy (returns Ok(None))
+        // Not supported by loop routes; let route chaining decline this shape.
         Ok(None)
     }
 
