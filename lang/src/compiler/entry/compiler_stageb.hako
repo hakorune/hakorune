@@ -31,16 +31,6 @@ static box StageBDriverBox {
     if StageBDriverGuardBox.enter_depth_guard() != 0 { return -1 }
     StageBDriverGuardBox.trace_depth_ok()
 
-    // Dev-only: direct FuncScanner harness
-    {
-      local test_flag = env.get("HAKO_STAGEB_FUNCSCAN_TEST")
-      if test_flag != null && ("" + test_flag) == "1" {
-        print("[stageb/info] FUNC_SCAN_TEST=1 (disabled in this build)")
-        StageBDriverGuardBox.clear_depth_guard()
-        return 0
-      }
-    }
-
     {
       local tracer = new StageBTraceBox()
       tracer.log("StageBDriverBox.main:enter")

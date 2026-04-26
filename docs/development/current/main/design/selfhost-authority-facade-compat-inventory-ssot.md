@@ -54,7 +54,7 @@ selfhost lane で混線しやすい 3 軸
 | File / Surface | Current target role | Bucket | Current read | Next action |
 | --- | --- | --- | --- | --- |
 | `lang/src/compiler/build/build_box.hako` | `source -> Program(JSON v0)` authority | `keep authority` | `BuildBox.emit_program_json_v0(...)` is the current source-to-Program authority | keep as the single authority owner |
-| `lang/src/compiler/entry/compiler_stageb.hako` | Stage-B emit entry | `shrink to adapter` | Stage-B entry no longer owns parser/body/defs/import shaping; output/error handling lives in `StageBOutputBox`; remaining residue is a disabled dev harness | prune or quarantine the disabled FuncScan harness |
+| `lang/src/compiler/entry/compiler_stageb.hako` | Stage-B emit entry | `shrink to adapter` | Stage-B entry no longer owns parser/body/defs/import shaping; output/error handling lives in `StageBOutputBox`; disabled FuncScan no-op harness is removed | close out Stage-B adapter thinning before selecting another lane |
 | `lang/src/runner/launcher.hako` | stage1 CLI facade/orchestration | `shrink to facade` | now routes build/emit through `LauncherCompileFacadeBox` and payload-contract helpers; direct Program(JSON) wrapper boxes are gone | keep shrinking toward CLI/request dispatch only |
 | `lang/src/runner/stage1_cli_env.hako` | stage1 env-entry authority cluster | `same-file cluster keep` | owner-local small boxes are already split, but same-file for now | defer file split until authority/facade cleanup proves a blocker |
 | `lang/src/runner/launcher_native_entry.hako` | launcher bootstrap entry stub | `thin entry stub` | run-only bootstrap shell for `tools/selfhost/mainline/build_stage1.sh` launcher-exe; carries no CLI policy | keep thin; logical owner stays in `launcher.hako` |

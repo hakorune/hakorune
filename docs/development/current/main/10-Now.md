@@ -20,15 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x stage-b disabled funcscan harness cleanup pending`
+- current blocker token: `phase-291x stage-b adapter thinning closeout pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory and prune/quarantine the disabled Stage-B FuncScan harness without
-  moving `BuildBox` authority
-- cleanup checkpoint: latest known landed card `291x-439`; detailed closed
+- close out the Stage-B adapter thinning burst and choose the next lane
+- cleanup checkpoint: latest known landed card `291x-440`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
