@@ -39,6 +39,16 @@ Rule:
     to stop new `.inc` method/box-name classifier growth
   - not a semantic owner; regenerate instead of hand-editing.
 
+## Root Invariant
+
+- Root-level `.hako` files in this directory are semantic contract tables or
+  explicit root facades only.
+- Support utilities belong under `support/`.
+- Each support export needs an owner-audit card and a caller-count retirement
+  condition.
+- `291x-300` closes the current root cleanup with `CoreMethodContractBox` as
+  the only live semantic contract owner here.
+
 ## Active Support Exports
 
 - `support/json_shape_parser.hako`

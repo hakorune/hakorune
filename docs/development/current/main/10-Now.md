@@ -20,22 +20,22 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x runtime/meta root closeout pending`
+- current blocker token: `phase-291x post-runtime-meta next cleanup inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- close out the runtime/meta root split and verify only semantic contract
-  owner material remains at the root
-- cleanup checkpoint: latest known landed card `291x-299`; BuildBox thinning,
+- inventory the next non-runtime/meta compiler cleanup candidate before editing
+  code
+- cleanup checkpoint: latest known landed card `291x-300`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
   closed; SurfacePolicy owner audit and export retirement are closed;
-  runtime/meta live table inventory and Using support owner audit/export
-  retirement are closed; JsonShapeToMap owner audit/support quarantine is
-  closed
+  runtime/meta live table inventory, Using support owner audit/export
+  retirement, JsonShapeToMap owner audit/support quarantine, and runtime/meta
+  root closeout are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:

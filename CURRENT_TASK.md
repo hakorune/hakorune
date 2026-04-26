@@ -37,21 +37,21 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x runtime/meta root closeout pending`
+- current blocker token: `phase-291x post-runtime-meta next cleanup inventory pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-299` quarantined `JsonShapeToMap` under
-  `runtime/meta/support` while preserving the public export and bridge function
+- latest known checkpoint: `291x-300` closed the `runtime/meta` root split with
+  `CoreMethodContractBox` as the only live semantic contract owner and support
+  exports isolated under `support/`
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: close out the runtime/meta root split and confirm only
-  `CoreMethodContractBox` plus its generated manifest remains semantic-table
-  owner material
+- resume point: inventory the next non-runtime/meta compiler cleanup candidate
+  before editing code
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -59,11 +59,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-299-runtime-meta-json-shape-support-quarantine-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-300-runtime-meta-root-closeout-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: runtime/meta root closeout; verify the root has no stale support files
-  mixed with semantic contract tables
+- next: post-runtime-meta cleanup inventory; do not start a new BoxShape slice
+  without first recording the next owner seam
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -78,7 +78,8 @@ Scope: current lane / next lane / restart order only.
   `MirCallRoutePolicy`, `MirCallNeedPolicy`, and `MirCallSurfacePolicy`
   exports retired; runtime/meta live table inventory landed; Using support
   owner audit/export retirement landed; JsonShapeToMap owner audit/support
-  quarantine landed; next cleanup is runtime/meta root closeout
+  quarantine landed; runtime/meta root closeout landed; next cleanup is
+  post-runtime-meta inventory
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows

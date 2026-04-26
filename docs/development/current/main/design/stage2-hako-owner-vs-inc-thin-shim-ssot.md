@@ -132,6 +132,9 @@ Related:
   manifest. `UsingResolver` and `UsingDecision` are retired; `JsonShapeToMap`
   is an audited active support / JoinIR fixture export quarantined under
   `lang/src/runtime/meta/support/`, not a `mir_call` semantic owner.
+- After `291x-300`, new root-level `.hako` files under
+  `lang/src/runtime/meta/` must be semantic contract tables or explicit root
+  facades. Compatibility/fixture utilities belong under `support/`.
 - `hako_llvmc_ffi_mir_call_dispatch.inc` is now the single native dispatch seam consumed by `pure_compile.inc`.
 - `hako_llvmc_ffi_pure_compile.inc` remains the compiler orchestrator owner, but `mir_call` route/need/accept tables are no longer owned inline there.
 - `lang/src/runtime/collections/method_policy_box.hako` now also owns the fallback routes for `RuntimeDataBox` generic `get/set/has/push`, so runtime-data facade semantics stay in `.hako` owner vocabulary instead of re-growing box-name ladders inside the shim.
