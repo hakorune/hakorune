@@ -143,6 +143,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-442-next-lane-selection-card.md
   - docs/development/current/main/phases/phase-291x/291x-443-generic-method-route-metadata-string-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-444-generic-method-route-kind-metadata-helper-card.md
+  - docs/development/current/main/phases/phase-291x/291x-445-generic-method-route-metadata-closeout-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -150,7 +151,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: generic method route metadata closeout
+- Next implementation target: next lane selection
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -162,7 +163,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-444-generic-method-route-kind-metadata-helper-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-445-generic-method-route-metadata-closeout-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -204,11 +205,11 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-444`
+- latest known cleanup checkpoint: `291x-445`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: generic method route metadata closeout
+- next cleanup: next lane selection
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - Stage-B adapter thinning stays BoxShape-only; do not mix it with
