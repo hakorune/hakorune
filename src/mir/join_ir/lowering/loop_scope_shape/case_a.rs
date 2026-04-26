@@ -49,6 +49,14 @@ pub(crate) fn find_case_a_minimal_target(func_name: &str) -> Option<CaseAMinimal
         .find(|target| target.func_name == func_name)
 }
 
+pub(crate) fn case_a_minimal_target_name(kind: CaseAMinimalTargetKind) -> &'static str {
+    CASE_A_MINIMAL_TARGETS
+        .iter()
+        .find(|target| target.kind == kind)
+        .map(|target| target.func_name)
+        .expect("Case-A minimal target kind should have a descriptor row")
+}
+
 /// 現在 JoinIR lowering でサポートしている Case-A minimal ループのみ true を返す。
 /// これらは LoopScopeShape の新しい analyze_case_a パスを通る。
 ///
@@ -101,7 +109,10 @@ pub(crate) fn validate_case_a_structural(
 
 #[cfg(test)]
 mod tests {
-    use super::{find_case_a_minimal_target, is_case_a_minimal_target, CaseAMinimalTargetKind};
+    use super::{
+        case_a_minimal_target_name, find_case_a_minimal_target, is_case_a_minimal_target,
+        CaseAMinimalTargetKind,
+    };
 
     #[test]
     fn case_a_minimal_target_table_keeps_accepted_subset() {
@@ -120,6 +131,7 @@ mod tests {
             let target = find_case_a_minimal_target(name)
                 .expect("Case-A minimal target should stay accepted");
             assert_eq!(target.kind, kind);
+            assert_eq!(case_a_minimal_target_name(kind), name);
             assert!(is_case_a_minimal_target(name));
         }
     }

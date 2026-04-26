@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR Case-A context-label helper cleanup pending`
+- current blocker token: `phase-291x current pointer thinning pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- implement Case-A context-label helper cleanup; minimal target labels should
-  consume the descriptor table, while Stage-B labels remain local bridge labels
-- cleanup checkpoint: latest known landed card `291x-314`; BuildBox thinning,
+- thin current pointer mirrors; keep `CURRENT_STATE.toml` compact and remove
+  stale/redundant latest-card mirrors
+- cleanup checkpoint: latest known landed card `291x-315`; BuildBox thinning,
   residual MapBox.has sentinel retirement, CoreMethodContract `.inc`
   zero-baseline rebaseline, route-policy owner audit, and route-policy export
   retirement are closed; NeedPolicy owner audit and export retirement are
@@ -41,8 +41,8 @@ Related:
   GenericTypeResolver P3-C candidate helper audit/retirement, and JoinIR
   residual name-policy inventory, frontend route descriptor table split, and
   Case-A name-policy inventory, Case-A target descriptor table split, Case-A
-  fallback dispatch descriptor consumer, and Case-A context-label inventory
-  are closed
+  fallback dispatch descriptor consumer, Case-A context-label inventory, and
+  Case-A context-label helper cleanup are closed
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
