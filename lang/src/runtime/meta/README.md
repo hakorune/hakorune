@@ -25,7 +25,12 @@ Rule:
 
 - `mir_call_surface_policy_box.hako`
   - `MirCallSurfacePolicy.accept_surface(...)`
-  - owns constructor/global/string-extern accept surfaces.
+  - owner-audited by `291x-293`.
+  - registered transitional vocabulary, not the executable surface-policy
+    owner.
+  - native surface dispatch stays in
+    `lang/c-abi/shims/hako_llvmc_ffi_mir_call_surface_policy.inc` until a
+    generated producer or typed LoweringPlan owns those surfaces.
 - `core_method_contract_box.hako`
   - `CoreMethodContractBox.rows()`
   - `CoreMethodContractBox.schema_fields()`

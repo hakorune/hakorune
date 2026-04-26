@@ -105,7 +105,9 @@ Current partitions:
     until a generated producer or typed LoweringPlan feeds declaration /
     stable-object / publish / invalidation need flags
 - `hako_llvmc_ffi_mir_call_surface_policy.inc`
-  - compiler-side mirror of `.hako` constructor/global/string-extern accept surfaces
+  - current executable `mir_call` surface-policy consumer; keep native until a
+    generated producer or typed LoweringPlan feeds constructor / global /
+    string-extern surfaces
 - `hako_llvmc_ffi_mir_call_prepass.inc`
   - `mir_call` prepass scan/mutation helpers that consume the `.hako` need-vocabulary before generic pure lowering emits LLVM IR
 - `hako_llvmc_ffi_mir_call_dispatch.inc`
@@ -176,9 +178,9 @@ Rules:
   `hako_llvmc_ffi_mir_call_need_policy.inc` are the current executable native
   consumers after their stale `.hako` tables were retired; do not regrow
   by-name `.hako` tables or move their logic back into `pure_compile.inc`.
-- `hako_llvmc_ffi_mir_call_surface_policy.inc` still bridges to
-  `lang/src/runtime/meta/mir_call_surface_policy_box.hako` until a separate
-  owner audit says otherwise.
+- `hako_llvmc_ffi_mir_call_surface_policy.inc` is also a current executable
+  native consumer after `291x-293`; do not regrow a by-name `.hako` table or
+  move its logic back into `pure_compile.inc`.
 - `hako_llvmc_ffi_mir_call_dispatch.inc` is the only `mir_call` dispatcher seam that `pure_compile.inc` should call directly.
 - `hako_llvmc_ffi_generic_method_policy.inc` is the compiler-side bridge to `lang/src/runtime/collections/method_policy_box.hako`; keep emit-kind names aligned and avoid re-growing `generic_method_match.inc`.
 - `hako_llvmc_ffi_core_method_metadata.inc` is the shared reader seam for `core_method.proof` and `core_method.lowering_tier`; keep action-specific route decisions in the action seams.
