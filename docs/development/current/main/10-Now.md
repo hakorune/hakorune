@@ -20,15 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector legacy support README boundary cleanup pending`
+- current blocker token: `phase-291x JoinIR route detector legacy surface no-regrowth guard pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- align `legacy/README.md` and `support/README.md` with the current
-  private-legacy/public-support boundary
-- cleanup checkpoint: latest known landed card `291x-383`; detailed closed
+- add a guard preventing parent legacy-surface regrowth
+- cleanup checkpoint: latest known landed card `291x-384`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string

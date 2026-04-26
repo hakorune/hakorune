@@ -1,9 +1,9 @@
-# Route Detector Support Facades
+# Route Detector Support
 
 This directory owns stable caller paths for route detector support helpers.
 
-`legacy/` is private implementation storage. New non-legacy callers should use
-semantic support modules instead of `loop_route_detection::{legacy module name}`.
+`legacy/` is private implementation storage. New non-legacy callers must use
+semantic support modules here.
 
 Current stable owner paths:
 
@@ -22,6 +22,8 @@ Do not add route-selection policy here. Current route selection remains:
 LoopFeatures -> classify() -> LoopRouteKind
 ```
 
-Removal condition: once callers are migrated and files are physically moved out
-of `legacy/`, these facades can become real owner modules instead of re-export
-facades.
+Current implementation note: these modules are still re-export facades over
+private `legacy/` storage. Move files into this directory family-by-family,
+after each family has a focused validation slice.
+
+Do not expose `legacy` again to make a migration easier.
