@@ -30,8 +30,7 @@
 //! Reference: docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md
 //!
 //! Implementation-backed legacy support modules live under private `legacy/`
-//! storage. Selected compatibility modules are re-exported from this parent
-//! module until their callers move to stable owner modules.
+//! storage. Stable support owner paths are exposed through `support/`.
 //!
 //! Current route selection should use `classify`, `LoopFeatures`, and
 //! `LoopRouteKind`, not legacy route-shape function entry points.

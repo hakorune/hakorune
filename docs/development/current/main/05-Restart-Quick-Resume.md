@@ -33,15 +33,16 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector compatibility module ownership closeout pending`
+- current blocker token: `phase-291x JoinIR route detector support facade physical owner inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-381` pruned the final parent body-local
-  compatibility exports
+- latest known checkpoint: `291x-382` closed out route detector compatibility
+  module ownership with parent surface reduced to classifier API plus support
+  facades
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +50,8 @@ cargo check -q
 
 ## Immediate Next
 
-- close out route detector compatibility module ownership series by reviewing
-  final parent surface and support facade docs
+- inventory whether support facades should become physical owner modules next;
+  do not move files in the inventory card
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

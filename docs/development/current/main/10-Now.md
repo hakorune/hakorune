@@ -20,15 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR route detector compatibility module ownership closeout pending`
+- current blocker token: `phase-291x JoinIR route detector support facade physical owner inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- close out route detector compatibility module ownership series by reviewing
-  final parent surface and support facade docs
-- cleanup checkpoint: latest known landed card `291x-381`; detailed closed
+- inventory whether support facades should become physical owner modules next;
+  do not move files in the inventory card
+- cleanup checkpoint: latest known landed card `291x-382`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
