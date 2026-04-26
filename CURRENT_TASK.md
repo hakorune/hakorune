@@ -37,19 +37,19 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR LoopFeatures route surface review pending`
+- current blocker token: `phase-291x JoinIR LoopFeatures route surface comment cleanup pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-350` pruned default-only constants from the
-  LoopForm feature extractor
+- latest known checkpoint: `291x-351` reviewed the remaining
+  `LoopFeatures` route surface and found only docs/comments need cleanup
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: review the remaining `LoopFeatures` route surface; do not
+- resume point: clean up stale `LoopFeatures` route-surface comments; do not
   change route behavior
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
@@ -58,11 +58,11 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-350-joinir-loopfeatures-loopform-constants-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-351-joinir-loopfeatures-route-surface-review-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: JoinIR `LoopFeatures` route surface review; decide whether the lane
-  is clean enough or needs another BoxShape slice
+- next: JoinIR `LoopFeatures` route-surface comment cleanup; code behavior is
+  already thin enough
 - keep BoxShape cleanup separate from BoxCount feature rows
 - keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-350`; detailed landed history lives in phase card
+- latest checkpoint: `291x-351`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: JoinIR `LoopFeatures` route surface review
+- next cleanup: JoinIR `LoopFeatures` route-surface comment cleanup
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
   not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
   CoreMethodContract fallback rows
