@@ -60,7 +60,7 @@ pub(crate) mod loop_routes; // Phase 188: Route-family loop lowering
 pub mod loop_scope_shape;
 pub mod loop_to_join;
 pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carrier semantics
-pub mod loop_update_summary; // Phase 170-C-2: Update pattern summary for shape detection
+pub mod loop_update_summary; // Phase 170-C-2: route-local loop update pattern analysis
 pub(crate) mod loop_view_builder; // Phase 33-23: Loop lowering dispatch
 pub mod loop_with_break_minimal; // Phase 188-Impl-2: loop_break minimal lowerer
 pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-driven)

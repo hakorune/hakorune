@@ -82,7 +82,7 @@ pub enum CaseALoweringShape {
 }
 
 impl CaseALoweringShape {
-    /// Detect lowering shape from LoopFeatures (legacy, use detect_with_updates when possible)
+    /// Detect lowering shape from LoopFeatures.
     ///
     /// # Phase 170-A Design Principle
     ///
@@ -93,11 +93,7 @@ impl CaseALoweringShape {
     ///
     /// # Heuristics
     /// - Carrier count alone is not enough to select a specialized lowerer.
-    /// - Use `detect_with_updates()` when observed update metadata exists.
     /// - has_break/has_continue → affects Case-A eligibility
-    ///
-    /// # Phase 170-C Future Work
-    /// - Use detect_with_updates() for better single-carrier classification
     ///
     /// # Arguments
     /// * `features` - LoopFeatures (structure-based, name-agnostic)
@@ -131,63 +127,6 @@ impl CaseALoweringShape {
         }
     }
 
-    /// Phase 170-C-2b: LoopUpdateSummary を使った精度向上版
-    ///
-    /// `features.update_summary` から UpdateKind を取得して判定。
-    /// これにより、carrier 名を直接見るコードを CaseALoweringShape から排除できる。
-    ///
-    /// # Arguments
-    /// * `features` - LoopFeatures (update_summary 含む)
-    /// * `carrier_count` - Number of carrier variables
-    /// * `has_progress_carrier` - Whether progress carrier exists
-    ///
-    /// # Returns
-    /// CaseALoweringShape classification based on UpdateSummary
-    pub fn detect_with_updates(
-        features: &crate::mir::loop_route_detection::LoopFeatures,
-        carrier_count: usize,
-        has_progress_carrier: bool,
-    ) -> Self {
-        use crate::mir::join_ir::lowering::loop_update_summary::UpdateKind;
-
-        // Case-A requirement: must have a progress carrier
-        if !has_progress_carrier {
-            return CaseALoweringShape::NotCaseA;
-        }
-
-        // Case-A requirement: no complex control flow (continue)
-        if features.has_continue {
-            return CaseALoweringShape::NotCaseA;
-        }
-
-        // Phase 170-C-2b: Use UpdateSummary if available
-        if let Some(ref summary) = features.update_summary {
-            // Single carrier with CounterLike update → StringExamination
-            if summary.carriers.len() == 1 && summary.carriers[0].kind == UpdateKind::CounterLike {
-                return CaseALoweringShape::StringExamination;
-            }
-
-            // Any AccumulationLike carrier → ArrayAccumulation (for single carrier)
-            // or IterationWithAccumulation (for multiple carriers)
-            if summary
-                .carriers
-                .iter()
-                .any(|c| c.kind == UpdateKind::AccumulationLike)
-            {
-                if carrier_count == 1 {
-                    return CaseALoweringShape::ArrayAccumulation;
-                } else {
-                    return CaseALoweringShape::IterationWithAccumulation;
-                }
-            }
-
-            // No accumulation proof: keep shape generic. Exact known targets
-            // continue through Case-A descriptor fallback.
-        }
-
-        Self::detect_from_features(features, carrier_count, has_progress_carrier)
-    }
-
     /// Legacy wrapper: Detect from LoopScopeShape (deprecated, use detect_from_features)
     ///
     /// Phase 170-A: Kept for backward compatibility during transition.
@@ -202,9 +141,7 @@ impl CaseALoweringShape {
         let has_progress_carrier = scope.progress_carrier.is_some();
         let carrier_count = scope.carriers.len();
 
-        // Create stub features without update_summary. Carrier names alone are
-        // not an update-kind proof; only observed AST/MIR updates may populate
-        // LoopFeatures.update_summary.
+        // Carrier names alone are not an update-kind proof.
         let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count,
             ..Default::default() // Phase 188.1: Use Default for nesting fields
@@ -237,9 +174,6 @@ impl CaseALoweringShape {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::join_ir::lowering::loop_update_summary::{
-        CarrierUpdateInfo, LoopUpdateSummary, UpdateKind,
-    };
     use crate::mir::BasicBlockId;
     use std::collections::{BTreeMap, BTreeSet};
 
@@ -290,33 +224,13 @@ mod tests {
 
     #[test]
     #[allow(deprecated)]
-    fn case_a_update_summary_name_only_does_not_synthesize_accumulation() {
+    fn case_a_name_only_does_not_synthesize_accumulation() {
         let scope = scope_with_carriers(&["defs"], Some("defs"));
 
         assert_eq!(
             CaseALoweringShape::detect(&scope),
             CaseALoweringShape::Generic
         );
-    }
-
-    fn features_with_update_summary(
-        updates: Vec<(&str, UpdateKind)>,
-    ) -> crate::mir::loop_route_detection::LoopFeatures {
-        crate::mir::loop_route_detection::LoopFeatures {
-            carrier_count: updates.len(),
-            update_summary: Some(LoopUpdateSummary {
-                carriers: updates
-                    .into_iter()
-                    .map(|(name, kind)| CarrierUpdateInfo {
-                        name: name.to_string(),
-                        kind,
-                        then_expr: None,
-                        else_expr: None,
-                    })
-                    .collect(),
-            }),
-            ..Default::default()
-        }
     }
 
     #[test]
@@ -329,32 +243,6 @@ mod tests {
         assert_eq!(
             CaseALoweringShape::detect_from_features(&features, 2, true),
             CaseALoweringShape::Generic
-        );
-    }
-
-    #[test]
-    fn case_a_carrier_count_with_unclear_summary_stays_generic() {
-        let features = features_with_update_summary(vec![
-            ("i", UpdateKind::CounterLike),
-            ("value", UpdateKind::Other),
-        ]);
-
-        assert_eq!(
-            CaseALoweringShape::detect_with_updates(&features, 2, true),
-            CaseALoweringShape::Generic
-        );
-    }
-
-    #[test]
-    fn case_a_carrier_count_with_accumulation_proof_selects_iteration() {
-        let features = features_with_update_summary(vec![
-            ("i", UpdateKind::CounterLike),
-            ("sum", UpdateKind::AccumulationLike),
-        ]);
-
-        assert_eq!(
-            CaseALoweringShape::detect_with_updates(&features, 2, true),
-            CaseALoweringShape::IterationWithAccumulation
         );
     }
 }

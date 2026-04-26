@@ -37,14 +37,6 @@ pub struct LoopFeatures {
 
     /// Phase 188.1: Has inner loops?
     pub has_inner_loops: bool,
-
-    /// Phase 170-C-2b: Carrier update pattern summary
-    ///
-    /// Contains UpdateKind (CounterLike/AccumulationLike/Other) for each carrier.
-    /// Used by CaseALoweringShape for more precise shape detection.
-    /// None if no AST/MIR update observation has populated it.
-    pub update_summary:
-        Option<crate::mir::join_ir::lowering::loop_update_summary::LoopUpdateSummary>,
 }
 
 impl Default for LoopFeatures {
@@ -60,7 +52,6 @@ impl Default for LoopFeatures {
             is_infinite_loop: false,
             max_loop_depth: 1,      // Phase 188.1: Default (no nesting)
             has_inner_loops: false, // Phase 188.1: Default (no nesting)
-            update_summary: None,
         }
     }
 }
@@ -173,10 +164,6 @@ pub(crate) fn extract_features(
     // For now, infer from has_if_else_phi (IfPhiJoin signature heuristic)
     let has_if = has_if_else_phi;
 
-    // Carrier names alone are not update-kind proof. Leave update_summary
-    // absent until an AST/MIR update observer populates it.
-    let update_summary = None;
-
     // Phase 188.1: Nesting detection
     // TODO: Detect from LoopForm structure (nested LoopForm presence)
     // For now, default to no nesting (will be detected in lowering phase)
@@ -194,6 +181,5 @@ pub(crate) fn extract_features(
         is_infinite_loop: false, // Phase 131-11: LoopForm doesn't have condition info, default to false
         max_loop_depth,
         has_inner_loops,
-        update_summary,
     }
 }

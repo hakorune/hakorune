@@ -85,8 +85,7 @@ impl LoopViewBuilder {
         }
 
         // Phase 170-A-2: Structure-based routing with CaseALoweringShape.
-        // No AST/MIR update observation is available here, so update_summary
-        // must stay absent. Name-only carrier data is not an update-kind proof.
+        // Name-only carrier data is not an update-kind proof.
         let carrier_count = scope.carriers.len();
         let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count,
