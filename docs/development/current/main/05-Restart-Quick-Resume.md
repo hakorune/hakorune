@@ -33,16 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x normalized-shadow legacy internal helper privacy prune pending`
+- current blocker token: `phase-291x normalized-shadow legacy entry facade inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-398` inventoried the remaining
-  normalized-shadow `LegacyLowerer` public surface and selected helper
-  visibility pruning as the next BoxShape seam
+- latest known checkpoint: `291x-399` made normalized-shadow `LegacyLowerer`
+  helper methods private and kept only the if-only entry method public
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -50,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- make remaining `LegacyLowerer` helper methods private while keeping only
-  `lower_if_only_to_normalized` public
+- inventory whether the remaining legacy if-only entry should move behind a
+  narrower entry facade/module
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

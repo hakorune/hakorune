@@ -100,7 +100,7 @@ impl LegacyLowerer {
     }
 
     /// Phase 123-128 P1-P3: Lower node from StepTree
-    pub fn lower_return_from_tree(
+    fn lower_return_from_tree(
         node: &crate::mir::control_tree::step_tree::StepNode,
         body: &mut Vec<crate::mir::join_ir::JoinInst>,
         next_value_id: &mut u32,
@@ -171,7 +171,7 @@ impl LegacyLowerer {
     }
 
     /// Phase 123-128 P3: Lower If node with minimal compare
-    pub fn lower_if_node(
+    fn lower_if_node(
         node: &crate::mir::control_tree::step_tree::StepNode,
         body: &mut Vec<crate::mir::join_ir::JoinInst>,
         next_value_id: &mut u32,
@@ -243,7 +243,7 @@ impl LegacyLowerer {
     }
 
     /// Verify branch contains only Return(Integer literal)
-    pub fn verify_branch_is_return_literal(
+    fn verify_branch_is_return_literal(
         branch: &crate::mir::control_tree::step_tree::StepNode,
     ) -> Result<(), String> {
         use crate::ast::{ASTNode, LiteralValue};
@@ -289,7 +289,7 @@ impl LegacyLowerer {
     }
 
     /// Phase 123-125 P1-P2-P3-P4: Lower return value
-    pub fn lower_return_value(
+    fn lower_return_value(
         value_ast: &Option<crate::mir::control_tree::step_tree::AstNodeHandle>,
         body: &mut Vec<crate::mir::join_ir::JoinInst>,
         next_value_id: &mut u32,
