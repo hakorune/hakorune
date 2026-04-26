@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
+- current blocker token: `phase-291x normalized-shadow loop-if-exit wording cleanup pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-429` added fossil-boundary notes for the
-  normalized-shadow if-only baseline
+- latest known checkpoint: `291x-430` capped the current cleanup burst and
+  selected loop-if-exit wording as the next seam
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,10 @@ cargo check -q
 
 ## Immediate Next
 
-- inventory the next compiler-cleanliness seam after normalized-shadow if-only
-  fossil boundary note
+- clean loop-if-exit route-decline wording without changing accepted
+  loop-if-exit shapes
+- closeout cap: at most 5 more small cleanup cards before closeout review;
+  larger findings move to a new lane
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

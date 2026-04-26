@@ -20,17 +20,19 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next compiler-cleanliness seam inventory pending`
+- current blocker token: `phase-291x normalized-shadow loop-if-exit wording cleanup pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory the next compiler-cleanliness seam after normalized-shadow if-only
-  fossil boundary note
-- cleanup checkpoint: latest known landed card `291x-429`; detailed closed
+- clean loop-if-exit route-decline wording without changing accepted
+  loop-if-exit shapes
+- cleanup checkpoint: latest known landed card `291x-430`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
+- closeout cap: at most 5 more small cleanup cards before closeout review;
+  larger findings move to a new lane
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
