@@ -43,8 +43,8 @@
 //! - Extracted from ast_feature_extractor for improved modularity
 //!
 //! Phase 93/94: Route Policies
-//! - policies/: route recognition and routing decision (thin wrapper)
-//! - Implementations moved to plan/
+//! - route-policy compatibility re-exports have been retired
+//! - Active route/policy owners are addressed by their physical modules
 //!
 //! Phase 255 P2: Common Utilities
 //! - common/: Shared helper functions (moved to plan/, thin wrapper)
@@ -55,10 +55,6 @@ pub(in crate::mir::builder) mod router;
 pub(crate) mod ast_feature_extractor {
     pub(crate) use crate::mir::builder::control_flow::facts::ast_feature_extractor::*;
 }
-pub(in crate::mir::builder) mod policies {
-    pub(in crate::mir::builder) use crate::mir::builder::control_flow::cleanup::policies::*;
-}
-
 // Re-export router for convenience
 pub(in crate::mir::builder) use router::{route_loop, LoopRouteContext};
 

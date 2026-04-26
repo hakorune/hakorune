@@ -18,7 +18,7 @@ Consolidate the two separate entry points for Normalized shadow processing into 
 
 1. **Before**: Dual entry points with scattered responsibility
    - `try_normalized_shadow()` in routing.rs
-   - `suffix_router_box` in policies/
+  - `suffix_router_box` under normalization
    - Decision logic ("what to lower") is duplicated and inconsistent
 
 2. **After**: Single decision point using Box-First architecture
@@ -34,7 +34,7 @@ Consolidate the two separate entry points for Normalized shadow processing into 
 
 **Two callers, one SSOT decision**:
 - `routing.rs::try_normalized_shadow()`: loop statement normalization
-- `suffix_router_box::try_lower_loop_suffix()`: block-suffix entry that delegates to the same loop-only plan
+- `normalization::suffix_router_box::try_lower_loop_suffix()`: block-suffix entry that delegates to the same loop-only plan
   - Statement-level normalization: only the loop is normalized (consumed=1)
   - Subsequent statements (return, assignments) are handled by normal MIR lowering
 - Both call `NormalizationPlanBox::plan_block_suffix()` for detection

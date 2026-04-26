@@ -75,7 +75,7 @@ pub(in crate::mir::builder) fn build_block(
                 .unwrap_or_else(|| "unknown".to_string());
             let debug = trace.is_enabled();
 
-            use crate::mir::builder::control_flow::joinir::route_entry::policies::normalized_shadow_suffix_router_box::NormalizedShadowSuffixRouterBox;
+            use crate::mir::builder::control_flow::normalization::NormalizedShadowSuffixRouterBox;
             // Phase 141 P1.5: Pass prefix variables for external env inputs
             // Clone to avoid borrow checker conflict (self is borrowed mutably in try_lower_loop_suffix)
             let prefix_var_map = builder.variable_ctx.variable_map.clone();

@@ -19,7 +19,9 @@
 mod execute_box;
 mod plan;
 mod plan_box;
+mod suffix_router_box;
 
 pub use execute_box::NormalizationExecuteBox;
 pub use plan::PlanKind;
 pub use plan_box::NormalizationPlanBox;
+pub(in crate::mir::builder) use suffix_router_box::NormalizedShadowSuffixRouterBox;
