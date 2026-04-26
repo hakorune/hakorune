@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR Case-A update-summary name-only inventory pending`
+- current blocker token: `phase-291x JoinIR Case-A update-summary name-only prune pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-318` replaced the simple-while `main`
-  substring gate with a `StaticMethodId`/canonical-main helper
+- latest known checkpoint: `291x-319` inventoried the Case-A synthetic
+  update-summary seam where carrier names were treated as update-kind proof
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- inventory Case-A shape dispatch update-summary name-only fallback; do not
-  mix with simple-while gate cleanup
+- prune Case-A name-only synthetic update-summary; do not mix with broader
+  carrier-count heuristic cleanup
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
