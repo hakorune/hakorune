@@ -33,15 +33,15 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x JoinIR loop-update docs/comment contract cleanup pending`
+- current blocker token: `phase-291x JoinIR loop-update caller surface inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-333` inventoried stale loop-update comments
-  that described wider analyzer support than the current contract
+- latest known checkpoint: `291x-334` cleaned loop-update comments to match
+  the current narrow RHS/self-reference analyzer contract
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -49,8 +49,8 @@ cargo check -q
 
 ## Immediate Next
 
-- clean loop-update docs/comments to match the current analyzer contract; do
-  not change behavior
+- inventory loop-update caller surface after helper split; do not change
+  behavior
 - use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
   for task order
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`

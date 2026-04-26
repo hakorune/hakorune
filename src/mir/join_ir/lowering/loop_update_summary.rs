@@ -10,6 +10,8 @@
 //! - LoopFeatures / CaseALoweringShape から独立したモジュール
 //! - No body observation means no update summary; carrier names alone are not
 //!   update-kind proof.
+//! - Current analyzer support is intentionally narrow: self-referential `+`
+//!   updates only. Carrier names only disambiguate `x = x + 1`.
 //!
 //! ## 使用例
 //!
@@ -31,14 +33,16 @@ mod tests;
 /// Phase 170-C-2: 3種類のパターンを区別
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UpdateKind {
-    /// カウンタ系: i = i + 1, i = i - 1, i += 1
+    /// カウンタ系: `i = i + 1` where `i` is an index-like carrier name
     ///
     /// 典型的な skip/trim パターン。進捗変数として使われる。
+    /// Subtraction and compound assignment are not recognized by this analyzer.
     CounterLike,
 
-    /// 蓄積系: result = result + x, arr.push(x), list.append(x)
+    /// 蓄積系: self-referential `x = x + value` that is not CounterLike
     ///
     /// 典型的な collect/filter パターン。結果を蓄積する変数。
+    /// Mutating calls such as `push`/`append` are not recognized here.
     AccumulationLike,
 
     /// 判定不能
@@ -67,16 +71,17 @@ pub struct CarrierUpdateInfo {
     /// 更新パターン
     pub kind: UpdateKind,
 
-    /// Phase 213: Then branch update expression (for IfPhiJoin route)
-    /// (legacy "if-sum" wording is traceability-only)
-    /// e.g., for "if (cond) { sum = sum + 1 }", then_expr is "sum + 1"
+    /// Reserved legacy IfPhiJoin payload slot.
+    ///
+    /// The current analyzer classifies summary shape only and does not populate
+    /// branch expression payloads.
     #[allow(dead_code)]
     pub then_expr: Option<crate::ast::ASTNode>,
 
-    /// Phase 213: Else branch update expression (for IfPhiJoin route)
-    /// (legacy "if-sum" wording is traceability-only)
-    /// e.g., for "else { sum = sum + 0 }", else_expr is "sum + 0"
-    /// If no else branch, this can be the identity update (e.g., "sum")
+    /// Reserved legacy IfPhiJoin payload slot.
+    ///
+    /// The current analyzer classifies summary shape only and does not populate
+    /// branch expression payloads.
     #[allow(dead_code)]
     pub else_expr: Option<crate::ast::ASTNode>,
 }
@@ -167,8 +172,9 @@ impl LoopUpdateSummary {
 /// # New Design (Phase 219)
 ///
 /// - Takes loop body AST as input (not just carrier names)
-/// - Only analyzes variables that are ASSIGNED in loop body
-/// - Uses RHS structure analysis (NOT name heuristics)
+/// - Only analyzes statement-level carrier assignments in the current loop body
+/// - Recurses into current-loop if branches, not nested loop bodies
+/// - Uses RHS/self-reference analysis; names only break ties for `x = x + 1`
 ///
 /// # Arguments
 ///

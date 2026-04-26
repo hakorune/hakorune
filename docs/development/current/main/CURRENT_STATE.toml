@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-333"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-333-joinir-loop-update-stale-docs-inventory-card.md"
-latest_card_summary = "Inventoried stale loop-update comments that described wider analyzer support than the current contract."
+latest_card = "291x-334"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-334-joinir-loop-update-doc-comment-contract-card.md"
+latest_card_summary = "Cleaned loop-update comments to match the current narrow RHS/self-reference analyzer contract."
 
-current_blocker_token = "phase-291x JoinIR loop-update docs/comment contract cleanup pending"
+current_blocker_token = "phase-291x JoinIR loop-update caller surface inventory pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -53,4 +53,5 @@ landed_tail = [
   "291x-331 JoinIR loop-update summary helper split inventory landed",
   "291x-332 JoinIR loop-update summary helper split landed",
   "291x-333 JoinIR loop-update stale docs/comments inventory landed",
+  "291x-334 JoinIR loop-update docs/comment contract cleanup landed",
 ]

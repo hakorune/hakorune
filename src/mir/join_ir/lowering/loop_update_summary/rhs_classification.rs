@@ -4,6 +4,9 @@ use super::UpdateKind;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
 /// Classify one RHS expression after validating it references the assigned carrier.
+///
+/// This intentionally recognizes only self-referential addition. Other update
+/// forms should become explicit analyzer cards before being accepted here.
 fn classify_update_kind_from_rhs(var_name: &str, rhs: &ASTNode) -> UpdateKind {
     match rhs {
         ASTNode::BinaryOp {
@@ -37,6 +40,7 @@ fn classify_update_kind_from_rhs(var_name: &str, rhs: &ASTNode) -> UpdateKind {
     }
 }
 
+/// Name tie-break for the proven `x = x + 1` shape only.
 fn is_likely_loop_index(name: &str) -> bool {
     matches!(name, "i" | "j" | "k" | "e" | "idx" | "index" | "pos" | "n")
 }
