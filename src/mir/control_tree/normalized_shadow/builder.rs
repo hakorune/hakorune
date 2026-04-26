@@ -110,7 +110,7 @@ impl StepTreeNormalizedShadowLowererBox {
             return Ok(Some((module, meta)));
         }
 
-        // Phase 143 P0: loop(true) + if + break pattern
+        // Phase 143 P0/P1/P2: loop(true) + if + break/continue pattern
         if let Some((module, meta)) =
             LoopTrueIfBreakContinueBuilderBox::lower(step_tree, &env_layout)?
         {
