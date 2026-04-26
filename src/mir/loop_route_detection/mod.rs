@@ -42,10 +42,9 @@ pub(crate) use features::extract_features;
 pub use features::LoopFeatures;
 pub use kind::LoopRouteKind;
 pub use legacy::{
-    break_condition_analyzer, condition_var_analyzer, digitpos_detector, function_scope_capture,
-    loop_body_carrier_promoter, loop_body_cond_promoter, loop_body_digitpos_promoter,
-    loop_condition_scope, mutable_accumulator_analyzer, pinned_local_analyzer, trim_detector,
-    trim_loop_helper,
+    break_condition_analyzer, function_scope_capture, loop_body_carrier_promoter,
+    loop_body_cond_promoter, loop_condition_scope, mutable_accumulator_analyzer,
+    pinned_local_analyzer, trim_loop_helper,
 };
 pub use legacy::{
     is_if_phi_join_route, is_loop_break_route, is_loop_continue_only_route,
