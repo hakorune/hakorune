@@ -7,9 +7,9 @@
  */
 
 use super::{MirFunction, MirModule};
+use crate::mir::userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedKind;
 use crate::mir::{
-    StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanRetainedForm,
-    UserBoxLocalScalarSeedKind, ValueId,
+    StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanRetainedForm, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -1,4 +1,10 @@
 use super::*;
+use crate::mir::userbox_known_receiver_method_seed_plan::{
+    UserBoxKnownReceiverMethodSeedKind, UserBoxKnownReceiverMethodSeedPayload,
+};
+use crate::mir::userbox_local_scalar_seed_plan::{
+    UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedSinglePayload,
+};
 
 pub(super) fn build_mir_json_root(
     module: &crate::mir::MirModule,
@@ -570,17 +576,17 @@ pub(super) fn build_mir_json_root(
                 obj.insert("result_value".to_string(), json!(route.result_value().as_u32()));
                 obj.insert("proof".to_string(), json!(route.proof()));
                 let consumer_capability = match route.kind() {
-                    crate::mir::UserBoxLocalScalarSeedKind::PointLocalI64 |
-                    crate::mir::UserBoxLocalScalarSeedKind::PointCopyLocalI64 => "direct_userbox_point_local_scalar",
-                    crate::mir::UserBoxLocalScalarSeedKind::FlagLocalBool |
-                    crate::mir::UserBoxLocalScalarSeedKind::FlagCopyLocalBool => "direct_userbox_flag_local_scalar",
-                    crate::mir::UserBoxLocalScalarSeedKind::PointFLocalF64 |
-                    crate::mir::UserBoxLocalScalarSeedKind::PointFCopyLocalF64 => "direct_userbox_pointf_local_scalar",
+                    UserBoxLocalScalarSeedKind::PointLocalI64 |
+                    UserBoxLocalScalarSeedKind::PointCopyLocalI64 => "direct_userbox_point_local_scalar",
+                    UserBoxLocalScalarSeedKind::FlagLocalBool |
+                    UserBoxLocalScalarSeedKind::FlagCopyLocalBool => "direct_userbox_flag_local_scalar",
+                    UserBoxLocalScalarSeedKind::PointFLocalF64 |
+                    UserBoxLocalScalarSeedKind::PointFCopyLocalF64 => "direct_userbox_pointf_local_scalar",
                 };
                 obj.insert("consumer_capability".to_string(), json!(consumer_capability));
                 obj.insert("publication_boundary".to_string(), json!("none"));
                 match route.payload() {
-                    crate::mir::UserBoxLocalScalarSeedPayload::PointI64Pair {
+                    UserBoxLocalScalarSeedPayload::PointI64Pair {
                         x_field,
                         y_field,
                         set_x_instruction_index,
@@ -608,7 +614,7 @@ pub(super) fn build_mir_json_root(
                         obj.insert("x_i64".to_string(), json!(*x_i64));
                         obj.insert("y_i64".to_string(), json!(*y_i64));
                     }
-                    crate::mir::UserBoxLocalScalarSeedPayload::SingleField {
+                    UserBoxLocalScalarSeedPayload::SingleField {
                         field,
                         set_instruction_index,
                         get_instruction_index,
@@ -617,8 +623,8 @@ pub(super) fn build_mir_json_root(
                         payload,
                     } => {
                         let (payload_i64, payload_f64) = match payload {
-                            crate::mir::UserBoxLocalScalarSeedSinglePayload::I64(value) => (Some(*value), None),
-                            crate::mir::UserBoxLocalScalarSeedSinglePayload::F64Bits(bits) => {
+                            UserBoxLocalScalarSeedSinglePayload::I64(value) => (Some(*value), None),
+                            UserBoxLocalScalarSeedSinglePayload::F64Bits(bits) => {
                                 (None, Some(f64::from_bits(*bits)))
                             }
                         };
@@ -932,7 +938,7 @@ fn build_userbox_known_receiver_method_seed_route_json(
     );
     obj.insert("proof".to_string(), json!(route.proof()));
     match route.payload() {
-        crate::mir::UserBoxKnownReceiverMethodSeedPayload::CounterStepI64 {
+        UserBoxKnownReceiverMethodSeedPayload::CounterStepI64 {
             base_i64,
             delta_i64,
         } => {
@@ -945,7 +951,7 @@ fn build_userbox_known_receiver_method_seed_route_json(
             obj.insert("sum_i64".to_string(), serde_json::Value::Null);
             obj.insert("leaf_method_function".to_string(), serde_json::Value::Null);
         }
-        crate::mir::UserBoxKnownReceiverMethodSeedPayload::PointSumI64 { x_i64, y_i64 } => {
+        UserBoxKnownReceiverMethodSeedPayload::PointSumI64 { x_i64, y_i64 } => {
             obj.insert("base_i64".to_string(), serde_json::Value::Null);
             obj.insert("delta_i64".to_string(), serde_json::Value::Null);
             obj.insert("x_i64".to_string(), json!(*x_i64));
@@ -955,7 +961,7 @@ fn build_userbox_known_receiver_method_seed_route_json(
             obj.insert("sum_i64".to_string(), serde_json::Value::Null);
             obj.insert("leaf_method_function".to_string(), serde_json::Value::Null);
         }
-        crate::mir::UserBoxKnownReceiverMethodSeedPayload::CounterStepLoopMicro {
+        UserBoxKnownReceiverMethodSeedPayload::CounterStepLoopMicro {
             base_i64,
             delta_i64,
             ops,
@@ -977,7 +983,7 @@ fn build_userbox_known_receiver_method_seed_route_json(
             obj.insert("field_set_count".to_string(), json!(*field_set_count));
             obj.insert("leaf_method_function".to_string(), serde_json::Value::Null);
         }
-        crate::mir::UserBoxKnownReceiverMethodSeedPayload::CounterStepChainI64 {
+        UserBoxKnownReceiverMethodSeedPayload::CounterStepChainI64 {
             base_i64,
             delta_i64,
             leaf_method_function,
@@ -1012,7 +1018,7 @@ fn build_userbox_known_receiver_method_seed_route_json(
             );
             obj.insert("field_set_count".to_string(), json!(*field_set_count));
         }
-        crate::mir::UserBoxKnownReceiverMethodSeedPayload::PointSumLoopMicro {
+        UserBoxKnownReceiverMethodSeedPayload::PointSumLoopMicro {
             x_i64,
             y_i64,
             ops,
@@ -1046,8 +1052,8 @@ fn build_userbox_known_receiver_method_seed_route_json(
         }
     }
     let consumer_capability = match route.kind() {
-        crate::mir::UserBoxKnownReceiverMethodSeedKind::CounterStepMicro
-        | crate::mir::UserBoxKnownReceiverMethodSeedKind::PointSumMicro => {
+        UserBoxKnownReceiverMethodSeedKind::CounterStepMicro
+        | UserBoxKnownReceiverMethodSeedKind::PointSumMicro => {
             "direct_userbox_known_receiver_method_micro"
         }
         _ => "direct_userbox_known_receiver_method_local",
