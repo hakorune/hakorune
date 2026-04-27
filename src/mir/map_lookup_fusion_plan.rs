@@ -127,18 +127,18 @@ pub fn refresh_function_map_lookup_fusion_routes(function: &mut MirFunction) {
 
 fn is_scalar_map_get_route(route: &GenericMethodRoute) -> bool {
     route
-        .core_method
+        .core_method()
         .is_some_and(|carrier| carrier.op == CoreMethodOp::MapGet)
         && route.receiver_origin_box.as_deref() == Some("MapBox")
         && route.key_route == Some(GenericMethodKeyRoute::I64Const)
-        && route.return_shape == Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
-        && route.value_demand == GenericMethodValueDemand::ScalarI64
-        && route.publication_policy == Some(GenericMethodPublicationPolicy::NoPublication)
+        && route.return_shape() == Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
+        && route.value_demand() == GenericMethodValueDemand::ScalarI64
+        && route.publication_policy() == Some(GenericMethodPublicationPolicy::NoPublication)
 }
 
 fn is_i64_map_has_route(route: &GenericMethodRoute) -> bool {
     route
-        .core_method
+        .core_method()
         .is_some_and(|carrier| carrier.op == CoreMethodOp::MapHas)
         && route.receiver_origin_box.as_deref() == Some("MapBox")
         && route.key_route == Some(GenericMethodKeyRoute::I64Const)

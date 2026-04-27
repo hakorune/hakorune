@@ -161,7 +161,7 @@ pub(super) fn build_mir_json_root(
                 })
             }).collect::<Vec<_>>(),
             "generic_method_routes": f.metadata.generic_method_routes.iter().map(|route| {
-                let core_method = route.core_method.map(|carrier| {
+                let core_method = route.core_method().map(|carrier| {
                     json!({
                         "op": carrier.op.to_string(),
                         "proof": carrier.proof.to_string(),
@@ -181,13 +181,13 @@ pub(super) fn build_mir_json_root(
                     "key_value": route.key_value.map(|value| value.as_u32()),
                     "result_value": route.result_value.map(|value| value.as_u32()),
                     "emit_kind": route.emit_kind(),
-                    "route_kind": route.route_kind.to_string(),
-                    "helper_symbol": route.route_kind.helper_symbol(),
-                    "proof": route.proof.to_string(),
+                    "route_kind": route.route_kind().to_string(),
+                    "helper_symbol": route.route_kind().helper_symbol(),
+                    "proof": route.proof().to_string(),
                     "core_method": core_method,
-                    "return_shape": route.return_shape.map(|shape| shape.to_string()),
-                    "value_demand": route.value_demand.to_string(),
-                    "publication_policy": route.publication_policy.map(|policy| policy.to_string()),
+                    "return_shape": route.return_shape().map(|shape| shape.to_string()),
+                    "value_demand": route.value_demand().to_string(),
+                    "publication_policy": route.publication_policy().map(|policy| policy.to_string()),
                     "effects": route.effect_tags(),
                 })
             }).collect::<Vec<_>>(),

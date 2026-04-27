@@ -178,6 +178,36 @@ impl GenericMethodRouteSurface {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GenericMethodRouteDecision {
+    pub route_kind: GenericMethodRouteKind,
+    pub proof: GenericMethodRouteProof,
+    pub core_method: Option<CoreMethodOpCarrier>,
+    pub return_shape: Option<GenericMethodReturnShape>,
+    pub value_demand: GenericMethodValueDemand,
+    pub publication_policy: Option<GenericMethodPublicationPolicy>,
+}
+
+impl GenericMethodRouteDecision {
+    pub fn new(
+        route_kind: GenericMethodRouteKind,
+        proof: GenericMethodRouteProof,
+        core_method: Option<CoreMethodOpCarrier>,
+        return_shape: Option<GenericMethodReturnShape>,
+        value_demand: GenericMethodValueDemand,
+        publication_policy: Option<GenericMethodPublicationPolicy>,
+    ) -> Self {
+        Self {
+            route_kind,
+            proof,
+            core_method,
+            return_shape,
+            value_demand,
+            publication_policy,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GenericMethodRoute {
     pub block: BasicBlockId,
     pub instruction_index: usize,
@@ -187,12 +217,7 @@ pub struct GenericMethodRoute {
     pub receiver_value: ValueId,
     pub key_value: Option<ValueId>,
     pub result_value: Option<ValueId>,
-    pub route_kind: GenericMethodRouteKind,
-    pub proof: GenericMethodRouteProof,
-    pub core_method: Option<CoreMethodOpCarrier>,
-    pub return_shape: Option<GenericMethodReturnShape>,
-    pub value_demand: GenericMethodValueDemand,
-    pub publication_policy: Option<GenericMethodPublicationPolicy>,
+    pub decision: GenericMethodRouteDecision,
 }
 
 impl GenericMethodRoute {
@@ -205,11 +230,11 @@ impl GenericMethodRoute {
     }
 
     pub fn route_id(&self) -> &'static str {
-        self.route_kind.route_id()
+        self.decision.route_kind.route_id()
     }
 
     pub fn emit_kind(&self) -> &'static str {
-        self.route_kind.emit_kind()
+        self.decision.route_kind.emit_kind()
     }
 
     pub fn arity(&self) -> usize {
@@ -217,7 +242,31 @@ impl GenericMethodRoute {
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
-        self.route_kind.effect_tags()
+        self.decision.route_kind.effect_tags()
+    }
+
+    pub fn route_kind(&self) -> GenericMethodRouteKind {
+        self.decision.route_kind
+    }
+
+    pub fn proof(&self) -> GenericMethodRouteProof {
+        self.decision.proof
+    }
+
+    pub fn core_method(&self) -> Option<CoreMethodOpCarrier> {
+        self.decision.core_method
+    }
+
+    pub fn return_shape(&self) -> Option<GenericMethodReturnShape> {
+        self.decision.return_shape
+    }
+
+    pub fn value_demand(&self) -> GenericMethodValueDemand {
+        self.decision.value_demand
+    }
+
+    pub fn publication_policy(&self) -> Option<GenericMethodPublicationPolicy> {
+        self.decision.publication_policy
     }
 }
 
@@ -380,12 +429,14 @@ fn match_generic_has_route(
         receiver_value: *receiver,
         key_value: Some(args[0]),
         result_value: *dst,
-        route_kind,
-        proof: GenericMethodRouteProof::HasSurfacePolicy,
-        core_method,
-        return_shape: None,
-        value_demand: GenericMethodValueDemand::ReadRef,
-        publication_policy: None,
+        decision: GenericMethodRouteDecision::new(
+            route_kind,
+            GenericMethodRouteProof::HasSurfacePolicy,
+            core_method,
+            None,
+            GenericMethodValueDemand::ReadRef,
+            None,
+        ),
     })
 }
 
@@ -429,15 +480,17 @@ fn match_generic_get_route(
             receiver_value: *receiver,
             key_value: Some(args[0]),
             result_value: *dst,
-            route_kind: GenericMethodRouteKind::ArraySlotLoadAny,
-            proof: GenericMethodRouteProof::GetSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::ArrayGet,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::ReadRef,
-            publication_policy: None,
+            decision: GenericMethodRouteDecision::new(
+                GenericMethodRouteKind::ArraySlotLoadAny,
+                GenericMethodRouteProof::GetSurfacePolicy,
+                Some(CoreMethodOpCarrier::manifest(
+                    CoreMethodOp::ArrayGet,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                )),
+                None,
+                GenericMethodValueDemand::ReadRef,
+                None,
+            ),
         });
     }
 
@@ -451,15 +504,17 @@ fn match_generic_get_route(
             receiver_value: *receiver,
             key_value: Some(args[0]),
             result_value: *dst,
-            route_kind: GenericMethodRouteKind::MapLoadAny,
-            proof: GenericMethodRouteProof::GetSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::MapGet,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::ReadRef,
-            publication_policy: None,
+            decision: GenericMethodRouteDecision::new(
+                GenericMethodRouteKind::MapLoadAny,
+                GenericMethodRouteProof::GetSurfacePolicy,
+                Some(CoreMethodOpCarrier::manifest(
+                    CoreMethodOp::MapGet,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                )),
+                None,
+                GenericMethodValueDemand::ReadRef,
+                None,
+            ),
         });
     }
 
@@ -473,15 +528,17 @@ fn match_generic_get_route(
             receiver_value: *receiver,
             key_value: Some(args[0]),
             result_value: *dst,
-            route_kind: GenericMethodRouteKind::ArraySlotLoadAny,
-            proof: GenericMethodRouteProof::GetSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::ArrayGet,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::ReadRef,
-            publication_policy: None,
+            decision: GenericMethodRouteDecision::new(
+                GenericMethodRouteKind::ArraySlotLoadAny,
+                GenericMethodRouteProof::GetSurfacePolicy,
+                Some(CoreMethodOpCarrier::manifest(
+                    CoreMethodOp::ArrayGet,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                )),
+                None,
+                GenericMethodValueDemand::ReadRef,
+                None,
+            ),
         });
     }
 
@@ -523,15 +580,17 @@ fn match_generic_get_route(
         receiver_value: *receiver,
         key_value: Some(args[0]),
         result_value: *dst,
-        route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
-        proof,
-        core_method: Some(CoreMethodOpCarrier::manifest(
-            CoreMethodOp::MapGet,
-            CoreMethodLoweringTier::ColdFallback,
-        )),
-        return_shape,
-        value_demand,
-        publication_policy,
+        decision: GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::RuntimeDataLoadAny,
+            proof,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapGet,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            return_shape,
+            value_demand,
+            publication_policy,
+        ),
     })
 }
 
@@ -580,15 +639,17 @@ fn match_generic_len_route(
         receiver_value: *receiver,
         key_value: None,
         result_value: *dst,
-        route_kind,
-        proof: GenericMethodRouteProof::LenSurfacePolicy,
-        core_method: Some(CoreMethodOpCarrier::manifest(
-            core_op,
-            CoreMethodLoweringTier::WarmDirectAbi,
-        )),
-        return_shape: Some(GenericMethodReturnShape::ScalarI64),
-        value_demand: GenericMethodValueDemand::ScalarI64,
-        publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+        decision: GenericMethodRouteDecision::new(
+            route_kind,
+            GenericMethodRouteProof::LenSurfacePolicy,
+            Some(CoreMethodOpCarrier::manifest(
+                core_op,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            Some(GenericMethodReturnShape::ScalarI64),
+            GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
     })
 }
 
@@ -635,15 +696,17 @@ fn match_generic_substring_route(
         receiver_value: *receiver,
         key_value: None,
         result_value: *dst,
-        route_kind: GenericMethodRouteKind::StringSubstring,
-        proof: GenericMethodRouteProof::SubstringSurfacePolicy,
-        core_method: Some(CoreMethodOpCarrier::manifest(
-            CoreMethodOp::StringSubstring,
-            CoreMethodLoweringTier::WarmDirectAbi,
-        )),
-        return_shape: None,
-        value_demand: GenericMethodValueDemand::ReadRef,
-        publication_policy: None,
+        decision: GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::StringSubstring,
+            GenericMethodRouteProof::SubstringSurfacePolicy,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::StringSubstring,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            None,
+            GenericMethodValueDemand::ReadRef,
+            None,
+        ),
     })
 }
 
@@ -690,15 +753,17 @@ fn match_generic_indexof_route(
         receiver_value: *receiver,
         key_value: None,
         result_value: *dst,
-        route_kind: GenericMethodRouteKind::StringIndexOf,
-        proof: GenericMethodRouteProof::IndexOfSurfacePolicy,
-        core_method: Some(CoreMethodOpCarrier::manifest(
-            CoreMethodOp::StringIndexOf,
-            CoreMethodLoweringTier::WarmDirectAbi,
-        )),
-        return_shape: Some(GenericMethodReturnShape::ScalarI64),
-        value_demand: GenericMethodValueDemand::ScalarI64,
-        publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+        decision: GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::StringIndexOf,
+            GenericMethodRouteProof::IndexOfSurfacePolicy,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::StringIndexOf,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            Some(GenericMethodReturnShape::ScalarI64),
+            GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
     })
 }
 
@@ -745,15 +810,17 @@ fn match_generic_push_route(
         receiver_value: *receiver,
         key_value: None,
         result_value: *dst,
-        route_kind: GenericMethodRouteKind::ArrayAppendAny,
-        proof: GenericMethodRouteProof::PushSurfacePolicy,
-        core_method: Some(CoreMethodOpCarrier::manifest(
-            CoreMethodOp::ArrayPush,
-            CoreMethodLoweringTier::ColdFallback,
-        )),
-        return_shape: Some(GenericMethodReturnShape::ScalarI64),
-        value_demand: GenericMethodValueDemand::WriteAny,
-        publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+        decision: GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::ArrayAppendAny,
+            GenericMethodRouteProof::PushSurfacePolicy,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::ArrayPush,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            Some(GenericMethodReturnShape::ScalarI64),
+            GenericMethodValueDemand::WriteAny,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
     })
 }
 
@@ -804,15 +871,17 @@ fn match_generic_set_route(
         receiver_value: *receiver,
         key_value: Some(args[0]),
         result_value: *dst,
-        route_kind,
-        proof: GenericMethodRouteProof::SetSurfacePolicy,
-        core_method: Some(CoreMethodOpCarrier::manifest(
-            core_op,
-            CoreMethodLoweringTier::ColdFallback,
-        )),
-        return_shape: None,
-        value_demand: GenericMethodValueDemand::WriteAny,
-        publication_policy: None,
+        decision: GenericMethodRouteDecision::new(
+            route_kind,
+            GenericMethodRouteProof::SetSurfacePolicy,
+            Some(CoreMethodOpCarrier::manifest(
+                core_op,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            None,
+            GenericMethodValueDemand::WriteAny,
+            None,
+        ),
     })
 }
 
@@ -1170,15 +1239,17 @@ mod tests {
             receiver_value: ValueId::new(1),
             key_value: Some(ValueId::new(2)),
             result_value: Some(ValueId::new(3)),
-            route_kind: GenericMethodRouteKind::MapContainsI64,
-            proof: GenericMethodRouteProof::HasSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::MapHas,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::ReadRef,
-            publication_policy: None,
+            decision: GenericMethodRouteDecision::new(
+                GenericMethodRouteKind::MapContainsI64,
+                GenericMethodRouteProof::HasSurfacePolicy,
+                Some(CoreMethodOpCarrier::manifest(
+                    CoreMethodOp::MapHas,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                )),
+                None,
+                GenericMethodValueDemand::ReadRef,
+                None,
+            ),
         };
 
         assert_eq!(route.route_id(), "generic_method.has");
@@ -1210,18 +1281,18 @@ mod tests {
         assert_eq!(route.receiver_value, ValueId::new(1));
         assert_eq!(route.key_value, Some(ValueId::new(2)));
         assert_eq!(route.result_value, Some(ValueId::new(3)));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::MapContainsAny);
-        assert_eq!(route.proof, GenericMethodRouteProof::HasSurfacePolicy);
-        let core_method = route.core_method.expect("MapBox.has core method op");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::MapContainsAny);
+        assert_eq!(route.proof(), GenericMethodRouteProof::HasSurfacePolicy);
+        let core_method = route.core_method().expect("MapBox.has core method op");
         assert_eq!(core_method.op, CoreMethodOp::MapHas);
         assert_eq!(
             core_method.proof.to_string(),
             "core_method_contract_manifest"
         );
         assert_eq!(core_method.lowering_tier.to_string(), "warm_direct_abi");
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
-        assert_eq!(route.publication_policy, None);
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1243,18 +1314,18 @@ mod tests {
         assert_eq!(route.method(), "has");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayContainsAny);
-        assert_eq!(route.route_kind.helper_symbol(), "nyash.array.has_hh");
-        assert_eq!(route.proof, GenericMethodRouteProof::HasSurfacePolicy);
-        let core_method = route.core_method.expect("ArrayBox.has core method op");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayContainsAny);
+        assert_eq!(route.route_kind().helper_symbol(), "nyash.array.has_hh");
+        assert_eq!(route.proof(), GenericMethodRouteProof::HasSurfacePolicy);
+        let core_method = route.core_method().expect("ArrayBox.has core method op");
         assert_eq!(core_method.op, CoreMethodOp::ArrayHas);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
-        assert_eq!(route.publication_policy, None);
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1277,18 +1348,18 @@ mod tests {
         assert_eq!(route.method(), "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::MapLoadAny);
-        assert_eq!(route.route_kind.helper_symbol(), "nyash.map.slot_load_hh");
-        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
-        let core_method = route.core_method.expect("MapBox.get core method op");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::MapLoadAny);
+        assert_eq!(route.route_kind().helper_symbol(), "nyash.map.slot_load_hh");
+        assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
+        let core_method = route.core_method().expect("MapBox.get core method op");
         assert_eq!(core_method.op, CoreMethodOp::MapGet);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
-        assert_eq!(route.publication_policy, None);
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1311,18 +1382,21 @@ mod tests {
         assert_eq!(route.method(), "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::ArraySlotLoadAny);
-        assert_eq!(route.route_kind.helper_symbol(), "nyash.array.slot_load_hi");
-        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
-        let core_method = route.core_method.expect("ArrayBox.get core method op");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLoadAny);
+        assert_eq!(
+            route.route_kind().helper_symbol(),
+            "nyash.array.slot_load_hi"
+        );
+        assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
+        let core_method = route.core_method().expect("ArrayBox.get core method op");
         assert_eq!(core_method.op, CoreMethodOp::ArrayGet);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
-        assert_eq!(route.publication_policy, None);
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1352,14 +1426,14 @@ mod tests {
         assert_eq!(route.method(), "push");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, None);
-        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayAppendAny);
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
         assert_eq!(
-            route.route_kind.helper_symbol(),
+            route.route_kind().helper_symbol(),
             "nyash.array.slot_append_hh"
         );
-        assert_eq!(route.proof, GenericMethodRouteProof::PushSurfacePolicy);
+        assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
         let core_method = route
-            .core_method
+            .core_method()
             .expect("RuntimeDataBox Array-origin push core method op");
         assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
         assert_eq!(
@@ -1367,12 +1441,12 @@ mod tests {
             CoreMethodLoweringTier::ColdFallback
         );
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::ScalarI64)
         );
-        assert_eq!(route.value_demand, GenericMethodValueDemand::WriteAny);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::NoPublication)
         );
     }
@@ -1404,20 +1478,23 @@ mod tests {
         assert_eq!(route.method(), "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::ArraySlotLoadAny);
-        assert_eq!(route.route_kind.helper_symbol(), "nyash.array.slot_load_hi");
-        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLoadAny);
+        assert_eq!(
+            route.route_kind().helper_symbol(),
+            "nyash.array.slot_load_hi"
+        );
+        assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
         let core_method = route
-            .core_method
+            .core_method()
             .expect("RuntimeDataBox Array-origin get core method op");
         assert_eq!(core_method.op, CoreMethodOp::ArrayGet);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
-        assert_eq!(route.publication_policy, None);
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1446,13 +1523,13 @@ mod tests {
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
         assert_eq!(
-            route.route_kind,
+            route.route_kind(),
             GenericMethodRouteKind::RuntimeDataContainsAny
         );
-        assert!(route.core_method.is_none());
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
-        assert_eq!(route.publication_policy, None);
+        assert!(route.core_method().is_none());
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1481,17 +1558,17 @@ mod tests {
         assert_eq!(route.method(), "has");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::UnknownAny));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayContainsAny);
-        assert_eq!(route.route_kind.helper_symbol(), "nyash.array.has_hh");
-        let core_method = route.core_method.expect("ArrayHas carrier");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayContainsAny);
+        assert_eq!(route.route_kind().helper_symbol(), "nyash.array.has_hh");
+        let core_method = route.core_method().expect("ArrayHas carrier");
         assert_eq!(core_method.op, CoreMethodOp::ArrayHas);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
-        assert_eq!(route.publication_policy, None);
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1540,29 +1617,38 @@ mod tests {
         assert_eq!(map_route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(map_route.key_route, None);
         assert_eq!(map_route.key_value, None);
-        assert_eq!(map_route.route_kind, GenericMethodRouteKind::MapEntryCount);
-        assert_eq!(map_route.proof, GenericMethodRouteProof::LenSurfacePolicy);
-        let map_core = map_route.core_method.expect("MapLen carrier");
+        assert_eq!(
+            map_route.route_kind(),
+            GenericMethodRouteKind::MapEntryCount
+        );
+        assert_eq!(map_route.proof(), GenericMethodRouteProof::LenSurfacePolicy);
+        let map_core = map_route.core_method().expect("MapLen carrier");
         assert_eq!(map_core.op, CoreMethodOp::MapLen);
         assert_eq!(
             map_core.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
         assert_eq!(
-            map_route.return_shape,
+            map_route.return_shape(),
             Some(GenericMethodReturnShape::ScalarI64)
         );
-        assert_eq!(map_route.value_demand, GenericMethodValueDemand::ScalarI64);
         assert_eq!(
-            map_route.publication_policy,
+            map_route.value_demand(),
+            GenericMethodValueDemand::ScalarI64
+        );
+        assert_eq!(
+            map_route.publication_policy(),
             Some(GenericMethodPublicationPolicy::NoPublication)
         );
 
         let array_route = &function.metadata.generic_method_routes[1];
         assert_eq!(array_route.method(), "length");
         assert_eq!(array_route.receiver_origin_box.as_deref(), Some("ArrayBox"));
-        assert_eq!(array_route.route_kind, GenericMethodRouteKind::ArraySlotLen);
-        let array_core = array_route.core_method.expect("ArrayLen carrier");
+        assert_eq!(
+            array_route.route_kind(),
+            GenericMethodRouteKind::ArraySlotLen
+        );
+        let array_core = array_route.core_method().expect("ArrayLen carrier");
         assert_eq!(array_core.op, CoreMethodOp::ArrayLen);
 
         let string_route = &function.metadata.generic_method_routes[2];
@@ -1571,8 +1657,8 @@ mod tests {
             string_route.receiver_origin_box.as_deref(),
             Some("StringBox")
         );
-        assert_eq!(string_route.route_kind, GenericMethodRouteKind::StringLen);
-        let string_core = string_route.core_method.expect("StringLen carrier");
+        assert_eq!(string_route.route_kind(), GenericMethodRouteKind::StringLen);
+        let string_core = string_route.core_method().expect("StringLen carrier");
         assert_eq!(string_core.op, CoreMethodOp::StringLen);
     }
 
@@ -1601,8 +1687,8 @@ mod tests {
         assert_eq!(route.box_name(), "RuntimeDataBox");
         assert_eq!(route.method(), "length");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::MapEntryCount);
-        let core_method = route.core_method.expect("RuntimeData MapLen carrier");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::MapEntryCount);
+        let core_method = route.core_method().expect("RuntimeData MapLen carrier");
         assert_eq!(core_method.op, CoreMethodOp::MapLen);
         assert_eq!(
             core_method.lowering_tier,
@@ -1639,17 +1725,20 @@ mod tests {
         assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
         assert_eq!(route.key_route, None);
         assert_eq!(route.key_value, None);
-        assert_eq!(route.route_kind, GenericMethodRouteKind::StringSubstring);
-        assert_eq!(route.proof, GenericMethodRouteProof::SubstringSurfacePolicy);
-        let core_method = route.core_method.expect("StringSubstring carrier");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::StringSubstring);
+        assert_eq!(
+            route.proof(),
+            GenericMethodRouteProof::SubstringSurfacePolicy
+        );
+        let core_method = route.core_method().expect("StringSubstring carrier");
         assert_eq!(core_method.op, CoreMethodOp::StringSubstring);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ReadRef);
-        assert_eq!(route.publication_policy, None);
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1684,9 +1773,9 @@ mod tests {
         assert_eq!(route.method(), "substring");
         assert_eq!(route.arity(), 2);
         assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::StringSubstring);
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::StringSubstring);
         let core_method = route
-            .core_method
+            .core_method()
             .expect("RuntimeData StringSubstring carrier");
         assert_eq!(core_method.op, CoreMethodOp::StringSubstring);
     }
@@ -1711,21 +1800,21 @@ mod tests {
         assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
         assert_eq!(route.key_route, None);
         assert_eq!(route.key_value, None);
-        assert_eq!(route.route_kind, GenericMethodRouteKind::StringIndexOf);
-        assert_eq!(route.proof, GenericMethodRouteProof::IndexOfSurfacePolicy);
-        let core_method = route.core_method.expect("StringIndexOf carrier");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::StringIndexOf);
+        assert_eq!(route.proof(), GenericMethodRouteProof::IndexOfSurfacePolicy);
+        let core_method = route.core_method().expect("StringIndexOf carrier");
         assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::WarmDirectAbi
         );
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::ScalarI64)
         );
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ScalarI64);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::NoPublication)
         );
     }
@@ -1763,9 +1852,9 @@ mod tests {
         assert_eq!(route.method(), "indexOf");
         assert_eq!(route.arity(), 1);
         assert_eq!(route.receiver_origin_box.as_deref(), Some("StringBox"));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::StringIndexOf);
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::StringIndexOf);
         let core_method = route
-            .core_method
+            .core_method()
             .expect("RuntimeData StringIndexOf carrier");
         assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
     }
@@ -1790,21 +1879,21 @@ mod tests {
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
         assert_eq!(route.key_route, None);
         assert_eq!(route.key_value, None);
-        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayAppendAny);
-        assert_eq!(route.proof, GenericMethodRouteProof::PushSurfacePolicy);
-        let core_method = route.core_method.expect("ArrayPush carrier");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
+        assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
+        let core_method = route.core_method().expect("ArrayPush carrier");
         assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::ColdFallback
         );
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::ScalarI64)
         );
-        assert_eq!(route.value_demand, GenericMethodValueDemand::WriteAny);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::NoPublication)
         );
     }
@@ -1835,10 +1924,10 @@ mod tests {
         assert_eq!(route.box_name(), "RuntimeDataBox");
         assert_eq!(route.method(), "push");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("ArrayBox"));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::ArrayAppendAny);
-        assert_eq!(route.proof, GenericMethodRouteProof::PushSurfacePolicy);
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
+        assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
         let core_method = route
-            .core_method
+            .core_method()
             .expect("RuntimeDataBox Array-origin push core method op");
         assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
         assert_eq!(
@@ -1846,12 +1935,12 @@ mod tests {
             CoreMethodLoweringTier::ColdFallback
         );
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::ScalarI64)
         );
-        assert_eq!(route.value_demand, GenericMethodValueDemand::WriteAny);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::NoPublication)
         );
     }
@@ -1882,31 +1971,37 @@ mod tests {
         assert_eq!(array_route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(array_route.key_value, Some(ValueId::new(1)));
         assert_eq!(
-            array_route.route_kind,
+            array_route.route_kind(),
             GenericMethodRouteKind::ArrayStoreAny
         );
-        assert_eq!(array_route.proof, GenericMethodRouteProof::SetSurfacePolicy);
-        let array_core = array_route.core_method.expect("ArraySet carrier");
+        assert_eq!(
+            array_route.proof(),
+            GenericMethodRouteProof::SetSurfacePolicy
+        );
+        let array_core = array_route.core_method().expect("ArraySet carrier");
         assert_eq!(array_core.op, CoreMethodOp::ArraySet);
         assert_eq!(
             array_core.lowering_tier,
             CoreMethodLoweringTier::ColdFallback
         );
-        assert_eq!(array_route.return_shape, None);
-        assert_eq!(array_route.value_demand, GenericMethodValueDemand::WriteAny);
-        assert_eq!(array_route.publication_policy, None);
+        assert_eq!(array_route.return_shape(), None);
+        assert_eq!(
+            array_route.value_demand(),
+            GenericMethodValueDemand::WriteAny
+        );
+        assert_eq!(array_route.publication_policy(), None);
 
         let map_route = &function.metadata.generic_method_routes[1];
         assert_eq!(map_route.box_name(), "MapBox");
         assert_eq!(map_route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(map_route.key_route, Some(GenericMethodKeyRoute::I64Const));
-        assert_eq!(map_route.route_kind, GenericMethodRouteKind::MapStoreAny);
-        let map_core = map_route.core_method.expect("MapSet carrier");
+        assert_eq!(map_route.route_kind(), GenericMethodRouteKind::MapStoreAny);
+        let map_core = map_route.core_method().expect("MapSet carrier");
         assert_eq!(map_core.op, CoreMethodOp::MapSet);
         assert_eq!(map_core.lowering_tier, CoreMethodLoweringTier::ColdFallback);
-        assert_eq!(map_route.return_shape, None);
-        assert_eq!(map_route.value_demand, GenericMethodValueDemand::WriteAny);
-        assert_eq!(map_route.publication_policy, None);
+        assert_eq!(map_route.return_shape(), None);
+        assert_eq!(map_route.value_demand(), GenericMethodValueDemand::WriteAny);
+        assert_eq!(map_route.publication_policy(), None);
     }
 
     #[test]
@@ -1961,12 +2056,12 @@ mod tests {
         assert_eq!(route.box_name(), "RuntimeDataBox");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::MapContainsI64);
-        let core_method = route.core_method.expect("MapHas carrier");
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::MapContainsI64);
+        let core_method = route.core_method().expect("MapHas carrier");
         assert_eq!(core_method.op, CoreMethodOp::MapHas);
-        assert_eq!(route.route_kind.helper_symbol(), "nyash.map.probe_hi");
-        assert_eq!(route.return_shape, None);
-        assert_eq!(route.publication_policy, None);
+        assert_eq!(route.route_kind().helper_symbol(), "nyash.map.probe_hi");
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.publication_policy(), None);
     }
 
     #[test]
@@ -1995,28 +2090,31 @@ mod tests {
         assert_eq!(route.method(), "get");
         assert_eq!(route.receiver_origin_box.as_deref(), Some("MapBox"));
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
-        assert_eq!(route.route_kind, GenericMethodRouteKind::RuntimeDataLoadAny);
         assert_eq!(
-            route.route_kind.helper_symbol(),
+            route.route_kind(),
+            GenericMethodRouteKind::RuntimeDataLoadAny
+        );
+        assert_eq!(
+            route.route_kind().helper_symbol(),
             "nyash.runtime_data.get_hh"
         );
-        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
-        let core_method = route.core_method.expect("MapGet carrier");
+        assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
+        let core_method = route.core_method().expect("MapGet carrier");
         assert_eq!(core_method.op, CoreMethodOp::MapGet);
         assert_eq!(
             core_method.lowering_tier,
             CoreMethodLoweringTier::ColdFallback
         );
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
         );
         assert_eq!(
-            route.value_demand,
+            route.value_demand(),
             GenericMethodValueDemand::RuntimeI64OrHandle
         );
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
         );
     }
@@ -2052,20 +2150,20 @@ mod tests {
         assert_eq!(route.method(), "get");
         assert_eq!(route.key_route, Some(GenericMethodKeyRoute::I64Const));
         assert_eq!(
-            route.proof,
+            route.proof(),
             GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape
         );
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
         );
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ScalarI64);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::NoPublication)
         );
         assert_eq!(
-            route.route_kind.helper_symbol(),
+            route.route_kind().helper_symbol(),
             "nyash.runtime_data.get_hh"
         );
     }
@@ -2098,17 +2196,17 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 2);
         let route = route_for(&function, "RuntimeDataBox", "get", Some(5));
-        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
         );
         assert_eq!(
-            route.value_demand,
+            route.value_demand(),
             GenericMethodValueDemand::RuntimeI64OrHandle
         );
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
         );
     }
@@ -2141,13 +2239,13 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 2);
         let route = route_for(&function, "RuntimeDataBox", "get", Some(5));
-        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
         );
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
         );
     }
@@ -2184,9 +2282,9 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 3);
         let route = route_for(&function, "RuntimeDataBox", "get", Some(7));
-        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
         );
     }
@@ -2223,20 +2321,20 @@ mod tests {
         assert_eq!(function.metadata.generic_method_routes.len(), 2);
         let route = route_for(&function, "RuntimeDataBox", "get", Some(5));
         assert_eq!(
-            route.proof,
+            route.proof(),
             GenericMethodRouteProof::MapSetScalarI64DominatesNoEscape
         );
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
         );
-        assert_eq!(route.value_demand, GenericMethodValueDemand::ScalarI64);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::NoPublication)
         );
         assert_eq!(
-            route.route_kind.helper_symbol(),
+            route.route_kind().helper_symbol(),
             "nyash.runtime_data.get_hh"
         );
     }
@@ -2273,13 +2371,13 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 2);
         let route = route_for(&function, "RuntimeDataBox", "get", Some(5));
-        assert_eq!(route.proof, GenericMethodRouteProof::GetSurfacePolicy);
+        assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
         assert_eq!(
-            route.return_shape,
+            route.return_shape(),
             Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
         );
         assert_eq!(
-            route.publication_policy,
+            route.publication_policy(),
             Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
         );
     }
@@ -2299,18 +2397,18 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         assert_eq!(
-            function.metadata.generic_method_routes[0].route_kind,
+            function.metadata.generic_method_routes[0].route_kind(),
             GenericMethodRouteKind::RuntimeDataContainsAny
         );
         assert!(function.metadata.generic_method_routes[0]
-            .core_method
+            .core_method()
             .is_none());
         assert_eq!(
-            function.metadata.generic_method_routes[0].return_shape,
+            function.metadata.generic_method_routes[0].return_shape(),
             None
         );
         assert_eq!(
-            function.metadata.generic_method_routes[0].publication_policy,
+            function.metadata.generic_method_routes[0].publication_policy(),
             None
         );
     }

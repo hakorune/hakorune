@@ -3,9 +3,28 @@ use super::make_function;
 use crate::mir::{
     BasicBlockId, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, GenericMethodKeyRoute,
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodRoute,
-    GenericMethodRouteKind, GenericMethodRouteProof, GenericMethodRouteSurface,
-    GenericMethodValueDemand, ValueId,
+    GenericMethodRouteDecision, GenericMethodRouteKind, GenericMethodRouteProof,
+    GenericMethodRouteSurface, GenericMethodValueDemand, ValueId,
 };
+
+fn decision(
+    route_kind: GenericMethodRouteKind,
+    proof: GenericMethodRouteProof,
+    core_op: CoreMethodOp,
+    lowering_tier: CoreMethodLoweringTier,
+    return_shape: Option<GenericMethodReturnShape>,
+    value_demand: GenericMethodValueDemand,
+    publication_policy: Option<GenericMethodPublicationPolicy>,
+) -> GenericMethodRouteDecision {
+    GenericMethodRouteDecision::new(
+        route_kind,
+        proof,
+        Some(CoreMethodOpCarrier::manifest(core_op, lowering_tier)),
+        return_shape,
+        value_demand,
+        publication_policy,
+    )
+}
 
 #[test]
 fn build_mir_json_root_emits_generic_method_routes() {
@@ -22,15 +41,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(10),
             key_value: Some(ValueId::new(11)),
             result_value: Some(ValueId::new(12)),
-            route_kind: GenericMethodRouteKind::MapContainsI64,
-            proof: GenericMethodRouteProof::HasSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::MapContainsI64,
+                GenericMethodRouteProof::HasSurfacePolicy,
                 CoreMethodOp::MapHas,
                 CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::ReadRef,
-            publication_policy: None,
+                None,
+                GenericMethodValueDemand::ReadRef,
+                None,
+            ),
         });
     function
         .metadata
@@ -44,15 +63,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(13),
             key_value: Some(ValueId::new(14)),
             result_value: Some(ValueId::new(15)),
-            route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
-            proof: GenericMethodRouteProof::GetSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::RuntimeDataLoadAny,
+                GenericMethodRouteProof::GetSurfacePolicy,
                 CoreMethodOp::MapGet,
                 CoreMethodLoweringTier::ColdFallback,
-            )),
-            return_shape: Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
-            value_demand: GenericMethodValueDemand::RuntimeI64OrHandle,
-            publication_policy: Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+                Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+                GenericMethodValueDemand::RuntimeI64OrHandle,
+                Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+            ),
         });
     function
         .metadata
@@ -66,15 +85,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(16),
             key_value: Some(ValueId::new(17)),
             result_value: Some(ValueId::new(18)),
-            route_kind: GenericMethodRouteKind::RuntimeDataLoadAny,
-            proof: GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::RuntimeDataLoadAny,
+                GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
                 CoreMethodOp::MapGet,
                 CoreMethodLoweringTier::ColdFallback,
-            )),
-            return_shape: Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
-            value_demand: GenericMethodValueDemand::ScalarI64,
-            publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+                Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+                GenericMethodValueDemand::ScalarI64,
+                Some(GenericMethodPublicationPolicy::NoPublication),
+            ),
         });
     function
         .metadata
@@ -88,15 +107,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(21),
             key_value: None,
             result_value: Some(ValueId::new(24)),
-            route_kind: GenericMethodRouteKind::StringSubstring,
-            proof: GenericMethodRouteProof::SubstringSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::StringSubstring,
+                GenericMethodRouteProof::SubstringSurfacePolicy,
                 CoreMethodOp::StringSubstring,
                 CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::ReadRef,
-            publication_policy: None,
+                None,
+                GenericMethodValueDemand::ReadRef,
+                None,
+            ),
         });
     function
         .metadata
@@ -110,15 +129,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(19),
             key_value: None,
             result_value: Some(ValueId::new(20)),
-            route_kind: GenericMethodRouteKind::MapEntryCount,
-            proof: GenericMethodRouteProof::LenSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::MapEntryCount,
+                GenericMethodRouteProof::LenSurfacePolicy,
                 CoreMethodOp::MapLen,
                 CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: Some(GenericMethodReturnShape::ScalarI64),
-            value_demand: GenericMethodValueDemand::ScalarI64,
-            publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+                Some(GenericMethodReturnShape::ScalarI64),
+                GenericMethodValueDemand::ScalarI64,
+                Some(GenericMethodPublicationPolicy::NoPublication),
+            ),
         });
     function
         .metadata
@@ -132,15 +151,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(25),
             key_value: None,
             result_value: Some(ValueId::new(27)),
-            route_kind: GenericMethodRouteKind::ArrayAppendAny,
-            proof: GenericMethodRouteProof::PushSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::ArrayAppendAny,
+                GenericMethodRouteProof::PushSurfacePolicy,
                 CoreMethodOp::ArrayPush,
                 CoreMethodLoweringTier::ColdFallback,
-            )),
-            return_shape: Some(GenericMethodReturnShape::ScalarI64),
-            value_demand: GenericMethodValueDemand::WriteAny,
-            publication_policy: Some(GenericMethodPublicationPolicy::NoPublication),
+                Some(GenericMethodReturnShape::ScalarI64),
+                GenericMethodValueDemand::WriteAny,
+                Some(GenericMethodPublicationPolicy::NoPublication),
+            ),
         });
     function
         .metadata
@@ -154,15 +173,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(28),
             key_value: Some(ValueId::new(29)),
             result_value: Some(ValueId::new(31)),
-            route_kind: GenericMethodRouteKind::MapStoreAny,
-            proof: GenericMethodRouteProof::SetSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::MapStoreAny,
+                GenericMethodRouteProof::SetSurfacePolicy,
                 CoreMethodOp::MapSet,
                 CoreMethodLoweringTier::ColdFallback,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::WriteAny,
-            publication_policy: None,
+                None,
+                GenericMethodValueDemand::WriteAny,
+                None,
+            ),
         });
     function
         .metadata
@@ -176,15 +195,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(32),
             key_value: Some(ValueId::new(33)),
             result_value: Some(ValueId::new(34)),
-            route_kind: GenericMethodRouteKind::MapLoadAny,
-            proof: GenericMethodRouteProof::GetSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::MapLoadAny,
+                GenericMethodRouteProof::GetSurfacePolicy,
                 CoreMethodOp::MapGet,
                 CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::ReadRef,
-            publication_policy: None,
+                None,
+                GenericMethodValueDemand::ReadRef,
+                None,
+            ),
         });
     function
         .metadata
@@ -198,15 +217,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
             receiver_value: ValueId::new(35),
             key_value: Some(ValueId::new(36)),
             result_value: Some(ValueId::new(37)),
-            route_kind: GenericMethodRouteKind::ArraySlotLoadAny,
-            proof: GenericMethodRouteProof::GetSurfacePolicy,
-            core_method: Some(CoreMethodOpCarrier::manifest(
+            decision: decision(
+                GenericMethodRouteKind::ArraySlotLoadAny,
+                GenericMethodRouteProof::GetSurfacePolicy,
                 CoreMethodOp::ArrayGet,
                 CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            return_shape: None,
-            value_demand: GenericMethodValueDemand::ReadRef,
-            publication_policy: None,
+                None,
+                GenericMethodValueDemand::ReadRef,
+                None,
+            ),
         });
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
