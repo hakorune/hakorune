@@ -8,7 +8,8 @@
 //! Phase 70-1: Trio (LocalScopeInspectorBox, LoopVarClassBox) 依存削除
 //! - 変数分類は LoopScopeShape::from_loop_form() に一本化（二重分類問題解消）
 
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, MirQuery, ValueId};
+use crate::mir::query::MirQuery;
+use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// 抽出結果

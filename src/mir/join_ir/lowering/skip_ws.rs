@@ -43,7 +43,7 @@ use crate::mir::join_ir::{
     BinOpKind, CompareOp, ConstValue, JoinContId, JoinFuncId, JoinFunction, JoinInst, JoinModule,
     LoopExitShape, LoopHeaderShape, MirLikeInst,
 };
-use crate::mir::MirQuery;
+use crate::mir::query::MirQuery;
 use crate::mir::ValueId;
 use crate::runtime::get_global_ring0;
 

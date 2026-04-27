@@ -21,7 +21,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::control_form::LoopId;
 use crate::mir::join_ir::lowering::loop_form_intake::LoopFormIntake;
 use crate::mir::loop_form::LoopForm;
-use crate::mir::{BasicBlockId, MirQuery};
+use crate::mir::query::MirQuery;
+use crate::mir::BasicBlockId;
 
 use super::case_a::{is_case_a_minimal_target, validate_case_a_structural};
 use super::shape::{LoopScopeShape, LoopVarClass};

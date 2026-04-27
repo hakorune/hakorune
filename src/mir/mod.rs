@@ -191,7 +191,6 @@ pub use placement_effect::{
     refresh_function_placement_effect_routes, refresh_module_placement_effect_routes,
 };
 pub use printer::MirPrinter;
-pub use query::{MirQuery, MirQueryBox};
 pub use semantic_refresh::{
     refresh_function_semantic_metadata, refresh_function_string_corridor_metadata,
     refresh_module_semantic_metadata,

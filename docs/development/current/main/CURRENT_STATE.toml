@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-544"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-544-joinir-runner-root-export-prune-card.md"
-latest_card_summary = "Remove unused JoinIR runner convenience re-exports from the MIR root facade."
+latest_card = "291x-545"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-545-mir-query-root-export-prune-card.md"
+latest_card_summary = "Remove MIR query trait/box re-exports from the MIR root facade and migrate remaining consumers to the owner module."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -264,4 +264,5 @@ landed_tail = [
   "291x-542 CFG extractor root export prune landed",
   "291x-543 slot-registry root export prune landed",
   "291x-544 JoinIR runner root export prune landed",
+  "291x-545 MIR query root export prune landed",
 ]

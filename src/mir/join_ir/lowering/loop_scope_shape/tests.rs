@@ -13,7 +13,8 @@
 use super::shape::LoopVarClass;
 use super::*;
 use crate::mir::join_ir::lowering::loop_form_intake::LoopFormIntake;
-use crate::mir::{BasicBlockId, MirQuery, ValueId};
+use crate::mir::query::MirQuery;
+use crate::mir::{BasicBlockId, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
 // ============================================================================
