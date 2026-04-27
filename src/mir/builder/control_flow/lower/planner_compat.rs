@@ -4,7 +4,7 @@
 //! grouped explicitly until the actual move happens.
 
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::edgecfg_facade::ExitKind;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::edgecfg::api::ExitKind;
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::planner::{

@@ -3,7 +3,7 @@ mod tests {
     use std::collections::BTreeMap;
     use std::env;
 
-    use crate::mir::builder::control_flow::plan::edgecfg_facade::{
+    use crate::mir::builder::control_flow::edgecfg::api::{
         BlockParams, ExitKind, Frag, FragEmitSession,
     };
     use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;

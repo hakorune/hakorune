@@ -1,4 +1,4 @@
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
 };

@@ -1,8 +1,8 @@
 use super::helpers_layout::{create_phi_bindings, LoopBlocksStandard5};
 use super::{CoreEffectPlan, CoreLoopPlan};
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;

@@ -1,6 +1,6 @@
 //! LoopTrueSkeleton: allocates loop(true) blocks/frag only.
 
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::normalizer::helpers::LoopBlocksStandard5;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;

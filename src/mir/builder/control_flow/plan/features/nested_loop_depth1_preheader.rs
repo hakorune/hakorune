@@ -75,9 +75,10 @@ pub(in crate::mir::builder) fn apply_nested_loop_preheader_freshness(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::builder::control_flow::edgecfg::api::Frag;
     use crate::mir::builder::control_flow::plan::{
-        edgecfg_facade::Frag, step_mode::extract_to_step_bb_explicit_step, CoreEffectPlan,
-        CoreIfPlan, CoreLoopPlan, CorePhiInfo,
+        step_mode::extract_to_step_bb_explicit_step, CoreEffectPlan, CoreIfPlan, CoreLoopPlan,
+        CorePhiInfo,
     };
     use crate::mir::{BasicBlockId, ConstValue, ValueId};
 

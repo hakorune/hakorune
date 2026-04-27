@@ -1,5 +1,5 @@
 use super::utils::{map_block_id, remap_value_id, remap_value_ids};
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
@@ -524,7 +524,7 @@ fn remap_frag_with_values(
                 .collect();
             (
                 mapped_block,
-                crate::mir::builder::control_flow::plan::edgecfg_facade::BlockParams {
+                crate::mir::builder::control_flow::edgecfg::api::BlockParams {
                     params: remapped_params,
                     layout: params.layout,
                 },

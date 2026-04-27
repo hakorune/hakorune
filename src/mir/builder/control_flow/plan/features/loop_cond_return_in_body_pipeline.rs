@@ -3,10 +3,10 @@
 //! Minimal implementation for loop(cond) with nested return and no break/continue.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::carrier_merge::{
     lower_assignment_stmt, lower_local_init_stmt,
 };

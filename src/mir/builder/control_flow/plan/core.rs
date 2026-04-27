@@ -1,7 +1,7 @@
 use super::branchn::CoreBranchNPlan;
-use super::edgecfg_facade::Frag;
 use super::effect::CoreEffectPlan;
 use super::exit::CoreExitPlan;
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::{BasicBlockId, ValueId};
 
 /// Phase 273 P1: CorePlan - Fixed vocabulary plan (structure nodes only)

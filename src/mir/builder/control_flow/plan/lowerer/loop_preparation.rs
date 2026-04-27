@@ -9,8 +9,8 @@
 //! - Jump to loop entry
 //! - Provisional PHI insertion (Step 1.5)
 
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::mir::builder::emission::phi_lifecycle;
 use crate::mir::builder::MirBuilder;

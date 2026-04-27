@@ -40,8 +40,6 @@ pub(in crate::mir::builder) mod exit;
 // Layer 1: Core Infrastructure (基盤)
 // MIR lowering の中核インフラ
 pub(in crate::mir::builder) mod branchn;
-// Phase 29ai P0: Facts SSOT + Single Planner skeleton (parallel footing, unused in P0)
-pub(in crate::mir::builder) mod edgecfg_facade;
 pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod lowerer;
 pub(in crate::mir::builder) mod normalizer;
@@ -184,9 +182,9 @@ pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
 pub(in crate::mir::builder) use self::core::{
     CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoopStepMode, LoweredRecipe,
 };
-pub(in crate::mir::builder) use self::edgecfg_facade::Frag;
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::edgecfg::api::Frag;
 
 // Domain types
 #[cfg(test)]

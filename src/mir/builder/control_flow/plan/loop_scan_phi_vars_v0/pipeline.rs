@@ -1,10 +1,10 @@
 //! Pipeline for loop_scan_phi_vars_v0: lowering outer loop with nested loops.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;

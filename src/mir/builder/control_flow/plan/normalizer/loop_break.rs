@@ -4,8 +4,8 @@
 
 use super::helpers_layout::create_phi_bindings;
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::edgecfg::api::{BlockParams, Frag};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::{BlockParams, Frag};
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;

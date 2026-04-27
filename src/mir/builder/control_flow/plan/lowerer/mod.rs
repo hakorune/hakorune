@@ -67,9 +67,9 @@ pub(in crate::mir::builder) struct PlanLowerer;
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::builder::control_flow::edgecfg::api::Frag;
     use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
     use crate::mir::builder::control_flow::plan::branchn::{CoreBranchArmPlan, CoreBranchNPlan};
-    use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
     use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
     use crate::mir::builder::control_flow::plan::{
         CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan, CorePlan,

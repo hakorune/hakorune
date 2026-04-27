@@ -2,9 +2,9 @@ use super::route_finalize::finalize_loop_scan_methods_block_route;
 use super::segment_linear::lower_loop_scan_methods_block_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_methods_block_nested_segment;
 use super::LoopScanMethodsBlockV0Facts;
+use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::normalizer::{
