@@ -1057,14 +1057,15 @@ fn build_userbox_known_receiver_method_seed_route_json(
 fn build_array_text_state_residence_route_json(
     route: &crate::mir::ArrayTextStateResidenceRoute,
 ) -> serde_json::Value {
+    let contract = route.contract();
     let mut obj = json!({
-        "observer_kind": route.contract.observer_kind.to_string(),
-        "residence": route.contract.residence.to_string(),
-        "result_repr": route.contract.result_repr.to_string(),
-        "consumer_capability": route.contract.consumer_capability.to_string(),
-        "publication_boundary": route.contract.publication_boundary.to_string(),
+        "observer_kind": contract.observer_kind(),
+        "residence": contract.residence(),
+        "result_repr": contract.result_repr(),
+        "consumer_capability": contract.consumer_capability(),
+        "publication_boundary": contract.publication_boundary(),
     });
-    if let Some(payload) = route.temporary_indexof_seed_payload.as_ref() {
+    if let Some(payload) = route.temporary_indexof_seed_payload() {
         obj["temporary_indexof_seed_payload"] =
             build_array_text_state_residence_indexof_seed_payload_json(payload);
     }

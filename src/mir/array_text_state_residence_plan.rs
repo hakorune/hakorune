@@ -17,80 +17,130 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextStateResidenceKind {
+enum ArrayTextStateResidenceKind {
     IndexOf,
 }
 
 impl std::fmt::Display for ArrayTextStateResidenceKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextStateResidenceKind {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::IndexOf => f.write_str("indexof"),
+            Self::IndexOf => "indexof",
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextStateResidence {
+enum ArrayTextStateResidence {
     LoopLocalPointerArray,
 }
 
 impl std::fmt::Display for ArrayTextStateResidence {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextStateResidence {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::LoopLocalPointerArray => f.write_str("loop_local_pointer_array"),
+            Self::LoopLocalPointerArray => "loop_local_pointer_array",
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextStateResidenceResultRepr {
+enum ArrayTextStateResidenceResultRepr {
     ScalarI64,
 }
 
 impl std::fmt::Display for ArrayTextStateResidenceResultRepr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextStateResidenceResultRepr {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::ScalarI64 => f.write_str("scalar_i64"),
+            Self::ScalarI64 => "scalar_i64",
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ArrayTextStateResidenceConsumerCapability {
+enum ArrayTextStateResidenceConsumerCapability {
     DirectArrayTextStateResidence,
 }
 
 impl std::fmt::Display for ArrayTextStateResidenceConsumerCapability {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextStateResidenceConsumerCapability {
+    fn as_str(&self) -> &'static str {
         match self {
-            Self::DirectArrayTextStateResidence => f.write_str("direct_array_text_state_residence"),
+            Self::DirectArrayTextStateResidence => "direct_array_text_state_residence",
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextStateResidencePublicationBoundary {
+enum ArrayTextStateResidencePublicationBoundary {
     None,
 }
 
 impl std::fmt::Display for ArrayTextStateResidencePublicationBoundary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextStateResidencePublicationBoundary {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::None => f.write_str("none"),
+            Self::None => "none",
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextStateResidenceContract {
-    pub observer_kind: ArrayTextStateResidenceKind,
-    pub residence: ArrayTextStateResidence,
-    pub result_repr: ArrayTextStateResidenceResultRepr,
-    pub consumer_capability: ArrayTextStateResidenceConsumerCapability,
-    pub publication_boundary: ArrayTextStateResidencePublicationBoundary,
+    observer_kind: ArrayTextStateResidenceKind,
+    residence: ArrayTextStateResidence,
+    result_repr: ArrayTextStateResidenceResultRepr,
+    consumer_capability: ArrayTextStateResidenceConsumerCapability,
+    publication_boundary: ArrayTextStateResidencePublicationBoundary,
 }
 
 impl ArrayTextStateResidenceContract {
+    pub fn observer_kind(&self) -> &'static str {
+        self.observer_kind.as_str()
+    }
+
+    pub fn residence(&self) -> &'static str {
+        self.residence.as_str()
+    }
+
+    pub fn result_repr(&self) -> &'static str {
+        self.result_repr.as_str()
+    }
+
+    pub fn consumer_capability(&self) -> &'static str {
+        self.consumer_capability.as_str()
+    }
+
+    pub fn publication_boundary(&self) -> &'static str {
+        self.publication_boundary.as_str()
+    }
+
     fn indexof_loop_local_pointer_array() -> Self {
         Self {
             observer_kind: ArrayTextStateResidenceKind::IndexOf,
@@ -124,11 +174,21 @@ pub struct ArrayTextStateResidenceIndexOfSeedPayload {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextStateResidenceRoute {
-    pub contract: ArrayTextStateResidenceContract,
-    pub temporary_indexof_seed_payload: Option<ArrayTextStateResidenceIndexOfSeedPayload>,
+    contract: ArrayTextStateResidenceContract,
+    temporary_indexof_seed_payload: Option<ArrayTextStateResidenceIndexOfSeedPayload>,
 }
 
 impl ArrayTextStateResidenceRoute {
+    pub fn contract(&self) -> &ArrayTextStateResidenceContract {
+        &self.contract
+    }
+
+    pub fn temporary_indexof_seed_payload(
+        &self,
+    ) -> Option<&ArrayTextStateResidenceIndexOfSeedPayload> {
+        self.temporary_indexof_seed_payload.as_ref()
+    }
+
     pub fn from_indexof_search_route(route: &IndexOfSearchMicroSeedRoute) -> Self {
         Self {
             contract: ArrayTextStateResidenceContract::indexof_loop_local_pointer_array(),
@@ -176,31 +236,19 @@ mod tests {
 
         let route = ArrayTextStateResidenceRoute::from_indexof_search_route(&exact);
         let payload = route
-            .temporary_indexof_seed_payload
-            .as_ref()
+            .temporary_indexof_seed_payload()
             .expect("temporary payload");
+        let contract = route.contract();
 
         assert_eq!(payload.variant, IndexOfSearchMicroSeedVariant::Line);
+        assert_eq!(contract.residence(), "loop_local_pointer_array");
+        assert_eq!(contract.observer_kind(), "indexof");
+        assert_eq!(contract.result_repr(), "scalar_i64");
         assert_eq!(
-            route.contract.residence,
-            ArrayTextStateResidence::LoopLocalPointerArray
+            contract.consumer_capability(),
+            "direct_array_text_state_residence"
         );
-        assert_eq!(
-            route.contract.observer_kind,
-            ArrayTextStateResidenceKind::IndexOf
-        );
-        assert_eq!(
-            route.contract.result_repr,
-            ArrayTextStateResidenceResultRepr::ScalarI64
-        );
-        assert_eq!(
-            route.contract.consumer_capability,
-            ArrayTextStateResidenceConsumerCapability::DirectArrayTextStateResidence
-        );
-        assert_eq!(
-            route.contract.publication_boundary,
-            ArrayTextStateResidencePublicationBoundary::None
-        );
+        assert_eq!(contract.publication_boundary(), "none");
         assert_eq!(
             payload.proof,
             IndexOfSearchMicroSeedProof::KiloMicroIndexOfLine15Block

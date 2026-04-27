@@ -170,10 +170,7 @@ pub use array_text_residence_session_plan::{
 };
 pub use array_text_state_residence_plan::{
     refresh_function_array_text_state_residence_route,
-    refresh_module_array_text_state_residence_routes, ArrayTextStateResidence,
-    ArrayTextStateResidenceConsumerCapability, ArrayTextStateResidenceContract,
-    ArrayTextStateResidenceIndexOfSeedPayload, ArrayTextStateResidenceKind,
-    ArrayTextStateResidencePublicationBoundary, ArrayTextStateResidenceResultRepr,
+    refresh_module_array_text_state_residence_routes, ArrayTextStateResidenceIndexOfSeedPayload,
     ArrayTextStateResidenceRoute,
 };
 pub(crate) use builder::detect_escape_skip_shape;
