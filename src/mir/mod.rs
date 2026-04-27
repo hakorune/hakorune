@@ -127,7 +127,7 @@ pub use agg_local_scalarization::{
 };
 pub use array_getset_micro_seed_plan::{
     refresh_function_array_getset_micro_seed_route, refresh_module_array_getset_micro_seed_routes,
-    ArrayGetSetMicroSeedProof, ArrayGetSetMicroSeedRoute,
+    ArrayGetSetMicroSeedRoute,
 };
 pub use array_rmw_add1_leaf_seed_plan::{
     refresh_function_array_rmw_add1_leaf_seed_route,

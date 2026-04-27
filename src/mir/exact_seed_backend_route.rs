@@ -213,7 +213,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
             source_route: ExactSeedBackendRouteKind::ArrayGetSetMicro
                 .source_route_field()
                 .to_string(),
-            proof: route.proof.to_string(),
+            proof: route.proof().to_string(),
             selected_value: None,
         });
     }
@@ -356,9 +356,8 @@ mod tests {
     use super::*;
     use crate::mir::string_kernel_plan::StringKernelPlanLoopPayload;
     use crate::mir::{
-        ArrayGetSetMicroSeedProof, ArrayGetSetMicroSeedRoute, EffectMask, FunctionSignature,
-        MirType, StringKernelPlan, StringKernelPlanBorrowContract, StringKernelPlanConsumer,
-        StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
+        EffectMask, FunctionSignature, MirType, StringKernelPlan, StringKernelPlanBorrowContract,
+        StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
         StringKernelPlanVerifierOwner, SubstringViewsMicroSeedProof, SubstringViewsMicroSeedRoute,
         SumLocalAggregateLayout, SumVariantProjectSeedKind, SumVariantProjectSeedPayload,
@@ -444,23 +443,10 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_array_getset_micro_metadata() {
         let mut function = make_function();
-        function.metadata.array_getset_micro_seed_route = Some(ArrayGetSetMicroSeedRoute {
-            size: 128,
-            ops: 2_000_000,
-            init_push_count: 1,
-            loop_get_count: 1,
-            loop_set_count: 1,
-            final_get_count: 0,
-            selected_rmw_block: BasicBlockId::new(23),
-            selected_rmw_instruction_index: 8,
-            selected_rmw_set_instruction_index: 13,
-            loop_index_phi_value: ValueId::new(29),
-            accumulator_phi_value: ValueId::new(33),
-            accumulator_next_value: ValueId::new(40),
-            return_value: ValueId::new(33),
-            proof: ArrayGetSetMicroSeedProof::KiloMicroArrayGetSetSevenBlock,
-            rmw_proof: crate::mir::ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
-        });
+        function.metadata.array_getset_micro_seed_route = Some(
+            crate::mir::array_getset_micro_seed_plan::test_support::kilo_micro_array_getset_7block(
+            ),
+        );
 
         refresh_function_exact_seed_backend_route(&mut function);
 

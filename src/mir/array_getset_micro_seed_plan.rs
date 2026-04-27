@@ -13,35 +13,128 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayGetSetMicroSeedProof {
+enum ArrayGetSetMicroSeedProof {
     KiloMicroArrayGetSetSevenBlock,
+}
+
+impl ArrayGetSetMicroSeedProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::KiloMicroArrayGetSetSevenBlock => "kilo_micro_array_getset_7block",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayGetSetMicroSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::KiloMicroArrayGetSetSevenBlock => f.write_str("kilo_micro_array_getset_7block"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayGetSetMicroSeedRoute {
-    pub size: i64,
-    pub ops: i64,
-    pub init_push_count: i64,
-    pub loop_get_count: i64,
-    pub loop_set_count: i64,
-    pub final_get_count: i64,
-    pub selected_rmw_block: BasicBlockId,
-    pub selected_rmw_instruction_index: usize,
-    pub selected_rmw_set_instruction_index: usize,
-    pub loop_index_phi_value: ValueId,
-    pub accumulator_phi_value: ValueId,
-    pub accumulator_next_value: ValueId,
-    pub return_value: ValueId,
-    pub proof: ArrayGetSetMicroSeedProof,
-    pub rmw_proof: ArrayRmwWindowProof,
+    size: i64,
+    ops: i64,
+    init_push_count: i64,
+    loop_get_count: i64,
+    loop_set_count: i64,
+    final_get_count: i64,
+    selected_rmw_block: BasicBlockId,
+    selected_rmw_instruction_index: usize,
+    selected_rmw_set_instruction_index: usize,
+    loop_index_phi_value: ValueId,
+    accumulator_phi_value: ValueId,
+    accumulator_next_value: ValueId,
+    return_value: ValueId,
+    proof: ArrayGetSetMicroSeedProof,
+    rmw_proof: ArrayRmwWindowProof,
+}
+
+impl ArrayGetSetMicroSeedRoute {
+    pub fn size(&self) -> i64 {
+        self.size
+    }
+
+    pub fn ops(&self) -> i64 {
+        self.ops
+    }
+
+    pub fn init_push_count(&self) -> i64 {
+        self.init_push_count
+    }
+
+    pub fn loop_get_count(&self) -> i64 {
+        self.loop_get_count
+    }
+
+    pub fn loop_set_count(&self) -> i64 {
+        self.loop_set_count
+    }
+
+    pub fn final_get_count(&self) -> i64 {
+        self.final_get_count
+    }
+
+    pub fn selected_rmw_block(&self) -> BasicBlockId {
+        self.selected_rmw_block
+    }
+
+    pub fn selected_rmw_instruction_index(&self) -> usize {
+        self.selected_rmw_instruction_index
+    }
+
+    pub fn selected_rmw_set_instruction_index(&self) -> usize {
+        self.selected_rmw_set_instruction_index
+    }
+
+    pub fn loop_index_phi_value(&self) -> ValueId {
+        self.loop_index_phi_value
+    }
+
+    pub fn accumulator_phi_value(&self) -> ValueId {
+        self.accumulator_phi_value
+    }
+
+    pub fn accumulator_next_value(&self) -> ValueId {
+        self.accumulator_next_value
+    }
+
+    pub fn return_value(&self) -> ValueId {
+        self.return_value
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn rmw_proof(&self) -> ArrayRmwWindowProof {
+        self.rmw_proof
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn kilo_micro_array_getset_7block() -> ArrayGetSetMicroSeedRoute {
+        ArrayGetSetMicroSeedRoute {
+            size: 128,
+            ops: 2_000_000,
+            init_push_count: 1,
+            loop_get_count: 1,
+            loop_set_count: 1,
+            final_get_count: 0,
+            selected_rmw_block: BasicBlockId::new(23),
+            selected_rmw_instruction_index: 8,
+            selected_rmw_set_instruction_index: 13,
+            loop_index_phi_value: ValueId::new(29),
+            accumulator_phi_value: ValueId::new(33),
+            accumulator_next_value: ValueId::new(40),
+            return_value: ValueId::new(33),
+            proof: ArrayGetSetMicroSeedProof::KiloMicroArrayGetSetSevenBlock,
+            rmw_proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
+        }
+    }
 }
 
 pub fn refresh_module_array_getset_micro_seed_routes(module: &mut MirModule) {
@@ -289,25 +382,22 @@ mod tests {
             .metadata
             .array_getset_micro_seed_route
             .expect("expected exact route");
-        assert_eq!(route.size, 128);
-        assert_eq!(route.ops, 2_000_000);
-        assert_eq!(route.init_push_count, 1);
-        assert_eq!(route.loop_get_count, 1);
-        assert_eq!(route.loop_set_count, 1);
-        assert_eq!(route.final_get_count, 0);
-        assert_eq!(route.selected_rmw_block, BasicBlockId::new(23));
-        assert_eq!(route.selected_rmw_instruction_index, 8);
-        assert_eq!(route.selected_rmw_set_instruction_index, 13);
-        assert_eq!(route.loop_index_phi_value, ValueId::new(29));
-        assert_eq!(route.accumulator_phi_value, ValueId::new(33));
-        assert_eq!(route.accumulator_next_value, ValueId::new(40));
-        assert_eq!(route.return_value, ValueId::new(33));
+        assert_eq!(route.size(), 128);
+        assert_eq!(route.ops(), 2_000_000);
+        assert_eq!(route.init_push_count(), 1);
+        assert_eq!(route.loop_get_count(), 1);
+        assert_eq!(route.loop_set_count(), 1);
+        assert_eq!(route.final_get_count(), 0);
+        assert_eq!(route.selected_rmw_block(), BasicBlockId::new(23));
+        assert_eq!(route.selected_rmw_instruction_index(), 8);
+        assert_eq!(route.selected_rmw_set_instruction_index(), 13);
+        assert_eq!(route.loop_index_phi_value(), ValueId::new(29));
+        assert_eq!(route.accumulator_phi_value(), ValueId::new(33));
+        assert_eq!(route.accumulator_next_value(), ValueId::new(40));
+        assert_eq!(route.return_value(), ValueId::new(33));
+        assert_eq!(route.proof(), "kilo_micro_array_getset_7block");
         assert_eq!(
-            route.proof,
-            ArrayGetSetMicroSeedProof::KiloMicroArrayGetSetSevenBlock
-        );
-        assert_eq!(
-            route.rmw_proof,
+            route.rmw_proof(),
             ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot
         );
     }
