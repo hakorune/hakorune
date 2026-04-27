@@ -12,13 +12,14 @@ mod tests {
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::facts::LoopFacts;
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::lower::{
         CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
         CoreLoopPlan, CorePlan, Frag,
     };
+    #[cfg(debug_assertions)]
+    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
     use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
     use crate::mir::builder::control_flow::plan::step_mode::{

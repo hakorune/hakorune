@@ -4,7 +4,7 @@ use crate::mir::builder::control_flow::facts::feature_facts::{
     CleanupKindFacts, ExitKindFacts, ExitUsageFacts,
 };
 use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
-use crate::mir::builder::control_flow::facts::LoopFacts;
+use crate::mir::builder::control_flow::plan::facts::LoopFacts;
 use std::collections::BTreeSet;
 
 #[derive(Debug, Clone)]
@@ -50,7 +50,7 @@ mod tests {
     };
     use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
-    use crate::mir::builder::control_flow::facts::LoopFacts;
+    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use std::collections::BTreeSet;
 
     fn v(name: &str) -> ASTNode {
