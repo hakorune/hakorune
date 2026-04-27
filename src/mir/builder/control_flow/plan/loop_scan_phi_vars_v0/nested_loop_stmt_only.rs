@@ -1,6 +1,6 @@
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
-use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::NestedLoopRecipe;
+use crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 

@@ -1,7 +1,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
-use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::NestedLoopRecipe;
+use crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
