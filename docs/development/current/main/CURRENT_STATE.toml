@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-515"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-515-array-text-observer-contract-root-export-prune-card.md"
-latest_card_summary = "Prune unused MIR root exports for ArrayTextObserverExecutorContract and store-region mapping."
+latest_card = "291x-516"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-516-array-text-state-residence-root-export-prune-card.md"
+latest_card_summary = "Prune unused MIR root export for ArrayTextStateResidenceRoute."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -235,4 +235,5 @@ landed_tail = [
   "291x-513 array text state residence route contract field boundary landed",
   "291x-514 array text state residence payload field boundary landed",
   "291x-515 array text observer contract root export prune landed",
+  "291x-516 array text state residence root export prune landed",
 ]

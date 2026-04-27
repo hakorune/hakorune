@@ -1055,7 +1055,7 @@ fn build_userbox_known_receiver_method_seed_route_json(
 }
 
 fn build_array_text_state_residence_route_json(
-    route: &crate::mir::ArrayTextStateResidenceRoute,
+    route: &crate::mir::array_text_state_residence_plan::ArrayTextStateResidenceRoute,
 ) -> serde_json::Value {
     let contract = route.contract();
     let mut obj = json!({

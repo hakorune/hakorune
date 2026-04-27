@@ -167,7 +167,7 @@ pub use array_text_residence_session_plan::{
 };
 pub use array_text_state_residence_plan::{
     refresh_function_array_text_state_residence_route,
-    refresh_module_array_text_state_residence_routes, ArrayTextStateResidenceRoute,
+    refresh_module_array_text_state_residence_routes,
 };
 pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
