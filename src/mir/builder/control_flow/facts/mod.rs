@@ -28,7 +28,6 @@ pub(in crate::mir::builder) mod loop_scan_methods_block_v0_recipe_builder;
 pub(in crate::mir::builder) mod loop_scan_methods_block_v0_shape_routes;
 pub(in crate::mir::builder) mod loop_scan_methods_v0;
 pub(in crate::mir::builder) mod loop_scan_phi_vars_v0;
-pub(in crate::mir::builder) mod loop_scan_phi_vars_v0_helpers;
 pub(in crate::mir::builder) mod loop_scan_phi_vars_v0_shape_routes;
 pub(in crate::mir::builder) mod no_exit_block;
 mod plan_residue;

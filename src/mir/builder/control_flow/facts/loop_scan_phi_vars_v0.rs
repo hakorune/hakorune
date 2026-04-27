@@ -5,18 +5,19 @@
 //! a top-level facts surface.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0_helpers::{
-    build_nested_loop_recipe, contains_exit_outside_nested_loops, is_loop_cond_var_lt_var,
-    release_enabled,
-};
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0_shape_routes::{
     try_match_loop_scan_phi_vars_ext_shape01, try_match_loop_scan_phi_vars_len7_shape,
 };
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
+use crate::mir::builder::control_flow::facts::scan_common_predicates::is_loop_cond_var_lt_var;
+use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::{
     LoopScanPhiSegment, LoopScanPhiVarsV0Recipe,
 };
+use crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::BodyLoweringPolicy;
 
 #[derive(Debug, Clone)]
@@ -27,6 +28,10 @@ pub(in crate::mir::builder) struct LoopScanPhiVarsV0Facts {
     pub body_lowering_policy: BodyLoweringPolicy,
     pub recipe: LoopScanPhiVarsV0Recipe,
     pub segments: Vec<LoopScanPhiSegment>,
+}
+
+fn release_enabled() -> bool {
+    true
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
@@ -113,6 +118,62 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
             LoopScanPhiSegment::Linear(step_linear),
         ],
     }))
+}
+
+fn build_nested_loop_recipe(stmt: &ASTNode) -> Option<NestedLoopRecipe> {
+    match stmt {
+        ASTNode::Loop {
+            condition,
+            body: inner_body,
+            ..
+        } => Some(NestedLoopRecipe {
+            cond_view: CondBlockView::from_expr(condition),
+            loop_stmt: stmt.clone(),
+            body: RecipeBody::new(inner_body.to_vec()),
+            body_stmt_only: try_build_stmt_only_block_recipe(inner_body),
+        }),
+        _ => None,
+    }
+}
+
+fn contains_exit_outside_nested_loops(stmts: &[ASTNode]) -> bool {
+    fn walk(stmts: &[ASTNode]) -> bool {
+        for stmt in stmts {
+            match stmt {
+                ASTNode::Break { .. }
+                | ASTNode::Continue { .. }
+                | ASTNode::Return { .. }
+                | ASTNode::Throw { .. } => return true,
+                ASTNode::If {
+                    then_body,
+                    else_body,
+                    ..
+                } => {
+                    if walk(then_body) {
+                        return true;
+                    }
+                    if else_body.as_ref().is_some_and(|b| walk(b)) {
+                        return true;
+                    }
+                }
+                ASTNode::Program { statements, .. } => {
+                    if walk(statements) {
+                        return true;
+                    }
+                }
+                ASTNode::ScopeBox { body, .. } => {
+                    if walk(body) {
+                        return true;
+                    }
+                }
+                ASTNode::Loop { .. } | ASTNode::While { .. } | ASTNode::ForRange { .. } => {}
+                _ => {}
+            }
+        }
+        false
+    }
+
+    walk(stmts)
 }
 
 #[cfg(test)]
