@@ -221,7 +221,6 @@ pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
 pub use map_lookup_fusion_plan::{
     refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes,
-    MapLookupFusionOp, MapLookupFusionProof, MapLookupFusionRoute, MapLookupStoredValueProof,
 };
 pub use optimizer::MirOptimizer;
 pub use placement_effect::{

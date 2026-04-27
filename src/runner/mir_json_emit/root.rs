@@ -1092,7 +1092,7 @@ fn build_array_text_state_residence_route_json(
 }
 
 fn build_map_lookup_fusion_route_json(
-    route: &crate::mir::MapLookupFusionRoute,
+    route: &crate::mir::map_lookup_fusion_plan::MapLookupFusionRoute,
 ) -> serde_json::Value {
     json!({
         "route_id": route.route_id(),

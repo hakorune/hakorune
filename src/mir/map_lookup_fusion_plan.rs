@@ -17,7 +17,7 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MapLookupFusionOp {
+enum MapLookupFusionOp {
     MapLookupSameKey,
 }
 
@@ -36,7 +36,7 @@ impl MapLookupFusionOp {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MapLookupFusionProof {
+enum MapLookupFusionProof {
     SameReceiverSameI64KeyScalarGetHas,
 }
 
@@ -55,7 +55,7 @@ impl MapLookupFusionProof {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MapLookupStoredValueProof {
+enum MapLookupStoredValueProof {
     UnknownScalar,
     ScalarI64Const,
     ScalarI64NonZero,
