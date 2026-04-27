@@ -222,7 +222,7 @@ mod tests {
             scan_with_init: None,
             split_scan: None,
             loop_simple_while: Some(
-                crate::mir::builder::control_flow::facts::loop_simple_while_facts::LoopSimpleWhileFacts {
+                crate::mir::builder::control_flow::plan::facts::loop_simple_while_facts::LoopSimpleWhileFacts {
                     loop_var: "i".to_string(),
                     condition: ASTNode::BinaryOp {
                         operator: BinaryOperator::Less,
