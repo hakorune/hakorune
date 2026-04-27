@@ -426,6 +426,11 @@ mod tests {
     use crate::mir::string_corridor_relation::{
         StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
     };
+    use crate::mir::thin_entry::{
+        ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry,
+        ThinEntrySurface, ThinEntryValueClass,
+    };
+    use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
@@ -562,16 +567,16 @@ mod tests {
         function
             .metadata
             .thin_entry_candidates
-            .push(crate::mir::ThinEntryCandidate {
+            .push(ThinEntryCandidate {
                 block: BasicBlockId::new(0),
                 instruction_index: 1,
                 value: Some(ValueId::new(3)),
-                surface: crate::mir::ThinEntrySurface::VariantMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
-                preferred_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
-                current_carrier: crate::mir::ThinEntryCurrentCarrier::CompatBox,
-                value_class: crate::mir::ThinEntryValueClass::AggLocal,
-                demand: crate::mir::ThinEntryDemand::LocalAggregate,
+                preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+                current_carrier: ThinEntryCurrentCarrier::CompatBox,
+                value_class: ThinEntryValueClass::AggLocal,
+                demand: ThinEntryDemand::LocalAggregate,
                 reason: "variant.make stays aggregate-first".to_string(),
             });
         let printer = MirPrinter::verbose();
@@ -595,18 +600,18 @@ mod tests {
         function
             .metadata
             .thin_entry_selections
-            .push(crate::mir::ThinEntrySelection {
+            .push(ThinEntrySelection {
                 block: BasicBlockId::new(0),
                 instruction_index: 2,
                 value: Some(ValueId::new(3)),
-                surface: crate::mir::ThinEntrySurface::UserBoxFieldGet,
+                surface: ThinEntrySurface::UserBoxFieldGet,
                 subject: "Point.x".to_string(),
                 manifest_row: "user_box_field_get.inline_scalar",
-                selected_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
-                state: crate::mir::ThinEntrySelectionState::AlreadySatisfied,
-                current_carrier: crate::mir::ThinEntryCurrentCarrier::BackendTyped,
-                value_class: crate::mir::ThinEntryValueClass::InlineI64,
-                demand: crate::mir::ThinEntryDemand::InlineScalar,
+                selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+                state: ThinEntrySelectionState::AlreadySatisfied,
+                current_carrier: ThinEntryCurrentCarrier::BackendTyped,
+                value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "typed field reads stay on thin internal scalar lane".to_string(),
             });
         let printer = MirPrinter::verbose();
@@ -634,10 +639,10 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 2,
                 value: Some(ValueId::new(5)),
-                surface: crate::mir::ThinEntrySurface::VariantMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
-                value_class: crate::mir::ThinEntryValueClass::AggLocal,
+                value_class: ThinEntryValueClass::AggLocal,
                 state: SumPlacementState::LocalAggregateCandidate,
                 tag_reads: 1,
                 project_reads: 1,
@@ -651,10 +656,10 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 3,
                 value: Some(ValueId::new(6)),
-                surface: crate::mir::ThinEntrySurface::VariantProject,
+                surface: ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 source_sum: Some(ValueId::new(5)),
-                value_class: crate::mir::ThinEntryValueClass::InlineI64,
+                value_class: ThinEntryValueClass::InlineI64,
                 state: SumPlacementState::NeedsObjectization,
                 tag_reads: 0,
                 project_reads: 1,
@@ -687,7 +692,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 4,
                 value: Some(ValueId::new(7)),
-                surface: crate::mir::ThinEntrySurface::VariantMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
                 manifest_row: "variant_make.local_aggregate",
@@ -701,7 +706,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 5,
                 value: Some(ValueId::new(8)),
-                surface: crate::mir::ThinEntrySurface::VariantProject,
+                surface: ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 source_sum: Some(ValueId::new(7)),
                 manifest_row: "variant_project.compat_fallback",
@@ -734,7 +739,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 6,
                 value: Some(ValueId::new(9)),
-                surface: crate::mir::ThinEntrySurface::VariantMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
                 layout: SumLocalAggregateLayout::TagI64Payload,
@@ -747,7 +752,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 7,
                 value: Some(ValueId::new(10)),
-                surface: crate::mir::ThinEntrySurface::VariantProject,
+                surface: ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 source_sum: Some(ValueId::new(9)),
                 layout: SumLocalAggregateLayout::TagHandlePayload,

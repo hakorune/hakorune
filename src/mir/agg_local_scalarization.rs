@@ -176,10 +176,13 @@ fn route_sort_key(route: &AggLocalScalarizationRoute) -> (u8, u32, u32, u32, Str
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::thin_entry::{
+        ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntrySurface,
+        ThinEntryValueClass,
+    };
+    use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirType, SumLocalAggregateLayout,
-        ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntrySelection,
-        ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass, ValueId,
+        BasicBlockId, EffectMask, FunctionSignature, MirType, SumLocalAggregateLayout, ValueId,
     };
 
     #[test]

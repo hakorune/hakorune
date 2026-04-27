@@ -530,7 +530,8 @@ fn build_sum_selection_site_map(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{EffectMask, FunctionSignature, MirType, ThinEntryDemand};
+    use crate::mir::thin_entry::ThinEntryDemand;
+    use crate::mir::{EffectMask, FunctionSignature, MirType};
 
     #[test]
     fn refresh_function_marks_local_sum_routes_as_local_candidates() {

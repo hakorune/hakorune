@@ -246,12 +246,9 @@ pub use sum_variant_tag_seed_plan::{
 };
 pub use thin_entry::{
     refresh_function_thin_entry_candidates, refresh_module_thin_entry_candidates,
-    ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry,
-    ThinEntrySurface, ThinEntryValueClass,
 };
 pub use thin_entry_selection::{
     refresh_function_thin_entry_selections, refresh_module_thin_entry_selections,
-    ThinEntrySelection, ThinEntrySelectionState,
 };
 pub use types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,

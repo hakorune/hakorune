@@ -7,6 +7,7 @@ use crate::mir::placement_effect::{
     PlacementEffectState, PlacementEffectStringProof,
 };
 use crate::mir::storage_class::StorageClass;
+use crate::mir::thin_entry::{ThinEntrySurface, ThinEntryValueClass};
 use crate::mir::{BasicBlockId, MirModule};
 
 #[test]
@@ -20,10 +21,10 @@ fn build_mir_json_root_emits_sum_placement_facts() {
             block: BasicBlockId::new(0),
             instruction_index: 4,
             value: Some(crate::mir::ValueId::new(9)),
-            surface: crate::mir::ThinEntrySurface::VariantMake,
+            surface: ThinEntrySurface::VariantMake,
             subject: "Option::Some".to_string(),
             source_sum: None,
-            value_class: crate::mir::ThinEntryValueClass::AggLocal,
+            value_class: ThinEntryValueClass::AggLocal,
             state: crate::mir::SumPlacementState::LocalAggregateCandidate,
             tag_reads: 1,
             project_reads: 1,
@@ -55,7 +56,7 @@ fn build_mir_json_root_emits_sum_placement_selections() {
             block: BasicBlockId::new(0),
             instruction_index: 5,
             value: Some(crate::mir::ValueId::new(10)),
-            surface: crate::mir::ThinEntrySurface::VariantProject,
+            surface: ThinEntrySurface::VariantProject,
             subject: "Option::Some".to_string(),
             source_sum: Some(crate::mir::ValueId::new(9)),
             manifest_row: "variant_project.local_aggregate",
@@ -90,7 +91,7 @@ fn build_mir_json_root_emits_sum_placement_layouts() {
             block: BasicBlockId::new(0),
             instruction_index: 6,
             value: Some(crate::mir::ValueId::new(11)),
-            surface: crate::mir::ThinEntrySurface::VariantMake,
+            surface: ThinEntrySurface::VariantMake,
             subject: "Option::Some".to_string(),
             source_sum: None,
             layout: crate::mir::SumLocalAggregateLayout::TagI64Payload,
@@ -134,9 +135,7 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
             instruction_index: Some(3),
             value: Some(crate::mir::ValueId::new(12)),
             subject: "Point.x".to_string(),
-            kind: AggLocalScalarizationKind::UserBoxLocalBody(
-                crate::mir::ThinEntryValueClass::InlineI64,
-            ),
+            kind: AggLocalScalarizationKind::UserBoxLocalBody(ThinEntryValueClass::InlineI64),
             reason: "typed field read stays on thin internal scalar lane".to_string(),
         });
     function

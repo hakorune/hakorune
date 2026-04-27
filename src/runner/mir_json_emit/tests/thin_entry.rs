@@ -1,5 +1,10 @@
 use super::super::build_mir_json_root;
 use super::make_function;
+use crate::mir::thin_entry::{
+    ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry,
+    ThinEntrySurface, ThinEntryValueClass,
+};
+use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
 use crate::mir::{BasicBlockId, MirModule};
 
 #[test]
@@ -9,16 +14,16 @@ fn build_mir_json_root_emits_thin_entry_candidates() {
     function
         .metadata
         .thin_entry_candidates
-        .push(crate::mir::ThinEntryCandidate {
+        .push(ThinEntryCandidate {
             block: BasicBlockId::new(0),
             instruction_index: 2,
             value: Some(crate::mir::ValueId::new(7)),
-            surface: crate::mir::ThinEntrySurface::VariantMake,
+            surface: ThinEntrySurface::VariantMake,
             subject: "Option::Some".to_string(),
-            preferred_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
-            current_carrier: crate::mir::ThinEntryCurrentCarrier::CompatBox,
-            value_class: crate::mir::ThinEntryValueClass::AggLocal,
-            demand: crate::mir::ThinEntryDemand::LocalAggregate,
+            preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+            current_carrier: ThinEntryCurrentCarrier::CompatBox,
+            value_class: ThinEntryValueClass::AggLocal,
+            demand: ThinEntryDemand::LocalAggregate,
             reason: "variant.make stays aggregate-first".to_string(),
         });
     module.functions.insert("main".to_string(), function);
@@ -45,18 +50,18 @@ fn build_mir_json_root_emits_thin_entry_selections() {
     function
         .metadata
         .thin_entry_selections
-        .push(crate::mir::ThinEntrySelection {
+        .push(ThinEntrySelection {
             block: BasicBlockId::new(0),
             instruction_index: 3,
             value: Some(crate::mir::ValueId::new(8)),
-            surface: crate::mir::ThinEntrySurface::UserBoxFieldGet,
+            surface: ThinEntrySurface::UserBoxFieldGet,
             subject: "Point.x".to_string(),
             manifest_row: "user_box_field_get.inline_scalar",
-            selected_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
-            state: crate::mir::ThinEntrySelectionState::AlreadySatisfied,
-            current_carrier: crate::mir::ThinEntryCurrentCarrier::BackendTyped,
-            value_class: crate::mir::ThinEntryValueClass::InlineI64,
-            demand: crate::mir::ThinEntryDemand::InlineScalar,
+            selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+            state: ThinEntrySelectionState::AlreadySatisfied,
+            current_carrier: ThinEntryCurrentCarrier::BackendTyped,
+            value_class: ThinEntryValueClass::InlineI64,
+            demand: ThinEntryDemand::InlineScalar,
             reason: "typed field read stays on thin internal scalar lane".to_string(),
         });
     module.functions.insert("main".to_string(), function);

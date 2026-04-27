@@ -1,4 +1,8 @@
 use super::*;
+use crate::mir::thin_entry::{
+    ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySurface, ThinEntryValueClass,
+};
+use crate::mir::thin_entry_selection::ThinEntrySelectionState;
 use crate::mir::{MirInstruction, MirModule, MirType, ValueId};
 use serde_json::json;
 use std::sync::{Mutex, OnceLock};
@@ -517,55 +521,55 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
     let func = module.get_function("main").expect("main exists");
 
     assert!(func.metadata.thin_entry_candidates.iter().any(|candidate| {
-        candidate.surface == crate::mir::ThinEntrySurface::VariantMake
+        candidate.surface == ThinEntrySurface::VariantMake
             && candidate.subject == "Option::Some"
-            && candidate.preferred_entry == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
-            && candidate.current_carrier == crate::mir::ThinEntryCurrentCarrier::CompatBox
+            && candidate.preferred_entry == ThinEntryPreferredEntry::ThinInternalEntry
+            && candidate.current_carrier == ThinEntryCurrentCarrier::CompatBox
     }));
     assert!(func.metadata.thin_entry_candidates.iter().any(|candidate| {
-        candidate.surface == crate::mir::ThinEntrySurface::VariantTag
+        candidate.surface == ThinEntrySurface::VariantTag
             && candidate.subject == "Option"
-            && candidate.value_class == crate::mir::ThinEntryValueClass::InlineI64
+            && candidate.value_class == ThinEntryValueClass::InlineI64
     }));
     assert!(func.metadata.thin_entry_candidates.iter().any(|candidate| {
-        candidate.surface == crate::mir::ThinEntrySurface::VariantProject
+        candidate.surface == ThinEntrySurface::VariantProject
             && candidate.subject == "Option::Some"
-            && candidate.value_class == crate::mir::ThinEntryValueClass::InlineI64
+            && candidate.value_class == ThinEntryValueClass::InlineI64
     }));
     assert!(func.metadata.thin_entry_selections.iter().any(|selection| {
-        selection.surface == crate::mir::ThinEntrySurface::VariantMake
+        selection.surface == ThinEntrySurface::VariantMake
             && selection.subject == "Option::Some"
             && selection.manifest_row == "variant_make.aggregate_local"
-            && selection.selected_entry == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
-            && selection.state == crate::mir::ThinEntrySelectionState::Candidate
+            && selection.selected_entry == ThinEntryPreferredEntry::ThinInternalEntry
+            && selection.state == ThinEntrySelectionState::Candidate
     }));
     assert!(func.metadata.thin_entry_selections.iter().any(|selection| {
-        selection.surface == crate::mir::ThinEntrySurface::VariantTag
+        selection.surface == ThinEntrySurface::VariantTag
             && selection.subject == "Option"
             && selection.manifest_row == "variant_tag.tag_local"
-            && selection.selected_entry == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
+            && selection.selected_entry == ThinEntryPreferredEntry::ThinInternalEntry
     }));
     assert!(func.metadata.thin_entry_selections.iter().any(|selection| {
-        selection.surface == crate::mir::ThinEntrySurface::VariantProject
+        selection.surface == ThinEntrySurface::VariantProject
             && selection.subject == "Option::Some"
             && selection.manifest_row == "variant_project.payload_local"
-            && selection.selected_entry == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
+            && selection.selected_entry == ThinEntryPreferredEntry::ThinInternalEntry
     }));
     assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
-        fact.surface == crate::mir::ThinEntrySurface::VariantMake
+        fact.surface == ThinEntrySurface::VariantMake
             && fact.subject == "Option::Some"
             && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
             && fact.tag_reads >= 1
             && fact.project_reads >= 1
     }));
     assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
-        fact.surface == crate::mir::ThinEntrySurface::VariantTag
+        fact.surface == ThinEntrySurface::VariantTag
             && fact.subject == "Option"
             && fact.source_sum.is_some()
             && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
     }));
     assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
-        fact.surface == crate::mir::ThinEntrySurface::VariantProject
+        fact.surface == ThinEntrySurface::VariantProject
             && fact.subject == "Option::Some"
             && fact.source_sum.is_some()
             && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
@@ -575,7 +579,7 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
         .sum_placement_selections
         .iter()
         .any(|selection| {
-            selection.surface == crate::mir::ThinEntrySurface::VariantMake
+            selection.surface == ThinEntrySurface::VariantMake
                 && selection.subject == "Option::Some"
                 && selection.manifest_row == "variant_make.local_aggregate"
                 && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
@@ -585,7 +589,7 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
         .sum_placement_selections
         .iter()
         .any(|selection| {
-            selection.surface == crate::mir::ThinEntrySurface::VariantTag
+            selection.surface == ThinEntrySurface::VariantTag
                 && selection.subject == "Option"
                 && selection.manifest_row == "variant_tag.local_aggregate"
                 && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
@@ -596,19 +600,19 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
         .sum_placement_selections
         .iter()
         .any(|selection| {
-            selection.surface == crate::mir::ThinEntrySurface::VariantProject
+            selection.surface == ThinEntrySurface::VariantProject
                 && selection.subject == "Option::Some"
                 && selection.manifest_row == "variant_project.local_aggregate"
                 && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
                 && selection.source_sum.is_some()
         }));
     assert!(func.metadata.sum_placement_layouts.iter().any(|layout| {
-        layout.surface == crate::mir::ThinEntrySurface::VariantMake
+        layout.surface == ThinEntrySurface::VariantMake
             && layout.subject == "Option::Some"
             && layout.layout == crate::mir::SumLocalAggregateLayout::TagI64Payload
     }));
     assert!(func.metadata.sum_placement_layouts.iter().any(|layout| {
-        layout.surface == crate::mir::ThinEntrySurface::VariantProject
+        layout.surface == ThinEntrySurface::VariantProject
             && layout.subject == "Option::Some"
             && layout.layout == crate::mir::SumLocalAggregateLayout::TagI64Payload
             && layout.source_sum.is_some()

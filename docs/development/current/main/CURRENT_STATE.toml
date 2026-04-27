@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-530"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-530-core-generic-method-root-export-prune-card.md"
-latest_card_summary = "Prune CoreMethod/GenericMethod vocabulary from MIR root exports and migrate planners to owner imports."
+latest_card = "291x-531"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-531-thin-entry-root-export-prune-card.md"
+latest_card_summary = "Prune ThinEntry vocabulary from MIR root exports and migrate fixture consumers to owner imports."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -250,4 +250,5 @@ landed_tail = [
   "291x-528 string-corridor relation root export prune landed",
   "291x-529 escape-barrier root export prune landed",
   "291x-530 core/generic method root export prune landed",
+  "291x-531 thin-entry root export prune landed",
 ]

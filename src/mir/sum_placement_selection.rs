@@ -166,7 +166,8 @@ fn bind_selection(fact: &SumPlacementFact, row: &SumPlacementManifestRow) -> Sum
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{BasicBlockId, SumObjectizationBarrier, ThinEntryValueClass, ValueId};
+    use crate::mir::thin_entry::ThinEntryValueClass;
+    use crate::mir::{BasicBlockId, SumObjectizationBarrier, ValueId};
 
     #[test]
     fn refresh_function_binds_local_aggregate_and_compat_sum_selections() {
