@@ -27,7 +27,7 @@ Related:
 ## Next
 
 - select next phase-291x compiler-cleanliness lane
-- cleanup checkpoint: latest known card `291x-487`; detailed closed
+- cleanup checkpoint: latest known card `291x-488`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
@@ -35,7 +35,7 @@ Related:
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - task-order source:
-  `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase card files and `CURRENT_STATE.toml`, not this
   mirror
 

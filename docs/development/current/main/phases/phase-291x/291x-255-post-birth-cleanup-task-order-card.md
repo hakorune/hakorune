@@ -18,16 +18,27 @@ generic-method emit-kind row was pruned.
 
 This is a planning / task-order card. It does not change `.inc` behavior.
 
-## Current Baseline
+## Historical Baseline
 
-The `.inc` no-growth guard currently tracks:
+When this card landed, the `.inc` no-growth guard tracked:
 
 ```text
 classifiers=14
 rows=14
 ```
 
-Remaining debt is split into two families:
+That row-prune sequence is now closed. As of `291x-488`, the current no-growth
+baseline is:
+
+```text
+classifiers=0
+rows=0
+```
+
+Do not use the task order below as the active remaining task list. It is kept as
+historical traceability for how the `.inc` row-prune sequence was split.
+
+The original remaining debt was split into two families:
 
 - `mir_call_route_policy` receiver/method surface compat sentinels
 - generic-method fallback rows for `set` / `has` / `get` / `len` / `push`

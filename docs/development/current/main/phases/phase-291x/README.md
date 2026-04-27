@@ -186,6 +186,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-485-map-lookup-fusion-route-field-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-486-map-lookup-fusion-route-field-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-487-map-lookup-fusion-route-field-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -205,7 +206,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-480-next-lane-selection-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -247,7 +248,7 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-487`
+- latest known cleanup checkpoint: `291x-488`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`
@@ -266,7 +267,8 @@ in one card.
 | --- | --- |
 | CoreBox surface catalog design | `291x-90-corebox-surface-catalog-design-brief.md` |
 | Surface inventory | `291x-92-corebox-surface-inventory-ledger.md` |
-| Post-birth cleanup order | `291x-255-post-birth-cleanup-task-order-card.md` |
+| Current task-order baseline | `291x-488-current-task-order-baseline-refresh-card.md` |
+| Historical post-birth row-prune order | `291x-255-post-birth-cleanup-task-order-card.md` |
 | CoreMethodContract / Hotline policy | `docs/development/current/main/design/hotline-core-method-contract-ssot.md` |
 | Smoke selection | `291x-smoke-index.md` |
 

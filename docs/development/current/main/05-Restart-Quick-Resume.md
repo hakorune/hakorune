@@ -40,8 +40,8 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-487` closes the `MapLookupFusionRoute`
-  public field boundary cleanup lane
+- latest known checkpoint: `291x-488` refreshes the current phase task-order
+  baseline after row-prune and route-boundary cleanup
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -52,8 +52,8 @@ cargo check -q
 - select next phase-291x compiler-cleanliness lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   move to a new lane
-- use `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-  for task order
+- use `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
+  for the current task-order baseline
 - use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
   for smoke selection
 - keep docs mirrors thin; update `CURRENT_STATE.toml` and the active card first

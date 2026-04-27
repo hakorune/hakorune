@@ -44,8 +44,8 @@ Scope: current lane / next lane / restart order only.
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-487` closes the `MapLookupFusionRoute`
-  public field boundary cleanup lane
+- latest known checkpoint: `291x-488` refreshes the current phase task-order
+  baseline after row-prune and route-boundary cleanup
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
@@ -57,7 +57,7 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-487-map-lookup-fusion-route-field-closeout-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
 - next: select next phase-291x compiler-cleanliness lane
@@ -72,7 +72,7 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-487`; detailed landed history lives in phase card
+- latest checkpoint: `291x-488`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
 - next cleanup: select next phase-291x compiler-cleanliness lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
