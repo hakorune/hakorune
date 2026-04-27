@@ -1,8 +1,8 @@
 use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::{
-    ArrayRmwWindowProof, ArrayRmwWindowRoute, ArrayStringLenWindowMode, ArrayStringLenWindowProof,
-    ArrayStringLenWindowRoute, BasicBlockId, ValueId,
+    ArrayStringLenWindowMode, ArrayStringLenWindowProof, ArrayStringLenWindowRoute, BasicBlockId,
+    ValueId,
 };
 
 #[test]
@@ -11,18 +11,7 @@ fn build_mir_json_root_emits_array_rmw_window_routes() {
     function
         .metadata
         .array_rmw_window_routes
-        .push(ArrayRmwWindowRoute {
-            block: BasicBlockId::new(7),
-            instruction_index: 3,
-            array_value: ValueId::new(10),
-            index_value: ValueId::new(11),
-            input_value: ValueId::new(12),
-            const_value: ValueId::new(13),
-            result_value: ValueId::new(14),
-            set_instruction_index: 6,
-            skip_instruction_indices: vec![4, 5, 6],
-            proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
-        });
+        .push(crate::mir::array_rmw_window_plan::test_support::json_route());
     let mut module = crate::mir::MirModule::new("json_array_routes_test".to_string());
     module.add_function(function);
 

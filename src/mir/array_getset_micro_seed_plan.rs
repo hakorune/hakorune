@@ -221,8 +221,8 @@ fn match_array_getset_micro_seed_route(
         .array_rmw_window_routes
         .iter()
         .find(|route| {
-            route.block == blocks[5].id
-                && route.proof == ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot
+            route.block() == blocks[5].id
+                && route.proof() == ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot
         })?;
 
     let b6 = interesting(blocks[6])?;
@@ -240,15 +240,15 @@ fn match_array_getset_micro_seed_route(
         loop_get_count: 1,
         loop_set_count: 1,
         final_get_count: 0,
-        selected_rmw_block: selected_rmw.block,
-        selected_rmw_instruction_index: selected_rmw.instruction_index,
-        selected_rmw_set_instruction_index: selected_rmw.set_instruction_index,
+        selected_rmw_block: selected_rmw.block(),
+        selected_rmw_instruction_index: selected_rmw.instruction_index(),
+        selected_rmw_set_instruction_index: selected_rmw.set_instruction_index(),
         loop_index_phi_value,
         accumulator_phi_value,
         accumulator_next_value,
         return_value,
         proof: ArrayGetSetMicroSeedProof::KiloMicroArrayGetSetSevenBlock,
-        rmw_proof: selected_rmw.proof,
+        rmw_proof: selected_rmw.proof(),
     })
 }
 
@@ -369,7 +369,7 @@ fn method_call_is(
 mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-    use crate::mir::{ArrayRmwWindowRoute, EffectMask, FunctionSignature, MirType};
+    use crate::mir::{EffectMask, FunctionSignature, MirType};
 
     #[test]
     fn detects_kilo_micro_array_getset_seed_route() {
@@ -532,18 +532,7 @@ mod tests {
         function
             .metadata
             .array_rmw_window_routes
-            .push(ArrayRmwWindowRoute {
-                block: BasicBlockId::new(23),
-                instruction_index: 8,
-                array_value: ValueId::new(55),
-                index_value: ValueId::new(51),
-                input_value: ValueId::new(36),
-                const_value: ValueId::new(61),
-                result_value: ValueId::new(59),
-                set_instruction_index: 13,
-                skip_instruction_indices: vec![9, 10, 11, 12, 13],
-                proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
-            });
+            .push(crate::mir::array_rmw_window_plan::test_support::kilo_getset_inner_route());
     }
 
     fn replace_block(

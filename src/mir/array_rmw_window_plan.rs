@@ -30,16 +30,58 @@ impl std::fmt::Display for ArrayRmwWindowProof {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayRmwWindowRoute {
-    pub block: BasicBlockId,
-    pub instruction_index: usize,
-    pub array_value: ValueId,
-    pub index_value: ValueId,
-    pub input_value: ValueId,
-    pub const_value: ValueId,
-    pub result_value: ValueId,
-    pub set_instruction_index: usize,
-    pub skip_instruction_indices: Vec<usize>,
-    pub proof: ArrayRmwWindowProof,
+    block: BasicBlockId,
+    instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    input_value: ValueId,
+    const_value: ValueId,
+    result_value: ValueId,
+    set_instruction_index: usize,
+    skip_instruction_indices: Vec<usize>,
+    proof: ArrayRmwWindowProof,
+}
+
+impl ArrayRmwWindowRoute {
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn instruction_index(&self) -> usize {
+        self.instruction_index
+    }
+
+    pub fn array_value(&self) -> ValueId {
+        self.array_value
+    }
+
+    pub fn index_value(&self) -> ValueId {
+        self.index_value
+    }
+
+    pub fn input_value(&self) -> ValueId {
+        self.input_value
+    }
+
+    pub fn const_value(&self) -> ValueId {
+        self.const_value
+    }
+
+    pub fn result_value(&self) -> ValueId {
+        self.result_value
+    }
+
+    pub fn set_instruction_index(&self) -> usize {
+        self.set_instruction_index
+    }
+
+    pub fn skip_instruction_indices(&self) -> &[usize] {
+        &self.skip_instruction_indices
+    }
+
+    pub fn proof(&self) -> ArrayRmwWindowProof {
+        self.proof
+    }
 }
 
 pub fn refresh_module_array_rmw_window_routes(module: &mut MirModule) {
@@ -236,6 +278,56 @@ fn match_add1_same_slot_set_route(
         skip_instruction_indices: skip,
         proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
     })
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn json_route() -> ArrayRmwWindowRoute {
+        ArrayRmwWindowRoute {
+            block: BasicBlockId::new(7),
+            instruction_index: 3,
+            array_value: ValueId::new(10),
+            index_value: ValueId::new(11),
+            input_value: ValueId::new(12),
+            const_value: ValueId::new(13),
+            result_value: ValueId::new(14),
+            set_instruction_index: 6,
+            skip_instruction_indices: vec![4, 5, 6],
+            proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
+        }
+    }
+
+    pub(crate) fn kilo_leaf_inner_route() -> ArrayRmwWindowRoute {
+        ArrayRmwWindowRoute {
+            block: BasicBlockId::new(23),
+            instruction_index: 8,
+            array_value: ValueId::new(49),
+            index_value: ValueId::new(45),
+            input_value: ValueId::new(32),
+            const_value: ValueId::new(55),
+            result_value: ValueId::new(53),
+            set_instruction_index: 13,
+            skip_instruction_indices: vec![9, 10, 11, 12, 13],
+            proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
+        }
+    }
+
+    pub(crate) fn kilo_getset_inner_route() -> ArrayRmwWindowRoute {
+        ArrayRmwWindowRoute {
+            block: BasicBlockId::new(23),
+            instruction_index: 8,
+            array_value: ValueId::new(55),
+            index_value: ValueId::new(51),
+            input_value: ValueId::new(36),
+            const_value: ValueId::new(61),
+            result_value: ValueId::new(59),
+            set_instruction_index: 13,
+            skip_instruction_indices: vec![9, 10, 11, 12, 13],
+            proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
+        }
+    }
 }
 
 #[cfg(test)]
