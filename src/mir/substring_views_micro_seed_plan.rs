@@ -12,26 +12,62 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SubstringViewsMicroSeedProof {
+enum SubstringViewsMicroSeedProof {
     KiloMicroSubstringViewsOnly5Block,
+}
+
+impl SubstringViewsMicroSeedProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::KiloMicroSubstringViewsOnly5Block => "kilo_micro_substring_views_only_5block",
+        }
+    }
 }
 
 impl std::fmt::Display for SubstringViewsMicroSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::KiloMicroSubstringViewsOnly5Block => {
-                f.write_str("kilo_micro_substring_views_only_5block")
-            }
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SubstringViewsMicroSeedRoute {
-    pub source: String,
-    pub source_len: i64,
-    pub loop_bound: i64,
-    pub proof: SubstringViewsMicroSeedProof,
+    source: String,
+    source_len: i64,
+    loop_bound: i64,
+    proof: SubstringViewsMicroSeedProof,
+}
+
+impl SubstringViewsMicroSeedRoute {
+    pub fn source(&self) -> &str {
+        self.source.as_str()
+    }
+
+    pub fn source_len(&self) -> i64 {
+        self.source_len
+    }
+
+    pub fn loop_bound(&self) -> i64 {
+        self.loop_bound
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn kilo_micro_substring_views_only_5block() -> SubstringViewsMicroSeedRoute {
+        SubstringViewsMicroSeedRoute {
+            source: "line-seed-abcdef".to_string(),
+            source_len: 16,
+            loop_bound: 300000,
+            proof: SubstringViewsMicroSeedProof::KiloMicroSubstringViewsOnly5Block,
+        }
+    }
 }
 
 pub fn refresh_module_substring_views_micro_seed_routes(module: &mut MirModule) {
@@ -311,13 +347,10 @@ mod tests {
             .metadata
             .substring_views_micro_seed_route
             .expect("expected exact route");
-        assert_eq!(route.source, "line-seed-abcdef");
-        assert_eq!(route.source_len, 16);
-        assert_eq!(route.loop_bound, 300000);
-        assert_eq!(
-            route.proof,
-            SubstringViewsMicroSeedProof::KiloMicroSubstringViewsOnly5Block
-        );
+        assert_eq!(route.source(), "line-seed-abcdef");
+        assert_eq!(route.source_len(), 16);
+        assert_eq!(route.loop_bound(), 300000);
+        assert_eq!(route.proof(), "kilo_micro_substring_views_only_5block");
     }
 
     #[test]

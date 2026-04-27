@@ -518,10 +518,10 @@ pub(super) fn build_mir_json_root(
             }),
             "substring_views_micro_seed_route": f.metadata.substring_views_micro_seed_route.as_ref().map(|route| {
                 json!({
-                    "source": route.source.as_str(),
-                    "source_len": route.source_len,
-                    "loop_bound": route.loop_bound,
-                    "proof": route.proof.to_string(),
+                    "source": route.source(),
+                    "source_len": route.source_len(),
+                    "loop_bound": route.loop_bound(),
+                    "proof": route.proof(),
                     "consumer_capability": "direct_substring_views_exit_len",
                     "publication_boundary": "none",
                 })

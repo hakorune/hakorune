@@ -318,7 +318,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
                     source_route: ExactSeedBackendRouteKind::SubstringViewsOnlyMicro
                         .source_route_field()
                         .to_string(),
-                    proof: route.proof.to_string(),
+                    proof: route.proof().to_string(),
                     selected_value: None,
                 })
         })
@@ -359,15 +359,14 @@ mod tests {
         EffectMask, FunctionSignature, MirType, StringKernelPlan, StringKernelPlanBorrowContract,
         StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
-        StringKernelPlanVerifierOwner, SubstringViewsMicroSeedProof, SubstringViewsMicroSeedRoute,
-        SumLocalAggregateLayout, SumVariantProjectSeedKind, SumVariantProjectSeedPayload,
-        SumVariantProjectSeedProof, SumVariantProjectSeedRoute, SumVariantTagSeedKind,
-        SumVariantTagSeedProof, SumVariantTagSeedRoute, UserBoxKnownReceiverMethodSeedKind,
-        UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedProof,
-        UserBoxKnownReceiverMethodSeedRoute, UserBoxLocalScalarSeedKind,
-        UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
-        UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedProof,
-        UserBoxLoopMicroSeedRoute,
+        StringKernelPlanVerifierOwner, SumLocalAggregateLayout, SumVariantProjectSeedKind,
+        SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
+        SumVariantTagSeedKind, SumVariantTagSeedProof, SumVariantTagSeedRoute,
+        UserBoxKnownReceiverMethodSeedKind, UserBoxKnownReceiverMethodSeedPayload,
+        UserBoxKnownReceiverMethodSeedProof, UserBoxKnownReceiverMethodSeedRoute,
+        UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof,
+        UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind,
+        UserBoxLoopMicroSeedProof, UserBoxLoopMicroSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -679,12 +678,9 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_substring_views_metadata() {
         let mut function = make_function();
-        function.metadata.substring_views_micro_seed_route = Some(SubstringViewsMicroSeedRoute {
-            source: "line-seed-abcdef".to_string(),
-            source_len: 16,
-            loop_bound: 300000,
-            proof: SubstringViewsMicroSeedProof::KiloMicroSubstringViewsOnly5Block,
-        });
+        function.metadata.substring_views_micro_seed_route = Some(
+            crate::mir::substring_views_micro_seed_plan::test_support::kilo_micro_substring_views_only_5block(),
+        );
 
         refresh_function_exact_seed_backend_route(&mut function);
 

@@ -269,8 +269,7 @@ pub use string_kernel_plan::{
 };
 pub use substring_views_micro_seed_plan::{
     refresh_function_substring_views_micro_seed_route,
-    refresh_module_substring_views_micro_seed_routes, SubstringViewsMicroSeedProof,
-    SubstringViewsMicroSeedRoute,
+    refresh_module_substring_views_micro_seed_routes, SubstringViewsMicroSeedRoute,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,
