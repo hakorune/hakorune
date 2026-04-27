@@ -222,6 +222,7 @@ fn is_var_named(node: &ASTNode, name: &str) -> bool {
 mod tests {
     use super::*;
     use crate::ast::{BinaryOperator, LiteralValue, Span};
+    use crate::tests::helpers::joinir_env::with_joinir_env_lock;
 
     fn span() -> Span {
         Span::unknown()
@@ -275,44 +276,174 @@ mod tests {
         }
     }
 
+    fn assignment(target: ASTNode, value: ASTNode) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(target),
+            value: Box::new(value),
+            span: span(),
+        }
+    }
+
+    fn method_call(obj: &str, method: &str, args: Vec<ASTNode>) -> ASTNode {
+        ASTNode::MethodCall {
+            object: Box::new(var(obj)),
+            method: method.to_string(),
+            arguments: args,
+            span: span(),
+        }
+    }
+
     #[test]
     fn returns_recipe_for_escape_override_shape() {
-        let body = vec![
-            ASTNode::Local {
-                variables: vec!["ch".to_string()],
-                initial_values: vec![Some(Box::new(str_lit("a")))],
-                span: span(),
-            },
-            ASTNode::If {
-                condition: Box::new(eq(var("ch"), str_lit("\\"))),
-                then_body: vec![
-                    ASTNode::Assignment {
-                        target: Box::new(var("i")),
-                        value: Box::new(add(var("i"), int_lit(1))),
-                        span: span(),
-                    },
-                    ASTNode::If {
-                        condition: Box::new(lt(var("i"), var("n"))),
-                        then_body: vec![ASTNode::Assignment {
-                            target: Box::new(var("ch")),
-                            value: Box::new(str_lit("b")),
+        with_joinir_env_lock(|| {
+            let body = vec![
+                ASTNode::Local {
+                    variables: vec!["ch".to_string()],
+                    initial_values: vec![Some(Box::new(str_lit("a")))],
+                    span: span(),
+                },
+                ASTNode::If {
+                    condition: Box::new(eq(var("ch"), str_lit("\""))),
+                    then_body: vec![ASTNode::Break { span: span() }],
+                    else_body: None,
+                    span: span(),
+                },
+                ASTNode::If {
+                    condition: Box::new(eq(var("ch"), str_lit("\\"))),
+                    then_body: vec![
+                        ASTNode::Assignment {
+                            target: Box::new(var("i")),
+                            value: Box::new(add(var("i"), int_lit(1))),
                             span: span(),
-                        }],
-                        else_body: None,
-                        span: span(),
-                    },
-                ],
-                else_body: None,
-                span: span(),
-            },
-            ASTNode::Assignment {
-                target: Box::new(var("i")),
-                value: Box::new(add(var("i"), int_lit(1))),
-                span: span(),
-            },
-        ];
+                        },
+                        ASTNode::If {
+                            condition: Box::new(lt(var("i"), var("n"))),
+                            then_body: vec![ASTNode::Assignment {
+                                target: Box::new(var("ch")),
+                                value: Box::new(str_lit("b")),
+                                span: span(),
+                            }],
+                            else_body: None,
+                            span: span(),
+                        },
+                    ],
+                    else_body: None,
+                    span: span(),
+                },
+                ASTNode::Assignment {
+                    target: Box::new(var("i")),
+                    value: Box::new(add(var("i"), int_lit(1))),
+                    span: span(),
+                },
+            ];
 
-        let decision = classify_p5b_escape_derived(&body, "i");
-        assert!(matches!(decision, P5bEscapeDerivedDecision::Use(_)));
+            let decision = classify_p5b_escape_derived(&body, "i");
+            assert!(matches!(decision, P5bEscapeDerivedDecision::Use(_)));
+        });
+    }
+
+    #[test]
+    fn detects_p5b_shape_and_builds_recipe() {
+        with_joinir_env_lock(|| {
+            let body = vec![
+                ASTNode::Local {
+                    variables: vec!["ch".to_string()],
+                    initial_values: vec![Some(Box::new(method_call(
+                        "s",
+                        "substring",
+                        vec![var("i"), add(var("i"), int_lit(1))],
+                    )))],
+                    span: span(),
+                },
+                ASTNode::If {
+                    condition: Box::new(eq(var("ch"), str_lit("\""))),
+                    then_body: vec![ASTNode::Break { span: span() }],
+                    else_body: None,
+                    span: span(),
+                },
+                ASTNode::If {
+                    condition: Box::new(eq(var("ch"), str_lit("\\"))),
+                    then_body: vec![
+                        assignment(var("i"), add(var("i"), int_lit(1))),
+                        assignment(
+                            var("ch"),
+                            method_call(
+                                "s",
+                                "substring",
+                                vec![var("i"), add(var("i"), int_lit(1))],
+                            ),
+                        ),
+                    ],
+                    else_body: None,
+                    span: span(),
+                },
+                assignment(var("i"), add(var("i"), int_lit(1))),
+            ];
+
+            match classify_p5b_escape_derived(&body, "i") {
+                P5bEscapeDerivedDecision::Use(recipe) => {
+                    assert_eq!(recipe.name, "ch");
+                    assert_eq!(recipe.loop_counter_name, "i");
+                    assert_eq!(recipe.pre_delta, 2);
+                    assert_eq!(recipe.post_delta, 1);
+                    match recipe.override_expr {
+                        ASTNode::MethodCall { ref method, .. } => assert_eq!(method, "substring"),
+                        other => panic!("expected override MethodCall, got {:?}", other),
+                    }
+                }
+                other => panic!("expected Use recipe, got {:?}", other),
+            }
+        });
+    }
+
+    #[test]
+    fn strict_rejects_when_local_init_missing() {
+        with_joinir_env_lock(|| {
+            let body = vec![
+                ASTNode::If {
+                    condition: Box::new(eq(var("ch"), str_lit("\""))),
+                    then_body: vec![ASTNode::Break { span: span() }],
+                    else_body: None,
+                    span: span(),
+                },
+                ASTNode::If {
+                    condition: Box::new(eq(var("ch"), str_lit("\\"))),
+                    then_body: vec![
+                        assignment(var("i"), add(var("i"), int_lit(1))),
+                        assignment(
+                            var("ch"),
+                            method_call(
+                                "s",
+                                "substring",
+                                vec![var("i"), add(var("i"), int_lit(1))],
+                            ),
+                        ),
+                    ],
+                    else_body: None,
+                    span: span(),
+                },
+                assignment(var("i"), add(var("i"), int_lit(1))),
+            ];
+
+            let prev = crate::config::env::joinir_dev::strict_enabled();
+            std::env::set_var("HAKO_JOINIR_STRICT", "1");
+            let decision = classify_p5b_escape_derived(&body, "i");
+            if prev {
+                std::env::set_var("HAKO_JOINIR_STRICT", "1");
+            } else {
+                std::env::remove_var("HAKO_JOINIR_STRICT");
+            }
+
+            match decision {
+                P5bEscapeDerivedDecision::Reject(reason) => {
+                    assert!(
+                        reason.contains("missing_local_init"),
+                        "unexpected reason: {}",
+                        reason
+                    );
+                }
+                other => panic!("expected Reject, got {:?}", other),
+            }
+        });
     }
 }
