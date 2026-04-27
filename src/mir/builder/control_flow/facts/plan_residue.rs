@@ -11,4 +11,3 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::facts::
     loop_char_map_facts, loop_simple_while_facts, loop_types, reject_reason, scan_shapes,
     skeleton_facts, LoopFacts,
 };
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;

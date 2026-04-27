@@ -1,5 +1,6 @@
 use super::types::{PlannerFirstMode, RouterEnv};
 use crate::mir::builder::control_flow::lower::PlanRuleId;
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 
 pub(crate) fn emit_planner_first(mode: PlannerFirstMode, env: &RouterEnv, rule: PlanRuleId) {
     let emit = match mode {
@@ -25,9 +26,7 @@ pub(crate) fn emit_planner_first(mode: PlannerFirstMode, env: &RouterEnv, rule: 
     }
 }
 
-pub(crate) fn loop_break_recipe_needs_flowbox_adopt_tag_in_strict(
-    facts: &crate::mir::builder::control_flow::facts::LoopBreakFacts,
-) -> bool {
+pub(crate) fn loop_break_recipe_needs_flowbox_adopt_tag_in_strict(facts: &LoopBreakFacts) -> bool {
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
     let loop_condition_is_var_less_literal = match &facts.loop_condition {
