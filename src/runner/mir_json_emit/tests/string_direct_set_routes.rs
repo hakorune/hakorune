@@ -1,6 +1,5 @@
 use super::super::build_mir_json_root;
 use super::make_function;
-use crate::mir::{BasicBlockId, StringDirectSetWindowProof, StringDirectSetWindowRoute, ValueId};
 
 #[test]
 fn build_mir_json_root_emits_string_direct_set_window_routes() {
@@ -8,22 +7,7 @@ fn build_mir_json_root_emits_string_direct_set_window_routes() {
     function
         .metadata
         .string_direct_set_window_routes
-        .push(StringDirectSetWindowRoute {
-            block: BasicBlockId::new(7),
-            instruction_index: 3,
-            second_instruction_index: 4,
-            concat_instruction_index: 8,
-            source_value: ValueId::new(10),
-            prefix_value: ValueId::new(11),
-            suffix_value: ValueId::new(12),
-            middle_value: ValueId::new(13),
-            split_value: ValueId::new(14),
-            result_value: ValueId::new(15),
-            subrange_start: ValueId::new(16),
-            subrange_end: ValueId::new(17),
-            skip_instruction_indices: vec![4, 5, 8],
-            proof: StringDirectSetWindowProof::PiecewiseConcat3DirectSetSourceWindow,
-        });
+        .push(crate::mir::string_direct_set_window_plan::test_support::piecewise_route());
     let mut module = crate::mir::MirModule::new("json_string_direct_set_routes_test".to_string());
     module.add_function(function);
 

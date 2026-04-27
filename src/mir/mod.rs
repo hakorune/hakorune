@@ -255,8 +255,7 @@ pub use string_corridor_relation::{
 };
 pub use string_direct_set_window_plan::{
     refresh_function_string_direct_set_window_routes,
-    refresh_module_string_direct_set_window_routes, StringDirectSetWindowProof,
-    StringDirectSetWindowRoute,
+    refresh_module_string_direct_set_window_routes, StringDirectSetWindowRoute,
 };
 pub use string_kernel_plan::{
     derive_string_kernel_plan, infer_string_kernel_text_consumer,

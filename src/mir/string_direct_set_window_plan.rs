@@ -17,36 +17,100 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum StringDirectSetWindowProof {
+enum StringDirectSetWindowProof {
     PiecewiseConcat3DirectSetSourceWindow,
 }
 
-impl std::fmt::Display for StringDirectSetWindowProof {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl StringDirectSetWindowProof {
+    fn as_str(self) -> &'static str {
         match self {
             Self::PiecewiseConcat3DirectSetSourceWindow => {
-                f.write_str("piecewise_concat3_direct_set_source_window")
+                "piecewise_concat3_direct_set_source_window"
             }
         }
     }
 }
 
+impl std::fmt::Display for StringDirectSetWindowProof {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StringDirectSetWindowRoute {
-    pub block: BasicBlockId,
-    pub instruction_index: usize,
-    pub second_instruction_index: usize,
-    pub concat_instruction_index: usize,
-    pub source_value: ValueId,
-    pub prefix_value: ValueId,
-    pub suffix_value: ValueId,
-    pub middle_value: ValueId,
-    pub split_value: ValueId,
-    pub result_value: ValueId,
-    pub subrange_start: ValueId,
-    pub subrange_end: ValueId,
-    pub skip_instruction_indices: Vec<usize>,
-    pub proof: StringDirectSetWindowProof,
+    block: BasicBlockId,
+    instruction_index: usize,
+    second_instruction_index: usize,
+    concat_instruction_index: usize,
+    source_value: ValueId,
+    prefix_value: ValueId,
+    suffix_value: ValueId,
+    middle_value: ValueId,
+    split_value: ValueId,
+    result_value: ValueId,
+    subrange_start: ValueId,
+    subrange_end: ValueId,
+    skip_instruction_indices: Vec<usize>,
+    proof: StringDirectSetWindowProof,
+}
+
+impl StringDirectSetWindowRoute {
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn instruction_index(&self) -> usize {
+        self.instruction_index
+    }
+
+    pub fn second_instruction_index(&self) -> usize {
+        self.second_instruction_index
+    }
+
+    pub fn concat_instruction_index(&self) -> usize {
+        self.concat_instruction_index
+    }
+
+    pub fn source_value(&self) -> ValueId {
+        self.source_value
+    }
+
+    pub fn prefix_value(&self) -> ValueId {
+        self.prefix_value
+    }
+
+    pub fn suffix_value(&self) -> ValueId {
+        self.suffix_value
+    }
+
+    pub fn middle_value(&self) -> ValueId {
+        self.middle_value
+    }
+
+    pub fn split_value(&self) -> ValueId {
+        self.split_value
+    }
+
+    pub fn result_value(&self) -> ValueId {
+        self.result_value
+    }
+
+    pub fn subrange_start(&self) -> ValueId {
+        self.subrange_start
+    }
+
+    pub fn subrange_end(&self) -> ValueId {
+        self.subrange_end
+    }
+
+    pub fn skip_instruction_indices(&self) -> &[usize] {
+        &self.skip_instruction_indices
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
 }
 
 pub fn refresh_module_string_direct_set_window_routes(module: &mut MirModule) {
@@ -259,6 +323,30 @@ fn value_is_const_string(function: &MirFunction, def_map: &ValueDefMap, value: V
         string_source_identity(function, def_map, value),
         Some(StringSourceIdentity::ConstString(_))
     )
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn piecewise_route() -> StringDirectSetWindowRoute {
+        StringDirectSetWindowRoute {
+            block: BasicBlockId::new(7),
+            instruction_index: 3,
+            second_instruction_index: 4,
+            concat_instruction_index: 8,
+            source_value: ValueId::new(10),
+            prefix_value: ValueId::new(11),
+            suffix_value: ValueId::new(12),
+            middle_value: ValueId::new(13),
+            split_value: ValueId::new(14),
+            result_value: ValueId::new(15),
+            subrange_start: ValueId::new(16),
+            subrange_end: ValueId::new(17),
+            skip_instruction_indices: vec![4, 5, 8],
+            proof: StringDirectSetWindowProof::PiecewiseConcat3DirectSetSourceWindow,
+        }
+    }
 }
 
 #[cfg(test)]
