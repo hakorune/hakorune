@@ -61,3 +61,44 @@ pub(in crate::mir::builder) fn extract_step_var_from_tail(
     }
     Some(as_var_name(value.as_ref())?.to_string())
 }
+
+pub(in crate::mir::builder) fn match_next_i_guard(
+    stmt: &ASTNode,
+    next_i: &str,
+    loop_var: &str,
+) -> bool {
+    let ASTNode::If {
+        condition,
+        then_body,
+        else_body,
+        ..
+    } = stmt
+    else {
+        return false;
+    };
+    if else_body.is_some() {
+        return false;
+    }
+    if then_body.len() != 1 {
+        return false;
+    }
+
+    let cond_ok = matches!(
+        condition.as_ref(),
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::LessEqual,
+            left,
+            right,
+            ..
+        } if as_var_name(left.as_ref()) == Some(next_i) && as_var_name(right.as_ref()) == Some(loop_var)
+    );
+    if !cond_ok {
+        return false;
+    }
+
+    matches!(
+        &then_body[0],
+        ASTNode::Assignment { target, value, .. }
+            if as_var_name(target.as_ref()) == Some(next_i) && is_var_plus_one(value.as_ref(), loop_var)
+    )
+}

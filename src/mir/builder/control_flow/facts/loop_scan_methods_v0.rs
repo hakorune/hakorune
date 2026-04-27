@@ -4,7 +4,7 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::facts::scan_common_predicates::{
-    as_var_name, is_loop_cond_var_lt_var, is_var_plus_one,
+    as_var_name, extract_step_var_from_tail, is_loop_cond_var_lt_var, match_next_i_guard,
 };
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
@@ -32,52 +32,6 @@ fn declares_local_var(stmt: &ASTNode, name: &str) -> bool {
         return false;
     };
     variables.iter().any(|v| v == name)
-}
-
-fn match_next_i_guard(stmt: &ASTNode, next_i: &str, loop_var: &str) -> bool {
-    let ASTNode::If {
-        condition,
-        then_body,
-        else_body,
-        ..
-    } = stmt
-    else {
-        return false;
-    };
-    if else_body.is_some() {
-        return false;
-    }
-    if then_body.len() != 1 {
-        return false;
-    }
-    let cond_ok = matches!(
-        condition.as_ref(),
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::LessEqual,
-            left,
-            right,
-            ..
-        } if as_var_name(left.as_ref()) == Some(next_i) && as_var_name(right.as_ref()) == Some(loop_var)
-    );
-    if !cond_ok {
-        return false;
-    }
-
-    matches!(
-        &then_body[0],
-        ASTNode::Assignment { target, value, .. }
-            if as_var_name(target.as_ref()) == Some(next_i) && is_var_plus_one(value.as_ref(), loop_var)
-    )
-}
-
-fn extract_next_i_from_tail(stmt: &ASTNode, loop_var: &str) -> Option<String> {
-    let ASTNode::Assignment { target, value, .. } = stmt else {
-        return None;
-    };
-    if as_var_name(target.as_ref()) != Some(loop_var) {
-        return None;
-    }
-    Some(as_var_name(value.as_ref())?.to_string())
 }
 
 fn contains_scan_window_loop(stmts: &[ASTNode], limit_var: &str) -> bool {
@@ -204,7 +158,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
         debug_reject("body_last_missing");
         return Ok(None);
     };
-    let Some(next_i_var) = extract_next_i_from_tail(last, &loop_var) else {
+    let Some(next_i_var) = extract_step_var_from_tail(last, &loop_var) else {
         debug_reject("tail_not_i_eq_next_i");
         return Ok(None);
     };

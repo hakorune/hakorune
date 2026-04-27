@@ -3,7 +3,6 @@ use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockV
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::facts::scan_common_predicates::{
     as_var_name, is_int_lit, is_loop_cond_var_lt_var as shared_is_loop_cond_var_lt_var,
-    is_var_plus_one,
 };
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
@@ -25,53 +24,6 @@ pub(super) fn declares_local_var(stmt: &ASTNode, name: &str) -> bool {
         return false;
     };
     variables.iter().any(|v| v == name)
-}
-
-pub(super) fn match_next_i_guard(stmt: &ASTNode, next_i: &str, loop_var: &str) -> bool {
-    let ASTNode::If {
-        condition,
-        then_body,
-        else_body,
-        ..
-    } = stmt
-    else {
-        return false;
-    };
-    if else_body.is_some() {
-        return false;
-    }
-    if then_body.len() != 1 {
-        return false;
-    }
-
-    let cond_ok = matches!(
-        condition.as_ref(),
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::LessEqual,
-            left,
-            right,
-            ..
-        } if as_var_name(left.as_ref()) == Some(next_i) && as_var_name(right.as_ref()) == Some(loop_var)
-    );
-    if !cond_ok {
-        return false;
-    }
-
-    matches!(
-        &then_body[0],
-        ASTNode::Assignment { target, value, .. }
-            if as_var_name(target.as_ref()) == Some(next_i) && is_var_plus_one(value.as_ref(), loop_var)
-    )
-}
-
-pub(super) fn extract_next_i_from_tail(stmt: &ASTNode, loop_var: &str) -> Option<String> {
-    let ASTNode::Assignment { target, value, .. } = stmt else {
-        return None;
-    };
-    if as_var_name(target.as_ref()) != Some(loop_var) {
-        return None;
-    }
-    Some(as_var_name(value.as_ref())?.to_string())
 }
 
 fn block_stmt_body(stmt: &ASTNode) -> Option<&[ASTNode]> {

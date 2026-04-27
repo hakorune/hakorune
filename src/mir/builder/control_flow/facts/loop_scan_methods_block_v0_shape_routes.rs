@@ -1,8 +1,10 @@
 use crate::ast::ASTNode;
 
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_helpers::{
-    declares_local_var, extract_next_i_from_tail, match_next_i_guard, match_scan_window_block,
-    scan_window_substring_receiver,
+    declares_local_var, match_scan_window_block, scan_window_substring_receiver,
+};
+use crate::mir::builder::control_flow::facts::scan_common_predicates::{
+    extract_step_var_from_tail, match_next_i_guard,
 };
 
 pub(in crate::mir::builder) struct LoopScanMethodsBlockShapeMatch;
@@ -26,7 +28,7 @@ pub(in crate::mir::builder) fn try_match_loop_scan_methods_block_shape(
     let Some(last) = body.last() else {
         return Err("body_last_missing".to_string());
     };
-    let Some(next_i_var) = extract_next_i_from_tail(last, loop_var) else {
+    let Some(next_i_var) = extract_step_var_from_tail(last, loop_var) else {
         return Err("tail_not_i_eq_next_i".to_string());
     };
 
