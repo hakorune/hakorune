@@ -235,7 +235,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
             source_route: ExactSeedBackendRouteKind::SumVariantTagLocal
                 .source_route_field()
                 .to_string(),
-            proof: route.proof.to_string(),
+            proof: route.proof().to_string(),
             selected_value: None,
         });
     }
@@ -361,7 +361,6 @@ mod tests {
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
         StringKernelPlanVerifierOwner, SumLocalAggregateLayout, SumVariantProjectSeedKind,
         SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
-        SumVariantTagSeedKind, SumVariantTagSeedProof, SumVariantTagSeedRoute,
         UserBoxKnownReceiverMethodSeedKind, UserBoxKnownReceiverMethodSeedPayload,
         UserBoxKnownReceiverMethodSeedProof, UserBoxKnownReceiverMethodSeedRoute,
         UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof,
@@ -462,24 +461,8 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_sum_variant_tag_metadata() {
         let mut function = make_function();
-        function.metadata.sum_variant_tag_seed_route = Some(SumVariantTagSeedRoute {
-            kind: SumVariantTagSeedKind::LocalI64,
-            enum_name: "Result".to_string(),
-            variant: "Ok".to_string(),
-            subject: "Result::Ok".to_string(),
-            layout: SumLocalAggregateLayout::TagI64Payload,
-            variant_tag: 0,
-            make_block: BasicBlockId::new(0),
-            make_instruction_index: 1,
-            tag_block: BasicBlockId::new(0),
-            tag_instruction_index: 2,
-            sum_value: ValueId::new(2),
-            tag_value: ValueId::new(3),
-            tag_source_value: ValueId::new(2),
-            copy_value: None,
-            payload_value: Some(ValueId::new(1)),
-            proof: SumVariantTagSeedProof::LocalAggregateTagSeed,
-        });
+        function.metadata.sum_variant_tag_seed_route =
+            Some(crate::mir::sum_variant_tag_seed_plan::test_support::local_i64_result_ok());
 
         refresh_function_exact_seed_backend_route(&mut function);
 

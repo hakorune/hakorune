@@ -38,36 +38,134 @@ impl std::fmt::Display for SumVariantTagSeedKind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SumVariantTagSeedProof {
+enum SumVariantTagSeedProof {
     LocalAggregateTagSeed,
+}
+
+impl SumVariantTagSeedProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::LocalAggregateTagSeed => "sum_variant_tag_local_aggregate_seed",
+        }
+    }
 }
 
 impl std::fmt::Display for SumVariantTagSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::LocalAggregateTagSeed => f.write_str("sum_variant_tag_local_aggregate_seed"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SumVariantTagSeedRoute {
-    pub kind: SumVariantTagSeedKind,
-    pub enum_name: String,
-    pub variant: String,
-    pub subject: String,
-    pub layout: SumLocalAggregateLayout,
-    pub variant_tag: u32,
-    pub make_block: BasicBlockId,
-    pub make_instruction_index: usize,
-    pub tag_block: BasicBlockId,
-    pub tag_instruction_index: usize,
-    pub sum_value: ValueId,
-    pub tag_value: ValueId,
-    pub tag_source_value: ValueId,
-    pub copy_value: Option<ValueId>,
-    pub payload_value: Option<ValueId>,
-    pub proof: SumVariantTagSeedProof,
+    kind: SumVariantTagSeedKind,
+    enum_name: String,
+    variant: String,
+    subject: String,
+    layout: SumLocalAggregateLayout,
+    variant_tag: u32,
+    make_block: BasicBlockId,
+    make_instruction_index: usize,
+    tag_block: BasicBlockId,
+    tag_instruction_index: usize,
+    sum_value: ValueId,
+    tag_value: ValueId,
+    tag_source_value: ValueId,
+    copy_value: Option<ValueId>,
+    payload_value: Option<ValueId>,
+    proof: SumVariantTagSeedProof,
+}
+
+impl SumVariantTagSeedRoute {
+    pub fn kind(&self) -> SumVariantTagSeedKind {
+        self.kind
+    }
+
+    pub fn enum_name(&self) -> &str {
+        self.enum_name.as_str()
+    }
+
+    pub fn variant(&self) -> &str {
+        self.variant.as_str()
+    }
+
+    pub fn subject(&self) -> &str {
+        self.subject.as_str()
+    }
+
+    pub fn layout(&self) -> SumLocalAggregateLayout {
+        self.layout
+    }
+
+    pub fn variant_tag(&self) -> u32 {
+        self.variant_tag
+    }
+
+    pub fn make_block(&self) -> BasicBlockId {
+        self.make_block
+    }
+
+    pub fn make_instruction_index(&self) -> usize {
+        self.make_instruction_index
+    }
+
+    pub fn tag_block(&self) -> BasicBlockId {
+        self.tag_block
+    }
+
+    pub fn tag_instruction_index(&self) -> usize {
+        self.tag_instruction_index
+    }
+
+    pub fn sum_value(&self) -> ValueId {
+        self.sum_value
+    }
+
+    pub fn tag_value(&self) -> ValueId {
+        self.tag_value
+    }
+
+    pub fn tag_source_value(&self) -> ValueId {
+        self.tag_source_value
+    }
+
+    pub fn copy_value(&self) -> Option<ValueId> {
+        self.copy_value
+    }
+
+    pub fn payload_value(&self) -> Option<ValueId> {
+        self.payload_value
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn local_i64_result_ok() -> SumVariantTagSeedRoute {
+        SumVariantTagSeedRoute {
+            kind: SumVariantTagSeedKind::LocalI64,
+            enum_name: "Result".to_string(),
+            variant: "Ok".to_string(),
+            subject: "Result::Ok".to_string(),
+            layout: SumLocalAggregateLayout::TagI64Payload,
+            variant_tag: 0,
+            make_block: BasicBlockId::new(0),
+            make_instruction_index: 1,
+            tag_block: BasicBlockId::new(0),
+            tag_instruction_index: 2,
+            sum_value: ValueId::new(2),
+            tag_value: ValueId::new(3),
+            tag_source_value: ValueId::new(2),
+            copy_value: None,
+            payload_value: Some(ValueId::new(1)),
+            proof: SumVariantTagSeedProof::LocalAggregateTagSeed,
+        }
+    }
 }
 
 pub fn refresh_module_sum_variant_tag_seed_routes(module: &mut MirModule) {

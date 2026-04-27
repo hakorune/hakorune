@@ -2,10 +2,10 @@ use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::array_rmw_add1_leaf_seed_plan::test_support as array_rmw_add1_leaf_fixture;
 use crate::mir::exact_seed_backend_route::test_support as exact_seed_backend_route_fixture;
+use crate::mir::sum_variant_tag_seed_plan::test_support as sum_variant_tag_fixture;
 use crate::mir::{
     MirModule, SumLocalAggregateLayout, SumVariantProjectSeedKind, SumVariantProjectSeedPayload,
-    SumVariantProjectSeedProof, SumVariantProjectSeedRoute, SumVariantTagSeedKind,
-    SumVariantTagSeedProof, SumVariantTagSeedRoute, UserBoxLocalScalarSeedKind,
+    SumVariantProjectSeedProof, SumVariantProjectSeedRoute, UserBoxLocalScalarSeedKind,
     UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
     UserBoxLocalScalarSeedSinglePayload, ValueId,
 };
@@ -79,24 +79,8 @@ fn build_mir_json_root_emits_array_rmw_add1_leaf_seed_and_exact_route() {
 #[test]
 fn build_mir_json_root_emits_sum_variant_tag_seed_and_exact_route() {
     let mut function = make_function("main", true);
-    function.metadata.sum_variant_tag_seed_route = Some(SumVariantTagSeedRoute {
-        kind: SumVariantTagSeedKind::LocalI64,
-        enum_name: "Result".to_string(),
-        variant: "Ok".to_string(),
-        subject: "Result::Ok".to_string(),
-        layout: SumLocalAggregateLayout::TagI64Payload,
-        variant_tag: 0,
-        make_block: BasicBlockId::new(0),
-        make_instruction_index: 1,
-        tag_block: BasicBlockId::new(0),
-        tag_instruction_index: 2,
-        sum_value: ValueId::new(2),
-        tag_value: ValueId::new(3),
-        tag_source_value: ValueId::new(2),
-        copy_value: None,
-        payload_value: Some(ValueId::new(1)),
-        proof: SumVariantTagSeedProof::LocalAggregateTagSeed,
-    });
+    function.metadata.sum_variant_tag_seed_route =
+        Some(sum_variant_tag_fixture::local_i64_result_ok());
     function.metadata.exact_seed_backend_route =
         Some(exact_seed_backend_route_fixture::sum_variant_tag_local());
     let mut module = MirModule::new("json_sum_variant_tag_route_test".to_string());
