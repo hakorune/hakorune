@@ -108,7 +108,7 @@ pub mod verification;
 pub mod verification_types; // extracted error types // Optimization subpasses (e.g., type_hints) // Phase 25.1f: Loop/If 共通ビュー（ControlForm）
 
 // Re-export main types for easy access
-pub use basic_block::{BasicBlock, EdgeArgs, OutEdge};
+pub use basic_block::{BasicBlock, EdgeArgs};
 pub use builder::MirBuilder;
 pub use compiler::{MirCompileResult, MirCompiler};
 pub use hakorune_mir_core::{BasicBlockId, BindingId};
@@ -170,7 +170,7 @@ pub use concat_const_suffix_micro_seed_plan::{
     refresh_function_concat_const_suffix_micro_seed_route,
     refresh_module_concat_const_suffix_micro_seed_routes,
 };
-pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions
+pub use definitions::Callee; // Unified call definitions
 pub use effect::{Effect, EffectMask};
 pub use exact_seed_backend_route::{
     refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
