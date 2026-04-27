@@ -580,8 +580,9 @@ mod tests {
     use crate::mir::agg_local_scalarization::{
         AggLocalScalarizationKind, AggLocalScalarizationRoute,
     };
+    use crate::mir::storage_class::StorageClass;
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType, StorageClass,
+        BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType,
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
         StringCorridorCandidateProof, StringCorridorCandidateState,
         StringCorridorPublicationBoundary, StringCorridorPublicationContract,

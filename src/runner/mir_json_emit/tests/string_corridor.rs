@@ -1,6 +1,7 @@
 use super::super::build_mir_json_root;
 use super::{make_function, make_string_loop_function};
-use crate::mir::{MirModule, ValueConsumerFacts, ValueId};
+use crate::mir::value_consumer::ValueConsumerFacts;
+use crate::mir::{MirModule, ValueId};
 
 #[test]
 fn build_mir_json_root_emits_value_consumer_facts() {

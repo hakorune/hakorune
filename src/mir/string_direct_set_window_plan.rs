@@ -353,7 +353,8 @@ pub(crate) mod test_support {
 mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-    use crate::mir::{Callee, EffectMask, FunctionSignature, MirType, ValueConsumerFacts};
+    use crate::mir::value_consumer::ValueConsumerFacts;
+    use crate::mir::{Callee, EffectMask, FunctionSignature, MirType};
 
     fn method_call(
         dst: Option<u32>,

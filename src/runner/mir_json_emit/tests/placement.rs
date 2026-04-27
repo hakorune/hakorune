@@ -6,6 +6,7 @@ use crate::mir::placement_effect::{
     PlacementEffectPublicationBoundary, PlacementEffectRoute, PlacementEffectSource,
     PlacementEffectState, PlacementEffectStringProof,
 };
+use crate::mir::storage_class::StorageClass;
 use crate::mir::{BasicBlockId, MirModule};
 
 #[test]
@@ -146,7 +147,7 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
             instruction_index: Some(4),
             value: Some(crate::mir::ValueId::new(13)),
             subject: "Point.flag".to_string(),
-            kind: AggLocalScalarizationKind::TypedSlotStorage(crate::mir::StorageClass::InlineBool),
+            kind: AggLocalScalarizationKind::TypedSlotStorage(StorageClass::InlineBool),
             reason: "typed slot stays inline on the scalar lane".to_string(),
         });
     module.functions.insert("main".to_string(), function);

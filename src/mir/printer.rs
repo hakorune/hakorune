@@ -422,8 +422,9 @@ impl Default for MirPrinter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::storage_class::StorageClass;
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, StorageClass,
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
         StringCorridorCarrier, StringCorridorFact, SumLocalAggregateLayout,
         SumObjectizationBarrier, SumPlacementFact, SumPlacementLayout, SumPlacementPath,

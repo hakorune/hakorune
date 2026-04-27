@@ -206,9 +206,7 @@ pub use semantic_refresh::{
 };
 pub use slot_registry::{BoxTypeId, MethodSlot};
 pub use spanned_instruction::{SpannedInstRef, SpannedInstruction};
-pub use storage_class::{
-    refresh_function_storage_class_facts, refresh_module_storage_class_facts, StorageClass,
-};
+pub use storage_class::{refresh_function_storage_class_facts, refresh_module_storage_class_facts};
 pub use string_corridor::{
     refresh_function_string_corridor_facts, refresh_module_string_corridor_facts,
     StringCorridorBorrowContract, StringCorridorCarrier, StringCorridorFact, StringCorridorOp,
@@ -281,7 +279,7 @@ pub use userbox_loop_micro_seed_plan::{
     refresh_function_userbox_loop_micro_seed_route, refresh_module_userbox_loop_micro_seed_routes,
 };
 pub use value_consumer::{
-    refresh_function_value_consumer_facts, refresh_module_value_consumer_facts, ValueConsumerFacts,
+    refresh_function_value_consumer_facts, refresh_module_value_consumer_facts,
 };
 pub use value_id::{LocalId, ValueId, ValueIdGenerator};
 pub use value_kind::{MirValueKind, TypedValueId}; // Phase 26-A: ValueId型安全化
