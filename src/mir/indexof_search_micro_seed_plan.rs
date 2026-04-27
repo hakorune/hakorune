@@ -85,21 +85,83 @@ impl std::fmt::Display for IndexOfSearchCandidateOutcome {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IndexOfSearchMicroSeedRoute {
-    pub variant: IndexOfSearchMicroSeedVariant,
-    pub rows: i64,
-    pub ops: i64,
-    pub flip_period: Option<i64>,
-    pub line_seed: String,
-    pub line_seed_len: i64,
-    pub none_seed: String,
-    pub none_seed_len: i64,
-    pub needle: String,
-    pub needle_len: i64,
-    pub proof: IndexOfSearchMicroSeedProof,
-    pub result_use: IndexOfSearchResultUse,
-    pub backend_action: IndexOfSearchBackendAction,
-    pub line_seed_outcome: IndexOfSearchCandidateOutcome,
-    pub none_seed_outcome: IndexOfSearchCandidateOutcome,
+    variant: IndexOfSearchMicroSeedVariant,
+    rows: i64,
+    ops: i64,
+    flip_period: Option<i64>,
+    line_seed: String,
+    line_seed_len: i64,
+    none_seed: String,
+    none_seed_len: i64,
+    needle: String,
+    needle_len: i64,
+    proof: IndexOfSearchMicroSeedProof,
+    result_use: IndexOfSearchResultUse,
+    backend_action: IndexOfSearchBackendAction,
+    line_seed_outcome: IndexOfSearchCandidateOutcome,
+    none_seed_outcome: IndexOfSearchCandidateOutcome,
+}
+
+impl IndexOfSearchMicroSeedRoute {
+    pub fn variant(&self) -> IndexOfSearchMicroSeedVariant {
+        self.variant
+    }
+
+    pub fn rows(&self) -> i64 {
+        self.rows
+    }
+
+    pub fn ops(&self) -> i64 {
+        self.ops
+    }
+
+    pub fn flip_period(&self) -> Option<i64> {
+        self.flip_period
+    }
+
+    pub fn line_seed(&self) -> &str {
+        &self.line_seed
+    }
+
+    pub fn line_seed_len(&self) -> i64 {
+        self.line_seed_len
+    }
+
+    pub fn none_seed(&self) -> &str {
+        &self.none_seed
+    }
+
+    pub fn none_seed_len(&self) -> i64 {
+        self.none_seed_len
+    }
+
+    pub fn needle(&self) -> &str {
+        &self.needle
+    }
+
+    pub fn needle_len(&self) -> i64 {
+        self.needle_len
+    }
+
+    pub fn proof(&self) -> IndexOfSearchMicroSeedProof {
+        self.proof
+    }
+
+    pub fn result_use(&self) -> IndexOfSearchResultUse {
+        self.result_use
+    }
+
+    pub fn backend_action(&self) -> IndexOfSearchBackendAction {
+        self.backend_action
+    }
+
+    pub fn line_seed_outcome(&self) -> IndexOfSearchCandidateOutcome {
+        self.line_seed_outcome
+    }
+
+    pub fn none_seed_outcome(&self) -> IndexOfSearchCandidateOutcome {
+        self.none_seed_outcome
+    }
 }
 
 pub(super) fn match_indexof_search_micro_seed_route(
@@ -288,6 +350,31 @@ fn collect_instruction_facts(instruction: &MirInstruction, facts: &mut IndexOfSe
             }
         }
         _ => {}
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn line_route() -> IndexOfSearchMicroSeedRoute {
+        IndexOfSearchMicroSeedRoute {
+            variant: IndexOfSearchMicroSeedVariant::Line,
+            rows: 64,
+            ops: 400000,
+            flip_period: Some(16),
+            line_seed: "line-seed".to_string(),
+            line_seed_len: 9,
+            none_seed: "none-seed".to_string(),
+            none_seed_len: 9,
+            needle: "line".to_string(),
+            needle_len: 4,
+            proof: IndexOfSearchMicroSeedProof::KiloMicroIndexOfLine15Block,
+            result_use: IndexOfSearchResultUse::FoundPredicate,
+            backend_action: IndexOfSearchBackendAction::LiteralMembershipPredicate,
+            line_seed_outcome: IndexOfSearchCandidateOutcome::Found,
+            none_seed_outcome: IndexOfSearchCandidateOutcome::NotFound,
+        }
     }
 }
 

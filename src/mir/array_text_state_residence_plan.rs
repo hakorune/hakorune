@@ -133,21 +133,21 @@ impl ArrayTextStateResidenceRoute {
         Self {
             contract: ArrayTextStateResidenceContract::indexof_loop_local_pointer_array(),
             temporary_indexof_seed_payload: Some(ArrayTextStateResidenceIndexOfSeedPayload {
-                variant: route.variant,
-                rows: route.rows,
-                ops: route.ops,
-                flip_period: route.flip_period,
-                line_seed: route.line_seed.clone(),
-                line_seed_len: route.line_seed_len,
-                none_seed: route.none_seed.clone(),
-                none_seed_len: route.none_seed_len,
-                needle: route.needle.clone(),
-                needle_len: route.needle_len,
-                proof: route.proof,
-                result_use: route.result_use,
-                backend_action: route.backend_action,
-                line_seed_outcome: route.line_seed_outcome,
-                none_seed_outcome: route.none_seed_outcome,
+                variant: route.variant(),
+                rows: route.rows(),
+                ops: route.ops(),
+                flip_period: route.flip_period(),
+                line_seed: route.line_seed().to_string(),
+                line_seed_len: route.line_seed_len(),
+                none_seed: route.none_seed().to_string(),
+                none_seed_len: route.none_seed_len(),
+                needle: route.needle().to_string(),
+                needle_len: route.needle_len(),
+                proof: route.proof(),
+                result_use: route.result_use(),
+                backend_action: route.backend_action(),
+                line_seed_outcome: route.line_seed_outcome(),
+                none_seed_outcome: route.none_seed_outcome(),
             }),
         }
     }
@@ -172,23 +172,7 @@ mod tests {
 
     #[test]
     fn derives_residence_route_from_indexof_search_route() {
-        let exact = IndexOfSearchMicroSeedRoute {
-            variant: IndexOfSearchMicroSeedVariant::Line,
-            rows: 64,
-            ops: 400000,
-            flip_period: Some(16),
-            line_seed: "line-seed".to_string(),
-            line_seed_len: 9,
-            none_seed: "none-seed".to_string(),
-            none_seed_len: 9,
-            needle: "line".to_string(),
-            needle_len: 4,
-            proof: IndexOfSearchMicroSeedProof::KiloMicroIndexOfLine15Block,
-            result_use: IndexOfSearchResultUse::FoundPredicate,
-            backend_action: IndexOfSearchBackendAction::LiteralMembershipPredicate,
-            line_seed_outcome: IndexOfSearchCandidateOutcome::Found,
-            none_seed_outcome: IndexOfSearchCandidateOutcome::NotFound,
-        };
+        let exact = crate::mir::indexof_search_micro_seed_plan::test_support::line_route();
 
         let route = ArrayTextStateResidenceRoute::from_indexof_search_route(&exact);
         let payload = route
