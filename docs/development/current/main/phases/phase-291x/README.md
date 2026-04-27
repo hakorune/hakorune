@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/current-docs-update-policy-ssot.md
   - docs/development/current/main/design/hotline-core-method-contract-ssot.md
+  - docs/development/current/main/design/mir-root-facade-contract-ssot.md
   - docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md
   - docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md
   - docs/development/current/main/phases/phase-291x/291x-smoke-index.md
@@ -210,6 +211,7 @@ Read these first:
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+7. `docs/development/current/main/design/mir-root-facade-contract-ssot.md`
 
 Detailed card history is intentionally not duplicated here. Use the numbered
 `291x-*` card files as the ledger.

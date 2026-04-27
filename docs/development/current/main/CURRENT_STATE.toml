@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-536"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-536-string-corridor-placement-internal-import-card.md"
-latest_card_summary = "Replace string-corridor placement implementation wildcard imports with explicit owner dependencies."
+latest_card = "291x-537"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-537-mir-root-facade-contract-card.md"
+latest_card_summary = "Add the MIR root facade contract SSOT and link it from the phase entry points."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -256,4 +256,5 @@ landed_tail = [
   "291x-534 string-corridor fact root export prune landed",
   "291x-535 test root import hygiene landed",
   "291x-536 string-corridor placement internal import hygiene landed",
+  "291x-537 MIR root facade contract landed",
 ]

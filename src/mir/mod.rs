@@ -3,6 +3,9 @@
  *
  * ChatGPT5-designed MIR infrastructure for native compilation support
  * Based on SSA form with effect tracking and Box-aware optimizations
+ *
+ * Root facade contract:
+ * docs/development/current/main/design/mir-root-facade-contract-ssot.md
  */
 
 pub mod agg_local_scalarization; // generic agg_local scalarization owner seam folded from landed pilots
