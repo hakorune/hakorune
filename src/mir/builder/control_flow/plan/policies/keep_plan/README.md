@@ -32,6 +32,8 @@
 **将来的な整理**:
 - Trim route 判断ロジックは `cleanup/policies/trim_policy.rs` へ移設済み
 - current location は `plan/trim_loop_lowering.rs`（old `patterns/*` path は historical token のみ）
+- keep-plan 側の `trim_policy` compat re-export は 291x-568 で撤去済み
+- 追加の呼び出しは cleanup owner path を直接使う
 
 ---
 
@@ -216,7 +218,7 @@ pub enum Decision {
 - `loop_true_read_digits_policy.rs` → landed at `cleanup/policies/loop_true_read_digits_policy.rs`; keep-plan compat shelf retired in 291x-566
 - `p5b_escape_derived_policy.rs` → landed at `cleanup/policies/p5b_escape_derived_policy.rs`
 - `body_local_policy.rs` → `policies/body_local_policy.rs`
-- `trim_policy.rs` → landed at `cleanup/policies/trim_policy.rs`
+- `trim_policy.rs` → landed at `cleanup/policies/trim_policy.rs`; keep-plan compat shelf retired in 291x-568
 
 #### Phase 3: インターフェース統一（将来）
 - `PatternPolicy` trait定義
