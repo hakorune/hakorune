@@ -6,14 +6,14 @@
  * surfaces from backend-local strings.
  */
 
+use super::core_method_op::{CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier};
 use super::generic_method_route_facts::{
     classify_key_route, const_i64_value, receiver_origin_box_name, GenericMethodKeyRoute,
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
 use super::{
-    build_value_def_map, resolve_value_origin, BasicBlockId, Callee, CoreMethodLoweringTier,
-    CoreMethodOp, CoreMethodOpCarrier, MirFunction, MirInstruction, MirModule, ValueDefMap,
-    ValueId,
+    build_value_def_map, resolve_value_origin, BasicBlockId, Callee, MirFunction, MirInstruction,
+    MirModule, ValueDefMap, ValueId,
 };
 use crate::mir::verification::utils::compute_dominators;
 

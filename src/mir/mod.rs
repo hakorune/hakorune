@@ -168,9 +168,6 @@ pub use concat_const_suffix_micro_seed_plan::{
     refresh_function_concat_const_suffix_micro_seed_route,
     refresh_module_concat_const_suffix_micro_seed_routes,
 };
-pub use core_method_op::{
-    CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, CoreMethodOpProof,
-};
 pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions
 pub use effect::{Effect, EffectMask};
 pub use escape_barrier::classify_escape_uses;
@@ -181,13 +178,8 @@ pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
     UserBoxFieldDecl,
 };
-pub use generic_method_route_facts::{
-    GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
-    GenericMethodValueDemand,
-};
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
-    GenericMethodRoute,
 };
 pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};

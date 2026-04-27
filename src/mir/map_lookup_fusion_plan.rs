@@ -6,14 +6,19 @@
  * codegen. Later lowering may consume these records as a typed plan.
  */
 
+use super::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use super::generic_method_route_facts::const_i64_value;
+use super::generic_method_route_facts::{
+    GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
+    GenericMethodValueDemand,
+};
 use super::generic_method_route_plan::{
     instruction_may_escape_or_mutate_receiver, prove_scalar_i64_map_get_store_fact,
+    GenericMethodRoute,
 };
 use super::{
-    build_value_def_map, resolve_value_origin, BasicBlockId, CoreMethodLoweringTier, CoreMethodOp,
-    GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
-    GenericMethodRoute, GenericMethodValueDemand, MirFunction, MirModule, ValueDefMap, ValueId,
+    build_value_def_map, resolve_value_origin, BasicBlockId, MirFunction, MirModule, ValueDefMap,
+    ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
