@@ -161,9 +161,6 @@ pub use array_text_observer_plan::{
     refresh_function_array_text_observer_routes, refresh_module_array_text_observer_routes,
     ArrayTextObserverRoute,
 };
-pub use array_text_observer_region_contract::{
-    ArrayTextObserverExecutorContract, ArrayTextObserverStoreRegionMapping,
-};
 pub use array_text_residence_session_plan::{
     refresh_function_array_text_residence_session_routes,
     refresh_module_array_text_residence_session_routes, ArrayTextResidenceSessionRoute,
