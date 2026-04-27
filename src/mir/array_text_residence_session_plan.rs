@@ -110,7 +110,7 @@ impl std::fmt::Display for ArrayTextResidenceSessionEndPlacement {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceExecutorExecutionMode {
+enum ArrayTextResidenceExecutorExecutionMode {
     SingleRegionExecutor,
 }
 
@@ -129,7 +129,7 @@ impl ArrayTextResidenceExecutorExecutionMode {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceExecutorCarrier {
+enum ArrayTextResidenceExecutorCarrier {
     ArrayLaneTextCell,
 }
 
@@ -148,7 +148,7 @@ impl ArrayTextResidenceExecutorCarrier {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceExecutorEffect {
+enum ArrayTextResidenceExecutorEffect {
     StoreCell,
     LengthOnlyResultCarry,
 }
@@ -169,7 +169,7 @@ impl ArrayTextResidenceExecutorEffect {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceExecutorConsumerCapability {
+enum ArrayTextResidenceExecutorConsumerCapability {
     SinkStore,
     LengthOnly,
 }
@@ -190,7 +190,7 @@ impl ArrayTextResidenceExecutorConsumerCapability {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceExecutorMaterializationPolicy {
+enum ArrayTextResidenceExecutorMaterializationPolicy {
     TextResidentOrStringlikeSlot,
 }
 
@@ -210,21 +210,83 @@ impl ArrayTextResidenceExecutorMaterializationPolicy {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextResidenceLoopRegionMapping {
-    pub array_root_value: ValueId,
-    pub loop_index_phi_value: ValueId,
-    pub loop_index_initial_value: ValueId,
-    pub loop_index_initial_const: i64,
-    pub loop_index_next_value: ValueId,
-    pub loop_bound_value: ValueId,
-    pub loop_bound_const: i64,
-    pub accumulator_phi_value: ValueId,
-    pub accumulator_initial_value: ValueId,
-    pub accumulator_initial_const: i64,
-    pub accumulator_next_value: ValueId,
-    pub exit_accumulator_value: ValueId,
-    pub row_index_value: ValueId,
-    pub row_modulus_value: ValueId,
-    pub row_modulus_const: i64,
+    array_root_value: ValueId,
+    loop_index_phi_value: ValueId,
+    loop_index_initial_value: ValueId,
+    loop_index_initial_const: i64,
+    loop_index_next_value: ValueId,
+    loop_bound_value: ValueId,
+    loop_bound_const: i64,
+    accumulator_phi_value: ValueId,
+    accumulator_initial_value: ValueId,
+    accumulator_initial_const: i64,
+    accumulator_next_value: ValueId,
+    exit_accumulator_value: ValueId,
+    row_index_value: ValueId,
+    row_modulus_value: ValueId,
+    row_modulus_const: i64,
+}
+
+impl ArrayTextResidenceLoopRegionMapping {
+    pub fn array_root_value(&self) -> ValueId {
+        self.array_root_value
+    }
+
+    pub fn loop_index_phi_value(&self) -> ValueId {
+        self.loop_index_phi_value
+    }
+
+    pub fn loop_index_initial_value(&self) -> ValueId {
+        self.loop_index_initial_value
+    }
+
+    pub fn loop_index_initial_const(&self) -> i64 {
+        self.loop_index_initial_const
+    }
+
+    pub fn loop_index_next_value(&self) -> ValueId {
+        self.loop_index_next_value
+    }
+
+    pub fn loop_bound_value(&self) -> ValueId {
+        self.loop_bound_value
+    }
+
+    pub fn loop_bound_const(&self) -> i64 {
+        self.loop_bound_const
+    }
+
+    pub fn accumulator_phi_value(&self) -> ValueId {
+        self.accumulator_phi_value
+    }
+
+    pub fn accumulator_initial_value(&self) -> ValueId {
+        self.accumulator_initial_value
+    }
+
+    pub fn accumulator_initial_const(&self) -> i64 {
+        self.accumulator_initial_const
+    }
+
+    pub fn accumulator_next_value(&self) -> ValueId {
+        self.accumulator_next_value
+    }
+
+    pub fn exit_accumulator_value(&self) -> ValueId {
+        self.exit_accumulator_value
+    }
+
+    pub fn row_index_value(&self) -> ValueId {
+        self.row_index_value
+    }
+
+    pub fn row_modulus_value(&self) -> ValueId {
+        self.row_modulus_value
+    }
+
+    pub fn row_modulus_const(&self) -> i64 {
+        self.row_modulus_const
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

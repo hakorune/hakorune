@@ -307,21 +307,21 @@ pub(super) fn build_mir_json_root(
                     });
                     if let Some(mapping) = contract.region_mapping() {
                         contract_obj["region_mapping"] = json!({
-                            "array_root_value": mapping.array_root_value.as_u32(),
-                            "loop_index_phi_value": mapping.loop_index_phi_value.as_u32(),
-                            "loop_index_initial_value": mapping.loop_index_initial_value.as_u32(),
-                            "loop_index_initial_const": mapping.loop_index_initial_const,
-                            "loop_index_next_value": mapping.loop_index_next_value.as_u32(),
-                            "loop_bound_value": mapping.loop_bound_value.as_u32(),
-                            "loop_bound_const": mapping.loop_bound_const,
-                            "accumulator_phi_value": mapping.accumulator_phi_value.as_u32(),
-                            "accumulator_initial_value": mapping.accumulator_initial_value.as_u32(),
-                            "accumulator_initial_const": mapping.accumulator_initial_const,
-                            "accumulator_next_value": mapping.accumulator_next_value.as_u32(),
-                            "exit_accumulator_value": mapping.exit_accumulator_value.as_u32(),
-                            "row_index_value": mapping.row_index_value.as_u32(),
-                            "row_modulus_value": mapping.row_modulus_value.as_u32(),
-                            "row_modulus_const": mapping.row_modulus_const,
+                            "array_root_value": mapping.array_root_value().as_u32(),
+                            "loop_index_phi_value": mapping.loop_index_phi_value().as_u32(),
+                            "loop_index_initial_value": mapping.loop_index_initial_value().as_u32(),
+                            "loop_index_initial_const": mapping.loop_index_initial_const(),
+                            "loop_index_next_value": mapping.loop_index_next_value().as_u32(),
+                            "loop_bound_value": mapping.loop_bound_value().as_u32(),
+                            "loop_bound_const": mapping.loop_bound_const(),
+                            "accumulator_phi_value": mapping.accumulator_phi_value().as_u32(),
+                            "accumulator_initial_value": mapping.accumulator_initial_value().as_u32(),
+                            "accumulator_initial_const": mapping.accumulator_initial_const(),
+                            "accumulator_next_value": mapping.accumulator_next_value().as_u32(),
+                            "exit_accumulator_value": mapping.exit_accumulator_value().as_u32(),
+                            "row_index_value": mapping.row_index_value().as_u32(),
+                            "row_modulus_value": mapping.row_modulus_value().as_u32(),
+                            "row_modulus_const": mapping.row_modulus_const(),
                         });
                     }
                     obj["executor_contract"] = contract_obj;
