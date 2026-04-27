@@ -152,15 +152,13 @@ impl RecipeComposer {
                 .debug("[recipe:compose] route=collect_using_entries_v0 path=recipe_first");
         }
 
-        crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::lower_loop_collect_using_entries_v0(
-            builder, collect_facts, ctx,
-        )
-        .map_err(|e| {
-            Freeze::contract(&format!(
-                "loop_collect_using_entries_v0 normalize failed: {}",
-                e
-            ))
-        })
+        crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::pipeline::lower_loop_collect_using_entries_v0(builder, collect_facts, ctx)
+            .map_err(|e| {
+                Freeze::contract(&format!(
+                    "loop_collect_using_entries_v0 normalize failed: {}",
+                    e
+                ))
+            })
     }
 
     /// Compose loop_bundle_resolver_v0 facts into LoweredRecipe.

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-585"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-585-legacy-v0-boundary-inventory-card.md"
-latest_card_summary = "Inventory legacy *_v0 plan families, split thin wrappers from live behavior owners, and queue the next safe cleanup slices."
+latest_card = "291x-586"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-586-loop-collect-using-entries-wrapper-prune-card.md"
+latest_card_summary = "Trim the loop_collect_using_entries_v0 module-root compat shelf and point the lone caller at the pipeline owner."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -305,4 +305,5 @@ landed_tail = [
   "291x-583 lower planner compat unused export prune landed",
   "291x-584 edgecfg facade boundary prune landed",
   "291x-585 legacy v0 family boundary inventory landed",
+  "291x-586 loop collect using entries wrapper prune landed",
 ]

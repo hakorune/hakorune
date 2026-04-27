@@ -8,12 +8,4 @@
 //!
 //! Intended for strict/dev + planner_required only.
 
-mod pipeline;
-
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::{
-    try_extract_loop_collect_using_entries_v0_facts, LoopCollectUsingEntriesV0Facts,
-};
-pub(in crate::mir::builder) use pipeline::lower_loop_collect_using_entries_v0;
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::recipes::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Recipe;
+pub(in crate::mir::builder) mod pipeline;
