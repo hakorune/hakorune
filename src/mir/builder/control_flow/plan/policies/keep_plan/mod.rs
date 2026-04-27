@@ -7,6 +7,5 @@
 
 pub use crate::mir::policies::PolicyDecision;
 
-pub(in crate::mir::builder) mod loop_true_read_digits_policy;
 pub(in crate::mir::builder) mod p5b_escape_derived_policy;
 pub(in crate::mir::builder) mod trim_policy; // Phase 132 P0.5

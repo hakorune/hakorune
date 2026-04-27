@@ -59,7 +59,7 @@
 ---
 
 ### loop_true_read_digits_policy.rs (Phase 104/105)
-**現在の場所**: compat at `plan/policies/keep_plan/loop_true_read_digits_policy.rs`
+**現在の場所**: retired from this compat shelf
 
 **owner surface**: `cleanup/policies/loop_true_read_digits_policy.rs`
 
@@ -77,7 +77,8 @@
 
 **将来的な整理**:
 - `cleanup/policies/loop_true_read_digits_policy.rs` に移設済み
-- keep-plan 側は compat re-export のみ
+- keep-plan 側の compat re-export は 291x-566 で撤去済み
+- 追加の呼び出しは cleanup owner path を直接使う
 
 ---
 
@@ -212,7 +213,7 @@ pub enum Decision {
 - mod.rs作成 ✅
 
 #### Phase 2: 既存policy箱の移動（将来）
-- `loop_true_read_digits_policy.rs` → landed at `cleanup/policies/loop_true_read_digits_policy.rs`
+- `loop_true_read_digits_policy.rs` → landed at `cleanup/policies/loop_true_read_digits_policy.rs`; keep-plan compat shelf retired in 291x-566
 - `p5b_escape_derived_policy.rs` → landed at `cleanup/policies/p5b_escape_derived_policy.rs`
 - `body_local_policy.rs` → `policies/body_local_policy.rs`
 - `trim_policy.rs` → landed at `cleanup/policies/trim_policy.rs`
