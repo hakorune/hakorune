@@ -21,9 +21,10 @@ use crate::mir::{
         ConcatTripletShape, MethodSetCallShape, StringSourceIdentity, SubstringCallProducerShape,
         SubstringConcat3HelperShape,
     },
+    string_kernel_plan::StringKernelPlanTextConsumer,
     BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule,
     MirType, StringCorridorCandidateKind, StringCorridorCandidatePlan,
-    StringCorridorCandidateProof, StringCorridorOp, StringKernelPlanTextConsumer, ValueId,
+    StringCorridorCandidateProof, StringCorridorOp, ValueId,
 };
 
 pub const SUBSTRING_LEN_EXTERN: &str = "nyash.string.substring_len_hii";

@@ -7,10 +7,11 @@
  */
 
 use super::{MirFunction, MirModule};
-use crate::mir::userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedKind;
-use crate::mir::{
-    StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanRetainedForm, ValueId,
+use crate::mir::string_kernel_plan::{
+    StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanRetainedForm,
 };
+use crate::mir::userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedKind;
+use crate::mir::ValueId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ExactSeedBackendRouteKind {
@@ -354,13 +355,13 @@ fn selected_substring_concat_loop_plan(function: &MirFunction) -> Option<ValueId
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::string_kernel_plan::StringKernelPlanLoopPayload;
-    use crate::mir::{
-        EffectMask, FunctionSignature, MirType, StringKernelPlan, StringKernelPlanBorrowContract,
-        StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
+    use crate::mir::string_kernel_plan::{
+        StringKernelPlan, StringKernelPlanBorrowContract, StringKernelPlanConsumer,
+        StringKernelPlanFamily, StringKernelPlanLoopPayload, StringKernelPlanPublicationBoundary,
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
         StringKernelPlanVerifierOwner,
     };
+    use crate::mir::{EffectMask, FunctionSignature, MirType};
     use hakorune_mir_core::BasicBlockId;
 
     fn make_function() -> MirFunction {

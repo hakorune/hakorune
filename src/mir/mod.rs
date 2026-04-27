@@ -229,12 +229,7 @@ pub use string_direct_set_window_plan::{
 };
 pub use string_kernel_plan::{
     derive_string_kernel_plan, infer_string_kernel_text_consumer,
-    refresh_function_string_kernel_plans, refresh_module_string_kernel_plans, StringKernelPlan,
-    StringKernelPlanBorrowContract, StringKernelPlanCarrier, StringKernelPlanConsumer,
-    StringKernelPlanFamily, StringKernelPlanLegality, StringKernelPlanPart,
-    StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
-    StringKernelPlanReadAliasFacts, StringKernelPlanRetainedForm, StringKernelPlanSlotHopSubstring,
-    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
+    refresh_function_string_kernel_plans, refresh_module_string_kernel_plans,
 };
 pub use substring_views_micro_seed_plan::{
     refresh_function_substring_views_micro_seed_route,

@@ -1,12 +1,13 @@
 use super::*;
+use crate::mir::string_kernel_plan::{StringKernelPlan, StringKernelPlanPart};
 
 pub(super) fn build_string_kernel_plan_parts_json(
-    plan: &crate::mir::StringKernelPlan,
+    plan: &StringKernelPlan,
 ) -> Vec<serde_json::Value> {
     plan.parts()
         .into_iter()
         .map(|part| match part {
-            crate::mir::StringKernelPlanPart::Slice {
+            StringKernelPlanPart::Slice {
                 value,
                 source,
                 start,
@@ -18,7 +19,7 @@ pub(super) fn build_string_kernel_plan_parts_json(
                 "start": start.as_u32(),
                 "end": end.as_u32(),
             }),
-            crate::mir::StringKernelPlanPart::Const {
+            StringKernelPlanPart::Const {
                 value,
                 known_length,
                 literal,
@@ -32,9 +33,7 @@ pub(super) fn build_string_kernel_plan_parts_json(
         .collect()
 }
 
-pub(super) fn build_string_kernel_plan_json(
-    plan: &crate::mir::StringKernelPlan,
-) -> serde_json::Value {
+pub(super) fn build_string_kernel_plan_json(plan: &StringKernelPlan) -> serde_json::Value {
     let legality = plan.legality();
     json!({
         "version": plan.version,

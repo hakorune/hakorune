@@ -1,9 +1,12 @@
+use crate::mir::string_kernel_plan::{
+    StringKernelPlan, StringKernelPlanBorrowContract, StringKernelPlanCarrier,
+    StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
+    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
+};
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{
-    infer_string_kernel_text_consumer, MirFunction, StringKernelPlan,
-    StringKernelPlanBorrowContract, StringKernelPlanCarrier, StringKernelPlanPublicationBoundary,
-    StringKernelPlanPublicationContract, StringKernelPlanTextConsumer,
-    StringKernelPlanVerifierOwner, StringPublishReason, StringPublishReprPolicy, ValueId,
+    infer_string_kernel_text_consumer, MirFunction, StringPublishReason, StringPublishReprPolicy,
+    ValueId,
 };
 
 fn push_string_kernel_plan_violation(
@@ -264,11 +267,13 @@ mod tests {
     use super::*;
     use crate::ast::Span;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::string_kernel_plan::{
+        StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanReadAliasFacts,
+        StringKernelPlanRetainedForm,
+    };
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType,
-        StringCorridorCandidateProof, StringCorridorCandidateState, StringKernelPlan,
-        StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
-        StringKernelPlanPublicationContract, StringKernelPlanRetainedForm, ValueId,
+        StringCorridorCandidateProof, StringCorridorCandidateState, ValueId,
     };
 
     fn slot_text_function() -> MirFunction {
@@ -401,7 +406,7 @@ mod tests {
             family: StringKernelPlanFamily::ConcatTripletWindow,
             corridor_root: ValueId::new(10),
             source_root: Some(ValueId::new(0)),
-            borrow_contract: Some(crate::mir::StringKernelPlanBorrowContract::BorrowTextFromObject),
+            borrow_contract: Some(StringKernelPlanBorrowContract::BorrowTextFromObject),
             publish_reason: None,
             publish_repr_policy: None,
             stable_view_provenance: None,
@@ -418,7 +423,7 @@ mod tests {
             text_consumer: Some(StringKernelPlanTextConsumer::SlotText),
             carrier: Some(carrier),
             verifier_owner: Some(StringKernelPlanVerifierOwner::LoweringDirectKernelEntry),
-            read_alias: crate::mir::StringKernelPlanReadAliasFacts {
+            read_alias: StringKernelPlanReadAliasFacts {
                 same_receiver: true,
                 source_window: true,
                 followup_substring: true,
