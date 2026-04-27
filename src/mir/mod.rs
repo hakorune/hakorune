@@ -173,7 +173,7 @@ pub use core_method_op::{
 };
 pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions
 pub use effect::{Effect, EffectMask};
-pub use escape_barrier::{classify_escape_uses, EscapeBarrier, EscapeUse};
+pub use escape_barrier::classify_escape_uses;
 pub use exact_seed_backend_route::{
     refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
 };
