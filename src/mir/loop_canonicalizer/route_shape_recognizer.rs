@@ -4,12 +4,13 @@
 //! Provides route-shape wrappers for canonicalizer callsites.
 
 use crate::ast::ASTNode;
-use crate::mir::detect_continue_shape;
-use crate::mir::detect_escape_skip_shape as ast_detect_escape;
-use crate::mir::detect_parse_number_shape as ast_detect_parse_number;
-use crate::mir::detect_parse_string_shape as ast_detect_parse_string;
-use crate::mir::detect_read_digits_loop_true_shape as ast_detect_read_digits;
-use crate::mir::detect_skip_whitespace_shape as ast_detect;
+use crate::mir::builder::{
+    detect_continue_shape, detect_escape_skip_shape as ast_detect_escape,
+    detect_parse_number_shape as ast_detect_parse_number,
+    detect_parse_string_shape as ast_detect_parse_string,
+    detect_read_digits_loop_true_shape as ast_detect_read_digits,
+    detect_skip_whitespace_shape as ast_detect,
+};
 
 // ============================================================================
 // Skip Whitespace Route Shape (Phase 140-P4-B SSOT Wrapper)

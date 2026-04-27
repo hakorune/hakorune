@@ -105,7 +105,8 @@ Expected shape:
 - owner modules expose their own vocabulary
 - root keeps refresh entry points and core MIR surfaces
 - `tools/checks/mir_root_facade_guard.sh` reports the allowlisted export count
-- `tools/checks/mir_root_import_hygiene_guard.sh` reports `ok`
+- `tools/checks/mir_root_import_hygiene_guard.sh` reports `ok`, including no
+  root-path loop-canonicalizer detection bridge
 
 ## Current State
 

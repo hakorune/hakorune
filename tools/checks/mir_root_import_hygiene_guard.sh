@@ -32,4 +32,24 @@ if [ -n "$bad_root_vocab" ]; then
   exit 1
 fi
 
+bad_root_detect_callers="$(
+  rg -n 'crate::mir::detect_(skip_whitespace_shape|read_digits_loop_true_shape|continue_shape|parse_number_shape|parse_string_shape|escape_skip_shape)' \
+    src/mir -g '*.rs' || true
+)"
+if [ -n "$bad_root_detect_callers" ]; then
+  echo "[$TAG] ERROR: loop-canonicalizer detection helper imported through MIR root" >&2
+  printf '%s\n' "$bad_root_detect_callers" >&2
+  exit 1
+fi
+
+bad_root_detect_bridge="$(
+  rg -n 'pub\(crate\)\s+use\s+builder::detect_(skip_whitespace_shape|read_digits_loop_true_shape|continue_shape|parse_number_shape|parse_string_shape|escape_skip_shape)' \
+    src/mir/mod.rs || true
+)"
+if [ -n "$bad_root_detect_bridge" ]; then
+  echo "[$TAG] ERROR: crate-internal detection bridge reintroduced in MIR root" >&2
+  printf '%s\n' "$bad_root_detect_bridge" >&2
+  exit 1
+fi
+
 echo "[$TAG] ok"

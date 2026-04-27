@@ -115,21 +115,6 @@ pub use builder::MirBuilder;
 pub use compiler::{MirCompileResult, MirCompiler};
 pub use hakorune_mir_core::{BasicBlockId, BindingId};
 
-// Crate-internal loop-canonicalizer detection bridge. These are not public
-// facade exports.
-// Phase 140-P4-A: skip_whitespace shape detection for loop_canonicalizer
-pub(crate) use builder::detect_skip_whitespace_shape;
-// Phase 104: read_digits(loop(true)) shape detection for loop_canonicalizer
-pub(crate) use builder::detect_read_digits_loop_true_shape;
-// Phase 142-P1: continue shape detection for loop_canonicalizer
-pub(crate) use builder::detect_continue_shape;
-// Phase 143-P0: parse_number / parse_string shape detection for loop_canonicalizer
-pub(crate) use builder::detect_parse_number_shape;
-// Phase 143-P1:
-pub(crate) use builder::detect_parse_string_shape;
-// Phase 91 P5b: escape skip pattern detection for loop_canonicalizer
-pub(crate) use builder::detect_escape_skip_shape;
-
 // Public facade exports: core MIR surfaces and refresh orchestration entry
 // points only. Semantic metadata vocabulary stays in owner modules.
 pub use agg_local_scalarization::{
