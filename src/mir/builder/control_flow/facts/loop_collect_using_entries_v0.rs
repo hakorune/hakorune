@@ -1,11 +1,9 @@
 //! Facts for loop_collect_using_entries_v0 (one-shape, planner-required only).
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0_helpers::{
-    is_loop_cond_var_lt_var, release_enabled,
-};
 use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0_recipe_builder::try_build_loop_collect_using_entries_v0_recipe;
 use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0_shape_routes::try_match_loop_collect_using_entries_v0_shape;
+use crate::mir::builder::control_flow::facts::scan_common_predicates::is_loop_cond_var_lt_var;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Recipe;
 
@@ -15,6 +13,10 @@ pub(in crate::mir::builder) struct LoopCollectUsingEntriesV0Facts {
     pub limit_var: String,
     pub condition: ASTNode,
     pub recipe: LoopCollectUsingEntriesV0Recipe,
+}
+
+fn release_enabled() -> bool {
+    true
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_collect_using_entries_v0_facts(

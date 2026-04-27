@@ -16,7 +16,6 @@ pub(in crate::mir::builder) mod loop_bundle_resolver_v0;
 pub(in crate::mir::builder) mod loop_bundle_resolver_v0_recipe_builder;
 pub(in crate::mir::builder) mod loop_bundle_resolver_v0_shape_routes;
 pub(in crate::mir::builder) mod loop_collect_using_entries_v0;
-pub(in crate::mir::builder) mod loop_collect_using_entries_v0_helpers;
 pub(in crate::mir::builder) mod loop_collect_using_entries_v0_recipe_builder;
 pub(in crate::mir::builder) mod loop_collect_using_entries_v0_shape_routes;
 pub(in crate::mir::builder) mod loop_cond_break_continue;

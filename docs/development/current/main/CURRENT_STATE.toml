@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-595"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-595-bundle-helper-wrapper-prune-card.md"
-latest_card_summary = "Prune the loop_bundle_resolver_v0 helper wrapper shelf by moving its release gate and shape-local helpers back to their real owners."
+latest_card = "291x-596"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-596-collect-helper-wrapper-prune-card.md"
+latest_card_summary = "Prune the loop_collect_using_entries_v0 helper wrapper shelf by moving its release gate and shape-local helpers back to their real owners."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -315,4 +315,5 @@ landed_tail = [
   "291x-593 orphan handler wrapper prune landed",
   "291x-594 scan common predicate extract landed",
   "291x-595 bundle helper wrapper prune landed",
+  "291x-596 collect helper wrapper prune landed",
 ]
