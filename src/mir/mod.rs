@@ -107,23 +107,31 @@ pub mod value_origin; // generic copy-root / alias-root owner (SSOT)
 pub mod verification;
 pub mod verification_types; // extracted error types // Optimization subpasses (e.g., type_hints) // Phase 25.1f: Loop/If 共通ビュー（ControlForm）
 
-// Re-export main types for easy access
+// MIR root facade exports. Keep this surface aligned with
+// docs/development/current/main/design/mir-root-facade-contract-ssot.md and
+// tools/checks/mir_root_facade_allowlist.txt.
 pub use basic_block::{BasicBlock, EdgeArgs};
 pub use builder::MirBuilder;
 pub use compiler::{MirCompileResult, MirCompiler};
 pub use hakorune_mir_core::{BasicBlockId, BindingId};
 
-// Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
+// Crate-internal loop-canonicalizer detection bridge. These are not public
+// facade exports.
+// Phase 140-P4-A: skip_whitespace shape detection for loop_canonicalizer
 pub(crate) use builder::detect_skip_whitespace_shape;
-// Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
+// Phase 104: read_digits(loop(true)) shape detection for loop_canonicalizer
 pub(crate) use builder::detect_read_digits_loop_true_shape;
-// Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
+// Phase 142-P1: continue shape detection for loop_canonicalizer
 pub(crate) use builder::detect_continue_shape;
-// Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
+// Phase 143-P0: parse_number / parse_string shape detection for loop_canonicalizer
 pub(crate) use builder::detect_parse_number_shape;
 // Phase 143-P1:
 pub(crate) use builder::detect_parse_string_shape;
-// Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
+// Phase 91 P5b: escape skip pattern detection for loop_canonicalizer
+pub(crate) use builder::detect_escape_skip_shape;
+
+// Public facade exports: core MIR surfaces and refresh orchestration entry
+// points only. Semantic metadata vocabulary stays in owner modules.
 pub use agg_local_scalarization::{
     refresh_function_agg_local_scalarization_routes, refresh_module_agg_local_scalarization_routes,
 };
@@ -165,7 +173,6 @@ pub use array_text_state_residence_plan::{
     refresh_function_array_text_state_residence_route,
     refresh_module_array_text_state_residence_routes,
 };
-pub(crate) use builder::detect_escape_skip_shape;
 pub use concat_const_suffix_micro_seed_plan::{
     refresh_function_concat_const_suffix_micro_seed_route,
     refresh_module_concat_const_suffix_micro_seed_routes,
