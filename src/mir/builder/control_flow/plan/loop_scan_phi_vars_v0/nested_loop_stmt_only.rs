@@ -1,10 +1,9 @@
 use crate::mir::builder::control_flow::plan::parts;
+use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
-
-use super::helpers::apply_loop_final_values_to_bindings;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
 

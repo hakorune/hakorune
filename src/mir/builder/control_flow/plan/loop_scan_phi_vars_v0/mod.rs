@@ -3,7 +3,6 @@
 //! Goal: accept exactly the outer loop shape in PhiInjectorBox._collect_phi_vars/2
 //! which contains nested loops with break and conditional nested loops.
 
-pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod if_branch_scan;
 pub(in crate::mir::builder) mod nested_loop_handoff;
 pub(in crate::mir::builder) mod nested_loop_recipe_handoff;

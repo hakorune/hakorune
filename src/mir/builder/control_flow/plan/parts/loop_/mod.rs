@@ -10,6 +10,7 @@
 mod analysis;
 mod body_block;
 mod debug;
+mod final_values;
 mod loop_v0;
 mod nested_depth1;
 mod vars;
@@ -22,6 +23,7 @@ pub(in crate::mir::builder) use body_block::{
     lower_loop_with_body_block, lower_loop_with_body_block_with_break_phi_dsts,
     lower_loop_with_exit_only_body_block,
 };
+pub(in crate::mir::builder) use final_values::apply_loop_final_values_to_bindings;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use loop_v0::lower_loop_v0;
 #[allow(unused_imports)]

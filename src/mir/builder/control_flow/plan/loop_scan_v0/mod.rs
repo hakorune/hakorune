@@ -4,7 +4,6 @@
 //! lower it via the existing loop skeleton + Parts.
 
 pub(in crate::mir::builder) mod facts;
-pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod nested_fallback_bridge;
 pub(in crate::mir::builder) mod nested_loop_stmt_only;
 pub(in crate::mir::builder) mod pipeline;

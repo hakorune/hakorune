@@ -1,9 +1,9 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
-use super::helpers::apply_loop_final_values_to_bindings;
 use super::nested_fallback_bridge::lower_loop_scan_v0_nested_loop_fallback;
 use super::nested_loop_stmt_only::try_lower_loop_scan_v0_nested_stmt_only;
 use super::recipe::NestedLoopRecipe;

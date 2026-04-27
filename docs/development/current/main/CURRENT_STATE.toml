@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-605"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-605-loopfacts-residue-wrapper-prune-card.md"
-latest_card_summary = "Prune LoopFacts and loop_types from facts/plan_residue by moving the remaining non-plan callers to the plan facts owner path."
+latest_card = "291x-606"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-606-scan-final-values-helper-owner-card.md"
+latest_card_summary = "Centralize duplicated scan-family final-values binding helpers under parts/loop_ and delete the scan-local helper shelves."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -325,4 +325,5 @@ landed_tail = [
   "291x-603 simple-while facts residue wrapper prune landed",
   "291x-604 cond-profile facts residue wrapper prune landed",
   "291x-605 LoopFacts residue wrapper prune landed",
+  "291x-606 scan final-values helper owner landed",
 ]
