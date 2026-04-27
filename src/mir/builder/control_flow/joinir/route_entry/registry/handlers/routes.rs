@@ -3,7 +3,10 @@ use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::lower::{
     planner_rule_route_label, PlanBuildOutcome, PlanRuleId,
 };
-use crate::mir::builder::control_flow::recipes::{self, RecipeComposer};
+use crate::mir::builder::control_flow::plan::composer::{
+    strict_nested_loop_guard, try_compose_core_loop_v2_nested_minimal,
+};
+use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::MirBuilder;
@@ -130,7 +133,7 @@ pub(crate) fn route_loop_continue_only(
     );
     debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::LoopContinueOnly), env);
     if env.planner_required {
-        if let Some(err) = recipes::strict_nested_loop_guard(outcome, ctx) {
+        if let Some(err) = strict_nested_loop_guard(outcome, ctx) {
             flowbox_tags::emit_flowbox_freeze_tag_from_facts(
                 env.strict_or_dev,
                 "unstructured",
@@ -465,8 +468,7 @@ pub(crate) fn route_nested_loop_minimal(
         return Ok(None);
     }
 
-    let Some(core_plan) = recipes::try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
-    else {
+    let Some(core_plan) = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)? else {
         if env.strict_or_dev {
             return Err(
                 "nested_loop_minimal strict/dev route failed: compose rejected".to_string(),

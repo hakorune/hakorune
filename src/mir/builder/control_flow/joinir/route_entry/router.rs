@@ -30,7 +30,7 @@ use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::{
     try_build_outcome, CorePlan, Freeze, PlanBuildOutcome, PlanLowerer,
 };
-use crate::mir::builder::control_flow::recipes;
+use crate::mir::builder::control_flow::plan::composer::shadow_pre_plan_guard_error;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 
@@ -158,7 +158,7 @@ fn enforce_shadow_adopt_pre_plan_guard(
     strict_or_dev: bool,
     outcome: &PlanBuildOutcome,
 ) -> Result<(), String> {
-    let Some(err) = recipes::shadow_pre_plan_guard_error(ctx, outcome) else {
+    let Some(err) = shadow_pre_plan_guard_error(ctx, outcome) else {
         return Ok(());
     };
     flowbox_tags::emit_flowbox_freeze_tag_from_facts(

@@ -2,7 +2,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::lower::{
     planner_rule_route_label, PlanBuildOutcome, PlanRuleId,
 };
-use crate::mir::builder::control_flow::recipes::RecipeComposer;
+use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;

@@ -1,7 +1,7 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
 use crate::mir::builder::control_flow::lower::PlanLowerer;
-use crate::mir::builder::control_flow::recipes::RecipeComposer;
+use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::MirBuilder;
