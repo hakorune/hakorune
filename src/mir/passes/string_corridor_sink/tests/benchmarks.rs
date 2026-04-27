@@ -468,6 +468,25 @@ fn benchmark_kilo_kernel_small_has_combined_edit_observer_region() {
         "outer_loop_with_periodic_observer_store"
     );
     assert_eq!(route.execution_mode(), "single_region_executor");
+    assert_eq!(route.publication_boundary(), "none");
+    assert_eq!(route.carrier(), "array_lane_text_cell");
+    assert_eq!(
+        route.effects(),
+        vec![
+            "store.cell(lenhalf_insert_mid_const)",
+            "observe.indexof",
+            "store.cell(const_suffix_append)",
+            "scalar_accumulator(+1)"
+        ]
+    );
+    assert_eq!(
+        route.consumer_capabilities(),
+        vec!["sink_store", "compare_only", "length_only_result_carry"]
+    );
+    assert_eq!(
+        route.materialization_policy(),
+        "text_resident_or_stringlike_slot"
+    );
     assert_eq!(route.loop_bound_const(), 60000);
     assert_eq!(route.row_modulus_const(), 64);
     assert_eq!(route.observer_period_const(), 8);

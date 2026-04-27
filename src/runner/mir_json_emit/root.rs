@@ -440,20 +440,11 @@ pub(super) fn build_mir_json_root(
                     obj["text_encoding"] = json!("ascii_preserved");
                     obj["split_boundary_policy"] = json!("byte_index_safe");
                 }
-                obj["publication_boundary"] = json!("none");
-                obj["carrier"] = json!("array_lane_text_cell");
-                obj["effects"] = json!([
-                    "store.cell(lenhalf_insert_mid_const)",
-                    "observe.indexof",
-                    "store.cell(const_suffix_append)",
-                    "scalar_accumulator(+1)"
-                ]);
-                obj["consumer_capabilities"] = json!([
-                    "sink_store",
-                    "compare_only",
-                    "length_only_result_carry"
-                ]);
-                obj["materialization_policy"] = json!("text_resident_or_stringlike_slot");
+                obj["publication_boundary"] = json!(route.publication_boundary());
+                obj["carrier"] = json!(route.carrier());
+                obj["effects"] = json!(route.effects());
+                obj["consumer_capabilities"] = json!(route.consumer_capabilities());
+                obj["materialization_policy"] = json!(route.materialization_policy());
                 obj
             }).collect::<Vec<_>>(),
             "array_string_store_micro_seed_route": f.metadata.array_string_store_micro_seed_route.as_ref().map(|route| {

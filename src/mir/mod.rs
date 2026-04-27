@@ -147,8 +147,7 @@ pub use array_string_store_micro_seed_plan::{
 };
 pub use array_text_combined_region_plan::{
     refresh_function_array_text_combined_region_routes,
-    refresh_module_array_text_combined_region_routes, ArrayTextCombinedRegionConsumerCapability,
-    ArrayTextCombinedRegionEffect, ArrayTextCombinedRegionRoute,
+    refresh_module_array_text_combined_region_routes, ArrayTextCombinedRegionRoute,
 };
 pub use array_text_edit_plan::{
     refresh_function_array_text_edit_routes, refresh_module_array_text_edit_routes,

@@ -77,7 +77,7 @@ impl std::fmt::Display for ArrayTextCombinedRegionProofRegion {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextCombinedRegionEffect {
+enum ArrayTextCombinedRegionEffect {
     LenHalfInsertMidStoreCell,
     ObserveIndexOf,
     ConstSuffixStoreCell,
@@ -86,17 +86,23 @@ pub enum ArrayTextCombinedRegionEffect {
 
 impl std::fmt::Display for ArrayTextCombinedRegionEffect {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextCombinedRegionEffect {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::LenHalfInsertMidStoreCell => f.write_str("store.cell(lenhalf_insert_mid_const)"),
-            Self::ObserveIndexOf => f.write_str("observe.indexof"),
-            Self::ConstSuffixStoreCell => f.write_str("store.cell(const_suffix_append)"),
-            Self::ScalarAccumulatorAddOne => f.write_str("scalar_accumulator(+1)"),
+            Self::LenHalfInsertMidStoreCell => "store.cell(lenhalf_insert_mid_const)",
+            Self::ObserveIndexOf => "observe.indexof",
+            Self::ConstSuffixStoreCell => "store.cell(const_suffix_append)",
+            Self::ScalarAccumulatorAddOne => "scalar_accumulator(+1)",
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextCombinedRegionConsumerCapability {
+enum ArrayTextCombinedRegionConsumerCapability {
     SinkStore,
     CompareOnly,
     LengthOnlyResultCarry,
@@ -104,10 +110,16 @@ pub enum ArrayTextCombinedRegionConsumerCapability {
 
 impl std::fmt::Display for ArrayTextCombinedRegionConsumerCapability {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextCombinedRegionConsumerCapability {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::SinkStore => f.write_str("sink_store"),
-            Self::CompareOnly => f.write_str("compare_only"),
-            Self::LengthOnlyResultCarry => f.write_str("length_only_result_carry"),
+            Self::SinkStore => "sink_store",
+            Self::CompareOnly => "compare_only",
+            Self::LengthOnlyResultCarry => "length_only_result_carry",
         }
     }
 }
@@ -344,6 +356,41 @@ impl ArrayTextCombinedRegionRoute {
 
     pub fn byte_boundary_proof(&self) -> Option<&'static str> {
         self.byte_boundary_proof.map(|proof| proof.as_str())
+    }
+
+    pub fn publication_boundary(&self) -> &'static str {
+        "none"
+    }
+
+    pub fn carrier(&self) -> &'static str {
+        "array_lane_text_cell"
+    }
+
+    pub fn effects(&self) -> Vec<&'static str> {
+        [
+            ArrayTextCombinedRegionEffect::LenHalfInsertMidStoreCell,
+            ArrayTextCombinedRegionEffect::ObserveIndexOf,
+            ArrayTextCombinedRegionEffect::ConstSuffixStoreCell,
+            ArrayTextCombinedRegionEffect::ScalarAccumulatorAddOne,
+        ]
+        .into_iter()
+        .map(ArrayTextCombinedRegionEffect::as_str)
+        .collect()
+    }
+
+    pub fn consumer_capabilities(&self) -> Vec<&'static str> {
+        [
+            ArrayTextCombinedRegionConsumerCapability::SinkStore,
+            ArrayTextCombinedRegionConsumerCapability::CompareOnly,
+            ArrayTextCombinedRegionConsumerCapability::LengthOnlyResultCarry,
+        ]
+        .into_iter()
+        .map(ArrayTextCombinedRegionConsumerCapability::as_str)
+        .collect()
+    }
+
+    pub fn materialization_policy(&self) -> &'static str {
+        "text_resident_or_stringlike_slot"
     }
 }
 
