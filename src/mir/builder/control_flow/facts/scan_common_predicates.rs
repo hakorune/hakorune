@@ -48,3 +48,16 @@ pub(in crate::mir::builder) fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<
         _ => None,
     }
 }
+
+pub(in crate::mir::builder) fn extract_step_var_from_tail(
+    stmt: &ASTNode,
+    loop_var: &str,
+) -> Option<String> {
+    let ASTNode::Assignment { target, value, .. } = stmt else {
+        return None;
+    };
+    if as_var_name(target.as_ref()) != Some(loop_var) {
+        return None;
+    }
+    Some(as_var_name(value.as_ref())?.to_string())
+}
