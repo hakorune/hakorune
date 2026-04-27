@@ -258,10 +258,6 @@ pub use value_consumer::{
 };
 pub use value_id::{LocalId, ValueId, ValueIdGenerator};
 pub use value_kind::{MirValueKind, TypedValueId}; // Phase 26-A: ValueId型安全化
-pub use value_origin::{
-    build_value_def_map, resolve_value_origin, resolve_value_origin_from_copy_parents,
-    resolve_value_origin_from_parent_map, CopyParentMap, ParentMap, ValueDefMap,
-};
 pub use verification::MirVerifier;
 pub use verification_types::VerificationError;
 // Phase 29y.1: RC insertion pass (skeleton)

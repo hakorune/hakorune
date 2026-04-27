@@ -7,10 +7,8 @@
  * placement/effect policy.
  */
 
-use super::{
-    build_value_def_map, resolve_value_origin, MirFunction, MirInstruction, ParentMap, ValueDefMap,
-    ValueId,
-};
+use super::value_origin::{build_value_def_map, resolve_value_origin, ParentMap, ValueDefMap};
+use super::{MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeSet, HashMap};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

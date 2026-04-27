@@ -12,10 +12,9 @@
  * It does not emit plans and it does not mutate MIR.
  */
 
-use super::{
-    resolve_value_origin, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction,
-    MirInstruction, ValueDefMap, ValueId,
-};
+use super::value_origin::{resolve_value_origin, ValueDefMap};
+use super::ValueId;
+use super::{BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction};
 use crate::mir::string_corridor_names::{
     is_len_method_name, is_lowered_len_global, is_runtime_concat3_export,
     is_runtime_len_handle_export, is_runtime_substring_concat3_export, is_runtime_substring_export,

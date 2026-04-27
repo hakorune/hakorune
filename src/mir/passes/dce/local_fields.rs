@@ -1,8 +1,9 @@
+use crate::mir::classify_escape_uses;
 use crate::mir::phi_query::{
     collect_passthrough_phi_parents, infer_phi_base_query_with_anchors, PhiBaseRelation,
 };
-use crate::mir::{
-    build_value_def_map, classify_escape_uses, resolve_value_origin_from_parent_map, ParentMap,
+use crate::mir::value_origin::{
+    build_value_def_map, resolve_value_origin_from_parent_map, ParentMap,
 };
 use crate::mir::{MirFunction, ValueId};
 use std::collections::{BTreeSet, HashMap, HashSet};

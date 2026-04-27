@@ -9,12 +9,10 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use super::{
-    build_value_def_map, resolve_value_origin,
-    thin_entry::{ThinEntryPreferredEntry, ThinEntrySurface, ThinEntryValueClass},
-    thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState},
-    BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId,
-};
+use super::thin_entry::{ThinEntryPreferredEntry, ThinEntrySurface, ThinEntryValueClass};
+use super::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
+use super::value_origin::{build_value_def_map, resolve_value_origin};
+use super::{BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SumPlacementState {

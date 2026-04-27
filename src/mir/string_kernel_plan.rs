@@ -9,8 +9,8 @@
 
 use std::collections::BTreeMap;
 
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
-    build_value_def_map, resolve_value_origin,
     string_corridor::{
         StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy,
         StringStableViewProvenance,
@@ -24,7 +24,7 @@ use super::{
         match_len_call, match_method_set_call, match_substring_call,
         match_substring_concat3_helper_call,
     },
-    CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
+    CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 /// Backend-consumable family names derived from string corridor candidate plans.

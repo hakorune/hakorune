@@ -9,7 +9,8 @@ use crate::mir::string_corridor_recognizer::{
     match_substring_call_shape, match_substring_concat3_helper_call, string_source_identity,
     ConcatTripletShape, StringSourceIdentity,
 };
-use crate::mir::{resolve_value_origin, BasicBlockId, MirFunction, ValueId};
+use crate::mir::value_origin::resolve_value_origin;
+use crate::mir::{BasicBlockId, MirFunction, ValueId};
 use std::collections::HashMap;
 
 fn active_borrow_contract() -> Option<StringCorridorBorrowContract> {

@@ -8,10 +8,10 @@
 
 use std::collections::HashSet;
 
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
-    array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute, build_value_def_map,
-    resolve_value_origin, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction,
-    MirInstruction, MirModule, ValueDefMap, ValueId,
+    array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute, BasicBlockId, BinaryOp, CompareOp,
+    ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

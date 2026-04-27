@@ -9,14 +9,13 @@
 
 use std::collections::BTreeSet;
 
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
     array_text_observer_region_contract::{
         derive_observer_store_region_contract, ArrayTextObserverExecutorContract,
     },
-    build_value_def_map,
     definitions::Callee,
-    resolve_value_origin, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction,
-    MirInstruction, MirModule, ValueDefMap, ValueId,
+    BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

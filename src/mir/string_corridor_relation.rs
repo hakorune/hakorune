@@ -6,16 +6,13 @@
  * it does not emit placement/effect candidates itself.
  */
 
-use super::{
-    build_value_def_map,
-    phi_query::{collect_phi_carry_relations, PhiBaseRelation},
-    resolve_value_origin,
-    string_corridor_recognizer::{
-        match_add_in_block, match_len_call, match_substring_call,
-        match_substring_concat3_helper_call, string_source_identity,
-    },
-    MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
+use super::phi_query::{collect_phi_carry_relations, PhiBaseRelation};
+use super::string_corridor_recognizer::{
+    match_add_in_block, match_len_call, match_substring_call, match_substring_concat3_helper_call,
+    string_source_identity,
 };
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use super::{MirFunction, MirInstruction, MirModule, ValueId};
 use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

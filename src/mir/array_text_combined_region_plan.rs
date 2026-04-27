@@ -7,14 +7,15 @@
  * MIR JSON.
  */
 
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
     array_text_edit_plan::ArrayTextEditRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_observer_region_contract::{
         ArrayTextObserverExecutorContract, ArrayTextObserverStoreRegionMapping,
     },
-    build_value_def_map, resolve_value_origin, BasicBlock, BasicBlockId, BinaryOp, CompareOp,
-    ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
+    BasicBlock, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction,
+    MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

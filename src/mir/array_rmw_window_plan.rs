@@ -10,9 +10,9 @@ use super::array_receiver_proof::{
     match_array_get_call, match_array_set_call, receiver_is_proven_array, same_value_root,
     value_root as resolve_array_value_root,
 };
+use super::value_origin::{build_value_def_map, ValueDefMap};
 use super::{
-    build_value_def_map, BasicBlock, BasicBlockId, BinaryOp, ConstValue, MirFunction,
-    MirInstruction, MirModule, ValueDefMap, ValueId,
+    BasicBlock, BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

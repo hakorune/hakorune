@@ -6,9 +6,9 @@
  * rewrite MIR or change lowering behavior in this wave.
  */
 
+use super::value_origin::build_value_def_map;
 use super::{
     agg_local_scalarization::{AggLocalScalarizationKind, AggLocalScalarizationRoute},
-    build_value_def_map,
     string_corridor::{
         StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy,
         StringStableViewProvenance,

@@ -1,7 +1,8 @@
 //! Memory-effect analysis helpers shared with the top-level memory-effect owner seam.
 
 use super::local_fields::LocalReadInfo;
-use crate::mir::{resolve_value_origin_from_parent_map, MirFunction, ParentMap, ValueId};
+use crate::mir::value_origin::{resolve_value_origin_from_parent_map, ParentMap};
+use crate::mir::{MirFunction, ValueId};
 use std::collections::HashSet;
 
 #[derive(Default)]

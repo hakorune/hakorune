@@ -6,10 +6,9 @@
  * proof so each route family can focus on its own window shape.
  */
 
-use super::{
-    definitions::Callee, resolve_value_origin, MirFunction, MirInstruction, MirType, ValueDefMap,
-    ValueId,
-};
+use super::definitions::Callee;
+use super::value_origin::{resolve_value_origin, ValueDefMap};
+use super::{MirFunction, MirInstruction, MirType, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ArrayGetCall<'a> {

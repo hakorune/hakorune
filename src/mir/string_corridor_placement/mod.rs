@@ -6,7 +6,8 @@
  * change runtime behavior in this wave.
  */
 
-use super::{build_value_def_map, MirFunction, MirModule};
+use super::value_origin::build_value_def_map;
+use super::{MirFunction, MirModule};
 
 mod candidate_infer;
 mod plan_infer;

@@ -6,11 +6,11 @@
  * nested contract.
  */
 
+use super::value_origin::{resolve_value_origin, ValueDefMap};
 use super::{
     array_text_observer_plan::{ArrayTextObserverPublicationBoundary, ArrayTextObserverRoute},
     definitions::Callee,
-    resolve_value_origin, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction,
-    MirInstruction, ValueDefMap, ValueId,
+    BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

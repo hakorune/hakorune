@@ -5,7 +5,8 @@
  * planners. It does not choose backend helpers or promote CoreMethodOps.
  */
 
-use super::{resolve_value_origin, ConstValue, MirFunction, MirInstruction, ValueDefMap, ValueId};
+use super::value_origin::{resolve_value_origin, ValueDefMap};
+use super::{ConstValue, MirFunction, MirInstruction, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodKeyRoute {
@@ -170,7 +171,7 @@ mod tests {
         });
         function.add_block(block);
 
-        let def_map = crate::mir::build_value_def_map(&function);
+        let def_map = crate::mir::value_origin::build_value_def_map(&function);
         assert_eq!(
             classify_key_route(&function, &def_map, ValueId::new(2)),
             GenericMethodKeyRoute::I64Const
@@ -188,7 +189,7 @@ mod tests {
         });
         function.add_block(block);
 
-        let def_map = crate::mir::build_value_def_map(&function);
+        let def_map = crate::mir::value_origin::build_value_def_map(&function);
         assert_eq!(
             classify_key_route(&function, &def_map, ValueId::new(1)),
             GenericMethodKeyRoute::UnknownAny

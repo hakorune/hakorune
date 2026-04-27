@@ -11,9 +11,10 @@
 use std::collections::HashMap;
 
 use super::string_corridor_recognizer::{match_len_call, match_substring_call};
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
-    build_value_def_map, definitions::Callee, resolve_value_origin, BasicBlock, BasicBlockId,
-    BinaryOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
+    definitions::Callee, BasicBlock, BasicBlockId, BinaryOp, ConstValue, MirFunction,
+    MirInstruction, MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

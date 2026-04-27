@@ -10,10 +10,10 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
+use crate::mir::value_origin::{build_value_def_map, resolve_value_origin};
 use crate::mir::{
-    build_value_def_map, refresh_function_placement_effect_routes,
-    refresh_function_string_corridor_metadata, refresh_function_string_kernel_plans,
-    refresh_function_value_consumer_facts, resolve_value_origin,
+    refresh_function_placement_effect_routes, refresh_function_string_corridor_metadata,
+    refresh_function_string_kernel_plans, refresh_function_value_consumer_facts,
     string_corridor::{
         StringCorridorBorrowContract, StringCorridorOp, StringPublishReason,
         StringPublishReprPolicy,

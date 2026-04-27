@@ -11,9 +11,9 @@ use super::string_corridor_recognizer::{
     match_substring_call, match_substring_concat3_helper_call, string_source_identity,
     StringSourceIdentity,
 };
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
-    build_value_def_map, resolve_value_origin, BasicBlock, BasicBlockId, ConstValue, MirFunction,
-    MirInstruction, MirModule, ValueDefMap, ValueId,
+    BasicBlock, BasicBlockId, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -4,10 +4,8 @@
 //! Enabled for VM backend as a staging step before LLVM.
 
 use crate::mir::phi_query::collect_passthrough_phi_parents;
-use crate::mir::{
-    classify_escape_uses, resolve_value_origin_from_parent_map, MirFunction, MirInstruction,
-    MirModule, ParentMap, ValueId,
-};
+use crate::mir::value_origin::{resolve_value_origin_from_parent_map, ParentMap};
+use crate::mir::{classify_escape_uses, MirFunction, MirInstruction, MirModule, ValueId};
 use std::collections::{HashMap, HashSet};
 
 /// Run a conservative escape analysis and remove Barrier(Read/Write) for non-escaping boxes.

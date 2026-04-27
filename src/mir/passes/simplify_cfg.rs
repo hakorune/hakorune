@@ -19,10 +19,8 @@
  */
 
 use crate::mir::join_ir_ops::{eval_compare, JoinValue};
-use crate::mir::{
-    build_value_def_map, resolve_value_origin, BasicBlockId, ConstValue, MirFunction,
-    MirInstruction, MirModule, ValueId,
-};
+use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, MirModule, ValueId};
 
 #[path = "simplify_cfg/flow.rs"]
 mod flow;
@@ -141,7 +139,7 @@ fn find_constant_compare_fold(function: &MirFunction) -> Option<(BasicBlockId, u
 
 fn compare_to_bool_const(
     function: &MirFunction,
-    def_map: &crate::mir::ValueDefMap,
+    def_map: &ValueDefMap,
     op: crate::mir::CompareOp,
     lhs: ValueId,
     rhs: ValueId,
@@ -155,11 +153,7 @@ fn compare_to_bool_const(
     }
 }
 
-fn const_bool_value(
-    function: &MirFunction,
-    def_map: &crate::mir::ValueDefMap,
-    value: ValueId,
-) -> Option<bool> {
+fn const_bool_value(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> Option<bool> {
     match const_value(function, def_map, value) {
         Some(ConstValue::Bool(b)) => Some(b),
         _ => None,
@@ -168,7 +162,7 @@ fn const_bool_value(
 
 fn const_value(
     function: &MirFunction,
-    def_map: &crate::mir::ValueDefMap,
+    def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<ConstValue> {
     let mut visited = std::collections::BTreeSet::new();
@@ -177,7 +171,7 @@ fn const_value(
 
 fn const_value_from_origin(
     function: &MirFunction,
-    def_map: &crate::mir::ValueDefMap,
+    def_map: &ValueDefMap,
     value: ValueId,
     visited: &mut std::collections::BTreeSet<ValueId>,
 ) -> Option<ConstValue> {
@@ -210,7 +204,7 @@ fn const_value_from_origin(
 
 fn const_to_join_value(
     function: &MirFunction,
-    def_map: &crate::mir::ValueDefMap,
+    def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<JoinValue> {
     match const_value(function, def_map, value)? {

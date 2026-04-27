@@ -16,10 +16,8 @@ use super::generic_method_route_plan::{
     instruction_may_escape_or_mutate_receiver, prove_scalar_i64_map_get_store_fact,
     GenericMethodRoute,
 };
-use super::{
-    build_value_def_map, resolve_value_origin, BasicBlockId, MirFunction, MirModule, ValueDefMap,
-    ValueId,
-};
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use super::{BasicBlockId, MirFunction, MirModule, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum MapLookupFusionOp {
