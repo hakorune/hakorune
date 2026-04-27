@@ -129,8 +129,8 @@ fn is_scalar_map_get_route(route: &GenericMethodRoute) -> bool {
     route
         .core_method()
         .is_some_and(|carrier| carrier.op == CoreMethodOp::MapGet)
-        && route.receiver_origin_box.as_deref() == Some("MapBox")
-        && route.key_route == Some(GenericMethodKeyRoute::I64Const)
+        && route.receiver_origin_box() == Some("MapBox")
+        && route.key_route() == Some(GenericMethodKeyRoute::I64Const)
         && route.return_shape() == Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
         && route.value_demand() == GenericMethodValueDemand::ScalarI64
         && route.publication_policy() == Some(GenericMethodPublicationPolicy::NoPublication)
@@ -140,8 +140,8 @@ fn is_i64_map_has_route(route: &GenericMethodRoute) -> bool {
     route
         .core_method()
         .is_some_and(|carrier| carrier.op == CoreMethodOp::MapHas)
-        && route.receiver_origin_box.as_deref() == Some("MapBox")
-        && route.key_route == Some(GenericMethodKeyRoute::I64Const)
+        && route.receiver_origin_box() == Some("MapBox")
+        && route.key_route() == Some(GenericMethodKeyRoute::I64Const)
 }
 
 fn match_same_key_get_has_pair(
@@ -159,7 +159,7 @@ fn match_same_key_get_has_pair(
     let has_result_value = has_route.result_value?;
     let get_key_value = get_route.key_value?;
     let has_key_value = has_route.key_value?;
-    let get_key_route = get_route.key_route?;
+    let get_key_route = get_route.key_route()?;
     let receiver_root = resolve_value_origin(function, def_map, get_route.receiver_value);
     if receiver_root != resolve_value_origin(function, def_map, has_route.receiver_value) {
         return None;
@@ -199,7 +199,7 @@ fn match_same_key_get_has_pair(
         get_instruction_index: get_route.instruction_index,
         has_instruction_index: has_route.instruction_index,
         fusion_op: MapLookupFusionOp::MapLookupSameKey,
-        receiver_origin_box: get_route.receiver_origin_box.clone(),
+        receiver_origin_box: get_route.receiver_origin_box().map(str::to_string),
         receiver_value: get_route.receiver_value,
         key_value: get_key_value,
         key_const,

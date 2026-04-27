@@ -37,19 +37,19 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `generic-method-route evidence record split pending`
+- current blocker token: `generic-method-route evidence record split verification pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-456` inventories `GenericMethodRoute`
-  evidence consumers
+- latest known checkpoint: `291x-457` splits `GenericMethodRoute` observed
+  evidence into `GenericMethodRouteEvidence`
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: implement `GenericMethodRouteEvidence` record split
+- resume point: verify and close the `GenericMethodRouteEvidence` split
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -57,10 +57,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-456-generic-method-route-evidence-inventory-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-457-generic-method-route-evidence-record-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: implement `GenericMethodRouteEvidence` record split
+- next: verify and close `291x-457-generic-method-route-evidence-record`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep BoxShape cleanup separate from BoxCount feature rows
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-456`; detailed landed history lives in phase card
+- latest checkpoint: `291x-457`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: split `GenericMethodRoute` evidence record
+- next cleanup: verify `GenericMethodRouteEvidence` record split
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
