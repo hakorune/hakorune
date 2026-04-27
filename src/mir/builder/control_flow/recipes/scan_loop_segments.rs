@@ -27,7 +27,3 @@ pub(in crate::mir::builder) enum LoopScanSegment<TLinear> {
     Linear(TLinear),
     NestedLoop(NestedLoopRecipe),
 }
-
-// Prefer these aliases at call sites to avoid reintroducing local "segment vocab" bags.
-pub(in crate::mir::builder) type ScanNestedLoopRecipe = NestedLoopRecipe;
-pub(in crate::mir::builder) type ScanSegment<TLinear> = LoopScanSegment<TLinear>;

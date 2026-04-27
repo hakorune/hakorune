@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-591"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-591-loop-scan-methods-dead-field-prune-card.md"
-latest_card_summary = "Prune unused loop_scan_methods_v0 and loop_scan_methods_block_v0 recipe fields while preserving the live segment contract."
+latest_card = "291x-592"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-592-scan-alias-dedup-card.md"
+latest_card_summary = "Remove redundant Scan* aliases from scan_loop_segments and point the remaining block recipe alias surface at the primary shared-vocabulary names."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -311,4 +311,5 @@ landed_tail = [
   "291x-589 nested loop recipe owner-path migration landed",
   "291x-590 loop scan phi dead evidence prune landed",
   "291x-591 loop scan methods dead field prune landed",
+  "291x-592 scan alias dedup landed",
 ]
