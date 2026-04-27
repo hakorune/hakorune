@@ -277,7 +277,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
         return Some(ExactSeedBackendRoute {
             tag,
             source_route: tag.source_route_field().to_string(),
-            proof: route.proof.to_string(),
+            proof: route.proof().to_string(),
             selected_value: None,
         });
     }
@@ -361,8 +361,7 @@ mod tests {
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
         StringKernelPlanVerifierOwner, UserBoxKnownReceiverMethodSeedKind,
         UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedProof,
-        UserBoxKnownReceiverMethodSeedRoute, UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedProof,
-        UserBoxLoopMicroSeedRoute,
+        UserBoxKnownReceiverMethodSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -531,22 +530,8 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_userbox_loop_micro_metadata() {
         let mut function = make_function();
-        function.metadata.userbox_loop_micro_seed_route = Some(UserBoxLoopMicroSeedRoute {
-            kind: UserBoxLoopMicroSeedKind::FlagToggleMicro,
-            box_name: "Flag".to_string(),
-            block_count: 4,
-            newbox_block: BasicBlockId::new(0),
-            newbox_instruction_index: 0,
-            box_value: ValueId::new(9),
-            ops: 2_000_000,
-            flip_at: Some(1_000_000),
-            field_get_count: 2,
-            field_set_count: 2,
-            compare_lt_count: 2,
-            compare_eq_count: 2,
-            binop_count: 3,
-            proof: UserBoxLoopMicroSeedProof::FlagToggleLoopMicroSeed,
-        });
+        function.metadata.userbox_loop_micro_seed_route =
+            Some(crate::mir::userbox_loop_micro_seed_plan::test_support::flag_toggle_micro());
 
         refresh_function_exact_seed_backend_route(&mut function);
 

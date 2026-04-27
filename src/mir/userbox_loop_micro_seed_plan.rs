@@ -30,36 +30,100 @@ impl std::fmt::Display for UserBoxLoopMicroSeedKind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum UserBoxLoopMicroSeedProof {
+enum UserBoxLoopMicroSeedProof {
     PointAddLoopMicroSeed,
     FlagToggleLoopMicroSeed,
 }
 
+impl UserBoxLoopMicroSeedProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::PointAddLoopMicroSeed => "userbox_point_add_loop_micro_seed",
+            Self::FlagToggleLoopMicroSeed => "userbox_flag_toggle_loop_micro_seed",
+        }
+    }
+}
+
 impl std::fmt::Display for UserBoxLoopMicroSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::PointAddLoopMicroSeed => f.write_str("userbox_point_add_loop_micro_seed"),
-            Self::FlagToggleLoopMicroSeed => f.write_str("userbox_flag_toggle_loop_micro_seed"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserBoxLoopMicroSeedRoute {
-    pub kind: UserBoxLoopMicroSeedKind,
-    pub box_name: String,
-    pub block_count: usize,
-    pub newbox_block: BasicBlockId,
-    pub newbox_instruction_index: usize,
-    pub box_value: ValueId,
-    pub ops: i64,
-    pub flip_at: Option<i64>,
-    pub field_get_count: usize,
-    pub field_set_count: usize,
-    pub compare_lt_count: usize,
-    pub compare_eq_count: usize,
-    pub binop_count: usize,
-    pub proof: UserBoxLoopMicroSeedProof,
+    kind: UserBoxLoopMicroSeedKind,
+    box_name: String,
+    block_count: usize,
+    newbox_block: BasicBlockId,
+    newbox_instruction_index: usize,
+    box_value: ValueId,
+    ops: i64,
+    flip_at: Option<i64>,
+    field_get_count: usize,
+    field_set_count: usize,
+    compare_lt_count: usize,
+    compare_eq_count: usize,
+    binop_count: usize,
+    proof: UserBoxLoopMicroSeedProof,
+}
+
+impl UserBoxLoopMicroSeedRoute {
+    pub fn kind(&self) -> UserBoxLoopMicroSeedKind {
+        self.kind
+    }
+
+    pub fn box_name(&self) -> &str {
+        &self.box_name
+    }
+
+    pub fn block_count(&self) -> usize {
+        self.block_count
+    }
+
+    pub fn newbox_block(&self) -> BasicBlockId {
+        self.newbox_block
+    }
+
+    pub fn newbox_instruction_index(&self) -> usize {
+        self.newbox_instruction_index
+    }
+
+    pub fn box_value(&self) -> ValueId {
+        self.box_value
+    }
+
+    pub fn ops(&self) -> i64 {
+        self.ops
+    }
+
+    pub fn flip_at(&self) -> Option<i64> {
+        self.flip_at
+    }
+
+    pub fn field_get_count(&self) -> usize {
+        self.field_get_count
+    }
+
+    pub fn field_set_count(&self) -> usize {
+        self.field_set_count
+    }
+
+    pub fn compare_lt_count(&self) -> usize {
+        self.compare_lt_count
+    }
+
+    pub fn compare_eq_count(&self) -> usize {
+        self.compare_eq_count
+    }
+
+    pub fn binop_count(&self) -> usize {
+        self.binop_count
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -369,6 +433,30 @@ fn ordered_blocks(function: &MirFunction) -> Vec<&BasicBlock> {
     ids.into_iter()
         .filter_map(|id| function.blocks.get(&id))
         .collect()
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn flag_toggle_micro() -> UserBoxLoopMicroSeedRoute {
+        UserBoxLoopMicroSeedRoute {
+            kind: UserBoxLoopMicroSeedKind::FlagToggleMicro,
+            box_name: "Flag".to_string(),
+            block_count: 4,
+            newbox_block: BasicBlockId::new(0),
+            newbox_instruction_index: 0,
+            box_value: ValueId::new(9),
+            ops: 2_000_000,
+            flip_at: Some(1_000_000),
+            field_get_count: 2,
+            field_set_count: 2,
+            compare_lt_count: 2,
+            compare_eq_count: 2,
+            binop_count: 3,
+            proof: UserBoxLoopMicroSeedProof::FlagToggleLoopMicroSeed,
+        }
+    }
 }
 
 #[cfg(test)]

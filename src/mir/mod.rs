@@ -317,7 +317,7 @@ pub use userbox_local_scalar_seed_plan::{
 };
 pub use userbox_loop_micro_seed_plan::{
     refresh_function_userbox_loop_micro_seed_route, refresh_module_userbox_loop_micro_seed_routes,
-    UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedProof, UserBoxLoopMicroSeedRoute,
+    UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedRoute,
 };
 pub use value_consumer::{
     refresh_function_value_consumer_facts, refresh_module_value_consumer_facts, ValueConsumerFacts,

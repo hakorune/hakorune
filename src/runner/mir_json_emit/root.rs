@@ -868,32 +868,38 @@ fn build_userbox_loop_micro_seed_route_json(
     route: &crate::mir::UserBoxLoopMicroSeedRoute,
 ) -> serde_json::Value {
     let mut obj = serde_json::Map::new();
-    obj.insert("kind".to_string(), json!(route.kind.to_string()));
-    obj.insert("box".to_string(), json!(route.box_name.as_str()));
-    obj.insert("block_count".to_string(), json!(route.block_count));
+    obj.insert("kind".to_string(), json!(route.kind().to_string()));
+    obj.insert("box".to_string(), json!(route.box_name()));
+    obj.insert("block_count".to_string(), json!(route.block_count()));
     obj.insert(
         "newbox_block".to_string(),
-        json!(route.newbox_block.as_u32()),
+        json!(route.newbox_block().as_u32()),
     );
     obj.insert(
         "newbox_instruction_index".to_string(),
-        json!(route.newbox_instruction_index),
+        json!(route.newbox_instruction_index()),
     );
-    obj.insert("box_value".to_string(), json!(route.box_value.as_u32()));
-    obj.insert("ops".to_string(), json!(route.ops));
-    obj.insert("flip_at".to_string(), json!(route.flip_at));
-    obj.insert("field_get_count".to_string(), json!(route.field_get_count));
-    obj.insert("field_set_count".to_string(), json!(route.field_set_count));
+    obj.insert("box_value".to_string(), json!(route.box_value().as_u32()));
+    obj.insert("ops".to_string(), json!(route.ops()));
+    obj.insert("flip_at".to_string(), json!(route.flip_at()));
+    obj.insert(
+        "field_get_count".to_string(),
+        json!(route.field_get_count()),
+    );
+    obj.insert(
+        "field_set_count".to_string(),
+        json!(route.field_set_count()),
+    );
     obj.insert(
         "compare_lt_count".to_string(),
-        json!(route.compare_lt_count),
+        json!(route.compare_lt_count()),
     );
     obj.insert(
         "compare_eq_count".to_string(),
-        json!(route.compare_eq_count),
+        json!(route.compare_eq_count()),
     );
-    obj.insert("binop_count".to_string(), json!(route.binop_count));
-    obj.insert("proof".to_string(), json!(route.proof.to_string()));
+    obj.insert("binop_count".to_string(), json!(route.binop_count()));
+    obj.insert("proof".to_string(), json!(route.proof()));
     obj.insert(
         "consumer_capability".to_string(),
         json!("direct_userbox_loop_micro"),
