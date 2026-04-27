@@ -470,31 +470,29 @@ fn benchmark_kilo_kernel_small_has_combined_edit_observer_region() {
     );
     let route = &function.metadata.array_text_combined_regions[0];
     assert_eq!(
-        route.proof.to_string(),
+        route.proof(),
         "outer_lenhalf_edit_with_periodic_observer_store"
     );
     assert_eq!(
-        route.proof_region.to_string(),
+        route.proof_region(),
         "outer_loop_with_periodic_observer_store"
     );
-    assert_eq!(route.execution_mode.to_string(), "single_region_executor");
-    assert_eq!(route.loop_bound_const, 60000);
-    assert_eq!(route.row_modulus_const, 64);
-    assert_eq!(route.observer_period_const, 8);
-    assert_eq!(route.observer_bound_const, 64);
-    assert_eq!(route.edit_middle_text, "xx");
-    assert_eq!(route.observer_needle_text, "line");
-    assert_eq!(route.observer_suffix_text, "ln");
+    assert_eq!(route.execution_mode(), "single_region_executor");
+    assert_eq!(route.loop_bound_const(), 60000);
+    assert_eq!(route.row_modulus_const(), 64);
+    assert_eq!(route.observer_period_const(), 8);
+    assert_eq!(route.observer_bound_const(), 64);
+    assert_eq!(route.edit_middle_text(), "xx");
+    assert_eq!(route.observer_needle_text(), "line");
+    assert_eq!(route.observer_suffix_text(), "ln");
     assert_eq!(
-        route
-            .byte_boundary_proof
-            .map(|proof| proof.to_string())
-            .as_deref(),
+        route.byte_boundary_proof(),
         Some("ascii_preserved_text_cell"),
         "kilo kernel should carry a MIR-owned byte-boundary proof for the covered ASCII text-cell region"
     );
     assert_ne!(
-        route.accumulator_phi_value, route.outer_index_phi_value,
+        route.accumulator_phi_value(),
+        route.outer_index_phi_value(),
         "result accumulator must not alias the loop-index PHI"
     );
 }

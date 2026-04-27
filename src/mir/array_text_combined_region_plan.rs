@@ -19,45 +19,61 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextCombinedRegionProof {
+enum ArrayTextCombinedRegionProof {
     OuterLenHalfEditWithPeriodicObserverStore,
+}
+
+impl ArrayTextCombinedRegionProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::OuterLenHalfEditWithPeriodicObserverStore => {
+                "outer_lenhalf_edit_with_periodic_observer_store"
+            }
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextCombinedRegionProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::OuterLenHalfEditWithPeriodicObserverStore => {
-                f.write_str("outer_lenhalf_edit_with_periodic_observer_store")
-            }
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextCombinedRegionExecutionMode {
+enum ArrayTextCombinedRegionExecutionMode {
     SingleRegionExecutor,
+}
+
+impl ArrayTextCombinedRegionExecutionMode {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::SingleRegionExecutor => "single_region_executor",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextCombinedRegionExecutionMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::SingleRegionExecutor => f.write_str("single_region_executor"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextCombinedRegionProofRegion {
+enum ArrayTextCombinedRegionProofRegion {
     OuterLoopWithPeriodicObserverStore,
+}
+
+impl ArrayTextCombinedRegionProofRegion {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::OuterLoopWithPeriodicObserverStore => "outer_loop_with_periodic_observer_store",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextCombinedRegionProofRegion {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::OuterLoopWithPeriodicObserverStore => {
-                f.write_str("outer_loop_with_periodic_observer_store")
-            }
-        }
+        f.write_str(self.as_str())
     }
 }
 
@@ -98,62 +114,238 @@ impl std::fmt::Display for ArrayTextCombinedRegionConsumerCapability {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextCombinedRegionByteBoundaryProof {
+enum ArrayTextCombinedRegionByteBoundaryProof {
     AsciiPreservedTextCell,
+}
+
+impl ArrayTextCombinedRegionByteBoundaryProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::AsciiPreservedTextCell => "ascii_preserved_text_cell",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextCombinedRegionByteBoundaryProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::AsciiPreservedTextCell => f.write_str("ascii_preserved_text_cell"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextCombinedRegionRoute {
-    pub begin_block: BasicBlockId,
-    pub header_block: BasicBlockId,
-    pub edit_block: BasicBlockId,
-    pub observer_begin_block: BasicBlockId,
-    pub observer_header_block: BasicBlockId,
-    pub observer_block: BasicBlockId,
-    pub observer_store_block: BasicBlockId,
-    pub observer_latch_block: BasicBlockId,
-    pub observer_exit_block: BasicBlockId,
-    pub latch_block: BasicBlockId,
-    pub exit_block: BasicBlockId,
-    pub array_value: ValueId,
-    pub outer_index_phi_value: ValueId,
-    pub outer_index_initial_value: ValueId,
-    pub outer_index_initial_const: i64,
-    pub outer_index_next_value: ValueId,
-    pub loop_bound_value: ValueId,
-    pub loop_bound_const: i64,
-    pub row_index_value: ValueId,
-    pub row_modulus_value: ValueId,
-    pub row_modulus_const: i64,
-    pub observer_period_value: ValueId,
-    pub observer_period_const: i64,
-    pub accumulator_phi_value: ValueId,
-    pub accumulator_initial_value: ValueId,
-    pub accumulator_initial_const: i64,
-    pub accumulator_next_value: ValueId,
-    pub edit_middle_value: ValueId,
-    pub edit_middle_text: String,
-    pub edit_middle_byte_len: usize,
-    pub observer_bound_value: ValueId,
-    pub observer_bound_const: i64,
-    pub observer_needle_value: ValueId,
-    pub observer_needle_text: String,
-    pub observer_needle_byte_len: usize,
-    pub observer_suffix_value: ValueId,
-    pub observer_suffix_text: String,
-    pub observer_suffix_byte_len: usize,
-    pub execution_mode: ArrayTextCombinedRegionExecutionMode,
-    pub proof_region: ArrayTextCombinedRegionProofRegion,
-    pub proof: ArrayTextCombinedRegionProof,
-    pub byte_boundary_proof: Option<ArrayTextCombinedRegionByteBoundaryProof>,
+    begin_block: BasicBlockId,
+    header_block: BasicBlockId,
+    edit_block: BasicBlockId,
+    observer_begin_block: BasicBlockId,
+    observer_header_block: BasicBlockId,
+    observer_block: BasicBlockId,
+    observer_store_block: BasicBlockId,
+    observer_latch_block: BasicBlockId,
+    observer_exit_block: BasicBlockId,
+    latch_block: BasicBlockId,
+    exit_block: BasicBlockId,
+    array_value: ValueId,
+    outer_index_phi_value: ValueId,
+    outer_index_initial_value: ValueId,
+    outer_index_initial_const: i64,
+    outer_index_next_value: ValueId,
+    loop_bound_value: ValueId,
+    loop_bound_const: i64,
+    row_index_value: ValueId,
+    row_modulus_value: ValueId,
+    row_modulus_const: i64,
+    observer_period_value: ValueId,
+    observer_period_const: i64,
+    accumulator_phi_value: ValueId,
+    accumulator_initial_value: ValueId,
+    accumulator_initial_const: i64,
+    accumulator_next_value: ValueId,
+    edit_middle_value: ValueId,
+    edit_middle_text: String,
+    edit_middle_byte_len: usize,
+    observer_bound_value: ValueId,
+    observer_bound_const: i64,
+    observer_needle_value: ValueId,
+    observer_needle_text: String,
+    observer_needle_byte_len: usize,
+    observer_suffix_value: ValueId,
+    observer_suffix_text: String,
+    observer_suffix_byte_len: usize,
+    execution_mode: ArrayTextCombinedRegionExecutionMode,
+    proof_region: ArrayTextCombinedRegionProofRegion,
+    proof: ArrayTextCombinedRegionProof,
+    byte_boundary_proof: Option<ArrayTextCombinedRegionByteBoundaryProof>,
+}
+
+impl ArrayTextCombinedRegionRoute {
+    pub fn begin_block(&self) -> BasicBlockId {
+        self.begin_block
+    }
+
+    pub fn header_block(&self) -> BasicBlockId {
+        self.header_block
+    }
+
+    pub fn edit_block(&self) -> BasicBlockId {
+        self.edit_block
+    }
+
+    pub fn observer_begin_block(&self) -> BasicBlockId {
+        self.observer_begin_block
+    }
+
+    pub fn observer_header_block(&self) -> BasicBlockId {
+        self.observer_header_block
+    }
+
+    pub fn observer_block(&self) -> BasicBlockId {
+        self.observer_block
+    }
+
+    pub fn observer_store_block(&self) -> BasicBlockId {
+        self.observer_store_block
+    }
+
+    pub fn observer_latch_block(&self) -> BasicBlockId {
+        self.observer_latch_block
+    }
+
+    pub fn observer_exit_block(&self) -> BasicBlockId {
+        self.observer_exit_block
+    }
+
+    pub fn latch_block(&self) -> BasicBlockId {
+        self.latch_block
+    }
+
+    pub fn exit_block(&self) -> BasicBlockId {
+        self.exit_block
+    }
+
+    pub fn array_value(&self) -> ValueId {
+        self.array_value
+    }
+
+    pub fn outer_index_phi_value(&self) -> ValueId {
+        self.outer_index_phi_value
+    }
+
+    pub fn outer_index_initial_value(&self) -> ValueId {
+        self.outer_index_initial_value
+    }
+
+    pub fn outer_index_initial_const(&self) -> i64 {
+        self.outer_index_initial_const
+    }
+
+    pub fn outer_index_next_value(&self) -> ValueId {
+        self.outer_index_next_value
+    }
+
+    pub fn loop_bound_value(&self) -> ValueId {
+        self.loop_bound_value
+    }
+
+    pub fn loop_bound_const(&self) -> i64 {
+        self.loop_bound_const
+    }
+
+    pub fn row_index_value(&self) -> ValueId {
+        self.row_index_value
+    }
+
+    pub fn row_modulus_value(&self) -> ValueId {
+        self.row_modulus_value
+    }
+
+    pub fn row_modulus_const(&self) -> i64 {
+        self.row_modulus_const
+    }
+
+    pub fn observer_period_value(&self) -> ValueId {
+        self.observer_period_value
+    }
+
+    pub fn observer_period_const(&self) -> i64 {
+        self.observer_period_const
+    }
+
+    pub fn accumulator_phi_value(&self) -> ValueId {
+        self.accumulator_phi_value
+    }
+
+    pub fn accumulator_initial_value(&self) -> ValueId {
+        self.accumulator_initial_value
+    }
+
+    pub fn accumulator_initial_const(&self) -> i64 {
+        self.accumulator_initial_const
+    }
+
+    pub fn accumulator_next_value(&self) -> ValueId {
+        self.accumulator_next_value
+    }
+
+    pub fn edit_middle_value(&self) -> ValueId {
+        self.edit_middle_value
+    }
+
+    pub fn edit_middle_text(&self) -> &str {
+        &self.edit_middle_text
+    }
+
+    pub fn edit_middle_byte_len(&self) -> usize {
+        self.edit_middle_byte_len
+    }
+
+    pub fn observer_bound_value(&self) -> ValueId {
+        self.observer_bound_value
+    }
+
+    pub fn observer_bound_const(&self) -> i64 {
+        self.observer_bound_const
+    }
+
+    pub fn observer_needle_value(&self) -> ValueId {
+        self.observer_needle_value
+    }
+
+    pub fn observer_needle_text(&self) -> &str {
+        &self.observer_needle_text
+    }
+
+    pub fn observer_needle_byte_len(&self) -> usize {
+        self.observer_needle_byte_len
+    }
+
+    pub fn observer_suffix_value(&self) -> ValueId {
+        self.observer_suffix_value
+    }
+
+    pub fn observer_suffix_text(&self) -> &str {
+        &self.observer_suffix_text
+    }
+
+    pub fn observer_suffix_byte_len(&self) -> usize {
+        self.observer_suffix_byte_len
+    }
+
+    pub fn execution_mode(&self) -> &'static str {
+        self.execution_mode.as_str()
+    }
+
+    pub fn proof_region(&self) -> &'static str {
+        self.proof_region.as_str()
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn byte_boundary_proof(&self) -> Option<&'static str> {
+        self.byte_boundary_proof.map(|proof| proof.as_str())
+    }
 }
 
 pub fn refresh_module_array_text_combined_region_routes(module: &mut MirModule) {
