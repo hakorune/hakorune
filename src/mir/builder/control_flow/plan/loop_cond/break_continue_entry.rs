@@ -1,10 +1,10 @@
 //! Public entry points for loop_cond_break_continue facts extraction.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
-use crate::mir::builder::control_flow::plan::ast_feature_extractor::{
+use crate::mir::builder::control_flow::facts::ast_feature_extractor::{
     detect_break_in_body, detect_continue_in_body,
 };
+use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 use super::break_continue_facts::try_extract_loop_cond_break_continue_facts_inner;

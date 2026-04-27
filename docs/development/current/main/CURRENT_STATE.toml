@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-573"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-573-plan-recipes-surface-prune-card.md"
-latest_card_summary = "Move plan recipe callers to the recipes owner path and prune the plan-side compatibility surface."
+latest_card = "291x-574"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-574-plan-extractor-facade-prune-card.md"
+latest_card_summary = "Prune unused plan-side extractor compatibility facades."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -293,4 +293,5 @@ landed_tail = [
   "291x-571 read-digits break-condition surface prune landed",
   "291x-572 scan-loop segment surface prune landed",
   "291x-573 plan recipes surface prune landed",
+  "291x-574 plan extractor facade prune landed",
 ]

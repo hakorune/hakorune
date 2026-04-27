@@ -152,14 +152,10 @@ pub(in crate::mir::builder) mod common_init;
 pub(in crate::mir::builder) mod extractors;
 // Layer 9: Legacy/Scaffolding (残骸・足場)
 // 歴史的経緯で残存、将来的には整理予定
-// Phase 29bq+: AST feature extractor moved to plan side
-pub(in crate::mir::builder) mod ast_feature_extractor;
 // Phase 29bq+: Condition env builder moved to plan side
 pub(in crate::mir::builder) mod condition_env_builder;
 // Phase 29bq+: Conversion pipeline moved to plan side
 pub(in crate::mir::builder) mod conversion_pipeline;
-// Phase 29bq+: Escape route recognizer moved to plan side
-pub(in crate::mir::builder) mod escape_shape_recognizer;
 // Phase 29bq+: Structural lock (join_key/session)
 // sealing は edgecfg/api/frag_emit_session.rs に統合（Phase 29bq+ 骨格拡大）
 pub(in crate::mir::builder) mod join_key;
