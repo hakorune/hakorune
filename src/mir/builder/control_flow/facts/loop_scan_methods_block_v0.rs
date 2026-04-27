@@ -44,8 +44,8 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_block_v0_facts(
         return Ok(None);
     };
 
-    let shape_match = match try_match_loop_scan_methods_block_shape(body, &loop_var, &limit_var) {
-        Ok(shape_match) => shape_match,
+    match try_match_loop_scan_methods_block_shape(body, &loop_var, &limit_var) {
+        Ok(_) => {}
         Err(reason) => {
             debug_reject(&reason);
             return Ok(None);
