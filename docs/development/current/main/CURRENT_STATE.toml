@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-460"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-460-generic-method-route-site-operands-inventory-card.md"
-latest_card_summary = "Inventoried GenericMethodRoute site and operands consumers before record split."
+latest_card = "291x-461"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-461-generic-method-route-site-operands-record-card.md"
+latest_card_summary = "Split GenericMethodRoute site and operand fields into named records while preserving JSON behavior."
 
-current_blocker_token = "generic-method-route site operands record split pending"
+current_blocker_token = "generic-method-route site operands record split verification pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -180,4 +180,5 @@ landed_tail = [
   "291x-458 generic method route evidence closeout landed",
   "291x-459 next lane selection landed",
   "291x-460 generic method route site operands inventory landed",
+  "291x-461 generic method route site operands record split landed",
 ]

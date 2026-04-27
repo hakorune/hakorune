@@ -177,6 +177,21 @@ impl GenericMethodRouteSurface {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct GenericMethodRouteSite {
+    pub block: BasicBlockId,
+    pub instruction_index: usize,
+}
+
+impl GenericMethodRouteSite {
+    pub fn new(block: BasicBlockId, instruction_index: usize) -> Self {
+        Self {
+            block,
+            instruction_index,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GenericMethodRouteEvidence {
     pub receiver_origin_box: Option<String>,
@@ -191,6 +206,27 @@ impl GenericMethodRouteEvidence {
         Self {
             receiver_origin_box,
             key_route,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct GenericMethodRouteOperands {
+    pub receiver_value: ValueId,
+    pub key_value: Option<ValueId>,
+    pub result_value: Option<ValueId>,
+}
+
+impl GenericMethodRouteOperands {
+    pub fn new(
+        receiver_value: ValueId,
+        key_value: Option<ValueId>,
+        result_value: Option<ValueId>,
+    ) -> Self {
+        Self {
+            receiver_value,
+            key_value,
+            result_value,
         }
     }
 }
@@ -227,13 +263,10 @@ impl GenericMethodRouteDecision {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GenericMethodRoute {
-    pub block: BasicBlockId,
-    pub instruction_index: usize,
+    pub site: GenericMethodRouteSite,
     pub surface: GenericMethodRouteSurface,
     pub evidence: GenericMethodRouteEvidence,
-    pub receiver_value: ValueId,
-    pub key_value: Option<ValueId>,
-    pub result_value: Option<ValueId>,
+    pub operands: GenericMethodRouteOperands,
     pub decision: GenericMethodRouteDecision,
 }
 
@@ -256,6 +289,26 @@ impl GenericMethodRoute {
 
     pub fn arity(&self) -> usize {
         self.surface.arity
+    }
+
+    pub fn block(&self) -> BasicBlockId {
+        self.site.block
+    }
+
+    pub fn instruction_index(&self) -> usize {
+        self.site.instruction_index
+    }
+
+    pub fn receiver_value(&self) -> ValueId {
+        self.operands.receiver_value
+    }
+
+    pub fn key_value(&self) -> Option<ValueId> {
+        self.operands.key_value
+    }
+
+    pub fn result_value(&self) -> Option<ValueId> {
+        self.operands.result_value
     }
 
     pub fn receiver_origin_box(&self) -> Option<&str> {
@@ -374,7 +427,7 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
         }
     }
 
-    routes.sort_by_key(|route| (route.block.as_u32(), route.instruction_index));
+    routes.sort_by_key(|route| (route.block().as_u32(), route.instruction_index()));
     function.metadata.generic_method_routes = routes;
 }
 
@@ -446,13 +499,10 @@ fn match_generic_has_route(
     };
 
     Some(GenericMethodRoute {
-        block,
-        instruction_index,
+        site: GenericMethodRouteSite::new(block, instruction_index),
         surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
         evidence: GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
-        receiver_value: *receiver,
-        key_value: Some(args[0]),
-        result_value: *dst,
+        operands: GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
         decision: GenericMethodRouteDecision::new(
             route_kind,
             GenericMethodRouteProof::HasSurfacePolicy,
@@ -496,13 +546,10 @@ fn match_generic_get_route(
 
     if box_name == "ArrayBox" && receiver_origin_box.as_deref() == Some("ArrayBox") {
         return Some(GenericMethodRoute {
-            block,
-            instruction_index,
+            site: GenericMethodRouteSite::new(block, instruction_index),
             surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
             evidence: GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
-            receiver_value: *receiver,
-            key_value: Some(args[0]),
-            result_value: *dst,
+            operands: GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
             decision: GenericMethodRouteDecision::new(
                 GenericMethodRouteKind::ArraySlotLoadAny,
                 GenericMethodRouteProof::GetSurfacePolicy,
@@ -519,13 +566,10 @@ fn match_generic_get_route(
 
     if box_name == "MapBox" && receiver_origin_box.as_deref() == Some("MapBox") {
         return Some(GenericMethodRoute {
-            block,
-            instruction_index,
+            site: GenericMethodRouteSite::new(block, instruction_index),
             surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
             evidence: GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
-            receiver_value: *receiver,
-            key_value: Some(args[0]),
-            result_value: *dst,
+            operands: GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
             decision: GenericMethodRouteDecision::new(
                 GenericMethodRouteKind::MapLoadAny,
                 GenericMethodRouteProof::GetSurfacePolicy,
@@ -542,13 +586,10 @@ fn match_generic_get_route(
 
     if box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("ArrayBox") {
         return Some(GenericMethodRoute {
-            block,
-            instruction_index,
+            site: GenericMethodRouteSite::new(block, instruction_index),
             surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
             evidence: GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
-            receiver_value: *receiver,
-            key_value: Some(args[0]),
-            result_value: *dst,
+            operands: GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
             decision: GenericMethodRouteDecision::new(
                 GenericMethodRouteKind::ArraySlotLoadAny,
                 GenericMethodRouteProof::GetSurfacePolicy,
@@ -593,13 +634,10 @@ fn match_generic_get_route(
     };
 
     Some(GenericMethodRoute {
-        block,
-        instruction_index,
+        site: GenericMethodRouteSite::new(block, instruction_index),
         surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
         evidence: GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
-        receiver_value: *receiver,
-        key_value: Some(args[0]),
-        result_value: *dst,
+        operands: GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
         decision: GenericMethodRouteDecision::new(
             GenericMethodRouteKind::RuntimeDataLoadAny,
             proof,
@@ -651,13 +689,10 @@ fn match_generic_len_route(
         };
 
     Some(GenericMethodRoute {
-        block,
-        instruction_index,
+        site: GenericMethodRouteSite::new(block, instruction_index),
         surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 0),
         evidence: GenericMethodRouteEvidence::new(receiver_origin_box, None),
-        receiver_value: *receiver,
-        key_value: None,
-        result_value: *dst,
+        operands: GenericMethodRouteOperands::new(*receiver, None, *dst),
         decision: GenericMethodRouteDecision::new(
             route_kind,
             GenericMethodRouteProof::LenSurfacePolicy,
@@ -707,13 +742,10 @@ fn match_generic_substring_route(
     }
 
     Some(GenericMethodRoute {
-        block,
-        instruction_index,
+        site: GenericMethodRouteSite::new(block, instruction_index),
         surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         evidence: GenericMethodRouteEvidence::new(receiver_origin_box, None),
-        receiver_value: *receiver,
-        key_value: None,
-        result_value: *dst,
+        operands: GenericMethodRouteOperands::new(*receiver, None, *dst),
         decision: GenericMethodRouteDecision::new(
             GenericMethodRouteKind::StringSubstring,
             GenericMethodRouteProof::SubstringSurfacePolicy,
@@ -763,13 +795,10 @@ fn match_generic_indexof_route(
     }
 
     Some(GenericMethodRoute {
-        block,
-        instruction_index,
+        site: GenericMethodRouteSite::new(block, instruction_index),
         surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         evidence: GenericMethodRouteEvidence::new(receiver_origin_box, None),
-        receiver_value: *receiver,
-        key_value: None,
-        result_value: *dst,
+        operands: GenericMethodRouteOperands::new(*receiver, None, *dst),
         decision: GenericMethodRouteDecision::new(
             GenericMethodRouteKind::StringIndexOf,
             GenericMethodRouteProof::IndexOfSurfacePolicy,
@@ -819,13 +848,10 @@ fn match_generic_push_route(
     }
 
     Some(GenericMethodRoute {
-        block,
-        instruction_index,
+        site: GenericMethodRouteSite::new(block, instruction_index),
         surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
         evidence: GenericMethodRouteEvidence::new(receiver_origin_box, None),
-        receiver_value: *receiver,
-        key_value: None,
-        result_value: *dst,
+        operands: GenericMethodRouteOperands::new(*receiver, None, *dst),
         decision: GenericMethodRouteDecision::new(
             GenericMethodRouteKind::ArrayAppendAny,
             GenericMethodRouteProof::PushSurfacePolicy,
@@ -879,13 +905,10 @@ fn match_generic_set_route(
     let key_route = classify_key_route(function, def_map, args[0]);
 
     Some(GenericMethodRoute {
-        block,
-        instruction_index,
+        site: GenericMethodRouteSite::new(block, instruction_index),
         surface: GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 2),
         evidence: GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
-        receiver_value: *receiver,
-        key_value: Some(args[0]),
-        result_value: *dst,
+        operands: GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
         decision: GenericMethodRouteDecision::new(
             route_kind,
             GenericMethodRouteProof::SetSurfacePolicy,
@@ -1230,7 +1253,7 @@ mod tests {
             .find(|route| {
                 route.box_name() == box_name
                     && route.method() == method
-                    && route.result_value == result_value
+                    && route.result_value() == result_value
             })
             .unwrap_or_else(|| {
                 panic!(
@@ -1242,8 +1265,7 @@ mod tests {
     #[test]
     fn generic_method_route_metadata_tokens_come_from_route_kind() {
         let route = GenericMethodRoute {
-            block: BasicBlockId::new(0),
-            instruction_index: 0,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(0), 0),
             surface: GenericMethodRouteSurface::new(
                 "MapBox",
                 "__raw_method_must_not_drive_metadata",
@@ -1253,9 +1275,11 @@ mod tests {
                 Some("MapBox".to_string()),
                 Some(GenericMethodKeyRoute::I64Const),
             ),
-            receiver_value: ValueId::new(1),
-            key_value: Some(ValueId::new(2)),
-            result_value: Some(ValueId::new(3)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(1),
+                Some(ValueId::new(2)),
+                Some(ValueId::new(3)),
+            ),
             decision: GenericMethodRouteDecision::new(
                 GenericMethodRouteKind::MapContainsI64,
                 GenericMethodRouteProof::HasSurfacePolicy,
@@ -1289,15 +1313,15 @@ mod tests {
 
         assert_eq!(function.metadata.generic_method_routes.len(), 1);
         let route = &function.metadata.generic_method_routes[0];
-        assert_eq!(route.block, BasicBlockId::new(0));
-        assert_eq!(route.instruction_index, 0);
+        assert_eq!(route.block(), BasicBlockId::new(0));
+        assert_eq!(route.instruction_index(), 0);
         assert_eq!(route.box_name(), "MapBox");
         assert_eq!(route.method(), "has");
         assert_eq!(route.receiver_origin_box(), Some("MapBox"));
         assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::UnknownAny));
-        assert_eq!(route.receiver_value, ValueId::new(1));
-        assert_eq!(route.key_value, Some(ValueId::new(2)));
-        assert_eq!(route.result_value, Some(ValueId::new(3)));
+        assert_eq!(route.receiver_value(), ValueId::new(1));
+        assert_eq!(route.key_value(), Some(ValueId::new(2)));
+        assert_eq!(route.result_value(), Some(ValueId::new(3)));
         assert_eq!(route.route_kind(), GenericMethodRouteKind::MapContainsAny);
         assert_eq!(route.proof(), GenericMethodRouteProof::HasSurfacePolicy);
         let core_method = route.core_method().expect("MapBox.has core method op");
@@ -1633,7 +1657,7 @@ mod tests {
         assert_eq!(map_route.method(), "size");
         assert_eq!(map_route.receiver_origin_box(), Some("MapBox"));
         assert_eq!(map_route.key_route(), None);
-        assert_eq!(map_route.key_value, None);
+        assert_eq!(map_route.key_value(), None);
         assert_eq!(
             map_route.route_kind(),
             GenericMethodRouteKind::MapEntryCount
@@ -1709,7 +1733,7 @@ mod tests {
             CoreMethodLoweringTier::WarmDirectAbi
         );
         assert_eq!(route.key_route(), None);
-        assert_eq!(route.key_value, None);
+        assert_eq!(route.key_value(), None);
         assert_eq!(route.arity(), 0);
     }
 
@@ -1738,7 +1762,7 @@ mod tests {
         assert_eq!(route.arity(), 2);
         assert_eq!(route.receiver_origin_box(), Some("StringBox"));
         assert_eq!(route.key_route(), None);
-        assert_eq!(route.key_value, None);
+        assert_eq!(route.key_value(), None);
         assert_eq!(route.route_kind(), GenericMethodRouteKind::StringSubstring);
         assert_eq!(
             route.proof(),
@@ -1813,7 +1837,7 @@ mod tests {
         assert_eq!(route.arity(), 1);
         assert_eq!(route.receiver_origin_box(), Some("StringBox"));
         assert_eq!(route.key_route(), None);
-        assert_eq!(route.key_value, None);
+        assert_eq!(route.key_value(), None);
         assert_eq!(route.route_kind(), GenericMethodRouteKind::StringIndexOf);
         assert_eq!(route.proof(), GenericMethodRouteProof::IndexOfSurfacePolicy);
         let core_method = route.core_method().expect("StringIndexOf carrier");
@@ -1892,7 +1916,7 @@ mod tests {
         assert_eq!(route.arity(), 1);
         assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
         assert_eq!(route.key_route(), None);
-        assert_eq!(route.key_value, None);
+        assert_eq!(route.key_value(), None);
         assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
         assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
         let core_method = route.core_method().expect("ArrayPush carrier");
@@ -1986,7 +2010,7 @@ mod tests {
             array_route.key_route(),
             Some(GenericMethodKeyRoute::I64Const)
         );
-        assert_eq!(array_route.key_value, Some(ValueId::new(1)));
+        assert_eq!(array_route.key_value(), Some(ValueId::new(1)));
         assert_eq!(
             array_route.route_kind(),
             GenericMethodRouteKind::ArrayStoreAny

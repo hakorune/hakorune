@@ -4,7 +4,8 @@ use crate::mir::{
     BasicBlockId, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, GenericMethodKeyRoute,
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodRoute,
     GenericMethodRouteDecision, GenericMethodRouteEvidence, GenericMethodRouteKind,
-    GenericMethodRouteProof, GenericMethodRouteSurface, GenericMethodValueDemand, ValueId,
+    GenericMethodRouteOperands, GenericMethodRouteProof, GenericMethodRouteSite,
+    GenericMethodRouteSurface, GenericMethodValueDemand, ValueId,
 };
 
 fn decision(
@@ -33,16 +34,17 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(7),
-            instruction_index: 3,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(7), 3),
             surface: GenericMethodRouteSurface::new("MapBox", "has", 1),
             evidence: GenericMethodRouteEvidence::new(
                 Some("MapBox".to_string()),
                 Some(GenericMethodKeyRoute::I64Const),
             ),
-            receiver_value: ValueId::new(10),
-            key_value: Some(ValueId::new(11)),
-            result_value: Some(ValueId::new(12)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(10),
+                Some(ValueId::new(11)),
+                Some(ValueId::new(12)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::MapContainsI64,
                 GenericMethodRouteProof::HasSurfacePolicy,
@@ -57,16 +59,17 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(8),
-            instruction_index: 4,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(8), 4),
             surface: GenericMethodRouteSurface::new("RuntimeDataBox", "get", 1),
             evidence: GenericMethodRouteEvidence::new(
                 Some("MapBox".to_string()),
                 Some(GenericMethodKeyRoute::I64Const),
             ),
-            receiver_value: ValueId::new(13),
-            key_value: Some(ValueId::new(14)),
-            result_value: Some(ValueId::new(15)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(13),
+                Some(ValueId::new(14)),
+                Some(ValueId::new(15)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::RuntimeDataLoadAny,
                 GenericMethodRouteProof::GetSurfacePolicy,
@@ -81,16 +84,17 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(9),
-            instruction_index: 5,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(9), 5),
             surface: GenericMethodRouteSurface::new("RuntimeDataBox", "get", 1),
             evidence: GenericMethodRouteEvidence::new(
                 Some("MapBox".to_string()),
                 Some(GenericMethodKeyRoute::I64Const),
             ),
-            receiver_value: ValueId::new(16),
-            key_value: Some(ValueId::new(17)),
-            result_value: Some(ValueId::new(18)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(16),
+                Some(ValueId::new(17)),
+                Some(ValueId::new(18)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::RuntimeDataLoadAny,
                 GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
@@ -105,13 +109,14 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(11),
-            instruction_index: 7,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(11), 7),
             surface: GenericMethodRouteSurface::new("StringBox", "substring", 2),
             evidence: GenericMethodRouteEvidence::new(Some("StringBox".to_string()), None),
-            receiver_value: ValueId::new(21),
-            key_value: None,
-            result_value: Some(ValueId::new(24)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(21),
+                None,
+                Some(ValueId::new(24)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::StringSubstring,
                 GenericMethodRouteProof::SubstringSurfacePolicy,
@@ -126,13 +131,14 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(10),
-            instruction_index: 6,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(10), 6),
             surface: GenericMethodRouteSurface::new("MapBox", "size", 0),
             evidence: GenericMethodRouteEvidence::new(Some("MapBox".to_string()), None),
-            receiver_value: ValueId::new(19),
-            key_value: None,
-            result_value: Some(ValueId::new(20)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(19),
+                None,
+                Some(ValueId::new(20)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::MapEntryCount,
                 GenericMethodRouteProof::LenSurfacePolicy,
@@ -147,13 +153,14 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(12),
-            instruction_index: 8,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(12), 8),
             surface: GenericMethodRouteSurface::new("ArrayBox", "push", 1),
             evidence: GenericMethodRouteEvidence::new(Some("ArrayBox".to_string()), None),
-            receiver_value: ValueId::new(25),
-            key_value: None,
-            result_value: Some(ValueId::new(27)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(25),
+                None,
+                Some(ValueId::new(27)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::ArrayAppendAny,
                 GenericMethodRouteProof::PushSurfacePolicy,
@@ -168,16 +175,17 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(13),
-            instruction_index: 9,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(13), 9),
             surface: GenericMethodRouteSurface::new("MapBox", "set", 2),
             evidence: GenericMethodRouteEvidence::new(
                 Some("MapBox".to_string()),
                 Some(GenericMethodKeyRoute::I64Const),
             ),
-            receiver_value: ValueId::new(28),
-            key_value: Some(ValueId::new(29)),
-            result_value: Some(ValueId::new(31)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(28),
+                Some(ValueId::new(29)),
+                Some(ValueId::new(31)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::MapStoreAny,
                 GenericMethodRouteProof::SetSurfacePolicy,
@@ -192,16 +200,17 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(14),
-            instruction_index: 10,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(14), 10),
             surface: GenericMethodRouteSurface::new("MapBox", "get", 1),
             evidence: GenericMethodRouteEvidence::new(
                 Some("MapBox".to_string()),
                 Some(GenericMethodKeyRoute::UnknownAny),
             ),
-            receiver_value: ValueId::new(32),
-            key_value: Some(ValueId::new(33)),
-            result_value: Some(ValueId::new(34)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(32),
+                Some(ValueId::new(33)),
+                Some(ValueId::new(34)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::MapLoadAny,
                 GenericMethodRouteProof::GetSurfacePolicy,
@@ -216,16 +225,17 @@ fn build_mir_json_root_emits_generic_method_routes() {
         .metadata
         .generic_method_routes
         .push(GenericMethodRoute {
-            block: BasicBlockId::new(15),
-            instruction_index: 11,
+            site: GenericMethodRouteSite::new(BasicBlockId::new(15), 11),
             surface: GenericMethodRouteSurface::new("ArrayBox", "get", 1),
             evidence: GenericMethodRouteEvidence::new(
                 Some("ArrayBox".to_string()),
                 Some(GenericMethodKeyRoute::I64Const),
             ),
-            receiver_value: ValueId::new(35),
-            key_value: Some(ValueId::new(36)),
-            result_value: Some(ValueId::new(37)),
+            operands: GenericMethodRouteOperands::new(
+                ValueId::new(35),
+                Some(ValueId::new(36)),
+                Some(ValueId::new(37)),
+            ),
             decision: decision(
                 GenericMethodRouteKind::ArraySlotLoadAny,
                 GenericMethodRouteProof::GetSurfacePolicy,

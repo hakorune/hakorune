@@ -150,18 +150,18 @@ fn match_same_key_get_has_pair(
     get_route: &GenericMethodRoute,
     has_route: &GenericMethodRoute,
 ) -> Option<MapLookupFusionRoute> {
-    if get_route.block != has_route.block
-        || get_route.instruction_index >= has_route.instruction_index
+    if get_route.block() != has_route.block()
+        || get_route.instruction_index() >= has_route.instruction_index()
     {
         return None;
     }
-    let get_result_value = get_route.result_value?;
-    let has_result_value = has_route.result_value?;
-    let get_key_value = get_route.key_value?;
-    let has_key_value = has_route.key_value?;
+    let get_result_value = get_route.result_value()?;
+    let has_result_value = has_route.result_value()?;
+    let get_key_value = get_route.key_value()?;
+    let has_key_value = has_route.key_value()?;
     let get_key_route = get_route.key_route()?;
-    let receiver_root = resolve_value_origin(function, def_map, get_route.receiver_value);
-    if receiver_root != resolve_value_origin(function, def_map, has_route.receiver_value) {
+    let receiver_root = resolve_value_origin(function, def_map, get_route.receiver_value());
+    if receiver_root != resolve_value_origin(function, def_map, has_route.receiver_value()) {
         return None;
     }
     let key_const = const_i64_value(function, def_map, get_key_value)?;
@@ -171,9 +171,9 @@ fn match_same_key_get_has_pair(
     if !same_block_window_keeps_receiver_stable(
         function,
         def_map,
-        get_route.block,
-        get_route.instruction_index,
-        has_route.instruction_index,
+        get_route.block(),
+        get_route.instruction_index(),
+        has_route.instruction_index(),
         receiver_root,
     ) {
         return None;
@@ -182,9 +182,9 @@ fn match_same_key_get_has_pair(
     let stored_value = prove_scalar_i64_map_get_store_fact(
         function,
         def_map,
-        get_route.block,
-        get_route.instruction_index,
-        get_route.receiver_value,
+        get_route.block(),
+        get_route.instruction_index(),
+        get_route.receiver_value(),
         get_key_value,
     )
     .map(|fact| fact.stored_value);
@@ -195,12 +195,12 @@ fn match_same_key_get_has_pair(
     };
 
     Some(MapLookupFusionRoute {
-        block: get_route.block,
-        get_instruction_index: get_route.instruction_index,
-        has_instruction_index: has_route.instruction_index,
+        block: get_route.block(),
+        get_instruction_index: get_route.instruction_index(),
+        has_instruction_index: has_route.instruction_index(),
         fusion_op: MapLookupFusionOp::MapLookupSameKey,
         receiver_origin_box: get_route.receiver_origin_box().map(str::to_string),
-        receiver_value: get_route.receiver_value,
+        receiver_value: get_route.receiver_value(),
         key_value: get_key_value,
         key_const,
         key_route: get_key_route,
