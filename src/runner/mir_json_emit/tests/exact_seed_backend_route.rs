@@ -2,12 +2,12 @@ use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::array_rmw_add1_leaf_seed_plan::test_support as array_rmw_add1_leaf_fixture;
 use crate::mir::exact_seed_backend_route::test_support as exact_seed_backend_route_fixture;
+use crate::mir::sum_variant_project_seed_plan::test_support as sum_variant_project_fixture;
 use crate::mir::sum_variant_tag_seed_plan::test_support as sum_variant_tag_fixture;
 use crate::mir::{
-    MirModule, SumLocalAggregateLayout, SumVariantProjectSeedKind, SumVariantProjectSeedPayload,
-    SumVariantProjectSeedProof, SumVariantProjectSeedRoute, UserBoxLocalScalarSeedKind,
-    UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
-    UserBoxLocalScalarSeedSinglePayload, ValueId,
+    MirModule, UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload,
+    UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload,
+    ValueId,
 };
 use hakorune_mir_core::BasicBlockId;
 
@@ -120,25 +120,8 @@ fn build_mir_json_root_emits_sum_variant_tag_seed_and_exact_route() {
 #[test]
 fn build_mir_json_root_emits_sum_variant_project_seed_and_exact_route() {
     let mut function = make_function("main", true);
-    function.metadata.sum_variant_project_seed_route = Some(SumVariantProjectSeedRoute {
-        kind: SumVariantProjectSeedKind::CopyLocalHandle,
-        enum_name: "ResultHandle".to_string(),
-        variant: "Ok".to_string(),
-        subject: "ResultHandle::Ok".to_string(),
-        layout: SumLocalAggregateLayout::TagHandlePayload,
-        variant_tag: 0,
-        make_block: BasicBlockId::new(0),
-        make_instruction_index: 1,
-        project_block: BasicBlockId::new(0),
-        project_instruction_index: 3,
-        sum_value: ValueId::new(2),
-        project_value: ValueId::new(4),
-        project_source_value: ValueId::new(3),
-        copy_value: Some(ValueId::new(3)),
-        payload_value: ValueId::new(1),
-        payload: SumVariantProjectSeedPayload::String("hako".to_string()),
-        proof: SumVariantProjectSeedProof::LocalAggregateProjectSeed,
-    });
+    function.metadata.sum_variant_project_seed_route =
+        Some(sum_variant_project_fixture::copy_handle_result_handle_ok());
     function.metadata.exact_seed_backend_route =
         Some(exact_seed_backend_route_fixture::sum_variant_project_local());
     let mut module = MirModule::new("json_sum_variant_project_route_test".to_string());

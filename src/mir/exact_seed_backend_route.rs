@@ -246,7 +246,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
             source_route: ExactSeedBackendRouteKind::SumVariantProjectLocal
                 .source_route_field()
                 .to_string(),
-            proof: route.proof.to_string(),
+            proof: route.proof().to_string(),
             selected_value: None,
         });
     }
@@ -359,13 +359,12 @@ mod tests {
         EffectMask, FunctionSignature, MirType, StringKernelPlan, StringKernelPlanBorrowContract,
         StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
-        StringKernelPlanVerifierOwner, SumLocalAggregateLayout, SumVariantProjectSeedKind,
-        SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
-        UserBoxKnownReceiverMethodSeedKind, UserBoxKnownReceiverMethodSeedPayload,
-        UserBoxKnownReceiverMethodSeedProof, UserBoxKnownReceiverMethodSeedRoute,
-        UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof,
-        UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind,
-        UserBoxLoopMicroSeedProof, UserBoxLoopMicroSeedRoute,
+        StringKernelPlanVerifierOwner, UserBoxKnownReceiverMethodSeedKind,
+        UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedProof,
+        UserBoxKnownReceiverMethodSeedRoute, UserBoxLocalScalarSeedKind,
+        UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
+        UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedProof,
+        UserBoxLoopMicroSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -479,25 +478,9 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_sum_variant_project_metadata() {
         let mut function = make_function();
-        function.metadata.sum_variant_project_seed_route = Some(SumVariantProjectSeedRoute {
-            kind: SumVariantProjectSeedKind::LocalI64,
-            enum_name: "ResultInt".to_string(),
-            variant: "Ok".to_string(),
-            subject: "ResultInt::Ok".to_string(),
-            layout: SumLocalAggregateLayout::TagI64Payload,
-            variant_tag: 0,
-            make_block: BasicBlockId::new(0),
-            make_instruction_index: 1,
-            project_block: BasicBlockId::new(0),
-            project_instruction_index: 2,
-            sum_value: ValueId::new(2),
-            project_value: ValueId::new(3),
-            project_source_value: ValueId::new(2),
-            copy_value: None,
-            payload_value: ValueId::new(1),
-            payload: SumVariantProjectSeedPayload::I64(73),
-            proof: SumVariantProjectSeedProof::LocalAggregateProjectSeed,
-        });
+        function.metadata.sum_variant_project_seed_route = Some(
+            crate::mir::sum_variant_project_seed_plan::test_support::local_i64_result_int_ok(),
+        );
 
         refresh_function_exact_seed_backend_route(&mut function);
 

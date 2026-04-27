@@ -56,39 +56,162 @@ impl SumVariantProjectSeedPayload {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SumVariantProjectSeedProof {
+enum SumVariantProjectSeedProof {
     LocalAggregateProjectSeed,
+}
+
+impl SumVariantProjectSeedProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::LocalAggregateProjectSeed => "sum_variant_project_local_aggregate_seed",
+        }
+    }
 }
 
 impl std::fmt::Display for SumVariantProjectSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::LocalAggregateProjectSeed => {
-                f.write_str("sum_variant_project_local_aggregate_seed")
-            }
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct SumVariantProjectSeedRoute {
-    pub kind: SumVariantProjectSeedKind,
-    pub enum_name: String,
-    pub variant: String,
-    pub subject: String,
-    pub layout: SumLocalAggregateLayout,
-    pub variant_tag: u32,
-    pub make_block: BasicBlockId,
-    pub make_instruction_index: usize,
-    pub project_block: BasicBlockId,
-    pub project_instruction_index: usize,
-    pub sum_value: ValueId,
-    pub project_value: ValueId,
-    pub project_source_value: ValueId,
-    pub copy_value: Option<ValueId>,
-    pub payload_value: ValueId,
-    pub payload: SumVariantProjectSeedPayload,
-    pub proof: SumVariantProjectSeedProof,
+    kind: SumVariantProjectSeedKind,
+    enum_name: String,
+    variant: String,
+    subject: String,
+    layout: SumLocalAggregateLayout,
+    variant_tag: u32,
+    make_block: BasicBlockId,
+    make_instruction_index: usize,
+    project_block: BasicBlockId,
+    project_instruction_index: usize,
+    sum_value: ValueId,
+    project_value: ValueId,
+    project_source_value: ValueId,
+    copy_value: Option<ValueId>,
+    payload_value: ValueId,
+    payload: SumVariantProjectSeedPayload,
+    proof: SumVariantProjectSeedProof,
+}
+
+impl SumVariantProjectSeedRoute {
+    pub fn kind(&self) -> SumVariantProjectSeedKind {
+        self.kind
+    }
+
+    pub fn enum_name(&self) -> &str {
+        self.enum_name.as_str()
+    }
+
+    pub fn variant(&self) -> &str {
+        self.variant.as_str()
+    }
+
+    pub fn subject(&self) -> &str {
+        self.subject.as_str()
+    }
+
+    pub fn layout(&self) -> SumLocalAggregateLayout {
+        self.layout
+    }
+
+    pub fn variant_tag(&self) -> u32 {
+        self.variant_tag
+    }
+
+    pub fn make_block(&self) -> BasicBlockId {
+        self.make_block
+    }
+
+    pub fn make_instruction_index(&self) -> usize {
+        self.make_instruction_index
+    }
+
+    pub fn project_block(&self) -> BasicBlockId {
+        self.project_block
+    }
+
+    pub fn project_instruction_index(&self) -> usize {
+        self.project_instruction_index
+    }
+
+    pub fn sum_value(&self) -> ValueId {
+        self.sum_value
+    }
+
+    pub fn project_value(&self) -> ValueId {
+        self.project_value
+    }
+
+    pub fn project_source_value(&self) -> ValueId {
+        self.project_source_value
+    }
+
+    pub fn copy_value(&self) -> Option<ValueId> {
+        self.copy_value
+    }
+
+    pub fn payload_value(&self) -> ValueId {
+        self.payload_value
+    }
+
+    pub fn payload(&self) -> &SumVariantProjectSeedPayload {
+        &self.payload
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn local_i64_result_int_ok() -> SumVariantProjectSeedRoute {
+        SumVariantProjectSeedRoute {
+            kind: SumVariantProjectSeedKind::LocalI64,
+            enum_name: "ResultInt".to_string(),
+            variant: "Ok".to_string(),
+            subject: "ResultInt::Ok".to_string(),
+            layout: SumLocalAggregateLayout::TagI64Payload,
+            variant_tag: 0,
+            make_block: BasicBlockId::new(0),
+            make_instruction_index: 1,
+            project_block: BasicBlockId::new(0),
+            project_instruction_index: 2,
+            sum_value: ValueId::new(2),
+            project_value: ValueId::new(3),
+            project_source_value: ValueId::new(2),
+            copy_value: None,
+            payload_value: ValueId::new(1),
+            payload: SumVariantProjectSeedPayload::I64(73),
+            proof: SumVariantProjectSeedProof::LocalAggregateProjectSeed,
+        }
+    }
+
+    pub(crate) fn copy_handle_result_handle_ok() -> SumVariantProjectSeedRoute {
+        SumVariantProjectSeedRoute {
+            kind: SumVariantProjectSeedKind::CopyLocalHandle,
+            enum_name: "ResultHandle".to_string(),
+            variant: "Ok".to_string(),
+            subject: "ResultHandle::Ok".to_string(),
+            layout: SumLocalAggregateLayout::TagHandlePayload,
+            variant_tag: 0,
+            make_block: BasicBlockId::new(0),
+            make_instruction_index: 1,
+            project_block: BasicBlockId::new(0),
+            project_instruction_index: 3,
+            sum_value: ValueId::new(2),
+            project_value: ValueId::new(4),
+            project_source_value: ValueId::new(3),
+            copy_value: Some(ValueId::new(3)),
+            payload_value: ValueId::new(1),
+            payload: SumVariantProjectSeedPayload::String("hako".to_string()),
+            proof: SumVariantProjectSeedProof::LocalAggregateProjectSeed,
+        }
+    }
 }
 
 pub fn refresh_module_sum_variant_project_seed_routes(module: &mut MirModule) {

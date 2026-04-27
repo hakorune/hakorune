@@ -286,7 +286,7 @@ pub use sum_placement_selection::{
 pub use sum_variant_project_seed_plan::{
     refresh_function_sum_variant_project_seed_route,
     refresh_module_sum_variant_project_seed_routes, SumVariantProjectSeedKind,
-    SumVariantProjectSeedPayload, SumVariantProjectSeedProof, SumVariantProjectSeedRoute,
+    SumVariantProjectSeedPayload, SumVariantProjectSeedRoute,
 };
 pub use sum_variant_tag_seed_plan::{
     refresh_function_sum_variant_tag_seed_route, refresh_module_sum_variant_tag_seed_routes,

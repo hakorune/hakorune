@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-496"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-496-sum-variant-tag-route-field-boundary-card.md"
-latest_card_summary = "Make SumVariantTagSeedRoute field layout owner-private and move consumers to accessors."
+latest_card = "291x-497"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-497-sum-variant-project-route-field-boundary-card.md"
+latest_card_summary = "Make SumVariantProjectSeedRoute field layout owner-private and move consumers to accessors."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -216,4 +216,5 @@ landed_tail = [
   "291x-494 array getset micro route field boundary landed",
   "291x-495 substring views micro route field boundary landed",
   "291x-496 sum variant tag route field boundary landed",
+  "291x-497 sum variant project route field boundary landed",
 ]
