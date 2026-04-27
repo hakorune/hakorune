@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-542"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-542-cfg-extractor-root-export-prune-card.md"
-latest_card_summary = "Remove CFG extractor helper from the MIR root facade and migrate JSON emission to the owner module."
+latest_card = "291x-543"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-543-slot-registry-root-export-prune-card.md"
+latest_card_summary = "Remove unused slot-registry type aliases from the MIR root facade."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -262,4 +262,5 @@ landed_tail = [
   "291x-540 control-flow utils root export prune landed",
   "291x-541 escape classifier root export prune landed",
   "291x-542 CFG extractor root export prune landed",
+  "291x-543 slot-registry root export prune landed",
 ]
