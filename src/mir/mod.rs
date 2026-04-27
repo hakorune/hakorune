@@ -127,7 +127,6 @@ pub use agg_local_scalarization::{
 };
 pub use array_getset_micro_seed_plan::{
     refresh_function_array_getset_micro_seed_route, refresh_module_array_getset_micro_seed_routes,
-    ArrayGetSetMicroSeedRoute,
 };
 pub use array_rmw_add1_leaf_seed_plan::{
     refresh_function_array_rmw_add1_leaf_seed_route,
@@ -286,7 +285,7 @@ pub use types::{
 };
 pub use userbox_known_receiver_method_seed_plan::{
     refresh_module_userbox_known_receiver_method_seed_routes, UserBoxKnownReceiverMethodSeedKind,
-    UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedRoute,
+    UserBoxKnownReceiverMethodSeedPayload,
 };
 pub use userbox_local_scalar_seed_plan::{
     refresh_function_userbox_local_scalar_seed_route,
@@ -296,7 +295,7 @@ pub use userbox_local_scalar_seed_plan::{
 };
 pub use userbox_loop_micro_seed_plan::{
     refresh_function_userbox_loop_micro_seed_route, refresh_module_userbox_loop_micro_seed_routes,
-    UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedRoute,
+    UserBoxLoopMicroSeedKind,
 };
 pub use value_consumer::{
     refresh_function_value_consumer_facts, refresh_module_value_consumer_facts, ValueConsumerFacts,

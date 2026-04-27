@@ -815,7 +815,7 @@ pub(super) fn build_mir_json_root(
 }
 
 fn build_array_getset_micro_seed_route_json(
-    route: &crate::mir::ArrayGetSetMicroSeedRoute,
+    route: &crate::mir::array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
 ) -> serde_json::Value {
     json!({
         "size": route.size(),
@@ -839,7 +839,7 @@ fn build_array_getset_micro_seed_route_json(
 }
 
 fn build_userbox_loop_micro_seed_route_json(
-    route: &crate::mir::UserBoxLoopMicroSeedRoute,
+    route: &crate::mir::userbox_loop_micro_seed_plan::UserBoxLoopMicroSeedRoute,
 ) -> serde_json::Value {
     let mut obj = serde_json::Map::new();
     obj.insert("kind".to_string(), json!(route.kind().to_string()));
@@ -883,7 +883,7 @@ fn build_userbox_loop_micro_seed_route_json(
 }
 
 fn build_userbox_known_receiver_method_seed_route_json(
-    route: &crate::mir::UserBoxKnownReceiverMethodSeedRoute,
+    route: &crate::mir::userbox_known_receiver_method_seed_plan::UserBoxKnownReceiverMethodSeedRoute,
 ) -> serde_json::Value {
     let mut obj = serde_json::Map::new();
     obj.insert("kind".to_string(), json!(route.kind().to_string()));
