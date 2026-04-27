@@ -43,7 +43,7 @@ impl std::fmt::Display for UserBoxKnownReceiverMethodSeedKind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum UserBoxKnownReceiverMethodSeedProof {
+enum UserBoxKnownReceiverMethodSeedProof {
     CounterStepLocalI64Seed,
     CounterStepChainLocalI64Seed,
     CounterStepChainMicroSeed,
@@ -52,18 +52,22 @@ pub enum UserBoxKnownReceiverMethodSeedProof {
     PointSumMicroSeed,
 }
 
+impl UserBoxKnownReceiverMethodSeedProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::CounterStepLocalI64Seed => "userbox_counter_step_local_i64_seed",
+            Self::CounterStepChainLocalI64Seed => "userbox_counter_step_chain_local_i64_seed",
+            Self::CounterStepChainMicroSeed => "userbox_counter_step_chain_micro_seed",
+            Self::CounterStepMicroSeed => "userbox_counter_step_micro_seed",
+            Self::PointSumLocalI64Seed => "userbox_point_sum_local_i64_seed",
+            Self::PointSumMicroSeed => "userbox_point_sum_micro_seed",
+        }
+    }
+}
+
 impl std::fmt::Display for UserBoxKnownReceiverMethodSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::CounterStepLocalI64Seed => f.write_str("userbox_counter_step_local_i64_seed"),
-            Self::CounterStepChainLocalI64Seed => {
-                f.write_str("userbox_counter_step_chain_local_i64_seed")
-            }
-            Self::CounterStepChainMicroSeed => f.write_str("userbox_counter_step_chain_micro_seed"),
-            Self::CounterStepMicroSeed => f.write_str("userbox_counter_step_micro_seed"),
-            Self::PointSumLocalI64Seed => f.write_str("userbox_point_sum_local_i64_seed"),
-            Self::PointSumMicroSeed => f.write_str("userbox_point_sum_micro_seed"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
@@ -112,22 +116,88 @@ pub enum UserBoxKnownReceiverMethodSeedPayload {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserBoxKnownReceiverMethodSeedRoute {
-    pub kind: UserBoxKnownReceiverMethodSeedKind,
-    pub box_name: String,
-    pub method: String,
-    pub method_function: String,
-    pub block_count: usize,
-    pub method_block_count: usize,
-    pub block: BasicBlockId,
-    pub method_block: BasicBlockId,
-    pub newbox_instruction_index: usize,
-    pub copy_instruction_index: Option<usize>,
-    pub call_instruction_index: usize,
-    pub box_value: ValueId,
-    pub copy_value: Option<ValueId>,
-    pub result_value: ValueId,
-    pub proof: UserBoxKnownReceiverMethodSeedProof,
-    pub payload: UserBoxKnownReceiverMethodSeedPayload,
+    kind: UserBoxKnownReceiverMethodSeedKind,
+    box_name: String,
+    method: String,
+    method_function: String,
+    block_count: usize,
+    method_block_count: usize,
+    block: BasicBlockId,
+    method_block: BasicBlockId,
+    newbox_instruction_index: usize,
+    copy_instruction_index: Option<usize>,
+    call_instruction_index: usize,
+    box_value: ValueId,
+    copy_value: Option<ValueId>,
+    result_value: ValueId,
+    proof: UserBoxKnownReceiverMethodSeedProof,
+    payload: UserBoxKnownReceiverMethodSeedPayload,
+}
+
+impl UserBoxKnownReceiverMethodSeedRoute {
+    pub fn kind(&self) -> UserBoxKnownReceiverMethodSeedKind {
+        self.kind
+    }
+
+    pub fn box_name(&self) -> &str {
+        &self.box_name
+    }
+
+    pub fn method(&self) -> &str {
+        &self.method
+    }
+
+    pub fn method_function(&self) -> &str {
+        &self.method_function
+    }
+
+    pub fn block_count(&self) -> usize {
+        self.block_count
+    }
+
+    pub fn method_block_count(&self) -> usize {
+        self.method_block_count
+    }
+
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn method_block(&self) -> BasicBlockId {
+        self.method_block
+    }
+
+    pub fn newbox_instruction_index(&self) -> usize {
+        self.newbox_instruction_index
+    }
+
+    pub fn copy_instruction_index(&self) -> Option<usize> {
+        self.copy_instruction_index
+    }
+
+    pub fn call_instruction_index(&self) -> usize {
+        self.call_instruction_index
+    }
+
+    pub fn box_value(&self) -> ValueId {
+        self.box_value
+    }
+
+    pub fn copy_value(&self) -> Option<ValueId> {
+        self.copy_value
+    }
+
+    pub fn result_value(&self) -> ValueId {
+        self.result_value
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn payload(&self) -> &UserBoxKnownReceiverMethodSeedPayload {
+        &self.payload
+    }
 }
 
 struct CounterStepMethodFacts {
@@ -1408,6 +1478,35 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Return { .. } => "ret",
         _ => "other",
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn counter_step_copy_local_i64() -> UserBoxKnownReceiverMethodSeedRoute {
+        UserBoxKnownReceiverMethodSeedRoute {
+            kind: UserBoxKnownReceiverMethodSeedKind::CounterStepCopyLocalI64,
+            box_name: "Counter".to_string(),
+            method: "step".to_string(),
+            method_function: "Counter.step/1".to_string(),
+            block_count: 1,
+            method_block_count: 1,
+            block: BasicBlockId::new(0),
+            method_block: BasicBlockId::new(1),
+            newbox_instruction_index: 1,
+            copy_instruction_index: Some(3),
+            call_instruction_index: 4,
+            box_value: ValueId::new(2),
+            copy_value: Some(ValueId::new(3)),
+            result_value: ValueId::new(4),
+            proof: UserBoxKnownReceiverMethodSeedProof::CounterStepLocalI64Seed,
+            payload: UserBoxKnownReceiverMethodSeedPayload::CounterStepI64 {
+                base_i64: 41,
+                delta_i64: 2,
+            },
+        }
     }
 }
 

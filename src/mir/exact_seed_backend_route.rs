@@ -291,7 +291,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
         return Some(ExactSeedBackendRoute {
             tag,
             source_route: tag.source_route_field().to_string(),
-            proof: route.proof.to_string(),
+            proof: route.proof().to_string(),
             selected_value: None,
         });
     }
@@ -359,9 +359,7 @@ mod tests {
         EffectMask, FunctionSignature, MirType, StringKernelPlan, StringKernelPlanBorrowContract,
         StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
-        StringKernelPlanVerifierOwner, UserBoxKnownReceiverMethodSeedKind,
-        UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedProof,
-        UserBoxKnownReceiverMethodSeedRoute,
+        StringKernelPlanVerifierOwner,
     };
     use hakorune_mir_core::BasicBlockId;
 
@@ -548,28 +546,9 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_userbox_known_receiver_method_metadata() {
         let mut function = make_function();
-        function.metadata.userbox_known_receiver_method_seed_route =
-            Some(UserBoxKnownReceiverMethodSeedRoute {
-                kind: UserBoxKnownReceiverMethodSeedKind::CounterStepCopyLocalI64,
-                box_name: "Counter".to_string(),
-                method: "step".to_string(),
-                method_function: "Counter.step/1".to_string(),
-                block_count: 1,
-                method_block_count: 1,
-                block: BasicBlockId::new(0),
-                method_block: BasicBlockId::new(1),
-                newbox_instruction_index: 1,
-                copy_instruction_index: Some(3),
-                call_instruction_index: 4,
-                box_value: ValueId::new(2),
-                copy_value: Some(ValueId::new(3)),
-                result_value: ValueId::new(4),
-                proof: UserBoxKnownReceiverMethodSeedProof::CounterStepLocalI64Seed,
-                payload: UserBoxKnownReceiverMethodSeedPayload::CounterStepI64 {
-                    base_i64: 41,
-                    delta_i64: 2,
-                },
-            });
+        function.metadata.userbox_known_receiver_method_seed_route = Some(
+            crate::mir::userbox_known_receiver_method_seed_plan::test_support::counter_step_copy_local_i64(),
+        );
 
         refresh_function_exact_seed_backend_route(&mut function);
 

@@ -306,8 +306,7 @@ pub use types::{
 };
 pub use userbox_known_receiver_method_seed_plan::{
     refresh_module_userbox_known_receiver_method_seed_routes, UserBoxKnownReceiverMethodSeedKind,
-    UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedProof,
-    UserBoxKnownReceiverMethodSeedRoute,
+    UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedRoute,
 };
 pub use userbox_local_scalar_seed_plan::{
     refresh_function_userbox_local_scalar_seed_route,

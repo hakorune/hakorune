@@ -912,46 +912,46 @@ fn build_userbox_known_receiver_method_seed_route_json(
     route: &crate::mir::UserBoxKnownReceiverMethodSeedRoute,
 ) -> serde_json::Value {
     let mut obj = serde_json::Map::new();
-    obj.insert("kind".to_string(), json!(route.kind.to_string()));
-    obj.insert("box".to_string(), json!(route.box_name.as_str()));
-    obj.insert("method".to_string(), json!(route.method.as_str()));
+    obj.insert("kind".to_string(), json!(route.kind().to_string()));
+    obj.insert("box".to_string(), json!(route.box_name()));
+    obj.insert("method".to_string(), json!(route.method()));
     obj.insert(
         "method_function".to_string(),
-        json!(route.method_function.as_str()),
+        json!(route.method_function()),
     );
-    obj.insert("block_count".to_string(), json!(route.block_count));
+    obj.insert("block_count".to_string(), json!(route.block_count()));
     obj.insert(
         "method_block_count".to_string(),
-        json!(route.method_block_count),
+        json!(route.method_block_count()),
     );
-    obj.insert("block".to_string(), json!(route.block.as_u32()));
+    obj.insert("block".to_string(), json!(route.block().as_u32()));
     obj.insert(
         "method_block".to_string(),
-        json!(route.method_block.as_u32()),
+        json!(route.method_block().as_u32()),
     );
     obj.insert(
         "newbox_instruction_index".to_string(),
-        json!(route.newbox_instruction_index),
+        json!(route.newbox_instruction_index()),
     );
     obj.insert(
         "copy_instruction_index".to_string(),
-        json!(route.copy_instruction_index),
+        json!(route.copy_instruction_index()),
     );
     obj.insert(
         "call_instruction_index".to_string(),
-        json!(route.call_instruction_index),
+        json!(route.call_instruction_index()),
     );
-    obj.insert("box_value".to_string(), json!(route.box_value.as_u32()));
+    obj.insert("box_value".to_string(), json!(route.box_value().as_u32()));
     obj.insert(
         "copy_value".to_string(),
-        json!(route.copy_value.map(|value| value.as_u32())),
+        json!(route.copy_value().map(|value| value.as_u32())),
     );
     obj.insert(
         "result_value".to_string(),
-        json!(route.result_value.as_u32()),
+        json!(route.result_value().as_u32()),
     );
-    obj.insert("proof".to_string(), json!(route.proof.to_string()));
-    match &route.payload {
+    obj.insert("proof".to_string(), json!(route.proof()));
+    match route.payload() {
         crate::mir::UserBoxKnownReceiverMethodSeedPayload::CounterStepI64 {
             base_i64,
             delta_i64,
@@ -1065,7 +1065,7 @@ fn build_userbox_known_receiver_method_seed_route_json(
             obj.insert("leaf_method_function".to_string(), serde_json::Value::Null);
         }
     }
-    let consumer_capability = match route.kind {
+    let consumer_capability = match route.kind() {
         crate::mir::UserBoxKnownReceiverMethodSeedKind::CounterStepMicro
         | crate::mir::UserBoxKnownReceiverMethodSeedKind::PointSumMicro => {
             "direct_userbox_known_receiver_method_micro"
