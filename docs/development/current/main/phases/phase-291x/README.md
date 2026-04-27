@@ -177,6 +177,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-476-generic-method-route-visibility-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-477-generic-method-route-visibility-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-478-generic-method-route-visibility-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-479-phase-readme-checkpoint-refresh-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -238,11 +239,11 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-472`
+- latest known cleanup checkpoint: `291x-479`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: prune GenericMethodRoute component root re-exports
+- next cleanup: select next phase-291x compiler-cleanliness lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - Stage-B adapter thinning stays BoxShape-only; do not mix it with

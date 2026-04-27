@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-478"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-478-generic-method-route-visibility-closeout-card.md"
-latest_card_summary = "Closed GenericMethodRoute component visibility prune lane."
+latest_card = "291x-479"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-479-phase-readme-checkpoint-refresh-card.md"
+latest_card_summary = "Refreshed stale phase README checkpoint after GenericMethodRoute cleanup."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -198,4 +198,5 @@ landed_tail = [
   "291x-476 generic method route visibility inventory landed",
   "291x-477 generic method route visibility prune landed",
   "291x-478 generic method route visibility closeout landed",
+  "291x-479 phase README checkpoint refresh landed",
 ]
