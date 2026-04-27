@@ -81,11 +81,6 @@ mod body_local_policy_helpers;
 mod body_local_policy_inputs;
 mod body_local_policy_runner;
 mod body_local_policy_types;
-// Phase 29bq+: Exit binding utilities moved to plan side
-pub(in crate::mir::builder) mod exit_binding;
-pub(in crate::mir::builder) mod exit_binding_applicator;
-pub(in crate::mir::builder) mod exit_binding_constructor;
-pub(in crate::mir::builder) mod exit_binding_validator;
 // Phase 29bq+: bundle/using resolver loop(i<n) with i=next_i + nested return (BoxCount)
 pub(in crate::mir::builder) mod loop_bundle_resolver_v0;
 // Phase 29bq+: Stage1UsingResolverBox._collect_using_entries loop (BoxCount)
