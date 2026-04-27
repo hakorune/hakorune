@@ -52,8 +52,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_block_v0_facts(
         }
     };
 
-    let recipe_build = match try_build_loop_scan_methods_block_recipe(body, shape_match.next_i_var)
-    {
+    let recipe_build = match try_build_loop_scan_methods_block_recipe(body) {
         Some(recipe_build) => recipe_build,
         None => {
             debug_reject("segmentize_failed");

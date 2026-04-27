@@ -327,11 +327,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
         limit_var,
         condition: condition.clone(),
         body_lowering_policy: BodyLoweringPolicy::RecipeOnly,
-        recipe: LoopScanMethodsV0Recipe {
-            next_i_var,
-            body: RecipeBody::new(body.to_vec()),
-            segments,
-        },
+        recipe: LoopScanMethodsV0Recipe { segments },
     }))
 }
 

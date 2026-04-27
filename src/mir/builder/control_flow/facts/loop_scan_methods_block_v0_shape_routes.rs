@@ -5,9 +5,7 @@ use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_helpers
     scan_window_substring_receiver,
 };
 
-pub(in crate::mir::builder) struct LoopScanMethodsBlockShapeMatch {
-    pub next_i_var: String,
-}
+pub(in crate::mir::builder) struct LoopScanMethodsBlockShapeMatch;
 
 pub(in crate::mir::builder) fn try_match_loop_scan_methods_block_shape(
     body: &[ASTNode],
@@ -46,5 +44,5 @@ pub(in crate::mir::builder) fn try_match_loop_scan_methods_block_shape(
         return Err("scan_window_block_shape".to_string());
     }
 
-    Ok(LoopScanMethodsBlockShapeMatch { next_i_var })
+    Ok(LoopScanMethodsBlockShapeMatch)
 }
