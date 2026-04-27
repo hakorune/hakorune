@@ -252,6 +252,5 @@ pub use value_consumer::{
     refresh_function_value_consumer_facts, refresh_module_value_consumer_facts,
 };
 pub use value_id::{LocalId, ValueId, ValueIdGenerator};
-pub use value_kind::{MirValueKind, TypedValueId}; // Phase 26-A: ValueId型安全化
 pub use verification::MirVerifier;
 pub use verification_types::VerificationError;

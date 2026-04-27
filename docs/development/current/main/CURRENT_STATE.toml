@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-546"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-546-spanned-inst-ref-root-export-prune-card.md"
-latest_card_summary = "Remove the internal SpannedInstRef view from the MIR root facade while keeping SpannedInstruction available."
+latest_card = "291x-547"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-547-value-kind-root-export-prune-card.md"
+latest_card_summary = "Remove unused value-kind re-exports from the MIR root facade."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -266,4 +266,5 @@ landed_tail = [
   "291x-544 JoinIR runner root export prune landed",
   "291x-545 MIR query root export prune landed",
   "291x-546 SpannedInstRef root export prune landed",
+  "291x-547 value-kind root export prune landed",
 ]
