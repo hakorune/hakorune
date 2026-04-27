@@ -226,17 +226,12 @@ pub use substring_views_micro_seed_plan::{
     refresh_function_substring_views_micro_seed_route,
     refresh_module_substring_views_micro_seed_routes,
 };
-pub use sum_placement::{
-    refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,
-    SumObjectizationBarrier, SumPlacementFact, SumPlacementState,
-};
+pub use sum_placement::{refresh_function_sum_placement_facts, refresh_module_sum_placement_facts};
 pub use sum_placement_layout::{
     refresh_function_sum_placement_layouts, refresh_module_sum_placement_layouts,
-    SumLocalAggregateLayout, SumPlacementLayout,
 };
 pub use sum_placement_selection::{
     refresh_function_sum_placement_selections, refresh_module_sum_placement_selections,
-    SumPlacementPath, SumPlacementSelection,
 };
 pub use sum_variant_project_seed_plan::{
     refresh_function_sum_variant_project_seed_route, refresh_module_sum_variant_project_seed_routes,

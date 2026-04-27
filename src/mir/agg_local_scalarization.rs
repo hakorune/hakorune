@@ -176,14 +176,13 @@ fn route_sort_key(route: &AggLocalScalarizationRoute) -> (u8, u32, u32, u32, Str
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::sum_placement_layout::{SumLocalAggregateLayout, SumPlacementLayout};
     use crate::mir::thin_entry::{
         ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntrySurface,
         ThinEntryValueClass,
     };
     use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
-    use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirType, SumLocalAggregateLayout, ValueId,
-    };
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType, ValueId};
 
     #[test]
     fn refresh_function_collects_folded_agg_local_routes() {
@@ -194,7 +193,7 @@ mod tests {
             effects: EffectMask::PURE,
         };
         let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        function.metadata.sum_placement_layouts = vec![crate::mir::SumPlacementLayout {
+        function.metadata.sum_placement_layouts = vec![SumPlacementLayout {
             block: BasicBlockId::new(0),
             instruction_index: 0,
             value: Some(ValueId::new(1)),

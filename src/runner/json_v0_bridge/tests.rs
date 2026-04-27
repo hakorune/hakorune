@@ -1,4 +1,7 @@
 use super::*;
+use crate::mir::sum_placement::SumPlacementState;
+use crate::mir::sum_placement_layout::SumLocalAggregateLayout;
+use crate::mir::sum_placement_selection::SumPlacementPath;
 use crate::mir::thin_entry::{
     ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySurface, ThinEntryValueClass,
 };
@@ -558,7 +561,7 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
     assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
         fact.surface == ThinEntrySurface::VariantMake
             && fact.subject == "Option::Some"
-            && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
+            && fact.state == SumPlacementState::LocalAggregateCandidate
             && fact.tag_reads >= 1
             && fact.project_reads >= 1
     }));
@@ -566,13 +569,13 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
         fact.surface == ThinEntrySurface::VariantTag
             && fact.subject == "Option"
             && fact.source_sum.is_some()
-            && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
+            && fact.state == SumPlacementState::LocalAggregateCandidate
     }));
     assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
         fact.surface == ThinEntrySurface::VariantProject
             && fact.subject == "Option::Some"
             && fact.source_sum.is_some()
-            && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
+            && fact.state == SumPlacementState::LocalAggregateCandidate
     }));
     assert!(func
         .metadata
@@ -582,7 +585,7 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
             selection.surface == ThinEntrySurface::VariantMake
                 && selection.subject == "Option::Some"
                 && selection.manifest_row == "variant_make.local_aggregate"
-                && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
+                && selection.selected_path == SumPlacementPath::LocalAggregate
         }));
     assert!(func
         .metadata
@@ -592,7 +595,7 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
             selection.surface == ThinEntrySurface::VariantTag
                 && selection.subject == "Option"
                 && selection.manifest_row == "variant_tag.local_aggregate"
-                && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
+                && selection.selected_path == SumPlacementPath::LocalAggregate
                 && selection.source_sum.is_some()
         }));
     assert!(func
@@ -603,18 +606,18 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
             selection.surface == ThinEntrySurface::VariantProject
                 && selection.subject == "Option::Some"
                 && selection.manifest_row == "variant_project.local_aggregate"
-                && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
+                && selection.selected_path == SumPlacementPath::LocalAggregate
                 && selection.source_sum.is_some()
         }));
     assert!(func.metadata.sum_placement_layouts.iter().any(|layout| {
         layout.surface == ThinEntrySurface::VariantMake
             && layout.subject == "Option::Some"
-            && layout.layout == crate::mir::SumLocalAggregateLayout::TagI64Payload
+            && layout.layout == SumLocalAggregateLayout::TagI64Payload
     }));
     assert!(func.metadata.sum_placement_layouts.iter().any(|layout| {
         layout.surface == ThinEntrySurface::VariantProject
             && layout.subject == "Option::Some"
-            && layout.layout == crate::mir::SumLocalAggregateLayout::TagI64Payload
+            && layout.layout == SumLocalAggregateLayout::TagI64Payload
             && layout.source_sum.is_some()
     }));
 }

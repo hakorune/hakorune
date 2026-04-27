@@ -426,6 +426,9 @@ mod tests {
     use crate::mir::string_corridor_relation::{
         StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
     };
+    use crate::mir::sum_placement::{SumObjectizationBarrier, SumPlacementFact, SumPlacementState};
+    use crate::mir::sum_placement_layout::{SumLocalAggregateLayout, SumPlacementLayout};
+    use crate::mir::sum_placement_selection::{SumPlacementPath, SumPlacementSelection};
     use crate::mir::thin_entry::{
         ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry,
         ThinEntrySurface, ThinEntryValueClass,
@@ -434,9 +437,7 @@ mod tests {
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
-        StringCorridorCarrier, StringCorridorFact, SumLocalAggregateLayout,
-        SumObjectizationBarrier, SumPlacementFact, SumPlacementLayout, SumPlacementPath,
-        SumPlacementSelection, SumPlacementState, ValueId,
+        StringCorridorCarrier, StringCorridorFact, ValueId,
     };
 
     #[test]

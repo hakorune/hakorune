@@ -7,6 +7,9 @@ use crate::mir::placement_effect::{
     PlacementEffectState, PlacementEffectStringProof,
 };
 use crate::mir::storage_class::StorageClass;
+use crate::mir::sum_placement::{SumObjectizationBarrier, SumPlacementFact, SumPlacementState};
+use crate::mir::sum_placement_layout::{SumLocalAggregateLayout, SumPlacementLayout};
+use crate::mir::sum_placement_selection::{SumPlacementPath, SumPlacementSelection};
 use crate::mir::thin_entry::{ThinEntrySurface, ThinEntryValueClass};
 use crate::mir::{BasicBlockId, MirModule};
 
@@ -17,7 +20,7 @@ fn build_mir_json_root_emits_sum_placement_facts() {
     function
         .metadata
         .sum_placement_facts
-        .push(crate::mir::SumPlacementFact {
+        .push(SumPlacementFact {
             block: BasicBlockId::new(0),
             instruction_index: 4,
             value: Some(crate::mir::ValueId::new(9)),
@@ -25,10 +28,10 @@ fn build_mir_json_root_emits_sum_placement_facts() {
             subject: "Option::Some".to_string(),
             source_sum: None,
             value_class: ThinEntryValueClass::AggLocal,
-            state: crate::mir::SumPlacementState::LocalAggregateCandidate,
+            state: SumPlacementState::LocalAggregateCandidate,
             tag_reads: 1,
             project_reads: 1,
-            barriers: vec![crate::mir::SumObjectizationBarrier::Call],
+            barriers: vec![SumObjectizationBarrier::Call],
             reason: "variant value stays local until call boundary".to_string(),
         });
     module.functions.insert("main".to_string(), function);
@@ -52,7 +55,7 @@ fn build_mir_json_root_emits_sum_placement_selections() {
     function
         .metadata
         .sum_placement_selections
-        .push(crate::mir::SumPlacementSelection {
+        .push(SumPlacementSelection {
             block: BasicBlockId::new(0),
             instruction_index: 5,
             value: Some(crate::mir::ValueId::new(10)),
@@ -60,7 +63,7 @@ fn build_mir_json_root_emits_sum_placement_selections() {
             subject: "Option::Some".to_string(),
             source_sum: Some(crate::mir::ValueId::new(9)),
             manifest_row: "variant_project.local_aggregate",
-            selected_path: crate::mir::SumPlacementPath::LocalAggregate,
+            selected_path: SumPlacementPath::LocalAggregate,
             reason: "selected local aggregate projection".to_string(),
         });
     module.functions.insert("main".to_string(), function);
@@ -87,14 +90,14 @@ fn build_mir_json_root_emits_sum_placement_layouts() {
     function
         .metadata
         .sum_placement_layouts
-        .push(crate::mir::SumPlacementLayout {
+        .push(SumPlacementLayout {
             block: BasicBlockId::new(0),
             instruction_index: 6,
             value: Some(crate::mir::ValueId::new(11)),
             surface: ThinEntrySurface::VariantMake,
             subject: "Option::Some".to_string(),
             source_sum: None,
-            layout: crate::mir::SumLocalAggregateLayout::TagI64Payload,
+            layout: SumLocalAggregateLayout::TagI64Payload,
             reason: "selected local aggregate uses i64 payload lane".to_string(),
         });
     module.functions.insert("main".to_string(), function);
@@ -122,9 +125,7 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
             instruction_index: Some(2),
             value: Some(crate::mir::ValueId::new(11)),
             subject: "Option::Some".to_string(),
-            kind: AggLocalScalarizationKind::SumLocalLayout(
-                crate::mir::SumLocalAggregateLayout::TagI64Payload,
-            ),
+            kind: AggLocalScalarizationKind::SumLocalLayout(SumLocalAggregateLayout::TagI64Payload),
             reason: "selected local aggregate uses i64 payload lane".to_string(),
         });
     function

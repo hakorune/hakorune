@@ -581,6 +581,8 @@ mod tests {
         AggLocalScalarizationKind, AggLocalScalarizationRoute,
     };
     use crate::mir::storage_class::StorageClass;
+    use crate::mir::sum_placement_layout::SumLocalAggregateLayout;
+    use crate::mir::sum_placement_selection::{SumPlacementPath, SumPlacementSelection};
     use crate::mir::thin_entry::{
         ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntrySurface,
         ThinEntryValueClass,
@@ -590,8 +592,7 @@ mod tests {
         BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType,
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
         StringCorridorCandidateProof, StringCorridorCandidateState,
-        StringCorridorPublicationBoundary, StringCorridorPublicationContract,
-        SumLocalAggregateLayout, SumPlacementPath, SumPlacementSelection, ValueId,
+        StringCorridorPublicationBoundary, StringCorridorPublicationContract, ValueId,
     };
 
     #[test]
