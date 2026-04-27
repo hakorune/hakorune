@@ -4,8 +4,8 @@
 //! following the Single Responsibility Principle.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::builder_calls::CallTarget;
 use crate::mir::builder::calls::function_lowering;
+use crate::mir::builder::CallTarget;
 use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::{MirInstruction, MirType, TypeOpKind};
 

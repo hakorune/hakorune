@@ -17,11 +17,7 @@ impl super::MirBuilder {
         if use_unified {
             // New unified path - use emit_unified_call with Value target
             let dst = self.next_value_id();
-            self.emit_unified_call(
-                Some(dst),
-                super::builder_calls::CallTarget::Value(callee_id),
-                arg_ids,
-            )?;
+            self.emit_unified_call(Some(dst), super::CallTarget::Value(callee_id), arg_ids)?;
             Ok(dst)
         } else {
             // Unified-off path: still encode callee as Value to avoid by-name resolution

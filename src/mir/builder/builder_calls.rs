@@ -17,13 +17,6 @@
 //! 3. ✅ いつでも戻せる: re-exportで既存API完全保持
 //! 4. ✅ 巨大関数は分割: 100行超える関数を30-50行目標で分割
 
-// Import from new modules (refactored with Box Theory)
-pub use super::calls::call_target::CallTarget;
-
-// ========================================
-// Re-exports for backward compatibility
-// ========================================
-
 impl super::MirBuilder {
     // 🎯 Phase 2移行完了マーカー: すべての実装は calls/* に移行済み
 

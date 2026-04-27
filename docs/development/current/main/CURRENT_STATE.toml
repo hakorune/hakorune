@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-557"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-557-next-lane-selection-card.md"
-latest_card_summary = "Select CallTarget owner-path migration as the next BoxShape cleanup lane."
+latest_card = "291x-558"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-558-calltarget-owner-path-migration-card.md"
+latest_card_summary = "Move CallTarget users off builder_calls compatibility paths and guard the builder owner import boundary."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -277,4 +277,5 @@ landed_tail = [
   "291x-555 next lane selection landed",
   "291x-556 LoopPatternKind legacy alias prune landed",
   "291x-557 next lane selection landed",
+  "291x-558 CallTarget owner path migration landed",
 ]

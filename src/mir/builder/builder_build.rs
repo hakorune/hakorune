@@ -1,5 +1,5 @@
-use super::builder_calls::CallTarget;
 use super::vars;
+use super::CallTarget;
 use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, MirModule, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::slot_registry::resolve_slot_by_type_name;

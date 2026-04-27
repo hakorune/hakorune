@@ -158,7 +158,7 @@ pub(super) fn build_unary_op(
         if !in_guard {
             builder.emit_legacy_call(
                 Some(dst),
-                super::super::builder_calls::CallTarget::Global(name.to_string()),
+                super::super::CallTarget::Global(name.to_string()),
                 vec![operand_val],
             )?;
             builder

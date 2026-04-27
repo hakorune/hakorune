@@ -71,7 +71,7 @@ impl super::super::MirBuilder {
             let name = "CompareOperator.apply/3".to_string();
             self.emit_legacy_call(
                 Some(dst),
-                super::super::builder_calls::CallTarget::Global(name),
+                super::super::CallTarget::Global(name),
                 vec![op_const, lhs, rhs],
             )?;
             self.type_ctx.value_types.insert(dst, MirType::Bool);

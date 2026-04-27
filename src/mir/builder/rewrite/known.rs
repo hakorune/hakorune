@@ -157,7 +157,7 @@ pub(crate) fn try_known_rewrite(
     let dst = builder.next_value_id();
     if let Err(e) = builder.emit_unified_call(
         Some(dst),
-        crate::mir::builder::builder_calls::CallTarget::Global(fname.clone()),
+        crate::mir::builder::CallTarget::Global(fname.clone()),
         call_args,
     ) {
         return Some(Err(e));
@@ -234,7 +234,7 @@ pub(crate) fn try_known_rewrite_to_dst(
     let actual_dst = want_dst.unwrap_or_else(|| builder.next_value_id());
     if let Err(e) = builder.emit_unified_call(
         Some(actual_dst),
-        crate::mir::builder::builder_calls::CallTarget::Global(fname.clone()),
+        crate::mir::builder::CallTarget::Global(fname.clone()),
         call_args,
     ) {
         return Some(Err(e));
@@ -303,7 +303,7 @@ pub(crate) fn try_unique_suffix_rewrite(
     let dst = builder.next_value_id();
     if let Err(e) = builder.emit_unified_call(
         Some(dst),
-        crate::mir::builder::builder_calls::CallTarget::Global(fname.clone()),
+        crate::mir::builder::CallTarget::Global(fname.clone()),
         call_args,
     ) {
         return Some(Err(e));
@@ -374,7 +374,7 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
     let actual_dst = want_dst.unwrap_or_else(|| builder.next_value_id());
     if let Err(e) = builder.emit_unified_call(
         Some(actual_dst),
-        crate::mir::builder::builder_calls::CallTarget::Global(fname.clone()),
+        crate::mir::builder::CallTarget::Global(fname.clone()),
         call_args,
     ) {
         return Some(Err(e));

@@ -172,7 +172,7 @@ impl super::super::MirBuilder {
             && matches!(route, crate::mir::builder::router::policy::Route::Unified)
             && !self.in_unified_boxcall_fallback
         {
-            let target = super::super::builder_calls::CallTarget::Method {
+            let target = super::super::CallTarget::Method {
                 box_type,
                 method: method.clone(),
                 receiver: box_val,

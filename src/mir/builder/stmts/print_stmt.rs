@@ -161,7 +161,7 @@ pub(in crate::mir::builder) fn build_print_statement(
         // New unified path - treat print as global function
         builder.emit_unified_call(
             None, // print returns nothing
-            super::super::builder_calls::CallTarget::Global("print".to_string()),
+            super::super::CallTarget::Global("print".to_string()),
             vec![value],
         )?;
     } else {
