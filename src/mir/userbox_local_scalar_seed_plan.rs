@@ -38,21 +38,25 @@ impl std::fmt::Display for UserBoxLocalScalarSeedKind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum UserBoxLocalScalarSeedProof {
+enum UserBoxLocalScalarSeedProof {
     PointFieldLocalScalarSeed,
     FlagFieldLocalScalarSeed,
     PointFFieldLocalScalarSeed,
 }
 
+impl UserBoxLocalScalarSeedProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::PointFieldLocalScalarSeed => "userbox_point_field_local_scalar_seed",
+            Self::FlagFieldLocalScalarSeed => "userbox_flag_field_local_scalar_seed",
+            Self::PointFFieldLocalScalarSeed => "userbox_pointf_field_local_scalar_seed",
+        }
+    }
+}
+
 impl std::fmt::Display for UserBoxLocalScalarSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::PointFieldLocalScalarSeed => f.write_str("userbox_point_field_local_scalar_seed"),
-            Self::FlagFieldLocalScalarSeed => f.write_str("userbox_flag_field_local_scalar_seed"),
-            Self::PointFFieldLocalScalarSeed => {
-                f.write_str("userbox_pointf_field_local_scalar_seed")
-            }
-        }
+        f.write_str(self.as_str())
     }
 }
 
@@ -90,15 +94,53 @@ pub enum UserBoxLocalScalarSeedSinglePayload {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserBoxLocalScalarSeedRoute {
-    pub kind: UserBoxLocalScalarSeedKind,
-    pub box_name: String,
-    pub block: BasicBlockId,
-    pub newbox_instruction_index: usize,
-    pub box_value: ValueId,
-    pub copy_value: Option<ValueId>,
-    pub result_value: ValueId,
-    pub proof: UserBoxLocalScalarSeedProof,
-    pub payload: UserBoxLocalScalarSeedPayload,
+    kind: UserBoxLocalScalarSeedKind,
+    box_name: String,
+    block: BasicBlockId,
+    newbox_instruction_index: usize,
+    box_value: ValueId,
+    copy_value: Option<ValueId>,
+    result_value: ValueId,
+    proof: UserBoxLocalScalarSeedProof,
+    payload: UserBoxLocalScalarSeedPayload,
+}
+
+impl UserBoxLocalScalarSeedRoute {
+    pub fn kind(&self) -> UserBoxLocalScalarSeedKind {
+        self.kind
+    }
+
+    pub fn box_name(&self) -> &str {
+        &self.box_name
+    }
+
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn newbox_instruction_index(&self) -> usize {
+        self.newbox_instruction_index
+    }
+
+    pub fn box_value(&self) -> ValueId {
+        self.box_value
+    }
+
+    pub fn copy_value(&self) -> Option<ValueId> {
+        self.copy_value
+    }
+
+    pub fn result_value(&self) -> ValueId {
+        self.result_value
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn payload(&self) -> &UserBoxLocalScalarSeedPayload {
+        &self.payload
+    }
 }
 
 pub fn refresh_module_userbox_local_scalar_seed_routes(module: &mut MirModule) {
@@ -698,6 +740,107 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Return { .. } => "ret",
         _ => "other",
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn point_local_i64() -> UserBoxLocalScalarSeedRoute {
+        UserBoxLocalScalarSeedRoute {
+            kind: UserBoxLocalScalarSeedKind::PointLocalI64,
+            box_name: "Point".to_string(),
+            block: BasicBlockId::new(0),
+            newbox_instruction_index: 2,
+            box_value: ValueId::new(3),
+            copy_value: None,
+            result_value: ValueId::new(6),
+            proof: UserBoxLocalScalarSeedProof::PointFieldLocalScalarSeed,
+            payload: UserBoxLocalScalarSeedPayload::PointI64Pair {
+                x_field: "x".to_string(),
+                y_field: "y".to_string(),
+                set_x_instruction_index: 3,
+                set_y_instruction_index: 4,
+                get_x_instruction_index: 5,
+                get_y_instruction_index: 6,
+                x_value: ValueId::new(1),
+                y_value: ValueId::new(2),
+                get_x_value: ValueId::new(4),
+                get_y_value: ValueId::new(5),
+                x_i64: 41,
+                y_i64: 2,
+            },
+        }
+    }
+
+    pub(crate) fn point_copy_local_i64() -> UserBoxLocalScalarSeedRoute {
+        UserBoxLocalScalarSeedRoute {
+            kind: UserBoxLocalScalarSeedKind::PointCopyLocalI64,
+            box_name: "Point".to_string(),
+            block: BasicBlockId::new(0),
+            newbox_instruction_index: 2,
+            box_value: ValueId::new(3),
+            copy_value: Some(ValueId::new(6)),
+            result_value: ValueId::new(9),
+            proof: UserBoxLocalScalarSeedProof::PointFieldLocalScalarSeed,
+            payload: UserBoxLocalScalarSeedPayload::PointI64Pair {
+                x_field: "x".to_string(),
+                y_field: "y".to_string(),
+                set_x_instruction_index: 3,
+                set_y_instruction_index: 4,
+                get_x_instruction_index: 6,
+                get_y_instruction_index: 7,
+                x_value: ValueId::new(1),
+                y_value: ValueId::new(2),
+                get_x_value: ValueId::new(7),
+                get_y_value: ValueId::new(8),
+                x_i64: 41,
+                y_i64: 2,
+            },
+        }
+    }
+
+    pub(crate) fn flag_copy_local_bool() -> UserBoxLocalScalarSeedRoute {
+        UserBoxLocalScalarSeedRoute {
+            kind: UserBoxLocalScalarSeedKind::FlagCopyLocalBool,
+            box_name: "Flag".to_string(),
+            block: BasicBlockId::new(0),
+            newbox_instruction_index: 1,
+            box_value: ValueId::new(2),
+            copy_value: Some(ValueId::new(3)),
+            result_value: ValueId::new(4),
+            proof: UserBoxLocalScalarSeedProof::FlagFieldLocalScalarSeed,
+            payload: UserBoxLocalScalarSeedPayload::SingleField {
+                field: "enabled".to_string(),
+                set_instruction_index: 2,
+                get_instruction_index: 4,
+                field_value: ValueId::new(1),
+                get_field_value: ValueId::new(4),
+                payload: UserBoxLocalScalarSeedSinglePayload::I64(1),
+            },
+        }
+    }
+
+    pub(crate) fn pointf_copy_local_f64() -> UserBoxLocalScalarSeedRoute {
+        UserBoxLocalScalarSeedRoute {
+            kind: UserBoxLocalScalarSeedKind::PointFCopyLocalF64,
+            box_name: "PointF".to_string(),
+            block: BasicBlockId::new(0),
+            newbox_instruction_index: 1,
+            box_value: ValueId::new(2),
+            copy_value: Some(ValueId::new(3)),
+            result_value: ValueId::new(4),
+            proof: UserBoxLocalScalarSeedProof::PointFFieldLocalScalarSeed,
+            payload: UserBoxLocalScalarSeedPayload::SingleField {
+                field: "x".to_string(),
+                set_instruction_index: 2,
+                get_instruction_index: 4,
+                field_value: ValueId::new(1),
+                get_field_value: ValueId::new(4),
+                payload: UserBoxLocalScalarSeedSinglePayload::F64Bits(1.5f64.to_bits()),
+            },
+        }
     }
 }
 

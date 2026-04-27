@@ -312,7 +312,7 @@ pub use userbox_known_receiver_method_seed_plan::{
 pub use userbox_local_scalar_seed_plan::{
     refresh_function_userbox_local_scalar_seed_route,
     refresh_module_userbox_local_scalar_seed_routes, UserBoxLocalScalarSeedKind,
-    UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
+    UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedRoute,
     UserBoxLocalScalarSeedSinglePayload,
 };
 pub use userbox_loop_micro_seed_plan::{

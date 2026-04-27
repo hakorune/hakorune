@@ -252,7 +252,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
     }
 
     if let Some(route) = function.metadata.userbox_local_scalar_seed_route.as_ref() {
-        let tag = match route.kind {
+        let tag = match route.kind() {
             UserBoxLocalScalarSeedKind::PointLocalI64
             | UserBoxLocalScalarSeedKind::PointCopyLocalI64 => {
                 ExactSeedBackendRouteKind::UserBoxPointLocalScalar
@@ -267,7 +267,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
         return Some(ExactSeedBackendRoute {
             tag,
             source_route: tag.source_route_field().to_string(),
-            proof: route.proof.to_string(),
+            proof: route.proof().to_string(),
             selected_value: None,
         });
     }
@@ -361,9 +361,7 @@ mod tests {
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
         StringKernelPlanVerifierOwner, UserBoxKnownReceiverMethodSeedKind,
         UserBoxKnownReceiverMethodSeedPayload, UserBoxKnownReceiverMethodSeedProof,
-        UserBoxKnownReceiverMethodSeedRoute, UserBoxLocalScalarSeedKind,
-        UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
-        UserBoxLocalScalarSeedSinglePayload, UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedProof,
+        UserBoxKnownReceiverMethodSeedRoute, UserBoxLoopMicroSeedKind, UserBoxLoopMicroSeedProof,
         UserBoxLoopMicroSeedRoute,
     };
     use hakorune_mir_core::BasicBlockId;
@@ -497,30 +495,8 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_userbox_point_local_scalar_metadata() {
         let mut function = make_function();
-        function.metadata.userbox_local_scalar_seed_route = Some(UserBoxLocalScalarSeedRoute {
-            kind: UserBoxLocalScalarSeedKind::PointLocalI64,
-            box_name: "Point".to_string(),
-            block: BasicBlockId::new(0),
-            newbox_instruction_index: 2,
-            box_value: ValueId::new(3),
-            copy_value: None,
-            result_value: ValueId::new(6),
-            proof: UserBoxLocalScalarSeedProof::PointFieldLocalScalarSeed,
-            payload: UserBoxLocalScalarSeedPayload::PointI64Pair {
-                x_field: "x".to_string(),
-                y_field: "y".to_string(),
-                set_x_instruction_index: 3,
-                set_y_instruction_index: 4,
-                get_x_instruction_index: 5,
-                get_y_instruction_index: 6,
-                x_value: ValueId::new(1),
-                y_value: ValueId::new(2),
-                get_x_value: ValueId::new(4),
-                get_y_value: ValueId::new(5),
-                x_i64: 41,
-                y_i64: 2,
-            },
-        });
+        function.metadata.userbox_local_scalar_seed_route =
+            Some(crate::mir::userbox_local_scalar_seed_plan::test_support::point_local_i64());
 
         refresh_function_exact_seed_backend_route(&mut function);
 
@@ -537,24 +513,8 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_userbox_flag_pointf_local_scalar_metadata() {
         let mut function = make_function();
-        function.metadata.userbox_local_scalar_seed_route = Some(UserBoxLocalScalarSeedRoute {
-            kind: UserBoxLocalScalarSeedKind::FlagCopyLocalBool,
-            box_name: "Flag".to_string(),
-            block: BasicBlockId::new(0),
-            newbox_instruction_index: 1,
-            box_value: ValueId::new(2),
-            copy_value: Some(ValueId::new(3)),
-            result_value: ValueId::new(4),
-            proof: UserBoxLocalScalarSeedProof::FlagFieldLocalScalarSeed,
-            payload: UserBoxLocalScalarSeedPayload::SingleField {
-                field: "enabled".to_string(),
-                set_instruction_index: 2,
-                get_instruction_index: 4,
-                field_value: ValueId::new(1),
-                get_field_value: ValueId::new(4),
-                payload: UserBoxLocalScalarSeedSinglePayload::I64(1),
-            },
-        });
+        function.metadata.userbox_local_scalar_seed_route =
+            Some(crate::mir::userbox_local_scalar_seed_plan::test_support::flag_copy_local_bool());
 
         refresh_function_exact_seed_backend_route(&mut function);
 

@@ -581,15 +581,15 @@ pub(super) fn build_mir_json_root(
             }),
             "userbox_local_scalar_seed_route": f.metadata.userbox_local_scalar_seed_route.as_ref().map(|route| {
                 let mut obj = serde_json::Map::new();
-                obj.insert("kind".to_string(), json!(route.kind.to_string()));
-                obj.insert("box".to_string(), json!(route.box_name.as_str()));
-                obj.insert("block".to_string(), json!(route.block.as_u32()));
-                obj.insert("newbox_instruction_index".to_string(), json!(route.newbox_instruction_index));
-                obj.insert("box_value".to_string(), json!(route.box_value.as_u32()));
-                obj.insert("copy_value".to_string(), json!(route.copy_value.map(|value| value.as_u32())));
-                obj.insert("result_value".to_string(), json!(route.result_value.as_u32()));
-                obj.insert("proof".to_string(), json!(route.proof.to_string()));
-                let consumer_capability = match route.kind {
+                obj.insert("kind".to_string(), json!(route.kind().to_string()));
+                obj.insert("box".to_string(), json!(route.box_name()));
+                obj.insert("block".to_string(), json!(route.block().as_u32()));
+                obj.insert("newbox_instruction_index".to_string(), json!(route.newbox_instruction_index()));
+                obj.insert("box_value".to_string(), json!(route.box_value().as_u32()));
+                obj.insert("copy_value".to_string(), json!(route.copy_value().map(|value| value.as_u32())));
+                obj.insert("result_value".to_string(), json!(route.result_value().as_u32()));
+                obj.insert("proof".to_string(), json!(route.proof()));
+                let consumer_capability = match route.kind() {
                     crate::mir::UserBoxLocalScalarSeedKind::PointLocalI64 |
                     crate::mir::UserBoxLocalScalarSeedKind::PointCopyLocalI64 => "direct_userbox_point_local_scalar",
                     crate::mir::UserBoxLocalScalarSeedKind::FlagLocalBool |
@@ -599,7 +599,7 @@ pub(super) fn build_mir_json_root(
                 };
                 obj.insert("consumer_capability".to_string(), json!(consumer_capability));
                 obj.insert("publication_boundary".to_string(), json!("none"));
-                match &route.payload {
+                match route.payload() {
                     crate::mir::UserBoxLocalScalarSeedPayload::PointI64Pair {
                         x_field,
                         y_field,
@@ -620,7 +620,7 @@ pub(super) fn build_mir_json_root(
                         obj.insert("set_y_instruction_index".to_string(), json!(*set_y_instruction_index));
                         obj.insert("get_x_instruction_index".to_string(), json!(*get_x_instruction_index));
                         obj.insert("get_y_instruction_index".to_string(), json!(*get_y_instruction_index));
-                        obj.insert("point_value".to_string(), json!(route.box_value.as_u32()));
+                        obj.insert("point_value".to_string(), json!(route.box_value().as_u32()));
                         obj.insert("x_value".to_string(), json!(x_value.as_u32()));
                         obj.insert("y_value".to_string(), json!(y_value.as_u32()));
                         obj.insert("get_x_value".to_string(), json!(get_x_value.as_u32()));

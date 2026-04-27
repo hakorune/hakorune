@@ -4,12 +4,8 @@ use crate::mir::array_rmw_add1_leaf_seed_plan::test_support as array_rmw_add1_le
 use crate::mir::exact_seed_backend_route::test_support as exact_seed_backend_route_fixture;
 use crate::mir::sum_variant_project_seed_plan::test_support as sum_variant_project_fixture;
 use crate::mir::sum_variant_tag_seed_plan::test_support as sum_variant_tag_fixture;
-use crate::mir::{
-    MirModule, UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload,
-    UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload,
-    ValueId,
-};
-use hakorune_mir_core::BasicBlockId;
+use crate::mir::userbox_local_scalar_seed_plan::test_support as userbox_local_scalar_fixture;
+use crate::mir::{MirModule, ValueId};
 
 #[test]
 fn build_mir_json_root_emits_exact_seed_backend_route() {
@@ -166,30 +162,8 @@ fn build_mir_json_root_emits_sum_variant_project_seed_and_exact_route() {
 #[test]
 fn build_mir_json_root_emits_userbox_local_scalar_seed_and_exact_route() {
     let mut function = make_function("main", true);
-    function.metadata.userbox_local_scalar_seed_route = Some(UserBoxLocalScalarSeedRoute {
-        kind: UserBoxLocalScalarSeedKind::PointCopyLocalI64,
-        box_name: "Point".to_string(),
-        block: BasicBlockId::new(0),
-        newbox_instruction_index: 2,
-        box_value: ValueId::new(3),
-        copy_value: Some(ValueId::new(6)),
-        result_value: ValueId::new(9),
-        proof: UserBoxLocalScalarSeedProof::PointFieldLocalScalarSeed,
-        payload: UserBoxLocalScalarSeedPayload::PointI64Pair {
-            x_field: "x".to_string(),
-            y_field: "y".to_string(),
-            set_x_instruction_index: 3,
-            set_y_instruction_index: 4,
-            get_x_instruction_index: 6,
-            get_y_instruction_index: 7,
-            x_value: ValueId::new(1),
-            y_value: ValueId::new(2),
-            get_x_value: ValueId::new(7),
-            get_y_value: ValueId::new(8),
-            x_i64: 41,
-            y_i64: 2,
-        },
-    });
+    function.metadata.userbox_local_scalar_seed_route =
+        Some(userbox_local_scalar_fixture::point_copy_local_i64());
     function.metadata.exact_seed_backend_route =
         Some(exact_seed_backend_route_fixture::userbox_point_local_scalar());
     let mut module = MirModule::new("json_userbox_local_scalar_route_test".to_string());
@@ -235,24 +209,8 @@ fn build_mir_json_root_emits_userbox_local_scalar_seed_and_exact_route() {
 #[test]
 fn build_mir_json_root_emits_userbox_single_field_scalar_seed() {
     let mut function = make_function("main", true);
-    function.metadata.userbox_local_scalar_seed_route = Some(UserBoxLocalScalarSeedRoute {
-        kind: UserBoxLocalScalarSeedKind::PointFCopyLocalF64,
-        box_name: "PointF".to_string(),
-        block: BasicBlockId::new(0),
-        newbox_instruction_index: 1,
-        box_value: ValueId::new(2),
-        copy_value: Some(ValueId::new(3)),
-        result_value: ValueId::new(4),
-        proof: UserBoxLocalScalarSeedProof::PointFFieldLocalScalarSeed,
-        payload: UserBoxLocalScalarSeedPayload::SingleField {
-            field: "x".to_string(),
-            set_instruction_index: 2,
-            get_instruction_index: 4,
-            field_value: ValueId::new(1),
-            get_field_value: ValueId::new(4),
-            payload: UserBoxLocalScalarSeedSinglePayload::F64Bits(1.5f64.to_bits()),
-        },
-    });
+    function.metadata.userbox_local_scalar_seed_route =
+        Some(userbox_local_scalar_fixture::pointf_copy_local_f64());
     function.metadata.exact_seed_backend_route =
         Some(exact_seed_backend_route_fixture::userbox_flag_pointf_local_scalar());
     let mut module = MirModule::new("json_userbox_single_field_route_test".to_string());
