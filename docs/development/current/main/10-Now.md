@@ -20,14 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `generic-method-route decision record split verification pending`
+- current blocker token: `phase-291x next lane selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- verify the `GenericMethodRouteDecision` split and close the card
-- cleanup checkpoint: latest known landed card `291x-453`; detailed closed
+- select the next compiler-cleanliness lane
+- cleanup checkpoint: latest known landed card `291x-454`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
