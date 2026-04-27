@@ -18,31 +18,87 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextLoopCarryLenStoreProof {
+enum ArrayTextLoopCarryLenStoreProof {
     InsertMidSubrangeTrailingLen,
+}
+
+impl ArrayTextLoopCarryLenStoreProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::InsertMidSubrangeTrailingLen => "insert_mid_subrange_trailing_len",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextLoopCarryLenStoreProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::InsertMidSubrangeTrailingLen => f.write_str("insert_mid_subrange_trailing_len"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextLoopCarryLenStoreRoute {
-    pub block: BasicBlockId,
-    pub instruction_index: usize,
-    pub array_value: ValueId,
-    pub index_value: ValueId,
-    pub source_value: ValueId,
-    pub substring_value: ValueId,
-    pub result_len_value: ValueId,
-    pub middle_value: ValueId,
-    pub middle_length: i64,
-    pub skip_instruction_indices: Vec<usize>,
-    pub proof: ArrayTextLoopCarryLenStoreProof,
+    block: BasicBlockId,
+    instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    source_value: ValueId,
+    substring_value: ValueId,
+    result_len_value: ValueId,
+    middle_value: ValueId,
+    middle_length: i64,
+    skip_instruction_indices: Vec<usize>,
+    proof: ArrayTextLoopCarryLenStoreProof,
+}
+
+impl ArrayTextLoopCarryLenStoreRoute {
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn instruction_index(&self) -> usize {
+        self.instruction_index
+    }
+
+    pub fn array_value(&self) -> ValueId {
+        self.array_value
+    }
+
+    pub fn index_value(&self) -> ValueId {
+        self.index_value
+    }
+
+    pub fn source_value(&self) -> ValueId {
+        self.source_value
+    }
+
+    pub fn substring_value(&self) -> ValueId {
+        self.substring_value
+    }
+
+    pub fn result_len_value(&self) -> ValueId {
+        self.result_len_value
+    }
+
+    pub fn middle_value(&self) -> ValueId {
+        self.middle_value
+    }
+
+    pub fn middle_length(&self) -> i64 {
+        self.middle_length
+    }
+
+    pub fn skip_instruction_indices(&self) -> &[usize] {
+        &self.skip_instruction_indices
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn covered_instruction_indices(&self) -> impl Iterator<Item = usize> + '_ {
+        std::iter::once(self.instruction_index).chain(self.skip_instruction_indices.iter().copied())
+    }
 }
 
 pub fn refresh_module_array_text_loopcarry_len_store_routes(module: &mut MirModule) {

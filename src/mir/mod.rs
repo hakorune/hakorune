@@ -158,8 +158,7 @@ pub use array_text_edit_plan::{
 };
 pub use array_text_loopcarry_plan::{
     refresh_function_array_text_loopcarry_len_store_routes,
-    refresh_module_array_text_loopcarry_len_store_routes, ArrayTextLoopCarryLenStoreProof,
-    ArrayTextLoopCarryLenStoreRoute,
+    refresh_module_array_text_loopcarry_len_store_routes, ArrayTextLoopCarryLenStoreRoute,
 };
 pub use array_text_observer_plan::{
     refresh_function_array_text_observer_routes, refresh_module_array_text_observer_routes,

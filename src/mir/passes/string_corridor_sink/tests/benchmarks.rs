@@ -342,12 +342,12 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
         "loopcarry benchmark should expose one MIR-owned len-store route"
     );
     let route = &function.metadata.array_text_loopcarry_len_store_routes[0];
-    assert_eq!(route.middle_length, 2);
-    assert_eq!(route.proof.to_string(), "insert_mid_subrange_trailing_len");
+    assert_eq!(route.middle_length(), 2);
+    assert_eq!(route.proof(), "insert_mid_subrange_trailing_len");
     assert!(
         !route
-            .skip_instruction_indices
-            .contains(&route.instruction_index),
+            .skip_instruction_indices()
+            .contains(&route.instruction_index()),
         "route replaces the get instruction and should skip only covered followers"
     );
 
@@ -359,18 +359,18 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
     let session = &function.metadata.array_text_residence_sessions[0];
     assert_eq!(session.begin_to_header_block, session.header_block);
     assert_eq!(session.begin_placement.to_string(), "before_preheader_jump");
-    assert_eq!(session.body_block, route.block);
-    assert_eq!(session.update_block, route.block);
-    assert_eq!(session.update_instruction_index, route.instruction_index);
+    assert_eq!(session.body_block, route.block());
+    assert_eq!(session.update_block, route.block());
+    assert_eq!(session.update_instruction_index, route.instruction_index());
     assert_eq!(session.update_placement.to_string(), "route_instruction");
     assert_eq!(session.end_block, session.exit_block);
     assert_eq!(session.end_placement.to_string(), "exit_block_entry");
-    assert_eq!(session.route_instruction_index, route.instruction_index);
-    assert_eq!(session.array_value, route.array_value);
+    assert_eq!(session.route_instruction_index, route.instruction_index());
+    assert_eq!(session.array_value, route.array_value());
     assert_eq!(session.middle_length, 2);
     assert_eq!(
         session.skip_instruction_indices,
-        route.skip_instruction_indices
+        route.skip_instruction_indices().to_vec()
     );
     assert_eq!(session.scope.to_string(), "loop_backedge_single_body");
     assert_eq!(session.proof.to_string(), "loopcarry_len_store_only");

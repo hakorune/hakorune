@@ -249,31 +249,31 @@ fn derive_loopcarry_session(
     function: &MirFunction,
     route: &ArrayTextLoopCarryLenStoreRoute,
 ) -> Option<ArrayTextResidenceSessionRoute> {
-    if count_routes_in_body(function, route.block) != 1 {
+    if count_routes_in_body(function, route.block()) != 1 {
         return None;
     }
 
-    let body = function.blocks.get(&route.block)?;
+    let body = function.blocks.get(&route.block())?;
     let header_block = match body.terminator.as_ref()? {
         MirInstruction::Jump { target, .. } => *target,
         _ => return None,
     };
 
     let header = function.blocks.get(&header_block)?;
-    if !header.predecessors.contains(&route.block) {
+    if !header.predecessors.contains(&route.block()) {
         return None;
     }
     let exit_block = match header.terminator.as_ref()? {
         MirInstruction::Branch {
             then_bb, else_bb, ..
-        } if *then_bb == route.block => *else_bb,
+        } if *then_bb == route.block() => *else_bb,
         MirInstruction::Branch {
             then_bb, else_bb, ..
-        } if *else_bb == route.block => *then_bb,
+        } if *else_bb == route.block() => *then_bb,
         _ => return None,
     };
 
-    let begin_block = single_preheader_jump_to_header(function, header_block, route.block)?;
+    let begin_block = single_preheader_jump_to_header(function, header_block, route.block())?;
     let exit = function.blocks.get(&exit_block)?;
     if exit.predecessors.len() != 1 || !exit.predecessors.contains(&header_block) {
         return None;
@@ -292,7 +292,7 @@ fn derive_loopcarry_session(
         route,
         begin_block,
         header_block,
-        route.block,
+        route.block(),
         exit_block,
     )?;
 
@@ -301,21 +301,21 @@ fn derive_loopcarry_session(
         begin_to_header_block: header_block,
         begin_placement: ArrayTextResidenceSessionBeginPlacement::BeforePreheaderJump,
         header_block,
-        body_block: route.block,
+        body_block: route.block(),
         exit_block,
-        update_block: route.block,
-        update_instruction_index: route.instruction_index,
+        update_block: route.block(),
+        update_instruction_index: route.instruction_index(),
         update_placement: ArrayTextResidenceSessionUpdatePlacement::RouteInstruction,
         end_block: exit_block,
         end_placement: ArrayTextResidenceSessionEndPlacement::ExitBlockEntry,
-        route_instruction_index: route.instruction_index,
-        array_value: route.array_value,
-        index_value: route.index_value,
-        source_value: route.source_value,
-        result_len_value: route.result_len_value,
-        middle_value: route.middle_value,
-        middle_length: route.middle_length,
-        skip_instruction_indices: route.skip_instruction_indices.clone(),
+        route_instruction_index: route.instruction_index(),
+        array_value: route.array_value(),
+        index_value: route.index_value(),
+        source_value: route.source_value(),
+        result_len_value: route.result_len_value(),
+        middle_value: route.middle_value(),
+        middle_length: route.middle_length(),
+        skip_instruction_indices: route.skip_instruction_indices().to_vec(),
         scope: ArrayTextResidenceSessionScope::LoopBackedgeSingleBody,
         proof: ArrayTextResidenceSessionProof::LoopcarryLenStoreOnly,
         executor_contract: Some(
@@ -356,7 +356,7 @@ fn derive_loop_region_mapping(
 
     let loop_bound_const = const_i64(function, def_map, loop_bound_value)?;
     let (row_index_value, row_modulus_value, row_modulus_const) =
-        match_row_modulus(function, def_map, route.index_value, loop_index_phi_value)?;
+        match_row_modulus(function, def_map, route.index_value(), loop_index_phi_value)?;
     let (accumulator_phi_value, accumulator_initial_value, accumulator_next_value) =
         match_accumulator_phi(
             function,
@@ -376,7 +376,7 @@ fn derive_loop_region_mapping(
     }
 
     Some(ArrayTextResidenceLoopRegionMapping {
-        array_root_value: root(function, def_map, route.array_value),
+        array_root_value: root(function, def_map, route.array_value()),
         loop_index_phi_value,
         loop_index_initial_value,
         loop_index_initial_const,
@@ -527,8 +527,15 @@ fn match_accumulator_phi(
         let next = inputs
             .iter()
             .find_map(|(block, value)| (*block == body_block).then_some(*value))?;
-        is_accumulator_next_value(function, def_map, body, next, *dst, route.result_len_value)
-            .then_some((*dst, initial, next))
+        is_accumulator_next_value(
+            function,
+            def_map,
+            body,
+            next,
+            *dst,
+            route.result_len_value(),
+        )
+        .then_some((*dst, initial, next))
     })
 }
 
@@ -603,7 +610,7 @@ fn count_routes_in_body(function: &MirFunction, body_block: BasicBlockId) -> usi
         .metadata
         .array_text_loopcarry_len_store_routes
         .iter()
-        .filter(|route| route.block == body_block)
+        .filter(|route| route.block() == body_block)
         .count()
 }
 
@@ -611,9 +618,7 @@ fn body_has_only_covered_route_and_pure_loop_bookkeeping(
     body: &super::BasicBlock,
     route: &ArrayTextLoopCarryLenStoreRoute,
 ) -> bool {
-    let covered: HashSet<usize> = std::iter::once(route.instruction_index)
-        .chain(route.skip_instruction_indices.iter().copied())
-        .collect();
+    let covered: HashSet<usize> = route.covered_instruction_indices().collect();
 
     body.instructions
         .iter()
