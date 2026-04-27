@@ -23,8 +23,14 @@ pub enum MapLookupFusionOp {
 
 impl std::fmt::Display for MapLookupFusionOp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_metadata_name())
+    }
+}
+
+impl MapLookupFusionOp {
+    fn as_metadata_name(self) -> &'static str {
         match self {
-            Self::MapLookupSameKey => f.write_str("MapLookupSameKey"),
+            Self::MapLookupSameKey => "MapLookupSameKey",
         }
     }
 }
@@ -36,10 +42,14 @@ pub enum MapLookupFusionProof {
 
 impl std::fmt::Display for MapLookupFusionProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_metadata_name())
+    }
+}
+
+impl MapLookupFusionProof {
+    fn as_metadata_name(self) -> &'static str {
         match self {
-            Self::SameReceiverSameI64KeyScalarGetHas => {
-                f.write_str("same_receiver_same_i64_key_scalar_get_has")
-            }
+            Self::SameReceiverSameI64KeyScalarGetHas => "same_receiver_same_i64_key_scalar_get_has",
         }
     }
 }
@@ -53,41 +63,157 @@ pub enum MapLookupStoredValueProof {
 
 impl std::fmt::Display for MapLookupStoredValueProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_metadata_name())
+    }
+}
+
+impl MapLookupStoredValueProof {
+    fn as_metadata_name(self) -> &'static str {
         match self {
-            Self::UnknownScalar => f.write_str("unknown_scalar"),
-            Self::ScalarI64Const => f.write_str("scalar_i64_const"),
-            Self::ScalarI64NonZero => f.write_str("scalar_i64_nonzero"),
+            Self::UnknownScalar => "unknown_scalar",
+            Self::ScalarI64Const => "scalar_i64_const",
+            Self::ScalarI64NonZero => "scalar_i64_nonzero",
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MapLookupFusionRoute {
-    pub block: BasicBlockId,
-    pub get_instruction_index: usize,
-    pub has_instruction_index: usize,
-    pub fusion_op: MapLookupFusionOp,
-    pub receiver_origin_box: Option<String>,
-    pub receiver_value: ValueId,
-    pub key_value: ValueId,
-    pub key_const: i64,
-    pub key_route: GenericMethodKeyRoute,
-    pub get_result_value: ValueId,
-    pub has_result_value: ValueId,
-    pub get_return_shape: GenericMethodReturnShape,
-    pub get_value_demand: GenericMethodValueDemand,
-    pub get_publication_policy: GenericMethodPublicationPolicy,
-    pub has_result_shape: &'static str,
-    pub stored_value_proof: MapLookupStoredValueProof,
-    pub stored_value_const: Option<i64>,
-    pub stored_value_known_nonzero: Option<bool>,
-    pub proof: MapLookupFusionProof,
-    pub lowering_tier: CoreMethodLoweringTier,
+    block: BasicBlockId,
+    get_instruction_index: usize,
+    has_instruction_index: usize,
+    fusion_op: MapLookupFusionOp,
+    receiver_origin_box: Option<String>,
+    receiver_value: ValueId,
+    key_value: ValueId,
+    key_const: i64,
+    key_route: GenericMethodKeyRoute,
+    get_result_value: ValueId,
+    has_result_value: ValueId,
+    get_return_shape: GenericMethodReturnShape,
+    get_value_demand: GenericMethodValueDemand,
+    get_publication_policy: GenericMethodPublicationPolicy,
+    has_result_shape: &'static str,
+    stored_value_proof: MapLookupStoredValueProof,
+    stored_value_const: Option<i64>,
+    stored_value_known_nonzero: Option<bool>,
+    proof: MapLookupFusionProof,
+    lowering_tier: CoreMethodLoweringTier,
 }
 
 impl MapLookupFusionRoute {
     pub fn route_id(&self) -> &'static str {
         "map_lookup.same_key"
+    }
+
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn get_instruction_index(&self) -> usize {
+        self.get_instruction_index
+    }
+
+    pub fn has_instruction_index(&self) -> usize {
+        self.has_instruction_index
+    }
+
+    pub fn fusion_op_tag(&self) -> &'static str {
+        self.fusion_op.as_metadata_name()
+    }
+
+    pub fn receiver_origin_box(&self) -> Option<&str> {
+        self.receiver_origin_box.as_deref()
+    }
+
+    pub fn receiver_value(&self) -> ValueId {
+        self.receiver_value
+    }
+
+    pub fn key_value(&self) -> ValueId {
+        self.key_value
+    }
+
+    pub fn key_const(&self) -> i64 {
+        self.key_const
+    }
+
+    pub fn key_route_tag(&self) -> &'static str {
+        self.key_route.as_metadata_name()
+    }
+
+    pub fn get_result_value(&self) -> ValueId {
+        self.get_result_value
+    }
+
+    pub fn has_result_value(&self) -> ValueId {
+        self.has_result_value
+    }
+
+    pub fn get_return_shape_tag(&self) -> &'static str {
+        self.get_return_shape.as_metadata_name()
+    }
+
+    pub fn get_value_demand_tag(&self) -> &'static str {
+        self.get_value_demand.as_metadata_name()
+    }
+
+    pub fn get_publication_policy_tag(&self) -> &'static str {
+        self.get_publication_policy.as_metadata_name()
+    }
+
+    pub fn has_result_shape(&self) -> &'static str {
+        self.has_result_shape
+    }
+
+    pub fn stored_value_proof_tag(&self) -> &'static str {
+        self.stored_value_proof.as_metadata_name()
+    }
+
+    pub fn stored_value_const(&self) -> Option<i64> {
+        self.stored_value_const
+    }
+
+    pub fn stored_value_known_nonzero(&self) -> Option<bool> {
+        self.stored_value_known_nonzero
+    }
+
+    pub fn proof_tag(&self) -> &'static str {
+        self.proof.as_metadata_name()
+    }
+
+    pub fn lowering_tier_tag(&self) -> &'static str {
+        self.lowering_tier.as_manifest_name()
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn same_key_nonzero_json_fixture() -> MapLookupFusionRoute {
+        MapLookupFusionRoute {
+            block: BasicBlockId::new(4),
+            get_instruction_index: 10,
+            has_instruction_index: 12,
+            fusion_op: MapLookupFusionOp::MapLookupSameKey,
+            receiver_origin_box: Some("MapBox".to_string()),
+            receiver_value: ValueId::new(20),
+            key_value: ValueId::new(21),
+            key_const: -1,
+            key_route: GenericMethodKeyRoute::I64Const,
+            get_result_value: ValueId::new(22),
+            has_result_value: ValueId::new(23),
+            get_return_shape: GenericMethodReturnShape::ScalarI64OrMissingZero,
+            get_value_demand: GenericMethodValueDemand::ScalarI64,
+            get_publication_policy: GenericMethodPublicationPolicy::NoPublication,
+            has_result_shape: "presence_bool",
+            stored_value_proof: MapLookupStoredValueProof::ScalarI64NonZero,
+            stored_value_const: Some(7),
+            stored_value_known_nonzero: Some(true),
+            proof: MapLookupFusionProof::SameReceiverSameI64KeyScalarGetHas,
+            lowering_tier: CoreMethodLoweringTier::ColdFallback,
+        }
     }
 }
 
@@ -121,7 +247,7 @@ pub fn refresh_function_map_lookup_fusion_routes(function: &mut MirFunction) {
         }
     }
 
-    routes.sort_by_key(|route| (route.block.as_u32(), route.get_instruction_index));
+    routes.sort_by_key(|route| (route.block().as_u32(), route.get_instruction_index()));
     function.metadata.map_lookup_fusion_routes = routes;
 }
 

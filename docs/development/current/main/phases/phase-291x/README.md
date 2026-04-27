@@ -184,6 +184,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-483-generic-method-route-fixture-construction-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-484-next-lane-selection-card.md
   - docs/development/current/main/phases/phase-291x/291x-485-map-lookup-fusion-route-field-inventory-card.md
+  - docs/development/current/main/phases/phase-291x/291x-486-map-lookup-fusion-route-field-cleanup-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -191,7 +192,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: clean up MapLookupFusionRoute public field boundary
+- Next implementation target: close out MapLookupFusionRoute field cleanup
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -245,11 +246,11 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-485`
+- latest known cleanup checkpoint: `291x-486`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: clean up MapLookupFusionRoute public field boundary
+- next cleanup: close out MapLookupFusionRoute field cleanup
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - Stage-B adapter thinning stays BoxShape-only; do not mix it with

@@ -1,10 +1,6 @@
 use super::super::build_mir_json_root;
 use super::make_function;
-use crate::mir::{
-    BasicBlockId, CoreMethodLoweringTier, GenericMethodKeyRoute, GenericMethodPublicationPolicy,
-    GenericMethodReturnShape, GenericMethodValueDemand, MapLookupFusionOp, MapLookupFusionProof,
-    MapLookupFusionRoute, MapLookupStoredValueProof, ValueId,
-};
+use crate::mir::map_lookup_fusion_plan::test_support as map_lookup_fusion_fixture;
 
 #[test]
 fn build_mir_json_root_emits_map_lookup_fusion_routes() {
@@ -12,28 +8,7 @@ fn build_mir_json_root_emits_map_lookup_fusion_routes() {
     function
         .metadata
         .map_lookup_fusion_routes
-        .push(MapLookupFusionRoute {
-            block: BasicBlockId::new(4),
-            get_instruction_index: 10,
-            has_instruction_index: 12,
-            fusion_op: MapLookupFusionOp::MapLookupSameKey,
-            receiver_origin_box: Some("MapBox".to_string()),
-            receiver_value: ValueId::new(20),
-            key_value: ValueId::new(21),
-            key_const: -1,
-            key_route: GenericMethodKeyRoute::I64Const,
-            get_result_value: ValueId::new(22),
-            has_result_value: ValueId::new(23),
-            get_return_shape: GenericMethodReturnShape::ScalarI64OrMissingZero,
-            get_value_demand: GenericMethodValueDemand::ScalarI64,
-            get_publication_policy: GenericMethodPublicationPolicy::NoPublication,
-            has_result_shape: "presence_bool",
-            stored_value_proof: MapLookupStoredValueProof::ScalarI64NonZero,
-            stored_value_const: Some(7),
-            stored_value_known_nonzero: Some(true),
-            proof: MapLookupFusionProof::SameReceiverSameI64KeyScalarGetHas,
-            lowering_tier: CoreMethodLoweringTier::ColdFallback,
-        });
+        .push(map_lookup_fusion_fixture::same_key_nonzero_json_fixture());
     let mut module = crate::mir::MirModule::new("json_map_lookup_fusion_routes_test".to_string());
     module.add_function(function);
 

@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-485"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-485-map-lookup-fusion-route-field-inventory-card.md"
-latest_card_summary = "Inventoried MapLookupFusionRoute public field consumers before boundary cleanup."
+latest_card = "291x-486"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-486-map-lookup-fusion-route-field-cleanup-card.md"
+latest_card_summary = "Made MapLookupFusionRoute field layout owner-private and updated JSON consumers."
 
-current_blocker_token = "map-lookup-fusion route field cleanup pending"
+current_blocker_token = "map-lookup-fusion route field closeout pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -205,4 +205,5 @@ landed_tail = [
   "291x-483 generic method route fixture construction closeout landed",
   "291x-484 next lane selection landed",
   "291x-485 map lookup fusion route field inventory landed",
+  "291x-486 map lookup fusion route field cleanup landed",
 ]

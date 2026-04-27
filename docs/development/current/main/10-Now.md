@@ -20,14 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `map-lookup-fusion route field cleanup pending`
+- current blocker token: `map-lookup-fusion route field closeout pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- clean up MapLookupFusionRoute public field boundary
-- cleanup checkpoint: latest known card `291x-485`; detailed closed
+- close out MapLookupFusionRoute field cleanup
+- cleanup checkpoint: latest known card `291x-486`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
