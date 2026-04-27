@@ -1,11 +1,13 @@
 use super::super::build_mir_json_root;
 use super::make_function;
+use crate::mir::generic_method_route_plan::{
+    GenericMethodRoute, GenericMethodRouteDecision, GenericMethodRouteEvidence,
+    GenericMethodRouteKind, GenericMethodRouteOperands, GenericMethodRouteProof,
+    GenericMethodRouteSite, GenericMethodRouteSurface,
+};
 use crate::mir::{
     BasicBlockId, CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, GenericMethodKeyRoute,
-    GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodRoute,
-    GenericMethodRouteDecision, GenericMethodRouteEvidence, GenericMethodRouteKind,
-    GenericMethodRouteOperands, GenericMethodRouteProof, GenericMethodRouteSite,
-    GenericMethodRouteSurface, GenericMethodValueDemand, ValueId,
+    GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand, ValueId,
 };
 
 fn decision(

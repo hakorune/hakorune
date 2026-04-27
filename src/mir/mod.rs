@@ -215,9 +215,7 @@ pub use generic_method_route_facts::{
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
-    GenericMethodRoute, GenericMethodRouteDecision, GenericMethodRouteEvidence,
-    GenericMethodRouteKind, GenericMethodRouteOperands, GenericMethodRouteProof,
-    GenericMethodRouteSite, GenericMethodRouteSurface,
+    GenericMethodRoute,
 };
 pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
