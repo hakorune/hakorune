@@ -1,11 +1,9 @@
 //! Facts for loop_scan_methods_block_v0 (one-shape, planner-required only).
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_helpers::{
-    is_loop_cond_i_lt_n, release_enabled,
-};
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_recipe_builder::try_build_loop_scan_methods_block_recipe;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_shape_routes::try_match_loop_scan_methods_block_shape;
+use crate::mir::builder::control_flow::facts::scan_common_predicates::is_loop_cond_var_lt_var;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Recipe;
 use crate::mir::policies::BodyLoweringPolicy;
@@ -17,6 +15,14 @@ pub(in crate::mir::builder) struct LoopScanMethodsBlockV0Facts {
     pub condition: ASTNode,
     pub body_lowering_policy: BodyLoweringPolicy,
     pub recipe: LoopScanMethodsBlockV0Recipe,
+}
+
+fn release_enabled() -> bool {
+    true
+}
+
+fn is_loop_cond_i_lt_n(ast: &ASTNode) -> Option<(String, String)> {
+    is_loop_cond_var_lt_var(ast)
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_scan_methods_block_v0_facts(
