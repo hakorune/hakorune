@@ -1,5 +1,11 @@
 #!/bin/bash
-# Phase 104: read_digits loop(true) + break-only (VM)
+# Phase 104: read_digits loop(true) + break-only.
+#
+# Historical filename note:
+# - This archived smoke used to force `--backend vm`.
+# - `--backend vm` is now a raw legacy compat/proof ingress and currently
+#   times out on this fixture.
+# - Keep the filename stable, but verify behavior on the mainline MIR route.
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 export SMOKES_USE_PYVM=0
@@ -11,13 +17,13 @@ RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 
 INPUT="$NYASH_ROOT/apps/tests/phase104_read_digits_loop_true_min.hako"
 
-echo "[INFO] Phase 104: read_digits loop(true) break-only (VM) - $INPUT"
+echo "[INFO] Phase 104: read_digits loop(true) break-only (mainline MIR; historical _vm filename) - $INPUT"
 
 set +e
 OUTPUT=$(timeout "$RUN_TIMEOUT_SECS" env \
   NYASH_DISABLE_PLUGINS=0 \
   HAKO_JOINIR_STRICT=1 \
-  "$NYASH_BIN" --backend vm "$INPUT" 2>&1)
+  "$NYASH_BIN" --backend mir "$INPUT" 2>&1)
 EXIT_CODE=$?
 set -e
 
