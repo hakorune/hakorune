@@ -794,7 +794,7 @@ pub(super) fn build_mir_json_root(
         };
 
     // Phase 155: Extract CFG information for hako_check
-    let cfg_info = nyash_rust::mir::extract_cfg_info(module);
+    let cfg_info = nyash_rust::mir::cfg_extractor::extract_cfg_info(module);
 
     // Phase 285LLVM-1.1: Extract user box declarations for LLVM harness
     let user_box_decls = collect_sorted_user_box_decl_values(module);
