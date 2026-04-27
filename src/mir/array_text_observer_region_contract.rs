@@ -14,124 +14,281 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextObserverExecutorExecutionMode {
+enum ArrayTextObserverExecutorExecutionMode {
     SingleRegionExecutor,
 }
 
 impl std::fmt::Display for ArrayTextObserverExecutorExecutionMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::SingleRegionExecutor => f.write_str("single_region_executor"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextObserverExecutorProofRegion {
+enum ArrayTextObserverExecutorProofRegion {
     LoopBackedgeSingleBody,
 }
 
 impl std::fmt::Display for ArrayTextObserverExecutorProofRegion {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::LoopBackedgeSingleBody => f.write_str("loop_backedge_single_body"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextObserverExecutorCarrier {
+enum ArrayTextObserverExecutorCarrier {
     ArrayLaneTextCell,
 }
 
 impl std::fmt::Display for ArrayTextObserverExecutorCarrier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::ArrayLaneTextCell => f.write_str("array_lane_text_cell"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextObserverExecutorEffect {
+enum ArrayTextObserverExecutorEffect {
     ObserveIndexOf,
     StoreCell,
 }
 
 impl std::fmt::Display for ArrayTextObserverExecutorEffect {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::ObserveIndexOf => f.write_str("observe.indexof"),
-            Self::StoreCell => f.write_str("store.cell"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextObserverExecutorConsumerCapability {
+enum ArrayTextObserverExecutorConsumerCapability {
     CompareOnly,
     SinkStore,
 }
 
 impl std::fmt::Display for ArrayTextObserverExecutorConsumerCapability {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::CompareOnly => f.write_str("compare_only"),
-            Self::SinkStore => f.write_str("sink_store"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextObserverExecutorMaterializationPolicy {
+enum ArrayTextObserverExecutorMaterializationPolicy {
     TextResidentOrStringlikeSlot,
 }
 
 impl std::fmt::Display for ArrayTextObserverExecutorMaterializationPolicy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextObserverExecutorExecutionMode {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::TextResidentOrStringlikeSlot => f.write_str("text_resident_or_stringlike_slot"),
+            Self::SingleRegionExecutor => "single_region_executor",
+        }
+    }
+}
+
+impl ArrayTextObserverExecutorProofRegion {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::LoopBackedgeSingleBody => "loop_backedge_single_body",
+        }
+    }
+}
+
+impl ArrayTextObserverExecutorCarrier {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::ArrayLaneTextCell => "array_lane_text_cell",
+        }
+    }
+}
+
+impl ArrayTextObserverExecutorEffect {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::ObserveIndexOf => "observe.indexof",
+            Self::StoreCell => "store.cell",
+        }
+    }
+}
+
+impl ArrayTextObserverExecutorConsumerCapability {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::CompareOnly => "compare_only",
+            Self::SinkStore => "sink_store",
+        }
+    }
+}
+
+impl ArrayTextObserverExecutorMaterializationPolicy {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::TextResidentOrStringlikeSlot => "text_resident_or_stringlike_slot",
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextObserverStoreRegionMapping {
-    pub array_root_value: ValueId,
-    pub loop_index_phi_value: ValueId,
-    pub loop_index_initial_value: ValueId,
-    pub loop_index_initial_const: i64,
-    pub loop_index_next_value: ValueId,
-    pub loop_bound_value: ValueId,
-    pub loop_bound_const: i64,
-    pub begin_block: BasicBlockId,
-    pub begin_to_header_block: BasicBlockId,
-    pub header_block: BasicBlockId,
-    pub observer_block: BasicBlockId,
-    pub observer_instruction_index: usize,
-    pub predicate_value: ValueId,
-    pub then_store_block: BasicBlockId,
-    pub store_instruction_index: usize,
-    pub suffix_value: ValueId,
-    pub suffix_text: String,
-    pub suffix_byte_len: usize,
-    pub latch_block: BasicBlockId,
-    pub exit_block: BasicBlockId,
+    array_root_value: ValueId,
+    loop_index_phi_value: ValueId,
+    loop_index_initial_value: ValueId,
+    loop_index_initial_const: i64,
+    loop_index_next_value: ValueId,
+    loop_bound_value: ValueId,
+    loop_bound_const: i64,
+    begin_block: BasicBlockId,
+    begin_to_header_block: BasicBlockId,
+    header_block: BasicBlockId,
+    observer_block: BasicBlockId,
+    observer_instruction_index: usize,
+    predicate_value: ValueId,
+    then_store_block: BasicBlockId,
+    store_instruction_index: usize,
+    suffix_value: ValueId,
+    suffix_text: String,
+    suffix_byte_len: usize,
+    latch_block: BasicBlockId,
+    exit_block: BasicBlockId,
+}
+
+impl ArrayTextObserverStoreRegionMapping {
+    pub fn array_root_value(&self) -> ValueId {
+        self.array_root_value
+    }
+
+    pub fn loop_index_phi_value(&self) -> ValueId {
+        self.loop_index_phi_value
+    }
+
+    pub fn loop_index_initial_value(&self) -> ValueId {
+        self.loop_index_initial_value
+    }
+
+    pub fn loop_index_initial_const(&self) -> i64 {
+        self.loop_index_initial_const
+    }
+
+    pub fn loop_index_next_value(&self) -> ValueId {
+        self.loop_index_next_value
+    }
+
+    pub fn loop_bound_value(&self) -> ValueId {
+        self.loop_bound_value
+    }
+
+    pub fn loop_bound_const(&self) -> i64 {
+        self.loop_bound_const
+    }
+
+    pub fn begin_block(&self) -> BasicBlockId {
+        self.begin_block
+    }
+
+    pub fn begin_to_header_block(&self) -> BasicBlockId {
+        self.begin_to_header_block
+    }
+
+    pub fn header_block(&self) -> BasicBlockId {
+        self.header_block
+    }
+
+    pub fn observer_block(&self) -> BasicBlockId {
+        self.observer_block
+    }
+
+    pub fn observer_instruction_index(&self) -> usize {
+        self.observer_instruction_index
+    }
+
+    pub fn predicate_value(&self) -> ValueId {
+        self.predicate_value
+    }
+
+    pub fn then_store_block(&self) -> BasicBlockId {
+        self.then_store_block
+    }
+
+    pub fn store_instruction_index(&self) -> usize {
+        self.store_instruction_index
+    }
+
+    pub fn suffix_value(&self) -> ValueId {
+        self.suffix_value
+    }
+
+    pub fn suffix_text(&self) -> &str {
+        &self.suffix_text
+    }
+
+    pub fn suffix_byte_len(&self) -> usize {
+        self.suffix_byte_len
+    }
+
+    pub fn latch_block(&self) -> BasicBlockId {
+        self.latch_block
+    }
+
+    pub fn exit_block(&self) -> BasicBlockId {
+        self.exit_block
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextObserverExecutorContract {
-    pub execution_mode: ArrayTextObserverExecutorExecutionMode,
-    pub proof_region: ArrayTextObserverExecutorProofRegion,
-    pub publication_boundary: ArrayTextObserverPublicationBoundary,
-    pub carrier: ArrayTextObserverExecutorCarrier,
-    pub effects: Vec<ArrayTextObserverExecutorEffect>,
-    pub consumer_capabilities: Vec<ArrayTextObserverExecutorConsumerCapability>,
-    pub materialization_policy: ArrayTextObserverExecutorMaterializationPolicy,
-    pub region_mapping: Option<ArrayTextObserverStoreRegionMapping>,
+    execution_mode: ArrayTextObserverExecutorExecutionMode,
+    proof_region: ArrayTextObserverExecutorProofRegion,
+    publication_boundary: ArrayTextObserverPublicationBoundary,
+    carrier: ArrayTextObserverExecutorCarrier,
+    effects: Vec<ArrayTextObserverExecutorEffect>,
+    consumer_capabilities: Vec<ArrayTextObserverExecutorConsumerCapability>,
+    materialization_policy: ArrayTextObserverExecutorMaterializationPolicy,
+    region_mapping: Option<ArrayTextObserverStoreRegionMapping>,
 }
 
 impl ArrayTextObserverExecutorContract {
+    pub fn execution_mode(&self) -> &'static str {
+        self.execution_mode.as_str()
+    }
+
+    pub fn is_single_region_executor(&self) -> bool {
+        self.execution_mode == ArrayTextObserverExecutorExecutionMode::SingleRegionExecutor
+    }
+
+    pub fn proof_region(&self) -> &'static str {
+        self.proof_region.as_str()
+    }
+
+    pub fn publication_boundary(&self) -> &'static str {
+        self.publication_boundary.as_str()
+    }
+
+    pub fn carrier(&self) -> &'static str {
+        self.carrier.as_str()
+    }
+
+    pub fn effects(&self) -> Vec<&'static str> {
+        self.effects.iter().map(|effect| effect.as_str()).collect()
+    }
+
+    pub fn consumer_capabilities(&self) -> Vec<&'static str> {
+        self.consumer_capabilities
+            .iter()
+            .map(|capability| capability.as_str())
+            .collect()
+    }
+
+    pub fn materialization_policy(&self) -> &'static str {
+        self.materialization_policy.as_str()
+    }
+
+    pub fn region_mapping(&self) -> Option<&ArrayTextObserverStoreRegionMapping> {
+        self.region_mapping.as_ref()
+    }
+
     pub(crate) fn conditional_suffix_store_single_region(
         region_mapping: ArrayTextObserverStoreRegionMapping,
     ) -> Self {

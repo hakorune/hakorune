@@ -765,9 +765,6 @@ fn is_observer_chain_copy(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::array_text_observer_region_contract::{
-        ArrayTextObserverExecutorConsumerCapability, ArrayTextObserverExecutorExecutionMode,
-    };
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::{BasicBlock, EffectMask, FunctionSignature, MirType};
 
@@ -938,30 +935,25 @@ mod tests {
 
         let route = &function.metadata.array_text_observer_routes[0];
         let contract = route.executor_contract().expect("executor contract");
+        assert_eq!(contract.execution_mode(), "single_region_executor");
+        assert!(contract.is_single_region_executor());
         assert_eq!(
-            contract.execution_mode,
-            ArrayTextObserverExecutorExecutionMode::SingleRegionExecutor
+            contract.consumer_capabilities(),
+            vec!["compare_only", "sink_store"]
         );
-        assert_eq!(
-            contract.consumer_capabilities,
-            vec![
-                ArrayTextObserverExecutorConsumerCapability::CompareOnly,
-                ArrayTextObserverExecutorConsumerCapability::SinkStore,
-            ]
-        );
-        let mapping = contract.region_mapping.as_ref().expect("region mapping");
-        assert_eq!(mapping.array_root_value, ValueId::new(1));
-        assert_eq!(mapping.loop_index_phi_value, ValueId::new(21));
-        assert_eq!(mapping.loop_index_initial_const, 0);
-        assert_eq!(mapping.loop_bound_const, 64);
-        assert_eq!(mapping.begin_block, BasicBlockId::new(0));
-        assert_eq!(mapping.begin_to_header_block, BasicBlockId::new(1));
-        assert_eq!(mapping.observer_block, BasicBlockId::new(2));
-        assert_eq!(mapping.then_store_block, BasicBlockId::new(3));
-        assert_eq!(mapping.latch_block, BasicBlockId::new(4));
-        assert_eq!(mapping.exit_block, BasicBlockId::new(5));
-        assert_eq!(mapping.suffix_text, "ln");
-        assert_eq!(mapping.suffix_byte_len, 2);
+        let mapping = contract.region_mapping().expect("region mapping");
+        assert_eq!(mapping.array_root_value(), ValueId::new(1));
+        assert_eq!(mapping.loop_index_phi_value(), ValueId::new(21));
+        assert_eq!(mapping.loop_index_initial_const(), 0);
+        assert_eq!(mapping.loop_bound_const(), 64);
+        assert_eq!(mapping.begin_block(), BasicBlockId::new(0));
+        assert_eq!(mapping.begin_to_header_block(), BasicBlockId::new(1));
+        assert_eq!(mapping.observer_block(), BasicBlockId::new(2));
+        assert_eq!(mapping.then_store_block(), BasicBlockId::new(3));
+        assert_eq!(mapping.latch_block(), BasicBlockId::new(4));
+        assert_eq!(mapping.exit_block(), BasicBlockId::new(5));
+        assert_eq!(mapping.suffix_text(), "ln");
+        assert_eq!(mapping.suffix_byte_len(), 2);
     }
 
     #[test]

@@ -11,8 +11,7 @@ use super::{
     array_text_edit_plan::ArrayTextEditRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_observer_region_contract::{
-        ArrayTextObserverExecutorContract, ArrayTextObserverExecutorExecutionMode,
-        ArrayTextObserverStoreRegionMapping,
+        ArrayTextObserverExecutorContract, ArrayTextObserverStoreRegionMapping,
     },
     build_value_def_map, resolve_value_origin, BasicBlock, BasicBlockId, BinaryOp, CompareOp,
     ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
@@ -394,9 +393,7 @@ fn derive_combined_region(
 
     let (observer_route, observer_mapping, observer_contract, latch_block) =
         match_nested_observer_region(function, edit_block, edit_route)?;
-    if observer_contract.execution_mode
-        != ArrayTextObserverExecutorExecutionMode::SingleRegionExecutor
-    {
+    if !observer_contract.is_single_region_executor() {
         return None;
     }
     if root(function, def_map, observer_route.array_value())
@@ -414,7 +411,7 @@ fn derive_combined_region(
         return None;
     }
 
-    let observer_exit = function.blocks.get(&observer_mapping.exit_block)?;
+    let observer_exit = function.blocks.get(&observer_mapping.exit_block())?;
     if !matches!(
         observer_exit.terminator.as_ref()?,
         MirInstruction::Jump { target, .. } if *target == latch_block
@@ -467,12 +464,12 @@ fn derive_combined_region(
         begin_block,
         header_block,
         edit_block: edit_block_id,
-        observer_begin_block: observer_mapping.begin_block,
-        observer_header_block: observer_mapping.header_block,
-        observer_block: observer_mapping.observer_block,
-        observer_store_block: observer_mapping.then_store_block,
-        observer_latch_block: observer_mapping.latch_block,
-        observer_exit_block: observer_mapping.exit_block,
+        observer_begin_block: observer_mapping.begin_block(),
+        observer_header_block: observer_mapping.header_block(),
+        observer_block: observer_mapping.observer_block(),
+        observer_store_block: observer_mapping.then_store_block(),
+        observer_latch_block: observer_mapping.latch_block(),
+        observer_exit_block: observer_mapping.exit_block(),
         latch_block,
         exit_block,
         array_value: root(function, def_map, edit_route.array_value()),
@@ -494,14 +491,14 @@ fn derive_combined_region(
         edit_middle_value: root(function, def_map, edit_route.middle_value()),
         edit_middle_text: edit_route.middle_text().to_string(),
         edit_middle_byte_len: edit_route.middle_byte_len(),
-        observer_bound_value: observer_mapping.loop_bound_value,
-        observer_bound_const: observer_mapping.loop_bound_const,
+        observer_bound_value: observer_mapping.loop_bound_value(),
+        observer_bound_const: observer_mapping.loop_bound_const(),
         observer_needle_value: root(function, def_map, observer_route.observer_arg0()),
         observer_needle_text: observer_route.observer_arg0_text()?.to_string(),
         observer_needle_byte_len: observer_route.observer_arg0_byte_len()?,
-        observer_suffix_value: observer_mapping.suffix_value,
-        observer_suffix_text: observer_mapping.suffix_text.clone(),
-        observer_suffix_byte_len: observer_mapping.suffix_byte_len,
+        observer_suffix_value: observer_mapping.suffix_value(),
+        observer_suffix_text: observer_mapping.suffix_text().to_string(),
+        observer_suffix_byte_len: observer_mapping.suffix_byte_len(),
         execution_mode: ArrayTextCombinedRegionExecutionMode::SingleRegionExecutor,
         proof_region: ArrayTextCombinedRegionProofRegion::OuterLoopWithPeriodicObserverStore,
         proof: ArrayTextCombinedRegionProof::OuterLenHalfEditWithPeriodicObserverStore,
@@ -673,11 +670,11 @@ fn match_nested_observer_region<'a>(
             continue;
         }
         let contract = observer_route.executor_contract()?;
-        let mapping = contract.region_mapping.as_ref()?;
-        if mapping.begin_block == *then_bb {
+        let mapping = contract.region_mapping()?;
+        if mapping.begin_block() == *then_bb {
             return Some((observer_route, mapping, contract, *else_bb));
         }
-        if mapping.begin_block == *else_bb {
+        if mapping.begin_block() == *else_bb {
             return Some((observer_route, mapping, contract, *then_bb));
         }
     }
@@ -765,7 +762,7 @@ fn prove_ascii_preserved_text_cell_boundary(
 ) -> Option<ArrayTextCombinedRegionByteBoundaryProof> {
     if !edit_route.middle_text().is_ascii()
         || !observer_route.observer_arg0_text()?.is_ascii()
-        || !observer_mapping.suffix_text.is_ascii()
+        || !observer_mapping.suffix_text().is_ascii()
     {
         return None;
     }

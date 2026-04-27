@@ -163,10 +163,7 @@ pub use array_text_observer_plan::{
     ArrayTextObserverRoute,
 };
 pub use array_text_observer_region_contract::{
-    ArrayTextObserverExecutorCarrier, ArrayTextObserverExecutorConsumerCapability,
-    ArrayTextObserverExecutorContract, ArrayTextObserverExecutorEffect,
-    ArrayTextObserverExecutorExecutionMode, ArrayTextObserverExecutorMaterializationPolicy,
-    ArrayTextObserverExecutorProofRegion, ArrayTextObserverStoreRegionMapping,
+    ArrayTextObserverExecutorContract, ArrayTextObserverStoreRegionMapping,
 };
 pub use array_text_residence_session_plan::{
     refresh_function_array_text_residence_session_routes,
