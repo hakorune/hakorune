@@ -38,6 +38,7 @@ list_profiles() {
     - tools/checks/generic_method_set_policy_mirror_guard.sh
     - tools/checks/core_method_contract_manifest_guard.sh
     - tools/checks/core_method_contract_inc_no_growth_guard.sh
+    - tools/checks/mir_root_facade_guard.sh
     - tools/checks/map_lookup_fusion_reader_boundary_guard.sh
     - tools/checks/route_detector_legacy_surface_guard.sh
     - tools/checks/route_no_fallback_guard.sh
@@ -204,6 +205,9 @@ run_quick() {
 
   run_step "CoreMethodContract .inc no-growth guard" \
     bash tools/checks/core_method_contract_inc_no_growth_guard.sh
+
+  run_step "MIR root facade guard" \
+    bash tools/checks/mir_root_facade_guard.sh
 
   run_step "MapLookup fusion reader boundary guard" \
     bash tools/checks/map_lookup_fusion_reader_boundary_guard.sh

@@ -4,6 +4,8 @@ Date: 2026-04-27
 Scope: MIR root facade export contract.
 Related:
   - src/mir/mod.rs
+  - tools/checks/mir_root_facade_guard.sh
+  - tools/checks/mir_root_facade_allowlist.txt
   - docs/development/current/main/phases/phase-291x/291x-523-semantic-metadata-root-export-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-537-mir-root-facade-contract-card.md
 ---
@@ -89,6 +91,7 @@ constructs semantic metadata, import that metadata from its owner module.
 Use these during cleanup cards:
 
 ```bash
+bash tools/checks/mir_root_facade_guard.sh
 rg -n "use crate::mir::\\*;" src
 rg -n "crate::mir::(StringCorridor|SumPlacement|ThinEntry|PlacementEffect|StorageClass|ValueConsumer)" src/mir src/runner -g'*.rs'
 rg -n "pub use .*\\{[^}]*(Fact|Plan|Route|Candidate|Selection|Layout|Contract|Policy|Proof|State|Kind|Surface|Demand|Carrier|Reason|Provenance)" src/mir/mod.rs
@@ -99,6 +102,7 @@ Expected shape:
 - root wildcard imports stay absent
 - owner modules expose their own vocabulary
 - root keeps refresh entry points and core MIR surfaces
+- `tools/checks/mir_root_facade_guard.sh` reports the allowlisted export count
 
 ## Current State
 
