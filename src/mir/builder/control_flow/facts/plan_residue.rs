@@ -7,6 +7,5 @@
 #![allow(unused_imports)]
 
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::facts::{
-    accum_const_loop_facts, bool_predicate_scan_facts, feature_facts, loop_array_join_facts,
-    loop_char_map_facts, loop_types, reject_reason, scan_shapes, skeleton_facts, LoopFacts,
+    feature_facts, loop_types, reject_reason, scan_shapes, skeleton_facts, LoopFacts,
 };

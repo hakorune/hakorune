@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-603"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-603-simple-while-facts-residue-wrapper-prune-card.md"
-latest_card_summary = "Prune the test-only loop_simple_while_facts forwarding module from facts/plan_residue by moving the canonicalize fixture type path to the plan facts owner."
+latest_card = "291x-604"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-604-cond-profile-facts-residue-wrapper-prune-card.md"
+latest_card_summary = "Prune cond-profile fact-module forwards from facts/plan_residue by moving verifier type imports to the plan facts owner path."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -323,4 +323,5 @@ landed_tail = [
   "291x-601 match-return plan residue wrapper prune landed",
   "291x-602 loop-break facts residue wrapper prune landed",
   "291x-603 simple-while facts residue wrapper prune landed",
+  "291x-604 cond-profile facts residue wrapper prune landed",
 ]
