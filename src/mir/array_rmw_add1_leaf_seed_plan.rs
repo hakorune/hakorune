@@ -85,7 +85,7 @@ impl ArrayRmwAdd1LeafSeedRoute {
 #[cfg(test)]
 pub(crate) mod test_support {
     use super::{ArrayRmwAdd1LeafSeedProof, ArrayRmwAdd1LeafSeedRoute};
-    use crate::mir::ArrayRmwWindowProof;
+    use crate::mir::array_rmw_window_plan::ArrayRmwWindowProof;
     use hakorune_mir_core::BasicBlockId;
 
     pub(crate) fn kilo_leaf_array_rmw_add1_7block() -> ArrayRmwAdd1LeafSeedRoute {

@@ -129,20 +129,17 @@ pub use array_getset_micro_seed_plan::{
     refresh_function_array_getset_micro_seed_route, refresh_module_array_getset_micro_seed_routes,
 };
 pub use array_rmw_add1_leaf_seed_plan::{
-    refresh_function_array_rmw_add1_leaf_seed_route,
-    refresh_module_array_rmw_add1_leaf_seed_routes, ArrayRmwAdd1LeafSeedRoute,
+    refresh_function_array_rmw_add1_leaf_seed_route, refresh_module_array_rmw_add1_leaf_seed_routes,
 };
 pub use array_rmw_window_plan::{
     refresh_function_array_rmw_window_routes, refresh_module_array_rmw_window_routes,
-    ArrayRmwWindowProof, ArrayRmwWindowRoute,
 };
 pub use array_string_len_window_plan::{
     refresh_function_array_string_len_window_routes, refresh_module_array_string_len_window_routes,
-    ArrayStringLenWindowRoute,
 };
 pub use array_string_store_micro_seed_plan::{
     refresh_function_array_string_store_micro_seed_route,
-    refresh_module_array_string_store_micro_seed_routes, ArrayStringStoreMicroSeedRoute,
+    refresh_module_array_string_store_micro_seed_routes,
 };
 pub use array_text_combined_region_plan::{
     refresh_function_array_text_combined_region_routes,
@@ -170,7 +167,7 @@ pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
 pub use concat_const_suffix_micro_seed_plan::{
     refresh_function_concat_const_suffix_micro_seed_route,
-    refresh_module_concat_const_suffix_micro_seed_routes, ConcatConstSuffixMicroSeedRoute,
+    refresh_module_concat_const_suffix_micro_seed_routes,
 };
 pub use core_method_op::{
     CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, CoreMethodOpProof,
@@ -235,7 +232,7 @@ pub use string_corridor_relation::{
 };
 pub use string_direct_set_window_plan::{
     refresh_function_string_direct_set_window_routes,
-    refresh_module_string_direct_set_window_routes, StringDirectSetWindowRoute,
+    refresh_module_string_direct_set_window_routes,
 };
 pub use string_kernel_plan::{
     derive_string_kernel_plan, infer_string_kernel_text_consumer,
@@ -248,7 +245,7 @@ pub use string_kernel_plan::{
 };
 pub use substring_views_micro_seed_plan::{
     refresh_function_substring_views_micro_seed_route,
-    refresh_module_substring_views_micro_seed_routes, SubstringViewsMicroSeedRoute,
+    refresh_module_substring_views_micro_seed_routes,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,
