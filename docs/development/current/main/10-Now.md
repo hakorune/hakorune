@@ -20,14 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `generic-method-route fixture construction inventory pending`
+- current blocker token: `generic-method-route fixture construction isolation pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory GenericMethodRoute JSON fixture construction
-- cleanup checkpoint: latest known card `291x-480`; detailed closed
+- isolate GenericMethodRoute JSON fixture construction
+- cleanup checkpoint: latest known card `291x-481`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
