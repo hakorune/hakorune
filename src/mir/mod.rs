@@ -195,7 +195,7 @@ pub use semantic_refresh::{
     refresh_function_semantic_metadata, refresh_function_string_corridor_metadata,
     refresh_module_semantic_metadata,
 };
-pub use spanned_instruction::{SpannedInstRef, SpannedInstruction};
+pub use spanned_instruction::SpannedInstruction;
 pub use storage_class::{refresh_function_storage_class_facts, refresh_module_storage_class_facts};
 pub use string_corridor::{
     refresh_function_string_corridor_facts, refresh_module_string_corridor_facts,

@@ -4,7 +4,8 @@
  * SSA-form basic blocks with phi functions and terminator instructions
  */
 
-use super::{EffectMask, MirInstruction, SpannedInstRef, SpannedInstruction, ValueId};
+use super::spanned_instruction::{SpannedInstRef, SpannedInstruction};
+use super::{EffectMask, MirInstruction, ValueId};
 use crate::ast::Span;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::runtime::get_global_ring0;
@@ -91,7 +92,7 @@ impl BasicBlock {
     }
 
     /// Add a spanned instruction to this block
-    pub fn add_spanned_instruction(&mut self, sp: super::SpannedInstruction) {
+    pub fn add_spanned_instruction(&mut self, sp: SpannedInstruction) {
         self.add_instruction_with_span(sp.inst, sp.span);
     }
 
@@ -431,7 +432,7 @@ impl BasicBlock {
     }
 
     /// Insert spanned instruction at the beginning (after phi instructions)
-    pub fn insert_spanned_after_phis(&mut self, sp: super::SpannedInstruction) {
+    pub fn insert_spanned_after_phis(&mut self, sp: SpannedInstruction) {
         let phi_count = self.phi_instructions().count();
         if std::env::var("NYASH_SCHEDULE_TRACE").ok().as_deref() == Some("1") {
             if let MirInstruction::Copy { dst, src } = &sp.inst {
