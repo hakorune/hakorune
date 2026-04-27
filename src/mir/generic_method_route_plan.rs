@@ -18,7 +18,7 @@ use super::{
 use crate::mir::verification::utils::compute_dominators;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum GenericMethodRouteKind {
+pub(crate) enum GenericMethodRouteKind {
     RuntimeDataLoadAny,
     RuntimeDataContainsAny,
     MapLoadAny,
@@ -37,7 +37,7 @@ pub enum GenericMethodRouteKind {
 }
 
 impl GenericMethodRouteKind {
-    pub fn route_id(self) -> &'static str {
+    fn route_id(self) -> &'static str {
         match self {
             Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => {
                 "generic_method.get"
@@ -54,7 +54,7 @@ impl GenericMethodRouteKind {
         }
     }
 
-    pub fn emit_kind(self) -> &'static str {
+    fn emit_kind(self) -> &'static str {
         match self {
             Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => "get",
             Self::RuntimeDataContainsAny
@@ -69,7 +69,7 @@ impl GenericMethodRouteKind {
         }
     }
 
-    pub fn helper_symbol(self) -> &'static str {
+    pub(crate) fn helper_symbol(self) -> &'static str {
         match self {
             Self::RuntimeDataLoadAny => "nyash.runtime_data.get_hh",
             Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
@@ -89,7 +89,7 @@ impl GenericMethodRouteKind {
         }
     }
 
-    pub fn effect_tags(self) -> &'static [&'static str] {
+    fn effect_tags(self) -> &'static [&'static str] {
         match self {
             Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => &["read.key"],
             Self::RuntimeDataContainsAny
@@ -103,32 +103,36 @@ impl GenericMethodRouteKind {
             Self::StringIndexOf => &["observe.indexof"],
         }
     }
-}
 
-impl std::fmt::Display for GenericMethodRouteKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn tag(self) -> &'static str {
         match self {
-            Self::RuntimeDataLoadAny => f.write_str("runtime_data_load_any"),
-            Self::RuntimeDataContainsAny => f.write_str("runtime_data_contains_any"),
-            Self::MapLoadAny => f.write_str("map_load_any"),
-            Self::MapEntryCount => f.write_str("map_entry_count"),
-            Self::ArraySlotLoadAny => f.write_str("array_slot_load_any"),
-            Self::ArrayContainsAny => f.write_str("array_contains_any"),
-            Self::ArraySlotLen => f.write_str("array_slot_len"),
-            Self::ArrayAppendAny => f.write_str("array_append_any"),
-            Self::ArrayStoreAny => f.write_str("array_store_any"),
-            Self::MapStoreAny => f.write_str("map_store_any"),
-            Self::StringLen => f.write_str("string_len"),
-            Self::StringSubstring => f.write_str("string_substring"),
-            Self::StringIndexOf => f.write_str("string_indexof"),
-            Self::MapContainsAny => f.write_str("map_contains_any"),
-            Self::MapContainsI64 => f.write_str("map_contains_i64"),
+            Self::RuntimeDataLoadAny => "runtime_data_load_any",
+            Self::RuntimeDataContainsAny => "runtime_data_contains_any",
+            Self::MapLoadAny => "map_load_any",
+            Self::MapEntryCount => "map_entry_count",
+            Self::ArraySlotLoadAny => "array_slot_load_any",
+            Self::ArrayContainsAny => "array_contains_any",
+            Self::ArraySlotLen => "array_slot_len",
+            Self::ArrayAppendAny => "array_append_any",
+            Self::ArrayStoreAny => "array_store_any",
+            Self::MapStoreAny => "map_store_any",
+            Self::StringLen => "string_len",
+            Self::StringSubstring => "string_substring",
+            Self::StringIndexOf => "string_indexof",
+            Self::MapContainsAny => "map_contains_any",
+            Self::MapContainsI64 => "map_contains_i64",
         }
     }
 }
 
+impl std::fmt::Display for GenericMethodRouteKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.tag())
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum GenericMethodRouteProof {
+pub(crate) enum GenericMethodRouteProof {
     GetSurfacePolicy,
     HasSurfacePolicy,
     LenSurfacePolicy,
@@ -142,33 +146,39 @@ pub enum GenericMethodRouteProof {
 
 impl std::fmt::Display for GenericMethodRouteProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.tag())
+    }
+}
+
+impl GenericMethodRouteProof {
+    fn tag(self) -> &'static str {
         match self {
-            Self::GetSurfacePolicy => f.write_str("get_surface_policy"),
-            Self::HasSurfacePolicy => f.write_str("has_surface_policy"),
-            Self::LenSurfacePolicy => f.write_str("len_surface_policy"),
-            Self::PushSurfacePolicy => f.write_str("push_surface_policy"),
-            Self::SetSurfacePolicy => f.write_str("set_surface_policy"),
-            Self::SubstringSurfacePolicy => f.write_str("substring_surface_policy"),
-            Self::IndexOfSurfacePolicy => f.write_str("indexof_surface_policy"),
-            Self::MapSetScalarI64DominatesNoEscape => {
-                f.write_str("map_set_scalar_i64_dominates_no_escape")
-            }
-            Self::MapSetScalarI64SameKeyNoEscape => {
-                f.write_str("map_set_scalar_i64_same_key_no_escape")
-            }
+            Self::GetSurfacePolicy => "get_surface_policy",
+            Self::HasSurfacePolicy => "has_surface_policy",
+            Self::LenSurfacePolicy => "len_surface_policy",
+            Self::PushSurfacePolicy => "push_surface_policy",
+            Self::SetSurfacePolicy => "set_surface_policy",
+            Self::SubstringSurfacePolicy => "substring_surface_policy",
+            Self::IndexOfSurfacePolicy => "indexof_surface_policy",
+            Self::MapSetScalarI64DominatesNoEscape => "map_set_scalar_i64_dominates_no_escape",
+            Self::MapSetScalarI64SameKeyNoEscape => "map_set_scalar_i64_same_key_no_escape",
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct GenericMethodRouteSurface {
+pub(crate) struct GenericMethodRouteSurface {
     box_name: String,
     method: String,
     arity: usize,
 }
 
 impl GenericMethodRouteSurface {
-    pub fn new(box_name: impl Into<String>, method: impl Into<String>, arity: usize) -> Self {
+    pub(crate) fn new(
+        box_name: impl Into<String>,
+        method: impl Into<String>,
+        arity: usize,
+    ) -> Self {
         Self {
             box_name: box_name.into(),
             method: method.into(),
@@ -178,13 +188,13 @@ impl GenericMethodRouteSurface {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct GenericMethodRouteSite {
+pub(crate) struct GenericMethodRouteSite {
     block: BasicBlockId,
     instruction_index: usize,
 }
 
 impl GenericMethodRouteSite {
-    pub fn new(block: BasicBlockId, instruction_index: usize) -> Self {
+    pub(crate) fn new(block: BasicBlockId, instruction_index: usize) -> Self {
         Self {
             block,
             instruction_index,
@@ -193,13 +203,13 @@ impl GenericMethodRouteSite {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct GenericMethodRouteEvidence {
+pub(crate) struct GenericMethodRouteEvidence {
     receiver_origin_box: Option<String>,
     key_route: Option<GenericMethodKeyRoute>,
 }
 
 impl GenericMethodRouteEvidence {
-    pub fn new(
+    pub(crate) fn new(
         receiver_origin_box: Option<String>,
         key_route: Option<GenericMethodKeyRoute>,
     ) -> Self {
@@ -211,14 +221,14 @@ impl GenericMethodRouteEvidence {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct GenericMethodRouteOperands {
+pub(crate) struct GenericMethodRouteOperands {
     receiver_value: ValueId,
     key_value: Option<ValueId>,
     result_value: Option<ValueId>,
 }
 
 impl GenericMethodRouteOperands {
-    pub fn new(
+    pub(crate) fn new(
         receiver_value: ValueId,
         key_value: Option<ValueId>,
         result_value: Option<ValueId>,
@@ -232,7 +242,7 @@ impl GenericMethodRouteOperands {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct GenericMethodRouteDecision {
+pub(crate) struct GenericMethodRouteDecision {
     route_kind: GenericMethodRouteKind,
     proof: GenericMethodRouteProof,
     core_method: Option<CoreMethodOpCarrier>,
@@ -242,7 +252,7 @@ pub struct GenericMethodRouteDecision {
 }
 
 impl GenericMethodRouteDecision {
-    pub fn new(
+    pub(crate) fn new(
         route_kind: GenericMethodRouteKind,
         proof: GenericMethodRouteProof,
         core_method: Option<CoreMethodOpCarrier>,
@@ -271,7 +281,7 @@ pub struct GenericMethodRoute {
 }
 
 impl GenericMethodRoute {
-    pub fn new(
+    pub(crate) fn new(
         site: GenericMethodRouteSite,
         surface: GenericMethodRouteSurface,
         evidence: GenericMethodRouteEvidence,
@@ -301,6 +311,18 @@ impl GenericMethodRoute {
 
     pub fn emit_kind(&self) -> &'static str {
         self.decision.route_kind.emit_kind()
+    }
+
+    pub fn route_kind_tag(&self) -> &'static str {
+        self.decision.route_kind.tag()
+    }
+
+    pub fn helper_symbol(&self) -> &'static str {
+        self.decision.route_kind.helper_symbol()
+    }
+
+    pub fn proof_tag(&self) -> &'static str {
+        self.decision.proof.tag()
     }
 
     pub fn arity(&self) -> usize {
@@ -339,11 +361,13 @@ impl GenericMethodRoute {
         self.decision.route_kind.effect_tags()
     }
 
-    pub fn route_kind(&self) -> GenericMethodRouteKind {
+    #[cfg(test)]
+    pub(crate) fn route_kind(&self) -> GenericMethodRouteKind {
         self.decision.route_kind
     }
 
-    pub fn proof(&self) -> GenericMethodRouteProof {
+    #[cfg(test)]
+    pub(crate) fn proof(&self) -> GenericMethodRouteProof {
         self.decision.proof
     }
 

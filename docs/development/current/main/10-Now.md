@@ -20,14 +20,14 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `generic-method-route component visibility prune pending`
+- current blocker token: `generic-method-route component visibility closeout pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- prune GenericMethodRoute component visibility
-- cleanup checkpoint: latest known card `291x-476`; detailed closed
+- close out GenericMethodRoute component visibility prune
+- cleanup checkpoint: latest known card `291x-477`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings

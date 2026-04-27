@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-476"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-476-generic-method-route-visibility-inventory-card.md"
-latest_card_summary = "Inventoried GenericMethodRoute construction visibility and stable read accessors."
+latest_card = "291x-477"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-477-generic-method-route-visibility-prune-card.md"
+latest_card_summary = "Landed GenericMethodRoute component construction visibility prune."
 
-current_blocker_token = "generic-method-route component visibility prune pending"
+current_blocker_token = "generic-method-route component visibility closeout pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -196,4 +196,5 @@ landed_tail = [
   "291x-474 generic method route root export closeout landed",
   "291x-475 next lane selection landed",
   "291x-476 generic method route visibility inventory landed",
+  "291x-477 generic method route visibility prune landed",
 ]
