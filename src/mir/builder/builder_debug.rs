@@ -12,14 +12,14 @@ impl MirBuilder {
 
     #[inline]
     pub(crate) fn debug_push_region<S: Into<String>>(&mut self, region: S) {
-        // Phase 2-4: Use scope_ctx only (legacy field removed)
+        // Phase 2-4: scope_ctx is the debug-region SSOT.
         let region = region.into();
         self.scope_ctx.debug_push_region(region);
     }
 
     #[inline]
     pub(crate) fn debug_pop_region(&mut self) {
-        // Phase 2-4: Use scope_ctx only (legacy field removed)
+        // Phase 2-4: scope_ctx is the debug-region SSOT.
         self.scope_ctx.debug_pop_region();
     }
 

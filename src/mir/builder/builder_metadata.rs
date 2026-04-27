@@ -2,7 +2,7 @@ use super::{BasicBlockId, FunctionSignature, MirBuilder, MirFunction};
 
 impl MirBuilder {
     // ---- Hint helpers (no-op by default) ----
-    // Phase 136 Step 6/7: Delegate to metadata_ctx with legacy sync
+    // Phase 136 Step 6/7: metadata_ctx is the hint metadata SSOT.
     #[inline]
     pub(crate) fn hint_scope_enter(&mut self, id: u32) {
         self.metadata_ctx.hint_scope_enter(id);

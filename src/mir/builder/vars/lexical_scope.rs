@@ -37,12 +37,12 @@ impl Drop for LexicalScopeGuard {
 
 impl super::super::MirBuilder {
     pub(in crate::mir::builder) fn push_lexical_scope(&mut self) {
-        // Phase 2-4: Use scope_ctx only (legacy field removed)
+        // Phase 2-4: scope_ctx is the lexical-scope stack SSOT.
         self.scope_ctx.push_lexical_scope();
     }
 
     pub(in crate::mir::builder) fn pop_lexical_scope(&mut self) {
-        // Phase 2-4: Use scope_ctx only (legacy field removed)
+        // Phase 2-4: scope_ctx is the lexical-scope stack SSOT.
         let frame = match self.scope_ctx.pop_lexical_scope() {
             Some(f) => f,
             None => {
@@ -91,7 +91,7 @@ impl super::super::MirBuilder {
         }
 
         // Phase 74: Restore BindingId mappings in parallel
-        // Phase 2-5: Update binding_ctx (SSOT) - legacy field removed
+        // Phase 2-5: binding_ctx is the binding-id SSOT.
         for (name, previous_binding) in frame.restore_binding {
             match previous_binding {
                 Some(prev_bid) => {
@@ -144,7 +144,7 @@ impl super::super::MirBuilder {
 
         // Phase 74: Allocate and register new BindingId for this binding
         let binding_id = self.allocate_binding_id();
-        // Phase 2-5: Update binding_ctx (SSOT) - legacy field removed
+        // Phase 2-5: binding_ctx is the binding-id SSOT.
         self.binding_ctx.insert(name.to_string(), binding_id);
 
         Ok(())

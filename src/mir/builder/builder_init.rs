@@ -63,11 +63,11 @@ impl MirBuilder {
 
     /// Push/pop helpers for If merge context (best-effort; optional usage)
     pub(super) fn push_if_merge(&mut self, bb: super::BasicBlockId) {
-        // Phase 2-4: Use scope_ctx only (legacy field removed)
+        // Phase 2-4: scope_ctx is the if-merge stack SSOT.
         self.scope_ctx.push_if_merge(bb);
     }
     pub(super) fn pop_if_merge(&mut self) {
-        // Phase 2-4: Use scope_ctx only (legacy field removed)
+        // Phase 2-4: scope_ctx is the if-merge stack SSOT.
         let _ = self.scope_ctx.pop_if_merge();
     }
 
