@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-468"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-468-generic-method-route-component-field-inventory-card.md"
-latest_card_summary = "Inventoried GenericMethodRoute component field access before the privacy split."
+latest_card = "291x-469"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-469-generic-method-route-component-field-privacy-card.md"
+latest_card_summary = "Landed private GenericMethodRoute component fields while keeping existing constructors."
 
-current_blocker_token = "generic-method-route component field privacy pending"
+current_blocker_token = "generic-method-route component field privacy closeout pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -188,4 +188,5 @@ landed_tail = [
   "291x-466 generic method route constructor closeout landed",
   "291x-467 next lane selection landed",
   "291x-468 generic method route component field inventory landed",
+  "291x-469 generic method route component field privacy landed",
 ]

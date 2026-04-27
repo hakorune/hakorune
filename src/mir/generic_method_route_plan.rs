@@ -162,9 +162,9 @@ impl std::fmt::Display for GenericMethodRouteProof {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GenericMethodRouteSurface {
-    pub box_name: String,
-    pub method: String,
-    pub arity: usize,
+    box_name: String,
+    method: String,
+    arity: usize,
 }
 
 impl GenericMethodRouteSurface {
@@ -179,8 +179,8 @@ impl GenericMethodRouteSurface {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct GenericMethodRouteSite {
-    pub block: BasicBlockId,
-    pub instruction_index: usize,
+    block: BasicBlockId,
+    instruction_index: usize,
 }
 
 impl GenericMethodRouteSite {
@@ -194,8 +194,8 @@ impl GenericMethodRouteSite {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GenericMethodRouteEvidence {
-    pub receiver_origin_box: Option<String>,
-    pub key_route: Option<GenericMethodKeyRoute>,
+    receiver_origin_box: Option<String>,
+    key_route: Option<GenericMethodKeyRoute>,
 }
 
 impl GenericMethodRouteEvidence {
@@ -212,9 +212,9 @@ impl GenericMethodRouteEvidence {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct GenericMethodRouteOperands {
-    pub receiver_value: ValueId,
-    pub key_value: Option<ValueId>,
-    pub result_value: Option<ValueId>,
+    receiver_value: ValueId,
+    key_value: Option<ValueId>,
+    result_value: Option<ValueId>,
 }
 
 impl GenericMethodRouteOperands {
@@ -233,12 +233,12 @@ impl GenericMethodRouteOperands {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GenericMethodRouteDecision {
-    pub route_kind: GenericMethodRouteKind,
-    pub proof: GenericMethodRouteProof,
-    pub core_method: Option<CoreMethodOpCarrier>,
-    pub return_shape: Option<GenericMethodReturnShape>,
-    pub value_demand: GenericMethodValueDemand,
-    pub publication_policy: Option<GenericMethodPublicationPolicy>,
+    route_kind: GenericMethodRouteKind,
+    proof: GenericMethodRouteProof,
+    core_method: Option<CoreMethodOpCarrier>,
+    return_shape: Option<GenericMethodReturnShape>,
+    value_demand: GenericMethodValueDemand,
+    publication_policy: Option<GenericMethodPublicationPolicy>,
 }
 
 impl GenericMethodRouteDecision {
