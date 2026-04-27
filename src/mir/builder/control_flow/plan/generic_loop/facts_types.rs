@@ -1,8 +1,8 @@
 //! Type definitions for generic loop facts
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::{BodyLoweringPolicy, CondProfile, GenericLoopV1ShapeId};
 

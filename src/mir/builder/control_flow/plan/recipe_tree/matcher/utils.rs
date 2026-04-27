@@ -74,7 +74,7 @@ pub(crate) fn build_scan_with_init_loop_condition(
 }
 
 pub(crate) fn verify_no_exit_block_recipe(
-    recipe: &crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe,
+    recipe: &crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
@@ -110,7 +110,7 @@ pub(crate) fn verify_exit_allowed_block_recipe(
 }
 
 pub(crate) fn verify_stmt_only_block_recipe(
-    recipe: &crate::mir::builder::control_flow::plan::facts::stmt_view::StmtOnlyBlockRecipe,
+    recipe: &crate::mir::builder::control_flow::facts::stmt_view::StmtOnlyBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;

@@ -6,9 +6,9 @@
 use super::super::steps::effects_to_plans;
 use super::if_exit::{lower_if_exit_stmt_view, lower_if_exit_stmt_with_break_phi_args_view};
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::return_prelude::{
     try_build_return_prelude_container_recipe, ReturnPreludeContainerRecipe,
 };

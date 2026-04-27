@@ -1,8 +1,8 @@
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
+use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::carriers::collect_outer_from_body;
 use crate::mir::builder::control_flow::plan::features::exit_if_map;
 use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_cleanup::{

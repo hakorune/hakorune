@@ -21,7 +21,6 @@ pub(in crate::mir::builder) mod loop_tests;
 pub(in crate::mir::builder) mod loop_types;
 
 // Flattened from expr/
-pub(in crate::mir::builder) mod expr_bool;
 pub(in crate::mir::builder) mod expr_generic_loop;
 
 // Existing modules
@@ -40,7 +39,6 @@ pub(in crate::mir::builder) mod loop_true_early_exit_facts;
 pub(in crate::mir::builder) mod match_return_facts;
 pub(in crate::mir::builder) mod nested_loop_minimal_facts;
 pub(in crate::mir::builder) mod nested_loop_profile;
-pub(in crate::mir::builder) mod no_exit_block;
 pub(in crate::mir::builder) mod reject_reason;
 pub(in crate::mir::builder) mod return_prelude;
 pub(in crate::mir::builder) mod scan_shapes;
@@ -48,7 +46,6 @@ pub(in crate::mir::builder) mod skeleton_facts;
 pub(in crate::mir::builder) mod skip_whitespace_facts;
 pub(in crate::mir::builder) mod split_lines_facts;
 pub(in crate::mir::builder) mod starts_with_facts;
-pub(in crate::mir::builder) mod stmt_view;
 pub(in crate::mir::builder) mod string_is_integer_facts;
 
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
