@@ -1,25 +1,21 @@
 use super::super::build_mir_json_root;
 use super::make_function;
+use crate::mir::exact_seed_backend_route::test_support as exact_seed_backend_route_fixture;
 use crate::mir::{
-    ArrayRmwAdd1LeafSeedProof, ArrayRmwAdd1LeafSeedRoute, ArrayRmwWindowProof,
-    ExactSeedBackendRoute, ExactSeedBackendRouteKind, MirModule, SumLocalAggregateLayout,
-    SumVariantProjectSeedKind, SumVariantProjectSeedPayload, SumVariantProjectSeedProof,
-    SumVariantProjectSeedRoute, SumVariantTagSeedKind, SumVariantTagSeedProof,
-    SumVariantTagSeedRoute, UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload,
-    UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute, UserBoxLocalScalarSeedSinglePayload,
-    ValueId,
+    ArrayRmwAdd1LeafSeedProof, ArrayRmwAdd1LeafSeedRoute, ArrayRmwWindowProof, MirModule,
+    SumLocalAggregateLayout, SumVariantProjectSeedKind, SumVariantProjectSeedPayload,
+    SumVariantProjectSeedProof, SumVariantProjectSeedRoute, SumVariantTagSeedKind,
+    SumVariantTagSeedProof, SumVariantTagSeedRoute, UserBoxLocalScalarSeedKind,
+    UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
+    UserBoxLocalScalarSeedSinglePayload, ValueId,
 };
 use hakorune_mir_core::BasicBlockId;
 
 #[test]
 fn build_mir_json_root_emits_exact_seed_backend_route() {
     let mut function = make_function("main", true);
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::ArrayStringStoreMicro,
-        source_route: "array_string_store_micro_seed_route".to_string(),
-        proof: "kilo_micro_array_string_store_8block".to_string(),
-        selected_value: None,
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::array_string_store_micro());
     let mut module = MirModule::new("json_exact_seed_backend_route_test".to_string());
     module.add_function(function);
 
@@ -34,12 +30,8 @@ fn build_mir_json_root_emits_exact_seed_backend_route() {
 #[test]
 fn build_mir_json_root_emits_concat_const_suffix_exact_seed_backend_route() {
     let mut function = make_function("main", true);
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::ConcatConstSuffixMicro,
-        source_route: "concat_const_suffix_micro_seed_route".to_string(),
-        proof: "kilo_micro_concat_const_suffix_5block".to_string(),
-        selected_value: None,
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::concat_const_suffix_micro());
     let mut module = MirModule::new("json_concat_exact_seed_backend_route_test".to_string());
     module.add_function(function);
 
@@ -68,12 +60,8 @@ fn build_mir_json_root_emits_array_rmw_add1_leaf_seed_and_exact_route() {
         proof: ArrayRmwAdd1LeafSeedProof::KiloLeafArrayRmwAdd1SevenBlock,
         rmw_proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
     });
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::ArrayRmwAdd1Leaf,
-        source_route: "array_rmw_add1_leaf_seed_route".to_string(),
-        proof: "kilo_leaf_array_rmw_add1_7block".to_string(),
-        selected_value: None,
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::array_rmw_add1_leaf());
     let mut module = MirModule::new("json_array_rmw_add1_leaf_route_test".to_string());
     module.add_function(function);
 
@@ -118,12 +106,8 @@ fn build_mir_json_root_emits_sum_variant_tag_seed_and_exact_route() {
         payload_value: Some(ValueId::new(1)),
         proof: SumVariantTagSeedProof::LocalAggregateTagSeed,
     });
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::SumVariantTagLocal,
-        source_route: "sum_variant_tag_seed_route".to_string(),
-        proof: "sum_variant_tag_local_aggregate_seed".to_string(),
-        selected_value: None,
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::sum_variant_tag_local());
     let mut module = MirModule::new("json_sum_variant_tag_route_test".to_string());
     module.add_function(function);
 
@@ -180,12 +164,8 @@ fn build_mir_json_root_emits_sum_variant_project_seed_and_exact_route() {
         payload: SumVariantProjectSeedPayload::String("hako".to_string()),
         proof: SumVariantProjectSeedProof::LocalAggregateProjectSeed,
     });
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::SumVariantProjectLocal,
-        source_route: "sum_variant_project_seed_route".to_string(),
-        proof: "sum_variant_project_local_aggregate_seed".to_string(),
-        selected_value: None,
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::sum_variant_project_local());
     let mut module = MirModule::new("json_sum_variant_project_route_test".to_string());
     module.add_function(function);
 
@@ -252,12 +232,8 @@ fn build_mir_json_root_emits_userbox_local_scalar_seed_and_exact_route() {
             y_i64: 2,
         },
     });
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::UserBoxPointLocalScalar,
-        source_route: "userbox_local_scalar_seed_route".to_string(),
-        proof: "userbox_point_field_local_scalar_seed".to_string(),
-        selected_value: None,
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::userbox_point_local_scalar());
     let mut module = MirModule::new("json_userbox_local_scalar_route_test".to_string());
     module.add_function(function);
 
@@ -319,12 +295,8 @@ fn build_mir_json_root_emits_userbox_single_field_scalar_seed() {
             payload: UserBoxLocalScalarSeedSinglePayload::F64Bits(1.5f64.to_bits()),
         },
     });
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::UserBoxFlagPointFLocalScalar,
-        source_route: "userbox_local_scalar_seed_route".to_string(),
-        proof: "userbox_pointf_field_local_scalar_seed".to_string(),
-        selected_value: None,
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::userbox_flag_pointf_local_scalar());
     let mut module = MirModule::new("json_userbox_single_field_route_test".to_string());
     module.add_function(function);
 
@@ -354,12 +326,8 @@ fn build_mir_json_root_emits_userbox_single_field_scalar_seed() {
 #[test]
 fn build_mir_json_root_emits_substring_views_exact_seed_backend_route() {
     let mut function = make_function("main", true);
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::SubstringViewsOnlyMicro,
-        source_route: "substring_views_micro_seed_route".to_string(),
-        proof: "kilo_micro_substring_views_only_5block".to_string(),
-        selected_value: None,
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::substring_views_only_micro());
     let mut module =
         MirModule::new("json_substring_views_exact_seed_backend_route_test".to_string());
     module.add_function(function);
@@ -375,12 +343,8 @@ fn build_mir_json_root_emits_substring_views_exact_seed_backend_route() {
 #[test]
 fn build_mir_json_root_emits_substring_concat_exact_seed_backend_route() {
     let mut function = make_function("main", true);
-    function.metadata.exact_seed_backend_route = Some(ExactSeedBackendRoute {
-        tag: ExactSeedBackendRouteKind::SubstringConcatLoopAscii,
-        source_route: "string_kernel_plans.loop_payload".to_string(),
-        proof: "string_kernel_plan_concat_triplet_loop_payload".to_string(),
-        selected_value: Some(ValueId::new(35)),
-    });
+    function.metadata.exact_seed_backend_route =
+        Some(exact_seed_backend_route_fixture::substring_concat_loop_ascii(ValueId::new(35)));
     let mut module =
         MirModule::new("json_substring_concat_exact_seed_backend_route_test".to_string());
     module.add_function(function);

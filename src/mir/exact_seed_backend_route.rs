@@ -13,7 +13,7 @@ use crate::mir::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ExactSeedBackendRouteKind {
+enum ExactSeedBackendRouteKind {
     ArrayStringStoreMicro,
     ArrayGetSetMicro,
     ArrayRmwAdd1Leaf,
@@ -29,7 +29,7 @@ pub enum ExactSeedBackendRouteKind {
 }
 
 impl ExactSeedBackendRouteKind {
-    pub fn as_str(self) -> &'static str {
+    fn as_str(self) -> &'static str {
         match self {
             Self::ArrayStringStoreMicro => "array_string_store_micro",
             Self::ArrayGetSetMicro => "array_getset_micro",
@@ -46,7 +46,7 @@ impl ExactSeedBackendRouteKind {
         }
     }
 
-    pub fn source_route_field(self) -> &'static str {
+    fn source_route_field(self) -> &'static str {
         match self {
             Self::ArrayStringStoreMicro => "array_string_store_micro_seed_route",
             Self::ArrayGetSetMicro => "array_getset_micro_seed_route",
@@ -66,10 +66,119 @@ impl ExactSeedBackendRouteKind {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExactSeedBackendRoute {
-    pub tag: ExactSeedBackendRouteKind,
-    pub source_route: String,
-    pub proof: String,
-    pub selected_value: Option<ValueId>,
+    tag: ExactSeedBackendRouteKind,
+    source_route: String,
+    proof: String,
+    selected_value: Option<ValueId>,
+}
+
+impl ExactSeedBackendRoute {
+    pub fn tag(&self) -> &'static str {
+        self.tag.as_str()
+    }
+
+    pub fn source_route(&self) -> &str {
+        &self.source_route
+    }
+
+    pub fn proof(&self) -> &str {
+        &self.proof
+    }
+
+    pub fn selected_value(&self) -> Option<ValueId> {
+        self.selected_value
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::{ExactSeedBackendRoute, ExactSeedBackendRouteKind};
+    use crate::mir::ValueId;
+
+    fn fixture(
+        tag: ExactSeedBackendRouteKind,
+        proof: &str,
+        selected_value: Option<ValueId>,
+    ) -> ExactSeedBackendRoute {
+        ExactSeedBackendRoute {
+            tag,
+            source_route: tag.source_route_field().to_string(),
+            proof: proof.to_string(),
+            selected_value,
+        }
+    }
+
+    pub(crate) fn array_string_store_micro() -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::ArrayStringStoreMicro,
+            "kilo_micro_array_string_store_8block",
+            None,
+        )
+    }
+
+    pub(crate) fn concat_const_suffix_micro() -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::ConcatConstSuffixMicro,
+            "kilo_micro_concat_const_suffix_5block",
+            None,
+        )
+    }
+
+    pub(crate) fn array_rmw_add1_leaf() -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::ArrayRmwAdd1Leaf,
+            "kilo_leaf_array_rmw_add1_7block",
+            None,
+        )
+    }
+
+    pub(crate) fn sum_variant_tag_local() -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::SumVariantTagLocal,
+            "sum_variant_tag_local_aggregate_seed",
+            None,
+        )
+    }
+
+    pub(crate) fn sum_variant_project_local() -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::SumVariantProjectLocal,
+            "sum_variant_project_local_aggregate_seed",
+            None,
+        )
+    }
+
+    pub(crate) fn userbox_point_local_scalar() -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::UserBoxPointLocalScalar,
+            "userbox_point_field_local_scalar_seed",
+            None,
+        )
+    }
+
+    pub(crate) fn userbox_flag_pointf_local_scalar() -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::UserBoxFlagPointFLocalScalar,
+            "userbox_pointf_field_local_scalar_seed",
+            None,
+        )
+    }
+
+    pub(crate) fn substring_views_only_micro() -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::SubstringViewsOnlyMicro,
+            "kilo_micro_substring_views_only_5block",
+            None,
+        )
+    }
+
+    pub(crate) fn substring_concat_loop_ascii(selected_value: ValueId) -> ExactSeedBackendRoute {
+        fixture(
+            ExactSeedBackendRouteKind::SubstringConcatLoopAscii,
+            "string_kernel_plan_concat_triplet_loop_payload",
+            Some(selected_value),
+        )
+    }
 }
 
 pub fn refresh_module_exact_seed_backend_routes(module: &mut MirModule) {

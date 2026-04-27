@@ -655,10 +655,10 @@ pub(super) fn build_mir_json_root(
             }),
             "exact_seed_backend_route": f.metadata.exact_seed_backend_route.as_ref().map(|route| {
                 json!({
-                    "tag": route.tag.as_str(),
-                    "source_route": route.source_route.as_str(),
-                    "proof": route.proof.as_str(),
-                    "selected_value": route.selected_value.map(|value| value.as_u32()),
+                    "tag": route.tag(),
+                    "source_route": route.source_route(),
+                    "proof": route.proof(),
+                    "selected_value": route.selected_value().map(|value| value.as_u32()),
                 })
             }),
             "array_text_state_residence_route": f.metadata.array_text_state_residence_route.as_ref().map(|route| {

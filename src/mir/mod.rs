@@ -203,7 +203,7 @@ pub use effect::{Effect, EffectMask};
 pub use escape_barrier::{classify_escape_uses, EscapeBarrier, EscapeUse};
 pub use exact_seed_backend_route::{
     refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
-    ExactSeedBackendRoute, ExactSeedBackendRouteKind,
+    ExactSeedBackendRoute,
 };
 pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
