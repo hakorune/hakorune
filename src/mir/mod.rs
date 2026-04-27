@@ -147,23 +147,21 @@ pub use array_string_store_micro_seed_plan::{
 };
 pub use array_text_combined_region_plan::{
     refresh_function_array_text_combined_region_routes,
-    refresh_module_array_text_combined_region_routes, ArrayTextCombinedRegionRoute,
+    refresh_module_array_text_combined_region_routes,
 };
 pub use array_text_edit_plan::{
     refresh_function_array_text_edit_routes, refresh_module_array_text_edit_routes,
-    ArrayTextEditRoute,
 };
 pub use array_text_loopcarry_plan::{
     refresh_function_array_text_loopcarry_len_store_routes,
-    refresh_module_array_text_loopcarry_len_store_routes, ArrayTextLoopCarryLenStoreRoute,
+    refresh_module_array_text_loopcarry_len_store_routes,
 };
 pub use array_text_observer_plan::{
     refresh_function_array_text_observer_routes, refresh_module_array_text_observer_routes,
-    ArrayTextObserverRoute,
 };
 pub use array_text_residence_session_plan::{
     refresh_function_array_text_residence_session_routes,
-    refresh_module_array_text_residence_session_routes, ArrayTextResidenceSessionRoute,
+    refresh_module_array_text_residence_session_routes,
 };
 pub use array_text_state_residence_plan::{
     refresh_function_array_text_state_residence_route,
