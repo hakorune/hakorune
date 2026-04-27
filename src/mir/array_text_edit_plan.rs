@@ -17,20 +17,26 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextEditKind {
+enum ArrayTextEditKind {
     InsertMidConst,
 }
 
-impl std::fmt::Display for ArrayTextEditKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ArrayTextEditKind {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::InsertMidConst => f.write_str("insert_mid_const"),
+            Self::InsertMidConst => "insert_mid_const",
         }
     }
 }
 
+impl std::fmt::Display for ArrayTextEditKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextEditSplitPolicy {
+enum ArrayTextEditSplitPolicy {
     SourceLenDivConst { divisor: i64 },
 }
 
@@ -45,38 +51,114 @@ impl std::fmt::Display for ArrayTextEditSplitPolicy {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextEditProof {
+enum ArrayTextEditProof {
     ArrayGetLenHalfInsertMidSameSlot,
+}
+
+impl ArrayTextEditProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::ArrayGetLenHalfInsertMidSameSlot => "array_get_lenhalf_insert_mid_same_slot",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextEditProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::ArrayGetLenHalfInsertMidSameSlot => {
-                f.write_str("array_get_lenhalf_insert_mid_same_slot")
-            }
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextEditRoute {
-    pub block: BasicBlockId,
-    pub get_instruction_index: usize,
-    pub set_instruction_index: usize,
-    pub array_value: ValueId,
-    pub index_value: ValueId,
-    pub source_value: ValueId,
-    pub length_value: ValueId,
-    pub split_value: ValueId,
-    pub result_value: ValueId,
-    pub middle_value: ValueId,
-    pub middle_text: String,
-    pub middle_byte_len: usize,
-    pub skip_instruction_indices: Vec<usize>,
-    pub edit_kind: ArrayTextEditKind,
-    pub split_policy: ArrayTextEditSplitPolicy,
-    pub proof: ArrayTextEditProof,
+    block: BasicBlockId,
+    get_instruction_index: usize,
+    set_instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    source_value: ValueId,
+    length_value: ValueId,
+    split_value: ValueId,
+    result_value: ValueId,
+    middle_value: ValueId,
+    middle_text: String,
+    middle_byte_len: usize,
+    skip_instruction_indices: Vec<usize>,
+    edit_kind: ArrayTextEditKind,
+    split_policy: ArrayTextEditSplitPolicy,
+    proof: ArrayTextEditProof,
+}
+
+impl ArrayTextEditRoute {
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn get_instruction_index(&self) -> usize {
+        self.get_instruction_index
+    }
+
+    pub fn set_instruction_index(&self) -> usize {
+        self.set_instruction_index
+    }
+
+    pub fn array_value(&self) -> ValueId {
+        self.array_value
+    }
+
+    pub fn index_value(&self) -> ValueId {
+        self.index_value
+    }
+
+    pub fn source_value(&self) -> ValueId {
+        self.source_value
+    }
+
+    pub fn length_value(&self) -> ValueId {
+        self.length_value
+    }
+
+    pub fn split_value(&self) -> ValueId {
+        self.split_value
+    }
+
+    pub fn result_value(&self) -> ValueId {
+        self.result_value
+    }
+
+    pub fn middle_value(&self) -> ValueId {
+        self.middle_value
+    }
+
+    pub fn middle_text(&self) -> &str {
+        &self.middle_text
+    }
+
+    pub fn middle_byte_len(&self) -> usize {
+        self.middle_byte_len
+    }
+
+    pub fn skip_instruction_indices(&self) -> &[usize] {
+        &self.skip_instruction_indices
+    }
+
+    pub fn edit_kind(&self) -> &'static str {
+        self.edit_kind.as_str()
+    }
+
+    pub fn split_policy(&self) -> String {
+        self.split_policy.to_string()
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn is_lenhalf_insert_mid_same_slot(&self) -> bool {
+        self.edit_kind == ArrayTextEditKind::InsertMidConst
+            && self.split_policy == (ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 })
+            && self.proof == ArrayTextEditProof::ArrayGetLenHalfInsertMidSameSlot
+    }
 }
 
 pub fn refresh_module_array_text_edit_routes(module: &mut MirModule) {
@@ -544,24 +626,23 @@ mod tests {
 
         assert_eq!(function.metadata.array_text_edit_routes.len(), 1);
         let route = &function.metadata.array_text_edit_routes[0];
-        assert_eq!(route.array_value, ValueId::new(1));
-        assert_eq!(route.index_value, ValueId::new(2));
-        assert_eq!(route.source_value, ValueId::new(10));
-        assert_eq!(route.length_value, ValueId::new(12));
-        assert_eq!(route.split_value, ValueId::new(17));
-        assert_eq!(route.result_value, ValueId::new(26));
-        assert_eq!(route.middle_value, ValueId::new(23));
-        assert_eq!(route.middle_text, "xx");
-        assert_eq!(route.middle_byte_len, 2);
+        assert_eq!(route.array_value(), ValueId::new(1));
+        assert_eq!(route.index_value(), ValueId::new(2));
+        assert_eq!(route.source_value(), ValueId::new(10));
+        assert_eq!(route.length_value(), ValueId::new(12));
+        assert_eq!(route.split_value(), ValueId::new(17));
+        assert_eq!(route.result_value(), ValueId::new(26));
+        assert_eq!(route.middle_value(), ValueId::new(23));
+        assert_eq!(route.middle_text(), "xx");
+        assert_eq!(route.middle_byte_len(), 2);
+        assert_eq!(route.edit_kind(), "insert_mid_const");
+        assert_eq!(route.split_policy(), "source_len_div_const(2)");
+        assert_eq!(route.proof(), "array_get_lenhalf_insert_mid_same_slot");
+        assert!(route.is_lenhalf_insert_mid_same_slot());
         assert_eq!(
-            route.split_policy,
-            ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 }
+            route.skip_instruction_indices(),
+            &(1..=17).collect::<Vec<_>>()
         );
-        assert_eq!(
-            route.proof,
-            ArrayTextEditProof::ArrayGetLenHalfInsertMidSameSlot
-        );
-        assert_eq!(route.skip_instruction_indices, (1..=17).collect::<Vec<_>>());
     }
 
     fn test_function() -> MirFunction {

@@ -154,7 +154,7 @@ pub use array_text_combined_region_plan::{
 };
 pub use array_text_edit_plan::{
     refresh_function_array_text_edit_routes, refresh_module_array_text_edit_routes,
-    ArrayTextEditKind, ArrayTextEditProof, ArrayTextEditRoute, ArrayTextEditSplitPolicy,
+    ArrayTextEditRoute,
 };
 pub use array_text_loopcarry_plan::{
     refresh_function_array_text_loopcarry_len_store_routes,

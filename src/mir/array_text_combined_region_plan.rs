@@ -8,9 +8,7 @@
  */
 
 use super::{
-    array_text_edit_plan::{
-        ArrayTextEditKind, ArrayTextEditProof, ArrayTextEditRoute, ArrayTextEditSplitPolicy,
-    },
+    array_text_edit_plan::ArrayTextEditRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_observer_region_contract::{
         ArrayTextObserverExecutorContract, ArrayTextObserverExecutorExecutionMode,
@@ -180,28 +178,26 @@ fn derive_combined_region(
     def_map: &ValueDefMap,
     edit_route: &ArrayTextEditRoute,
 ) -> Option<ArrayTextCombinedRegionRoute> {
-    if edit_route.edit_kind != ArrayTextEditKind::InsertMidConst
-        || edit_route.split_policy != (ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 })
-        || edit_route.proof != ArrayTextEditProof::ArrayGetLenHalfInsertMidSameSlot
-    {
+    if !edit_route.is_lenhalf_insert_mid_same_slot() {
         return None;
     }
 
-    let edit_block = function.blocks.get(&edit_route.block)?;
+    let edit_block_id = edit_route.block();
+    let edit_block = function.blocks.get(&edit_block_id)?;
     let (outer_index_phi_value, row_modulus_value, row_modulus_const) =
-        match_mod_const(function, def_map, edit_route.index_value)?;
-    let row_index_value = root(function, def_map, edit_route.index_value);
+        match_mod_const(function, def_map, edit_route.index_value())?;
+    let row_index_value = root(function, def_map, edit_route.index_value());
     let (observer_period_value, observer_period_const) =
         match_periodic_zero_condition(function, def_map, edit_block, outer_index_phi_value)?;
 
-    let (header_block, exit_block) = find_loop_header_for_body(function, edit_route.block)?;
+    let (header_block, exit_block) = find_loop_header_for_body(function, edit_block_id)?;
     let header = function.blocks.get(&header_block)?;
     let (loop_bound_value, loop_bound_const) = match_header_bound(
         function,
         def_map,
         header,
         outer_index_phi_value,
-        edit_route.block,
+        edit_block_id,
     )?;
 
     let (observer_route, observer_mapping, observer_contract, latch_block) =
@@ -212,7 +208,7 @@ fn derive_combined_region(
         return None;
     }
     if root(function, def_map, observer_route.array_value)
-        != root(function, def_map, edit_route.array_value)
+        != root(function, def_map, edit_route.array_value())
     {
         return None;
     }
@@ -278,7 +274,7 @@ fn derive_combined_region(
     Some(ArrayTextCombinedRegionRoute {
         begin_block,
         header_block,
-        edit_block: edit_route.block,
+        edit_block: edit_block_id,
         observer_begin_block: observer_mapping.begin_block,
         observer_header_block: observer_mapping.header_block,
         observer_block: observer_mapping.observer_block,
@@ -287,7 +283,7 @@ fn derive_combined_region(
         observer_exit_block: observer_mapping.exit_block,
         latch_block,
         exit_block,
-        array_value: root(function, def_map, edit_route.array_value),
+        array_value: root(function, def_map, edit_route.array_value()),
         outer_index_phi_value,
         outer_index_initial_value: root(function, def_map, outer_index_initial_value),
         outer_index_initial_const,
@@ -303,9 +299,9 @@ fn derive_combined_region(
         accumulator_initial_value: root(function, def_map, accumulator_initial_value),
         accumulator_initial_const,
         accumulator_next_value: root(function, def_map, accumulator_next_value),
-        edit_middle_value: root(function, def_map, edit_route.middle_value),
-        edit_middle_text: edit_route.middle_text.clone(),
-        edit_middle_byte_len: edit_route.middle_byte_len,
+        edit_middle_value: root(function, def_map, edit_route.middle_value()),
+        edit_middle_text: edit_route.middle_text().to_string(),
+        edit_middle_byte_len: edit_route.middle_byte_len(),
         observer_bound_value: observer_mapping.loop_bound_value,
         observer_bound_const: observer_mapping.loop_bound_const,
         observer_needle_value: root(function, def_map, observer_route.observer_arg0),
@@ -481,7 +477,7 @@ fn match_nested_observer_region<'a>(
         return None;
     };
     for observer_route in &function.metadata.array_text_observer_routes {
-        if observer_route.array_value != edit_route.array_value {
+        if observer_route.array_value != edit_route.array_value() {
             continue;
         }
         let contract = observer_route.executor_contract.as_ref()?;
@@ -575,7 +571,7 @@ fn prove_ascii_preserved_text_cell_boundary(
     begin_block: BasicBlockId,
     row_modulus_const: i64,
 ) -> Option<ArrayTextCombinedRegionByteBoundaryProof> {
-    if !edit_route.middle_text.is_ascii()
+    if !edit_route.middle_text().is_ascii()
         || !observer_route.observer_arg0_repr.text()?.is_ascii()
         || !observer_mapping.suffix_text.is_ascii()
     {
@@ -585,7 +581,7 @@ fn prove_ascii_preserved_text_cell_boundary(
         function,
         def_map,
         begin_block,
-        edit_route.array_value,
+        edit_route.array_value(),
         row_modulus_const,
     )
     .then_some(ArrayTextCombinedRegionByteBoundaryProof::AsciiPreservedTextCell)
