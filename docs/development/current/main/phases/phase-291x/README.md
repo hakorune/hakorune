@@ -164,6 +164,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-463-next-lane-selection-card.md
   - docs/development/current/main/phases/phase-291x/291x-464-generic-method-route-constructor-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-465-generic-method-route-constructor-card.md
+  - docs/development/current/main/phases/phase-291x/291x-466-generic-method-route-constructor-closeout-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -171,7 +172,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: close `GenericMethodRoute::new` constructor SSOT
+- Next implementation target: choose the next compiler-cleanliness lane
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -183,7 +184,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-465-generic-method-route-constructor-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-466-generic-method-route-constructor-closeout-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -225,11 +226,11 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-465`
+- latest known cleanup checkpoint: `291x-466`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the compact
   `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: close `GenericMethodRoute::new` constructor SSOT
+- next cleanup: choose the next compiler-cleanliness lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - Stage-B adapter thinning stays BoxShape-only; do not mix it with
