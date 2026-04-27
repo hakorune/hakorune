@@ -20,14 +20,15 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `generic-method-route site operands inventory pending`
+- current blocker token: `generic-method-route site operands record split pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- inventory `GenericMethodRoute` site/operands consumers
-- cleanup checkpoint: latest known landed card `291x-459`; detailed closed
+- implement `GenericMethodRouteSite` / `GenericMethodRouteOperands` record
+  split
+- cleanup checkpoint: latest known landed card `291x-460`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
