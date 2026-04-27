@@ -1,9 +1,9 @@
 use super::super::build_mir_json_root;
 use super::make_function;
+use crate::mir::array_rmw_add1_leaf_seed_plan::test_support as array_rmw_add1_leaf_fixture;
 use crate::mir::exact_seed_backend_route::test_support as exact_seed_backend_route_fixture;
 use crate::mir::{
-    ArrayRmwAdd1LeafSeedProof, ArrayRmwAdd1LeafSeedRoute, ArrayRmwWindowProof, MirModule,
-    SumLocalAggregateLayout, SumVariantProjectSeedKind, SumVariantProjectSeedPayload,
+    MirModule, SumLocalAggregateLayout, SumVariantProjectSeedKind, SumVariantProjectSeedPayload,
     SumVariantProjectSeedProof, SumVariantProjectSeedRoute, SumVariantTagSeedKind,
     SumVariantTagSeedProof, SumVariantTagSeedRoute, UserBoxLocalScalarSeedKind,
     UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedProof, UserBoxLocalScalarSeedRoute,
@@ -49,17 +49,8 @@ fn build_mir_json_root_emits_concat_const_suffix_exact_seed_backend_route() {
 #[test]
 fn build_mir_json_root_emits_array_rmw_add1_leaf_seed_and_exact_route() {
     let mut function = make_function("main", true);
-    function.metadata.array_rmw_add1_leaf_seed_route = Some(ArrayRmwAdd1LeafSeedRoute {
-        size: 128,
-        ops: 2_000_000,
-        init_push_count: 1,
-        final_get_count: 2,
-        selected_rmw_block: BasicBlockId::new(23),
-        selected_rmw_instruction_index: 8,
-        selected_rmw_set_instruction_index: 13,
-        proof: ArrayRmwAdd1LeafSeedProof::KiloLeafArrayRmwAdd1SevenBlock,
-        rmw_proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
-    });
+    function.metadata.array_rmw_add1_leaf_seed_route =
+        Some(array_rmw_add1_leaf_fixture::kilo_leaf_array_rmw_add1_7block());
     function.metadata.exact_seed_backend_route =
         Some(exact_seed_backend_route_fixture::array_rmw_add1_leaf());
     let mut module = MirModule::new("json_array_rmw_add1_leaf_route_test".to_string());

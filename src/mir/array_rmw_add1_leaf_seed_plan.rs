@@ -13,29 +13,94 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayRmwAdd1LeafSeedProof {
+enum ArrayRmwAdd1LeafSeedProof {
     KiloLeafArrayRmwAdd1SevenBlock,
 }
 
 impl std::fmt::Display for ArrayRmwAdd1LeafSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayRmwAdd1LeafSeedProof {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::KiloLeafArrayRmwAdd1SevenBlock => f.write_str("kilo_leaf_array_rmw_add1_7block"),
+            Self::KiloLeafArrayRmwAdd1SevenBlock => "kilo_leaf_array_rmw_add1_7block",
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayRmwAdd1LeafSeedRoute {
-    pub size: i64,
-    pub ops: i64,
-    pub init_push_count: i64,
-    pub final_get_count: i64,
-    pub selected_rmw_block: BasicBlockId,
-    pub selected_rmw_instruction_index: usize,
-    pub selected_rmw_set_instruction_index: usize,
-    pub proof: ArrayRmwAdd1LeafSeedProof,
-    pub rmw_proof: ArrayRmwWindowProof,
+    size: i64,
+    ops: i64,
+    init_push_count: i64,
+    final_get_count: i64,
+    selected_rmw_block: BasicBlockId,
+    selected_rmw_instruction_index: usize,
+    selected_rmw_set_instruction_index: usize,
+    proof: ArrayRmwAdd1LeafSeedProof,
+    rmw_proof: ArrayRmwWindowProof,
+}
+
+impl ArrayRmwAdd1LeafSeedRoute {
+    pub fn size(&self) -> i64 {
+        self.size
+    }
+
+    pub fn ops(&self) -> i64 {
+        self.ops
+    }
+
+    pub fn init_push_count(&self) -> i64 {
+        self.init_push_count
+    }
+
+    pub fn final_get_count(&self) -> i64 {
+        self.final_get_count
+    }
+
+    pub fn selected_rmw_block(&self) -> BasicBlockId {
+        self.selected_rmw_block
+    }
+
+    pub fn selected_rmw_instruction_index(&self) -> usize {
+        self.selected_rmw_instruction_index
+    }
+
+    pub fn selected_rmw_set_instruction_index(&self) -> usize {
+        self.selected_rmw_set_instruction_index
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn rmw_proof(&self) -> ArrayRmwWindowProof {
+        self.rmw_proof
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::{ArrayRmwAdd1LeafSeedProof, ArrayRmwAdd1LeafSeedRoute};
+    use crate::mir::ArrayRmwWindowProof;
+    use hakorune_mir_core::BasicBlockId;
+
+    pub(crate) fn kilo_leaf_array_rmw_add1_7block() -> ArrayRmwAdd1LeafSeedRoute {
+        ArrayRmwAdd1LeafSeedRoute {
+            size: 128,
+            ops: 2_000_000,
+            init_push_count: 1,
+            final_get_count: 2,
+            selected_rmw_block: BasicBlockId::new(23),
+            selected_rmw_instruction_index: 8,
+            selected_rmw_set_instruction_index: 13,
+            proof: ArrayRmwAdd1LeafSeedProof::KiloLeafArrayRmwAdd1SevenBlock,
+            rmw_proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
+        }
+    }
 }
 
 pub fn refresh_module_array_rmw_add1_leaf_seed_routes(module: &mut MirModule) {

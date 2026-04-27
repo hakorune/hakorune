@@ -131,8 +131,7 @@ pub use array_getset_micro_seed_plan::{
 };
 pub use array_rmw_add1_leaf_seed_plan::{
     refresh_function_array_rmw_add1_leaf_seed_route,
-    refresh_module_array_rmw_add1_leaf_seed_routes, ArrayRmwAdd1LeafSeedProof,
-    ArrayRmwAdd1LeafSeedRoute,
+    refresh_module_array_rmw_add1_leaf_seed_routes, ArrayRmwAdd1LeafSeedRoute,
 };
 pub use array_rmw_window_plan::{
     refresh_function_array_rmw_window_routes, refresh_module_array_rmw_window_routes,
