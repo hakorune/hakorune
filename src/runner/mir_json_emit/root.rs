@@ -524,9 +524,15 @@ pub(super) fn build_mir_json_root(
             }),
             "sum_variant_project_seed_route": f.metadata.sum_variant_project_seed_route.as_ref().map(|route| {
                 let (payload_i64, payload_f64, payload_string) = match route.payload() {
-                    crate::mir::SumVariantProjectSeedPayload::I64(value) => (Some(*value), None, None),
-                    crate::mir::SumVariantProjectSeedPayload::F64(value) => (None, Some(*value), None),
-                    crate::mir::SumVariantProjectSeedPayload::String(value) => (None, None, Some(value.as_str())),
+                    crate::mir::sum_variant_project_seed_plan::SumVariantProjectSeedPayload::I64(value) => {
+                        (Some(*value), None, None)
+                    }
+                    crate::mir::sum_variant_project_seed_plan::SumVariantProjectSeedPayload::F64(value) => {
+                        (None, Some(*value), None)
+                    }
+                    crate::mir::sum_variant_project_seed_plan::SumVariantProjectSeedPayload::String(value) => {
+                        (None, None, Some(value.as_str()))
+                    }
                 };
                 let mut obj = serde_json::Map::new();
                 obj.insert("kind".to_string(), json!(route.kind().to_string()));

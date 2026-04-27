@@ -263,13 +263,10 @@ pub use sum_placement_selection::{
     SumPlacementPath, SumPlacementSelection,
 };
 pub use sum_variant_project_seed_plan::{
-    refresh_function_sum_variant_project_seed_route,
-    refresh_module_sum_variant_project_seed_routes, SumVariantProjectSeedKind,
-    SumVariantProjectSeedPayload, SumVariantProjectSeedRoute,
+    refresh_function_sum_variant_project_seed_route, refresh_module_sum_variant_project_seed_routes,
 };
 pub use sum_variant_tag_seed_plan::{
     refresh_function_sum_variant_tag_seed_route, refresh_module_sum_variant_tag_seed_routes,
-    SumVariantTagSeedKind, SumVariantTagSeedRoute,
 };
 pub use thin_entry::{
     refresh_function_thin_entry_candidates, refresh_module_thin_entry_candidates,
