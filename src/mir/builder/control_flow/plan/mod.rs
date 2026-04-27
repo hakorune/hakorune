@@ -123,8 +123,6 @@ pub(in crate::mir::builder) mod nested_loop_plan_bridge;
 pub(in crate::mir::builder) mod nested_loop_plan_continue_with_return;
 pub(in crate::mir::builder) mod nested_loop_plan_recipe_fallback;
 pub(in crate::mir::builder) mod nested_loop_plan_recipe_fallback_policy;
-// Phase W6: shared scan loop segment vocabulary (SSOT)
-pub(in crate::mir::builder) mod scan_loop_segments;
 // Phase 29bq+: Trim utilities moved to plan side
 pub(in crate::mir::builder) mod trim_loop_lowering;
 pub(in crate::mir::builder) mod trim_lowerer;
