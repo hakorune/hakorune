@@ -184,15 +184,13 @@ impl RecipeComposer {
                 .debug("[recipe:compose] route=bundle_resolver_v0 path=recipe_first");
         }
 
-        crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::lower_loop_bundle_resolver_v0(
-            builder, bundle_facts, ctx,
-        )
-        .map_err(|e| {
-            Freeze::contract(&format!(
-                "loop_bundle_resolver_v0 normalize failed: {}",
-                e
-            ))
-        })
+        crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::pipeline::lower_loop_bundle_resolver_v0(builder, bundle_facts, ctx)
+            .map_err(|e| {
+                Freeze::contract(&format!(
+                    "loop_bundle_resolver_v0 normalize failed: {}",
+                    e
+                ))
+            })
     }
 
     /// Compose loop_cond_break_continue facts into LoweredRecipe without normalizer.

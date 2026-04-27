@@ -8,12 +8,4 @@
 //! This is intended to unblock selfhost Stage-B bundling/using code paths under
 //! `strict/dev + planner_required` without widening release defaults.
 
-mod pipeline;
-
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::{
-    try_extract_loop_bundle_resolver_v0_facts, LoopBundleResolverV0Facts,
-};
-pub(in crate::mir::builder) use pipeline::lower_loop_bundle_resolver_v0;
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::recipes::loop_bundle_resolver_v0::LoopBundleResolverV0Recipe;
+pub(in crate::mir::builder) mod pipeline;
