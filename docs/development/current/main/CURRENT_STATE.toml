@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-538"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-538-value-origin-root-export-prune-card.md"
-latest_card_summary = "Remove value-origin query vocabulary from the MIR root facade and migrate consumers to the owner module."
+latest_card = "291x-539"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-539-rc-insertion-root-export-prune-card.md"
+latest_card_summary = "Remove unused RC insertion pass re-exports from the MIR root facade."
 
 current_blocker_token = "phase-291x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -258,4 +258,5 @@ landed_tail = [
   "291x-536 string-corridor placement internal import hygiene landed",
   "291x-537 MIR root facade contract landed",
   "291x-538 value-origin root export prune landed",
+  "291x-539 RC insertion root export prune landed",
 ]
