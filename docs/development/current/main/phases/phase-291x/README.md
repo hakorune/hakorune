@@ -173,6 +173,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-472-generic-method-route-root-export-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-473-generic-method-route-root-export-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-474-generic-method-route-root-export-closeout-card.md
+  - docs/development/current/main/phases/phase-291x/291x-475-next-lane-selection-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -180,7 +181,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: select next phase-291x compiler-cleanliness lane
+- Next implementation target: inventory GenericMethodRoute component visibility
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -192,7 +193,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-474-generic-method-route-root-export-closeout-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-475-next-lane-selection-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
