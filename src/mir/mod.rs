@@ -123,7 +123,6 @@ pub(crate) use builder::detect_parse_string_shape;
 // Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
 pub use agg_local_scalarization::{
     refresh_function_agg_local_scalarization_routes, refresh_module_agg_local_scalarization_routes,
-    AggLocalScalarizationKind, AggLocalScalarizationRoute,
 };
 pub use array_getset_micro_seed_plan::{
     refresh_function_array_getset_micro_seed_route, refresh_module_array_getset_micro_seed_routes,

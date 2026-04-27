@@ -1,5 +1,6 @@
 use super::super::build_mir_json_root;
 use super::make_function;
+use crate::mir::agg_local_scalarization::{AggLocalScalarizationKind, AggLocalScalarizationRoute};
 use crate::mir::{BasicBlockId, MirModule};
 
 #[test]
@@ -109,12 +110,12 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
     function
         .metadata
         .agg_local_scalarization_routes
-        .push(crate::mir::AggLocalScalarizationRoute {
+        .push(AggLocalScalarizationRoute {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(2),
             value: Some(crate::mir::ValueId::new(11)),
             subject: "Option::Some".to_string(),
-            kind: crate::mir::AggLocalScalarizationKind::SumLocalLayout(
+            kind: AggLocalScalarizationKind::SumLocalLayout(
                 crate::mir::SumLocalAggregateLayout::TagI64Payload,
             ),
             reason: "selected local aggregate uses i64 payload lane".to_string(),
@@ -122,12 +123,12 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
     function
         .metadata
         .agg_local_scalarization_routes
-        .push(crate::mir::AggLocalScalarizationRoute {
+        .push(AggLocalScalarizationRoute {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(3),
             value: Some(crate::mir::ValueId::new(12)),
             subject: "Point.x".to_string(),
-            kind: crate::mir::AggLocalScalarizationKind::UserBoxLocalBody(
+            kind: AggLocalScalarizationKind::UserBoxLocalBody(
                 crate::mir::ThinEntryValueClass::InlineI64,
             ),
             reason: "typed field read stays on thin internal scalar lane".to_string(),
@@ -135,14 +136,12 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
     function
         .metadata
         .agg_local_scalarization_routes
-        .push(crate::mir::AggLocalScalarizationRoute {
+        .push(AggLocalScalarizationRoute {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(4),
             value: Some(crate::mir::ValueId::new(13)),
             subject: "Point.flag".to_string(),
-            kind: crate::mir::AggLocalScalarizationKind::TypedSlotStorage(
-                crate::mir::StorageClass::InlineBool,
-            ),
+            kind: AggLocalScalarizationKind::TypedSlotStorage(crate::mir::StorageClass::InlineBool),
             reason: "typed slot stays inline on the scalar lane".to_string(),
         });
     module.functions.insert("main".to_string(), function);

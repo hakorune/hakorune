@@ -1,10 +1,12 @@
+use crate::mir::agg_local_scalarization::{AggLocalScalarizationKind, AggLocalScalarizationRoute};
+
 pub(super) fn build_agg_local_scalarization_routes_json(
-    routes: &[crate::mir::AggLocalScalarizationRoute],
+    routes: &[AggLocalScalarizationRoute],
 ) -> Vec<serde_json::Value> {
     routes
         .iter()
         .map(|route| match route.kind {
-            crate::mir::AggLocalScalarizationKind::SumLocalLayout(layout) => serde_json::json!({
+            AggLocalScalarizationKind::SumLocalLayout(layout) => serde_json::json!({
                 "kind": "sum_local_layout",
                 "block": route.block.map(|block| block.as_u32()),
                 "instruction_index": route.instruction_index,
@@ -13,7 +15,7 @@ pub(super) fn build_agg_local_scalarization_routes_json(
                 "layout": layout.to_string(),
                 "reason": route.reason,
             }),
-            crate::mir::AggLocalScalarizationKind::UserBoxLocalBody(value_class) => {
+            AggLocalScalarizationKind::UserBoxLocalBody(value_class) => {
                 serde_json::json!({
                     "kind": "user_box_local_body",
                     "block": route.block.map(|block| block.as_u32()),
@@ -24,7 +26,7 @@ pub(super) fn build_agg_local_scalarization_routes_json(
                     "reason": route.reason,
                 })
             }
-            crate::mir::AggLocalScalarizationKind::TypedSlotStorage(storage_class) => {
+            AggLocalScalarizationKind::TypedSlotStorage(storage_class) => {
                 serde_json::json!({
                     "kind": "typed_slot_storage",
                     "block": route.block.map(|block| block.as_u32()),

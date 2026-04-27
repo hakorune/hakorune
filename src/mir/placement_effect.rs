@@ -7,7 +7,7 @@
  */
 
 use super::{
-    agg_local_scalarization::AggLocalScalarizationKind,
+    agg_local_scalarization::{AggLocalScalarizationKind, AggLocalScalarizationRoute},
     build_value_def_map,
     string_corridor_placement::{StringCorridorCandidateKind, StringCorridorCandidateState},
     sum_placement_selection::{SumPlacementPath, SumPlacementSelection},
@@ -520,7 +520,7 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
     }
 }
 
-fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<PlacementEffectRoute> {
+fn agg_local_route(route: &AggLocalScalarizationRoute) -> Option<PlacementEffectRoute> {
     let detail = route.kind.to_string();
     match route.kind {
         AggLocalScalarizationKind::SumLocalLayout(_)
@@ -577,15 +577,17 @@ fn route_sort_key(route: &PlacementEffectRoute) -> (u8, u32, u32, u32, String) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::agg_local_scalarization::{
+        AggLocalScalarizationKind, AggLocalScalarizationRoute,
+    };
     use crate::mir::{
-        AggLocalScalarizationKind, AggLocalScalarizationRoute, BasicBlockId, EffectMask,
-        FunctionSignature, MirInstruction, MirType, StorageClass, StringCorridorCandidate,
-        StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
-        StringCorridorCandidateState, StringCorridorPublicationBoundary,
-        StringCorridorPublicationContract, SumLocalAggregateLayout, SumPlacementPath,
-        SumPlacementSelection, ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry,
-        ThinEntrySelection, ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass,
-        ValueId,
+        BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType, StorageClass,
+        StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
+        StringCorridorCandidateProof, StringCorridorCandidateState,
+        StringCorridorPublicationBoundary, StringCorridorPublicationContract,
+        SumLocalAggregateLayout, SumPlacementPath, SumPlacementSelection, ThinEntryCurrentCarrier,
+        ThinEntryDemand, ThinEntryPreferredEntry, ThinEntrySelection, ThinEntrySelectionState,
+        ThinEntrySurface, ThinEntryValueClass, ValueId,
     };
 
     #[test]
