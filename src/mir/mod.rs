@@ -197,9 +197,6 @@ pub use map_lookup_fusion_plan::{
 pub use optimizer::MirOptimizer;
 pub use placement_effect::{
     refresh_function_placement_effect_routes, refresh_module_placement_effect_routes,
-    PlacementEffectBorrowContract, PlacementEffectDecision, PlacementEffectDemand,
-    PlacementEffectPublicationBoundary, PlacementEffectRoute, PlacementEffectSource,
-    PlacementEffectState, PlacementEffectStringProof,
 };
 pub use printer::MirPrinter;
 pub use query::{MirQuery, MirQueryBox};

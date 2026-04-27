@@ -1,6 +1,11 @@
 use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::agg_local_scalarization::{AggLocalScalarizationKind, AggLocalScalarizationRoute};
+use crate::mir::placement_effect::{
+    PlacementEffectBorrowContract, PlacementEffectDecision, PlacementEffectDemand,
+    PlacementEffectPublicationBoundary, PlacementEffectRoute, PlacementEffectSource,
+    PlacementEffectState, PlacementEffectStringProof,
+};
 use crate::mir::{BasicBlockId, MirModule};
 
 #[test]
@@ -167,37 +172,35 @@ fn build_mir_json_root_emits_placement_effect_routes() {
     function
         .metadata
         .placement_effect_routes
-        .push(crate::mir::PlacementEffectRoute {
+        .push(PlacementEffectRoute {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(2),
             value: Some(crate::mir::ValueId::new(11)),
             source_value: None,
             window_start: Some(crate::mir::ValueId::new(2)),
             window_end: Some(crate::mir::ValueId::new(3)),
-            borrow_contract: Some(crate::mir::PlacementEffectBorrowContract::BorrowTextFromObject),
+            borrow_contract: Some(PlacementEffectBorrowContract::BorrowTextFromObject),
             publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
             publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
             stable_view_provenance: None,
-            string_proof: Some(crate::mir::PlacementEffectStringProof::BorrowedSlice {
+            string_proof: Some(PlacementEffectStringProof::BorrowedSlice {
                 source: crate::mir::ValueId::new(1),
                 start: crate::mir::ValueId::new(2),
                 end: crate::mir::ValueId::new(3),
             }),
-            publication_boundary: Some(
-                crate::mir::PlacementEffectPublicationBoundary::FirstExternalBoundary,
-            ),
-            source: crate::mir::PlacementEffectSource::StringCorridor,
+            publication_boundary: Some(PlacementEffectPublicationBoundary::FirstExternalBoundary),
+            source: PlacementEffectSource::StringCorridor,
             subject: "string.value%11".to_string(),
-            decision: crate::mir::PlacementEffectDecision::PublishHandle,
-            demand: crate::mir::PlacementEffectDemand::PublishHandle,
-            state: crate::mir::PlacementEffectState::Candidate,
+            decision: PlacementEffectDecision::PublishHandle,
+            demand: PlacementEffectDemand::PublishHandle,
+            state: PlacementEffectState::Candidate,
             detail: Some("plan(root=%11 source=- outer=- known_len=- proof=borrowed_slice(src=%1 start=%2 end=%3))".to_string()),
             reason: "publish boundary can sink to the corridor exit".to_string(),
         });
     function
         .metadata
         .placement_effect_routes
-        .push(crate::mir::PlacementEffectRoute {
+        .push(PlacementEffectRoute {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(3),
             value: Some(crate::mir::ValueId::new(12)),
@@ -210,18 +213,18 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             stable_view_provenance: None,
             string_proof: None,
             publication_boundary: None,
-            source: crate::mir::PlacementEffectSource::SumPlacement,
+            source: PlacementEffectSource::SumPlacement,
             subject: "Option::Some".to_string(),
-            decision: crate::mir::PlacementEffectDecision::LocalAggregate,
-            demand: crate::mir::PlacementEffectDemand::LocalAggregate,
-            state: crate::mir::PlacementEffectState::Selected,
+            decision: PlacementEffectDecision::LocalAggregate,
+            demand: PlacementEffectDemand::LocalAggregate,
+            state: PlacementEffectState::Selected,
             detail: Some("variant_make.local_aggregate".to_string()),
             reason: "selected local aggregate route".to_string(),
         });
     function
         .metadata
         .placement_effect_routes
-        .push(crate::mir::PlacementEffectRoute {
+        .push(PlacementEffectRoute {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(4),
             value: Some(crate::mir::ValueId::new(13)),
@@ -234,18 +237,18 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             stable_view_provenance: None,
             string_proof: None,
             publication_boundary: None,
-            source: crate::mir::PlacementEffectSource::AggLocalScalarization,
+            source: PlacementEffectSource::AggLocalScalarization,
             subject: "Point.x".to_string(),
-            decision: crate::mir::PlacementEffectDecision::LocalAggregate,
-            demand: crate::mir::PlacementEffectDemand::LocalAggregate,
-            state: crate::mir::PlacementEffectState::AlreadySatisfied,
+            decision: PlacementEffectDecision::LocalAggregate,
+            demand: PlacementEffectDemand::LocalAggregate,
+            state: PlacementEffectState::AlreadySatisfied,
             detail: Some("user_box_local_body(inline_i64)".to_string()),
             reason: "typed field body stays aggregate-local".to_string(),
         });
     function
         .metadata
         .placement_effect_routes
-        .push(crate::mir::PlacementEffectRoute {
+        .push(PlacementEffectRoute {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(5),
             value: Some(crate::mir::ValueId::new(14)),
@@ -258,11 +261,11 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             stable_view_provenance: None,
             string_proof: None,
             publication_boundary: None,
-            source: crate::mir::PlacementEffectSource::ThinEntry,
+            source: PlacementEffectSource::ThinEntry,
             subject: "Point.x".to_string(),
-            decision: crate::mir::PlacementEffectDecision::ThinInternalEntry,
-            demand: crate::mir::PlacementEffectDemand::Immediate,
-            state: crate::mir::PlacementEffectState::AlreadySatisfied,
+            decision: PlacementEffectDecision::ThinInternalEntry,
+            demand: PlacementEffectDemand::Immediate,
+            state: PlacementEffectState::AlreadySatisfied,
             detail: Some("user_box_field_get.inline_scalar".to_string()),
             reason: "typed field read stays on thin internal scalar lane".to_string(),
         });

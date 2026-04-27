@@ -1,4 +1,8 @@
 use super::*;
+use crate::mir::placement_effect::{
+    PlacementEffectBorrowContract, PlacementEffectDecision, PlacementEffectSource,
+    PlacementEffectStringProof,
+};
 
 pub(super) fn build_use_counts(function: &MirFunction) -> HashMap<ValueId, usize> {
     let mut uses: HashMap<ValueId, usize> = HashMap::new();
@@ -33,9 +37,7 @@ pub(super) fn placement_effect_string_window_for_value(
         .placement_effect_routes
         .iter()
         .find_map(|route| {
-            if route.source == crate::mir::PlacementEffectSource::StringCorridor
-                && route.value == Some(value)
-            {
+            if route.source == PlacementEffectSource::StringCorridor && route.value == Some(value) {
                 route.window_start.zip(route.window_end)
             } else {
                 None
@@ -264,17 +266,13 @@ fn placement_effect_helper_plan_for_kind(
     kind: StringCorridorCandidateKind,
 ) -> Option<StringCorridorCandidatePlan> {
     let decision = match kind {
-        StringCorridorCandidateKind::BorrowCorridorFusion => {
-            crate::mir::PlacementEffectDecision::StayBorrowed
-        }
-        StringCorridorCandidateKind::PublicationSink => {
-            crate::mir::PlacementEffectDecision::PublishHandle
-        }
+        StringCorridorCandidateKind::BorrowCorridorFusion => PlacementEffectDecision::StayBorrowed,
+        StringCorridorCandidateKind::PublicationSink => PlacementEffectDecision::PublishHandle,
         StringCorridorCandidateKind::MaterializationSink => {
-            crate::mir::PlacementEffectDecision::MaterializeOwned
+            PlacementEffectDecision::MaterializeOwned
         }
         StringCorridorCandidateKind::DirectKernelEntry => {
-            crate::mir::PlacementEffectDecision::DirectKernelEntry
+            PlacementEffectDecision::DirectKernelEntry
         }
     };
     let route = function
@@ -282,15 +280,15 @@ fn placement_effect_helper_plan_for_kind(
         .placement_effect_routes
         .iter()
         .find(|route| {
-            route.source == crate::mir::PlacementEffectSource::StringCorridor
+            route.source == PlacementEffectSource::StringCorridor
                 && route.value == Some(root)
                 && route.decision == decision
         })?;
     let proof = match route.string_proof? {
-        crate::mir::PlacementEffectStringProof::BorrowedSlice { source, start, end } => {
+        PlacementEffectStringProof::BorrowedSlice { source, start, end } => {
             StringCorridorCandidateProof::BorrowedSlice { source, start, end }
         }
-        crate::mir::PlacementEffectStringProof::ConcatTriplet {
+        PlacementEffectStringProof::ConcatTriplet {
             left_value,
             left_source,
             left_start,
@@ -321,7 +319,7 @@ fn placement_effect_helper_plan_for_kind(
         corridor_root: route.value.unwrap_or(root),
         source_root: route.source_value,
         borrow_contract: route.borrow_contract.map(|contract| match contract {
-            crate::mir::PlacementEffectBorrowContract::BorrowTextFromObject => {
+            PlacementEffectBorrowContract::BorrowTextFromObject => {
                 crate::mir::StringCorridorBorrowContract::BorrowTextFromObject
             }
         }),

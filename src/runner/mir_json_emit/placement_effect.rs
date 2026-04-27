@@ -1,5 +1,7 @@
+use crate::mir::placement_effect::{PlacementEffectRoute, PlacementEffectStringProof};
+
 pub(super) fn build_placement_effect_routes_json(
-    routes: &[crate::mir::PlacementEffectRoute],
+    routes: &[PlacementEffectRoute],
 ) -> Vec<serde_json::Value> {
     routes
         .iter()
@@ -29,11 +31,9 @@ pub(super) fn build_placement_effect_routes_json(
         .collect()
 }
 
-fn build_string_proof_json(
-    proof: Option<crate::mir::PlacementEffectStringProof>,
-) -> serde_json::Value {
+fn build_string_proof_json(proof: Option<PlacementEffectStringProof>) -> serde_json::Value {
     match proof {
-        Some(crate::mir::PlacementEffectStringProof::BorrowedSlice { source, start, end }) => {
+        Some(PlacementEffectStringProof::BorrowedSlice { source, start, end }) => {
             serde_json::json!({
                 "kind": "borrowed_slice",
                 "source": source.as_u32(),
@@ -41,7 +41,7 @@ fn build_string_proof_json(
                 "end": end.as_u32(),
             })
         }
-        Some(crate::mir::PlacementEffectStringProof::ConcatTriplet {
+        Some(PlacementEffectStringProof::ConcatTriplet {
             left_value,
             left_source,
             left_start,
