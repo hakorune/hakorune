@@ -2,11 +2,23 @@ use crate::mir::string_corridor::{
     StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy,
 };
 use crate::mir::string_corridor_placement::{
-    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
-    StringCorridorCandidateState, StringCorridorPublicationBoundary,
+    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
+    StringCorridorCandidateProof, StringCorridorCandidateState, StringCorridorPublicationBoundary,
     StringCorridorPublicationContract,
 };
-use crate::mir::*;
+use crate::mir::{
+    BasicBlock, BasicBlockId, BinaryOp, Callee, CompareOp, ConstValue, EffectMask,
+    FunctionSignature, MirFunction, MirInstruction, MirType, ValueId,
+};
+
+use super::{
+    derive_string_kernel_plan, infer_string_kernel_text_consumer,
+    refresh_function_string_kernel_plans, StringKernelPlanBorrowContract, StringKernelPlanCarrier,
+    StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanLegality,
+    StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
+    StringKernelPlanReadAliasFacts, StringKernelPlanRetainedForm, StringKernelPlanSlotHopSubstring,
+    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
+};
 
 fn make_loop_function() -> MirFunction {
     let entry = BasicBlockId::new(0);
@@ -104,7 +116,7 @@ fn make_loop_function() -> MirFunction {
 #[test]
 fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
     let function = make_loop_function();
-    let publication_plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+    let publication_plan = StringCorridorCandidatePlan {
         corridor_root: ValueId::new(7),
         source_root: Some(ValueId::new(1)),
         borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
@@ -130,7 +142,7 @@ fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
             shared_source: true,
         },
     };
-    let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+    let plan = StringCorridorCandidatePlan {
         corridor_root: ValueId::new(7),
         source_root: Some(ValueId::new(1)),
         borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
@@ -267,7 +279,7 @@ fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
 #[test]
 fn derive_string_kernel_plan_collects_concat_loop_payload() {
     let function = make_loop_function();
-    let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+    let plan = StringCorridorCandidatePlan {
         corridor_root: ValueId::new(21),
         source_root: Some(ValueId::new(21)),
         borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
@@ -327,7 +339,7 @@ fn derive_string_kernel_plan_marks_slot_text_consumer_for_same_corridor_substrin
         MirInstruction::Call {
             dst: Some(dst),
             func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Method {
+            callee: Some(Callee::Method {
                 box_name: "RuntimeDataBox".to_string(),
                 method: method.to_string(),
                 receiver: Some(receiver),
@@ -370,7 +382,7 @@ fn derive_string_kernel_plan_marks_slot_text_consumer_for_same_corridor_substrin
         MirInstruction::Call {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Extern(
+            callee: Some(Callee::Extern(
                 "nyash.string.substring_concat3_hhhii".to_string(),
             )),
             args: vec![
@@ -394,7 +406,7 @@ fn derive_string_kernel_plan_marks_slot_text_consumer_for_same_corridor_substrin
         value: Some(ValueId::new(11)),
     });
 
-    let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+    let plan = StringCorridorCandidatePlan {
         corridor_root: ValueId::new(10),
         source_root: Some(ValueId::new(0)),
         borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
@@ -487,7 +499,7 @@ fn derive_string_kernel_plan_marks_shared_receiver_alias_fact() {
         MirInstruction::Call {
             dst,
             func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Method {
+            callee: Some(Callee::Method {
                 box_name: "RuntimeDataBox".to_string(),
                 method: method.to_string(),
                 receiver: Some(receiver),
@@ -530,7 +542,7 @@ fn derive_string_kernel_plan_marks_shared_receiver_alias_fact() {
         MirInstruction::Call {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Extern(
+            callee: Some(Callee::Extern(
                 "nyash.string.substring_concat3_hhhii".to_string(),
             )),
             args: vec![
@@ -560,7 +572,7 @@ fn derive_string_kernel_plan_marks_shared_receiver_alias_fact() {
         value: Some(ValueId::new(11)),
     });
 
-    let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+    let plan = StringCorridorCandidatePlan {
         corridor_root: ValueId::new(10),
         source_root: Some(ValueId::new(0)),
         borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
@@ -628,7 +640,7 @@ fn derive_string_kernel_plan_marks_direct_set_consumer_alias_fact() {
         MirInstruction::Call {
             dst,
             func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Method {
+            callee: Some(Callee::Method {
                 box_name: "RuntimeDataBox".to_string(),
                 method: method.to_string(),
                 receiver: Some(receiver),
@@ -671,7 +683,7 @@ fn derive_string_kernel_plan_marks_direct_set_consumer_alias_fact() {
         MirInstruction::Call {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Extern(
+            callee: Some(Callee::Extern(
                 "nyash.string.substring_concat3_hhhii".to_string(),
             )),
             args: vec![
@@ -693,7 +705,7 @@ fn derive_string_kernel_plan_marks_direct_set_consumer_alias_fact() {
     block.instruction_spans.extend(vec![Span::unknown(); 6]);
     block.set_terminator(MirInstruction::Return { value: None });
 
-    let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+    let plan = StringCorridorCandidatePlan {
         corridor_root: ValueId::new(10),
         source_root: Some(ValueId::new(0)),
         borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
@@ -774,7 +786,7 @@ fn infer_string_kernel_text_consumer_marks_return_boundary_as_explicit_cold_publ
         MirInstruction::Call {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Extern(
+            callee: Some(Callee::Extern(
                 "nyash.string.substring_concat3_hhhii".to_string(),
             )),
             args: vec![
@@ -829,7 +841,7 @@ fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
         MirInstruction::Call {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Extern(
+            callee: Some(Callee::Extern(
                 "nyash.string.substring_concat3_hhhii".to_string(),
             )),
             args: vec![
@@ -847,7 +859,7 @@ fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
         value: Some(ValueId::new(10)),
     });
 
-    let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+    let plan = StringCorridorCandidatePlan {
         corridor_root: ValueId::new(10),
         source_root: Some(ValueId::new(0)),
         borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
@@ -897,7 +909,7 @@ fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
 #[test]
 fn refresh_function_collects_string_kernel_plans() {
     let mut function = make_loop_function();
-    let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+    let plan = StringCorridorCandidatePlan {
         corridor_root: ValueId::new(7),
         source_root: Some(ValueId::new(1)),
         borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),

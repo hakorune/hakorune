@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::string_corridor::StringCorridorCarrier;
 use crate::mir::{
     BasicBlock, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
     MirInstruction, MirType, ValueId,

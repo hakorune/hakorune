@@ -179,9 +179,9 @@ fn reason_for_layout(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{
-        EffectMask, FunctionSignature, SumPlacementSelection, ThinEntrySurface, ValueId,
-    };
+    use crate::mir::sum_placement_selection::SumPlacementSelection;
+    use crate::mir::thin_entry::ThinEntrySurface;
+    use crate::mir::{EffectMask, FunctionSignature, ValueId};
 
     #[test]
     fn refresh_function_chooses_i64_and_float_layouts_for_selected_sum_routes() {
