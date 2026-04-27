@@ -209,39 +209,22 @@ pub(super) fn build_mir_json_root(
                 })
             }).collect::<Vec<_>>(),
             "array_string_len_window_routes": f.metadata.array_string_len_window_routes.iter().map(|route| {
-                let (keep_get_live, source_only_insert_mid, effects) = match route.mode {
-                    crate::mir::ArrayStringLenWindowMode::LenOnly => (
-                        false,
-                        false,
-                        vec!["load.cell", "observe.len"],
-                    ),
-                    crate::mir::ArrayStringLenWindowMode::KeepGetLive => (
-                        true,
-                        false,
-                        vec!["load.cell", "observe.len", "keep.source.live"],
-                    ),
-                    crate::mir::ArrayStringLenWindowMode::SourceOnlyInsertMid => (
-                        false,
-                        true,
-                        vec!["load.cell", "observe.len", "publish.source.ref"],
-                    ),
-                };
                 json!({
                     "route_id": "array.string_len.window",
-                    "block": route.block.as_u32(),
-                    "instruction_index": route.instruction_index,
-                    "array_value": route.array_value.as_u32(),
-                    "index_value": route.index_value.as_u32(),
-                    "source_value": route.source_value.as_u32(),
-                    "len_instruction_index": route.len_instruction_index,
-                    "len_value": route.len_value.as_u32(),
-                    "skip_instruction_indices": route.skip_instruction_indices,
-                    "mode": route.mode.to_string(),
-                    "proof": route.proof.to_string(),
+                    "block": route.block().as_u32(),
+                    "instruction_index": route.instruction_index(),
+                    "array_value": route.array_value().as_u32(),
+                    "index_value": route.index_value().as_u32(),
+                    "source_value": route.source_value().as_u32(),
+                    "len_instruction_index": route.len_instruction_index(),
+                    "len_value": route.len_value().as_u32(),
+                    "skip_instruction_indices": route.skip_instruction_indices(),
+                    "mode": route.mode(),
+                    "proof": route.proof(),
                     "emit_symbol": "nyash.array.string_len_hi",
-                    "keep_get_live": keep_get_live,
-                    "source_only_insert_mid": source_only_insert_mid,
-                    "effects": effects,
+                    "keep_get_live": route.keep_get_live(),
+                    "source_only_insert_mid": route.source_only_insert_mid(),
+                    "effects": route.effect_tags(),
                 })
             }).collect::<Vec<_>>(),
             "array_text_loopcarry_len_store_routes": f.metadata.array_text_loopcarry_len_store_routes.iter().map(|route| {

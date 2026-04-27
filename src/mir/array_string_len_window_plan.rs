@@ -21,53 +21,133 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayStringLenWindowMode {
+enum ArrayStringLenWindowMode {
     LenOnly,
     KeepGetLive,
     SourceOnlyInsertMid,
 }
 
-impl std::fmt::Display for ArrayStringLenWindowMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ArrayStringLenWindowMode {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::LenOnly => f.write_str("len_only"),
-            Self::KeepGetLive => f.write_str("keep_get_live"),
-            Self::SourceOnlyInsertMid => f.write_str("source_only_insert_mid"),
+            Self::LenOnly => "len_only",
+            Self::KeepGetLive => "keep_get_live",
+            Self::SourceOnlyInsertMid => "source_only_insert_mid",
+        }
+    }
+
+    fn keep_get_live(self) -> bool {
+        matches!(self, Self::KeepGetLive)
+    }
+
+    fn source_only_insert_mid(self) -> bool {
+        matches!(self, Self::SourceOnlyInsertMid)
+    }
+
+    fn effect_tags(self) -> &'static [&'static str] {
+        match self {
+            Self::LenOnly => &["load.cell", "observe.len"],
+            Self::KeepGetLive => &["load.cell", "observe.len", "keep.source.live"],
+            Self::SourceOnlyInsertMid => &["load.cell", "observe.len", "publish.source.ref"],
         }
     }
 }
 
+impl std::fmt::Display for ArrayStringLenWindowMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayStringLenWindowProof {
+enum ArrayStringLenWindowProof {
     ArrayGetLenNoLaterSourceUse,
     ArrayGetLenKeepSourceLive,
     ArrayGetLenSourceOnlyDirectSet,
 }
 
+impl ArrayStringLenWindowProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::ArrayGetLenNoLaterSourceUse => "array_get_len_no_later_source_use",
+            Self::ArrayGetLenKeepSourceLive => "array_get_len_keep_source_live",
+            Self::ArrayGetLenSourceOnlyDirectSet => "array_get_len_source_only_direct_set",
+        }
+    }
+}
+
 impl std::fmt::Display for ArrayStringLenWindowProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::ArrayGetLenNoLaterSourceUse => f.write_str("array_get_len_no_later_source_use"),
-            Self::ArrayGetLenKeepSourceLive => f.write_str("array_get_len_keep_source_live"),
-            Self::ArrayGetLenSourceOnlyDirectSet => {
-                f.write_str("array_get_len_source_only_direct_set")
-            }
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayStringLenWindowRoute {
-    pub block: BasicBlockId,
-    pub instruction_index: usize,
-    pub array_value: ValueId,
-    pub index_value: ValueId,
-    pub source_value: ValueId,
-    pub len_instruction_index: usize,
-    pub len_value: ValueId,
-    pub skip_instruction_indices: Vec<usize>,
-    pub mode: ArrayStringLenWindowMode,
-    pub proof: ArrayStringLenWindowProof,
+    block: BasicBlockId,
+    instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    source_value: ValueId,
+    len_instruction_index: usize,
+    len_value: ValueId,
+    skip_instruction_indices: Vec<usize>,
+    mode: ArrayStringLenWindowMode,
+    proof: ArrayStringLenWindowProof,
+}
+
+impl ArrayStringLenWindowRoute {
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn instruction_index(&self) -> usize {
+        self.instruction_index
+    }
+
+    pub fn array_value(&self) -> ValueId {
+        self.array_value
+    }
+
+    pub fn index_value(&self) -> ValueId {
+        self.index_value
+    }
+
+    pub fn source_value(&self) -> ValueId {
+        self.source_value
+    }
+
+    pub fn len_instruction_index(&self) -> usize {
+        self.len_instruction_index
+    }
+
+    pub fn len_value(&self) -> ValueId {
+        self.len_value
+    }
+
+    pub fn skip_instruction_indices(&self) -> &[usize] {
+        &self.skip_instruction_indices
+    }
+
+    pub fn mode(&self) -> &'static str {
+        self.mode.as_str()
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn keep_get_live(&self) -> bool {
+        self.mode.keep_get_live()
+    }
+
+    pub fn source_only_insert_mid(&self) -> bool {
+        self.mode.source_only_insert_mid()
+    }
+
+    pub fn effect_tags(&self) -> &'static [&'static str] {
+        self.mode.effect_tags()
+    }
 }
 
 pub fn refresh_module_array_string_len_window_routes(module: &mut MirModule) {
@@ -503,6 +583,41 @@ fn match_len_only_route(
         mode,
         proof,
     })
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::*;
+
+    pub(crate) fn json_len_only_route() -> ArrayStringLenWindowRoute {
+        ArrayStringLenWindowRoute {
+            block: BasicBlockId::new(7),
+            instruction_index: 3,
+            array_value: ValueId::new(10),
+            index_value: ValueId::new(11),
+            source_value: ValueId::new(12),
+            len_instruction_index: 5,
+            len_value: ValueId::new(13),
+            skip_instruction_indices: vec![4, 5],
+            mode: ArrayStringLenWindowMode::LenOnly,
+            proof: ArrayStringLenWindowProof::ArrayGetLenNoLaterSourceUse,
+        }
+    }
+
+    pub(crate) fn json_keep_get_live_route() -> ArrayStringLenWindowRoute {
+        ArrayStringLenWindowRoute {
+            block: BasicBlockId::new(8),
+            instruction_index: 4,
+            array_value: ValueId::new(20),
+            index_value: ValueId::new(21),
+            source_value: ValueId::new(22),
+            len_instruction_index: 6,
+            len_value: ValueId::new(23),
+            skip_instruction_indices: vec![6],
+            mode: ArrayStringLenWindowMode::KeepGetLive,
+            proof: ArrayStringLenWindowProof::ArrayGetLenKeepSourceLive,
+        }
+    }
 }
 
 #[cfg(test)]

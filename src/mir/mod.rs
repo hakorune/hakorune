@@ -139,7 +139,7 @@ pub use array_rmw_window_plan::{
 };
 pub use array_string_len_window_plan::{
     refresh_function_array_string_len_window_routes, refresh_module_array_string_len_window_routes,
-    ArrayStringLenWindowMode, ArrayStringLenWindowProof, ArrayStringLenWindowRoute,
+    ArrayStringLenWindowRoute,
 };
 pub use array_string_store_micro_seed_plan::{
     refresh_function_array_string_store_micro_seed_route,

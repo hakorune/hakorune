@@ -1,9 +1,5 @@
 use super::super::build_mir_json_root;
 use super::make_function;
-use crate::mir::{
-    ArrayStringLenWindowMode, ArrayStringLenWindowProof, ArrayStringLenWindowRoute, BasicBlockId,
-    ValueId,
-};
 
 #[test]
 fn build_mir_json_root_emits_array_rmw_window_routes() {
@@ -44,33 +40,11 @@ fn build_mir_json_root_emits_array_string_len_window_routes() {
     function
         .metadata
         .array_string_len_window_routes
-        .push(ArrayStringLenWindowRoute {
-            block: BasicBlockId::new(7),
-            instruction_index: 3,
-            array_value: ValueId::new(10),
-            index_value: ValueId::new(11),
-            source_value: ValueId::new(12),
-            len_instruction_index: 5,
-            len_value: ValueId::new(13),
-            skip_instruction_indices: vec![4, 5],
-            mode: ArrayStringLenWindowMode::LenOnly,
-            proof: ArrayStringLenWindowProof::ArrayGetLenNoLaterSourceUse,
-        });
+        .push(crate::mir::array_string_len_window_plan::test_support::json_len_only_route());
     function
         .metadata
         .array_string_len_window_routes
-        .push(ArrayStringLenWindowRoute {
-            block: BasicBlockId::new(8),
-            instruction_index: 4,
-            array_value: ValueId::new(20),
-            index_value: ValueId::new(21),
-            source_value: ValueId::new(22),
-            len_instruction_index: 6,
-            len_value: ValueId::new(23),
-            skip_instruction_indices: vec![6],
-            mode: ArrayStringLenWindowMode::KeepGetLive,
-            proof: ArrayStringLenWindowProof::ArrayGetLenKeepSourceLive,
-        });
+        .push(crate::mir::array_string_len_window_plan::test_support::json_keep_get_live_route());
     let mut module = crate::mir::MirModule::new("json_array_string_len_routes_test".to_string());
     module.add_function(function);
 
