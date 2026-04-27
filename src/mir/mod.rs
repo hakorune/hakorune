@@ -160,9 +160,7 @@ pub use array_text_loopcarry_plan::{
 };
 pub use array_text_observer_plan::{
     refresh_function_array_text_observer_routes, refresh_module_array_text_observer_routes,
-    ArrayTextObserverArgRepr, ArrayTextObserverConsumerShape, ArrayTextObserverKind,
-    ArrayTextObserverProofRegion, ArrayTextObserverPublicationBoundary,
-    ArrayTextObserverResultRepr, ArrayTextObserverRoute,
+    ArrayTextObserverRoute,
 };
 pub use array_text_observer_region_contract::{
     ArrayTextObserverExecutorCarrier, ArrayTextObserverExecutorConsumerCapability,

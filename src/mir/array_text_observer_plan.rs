@@ -26,8 +26,14 @@ pub enum ArrayTextObserverKind {
 
 impl std::fmt::Display for ArrayTextObserverKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextObserverKind {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::IndexOf => f.write_str("indexof"),
+            Self::IndexOf => "indexof",
         }
     }
 }
@@ -40,9 +46,15 @@ pub enum ArrayTextObserverConsumerShape {
 
 impl std::fmt::Display for ArrayTextObserverConsumerShape {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextObserverConsumerShape {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::DirectScalar => f.write_str("direct_scalar"),
-            Self::FoundPredicate => f.write_str("found_predicate"),
+            Self::DirectScalar => "direct_scalar",
+            Self::FoundPredicate => "found_predicate",
         }
     }
 }
@@ -54,8 +66,14 @@ pub enum ArrayTextObserverProofRegion {
 
 impl std::fmt::Display for ArrayTextObserverProofRegion {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextObserverProofRegion {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::ArrayGetReceiverIndexOf => f.write_str("array_get_receiver_indexof"),
+            Self::ArrayGetReceiverIndexOf => "array_get_receiver_indexof",
         }
     }
 }
@@ -67,8 +85,14 @@ pub enum ArrayTextObserverPublicationBoundary {
 
 impl std::fmt::Display for ArrayTextObserverPublicationBoundary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextObserverPublicationBoundary {
+    pub(crate) fn as_str(self) -> &'static str {
         match self {
-            Self::None => f.write_str("none"),
+            Self::None => "none",
         }
     }
 }
@@ -80,8 +104,14 @@ pub enum ArrayTextObserverResultRepr {
 
 impl std::fmt::Display for ArrayTextObserverResultRepr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextObserverResultRepr {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::ScalarI64 => f.write_str("scalar_i64"),
+            Self::ScalarI64 => "scalar_i64",
         }
     }
 }
@@ -99,28 +129,135 @@ impl ArrayTextObserverArgRepr {
             Self::ConstUtf8 { .. } => "const_utf8",
         }
     }
+
+    fn text(&self) -> Option<&str> {
+        match self {
+            Self::ConstUtf8 { text, .. } => Some(text.as_str()),
+            Self::Value => None,
+        }
+    }
+
+    fn byte_len(&self) -> Option<usize> {
+        match self {
+            Self::ConstUtf8 { byte_len, .. } => Some(*byte_len),
+            Self::Value => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextObserverRoute {
-    pub block: BasicBlockId,
-    pub observer_instruction_index: usize,
-    pub get_block: BasicBlockId,
-    pub get_instruction_index: usize,
-    pub array_value: ValueId,
-    pub index_value: ValueId,
-    pub source_value: ValueId,
-    pub observer_kind: ArrayTextObserverKind,
-    pub observer_arg0: ValueId,
-    pub observer_arg0_repr: ArrayTextObserverArgRepr,
-    pub observer_arg0_keep_live: bool,
-    pub result_value: ValueId,
-    pub consumer_shape: ArrayTextObserverConsumerShape,
-    pub proof_region: ArrayTextObserverProofRegion,
-    pub publication_boundary: ArrayTextObserverPublicationBoundary,
-    pub result_repr: ArrayTextObserverResultRepr,
-    pub keep_get_live: bool,
-    pub executor_contract: Option<ArrayTextObserverExecutorContract>,
+    block: BasicBlockId,
+    observer_instruction_index: usize,
+    get_block: BasicBlockId,
+    get_instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    source_value: ValueId,
+    observer_kind: ArrayTextObserverKind,
+    observer_arg0: ValueId,
+    observer_arg0_repr: ArrayTextObserverArgRepr,
+    observer_arg0_keep_live: bool,
+    result_value: ValueId,
+    consumer_shape: ArrayTextObserverConsumerShape,
+    proof_region: ArrayTextObserverProofRegion,
+    publication_boundary: ArrayTextObserverPublicationBoundary,
+    result_repr: ArrayTextObserverResultRepr,
+    keep_get_live: bool,
+    executor_contract: Option<ArrayTextObserverExecutorContract>,
+}
+
+impl ArrayTextObserverRoute {
+    pub fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub fn observer_instruction_index(&self) -> usize {
+        self.observer_instruction_index
+    }
+
+    pub fn get_block(&self) -> BasicBlockId {
+        self.get_block
+    }
+
+    pub fn get_instruction_index(&self) -> usize {
+        self.get_instruction_index
+    }
+
+    pub fn array_value(&self) -> ValueId {
+        self.array_value
+    }
+
+    pub fn index_value(&self) -> ValueId {
+        self.index_value
+    }
+
+    pub fn source_value(&self) -> ValueId {
+        self.source_value
+    }
+
+    pub fn observer_kind(&self) -> &'static str {
+        self.observer_kind.as_str()
+    }
+
+    pub fn observer_arg0(&self) -> ValueId {
+        self.observer_arg0
+    }
+
+    pub fn observer_arg0_repr_kind(&self) -> &'static str {
+        self.observer_arg0_repr.kind()
+    }
+
+    pub fn observer_arg0_text(&self) -> Option<&str> {
+        self.observer_arg0_repr.text()
+    }
+
+    pub fn observer_arg0_byte_len(&self) -> Option<usize> {
+        self.observer_arg0_repr.byte_len()
+    }
+
+    pub fn observer_arg0_keep_live(&self) -> bool {
+        self.observer_arg0_keep_live
+    }
+
+    pub fn result_value(&self) -> ValueId {
+        self.result_value
+    }
+
+    pub fn consumer_shape(&self) -> &'static str {
+        self.consumer_shape.as_str()
+    }
+
+    pub(crate) fn has_found_predicate_consumer(&self) -> bool {
+        self.consumer_shape == ArrayTextObserverConsumerShape::FoundPredicate
+    }
+
+    pub(crate) fn observer_arg0_is_const_utf8(&self) -> bool {
+        matches!(
+            self.observer_arg0_repr,
+            ArrayTextObserverArgRepr::ConstUtf8 { .. }
+        )
+    }
+
+    pub fn proof_region(&self) -> &'static str {
+        self.proof_region.as_str()
+    }
+
+    pub fn publication_boundary(&self) -> &'static str {
+        self.publication_boundary.as_str()
+    }
+
+    pub fn result_repr(&self) -> &'static str {
+        self.result_repr.as_str()
+    }
+
+    pub fn keep_get_live(&self) -> bool {
+        self.keep_get_live
+    }
+
+    pub fn executor_contract(&self) -> Option<&ArrayTextObserverExecutorContract> {
+        self.executor_contract.as_ref()
+    }
 }
 
 pub fn refresh_module_array_text_observer_routes(module: &mut MirModule) {
@@ -651,29 +788,19 @@ mod tests {
 
         assert_eq!(function.metadata.array_text_observer_routes.len(), 1);
         let route = &function.metadata.array_text_observer_routes[0];
-        assert_eq!(route.array_value, ValueId::new(1));
-        assert_eq!(route.index_value, ValueId::new(2));
-        assert_eq!(route.source_value, ValueId::new(10));
-        assert_eq!(route.observer_arg0, ValueId::new(11));
-        assert_eq!(
-            route.observer_arg0_repr,
-            ArrayTextObserverArgRepr::ConstUtf8 {
-                text: "line".to_string(),
-                byte_len: 4,
-            }
-        );
-        assert!(!route.observer_arg0_keep_live);
-        assert_eq!(route.result_value, ValueId::new(12));
-        assert_eq!(
-            route.consumer_shape,
-            ArrayTextObserverConsumerShape::FoundPredicate
-        );
-        assert_eq!(
-            route.publication_boundary,
-            ArrayTextObserverPublicationBoundary::None
-        );
-        assert_eq!(route.result_repr, ArrayTextObserverResultRepr::ScalarI64);
-        assert!(!route.keep_get_live);
+        assert_eq!(route.array_value(), ValueId::new(1));
+        assert_eq!(route.index_value(), ValueId::new(2));
+        assert_eq!(route.source_value(), ValueId::new(10));
+        assert_eq!(route.observer_arg0(), ValueId::new(11));
+        assert_eq!(route.observer_arg0_repr_kind(), "const_utf8");
+        assert_eq!(route.observer_arg0_text(), Some("line"));
+        assert_eq!(route.observer_arg0_byte_len(), Some(4));
+        assert!(!route.observer_arg0_keep_live());
+        assert_eq!(route.result_value(), ValueId::new(12));
+        assert_eq!(route.consumer_shape(), "found_predicate");
+        assert_eq!(route.publication_boundary(), "none");
+        assert_eq!(route.result_repr(), "scalar_i64");
+        assert!(!route.keep_get_live());
     }
 
     #[test]
@@ -691,15 +818,9 @@ mod tests {
 
         assert_eq!(function.metadata.array_text_observer_routes.len(), 1);
         let route = &function.metadata.array_text_observer_routes[0];
-        assert_eq!(
-            route.consumer_shape,
-            ArrayTextObserverConsumerShape::DirectScalar
-        );
-        assert_eq!(route.observer_kind, ArrayTextObserverKind::IndexOf);
-        assert_eq!(
-            route.proof_region,
-            ArrayTextObserverProofRegion::ArrayGetReceiverIndexOf
-        );
+        assert_eq!(route.consumer_shape(), "direct_scalar");
+        assert_eq!(route.observer_kind(), "indexof");
+        assert_eq!(route.proof_region(), "array_get_receiver_indexof");
     }
 
     #[test]
@@ -717,7 +838,7 @@ mod tests {
         refresh_function_array_text_observer_routes(&mut function);
 
         let route = &function.metadata.array_text_observer_routes[0];
-        assert!(route.keep_get_live);
+        assert!(route.keep_get_live());
     }
 
     #[test]
@@ -741,7 +862,7 @@ mod tests {
         refresh_function_array_text_observer_routes(&mut function);
 
         let route = &function.metadata.array_text_observer_routes[0];
-        assert!(!route.keep_get_live);
+        assert!(!route.keep_get_live());
     }
 
     #[test]
@@ -816,7 +937,7 @@ mod tests {
         refresh_function_array_text_observer_routes(&mut function);
 
         let route = &function.metadata.array_text_observer_routes[0];
-        let contract = route.executor_contract.as_ref().expect("executor contract");
+        let contract = route.executor_contract().expect("executor contract");
         assert_eq!(
             contract.execution_mode,
             ArrayTextObserverExecutorExecutionMode::SingleRegionExecutor
@@ -858,7 +979,7 @@ mod tests {
         refresh_function_array_text_observer_routes(&mut function);
 
         let route = &function.metadata.array_text_observer_routes[0];
-        assert!(route.observer_arg0_keep_live);
+        assert!(route.observer_arg0_keep_live());
     }
 
     fn test_function(return_type: MirType) -> MirFunction {

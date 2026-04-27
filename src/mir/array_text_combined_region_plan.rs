@@ -399,7 +399,7 @@ fn derive_combined_region(
     {
         return None;
     }
-    if root(function, def_map, observer_route.array_value)
+    if root(function, def_map, observer_route.array_value())
         != root(function, def_map, edit_route.array_value())
     {
         return None;
@@ -496,9 +496,9 @@ fn derive_combined_region(
         edit_middle_byte_len: edit_route.middle_byte_len(),
         observer_bound_value: observer_mapping.loop_bound_value,
         observer_bound_const: observer_mapping.loop_bound_const,
-        observer_needle_value: root(function, def_map, observer_route.observer_arg0),
-        observer_needle_text: observer_route.observer_arg0_repr.text()?.to_string(),
-        observer_needle_byte_len: observer_route.observer_arg0_repr.byte_len()?,
+        observer_needle_value: root(function, def_map, observer_route.observer_arg0()),
+        observer_needle_text: observer_route.observer_arg0_text()?.to_string(),
+        observer_needle_byte_len: observer_route.observer_arg0_byte_len()?,
         observer_suffix_value: observer_mapping.suffix_value,
         observer_suffix_text: observer_mapping.suffix_text.clone(),
         observer_suffix_byte_len: observer_mapping.suffix_byte_len,
@@ -669,10 +669,10 @@ fn match_nested_observer_region<'a>(
         return None;
     };
     for observer_route in &function.metadata.array_text_observer_routes {
-        if observer_route.array_value != edit_route.array_value() {
+        if observer_route.array_value() != edit_route.array_value() {
             continue;
         }
-        let contract = observer_route.executor_contract.as_ref()?;
+        let contract = observer_route.executor_contract()?;
         let mapping = contract.region_mapping.as_ref()?;
         if mapping.begin_block == *then_bb {
             return Some((observer_route, mapping, contract, *else_bb));
@@ -764,7 +764,7 @@ fn prove_ascii_preserved_text_cell_boundary(
     row_modulus_const: i64,
 ) -> Option<ArrayTextCombinedRegionByteBoundaryProof> {
     if !edit_route.middle_text().is_ascii()
-        || !observer_route.observer_arg0_repr.text()?.is_ascii()
+        || !observer_route.observer_arg0_text()?.is_ascii()
         || !observer_mapping.suffix_text.is_ascii()
     {
         return None;
@@ -993,25 +993,4 @@ fn match_outer_accumulator(
             .find_map(|(block, value)| (*block == latch_block).then_some(*value))?;
         is_add_const_one_from(function, def_map, latch, next, *dst).then_some((*dst, initial, next))
     })
-}
-
-trait ObserverArgConstUtf8Ext {
-    fn text(&self) -> Option<&str>;
-    fn byte_len(&self) -> Option<usize>;
-}
-
-impl ObserverArgConstUtf8Ext for super::array_text_observer_plan::ArrayTextObserverArgRepr {
-    fn text(&self) -> Option<&str> {
-        match self {
-            Self::ConstUtf8 { text, .. } => Some(text.as_str()),
-            _ => None,
-        }
-    }
-
-    fn byte_len(&self) -> Option<usize> {
-        match self {
-            Self::ConstUtf8 { byte_len, .. } => Some(*byte_len),
-            _ => None,
-        }
-    }
 }

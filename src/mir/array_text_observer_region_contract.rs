@@ -7,10 +7,7 @@
  */
 
 use super::{
-    array_text_observer_plan::{
-        ArrayTextObserverArgRepr, ArrayTextObserverConsumerShape,
-        ArrayTextObserverPublicationBoundary, ArrayTextObserverRoute,
-    },
+    array_text_observer_plan::{ArrayTextObserverPublicationBoundary, ArrayTextObserverRoute},
     definitions::Callee,
     resolve_value_origin, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction,
     MirInstruction, ValueDefMap, ValueId,
@@ -163,22 +160,19 @@ pub(crate) fn derive_observer_store_region_contract(
     def_map: &ValueDefMap,
     route: &ArrayTextObserverRoute,
 ) -> Option<ArrayTextObserverStoreRegionMapping> {
-    if route.consumer_shape != ArrayTextObserverConsumerShape::FoundPredicate {
+    if !route.has_found_predicate_consumer() {
         return None;
     }
-    if !matches!(
-        route.observer_arg0_repr,
-        ArrayTextObserverArgRepr::ConstUtf8 { .. }
-    ) {
+    if !route.observer_arg0_is_const_utf8() {
         return None;
     }
-    if route.keep_get_live || route.observer_arg0_keep_live {
+    if route.keep_get_live() || route.observer_arg0_keep_live() {
         return None;
     }
 
-    let observer_block = function.blocks.get(&route.block)?;
+    let observer_block = function.blocks.get(&route.block())?;
     let (predicate_value, branch_then_block, branch_else_block) =
-        match_found_predicate_branch(function, def_map, observer_block, route.result_value)?;
+        match_found_predicate_branch(function, def_map, observer_block, route.result_value())?;
     let (then_block, latch_block, store_instruction_index, suffix_value, suffix_text) =
         if let Some((store_instruction_index, suffix_value, suffix_text)) =
             match_then_same_slot_suffix_store(function, def_map, branch_then_block, route)
@@ -222,10 +216,10 @@ pub(crate) fn derive_observer_store_region_contract(
     let exit_block = match header.terminator.as_ref()? {
         MirInstruction::Branch {
             then_bb, else_bb, ..
-        } if *then_bb == route.block => *else_bb,
+        } if *then_bb == route.block() => *else_bb,
         MirInstruction::Branch {
             then_bb, else_bb, ..
-        } if *else_bb == route.block => *then_bb,
+        } if *else_bb == route.block() => *then_bb,
         _ => return None,
     };
     let exit = function.blocks.get(&exit_block)?;
@@ -237,7 +231,7 @@ pub(crate) fn derive_observer_store_region_contract(
         return None;
     }
     if !observer_block.predecessors.contains(&header_block)
-        || !latch.predecessors.contains(&route.block)
+        || !latch.predecessors.contains(&route.block())
         || !latch.predecessors.contains(&then_block)
     {
         return None;
@@ -245,7 +239,7 @@ pub(crate) fn derive_observer_store_region_contract(
     let preheader = single_preheader_jump_to_header(function, header_block, latch_block)?;
     let (loop_index_phi_value, loop_bound_value) =
         match_loop_index_condition(function, def_map, header)?;
-    if loop_index_phi_value != root(function, def_map, route.index_value) {
+    if loop_index_phi_value != root(function, def_map, route.index_value()) {
         return None;
     }
     let loop_index_initial_value = phi_input_from(header, loop_index_phi_value, preheader)?;
@@ -266,7 +260,7 @@ pub(crate) fn derive_observer_store_region_contract(
     let loop_bound_const = const_i64(function, def_map, loop_bound_value)?;
 
     Some(ArrayTextObserverStoreRegionMapping {
-        array_root_value: root(function, def_map, route.array_value),
+        array_root_value: root(function, def_map, route.array_value()),
         loop_index_phi_value,
         loop_index_initial_value,
         loop_index_initial_const,
@@ -276,8 +270,8 @@ pub(crate) fn derive_observer_store_region_contract(
         begin_block: preheader,
         begin_to_header_block: header_block,
         header_block,
-        observer_block: route.block,
-        observer_instruction_index: route.observer_instruction_index,
+        observer_block: route.block(),
+        observer_instruction_index: route.observer_instruction_index(),
         predicate_value,
         then_store_block: then_block,
         store_instruction_index,
@@ -382,9 +376,9 @@ fn match_then_same_slot_suffix_store(
     route: &ArrayTextObserverRoute,
 ) -> Option<(usize, ValueId, String)> {
     let block = function.blocks.get(&block_id)?;
-    let source_root = root(function, def_map, route.source_value);
-    let array_root = root(function, def_map, route.array_value);
-    let index_root = root(function, def_map, route.index_value);
+    let source_root = root(function, def_map, route.source_value());
+    let array_root = root(function, def_map, route.array_value());
+    let index_root = root(function, def_map, route.index_value());
     for inst in &block.instructions {
         let Some((concat_value, suffix_value, suffix_text)) =
             const_suffix_concat_details(function, def_map, inst, source_root)

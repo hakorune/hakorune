@@ -330,31 +330,31 @@ pub(super) fn build_mir_json_root(
             }).collect::<Vec<_>>(),
             "array_text_observer_routes": f.metadata.array_text_observer_routes.iter().map(|route| {
                 let mut obj = json!({
-                    "block": route.block.as_u32(),
-                    "observer_instruction_index": route.observer_instruction_index,
-                    "get_block": route.get_block.as_u32(),
-                    "get_instruction_index": route.get_instruction_index,
-                    "array_value": route.array_value.as_u32(),
-                    "index_value": route.index_value.as_u32(),
-                    "source_value": route.source_value.as_u32(),
-                    "observer_kind": route.observer_kind.to_string(),
-                    "observer_arg0": route.observer_arg0.as_u32(),
-                    "observer_arg0_repr": route.observer_arg0_repr.kind(),
-                    "observer_arg0_keep_live": route.observer_arg0_keep_live,
-                    "result_value": route.result_value.as_u32(),
-                    "consumer_shape": route.consumer_shape.to_string(),
-                    "proof_region": route.proof_region.to_string(),
-                    "publication_boundary": route.publication_boundary.to_string(),
-                    "result_repr": route.result_repr.to_string(),
-                    "keep_get_live": route.keep_get_live,
+                    "block": route.block().as_u32(),
+                    "observer_instruction_index": route.observer_instruction_index(),
+                    "get_block": route.get_block().as_u32(),
+                    "get_instruction_index": route.get_instruction_index(),
+                    "array_value": route.array_value().as_u32(),
+                    "index_value": route.index_value().as_u32(),
+                    "source_value": route.source_value().as_u32(),
+                    "observer_kind": route.observer_kind(),
+                    "observer_arg0": route.observer_arg0().as_u32(),
+                    "observer_arg0_repr": route.observer_arg0_repr_kind(),
+                    "observer_arg0_keep_live": route.observer_arg0_keep_live(),
+                    "result_value": route.result_value().as_u32(),
+                    "consumer_shape": route.consumer_shape(),
+                    "proof_region": route.proof_region(),
+                    "publication_boundary": route.publication_boundary(),
+                    "result_repr": route.result_repr(),
+                    "keep_get_live": route.keep_get_live(),
                 });
-                if let crate::mir::ArrayTextObserverArgRepr::ConstUtf8 { text, byte_len } =
-                    &route.observer_arg0_repr
-                {
+                if let Some(text) = route.observer_arg0_text() {
                     obj["observer_arg0_text"] = json!(text);
+                }
+                if let Some(byte_len) = route.observer_arg0_byte_len() {
                     obj["observer_arg0_byte_len"] = json!(byte_len);
                 }
-                if let Some(contract) = route.executor_contract.as_ref() {
+                if let Some(contract) = route.executor_contract() {
                     let mut contract_obj = json!({
                         "execution_mode": contract.execution_mode.to_string(),
                         "proof_region": contract.proof_region.to_string(),
