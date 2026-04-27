@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-28"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is active. The .inc method/box classifier baseline is zero, BuildBox/runtime-meta cleanup is closed, and current JoinIR cleanup is working through routing-policy seams. Detailed landed/rejected history belongs to phase cards, not current mirrors."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is active. The .inc method/box classifier baseline is zero, BuildBox/runtime-meta cleanup is closed, and current JoinIR cleanup is working through plan-side compat/facade seam pruning. Detailed landed/rejected history belongs to phase cards, not current mirrors."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-574"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-574-plan-extractor-facade-prune-card.md"
-latest_card_summary = "Prune unused plan-side extractor compatibility facades."
+latest_card = "291x-575"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-575-plan-compat-residue-inventory-card.md"
+latest_card_summary = "Inventory the remaining plan-side compat/facade seams and fix the next cleanup queue."
 
-current_blocker_token = "phase-291x next lane selection pending"
+current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -294,4 +294,5 @@ landed_tail = [
   "291x-572 scan-loop segment surface prune landed",
   "291x-573 plan recipes surface prune landed",
   "291x-574 plan extractor facade prune landed",
+  "291x-575 plan compat residue inventory landed",
 ]
