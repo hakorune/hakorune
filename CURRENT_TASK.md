@@ -37,19 +37,19 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `generic-method-route root re-export inventory pending`
+- current blocker token: `generic-method-route root re-export prune pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-471` selects `GenericMethodRoute`
-  root re-export prune as the next cleanup lane
+- latest known checkpoint: `291x-472` inventories `GenericMethodRoute`
+  root re-export consumers
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: inventory GenericMethodRoute root re-export consumers
+- resume point: prune GenericMethodRoute component root re-exports
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -57,10 +57,10 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-471-next-lane-selection-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-472-generic-method-route-root-export-inventory-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: inventory GenericMethodRoute root re-export consumers
+- next: prune GenericMethodRoute component root re-exports
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep BoxShape cleanup separate from BoxCount feature rows
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-471`; detailed landed history lives in phase card
+- latest checkpoint: `291x-472`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: inventory GenericMethodRoute root re-export consumers
+- next cleanup: prune GenericMethodRoute component root re-exports
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
