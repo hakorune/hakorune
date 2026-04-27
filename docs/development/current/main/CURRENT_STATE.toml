@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-454"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-454-generic-method-route-decision-closeout-card.md"
-latest_card_summary = "Closed the GenericMethodRoute decision record split lane and returned to next-lane selection."
+latest_card = "291x-455"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-455-next-lane-selection-card.md"
+latest_card_summary = "Selected GenericMethodRouteEvidence record split as the next BoxShape-only cleanup lane."
 
-current_blocker_token = "phase-291x next lane selection pending"
+current_blocker_token = "generic-method-route evidence inventory pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -174,4 +174,5 @@ landed_tail = [
   "291x-452 generic method route decision inventory landed",
   "291x-453 generic method route decision record split landed",
   "291x-454 generic method route decision closeout landed",
+  "291x-455 next lane selection landed",
 ]
