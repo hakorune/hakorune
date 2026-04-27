@@ -1,5 +1,7 @@
 use super::*;
-use crate::mir::string_corridor::StringCorridorCarrier;
+use crate::mir::string_corridor::{
+    StringCorridorCarrier, StringCorridorFact, StringPublishReason, StringPublishReprPolicy,
+};
 use crate::mir::{
     BasicBlock, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
     MirInstruction, MirType, ValueId,

@@ -1,4 +1,9 @@
-use super::*;
+use super::types::{
+    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
+};
+use crate::mir::string_corridor_relation::{StringCorridorRelation, StringCorridorRelationKind};
+use crate::mir::{BasicBlockId, MirFunction, ValueId};
+use std::collections::HashMap;
 
 pub(super) fn refresh_function_string_corridor_relation_candidates(
     function: &mut MirFunction,

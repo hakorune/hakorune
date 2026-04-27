@@ -1,4 +1,16 @@
-use super::*;
+use super::types::{
+    StringCorridorCandidatePlan, StringCorridorCandidateProof, StringCorridorPublicationContract,
+};
+use crate::mir::string_corridor::{
+    StringCorridorBorrowContract, StringCorridorFact, StringCorridorOp,
+};
+use crate::mir::string_corridor_recognizer::{
+    const_string_length, match_concat_triplet, match_len_call, match_substring_call,
+    match_substring_call_shape, match_substring_concat3_helper_call, string_source_identity,
+    ConcatTripletShape, StringSourceIdentity,
+};
+use crate::mir::{resolve_value_origin, BasicBlockId, MirFunction, ValueId};
+use std::collections::HashMap;
 
 fn active_borrow_contract() -> Option<StringCorridorBorrowContract> {
     Some(StringCorridorBorrowContract::BorrowTextFromObject)

@@ -6,22 +6,7 @@
  * change runtime behavior in this wave.
  */
 
-use super::{
-    build_value_def_map, resolve_value_origin,
-    string_corridor::{
-        StringCorridorBorrowContract, StringCorridorFact, StringCorridorOp, StringCorridorRole,
-        StringPlacementFact, StringPublishReason, StringPublishReprPolicy,
-        StringStableViewProvenance,
-    },
-    string_corridor_recognizer::{
-        const_string_length, match_concat_triplet, match_len_call, match_substring_call,
-        match_substring_call_shape, match_substring_concat3_helper_call, string_source_identity,
-        ConcatTripletShape, StringSourceIdentity,
-    },
-    string_corridor_relation::{StringCorridorRelation, StringCorridorRelationKind},
-    BasicBlockId, MirFunction, MirModule, ValueId,
-};
-use std::collections::HashMap;
+use super::{build_value_def_map, MirFunction, MirModule};
 
 mod candidate_infer;
 mod plan_infer;

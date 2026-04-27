@@ -1,4 +1,8 @@
-use super::*;
+use crate::mir::string_corridor::{
+    StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy,
+    StringStableViewProvenance,
+};
+use crate::mir::ValueId;
 
 /// Placement/effect decision kinds that later passes may act on.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -1,5 +1,14 @@
 use super::plan_infer::infer_plan;
-use super::*;
+use super::types::{
+    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
+    StringCorridorCandidateState, StringCorridorPublicationBoundary,
+};
+use crate::mir::string_corridor::{
+    StringCorridorFact, StringCorridorOp, StringCorridorRole, StringPlacementFact,
+    StringPublishReason, StringPublishReprPolicy,
+};
+use crate::mir::{BasicBlockId, MirFunction, ValueId};
+use std::collections::HashMap;
 
 fn annotate_publication_plan(
     plan: Option<StringCorridorCandidatePlan>,
