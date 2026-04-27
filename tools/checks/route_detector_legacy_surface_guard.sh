@@ -51,4 +51,13 @@ if [ -n "$bad_legacy_callers" ]; then
   exit 1
 fi
 
+bad_loop_pattern_kind="$(
+  rg -n '\bLoopPatternKind\b' src tests -g '*.rs' || true
+)"
+if [ -n "$bad_loop_pattern_kind" ]; then
+  echo "[route-detector-legacy-surface-guard] ERROR: LoopPatternKind legacy alias found in live code" >&2
+  printf '%s\n' "$bad_loop_pattern_kind" >&2
+  exit 1
+fi
+
 echo "[route-detector-legacy-surface-guard] ok"
