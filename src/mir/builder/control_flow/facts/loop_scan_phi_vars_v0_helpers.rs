@@ -1,5 +1,9 @@
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::scan_common_predicates::{
+    as_var_name, is_int_lit, is_loop_cond_var_lt_var as shared_is_loop_cond_var_lt_var,
+    is_var_plus_expr, is_var_plus_one,
+};
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
@@ -8,53 +12,8 @@ pub(in crate::mir::builder) fn release_enabled() -> bool {
     true
 }
 
-fn as_var_name(ast: &ASTNode) -> Option<&str> {
-    match ast {
-        ASTNode::Variable { name, .. } => Some(name),
-        _ => None,
-    }
-}
-
-fn is_int_lit(ast: &ASTNode, value: i64) -> bool {
-    matches!(ast, ASTNode::Literal { value: LiteralValue::Integer(v), .. } if *v == value)
-}
-
-fn is_var_plus_one(ast: &ASTNode, var: &str) -> bool {
-    matches!(
-        ast,
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Add,
-            left,
-            right,
-            ..
-        } if as_var_name(left.as_ref()) == Some(var) && is_int_lit(right.as_ref(), 1)
-    )
-}
-
-fn is_var_plus_expr(ast: &ASTNode, var: &str) -> bool {
-    matches!(
-        ast,
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Add,
-            left,
-            ..
-        } if as_var_name(left.as_ref()) == Some(var)
-    )
-}
-
 pub(in crate::mir::builder) fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
-    match ast {
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Less,
-            left,
-            right,
-            ..
-        } => Some((
-            as_var_name(left.as_ref())?.to_string(),
-            as_var_name(right.as_ref())?.to_string(),
-        )),
-        _ => None,
-    }
+    shared_is_loop_cond_var_lt_var(ast)
 }
 
 pub(in crate::mir::builder) fn is_local_decl(stmt: &ASTNode) -> bool {

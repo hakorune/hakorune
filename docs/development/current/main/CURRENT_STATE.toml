@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-593"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-593-handler-wrapper-prune-card.md"
-latest_card_summary = "Prune orphan joinir handler wrapper files that duplicate the live handler shelf but are not part of the module tree."
+latest_card = "291x-594"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-594-scan-common-predicate-extract-card.md"
+latest_card_summary = "Extract duplicated scan-family AST predicates into a shared facts owner while leaving route-specific scan helpers local."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -313,4 +313,5 @@ landed_tail = [
   "291x-591 loop scan methods dead field prune landed",
   "291x-592 scan alias dedup landed",
   "291x-593 orphan handler wrapper prune landed",
+  "291x-594 scan common predicate extract landed",
 ]

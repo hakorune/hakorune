@@ -1,29 +1,14 @@
-use crate::ast::{ASTNode, BinaryOperator};
+use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::scan_common_predicates::{
+    as_var_name, is_loop_cond_var_lt_var as shared_is_loop_cond_var_lt_var,
+};
 
 pub(in crate::mir::builder) fn release_enabled() -> bool {
     true
 }
 
-fn as_var_name(ast: &ASTNode) -> Option<&str> {
-    match ast {
-        ASTNode::Variable { name, .. } => Some(name),
-        _ => None,
-    }
-}
-
 pub(in crate::mir::builder) fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
-    match ast {
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Less,
-            left,
-            right,
-            ..
-        } => Some((
-            as_var_name(left.as_ref())?.to_string(),
-            as_var_name(right.as_ref())?.to_string(),
-        )),
-        _ => None,
-    }
+    shared_is_loop_cond_var_lt_var(ast)
 }
 
 pub(in crate::mir::builder) fn declares_local_var(stmt: &ASTNode, name: &str) -> bool {

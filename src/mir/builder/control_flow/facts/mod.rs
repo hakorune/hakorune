@@ -35,6 +35,7 @@ pub(in crate::mir::builder) mod loop_scan_phi_vars_v0_shape_routes;
 pub(in crate::mir::builder) mod no_exit_block;
 mod plan_residue;
 pub(in crate::mir::builder) mod route_shape_recognizers;
+pub(in crate::mir::builder) mod scan_common_predicates;
 pub(in crate::mir::builder) mod stmt_view;
 pub(in crate::mir::builder) mod stmt_walk;
 
