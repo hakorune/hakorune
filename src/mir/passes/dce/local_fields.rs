@@ -1,4 +1,4 @@
-use crate::mir::classify_escape_uses;
+use crate::mir::escape_barrier::classify_escape_uses;
 use crate::mir::phi_query::{
     collect_passthrough_phi_parents, infer_phi_base_query_with_anchors, PhiBaseRelation,
 };
