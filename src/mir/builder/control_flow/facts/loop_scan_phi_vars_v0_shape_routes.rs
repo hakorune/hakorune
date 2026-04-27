@@ -44,13 +44,8 @@ pub(in crate::mir::builder) fn try_match_loop_scan_phi_vars_len7_shape(
         nested_idx: 4,
         step_start: 6,
         recipe: LoopScanPhiVarsV0Recipe {
-            local_var_name_stmt: Some(body[0].clone()),
-            local_j_stmt: body[1].clone(),
-            local_m_stmt: body[2].clone(),
-            local_found_stmt: Some(body[3].clone()),
             inner_loop_search: body[4].clone(),
             found_if_stmt: Some(body[5].clone()),
-            step_inc_stmt: body[6].clone(),
         },
     })
 }
@@ -77,13 +72,8 @@ pub(in crate::mir::builder) fn try_match_loop_scan_phi_vars_ext_shape01(
         nested_idx: 2,
         step_start: 3,
         recipe: LoopScanPhiVarsV0Recipe {
-            local_var_name_stmt: None,
-            local_j_stmt: body[0].clone(),
-            local_m_stmt: body[1].clone(),
-            local_found_stmt: None,
             inner_loop_search: body[2].clone(),
             found_if_stmt: None,
-            step_inc_stmt: body[3].clone(),
         },
     })
 }
