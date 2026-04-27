@@ -1,11 +1,11 @@
 //! Step placement validation helpers for generic loop analysis
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::control_flow::plan::facts::reject_reason::{
     handoff_tables, log_reject, RejectReason,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::verify::coreloop_body_contract::is_effect_only_stmt;
 
 use super::super::facts::stmt_classifier::{
     body_has_continue, is_effect_if, is_exit_if, is_local_init, is_simple_assignment,

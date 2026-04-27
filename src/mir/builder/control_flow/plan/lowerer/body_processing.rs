@@ -284,7 +284,7 @@ impl super::PlanLowerer {
         loop_stack: &mut [LoopFrame],
     ) -> Result<(), String> {
         let has_control_flow =
-            super::super::coreloop_body_contract::has_control_flow_effect(effects);
+            crate::mir::builder::control_flow::verify::coreloop_body_contract::has_control_flow_effect(effects);
 
         if !has_control_flow {
             let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()

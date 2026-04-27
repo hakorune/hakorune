@@ -44,8 +44,9 @@ Scope: current lane / next lane / restart order only.
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-575` fixes the plan-side compat/facade
-  residue cleanup queue after the route-boundary cleanup burst
+- latest known checkpoint: `291x-576` prunes the
+  `plan::coreloop_body_contract` wrapper and advances the plan-side compat
+  cleanup queue
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
@@ -60,8 +61,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: prune `plan::coreloop_body_contract`, then unused `plan/facts`
-  wrappers, then small facts owner-path migrations
+- next: prune unused `plan/facts` wrappers, then small facts owner-path
+  migrations
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep BoxShape cleanup separate from BoxCount feature rows
@@ -73,10 +74,10 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-488`; detailed landed history lives in phase card
+- latest checkpoint: `291x-576`; detailed landed history lives in phase card
   files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: `plan::coreloop_body_contract` wrapper prune, followed by
-  the `291x-575` ordered compat residue queue
+- next cleanup: unused `plan/facts` wrappers, followed by the remaining
+  `291x-575` ordered compat residue queue
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do

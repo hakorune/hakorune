@@ -2,7 +2,7 @@ use super::super::body_check_extractors::extract_local_init_var;
 use super::utils::*;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::facts::canon::generic_loop::matches_loop_increment;
-use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
+use crate::mir::builder::control_flow::verify::coreloop_body_contract::is_effect_only_stmt;
 
 /// Matches the while cap accum sum pattern.
 ///

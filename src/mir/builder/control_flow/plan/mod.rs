@@ -61,8 +61,6 @@ pub(in crate::mir::builder) mod skeletons;
 
 // Layer 4: Route-Specific (形状固有)
 // 各 route の固有処理（一部 helper には historical file 名が残る）
-// Phase 29ca P1: Core loop body effect contract (SSOT)
-pub(in crate::mir::builder) mod coreloop_body_contract;
 // Phase 29ca P1: Generic loop v0 module (facts/normalizer SSOT)
 pub(in crate::mir::builder) mod generic_loop;
 // Phase 29bq+: loop_break module moved to plan side

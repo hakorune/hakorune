@@ -1,12 +1,12 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, lower_cond_value};
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::verify::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{CompareOp, ConstValue, MirType};
 use std::collections::{BTreeMap, BTreeSet};

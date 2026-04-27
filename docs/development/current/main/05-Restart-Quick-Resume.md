@@ -40,8 +40,9 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-575` fixes the plan-side compat/facade
-  residue cleanup queue after the route-boundary cleanup burst
+- latest known checkpoint: `291x-576` prunes the
+  `plan::coreloop_body_contract` wrapper and advances the plan-side compat
+  cleanup queue
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is

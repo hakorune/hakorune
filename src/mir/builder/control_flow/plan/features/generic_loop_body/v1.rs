@@ -1,7 +1,6 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
@@ -14,6 +13,7 @@ use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
 };
+use crate::mir::builder::control_flow::verify::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::MirBuilder;
 use crate::mir::policies::BodyLoweringPolicy;
 use crate::mir::{Effect, EffectMask};

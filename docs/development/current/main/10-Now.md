@@ -27,7 +27,7 @@ Related:
 ## Next
 
 - continue the phase-291x plan-side compat surface prune queue
-- cleanup checkpoint: latest known card `291x-488`; detailed closed
+- cleanup checkpoint: latest known card `291x-576`; detailed closed
   history lives in phase card files and the compact `landed_tail` in
   `CURRENT_STATE.toml`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
