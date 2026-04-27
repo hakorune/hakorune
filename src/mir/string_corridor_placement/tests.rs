@@ -266,9 +266,7 @@ fn refresh_function_attaches_plan_metadata_for_concat_corridor_candidates() {
     );
     assert_eq!(
         substring_plan.publication_contract,
-        Some(
-            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary
-        )
+        Some(StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary)
     );
 }
 
@@ -526,9 +524,7 @@ fn borrowed_slice_plan_keeps_publication_contract_for_insert_mid_substring_route
     );
     assert_eq!(
         plan.publication_contract,
-        Some(
-            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary
-        )
+        Some(StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary)
     );
     assert!(matches!(
         plan.proof,

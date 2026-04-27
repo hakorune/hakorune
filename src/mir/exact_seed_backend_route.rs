@@ -355,6 +355,7 @@ fn selected_substring_concat_loop_plan(function: &MirFunction) -> Option<ValueId
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::string_corridor_placement::StringCorridorCandidateState;
     use crate::mir::string_kernel_plan::{
         StringKernelPlan, StringKernelPlanBorrowContract, StringKernelPlanConsumer,
         StringKernelPlanFamily, StringKernelPlanLoopPayload, StringKernelPlanPublicationBoundary,
@@ -636,7 +637,7 @@ mod tests {
             ),
             publication: None,
             materialization: None,
-            direct_kernel_entry: Some(crate::mir::StringCorridorCandidateState::Candidate),
+            direct_kernel_entry: Some(StringCorridorCandidateState::Candidate),
             consumer: Some(StringKernelPlanConsumer::DirectKernelEntry),
             text_consumer: None,
             carrier: None,

@@ -9,7 +9,10 @@
 use super::{
     agg_local_scalarization::{AggLocalScalarizationKind, AggLocalScalarizationRoute},
     build_value_def_map,
-    string_corridor_placement::{StringCorridorCandidateKind, StringCorridorCandidateState},
+    string_corridor_placement::{
+        StringCorridorCandidateKind, StringCorridorCandidateProof, StringCorridorCandidateState,
+        StringCorridorPublicationBoundary,
+    },
     sum_placement_selection::{SumPlacementPath, SumPlacementSelection},
     thin_entry::{ThinEntryDemand, ThinEntryPreferredEntry},
     thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState},
@@ -318,7 +321,7 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
             candidates
                 .iter()
                 .find_map(|candidate| match candidate.publication_boundary {
-                    Some(crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary) => {
+                    Some(StringCorridorPublicationBoundary::FirstExternalBoundary) => {
                         Some(PlacementEffectPublicationBoundary::FirstExternalBoundary)
                     }
                     None => None,
@@ -357,13 +360,13 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
 }
 
 fn placement_effect_string_proof(
-    proof: crate::mir::StringCorridorCandidateProof,
+    proof: StringCorridorCandidateProof,
 ) -> PlacementEffectStringProof {
     match proof {
-        crate::mir::StringCorridorCandidateProof::BorrowedSlice { source, start, end } => {
+        StringCorridorCandidateProof::BorrowedSlice { source, start, end } => {
             PlacementEffectStringProof::BorrowedSlice { source, start, end }
         }
-        crate::mir::StringCorridorCandidateProof::ConcatTriplet {
+        StringCorridorCandidateProof::ConcatTriplet {
             left_value,
             left_source,
             left_start,
@@ -581,6 +584,11 @@ mod tests {
         AggLocalScalarizationKind, AggLocalScalarizationRoute,
     };
     use crate::mir::storage_class::StorageClass;
+    use crate::mir::string_corridor_placement::{
+        StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
+        StringCorridorCandidateProof, StringCorridorCandidateState,
+        StringCorridorPublicationBoundary, StringCorridorPublicationContract,
+    };
     use crate::mir::sum_placement_layout::SumLocalAggregateLayout;
     use crate::mir::sum_placement_selection::{SumPlacementPath, SumPlacementSelection};
     use crate::mir::thin_entry::{
@@ -589,10 +597,7 @@ mod tests {
     };
     use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType,
-        StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
-        StringCorridorCandidateProof, StringCorridorCandidateState,
-        StringCorridorPublicationBoundary, StringCorridorPublicationContract, ValueId,
+        BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId,
     };
 
     #[test]

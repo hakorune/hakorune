@@ -207,9 +207,6 @@ pub use string_corridor::{
 };
 pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
-    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
-    StringCorridorCandidateProof, StringCorridorCandidateState, StringCorridorPublicationBoundary,
-    StringCorridorPublicationContract,
 };
 pub use string_corridor_relation::{
     refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,

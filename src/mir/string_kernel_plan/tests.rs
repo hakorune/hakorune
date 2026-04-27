@@ -1,3 +1,8 @@
+use crate::mir::string_corridor_placement::{
+    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
+    StringCorridorCandidateState, StringCorridorPublicationBoundary,
+    StringCorridorPublicationContract,
+};
 use crate::mir::*;
 
 fn make_loop_function() -> MirFunction {
@@ -97,57 +102,57 @@ fn make_loop_function() -> MirFunction {
 fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
     let function = make_loop_function();
     let publication_plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
-            corridor_root: ValueId::new(7),
-            source_root: Some(ValueId::new(1)),
-            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-            publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
-            publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
-            stable_view_provenance: None,
-            start: Some(ValueId::new(2)),
-            end: Some(ValueId::new(3)),
-            known_length: Some(2),
-            publication_contract: Some(
-                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-            ),
-            proof: StringCorridorCandidateProof::ConcatTriplet {
-                left_value: Some(ValueId::new(4)),
-                left_source: ValueId::new(1),
-                left_start: ValueId::new(4),
-                left_end: ValueId::new(5),
-                middle: ValueId::new(6),
-                right_value: Some(ValueId::new(8)),
-                right_source: ValueId::new(1),
-                right_start: ValueId::new(5),
-                right_end: ValueId::new(9),
-                shared_source: true,
-            },
-        };
+        corridor_root: ValueId::new(7),
+        source_root: Some(ValueId::new(1)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
+        publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+        stable_view_provenance: None,
+        start: Some(ValueId::new(2)),
+        end: Some(ValueId::new(3)),
+        known_length: Some(2),
+        publication_contract: Some(
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(ValueId::new(4)),
+            left_source: ValueId::new(1),
+            left_start: ValueId::new(4),
+            left_end: ValueId::new(5),
+            middle: ValueId::new(6),
+            right_value: Some(ValueId::new(8)),
+            right_source: ValueId::new(1),
+            right_start: ValueId::new(5),
+            right_end: ValueId::new(9),
+            shared_source: true,
+        },
+    };
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
-            corridor_root: ValueId::new(7),
-            source_root: Some(ValueId::new(1)),
-            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-            publish_reason: None,
-            publish_repr_policy: None,
-            stable_view_provenance: None,
-            start: Some(ValueId::new(2)),
-            end: Some(ValueId::new(3)),
-            known_length: Some(2),
-            publication_contract: Some(
-                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-            ),
-            proof: StringCorridorCandidateProof::ConcatTriplet {
-                left_value: Some(ValueId::new(4)),
-                left_source: ValueId::new(1),
-                left_start: ValueId::new(4),
-                left_end: ValueId::new(5),
-                middle: ValueId::new(6),
-                right_value: Some(ValueId::new(8)),
-                right_source: ValueId::new(1),
-                right_start: ValueId::new(5),
-                right_end: ValueId::new(9),
-                shared_source: true,
-            },
-        };
+        corridor_root: ValueId::new(7),
+        source_root: Some(ValueId::new(1)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: None,
+        publish_repr_policy: None,
+        stable_view_provenance: None,
+        start: Some(ValueId::new(2)),
+        end: Some(ValueId::new(3)),
+        known_length: Some(2),
+        publication_contract: Some(
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(ValueId::new(4)),
+            left_source: ValueId::new(1),
+            left_start: ValueId::new(4),
+            left_end: ValueId::new(5),
+            middle: ValueId::new(6),
+            right_value: Some(ValueId::new(8)),
+            right_source: ValueId::new(1),
+            right_start: ValueId::new(5),
+            right_end: ValueId::new(9),
+            shared_source: true,
+        },
+    };
     let candidates = vec![
         StringCorridorCandidate {
             kind: StringCorridorCandidateKind::PublicationSink,
@@ -260,31 +265,31 @@ fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
 fn derive_string_kernel_plan_collects_concat_loop_payload() {
     let function = make_loop_function();
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
-            corridor_root: ValueId::new(21),
-            source_root: Some(ValueId::new(21)),
-            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-            publish_reason: None,
-            publish_repr_policy: None,
-            stable_view_provenance: None,
-            start: Some(ValueId::new(71)),
-            end: Some(ValueId::new(72)),
-            known_length: Some(2),
-            publication_contract: Some(
-                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-            ),
-            proof: StringCorridorCandidateProof::ConcatTriplet {
-                left_value: Some(ValueId::new(26)),
-                left_source: ValueId::new(21),
-                left_start: ValueId::new(46),
-                left_end: ValueId::new(47),
-                middle: ValueId::new(66),
-                right_value: Some(ValueId::new(27)),
-                right_source: ValueId::new(21),
-                right_start: ValueId::new(47),
-                right_end: ValueId::new(42),
-                shared_source: true,
-            },
-        };
+        corridor_root: ValueId::new(21),
+        source_root: Some(ValueId::new(21)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: None,
+        publish_repr_policy: None,
+        stable_view_provenance: None,
+        start: Some(ValueId::new(71)),
+        end: Some(ValueId::new(72)),
+        known_length: Some(2),
+        publication_contract: Some(
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(ValueId::new(26)),
+            left_source: ValueId::new(21),
+            left_start: ValueId::new(46),
+            left_end: ValueId::new(47),
+            middle: ValueId::new(66),
+            right_value: Some(ValueId::new(27)),
+            right_source: ValueId::new(21),
+            right_start: ValueId::new(47),
+            right_end: ValueId::new(42),
+            shared_source: true,
+        },
+    };
     let candidates = vec![StringCorridorCandidate {
         kind: StringCorridorCandidateKind::DirectKernelEntry,
         state: StringCorridorCandidateState::Candidate,
@@ -387,31 +392,31 @@ fn derive_string_kernel_plan_marks_slot_text_consumer_for_same_corridor_substrin
     });
 
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
-            corridor_root: ValueId::new(10),
-            source_root: Some(ValueId::new(0)),
-            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-            publish_reason: None,
-            publish_repr_policy: None,
-            stable_view_provenance: None,
-            start: Some(ValueId::new(3)),
-            end: Some(ValueId::new(4)),
-            known_length: Some(2),
-            publication_contract: Some(
-                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-            ),
-            proof: StringCorridorCandidateProof::ConcatTriplet {
-                left_value: Some(ValueId::new(0)),
-                left_source: ValueId::new(0),
-                left_start: ValueId::new(3),
-                left_end: ValueId::new(2),
-                middle: ValueId::new(1),
-                right_value: Some(ValueId::new(0)),
-                right_source: ValueId::new(0),
-                right_start: ValueId::new(2),
-                right_end: ValueId::new(4),
-                shared_source: true,
-            },
-        };
+        corridor_root: ValueId::new(10),
+        source_root: Some(ValueId::new(0)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: None,
+        publish_repr_policy: None,
+        stable_view_provenance: None,
+        start: Some(ValueId::new(3)),
+        end: Some(ValueId::new(4)),
+        known_length: Some(2),
+        publication_contract: Some(
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(ValueId::new(0)),
+            left_source: ValueId::new(0),
+            left_start: ValueId::new(3),
+            left_end: ValueId::new(2),
+            middle: ValueId::new(1),
+            right_value: Some(ValueId::new(0)),
+            right_source: ValueId::new(0),
+            right_start: ValueId::new(2),
+            right_end: ValueId::new(4),
+            shared_source: true,
+        },
+    };
     let candidates = vec![StringCorridorCandidate {
         kind: StringCorridorCandidateKind::DirectKernelEntry,
         state: StringCorridorCandidateState::Candidate,
@@ -553,31 +558,31 @@ fn derive_string_kernel_plan_marks_shared_receiver_alias_fact() {
     });
 
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
-            corridor_root: ValueId::new(10),
-            source_root: Some(ValueId::new(0)),
-            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-            publish_reason: None,
-            publish_repr_policy: None,
-            stable_view_provenance: None,
-            start: Some(ValueId::new(3)),
-            end: Some(ValueId::new(4)),
-            known_length: Some(2),
-            publication_contract: Some(
-                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-            ),
-            proof: StringCorridorCandidateProof::ConcatTriplet {
-                left_value: Some(ValueId::new(0)),
-                left_source: ValueId::new(0),
-                left_start: ValueId::new(3),
-                left_end: ValueId::new(2),
-                middle: ValueId::new(1),
-                right_value: Some(ValueId::new(0)),
-                right_source: ValueId::new(0),
-                right_start: ValueId::new(2),
-                right_end: ValueId::new(4),
-                shared_source: true,
-            },
-        };
+        corridor_root: ValueId::new(10),
+        source_root: Some(ValueId::new(0)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: None,
+        publish_repr_policy: None,
+        stable_view_provenance: None,
+        start: Some(ValueId::new(3)),
+        end: Some(ValueId::new(4)),
+        known_length: Some(2),
+        publication_contract: Some(
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(ValueId::new(0)),
+            left_source: ValueId::new(0),
+            left_start: ValueId::new(3),
+            left_end: ValueId::new(2),
+            middle: ValueId::new(1),
+            right_value: Some(ValueId::new(0)),
+            right_source: ValueId::new(0),
+            right_start: ValueId::new(2),
+            right_end: ValueId::new(4),
+            shared_source: true,
+        },
+    };
     let candidates = vec![StringCorridorCandidate {
         kind: StringCorridorCandidateKind::DirectKernelEntry,
         state: StringCorridorCandidateState::Candidate,
@@ -696,7 +701,7 @@ fn derive_string_kernel_plan_marks_direct_set_consumer_alias_fact() {
         end: Some(ValueId::new(4)),
         known_length: Some(2),
         publication_contract: Some(
-            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
         ),
         proof: StringCorridorCandidateProof::ConcatTriplet {
             left_value: Some(ValueId::new(0)),
@@ -840,31 +845,31 @@ fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
     });
 
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
-            corridor_root: ValueId::new(10),
-            source_root: Some(ValueId::new(0)),
-            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-            publish_reason: None,
-            publish_repr_policy: None,
-            stable_view_provenance: None,
-            start: Some(ValueId::new(2)),
-            end: Some(ValueId::new(3)),
-            known_length: Some(2),
-            publication_contract: Some(
-                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-            ),
-            proof: StringCorridorCandidateProof::ConcatTriplet {
-                left_value: Some(ValueId::new(0)),
-                left_source: ValueId::new(0),
-                left_start: ValueId::new(2),
-                left_end: ValueId::new(2),
-                middle: ValueId::new(1),
-                right_value: Some(ValueId::new(0)),
-                right_source: ValueId::new(0),
-                right_start: ValueId::new(2),
-                right_end: ValueId::new(3),
-                shared_source: true,
-            },
-        };
+        corridor_root: ValueId::new(10),
+        source_root: Some(ValueId::new(0)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: None,
+        publish_repr_policy: None,
+        stable_view_provenance: None,
+        start: Some(ValueId::new(2)),
+        end: Some(ValueId::new(3)),
+        known_length: Some(2),
+        publication_contract: Some(
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(ValueId::new(0)),
+            left_source: ValueId::new(0),
+            left_start: ValueId::new(2),
+            left_end: ValueId::new(2),
+            middle: ValueId::new(1),
+            right_value: Some(ValueId::new(0)),
+            right_source: ValueId::new(0),
+            right_start: ValueId::new(2),
+            right_end: ValueId::new(3),
+            shared_source: true,
+        },
+    };
     let candidates = vec![StringCorridorCandidate {
         kind: StringCorridorCandidateKind::DirectKernelEntry,
         state: StringCorridorCandidateState::Candidate,
@@ -890,31 +895,31 @@ fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
 fn refresh_function_collects_string_kernel_plans() {
     let mut function = make_loop_function();
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
-            corridor_root: ValueId::new(7),
-            source_root: Some(ValueId::new(1)),
-            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-            publish_reason: None,
-            publish_repr_policy: None,
-            stable_view_provenance: None,
-            start: Some(ValueId::new(2)),
-            end: Some(ValueId::new(3)),
-            known_length: Some(2),
-            publication_contract: Some(
-                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-            ),
-            proof: StringCorridorCandidateProof::ConcatTriplet {
-                left_value: Some(ValueId::new(4)),
-                left_source: ValueId::new(1),
-                left_start: ValueId::new(4),
-                left_end: ValueId::new(5),
-                middle: ValueId::new(6),
-                right_value: Some(ValueId::new(8)),
-                right_source: ValueId::new(1),
-                right_start: ValueId::new(5),
-                right_end: ValueId::new(9),
-                shared_source: true,
-            },
-        };
+        corridor_root: ValueId::new(7),
+        source_root: Some(ValueId::new(1)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: None,
+        publish_repr_policy: None,
+        stable_view_provenance: None,
+        start: Some(ValueId::new(2)),
+        end: Some(ValueId::new(3)),
+        known_length: Some(2),
+        publication_contract: Some(
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(ValueId::new(4)),
+            left_source: ValueId::new(1),
+            left_start: ValueId::new(4),
+            left_end: ValueId::new(5),
+            middle: ValueId::new(6),
+            right_value: Some(ValueId::new(8)),
+            right_source: ValueId::new(1),
+            right_start: ValueId::new(5),
+            right_end: ValueId::new(9),
+            shared_source: true,
+        },
+    };
     function.metadata.string_corridor_candidates.insert(
         ValueId::new(8),
         vec![StringCorridorCandidate {

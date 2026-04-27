@@ -13,7 +13,8 @@ use super::{
     build_value_def_map, resolve_value_origin,
     string_corridor_placement::{
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
-        StringCorridorCandidateState,
+        StringCorridorCandidateState, StringCorridorPublicationBoundary,
+        StringCorridorPublicationContract,
     },
     string_corridor_recognizer::{
         match_len_call, match_method_set_call, match_substring_call,
@@ -323,7 +324,7 @@ fn publication_contract_from_plan(
 ) -> Option<StringKernelPlanPublicationContract> {
     match plan.publication_contract {
         Some(
-            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
         ) => Some(
             StringKernelPlanPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
         ),
@@ -844,7 +845,7 @@ pub fn derive_string_kernel_plan(
                 }
                 if matches!(
                     candidate.publication_boundary,
-                    Some(crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary)
+                    Some(StringCorridorPublicationBoundary::FirstExternalBoundary)
                 ) {
                     publication_boundary =
                         Some(StringKernelPlanPublicationBoundary::FirstExternalBoundary);

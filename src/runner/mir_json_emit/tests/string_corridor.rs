@@ -1,5 +1,10 @@
 use super::super::build_mir_json_root;
 use super::{make_function, make_string_loop_function};
+use crate::mir::string_corridor_placement::{
+    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
+    StringCorridorCandidateProof, StringCorridorCandidateState, StringCorridorPublicationBoundary,
+    StringCorridorPublicationContract,
+};
 use crate::mir::string_corridor_relation::{
     StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
 };
@@ -67,12 +72,12 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
     );
     function.metadata.string_corridor_candidates.insert(
         crate::mir::ValueId::new(8),
-        vec![crate::mir::StringCorridorCandidate {
-            kind: crate::mir::StringCorridorCandidateKind::DirectKernelEntry,
-            state: crate::mir::StringCorridorCandidateState::Candidate,
+        vec![StringCorridorCandidate {
+            kind: StringCorridorCandidateKind::DirectKernelEntry,
+            state: StringCorridorCandidateState::Candidate,
             reason:
                 "borrowed slice corridor can target a direct kernel entry before publication",
-            plan: Some(crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+            plan: Some(StringCorridorCandidatePlan {
                 corridor_root: crate::mir::ValueId::new(7),
                 source_root: Some(crate::mir::ValueId::new(1)),
                 borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
@@ -83,10 +88,10 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
                 end: Some(crate::mir::ValueId::new(3)),
                 known_length: Some(2),
                 publication_contract: Some(
-                    crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+                    StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
                 ),
                 proof:
-                    crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                    StringCorridorCandidateProof::ConcatTriplet {
                         left_value: Some(crate::mir::ValueId::new(4)),
                         left_source: crate::mir::ValueId::new(1),
                         left_start: crate::mir::ValueId::new(4),
@@ -100,7 +105,7 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
                     },
             }),
             publication_boundary: Some(
-                crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
+                StringCorridorPublicationBoundary::FirstExternalBoundary,
             ),
         }],
     );
@@ -169,7 +174,7 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
 fn build_mir_json_root_emits_string_kernel_plans() {
     let mut module = MirModule::new("test".to_string());
     let mut function = make_function("main", true);
-    let publication_plan = crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+    let publication_plan = StringCorridorCandidatePlan {
         corridor_root: crate::mir::ValueId::new(7),
         source_root: Some(crate::mir::ValueId::new(1)),
         borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
@@ -180,9 +185,9 @@ fn build_mir_json_root_emits_string_kernel_plans() {
         end: Some(crate::mir::ValueId::new(3)),
         known_length: Some(2),
         publication_contract: Some(
-            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
         ),
-        proof: crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+        proof: StringCorridorCandidateProof::ConcatTriplet {
             left_value: Some(crate::mir::ValueId::new(4)),
             left_source: crate::mir::ValueId::new(1),
             left_start: crate::mir::ValueId::new(4),
@@ -195,7 +200,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
             shared_source: true,
         },
     };
-    let direct_plan = crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+    let direct_plan = StringCorridorCandidatePlan {
         corridor_root: crate::mir::ValueId::new(7),
         source_root: Some(crate::mir::ValueId::new(1)),
         borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
@@ -206,9 +211,9 @@ fn build_mir_json_root_emits_string_kernel_plans() {
         end: Some(crate::mir::ValueId::new(3)),
         known_length: Some(2),
         publication_contract: Some(
-            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
         ),
-        proof: crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+        proof: StringCorridorCandidateProof::ConcatTriplet {
             left_value: Some(crate::mir::ValueId::new(4)),
             left_source: crate::mir::ValueId::new(1),
             left_start: crate::mir::ValueId::new(4),
@@ -224,23 +229,23 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     function.metadata.string_corridor_candidates.insert(
         crate::mir::ValueId::new(8),
         vec![
-            crate::mir::StringCorridorCandidate {
-                kind: crate::mir::StringCorridorCandidateKind::PublicationSink,
-                state: crate::mir::StringCorridorCandidateState::AlreadySatisfied,
+            StringCorridorCandidate {
+                kind: StringCorridorCandidateKind::PublicationSink,
+                state: StringCorridorCandidateState::AlreadySatisfied,
                 reason: "publish boundary is already sunk at the current corridor exit",
                 plan: Some(publication_plan),
                 publication_boundary: Some(
-                    crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
+                    StringCorridorPublicationBoundary::FirstExternalBoundary,
                 ),
             },
-            crate::mir::StringCorridorCandidate {
-                kind: crate::mir::StringCorridorCandidateKind::DirectKernelEntry,
-                state: crate::mir::StringCorridorCandidateState::Candidate,
+            StringCorridorCandidate {
+                kind: StringCorridorCandidateKind::DirectKernelEntry,
+                state: StringCorridorCandidateState::Candidate,
                 reason:
                     "borrowed slice corridor can target a direct kernel entry before publication",
                 plan: Some(direct_plan),
                 publication_boundary: Some(
-                    crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
+                    StringCorridorPublicationBoundary::FirstExternalBoundary,
                 ),
             },
         ],
@@ -296,11 +301,11 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
     let mut function = make_string_loop_function();
     function.metadata.string_corridor_candidates.insert(
         ValueId::new(21),
-        vec![crate::mir::StringCorridorCandidate {
-            kind: crate::mir::StringCorridorCandidateKind::DirectKernelEntry,
-            state: crate::mir::StringCorridorCandidateState::Candidate,
+        vec![StringCorridorCandidate {
+            kind: StringCorridorCandidateKind::DirectKernelEntry,
+            state: StringCorridorCandidateState::Candidate,
             reason: "substring concat loop can target a direct kernel entry",
-            plan: Some(crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+            plan: Some(StringCorridorCandidatePlan {
                 corridor_root: ValueId::new(21),
                 source_root: Some(ValueId::new(21)),
                 borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
@@ -311,10 +316,10 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
                 end: Some(ValueId::new(72)),
                 known_length: Some(2),
                 publication_contract: Some(
-                    crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+                    StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
                 ),
                 proof:
-                    crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                    StringCorridorCandidateProof::ConcatTriplet {
                         left_value: Some(ValueId::new(26)),
                         left_source: ValueId::new(21),
                         left_start: ValueId::new(46),
@@ -399,11 +404,11 @@ fn build_mir_json_root_emits_string_kernel_plan_slot_hop_substring() {
     });
     function.metadata.string_corridor_candidates.insert(
         ValueId::new(10),
-        vec![crate::mir::StringCorridorCandidate {
-            kind: crate::mir::StringCorridorCandidateKind::DirectKernelEntry,
-            state: crate::mir::StringCorridorCandidateState::Candidate,
+        vec![StringCorridorCandidate {
+            kind: StringCorridorCandidateKind::DirectKernelEntry,
+            state: StringCorridorCandidateState::Candidate,
             reason: "direct kernel entry candidate",
-            plan: Some(crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+            plan: Some(StringCorridorCandidatePlan {
                 corridor_root: ValueId::new(10),
                 source_root: Some(ValueId::new(0)),
                 borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
@@ -414,10 +419,10 @@ fn build_mir_json_root_emits_string_kernel_plan_slot_hop_substring() {
                 end: Some(ValueId::new(4)),
                 known_length: Some(2),
                 publication_contract: Some(
-                    crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+                    StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
                 ),
                 proof:
-                    crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                    StringCorridorCandidateProof::ConcatTriplet {
                         left_value: Some(ValueId::new(0)),
                         left_source: ValueId::new(0),
                         left_start: ValueId::new(3),
@@ -431,7 +436,7 @@ fn build_mir_json_root_emits_string_kernel_plan_slot_hop_substring() {
                     },
             }),
             publication_boundary: Some(
-                crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
+                StringCorridorPublicationBoundary::FirstExternalBoundary,
             ),
         }],
     );

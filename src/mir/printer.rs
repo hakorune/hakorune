@@ -423,6 +423,9 @@ impl Default for MirPrinter {
 mod tests {
     use super::*;
     use crate::mir::storage_class::StorageClass;
+    use crate::mir::string_corridor_placement::{
+        StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
+    };
     use crate::mir::string_corridor_relation::{
         StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
     };
@@ -436,7 +439,6 @@ mod tests {
     use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
-        StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
         StringCorridorCarrier, StringCorridorFact, ValueId,
     };
 

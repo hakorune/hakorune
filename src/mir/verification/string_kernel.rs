@@ -267,13 +267,15 @@ mod tests {
     use super::*;
     use crate::ast::Span;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::string_corridor_placement::{
+        StringCorridorCandidateProof, StringCorridorCandidateState,
+    };
     use crate::mir::string_kernel_plan::{
         StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanReadAliasFacts,
         StringKernelPlanRetainedForm,
     };
     use crate::mir::{
-        BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType,
-        StringCorridorCandidateProof, StringCorridorCandidateState, ValueId,
+        BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId,
     };
 
     fn slot_text_function() -> MirFunction {
