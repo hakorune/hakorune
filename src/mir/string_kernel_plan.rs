@@ -11,6 +11,10 @@ use std::collections::BTreeMap;
 
 use super::{
     build_value_def_map, resolve_value_origin,
+    string_corridor::{
+        StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy,
+        StringStableViewProvenance,
+    },
     string_corridor_placement::{
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
         StringCorridorCandidateState, StringCorridorPublicationBoundary,
@@ -231,9 +235,9 @@ pub struct StringKernelPlan {
     pub corridor_root: ValueId,
     pub source_root: Option<ValueId>,
     pub borrow_contract: Option<StringKernelPlanBorrowContract>,
-    pub publish_reason: Option<crate::mir::StringPublishReason>,
-    pub publish_repr_policy: Option<crate::mir::StringPublishReprPolicy>,
-    pub stable_view_provenance: Option<crate::mir::StringStableViewProvenance>,
+    pub publish_reason: Option<StringPublishReason>,
+    pub publish_repr_policy: Option<StringPublishReprPolicy>,
+    pub stable_view_provenance: Option<StringStableViewProvenance>,
     pub known_length: Option<i64>,
     pub retained_form: StringKernelPlanRetainedForm,
     pub publication_boundary: Option<StringKernelPlanPublicationBoundary>,
@@ -336,7 +340,7 @@ fn borrow_contract_from_plan(
     plan: crate::mir::string_corridor_placement::StringCorridorCandidatePlan,
 ) -> Option<StringKernelPlanBorrowContract> {
     match plan.borrow_contract {
-        Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject) => {
+        Some(StringCorridorBorrowContract::BorrowTextFromObject) => {
             Some(StringKernelPlanBorrowContract::BorrowTextFromObject)
         }
         None => None,
@@ -923,8 +927,8 @@ pub fn derive_string_kernel_plan(
         text_consumer,
         Some(StringKernelPlanTextConsumer::ExplicitColdPublish)
     ) {
-        publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
-        publish_repr_policy.get_or_insert(crate::mir::StringPublishReprPolicy::StableOwned);
+        publish_reason = Some(StringPublishReason::ExplicitApiReplay);
+        publish_repr_policy.get_or_insert(StringPublishReprPolicy::StableOwned);
     }
     let carrier = text_consumer.map(|_| StringKernelPlanCarrier::KernelTextSlot);
     let verifier_owner =

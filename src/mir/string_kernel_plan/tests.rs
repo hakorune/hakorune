@@ -1,3 +1,6 @@
+use crate::mir::string_corridor::{
+    StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy,
+};
 use crate::mir::string_corridor_placement::{
     StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
     StringCorridorCandidateState, StringCorridorPublicationBoundary,
@@ -104,9 +107,9 @@ fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
     let publication_plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: ValueId::new(7),
         source_root: Some(ValueId::new(1)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-        publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
-        publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: Some(StringPublishReason::StableObjectDemand),
+        publish_repr_policy: Some(StringPublishReprPolicy::StableOwned),
         stable_view_provenance: None,
         start: Some(ValueId::new(2)),
         end: Some(ValueId::new(3)),
@@ -130,7 +133,7 @@ fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: ValueId::new(7),
         source_root: Some(ValueId::new(1)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
         stable_view_provenance: None,
@@ -194,11 +197,11 @@ fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
     );
     assert_eq!(
         kernel_plan.publish_reason,
-        Some(crate::mir::StringPublishReason::StableObjectDemand)
+        Some(StringPublishReason::StableObjectDemand)
     );
     assert_eq!(
         kernel_plan.publish_repr_policy,
-        Some(crate::mir::StringPublishReprPolicy::StableOwned)
+        Some(StringPublishReprPolicy::StableOwned)
     );
     assert_eq!(kernel_plan.known_length, Some(2));
     assert_eq!(
@@ -267,7 +270,7 @@ fn derive_string_kernel_plan_collects_concat_loop_payload() {
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: ValueId::new(21),
         source_root: Some(ValueId::new(21)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
         stable_view_provenance: None,
@@ -394,7 +397,7 @@ fn derive_string_kernel_plan_marks_slot_text_consumer_for_same_corridor_substrin
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: ValueId::new(10),
         source_root: Some(ValueId::new(0)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
         stable_view_provenance: None,
@@ -560,7 +563,7 @@ fn derive_string_kernel_plan_marks_shared_receiver_alias_fact() {
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: ValueId::new(10),
         source_root: Some(ValueId::new(0)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
         stable_view_provenance: None,
@@ -693,7 +696,7 @@ fn derive_string_kernel_plan_marks_direct_set_consumer_alias_fact() {
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: ValueId::new(10),
         source_root: Some(ValueId::new(0)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
         stable_view_provenance: None,
@@ -847,7 +850,7 @@ fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: ValueId::new(10),
         source_root: Some(ValueId::new(0)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
         stable_view_provenance: None,
@@ -883,11 +886,11 @@ fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
 
     assert_eq!(
         kernel_plan.publish_reason,
-        Some(crate::mir::StringPublishReason::ExplicitApiReplay)
+        Some(StringPublishReason::ExplicitApiReplay)
     );
     assert_eq!(
         kernel_plan.publish_repr_policy,
-        Some(crate::mir::StringPublishReprPolicy::StableOwned)
+        Some(StringPublishReprPolicy::StableOwned)
     );
 }
 
@@ -897,7 +900,7 @@ fn refresh_function_collects_string_kernel_plans() {
     let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: ValueId::new(7),
         source_root: Some(ValueId::new(1)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
         stable_view_provenance: None,

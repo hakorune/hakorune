@@ -9,6 +9,10 @@
 use super::{
     agg_local_scalarization::{AggLocalScalarizationKind, AggLocalScalarizationRoute},
     build_value_def_map,
+    string_corridor::{
+        StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy,
+        StringStableViewProvenance,
+    },
     string_corridor_placement::{
         StringCorridorCandidateKind, StringCorridorCandidateProof, StringCorridorCandidateState,
         StringCorridorPublicationBoundary,
@@ -204,9 +208,9 @@ pub struct PlacementEffectRoute {
     pub window_start: Option<ValueId>,
     pub window_end: Option<ValueId>,
     pub borrow_contract: Option<PlacementEffectBorrowContract>,
-    pub publish_reason: Option<crate::mir::StringPublishReason>,
-    pub publish_repr_policy: Option<crate::mir::StringPublishReprPolicy>,
-    pub stable_view_provenance: Option<crate::mir::StringStableViewProvenance>,
+    pub publish_reason: Option<StringPublishReason>,
+    pub publish_repr_policy: Option<StringPublishReprPolicy>,
+    pub stable_view_provenance: Option<StringStableViewProvenance>,
     pub string_proof: Option<PlacementEffectStringProof>,
     pub publication_boundary: Option<PlacementEffectPublicationBoundary>,
     pub source: PlacementEffectSource,
@@ -335,7 +339,7 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                 window_start: candidate.plan.and_then(|plan| plan.start),
                 window_end: candidate.plan.and_then(|plan| plan.end),
                 borrow_contract: candidate.plan.and_then(|plan| match plan.borrow_contract {
-                    Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject) => {
+                    Some(StringCorridorBorrowContract::BorrowTextFromObject) => {
                         Some(PlacementEffectBorrowContract::BorrowTextFromObject)
                     }
                     None => None,
@@ -584,6 +588,9 @@ mod tests {
         AggLocalScalarizationKind, AggLocalScalarizationRoute,
     };
     use crate::mir::storage_class::StorageClass;
+    use crate::mir::string_corridor::{
+        StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy,
+    };
     use crate::mir::string_corridor_placement::{
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
         StringCorridorCandidateProof, StringCorridorCandidateState,
@@ -767,9 +774,9 @@ mod tests {
                 plan: Some(StringCorridorCandidatePlan {
                     corridor_root: ValueId::new(21),
                     source_root: Some(ValueId::new(1)),
-                    borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-                    publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
-                    publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+                    borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
+                    publish_reason: Some(StringPublishReason::StableObjectDemand),
+                    publish_repr_policy: Some(StringPublishReprPolicy::StableOwned),
                     stable_view_provenance: None,
                     start: Some(ValueId::new(8)),
                     end: Some(ValueId::new(9)),
@@ -828,11 +835,11 @@ mod tests {
         );
         assert_eq!(
             route.publish_reason,
-            Some(crate::mir::StringPublishReason::StableObjectDemand)
+            Some(StringPublishReason::StableObjectDemand)
         );
         assert_eq!(
             route.publish_repr_policy,
-            Some(crate::mir::StringPublishReprPolicy::StableOwned)
+            Some(StringPublishReprPolicy::StableOwned)
         );
     }
 }

@@ -1,13 +1,11 @@
+use crate::mir::string_corridor::{StringPublishReason, StringPublishReprPolicy};
 use crate::mir::string_kernel_plan::{
     StringKernelPlan, StringKernelPlanBorrowContract, StringKernelPlanCarrier,
     StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
     StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
 };
 use crate::mir::verification_types::VerificationError;
-use crate::mir::{
-    infer_string_kernel_text_consumer, MirFunction, StringPublishReason, StringPublishReprPolicy,
-    ValueId,
-};
+use crate::mir::{infer_string_kernel_text_consumer, MirFunction, ValueId};
 
 fn push_string_kernel_plan_violation(
     errors: &mut Vec<VerificationError>,
@@ -267,6 +265,9 @@ mod tests {
     use super::*;
     use crate::ast::Span;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::string_corridor::{
+        StringPublishReason, StringPublishReprPolicy, StringStableViewProvenance,
+    };
     use crate::mir::string_corridor_placement::{
         StringCorridorCandidateProof, StringCorridorCandidateState,
     };
@@ -501,8 +502,8 @@ mod tests {
         let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
         plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
         plan.publication_boundary = None;
-        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableOwned);
+        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
         function
             .metadata
             .string_kernel_plans
@@ -520,7 +521,7 @@ mod tests {
     fn verifier_rejects_partial_publish_text_metadata() {
         let mut function = slot_text_function();
         let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
-        plan.publish_reason = Some(crate::mir::StringPublishReason::StableObjectDemand);
+        plan.publish_reason = Some(StringPublishReason::StableObjectDemand);
         plan.publish_repr_policy = None;
         function
             .metadata
@@ -543,8 +544,8 @@ mod tests {
         plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
         plan.borrow_contract = None;
         plan.source_root = None;
-        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableOwned);
+        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
         function
             .metadata
             .string_kernel_plans
@@ -569,8 +570,8 @@ mod tests {
         let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
         plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
         plan.publication_contract = None;
-        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableOwned);
+        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
         function
             .metadata
             .string_kernel_plans
@@ -589,8 +590,8 @@ mod tests {
         let mut function = slot_text_function();
         let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
         plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
-        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableView);
+        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableView);
         function
             .metadata
             .string_kernel_plans
@@ -610,9 +611,9 @@ mod tests {
         let mut function = explicit_publish_function();
         let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
         plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
-        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableView);
-        plan.stable_view_provenance = Some(crate::mir::StringStableViewProvenance::AlreadyStable);
+        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableView);
+        plan.stable_view_provenance = Some(StringStableViewProvenance::AlreadyStable);
         function
             .metadata
             .string_kernel_plans
@@ -626,9 +627,9 @@ mod tests {
         let mut function = explicit_publish_function();
         let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
         plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
-        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
-        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableOwned);
-        plan.stable_view_provenance = Some(crate::mir::StringStableViewProvenance::AlreadyStable);
+        plan.publish_reason = Some(StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
+        plan.stable_view_provenance = Some(StringStableViewProvenance::AlreadyStable);
         function
             .metadata
             .string_kernel_plans

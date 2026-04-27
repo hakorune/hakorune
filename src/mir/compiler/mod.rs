@@ -132,8 +132,9 @@ impl Default for MirCompiler {
 #[cfg(test)]
 mod tests {
     use crate::ast::{ASTNode, LiteralValue};
+    use crate::mir::string_corridor::StringCorridorOp;
     use crate::mir::string_corridor_placement::StringCorridorCandidateKind;
-    use crate::mir::{MirCompiler, MirInstruction, MirPrinter, StringCorridorOp};
+    use crate::mir::{MirCompiler, MirInstruction, MirPrinter};
 
     #[test]
     fn test_basic_mir_compilation() {

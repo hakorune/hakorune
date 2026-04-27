@@ -14,6 +14,10 @@ use crate::mir::{
     build_value_def_map, refresh_function_placement_effect_routes,
     refresh_function_string_corridor_metadata, refresh_function_string_kernel_plans,
     refresh_function_value_consumer_facts, resolve_value_origin,
+    string_corridor::{
+        StringCorridorBorrowContract, StringCorridorOp, StringPublishReason,
+        StringPublishReprPolicy,
+    },
     string_corridor_placement::{
         StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
     },
@@ -26,7 +30,7 @@ use crate::mir::{
     },
     string_kernel_plan::StringKernelPlanTextConsumer,
     BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule,
-    MirType, StringCorridorOp, ValueId,
+    MirType, ValueId,
 };
 
 pub const SUBSTRING_LEN_EXTERN: &str = "nyash.string.substring_len_hii";

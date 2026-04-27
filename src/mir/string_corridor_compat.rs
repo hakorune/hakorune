@@ -7,7 +7,10 @@
  * semantics directly.
  */
 
-use super::{MirInstruction, StringCorridorCarrier, StringCorridorFact, ValueId};
+use super::{
+    string_corridor::{StringCorridorCarrier, StringCorridorFact},
+    MirInstruction, ValueId,
+};
 use crate::mir::definitions::call_unified::Callee;
 use crate::mir::string_corridor_names::{
     is_len_method_name, is_runtime_len_export, is_runtime_slice_export, is_slice_method_name,
@@ -101,7 +104,7 @@ pub(crate) fn infer_compat_from_runtime_export(name: &str) -> Option<StringCorri
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{StringCorridorOp, StringCorridorRole};
+    use crate::mir::string_corridor::{StringCorridorOp, StringCorridorRole};
 
     #[test]
     fn compat_method_recovery_accepts_runtime_data_substring() {

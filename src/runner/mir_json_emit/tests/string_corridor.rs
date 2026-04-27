@@ -1,5 +1,9 @@
 use super::super::build_mir_json_root;
 use super::{make_function, make_string_loop_function};
+use crate::mir::string_corridor::{
+    StringCorridorBorrowContract, StringCorridorCarrier, StringCorridorFact, StringPublishReason,
+    StringPublishReprPolicy,
+};
 use crate::mir::string_corridor_placement::{
     StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
     StringCorridorCandidateProof, StringCorridorCandidateState, StringCorridorPublicationBoundary,
@@ -37,7 +41,7 @@ fn build_mir_json_root_emits_string_corridor_facts() {
     let mut function = make_function("main", true);
     function.metadata.string_corridor_facts.insert(
         crate::mir::ValueId::new(7),
-        crate::mir::StringCorridorFact::str_slice(crate::mir::StringCorridorCarrier::MethodCall),
+        StringCorridorFact::str_slice(StringCorridorCarrier::MethodCall),
     );
     module.functions.insert("main".to_string(), function);
 
@@ -80,7 +84,7 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
             plan: Some(StringCorridorCandidatePlan {
                 corridor_root: crate::mir::ValueId::new(7),
                 source_root: Some(crate::mir::ValueId::new(1)),
-                borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+                borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
                 publish_reason: None,
                 publish_repr_policy: None,
                 stable_view_provenance: None,
@@ -177,9 +181,9 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     let publication_plan = StringCorridorCandidatePlan {
         corridor_root: crate::mir::ValueId::new(7),
         source_root: Some(crate::mir::ValueId::new(1)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
-        publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
-        publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: Some(StringPublishReason::StableObjectDemand),
+        publish_repr_policy: Some(StringPublishReprPolicy::StableOwned),
         stable_view_provenance: None,
         start: Some(crate::mir::ValueId::new(2)),
         end: Some(crate::mir::ValueId::new(3)),
@@ -203,7 +207,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     let direct_plan = StringCorridorCandidatePlan {
         corridor_root: crate::mir::ValueId::new(7),
         source_root: Some(crate::mir::ValueId::new(1)),
-        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
         stable_view_provenance: None,
@@ -308,7 +312,7 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
             plan: Some(StringCorridorCandidatePlan {
                 corridor_root: ValueId::new(21),
                 source_root: Some(ValueId::new(21)),
-                borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+                borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
                 publish_reason: None,
                 publish_repr_policy: None,
                 stable_view_provenance: None,
@@ -411,7 +415,7 @@ fn build_mir_json_root_emits_string_kernel_plan_slot_hop_substring() {
             plan: Some(StringCorridorCandidatePlan {
                 corridor_root: ValueId::new(10),
                 source_root: Some(ValueId::new(0)),
-                borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+                borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
                 publish_reason: None,
                 publish_repr_policy: None,
                 stable_view_provenance: None,

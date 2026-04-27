@@ -7,6 +7,7 @@ use crate::mir::placement_effect::{
     PlacementEffectState, PlacementEffectStringProof,
 };
 use crate::mir::storage_class::StorageClass;
+use crate::mir::string_corridor::{StringPublishReason, StringPublishReprPolicy};
 use crate::mir::sum_placement::{SumObjectizationBarrier, SumPlacementFact, SumPlacementState};
 use crate::mir::sum_placement_layout::{SumLocalAggregateLayout, SumPlacementLayout};
 use crate::mir::sum_placement_selection::{SumPlacementPath, SumPlacementSelection};
@@ -181,8 +182,8 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             window_start: Some(crate::mir::ValueId::new(2)),
             window_end: Some(crate::mir::ValueId::new(3)),
             borrow_contract: Some(PlacementEffectBorrowContract::BorrowTextFromObject),
-            publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
-            publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+            publish_reason: Some(StringPublishReason::StableObjectDemand),
+            publish_repr_policy: Some(StringPublishReprPolicy::StableOwned),
             stable_view_provenance: None,
             string_proof: Some(PlacementEffectStringProof::BorrowedSlice {
                 source: crate::mir::ValueId::new(1),

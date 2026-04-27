@@ -321,7 +321,7 @@ fn placement_effect_helper_plan_for_kind(
         source_root: route.source_value,
         borrow_contract: route.borrow_contract.map(|contract| match contract {
             PlacementEffectBorrowContract::BorrowTextFromObject => {
-                crate::mir::StringCorridorBorrowContract::BorrowTextFromObject
+                StringCorridorBorrowContract::BorrowTextFromObject
             }
         }),
         publish_reason: route.publish_reason,

@@ -26,14 +26,12 @@ fn publication_adapter_extern(function: &MirFunction, value: ValueId) -> Option<
             plan.publish_reason.zip(plan.publish_repr_policy)
         })?;
     match reason_repr {
-        (
-            crate::mir::StringPublishReason::ExplicitApiReplay,
-            crate::mir::StringPublishReprPolicy::StableOwned,
-        ) => Some(SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN),
-        (
-            crate::mir::StringPublishReason::StableObjectDemand,
-            crate::mir::StringPublishReprPolicy::StableOwned,
-        ) => Some(SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN),
+        (StringPublishReason::ExplicitApiReplay, StringPublishReprPolicy::StableOwned) => {
+            Some(SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN)
+        }
+        (StringPublishReason::StableObjectDemand, StringPublishReprPolicy::StableOwned) => {
+            Some(SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN)
+        }
         _ => None,
     }
 }

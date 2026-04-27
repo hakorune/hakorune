@@ -6,7 +6,7 @@ use crate::mir::{
 
 #[test]
 fn slice_fact_emits_borrowed_corridor_and_sink_candidates() {
-    let fact = StringCorridorFact::str_slice(crate::mir::StringCorridorCarrier::MethodCall);
+    let fact = StringCorridorFact::str_slice(StringCorridorCarrier::MethodCall);
     let signature = FunctionSignature {
         name: "test_func".to_string(),
         params: vec![MirType::Box("StringBox".to_string())],
@@ -32,8 +32,7 @@ fn slice_fact_emits_borrowed_corridor_and_sink_candidates() {
 
 #[test]
 fn freeze_fact_marks_materialization_sink_as_already_satisfied() {
-    let fact =
-        StringCorridorFact::freeze_str(crate::mir::StringCorridorCarrier::CanonicalIntrinsic);
+    let fact = StringCorridorFact::freeze_str(StringCorridorCarrier::CanonicalIntrinsic);
     let signature = FunctionSignature {
         name: "test_func".to_string(),
         params: vec![MirType::Box("StringBox".to_string())],
@@ -61,7 +60,7 @@ fn refresh_function_collects_candidates_from_existing_facts() {
     let mut function = MirFunction::new(signature, BasicBlockId::new(0));
     function.metadata.string_corridor_facts.insert(
         ValueId::new(1),
-        StringCorridorFact::str_len(crate::mir::StringCorridorCarrier::MethodCall),
+        StringCorridorFact::str_len(StringCorridorCarrier::MethodCall),
     );
 
     crate::mir::refresh_function_string_corridor_relations(&mut function);
@@ -258,11 +257,11 @@ fn refresh_function_attaches_plan_metadata_for_concat_corridor_candidates() {
     assert_eq!(substring_plan.known_length, Some(2));
     assert_eq!(
         substring_plan.publish_reason,
-        Some(crate::mir::StringPublishReason::StableObjectDemand)
+        Some(StringPublishReason::StableObjectDemand)
     );
     assert_eq!(
         substring_plan.publish_repr_policy,
-        Some(crate::mir::StringPublishReprPolicy::StableOwned)
+        Some(StringPublishReprPolicy::StableOwned)
     );
     assert_eq!(
         substring_plan.publication_contract,
@@ -398,11 +397,11 @@ fn runtime_export_substring_concat_keeps_publication_sink_candidate() {
     assert_eq!(plan.known_length, Some(2));
     assert_eq!(
         plan.publish_reason,
-        Some(crate::mir::StringPublishReason::StableObjectDemand)
+        Some(StringPublishReason::StableObjectDemand)
     );
     assert_eq!(
         plan.publish_repr_policy,
-        Some(crate::mir::StringPublishReprPolicy::StableOwned)
+        Some(StringPublishReprPolicy::StableOwned)
     );
     assert!(matches!(
         plan.proof,
@@ -516,11 +515,11 @@ fn borrowed_slice_plan_keeps_publication_contract_for_insert_mid_substring_route
     assert_eq!(plan.end, Some(ValueId(5)));
     assert_eq!(
         plan.publish_reason,
-        Some(crate::mir::StringPublishReason::StableObjectDemand)
+        Some(StringPublishReason::StableObjectDemand)
     );
     assert_eq!(
         plan.publish_repr_policy,
-        Some(crate::mir::StringPublishReprPolicy::StableOwned)
+        Some(StringPublishReprPolicy::StableOwned)
     );
     assert_eq!(
         plan.publication_contract,

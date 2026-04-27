@@ -201,9 +201,6 @@ pub use spanned_instruction::{SpannedInstRef, SpannedInstruction};
 pub use storage_class::{refresh_function_storage_class_facts, refresh_module_storage_class_facts};
 pub use string_corridor::{
     refresh_function_string_corridor_facts, refresh_module_string_corridor_facts,
-    StringCorridorBorrowContract, StringCorridorCarrier, StringCorridorFact, StringCorridorOp,
-    StringCorridorRole, StringOutcomeFact, StringPlacementFact, StringPublishReason,
-    StringPublishReprPolicy, StringStableViewProvenance,
 };
 pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
