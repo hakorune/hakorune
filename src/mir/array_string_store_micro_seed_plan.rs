@@ -13,31 +13,92 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayStringStoreMicroSeedProof {
+enum ArrayStringStoreMicroSeedProof {
     KiloMicroArrayStringStore8Block,
 }
 
 impl std::fmt::Display for ArrayStringStoreMicroSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayStringStoreMicroSeedProof {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::KiloMicroArrayStringStore8Block => {
-                f.write_str("kilo_micro_array_string_store_8block")
-            }
+            Self::KiloMicroArrayStringStore8Block => "kilo_micro_array_string_store_8block",
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayStringStoreMicroSeedRoute {
-    pub seed: String,
-    pub seed_len: i64,
-    pub size: i64,
-    pub ops: i64,
-    pub suffix: String,
-    pub store_len: i64,
-    pub next_text_window_start: i64,
-    pub next_text_window_len: i64,
-    pub proof: ArrayStringStoreMicroSeedProof,
+    seed: String,
+    seed_len: i64,
+    size: i64,
+    ops: i64,
+    suffix: String,
+    store_len: i64,
+    next_text_window_start: i64,
+    next_text_window_len: i64,
+    proof: ArrayStringStoreMicroSeedProof,
+}
+
+impl ArrayStringStoreMicroSeedRoute {
+    pub fn seed(&self) -> &str {
+        &self.seed
+    }
+
+    pub fn seed_len(&self) -> i64 {
+        self.seed_len
+    }
+
+    pub fn size(&self) -> i64 {
+        self.size
+    }
+
+    pub fn ops(&self) -> i64 {
+        self.ops
+    }
+
+    pub fn suffix(&self) -> &str {
+        &self.suffix
+    }
+
+    pub fn store_len(&self) -> i64 {
+        self.store_len
+    }
+
+    pub fn next_text_window_start(&self) -> i64 {
+        self.next_text_window_start
+    }
+
+    pub fn next_text_window_len(&self) -> i64 {
+        self.next_text_window_len
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::{ArrayStringStoreMicroSeedProof, ArrayStringStoreMicroSeedRoute};
+
+    pub(crate) fn kilo_micro_array_string_store_8block() -> ArrayStringStoreMicroSeedRoute {
+        ArrayStringStoreMicroSeedRoute {
+            seed: "line-seed-abcdef".to_string(),
+            seed_len: 16,
+            size: 128,
+            ops: 800000,
+            suffix: "xy".to_string(),
+            store_len: 18,
+            next_text_window_start: 2,
+            next_text_window_len: 16,
+            proof: ArrayStringStoreMicroSeedProof::KiloMicroArrayStringStore8Block,
+        }
+    }
 }
 
 pub fn refresh_module_array_string_store_micro_seed_routes(module: &mut MirModule) {

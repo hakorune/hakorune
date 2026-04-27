@@ -144,8 +144,7 @@ pub use array_string_len_window_plan::{
 };
 pub use array_string_store_micro_seed_plan::{
     refresh_function_array_string_store_micro_seed_route,
-    refresh_module_array_string_store_micro_seed_routes, ArrayStringStoreMicroSeedProof,
-    ArrayStringStoreMicroSeedRoute,
+    refresh_module_array_string_store_micro_seed_routes, ArrayStringStoreMicroSeedRoute,
 };
 pub use array_text_combined_region_plan::{
     refresh_function_array_text_combined_region_routes,
