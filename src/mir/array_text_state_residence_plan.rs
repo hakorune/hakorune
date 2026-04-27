@@ -155,21 +155,105 @@ impl ArrayTextStateResidenceContract {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextStateResidenceIndexOfSeedPayload {
-    pub variant: IndexOfSearchMicroSeedVariant,
-    pub rows: i64,
-    pub ops: i64,
-    pub flip_period: Option<i64>,
-    pub line_seed: String,
-    pub line_seed_len: i64,
-    pub none_seed: String,
-    pub none_seed_len: i64,
-    pub needle: String,
-    pub needle_len: i64,
-    pub proof: IndexOfSearchMicroSeedProof,
-    pub result_use: IndexOfSearchResultUse,
-    pub backend_action: IndexOfSearchBackendAction,
-    pub line_seed_outcome: IndexOfSearchCandidateOutcome,
-    pub none_seed_outcome: IndexOfSearchCandidateOutcome,
+    variant: IndexOfSearchMicroSeedVariant,
+    rows: i64,
+    ops: i64,
+    flip_period: Option<i64>,
+    line_seed: String,
+    line_seed_len: i64,
+    none_seed: String,
+    none_seed_len: i64,
+    needle: String,
+    needle_len: i64,
+    proof: IndexOfSearchMicroSeedProof,
+    result_use: IndexOfSearchResultUse,
+    backend_action: IndexOfSearchBackendAction,
+    line_seed_outcome: IndexOfSearchCandidateOutcome,
+    none_seed_outcome: IndexOfSearchCandidateOutcome,
+}
+
+impl ArrayTextStateResidenceIndexOfSeedPayload {
+    pub fn variant(&self) -> &'static str {
+        match self.variant {
+            IndexOfSearchMicroSeedVariant::Leaf => "leaf",
+            IndexOfSearchMicroSeedVariant::Line => "line",
+        }
+    }
+
+    pub fn rows(&self) -> i64 {
+        self.rows
+    }
+
+    pub fn ops(&self) -> i64 {
+        self.ops
+    }
+
+    pub fn flip_period(&self) -> Option<i64> {
+        self.flip_period
+    }
+
+    pub fn line_seed(&self) -> &str {
+        &self.line_seed
+    }
+
+    pub fn line_seed_len(&self) -> i64 {
+        self.line_seed_len
+    }
+
+    pub fn none_seed(&self) -> &str {
+        &self.none_seed
+    }
+
+    pub fn none_seed_len(&self) -> i64 {
+        self.none_seed_len
+    }
+
+    pub fn needle(&self) -> &str {
+        &self.needle
+    }
+
+    pub fn needle_len(&self) -> i64 {
+        self.needle_len
+    }
+
+    pub fn proof(&self) -> &'static str {
+        match self.proof {
+            IndexOfSearchMicroSeedProof::KiloLeafArrayStringIndexOfConst10Block => {
+                "kilo_leaf_array_string_indexof_const_10block"
+            }
+            IndexOfSearchMicroSeedProof::KiloMicroIndexOfLine15Block => {
+                "kilo_micro_indexof_line_15block"
+            }
+        }
+    }
+
+    pub fn result_use(&self) -> &'static str {
+        match self.result_use {
+            IndexOfSearchResultUse::FoundPredicate => "found_predicate",
+        }
+    }
+
+    pub fn backend_action(&self) -> &'static str {
+        match self.backend_action {
+            IndexOfSearchBackendAction::LiteralMembershipPredicate => {
+                "literal_membership_predicate"
+            }
+        }
+    }
+
+    pub fn line_seed_outcome(&self) -> &'static str {
+        match self.line_seed_outcome {
+            IndexOfSearchCandidateOutcome::Found => "found",
+            IndexOfSearchCandidateOutcome::NotFound => "not_found",
+        }
+    }
+
+    pub fn none_seed_outcome(&self) -> &'static str {
+        match self.none_seed_outcome {
+            IndexOfSearchCandidateOutcome::Found => "found",
+            IndexOfSearchCandidateOutcome::NotFound => "not_found",
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -240,7 +324,7 @@ mod tests {
             .expect("temporary payload");
         let contract = route.contract();
 
-        assert_eq!(payload.variant, IndexOfSearchMicroSeedVariant::Line);
+        assert_eq!(payload.variant(), "line");
         assert_eq!(contract.residence(), "loop_local_pointer_array");
         assert_eq!(contract.observer_kind(), "indexof");
         assert_eq!(contract.result_repr(), "scalar_i64");
@@ -249,9 +333,6 @@ mod tests {
             "direct_array_text_state_residence"
         );
         assert_eq!(contract.publication_boundary(), "none");
-        assert_eq!(
-            payload.proof,
-            IndexOfSearchMicroSeedProof::KiloMicroIndexOfLine15Block
-        );
+        assert_eq!(payload.proof(), "kilo_micro_indexof_line_15block");
     }
 }

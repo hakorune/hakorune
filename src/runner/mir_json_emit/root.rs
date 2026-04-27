@@ -1102,30 +1102,30 @@ fn build_map_lookup_fusion_route_json(
 }
 
 fn build_array_text_state_residence_indexof_seed_payload_json(
-    payload: &crate::mir::ArrayTextStateResidenceIndexOfSeedPayload,
+    payload: &crate::mir::array_text_state_residence_plan::ArrayTextStateResidenceIndexOfSeedPayload,
 ) -> serde_json::Value {
     json!({
-        "variant": payload.variant.to_string(),
-        "rows": payload.rows,
-        "ops": payload.ops,
-        "flip_period": payload.flip_period,
-        "line_seed": payload.line_seed.as_str(),
-        "line_seed_len": payload.line_seed_len,
-        "none_seed": payload.none_seed.as_str(),
-        "none_seed_len": payload.none_seed_len,
-        "needle": payload.needle.as_str(),
-        "needle_len": payload.needle_len,
-        "proof": payload.proof.to_string(),
-        "result_use": payload.result_use.to_string(),
-        "backend_action": payload.backend_action.to_string(),
+        "variant": payload.variant(),
+        "rows": payload.rows(),
+        "ops": payload.ops(),
+        "flip_period": payload.flip_period(),
+        "line_seed": payload.line_seed(),
+        "line_seed_len": payload.line_seed_len(),
+        "none_seed": payload.none_seed(),
+        "none_seed_len": payload.none_seed_len(),
+        "needle": payload.needle(),
+        "needle_len": payload.needle_len(),
+        "proof": payload.proof(),
+        "result_use": payload.result_use(),
+        "backend_action": payload.backend_action(),
         "candidate_outcomes": [
             {
-                "literal": payload.line_seed.as_str(),
-                "outcome": payload.line_seed_outcome.to_string(),
+                "literal": payload.line_seed(),
+                "outcome": payload.line_seed_outcome(),
             },
             {
-                "literal": payload.none_seed.as_str(),
-                "outcome": payload.none_seed_outcome.to_string(),
+                "literal": payload.none_seed(),
+                "outcome": payload.none_seed_outcome(),
             },
         ],
     })
