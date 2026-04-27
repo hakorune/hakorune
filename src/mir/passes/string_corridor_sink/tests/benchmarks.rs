@@ -357,63 +357,50 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
         "loopcarry benchmark should expose one MIR-owned residence session candidate"
     );
     let session = &function.metadata.array_text_residence_sessions[0];
-    assert_eq!(session.begin_to_header_block, session.header_block);
-    assert_eq!(session.begin_placement.to_string(), "before_preheader_jump");
-    assert_eq!(session.body_block, route.block());
-    assert_eq!(session.update_block, route.block());
-    assert_eq!(session.update_instruction_index, route.instruction_index());
-    assert_eq!(session.update_placement.to_string(), "route_instruction");
-    assert_eq!(session.end_block, session.exit_block);
-    assert_eq!(session.end_placement.to_string(), "exit_block_entry");
-    assert_eq!(session.route_instruction_index, route.instruction_index());
-    assert_eq!(session.array_value, route.array_value());
-    assert_eq!(session.middle_length, 2);
+    assert_eq!(session.begin_to_header_block(), session.header_block());
+    assert_eq!(session.begin_placement(), "before_preheader_jump");
+    assert_eq!(session.body_block(), route.block());
+    assert_eq!(session.update_block(), route.block());
     assert_eq!(
-        session.skip_instruction_indices,
+        session.update_instruction_index(),
+        route.instruction_index()
+    );
+    assert_eq!(session.update_placement(), "route_instruction");
+    assert_eq!(session.end_block(), session.exit_block());
+    assert_eq!(session.end_placement(), "exit_block_entry");
+    assert_eq!(session.route_instruction_index(), route.instruction_index());
+    assert_eq!(session.array_value(), route.array_value());
+    assert_eq!(session.middle_length(), 2);
+    assert_eq!(
+        session.skip_instruction_indices(),
         route.skip_instruction_indices().to_vec()
     );
-    assert_eq!(session.scope.to_string(), "loop_backedge_single_body");
-    assert_eq!(session.proof.to_string(), "loopcarry_len_store_only");
+    assert_eq!(session.scope(), "loop_backedge_single_body");
+    assert_eq!(session.proof(), "loopcarry_len_store_only");
     let executor_contract = session
-        .executor_contract
-        .as_ref()
+        .executor_contract()
         .expect("residence session should expose nested executor contract");
+    assert_eq!(executor_contract.execution_mode(), "single_region_executor");
     assert_eq!(
-        executor_contract.execution_mode.to_string(),
-        "single_region_executor"
-    );
-    assert_eq!(
-        executor_contract.proof_region.to_string(),
+        executor_contract.proof_region(),
         "loop_backedge_single_body"
     );
-    assert_eq!(executor_contract.publication_boundary, "none");
+    assert_eq!(executor_contract.publication_boundary(), "none");
+    assert_eq!(executor_contract.carrier(), "array_lane_text_cell");
     assert_eq!(
-        executor_contract.carrier.to_string(),
-        "array_lane_text_cell"
-    );
-    assert_eq!(
-        executor_contract
-            .effects
-            .iter()
-            .map(|effect| effect.to_string())
-            .collect::<Vec<_>>(),
+        executor_contract.effects(),
         vec!["store.cell", "length_only_result_carry"]
     );
     assert_eq!(
-        executor_contract
-            .consumer_capabilities
-            .iter()
-            .map(|capability| capability.to_string())
-            .collect::<Vec<_>>(),
+        executor_contract.consumer_capabilities(),
         vec!["sink_store", "length_only"]
     );
     assert_eq!(
-        executor_contract.materialization_policy.to_string(),
+        executor_contract.materialization_policy(),
         "text_resident_or_stringlike_slot"
     );
     let region_mapping = executor_contract
-        .region_mapping
-        .as_ref()
+        .region_mapping()
         .expect("single-region executor contract should expose loop/PHI/exit mapping");
     assert_eq!(region_mapping.array_root_value.0, 5);
     assert_eq!(region_mapping.loop_index_phi_value.0, 31);
@@ -433,16 +420,19 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
 
     let begin_block = function
         .blocks
-        .get(&session.begin_block)
+        .get(&session.begin_block())
         .expect("begin block");
     assert!(matches!(
         begin_block.terminator.as_ref(),
-        Some(MirInstruction::Jump { target, .. }) if *target == session.header_block
+        Some(MirInstruction::Jump { target, .. }) if *target == session.header_block()
     ));
 
-    let exit_block = function.blocks.get(&session.end_block).expect("end block");
+    let exit_block = function
+        .blocks
+        .get(&session.end_block())
+        .expect("end block");
     assert_eq!(exit_block.predecessors.len(), 1);
-    assert!(exit_block.predecessors.contains(&session.header_block));
+    assert!(exit_block.predecessors.contains(&session.header_block()));
 }
 
 #[test]

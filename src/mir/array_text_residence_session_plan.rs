@@ -15,67 +15,97 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceSessionScope {
+enum ArrayTextResidenceSessionScope {
     LoopBackedgeSingleBody,
+}
+
+impl ArrayTextResidenceSessionScope {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::LoopBackedgeSingleBody => "loop_backedge_single_body",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextResidenceSessionScope {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::LoopBackedgeSingleBody => f.write_str("loop_backedge_single_body"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceSessionProof {
+enum ArrayTextResidenceSessionProof {
     LoopcarryLenStoreOnly,
+}
+
+impl ArrayTextResidenceSessionProof {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::LoopcarryLenStoreOnly => "loopcarry_len_store_only",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextResidenceSessionProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::LoopcarryLenStoreOnly => f.write_str("loopcarry_len_store_only"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceSessionBeginPlacement {
+enum ArrayTextResidenceSessionBeginPlacement {
     BeforePreheaderJump,
+}
+
+impl ArrayTextResidenceSessionBeginPlacement {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::BeforePreheaderJump => "before_preheader_jump",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextResidenceSessionBeginPlacement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::BeforePreheaderJump => f.write_str("before_preheader_jump"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceSessionUpdatePlacement {
+enum ArrayTextResidenceSessionUpdatePlacement {
     RouteInstruction,
+}
+
+impl ArrayTextResidenceSessionUpdatePlacement {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::RouteInstruction => "route_instruction",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextResidenceSessionUpdatePlacement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::RouteInstruction => f.write_str("route_instruction"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ArrayTextResidenceSessionEndPlacement {
+enum ArrayTextResidenceSessionEndPlacement {
     ExitBlockEntry,
+}
+
+impl ArrayTextResidenceSessionEndPlacement {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::ExitBlockEntry => "exit_block_entry",
+        }
+    }
 }
 
 impl std::fmt::Display for ArrayTextResidenceSessionEndPlacement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::ExitBlockEntry => f.write_str("exit_block_entry"),
-        }
+        f.write_str(self.as_str())
     }
 }
 
@@ -86,8 +116,14 @@ pub enum ArrayTextResidenceExecutorExecutionMode {
 
 impl std::fmt::Display for ArrayTextResidenceExecutorExecutionMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextResidenceExecutorExecutionMode {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::SingleRegionExecutor => f.write_str("single_region_executor"),
+            Self::SingleRegionExecutor => "single_region_executor",
         }
     }
 }
@@ -99,8 +135,14 @@ pub enum ArrayTextResidenceExecutorCarrier {
 
 impl std::fmt::Display for ArrayTextResidenceExecutorCarrier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextResidenceExecutorCarrier {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::ArrayLaneTextCell => f.write_str("array_lane_text_cell"),
+            Self::ArrayLaneTextCell => "array_lane_text_cell",
         }
     }
 }
@@ -113,9 +155,15 @@ pub enum ArrayTextResidenceExecutorEffect {
 
 impl std::fmt::Display for ArrayTextResidenceExecutorEffect {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextResidenceExecutorEffect {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::StoreCell => f.write_str("store.cell"),
-            Self::LengthOnlyResultCarry => f.write_str("length_only_result_carry"),
+            Self::StoreCell => "store.cell",
+            Self::LengthOnlyResultCarry => "length_only_result_carry",
         }
     }
 }
@@ -128,9 +176,15 @@ pub enum ArrayTextResidenceExecutorConsumerCapability {
 
 impl std::fmt::Display for ArrayTextResidenceExecutorConsumerCapability {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextResidenceExecutorConsumerCapability {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::SinkStore => f.write_str("sink_store"),
-            Self::LengthOnly => f.write_str("length_only"),
+            Self::SinkStore => "sink_store",
+            Self::LengthOnly => "length_only",
         }
     }
 }
@@ -142,8 +196,14 @@ pub enum ArrayTextResidenceExecutorMaterializationPolicy {
 
 impl std::fmt::Display for ArrayTextResidenceExecutorMaterializationPolicy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ArrayTextResidenceExecutorMaterializationPolicy {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::TextResidentOrStringlikeSlot => f.write_str("text_resident_or_stringlike_slot"),
+            Self::TextResidentOrStringlikeSlot => "text_resident_or_stringlike_slot",
         }
     }
 }
@@ -169,17 +229,52 @@ pub struct ArrayTextResidenceLoopRegionMapping {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextResidenceExecutorContract {
-    pub execution_mode: ArrayTextResidenceExecutorExecutionMode,
-    pub proof_region: ArrayTextResidenceSessionScope,
-    pub publication_boundary: &'static str,
-    pub carrier: ArrayTextResidenceExecutorCarrier,
-    pub effects: Vec<ArrayTextResidenceExecutorEffect>,
-    pub consumer_capabilities: Vec<ArrayTextResidenceExecutorConsumerCapability>,
-    pub materialization_policy: ArrayTextResidenceExecutorMaterializationPolicy,
-    pub region_mapping: Option<ArrayTextResidenceLoopRegionMapping>,
+    execution_mode: ArrayTextResidenceExecutorExecutionMode,
+    proof_region: ArrayTextResidenceSessionScope,
+    publication_boundary: &'static str,
+    carrier: ArrayTextResidenceExecutorCarrier,
+    effects: Vec<ArrayTextResidenceExecutorEffect>,
+    consumer_capabilities: Vec<ArrayTextResidenceExecutorConsumerCapability>,
+    materialization_policy: ArrayTextResidenceExecutorMaterializationPolicy,
+    region_mapping: Option<ArrayTextResidenceLoopRegionMapping>,
 }
 
 impl ArrayTextResidenceExecutorContract {
+    pub fn execution_mode(&self) -> &'static str {
+        self.execution_mode.as_str()
+    }
+
+    pub fn proof_region(&self) -> &'static str {
+        self.proof_region.as_str()
+    }
+
+    pub fn publication_boundary(&self) -> &'static str {
+        self.publication_boundary
+    }
+
+    pub fn carrier(&self) -> &'static str {
+        self.carrier.as_str()
+    }
+
+    pub fn effects(&self) -> Vec<&'static str> {
+        self.effects.iter().map(|effect| effect.as_str()).collect()
+    }
+
+    pub fn consumer_capabilities(&self) -> Vec<&'static str> {
+        self.consumer_capabilities
+            .iter()
+            .map(|capability| capability.as_str())
+            .collect()
+    }
+
+    pub fn materialization_policy(&self) -> &'static str {
+        self.materialization_policy.as_str()
+    }
+
+    pub fn region_mapping(&self) -> Option<&ArrayTextResidenceLoopRegionMapping> {
+        self.region_mapping.as_ref()
+    }
+
     fn loopcarry_len_store_single_region(
         region_mapping: ArrayTextResidenceLoopRegionMapping,
     ) -> Self {
@@ -205,28 +300,118 @@ impl ArrayTextResidenceExecutorContract {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextResidenceSessionRoute {
-    pub begin_block: BasicBlockId,
-    pub begin_to_header_block: BasicBlockId,
-    pub begin_placement: ArrayTextResidenceSessionBeginPlacement,
-    pub header_block: BasicBlockId,
-    pub body_block: BasicBlockId,
-    pub exit_block: BasicBlockId,
-    pub update_block: BasicBlockId,
-    pub update_instruction_index: usize,
-    pub update_placement: ArrayTextResidenceSessionUpdatePlacement,
-    pub end_block: BasicBlockId,
-    pub end_placement: ArrayTextResidenceSessionEndPlacement,
-    pub route_instruction_index: usize,
-    pub array_value: ValueId,
-    pub index_value: ValueId,
-    pub source_value: ValueId,
-    pub result_len_value: ValueId,
-    pub middle_value: ValueId,
-    pub middle_length: i64,
-    pub skip_instruction_indices: Vec<usize>,
-    pub scope: ArrayTextResidenceSessionScope,
-    pub proof: ArrayTextResidenceSessionProof,
-    pub executor_contract: Option<ArrayTextResidenceExecutorContract>,
+    begin_block: BasicBlockId,
+    begin_to_header_block: BasicBlockId,
+    begin_placement: ArrayTextResidenceSessionBeginPlacement,
+    header_block: BasicBlockId,
+    body_block: BasicBlockId,
+    exit_block: BasicBlockId,
+    update_block: BasicBlockId,
+    update_instruction_index: usize,
+    update_placement: ArrayTextResidenceSessionUpdatePlacement,
+    end_block: BasicBlockId,
+    end_placement: ArrayTextResidenceSessionEndPlacement,
+    route_instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    source_value: ValueId,
+    result_len_value: ValueId,
+    middle_value: ValueId,
+    middle_length: i64,
+    skip_instruction_indices: Vec<usize>,
+    scope: ArrayTextResidenceSessionScope,
+    proof: ArrayTextResidenceSessionProof,
+    executor_contract: Option<ArrayTextResidenceExecutorContract>,
+}
+
+impl ArrayTextResidenceSessionRoute {
+    pub fn begin_block(&self) -> BasicBlockId {
+        self.begin_block
+    }
+
+    pub fn begin_to_header_block(&self) -> BasicBlockId {
+        self.begin_to_header_block
+    }
+
+    pub fn begin_placement(&self) -> &'static str {
+        self.begin_placement.as_str()
+    }
+
+    pub fn header_block(&self) -> BasicBlockId {
+        self.header_block
+    }
+
+    pub fn body_block(&self) -> BasicBlockId {
+        self.body_block
+    }
+
+    pub fn exit_block(&self) -> BasicBlockId {
+        self.exit_block
+    }
+
+    pub fn update_block(&self) -> BasicBlockId {
+        self.update_block
+    }
+
+    pub fn update_instruction_index(&self) -> usize {
+        self.update_instruction_index
+    }
+
+    pub fn update_placement(&self) -> &'static str {
+        self.update_placement.as_str()
+    }
+
+    pub fn end_block(&self) -> BasicBlockId {
+        self.end_block
+    }
+
+    pub fn end_placement(&self) -> &'static str {
+        self.end_placement.as_str()
+    }
+
+    pub fn route_instruction_index(&self) -> usize {
+        self.route_instruction_index
+    }
+
+    pub fn array_value(&self) -> ValueId {
+        self.array_value
+    }
+
+    pub fn index_value(&self) -> ValueId {
+        self.index_value
+    }
+
+    pub fn source_value(&self) -> ValueId {
+        self.source_value
+    }
+
+    pub fn result_len_value(&self) -> ValueId {
+        self.result_len_value
+    }
+
+    pub fn middle_value(&self) -> ValueId {
+        self.middle_value
+    }
+
+    pub fn middle_length(&self) -> i64 {
+        self.middle_length
+    }
+
+    pub fn skip_instruction_indices(&self) -> &[usize] {
+        &self.skip_instruction_indices
+    }
+
+    pub fn scope(&self) -> &'static str {
+        self.scope.as_str()
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+
+    pub fn executor_contract(&self) -> Option<&ArrayTextResidenceExecutorContract> {
+        self.executor_contract.as_ref()
+    }
 }
 
 pub fn refresh_module_array_text_residence_session_routes(module: &mut MirModule) {
