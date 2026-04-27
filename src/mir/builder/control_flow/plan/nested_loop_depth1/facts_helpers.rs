@@ -2,7 +2,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::strip_trailing_continue_view;
 use crate::mir::builder::control_flow::plan::facts::nested_loop_profile::scan_nested_loop_body;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 use super::facts_types::{NestedLoopDepth1Facts, NestedLoopDepth1Kind};
 

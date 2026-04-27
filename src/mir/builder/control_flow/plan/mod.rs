@@ -46,8 +46,6 @@ pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod lowerer;
 pub(in crate::mir::builder) mod normalizer;
 pub(in crate::mir::builder) mod step_mode;
-// Phase 29bq+: Recipe-first base types (Facts→Lower contract)
-pub(in crate::mir::builder) mod recipes;
 pub(in crate::mir::builder) mod trace;
 
 // Layer 2: Analysis Layer (観測)

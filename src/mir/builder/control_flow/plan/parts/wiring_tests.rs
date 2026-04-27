@@ -7,8 +7,8 @@ mod tests {
         BlockContractKind, ExitKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
         RecipeBodies, RecipeItem,
     };
-    use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
     use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan};
+    use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
     use crate::mir::builder::stmts::variable_stmt::build_local_statement;
     use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
     use crate::mir::builder::MirBuilder;
@@ -91,19 +91,11 @@ mod tests {
         };
 
         let mut arena = RecipeBodies::new();
-        let inner_body_id = arena.register(
-            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-                vec![sum_inc.clone()],
-            ),
-        );
+        let inner_body_id = arena.register(RecipeBody::new(vec![sum_inc.clone()]));
         let inner_body_block =
             RecipeBlock::new(inner_body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
 
-        let then_body_id = arena.register(
-            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-                then_body_ast.clone(),
-            ),
-        );
+        let then_body_id = arena.register(RecipeBody::new(then_body_ast.clone()));
         let then_block = RecipeBlock::new(
             then_body_id,
             vec![
@@ -119,9 +111,7 @@ mod tests {
             ],
         );
 
-        let outer_body_id = arena.register(
-            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(vec![if_ast]),
-        );
+        let outer_body_id = arena.register(RecipeBody::new(vec![if_ast]));
         let outer_body_block = RecipeBlock::new(
             outer_body_id,
             vec![RecipeItem::IfV2 {
@@ -203,14 +193,10 @@ mod tests {
         };
 
         let mut arena = RecipeBodies::new();
-        let then_body_id = arena.register(
-            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(then_body_ast),
-        );
+        let then_body_id = arena.register(RecipeBody::new(then_body_ast));
         let then_block = RecipeBlock::new(then_body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
 
-        let body_id = arena.register(
-            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(vec![if_ast]),
-        );
+        let body_id = arena.register(RecipeBody::new(vec![if_ast]));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::IfV2 {
@@ -251,14 +237,11 @@ mod tests {
         };
 
         let mut arena = RecipeBodies::new();
-        let inner_body_id = arena
-            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(loop_body));
+        let inner_body_id = arena.register(RecipeBody::new(loop_body));
         let inner_body_block =
             RecipeBlock::new(inner_body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
 
-        let body_id = arena.register(
-            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(vec![loop_ast]),
-        );
+        let body_id = arena.register(RecipeBody::new(vec![loop_ast]));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::LoopV0 {
@@ -302,14 +285,11 @@ mod tests {
         };
 
         let mut arena = RecipeBodies::new();
-        let inner_body_id = arena
-            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(loop_body));
+        let inner_body_id = arena.register(RecipeBody::new(loop_body));
         let inner_body_block =
             RecipeBlock::new(inner_body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
 
-        let body_id = arena.register(
-            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(vec![loop_ast]),
-        );
+        let body_id = arena.register(RecipeBody::new(vec![loop_ast]));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::LoopV0 {
@@ -349,8 +329,7 @@ mod tests {
         }];
 
         let mut arena = RecipeBodies::new();
-        let body_id = arena
-            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(body_ast));
+        let body_id = arena.register(RecipeBody::new(body_ast));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::Exit {
@@ -388,8 +367,7 @@ mod tests {
         }];
 
         let mut arena = RecipeBodies::new();
-        let body_id = arena
-            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(body_ast));
+        let body_id = arena.register(RecipeBody::new(body_ast));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::Exit {
@@ -451,8 +429,7 @@ mod tests {
         }];
 
         let mut arena = RecipeBodies::new();
-        let body_id = arena
-            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(body_ast));
+        let body_id = arena.register(RecipeBody::new(body_ast));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::Exit {

@@ -3,7 +3,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::{BodyLoweringPolicy, CondProfile, GenericLoopV1ShapeId};
 
 /// Facts extracted for generic loop v0 (ExitIf-capable, no carriers)

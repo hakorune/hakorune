@@ -1,7 +1,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::nested_loop_profile::NestedLoopBodyProfile;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::StmtOnlyBlockRecipe;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum NestedLoopDepth1Kind {

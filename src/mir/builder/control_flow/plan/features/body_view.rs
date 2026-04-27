@@ -1,6 +1,8 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::recipes::refs::{StmtRef, StmtSpan};
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::{
+    refs::{StmtRef, StmtSpan},
+    RecipeBody,
+};
 
 pub(in crate::mir::builder) enum BodyView<'a> {
     Recipe(&'a RecipeBody),

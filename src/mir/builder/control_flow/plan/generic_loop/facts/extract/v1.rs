@@ -13,8 +13,8 @@ use crate::mir::builder::control_flow::plan::facts::reject_reason::{
 use crate::mir::builder::control_flow::plan::facts::stmt_view::flatten_scope_boxes;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBodies};
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::BodyLoweringPolicy;
 
 use super::super::super::body_check::shape_resolution::{

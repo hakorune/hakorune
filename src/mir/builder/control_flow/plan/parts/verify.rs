@@ -15,7 +15,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedReci
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, ExitKind, IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 // ============================================================================
 // RecipeBlock verifier (M5m-3)

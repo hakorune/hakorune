@@ -13,9 +13,8 @@ use crate::mir::builder::control_flow::plan::recipe_tree::verified::{
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, ExitKind, RecipeBlock, RecipeBodies,
 };
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ConstValue;
 use std::collections::BTreeMap;

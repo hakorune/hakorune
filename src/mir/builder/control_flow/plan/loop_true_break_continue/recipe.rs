@@ -11,9 +11,11 @@
 //! - NestedLoopDepth1: nested loop(cond) or loop(true) with depth=1
 //! - GeneralIf: carrier update only (no exit)
 
-use crate::mir::builder::control_flow::plan::recipes::refs::{StmtPair, StmtRef};
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
+use crate::mir::builder::control_flow::recipes::{
+    refs::{StmtPair, StmtRef},
+    RecipeBody,
+};
 
 /// Recipe は body を所有し、items は Idx で参照
 pub(in crate::mir::builder) type LoopTrueBreakContinueRecipe = LoopCondRecipe<LoopTrueItem>;
