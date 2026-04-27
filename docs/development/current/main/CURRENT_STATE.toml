@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-582"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-582-recipes-composer-compat-prune-card.md"
-latest_card_summary = "Move recipes composer compat callers to plan owners and delete the recipes-side facade."
+latest_card = "291x-583"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-583-lower-planner-compat-inventory-card.md"
+latest_card_summary = "Shrink lower::planner_compat to the still-live lowering boundary and prune zero-use re-exports."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -302,4 +302,5 @@ landed_tail = [
   "291x-580 plan canon cond_block_view owner migration landed",
   "291x-581 ssa exit binding wrapper prune landed",
   "291x-582 recipes composer compat prune landed",
+  "291x-583 lower planner compat unused export prune landed",
 ]

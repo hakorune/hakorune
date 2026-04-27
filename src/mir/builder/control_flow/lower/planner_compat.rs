@@ -8,13 +8,11 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::edgecfg
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::planner::{
-    build_plan_with_facts, build_plan_with_facts_ctx, tags, Freeze, PlanBuildOutcome,
-    PlannerContext,
+    tags, Freeze, PlanBuildOutcome,
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::single_planner::{
-    planner_rule_route_label, planner_rule_semantic_label, planner_rule_tag_name,
-    try_build_outcome, PlanRuleId,
+    planner_rule_route_label, try_build_outcome, PlanRuleId,
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::{
