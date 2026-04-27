@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-576"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-576-coreloop-body-contract-wrapper-prune-card.md"
-latest_card_summary = "Migrate core loop body contract callers to verify owner paths and delete the plan-side wrapper."
+latest_card = "291x-577"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-577-unused-plan-facts-wrapper-prune-card.md"
+latest_card_summary = "Delete zero-use plan/facts compatibility wrappers for expr_value and block_policies."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -296,4 +296,5 @@ landed_tail = [
   "291x-574 plan extractor facade prune landed",
   "291x-575 plan compat residue inventory landed",
   "291x-576 coreloop body contract wrapper prune landed",
+  "291x-577 unused plan facts wrapper prune landed",
 ]

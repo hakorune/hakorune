@@ -23,11 +23,9 @@ pub(in crate::mir::builder) mod loop_types;
 // Flattened from expr/
 pub(in crate::mir::builder) mod expr_bool;
 pub(in crate::mir::builder) mod expr_generic_loop;
-pub(in crate::mir::builder) mod expr_value;
 
 // Existing modules
 pub(in crate::mir::builder) mod accum_const_loop_facts;
-pub(in crate::mir::builder) mod block_policies;
 pub(in crate::mir::builder) mod bool_predicate_scan_facts;
 pub(in crate::mir::builder) mod escape_map_facts;
 pub(in crate::mir::builder) mod exit_only_block;
