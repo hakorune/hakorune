@@ -111,7 +111,7 @@ pub mod verification_types; // extracted error types // Optimization subpasses (
 pub use basic_block::{BasicBlock, EdgeArgs, OutEdge};
 pub use builder::MirBuilder;
 pub use compiler::{MirCompileResult, MirCompiler};
-pub use hakorune_mir_core::{BasicBlockId, BasicBlockIdGenerator, BindingId};
+pub use hakorune_mir_core::{BasicBlockId, BindingId};
 
 // Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
 pub(crate) use builder::detect_skip_whitespace_shape;
@@ -251,6 +251,6 @@ pub use userbox_loop_micro_seed_plan::{
 pub use value_consumer::{
     refresh_function_value_consumer_facts, refresh_module_value_consumer_facts,
 };
-pub use value_id::{LocalId, ValueId, ValueIdGenerator};
+pub use value_id::ValueId;
 pub use verification::MirVerifier;
 pub use verification_types::VerificationError;
