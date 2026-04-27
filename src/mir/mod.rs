@@ -221,7 +221,6 @@ pub use string_corridor_placement::{
 };
 pub use string_corridor_relation::{
     refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,
-    StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
 };
 pub use string_direct_set_window_plan::{
     refresh_function_string_direct_set_window_routes,

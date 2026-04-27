@@ -3,6 +3,7 @@ use crate::mir::placement_effect::{
     PlacementEffectBorrowContract, PlacementEffectDecision, PlacementEffectSource,
     PlacementEffectStringProof,
 };
+use crate::mir::string_corridor_relation::StringCorridorRelationKind;
 
 pub(super) fn build_use_counts(function: &MirFunction) -> HashMap<ValueId, usize> {
     let mut uses: HashMap<ValueId, usize> = HashMap::new();
@@ -500,7 +501,7 @@ pub(super) fn stable_length_value_for_source(
         .get(&source)?
         .iter()
         .find_map(|relation| {
-            (relation.kind == crate::mir::StringCorridorRelationKind::StableLengthScalar)
+            (relation.kind == StringCorridorRelationKind::StableLengthScalar)
                 .then_some(relation.witness_value)
                 .flatten()
         })

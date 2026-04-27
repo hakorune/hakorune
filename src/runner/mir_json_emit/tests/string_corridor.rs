@@ -1,5 +1,8 @@
 use super::super::build_mir_json_root;
 use super::{make_function, make_string_loop_function};
+use crate::mir::string_corridor_relation::{
+    StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
+};
 use crate::mir::value_consumer::ValueConsumerFacts;
 use crate::mir::{MirModule, ValueId};
 
@@ -54,10 +57,10 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
     let mut function = make_function("main", true);
     function.metadata.string_corridor_relations.insert(
         crate::mir::ValueId::new(7),
-        vec![crate::mir::StringCorridorRelation {
-            kind: crate::mir::StringCorridorRelationKind::PhiCarryBase,
+        vec![StringCorridorRelation {
+            kind: StringCorridorRelationKind::PhiCarryBase,
             base_value: crate::mir::ValueId::new(6),
-            window_contract: crate::mir::StringCorridorWindowContract::PreservePlanWindow,
+            window_contract: StringCorridorWindowContract::PreservePlanWindow,
             witness_value: None,
             reason: "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window",
         }],

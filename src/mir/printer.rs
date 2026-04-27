@@ -423,6 +423,9 @@ impl Default for MirPrinter {
 mod tests {
     use super::*;
     use crate::mir::storage_class::StorageClass;
+    use crate::mir::string_corridor_relation::{
+        StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
+    };
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
@@ -495,10 +498,10 @@ mod tests {
         );
         function.metadata.string_corridor_relations.insert(
             ValueId::new(2),
-            vec![crate::mir::StringCorridorRelation {
-                kind: crate::mir::StringCorridorRelationKind::PhiCarryBase,
+            vec![StringCorridorRelation {
+                kind: StringCorridorRelationKind::PhiCarryBase,
                 base_value: ValueId::new(1),
-                window_contract: crate::mir::StringCorridorWindowContract::StopAtMerge,
+                window_contract: StringCorridorWindowContract::StopAtMerge,
                 witness_value: None,
                 reason: "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge",
             }],
