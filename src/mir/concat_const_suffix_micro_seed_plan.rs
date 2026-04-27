@@ -13,29 +13,80 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ConcatConstSuffixMicroSeedProof {
+enum ConcatConstSuffixMicroSeedProof {
     KiloMicroConcatConstSuffix5Block,
 }
 
 impl std::fmt::Display for ConcatConstSuffixMicroSeedProof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl ConcatConstSuffixMicroSeedProof {
+    fn as_str(self) -> &'static str {
         match self {
-            Self::KiloMicroConcatConstSuffix5Block => {
-                f.write_str("kilo_micro_concat_const_suffix_5block")
-            }
+            Self::KiloMicroConcatConstSuffix5Block => "kilo_micro_concat_const_suffix_5block",
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ConcatConstSuffixMicroSeedRoute {
-    pub seed: String,
-    pub seed_len: i64,
-    pub suffix: String,
-    pub suffix_len: i64,
-    pub ops: i64,
-    pub result_len: i64,
-    pub proof: ConcatConstSuffixMicroSeedProof,
+    seed: String,
+    seed_len: i64,
+    suffix: String,
+    suffix_len: i64,
+    ops: i64,
+    result_len: i64,
+    proof: ConcatConstSuffixMicroSeedProof,
+}
+
+impl ConcatConstSuffixMicroSeedRoute {
+    pub fn seed(&self) -> &str {
+        &self.seed
+    }
+
+    pub fn seed_len(&self) -> i64 {
+        self.seed_len
+    }
+
+    pub fn suffix(&self) -> &str {
+        &self.suffix
+    }
+
+    pub fn suffix_len(&self) -> i64 {
+        self.suffix_len
+    }
+
+    pub fn ops(&self) -> i64 {
+        self.ops
+    }
+
+    pub fn result_len(&self) -> i64 {
+        self.result_len
+    }
+
+    pub fn proof(&self) -> &'static str {
+        self.proof.as_str()
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_support {
+    use super::{ConcatConstSuffixMicroSeedProof, ConcatConstSuffixMicroSeedRoute};
+
+    pub(crate) fn kilo_micro_concat_const_suffix_5block() -> ConcatConstSuffixMicroSeedRoute {
+        ConcatConstSuffixMicroSeedRoute {
+            seed: "line-seed-abcdef".to_string(),
+            seed_len: 16,
+            suffix: "xy".to_string(),
+            suffix_len: 2,
+            ops: 600000,
+            result_len: 18,
+            proof: ConcatConstSuffixMicroSeedProof::KiloMicroConcatConstSuffix5Block,
+        }
+    }
 }
 
 pub fn refresh_module_concat_const_suffix_micro_seed_routes(module: &mut MirModule) {

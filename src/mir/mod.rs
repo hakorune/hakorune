@@ -192,8 +192,7 @@ pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
 pub use concat_const_suffix_micro_seed_plan::{
     refresh_function_concat_const_suffix_micro_seed_route,
-    refresh_module_concat_const_suffix_micro_seed_routes, ConcatConstSuffixMicroSeedProof,
-    ConcatConstSuffixMicroSeedRoute,
+    refresh_module_concat_const_suffix_micro_seed_routes, ConcatConstSuffixMicroSeedRoute,
 };
 pub use core_method_op::{
     CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier, CoreMethodOpProof,

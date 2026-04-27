@@ -505,13 +505,13 @@ pub(super) fn build_mir_json_root(
             }),
             "concat_const_suffix_micro_seed_route": f.metadata.concat_const_suffix_micro_seed_route.as_ref().map(|route| {
                 json!({
-                    "seed": route.seed.as_str(),
-                    "seed_len": route.seed_len,
-                    "suffix": route.suffix.as_str(),
-                    "suffix_len": route.suffix_len,
-                    "ops": route.ops,
-                    "result_len": route.result_len,
-                    "proof": route.proof.to_string(),
+                    "seed": route.seed(),
+                    "seed_len": route.seed_len(),
+                    "suffix": route.suffix(),
+                    "suffix_len": route.suffix_len(),
+                    "ops": route.ops(),
+                    "result_len": route.result_len(),
+                    "proof": route.proof(),
                     "consumer_capability": "direct_concat_const_suffix_loop",
                     "publication_boundary": "none",
                 })

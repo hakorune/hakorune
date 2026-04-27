@@ -305,7 +305,7 @@ fn match_exact_seed_backend_route(function: &MirFunction) -> Option<ExactSeedBac
             source_route: ExactSeedBackendRouteKind::ConcatConstSuffixMicro
                 .source_route_field()
                 .to_string(),
-            proof: route.proof.to_string(),
+            proof: route.proof().to_string(),
             selected_value: None,
         })
         .or_else(|| {
@@ -358,8 +358,7 @@ mod tests {
     use crate::mir::{
         ArrayGetSetMicroSeedProof, ArrayGetSetMicroSeedRoute, ArrayRmwAdd1LeafSeedProof,
         ArrayRmwAdd1LeafSeedRoute, ArrayStringStoreMicroSeedProof, ArrayStringStoreMicroSeedRoute,
-        ConcatConstSuffixMicroSeedProof, ConcatConstSuffixMicroSeedRoute, EffectMask,
-        FunctionSignature, MirType, StringKernelPlan, StringKernelPlanBorrowContract,
+        EffectMask, FunctionSignature, MirType, StringKernelPlan, StringKernelPlanBorrowContract,
         StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanPublicationBoundary,
         StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
         StringKernelPlanVerifierOwner, SubstringViewsMicroSeedProof, SubstringViewsMicroSeedRoute,
@@ -417,16 +416,9 @@ mod tests {
     #[test]
     fn exact_seed_backend_route_selects_concat_const_suffix_metadata() {
         let mut function = make_function();
-        function.metadata.concat_const_suffix_micro_seed_route =
-            Some(ConcatConstSuffixMicroSeedRoute {
-                seed: "line-seed-abcdef".to_string(),
-                seed_len: 16,
-                suffix: "xy".to_string(),
-                suffix_len: 2,
-                ops: 600000,
-                result_len: 18,
-                proof: ConcatConstSuffixMicroSeedProof::KiloMicroConcatConstSuffix5Block,
-            });
+        function.metadata.concat_const_suffix_micro_seed_route = Some(
+            crate::mir::concat_const_suffix_micro_seed_plan::test_support::kilo_micro_concat_const_suffix_5block(),
+        );
 
         refresh_function_exact_seed_backend_route(&mut function);
 
