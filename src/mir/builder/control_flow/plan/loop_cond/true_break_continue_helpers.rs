@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::is_true_literal;
 
 pub(super) fn is_supported_nested_loop_condition(condition: &ASTNode) -> bool {
     if is_true_literal(condition) {

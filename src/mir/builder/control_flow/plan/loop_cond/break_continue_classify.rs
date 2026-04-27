@@ -6,7 +6,7 @@ use crate::mir::builder::control_flow::facts::extractors::common_helpers::branch
 use crate::mir::builder::control_flow::facts::no_exit_block::{
     try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
+use crate::mir::builder::control_flow::facts::stmt_walk::flatten_stmt_list;
 
 use super::break_continue_helpers::{branch_has_exit_or_loop, is_nested_loop_allowed};
 use super::break_continue_validator_prelude::exit_prelude_is_allowed;

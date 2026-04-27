@@ -6,10 +6,10 @@
 use super::super::steps::build_join_payload;
 use super::join_scope::{collect_branch_local_vars_from_body, filter_branch_locals_from_maps};
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-578"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-578-small-plan-facts-owner-path-migration-card.md"
-latest_card_summary = "Migrate small plan::facts callers to facts owner paths and prune the expr_bool/no_exit_block/stmt_view wrappers."
+latest_card = "291x-579"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-579-plan-extractors-common-helpers-owner-migration-card.md"
+latest_card_summary = "Migrate plan::extractors::common_helpers callers to facts owner paths and delete the obsolete wrapper shelf."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -298,4 +298,5 @@ landed_tail = [
   "291x-576 coreloop body contract wrapper prune landed",
   "291x-577 unused plan facts wrapper prune landed",
   "291x-578 small plan facts owner path migration landed",
+  "291x-579 plan extractors common_helpers owner migration landed",
 ]

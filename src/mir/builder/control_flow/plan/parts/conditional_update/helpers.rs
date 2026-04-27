@@ -1,6 +1,6 @@
 use super::{parts_exit, CondUpdateBranch};
 use crate::ast::{ASTNode, BinaryOperator};
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;

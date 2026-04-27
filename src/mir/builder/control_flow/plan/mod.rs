@@ -146,8 +146,6 @@ pub(in crate::mir::builder) mod single_planner;
 // Phase 29bq+: Common route helpers moved to plan side
 // Phase 29bq+: Common route initializer moved to plan side
 pub(in crate::mir::builder) mod common_init;
-// Phase 29ai P6: Extractors moved into plan layer
-pub(in crate::mir::builder) mod extractors;
 // Layer 9: Legacy/Scaffolding (残骸・足場)
 // 歴史的経緯で残存、将来的には整理予定
 // Phase 29bq+: Condition env builder moved to plan side

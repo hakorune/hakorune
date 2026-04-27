@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockV
 use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
+use crate::mir::builder::control_flow::facts::stmt_walk::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
     LoopCondBreakContinueItem, LoopCondBreakContinueRecipe, NestedLoopDepth1Recipe,

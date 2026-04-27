@@ -1,6 +1,6 @@
 use crate::ast::ASTNode;
 use crate::ast::{BinaryOperator, LiteralValue, Span};
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::is_true_literal;
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{lit_str, var};
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;

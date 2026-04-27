@@ -3,7 +3,7 @@ use super::trim_whitespace_helpers::{
     extract_trim_loop_var, match_trim_header_condition,
 };
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;

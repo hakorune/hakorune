@@ -10,7 +10,7 @@ use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_
 use crate::mir::builder::control_flow::facts::no_exit_block::{
     try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
+use crate::mir::builder::control_flow::facts::stmt_walk::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
 

@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, BinaryOperator, Span};
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, is_true_literal, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{

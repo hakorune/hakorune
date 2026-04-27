@@ -92,11 +92,11 @@ pub(in crate::mir::builder::control_flow::plan) fn substring_call(
 pub(in crate::mir::builder::control_flow::plan) fn has_continue_statement(
     body: &[ASTNode],
 ) -> bool {
-    use crate::mir::builder::control_flow::plan::extractors::common_helpers::has_continue_statement as common_has_continue;
+    use crate::mir::builder::control_flow::facts::extractors::common_helpers::has_continue_statement as common_has_continue;
     common_has_continue(body)
 }
 
 pub(in crate::mir::builder::control_flow::plan) fn has_return_statement(body: &[ASTNode]) -> bool {
-    use crate::mir::builder::control_flow::plan::extractors::common_helpers::has_return_statement as common_has_return;
+    use crate::mir::builder::control_flow::facts::extractors::common_helpers::has_return_statement as common_has_return;
     common_has_return(body)
 }

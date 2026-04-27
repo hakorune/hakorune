@@ -4,7 +4,7 @@
 //! Lower/pipeline は recipe を順に下ろすだけ（再判定禁止）
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::is_true_literal;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
     try_build_exit_allowed_block_recipe, ExitAllowedBlockRecipe,
 };

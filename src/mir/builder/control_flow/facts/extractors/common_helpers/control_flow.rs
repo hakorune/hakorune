@@ -147,18 +147,6 @@ pub(crate) fn branch_tail_is_continue_flattened(body: &[ASTNode]) -> bool {
     matches!(last_stmt, Some(ASTNode::Continue { .. }))
 }
 
-/// Phase 286 P2.6: Check if body has ANY if statement (recursive)
-///
-/// This is a supplementary helper for loop_simple_while extraction to prevent
-/// loop_simple_while from incorrectly matching if_phi_join fixtures.
-pub(crate) fn has_if_statement(body: &[ASTNode]) -> bool {
-    walk_stmt_list(body, |node| match node {
-        ASTNode::If { .. } => true,
-        ASTNode::Loop { body, .. } => has_if_statement(body),
-        _ => false,
-    })
-}
-
 /// Phase 286 P2.6: Check if body has ANY if-else statement (recursive)
 ///
 /// This is more specific than has_if_statement - it only detects if statements

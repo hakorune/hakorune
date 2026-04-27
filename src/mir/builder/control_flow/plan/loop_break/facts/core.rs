@@ -3,7 +3,7 @@
 //! This module contains the main entry function and fallback extraction logic.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;
