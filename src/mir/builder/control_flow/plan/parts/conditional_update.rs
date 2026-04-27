@@ -1,8 +1,8 @@
 //! Conditional update + join feature (Parts SSOT, loop-cond bodies).
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::{
     common::negate_bool_cond, lower_cond_value,
 };

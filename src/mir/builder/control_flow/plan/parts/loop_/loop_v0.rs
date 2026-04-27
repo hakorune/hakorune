@@ -1,5 +1,5 @@
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::coreloop_frame::{

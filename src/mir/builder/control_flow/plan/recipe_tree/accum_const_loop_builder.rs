@@ -2,7 +2,7 @@
 
 use super::build_stmt_only_block;
 use crate::ast::{ASTNode, Span};
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::AccumConstLoopFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies, RecipeItem,

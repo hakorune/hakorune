@@ -16,7 +16,7 @@ pub fn verify_loop_break_recipe(
     loop_break_facts: &crate::mir::builder::control_flow::plan::facts::LoopBreakFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -92,7 +92,7 @@ pub fn verify_if_phi_join_recipe(
     if_phi_join_facts: &crate::mir::builder::control_flow::plan::facts::IfPhiJoinFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -137,7 +137,7 @@ pub fn verify_loop_continue_only_recipe(
     continue_only_facts: &crate::mir::builder::control_flow::plan::facts::LoopContinueOnlyFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -186,7 +186,7 @@ pub fn verify_loop_true_early_exit_recipe(
     early_exit_facts: &crate::mir::builder::control_flow::plan::facts::LoopTrueEarlyExitFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -233,7 +233,7 @@ pub fn verify_loop_simple_while_recipe(
     simple_while_facts: &crate::mir::builder::control_flow::plan::facts::LoopSimpleWhileFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -281,7 +281,7 @@ pub fn verify_loop_char_map_recipe(
     char_map_facts: &crate::mir::builder::control_flow::plan::facts::LoopCharMapFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -329,7 +329,7 @@ pub fn verify_loop_array_join_recipe(
     array_join_facts: &crate::mir::builder::control_flow::plan::facts::LoopArrayJoinFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -377,7 +377,7 @@ pub fn verify_scan_with_init_recipe(
     scan_with_init_facts: &crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -420,7 +420,7 @@ pub fn verify_split_scan_recipe(
     split_scan_facts: &crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -463,7 +463,7 @@ pub fn verify_bool_predicate_scan_recipe(
     bool_scan_facts: &crate::mir::builder::control_flow::plan::facts::BoolPredicateScanFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
@@ -508,7 +508,7 @@ pub fn verify_accum_const_loop_recipe(
     accum_const_facts: &crate::mir::builder::control_flow::plan::facts::AccumConstLoopFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 

@@ -1,7 +1,7 @@
 //! GenericLoop step/cond feature (apply-only).
 
 use crate::ast::{ASTNode, BinaryOperator};
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;

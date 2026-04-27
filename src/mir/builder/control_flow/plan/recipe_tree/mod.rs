@@ -5,8 +5,8 @@
 //!
 //! Phase: M1 scaffold (no calls from existing pipeline)
 
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::stmt_view::StmtOnlyBlockRecipe;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 

@@ -5,7 +5,7 @@
 //! `RecipeItem::Exit` uses existing `ExitKind`.
 
 use super::common::{ExitKind, IfMode};
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 

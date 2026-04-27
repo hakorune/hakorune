@@ -57,7 +57,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0_nested_segment(
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::recipes::RecipeBody;
 
     fn span() -> Span {

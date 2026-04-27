@@ -3,7 +3,7 @@ use super::cond_lowering_prelude::lower_blockexpr_value_prelude_stmts;
 use super::helpers_pure_value::is_pure_value_expr;
 use super::CoreEffectPlan;
 use crate::mir::builder::calls::extern_calls;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;

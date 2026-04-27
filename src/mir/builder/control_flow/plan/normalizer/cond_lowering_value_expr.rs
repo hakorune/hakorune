@@ -2,7 +2,7 @@
 
 use super::cond_lowering_prelude::lower_cond_prelude_stmts;
 use crate::ast::{ASTNode, BinaryOperator, UnaryOperator};
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;

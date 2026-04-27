@@ -1,7 +1,7 @@
 //! LoopTrueEarlyExit recipe builder for Recipe-first verification
 
 use crate::ast::{ASTNode, Span};
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
 use crate::mir::builder::control_flow::plan::facts::LoopTrueEarlyExitFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};

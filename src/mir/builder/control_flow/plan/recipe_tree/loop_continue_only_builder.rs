@@ -1,7 +1,7 @@
 //! LoopContinueOnly recipe builder for Recipe-first verification
 
 use crate::ast::{ASTNode, Span};
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::LoopContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{

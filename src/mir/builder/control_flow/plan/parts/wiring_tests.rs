@@ -2,7 +2,7 @@
 mod tests {
     use super::super::loop_::lower_loop_v0;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::{
         BlockContractKind, ExitKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
         RecipeBodies, RecipeItem,

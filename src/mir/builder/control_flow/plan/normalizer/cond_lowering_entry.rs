@@ -2,7 +2,7 @@
 
 use super::cond_lowering_if_plan::lower_cond_to_if_plans;
 use super::cond_lowering_value_expr::lower_cond_to_value_impl;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreIfJoin, CorePlan, LoweredRecipe,
 };

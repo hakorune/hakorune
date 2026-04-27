@@ -2,7 +2,7 @@
 
 use super::exit_branch;
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;

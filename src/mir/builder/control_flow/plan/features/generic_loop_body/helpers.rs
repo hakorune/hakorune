@@ -1,6 +1,6 @@
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, lower_cond_value};
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;

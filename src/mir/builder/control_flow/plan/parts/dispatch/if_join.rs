@@ -71,7 +71,7 @@ pub(super) fn lower_if_join_with_stmt_lowerer<'a>(
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: Option<&BTreeMap<String, crate::mir::ValueId>>,
     arena: &RecipeBodies,
-    cond_view: &crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView,
+    cond_view: &crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView,
     then_block: &RecipeBlock,
     else_block: Option<&RecipeBlock>,
     error_prefix: &str,
@@ -353,7 +353,7 @@ fn collect_lit3_from_effect(
 pub(in crate::mir::builder) fn lower_if_join_with_branch_lowerers<ShouldUpdateBinding>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    cond_view: &crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView,
+    cond_view: &crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView,
     error_prefix: &str,
     lower_then: &mut dyn FnMut(
         &mut MirBuilder,
@@ -464,7 +464,7 @@ pub(in crate::mir::builder) fn lower_value_cond_if_with_filtered_joins<
 >(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    cond_view: &crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView,
+    cond_view: &crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView,
     pre_if_map: &BTreeMap<String, crate::mir::ValueId>,
     then_map: &BTreeMap<String, crate::mir::ValueId>,
     else_map: &BTreeMap<String, crate::mir::ValueId>,

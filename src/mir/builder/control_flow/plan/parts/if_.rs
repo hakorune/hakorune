@@ -2,7 +2,7 @@
 //!
 //! Scope: behavior-preserving extraction of existing lowering logic.
 
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitOnlyBlockRecipe;
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::IfMode;

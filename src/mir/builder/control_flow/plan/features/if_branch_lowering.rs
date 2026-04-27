@@ -1,7 +1,7 @@
 //! Shared helper for general-if lowering with branch-specific maps.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::lower_stmt_block;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
