@@ -1,7 +1,8 @@
 //! Top-level owner surface for cleanup-side policy helpers.
 //!
-//! During folderization, cleanup-side policy support can move here first.
-//! Route-local policies that still depend on `plan/` stay behind the compat layer.
+//! Policy boxes here own cleanup-side route decisions and small vocabularies.
+//! Callers should import these owner modules directly instead of regrowing
+//! plan-side compatibility shelves.
 
 pub use crate::mir::policies::PolicyDecision;
 
