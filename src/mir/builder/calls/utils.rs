@@ -20,6 +20,16 @@ pub fn extract_string_literal(node: &ASTNode) -> Option<String> {
 }
 
 impl MirBuilder {
+    /// Map a user-facing type name to MIR type.
+    pub(in crate::mir::builder) fn parse_type_name_to_mir(name: &str) -> MirType {
+        parse_type_name_to_mir(name)
+    }
+
+    /// Extract string literal from AST node if possible.
+    pub(in crate::mir::builder) fn extract_string_literal(node: &ASTNode) -> Option<String> {
+        extract_string_literal(node)
+    }
+
     /// Annotate a call result `dst` with the return type and origin if the callee
     /// is a known user/static function in the current module.
     pub(in crate::mir::builder) fn annotate_call_result_from_func_name<S: AsRef<str>>(

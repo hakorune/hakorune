@@ -243,7 +243,7 @@ impl super::MirBuilder {
                     } else {
                         // Generic static box: lower all static methods into standalone MIR functions (BoxName.method/N)
                         // Note: Metadata clearing is now handled by BoxCompilationContext (箱理論)
-                        // See lifecycle.rs for context creation and builder_calls.rs for context swap
+                        // See lifecycle.rs for context creation and context swap.
                         // Phase 285LLVM-1.1: Register static box (no fields)
                         self.comp_ctx.register_user_box(name.clone());
                         // Use BoxCompilationContext even in script/test mode to isolate metadata per static box.

@@ -12,7 +12,6 @@ pub(crate) use calls::CallTarget;
 use hakorune_mir_builder::{BindingContext, CoreContext};
 use std::collections::HashMap;
 mod builder_build;
-mod builder_calls;
 mod builder_debug;
 mod builder_emit;
 mod builder_init;

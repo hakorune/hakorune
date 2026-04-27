@@ -70,7 +70,7 @@ impl super::MirBuilder {
                         true,
                     );
                     // Note: Metadata clearing is now handled by BoxCompilationContext (箱理論)
-                    // See lifecycle.rs and builder_calls.rs for context swap implementation
+                    // See lifecycle.rs for context swap implementation.
                     let _ = self.lower_static_method_as_function(
                         func_name,
                         params.clone(),

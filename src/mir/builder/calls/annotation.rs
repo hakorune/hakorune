@@ -1,5 +1,5 @@
 // Call result annotation helpers
-// Extracted from builder_calls.rs to keep files lean
+// Call-result annotation helpers for the call-system owner modules.
 
 use super::super::{MirBuilder, MirType, ValueId};
 use crate::mir::definitions::call_unified::Callee;
