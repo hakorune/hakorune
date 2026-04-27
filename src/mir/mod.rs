@@ -260,8 +260,3 @@ pub use value_id::{LocalId, ValueId, ValueIdGenerator};
 pub use value_kind::{MirValueKind, TypedValueId}; // Phase 26-A: ValueId型安全化
 pub use verification::MirVerifier;
 pub use verification_types::VerificationError;
-// Phase 15 control flow utilities (段階的根治戦略)
-pub use utils::{
-    capture_actual_predecessor_and_jump, collect_phi_incoming_if_reachable,
-    execute_statement_with_termination_check, is_current_block_terminated,
-};
