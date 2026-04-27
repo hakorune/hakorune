@@ -1,6 +1,6 @@
-use crate::mir::builder::control_flow::facts::scan_shapes::{
-    cond_profile_from_scan_shapes, StepShape,
-};
+#[cfg(debug_assertions)]
+use crate::mir::builder::control_flow::facts::scan_shapes::cond_profile_from_scan_shapes;
+use crate::mir::builder::control_flow::facts::scan_shapes::StepShape;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 
 #[cfg(debug_assertions)]

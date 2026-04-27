@@ -1,4 +1,6 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
+#[cfg(debug_assertions)]
+use std::collections::BTreeSet;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::cleanup::common::{

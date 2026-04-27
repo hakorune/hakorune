@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use super::super::core::PlanVerifier;
+    #[cfg(debug_assertions)]
     use super::super::primitives::debug_assert_value_join_invariants;
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::facts::feature_facts::{
@@ -12,6 +13,7 @@ mod tests {
     use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::facts::LoopFacts;
+    #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::lower::{
         CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
