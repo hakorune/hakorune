@@ -20,14 +20,3 @@ pub fn emit_to(
     b.type_ctx.value_types.insert(dst, MirType::Bool);
     Ok(())
 }
-
-// Convenience wrappers (明示関数名が読みやすい箇所用)
-#[inline]
-pub fn emit_eq_to(
-    b: &mut MirBuilder,
-    dst: ValueId,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<(), String> {
-    emit_to(b, dst, CompareOp::Eq, lhs, rhs)
-}

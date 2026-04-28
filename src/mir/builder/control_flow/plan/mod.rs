@@ -143,9 +143,6 @@ mod common_init;
 mod condition_env_builder;
 // Phase 29bq+: Conversion pipeline moved to plan side
 mod conversion_pipeline;
-// Phase 29bq+: Structural lock (join_key/session)
-// sealing は edgecfg/api/frag_emit_session.rs に統合（Phase 29bq+ 骨格拡大）
-mod join_key;
 // Phase 29bq+: Route prep pipeline moved to plan side (patterns layer thin)
 mod plan_build_session;
 mod route_prep_pipeline;

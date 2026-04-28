@@ -74,6 +74,7 @@ use crate::mir::builder::control_flow::plan::loop_true_counter_extractor::LoopTr
 /// // Use preprocessed data for lowering
 /// let join_module = lower_simple_while_minimal(ctx.loop_scope)?;
 /// ```
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub(crate) struct RoutePrepContext {
     // === Common Data (All Route Variants) ===
@@ -123,6 +124,7 @@ pub(crate) struct RoutePrepContext {
 }
 
 /// Route variant selector
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum RouteVariant {
     /// loop_simple_while route
@@ -137,21 +139,25 @@ pub(crate) enum RouteVariant {
 
 impl RoutePrepContext {
     /// Get the number of carriers (excluding loop variable)
+    #[cfg(test)]
     pub fn carrier_count(&self) -> usize {
         self.carrier_info.carrier_count()
     }
 
     /// Check if this is a Trim pattern
+    #[cfg(test)]
     pub fn is_trim_pattern(&self) -> bool {
         self.trim_helper.is_some()
     }
 
     /// Check if this has condition environment (break/continue variants)
+    #[cfg(test)]
     pub fn has_condition_env(&self) -> bool {
         self.condition_env.is_some()
     }
 
     /// Check if this has carrier updates (break/continue variants)
+    #[cfg(test)]
     pub fn has_carrier_updates(&self) -> bool {
         self.carrier_updates.is_some()
     }
@@ -164,6 +170,7 @@ impl RoutePrepContext {
     /// 3. carrier composition matches if-sum pattern (1 counter + 1-2 accumulators)
     ///
     /// This determines whether to use AST-based if_phi_join lowering or the general lowering path.
+    #[allow(dead_code)]
     pub fn is_if_phi_join_pattern(&self) -> bool {
         // Check if loop_body has if statement
         let if_stmt = self.extract_if_statement();
@@ -208,6 +215,7 @@ impl RoutePrepContext {
     /// Phase 213: Extract if statement from loop body
     ///
     /// Returns the first if statement found in loop_body, if any.
+    #[allow(dead_code)]
     pub fn extract_if_statement(&self) -> Option<&ASTNode> {
         self.loop_body
             .as_ref()
@@ -240,6 +248,7 @@ impl RoutePrepContext {
 /// - Loop variable not found in variable_map
 /// - Condition variable not found (break/continue variants)
 /// - Trim pattern promotion fails (break/continue variants)
+#[allow(dead_code)]
 pub(crate) fn build_route_prep_context(
     builder: &mut MirBuilder,
     condition: &ASTNode,

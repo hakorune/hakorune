@@ -31,10 +31,10 @@ impl TrimValidator {
         ch_value: ValueId,
         whitespace_chars: &[String],
     ) -> Result<ValueId, String> {
-        use crate::mir::builder::emission::compare::emit_eq_to;
+        use crate::mir::builder::emission::compare::emit_to as emit_compare_to;
         use crate::mir::builder::emission::constant::emit_string;
         use crate::mir::instruction::MirInstruction;
-        use crate::mir::types::BinaryOp;
+        use crate::mir::{CompareOp, types::BinaryOp};
 
         if whitespace_chars.is_empty() {
             return Err("[emit_whitespace_check] Empty whitespace_chars".to_string());
@@ -49,7 +49,7 @@ impl TrimValidator {
             // eq_check = ch == ws_const
             // Phase 135 P0: Use function-level ValueId (SSOT)
             let eq_dst = builder.next_value_id();
-            emit_eq_to(builder, eq_dst, ch_value, ws_const)?;
+            emit_compare_to(builder, eq_dst, CompareOp::Eq, ch_value, ws_const)?;
 
             result_opt = Some(if let Some(prev_result) = result_opt {
                 // result = prev_result || eq_check
