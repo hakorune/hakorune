@@ -7,5 +7,5 @@
 #![allow(unused_imports)]
 
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::facts::{
-    feature_facts, reject_reason, scan_shapes, skeleton_facts,
+    feature_facts, scan_shapes, skeleton_facts,
 };
