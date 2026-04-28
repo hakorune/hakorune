@@ -9,6 +9,7 @@ use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::conditional_update;
+use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
@@ -19,10 +20,7 @@ use crate::mir::policies::BodyLoweringPolicy;
 use crate::mir::{Effect, EffectMask};
 use std::collections::BTreeMap;
 
-use super::helpers::{
-    apply_loop_final_values_to_bindings, lower_effect_only_stmt, lower_nested_loop_plan,
-    matches_loop_increment,
-};
+use super::helpers::{lower_effect_only_stmt, lower_nested_loop_plan, matches_loop_increment};
 use super::{
     apply_generic_loop_v1_fallthrough_cleanup, body_plans_exit_on_all_paths, GENERIC_LOOP_ERR,
 };

@@ -7,6 +7,7 @@ use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::conditional_update::lower_conditional_update_if_assume_with_break_phi_args_recipe_first;
+use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
     LoopCondBreakContinueItem, NestedLoopDepth1Recipe,
@@ -550,11 +551,7 @@ fn lower_nested_loop_depth1_item(
             &mut plan,
         );
 
-        super::loop_cond_bc_nested_carriers::apply_loop_final_values_to_bindings(
-            builder,
-            current_bindings,
-            &plan,
-        );
+        apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
         super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
         return Ok(vec![plan]);
     }

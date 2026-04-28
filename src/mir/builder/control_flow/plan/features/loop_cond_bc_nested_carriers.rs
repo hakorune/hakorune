@@ -6,26 +6,6 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
 use std::collections::BTreeMap;
 
-/// Apply nested loop's final_values to variable_map and current_bindings.
-pub(super) fn apply_loop_final_values_to_bindings(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    plan: &LoweredRecipe,
-) {
-    let CorePlan::Loop(loop_plan) = plan else {
-        return;
-    };
-    for (name, value_id) in &loop_plan.final_values {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-        if current_bindings.contains_key(name) {
-            current_bindings.insert(name.clone(), *value_id);
-        }
-    }
-}
-
 /// Extend nested loop with outer carrier PHIs and final_values.
 pub(super) fn extend_nested_loop_carriers(
     builder: &mut MirBuilder,

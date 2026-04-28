@@ -8,6 +8,7 @@ use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::conditional_update::try_lower_general_if;
+use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
@@ -86,11 +87,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_stmt(
             let any_err =
                 match lower_nested_loop_depth1_any(builder, condition, body, LOOP_COND_ERR) {
                     Ok(plan) => {
-                        super::loop_cond_bc_nested_carriers::apply_loop_final_values_to_bindings(
-                            builder,
-                            current_bindings,
-                            &plan,
-                        );
+                        apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
                         super::loop_cond_bc::sync_carrier_bindings(
                             builder,
                             current_bindings,

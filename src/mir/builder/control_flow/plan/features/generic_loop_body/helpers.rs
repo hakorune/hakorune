@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, lower_cond_value};
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, LoweredRecipe};
 use crate::mir::builder::control_flow::verify::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{CompareOp, ConstValue, MirType};
@@ -95,25 +95,6 @@ pub(super) fn lower_nested_loop_plan(
         return Ok(recipe);
     }
     finish_generic_nested_loop_reject_tail(&outcome, &nested_ctx)
-}
-
-pub(super) fn apply_loop_final_values_to_bindings(
-    builder: &mut MirBuilder,
-    phi_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    plan: &LoweredRecipe,
-) {
-    let CorePlan::Loop(loop_plan) = plan else {
-        return;
-    };
-    for (name, value_id) in &loop_plan.final_values {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-        if phi_bindings.contains_key(name) {
-            phi_bindings.insert(name.clone(), *value_id);
-        }
-    }
 }
 
 pub(super) fn append_effects(body_plans: &mut Vec<LoweredRecipe>, effects: Vec<CoreEffectPlan>) {
