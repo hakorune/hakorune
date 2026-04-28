@@ -1,4 +1,3 @@
-use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::lower::{
     planner_rule_route_label, PlanBuildOutcome, PlanRuleId,
@@ -6,6 +5,7 @@ use crate::mir::builder::control_flow::lower::{
 use crate::mir::builder::control_flow::plan::composer::{
     strict_nested_loop_guard, try_compose_core_loop_v2_nested_minimal,
 };
+use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;

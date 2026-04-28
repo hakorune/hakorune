@@ -1,5 +1,5 @@
-use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::lower::{Freeze, PlanBuildOutcome};
+use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 

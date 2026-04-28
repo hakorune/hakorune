@@ -1,6 +1,6 @@
 //! Phase 29ai P0: Canonicalize Facts (pure transform) — skeleton
 
-use crate::mir::builder::control_flow::facts::feature_facts::{
+use crate::mir::builder::control_flow::plan::facts::feature_facts::{
     CleanupKindFacts, ExitKindFacts, ExitUsageFacts,
 };
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
@@ -44,7 +44,7 @@ pub(in crate::mir::builder) fn canonicalize_loop_facts(facts: LoopFacts) -> Cano
 mod tests {
     use super::canonicalize_loop_facts;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::facts::feature_facts::{
+    use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         CleanupFacts, CleanupKindFacts, ExitKindFacts, ExitMapFacts, ExitUsageFacts,
         LoopFeatureFacts,
     };
