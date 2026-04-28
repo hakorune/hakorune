@@ -8,10 +8,15 @@ use std::sync::{Mutex, OnceLock};
 use std::time::SystemTime;
 
 #[derive(Clone, PartialEq, Eq)]
-struct PopulateTomlCacheKey {
+struct PopulateTomlCachePathKey {
     path: String,
     modified: Option<SystemTime>,
     len: Option<u64>,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+struct PopulateTomlCacheKey {
+    manifests: Vec<PopulateTomlCachePathKey>,
 }
 
 #[derive(Clone)]
@@ -31,20 +36,23 @@ fn populate_toml_cache() -> &'static Mutex<Option<PopulateTomlCacheEntry>> {
     POPULATE_TOML_CACHE.get_or_init(|| Mutex::new(None))
 }
 
-fn build_cache_key(path: &Path) -> PopulateTomlCacheKey {
-    let (modified, len) = if path.as_os_str().is_empty() {
-        (None, None)
-    } else if let Ok(meta) = std::fs::metadata(path) {
-        (meta.modified().ok(), Some(meta.len()))
-    } else {
-        (None, None)
-    };
-
-    PopulateTomlCacheKey {
-        path: path.to_string_lossy().to_string(),
-        modified,
-        len,
-    }
+fn build_cache_key(paths: &[PathBuf]) -> PopulateTomlCacheKey {
+    let manifests = paths
+        .iter()
+        .map(|path| {
+            let (modified, len) = if let Ok(meta) = std::fs::metadata(path) {
+                (meta.modified().ok(), Some(meta.len()))
+            } else {
+                (None, None)
+            };
+            PopulateTomlCachePathKey {
+                path: path.to_string_lossy().to_string(),
+                modified,
+                len,
+            }
+        })
+        .collect();
+    PopulateTomlCacheKey { manifests }
 }
 
 fn lookup_cached_populate(key: &PopulateTomlCacheKey) -> Option<PopulateTomlCacheEntry> {
@@ -83,34 +91,42 @@ fn apply_cached_populate(
     cache.policy.clone()
 }
 
-fn locate_toml_path() -> PathBuf {
-    // Prefer hako.toml, then hakorune.toml, fallback to nyash.toml; check CWD then NYASH_ROOT
+fn find_preferred_toml(base: &Path) -> Option<PathBuf> {
     let candidates = ["hako.toml", "hakorune.toml", "nyash.toml"];
-
-    // 1) Try current directory
     for name in candidates.iter() {
-        let p = Path::new(name);
-        if p.exists() {
-            return p.to_path_buf();
+        let candidate = base.join(name);
+        if candidate.exists() {
+            return Some(candidate);
         }
     }
-    // 2) Try NYASH_ROOT if not found yet
+    None
+}
+
+fn same_manifest_path(lhs: &Path, rhs: &Path) -> bool {
+    let lhs = lhs.canonicalize().unwrap_or_else(|_| lhs.to_path_buf());
+    let rhs = rhs.canonicalize().unwrap_or_else(|_| rhs.to_path_buf());
+    lhs == rhs
+}
+
+fn locate_toml_paths() -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    if let Some(local) = find_preferred_toml(Path::new(".")) {
+        paths.push(local);
+    }
     if let Some(root) = env::env_string("NYASH_ROOT") {
-        for name in candidates.iter() {
-            let alt = Path::new(&root).join(name);
-            if alt.exists() {
-                return alt;
+        if let Some(root_manifest) = find_preferred_toml(Path::new(&root)) {
+            if !paths
+                .iter()
+                .any(|existing| same_manifest_path(existing, &root_manifest))
+            {
+                paths.push(root_manifest);
             }
         }
     }
-    // 3) Fallback: empty content and path
-    PathBuf::from("")
+    paths
 }
 
 fn load_toml_content(path: &Path) -> Result<String, UsingError> {
-    if path.as_os_str().is_empty() {
-        return Ok(String::new());
-    }
     std::fs::read_to_string(path).map_err(|e| UsingError::ReadToml(e.to_string()))
 }
 
@@ -183,50 +199,55 @@ fn read_stageb_module_roots_list_from_env() -> Vec<(String, String)> {
     out
 }
 
-/// Populate using context vectors from hako.toml/nyash.toml (if present).
-/// Keeps behavior aligned with existing runner pipeline:
-///  - Adds [using.paths] entries to `using_paths`
-///  - Flattens [modules] into (name, path) pairs appended to `pending_modules`
-///  - Reads optional [aliases] table (k -> v)
-///  - Reads [module_roots] for prefix-based resolution (Phase 29bq+)
-pub fn populate_from_toml(
-    using_paths: &mut Vec<String>,
-    pending_modules: &mut Vec<(String, String)>,
-    aliases: &mut HashMap<String, String>,
-    packages: &mut HashMap<String, UsingPackage>,
-    module_roots: &mut Vec<(String, String)>,
-) -> Result<UsingPolicy, UsingError> {
-    // Stage-1 child env-only fast path:
-    // when parent already provided a fully expanded modules map and module_roots list,
-    // avoid TOML probing/reads entirely (binary-only and no-workspace dependency).
-    if should_skip_workspace_member_scan() {
-        pending_modules.extend(read_stageb_modules_list_from_env());
-        module_roots.extend(read_stageb_module_roots_list_from_env());
-        return Ok(UsingPolicy::default());
+fn resolve_manifest_path(toml_dir: &Path, raw: &str) -> String {
+    if raw.is_empty()
+        || Path::new(raw).is_absolute()
+        || raw.starts_with("builtin:")
+        || raw.starts_with("dylib:")
+    {
+        return raw.to_string();
     }
 
-    let toml_path = locate_toml_path();
-    let cache_key = build_cache_key(&toml_path);
-    if let Some(cache) = lookup_cached_populate(&cache_key) {
-        let policy = apply_cached_populate(
-            &cache,
-            using_paths,
-            pending_modules,
-            aliases,
-            packages,
-            module_roots,
-        );
-        return Ok(policy);
+    let joined = toml_dir.join(raw);
+    joined
+        .canonicalize()
+        .unwrap_or(joined)
+        .to_string_lossy()
+        .to_string()
+}
+
+fn merge_module_entry(entries: &mut Vec<(String, String)>, name: String, path: String) {
+    if let Some((_, slot_path)) = entries.iter_mut().find(|(existing, _)| *existing == name) {
+        *slot_path = path;
+    } else {
+        entries.push((name, path));
     }
-    let text = load_toml_content(&toml_path)?;
+}
 
-    let mut policy = UsingPolicy::default();
-    let mut resolved_using_paths: Vec<String> = Vec::new();
-    let mut resolved_pending_modules: Vec<(String, String)> = Vec::new();
-    let mut resolved_aliases: HashMap<String, String> = HashMap::new();
-    let mut resolved_packages: HashMap<String, UsingPackage> = HashMap::new();
-    let mut resolved_module_roots: Vec<(String, String)> = Vec::new();
+fn merge_module_root(entries: &mut Vec<(String, String)>, prefix: String, path: String) {
+    if let Some((_, slot_path)) = entries.iter_mut().find(|(existing, _)| *existing == prefix) {
+        *slot_path = path;
+    } else {
+        entries.push((prefix, path));
+    }
+}
 
+fn merge_using_path(entries: &mut Vec<String>, path: String) {
+    if !entries.iter().any(|existing| existing == &path) {
+        entries.push(path);
+    }
+}
+
+fn merge_manifest_layer(
+    toml_path: &Path,
+    resolved_using_paths: &mut Vec<String>,
+    resolved_pending_modules: &mut Vec<(String, String)>,
+    resolved_aliases: &mut HashMap<String, String>,
+    resolved_packages: &mut HashMap<String, UsingPackage>,
+    resolved_module_roots: &mut Vec<(String, String)>,
+    policy: &mut UsingPolicy,
+) -> Result<(), UsingError> {
+    let text = load_toml_content(toml_path)?;
     let doc =
         toml::from_str::<toml::Value>(&text).map_err(|e| UsingError::ParseToml(e.to_string()))?;
     let toml_dir = toml_path
@@ -234,20 +255,25 @@ pub fn populate_from_toml(
         .map(|p| p.to_path_buf())
         .unwrap_or_else(|| PathBuf::from("."));
 
-    // [module_roots] table: prefix -> directory mapping (Phase 29bq+)
     if let Some(roots_tbl) = doc.get("module_roots").and_then(|v| v.as_table()) {
         for (prefix, path_val) in roots_tbl.iter() {
             if let Some(path_str) = path_val.as_str() {
-                resolved_module_roots.push((prefix.to_string(), path_str.to_string()));
+                merge_module_root(
+                    resolved_module_roots,
+                    prefix.to_string(),
+                    resolve_manifest_path(&toml_dir, path_str),
+                );
             }
         }
-        // Sort by prefix length descending for longest-match-first iteration
-        resolved_module_roots.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
     }
 
-    // [modules] table flatten: supports nested namespaces (a.b.c = "path")
     if let Some(mods) = doc.get("modules").and_then(|v| v.as_table()) {
-        fn visit(prefix: &str, tbl: &toml::value::Table, out: &mut Vec<(String, String)>) {
+        fn visit(
+            prefix: &str,
+            tbl: &toml::value::Table,
+            toml_dir: &Path,
+            out: &mut Vec<(String, String)>,
+        ) {
             for (k, v) in tbl.iter() {
                 let name = if prefix.is_empty() {
                     k.to_string()
@@ -255,54 +281,40 @@ pub fn populate_from_toml(
                     format!("{}.{}", prefix, k)
                 };
                 if let Some(s) = v.as_str() {
-                    out.push((name, s.to_string()));
+                    merge_module_entry(out, name, resolve_manifest_path(toml_dir, s));
                 } else if let Some(t) = v.as_table() {
-                    visit(&name, t, out);
+                    visit(&name, t, toml_dir, out);
                 }
             }
         }
-        visit("", mods, &mut resolved_pending_modules);
+
+        visit("", mods, &toml_dir, resolved_pending_modules);
         if let Some(workspace_tbl) = mods.get("workspace").and_then(|v| v.as_table()) {
             if !should_skip_workspace_member_scan() {
                 load_workspace_modules(
                     &toml_dir,
                     workspace_tbl,
-                    &mut resolved_pending_modules,
-                    &mut resolved_aliases,
+                    resolved_pending_modules,
+                    resolved_aliases,
                 )?;
             }
         }
     }
 
-    // Stage-1 child can receive a fully expanded module map via env.
-    // Merge it after TOML load so exact entries are always available even
-    // when workspace member manifests are skipped.
-    for (name, path) in read_stageb_modules_list_from_env() {
-        if let Some((_, slot_path)) = resolved_pending_modules
-            .iter_mut()
-            .find(|(n, _)| *n == name)
-        {
-            *slot_path = path;
-        } else {
-            resolved_pending_modules.push((name, path));
-        }
-    }
-
-    // [using.paths] array
     if let Some(using_tbl) = doc.get("using").and_then(|v| v.as_table()) {
-        // paths
         if let Some(paths_arr) = using_tbl.get("paths").and_then(|v| v.as_array()) {
             for p in paths_arr {
                 if let Some(s) = p.as_str() {
                     let s = s.trim();
                     if !s.is_empty() {
-                        resolved_using_paths.push(s.to_string());
-                        policy.search_paths.push(s.to_string());
+                        let resolved = resolve_manifest_path(&toml_dir, s);
+                        merge_using_path(resolved_using_paths, resolved.clone());
+                        policy.search_paths.push(resolved);
                     }
                 }
             }
         }
-        // aliases
+
         if let Some(alias_tbl) = using_tbl.get("aliases").and_then(|v| v.as_table()) {
             for (k, v) in alias_tbl.iter() {
                 if let Some(target) = v.as_str() {
@@ -310,7 +322,7 @@ pub fn populate_from_toml(
                 }
             }
         }
-        // named packages: any subtable not paths/aliases is a package
+
         for (k, v) in using_tbl.iter() {
             if k == "paths" || k == "aliases" {
                 continue;
@@ -321,9 +333,8 @@ pub fn populate_from_toml(
                     .and_then(|x| x.as_str())
                     .map(PackageKind::from_str)
                     .unwrap_or(PackageKind::Package);
-                // path is required
                 if let Some(path_s) = tbl.get("path").and_then(|x| x.as_str()) {
-                    let path = path_s.to_string();
+                    let path = resolve_manifest_path(&toml_dir, path_s);
                     let main = tbl
                         .get("main")
                         .and_then(|x| x.as_str())
@@ -346,13 +357,77 @@ pub fn populate_from_toml(
         }
     }
 
-    // legacy top-level [aliases] also accepted (migration)
     if let Some(alias_tbl) = doc.get("aliases").and_then(|v| v.as_table()) {
         for (k, v) in alias_tbl.iter() {
             if let Some(target) = v.as_str() {
                 resolved_aliases.insert(k.to_string(), target.to_string());
             }
         }
+    }
+
+    resolved_module_roots.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    Ok(())
+}
+
+/// Populate using context vectors from hako.toml/nyash.toml (if present).
+/// Keeps behavior aligned with existing runner pipeline:
+///  - Adds [using.paths] entries to `using_paths`
+///  - Flattens [modules] into (name, path) pairs appended to `pending_modules`
+///  - Reads optional [aliases] table (k -> v)
+///  - Reads [module_roots] for prefix-based resolution (Phase 29bq+)
+pub fn populate_from_toml(
+    using_paths: &mut Vec<String>,
+    pending_modules: &mut Vec<(String, String)>,
+    aliases: &mut HashMap<String, String>,
+    packages: &mut HashMap<String, UsingPackage>,
+    module_roots: &mut Vec<(String, String)>,
+) -> Result<UsingPolicy, UsingError> {
+    // Stage-1 child env-only fast path:
+    // when parent already provided a fully expanded modules map and module_roots list,
+    // avoid TOML probing/reads entirely (binary-only and no-workspace dependency).
+    if should_skip_workspace_member_scan() {
+        pending_modules.extend(read_stageb_modules_list_from_env());
+        module_roots.extend(read_stageb_module_roots_list_from_env());
+        return Ok(UsingPolicy::default());
+    }
+
+    let toml_paths = locate_toml_paths();
+    let cache_key = build_cache_key(&toml_paths);
+    if let Some(cache) = lookup_cached_populate(&cache_key) {
+        let policy = apply_cached_populate(
+            &cache,
+            using_paths,
+            pending_modules,
+            aliases,
+            packages,
+            module_roots,
+        );
+        return Ok(policy);
+    }
+    let mut policy = UsingPolicy::default();
+    let mut resolved_using_paths: Vec<String> = Vec::new();
+    let mut resolved_pending_modules: Vec<(String, String)> = Vec::new();
+    let mut resolved_aliases: HashMap<String, String> = HashMap::new();
+    let mut resolved_packages: HashMap<String, UsingPackage> = HashMap::new();
+    let mut resolved_module_roots: Vec<(String, String)> = Vec::new();
+
+    for toml_path in toml_paths.iter().rev() {
+        merge_manifest_layer(
+            toml_path,
+            &mut resolved_using_paths,
+            &mut resolved_pending_modules,
+            &mut resolved_aliases,
+            &mut resolved_packages,
+            &mut resolved_module_roots,
+            &mut policy,
+        )?;
+    }
+
+    // Stage-1 child can receive a fully expanded module map via env.
+    // Merge it after TOML load so exact entries are always available even
+    // when workspace member manifests are skipped.
+    for (name, path) in read_stageb_modules_list_from_env() {
+        merge_module_entry(&mut resolved_pending_modules, name, path);
     }
 
     let cache = PopulateTomlCacheEntry {
@@ -685,4 +760,161 @@ fn load_workspace_modules(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::populate_from_toml;
+    use std::collections::HashMap;
+    use std::path::{Path, PathBuf};
+    use std::sync::{Mutex, OnceLock};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn test_guard() -> &'static Mutex<()> {
+        static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
+        GUARD.get_or_init(|| Mutex::new(()))
+    }
+
+    fn unique_temp_dir(label: &str) -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("time")
+            .as_nanos();
+        std::env::temp_dir().join(format!(
+            "hakorune_using_resolver_{}_{}_{}",
+            label,
+            std::process::id(),
+            nanos
+        ))
+    }
+
+    fn write_file(path: &Path, content: &str) {
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent).expect("create parent");
+        }
+        std::fs::write(path, content).expect("write file");
+    }
+
+    fn restore_env_and_cwd(original_root: Option<String>, original_dir: PathBuf) {
+        if let Some(value) = original_root {
+            std::env::set_var("NYASH_ROOT", value);
+        } else {
+            std::env::remove_var("NYASH_ROOT");
+        }
+        std::env::set_current_dir(original_dir).expect("restore cwd");
+    }
+
+    #[test]
+    fn populate_from_toml_merges_root_modules_into_local_manifest() {
+        let _guard = test_guard().lock().expect("lock");
+        let original_dir = std::env::current_dir().expect("cwd");
+        let original_root = std::env::var("NYASH_ROOT").ok();
+
+        let root_dir = unique_temp_dir("root");
+        let local_dir = unique_temp_dir("local");
+        std::fs::create_dir_all(&root_dir).expect("root dir");
+        std::fs::create_dir_all(&local_dir).expect("local dir");
+
+        write_file(
+            &root_dir.join("hako.toml"),
+            "[modules]\n\"selfhost.vm.entry_s0\" = \"lang/src/vm/boxes/mini_vm_s0_entry.hako\"\n",
+        );
+        write_file(
+            &root_dir.join("lang/src/vm/boxes/mini_vm_s0_entry.hako"),
+            "static box MiniVmS0EntryBox {}\n",
+        );
+        write_file(
+            &local_dir.join("nyash.toml"),
+            "[using]\npaths = [\"lib\"]\n",
+        );
+        std::fs::create_dir_all(local_dir.join("lib")).expect("lib dir");
+
+        std::env::set_current_dir(&local_dir).expect("set cwd");
+        std::env::set_var("NYASH_ROOT", &root_dir);
+
+        let mut using_paths = Vec::new();
+        let mut pending_modules = Vec::new();
+        let mut aliases = HashMap::new();
+        let mut packages = HashMap::new();
+        let mut module_roots = Vec::new();
+        let result = populate_from_toml(
+            &mut using_paths,
+            &mut pending_modules,
+            &mut aliases,
+            &mut packages,
+            &mut module_roots,
+        );
+
+        restore_env_and_cwd(original_root, original_dir);
+
+        assert!(result.is_ok(), "populate_from_toml should succeed: {result:?}");
+        let expected_module = root_dir
+            .join("lang/src/vm/boxes/mini_vm_s0_entry.hako")
+            .to_string_lossy()
+            .to_string();
+        assert!(pending_modules.iter().any(|(name, path)| {
+            name == "selfhost.vm.entry_s0" && path == &expected_module
+        }));
+        let expected_using_path = local_dir.join("lib").to_string_lossy().to_string();
+        assert!(using_paths.iter().any(|path| path == &expected_using_path));
+
+        let _ = std::fs::remove_dir_all(&root_dir);
+        let _ = std::fs::remove_dir_all(&local_dir);
+    }
+
+    #[test]
+    fn populate_from_toml_prefers_local_module_override_over_root_manifest() {
+        let _guard = test_guard().lock().expect("lock");
+        let original_dir = std::env::current_dir().expect("cwd");
+        let original_root = std::env::var("NYASH_ROOT").ok();
+
+        let root_dir = unique_temp_dir("override_root");
+        let local_dir = unique_temp_dir("override_local");
+        std::fs::create_dir_all(&root_dir).expect("root dir");
+        std::fs::create_dir_all(&local_dir).expect("local dir");
+
+        write_file(
+            &root_dir.join("hako.toml"),
+            "[modules]\nfoo.bar = \"root/foo/bar.hako\"\n",
+        );
+        write_file(&root_dir.join("root/foo/bar.hako"), "static box RootBar {}\n");
+        write_file(
+            &local_dir.join("nyash.toml"),
+            "[modules]\nfoo.bar = \"local/foo/bar.hako\"\n",
+        );
+        write_file(
+            &local_dir.join("local/foo/bar.hako"),
+            "static box LocalBar {}\n",
+        );
+
+        std::env::set_current_dir(&local_dir).expect("set cwd");
+        std::env::set_var("NYASH_ROOT", &root_dir);
+
+        let mut using_paths = Vec::new();
+        let mut pending_modules = Vec::new();
+        let mut aliases = HashMap::new();
+        let mut packages = HashMap::new();
+        let mut module_roots = Vec::new();
+        let result = populate_from_toml(
+            &mut using_paths,
+            &mut pending_modules,
+            &mut aliases,
+            &mut packages,
+            &mut module_roots,
+        );
+
+        restore_env_and_cwd(original_root, original_dir);
+
+        assert!(result.is_ok(), "populate_from_toml should succeed: {result:?}");
+        let expected_local = local_dir
+            .join("local/foo/bar.hako")
+            .to_string_lossy()
+            .to_string();
+        assert!(pending_modules
+            .iter()
+            .any(|(name, path)| name == "foo.bar" && path == &expected_local));
+
+        let _ = std::fs::remove_dir_all(&root_dir);
+        let _ = std::fs::remove_dir_all(&local_dir);
+    }
 }
