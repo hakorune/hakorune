@@ -2,34 +2,13 @@ use crate::ast::ASTNode;
 use crate::mir::{Callee, MirCompiler, MirInstruction, MirModule};
 use crate::parser::NyashParser;
 
-struct EnvGuard {
-    key: &'static str,
-    prev: Option<String>,
-}
-
-impl EnvGuard {
-    fn set(key: &'static str, value: &str) -> Self {
-        let prev = std::env::var(key).ok();
-        std::env::set_var(key, value);
-        Self { key, prev }
-    }
-}
-
-impl Drop for EnvGuard {
-    fn drop(&mut self) {
-        match &self.prev {
-            Some(value) => std::env::set_var(self.key, value),
-            None => std::env::remove_var(self.key),
-        }
-    }
-}
-
 fn compile_src(src: &str) -> MirModule {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let _unified_members = EnvGuard::set("NYASH_ENABLE_UNIFIED_MEMBERS", "1");
-    let ast: ASTNode = NyashParser::parse_from_string(src).expect("parse ok");
-    let mut compiler = MirCompiler::with_options(false);
-    compiler.compile(ast).expect("compile ok").module
+    crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || {
+        let ast: ASTNode = NyashParser::parse_from_string(src).expect("parse ok");
+        let mut compiler = MirCompiler::with_options(false);
+        compiler.compile(ast).expect("compile ok").module
+    })
 }
 
 fn count_newbox(module: &MirModule, box_type: &str) -> usize {
