@@ -28,8 +28,8 @@ use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{MirType, ValueId};
 use std::collections::{HashMap, HashSet};
 
+use super::properties::PropertyKind;
 use super::type_registry::TypeRegistry;
-use super::PropertyKind;
 use hakorune_mir_builder::BoxCompilationContext;
 
 /// Compilation state context for MIR builder
@@ -69,7 +69,7 @@ pub(crate) struct CompilationContext {
     pub weak_fields_by_box: HashMap<String, HashSet<String>>,
 
     /// Unified members: BoxName -> {propName -> Kind}
-    pub property_getters_by_box: HashMap<String, HashMap<String, PropertyKind>>,
+    property_getters_by_box: HashMap<String, HashMap<String, PropertyKind>>,
 
     /// Remember class of object fields after assignments: (base_id, field) -> class_name
     pub field_origin_class: HashMap<(ValueId, String), String>,
@@ -246,10 +246,19 @@ impl CompilationContext {
     }
 
     /// Get property kind for a box member
+    #[cfg(test)]
     pub fn get_property_kind(&self, box_name: &str, prop_name: &str) -> Option<&PropertyKind> {
         self.property_getters_by_box
             .get(box_name)
             .and_then(|props| props.get(prop_name))
+    }
+
+    /// Get synthetic getter method name for a property read.
+    pub fn property_getter_method_name(&self, box_name: &str, prop_name: &str) -> Option<String> {
+        self.property_getters_by_box
+            .get(box_name)
+            .and_then(|props| props.get(prop_name))
+            .map(|kind| kind.getter_method_name(prop_name))
     }
 
     /// Register a property getter for a box
@@ -448,7 +457,12 @@ mod tests {
             ctx.get_property_kind("MyBox", "computed"),
             Some(&PropertyKind::Computed)
         );
+        assert_eq!(
+            ctx.property_getter_method_name("MyBox", "computed"),
+            Some("__get_computed".to_string())
+        );
         assert_eq!(ctx.get_property_kind("MyBox", "other"), None);
+        assert_eq!(ctx.property_getter_method_name("MyBox", "other"), None);
     }
 
     #[test]

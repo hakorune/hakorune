@@ -224,7 +224,7 @@ impl super::MirBuilder {
                 )?;
                 // Track unified member getters: __get_<prop> | __get_once_<prop> | __get_birth_<prop>
                 if let Some((kind, prop)) =
-                    super::PropertyKind::from_getter_method_name(method_name)
+                    super::properties::PropertyKind::from_getter_method_name(method_name)
                 {
                     self.comp_ctx
                         .register_property_getter(name.clone(), prop, kind);

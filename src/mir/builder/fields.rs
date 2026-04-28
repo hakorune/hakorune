@@ -134,11 +134,13 @@ impl super::MirBuilder {
         else {
             return Ok(None);
         };
-        let Some(kind) = self.comp_ctx.get_property_kind(&class_name, field) else {
+        let Some(getter_name) = self
+            .comp_ctx
+            .property_getter_method_name(&class_name, field)
+        else {
             return Ok(None);
         };
 
-        let getter_name = kind.getter_method_name(field);
         self.handle_standard_method_call(object_value, getter_name, &[])
             .map(Some)
     }

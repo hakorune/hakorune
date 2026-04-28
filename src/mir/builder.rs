@@ -95,6 +95,7 @@ mod name_const; // NameConstBox（関数名Const生成）
 mod observe; // P0: dev-only observability helpers（ssa/resolve）
 mod origin; // P0: origin inference（me/Known）と PHI 伝播（軽量）
 mod plugin_sigs; // plugin signature loader
+mod properties;
 mod receiver; // ReceiverMaterializationBox（Method recv の pin+LocalSSA 集約）
 mod rewrite; // P1: Known rewrite & special consolidation
 mod router; // RouterPolicyBox（Unified vs BoxCall）
@@ -113,36 +114,6 @@ pub(crate) use types::annotation::{
 mod utils;
 mod vars; // variables/scope helpers // small loop helpers (header/exit context) // TypeRegistryBox（型情報管理の一元化）
           // Phase 288 Box化: repl_session moved to src/runner/repl/repl_session.rs
-
-// Unified member property kinds for computed/once/birth_once
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub(crate) enum PropertyKind {
-    Computed,
-    Once,
-    BirthOnce,
-}
-
-impl PropertyKind {
-    pub(crate) fn from_getter_method_name(method_name: &str) -> Option<(Self, String)> {
-        if let Some(rest) = method_name.strip_prefix("__get_once_") {
-            Some((Self::Once, rest.to_string()))
-        } else if let Some(rest) = method_name.strip_prefix("__get_birth_") {
-            Some((Self::BirthOnce, rest.to_string()))
-        } else {
-            method_name
-                .strip_prefix("__get_")
-                .map(|rest| (Self::Computed, rest.to_string()))
-        }
-    }
-
-    pub(crate) fn getter_method_name(&self, prop_name: &str) -> String {
-        match self {
-            Self::Computed => format!("__get_{}", prop_name),
-            Self::Once => format!("__get_once_{}", prop_name),
-            Self::BirthOnce => format!("__get_birth_{}", prop_name),
-        }
-    }
-}
 
 /// MIR builder for converting AST to SSA form
 pub struct MirBuilder {
