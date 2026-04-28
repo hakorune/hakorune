@@ -245,14 +245,6 @@ impl CompilationContext {
             .insert(field_name);
     }
 
-    /// Get property kind for a box member
-    #[cfg(test)]
-    pub fn get_property_kind(&self, box_name: &str, prop_name: &str) -> Option<&PropertyKind> {
-        self.property_getters_by_box
-            .get(box_name)
-            .and_then(|props| props.get(prop_name))
-    }
-
     /// Get synthetic getter method name for a property read.
     pub fn property_getter_method_name(&self, box_name: &str, prop_name: &str) -> Option<String> {
         self.property_getters_by_box
@@ -261,8 +253,17 @@ impl CompilationContext {
             .map(|kind| kind.getter_method_name(prop_name))
     }
 
+    /// Register a synthetic property getter method if `method_name` uses a known getter prefix.
+    pub fn register_property_getter_method(&mut self, box_name: String, method_name: &str) -> bool {
+        let Some((kind, prop_name)) = PropertyKind::from_getter_method_name(method_name) else {
+            return false;
+        };
+        self.register_property_getter(box_name, prop_name, kind);
+        true
+    }
+
     /// Register a property getter for a box
-    pub fn register_property_getter(
+    fn register_property_getter(
         &mut self,
         box_name: String,
         prop_name: String,
@@ -447,21 +448,23 @@ mod tests {
     fn test_property_getter_registry() {
         let mut ctx = CompilationContext::new();
 
-        ctx.register_property_getter(
-            "MyBox".to_string(),
-            "computed".to_string(),
-            PropertyKind::Computed,
-        );
+        assert!(ctx.register_property_getter_method("MyBox".to_string(), "__get_computed"));
+        assert!(ctx.register_property_getter_method("MyBox".to_string(), "__get_once_cached"));
+        assert!(ctx.register_property_getter_method("MyBox".to_string(), "__get_birth_config"));
+        assert!(!ctx.register_property_getter_method("MyBox".to_string(), "__compute_birth_config"));
 
-        assert_eq!(
-            ctx.get_property_kind("MyBox", "computed"),
-            Some(&PropertyKind::Computed)
-        );
         assert_eq!(
             ctx.property_getter_method_name("MyBox", "computed"),
             Some("__get_computed".to_string())
         );
-        assert_eq!(ctx.get_property_kind("MyBox", "other"), None);
+        assert_eq!(
+            ctx.property_getter_method_name("MyBox", "cached"),
+            Some("__get_once_cached".to_string())
+        );
+        assert_eq!(
+            ctx.property_getter_method_name("MyBox", "config"),
+            Some("__get_birth_config".to_string())
+        );
         assert_eq!(ctx.property_getter_method_name("MyBox", "other"), None);
     }
 

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-643"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-643-member-postfix-gate-ssot-card.md"
-latest_card_summary = "Centralize Box member postfix catch/cleanup gate checks in the postfix helper."
+latest_card = "291x-644"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-644-property-getter-registration-api-card.md"
+latest_card_summary = "Centralize MIR property getter method-name registration in CompilationContext."
 
 current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
