@@ -45,10 +45,11 @@ mod loop_true_early_exit_composer;
 mod scan_with_init_composer;
 mod split_scan_composer;
 
-pub(in crate::mir::builder) mod contracts;
+mod contracts;
 pub(in crate::mir::builder) mod matcher;
 pub(in crate::mir::builder) use matcher::RecipeMatcher;
 pub(in crate::mir::builder) mod verified;
+pub(in crate::mir::builder) use contracts::{RecipeContract, RecipeContractKind, StmtConstraint};
 
 // ===== RecipeComposer route entry facade =====
 pub(in crate::mir::builder) struct RecipeComposer;

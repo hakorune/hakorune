@@ -121,8 +121,9 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
     // Phase B: Recipe-first parallel path (planner_required only)
     if gate.planner_required {
         if let Some(ref facts) = outcome.facts {
-            use crate::mir::builder::control_flow::plan::recipe_tree::contracts::RecipeContractKind;
-            use crate::mir::builder::control_flow::plan::recipe_tree::RecipeMatcher;
+            use crate::mir::builder::control_flow::plan::recipe_tree::{
+                RecipeContractKind, RecipeMatcher,
+            };
 
             let contract =
                 RecipeMatcher::try_match_loop(facts).map_err(|freeze| freeze.to_string())?;

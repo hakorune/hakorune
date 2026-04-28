@@ -9,7 +9,7 @@ use crate::mir::builder::control_flow::lower::normalize::{
 use crate::mir::builder::control_flow::plan::facts::{
     try_build_loop_facts, try_build_loop_facts_with_ctx, LoopFacts,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::contracts::RecipeContract;
+use crate::mir::builder::control_flow::plan::recipe_tree::RecipeContract;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct PlanBuildOutcome {
