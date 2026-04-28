@@ -220,7 +220,7 @@ impl RecipeComposer {
                 .debug("[recipe:compose] route=loop_cond_break_continue path=direct_pipeline");
         }
 
-        crate::mir::builder::control_flow::plan::features::lower_loop_cond_break_continue(
+        crate::mir::builder::control_flow::plan::features::loop_cond_bc::lower_loop_cond_break_continue(
             builder,
             loop_cond_facts,
             ctx,
@@ -256,7 +256,7 @@ impl RecipeComposer {
                 .debug("[recipe:compose] route=loop_cond_continue_only path=direct_pipeline");
         }
 
-        crate::mir::builder::control_flow::plan::features::lower_loop_cond_continue_only(
+        crate::mir::builder::control_flow::plan::features::loop_cond_co_pipeline::lower_loop_cond_continue_only(
             builder,
             loop_cond_facts,
             ctx,

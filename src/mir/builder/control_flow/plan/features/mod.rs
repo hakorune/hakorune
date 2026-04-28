@@ -61,7 +61,3 @@ pub(in crate::mir::builder) mod loop_cond_continue_with_return_body_helpers;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_cleanup;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_verifier;
-
-// Re-exports for flattened pipeline modules (backwards compatibility)
-pub(in crate::mir::builder) use loop_cond_bc::lower_loop_cond_break_continue;
-pub(in crate::mir::builder) use loop_cond_co_pipeline::lower_loop_cond_continue_only;

@@ -41,8 +41,9 @@ cargo check -q
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
-- latest known checkpoint: `291x-661` aligns DigitPos reject-message tests
-  after BodyLocalRoute facade pruning landed through `291x-660`
+- latest known checkpoint: `291x-662` prunes loop-cond feature pipeline
+  re-exports after DigitPos reject-message test cleanup landed through
+  `291x-661`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is

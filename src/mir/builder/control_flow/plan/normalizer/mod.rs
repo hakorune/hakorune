@@ -73,7 +73,7 @@ impl PlanNormalizer {
         facts: LoopCondBreakContinueFacts,
         ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
-        crate::mir::builder::control_flow::plan::features::lower_loop_cond_break_continue(
+        crate::mir::builder::control_flow::plan::features::loop_cond_bc::lower_loop_cond_break_continue(
             builder, facts, ctx,
         )
     }
@@ -83,7 +83,7 @@ impl PlanNormalizer {
         facts: LoopCondContinueOnlyFacts,
         ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
-        crate::mir::builder::control_flow::plan::features::lower_loop_cond_continue_only(
+        crate::mir::builder::control_flow::plan::features::loop_cond_co_pipeline::lower_loop_cond_continue_only(
             builder, facts, ctx,
         )
     }
