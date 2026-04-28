@@ -62,7 +62,7 @@ pub(in crate::mir::builder) use router::{route_loop, LoopRouteContext};
 pub(crate) use ast_feature_extractor::detect_skip_whitespace_shape;
 
 // Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_read_digits_loop_true_shape;
+pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_number::detect_read_digits_loop_true_shape;
 
 // Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
 pub(crate) use ast_feature_extractor::detect_continue_shape;

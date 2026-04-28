@@ -58,9 +58,7 @@ use route_shape_recognizers::if_else_phi::detect_if_else_phi_in_body;
 use route_shape_recognizers::carrier_count::count_carriers_in_body;
 
 // Re-export parse_number shape detection
-pub use route_shape_recognizers::parse_number::{
-    detect_parse_number_shape, detect_read_digits_loop_true_shape,
-};
+pub use route_shape_recognizers::parse_number::detect_parse_number_shape;
 
 // Re-export parse_string shape detection
 pub use route_shape_recognizers::parse_string::{detect_continue_shape, detect_parse_string_shape};

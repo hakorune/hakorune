@@ -24,7 +24,7 @@ pub(crate) fn classify_loop_true_read_digits(
     body: &[ASTNode],
 ) -> PolicyDecision<LoopTrueReadDigitsPolicyResult> {
     use crate::mir::builder::control_flow::cleanup::policies::read_digits_break_condition_box::ReadDigitsBreakConditionBox;
-    use crate::mir::builder::control_flow::facts::ast_feature_extractor::detect_read_digits_loop_true_shape;
+    use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_number::detect_read_digits_loop_true_shape;
 
     if !matches!(
         condition,
