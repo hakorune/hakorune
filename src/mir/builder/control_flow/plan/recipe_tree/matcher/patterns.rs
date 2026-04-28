@@ -1,11 +1,12 @@
-use super::super::{
-    build_array_join_recipe, build_loop_simple_while_recipe, ArrayJoinRecipe, LoopSimpleWhileRecipe,
-};
+use super::super::{build_loop_simple_while_recipe, LoopSimpleWhileRecipe};
 use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::accum_const_loop_builder::{
     build_accum_const_loop_recipe, AccumConstLoopRecipe,
+};
+use crate::mir::builder::control_flow::plan::recipe_tree::array_join_builder::{
+    build_array_join_recipe, ArrayJoinRecipe,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::bool_predicate_scan_builder::{
     build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,

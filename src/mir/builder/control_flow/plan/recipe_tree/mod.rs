@@ -52,7 +52,6 @@ pub(in crate::mir::builder) use matcher::RecipeMatcher;
 pub(in crate::mir::builder) mod verified;
 
 // Re-export builder types (maintains backward compatibility)
-pub(in crate::mir::builder) use array_join_builder::{build_array_join_recipe, ArrayJoinRecipe};
 pub(in crate::mir::builder) use loop_simple_while_builder::{
     build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
 };
