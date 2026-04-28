@@ -329,7 +329,7 @@ mod tests {
 ///
 /// # Phase 91 P5b: Escape Sequence Route Detection
 ///
-/// This function delegates to `ast_feature_extractor::detect_escape_skip_shape`
+/// This function delegates to the escape route-shape recognizer owner
 /// for SSOT implementation.
 ///
 /// # Phase 92 P0-3: Added escape_cond

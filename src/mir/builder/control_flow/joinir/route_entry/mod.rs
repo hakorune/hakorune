@@ -74,4 +74,4 @@ pub(crate) use ast_feature_extractor::detect_parse_number_shape;
 pub(crate) use ast_feature_extractor::detect_parse_string_shape;
 
 // Phase 91 P5b: Re-export escape skip shape detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_escape_skip_shape;
+pub(crate) use crate::mir::builder::control_flow::facts::escape_shape_recognizer::detect_escape_skip_shape;

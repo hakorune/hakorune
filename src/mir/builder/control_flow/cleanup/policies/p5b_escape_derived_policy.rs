@@ -11,8 +11,9 @@
 use super::PolicyDecision;
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::facts::ast_feature_extractor::detect_escape_skip_shape;
-use crate::mir::builder::control_flow::facts::escape_shape_recognizer::EscapeSkipShapeInfo;
+use crate::mir::builder::control_flow::facts::escape_shape_recognizer::{
+    detect_escape_skip_shape, EscapeSkipShapeInfo,
+};
 use crate::mir::join_ir::lowering::common::body_local_derived_emitter::BodyLocalDerivedRecipe;
 use crate::mir::join_ir::lowering::error_tags;
 

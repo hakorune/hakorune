@@ -68,9 +68,6 @@ pub use route_shape_recognizers::parse_string::{detect_continue_shape, detect_pa
 // Re-export skip_whitespace shape detection
 pub use route_shape_recognizers::skip_whitespace::detect_skip_whitespace_shape;
 
-// Re-export escape route-shape recognizer (existing module, not moved in P1)
-pub use super::escape_shape_recognizer::detect_escape_skip_shape;
-
 /// Extract full feature set from loop body AST
 ///
 /// This is the main entry point for feature extraction. It analyzes the loop body
