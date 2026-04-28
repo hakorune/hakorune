@@ -89,7 +89,7 @@ pub fn verify_generic_loop_v1_recipe(
 
 /// Recipe-first verification for if-phi-join.
 pub fn verify_if_phi_join_recipe(
-    if_phi_join_facts: &crate::mir::builder::control_flow::plan::facts::IfPhiJoinFacts,
+    if_phi_join_facts: &crate::mir::builder::control_flow::facts::IfPhiJoinFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;

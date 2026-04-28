@@ -18,7 +18,7 @@ use super::skip_whitespace_facts::SkipWhitespaceFacts;
 use super::split_lines_facts::SplitLinesFacts;
 use super::starts_with_facts::StartsWithFacts;
 use super::string_is_integer_facts::StringIsIntegerFacts;
-use super::{IfPhiJoinFacts, LoopContinueOnlyFacts};
+use super::LoopContinueOnlyFacts;
 use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
 use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
@@ -28,6 +28,7 @@ use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCond
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::LoopScanMethodsV0Facts;
 use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts;
+use crate::mir::builder::control_flow::facts::IfPhiJoinFacts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
 };

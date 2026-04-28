@@ -47,7 +47,6 @@ pub(in crate::mir::builder) mod split_lines_facts;
 pub(in crate::mir::builder) mod starts_with_facts;
 pub(in crate::mir::builder) mod string_is_integer_facts;
 
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::if_phi_join_facts::try_extract_if_phi_join_facts;
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 pub(in crate::mir::builder) use loop_builder::{
     try_build_loop_facts, try_build_loop_facts_with_ctx,
@@ -58,8 +57,6 @@ pub(in crate::mir::builder) type LoopSimpleWhileFacts =
     loop_simple_while_facts::LoopSimpleWhileFacts;
 pub(in crate::mir::builder) type LoopCharMapFacts = loop_char_map_facts::LoopCharMapFacts;
 pub(in crate::mir::builder) type LoopArrayJoinFacts = loop_array_join_facts::LoopArrayJoinFacts;
-pub(in crate::mir::builder) type IfPhiJoinFacts =
-    crate::mir::builder::control_flow::facts::if_phi_join_facts::IfPhiJoinFacts;
 pub(in crate::mir::builder) type LoopContinueOnlyFacts =
     loop_continue_only_facts::LoopContinueOnlyFacts;
 pub(in crate::mir::builder) type LoopTrueEarlyExitFacts =
