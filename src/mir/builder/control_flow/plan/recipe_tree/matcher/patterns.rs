@@ -1,15 +1,17 @@
 use super::super::{
     build_accum_const_loop_recipe, build_array_join_recipe, build_bool_predicate_scan_recipe,
     build_char_map_recipe, build_if_phi_join_recipe, build_loop_break_recipe,
-    build_loop_continue_only_recipe, build_loop_simple_while_recipe,
-    build_loop_true_early_exit_recipe, build_scan_with_init_recipe, build_split_scan_recipe,
-    AccumConstLoopRecipe, ArrayJoinRecipe, BoolPredicateScanRecipe, CharMapRecipe, IfPhiJoinRecipe,
-    LoopBreakRecipe, LoopContinueOnlyRecipe, LoopSimpleWhileRecipe, LoopTrueEarlyExitRecipe,
-    ScanWithInitRecipe, SplitScanRecipe,
+    build_loop_simple_while_recipe, build_loop_true_early_exit_recipe, build_scan_with_init_recipe,
+    build_split_scan_recipe, AccumConstLoopRecipe, ArrayJoinRecipe, BoolPredicateScanRecipe,
+    CharMapRecipe, IfPhiJoinRecipe, LoopBreakRecipe, LoopSimpleWhileRecipe,
+    LoopTrueEarlyExitRecipe, ScanWithInitRecipe, SplitScanRecipe,
 };
 use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_continue_only_builder::{
+    build_loop_continue_only_recipe, LoopContinueOnlyRecipe,
+};
 
 /// Recipe-first verification for loop-break.
 pub fn verify_loop_break_recipe(

@@ -62,9 +62,6 @@ pub(in crate::mir::builder) use bool_predicate_scan_builder::{
 pub(in crate::mir::builder) use char_map_builder::{build_char_map_recipe, CharMapRecipe};
 pub(in crate::mir::builder) use if_phi_join_builder::{build_if_phi_join_recipe, IfPhiJoinRecipe};
 pub(in crate::mir::builder) use loop_break_builder::{build_loop_break_recipe, LoopBreakRecipe};
-pub(in crate::mir::builder) use loop_continue_only_builder::{
-    build_loop_continue_only_recipe, LoopContinueOnlyRecipe,
-};
 pub(in crate::mir::builder) use loop_simple_while_builder::{
     build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
 };
