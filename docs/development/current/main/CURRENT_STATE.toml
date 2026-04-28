@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-632"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-632-loop-scan-methods-recipe-comment-cleanup-card.md"
-latest_card_summary = "Reconcile loop_scan_methods_v0 recipe owner comments after plan facade removal."
+latest_card = "291x-633"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-633-exit-branch-feature-facade-prune-card.md"
+latest_card_summary = "Prune plan/features exit_branch facade and move exit constructors to parts::exit."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -1,6 +1,5 @@
 //! ExitMap feature helpers (break/continue blocks → CorePlan exits).
 
-use super::exit_branch;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
@@ -158,13 +157,13 @@ pub(in crate::mir::builder) fn lower_exit_block(
                 if !is_last {
                     return Err(format!("{error_prefix}: break must be at tail"));
                 }
-                out.push(exit_branch::build_break_only(1));
+                out.push(parts::exit::build_break_only(1));
             }
             ASTNode::Continue { .. } => {
                 if !is_last {
                     return Err(format!("{error_prefix}: continue must be at tail"));
                 }
-                out.push(exit_branch::build_continue_only(1));
+                out.push(parts::exit::build_continue_only(1));
             }
             ASTNode::Return { value, .. } => {
                 if !is_last {

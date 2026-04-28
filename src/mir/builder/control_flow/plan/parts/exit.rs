@@ -82,6 +82,38 @@ pub(in crate::mir::builder) fn lower_return_stmt_with_effects(
     Ok(plans)
 }
 
+/// Build a CoreExitPlan::Return (for ExitIf / low-level usage).
+pub(in crate::mir::builder) fn build_return_exit_plan(
+    value_id: crate::mir::ValueId,
+) -> CoreExitPlan {
+    CoreExitPlan::Return(Some(value_id))
+}
+
+/// Build a return-only exit plan (no prelude).
+pub(in crate::mir::builder) fn build_return_only(value_id: crate::mir::ValueId) -> LoweredRecipe {
+    CorePlan::Exit(build_return_exit_plan(value_id))
+}
+
+/// Build a CoreExitPlan::Break (for ExitIf / low-level usage).
+pub(in crate::mir::builder) fn build_break_exit_plan(depth: usize) -> CoreExitPlan {
+    CoreExitPlan::Break(depth)
+}
+
+/// Build a break-only exit plan.
+pub(in crate::mir::builder) fn build_break_only(depth: usize) -> LoweredRecipe {
+    CorePlan::Exit(build_break_exit_plan(depth))
+}
+
+/// Build a CoreExitPlan::Continue (for ExitIf / low-level usage).
+pub(in crate::mir::builder) fn build_continue_exit_plan(depth: usize) -> CoreExitPlan {
+    CoreExitPlan::Continue(depth)
+}
+
+/// Build a continue-only exit plan.
+pub(in crate::mir::builder) fn build_continue_only(depth: usize) -> LoweredRecipe {
+    CorePlan::Exit(build_continue_exit_plan(depth))
+}
+
 #[track_caller]
 pub(in crate::mir::builder) fn build_continue_with_phi_args(
     builder: &MirBuilder,

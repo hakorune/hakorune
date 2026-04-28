@@ -7,13 +7,13 @@ use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredR
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, Effect, EffectMask, MirType};
 
-use super::super::exit_branch;
 use super::helpers::{
     append_effects, lower_effect_block, lower_effect_only_stmt, lower_exit_from_stmt,
     lower_if_effect, lower_negated_bool_cond, lower_nested_loop_plan, matches_loop_increment,
 };
 use super::GENERIC_LOOP_ERR;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV0Facts;
+use crate::mir::builder::control_flow::plan::parts::exit as parts_exit;
 
 pub(in crate::mir::builder) fn lower_generic_loop_v0_body(
     builder: &mut MirBuilder,
@@ -123,7 +123,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v0_body(
                         append_effects(&mut body_plans, cond_effects);
                         body_plans.push(CorePlan::Effect(CoreEffectPlan::ExitIf {
                             cond: cond_neg,
-                            exit: exit_branch::build_break_exit_plan(1),
+                            exit: parts_exit::build_break_exit_plan(1),
                         }));
                         continue;
                     }
@@ -134,7 +134,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v0_body(
                         append_effects(&mut body_plans, cond_effects);
                         body_plans.push(CorePlan::Effect(CoreEffectPlan::ExitIf {
                             cond: cond_id,
-                            exit: exit_branch::build_break_exit_plan(1),
+                            exit: parts_exit::build_break_exit_plan(1),
                         }));
                         for stmt in effect_stmts {
                             append_effects(
@@ -169,7 +169,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v0_body(
                     }
                     then_effects.push(CoreEffectPlan::ExitIf {
                         cond: cond_id,
-                        exit: exit_branch::build_continue_exit_plan(1),
+                        exit: parts_exit::build_continue_exit_plan(1),
                     });
                     body_plans.push(CorePlan::Effect(CoreEffectPlan::IfEffect {
                         cond: cond_id,

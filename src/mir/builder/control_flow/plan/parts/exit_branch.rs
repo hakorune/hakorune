@@ -1,6 +1,6 @@
 //! Exit-branch lowering helpers (Parts SSOT).
 //!
-//! Functions moved from features::exit_branch to make parts independent.
+//! Owns exit-branch prelude splitting and exit lowering.
 //! SSOT: docs/development/current/main/design/recipe-tree-and-parts-ssot.md
 
 use crate::ast::ASTNode;

@@ -3,7 +3,7 @@
 use crate::ast::LiteralValue;
 use crate::mir::builder::control_flow::plan::branchn::CoreBranchArmPlan;
 use crate::mir::builder::control_flow::plan::facts::MatchReturnFacts;
-use crate::mir::builder::control_flow::plan::features::exit_branch;
+use crate::mir::builder::control_flow::plan::parts::exit as parts_exit;
 use crate::mir::builder::control_flow::plan::{
     CoreBranchNPlan, CoreEffectPlan, CorePlan, LoweredRecipe,
 };
@@ -50,7 +50,7 @@ pub(in crate::mir::builder) fn compose_match_return_branchn(
 
         arms.push(CoreBranchArmPlan {
             condition: cond_id,
-            plans: vec![exit_branch::build_return_only(ret_id)],
+            plans: vec![parts_exit::build_return_only(ret_id)],
         });
     }
 
@@ -59,7 +59,7 @@ pub(in crate::mir::builder) fn compose_match_return_branchn(
 
     let branch_plan = CoreBranchNPlan {
         arms,
-        else_plans: Some(vec![exit_branch::build_return_only(else_value_id)]),
+        else_plans: Some(vec![parts_exit::build_return_only(else_value_id)]),
     };
 
     let mut plans: Vec<LoweredRecipe> = effects.into_iter().map(CorePlan::Effect).collect();

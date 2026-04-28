@@ -11,11 +11,11 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{CompareOp, ConstValue, MirType};
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::super::exit_branch;
 use super::nested_loop_depth1_handoff::try_lower_generic_nested_loop_depth1_fastpath;
 use super::nested_loop_recipe_fallback::try_compose_generic_nested_loop_recipe_fallback;
 use super::nested_loop_reject_tail::finish_generic_nested_loop_reject_tail;
 use super::GENERIC_LOOP_ERR;
+use crate::mir::builder::control_flow::plan::parts::exit as parts_exit;
 
 pub(super) fn collect_loop_carriers(
     body: &[ASTNode],
@@ -258,7 +258,7 @@ pub(super) fn lower_if_effect(
         lower_effect_block(builder, phi_bindings, then_body, loop_var, loop_increment)?;
     then_effects.push(CoreEffectPlan::ExitIf {
         cond: cond_id,
-        exit: exit_branch::build_continue_exit_plan(1),
+        exit: parts_exit::build_continue_exit_plan(1),
     });
 
     let else_effects =
@@ -280,8 +280,8 @@ pub(super) fn lower_exit_from_stmt(
 ) -> Result<Vec<CoreEffectPlan>, String> {
     let mut effects = Vec::new();
     let exit = match stmt {
-        ASTNode::Break { .. } => exit_branch::build_break_exit_plan(1),
-        ASTNode::Continue { .. } => exit_branch::build_continue_exit_plan(1),
+        ASTNode::Break { .. } => parts_exit::build_break_exit_plan(1),
+        ASTNode::Continue { .. } => parts_exit::build_continue_exit_plan(1),
         ASTNode::Return { value, .. } => {
             let Some(value) = value.as_ref() else {
                 return Err(format!("{GENERIC_LOOP_ERR}: return without value"));
@@ -289,7 +289,7 @@ pub(super) fn lower_exit_from_stmt(
             let (value_id, mut return_effects) =
                 PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?;
             effects.append(&mut return_effects);
-            exit_branch::build_return_exit_plan(value_id)
+            parts_exit::build_return_exit_plan(value_id)
         }
         _ => return Err(format!("{GENERIC_LOOP_ERR}: unsupported exit stmt")),
     };
