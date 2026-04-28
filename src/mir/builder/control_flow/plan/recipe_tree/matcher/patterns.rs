@@ -1,13 +1,15 @@
 use super::super::{
-    build_accum_const_loop_recipe, build_array_join_recipe, build_bool_predicate_scan_recipe,
-    build_char_map_recipe, build_loop_break_recipe, build_loop_simple_while_recipe,
-    build_scan_with_init_recipe, build_split_scan_recipe, AccumConstLoopRecipe, ArrayJoinRecipe,
-    BoolPredicateScanRecipe, CharMapRecipe, LoopBreakRecipe, LoopSimpleWhileRecipe,
-    ScanWithInitRecipe, SplitScanRecipe,
+    build_accum_const_loop_recipe, build_array_join_recipe, build_char_map_recipe,
+    build_loop_break_recipe, build_loop_simple_while_recipe, build_scan_with_init_recipe,
+    build_split_scan_recipe, AccumConstLoopRecipe, ArrayJoinRecipe, CharMapRecipe, LoopBreakRecipe,
+    LoopSimpleWhileRecipe, ScanWithInitRecipe, SplitScanRecipe,
 };
 use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::plan::recipe_tree::bool_predicate_scan_builder::{
+    build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
+};
 use crate::mir::builder::control_flow::plan::recipe_tree::if_phi_join_builder::{
     build_if_phi_join_recipe, IfPhiJoinRecipe,
 };

@@ -56,9 +56,6 @@ pub(in crate::mir::builder) use accum_const_loop_builder::{
     build_accum_const_loop_recipe, AccumConstLoopRecipe,
 };
 pub(in crate::mir::builder) use array_join_builder::{build_array_join_recipe, ArrayJoinRecipe};
-pub(in crate::mir::builder) use bool_predicate_scan_builder::{
-    build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
-};
 pub(in crate::mir::builder) use char_map_builder::{build_char_map_recipe, CharMapRecipe};
 pub(in crate::mir::builder) use loop_break_builder::{build_loop_break_recipe, LoopBreakRecipe};
 pub(in crate::mir::builder) use loop_simple_while_builder::{
