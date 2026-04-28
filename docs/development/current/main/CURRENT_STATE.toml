@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-617"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-617-loop-break-empty-contracts-shelf-prune-card.md"
-latest_card_summary = "Remove the now-empty plan::loop_break::contracts shelf after its last compatibility wrapper was deleted."
+latest_card = "291x-618"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-618-cleanup-top-level-wildcard-prune-card.md"
+latest_card_summary = "Remove unused cleanup top-level wildcard re-exports; callers already use cleanup::common or cleanup::policies owners."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
