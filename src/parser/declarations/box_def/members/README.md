@@ -22,4 +22,6 @@ Rules:
   `property_emit.rs`.
 - Do not duplicate Box member postfix `catch/cleanup` parsing outside
   `postfix.rs`.
+- Keep `weak` on the stored-field path only. Do not route weak fields through
+  computed/once/birth_once property parsing.
 - Keep AST/JSON/MIR shape stable unless a separate language decision changes it.

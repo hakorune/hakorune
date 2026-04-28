@@ -317,22 +317,38 @@ pub(crate) fn try_parse_visibility_block_or_single(
 pub(crate) fn parse_weak_field(
     p: &mut NyashParser,
     field_name: String,
-    methods: &mut HashMap<String, ASTNode>,
+    _methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
     weak_fields: &mut Vec<String>,
 ) -> Result<(), ParseError> {
-    // Parse optional type annotation or property syntax via header-first parser
-    try_parse_header_first_field_or_property(
-        p,
-        field_name.clone(),
-        methods,
-        fields,
-        field_decls,
-        weak_fields,
-        true,
-    )?;
-    // Add to weak_fields vector (unified location for all weak field tracking)
+    let declared_type_name = if p.match_token(&TokenType::COLON) {
+        p.advance();
+        parse_optional_declared_type_name(p)
+    } else {
+        None
+    };
+
+    if p.match_token(&TokenType::ASSIGN)
+        || p.match_token(&TokenType::FatArrow)
+        || p.match_token(&TokenType::LBRACE)
+        || p.match_token(&TokenType::CATCH)
+        || p.match_token(&TokenType::CLEANUP)
+    {
+        return Err(ParseError::UnexpectedToken {
+            expected: "weak stored field declaration without initializer or computed body"
+                .to_string(),
+            found: p.current_token().token_type.clone(),
+            line: p.current_token().line,
+        });
+    }
+
+    fields.push(field_name.clone());
+    field_decls.push(FieldDecl {
+        name: field_name.clone(),
+        declared_type_name,
+        is_weak: true,
+    });
     weak_fields.push(field_name);
     Ok(())
 }
