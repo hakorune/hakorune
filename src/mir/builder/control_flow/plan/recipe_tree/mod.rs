@@ -64,9 +64,6 @@ pub(in crate::mir::builder) use loop_break_builder::{build_loop_break_recipe, Lo
 pub(in crate::mir::builder) use loop_simple_while_builder::{
     build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
 };
-pub(in crate::mir::builder) use loop_true_early_exit_builder::{
-    build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
-};
 pub(in crate::mir::builder) use scan_with_init_builder::{
     build_scan_with_init_recipe, ScanWithInitRecipe,
 };

@@ -44,9 +44,9 @@ Scope: current lane / next lane / restart order only.
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-665` prunes the IfPhiJoin recipe builder
-  re-export after LoopContinueOnly recipe re-export pruning landed through
-  `291x-664`
+- latest known checkpoint: `291x-666` prunes the LoopTrueEarlyExit recipe
+  builder re-export after IfPhiJoin recipe re-export pruning landed through
+  `291x-665`
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
@@ -59,7 +59,7 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-665-if-phi-join-recipe-reexport-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-666-loop-true-early-exit-recipe-reexport-prune-card.md`
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
@@ -78,7 +78,7 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-665`; detailed landed history lives in phase card
+- latest checkpoint: `291x-666`; detailed landed history lives in phase card
   files and the current `latest_card_path` in `CURRENT_STATE.toml`
 - next cleanup: choose the next compiler-cleanliness lane; the `291x-575`
   ordered compat residue queue and unified-member property cleanup are closed,
@@ -87,8 +87,9 @@ Scope: current lane / next lane / restart order only.
   reverse export pruning, BodyLocalRoute facade pruning, and DigitPos
   reject-message test cleanup, and loop-cond feature pipeline re-export pruning
   and IfPhiJoinFacts alias pruning, and LoopContinueOnly recipe re-export
-  pruning and IfPhiJoin recipe re-export pruning are landed, and broad
-  facts/planner ownership work must reopen as its own lane
+  pruning, IfPhiJoin recipe re-export pruning, and LoopTrueEarlyExit recipe
+  re-export pruning are landed, and broad facts/planner ownership work must
+  reopen as its own lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
@@ -100,7 +101,7 @@ Scope: current lane / next lane / restart order only.
 - CoreBox surface phase:
   `docs/development/current/main/phases/phase-291x/README.md`
 - Current cleanup checkpoint:
-  `docs/development/current/main/phases/phase-291x/291x-665-if-phi-join-recipe-reexport-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-666-loop-true-early-exit-recipe-reexport-prune-card.md`
 - CoreBox design brief:
   `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 - StringBox taskboard:

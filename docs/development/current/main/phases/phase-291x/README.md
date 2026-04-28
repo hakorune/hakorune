@@ -200,6 +200,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-663-if-phi-join-facts-alias-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-664-loop-continue-only-recipe-reexport-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-665-if-phi-join-recipe-reexport-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-666-loop-true-early-exit-recipe-reexport-prune-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -219,7 +220,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-665-if-phi-join-recipe-reexport-prune-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-666-loop-true-early-exit-recipe-reexport-prune-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 5. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 6. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
@@ -263,7 +264,7 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-665`
+- latest known cleanup checkpoint: `291x-666`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the current
   `latest_card_path` in `CURRENT_STATE.toml`
@@ -280,6 +281,7 @@ in one card.
   - IfPhiJoinFacts alias pruning through `291x-663`
   - LoopContinueOnly recipe re-export pruning through `291x-664`
   - IfPhiJoin recipe re-export pruning through `291x-665`
+  - LoopTrueEarlyExit recipe re-export pruning through `291x-666`
 - next cleanup: choose the next compiler-cleanliness lane; broad
   facts/planner and lower planner compat ownership work must reopen as focused
   BoxShape lanes
@@ -309,6 +311,7 @@ in one card.
 | IfPhiJoinFacts alias prune | `291x-663-if-phi-join-facts-alias-prune-card.md` |
 | LoopContinueOnly recipe re-export prune | `291x-664-loop-continue-only-recipe-reexport-prune-card.md` |
 | IfPhiJoin recipe re-export prune | `291x-665-if-phi-join-recipe-reexport-prune-card.md` |
+| LoopTrueEarlyExit recipe re-export prune | `291x-666-loop-true-early-exit-recipe-reexport-prune-card.md` |
 | Current task-order baseline | `291x-488-current-task-order-baseline-refresh-card.md` |
 | Historical post-birth row-prune order | `291x-255-post-birth-cleanup-task-order-card.md` |
 | CoreMethodContract / Hotline policy | `docs/development/current/main/design/hotline-core-method-contract-ssot.md` |

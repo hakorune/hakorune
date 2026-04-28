@@ -41,9 +41,9 @@ cargo check -q
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
-- latest known checkpoint: `291x-665` prunes the IfPhiJoin recipe builder
-  re-export after LoopContinueOnly recipe re-export pruning landed through
-  `291x-664`
+- latest known checkpoint: `291x-666` prunes the LoopTrueEarlyExit recipe
+  builder re-export after IfPhiJoin recipe re-export pruning landed through
+  `291x-665`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is

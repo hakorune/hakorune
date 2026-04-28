@@ -1,13 +1,15 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
-use super::{build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_true_early_exit_builder::{
+    build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
+};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
