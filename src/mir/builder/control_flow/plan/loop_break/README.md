@@ -6,8 +6,7 @@
 - loop variable comes from header condition or loop(true) counter extraction
   - loop(true): `i = i + 1` + `substring(i, i + 1)` or `i = j + K` with `j = indexOf(..., i)` + `substring(i, ...)`
 
-## LoopBodyLocal promotion
-- SSOT entry: `loop_break::api::try_promote`
+## Facts entry
 - Facts namespace entry: `loop_break::facts`
 - Foundation type source: `loop_break::facts::types::LoopBreakFacts`
 - Foundation helpers: `loop_break::facts::helpers_{common,break_if}`
@@ -22,7 +21,7 @@
 - Realworld subset: `loop_break::facts::realworld`
 - Step-first subset: `loop_break::facts::step_before_break`
 - Trim cluster: `loop_break::facts::trim_whitespace{,_helpers}`
-- Supported: A-3 Trim / A-4 DigitPos (promote LoopBodyLocal to carrier)
+- Supported facts: A-3 Trim / A-4 DigitPos shape extraction
 - ConditionOnly carriers are recalculated per iteration (no host binding)
 
 ## Trim (seg) minimal shape
@@ -56,10 +55,5 @@
 - break conditions with unsupported AST shapes
 - non-substring init for Trim promotion (e.g., `seg = other_call()`)
 
-## Fail-Fast policy
-- `PromoteDecision::Freeze` -> Err (missing implementation or contract violation)
-- JoinIR lowering/merge contract violations -> Err
-
 ## `Ok(None)` meaning
 - not LoopBreak (extractor returns None)
-- promotion NotApplicable (continue LoopBreak without promotion)

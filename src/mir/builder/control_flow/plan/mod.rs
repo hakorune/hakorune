@@ -61,20 +61,8 @@ mod skeletons;
 mod generic_loop;
 // Phase 29bq+: loop_break module moved to plan side
 pub(in crate::mir::builder) mod loop_break;
-// Phase 29bq+: loop-break condition policy router moved to plan side
-mod loop_break_condition_policy_router;
-// Phase 29bq+: loop_break input facts box moved to plan side
-mod loop_break_prep_box;
-// Phase 29bq+: loop-break policy router moved to plan side
-mod loop_break_policy_router;
 // Layer 5: Loop-Specific (ループ固有)
 // 各ループタイプの固有処理
-// Phase 29bq+: body local policy moved to plan side
-mod body_local_policy;
-mod body_local_policy_helpers;
-mod body_local_policy_inputs;
-mod body_local_policy_runner;
-mod body_local_policy_types;
 // Phase 29bq+: bundle/using resolver loop(i<n) with i=next_i + nested return (BoxCount)
 mod loop_bundle_resolver_v0;
 // Phase 29bq+: Stage1UsingResolverBox._collect_using_entries loop (BoxCount)

@@ -4,8 +4,8 @@ Goal: Fix near-miss vs OK boundaries for loop_break / scan_with_init / split_sca
 
 ## Contracts (SSOT)
 
-- loop_break promotion: `src/mir/builder/control_flow/plan/loop_break/api/README.md`
-  - historical path token: old label-2 API README under the retired `joinir/patterns/` lane
+- loop_break facts: `src/mir/builder/control_flow/plan/loop_break/README.md`
+  - historical promotion-lane docs are retired; current live entry is the facts namespace README
 - scan_with_init / split_scan route contracts（historical labels: `6` / `7`）: `docs/development/current/main/design/pattern6-7-contracts.md`
 - compose SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 
