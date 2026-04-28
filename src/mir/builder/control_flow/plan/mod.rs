@@ -32,19 +32,19 @@
 
 // Layer 0: Core Data Structures (New from Refactoring)
 // 分割されたデータ構造定義
-pub(in crate::mir::builder) mod core;
-pub(in crate::mir::builder) mod domain;
-pub(in crate::mir::builder) mod effect;
-pub(in crate::mir::builder) mod exit;
+mod core;
+mod domain;
+mod effect;
+mod exit;
 
 // Layer 1: Core Infrastructure (基盤)
 // MIR lowering の中核インフラ
 pub(in crate::mir::builder) mod branchn;
 pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod lowerer;
-pub(in crate::mir::builder) mod normalizer;
+mod normalizer;
 pub(in crate::mir::builder) mod step_mode;
-pub(in crate::mir::builder) mod trace;
+mod trace;
 
 // Layer 2: Analysis Layer (観測)
 // AST分析のみ、変更なし
@@ -55,34 +55,34 @@ pub(in crate::mir::builder) mod canon;
 // route 形状認識の分解スロット
 // Phase 29bt P0: Skeletons + Features (decomposition slots)
 pub(in crate::mir::builder) mod features;
-pub(in crate::mir::builder) mod skeletons;
+mod skeletons;
 
 // Layer 4: Route-Specific (形状固有)
 // 各 route の固有処理（一部 helper には historical file 名が残る）
 // Phase 29ca P1: Generic loop v0 module (facts/normalizer SSOT)
-pub(in crate::mir::builder) mod generic_loop;
+mod generic_loop;
 // Phase 29bq+: loop_break module moved to plan side
 pub(in crate::mir::builder) mod loop_break;
 // Phase 29bq+: loop-break condition policy router moved to plan side
-pub(in crate::mir::builder) mod loop_break_condition_policy_router;
+mod loop_break_condition_policy_router;
 // Phase 29bq+: loop_break input facts box moved to plan side
-pub(in crate::mir::builder) mod loop_break_prep_box;
+mod loop_break_prep_box;
 // Phase 29bq+: loop-break policy router moved to plan side
-pub(in crate::mir::builder) mod loop_break_policy_router;
+mod loop_break_policy_router;
 // Phase 29bq+: loop_break steps moved to plan side
-pub(in crate::mir::builder) mod loop_break_steps;
+mod loop_break_steps;
 // Layer 5: Loop-Specific (ループ固有)
 // 各ループタイプの固有処理
 // Phase 29bq+: body local policy moved to plan side
-pub(in crate::mir::builder) mod body_local_policy;
+mod body_local_policy;
 mod body_local_policy_helpers;
 mod body_local_policy_inputs;
 mod body_local_policy_runner;
 mod body_local_policy_types;
 // Phase 29bq+: bundle/using resolver loop(i<n) with i=next_i + nested return (BoxCount)
-pub(in crate::mir::builder) mod loop_bundle_resolver_v0;
+mod loop_bundle_resolver_v0;
 // Phase 29bq+: Stage1UsingResolverBox._collect_using_entries loop (BoxCount)
-pub(in crate::mir::builder) mod loop_collect_using_entries_v0;
+mod loop_collect_using_entries_v0;
 // Phase 29bq P2.x: unified loop_cond helpers (moved from loop_cond_unified/helpers.rs)
 pub(in crate::mir::builder) mod loop_cond_unified_helpers;
 // Phase 29bq P2.x: unified loop_cond facts (variants)
@@ -90,46 +90,46 @@ pub(in crate::mir::builder) mod loop_cond_unified_helpers;
 //       loop_cond_break_continue are now unified into loop_cond/
 pub(in crate::mir::builder) mod loop_cond;
 // Phase 29bq+: scan_methods outer loop coverage (block-wrapped inner loop, BoxCount)
-pub(in crate::mir::builder) mod loop_scan_methods_block_v0;
+mod loop_scan_methods_block_v0;
 // Phase 29bq+: scan_methods outer loop coverage (BoxCount)
-pub(in crate::mir::builder) mod loop_scan_methods_v0;
+mod loop_scan_methods_v0;
 // Phase 29bq+: selfhost _collect_phi_vars outer loop coverage (BoxCount)
-pub(in crate::mir::builder) mod loop_scan_phi_vars_v0;
+mod loop_scan_phi_vars_v0;
 // Phase 29bq+: one-shape scan loop coverage (BoxCount)
-pub(in crate::mir::builder) mod loop_scan_v0;
+mod loop_scan_v0;
 // Phase 29bq+: Loop scope shape builder moved to plan side
-pub(in crate::mir::builder) mod loop_scope_shape_builder;
+mod loop_scope_shape_builder;
 // Phase 29bq P2: loop(true) break/continue coverage
-pub(in crate::mir::builder) mod loop_true_break_continue;
+mod loop_true_break_continue;
 // Phase 29bq+: loop(true) counter extractor moved to plan side
-pub(in crate::mir::builder) mod loop_true_counter_extractor;
+mod loop_true_counter_extractor;
 // Phase 12: Unified nested loop depth1 module (consolidates 4 variants)
-pub(in crate::mir::builder) mod nested_loop_depth1;
+mod nested_loop_depth1;
 // Phase 29bq+: Shared nested loop plan lowering helper
-pub(in crate::mir::builder) mod nested_loop_plan;
-pub(in crate::mir::builder) mod nested_loop_plan_break_continue;
-pub(in crate::mir::builder) mod nested_loop_plan_bridge;
-pub(in crate::mir::builder) mod nested_loop_plan_continue_with_return;
-pub(in crate::mir::builder) mod nested_loop_plan_recipe_fallback;
-pub(in crate::mir::builder) mod nested_loop_plan_recipe_fallback_policy;
+mod nested_loop_plan;
+mod nested_loop_plan_break_continue;
+mod nested_loop_plan_bridge;
+mod nested_loop_plan_continue_with_return;
+mod nested_loop_plan_recipe_fallback;
+mod nested_loop_plan_recipe_fallback_policy;
 // Phase 29bq+: Trim utilities moved to plan side
-pub(in crate::mir::builder) mod trim_loop_lowering;
-pub(in crate::mir::builder) mod trim_lowerer;
-pub(in crate::mir::builder) mod trim_validator;
+mod trim_loop_lowering;
+mod trim_lowerer;
+mod trim_validator;
 
 // Layer 6: Data Structures (データ構造)
 // CorePlan の構成要素
 // M1 scaffold: RecipeTree vocabulary + Parts dispatch entry (no calls from existing pipeline)
-pub(in crate::mir::builder) mod parts;
+mod parts;
 pub(in crate::mir::builder) mod recipe_tree;
 // M5f: Neutral re-export layer for parts (parts should not depend on features)
-pub(in crate::mir::builder) mod steps;
+mod steps;
 
 // Layer 7: Orchestration (オーケストレーション)
 // 全体の制御・調整
 // Phase 29ao P0: CorePlan composer scaffold (unused)
 pub(in crate::mir::builder) mod composer;
-pub(in crate::mir::builder) mod emit;
+mod emit;
 pub(in crate::mir::builder) mod planner;
 // Phase 29ai P5: JoinIR router → single plan extraction entrypoint
 pub(in crate::mir::builder) mod single_planner;
@@ -138,19 +138,19 @@ pub(in crate::mir::builder) mod single_planner;
 // 共通機能・ポリシー
 // Phase 29bq+: Common route helpers moved to plan side
 // Phase 29bq+: Common route initializer moved to plan side
-pub(in crate::mir::builder) mod common_init;
+mod common_init;
 // Layer 9: Legacy/Scaffolding (残骸・足場)
 // 歴史的経緯で残存、将来的には整理予定
 // Phase 29bq+: Condition env builder moved to plan side
-pub(in crate::mir::builder) mod condition_env_builder;
+mod condition_env_builder;
 // Phase 29bq+: Conversion pipeline moved to plan side
-pub(in crate::mir::builder) mod conversion_pipeline;
+mod conversion_pipeline;
 // Phase 29bq+: Structural lock (join_key/session)
 // sealing は edgecfg/api/frag_emit_session.rs に統合（Phase 29bq+ 骨格拡大）
-pub(in crate::mir::builder) mod join_key;
+mod join_key;
 // Phase 29bq+: Route prep pipeline moved to plan side (patterns layer thin)
-pub(in crate::mir::builder) mod plan_build_session;
-pub(in crate::mir::builder) mod route_prep_pipeline;
+mod plan_build_session;
+mod route_prep_pipeline;
 
 // ============================================================================
 // Entrypoints (SSOT)
