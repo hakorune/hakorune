@@ -68,7 +68,7 @@ pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers
 pub(crate) use ast_feature_extractor::detect_continue_shape;
 
 // Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_parse_number_shape;
+pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_number::detect_parse_number_shape;
 
 // Phase 143-P1:
 pub(crate) use ast_feature_extractor::detect_parse_string_shape;

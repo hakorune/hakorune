@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-625"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-625-read-digits-shape-owner-path-prune-card.md"
-latest_card_summary = "Remove detect_read_digits_loop_true_shape from the ast_feature_extractor facade and use the parse-number owner path."
+latest_card = "291x-626"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-626-parse-number-shape-owner-path-prune-card.md"
+latest_card_summary = "Remove detect_parse_number_shape from the ast_feature_extractor facade and use the parse-number owner path."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

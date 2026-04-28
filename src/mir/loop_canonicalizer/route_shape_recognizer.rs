@@ -76,7 +76,7 @@ pub fn try_extract_read_digits_loop_true_shape(
 ///
 /// # Phase 143-P0: Parse Number Route Detection
 ///
-/// This function delegates to `ast_feature_extractor::detect_parse_number_shape`
+/// This function delegates to the parse-number route-shape recognizer owner
 /// for SSOT implementation.
 pub fn try_extract_parse_number_shape(
     body: &[ASTNode],
