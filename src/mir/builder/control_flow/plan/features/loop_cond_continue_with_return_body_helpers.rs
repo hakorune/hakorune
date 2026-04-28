@@ -396,7 +396,7 @@ fn lower_hetero_return_if(
     else_chain: &[ASTNode],
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    use crate::mir::builder::control_flow::plan::features::conditional_update_join::collect_conditional_update_branch;
+    use crate::mir::builder::control_flow::plan::parts::conditional_update::collect_conditional_update_branch;
 
     let pre_if_map = builder.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();

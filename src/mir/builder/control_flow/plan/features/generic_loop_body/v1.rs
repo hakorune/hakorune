@@ -4,11 +4,11 @@ use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_b
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
-use crate::mir::builder::control_flow::plan::features::conditional_update_join;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::parts;
+use crate::mir::builder::control_flow::plan::parts::conditional_update;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
@@ -613,7 +613,7 @@ fn try_lower_conditional_update_if(
 
     let carrier_phis = BTreeMap::new();
     let mut carrier_updates = BTreeMap::new();
-    conditional_update_join::try_lower_conditional_update_if(
+    conditional_update::try_lower_conditional_update_if(
         builder,
         current_bindings,
         &carrier_phis,

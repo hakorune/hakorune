@@ -2,11 +2,11 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::features::carriers;
-use crate::mir::builder::control_flow::plan::features::conditional_update_join::lower_conditional_update_if_assume_with_break_phi_args_recipe_first;
 use crate::mir::builder::control_flow::plan::features::exit_if_map::lower_if_exit_stmt_with_break_phi_args;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::parts;
+use crate::mir::builder::control_flow::plan::parts::conditional_update::lower_conditional_update_if_assume_with_break_phi_args_recipe_first;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
     LoopCondBreakContinueItem, NestedLoopDepth1Recipe,

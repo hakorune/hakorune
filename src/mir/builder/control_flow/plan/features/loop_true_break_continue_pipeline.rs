@@ -668,7 +668,7 @@ fn lower_general_if_stmt(
                        body: &[ASTNode]| {
         lower_general_if_body_block(builder, bindings, carrier_phis, carrier_step_phis, body)
     };
-    if let Some(plans) = crate::mir::builder::control_flow::plan::features::conditional_update_join::try_lower_general_if_recipe_authority(
+    if let Some(plans) = crate::mir::builder::control_flow::plan::parts::conditional_update::try_lower_general_if_recipe_authority(
         builder,
         current_bindings,
         carrier_phis,
