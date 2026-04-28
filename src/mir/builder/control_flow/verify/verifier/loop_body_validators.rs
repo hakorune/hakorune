@@ -1,14 +1,14 @@
 //! Phase 29bq+: Loop body tree validation logic
 //!
 //! # Responsibilities
-//! - Verify loop body structure (Effect-only tree)
-//! - Enforce V12 invariant (loop body cannot contain If/BranchN/Exit plans)
+//! - Verify loop body structure (LoopFrame v1 structural body tree)
+//! - Enforce V12 invariant (loop body cannot contain BranchN plans)
 //! - Validate nested structures within loop bodies
 //!
 //! # Invariants
-//! - V12: Loop.body must be Effect-only (Seq-of-effects allowed)
-//!   - Allowed: Effect, Seq, Loop (nested loops)
-//!   - Forbidden: If, BranchN, Exit (control flow exits)
+//! - V12: Loop.body accepts structural plans that the normal validators accept.
+//!   - Allowed: Effect, Seq, If, Loop (nested loops), Exit
+//!   - Forbidden: BranchN
 //!   - Exception: ExitIf within IfEffect is allowed (leaf-level exit)
 
 use super::{effect_validators, plan_validators, position_validators, primitives};

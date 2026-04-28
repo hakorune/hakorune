@@ -37,7 +37,8 @@
 //!
 //! ## Control Flow Invariants
 //! - **V11**: Exit must be last in Seq/If/BranchN branches (ExitMap alignment)
-//! - **V12**: Loop.body must be Effect-only (no If/BranchN/Exit plans)
+//! - **V12**: Loop.body accepts structural plans validated by the normal
+//!   validators, but still rejects BranchN.
 //!   - Exception: ExitIf within IfEffect is allowed (leaf-level exit)
 //!
 //! ## Edge Argument Invariants
@@ -64,7 +65,7 @@
 //! 4. **plan_validators** - Plan-level rules (Seq/If/BranchN/Exit)
 //! 5. **effect_validators** - Effect-level rules (IfEffect, ExitIf)
 //! 6. **loop_validators** - Loop structure rules (header/body/step/pipeline)
-//! 7. **loop_body_validators** - Loop body tree rules (Effect-only enforcement)
+//! 7. **loop_body_validators** - Loop body tree rules (LoopFrame v1 contract)
 //!
 //! Each module has a focused responsibility and can be tested independently.
 //!

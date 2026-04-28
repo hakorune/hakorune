@@ -163,7 +163,7 @@ mod tests {
     }
 
     #[test]
-    fn test_verify_loop_body_if_fails() {
+    fn test_verify_loop_body_if_ok() {
         let if_plan = CoreIfPlan {
             condition: ValueId(1),
             then_plans: vec![CorePlan::Effect(CoreEffectPlan::Const {
@@ -175,15 +175,40 @@ mod tests {
         };
         let plan = CorePlan::Loop(make_loop_plan(vec![CorePlan::If(if_plan)]));
         let result = PlanVerifier::verify(&plan);
-        assert!(result.is_err());
-        assert!(result.unwrap_err().contains("[V12]"));
+        assert!(result.is_ok());
     }
 
     #[test]
-    fn test_verify_loop_body_exit_fails() {
+    fn test_verify_loop_body_exit_ok() {
         let plan = CorePlan::Loop(make_loop_plan(vec![CorePlan::Exit(CoreExitPlan::Return(
             None,
         ))]));
+        let result = PlanVerifier::verify(&plan);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_verify_loop_body_branchn_fails() {
+        let branch_plan = CoreBranchNPlan {
+            arms: vec![
+                CoreBranchArmPlan {
+                    condition: ValueId(1),
+                    plans: vec![CorePlan::Effect(CoreEffectPlan::Const {
+                        dst: ValueId(10),
+                        value: ConstValue::Integer(1),
+                    })],
+                },
+                CoreBranchArmPlan {
+                    condition: ValueId(2),
+                    plans: vec![CorePlan::Effect(CoreEffectPlan::Const {
+                        dst: ValueId(11),
+                        value: ConstValue::Integer(2),
+                    })],
+                },
+            ],
+            else_plans: None,
+        };
+        let plan = CorePlan::Loop(make_loop_plan(vec![CorePlan::BranchN(branch_plan)]));
         let result = PlanVerifier::verify(&plan);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("[V12]"));
