@@ -1,18 +1,9 @@
 //! Loop carrier helpers (phi info + bindings + EdgeArgs).
 
 use crate::mir::builder::control_flow::plan::normalizer::helpers::create_phi_bindings;
-use crate::mir::builder::control_flow::plan::{CoreLoopPlan, CorePhiInfo};
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
-use crate::mir::EdgeArgs;
+use crate::mir::builder::control_flow::plan::CorePhiInfo;
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::BTreeMap;
-
-pub(in crate::mir::builder) struct LoopCarrierSpec {
-    pub dst: ValueId,
-    pub init: ValueId,
-    pub next: ValueId,
-    pub tag: String,
-}
 
 pub(in crate::mir::builder) fn build_phi_info(
     block: BasicBlockId,
@@ -45,48 +36,10 @@ pub(in crate::mir::builder) fn build_loop_phi_info(
     )
 }
 
-pub(in crate::mir::builder) fn build_loop_carriers(
-    header_bb: BasicBlockId,
-    preheader_bb: BasicBlockId,
-    step_bb: BasicBlockId,
-    carriers: Vec<LoopCarrierSpec>,
-) -> Vec<CorePhiInfo> {
-    carriers
-        .into_iter()
-        .map(|carrier| {
-            build_loop_phi_info(
-                header_bb,
-                preheader_bb,
-                step_bb,
-                carrier.dst,
-                carrier.init,
-                carrier.next,
-                carrier.tag,
-            )
-        })
-        .collect()
-}
-
-pub(in crate::mir::builder) fn with_loop_carriers(
-    mut plan: CoreLoopPlan,
-    carriers: Vec<CorePhiInfo>,
-) -> CoreLoopPlan {
-    plan.phis = carriers;
-    plan
-}
-
 pub(in crate::mir::builder) fn build_loop_bindings(
     bindings: &[(&str, ValueId)],
 ) -> BTreeMap<String, ValueId> {
     create_phi_bindings(bindings)
-}
-
-/// Build EdgeArgs for expr-result + carrier values.
-pub(in crate::mir::builder) fn build_expr_carrier_join_args(values: Vec<ValueId>) -> EdgeArgs {
-    EdgeArgs {
-        layout: JumpArgsLayout::ExprResultPlusCarriers,
-        values,
-    }
 }
 
 /// Build empty-input step join PHI.
