@@ -157,7 +157,7 @@ pub struct MirBuilder {
 
     /// Phase 136 follow-up (Step 7/7): Compilation context
     /// Consolidates compilation_context, current_static_box, user_defined_boxes, reserved_value_ids,
-    /// fn_body_ast, weak_fields_by_box, property_getters_by_box, field_origin_class, field_origin_by_box,
+    /// fn_body_ast, weak_fields_by_box, property_registry, field_origin_class, field_origin_by_box,
     /// static_method_index, method_tail_index, type_registry, current_slot_registry, plugin_method_sigs.
     /// Direct field access for backward compatibility (migration in progress).
     pub(super) comp_ctx: compilation_context::CompilationContext,

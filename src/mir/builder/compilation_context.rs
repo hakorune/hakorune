@@ -11,7 +11,7 @@
  * - reserved_value_ids: Reserved ValueIds for PHI instructions
  * - fn_body_ast: Function body AST for capture analysis
  * - weak_fields_by_box: Weak field registry
- * - property_getters_by_box: Property getter registry
+ * - property_registry: Property getter registry
  * - field_origin_class: Field origin tracking
  * - field_origin_by_box: Class-level field origin
  * - static_method_index: Static method index
@@ -28,7 +28,7 @@ use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{MirType, ValueId};
 use std::collections::{HashMap, HashSet};
 
-use super::properties::PropertyKind;
+use super::properties::PropertyRegistry;
 use super::type_registry::TypeRegistry;
 use hakorune_mir_builder::BoxCompilationContext;
 
@@ -68,8 +68,8 @@ pub(crate) struct CompilationContext {
     /// Weak field registry: BoxName -> {weak field names}
     pub weak_fields_by_box: HashMap<String, HashSet<String>>,
 
-    /// Unified members: BoxName -> {propName -> Kind}
-    property_getters_by_box: HashMap<String, HashMap<String, PropertyKind>>,
+    /// Unified member property getter registry.
+    property_registry: PropertyRegistry,
 
     /// Remember class of object fields after assignments: (base_id, field) -> class_name
     pub field_origin_class: HashMap<(ValueId, String), String>,
@@ -124,7 +124,7 @@ impl CompilationContext {
             reserved_value_ids: HashSet::new(),
             fn_body_ast: None,
             weak_fields_by_box: HashMap::new(),
-            property_getters_by_box: HashMap::new(),
+            property_registry: PropertyRegistry::new(),
             field_origin_class: HashMap::new(),
             field_origin_by_box: HashMap::new(),
             static_method_index: HashMap::new(),
@@ -247,32 +247,14 @@ impl CompilationContext {
 
     /// Get synthetic getter method name for a property read.
     pub fn property_getter_method_name(&self, box_name: &str, prop_name: &str) -> Option<String> {
-        self.property_getters_by_box
-            .get(box_name)
-            .and_then(|props| props.get(prop_name))
-            .map(|kind| kind.getter_method_name(prop_name))
+        self.property_registry
+            .getter_method_name(box_name, prop_name)
     }
 
     /// Register a synthetic property getter method if `method_name` uses a known getter prefix.
     pub fn register_property_getter_method(&mut self, box_name: String, method_name: &str) -> bool {
-        let Some((kind, prop_name)) = PropertyKind::from_getter_method_name(method_name) else {
-            return false;
-        };
-        self.register_property_getter(box_name, prop_name, kind);
-        true
-    }
-
-    /// Register a property getter for a box
-    fn register_property_getter(
-        &mut self,
-        box_name: String,
-        prop_name: String,
-        kind: PropertyKind,
-    ) {
-        self.property_getters_by_box
-            .entry(box_name)
-            .or_insert_with(HashMap::new)
-            .insert(prop_name, kind);
+        self.property_registry
+            .register_getter_method(box_name, method_name)
     }
 
     /// Get field origin class for a value's field

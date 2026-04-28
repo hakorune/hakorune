@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-651"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-651-unified-member-test-env-guard-card.md"
-latest_card_summary = "Guard unified-member parser test environment variables."
+latest_card = "291x-652"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-652-property-registry-box-card.md"
+latest_card_summary = "Move MIR property getter storage into a PropertyRegistry box."
 
 current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
