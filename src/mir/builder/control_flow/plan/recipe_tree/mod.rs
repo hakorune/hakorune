@@ -1,9 +1,8 @@
 //! RecipeTree - Minimal vocabulary for recursive lowering
 //!
 //! SSOT: docs/development/current/main/design/recipe-tree-and-parts-ssot.md
-//! Flattened: builders/ and composer/ moved to recipe_tree/ root
-//!
-//! Phase: M1 scaffold (no calls from existing pipeline)
+//! RecipeTree owns structure-only recipe vocabulary, route composers, and
+//! recipe contract verification used by the current control-flow planner.
 
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::stmt_view::StmtOnlyBlockRecipe;
@@ -19,7 +18,7 @@ pub(in crate::mir::builder) use block::{
     RecipeBodies, RecipeItem,
 };
 
-// Builder modules (flattened from builders/)
+// Builder modules stay private; callers enter through composer/matcher owners.
 mod accum_const_loop_builder;
 mod array_join_builder;
 mod bool_predicate_scan_builder;
@@ -32,7 +31,7 @@ mod loop_true_early_exit_builder;
 mod scan_with_init_builder;
 mod split_scan_builder;
 
-// Composer modules (flattened from composer/)
+// Composer modules attach route-specific methods to RecipeComposer.
 mod accum_const_loop_composer;
 mod bool_predicate_scan_composer;
 mod generic_loop_composer;
@@ -51,10 +50,10 @@ pub(in crate::mir::builder) mod matcher;
 pub(in crate::mir::builder) use matcher::RecipeMatcher;
 pub(in crate::mir::builder) mod verified;
 
-// ===== RecipeComposer (moved from composer/mod.rs) =====
+// ===== RecipeComposer route entry facade =====
 pub(in crate::mir::builder) struct RecipeComposer;
 
-// ===== Helper functions (moved from builders/mod.rs) =====
+// ===== Shared RecipeBlock construction helpers =====
 
 /// Build a block containing only Stmt items.
 pub(in crate::mir::builder) fn build_stmt_only_block(
