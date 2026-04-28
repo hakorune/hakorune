@@ -120,47 +120,195 @@ pub(crate) fn forbid_box_named_constructor(
 }
 
 /// Collect all `me.<field>` accessed in nodes (flat set)
-fn ast_collect_me_fields(nodes: &Vec<ASTNode>) -> std::collections::HashSet<String> {
+fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String> {
     use std::collections::HashSet;
-    fn scan(nodes: &Vec<ASTNode>, out: &mut HashSet<String>) {
-        for n in nodes {
-            match n {
-                ASTNode::FieldAccess { object, field, .. } => {
-                    if let ASTNode::Me { .. } = object.as_ref() {
-                        out.insert(field.clone());
-                    }
-                }
-                ASTNode::Program { statements, .. } => scan(statements, out),
-                ASTNode::If {
-                    then_body,
-                    else_body,
-                    ..
-                } => {
-                    scan(then_body, out);
-                    if let Some(eb) = else_body {
-                        scan(eb, out);
-                    }
-                }
-                ASTNode::TryCatch {
-                    try_body,
-                    catch_clauses,
-                    finally_body,
-                    ..
-                } => {
-                    scan(try_body, out);
-                    for c in catch_clauses {
-                        scan(&c.body, out);
-                    }
-                    if let Some(fb) = finally_body {
-                        scan(fb, out);
-                    }
-                }
-                ASTNode::FunctionDeclaration { body, .. } => scan(body, out),
-                _ => {}
-            }
+
+    fn scan_optional_node(node: &Option<Box<ASTNode>>, out: &mut HashSet<String>) {
+        if let Some(node) = node {
+            scan_node(node, out);
         }
     }
+
+    fn scan_optional_body(body: &Option<Vec<ASTNode>>, out: &mut HashSet<String>) {
+        if let Some(body) = body {
+            scan_body(body, out);
+        }
+    }
+
+    fn scan_body(nodes: &[ASTNode], out: &mut HashSet<String>) {
+        for n in nodes {
+            scan_node(n, out);
+        }
+    }
+
+    fn scan_node(node: &ASTNode, out: &mut HashSet<String>) {
+        match node {
+            ASTNode::FieldAccess { object, field, .. } => {
+                if matches!(object.as_ref(), ASTNode::Me { .. }) {
+                    out.insert(field.clone());
+                } else {
+                    scan_node(object, out);
+                }
+            }
+            ASTNode::MeField { field, .. } => {
+                out.insert(field.clone());
+            }
+            ASTNode::Program { statements, .. }
+            | ASTNode::ScopeBox {
+                body: statements, ..
+            } => scan_body(statements, out),
+            ASTNode::Assignment { target, value, .. } => {
+                scan_node(target, out);
+                scan_node(value, out);
+            }
+            ASTNode::Print { expression, .. }
+            | ASTNode::Nowait { expression, .. }
+            | ASTNode::AwaitExpression { expression, .. }
+            | ASTNode::QMarkPropagate { expression, .. }
+            | ASTNode::Throw { expression, .. } => scan_node(expression, out),
+            ASTNode::If {
+                condition,
+                then_body,
+                else_body,
+                ..
+            } => {
+                scan_node(condition, out);
+                scan_body(then_body, out);
+                scan_optional_body(else_body, out);
+            }
+            ASTNode::Loop {
+                condition, body, ..
+            }
+            | ASTNode::While {
+                condition, body, ..
+            } => {
+                scan_node(condition, out);
+                scan_body(body, out);
+            }
+            ASTNode::ForRange {
+                start, end, body, ..
+            } => {
+                scan_node(start, out);
+                scan_node(end, out);
+                scan_body(body, out);
+            }
+            ASTNode::Return { value, .. } => scan_optional_node(value, out),
+            ASTNode::GlobalVar { value, .. } => scan_node(value, out),
+            ASTNode::UnaryOp { operand, .. } => scan_node(operand, out),
+            ASTNode::BinaryOp { left, right, .. } => {
+                scan_node(left, out);
+                scan_node(right, out);
+            }
+            ASTNode::GroupedAssignmentExpr { rhs, .. } => scan_node(rhs, out),
+            ASTNode::MethodCall {
+                object, arguments, ..
+            } => {
+                scan_node(object, out);
+                for arg in arguments {
+                    scan_node(arg, out);
+                }
+            }
+            ASTNode::Index { target, index, .. } => {
+                scan_node(target, out);
+                scan_node(index, out);
+            }
+            ASTNode::New { arguments, .. }
+            | ASTNode::FromCall { arguments, .. }
+            | ASTNode::FunctionCall { arguments, .. } => {
+                for arg in arguments {
+                    scan_node(arg, out);
+                }
+            }
+            ASTNode::Call {
+                callee, arguments, ..
+            } => {
+                scan_node(callee, out);
+                for arg in arguments {
+                    scan_node(arg, out);
+                }
+            }
+            ASTNode::MatchExpr {
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } => {
+                scan_node(scrutinee, out);
+                for (_, arm_expr) in arms {
+                    scan_node(arm_expr, out);
+                }
+                scan_node(else_expr, out);
+            }
+            ASTNode::EnumMatchExpr {
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } => {
+                scan_node(scrutinee, out);
+                for arm in arms {
+                    scan_node(&arm.body, out);
+                }
+                scan_optional_node(else_expr, out);
+            }
+            ASTNode::ArrayLiteral { elements, .. } => {
+                for element in elements {
+                    scan_node(element, out);
+                }
+            }
+            ASTNode::MapLiteral { entries, .. } => {
+                for (_, value) in entries {
+                    scan_node(value, out);
+                }
+            }
+            ASTNode::BlockExpr {
+                prelude_stmts,
+                tail_expr,
+                ..
+            } => {
+                scan_body(prelude_stmts, out);
+                scan_node(tail_expr, out);
+            }
+            ASTNode::Arrow {
+                sender, receiver, ..
+            } => {
+                scan_node(sender, out);
+                scan_node(receiver, out);
+            }
+            ASTNode::TryCatch {
+                try_body,
+                catch_clauses,
+                finally_body,
+                ..
+            } => {
+                scan_body(try_body, out);
+                for clause in catch_clauses {
+                    scan_body(&clause.body, out);
+                }
+                scan_optional_body(finally_body, out);
+            }
+            ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
+                for value in initial_values {
+                    scan_optional_node(value, out);
+                }
+            }
+            ASTNode::Literal { .. }
+            | ASTNode::Variable { .. }
+            | ASTNode::This { .. }
+            | ASTNode::Me { .. }
+            | ASTNode::ThisField { .. }
+            | ASTNode::Break { .. }
+            | ASTNode::Continue { .. }
+            | ASTNode::UsingStatement { .. }
+            | ASTNode::ImportStatement { .. }
+            | ASTNode::FunctionDeclaration { .. }
+            | ASTNode::EnumDeclaration { .. }
+            | ASTNode::BoxDeclaration { .. }
+            | ASTNode::Lambda { .. } => {}
+        }
+    }
+
     let mut hs = HashSet::new();
-    scan(nodes, &mut hs);
+    scan_body(nodes, &mut hs);
     hs
 }

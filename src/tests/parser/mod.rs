@@ -1,3 +1,5 @@
+#[path = "../parser_birth_once_cycle.rs"]
+pub mod parser_birth_once_cycle;
 #[path = "../parser_bitops_test.rs"]
 pub mod parser_bitops_test;
 #[cfg(feature = "legacy-tests")]
