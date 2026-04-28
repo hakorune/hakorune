@@ -55,7 +55,7 @@ Unified Members (Phase‑15)
 - Source‑level unified members (stored/computed/once/birth_once) are lowered before JSON emission into regular slots/methods; JSON v0 remains unchanged.
 - Lowering conventions:
   - stored → slot (initializer becomes a one‑time evaluation in construction path)
-  - computed → synthetic getter method; field read becomes method call
+  - computed/get → synthetic getter method; field read becomes method call
   - once → synthetic getter + hidden `Option<T>` slot with first‑read initialization; uncaught exception on first read poisons the property and rethrows on subsequent reads
   - birth_once → hidden slot initialized before user `birth` body in declaration order; uncaught exception aborts construction
   - method postfix `catch/cleanup` lower to try/catch/finally when Stage‑3 is enabled; when disabled, bodies execute without handlers

@@ -240,6 +240,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         // 通常のフィールド名またはメソッド名、または unified members の先頭キーワードを読み取り
         if let TokenType::IDENTIFIER(field_or_method) = &p.current_token().token_type {
             let field_or_method = field_or_method.clone();
+            let field_or_method_line = p.current_token().line;
             p.advance();
 
             // 可視性: public/private ブロック/単行
@@ -255,6 +256,21 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
                 &mut weak_fields,
             )? {
                 continue;
+            }
+
+            // Unified Members canonical computed syntax: `get name: Type { ... }`.
+            // `get` is contextual here; `get: Type` and `get(...)` keep their
+            // existing stored-field/method meaning.
+            if crate::config::env::unified_members() && field_or_method == "get" {
+                if let Some(_property_name) = members::fields::try_parse_get_computed_property(
+                    p,
+                    field_or_method_line,
+                    &mut methods,
+                )? {
+                    p.ensure_no_pending_runes("get property")?;
+                    last_method_name = None;
+                    continue;
+                }
             }
 
             // Unified Members (header-first) gate: support once/birth_once via members::properties

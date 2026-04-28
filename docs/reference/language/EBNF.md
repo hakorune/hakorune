@@ -143,8 +143,15 @@ visibility_weak_sugar := ('public'|'private') 'weak' IDENT ( ':' TYPE )?
 stored         := IDENT ':' TYPE ( '=' expr )?
                   ; stored property (read/write). No handlers supported.
 
-computed       := IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
-                  ; computed property (read‑only). Recomputes on each read.
+computed       := get_computed | legacy_computed
+
+get_computed  := 'get' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
+                  ; canonical computed property syntax. `get` is contextual
+                  ; only in Box member head position.
+
+legacy_computed:= IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
+                  ; compatibility shorthand for computed properties. Accepted,
+                  ; but canonical docs should prefer `get IDENT`.
 
 once_decl      := 'once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
                   ; lazy once. First read computes and caches; later reads return cached value.
@@ -175,14 +182,14 @@ postfix_cleanup    := primary_expr 'cleanup' block
 
 Semantics (summary)
 - stored: O(1) slot read; write via assignment. Initializer (if present) evaluates at construction once.
-- computed: read‑only; each read evaluates the block; assignment is an error unless a setter is explicitly defined.
+- computed/get: read‑only; each read evaluates the block; assignment is an error unless a setter is explicitly defined.
 - once: first read evaluates the block and caches the value; subsequent reads return the cached value. On exception without a `catch`, the property becomes poisoned and rethrows on later reads (no retries).
 - birth_once: evaluated before the user `birth` body, in declaration order; exceptions without a `catch` abort construction; cycles between `birth_once` members are an error.
 - handlers: `catch/cleanup` are permitted for computed/once/birth_once/method blocks (Stage‑3), not for stored.
 
 Lowering (no JSON v0 change)
 - stored → slot
-- computed → synthesize `__get_name():T { try body; catch; finally }`; reads of `obj.name` become `obj.__get_name()`
+- computed/get → synthesize `__get_name():T { try body; catch; finally }`; reads of `obj.name` become `obj.__get_name()`
 - once → add `__name: Option<T>` and emit `__get_name()` with first‑read initialization; on uncaught exception mark poisoned and rethrow on subsequent reads
 - birth_once → add `__name: T` and insert initialization just before user `birth` in declaration order; handlers apply to each initializer
 - method → existing method forms; optional postfix handlers lower to try/catch/finally

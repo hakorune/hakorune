@@ -5,9 +5,109 @@ use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
 
+fn parse_optional_declared_type_name(p: &mut NyashParser) -> Option<String> {
+    if let TokenType::IDENTIFIER(ty) = &p.current_token().token_type {
+        let ty = Some(ty.clone());
+        p.advance();
+        ty
+    } else {
+        None
+    }
+}
+
+fn insert_computed_getter(
+    methods: &mut HashMap<String, ASTNode>,
+    fname: String,
+    body: Vec<ASTNode>,
+) {
+    let getter_name = format!("__get_{}", fname);
+    let method = ASTNode::FunctionDeclaration {
+        name: getter_name.clone(),
+        params: vec![],
+        body,
+        is_static: false,
+        is_override: false,
+        attrs: crate::ast::DeclarationAttrs::default(),
+        span: Span::unknown(),
+    };
+    methods.insert(getter_name, method);
+}
+
+fn try_parse_computed_body(
+    p: &mut NyashParser,
+    fname: String,
+    methods: &mut HashMap<String, ASTNode>,
+) -> Result<bool, ParseError> {
+    // name: Type => expr  → computed property (getter method with return expr)
+    if p.match_token(&TokenType::FatArrow) {
+        p.advance();
+        let expr = p.parse_expression()?;
+        let body = vec![ASTNode::Return {
+            value: Some(Box::new(expr)),
+            span: Span::unknown(),
+        }];
+        insert_computed_getter(methods, fname, body);
+        return Ok(true);
+    }
+    // name: Type { ... } [postfix]
+    if p.match_token(&TokenType::LBRACE) {
+        let body = p.parse_block_statements()?;
+        let body =
+            crate::parser::declarations::box_def::members::postfix::wrap_with_optional_postfix(
+                p, body,
+            )?;
+        insert_computed_getter(methods, fname, body);
+        return Ok(true);
+    }
+    Ok(false)
+}
+
+/// Parse canonical computed property syntax after contextual `get`.
+///
+/// `get` remains a normal identifier outside Box member head position, and
+/// `get: Type` still parses as a stored field named `get`.
+pub(crate) fn try_parse_get_computed_property(
+    p: &mut NyashParser,
+    get_line: usize,
+    methods: &mut HashMap<String, ASTNode>,
+) -> Result<Option<String>, ParseError> {
+    if !crate::config::env::unified_members() {
+        return Ok(None);
+    }
+    let TokenType::IDENTIFIER(fname) = &p.current_token().token_type else {
+        return Ok(None);
+    };
+    if p.current_token().line != get_line {
+        return Ok(None);
+    }
+    if p.peek_token() != &TokenType::COLON {
+        return Err(ParseError::UnexpectedToken {
+            expected: "':' after get property name".to_string(),
+            found: p.peek_token().clone(),
+            line: p.current_token().line,
+        });
+    }
+
+    let fname = fname.clone();
+    p.advance(); // consume property name
+    p.consume(TokenType::COLON)?;
+    let _declared_type_name = parse_optional_declared_type_name(p);
+
+    if try_parse_computed_body(p, fname.clone(), methods)? {
+        return Ok(Some(fname));
+    }
+
+    Err(ParseError::UnexpectedToken {
+        expected: "'=>' expression or block for get property".to_string(),
+        found: p.current_token().token_type.clone(),
+        line: p.current_token().line,
+    })
+}
+
 /// Parse a header-first field or property that starts with an already parsed identifier `fname`.
 /// Handles:
 /// - `name: Type`                      → field
+/// - `get name: Type => expr`          → canonical computed property (handled before this function)
 /// - `name: Type = expr`               → field with initializer (initializer is parsed then discarded at P0)
 /// - `name: Type => expr`              → computed property (getter function generated)
 /// - `name: Type { ... } [catch|cleanup]` → computed property block with optional postfix handlers
@@ -35,15 +135,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
     }
     p.advance(); // consume ':'
                  // Optional type name (identifier). Keep it as declared field metadata.
-    let declared_type_name = if let TokenType::IDENTIFIER(ty) = &p.current_token().token_type {
-        let ty = Some(ty.clone());
-        p.advance();
-        ty
-    } else {
-        // If no type present, still proceed (tolerant parsing), but only when unified_members gate is off
-        // Keep behavior aligned with existing parser (it allowed missing type in some branches)
-        None
-    };
+    let declared_type_name = parse_optional_declared_type_name(p);
 
     // Unified members gate behavior
     if crate::config::env::unified_members() {
@@ -59,45 +151,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
             });
             return Ok(true);
         }
-        // name: Type => expr  → computed property (getter method with return expr)
-        if p.match_token(&TokenType::FatArrow) {
-            p.advance();
-            let expr = p.parse_expression()?;
-            let body = vec![ASTNode::Return {
-                value: Some(Box::new(expr)),
-                span: Span::unknown(),
-            }];
-            let getter_name = format!("__get_{}", fname);
-            let method = ASTNode::FunctionDeclaration {
-                name: getter_name.clone(),
-                params: vec![],
-                body,
-                is_static: false,
-                is_override: false,
-                attrs: crate::ast::DeclarationAttrs::default(),
-                span: Span::unknown(),
-            };
-            methods.insert(getter_name, method);
-            return Ok(true);
-        }
-        // name: Type { ... } [postfix]
-        if p.match_token(&TokenType::LBRACE) {
-            let body = p.parse_block_statements()?;
-            let body =
-                crate::parser::declarations::box_def::members::postfix::wrap_with_optional_postfix(
-                    p, body,
-                )?;
-            let getter_name = format!("__get_{}", fname);
-            let method = ASTNode::FunctionDeclaration {
-                name: getter_name.clone(),
-                params: vec![],
-                body,
-                is_static: false,
-                is_override: false,
-                attrs: crate::ast::DeclarationAttrs::default(),
-                span: Span::unknown(),
-            };
-            methods.insert(getter_name, method);
+        if try_parse_computed_body(p, fname.clone(), methods)? {
             return Ok(true);
         }
     }
@@ -209,7 +263,40 @@ pub(crate) fn try_parse_visibility_block_or_single(
         }
     }
     if let TokenType::IDENTIFIER(n) = &p.current_token().token_type {
-        let fname = n.clone();
+        let n = n.clone();
+        if crate::config::env::unified_members() && n == "get" {
+            let get_line = p.current_token().line;
+            p.advance();
+            if let Some(property_name) = try_parse_get_computed_property(p, get_line, methods)? {
+                if visibility == "public" {
+                    public_fields.push(property_name);
+                } else {
+                    private_fields.push(property_name);
+                }
+                *last_method_name = None;
+                return Ok(true);
+            }
+            let fname = "get".to_string();
+            if try_parse_header_first_field_or_property(
+                p,
+                fname.clone(),
+                methods,
+                fields,
+                field_decls,
+                weak_fields,
+                false,
+            )? {
+                if visibility == "public" {
+                    public_fields.push(fname.clone());
+                } else {
+                    private_fields.push(fname.clone());
+                }
+                *last_method_name = None;
+                return Ok(true);
+            }
+        }
+
+        let fname = n;
         p.advance();
         if try_parse_header_first_field_or_property(
             p,

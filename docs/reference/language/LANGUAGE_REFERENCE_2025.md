@@ -358,13 +358,15 @@ local double = fn(x) { x * 2 }  # 単一式なら省略可
 
 概要
 - Box 内のメンバを「格納/計算/一度だけ（遅延 or 生成時）」で統一的に扱います。JSON v0/MIR は変更せず、ローワで既存の slot/method に展開します。
+- Decision: computed の canonical syntax は `get name: Type { ... }` / `get name: Type => expr` とする。既存の `name: Type { ... }` / `name: Type => expr` は互換短縮形として受理しますが、説明と新規コードでは `get` を推奨します。
 - 環境変数 `NYASH_ENABLE_UNIFIED_MEMBERS` で制御（Phase 15 では既定ON、`0/false/off` で無効化）。
 
 分類と構文（header‑first）
 - stored（格納・読み書き可）
   - `name: Type` または `name: Type = expr`（初期値は生成時に一度だけ評価）
-- computed（計算・読み専用）
-  - `name: Type { /* body */ }`（読むたびに計算。代入不可）
+- computed / get（計算・読み専用）
+  - `get name: Type { /* body */ }` または `get name: Type => expr`（読むたびに計算。代入不可）
+  - 互換短縮形として `name: Type { /* body */ }` / `name: Type => expr` も受理
 - once（初回アクセス時に一度だけ計算 → 以後は保存値）
   - `once name: Type { /* body */ }` または `once name: Type => expr`
 - birth_once（生成時に一度だけ計算 → 以後は保存値）
@@ -387,7 +389,7 @@ nyashモード（block‑first、オプション）
 ```nyash
 box MyBox {
   name: StringBox                 # stored
-  size: IntegerBox { me.items.len() }   # computed
+  get size: IntegerBox { me.items.len() } # computed/get
   once cache: CacheBox { buildCache() } # once
   birth_once token: StringBox { readEnv("TOKEN") } # eager once
 }
@@ -395,7 +397,7 @@ box MyBox {
 
 例外・ハンドラ（Stage‑3, `NYASH_PARSER_STAGE3=1`）
 - stored 以外のブロック末尾に `catch`/`cleanup` を付与可能（header‑first / block‑first 両対応）。
-  - computed: `name: T { body } catch(e) { ... } cleanup { ... }`
+  - computed/get: `get name: T { body } catch(e) { ... } cleanup { ... }`
   - once: `once name: T { body } catch { ... } cleanup { ... }`
   - birth_once: `birth_once name: T { body } catch { ... } cleanup { ... }`
 - once の例外ポリシー（catch が無い場合）: 例外をその場で伝播し、プロパティは poison 状態となり以後の読みでも同じ例外を再スロー（再実行しない）。
@@ -403,7 +405,7 @@ box MyBox {
 
 ローワ（下ろし先の概要）
 - stored → slot（初期化子は生成時に一度だけ評価）。
-- computed → `__get_name():T` メソッドを合成し、`obj.name` 読みを呼び出しに解決。
+- computed/get → `__get_name():T` メソッドを合成し、`obj.name` 読みを呼び出しに解決。
 - once → `__name: Option<T>` + `__get_name()`（初回のみ評価・保存）。未捕捉例外で poison し、以後は即 rethrow。
 - birth_once → `__name: T` を用意し、`birth` 直前に宣言順で初期化コードを挿入。未捕捉例外は `new` 失敗。
 

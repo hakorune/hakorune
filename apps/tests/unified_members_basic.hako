@@ -1,6 +1,6 @@
 box Greeter {
   name: StringBox = "Nyash"
-  greeting: StringBox => "Hello " + me.name
+  get greeting: StringBox => "Hello " + me.name
 }
 
 static box Main {
@@ -10,4 +10,3 @@ static box Main {
     return 0
   }
 }
-
