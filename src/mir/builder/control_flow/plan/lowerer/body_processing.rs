@@ -78,26 +78,6 @@ impl super::PlanLowerer {
         Ok(())
     }
 
-    pub(super) fn try_flatten_body_effects(
-        plans: &[LoweredRecipe],
-    ) -> Result<Option<Vec<CoreEffectPlan>>, String> {
-        let mut out = Vec::new();
-        for plan in plans {
-            match plan {
-                CorePlan::Effect(effect) => out.push(effect.clone()),
-                CorePlan::Seq(nested) => {
-                    let nested = match Self::try_flatten_body_effects(nested)? {
-                        Some(nested) => nested,
-                        None => return Ok(None),
-                    };
-                    out.extend(nested);
-                }
-                _ => return Ok(None),
-            }
-        }
-        Ok(Some(out))
-    }
-
     pub(super) fn emit_effects_with_fallthrough(
         builder: &mut MirBuilder,
         effects: &[CoreEffectPlan],
