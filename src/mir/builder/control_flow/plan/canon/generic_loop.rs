@@ -3,8 +3,9 @@
 mod condition;
 mod step;
 mod types;
-mod update;
 
+#[allow(unused_imports)]
+pub(crate) use crate::mir::builder::control_flow::facts::canon::generic_loop::canon_update_for_loop_var;
 #[allow(unused_imports)]
 pub(crate) use crate::mir::builder::control_flow::facts::canon::generic_loop::types::{
     ConditionCanon, UpdateCanon,
@@ -18,5 +19,3 @@ pub(crate) use step::{
 };
 #[allow(unused_imports)]
 pub(crate) use types::{StepPlacement, StepPlacementDecision};
-#[allow(unused_imports)]
-pub(crate) use update::canon_update_for_loop_var;
