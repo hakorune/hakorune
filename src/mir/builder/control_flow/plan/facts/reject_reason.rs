@@ -2,12 +2,8 @@
 //!
 //! SSOT: docs/development/current/main/design/planner-entry-guards-ssot.md
 
-use std::cell::RefCell;
+use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 use std::fmt;
-
-thread_local! {
-    static LAST_PLAN_REJECT_DETAIL: RefCell<Option<String>> = const { RefCell::new(None) };
-}
 
 /// Macro to define enum with unified Display implementation.
 ///
@@ -309,7 +305,7 @@ where
     F: Fn(RejectReason) -> HandoffTarget,
 {
     let handoff = handoff_fn(reason);
-    set_last_plan_reject_detail(format!(
+    planner_reject_detail::set_last_plan_reject_detail(format!(
         "box={} reason={} handoff={}",
         box_name, reason, handoff
     ));
@@ -340,54 +336,21 @@ pub fn log_accept(box_name: &str, accept_tag: &'static str) {
     ));
 }
 
-/// Clear last recorded planner/reject detail.
-pub(in crate::mir::builder) fn clear_last_plan_reject_detail() {
-    LAST_PLAN_REJECT_DETAIL.with(|slot| {
-        *slot.borrow_mut() = None;
-    });
-}
-
-/// Set last planner/reject detail.
-pub(in crate::mir::builder) fn set_last_plan_reject_detail(detail: String) {
-    LAST_PLAN_REJECT_DETAIL.with(|slot| {
-        *slot.borrow_mut() = Some(detail);
-    });
-}
-
-/// Set planner/reject detail only when no detail has been recorded yet.
-pub(in crate::mir::builder) fn set_last_plan_reject_detail_if_absent(detail: String) {
-    LAST_PLAN_REJECT_DETAIL.with(|slot| {
-        let mut slot = slot.borrow_mut();
-        if slot.is_none() {
-            *slot = Some(detail);
-        }
-    });
-}
-
-/// Take (consume) last recorded planner/reject detail.
-pub(in crate::mir::builder) fn take_last_plan_reject_detail() -> Option<String> {
-    LAST_PLAN_REJECT_DETAIL.with(|slot| slot.borrow_mut().take())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn reject_detail_roundtrip() {
-        clear_last_plan_reject_detail();
-        assert!(take_last_plan_reject_detail().is_none());
-
-        set_last_plan_reject_detail("x".to_string());
-        assert_eq!(take_last_plan_reject_detail().as_deref(), Some("x"));
-        assert!(take_last_plan_reject_detail().is_none());
-    }
-
-    #[test]
-    fn reject_detail_if_absent_preserves_first() {
-        clear_last_plan_reject_detail();
-        set_last_plan_reject_detail_if_absent("first".to_string());
-        set_last_plan_reject_detail_if_absent("second".to_string());
-        assert_eq!(take_last_plan_reject_detail().as_deref(), Some("first"));
+    fn log_reject_sets_diagnostic_detail() {
+        planner_reject_detail::clear_last_plan_reject_detail();
+        log_reject(
+            "test_box",
+            RejectReason::NoContinue,
+            handoff_tables::for_loop_cond_continue_only,
+        );
+        assert_eq!(
+            planner_reject_detail::take_last_plan_reject_detail().as_deref(),
+            Some("box=test_box reason=no_continue handoff=out_of_scope")
+        );
     }
 }

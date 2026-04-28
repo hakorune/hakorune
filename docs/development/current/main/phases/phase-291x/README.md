@@ -191,6 +191,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-635-current-task-order-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-655-unified-member-property-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-656-parser-member-syntax-ssot-card.md
+  - docs/development/current/main/phases/phase-291x/291x-657-planner-reject-detail-diagnostics-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -198,8 +199,7 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: select the next compiler-cleanliness lane after
-  parser member syntax SSOT cleanup landed through `291x-656`
+- Next implementation target: lower planner compat test-only export prune
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -211,7 +211,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-656-parser-member-syntax-ssot-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-657-planner-reject-detail-diagnostics-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 5. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 6. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
@@ -255,7 +255,7 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-656`
+- latest known cleanup checkpoint: `291x-657`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the current
   `latest_card_path` in `CURRENT_STATE.toml`
@@ -263,8 +263,9 @@ in one card.
   - `291x-575` ordered plan-side compat residue queue through `291x-634`
   - unified-member property cleanup through `291x-655`
   - parser member syntax SSOT cleanup through `291x-656`
-- next cleanup: selection pending; broad facts/planner ownership work must
-  reopen as its own family-sized BoxShape lane
+  - planner reject-detail diagnostics cleanup through `291x-657`
+- next cleanup: lower planner compat test-only export prune; broad
+  facts/planner ownership work must reopen as focused BoxShape lanes
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - Stage-B adapter thinning stays BoxShape-only; do not mix it with
@@ -282,6 +283,7 @@ in one card.
 | Current task-order closeout | `291x-635-current-task-order-closeout-card.md` |
 | Unified member property closeout | `291x-655-unified-member-property-closeout-card.md` |
 | Parser member syntax SSOT | `291x-656-parser-member-syntax-ssot-card.md` |
+| Planner reject-detail diagnostics | `291x-657-planner-reject-detail-diagnostics-card.md` |
 | Current task-order baseline | `291x-488-current-task-order-baseline-refresh-card.md` |
 | Historical post-birth row-prune order | `291x-255-post-birth-cleanup-task-order-card.md` |
 | CoreMethodContract / Hotline policy | `docs/development/current/main/design/hotline-core-method-contract-ssot.md` |

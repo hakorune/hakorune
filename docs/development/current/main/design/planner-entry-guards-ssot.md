@@ -15,7 +15,12 @@ Facts の `Ok(None)` 黙殺を減らし、reject_reason → handoff を構造化
 
 ## RejectReason enum
 
-実装: `src/mir/builder/control_flow/plan/facts/reject_reason.rs`
+実装:
+
+- vocabulary / handoff / log format:
+  `src/mir/builder/control_flow/plan/facts/reject_reason.rs`
+- last reject-detail diagnostic state:
+  `src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs`
 
 ```rust
 pub enum RejectReason {
@@ -78,6 +83,19 @@ pub mod handoff_tables {
 フォーマット: `[plan/reject] box=<box_name> reason=<reason> handoff=<target>`
 
 **挙動不変**: `log_reject` はログ出力のみを担当する。strict/non-strict の `Freeze` / `Ok(None)` / `Ok(false)` 判定は従来の `reject_or_none` / `reject_or_false` 関数が担当し、`log_reject` は実行フローに影響しない。
+
+### Reject Detail 診断 state
+
+`[joinir/reject_detail]` に使う last-detail state は diagnostics 側が所有する。
+
+実装: `src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs`
+
+契約:
+
+- `cf_loop` の先頭で clear する。
+- facts-level `log_reject` は detail を上書きできる。
+- route exhaustion / whitelist miss は `set_if_absent` 相当で、既存の facts-level detail を潰さない。
+- planner-required freeze / final JoinIR freeze は `take` で消費する。
 
 ### [plan/accept] ログ
 

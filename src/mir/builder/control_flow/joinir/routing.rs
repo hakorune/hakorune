@@ -2,6 +2,7 @@
 
 use super::trace;
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 use std::cell::RefCell;
@@ -349,7 +350,7 @@ impl MirBuilder {
             };
 
             if !is_target {
-                crate::mir::builder::control_flow::plan::facts::reject_reason::set_last_plan_reject_detail_if_absent(
+                planner_reject_detail::set_last_plan_reject_detail_if_absent(
                     format!(
                         "whitelist_miss func={} structure_only=false (set NYASH_JOINIR_STRUCTURE_ONLY=1 to use structure routing)",
                         func_name

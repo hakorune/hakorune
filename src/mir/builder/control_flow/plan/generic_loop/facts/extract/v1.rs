@@ -15,6 +15,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBodies};
 use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
+use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 use crate::mir::policies::BodyLoweringPolicy;
 
 use super::super::super::body_check::shape_resolution::{
@@ -242,9 +243,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
             RejectReason::NoValidLoopVarCandidates,
             handoff_tables::for_generic_loop,
         );
-        crate::mir::builder::control_flow::plan::facts::reject_reason::set_last_plan_reject_detail(
-            detailed_reject,
-        );
+        planner_reject_detail::set_last_plan_reject_detail(detailed_reject);
         return Ok(None);
     }
 

@@ -30,7 +30,7 @@ use crate::mir::builder::control_flow::lower::{
 };
 use crate::mir::builder::control_flow::plan::composer::shadow_pre_plan_guard_error;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
-use crate::mir::builder::control_flow::plan::facts::reject_reason;
+use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 
@@ -331,7 +331,7 @@ pub(crate) fn route_loop(
     } else {
         candidate_names.join(",")
     };
-    reject_reason::set_last_plan_reject_detail_if_absent(format!(
+    planner_reject_detail::set_last_plan_reject_detail_if_absent(format!(
         "route_exhausted func={} loop_kind={} facts_present={} candidates={}",
         ctx.func_name,
         ctx.route_kind.semantic_label(),

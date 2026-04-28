@@ -8,6 +8,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBodyLocalShape;
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
+use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 
 use super::rule_order::{planner_rule_semantic_label, rule_name, PlanRuleId, PLAN_RULE_ORDER};
 
@@ -49,10 +50,7 @@ fn freeze_planner_required_none(ctx: &LoopRouteContext) -> String {
         ctx.condition.node_type(),
         ctx.body.len()
     );
-    if let Some(detail) =
-        crate::mir::builder::control_flow::plan::facts::reject_reason::take_last_plan_reject_detail(
-        )
-    {
+    if let Some(detail) = planner_reject_detail::take_last_plan_reject_detail() {
         msg.push_str(&format!("\nDetail: [joinir/reject_detail] {detail}"));
     }
     planner::Freeze::contract(&msg)

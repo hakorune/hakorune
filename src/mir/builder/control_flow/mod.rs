@@ -41,6 +41,7 @@
 
 use super::ValueId;
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 
 // Phase 1: Debug utilities
 pub(in crate::mir::builder) mod debug;
@@ -141,7 +142,7 @@ impl super::MirBuilder {
         condition: ASTNode,
         body: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
-        crate::mir::builder::control_flow::plan::facts::reject_reason::clear_last_plan_reject_detail();
+        planner_reject_detail::clear_last_plan_reject_detail();
 
         // Phase 49/80: Try JoinIR Frontend route for mainline targets
         if let Some(result) = self.try_cf_loop_joinir(&condition, &body)? {
@@ -157,8 +158,7 @@ impl super::MirBuilder {
         // Phase 186: LoopBuilder Hard Freeze - Legacy path disabled
         // Phase 187-2: LoopBuilder module removed - all loops must use JoinIR
         use crate::mir::join_ir::lowering::error_tags;
-        let reject_detail =
-            crate::mir::builder::control_flow::plan::facts::reject_reason::take_last_plan_reject_detail();
+        let reject_detail = planner_reject_detail::take_last_plan_reject_detail();
         let detail_suffix = reject_detail
             .map(|detail| format!("\nDetail: [joinir/reject_detail] {}", detail))
             .unwrap_or_default();
