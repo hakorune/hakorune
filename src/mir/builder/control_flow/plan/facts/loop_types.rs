@@ -33,8 +33,8 @@ use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakBodyLocalFacts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
+use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts;
-use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::LoopTrueBreakContinueFacts;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopFacts {

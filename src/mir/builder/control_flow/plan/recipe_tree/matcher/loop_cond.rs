@@ -40,7 +40,7 @@ pub fn verify_loop_bundle_resolver_v0_recipe(
 
 /// Recipe-first verification for loop_true_break_continue.
 pub fn verify_loop_true_break_continue_recipe(
-    loop_true: &crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::LoopTrueBreakContinueFacts,
+    loop_true: &crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueLowering;
     use crate::mir::builder::control_flow::plan::loop_true_break_continue::recipe::{

@@ -43,8 +43,8 @@ use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::{
     try_extract_loop_cond_break_continue_facts,
     try_extract_loop_cond_break_continue_facts_with_limit,
 };
+use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::loop_scan_v0::try_extract_loop_scan_v0_facts;
-use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 

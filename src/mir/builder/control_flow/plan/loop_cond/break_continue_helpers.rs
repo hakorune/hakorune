@@ -15,7 +15,7 @@ use crate::mir::builder::control_flow::facts::stmt_walk::{flatten_stmt_list, wal
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     try_extract_generic_loop_v0_facts, try_extract_generic_loop_v1_facts,
 };
-use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
+use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::try_extract_nested_loop_depth1_facts;
 use std::collections::BTreeSet;
 

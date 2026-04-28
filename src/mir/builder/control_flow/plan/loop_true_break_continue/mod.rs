@@ -8,8 +8,5 @@
 //! - analysis-only (no AST rewrite)
 //! - strict/dev + planner_required only (release default unchanged)
 //!
-//! Facts are re-exported from `loop_cond::true_break_continue`.
-
-pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod normalizer;
 pub(in crate::mir::builder) mod recipe;
