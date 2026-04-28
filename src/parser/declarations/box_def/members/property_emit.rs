@@ -3,7 +3,7 @@
 //! Parsers decide which property shape was written. This module owns the AST
 //! method bodies used to represent computed/once/birth_once properties.
 
-use crate::ast::{ASTNode, Span};
+use crate::ast::{ASTNode, CatchClause, Span};
 use std::collections::HashMap;
 
 fn function_decl(name: String, body: Vec<ASTNode>) -> ASTNode {
@@ -99,6 +99,17 @@ fn if_then(condition: ASTNode, then_body: Vec<ASTNode>) -> ASTNode {
     }
 }
 
+fn throw_expr(expr: ASTNode) -> ASTNode {
+    ASTNode::Throw {
+        expression: Box::new(expr),
+        span: Span::unknown(),
+    }
+}
+
+fn once_poison_message(name: &str) -> String {
+    format!("once '{}' previously failed", name)
+}
+
 pub(crate) fn insert_computed_getter(
     methods: &mut HashMap<String, ASTNode>,
     name: String,
@@ -136,14 +147,11 @@ pub(crate) fn insert_once_methods(
 
     let local_poison = local_with_init(
         &poison_local,
-        me_call("getField".to_string(), vec![string_lit(poison_key)]),
+        me_call("getField".to_string(), vec![string_lit(poison_key.clone())]),
     );
     let if_poison = if_then(
         not_null(&poison_local),
-        vec![ASTNode::Throw {
-            expression: Box::new(string_lit(format!("once '{}' previously failed", name))),
-            span: Span::unknown(),
-        }],
+        vec![throw_expr(var(&poison_local))],
     );
 
     let local_val = local_with_init(&val_local, me_call(compute_name, vec![]));
@@ -151,14 +159,30 @@ pub(crate) fn insert_once_methods(
         "setField".to_string(),
         vec![string_lit(key), var(&val_local)],
     );
+    let poison_message = once_poison_message(&name);
+    let compute_or_poison = ASTNode::TryCatch {
+        try_body: vec![local_val, set_call, return_expr(var(&val_local))],
+        catch_clauses: vec![CatchClause {
+            exception_type: None,
+            variable_name: None,
+            body: vec![
+                me_call(
+                    "setField".to_string(),
+                    vec![string_lit(poison_key), string_lit(poison_message.clone())],
+                ),
+                throw_expr(string_lit(poison_message)),
+            ],
+            span: Span::unknown(),
+        }],
+        finally_body: None,
+        span: Span::unknown(),
+    };
     let getter_body = vec![
         local_cached,
         if_cached,
         local_poison,
         if_poison,
-        local_val,
-        set_call,
-        return_expr(var(&val_local)),
+        compute_or_poison,
     ];
 
     let getter_name = format!("__get_once_{}", name);

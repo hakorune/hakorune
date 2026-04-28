@@ -20,6 +20,17 @@ fn has_method(methods: &std::collections::HashMap<String, ASTNode>, name: &str) 
     methods.contains_key(name)
 }
 
+fn method_body<'a>(
+    methods: &'a std::collections::HashMap<String, ASTNode>,
+    name: &str,
+) -> &'a Vec<ASTNode> {
+    let ASTNode::FunctionDeclaration { body, .. } = methods.get(name).expect("method should exist")
+    else {
+        panic!("expected FunctionDeclaration");
+    };
+    body
+}
+
 fn birth_body<'a>(box_node: &'a ASTNode, key: &str) -> &'a Vec<ASTNode> {
     let ASTNode::BoxDeclaration { constructors, .. } = box_node else {
         panic!("expected BoxDeclaration");
@@ -90,6 +101,80 @@ fn assert_birth_once_initializer_pair(body: &[ASTNode], offset: usize, name: &st
     assert_eq!(arg_name, &tmp);
 }
 
+fn assert_once_getter_poison_write(body: &[ASTNode], name: &str) {
+    let ASTNode::TryCatch {
+        try_body,
+        catch_clauses,
+        finally_body,
+        ..
+    } = body
+        .iter()
+        .find(|node| matches!(node, ASTNode::TryCatch { .. }))
+        .expect("once getter should wrap compute path in TryCatch")
+    else {
+        unreachable!();
+    };
+
+    assert!(finally_body.is_none());
+    assert!(try_body.iter().any(|node| {
+        matches!(node, ASTNode::Local { variables, .. } if variables == &vec![format!("__ny_val_{name}")])
+    }));
+
+    let catch = catch_clauses
+        .first()
+        .expect("once getter should have catch-all poison handler");
+    assert!(catch.exception_type.is_none());
+    assert!(catch.variable_name.is_none());
+
+    let ASTNode::MethodCall {
+        object,
+        method,
+        arguments,
+        ..
+    } = catch
+        .body
+        .first()
+        .expect("poison handler should write slot")
+    else {
+        panic!("expected poison setField call");
+    };
+    assert!(matches!(object.as_ref(), ASTNode::Me { .. }));
+    assert_eq!(method, "setField");
+    assert_eq!(arguments.len(), 2);
+
+    let ASTNode::Literal {
+        value: crate::ast::LiteralValue::String(slot),
+        ..
+    } = &arguments[0]
+    else {
+        panic!("expected poison storage key literal");
+    };
+    assert_eq!(slot, &format!("__once_poison_{name}"));
+
+    let expected_message = format!("once '{name}' previously failed");
+    let ASTNode::Literal {
+        value: crate::ast::LiteralValue::String(message),
+        ..
+    } = &arguments[1]
+    else {
+        panic!("expected poison message literal");
+    };
+    assert_eq!(message, &expected_message);
+
+    let ASTNode::Throw { expression, .. } = catch.body.get(1).expect("poison handler should throw")
+    else {
+        panic!("expected poison throw");
+    };
+    let ASTNode::Literal {
+        value: crate::ast::LiteralValue::String(thrown),
+        ..
+    } = expression.as_ref()
+    else {
+        panic!("expected poison throw message");
+    };
+    assert_eq!(thrown, &expected_message);
+}
+
 #[test]
 fn block_first_computed_uses_computed_getter_not_birth_once() {
     let ast = parse(
@@ -128,6 +213,8 @@ box Lazy {
     assert!(has_method(methods, "__get_once_a"));
     assert!(has_method(methods, "__compute_once_b"));
     assert!(has_method(methods, "__get_once_b"));
+    assert_once_getter_poison_write(method_body(methods, "__get_once_a"), "a");
+    assert_once_getter_poison_write(method_body(methods, "__get_once_b"), "b");
 }
 
 #[test]
