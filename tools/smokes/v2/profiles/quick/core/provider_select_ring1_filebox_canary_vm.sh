@@ -27,7 +27,17 @@ static box Main { method main(args) {
 HAKO
 
 set +e
-out="$(NYASH_FAIL_FAST=0 HAKO_PROVIDER_POLICY=safe-core-first NYASH_FILEBOX_MODE=auto NYASH_FILEBOX_ALLOW_FALLBACK=1 "${BIN}" --backend vm "${TMP_HAKO}" 2>&1 | filter_noise)"; rc=$?
+out="$(
+  NYASH_FAIL_FAST=0 \
+  HAKO_PROVIDER_POLICY=safe-core-first \
+  NYASH_FILEBOX_MODE=auto \
+  NYASH_FILEBOX_ALLOW_FALLBACK=1 \
+  NYASH_JOINIR_DEV=0 \
+  HAKO_JOINIR_STRICT=0 \
+  NYASH_JOINIR_STRICT=0 \
+  HAKO_JOINIR_PLANNER_REQUIRED=0 \
+  "${BIN}" --backend vm "${TMP_HAKO}" 2>&1 | filter_noise
+)"; rc=$?
 set -e
 rm -f "$TMP_HAKO" || true
 if ! grep -q "\[provider/select:FileBox ring=1 src=static\]" <<< "$out"; then

@@ -27,7 +27,16 @@ static box Main { method main(args) {
 HAKO
 
 set +e
-out="$(NYASH_PREINCLUDE=0 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 run_nyash_vm "$tmp" 2>&1)"; rc=$?
+out="$(
+  NYASH_PREINCLUDE=0 \
+  NYASH_FEATURES=stage3 \
+  NYASH_PARSER_ALLOW_SEMICOLON=1 \
+  NYASH_JOINIR_DEV=0 \
+  HAKO_JOINIR_STRICT=0 \
+  NYASH_JOINIR_STRICT=0 \
+  HAKO_JOINIR_PLANNER_REQUIRED=0 \
+  "$NYASH_BIN" --backend vm "$tmp" 2>&1 | filter_noise
+)"; rc=$?
 set -e
 rm -f "$tmp" || true
 

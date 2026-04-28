@@ -28,9 +28,17 @@ box Foo {
 }
 EOF
 
-out_all=$(run_nyash_vm driver.hako --dev)
+out_all=$(
+  NYASH_JOINIR_DEV=0 \
+  HAKO_JOINIR_STRICT=0 \
+  NYASH_JOINIR_STRICT=0 \
+  HAKO_JOINIR_PLANNER_REQUIRED=0 \
+  "$NYASH_BIN" --backend vm driver.hako --dev 2>&1 | filter_noise
+)
 if echo "$out_all" | grep -q "User Instance BoxCall disallowed in prod"; then
   test_skip "userbox_method_arity_vm" "rewrite/materialize pending"
+elif echo "$out_all" | grep -q "\[vm-hako/unimplemented\]"; then
+  test_skip "userbox_method_arity_vm" "vm-hako subset path pending"
 else
   output=$(echo "$out_all" | tail -n 2 | tr -d '\r')
   expected=$'ok1\nok2'

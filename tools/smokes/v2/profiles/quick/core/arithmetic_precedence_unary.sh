@@ -8,12 +8,26 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_unary_precedence() {
-  local script='
-print(-(1 + 2) * 3)
-print(1 + -2)
-'
+  local tmpfile
+  tmpfile="$(mktemp /tmp/arithmetic_precedence_unary.XXXXXX.hako)"
+  cat >"$tmpfile" <<'EOF'
+static box Main {
+  main() {
+    print(-(1 + 2) * 3)
+    print(1 + -2)
+    return 0
+  }
+}
+EOF
   local out
-  out=$(run_nyash_vm -c "$script" 2>&1)
+  out=$(
+    NYASH_JOINIR_DEV=0 \
+    HAKO_JOINIR_STRICT=0 \
+    NYASH_JOINIR_STRICT=0 \
+    HAKO_JOINIR_PLANNER_REQUIRED=0 \
+    "$NYASH_BIN" --backend vm "$tmpfile" 2>&1 | filter_noise
+  )
+  rm -f "$tmpfile"
   # 期待: -9 と -1 の2行
   if echo "$out" | grep -q "^-9$" && echo "$out" | grep -q "^-1$"; then
     return 0
@@ -26,4 +40,3 @@ print(1 + -2)
 }
 
 run_test "unary_precedence" test_unary_precedence
-

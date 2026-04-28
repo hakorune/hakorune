@@ -12,41 +12,42 @@ require_env || exit 2
 # プラグイン整合性チェック（必須）
 preflight_plugins || exit 2
 
-# テスト実装
-test_addition() {
+test_arithmetic_ops_suite() {
+    local tmpfile
+    tmpfile="$(mktemp /tmp/arithmetic_ops.XXXXXX.hako)"
+    cat >"$tmpfile" <<'EOF'
+static box Main {
+    main() {
+        print(10 + 25)
+        print(100 - 42)
+        print(7 * 6)
+        print(84 / 2)
+        print((10 + 5) * 2 - 8)
+        return 0
+    }
+}
+EOF
+
     local output
-    output=$(run_nyash_vm -c 'print(10 + 25)' 2>&1)
-    check_exact "35" "$output" "addition"
+    output=$(
+        NYASH_JOINIR_DEV=0 \
+        HAKO_JOINIR_STRICT=0 \
+        NYASH_JOINIR_STRICT=0 \
+        HAKO_JOINIR_PLANNER_REQUIRED=0 \
+        "$NYASH_BIN" --backend vm "$tmpfile" 2>&1 | filter_noise
+    )
+    rm -f "$tmpfile"
+
+    local expected
+    expected=$(cat <<'TXT'
+35
+58
+42
+42
+22
+TXT
+)
+    compare_outputs "$expected" "$output" "arithmetic_ops"
 }
 
-test_subtraction() {
-    local output
-    output=$(run_nyash_vm -c 'print(100 - 42)' 2>&1)
-    check_exact "58" "$output" "subtraction"
-}
-
-test_multiplication() {
-    local output
-    output=$(run_nyash_vm -c 'print(7 * 6)' 2>&1)
-    check_exact "42" "$output" "multiplication"
-}
-
-test_division() {
-    local output
-    output=$(run_nyash_vm -c 'print(84 / 2)' 2>&1)
-    check_exact "42" "$output" "division"
-}
-
-test_complex_expression() {
-    local output
-    # (10 + 5) * 2 - 8 = 30 - 8 = 22
-    output=$(run_nyash_vm -c 'print((10 + 5) * 2 - 8)' 2>&1)
-    check_exact "22" "$output" "complex_expression"
-}
-
-# テスト実行
-run_test "addition" test_addition
-run_test "subtraction" test_subtraction
-run_test "multiplication" test_multiplication
-run_test "division" test_division
-run_test "complex_expression" test_complex_expression
+run_test "arithmetic_ops" test_arithmetic_ops_suite

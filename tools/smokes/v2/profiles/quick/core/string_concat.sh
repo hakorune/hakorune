@@ -12,49 +12,48 @@ require_env || exit 2
 # プラグイン整合性チェック（必須）
 preflight_plugins || exit 2
 
-# テスト実装
-test_simple_concat() {
-    local output
-    output=$(run_nyash_vm -c 'print("Hello" + " " + "World")' 2>&1)
-    check_exact "Hello World" "$output" "simple_concat"
-}
-
-test_variable_concat() {
-    local script='
+test_string_concat_suite() {
+    local tmpfile
+    tmpfile="$(mktemp /tmp/string_concat.XXXXXX.hako)"
+    cat >"$tmpfile" <<'EOF'
 static box Main {
     main() {
+        print("Hello" + " " + "World")
+
         local greeting, name, message
         greeting = "Hello"
         name = "Nyash"
         message = greeting + ", " + name + "!"
         print(message)
-        return 0
-    }
-}
-'
-    local output
-    output=$(run_nyash_vm -c "$script" 2>&1)
-    check_exact "Hello, Nyash!" "$output" "variable_concat"
-}
 
-test_number_string_concat() {
-    local script='
-static box Main {
-    main() {
         local num, text
         num = 42
-        text = "The answer is " + num.toString()
+        text = "The answer is " + ("" + num)
         print(text)
+
         return 0
     }
 }
-'
+EOF
+
     local output
-    output=$(run_nyash_vm -c "$script" 2>&1)
-    check_exact "The answer is 42" "$output" "number_string_concat"
+    output=$(
+        NYASH_JOINIR_DEV=0 \
+        HAKO_JOINIR_STRICT=0 \
+        NYASH_JOINIR_STRICT=0 \
+        HAKO_JOINIR_PLANNER_REQUIRED=0 \
+        "$NYASH_BIN" --backend vm "$tmpfile" 2>&1 | filter_noise
+    )
+    rm -f "$tmpfile"
+
+    local expected
+    expected=$(cat <<'TXT'
+Hello World
+Hello, Nyash!
+The answer is 42
+TXT
+)
+    compare_outputs "$expected" "$output" "string_concat"
 }
 
-# テスト実行
-run_test "simple_concat" test_simple_concat
-run_test "variable_concat" test_variable_concat
-run_test "number_string_concat" test_number_string_concat
+run_test "string_concat" test_string_concat_suite

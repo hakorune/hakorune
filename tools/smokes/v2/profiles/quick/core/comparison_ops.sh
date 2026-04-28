@@ -8,22 +8,34 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_comparisons() {
-  local script='
-// 期待: OK
-if 3 > 2 {
-  if 2 < 3 {
-    print("OK")
-  } else {
-    print("NG")
+  local tmpfile
+  tmpfile="$(mktemp /tmp/comparison_ops.XXXXXX.hako)"
+  cat >"$tmpfile" <<'EOF'
+static box Main {
+  main() {
+    if 3 > 2 {
+      if 2 < 3 {
+        print("OK")
+      } else {
+        print("NG")
+      }
+    } else {
+      print("NG")
+    }
+    return 0
   }
-} else {
-  print("NG")
 }
-'
+EOF
   local output
-  output=$(run_nyash_vm -c "$script" 2>&1)
+  output=$(
+    NYASH_JOINIR_DEV=0 \
+    HAKO_JOINIR_STRICT=0 \
+    NYASH_JOINIR_STRICT=0 \
+    HAKO_JOINIR_PLANNER_REQUIRED=0 \
+    "$NYASH_BIN" --backend vm "$tmpfile" 2>&1 | filter_noise
+  )
+  rm -f "$tmpfile"
   check_exact "OK" "$output" "comparison_basic"
 }
 
 run_test "comparison_basic" test_comparisons
-

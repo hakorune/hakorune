@@ -13,8 +13,25 @@ preflight_plugins || exit 2
 
 # テスト実装
 test_basic_print() {
+    local tmpfile
+    tmpfile="$(mktemp /tmp/basic_print.XXXXXX.hako)"
+    cat >"$tmpfile" <<'EOF'
+static box Main {
+  main() {
+    print("Hello, World!")
+    return 0
+  }
+}
+EOF
     local output
-    output=$(run_nyash_vm -c 'print("Hello, World!")')
+    output=$(
+        NYASH_JOINIR_DEV=0 \
+        HAKO_JOINIR_STRICT=0 \
+        NYASH_JOINIR_STRICT=0 \
+        HAKO_JOINIR_PLANNER_REQUIRED=0 \
+        "$NYASH_BIN" --backend vm "$tmpfile" 2>&1 | filter_noise
+    )
+    rm -f "$tmpfile"
     compare_outputs "Hello, World!" "$output" "basic_print"
 }
 

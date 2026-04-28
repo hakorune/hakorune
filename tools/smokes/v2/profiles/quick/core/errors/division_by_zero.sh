@@ -8,10 +8,26 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_division_by_zero() {
+  local tmpfile
+  tmpfile="$(mktemp /tmp/division_by_zero.XXXXXX.hako)"
+  cat >"$tmpfile" <<'EOF'
+static box Main {
+  main() {
+    print(1 / 0)
+    return 0
+  }
+}
+EOF
   local output
-  output=$(run_nyash_vm -c 'print(1 / 0)' 2>&1 || true)
+  output=$(
+    NYASH_JOINIR_DEV=0 \
+    HAKO_JOINIR_STRICT=0 \
+    NYASH_JOINIR_STRICT=0 \
+    HAKO_JOINIR_PLANNER_REQUIRED=0 \
+    "$NYASH_BIN" --backend vm "$tmpfile" 2>&1 || true
+  )
+  rm -f "$tmpfile"
   check_regex "Division by zero" "$output" "division_by_zero"
 }
 
 run_test "division_by_zero" test_division_by_zero
-

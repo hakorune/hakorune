@@ -12,89 +12,78 @@ require_env || exit 2
 # プラグイン整合性チェック（必須）
 preflight_plugins || exit 2
 
-# テスト実装
-test_simple_if() {
-    local script='
-static box Main { method main(args) {
-  local x = 10
-  if x > 5 {
+test_if_statement_suite() {
+    local tmpfile
+    tmpfile="$(mktemp /tmp/if_statement.XXXXXX.hako)"
+    cat >"$tmpfile" <<'EOF'
+static box Main {
+  method main(args) {
+    local x = 10
+    if x > 5 {
       print("greater")
-  } else {
+    } else {
       print("smaller")
-  }
-  return 0
-} }
-'
-    local output
-    output=$(run_nyash_vm -c "$script" 2>&1)
-    check_exact "greater" "$output" "simple_if"
-}
+    }
 
-test_if_else() {
-    local script='
-static box Main { method main(args) {
-  local score = 75
-  if score >= 80 {
+    local score = 75
+    if score >= 80 {
       print("A")
-  } else if score >= 60 {
+    } else if score >= 60 {
       print("B")
-  } else {
+    } else {
       print("C")
-  }
-  return 0
-} }
-'
-    local output
-    output=$(run_nyash_vm -c "$script" 2>&1)
-    check_exact "B" "$output" "if_else"
-}
+    }
 
-test_nested_if() {
-    local script='
-static box Main { method main(args) {
-  local a = 10
-  local b = 20
-  if a < b {
+    local a = 10
+    local b = 20
+    if a < b {
       if a == 10 {
-          print("correct")
+        print("correct")
       } else {
-          print("wrong")
+        print("wrong")
       }
-  } else {
+    } else {
       print("error")
-  }
-  return 0
-} }
-'
-    local output
-    output=$(run_nyash_vm -c "$script" 2>&1)
-    check_exact "correct" "$output" "nested_if"
-}
+    }
 
-test_if_with_and() {
-    local script='
-static box Main { method main(args) {
-  local x = 5
-  local y = 10
-  if x > 0 {
-      if y > 0 {
-          print("both positive")
+    local px = 5
+    local py = 10
+    if px > 0 {
+      if py > 0 {
+        print("both positive")
       } else {
-          print("not both positive")
+        print("not both positive")
       }
-  } else {
+    } else {
       print("not both positive")
+    }
+
+    return 0
   }
-  return 0
-} }
-'
+}
+EOF
+
     local output
-    output=$(run_nyash_vm -c "$script" 2>&1)
-    check_exact "both positive" "$output" "if_with_and"
+    output=$(
+        NYASH_JOINIR_DEV=0 \
+        HAKO_JOINIR_STRICT=0 \
+        NYASH_JOINIR_STRICT=0 \
+        HAKO_JOINIR_PLANNER_REQUIRED=0 \
+        "$NYASH_BIN" --backend vm "$tmpfile" 2>&1 | filter_noise
+    )
+    local rc=${PIPESTATUS[0]}
+    rm -f "$tmpfile"
+    [ "$rc" -eq 0 ] || return "$rc"
+
+    local expected
+    expected=$(cat <<'TXT'
+greater
+B
+correct
+both positive
+TXT
+)
+    compare_outputs "$expected" "$output" "if_statement"
 }
 
-# テスト実行
-run_test "simple_if" test_simple_if
-run_test "if_else" test_if_else
-run_test "nested_if" test_nested_if
-run_test "if_with_and" test_if_with_and
+run_test "if_statement" test_if_statement_suite

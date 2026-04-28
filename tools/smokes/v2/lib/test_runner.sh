@@ -85,7 +85,9 @@ log_error() {
     grep -v "^\[UnifiedBoxRegistry\]" \
       | grep -v "^\[FileBox\]" \
       | grep -v "^\[provider-registry\]" \
+      | grep -v "^\[INFO\] \[provider-registry\]" \
       | grep -v "^\[provider/select:" \
+      | grep -v "^\[INFO\] \[provider/select:" \
       | grep -v "^\[provider/trace\]" \
       | grep -v "^\[deprecate/env\]" \
       | grep -v "^\[WARN\] \[deprecate/env\]" \
@@ -93,6 +95,7 @@ log_error() {
       | grep -v "^\[plugin/hint\]" \
       | grep -v "^\[plugins\]" \
       | grep -v "^\[WARN\] \[plugin/init\]" \
+      | grep -v "^\[INFO\] \[plugin/init\]" \
       | grep -v "^Net plugin:" \
       | grep -v "^\[.*\] Plugin" \
       | grep -v "Using builtin StringBox" \
@@ -135,7 +138,9 @@ log_error() {
       | sed -E 's/^❌ VM fallback error: *//' \
       | sed -E 's/^\\[ERROR\\].*VM error: /VM error: /' \
       | grep -v '^\[warn\] dev verify: NewBox ' \
+      | grep -v '^\[WARN\] \[warn\] dev verify: NewBox ' \
       | grep -v '^\[warn\] dev verify: NewBox→birth invariant warnings:' \
+      | grep -v '^\[WARN\] \[warn\] dev verify: NewBox→birth invariant warnings:' \
       | grep -v '^\[ny-compiler\]' \
       | grep -v '^\[using/cache\]' \
       | grep -v "plugins/nyash-array-plugin" \
@@ -143,6 +148,8 @@ log_error() {
       | grep -v "Phase 15.5: Everything is Plugin" \
       | grep -v "cargo build -p nyash-string-plugin" \
       | grep -v "^\[plugin-loader\] backend=" \
+      | grep -v "^\[INFO\] \[plugin-loader\] backend=" \
+      | grep -v "^\[INFO\] \[runtime/exec-path\]" \
       | grep -v "^\[using\] ctx:" \
       | grep -v "^🔌 plugin host initialized" \
       | grep -v "^✅ plugin host fully configured" \

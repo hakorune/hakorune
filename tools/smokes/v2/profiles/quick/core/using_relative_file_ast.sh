@@ -47,7 +47,10 @@ EOF
   export NYASH_USING_PROFILE=dev
   export NYASH_USING_AST=1
   local output rc
-  output=$(run_nyash_vm sub/main.hako 2>&1)
+  # This smoke pins relative using/package resolution only. JoinIR strict/dev
+  # changes the lowering lane and can hide the package import contract behind
+  # unrelated method stubs, so keep this probe on the plain VM route.
+  output=$(NYASH_JOINIR_DEV=0 HAKO_JOINIR_STRICT=0 NYASH_JOINIR_STRICT=0 HAKO_JOINIR_PLANNER_REQUIRED=0 run_nyash_vm sub/main.hako 2>&1)
   if echo "$output" | grep -qx "rel"; then rc=0; else rc=1; fi
   [ $rc -eq 0 ] || { echo "$output" >&2; }
   teardown_tmp_dir

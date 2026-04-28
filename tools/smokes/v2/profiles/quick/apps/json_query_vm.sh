@@ -12,7 +12,15 @@ APP_DIR="$NYASH_ROOT/apps/examples/json_query"
 # Use default dev behavior (rewrite enabled) for stable resolution
 # NOTE: Do not enable NYASH_VM_TOLERATE_VOID here; path parser relies on strict compare semantics
 export HAKO_VM_MAX_STEPS="${HAKO_VM_MAX_STEPS:-0}"  # disable step cap for this sample (deterministic loop)
-output=$(run_nyash_vm "$APP_DIR/main.hako" --dev)
+# This fixture pins deterministic JSON-query output and should not depend on
+# unrelated JoinIR strict/dev lowering behavior.
+output=$(
+  NYASH_JOINIR_DEV=0 \
+  HAKO_JOINIR_STRICT=0 \
+  NYASH_JOINIR_STRICT=0 \
+  HAKO_JOINIR_PLANNER_REQUIRED=0 \
+  run_nyash_vm "$APP_DIR/main.hako" --dev
+)
 
 expected=$(cat << 'TXT'
 2
