@@ -6,7 +6,6 @@
 pub(in crate::mir::builder) mod body_view;
 pub(in crate::mir::builder) mod carriers;
 pub(in crate::mir::builder) mod edgecfg_stubs;
-pub(in crate::mir::builder) mod exit_map;
 pub(in crate::mir::builder) mod if_branch_lowering;
 pub(in crate::mir::builder) mod if_join;
 pub(in crate::mir::builder) mod loop_carriers;
