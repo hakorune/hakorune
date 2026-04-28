@@ -121,30 +121,6 @@ impl super::MirBuilder {
         Ok(pinned)
     }
 
-    fn try_lower_property_read(
-        &mut self,
-        object_value: ValueId,
-        field: &str,
-    ) -> Result<Option<ValueId>, String> {
-        let Some(class_name) = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .cloned()
-        else {
-            return Ok(None);
-        };
-        let Some(getter_name) = self
-            .comp_ctx
-            .property_getter_method_name(&class_name, field)
-        else {
-            return Ok(None);
-        };
-
-        self.handle_standard_method_call(object_value, getter_name, &[])
-            .map(Some)
-    }
-
     /// Build field assignment: object.field = value
     pub(super) fn build_field_assignment(
         &mut self,

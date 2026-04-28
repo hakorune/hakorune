@@ -96,6 +96,7 @@ mod observe; // P0: dev-only observability helpers（ssa/resolve）
 mod origin; // P0: origin inference（me/Known）と PHI 伝播（軽量）
 mod plugin_sigs; // plugin signature loader
 mod properties;
+mod property_reads;
 mod receiver; // ReceiverMaterializationBox（Method recv の pin+LocalSSA 集約）
 mod rewrite; // P1: Known rewrite & special consolidation
 mod router; // RouterPolicyBox（Unified vs BoxCall）
