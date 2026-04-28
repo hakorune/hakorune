@@ -194,6 +194,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-657-planner-reject-detail-diagnostics-card.md
   - docs/development/current/main/phases/phase-291x/291x-658-lower-planner-compat-test-export-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-659-generic-loop-canon-reverse-export-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-660-body-local-route-facade-prune-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -213,7 +214,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-659-generic-loop-canon-reverse-export-prune-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-660-body-local-route-facade-prune-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 5. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 6. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
@@ -257,7 +258,7 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-659`
+- latest known cleanup checkpoint: `291x-660`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the current
   `latest_card_path` in `CURRENT_STATE.toml`
@@ -268,6 +269,7 @@ in one card.
   - planner reject-detail diagnostics cleanup through `291x-657`
   - lower planner compat test-only export pruning through `291x-658`
   - generic-loop canon reverse export pruning through `291x-659`
+  - BodyLocalRoute facade pruning through `291x-660`
 - next cleanup: choose the next compiler-cleanliness lane; broad
   facts/planner and lower planner compat ownership work must reopen as focused
   BoxShape lanes
@@ -291,6 +293,7 @@ in one card.
 | Planner reject-detail diagnostics | `291x-657-planner-reject-detail-diagnostics-card.md` |
 | Lower planner compat test export prune | `291x-658-lower-planner-compat-test-export-prune-card.md` |
 | Generic-loop canon reverse export prune | `291x-659-generic-loop-canon-reverse-export-prune-card.md` |
+| BodyLocalRoute facade prune | `291x-660-body-local-route-facade-prune-card.md` |
 | Current task-order baseline | `291x-488-current-task-order-baseline-refresh-card.md` |
 | Historical post-birth row-prune order | `291x-255-post-birth-cleanup-task-order-card.md` |
 | CoreMethodContract / Hotline policy | `docs/development/current/main/design/hotline-core-method-contract-ssot.md` |

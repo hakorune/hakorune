@@ -10,7 +10,7 @@ use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::loop_route_detection::support::condition_scope::LoopConditionScope;
 
 use super::body_local_policy_runner::classify_body_local_policy_route;
-pub use super::body_local_policy_types::BodyLocalRoute;
+use super::body_local_policy_types::BodyLocalRoute;
 
 pub fn classify_loop_break_body_local_route(
     builder: &MirBuilder,

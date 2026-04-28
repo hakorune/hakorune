@@ -1,13 +1,12 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
+use crate::mir::builder::control_flow::plan::body_local_policy_types::BodyLocalRoute;
 use crate::mir::builder::control_flow::plan::loop_break_prep_box::{
     BodyLocalHandlingPolicy, LoopBreakPrepInputs,
 };
 use crate::mir::builder::MirBuilder;
 
-use super::super::super::body_local_policy::{
-    classify_loop_break_body_local_route, BodyLocalRoute,
-};
+use super::super::super::body_local_policy::classify_loop_break_body_local_route;
 
 pub(super) struct PromotePreparation {
     pub has_body_locals_in_conditions: bool,

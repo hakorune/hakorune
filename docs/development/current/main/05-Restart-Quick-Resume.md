@@ -41,9 +41,8 @@ cargo check -q
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
-- latest known checkpoint: `291x-659` prunes facts-side reverse re-export of
-  generic-loop step placement after lower planner compat test-only export
-  pruning landed through `291x-658`
+- latest known checkpoint: `291x-660` prunes the BodyLocalRoute type facade
+  after generic-loop canon reverse export pruning landed through `291x-659`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is

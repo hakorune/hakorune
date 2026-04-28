@@ -1,7 +1,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::cleanup::policies::body_local_derived_slot::extract_derived_slot_for_conditions;
 use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
-use crate::mir::builder::control_flow::plan::body_local_policy::BodyLocalRoute;
+use crate::mir::builder::control_flow::plan::body_local_policy_types::BodyLocalRoute;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::common::body_local_slot::{
     ReadOnlyBodyLocalSlot, ReadOnlyBodyLocalSlotBox,
