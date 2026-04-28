@@ -129,19 +129,6 @@ pub(in crate::mir::builder) fn check_block_contract(
     verify_block_contract_impl(arena, block, kind, context)
 }
 
-/// Verify a block contract and return a verified wrapper.
-///
-/// This is intended to be the *single* release-mode acceptance gate:
-/// `verify -> VerifiedRecipeBlock -> lower`.
-pub(in crate::mir::builder::control_flow::plan) fn verify_block_contract<'a>(
-    arena: &'a RecipeBodies,
-    block: &'a RecipeBlock,
-    kind: BlockContractKind,
-    context: &str,
-) -> Result<VerifiedRecipeBlock<'a>, String> {
-    verify_block_contract_with_pre(arena, block, kind, context, None)
-}
-
 pub(in crate::mir::builder::control_flow::plan) fn verify_block_contract_with_pre<'a>(
     arena: &'a RecipeBodies,
     block: &'a RecipeBlock,
