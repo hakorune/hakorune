@@ -14,30 +14,16 @@
 pub(in crate::mir::builder) struct ClusterCountProfile {
     /// Exact number of nested loops required for this cluster
     pub required_count: u8,
-    /// Static rule name for planner logging
-    pub rule: &'static str,
 }
 
 /// SSOT: Supported cluster configurations (優先順: 大きい数から)
 ///
 /// cluster6+ 追加時は、この配列に1行追加するだけ。
 pub(in crate::mir::builder) const CLUSTER_PROFILES: &[ClusterCountProfile] = &[
-    ClusterCountProfile {
-        required_count: 5,
-        rule: "loop/loop_cond_break_continue_cluster5",
-    },
-    ClusterCountProfile {
-        required_count: 4,
-        rule: "loop/loop_cond_break_continue_cluster4",
-    },
-    ClusterCountProfile {
-        required_count: 3,
-        rule: "loop/loop_cond_break_continue_cluster3",
-    },
+    ClusterCountProfile { required_count: 5 },
+    ClusterCountProfile { required_count: 4 },
+    ClusterCountProfile { required_count: 3 },
 ];
-
-/// Base profile rule (no cluster requirement)
-pub(in crate::mir::builder) const BASE_RULE: &str = "loop/loop_cond_break_continue";
 
 // ============================================================================
 // Nested-loop body profile (existing functionality)
@@ -56,17 +42,11 @@ pub(in crate::mir::builder) struct NestedLoopBodyProfile {
     pub allow_trailing_continue: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(in crate::mir::builder) struct NestedLoopBodyScan {
-    pub seen_call: bool,
-    pub has_trailing_continue: bool,
-}
-
 pub(in crate::mir::builder) fn scan_nested_loop_body(
     body: &[ASTNode],
     profile: NestedLoopBodyProfile,
     allow_extended: bool,
-) -> Option<NestedLoopBodyScan> {
+) -> bool {
     let (trimmed_body, has_trailing_continue) = if profile.allow_trailing_continue {
         strip_trailing_continue_view(body)
     } else {
@@ -75,17 +55,15 @@ pub(in crate::mir::builder) fn scan_nested_loop_body(
 
     let mut seen_call = false;
     if !scan_body(trimmed_body, false, profile, allow_extended, &mut seen_call) {
-        return None;
+        return false;
     }
 
     if profile.require_call && !seen_call {
-        return None;
+        return false;
     }
 
-    Some(NestedLoopBodyScan {
-        seen_call,
-        has_trailing_continue,
-    })
+    let _ = has_trailing_continue;
+    true
 }
 
 fn scan_body(

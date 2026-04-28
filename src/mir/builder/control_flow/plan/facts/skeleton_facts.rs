@@ -36,6 +36,7 @@ impl Default for SkeletonFacts {
     }
 }
 
+#[cfg(test)]
 pub(in crate::mir::builder) fn try_extract_skeleton_facts_from_stmt(
     stmt: &ASTNode,
 ) -> Result<Option<SkeletonFacts>, Freeze> {
@@ -63,6 +64,7 @@ pub(in crate::mir::builder) fn try_extract_loop_skeleton_facts(
     }))
 }
 
+#[cfg(test)]
 pub(in crate::mir::builder) fn infer_region_skeleton_facts(
     stmts: &[ASTNode],
 ) -> Result<Option<SkeletonFacts>, Freeze> {

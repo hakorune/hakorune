@@ -11,7 +11,7 @@ pub(super) fn try_extract_break_continue_pure(
     body: &[ASTNode],
 ) -> Option<NestedLoopDepth1Facts> {
     let kind = NestedLoopDepth1Kind::BreakContinuePure;
-    if scan_nested_loop_body(body, kind.profile(), true).is_none() {
+    if !scan_nested_loop_body(body, kind.profile(), true) {
         return None;
     }
 
@@ -24,7 +24,7 @@ pub(super) fn try_extract_no_break_or_continue_pure(
     body: &[ASTNode],
 ) -> Option<NestedLoopDepth1Facts> {
     let kind = NestedLoopDepth1Kind::NoBreakOrContinuePure;
-    if scan_nested_loop_body(body, kind.profile(), true).is_none() {
+    if !scan_nested_loop_body(body, kind.profile(), true) {
         return None;
     }
 
@@ -36,7 +36,7 @@ pub(super) fn try_extract_methodcall(
     body: &[ASTNode],
 ) -> Option<NestedLoopDepth1Facts> {
     let kind = NestedLoopDepth1Kind::MethodCall;
-    if scan_nested_loop_body(body, kind.profile(), true).is_none() {
+    if !scan_nested_loop_body(body, kind.profile(), true) {
         return None;
     }
 
@@ -48,7 +48,7 @@ pub(super) fn try_extract_no_break_or_continue(
     body: &[ASTNode],
 ) -> Option<NestedLoopDepth1Facts> {
     let kind = NestedLoopDepth1Kind::NoBreakOrContinue;
-    if scan_nested_loop_body(body, kind.profile(), true).is_none() {
+    if !scan_nested_loop_body(body, kind.profile(), true) {
         return None;
     }
 

@@ -23,8 +23,6 @@ pub struct EscapeSkipShapeInfo {
     /// Index of the break-guard `if ... { break }` within the loop body.
     #[allow(dead_code)] // Phase 291x-126: kept for route-shape diagnostics / handoff context.
     pub break_idx: usize,
-    /// Index of the escape `if` within the loop body.
-    pub escape_idx: usize,
     /// Phase 92 P0-3: The condition expression for conditional increment
     /// e.g., `ch == '\\'` for escape sequence handling
     pub escape_cond: Box<ASTNode>,
@@ -81,7 +79,6 @@ pub fn detect_escape_skip_shape(body: &[ASTNode]) -> Option<EscapeSkipShapeInfo>
         normal_delta,
         escape_delta,
         break_idx,
-        escape_idx,
         escape_cond, // Phase 92 P0-3: Condition for JoinIR Select
         body_stmts,
     })
