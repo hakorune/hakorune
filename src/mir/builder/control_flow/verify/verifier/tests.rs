@@ -7,9 +7,9 @@ mod tests {
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::lower::{
-        CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
-        CoreLoopPlan, CorePlan,
+        CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan, CorePlan,
     };
+    use crate::mir::builder::control_flow::plan::branchn::CoreBranchArmPlan;
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
@@ -27,6 +27,7 @@ mod tests {
     use crate::mir::builder::control_flow::plan::step_mode::{
         extract_to_step_bb_explicit_step, inline_in_body_explicit_step,
     };
+    use crate::mir::builder::control_flow::plan::CoreIfJoin;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::EdgeArgs;
     use crate::mir::{BasicBlockId, ConstValue, ValueId};

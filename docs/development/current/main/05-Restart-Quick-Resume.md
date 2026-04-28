@@ -33,17 +33,17 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x lower planner compat test-only export prune`
+- current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x lower planner compat test-only export prune`
-- latest known checkpoint: `291x-657` moves planner reject-detail state to
-  diagnostics ownership after parser member syntax SSOT landed through
-  `291x-656`
+- current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
+- latest known checkpoint: `291x-658` prunes lower facade exports used only by
+  verifier tests after planner reject-detail diagnostics cleanup landed through
+  `291x-657`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
@@ -51,7 +51,7 @@ cargo check -q
 
 ## Immediate Next
 
-- prune lower planner compat test-only exports, or switch to an explicitly
+- choose the next compiler-cleanliness lane, or switch to an explicitly
   reopened non-cleanup blocker
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
