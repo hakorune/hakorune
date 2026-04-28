@@ -31,23 +31,11 @@ box MyBox {
 }
 EOF
 
-output=$(
-  NYASH_JOINIR_DEV=0 \
-  HAKO_JOINIR_STRICT=0 \
-  NYASH_JOINIR_STRICT=0 \
-  HAKO_JOINIR_PLANNER_REQUIRED=0 \
-  "$NYASH_BIN" --backend vm driver.hako --dev 2>&1 | filter_noise
-)
-if echo "$output" | grep -q "User Instance BoxCall disallowed in prod"; then
+output=$(run_quick_vm_release driver.hako --dev)
+if pending_reason=$(quick_userbox_pending_reason "$output"); then
   cd /
   rm -rf "$TEST_DIR"
-  test_skip "userbox_birth_to_string_vm" "rewrite/materialize pending"
-  exit 0
-fi
-if echo "$output" | grep -q "\[vm-hako/unimplemented\]"; then
-  cd /
-  rm -rf "$TEST_DIR"
-  test_skip "userbox_birth_to_string_vm" "vm-hako subset path pending"
+  test_skip "userbox_birth_to_string_vm" "$pending_reason"
   exit 0
 fi
 output=$(echo "$output" | tail -n 2 | tr -d '\r' )

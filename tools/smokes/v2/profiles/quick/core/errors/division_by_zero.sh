@@ -19,13 +19,7 @@ static box Main {
 }
 EOF
   local output
-  output=$(
-    NYASH_JOINIR_DEV=0 \
-    HAKO_JOINIR_STRICT=0 \
-    NYASH_JOINIR_STRICT=0 \
-    HAKO_JOINIR_PLANNER_REQUIRED=0 \
-    "$NYASH_BIN" --backend vm "$tmpfile" 2>&1 || true
-  )
+  output=$(run_quick_vm_release "$tmpfile" || true)
   rm -f "$tmpfile"
   check_regex "Division by zero" "$output" "division_by_zero"
 }

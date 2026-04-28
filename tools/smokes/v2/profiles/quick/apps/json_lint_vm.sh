@@ -16,13 +16,7 @@ APP_DIR="$NYASH_ROOT/apps/examples/json_lint"
 export NYASH_VM_TOLERATE_VOID=${NYASH_VM_TOLERATE_VOID:-0}
 # This fixture pins deterministic JSON-lint output and should not depend on
 # unrelated JoinIR strict/dev lowering behavior.
-output=$(
-  NYASH_JOINIR_DEV=0 \
-  HAKO_JOINIR_STRICT=0 \
-  NYASH_JOINIR_STRICT=0 \
-  HAKO_JOINIR_PLANNER_REQUIRED=0 \
-  run_nyash_vm "$APP_DIR/main.hako" --dev
-)
+output=$(NYASH_VM_TOLERATE_VOID="${NYASH_VM_TOLERATE_VOID:-0}" run_quick_vm_release "$APP_DIR/main.hako" --dev)
 
 expected=$(cat << 'TXT'
 OK

@@ -1,7 +1,8 @@
-//! Top-level owner surface for control-flow facts.
+//! Owner-facing facts infrastructure for control-flow lowering.
 //!
-//! Facts-owned modules live here first. Plan-owned facts stay behind their
-//! `plan::facts` owner instead of growing compatibility re-export surfaces here.
+//! Facts modules live here first, but owner-only helpers stay sealed instead of
+//! re-growing compatibility surfaces after the facade cleanup. Plan-resident
+//! facts continue to live behind `plan::facts`.
 
 pub(crate) mod ast_feature_extractor;
 pub(in crate::mir::builder) mod block_policies;

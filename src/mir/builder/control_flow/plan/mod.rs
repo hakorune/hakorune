@@ -30,8 +30,8 @@
 // Design: docs/development/current/main/design/plan-mod-layout-ssot.md
 // ============================================================================
 
-// Layer 0: Core Data Structures (New from Refactoring)
-// 分割されたデータ構造定義
+// Layer 0: Core Data Structures (owner-internal)
+// 分割されたデータ構造定義。plan/mod.rs 配下でのみ使う内部層。
 mod core;
 mod domain;
 mod effect;

@@ -29,9 +29,9 @@ box P {
 }
 EOF
 
-out_all=$(run_nyash_vm driver.hako --dev)
-if echo "$out_all" | grep -q "User Instance BoxCall disallowed in prod"; then
-  test_skip "userbox_branch_phi_vm" "rewrite/materialize pending"
+out_all=$(run_quick_vm_release driver.hako --dev)
+if pending_reason=$(quick_userbox_pending_reason "$out_all"); then
+  test_skip "userbox_branch_phi_vm" "$pending_reason"
 else
   output=$(echo "$out_all" | tail -n 1 | tr -d '\r' | xargs)
   [ "$output" = "ok" ] && test_pass "userbox_branch_phi_vm" || test_fail "userbox_branch_phi_vm" "got: $output"

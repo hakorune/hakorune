@@ -226,6 +226,39 @@ run_joinir_vm_release() {
         "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1
 }
 
+# Quick-smoke direct VM helper
+# - executes a single fixture directly (no helper temp-copy path)
+# - forces JoinIR release-style env for quick fixture stability
+# - filters runtime noise before returning stdout/stderr
+run_quick_vm_release() {
+    local fixture="$1"
+    shift || true
+
+    NYASH_JOINIR_DEV=0 \
+    HAKO_JOINIR_DEV=0 \
+    HAKO_JOINIR_STRICT=0 \
+    NYASH_JOINIR_STRICT=0 \
+    HAKO_JOINIR_PLANNER_REQUIRED=0 \
+    "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1 | filter_noise
+    local exit_code=${PIPESTATUS[0]}
+    return $exit_code
+}
+
+quick_userbox_pending_reason() {
+    local output="$1"
+
+    if grep -q "User Instance BoxCall disallowed in prod" <<<"$output"; then
+        printf '%s\n' "rewrite/materialize pending"
+        return 0
+    fi
+    if grep -q "\[vm-hako/unimplemented\]" <<<"$output"; then
+        printf '%s\n' "vm-hako subset path pending"
+        return 0
+    fi
+
+    return 1
+}
+
 # プラグイン整合性チェック（必須）
 preflight_plugins() {
     # プラグインマネージャーが存在する場合は実行

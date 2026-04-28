@@ -31,11 +31,7 @@ out="$(
   NYASH_PREINCLUDE=0 \
   NYASH_FEATURES=stage3 \
   NYASH_PARSER_ALLOW_SEMICOLON=1 \
-  NYASH_JOINIR_DEV=0 \
-  HAKO_JOINIR_STRICT=0 \
-  NYASH_JOINIR_STRICT=0 \
-  HAKO_JOINIR_PLANNER_REQUIRED=0 \
-  "$NYASH_BIN" --backend vm "$tmp" 2>&1 | filter_noise
+  run_quick_vm_release "$tmp"
 )"; rc=$?
 set -e
 rm -f "$tmp" || true
