@@ -9,6 +9,21 @@ fn has_postfix(p: &NyashParser) -> bool {
     p.match_token(&TokenType::CATCH) || p.match_token(&TokenType::CLEANUP)
 }
 
+fn member_postfix_enabled() -> bool {
+    crate::config::env::method_catch()
+}
+
+fn require_member_postfix_enabled(p: &NyashParser) -> Result<(), ParseError> {
+    if member_postfix_enabled() {
+        return Ok(());
+    }
+    Err(ParseError::UnexpectedToken {
+        found: p.current_token().token_type.clone(),
+        expected: "enable Stage-3/member postfix catch-cleanup syntax".to_string(),
+        line: p.current_token().line,
+    })
+}
+
 fn parse_postfix_trycatch(
     p: &mut NyashParser,
     body: Vec<ASTNode>,
@@ -56,7 +71,7 @@ pub(crate) fn wrap_with_optional_postfix(
     p: &mut NyashParser,
     body: Vec<ASTNode>,
 ) -> Result<Vec<ASTNode>, ParseError> {
-    if !(crate::config::env::parser_stage3_enabled() && has_postfix(p)) {
+    if !(member_postfix_enabled() && has_postfix(p)) {
         return Ok(body);
     }
 
@@ -68,6 +83,7 @@ pub(crate) fn wrap_with_required_postfix(
     body: Vec<ASTNode>,
     duplicate_catch_expected: &'static str,
 ) -> Result<Vec<ASTNode>, ParseError> {
+    require_member_postfix_enabled(p)?;
     parse_postfix_trycatch(p, body, duplicate_catch_expected)
 }
 
@@ -81,6 +97,7 @@ pub(crate) fn try_parse_method_postfix_after_last_method(
     if !has_postfix(p) || last_method_name.is_none() {
         return Ok(false);
     }
+    require_member_postfix_enabled(p)?;
     let mname = last_method_name.clone().unwrap();
     let Some(mnode) = methods.get_mut(&mname) else {
         let line = p.current_token().line;
