@@ -13,9 +13,8 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_arithmetic_ops_suite() {
-    local tmpfile
-    tmpfile="$(mktemp /tmp/arithmetic_ops.XXXXXX.hako)"
-    cat >"$tmpfile" <<'EOF'
+    local output
+    output=$(run_hako_fixture "arithmetic_ops" run_quick_vm_release <<'EOF'
 static box Main {
     main() {
         print(10 + 25)
@@ -27,10 +26,7 @@ static box Main {
     }
 }
 EOF
-
-    local output
-    output=$(run_quick_vm_release "$tmpfile")
-    rm -f "$tmpfile"
+    )
 
     local expected
     expected=$(cat <<'TXT'

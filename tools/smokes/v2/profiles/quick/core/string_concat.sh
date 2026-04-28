@@ -13,9 +13,8 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_string_concat_suite() {
-    local tmpfile
-    tmpfile="$(mktemp /tmp/string_concat.XXXXXX.hako)"
-    cat >"$tmpfile" <<'EOF'
+    local output
+    output=$(run_hako_fixture "string_concat" run_quick_vm_release <<'EOF'
 static box Main {
     main() {
         print("Hello" + " " + "World")
@@ -35,10 +34,7 @@ static box Main {
     }
 }
 EOF
-
-    local output
-    output=$(run_quick_vm_release "$tmpfile")
-    rm -f "$tmpfile"
+    )
 
     local expected
     expected=$(cat <<'TXT'

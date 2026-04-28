@@ -23,8 +23,6 @@
 //! CorePlan expressions use **ValueId references only** (String expressions forbidden).
 //! This prevents "second language processor" from growing inside Lowerer.
 
-#![allow(dead_code)]
-
 // ============================================================================
 // Module Declarations (Layer-based Organization)
 // Design: docs/development/current/main/design/plan-mod-layout-ssot.md

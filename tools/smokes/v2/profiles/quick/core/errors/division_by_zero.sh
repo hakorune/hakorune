@@ -8,9 +8,8 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_division_by_zero() {
-  local tmpfile
-  tmpfile="$(mktemp /tmp/division_by_zero.XXXXXX.hako)"
-  cat >"$tmpfile" <<'EOF'
+  local output
+  output=$(run_hako_fixture "division_by_zero" run_quick_vm_release <<'EOF'
 static box Main {
   main() {
     print(1 / 0)
@@ -18,9 +17,7 @@ static box Main {
   }
 }
 EOF
-  local output
-  output=$(run_quick_vm_release "$tmpfile" || true)
-  rm -f "$tmpfile"
+  )
   check_regex "Division by zero" "$output" "division_by_zero"
 }
 

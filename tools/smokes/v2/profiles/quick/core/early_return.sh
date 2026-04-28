@@ -8,9 +8,8 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_early_return_then() {
-  local tmpfile
-  tmpfile="$(mktemp /tmp/early_return.XXXXXX.hako)"
-  cat >"$tmpfile" <<'EOF'
+  local output
+  output=$(run_hako_fixture "early_return" run_quick_vm_release <<'EOF'
 static box Main {
   main() {
     if 1 {
@@ -23,9 +22,7 @@ static box Main {
   }
 }
 EOF
-  local output
-  output=$(run_quick_vm_release "$tmpfile")
-  rm -f "$tmpfile"
+  )
   check_exact "A" "$output" "early_return_then"
 }
 

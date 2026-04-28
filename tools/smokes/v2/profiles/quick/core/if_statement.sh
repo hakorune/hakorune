@@ -13,9 +13,8 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_if_statement_suite() {
-    local tmpfile
-    tmpfile="$(mktemp /tmp/if_statement.XXXXXX.hako)"
-    cat >"$tmpfile" <<'EOF'
+    local output
+    output=$(run_hako_fixture "if_statement" run_quick_vm_release <<'EOF'
 static box Main {
   method main(args) {
     local x = 10
@@ -62,11 +61,8 @@ static box Main {
   }
 }
 EOF
-
-    local output
-    output=$(run_quick_vm_release "$tmpfile")
-    local rc=${PIPESTATUS[0]}
-    rm -f "$tmpfile"
+    )
+    local rc=$?
     [ "$rc" -eq 0 ] || return "$rc"
 
     local expected

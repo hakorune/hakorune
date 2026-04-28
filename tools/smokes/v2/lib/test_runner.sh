@@ -244,6 +244,21 @@ run_quick_vm_release() {
     return $exit_code
 }
 
+run_hako_fixture() {
+    local stem="$1"
+    local runner="$2"
+    shift 2 || true
+
+    local tmpfile
+    tmpfile="$(mktemp "/tmp/${stem}.XXXXXX.hako")"
+    cat >"$tmpfile"
+
+    "$runner" "$tmpfile" "$@"
+    local exit_code=$?
+    rm -f "$tmpfile" 2>/dev/null || true
+    return $exit_code
+}
+
 quick_userbox_pending_reason() {
     local output="$1"
 

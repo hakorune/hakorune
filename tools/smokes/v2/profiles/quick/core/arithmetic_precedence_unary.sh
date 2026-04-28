@@ -8,9 +8,8 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_unary_precedence() {
-  local tmpfile
-  tmpfile="$(mktemp /tmp/arithmetic_precedence_unary.XXXXXX.hako)"
-  cat >"$tmpfile" <<'EOF'
+  local out
+  out=$(run_hako_fixture "arithmetic_precedence_unary" run_quick_vm_release <<'EOF'
 static box Main {
   main() {
     print(-(1 + 2) * 3)
@@ -19,9 +18,7 @@ static box Main {
   }
 }
 EOF
-  local out
-  out=$(run_quick_vm_release "$tmpfile")
-  rm -f "$tmpfile"
+  )
   # 期待: -9 と -1 の2行
   if echo "$out" | grep -q "^-9$" && echo "$out" | grep -q "^-1$"; then
     return 0

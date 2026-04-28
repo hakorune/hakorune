@@ -8,9 +8,8 @@ require_env || exit 2
 preflight_plugins || exit 2
 
 test_comparisons() {
-  local tmpfile
-  tmpfile="$(mktemp /tmp/comparison_ops.XXXXXX.hako)"
-  cat >"$tmpfile" <<'EOF'
+  local output
+  output=$(run_hako_fixture "comparison_ops" run_quick_vm_release <<'EOF'
 static box Main {
   main() {
     if 3 > 2 {
@@ -26,9 +25,7 @@ static box Main {
   }
 }
 EOF
-  local output
-  output=$(run_quick_vm_release "$tmpfile")
-  rm -f "$tmpfile"
+  )
   check_exact "OK" "$output" "comparison_basic"
 }
 

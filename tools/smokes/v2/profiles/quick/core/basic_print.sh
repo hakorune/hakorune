@@ -13,9 +13,8 @@ preflight_plugins || exit 2
 
 # テスト実装
 test_basic_print() {
-    local tmpfile
-    tmpfile="$(mktemp /tmp/basic_print.XXXXXX.hako)"
-    cat >"$tmpfile" <<'EOF'
+    local output
+    output=$(run_hako_fixture "basic_print" run_quick_vm_release <<'EOF'
 static box Main {
   main() {
     print("Hello, World!")
@@ -23,9 +22,7 @@ static box Main {
   }
 }
 EOF
-    local output
-    output=$(run_quick_vm_release "$tmpfile")
-    rm -f "$tmpfile"
+    )
     compare_outputs "Hello, World!" "$output" "basic_print"
 }
 

@@ -5,8 +5,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"; if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then ROOT="$ROOT_GIT"; else ROOT="$(cd "$SCRIPT_DIR/../../../../../../.." && pwd)"; fi
 source "$ROOT/tools/smokes/v2/lib/test_runner.sh"; require_env || exit 2
 
-tmp="/tmp/string_vm_api_canary_$$.hako"
-cat > "$tmp" <<'HAKO'
+set +e
+out="$(
+  NYASH_PREINCLUDE=0 \
+  NYASH_FEATURES=stage3 \
+  NYASH_PARSER_ALLOW_SEMICOLON=1 \
+  run_hako_fixture "string_vm_api_canary" run_quick_vm_release <<'HAKO'
 static box Main { method main(args) {
   local s = "hello"
   // substring(start,end)
@@ -25,16 +29,8 @@ static box Main { method main(args) {
   return 1
 } }
 HAKO
-
-set +e
-out="$(
-  NYASH_PREINCLUDE=0 \
-  NYASH_FEATURES=stage3 \
-  NYASH_PARSER_ALLOW_SEMICOLON=1 \
-  run_quick_vm_release "$tmp"
 )"; rc=$?
 set -e
-rm -f "$tmp" || true
 
 if [ "$rc" -eq 1 ]; then echo "[PASS] string_vm_api_canary_vm"; exit 0; fi
 echo "$out" >&2
