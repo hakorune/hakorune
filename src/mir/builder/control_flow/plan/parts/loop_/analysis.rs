@@ -1,4 +1,6 @@
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{
+    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
+};
 use crate::mir::ValueId;
 use std::collections::BTreeSet;
 
@@ -66,13 +68,54 @@ fn plan_has_non_local_exit(plan: &LoweredRecipe) -> bool {
                     .is_some_and(|plans| plans_have_non_local_exit(plans))
         }
         CorePlan::Seq(inner) => plans_have_non_local_exit(inner),
-        CorePlan::Loop(loop_plan) => {
-            plans_have_non_local_exit(&loop_plan.body)
-                || loop_plan
-                    .block_effects
-                    .iter()
-                    .any(|(_, effects)| effects.iter().any(effect_has_non_local_exit))
+        CorePlan::Loop(loop_plan) => loop_has_non_local_exit(loop_plan),
+    }
+}
+
+fn loop_has_non_local_exit(loop_plan: &CoreLoopPlan) -> bool {
+    plans_in_loop_body_have_non_local_exit(&loop_plan.body)
+        || loop_plan
+            .block_effects
+            .iter()
+            .any(|(_, effects)| effects.iter().any(effect_has_non_local_exit))
+}
+
+fn plans_in_loop_body_have_non_local_exit(plans: &[LoweredRecipe]) -> bool {
+    plans.iter().any(plan_in_loop_body_has_non_local_exit)
+}
+
+fn plan_in_loop_body_has_non_local_exit(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Exit(exit) => exit_escapes_enclosing_loop(exit),
+        CorePlan::Effect(effect) => effect_has_non_local_exit(effect),
+        CorePlan::If(if_plan) => {
+            plans_in_loop_body_have_non_local_exit(&if_plan.then_plans)
+                || if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_in_loop_body_have_non_local_exit(plans))
         }
+        CorePlan::BranchN(branch) => {
+            branch
+                .arms
+                .iter()
+                .any(|arm| plans_in_loop_body_have_non_local_exit(&arm.plans))
+                || branch
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_in_loop_body_have_non_local_exit(plans))
+        }
+        CorePlan::Seq(inner) => plans_in_loop_body_have_non_local_exit(inner),
+        CorePlan::Loop(loop_plan) => loop_has_non_local_exit(loop_plan),
+    }
+}
+
+fn exit_escapes_enclosing_loop(exit: &CoreExitPlan) -> bool {
+    match exit {
+        CoreExitPlan::Return(_) => true,
+        CoreExitPlan::Break(depth) | CoreExitPlan::Continue(depth) => *depth > 1,
+        CoreExitPlan::BreakWithPhiArgs { depth, .. }
+        | CoreExitPlan::ContinueWithPhiArgs { depth, .. } => *depth > 1,
     }
 }
 

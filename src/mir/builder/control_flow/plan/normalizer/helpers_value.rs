@@ -441,6 +441,13 @@ impl super::PlanNormalizer {
                     box_type: "ArrayBox".to_string(),
                     args: vec![],
                 });
+                effects.push(CoreEffectPlan::MethodCall {
+                    dst: None,
+                    object: array_id,
+                    method: "birth".to_string(),
+                    args: vec![],
+                    effects: EffectMask::MUT,
+                });
                 for element in elements {
                     let (element_id, mut more) =
                         Self::lower_value_ast(element, builder, phi_bindings)?;
@@ -466,6 +473,13 @@ impl super::PlanNormalizer {
                     dst: map_id,
                     box_type: "MapBox".to_string(),
                     args: vec![],
+                });
+                effects.push(CoreEffectPlan::MethodCall {
+                    dst: None,
+                    object: map_id,
+                    method: "birth".to_string(),
+                    args: vec![],
+                    effects: EffectMask::MUT,
                 });
                 for (key_expr, value) in entries {
                     let key_literal = ASTNode::Literal {

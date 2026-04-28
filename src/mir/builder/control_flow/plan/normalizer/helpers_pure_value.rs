@@ -73,6 +73,8 @@ pub(super) fn is_pure_value_expr(ast: &crate::ast::ASTNode) -> bool {
                     | BinaryOperator::Multiply
                     | BinaryOperator::Divide
                     | BinaryOperator::Modulo
+                    | BinaryOperator::And
+                    | BinaryOperator::Or
                     | BinaryOperator::Less
                     | BinaryOperator::LessEqual
                     | BinaryOperator::Greater

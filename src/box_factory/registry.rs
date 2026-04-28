@@ -40,7 +40,7 @@ impl UnifiedBoxRegistry {
         };
 
         if crate::config::env::cli_verbose_enabled() {
-            let ring0 = crate::runtime::get_global_ring0();
+            let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
             ring0.log.debug(&format!(
                 "[UnifiedBoxRegistry] 🎯 Factory Policy: {:?} (Phase 15.5: Everything is Plugin!)",
                 policy
@@ -73,7 +73,7 @@ impl UnifiedBoxRegistry {
                 let types = factory.box_types();
                 for type_name in types {
                     if is_reserved_type(type_name) && !factory.is_builtin_factory() {
-                        let ring0 = crate::runtime::get_global_ring0();
+                        let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                         ring0.log.error(&format!(
                             "[UnifiedBoxRegistry] ❌ Rejecting registration of reserved type '{}' by non-builtin factory #{}",
                             type_name, factory_index
@@ -86,7 +86,7 @@ impl UnifiedBoxRegistry {
                     match entry {
                         Entry::Occupied(existing) => {
                             if crate::config::env::cli_verbose_enabled() {
-                                let ring0 = crate::runtime::get_global_ring0();
+                                let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                                 ring0.log.warn(&format!("[UnifiedBoxRegistry] ⚠️ Policy '{}': type '{}' kept by higher priority factory #{}, ignoring factory #{}",
                                           format!("{:?}", self.policy), existing.key(), existing.get(), factory_index));
                             }
@@ -185,7 +185,7 @@ impl UnifiedBoxRegistry {
                 }
 
                 if crate::config::env::debug_plugin() {
-                    let ring0 = crate::runtime::get_global_ring0();
+                    let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                     ring0.log.debug(&format!(
                         "[UnifiedBoxRegistry] try factory#{} {:?} for {}",
                         factory_index,
@@ -241,7 +241,7 @@ impl UnifiedBoxRegistry {
         let mode = provider_registry::read_filebox_mode_from_env();
         match mode {
             provider_registry::FileBoxMode::PluginOnly => {
-                let ring0 = crate::runtime::get_global_ring0();
+                let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                 ring0.log.error(&format!(
                     "[FileBox] Plugin creation failed in plugin-only mode: {}",
                     original_error
@@ -255,7 +255,7 @@ impl UnifiedBoxRegistry {
             }
             provider_registry::FileBoxMode::Auto => {
                 if crate::config::env::cli_verbose_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
+                    let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                     ring0.log.debug(&format!(
                         "[FileBox] Plugin creation failed, falling back to builtin/core-ro: {}",
                         original_error
@@ -267,7 +267,7 @@ impl UnifiedBoxRegistry {
                         match factory.create_box(name, args) {
                             Ok(boxed) => {
                                 if crate::config::env::cli_verbose_enabled() {
-                                    let ring0 = crate::runtime::get_global_ring0();
+                                    let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                                     ring0.log.debug(
                                         "[FileBox] Successfully created with builtin factory",
                                     );
@@ -275,7 +275,7 @@ impl UnifiedBoxRegistry {
                                 return Some(Ok(boxed));
                             }
                             Err(e) => {
-                                let ring0 = crate::runtime::get_global_ring0();
+                                let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                                 ring0.log.error(&format!(
                                     "[FileBox] Builtin factory also failed: {}",
                                     e
@@ -288,7 +288,7 @@ impl UnifiedBoxRegistry {
             }
             provider_registry::FileBoxMode::CoreRo => {
                 if crate::config::env::cli_verbose_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
+                    let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                     ring0
                         .log
                         .debug("[FileBox] Using core-ro mode, trying builtin factory");

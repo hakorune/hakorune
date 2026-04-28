@@ -372,7 +372,11 @@ mod tests {
 
         assert_eq!(
             decls,
-            vec![serde_json::json!({"name": "ExplicitBox", "fields": ["value"]})]
+            vec![serde_json::json!({
+                "name": "ExplicitBox",
+                "fields": ["value"],
+                "field_decls": [{"name": "value", "declared_type": null, "is_weak": false}]
+            })]
         );
     }
 
@@ -395,7 +399,14 @@ mod tests {
 
         assert_eq!(
             decls,
-            vec![serde_json::json!({"name": "ExplicitBox", "fields": ["value", "next"]})]
+            vec![serde_json::json!({
+                "name": "ExplicitBox",
+                "fields": ["value", "next"],
+                "field_decls": [
+                    {"name": "value", "declared_type": null, "is_weak": false},
+                    {"name": "next", "declared_type": null, "is_weak": false}
+                ]
+            })]
         );
     }
 
@@ -425,8 +436,8 @@ mod tests {
         assert_eq!(
             decls,
             vec![
-                serde_json::json!({"name": "HelperBox", "fields": []}),
-                serde_json::json!({"name": "Main", "fields": []}),
+                serde_json::json!({"name": "HelperBox", "fields": [], "field_decls": []}),
+                serde_json::json!({"name": "Main", "fields": [], "field_decls": []}),
             ]
         );
     }
