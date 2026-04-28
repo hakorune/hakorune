@@ -3,11 +3,12 @@ mod tests {
     use super::super::core::PlanVerifier;
     #[cfg(debug_assertions)]
     use super::super::primitives::debug_assert_value_join_invariants;
+    use crate::mir::builder::control_flow::edgecfg::api::Frag;
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::lower::{
         CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
-        CoreLoopPlan, CorePlan, Frag,
+        CoreLoopPlan, CorePlan,
     };
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{

@@ -3,8 +3,6 @@
 //! Ownership still lives under `plan/`; this module keeps the lower-side wiring
 //! grouped explicitly until the actual move happens.
 
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::edgecfg::api::ExitKind;
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::planner::{
@@ -17,5 +15,5 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::single_
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::{
     CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
-    CoreLoopPlan, CorePlan, Frag, LoopStepMode, LoweredRecipe,
+    CoreLoopPlan, CorePlan, LoopStepMode, LoweredRecipe,
 };

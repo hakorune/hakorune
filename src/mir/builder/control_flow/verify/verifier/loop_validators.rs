@@ -15,8 +15,9 @@
 //! - V14: Continue target must be in frag wiring (pipeline invariant)
 
 use super::{effect_validators, primitives};
+use crate::mir::builder::control_flow::edgecfg::api::ExitKind;
 use crate::mir::builder::control_flow::lower::{
-    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, ExitKind, LoopStepMode, LoweredRecipe,
+    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, LoopStepMode, LoweredRecipe,
 };
 
 /// Phase 273 P3: Verify loop with generalized fields

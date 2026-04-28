@@ -184,7 +184,6 @@ pub(in crate::mir::builder) use self::core::{
 };
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::edgecfg::api::Frag;
 
 // Domain types
 #[cfg(test)]
