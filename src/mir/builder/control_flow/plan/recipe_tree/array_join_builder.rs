@@ -23,12 +23,12 @@ use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct ArrayJoinRecipe {
+pub(super) struct ArrayJoinRecipe {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
 }
 
-pub(in crate::mir::builder) fn build_array_join_recipe(
+pub(super) fn build_array_join_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     if_cond_view: CondBlockView,

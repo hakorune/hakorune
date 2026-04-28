@@ -16,12 +16,12 @@ fn dummy_span() -> Span {
 }
 
 #[derive(Debug)]
-pub struct ScanWithInitRecipe {
+pub(super) struct ScanWithInitRecipe {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
 }
 
-pub(in crate::mir::builder) fn build_scan_with_init_recipe(
+pub(super) fn build_scan_with_init_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     facts: &ScanWithInitFacts,

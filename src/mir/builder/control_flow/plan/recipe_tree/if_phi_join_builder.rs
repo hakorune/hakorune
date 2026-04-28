@@ -22,12 +22,12 @@ fn dummy_var(name: &str) -> ASTNode {
 }
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct IfPhiJoinRecipe {
+pub(super) struct IfPhiJoinRecipe {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
 }
 
-pub(in crate::mir::builder) fn build_if_phi_join_recipe(
+pub(super) fn build_if_phi_join_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     if_cond_view: CondBlockView,

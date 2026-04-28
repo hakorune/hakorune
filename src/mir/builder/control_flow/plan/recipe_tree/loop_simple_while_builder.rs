@@ -25,7 +25,7 @@ use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 /// LoopSimpleWhile recipe (arena + root block).
 #[derive(Debug)]
-pub(in crate::mir::builder) struct LoopSimpleWhileRecipe {
+pub(super) struct LoopSimpleWhileRecipe {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
 }
@@ -42,7 +42,7 @@ pub(in crate::mir::builder) struct LoopSimpleWhileRecipe {
 /// * `loop_stmt` - The loop AST node
 /// * `cond_view` - CondBlockView for the loop condition
 /// * `body` - Loop body statements (from facts extraction)
-pub(in crate::mir::builder) fn build_loop_simple_while_recipe(
+pub(super) fn build_loop_simple_while_recipe(
     loop_stmt: &ASTNode,
     cond_view: CondBlockView,
     body: &[ASTNode],

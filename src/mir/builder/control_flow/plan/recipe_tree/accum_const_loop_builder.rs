@@ -15,12 +15,12 @@ fn dummy_span() -> Span {
 }
 
 #[derive(Debug)]
-pub struct AccumConstLoopRecipe {
+pub(super) struct AccumConstLoopRecipe {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
 }
 
-pub(in crate::mir::builder) fn build_accum_const_loop_recipe(
+pub(super) fn build_accum_const_loop_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     facts: &AccumConstLoopFacts,

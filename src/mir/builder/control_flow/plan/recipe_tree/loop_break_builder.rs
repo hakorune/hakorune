@@ -45,7 +45,7 @@ fn should_dedupe_carrier_update(facts: &LoopBreakFacts) -> bool {
 
 /// LoopBreak recipe (arena + root block).
 #[derive(Debug)]
-pub(in crate::mir::builder) struct LoopBreakRecipe {
+pub(super) struct LoopBreakRecipe {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
 }
@@ -59,7 +59,7 @@ pub(in crate::mir::builder) struct LoopBreakRecipe {
 /// * `loop_cond_view` - CondBlockView for the loop condition
 /// * `break_cond_view` - CondBlockView for the break condition
 /// * `facts` - LoopBreakFacts extracted from AST
-pub(in crate::mir::builder) fn build_loop_break_recipe(
+pub(super) fn build_loop_break_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     break_cond_view: CondBlockView,

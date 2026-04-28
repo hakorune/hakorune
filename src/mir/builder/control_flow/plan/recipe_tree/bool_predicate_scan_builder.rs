@@ -16,12 +16,12 @@ fn dummy_span() -> Span {
 }
 
 #[derive(Debug)]
-pub struct BoolPredicateScanRecipe {
+pub(super) struct BoolPredicateScanRecipe {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
 }
 
-pub(in crate::mir::builder) fn build_bool_predicate_scan_recipe(
+pub(super) fn build_bool_predicate_scan_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     facts: &BoolPredicateScanFacts,
