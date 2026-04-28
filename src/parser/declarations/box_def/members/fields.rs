@@ -1,44 +1,20 @@
 //! Fields parsing (header-first: `name: Type` + unified members gates)
-use crate::ast::{ASTNode, FieldDecl, Span};
+use crate::ast::{ASTNode, FieldDecl};
 use crate::parser::common::ParserUtils;
-use crate::parser::declarations::box_def::members::property_emit;
+use crate::parser::declarations::box_def::members::{
+    property_emit,
+    syntax::{self, PropertyBodyPostfix},
+};
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
-
-fn parse_optional_declared_type_name(p: &mut NyashParser) -> Option<String> {
-    if let TokenType::IDENTIFIER(ty) = &p.current_token().token_type {
-        let ty = Some(ty.clone());
-        p.advance();
-        ty
-    } else {
-        None
-    }
-}
 
 fn try_parse_computed_body(
     p: &mut NyashParser,
     fname: String,
     methods: &mut HashMap<String, ASTNode>,
 ) -> Result<bool, ParseError> {
-    // name: Type => expr  → computed property (getter method with return expr)
-    if p.match_token(&TokenType::FatArrow) {
-        p.advance();
-        let expr = p.parse_expression()?;
-        let body = vec![ASTNode::Return {
-            value: Some(Box::new(expr)),
-            span: Span::unknown(),
-        }];
-        property_emit::insert_computed_getter(methods, fname, body);
-        return Ok(true);
-    }
-    // name: Type { ... } [postfix]
-    if p.match_token(&TokenType::LBRACE) {
-        let body = p.parse_block_statements()?;
-        let body =
-            crate::parser::declarations::box_def::members::postfix::wrap_with_optional_postfix(
-                p, body,
-            )?;
+    if let Some(body) = syntax::try_parse_property_body(p, PropertyBodyPostfix::BlockOnly)? {
         property_emit::insert_computed_getter(methods, fname, body);
         return Ok(true);
     }
@@ -73,8 +49,8 @@ pub(crate) fn try_parse_get_computed_property(
 
     let fname = fname.clone();
     p.advance(); // consume property name
-    p.consume(TokenType::COLON)?;
-    let _declared_type_name = parse_optional_declared_type_name(p);
+    let _declared_type_name =
+        syntax::parse_optional_type_after_colon(p, "':' after get property name")?;
 
     if try_parse_computed_body(p, fname.clone(), methods)? {
         return Ok(Some(fname));
@@ -118,7 +94,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
     }
     p.advance(); // consume ':'
                  // Optional type name (identifier). Keep it as declared field metadata.
-    let declared_type_name = parse_optional_declared_type_name(p);
+    let declared_type_name = syntax::parse_optional_declared_type_name(p);
 
     // Unified members gate behavior
     if crate::config::env::unified_members() {
@@ -309,7 +285,7 @@ pub(crate) fn parse_weak_field(
 ) -> Result<(), ParseError> {
     let declared_type_name = if p.match_token(&TokenType::COLON) {
         p.advance();
-        parse_optional_declared_type_name(p)
+        syntax::parse_optional_declared_type_name(p)
     } else {
         None
     };

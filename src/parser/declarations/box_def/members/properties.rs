@@ -1,7 +1,10 @@
 //! Properties parsing (once/birth_once, header-first)
-use crate::ast::{ASTNode, Span};
+use crate::ast::ASTNode;
 use crate::parser::common::ParserUtils;
-use crate::parser::declarations::box_def::members::property_emit;
+use crate::parser::declarations::box_def::members::{
+    property_emit,
+    syntax::{self, PropertyBodyPostfix},
+};
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
@@ -52,54 +55,21 @@ pub(crate) fn try_parse_unified_property(
         return Ok(false);
     };
 
-    // Name
-    let name = if let TokenType::IDENTIFIER(n) = &p.current_token().token_type {
-        let n2 = n.clone();
-        p.advance();
-        n2
-    } else {
-        return Err(ParseError::UnexpectedToken {
-            found: p.current_token().token_type.clone(),
-            expected: "identifier after once/birth_once".to_string(),
-            line: p.current_token().line,
-        });
-    };
-    // ':' TYPE (type is accepted and ignored for now)
-    if p.match_token(&TokenType::COLON) {
-        p.advance();
-        if let TokenType::IDENTIFIER(_ty) = &p.current_token().token_type {
-            p.advance();
-        } else {
-            return Err(ParseError::UnexpectedToken {
-                found: p.current_token().token_type.clone(),
-                expected: "type name".to_string(),
-                line: p.current_token().line,
-            });
-        }
-    } else {
-        return Err(ParseError::UnexpectedToken {
-            found: p.current_token().token_type.clone(),
-            expected: ": type".to_string(),
-            line: p.current_token().line,
-        });
-    }
-    // Body: either fat arrow expr or block
-    let orig_body: Vec<ASTNode> = if p.match_token(&TokenType::FatArrow) {
-        p.advance(); // consume '=>'
-        let expr = p.parse_expression()?;
-        vec![ASTNode::Return {
-            value: Some(Box::new(expr)),
-            span: Span::unknown(),
-        }]
-    } else {
-        p.parse_block_statements()?
-    };
-    // Optional postfix handlers (Stage-3) directly after body
-    let final_body =
-        crate::parser::declarations::box_def::members::postfix::wrap_with_optional_postfix(
-            p, orig_body,
-        )?;
-    kind.emit(methods, birth_once_props, name, final_body);
+    let syntax::TypedMemberHeader {
+        name,
+        declared_type_name: _declared_type_name,
+    } = syntax::parse_required_typed_member_header(
+        p,
+        "identifier after once/birth_once",
+        ": type",
+        "type name",
+    )?;
+    let body = syntax::parse_required_property_body(
+        p,
+        PropertyBodyPostfix::ArrowOrBlock,
+        "'=>' expression or block for once/birth_once property",
+    )?;
+    kind.emit(methods, birth_once_props, name, body);
     Ok(true)
 }
 
@@ -139,45 +109,22 @@ pub(crate) fn try_parse_block_first_property(
     // 3) Optional kind keyword: once | birth_once
     let mut kind = PropertyMemberKind::Computed;
     if let TokenType::IDENTIFIER(k) = &p.current_token().token_type {
-        if let Some(parsed_kind) = PropertyMemberKind::from_keyword(k) {
+        if let Some(parsed_kind) = PropertyMemberKind::from_keyword(k.as_str()) {
             kind = parsed_kind;
             p.advance();
         }
     }
 
     // 4) Name : Type
-    let name = if let TokenType::IDENTIFIER(n) = &p.current_token().token_type {
-        let s = n.clone();
-        p.advance();
-        s
-    } else {
-        let line = p.current_token().line;
-        return Err(ParseError::UnexpectedToken {
-            found: p.current_token().token_type.clone(),
-            expected: "identifier for member name".to_string(),
-            line,
-        });
-    };
-    if p.match_token(&TokenType::COLON) {
-        p.advance();
-        if let TokenType::IDENTIFIER(_ty) = &p.current_token().token_type {
-            p.advance();
-        } else {
-            let line = p.current_token().line;
-            return Err(ParseError::UnexpectedToken {
-                found: p.current_token().token_type.clone(),
-                expected: "type name after ':'".to_string(),
-                line,
-            });
-        }
-    } else {
-        let line = p.current_token().line;
-        return Err(ParseError::UnexpectedToken {
-            found: p.current_token().token_type.clone(),
-            expected: ": type".to_string(),
-            line,
-        });
-    }
+    let syntax::TypedMemberHeader {
+        name,
+        declared_type_name: _declared_type_name,
+    } = syntax::parse_required_typed_member_header(
+        p,
+        "identifier for member name",
+        ": type",
+        "type name after ':'",
+    )?;
 
     // 5) Optional postfix handlers (Stage‑3) directly after block (shared helper)
     final_body =

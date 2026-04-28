@@ -44,9 +44,8 @@ Scope: current lane / next lane / restart order only.
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-655` closes the unified-member property
-  cleanup burst after the `291x-575` ordered plan-side compat queue landed
-  through `291x-634`
+- latest known checkpoint: `291x-656` lands parser member syntax SSOT cleanup
+  after unified-member property cleanup closed through `291x-655`
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
@@ -59,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-655-unified-member-property-closeout-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-656-parser-member-syntax-ssot-card.md`
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
@@ -78,11 +77,11 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-655`; detailed landed history lives in phase card
+- latest checkpoint: `291x-656`; detailed landed history lives in phase card
   files and the current `latest_card_path` in `CURRENT_STATE.toml`
 - next cleanup: selection pending; the `291x-575` ordered compat residue queue
-  and unified-member property cleanup are closed, and broad facts/planner
-  ownership work must reopen as its own lane
+  and unified-member property cleanup are closed, parser member syntax SSOT is
+  landed, and broad facts/planner ownership work must reopen as its own lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
@@ -93,8 +92,8 @@ Scope: current lane / next lane / restart order only.
 
 - CoreBox surface phase:
   `docs/development/current/main/phases/phase-291x/README.md`
-- Current cleanup closeout:
-  `docs/development/current/main/phases/phase-291x/291x-655-unified-member-property-closeout-card.md`
+- Current cleanup checkpoint:
+  `docs/development/current/main/phases/phase-291x/291x-656-parser-member-syntax-ssot-card.md`
 - CoreBox design brief:
   `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 - StringBox taskboard:
