@@ -1,8 +1,7 @@
 use super::super::{
     build_array_join_recipe, build_char_map_recipe, build_loop_break_recipe,
-    build_loop_simple_while_recipe, build_scan_with_init_recipe, build_split_scan_recipe,
-    ArrayJoinRecipe, CharMapRecipe, LoopBreakRecipe, LoopSimpleWhileRecipe, ScanWithInitRecipe,
-    SplitScanRecipe,
+    build_loop_simple_while_recipe, build_split_scan_recipe, ArrayJoinRecipe, CharMapRecipe,
+    LoopBreakRecipe, LoopSimpleWhileRecipe, SplitScanRecipe,
 };
 use super::utils::*;
 use crate::config::env::joinir_dev;
@@ -21,6 +20,9 @@ use crate::mir::builder::control_flow::plan::recipe_tree::loop_continue_only_bui
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::loop_true_early_exit_builder::{
     build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
+};
+use crate::mir::builder::control_flow::plan::recipe_tree::scan_with_init_builder::{
+    build_scan_with_init_recipe, ScanWithInitRecipe,
 };
 
 /// Recipe-first verification for loop-break.
