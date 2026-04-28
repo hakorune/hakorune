@@ -10,28 +10,19 @@ impl super::MirBuilder {
         field: String,
     ) -> Result<ValueId, String> {
         let object_clone = object.clone();
-        let object_value = self.build_expression(object.clone())?;
+        let object_value = self.build_expression(object)?;
         let object_value = self.local_field_base(object_value);
+
+        if let Some(property_value) = self.try_lower_property_read(object_value, &field)? {
+            return Ok(property_value);
+        }
+
         let declared_type = self
             .type_ctx
             .value_origin_newbox
             .get(&object_value)
             .and_then(|box_name| self.comp_ctx.declared_field_type_name(box_name, &field))
             .map(Self::parse_type_name_to_mir);
-
-        // Unified members: if object class is known and has a synthetic getter for `field`,
-        // rewrite to method call `__get_<field>()`.
-        if let Some(class_name) = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .cloned()
-        {
-            if let Some(kind) = self.comp_ctx.get_property_kind(&class_name, &field) {
-                let mname = kind.getter_method_name(&field);
-                return self.build_method_call(object_clone, mname, vec![]);
-            }
-        }
 
         let field_val = if let Some(ref ty) = declared_type {
             self.alloc_typed(ty.clone())
@@ -128,6 +119,28 @@ impl super::MirBuilder {
         // and participate in PHI merges when reused across branches.
         let pinned = self.pin_to_slot(field_val, "@field")?;
         Ok(pinned)
+    }
+
+    fn try_lower_property_read(
+        &mut self,
+        object_value: ValueId,
+        field: &str,
+    ) -> Result<Option<ValueId>, String> {
+        let Some(class_name) = self
+            .type_ctx
+            .value_origin_newbox
+            .get(&object_value)
+            .cloned()
+        else {
+            return Ok(None);
+        };
+        let Some(kind) = self.comp_ctx.get_property_kind(&class_name, field) else {
+            return Ok(None);
+        };
+
+        let getter_name = kind.getter_method_name(field);
+        self.handle_standard_method_call(object_value, getter_name, &[])
+            .map(Some)
     }
 
     /// Build field assignment: object.field = value

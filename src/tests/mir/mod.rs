@@ -97,6 +97,8 @@ pub mod mir_stageb_string_utils_skip_ws;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_static_box_naming.rs"]
 pub mod mir_static_box_naming;
+#[path = "../mir_unified_members_property_read.rs"]
+pub mod mir_unified_members_property_read;
 #[path = "../mir_user_box_method_determinism.rs"]
 pub mod mir_user_box_method_determinism;
 #[path = "../mir_value_kind.rs"]
