@@ -1,7 +1,6 @@
 //! Shared loop_break prep types and debug helpers.
 //!
-//! Analysis-only facts gathering now lives in
-//! `loop_break_steps::gather_facts_step_box`.
+//! Analysis-only facts gathering now lives in the loop_break owner modules.
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::condition_env::{ConditionBinding, ConditionEnv};

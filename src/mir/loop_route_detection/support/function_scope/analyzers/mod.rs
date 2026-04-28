@@ -7,4 +7,5 @@ mod v2;
 
 #[allow(unused_imports)]
 pub(crate) use v1::analyze_captured_vars;
+#[allow(unused_imports)]
 pub(crate) use v2::analyze_captured_vars_v2;

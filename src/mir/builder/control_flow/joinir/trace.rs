@@ -104,11 +104,6 @@ impl JoinLoopTrace {
             || self.capture_enabled
     }
 
-    /// Check if general joinir debug is enabled
-    pub fn is_joinir_enabled(&self) -> bool {
-        self.joinir_enabled
-    }
-
     /// Check if mainline routing debug is enabled
     pub fn is_mainline_enabled(&self) -> bool {
         self.mainline_enabled
@@ -137,22 +132,6 @@ impl JoinLoopTrace {
         }
     }
 
-    /// Trace JoinIR function/block counts
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "merge_start", "after_allocation")
-    /// - `func_count`: Number of functions in the JoinModule
-    /// - `block_count`: Total number of blocks across all functions
-    pub fn joinir_stats(&self, tag: &str, func_count: usize, block_count: usize) {
-        if self.joinir_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[trace:joinir] {}: {} functions, {} blocks",
-                tag, func_count, block_count
-            ));
-        }
-    }
-
     /// Generic debug message (only if any tracing enabled)
     ///
     /// # Arguments
@@ -173,16 +152,6 @@ impl JoinLoopTrace {
         if self.dev_enabled {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!("[trace:dev] {}: {}", tag, msg));
-        }
-    }
-
-    /// Capture/debug output (NYASH_CAPTURE_DEBUG=1).
-    pub fn capture(&self, tag: &str, msg: &str) {
-        if self.capture_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug(&format!("[trace:capture] {}: {}", tag, msg));
         }
     }
 

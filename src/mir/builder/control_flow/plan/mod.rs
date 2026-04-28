@@ -67,8 +67,6 @@ mod loop_break_condition_policy_router;
 mod loop_break_prep_box;
 // Phase 29bq+: loop-break policy router moved to plan side
 mod loop_break_policy_router;
-// Phase 29bq+: loop_break steps moved to plan side
-mod loop_break_steps;
 // Layer 5: Loop-Specific (ループ固有)
 // 各ループタイプの固有処理
 // Phase 29bq+: body local policy moved to plan side
@@ -110,8 +108,6 @@ mod nested_loop_plan_bridge;
 mod nested_loop_plan_continue_with_return;
 mod nested_loop_plan_recipe_fallback;
 mod nested_loop_plan_recipe_fallback_policy;
-// Phase 29bq+: Trim utilities moved to plan side
-mod trim_loop_lowering;
 mod trim_lowerer;
 mod trim_validator;
 
@@ -141,8 +137,6 @@ mod common_init;
 // 歴史的経緯で残存、将来的には整理予定
 // Phase 29bq+: Condition env builder moved to plan side
 mod condition_env_builder;
-// Phase 29bq+: Conversion pipeline moved to plan side
-mod conversion_pipeline;
 // Phase 29bq+: Route prep pipeline moved to plan side (patterns layer thin)
 mod plan_build_session;
 mod route_prep_pipeline;

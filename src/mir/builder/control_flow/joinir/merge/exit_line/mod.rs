@@ -5,7 +5,6 @@
 //! **Architecture**:
 //! ```text
 //! ExitLineOrchestrator (facade)
-//!   ├── ExitMetaCollector (collects exit_bindings)
 //!   └── ExitLineReconnector (updates variable_map)
 //! ```
 //!
@@ -16,7 +15,6 @@
 //! ## Single Responsibility
 //! Each Box handles one concern:
 //! - ExitLineReconnector: Updates variable_map with exit values
-//! - ExitMetaCollector: Constructs exit_bindings from ExitMeta
 //! - ExitLineOrchestrator: Orchestrates Phase 6 reconnection
 //!
 //! ## Why This Pattern?
@@ -43,16 +41,13 @@
 //! When implementing LoopContinueOnly route,
 //! new route lowerers can:
 //! ```rust
-//! let exit_bindings = ExitMetaCollector::collect(self, &exit_meta, debug);
 //! let boundary = JoinInlineBoundary::new_with_exits(...);
 //! exit_line::ExitLineOrchestrator::execute(builder, &boundary, &carrier_phis, debug);
 //! ```
 //! No changes to exit_line module needed!
 
-pub mod meta_collector;
 pub mod reconnector;
 
-pub use meta_collector::ExitMetaCollector;
 pub use reconnector::ExitLineReconnector;
 
 use crate::mir::ValueId;

@@ -29,9 +29,7 @@
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::condition_env::{ConditionBinding, ConditionEnv};
 use crate::mir::join_ir::lowering::condition_to_joinir::extract_condition_variables;
-use crate::mir::join_ir::lowering::inline_boundary_builder::JoinInlineBoundaryBuilder;
 use crate::mir::join_ir::lowering::join_value_space::JoinValueSpace;
-use crate::mir::loop_route_detection::support::function_scope::CapturedEnv;
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
@@ -118,138 +116,6 @@ impl ConditionEnvBuilder {
         (env, loop_var_join_id)
     }
 
-    /// Build ConditionEnv with optional captured variables (Phase 200-B implementation)
-    ///
-    /// # Phase 200-B Implementation
-    ///
-    /// Adds captured function-scoped variables to ConditionEnv and generates
-    /// condition_bindings for the boundary builder.
-    ///
-    /// # Phase 222.5-B Update
-    ///
-    /// Now uses JoinValueSpace for ValueId allocation (via build_loop_param_only_v2).
-    ///
-    /// # Behavior
-    ///
-    /// - Add captured variables to ConditionEnv.captured field
-    /// - Generate condition_bindings for captured vars in boundary
-    /// - Track captured vars separately from loop params
-    /// - Ensure captured vars do NOT participate in header PHI or exit_bindings
-    ///
-    /// # Arguments
-    ///
-    /// * `loop_var_name` - Loop parameter name (e.g., "i", "pos")
-    /// * `captured` - Function-scoped captured variables with host ValueIds
-    /// * `boundary` - Boundary builder for adding condition_bindings
-    /// * `variable_map` - Host function's variable_map to resolve host ValueIds
-    /// * `space` - JoinValueSpace for unified ValueId allocation (Phase 222.5-B)
-    ///
-    /// # Returns
-    ///
-    /// Tuple of:
-    /// - ConditionEnv with loop parameter and captured variables
-    /// - loop_var_join_id: The JoinIR ValueId allocated for the loop parameter
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// let captured = analyze_captured_vars(fn_body, loop_ast, scope);
-    /// let mut boundary = JoinInlineBoundaryBuilder::new();
-    /// let mut space = JoinValueSpace::new();
-    /// let (env, loop_var_join_id) = ConditionEnvBuilder::build_with_captures(
-    ///     "pos",
-    ///     &captured,  // Contains "digits"
-    ///     &mut boundary,
-    ///     &variable_map, // To resolve "digits" → ValueId(42)
-    ///     &mut space,
-    /// );
-    /// // env.params: "pos" → ValueId(100) (from JoinValueSpace)
-    /// // env.captured: "digits" → ValueId(101)
-    /// // boundary.condition_bindings: [ConditionBinding { name: "digits", host_value: ValueId(42), join_value: ValueId(101) }]
-    /// ```
-    pub fn build_with_captures(
-        loop_var_name: &str,
-        captured: &CapturedEnv,
-        boundary: &mut JoinInlineBoundaryBuilder,
-        variable_map: &BTreeMap<String, ValueId>,
-        space: &mut JoinValueSpace,
-    ) -> (ConditionEnv, ValueId) {
-        let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-        trace.capture(
-            "env_builder",
-            &format!(
-                "Building ConditionEnv with {} captured vars",
-                captured.vars.len()
-            ),
-        );
-
-        // Step 1: Build base ConditionEnv with loop params using v2 API (Phase 222.5-B)
-        let (mut env, loop_var_join_id) = Self::build_loop_param_only_v2(loop_var_name, space);
-
-        // Step 2: Add captured vars as ParamRole::Condition
-        for var in &captured.vars {
-            // 2a: Resolve host_id from variable_map
-            let host_id = match variable_map.get(&var.name) {
-                Some(&id) => id,
-                None => {
-                    trace.capture(
-                        "env_builder",
-                        &format!(
-                            "WARNING: Captured var '{}' not found in variable_map, skipping",
-                            var.name
-                        ),
-                    );
-                    continue;
-                }
-            };
-
-            // 2b: Add to boundary with Condition role
-            boundary.add_param_with_role(
-                &var.name,
-                host_id,
-                crate::mir::join_ir::lowering::inline_boundary_builder::ParamRole::Condition,
-            );
-
-            // 2c: Get JoinIR ValueId from boundary
-            let join_id = boundary
-                .get_condition_binding(&var.name)
-                .expect("captured var should be in boundary after add_param_with_role");
-
-            // 2d: Add to ConditionEnv.captured map
-            env.captured.insert(var.name.clone(), join_id);
-
-            trace.capture(
-                "env_builder",
-                &format!(
-                    "Added captured var '{}': host={:?}, join={:?}",
-                    var.name, host_id, join_id
-                ),
-            );
-        }
-
-        // Step 3: Debug guard - Condition params must NOT be in PHI candidates
-        #[cfg(debug_assertions)]
-        for var in &captured.vars {
-            if env.contains(&var.name) && !env.is_captured(&var.name) {
-                panic!(
-                    "Captured var '{}' must not be in loop params (ParamRole conflict)",
-                    var.name
-                );
-            }
-        }
-
-        let param_count = env.iter().count();
-        trace.capture(
-            "env_builder",
-            &format!(
-                "Final ConditionEnv: {} params, {} captured",
-                param_count,
-                env.captured.len()
-            ),
-        );
-
-        (env, loop_var_join_id)
-    }
 }
 
 #[cfg(test)]

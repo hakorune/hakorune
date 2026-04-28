@@ -43,7 +43,6 @@
 //! The primary entry points are:
 //!
 //! - `analyze_captured_vars()` - Main analysis function (uses pointer comparison)
-//! - `analyze_captured_vars_v2()` - Alternative using structural matching (Phase 200-C)
 //! - `CapturedVar` - Represents a captured variable
 //! - `CapturedEnv` - Environment containing all captured variables
 
@@ -53,5 +52,4 @@ mod helpers;
 mod types;
 
 // Public re-exports
-pub(crate) use analyzers::analyze_captured_vars_v2;
 pub use types::{CapturedEnv, CapturedKind, CapturedVar};

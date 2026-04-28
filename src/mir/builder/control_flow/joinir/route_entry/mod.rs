@@ -23,7 +23,6 @@
 //!
 //! Phase 33-22: Common Loop Infrastructure
 //! - common_init.rs: CommonPatternInitializer for unified initialization (thin wrapper)
-//! - conversion_pipeline.rs: JoinIRConversionPipeline for unified conversion flow (moved to plan/)
 //!
 //! Phase 171-172: Refactoring Infrastructure
 //! - loop_scope_shape_builder.rs: Unified LoopScopeShape initialization (Issue 4, thin wrapper)

@@ -188,28 +188,6 @@ impl super::MirBuilder {
     /// - Instance method `print_tokens()` → `/0` (no explicit params)
     /// - Static method `filter(arr, pred)` → `/2` (two params)
 
-    /// Phase 49-3.2: Merge JoinIR-generated MIR blocks into current_function
-    ///
-    /// **Phase 4 Refactoring Complete**: This function now delegates to the modular
-    /// merge implementation in `joinir::merge::merge_joinir_mir_blocks()`.
-    ///
-    /// The original 714-line implementation has been broken down into 6 focused modules:
-    /// 1. block_allocator.rs - Block ID allocation
-    /// 2. value_collector.rs - Value collection
-    /// 3. ID remapping (using JoinIrIdRemapper)
-    /// 4. instruction_rewriter.rs - Instruction rewriting
-    /// 5. exit_phi_builder.rs - Exit PHI construction
-    /// 6. Boundary reconnection (in merge/mod.rs)
-    fn merge_joinir_mir_blocks(
-        &mut self,
-        mir_module: &crate::mir::MirModule,
-        boundary: Option<&crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary>,
-        debug: bool,
-    ) -> Result<Option<ValueId>, String> {
-        // Phase 4: Delegate to modular implementation
-        joinir::merge::merge_joinir_mir_blocks(self, mir_module, boundary, debug)
-    }
-
     /// Control-flow: try/catch/finally
     ///
     /// Delegates to exception::cf_try_catch for implementation.

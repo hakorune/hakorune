@@ -61,7 +61,6 @@ impl CarrierInfo {
 
 **ConditionOnly フィルタが4ファイルに分散！**
 
-- `meta_collector.rs` - collection ロジック
 - `reconnector.rs` (2箇所) - reconnect ロジック
 - `instruction_rewriter.rs` - exit PHI ロジック
 

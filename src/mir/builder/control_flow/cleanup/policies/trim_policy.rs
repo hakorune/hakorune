@@ -1,7 +1,7 @@
 //! Trim pattern policy box (判定専用).
 //!
 //! 目的: Trim 形状かどうかを判定し、ConditionScope を返すだけに責務を絞る。
-//! 生成（lowering）は従来通り `TrimLoopLowerer` 側が担当する。
+//! 生成（lowering）は dedicated trim lowerer 側が担当する。
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::cleanup::policies::body_local_derived_slot::extract_body_local_derived_slot;

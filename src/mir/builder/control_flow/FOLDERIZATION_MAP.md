@@ -138,7 +138,6 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - rationale:
   - policy and post-lowering cleanup surface
 - actual owner surface already landed:
-  - `cleanup::common`
   - `cleanup::policies::body_local_derived_slot`
   - `cleanup::policies::cond_prelude_vocab`
   - `cleanup::policies::loop_true_read_digits_policy`
@@ -158,7 +157,6 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 
 - `generic_loop`
 - `loop_break`
-- `loop_break_steps`
 - `loop_bundle_resolver_v0`
 - `loop_collect_using_entries_v0`
 - `loop_cond`

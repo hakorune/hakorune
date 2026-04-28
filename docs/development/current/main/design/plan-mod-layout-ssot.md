@@ -101,12 +101,10 @@ route_shape_recognizers - route recognizers
 **責務**: 歴史的経緯で残存、将来的には整理予定
 
 ```
-conversion_pipeline - 変換パイプライン
 condition_env_builder - 条件環境ビルダー
 ast_feature_extractor - AST feature 抽出
 escape_shape_recognizer - エスケープパターン認識
-join_key      - 構造ロック (edgecfg 側在)
-plan_build_session - セ�設計セッション
+plan_build_session - emit/seal 設計セッション
 route_prep_pipeline - ルート前処理パイプライン
 ```
 

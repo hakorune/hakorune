@@ -21,7 +21,7 @@
 //! Variant Lowerers (dedicated route modules)
 //! ├─ JoinIR generation              → lower_*_minimal()
 //! ├─ Boundary construction          → JoinInlineBoundaryBuilder
-//! └─ MIR merge                      → JoinIRConversionPipeline
+//! └─ MIR merge                      → dedicated route lowerers + joinir::merge
 //! ```
 //!
 //! ## Benefits
