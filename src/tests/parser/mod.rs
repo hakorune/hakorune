@@ -43,5 +43,7 @@ pub mod parser_semicolon;
 pub mod parser_static_box_members;
 #[path = "../parser_unified_members_get.rs"]
 pub mod parser_unified_members_get;
+#[path = "../parser_unified_members_property_emit.rs"]
+pub mod parser_unified_members_property_emit;
 #[path = "../tokenizer_unicode_toggle.rs"]
 pub mod tokenizer_unicode_toggle;

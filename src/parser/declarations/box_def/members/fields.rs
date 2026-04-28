@@ -1,6 +1,7 @@
 //! Fields parsing (header-first: `name: Type` + unified members gates)
 use crate::ast::{ASTNode, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
+use crate::parser::declarations::box_def::members::property_emit;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
@@ -13,24 +14,6 @@ fn parse_optional_declared_type_name(p: &mut NyashParser) -> Option<String> {
     } else {
         None
     }
-}
-
-fn insert_computed_getter(
-    methods: &mut HashMap<String, ASTNode>,
-    fname: String,
-    body: Vec<ASTNode>,
-) {
-    let getter_name = format!("__get_{}", fname);
-    let method = ASTNode::FunctionDeclaration {
-        name: getter_name.clone(),
-        params: vec![],
-        body,
-        is_static: false,
-        is_override: false,
-        attrs: crate::ast::DeclarationAttrs::default(),
-        span: Span::unknown(),
-    };
-    methods.insert(getter_name, method);
 }
 
 fn try_parse_computed_body(
@@ -46,7 +29,7 @@ fn try_parse_computed_body(
             value: Some(Box::new(expr)),
             span: Span::unknown(),
         }];
-        insert_computed_getter(methods, fname, body);
+        property_emit::insert_computed_getter(methods, fname, body);
         return Ok(true);
     }
     // name: Type { ... } [postfix]
@@ -56,7 +39,7 @@ fn try_parse_computed_body(
             crate::parser::declarations::box_def::members::postfix::wrap_with_optional_postfix(
                 p, body,
             )?;
-        insert_computed_getter(methods, fname, body);
+        property_emit::insert_computed_getter(methods, fname, body);
         return Ok(true);
     }
     Ok(false)

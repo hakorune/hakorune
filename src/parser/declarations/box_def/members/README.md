@@ -1,0 +1,18 @@
+# Box Member Parser Boundary
+
+This directory parses Box member syntax. Keep syntax recognition separate from
+synthetic method body construction.
+
+- `fields.rs`: stored fields, weak-field delegation, visibility sugar, and
+  header-first computed/get parsing.
+- `properties.rs`: once/birth_once and block-first unified member parsing.
+- `property_emit.rs`: the only owner for synthetic property method AST bodies
+  and naming (`__get_*`, `__get_once_*`, `__get_birth_*`,
+  `__compute_once_*`, `__compute_birth_*`).
+
+Rules:
+
+- Do not reserve `get` in the tokenizer. It is contextual at Box member head.
+- Do not add generic runtime property lookup here.
+- Do not duplicate synthetic property method bodies in parser entry modules.
+- Keep AST/JSON/MIR shape stable unless a separate language decision changes it.

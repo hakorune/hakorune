@@ -27,15 +27,9 @@ impl super::MirBuilder {
             .get(&object_value)
             .cloned()
         {
-            if let Some(map) = self.comp_ctx.property_getters_by_box.get(&class_name) {
-                if let Some(kind) = map.get(&field) {
-                    let mname = match kind {
-                        super::PropertyKind::Computed => format!("__get_{}", field),
-                        super::PropertyKind::Once => format!("__get_once_{}", field),
-                        super::PropertyKind::BirthOnce => format!("__get_birth_{}", field),
-                    };
-                    return self.build_method_call(object_clone, mname, vec![]);
-                }
+            if let Some(kind) = self.comp_ctx.get_property_kind(&class_name, &field) {
+                let mname = kind.getter_method_name(&field);
+                return self.build_method_call(object_clone, mname, vec![]);
             }
         }
 
