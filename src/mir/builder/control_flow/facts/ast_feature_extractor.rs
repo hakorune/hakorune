@@ -57,9 +57,6 @@ use route_shape_recognizers::if_else_phi::detect_if_else_phi_in_body;
 // Re-export carrier count estimation
 use route_shape_recognizers::carrier_count::count_carriers_in_body;
 
-// Re-export parse_string shape detection
-pub use route_shape_recognizers::parse_string::{detect_continue_shape, detect_parse_string_shape};
-
 // Re-export skip_whitespace shape detection
 pub use route_shape_recognizers::skip_whitespace::detect_skip_whitespace_shape;
 

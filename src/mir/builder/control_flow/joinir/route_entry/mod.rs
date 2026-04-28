@@ -65,13 +65,13 @@ pub(crate) use ast_feature_extractor::detect_skip_whitespace_shape;
 pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_number::detect_read_digits_loop_true_shape;
 
 // Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_continue_shape;
+pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_string::detect_continue_shape;
 
 // Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
 pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_number::detect_parse_number_shape;
 
 // Phase 143-P1:
-pub(crate) use ast_feature_extractor::detect_parse_string_shape;
+pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_string::detect_parse_string_shape;
 
 // Phase 91 P5b: Re-export escape skip shape detection for loop_canonicalizer
 pub(crate) use crate::mir::builder::control_flow::facts::escape_shape_recognizer::detect_escape_skip_shape;

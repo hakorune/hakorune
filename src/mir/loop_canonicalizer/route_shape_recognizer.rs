@@ -118,7 +118,7 @@ pub fn try_extract_parse_number_shape(
 ///
 /// # Phase 143-P1/P2: Parse String/Array Route Detection
 ///
-/// This function delegates to `ast_feature_extractor::detect_parse_string_shape`
+/// This function delegates to the parse-string route-shape recognizer owner
 /// for SSOT implementation. The same detector handles both parse_string and
 /// parse_array route shapes as they share the same structural characteristics.
 pub fn try_extract_parse_string_shape(body: &[ASTNode]) -> Option<(String, i64, Vec<ASTNode>)> {
@@ -148,7 +148,7 @@ pub fn try_extract_parse_string_shape(body: &[ASTNode]) -> Option<(String, i64, 
 ///
 /// # Phase 142-P1: Continue Route Detection
 ///
-/// This function delegates to `ast_feature_extractor::detect_continue_shape`
+/// This function delegates to the parse-string route-shape recognizer owner
 /// for SSOT implementation.
 pub fn try_extract_continue_shape(
     body: &[ASTNode],
