@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-27
+Date: 2026-04-28
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -37,20 +37,21 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x plan-side compat surface prune queue active`
+- current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-576` prunes the
-  `plan::coreloop_body_contract` wrapper and advances the plan-side compat
-  cleanup queue
+- latest known checkpoint: `291x-635` closes the stale plan-side compat queue
+  pointer after the `291x-575` ordered queue and follow-up facade pruning
+  landed through `291x-634`
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue the phase-291x plan-side compat surface prune queue
+- resume point: select the next phase-291x compiler-cleanliness lane, or
+  switch to an explicitly reopened non-cleanup blocker
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -58,11 +59,14 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
+  `docs/development/current/main/phases/phase-291x/291x-635-current-task-order-closeout-card.md`
+- prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: prune unused `plan/facts` wrappers, then small facts owner-path
-  migrations
+- next: choose the next compiler-cleanliness lane; broad `plan/facts` and
+  `lower::planner_compat` work require a new family-sized BoxShape lane if
+  reopened
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep BoxShape cleanup separate from BoxCount feature rows
@@ -74,10 +78,10 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-576`; detailed landed history lives in phase card
-  files and the compact `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: unused `plan/facts` wrappers, followed by the remaining
-  `291x-575` ordered compat residue queue
+- latest checkpoint: `291x-635`; detailed landed history lives in phase card
+  files and the current `latest_card_path` in `CURRENT_STATE.toml`
+- next cleanup: selection pending; the `291x-575` ordered compat residue queue
+  is closed, and broad facts/planner ownership work must reopen as its own lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
@@ -88,6 +92,8 @@ Scope: current lane / next lane / restart order only.
 
 - CoreBox surface phase:
   `docs/development/current/main/phases/phase-291x/README.md`
+- Current task-order closeout:
+  `docs/development/current/main/phases/phase-291x/291x-635-current-task-order-closeout-card.md`
 - CoreBox design brief:
   `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 - StringBox taskboard:

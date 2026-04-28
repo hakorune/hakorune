@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-27
+Date: 2026-04-28
 Scope: CoreBox surface catalog / CoreMethodContract cleanup phase front.
 Related:
   - CURRENT_TASK.md
@@ -188,6 +188,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-486-map-lookup-fusion-route-field-cleanup-card.md
   - docs/development/current/main/phases/phase-291x/291x-487-map-lookup-fusion-route-field-closeout-card.md
   - docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md
+  - docs/development/current/main/phases/phase-291x/291x-635-current-task-order-closeout-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -195,8 +196,8 @@ Related:
 - Status: active reference lane
 - Latest landed cleanup target: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Next implementation target: continue the plan-side compat/facade surface
-  prune queue advanced by `291x-576`
+- Next implementation target: select the next compiler-cleanliness lane after
+  closing the `291x-575` plan-side compat/facade queue through `291x-634`
 - Canonical smoke index:
   `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 - Sibling guardrail: phase-137x remains observe-only unless app work produces
@@ -208,11 +209,12 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
-4. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
-5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
-6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
-7. `docs/development/current/main/design/mir-root-facade-contract-ssot.md`
+3. `docs/development/current/main/phases/phase-291x/291x-635-current-task-order-closeout-card.md`
+4. `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
+5. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
+6. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+8. `docs/development/current/main/design/mir-root-facade-contract-ssot.md`
 
 Detailed card history is intentionally not duplicated here. Use the numbered
 `291x-*` card files as the ledger.
@@ -251,12 +253,13 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-576`
+- latest known cleanup checkpoint: `291x-635`
 - no-growth baseline: `classifiers=0 rows=0`
-- detailed landed history lives in phase card files and the compact
-  `landed_tail` in `CURRENT_STATE.toml`
-- next cleanup: prune unused `plan/facts` wrappers, then continue the
-  remaining `291x-575` ordered plan-side compat residue queue
+- detailed landed history lives in phase card files and the current
+  `latest_card_path` in `CURRENT_STATE.toml`
+- next cleanup: selection pending; the `291x-575` ordered plan-side compat
+  residue queue is closed, and broad facts/planner ownership work must reopen
+  as its own family-sized BoxShape lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - Stage-B adapter thinning stays BoxShape-only; do not mix it with
@@ -271,6 +274,7 @@ in one card.
 | --- | --- |
 | CoreBox surface catalog design | `291x-90-corebox-surface-catalog-design-brief.md` |
 | Surface inventory | `291x-92-corebox-surface-inventory-ledger.md` |
+| Current task-order closeout | `291x-635-current-task-order-closeout-card.md` |
 | Current task-order baseline | `291x-488-current-task-order-baseline-refresh-card.md` |
 | Historical post-birth row-prune order | `291x-255-post-birth-cleanup-task-order-card.md` |
 | CoreMethodContract / Hotline policy | `docs/development/current/main/design/hotline-core-method-contract-ssot.md` |

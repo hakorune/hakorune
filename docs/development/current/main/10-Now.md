@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-27
+Date: 2026-04-28
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,16 +20,18 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x plan-side compat surface prune queue active`
+- current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue the phase-291x plan-side compat surface prune queue
-- cleanup checkpoint: latest known card `291x-576`; detailed closed
-  history lives in phase card files and the compact `landed_tail` in
-  `CURRENT_STATE.toml`
+- select the next phase-291x compiler-cleanliness lane, or switch to an
+  explicitly reopened non-cleanup blocker
+- cleanup checkpoint: latest known card `291x-635`; detailed closed history
+  lives in phase card files and `latest_card_path` in `CURRENT_STATE.toml`
+- do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
+  without a new family-sized BoxShape lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   move to a new lane
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
