@@ -6,6 +6,4 @@
 
 #![allow(unused_imports)]
 
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::facts::{
-    feature_facts, skeleton_facts,
-};
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::facts::feature_facts;

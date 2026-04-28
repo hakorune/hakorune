@@ -1,9 +1,9 @@
 //! FlowBox observability tags (strict/dev only).
 
-use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::Freeze;
 use crate::mir::builder::control_flow::lower::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
 
 #[derive(Clone, Copy)]
 pub(in crate::mir::builder) enum FlowboxVia {

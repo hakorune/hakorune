@@ -3,7 +3,7 @@
 use crate::mir::builder::control_flow::facts::feature_facts::{
     CleanupKindFacts, ExitKindFacts, ExitUsageFacts,
 };
-use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
+use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
 use crate::mir::builder::control_flow::plan::facts::LoopFacts;
 use std::collections::BTreeSet;
 
@@ -48,8 +48,10 @@ mod tests {
         CleanupFacts, CleanupKindFacts, ExitKindFacts, ExitMapFacts, ExitUsageFacts,
         LoopFeatureFacts,
     };
-    use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
+        SkeletonFacts, SkeletonKind,
+    };
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use std::collections::BTreeSet;
 
@@ -78,7 +80,7 @@ mod tests {
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
-            skeleton: crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
+            skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
                 ..Default::default()
             },
@@ -160,7 +162,7 @@ mod tests {
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
-            skeleton: crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
+            skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
                 ..Default::default()
             },
@@ -214,7 +216,7 @@ mod tests {
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
-            skeleton: crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
+            skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
                 ..Default::default()
             },
