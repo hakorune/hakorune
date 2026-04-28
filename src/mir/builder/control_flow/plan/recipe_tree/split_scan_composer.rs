@@ -1,13 +1,15 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
-use super::{build_split_scan_recipe, SplitScanRecipe};
 use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::plan::recipe_tree::split_scan_builder::{
+    build_split_scan_recipe, SplitScanRecipe,
+};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;

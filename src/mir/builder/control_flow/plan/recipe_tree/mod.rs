@@ -58,8 +58,6 @@ pub(in crate::mir::builder) use loop_break_builder::{build_loop_break_recipe, Lo
 pub(in crate::mir::builder) use loop_simple_while_builder::{
     build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
 };
-pub(in crate::mir::builder) use split_scan_builder::{build_split_scan_recipe, SplitScanRecipe};
-
 // ===== RecipeComposer (moved from composer/mod.rs) =====
 pub(in crate::mir::builder) struct RecipeComposer;
 
