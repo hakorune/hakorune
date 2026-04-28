@@ -4,8 +4,8 @@ mod tests {
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::{
-        BlockContractKind, ExitKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
-        RecipeBodies, RecipeItem,
+        verify_port_sig_obligations_if_enabled, BlockContractKind, ExitKind, IfContractKind,
+        LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies, RecipeItem,
     };
     use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan};
     use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
@@ -347,17 +347,12 @@ mod tests {
         )
         .expect("verify exit-allowed block");
 
-        super::super::verify::verify_port_sig_obligations_if_enabled(
-            &verified,
-            "test_return_obligation",
-        )
-        .expect("expected empty return obligations to be allowed");
+        verify_port_sig_obligations_if_enabled(&verified, "test_return_obligation")
+            .expect("expected empty return obligations to be allowed");
     }
 
     #[test]
     fn test_joinir_obligation_exit_allowed_port_sig_is_seeded() {
-        use crate::mir::builder::control_flow::plan::recipe_tree::PortType;
-
         std::env::set_var("HAKO_JOINIR_STRICT", "1");
         std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
 
@@ -387,39 +382,16 @@ mod tests {
         )
         .expect("verify exit-allowed block");
 
-        assert!(
-            verified
-                .port_sig()
-                .port(PortType::Return)
-                .contains_key("sum"),
-            "expected return port to include pre-bound var"
-        );
-        assert!(
-            verified
-                .port_sig()
-                .port(PortType::Break)
-                .contains_key("sum"),
-            "expected break port to include pre-bound var"
-        );
-        assert!(
-            verified
-                .port_sig()
-                .port(PortType::Continue)
-                .contains_key("sum"),
-            "expected continue port to include pre-bound var"
-        );
+        assert!(verified.return_port_contains("sum"));
+        assert!(verified.break_port_contains("sum"));
+        assert!(verified.continue_port_contains("sum"));
 
-        super::super::verify::verify_port_sig_obligations_if_enabled(
-            &verified,
-            "test_exit_allowed_port_sig",
-        )
-        .expect("expected exit-allowed port sig to be valid");
+        verify_port_sig_obligations_if_enabled(&verified, "test_exit_allowed_port_sig")
+            .expect("expected exit-allowed port sig to be valid");
     }
 
     #[test]
     fn test_joinir_obligation_exit_only_port_sig_is_seeded() {
-        use crate::mir::builder::control_flow::plan::recipe_tree::PortType;
-
         std::env::set_var("HAKO_JOINIR_STRICT", "1");
         std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
 
@@ -449,32 +421,11 @@ mod tests {
         )
         .expect("verify exit-only block");
 
-        assert!(
-            verified
-                .port_sig()
-                .port(PortType::Return)
-                .contains_key("sum"),
-            "expected return port to include pre-bound var"
-        );
-        assert!(
-            verified
-                .port_sig()
-                .port(PortType::Break)
-                .contains_key("sum"),
-            "expected break port to include pre-bound var"
-        );
-        assert!(
-            verified
-                .port_sig()
-                .port(PortType::Continue)
-                .contains_key("sum"),
-            "expected continue port to include pre-bound var"
-        );
+        assert!(verified.return_port_contains("sum"));
+        assert!(verified.break_port_contains("sum"));
+        assert!(verified.continue_port_contains("sum"));
 
-        super::super::verify::verify_port_sig_obligations_if_enabled(
-            &verified,
-            "test_exit_only_port_sig",
-        )
-        .expect("expected exit-only port sig to be valid");
+        verify_port_sig_obligations_if_enabled(&verified, "test_exit_only_port_sig")
+            .expect("expected exit-only port sig to be valid");
     }
 }

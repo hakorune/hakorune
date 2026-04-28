@@ -9,10 +9,8 @@
 
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, ExitKind, IfContractKind, IfMode, ObligationState, RecipeBlock,
-    RecipeBodies, RecipeItem, VerifiedRecipeBlock,
+    BlockContractKind, ExitKind, IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
@@ -210,67 +208,6 @@ fn verify_if_join_obligations_if_enabled(
     if !strict_planner_required() {
         return Ok(());
     }
-    Ok(())
-}
-
-pub(in crate::mir::builder) fn verify_port_sig_obligations_if_enabled(
-    verified: &VerifiedRecipeBlock<'_>,
-    context: &str,
-) -> Result<(), String> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::PortType;
-
-    // SSOT: docs/development/current/main/design/verified-recipe-port-sig-ssot.md
-    // PortSig obligations are enforced for NoExit/ExitAllowed/ExitOnly
-    // in strict/dev(+planner_required). StmtOnly is excluded.
-    if !strict_planner_required() {
-        return Ok(());
-    }
-
-    // Exclude StmtOnly (no PortSig obligations)
-    match verified.kind() {
-        BlockContractKind::StmtOnly => return Ok(()),
-        BlockContractKind::NoExit
-        | BlockContractKind::ExitAllowed
-        | BlockContractKind::ExitOnly => {}
-    }
-
-    for (name, state) in verified.port_sig().fallthrough() {
-        if *state != ObligationState::Defined {
-            let freeze = Freeze::contract(format!(
-                "port_sig_fallthrough_not_defined var={name} state={state:?} ctx={context}"
-            ));
-            return Err(freeze.to_string());
-        }
-    }
-
-    for port in PortType::exit_ports() {
-        if matches!(port, PortType::Return) {
-            if verified.port_sig().return_seen() {
-                if verified.port_sig().port(port).is_empty() {
-                    // Empty return obligation means "no return value" and is allowed.
-                    continue;
-                }
-                for (name, state) in verified.port_sig().port(port) {
-                    if *state != ObligationState::Defined {
-                        let freeze = Freeze::contract(format!(
-                            "port_sig_exit_not_defined port={port:?} var={name} state={state:?} ctx={context}"
-                        ));
-                        return Err(freeze.to_string());
-                    }
-                }
-            }
-            continue;
-        }
-        for (name, state) in verified.port_sig().port(port) {
-            if *state != ObligationState::Defined {
-                let freeze = Freeze::contract(format!(
-                    "port_sig_exit_not_defined port={port:?} var={name} state={state:?} ctx={context}"
-                ));
-                return Err(freeze.to_string());
-            }
-        }
-    }
-
     Ok(())
 }
 

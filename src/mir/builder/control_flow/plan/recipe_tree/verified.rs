@@ -46,17 +46,17 @@ pub(in crate::mir::builder) struct PortSig {
 }
 
 impl PortSig {
-    pub fn fallthrough(&self) -> &BTreeMap<String, ObligationState> {
+    fn fallthrough(&self) -> &BTreeMap<String, ObligationState> {
         self.ports
             .get(&PortType::Fallthrough)
             .unwrap_or(&EMPTY_PORT)
     }
 
-    pub fn port(&self, port: PortType) -> &BTreeMap<String, ObligationState> {
+    fn port(&self, port: PortType) -> &BTreeMap<String, ObligationState> {
         self.ports.get(&port).unwrap_or(&EMPTY_PORT)
     }
 
-    pub fn return_seen(&self) -> bool {
+    fn return_seen(&self) -> bool {
         self.return_seen
     }
 
@@ -103,8 +103,19 @@ impl<'a> VerifiedRecipeBlock<'a> {
         self.kind
     }
 
-    pub fn port_sig(&self) -> &PortSig {
-        &self.port_sig
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn return_port_contains(&self, name: &str) -> bool {
+        self.port_sig.port(PortType::Return).contains_key(name)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn break_port_contains(&self, name: &str) -> bool {
+        self.port_sig.port(PortType::Break).contains_key(name)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn continue_port_contains(&self, name: &str) -> bool {
+        self.port_sig.port(PortType::Continue).contains_key(name)
     }
 }
 
@@ -146,6 +157,64 @@ pub(in crate::mir::builder::control_flow::plan) fn verify_block_contract_with_pr
         kind,
         port_sig,
     })
+}
+
+pub(in crate::mir::builder) fn verify_port_sig_obligations_if_enabled(
+    verified: &VerifiedRecipeBlock<'_>,
+    context: &str,
+) -> Result<(), String> {
+    // SSOT: docs/development/current/main/design/verified-recipe-port-sig-ssot.md
+    // PortSig obligations are enforced for NoExit/ExitAllowed/ExitOnly
+    // in strict/dev(+planner_required). StmtOnly is excluded.
+    if !strict_planner_required() {
+        return Ok(());
+    }
+
+    match verified.kind() {
+        BlockContractKind::StmtOnly => return Ok(()),
+        BlockContractKind::NoExit
+        | BlockContractKind::ExitAllowed
+        | BlockContractKind::ExitOnly => {}
+    }
+
+    for (name, state) in verified.port_sig.fallthrough() {
+        if *state != ObligationState::Defined {
+            let freeze = Freeze::contract(format!(
+                "port_sig_fallthrough_not_defined var={name} state={state:?} ctx={context}"
+            ));
+            return Err(freeze.to_string());
+        }
+    }
+
+    for port in PortType::exit_ports() {
+        if matches!(port, PortType::Return) {
+            if verified.port_sig.return_seen() {
+                if verified.port_sig.port(port).is_empty() {
+                    // Empty return obligation means "no return value" and is allowed.
+                    continue;
+                }
+                for (name, state) in verified.port_sig.port(port) {
+                    if *state != ObligationState::Defined {
+                        let freeze = Freeze::contract(format!(
+                            "port_sig_exit_not_defined port={port:?} var={name} state={state:?} ctx={context}"
+                        ));
+                        return Err(freeze.to_string());
+                    }
+                }
+            }
+            continue;
+        }
+        for (name, state) in verified.port_sig.port(port) {
+            if *state != ObligationState::Defined {
+                let freeze = Freeze::contract(format!(
+                    "port_sig_exit_not_defined port={port:?} var={name} state={state:?} ctx={context}"
+                ));
+                return Err(freeze.to_string());
+            }
+        }
+    }
+
+    Ok(())
 }
 
 fn verify_block_contract_impl(

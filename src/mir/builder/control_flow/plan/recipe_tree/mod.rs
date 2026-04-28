@@ -50,7 +50,7 @@ mod verified;
 pub(in crate::mir::builder) use contracts::{RecipeContract, RecipeContractKind, StmtConstraint};
 pub(in crate::mir::builder::control_flow::plan) use verified::verify_block_contract_with_pre;
 pub(in crate::mir::builder) use verified::{
-    check_block_contract, ObligationState, PortType, VerifiedRecipeBlock,
+    check_block_contract, verify_port_sig_obligations_if_enabled, VerifiedRecipeBlock,
 };
 
 // ===== RecipeComposer route entry facade =====

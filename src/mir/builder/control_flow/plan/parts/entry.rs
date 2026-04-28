@@ -8,8 +8,8 @@
 //! - This module is intended to become the only place that creates `VerifiedRecipeBlock`.
 
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    verify_block_contract_with_pre, BlockContractKind, ExitKind, RecipeBlock, RecipeBodies,
-    VerifiedRecipeBlock,
+    verify_block_contract_with_pre, verify_port_sig_obligations_if_enabled, BlockContractKind,
+    ExitKind, RecipeBlock, RecipeBodies, VerifiedRecipeBlock,
 };
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
@@ -18,8 +18,6 @@ use crate::mir::ConstValue;
 use std::collections::BTreeMap;
 
 use super::dispatch;
-use super::verify;
-
 pub(in crate::mir::builder) use super::dispatch::{
     lower_if_join_with_branch_lowerers, lower_value_cond_if_with_filtered_joins,
 };
@@ -113,7 +111,7 @@ pub(in crate::mir::builder) fn lower_exit_only_block_verified(
     verified: VerifiedRecipeBlock<'_>,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    verify::verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
+    verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
     let plans = dispatch::lower_exit_only_block_verified(
         builder,
         current_bindings,
@@ -145,7 +143,7 @@ where
         &str,
     ) -> Result<Vec<LoweredRecipe>, String>,
 {
-    verify::verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
+    verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
     let plans = dispatch::lower_stmt_only_block(
         builder,
         current_bindings,
@@ -168,7 +166,7 @@ pub(in crate::mir::builder) fn lower_exit_allowed_block_verified(
     verified: VerifiedRecipeBlock<'_>,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    verify::verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
+    verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
     let plans = dispatch::lower_exit_allowed_block_verified(
         builder,
         current_bindings,
@@ -210,7 +208,7 @@ pub(in crate::mir::builder) fn lower_no_exit_block_verified(
     verified: VerifiedRecipeBlock<'_>,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    verify::verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
+    verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
     let plans = dispatch::lower_no_exit_block_verified(
         builder,
         current_bindings,
@@ -351,7 +349,7 @@ where
     ) -> Result<Vec<LoweredRecipe>, String>,
     ShouldUpdateBinding: Fn(&str, &BTreeMap<String, crate::mir::ValueId>) -> bool,
 {
-    verify::verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
+    verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
     let plans = dispatch::lower_no_exit_block_with_stmt_lowerer_verified(
         builder,
         current_bindings,
