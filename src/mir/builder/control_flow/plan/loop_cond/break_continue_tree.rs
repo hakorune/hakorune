@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
     try_build_exit_only_block_recipe, ExitOnlyBlockRecipe,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::common::IfMode;
+use crate::mir::builder::control_flow::plan::recipe_tree::IfMode;
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 

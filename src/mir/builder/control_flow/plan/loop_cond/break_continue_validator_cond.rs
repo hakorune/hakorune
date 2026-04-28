@@ -12,7 +12,7 @@ use crate::mir::builder::control_flow::facts::no_exit_block::{
 };
 use crate::mir::builder::control_flow::facts::stmt_walk::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
-use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
+use crate::mir::builder::control_flow::plan::recipe_tree::ExitKind;
 
 /// Check if an if statement is a conditional update pattern.
 ///

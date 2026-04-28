@@ -6,7 +6,7 @@
 use super::super::steps::effects_to_plans;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
-use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
+use crate::mir::builder::control_flow::plan::recipe_tree::ExitKind;
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
 use crate::mir::builder::MirBuilder;

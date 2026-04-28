@@ -1,7 +1,7 @@
 //! ExitKind depth adapter (analysis-only).
 
 use crate::mir::builder::control_flow::plan::facts::feature_facts::ExitKindFacts;
-use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
+use crate::mir::builder::control_flow::plan::recipe_tree::ExitKind;
 
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir::builder) struct ExitKindDepthView {

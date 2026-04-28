@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockV
 use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::normalizer::common::negate_bool_cond;
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_cond_value;
-use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
+use crate::mir::builder::control_flow::plan::recipe_tree::ExitKind;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,

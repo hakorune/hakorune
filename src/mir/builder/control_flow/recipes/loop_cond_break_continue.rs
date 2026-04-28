@@ -10,7 +10,7 @@ use crate::mir::builder::control_flow::facts::stmt_view::StmtOnlyBlockRecipe;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
     ExitAllowedBlockRecipe, ExitOnlyBlockRecipe,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
+use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 
