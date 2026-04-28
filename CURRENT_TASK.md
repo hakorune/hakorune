@@ -44,8 +44,8 @@ Scope: current lane / next lane / restart order only.
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-660` prunes the BodyLocalRoute type facade
-  after generic-loop canon reverse export pruning landed through `291x-659`
+- latest known checkpoint: `291x-661` aligns DigitPos reject-message tests
+  after BodyLocalRoute facade pruning landed through `291x-660`
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-660-body-local-route-facade-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-661-digitpos-reject-message-test-contract-card.md`
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
@@ -77,14 +77,15 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-660`; detailed landed history lives in phase card
+- latest checkpoint: `291x-661`; detailed landed history lives in phase card
   files and the current `latest_card_path` in `CURRENT_STATE.toml`
 - next cleanup: choose the next compiler-cleanliness lane; the `291x-575`
   ordered compat residue queue and unified-member property cleanup are closed,
   parser member syntax SSOT is landed, planner reject-detail diagnostics
   cleanup, lower planner compat test-only export pruning, generic-loop canon
-  reverse export pruning, and BodyLocalRoute facade pruning are landed, and
-  broad facts/planner ownership work must reopen as its own lane
+  reverse export pruning, BodyLocalRoute facade pruning, and DigitPos
+  reject-message test cleanup are landed, and broad facts/planner ownership
+  work must reopen as its own lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
@@ -96,7 +97,7 @@ Scope: current lane / next lane / restart order only.
 - CoreBox surface phase:
   `docs/development/current/main/phases/phase-291x/README.md`
 - Current cleanup checkpoint:
-  `docs/development/current/main/phases/phase-291x/291x-660-body-local-route-facade-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-661-digitpos-reject-message-test-contract-card.md`
 - CoreBox design brief:
   `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 - StringBox taskboard:

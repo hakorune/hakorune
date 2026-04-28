@@ -368,7 +368,7 @@ mod tests {
 
         match DigitPosPromoter::try_promote(req) {
             DigitPosPromotionResult::CannotPromote { reason, .. } => {
-                assert!(reason.contains("DigitPos pattern"));
+                assert!(reason.contains("A-4 DigitPos route shape"));
             }
             _ => panic!("Expected CannotPromote for non-indexOf pattern"),
         }
@@ -407,7 +407,7 @@ mod tests {
         match DigitPosPromoter::try_promote(req) {
             DigitPosPromotionResult::CannotPromote { reason, .. } => {
                 // Phase 79: Detector returns None when there is no body-local dependency
-                assert!(reason.contains("DigitPos pattern"));
+                assert!(reason.contains("A-4 DigitPos route shape"));
             }
             _ => panic!("Expected CannotPromote when no LoopBodyLocal dependency"),
         }
@@ -491,7 +491,7 @@ mod tests {
         match DigitPosPromoter::try_promote(req) {
             DigitPosPromotionResult::CannotPromote { reason, .. } => {
                 // Phase 79: Detector returns None for equality, so we get generic message
-                assert!(reason.contains("DigitPos pattern"));
+                assert!(reason.contains("A-4 DigitPos route shape"));
             }
             _ => panic!("Expected CannotPromote for equality operator"),
         }
