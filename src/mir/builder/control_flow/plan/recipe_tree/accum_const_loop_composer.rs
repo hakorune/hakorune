@@ -1,5 +1,6 @@
 //! Split from composer.rs (behavior-preserving module split).
 
+use super::verified::check_block_contract;
 use super::RecipeComposer;
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
@@ -10,7 +11,6 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::accum_const_loop_builder::{
     build_accum_const_loop_recipe, AccumConstLoopRecipe,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;

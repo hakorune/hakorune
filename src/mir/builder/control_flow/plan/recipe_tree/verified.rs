@@ -120,7 +120,7 @@ impl<'a> VerifiedRecipeBlock<'a> {
 }
 
 /// Verify a block contract (check-only, no wrapper).
-pub(in crate::mir::builder) fn check_block_contract(
+pub(in crate::mir::builder::control_flow::plan::recipe_tree) fn check_block_contract(
     arena: &RecipeBodies,
     block: &RecipeBlock,
     kind: BlockContractKind,

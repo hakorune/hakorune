@@ -1,5 +1,6 @@
 //! Split from composer.rs (behavior-preserving module split).
 
+use super::verified::check_block_contract;
 use super::RecipeComposer;
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
@@ -13,7 +14,6 @@ use crate::mir::builder::control_flow::plan::recipe_tree::array_join_builder::{
 use crate::mir::builder::control_flow::plan::recipe_tree::char_map_builder::{
     build_char_map_recipe, CharMapRecipe,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::loop_simple_while_builder::{
     build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
 };

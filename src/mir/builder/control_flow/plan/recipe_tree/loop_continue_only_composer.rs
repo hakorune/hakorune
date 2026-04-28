@@ -1,5 +1,6 @@
 //! Split from composer.rs (behavior-preserving module split).
 
+use super::verified::check_block_contract;
 use super::RecipeComposer;
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
@@ -7,7 +8,6 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::loop_continue_only_builder::{
     build_loop_continue_only_recipe, LoopContinueOnlyRecipe,
 };
