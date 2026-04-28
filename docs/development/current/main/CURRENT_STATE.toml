@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-612"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-612-plan-canon-cond-shelf-prune-card.md"
-latest_card_summary = "Remove the unused plan::canon::cond compatibility shelf; condition canon remains owned by facts::canon::cond."
+latest_card = "291x-613"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-613-loop-break-derived-slot-shelf-prune-card.md"
+latest_card_summary = "Remove the unused plan::loop_break::contracts::derived_slot compatibility shelf; derived-slot detection stays owned by cleanup::policies."
 
 current_blocker_token = "phase-291x plan-side compat surface prune queue active"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
