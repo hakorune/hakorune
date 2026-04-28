@@ -51,10 +51,6 @@ pub(in crate::mir::builder) mod matcher;
 pub(in crate::mir::builder) use matcher::RecipeMatcher;
 pub(in crate::mir::builder) mod verified;
 
-// Re-export builder types (maintains backward compatibility)
-pub(in crate::mir::builder) use loop_simple_while_builder::{
-    build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
-};
 // ===== RecipeComposer (moved from composer/mod.rs) =====
 pub(in crate::mir::builder) struct RecipeComposer;
 

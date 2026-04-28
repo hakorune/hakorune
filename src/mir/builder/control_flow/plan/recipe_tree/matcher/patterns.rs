@@ -1,4 +1,3 @@
-use super::super::{build_loop_simple_while_recipe, LoopSimpleWhileRecipe};
 use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
@@ -22,6 +21,9 @@ use crate::mir::builder::control_flow::plan::recipe_tree::loop_break_builder::{
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::loop_continue_only_builder::{
     build_loop_continue_only_recipe, LoopContinueOnlyRecipe,
+};
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_simple_while_builder::{
+    build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::loop_true_early_exit_builder::{
     build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
