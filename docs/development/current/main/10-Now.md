@@ -28,8 +28,9 @@ Related:
 
 - select the next phase-291x compiler-cleanliness lane, or switch to an
   explicitly reopened non-cleanup blocker
-- cleanup checkpoint: latest known card `291x-635`; detailed closed history
+- cleanup checkpoint: latest known card `291x-655`; detailed closed history
   lives in phase card files and `latest_card_path` in `CURRENT_STATE.toml`
+- unified-member property cleanup is closed through `291x-655`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without a new family-sized BoxShape lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings

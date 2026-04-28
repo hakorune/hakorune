@@ -40,9 +40,9 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-635` closes the stale plan-side compat queue
-  pointer after the `291x-575` ordered queue and follow-up facade pruning
-  landed through `291x-634`
+- latest known checkpoint: `291x-655` closes the unified-member property
+  cleanup burst after the `291x-575` ordered plan-side compat queue landed
+  through `291x-634`
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
