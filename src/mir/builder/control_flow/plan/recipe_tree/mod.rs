@@ -9,14 +9,15 @@ use crate::mir::builder::control_flow::facts::stmt_view::StmtOnlyBlockRecipe;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
-pub(in crate::mir::builder) mod block;
+mod block;
 mod common;
-pub(in crate::mir::builder) mod join_scope;
+mod join_scope;
 // Re-export block types explicitly (use block::* doesn't work with visibility)
 pub(in crate::mir::builder) use block::{
     BlockContractKind, BodyId, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
     RecipeBodies, RecipeItem,
 };
+pub(in crate::mir::builder) use join_scope::collect_branch_local_vars_from_block_recursive;
 
 // Builder modules stay private; callers enter through composer/matcher owners.
 mod accum_const_loop_builder;
