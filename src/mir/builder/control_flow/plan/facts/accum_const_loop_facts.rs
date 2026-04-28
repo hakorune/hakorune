@@ -130,6 +130,18 @@ mod tests {
         }
     }
 
+    fn accum_loop_observation() -> ScanConditionObservation {
+        let condition_shape = ConditionShape::VarLessLiteral {
+            idx_var: "i".to_string(),
+            bound: 3,
+        };
+        let step_shape = StepShape::AssignAddConst {
+            var: "i".to_string(),
+            k: 1,
+        };
+        scan_condition_observation(&condition_shape, &step_shape)
+    }
+
     fn accum_const(acc_var: &str, value: i64) -> ASTNode {
         ASTNode::Assignment {
             target: Box::new(v(acc_var)),
@@ -188,7 +200,7 @@ mod tests {
     fn facts_extracts_accum_const_loop_success() {
         let condition = condition_lt("i", 3);
         let body = vec![accum_const("sum", 1), increment("i", 1)];
-        let observation = scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
+        let observation = accum_loop_observation();
 
         let facts =
             try_extract_accum_const_loop_facts(&condition, &body, &observation).expect("Ok");
@@ -207,7 +219,7 @@ mod tests {
             },
             increment("i", 1),
         ];
-        let observation = scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
+        let observation = accum_loop_observation();
 
         let facts =
             try_extract_accum_const_loop_facts(&condition, &body, &observation).expect("Ok");
@@ -218,7 +230,7 @@ mod tests {
     fn facts_rejects_if_else() {
         let condition = condition_lt("i", 3);
         let body = vec![if_else_stub(), increment("i", 1)];
-        let observation = scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
+        let observation = accum_loop_observation();
 
         let facts =
             try_extract_accum_const_loop_facts(&condition, &body, &observation).expect("Ok");
@@ -229,7 +241,7 @@ mod tests {
     fn facts_rejects_var_accumulation() {
         let condition = condition_lt("i", 3);
         let body = vec![accum_var("sum", "i"), increment("i", 1)];
-        let observation = scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
+        let observation = accum_loop_observation();
 
         let facts =
             try_extract_accum_const_loop_facts(&condition, &body, &observation).expect("Ok");
