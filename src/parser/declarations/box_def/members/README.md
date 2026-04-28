@@ -6,13 +6,16 @@ synthetic method body construction.
 - `fields.rs`: stored fields, weak-field delegation, visibility sugar, and
   header-first computed/get parsing.
 - `properties.rs`: once/birth_once and block-first unified member parsing.
-- `property_emit.rs`: the only owner for synthetic property method AST bodies
-  and naming (`__get_*`, `__get_once_*`, `__get_birth_*`,
-  `__compute_once_*`, `__compute_birth_*`).
+- `property_emit.rs`: the only owner for synthetic property method AST bodies,
+  naming (`__get_*`, `__get_once_*`, `__get_birth_*`,
+  `__compute_once_*`, `__compute_birth_*`), and `birth_once` constructor
+  prologue statements.
 
 Rules:
 
 - Do not reserve `get` in the tokenizer. It is contextual at Box member head.
 - Do not add generic runtime property lookup here.
 - Do not duplicate synthetic property method bodies in parser entry modules.
+- Do not duplicate `birth_once` eager initializer AST construction outside
+  `property_emit.rs`.
 - Keep AST/JSON/MIR shape stable unless a separate language decision changes it.

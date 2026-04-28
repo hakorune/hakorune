@@ -104,13 +104,10 @@ fn box_try_method_or_field(
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
-    birth_once_props: &Vec<String>,
     last_method_name: &mut Option<String>,
     weak_fields: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
-    if let Some(method) =
-        members::methods::try_parse_method(p, name.clone(), is_override, birth_once_props)?
-    {
+    if let Some(method) = members::methods::try_parse_method(p, name.clone(), is_override)? {
         let mut method = method;
         p.attach_pending_runes_to_declaration(&mut method)?;
         *last_method_name = Some(name.clone());
@@ -157,7 +154,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
     let mut constructors = HashMap::new();
     let mut init_fields = Vec::new();
     let mut weak_fields = Vec::new(); // 🔗 Track weak fields
-                                      // Track birth_once properties to inject eager init into birth()
+                                      // Track birth_once properties for constructor prologue emission.
     let mut birth_once_props: Vec<String> = Vec::new();
 
     let mut last_method_name: Option<String> = None;
@@ -297,7 +294,6 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
                 &mut methods,
                 &mut fields,
                 &mut field_decls,
-                &birth_once_props,
                 &mut last_method_name,
                 &mut weak_fields,
             )? {
@@ -313,6 +309,10 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
     }
 
     p.consume(TokenType::RBRACE)?;
+    members::property_emit::apply_birth_once_constructor_prologues(
+        &mut constructors,
+        &birth_once_props,
+    );
     // 🚫 Disallow method named same as the box (constructor-like confusion)
     validators::validate_no_ctor_like_name(p, &name, &methods)?;
 
