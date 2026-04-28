@@ -17,6 +17,5 @@ Modules:
 - common.rs: small normalizer helpers shared across loop-cond pipelines.
 - cond_lowering_*.rs: header/body/value condition lowering entry points.
 - loop_body_lowering.rs: statement/effect lowering helpers used by loop pipelines.
-- value_join_args.rs: value-join argument normalization helpers.
 - simple_while_coreloop_builder.rs: simple-while coreloop scaffold helper.
 - loop_break.rs: test-only loop-break normalization harness.

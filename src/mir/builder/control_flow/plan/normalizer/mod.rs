@@ -23,7 +23,6 @@ pub(in crate::mir::builder) mod helpers_value;
 #[cfg(test)]
 mod loop_break;
 mod simple_while_coreloop_builder;
-mod value_join_args;
 
 // Cond lowering modules (flattened from cond_lowering/)
 pub(in crate::mir::builder) mod cond_lowering_entry;
