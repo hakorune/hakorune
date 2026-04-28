@@ -1,6 +1,6 @@
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-pub(crate) fn build_scan_with_init_loop_condition(
+pub(super) fn build_scan_with_init_loop_condition(
     facts: &crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts,
 ) -> crate::ast::ASTNode {
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
@@ -73,7 +73,7 @@ pub(crate) fn build_scan_with_init_loop_condition(
     }
 }
 
-pub(crate) fn verify_no_exit_block_recipe(
+pub(super) fn verify_no_exit_block_recipe(
     recipe: &crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -90,7 +90,7 @@ pub(crate) fn verify_no_exit_block_recipe(
     .map_err(|e| Freeze::contract("scan_segment_no_exit_recipe_verification_failed").with_hint(&e))
 }
 
-pub(crate) fn verify_exit_allowed_block_recipe(
+pub(super) fn verify_exit_allowed_block_recipe(
     recipe: &crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -109,7 +109,7 @@ pub(crate) fn verify_exit_allowed_block_recipe(
     })
 }
 
-pub(crate) fn verify_stmt_only_block_recipe(
+pub(super) fn verify_stmt_only_block_recipe(
     recipe: &crate::mir::builder::control_flow::facts::stmt_view::StmtOnlyBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -126,7 +126,7 @@ pub(crate) fn verify_stmt_only_block_recipe(
     .map_err(|e| Freeze::contract("scan_segment_stmt_only_verification_failed").with_hint(&e))
 }
 
-pub(crate) fn verify_nested_loop_stmt_only_if_available(
+pub(super) fn verify_nested_loop_stmt_only_if_available(
     nested: &crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -136,7 +136,7 @@ pub(crate) fn verify_nested_loop_stmt_only_if_available(
     verify_stmt_only_block_recipe(body_stmt_only, context)
 }
 
-pub(crate) fn verify_stmt_ref_in_bounds(
+pub(super) fn verify_stmt_ref_in_bounds(
     stmt: crate::mir::builder::control_flow::recipes::refs::StmtRef,
     len: usize,
     context: &str,
@@ -150,7 +150,7 @@ pub(crate) fn verify_stmt_ref_in_bounds(
     Ok(())
 }
 
-pub(crate) fn verify_stmt_pair_in_bounds(
+pub(super) fn verify_stmt_pair_in_bounds(
     pair: crate::mir::builder::control_flow::recipes::refs::StmtPair,
     len: usize,
     context: &str,
@@ -165,7 +165,7 @@ pub(crate) fn verify_stmt_pair_in_bounds(
     Ok(())
 }
 
-pub(crate) fn verify_stmt_span_len(
+pub(super) fn verify_stmt_span_len(
     span: crate::mir::builder::control_flow::recipes::refs::StmtSpan,
     context: &str,
 ) -> Result<usize, Freeze> {
@@ -178,7 +178,7 @@ pub(crate) fn verify_stmt_span_len(
     Ok(end - start)
 }
 
-pub(crate) fn verify_exit_only_block_recipe(
+pub(super) fn verify_exit_only_block_recipe(
     recipe: &crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitOnlyBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -195,7 +195,7 @@ pub(crate) fn verify_exit_only_block_recipe(
     .map_err(|e| Freeze::contract("scan_segment_exit_only_verification_failed").with_hint(&e))
 }
 
-pub(crate) fn verify_loop_cond_break_continue_recipe_items(
+pub(super) fn verify_loop_cond_break_continue_recipe_items(
     recipe: &crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -347,7 +347,7 @@ pub(crate) fn verify_loop_cond_break_continue_recipe_items(
     Ok(())
 }
 
-pub(crate) fn verify_if_branch_ref(
+pub(super) fn verify_if_branch_ref(
     body: &crate::mir::builder::control_flow::recipes::RecipeBody,
     if_stmt: crate::mir::builder::control_flow::recipes::refs::StmtRef,
     branch: &str,
@@ -388,7 +388,7 @@ pub(crate) fn verify_if_branch_ref(
     Ok(())
 }
 
-pub(crate) fn verify_continue_only_recipe(
+pub(super) fn verify_continue_only_recipe(
     recipe: &crate::mir::builder::control_flow::recipes::loop_cond_continue_only::ContinueOnlyRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -396,7 +396,7 @@ pub(crate) fn verify_continue_only_recipe(
     verify_continue_only_items_with_len(&recipe.items, body_len, context)
 }
 
-pub(crate) fn verify_continue_only_items_with_len(
+pub(super) fn verify_continue_only_items_with_len(
     items: &[crate::mir::builder::control_flow::recipes::loop_cond_continue_only::ContinueOnlyStmtRecipe],
     len: usize,
     context: &str,
@@ -465,7 +465,7 @@ pub(crate) fn verify_continue_only_items_with_len(
     Ok(())
 }
 
-pub(crate) fn verify_continue_with_return_recipe(
+pub(super) fn verify_continue_with_return_recipe(
     recipe: &crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::ContinueWithReturnRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -473,7 +473,7 @@ pub(crate) fn verify_continue_with_return_recipe(
     verify_continue_with_return_items_with_len(&recipe.items, body_len, context)
 }
 
-pub(crate) fn verify_continue_with_return_items_with_len(
+pub(super) fn verify_continue_with_return_items_with_len(
     items: &[crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::ContinueWithReturnItem],
     len: usize,
     context: &str,
@@ -506,7 +506,7 @@ pub(crate) fn verify_continue_with_return_items_with_len(
     Ok(())
 }
 
-pub(crate) fn build_split_scan_loop_condition(
+pub(super) fn build_split_scan_loop_condition(
     facts: &crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts,
 ) -> crate::ast::ASTNode {
     use crate::ast::{ASTNode, BinaryOperator, Span};
