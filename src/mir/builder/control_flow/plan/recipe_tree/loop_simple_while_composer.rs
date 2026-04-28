@@ -2,8 +2,7 @@
 
 use super::RecipeComposer;
 use super::{
-    build_array_join_recipe, build_char_map_recipe, build_loop_simple_while_recipe,
-    ArrayJoinRecipe, CharMapRecipe, LoopSimpleWhileRecipe,
+    build_array_join_recipe, build_loop_simple_while_recipe, ArrayJoinRecipe, LoopSimpleWhileRecipe,
 };
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
@@ -11,6 +10,9 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::plan::recipe_tree::char_map_builder::{
+    build_char_map_recipe, CharMapRecipe,
+};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;

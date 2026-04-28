@@ -1,6 +1,5 @@
 use super::super::{
-    build_array_join_recipe, build_char_map_recipe, build_loop_simple_while_recipe,
-    ArrayJoinRecipe, CharMapRecipe, LoopSimpleWhileRecipe,
+    build_array_join_recipe, build_loop_simple_while_recipe, ArrayJoinRecipe, LoopSimpleWhileRecipe,
 };
 use super::utils::*;
 use crate::config::env::joinir_dev;
@@ -10,6 +9,9 @@ use crate::mir::builder::control_flow::plan::recipe_tree::accum_const_loop_build
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::bool_predicate_scan_builder::{
     build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
+};
+use crate::mir::builder::control_flow::plan::recipe_tree::char_map_builder::{
+    build_char_map_recipe, CharMapRecipe,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::if_phi_join_builder::{
     build_if_phi_join_recipe, IfPhiJoinRecipe,
