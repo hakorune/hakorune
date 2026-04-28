@@ -3,7 +3,7 @@ use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 /// Recipe-first verification for loop_collect_using_entries_v0.
-pub fn verify_loop_collect_using_entries_v0_recipe(
+pub(super) fn verify_loop_collect_using_entries_v0_recipe(
     collect_using: &crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts,
 ) -> Result<(), Freeze> {
     verify_no_exit_block_recipe(
@@ -21,7 +21,7 @@ pub fn verify_loop_collect_using_entries_v0_recipe(
 }
 
 /// Recipe-first verification for loop_bundle_resolver_v0.
-pub fn verify_loop_bundle_resolver_v0_recipe(
+pub(super) fn verify_loop_bundle_resolver_v0_recipe(
     bundle_resolver: &crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::LoopBundleResolverV0Facts,
 ) -> Result<(), Freeze> {
     verify_exit_allowed_block_recipe(
@@ -39,7 +39,7 @@ pub fn verify_loop_bundle_resolver_v0_recipe(
 }
 
 /// Recipe-first verification for loop_true_break_continue.
-pub fn verify_loop_true_break_continue_recipe(
+pub(super) fn verify_loop_true_break_continue_recipe(
     loop_true: &crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueLowering;
@@ -100,7 +100,7 @@ pub fn verify_loop_true_break_continue_recipe(
 }
 
 /// Recipe-first verification for loop_cond_break_continue.
-pub fn verify_loop_cond_break_continue_recipe(
+pub(super) fn verify_loop_cond_break_continue_recipe(
     facts: &crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts,
 ) -> Result<(), Freeze> {
     use crate::mir::policies::BodyLoweringPolicy;
@@ -132,7 +132,7 @@ pub fn verify_loop_cond_break_continue_recipe(
 }
 
 /// Recipe-first verification for loop_cond_continue_only.
-pub fn verify_loop_cond_continue_only_recipe(
+pub(super) fn verify_loop_cond_continue_only_recipe(
     facts: &crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts,
 ) -> Result<(), Freeze> {
     verify_continue_only_recipe(&facts.recipe, "loop_cond_continue_only_body")?;
@@ -147,7 +147,7 @@ pub fn verify_loop_cond_continue_only_recipe(
 }
 
 /// Recipe-first verification for loop_cond_continue_with_return.
-pub fn verify_loop_cond_continue_with_return_recipe(
+pub(super) fn verify_loop_cond_continue_with_return_recipe(
     facts: &crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::LoopCondContinueWithReturnFacts,
 ) -> Result<(), Freeze> {
     verify_continue_with_return_recipe(&facts.recipe, "loop_cond_continue_with_return_body")?;
@@ -162,7 +162,7 @@ pub fn verify_loop_cond_continue_with_return_recipe(
 }
 
 /// Recipe-first verification for loop_cond_return_in_body.
-pub fn verify_loop_cond_return_in_body_recipe(
+pub(super) fn verify_loop_cond_return_in_body_recipe(
     facts: &crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::recipes::loop_cond_return_in_body::LoopCondReturnInBodyItem;

@@ -36,7 +36,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::split_scan_builder::{
 };
 
 /// Recipe-first verification for loop-break.
-pub fn verify_loop_break_recipe(
+pub(super) fn verify_loop_break_recipe(
     loop_break_facts: &crate::mir::builder::control_flow::plan::facts::LoopBreakFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -89,7 +89,7 @@ pub fn verify_loop_break_recipe(
     Ok(())
 }
 
-pub fn verify_generic_loop_v1_recipe(
+pub(super) fn verify_generic_loop_v1_recipe(
     generic_loop: &crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
@@ -112,7 +112,7 @@ pub fn verify_generic_loop_v1_recipe(
 }
 
 /// Recipe-first verification for if-phi-join.
-pub fn verify_if_phi_join_recipe(
+pub(super) fn verify_if_phi_join_recipe(
     if_phi_join_facts: &crate::mir::builder::control_flow::facts::IfPhiJoinFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -157,7 +157,7 @@ pub fn verify_if_phi_join_recipe(
 }
 
 /// Recipe-first verification for loop-continue-only.
-pub fn verify_loop_continue_only_recipe(
+pub(super) fn verify_loop_continue_only_recipe(
     continue_only_facts: &crate::mir::builder::control_flow::plan::facts::LoopContinueOnlyFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -206,7 +206,7 @@ pub fn verify_loop_continue_only_recipe(
 }
 
 /// Recipe-first verification for loop-true-early-exit.
-pub fn verify_loop_true_early_exit_recipe(
+pub(super) fn verify_loop_true_early_exit_recipe(
     early_exit_facts: &crate::mir::builder::control_flow::plan::facts::LoopTrueEarlyExitFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, LiteralValue, Span};
@@ -253,7 +253,7 @@ pub fn verify_loop_true_early_exit_recipe(
 }
 
 /// Recipe-first verification for loop-simple-while.
-pub fn verify_loop_simple_while_recipe(
+pub(super) fn verify_loop_simple_while_recipe(
     simple_while_facts: &crate::mir::builder::control_flow::plan::facts::LoopSimpleWhileFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -301,7 +301,7 @@ pub fn verify_loop_simple_while_recipe(
 }
 
 /// Recipe-first verification for loop-char-map.
-pub fn verify_loop_char_map_recipe(
+pub(super) fn verify_loop_char_map_recipe(
     char_map_facts: &crate::mir::builder::control_flow::plan::facts::LoopCharMapFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -349,7 +349,7 @@ pub fn verify_loop_char_map_recipe(
 }
 
 /// Recipe-first verification for loop-array-join.
-pub fn verify_loop_array_join_recipe(
+pub(super) fn verify_loop_array_join_recipe(
     array_join_facts: &crate::mir::builder::control_flow::plan::facts::LoopArrayJoinFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -397,7 +397,7 @@ pub fn verify_loop_array_join_recipe(
 }
 
 /// Recipe-first verification for scan-with-init.
-pub fn verify_scan_with_init_recipe(
+pub(super) fn verify_scan_with_init_recipe(
     scan_with_init_facts: &crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -440,7 +440,7 @@ pub fn verify_scan_with_init_recipe(
 }
 
 /// Recipe-first verification for split-scan.
-pub fn verify_split_scan_recipe(
+pub(super) fn verify_split_scan_recipe(
     split_scan_facts: &crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -483,7 +483,7 @@ pub fn verify_split_scan_recipe(
 }
 
 /// Recipe-first verification for bool-predicate-scan.
-pub fn verify_bool_predicate_scan_recipe(
+pub(super) fn verify_bool_predicate_scan_recipe(
     bool_scan_facts: &crate::mir::builder::control_flow::plan::facts::BoolPredicateScanFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -528,7 +528,7 @@ pub fn verify_bool_predicate_scan_recipe(
 }
 
 /// Recipe-first verification for accum-const-loop.
-pub fn verify_accum_const_loop_recipe(
+pub(super) fn verify_accum_const_loop_recipe(
     accum_const_facts: &crate::mir::builder::control_flow::plan::facts::AccumConstLoopFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};

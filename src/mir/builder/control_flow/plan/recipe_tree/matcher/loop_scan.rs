@@ -4,7 +4,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::LoopScanSegment;
 
 /// Recipe-first verification for loop_scan_methods_v0.
-pub fn verify_loop_scan_methods_v0_recipe(
+pub(super) fn verify_loop_scan_methods_v0_recipe(
     scan_methods: &crate::mir::builder::control_flow::facts::loop_scan_methods_v0::LoopScanMethodsV0Facts,
 ) -> Result<(), Freeze> {
     for (idx, segment) in scan_methods.recipe.segments.iter().enumerate() {
@@ -30,7 +30,7 @@ pub fn verify_loop_scan_methods_v0_recipe(
 }
 
 /// Recipe-first verification for loop_scan_methods_block_v0.
-pub fn verify_loop_scan_methods_block_v0_recipe(
+pub(super) fn verify_loop_scan_methods_block_v0_recipe(
     scan_methods_block: &crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::{
@@ -66,7 +66,7 @@ pub fn verify_loop_scan_methods_block_v0_recipe(
 }
 
 /// Recipe-first verification for loop_scan_phi_vars_v0.
-pub fn verify_loop_scan_phi_vars_v0_recipe(
+pub(super) fn verify_loop_scan_phi_vars_v0_recipe(
     scan_phi_vars: &crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::LoopScanPhiSegment;
@@ -94,7 +94,7 @@ pub fn verify_loop_scan_phi_vars_v0_recipe(
 }
 
 /// Recipe-first verification for loop_scan_v0.
-pub fn verify_loop_scan_v0_recipe(
+pub(super) fn verify_loop_scan_v0_recipe(
     scan_v0: &crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::loop_scan_v0::recipe::LoopScanSegment;
