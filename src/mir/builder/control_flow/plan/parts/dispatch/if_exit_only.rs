@@ -7,7 +7,7 @@
 
 use super::super::exit as parts_exit;
 use super::super::stmt as parts_stmt;
-use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
 };

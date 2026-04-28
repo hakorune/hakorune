@@ -11,7 +11,7 @@ use super::stmt::lower_return_prelude_stmt;
 use super::var_map_scope::with_saved_variable_map;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;

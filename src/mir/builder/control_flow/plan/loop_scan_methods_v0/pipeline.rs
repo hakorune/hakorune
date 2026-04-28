@@ -3,9 +3,8 @@ use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockV
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::normalizer::{
-    helpers::LoopBlocksStandard5, lower_loop_header_cond,
-};
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::normalizer::helpers::LoopBlocksStandard5;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,

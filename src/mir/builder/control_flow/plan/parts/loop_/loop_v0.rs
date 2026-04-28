@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
 };
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, RecipeBlock, RecipeBodies,

@@ -104,9 +104,3 @@ impl PlanNormalizer {
         crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_pipeline::lower_loop_cond_return_in_body(builder, facts, ctx)
     }
 }
-
-// Re-export cond_lowering types (maintains backward compatibility)
-pub(in crate::mir::builder) use cond_lowering_entry::{
-    lower_bool_expr_value_id, lower_cond_branch, lower_cond_value,
-};
-pub(in crate::mir::builder) use cond_lowering_loop_header::lower_loop_header_cond;

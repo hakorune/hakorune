@@ -5,8 +5,9 @@
 //! - lower_if_join_with_branch_lowerers
 //! - lower_value_cond_if_with_filtered_joins
 
-use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
-use crate::mir::builder::control_flow::plan::normalizer::lower_cond_value;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::{
+    lower_cond_branch, lower_cond_value,
+};
 use crate::mir::builder::control_flow::plan::recipe_tree::join_scope::collect_branch_local_vars_from_block_recursive;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBlock;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBodies;

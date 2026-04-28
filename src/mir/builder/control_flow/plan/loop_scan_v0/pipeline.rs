@@ -4,8 +4,10 @@ use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_blo
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::step_mode;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_bool_expr_value_id;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::normalizer::{
-    helpers::LoopBlocksStandard5, lower_loop_header_cond, PlanNormalizer,
+    helpers::LoopBlocksStandard5, PlanNormalizer,
 };
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
@@ -170,12 +172,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
             // 2) if ch == "," { i = i + 1; continue }
             let comma_view = CondBlockView::from_expr(&facts.recipe.comma_if_cond);
             let (comma_cond_id, comma_cond_effects) =
-                crate::mir::builder::control_flow::plan::normalizer::lower_bool_expr_value_id(
-                    builder,
-                    &current_bindings,
-                    &comma_view,
-                    LOOP_SCAN_ERR,
-                )?;
+                lower_bool_expr_value_id(builder, &current_bindings, &comma_view, LOOP_SCAN_ERR)?;
             body_plans.extend(
                 crate::mir::builder::control_flow::plan::steps::effects_to_plans(
                     comma_cond_effects,
@@ -219,12 +216,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
             // 3) if ch == "]" { break }
             let close_view = CondBlockView::from_expr(&facts.recipe.close_if_cond);
             let (close_cond_id, close_cond_effects) =
-                crate::mir::builder::control_flow::plan::normalizer::lower_bool_expr_value_id(
-                    builder,
-                    &current_bindings,
-                    &close_view,
-                    LOOP_SCAN_ERR,
-                )?;
+                lower_bool_expr_value_id(builder, &current_bindings, &close_view, LOOP_SCAN_ERR)?;
             body_plans.extend(
                 crate::mir::builder::control_flow::plan::steps::effects_to_plans(
                     close_cond_effects,

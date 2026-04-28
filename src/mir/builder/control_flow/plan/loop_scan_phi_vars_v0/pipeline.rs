@@ -8,9 +8,8 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::normalizer::{
-    helpers::LoopBlocksStandard5, lower_loop_header_cond,
-};
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::normalizer::helpers::LoopBlocksStandard5;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{

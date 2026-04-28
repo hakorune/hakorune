@@ -3,7 +3,7 @@
 use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
-use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::GenericLoopSkeleton;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;

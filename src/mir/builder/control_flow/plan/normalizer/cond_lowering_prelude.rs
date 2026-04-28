@@ -1,11 +1,11 @@
 //! Condition prelude statement processing.
 
+use super::cond_lowering_entry::lower_cond_value;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::{
     classify_cond_prelude_stmt, CondPreludeStmtKind,
 };
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::normalizer::lower_cond_value;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;

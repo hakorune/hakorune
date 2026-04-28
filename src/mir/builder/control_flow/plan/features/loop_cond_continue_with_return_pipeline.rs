@@ -15,7 +15,7 @@ use crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_r
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_verifier::verify_loop_cond_continue_with_return_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::steps::{
     build_standard5_internal_wires, collect_carrier_inits, empty_carriers_args,
 };
