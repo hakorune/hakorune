@@ -52,14 +52,11 @@
 pub(in crate::mir::builder) mod registry;
 pub(in crate::mir::builder) mod router;
 
-pub(crate) mod ast_feature_extractor {
-    pub(crate) use crate::mir::builder::control_flow::facts::ast_feature_extractor::*;
-}
 // Re-export router for convenience
 pub(in crate::mir::builder) use router::{route_loop, LoopRouteContext};
 
 // Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_skip_whitespace_shape;
+pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::skip_whitespace::detect_skip_whitespace_shape;
 
 // Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
 pub(crate) use crate::mir::builder::control_flow::facts::route_shape_recognizers::parse_number::detect_read_digits_loop_true_shape;

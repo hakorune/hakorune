@@ -34,7 +34,7 @@ use crate::mir::builder::{
 ///
 /// # Phase 140-P4-B: SSOT Migration
 ///
-/// This function delegates to `ast_feature_extractor::detect_skip_whitespace_shape`
+/// This function delegates to the skip-whitespace route-shape recognizer owner
 /// for SSOT implementation. The wrapper keeps the canonicalizer's tuple-shaped
 /// adapter API while detector facts stay owned by builder/control-flow.
 pub fn try_extract_skip_whitespace_shape(body: &[ASTNode]) -> Option<(String, i64, Vec<ASTNode>)> {

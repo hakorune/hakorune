@@ -57,9 +57,6 @@ use route_shape_recognizers::if_else_phi::detect_if_else_phi_in_body;
 // Re-export carrier count estimation
 use route_shape_recognizers::carrier_count::count_carriers_in_body;
 
-// Re-export skip_whitespace shape detection
-pub use route_shape_recognizers::skip_whitespace::detect_skip_whitespace_shape;
-
 /// Extract full feature set from loop body AST
 ///
 /// This is the main entry point for feature extraction. It analyzes the loop body
