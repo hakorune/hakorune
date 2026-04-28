@@ -11,7 +11,7 @@ mod utils;
 mod verifier;
 
 use collector::collect_definition_value_ids;
-use remapper::{remap_plan, remap_plan_blocks};
+use remapper::remap_plan;
 use verifier::{find_remap_mismatch, find_unremapped_value_id};
 
 pub(super) struct FreshenedPlans {
@@ -105,32 +105,4 @@ pub(super) fn clone_plans_with_fresh_loops(
         plans: out,
         value_map,
     })
-}
-
-fn freshen_plan_block_ids(builder: &mut MirBuilder, plan: LoweredRecipe) -> LoweredRecipe {
-    // Legacy: only freshens block IDs, no ValueId freshening
-    // This is kept for compatibility with internal calls within this module
-    let mut block_map = BTreeMap::new();
-    remap_plan_blocks(builder, &mut block_map, &plan)
-}
-
-/// Freshen both block IDs and ValueIds in a plan (SSA-compliant cloning)
-fn freshen_plan_ids(builder: &mut MirBuilder, plan: LoweredRecipe) -> LoweredRecipe {
-    let mut block_map = BTreeMap::new();
-    let mut value_map = BTreeMap::new();
-
-    // Phase 1: Collect definitions and allocate fresh ValueIds
-    let definitions = collect_definition_value_ids(&plan);
-    for def_id in definitions {
-        let ty = builder
-            .type_ctx
-            .get_type(def_id)
-            .cloned()
-            .unwrap_or(MirType::Unknown);
-        let fresh_id = builder.alloc_typed(ty);
-        value_map.insert(def_id, fresh_id);
-    }
-
-    // Phase 2: Remap plan with both block_map and value_map
-    remap_plan(builder, &mut block_map, &value_map, plan)
 }
