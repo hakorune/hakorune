@@ -20,17 +20,17 @@ pub(in crate::mir::builder) use block::{
 };
 
 // Builder modules (flattened from builders/)
-pub(in crate::mir::builder) mod accum_const_loop_builder;
-pub(in crate::mir::builder) mod array_join_builder;
-pub(in crate::mir::builder) mod bool_predicate_scan_builder;
-pub(in crate::mir::builder) mod char_map_builder;
-pub(in crate::mir::builder) mod if_phi_join_builder;
-pub(in crate::mir::builder) mod loop_break_builder;
-pub(in crate::mir::builder) mod loop_continue_only_builder;
-pub(in crate::mir::builder) mod loop_simple_while_builder;
-pub(in crate::mir::builder) mod loop_true_early_exit_builder;
-pub(in crate::mir::builder) mod scan_with_init_builder;
-pub(in crate::mir::builder) mod split_scan_builder;
+mod accum_const_loop_builder;
+mod array_join_builder;
+mod bool_predicate_scan_builder;
+mod char_map_builder;
+mod if_phi_join_builder;
+mod loop_break_builder;
+mod loop_continue_only_builder;
+mod loop_simple_while_builder;
+mod loop_true_early_exit_builder;
+mod scan_with_init_builder;
+mod split_scan_builder;
 
 // Composer modules (flattened from composer/)
 mod accum_const_loop_composer;
