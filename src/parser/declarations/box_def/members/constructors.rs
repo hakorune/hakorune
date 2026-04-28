@@ -32,40 +32,11 @@ pub(crate) fn try_parse_constructor(
         let mut body = p.parse_block_statements()?;
         // Optional postfix catch/cleanup (method-level gate)
         if p.match_token(&TokenType::CATCH) || p.match_token(&TokenType::CLEANUP) {
-            let mut catch_clauses: Vec<crate::ast::CatchClause> = Vec::new();
-            if p.match_token(&TokenType::CATCH) {
-                p.advance();
-                p.consume(TokenType::LPAREN)?;
-                let (exc_ty, exc_var) = p.parse_catch_param()?;
-                p.consume(TokenType::RPAREN)?;
-                let catch_body = p.parse_block_statements()?;
-                catch_clauses.push(crate::ast::CatchClause {
-                    exception_type: exc_ty,
-                    variable_name: exc_var,
-                    body: catch_body,
-                    span: Span::unknown(),
-                });
-                if p.match_token(&TokenType::CATCH) {
-                    let line = p.current_token().line;
-                    return Err(ParseError::UnexpectedToken {
-                        found: p.current_token().token_type.clone(),
-                        expected: "single catch only after method body".to_string(),
-                        line,
-                    });
-                }
-            }
-            let finally_body = if p.match_token(&TokenType::CLEANUP) {
-                p.advance();
-                Some(p.parse_block_statements()?)
-            } else {
-                None
-            };
-            body = vec![ASTNode::TryCatch {
-                try_body: body,
-                catch_clauses,
-                finally_body,
-                span: Span::unknown(),
-            }];
+            body = super::postfix::wrap_with_required_postfix(
+                p,
+                body,
+                "single catch only after method body",
+            )?;
         }
         let node = ASTNode::FunctionDeclaration {
             name: name.clone(),

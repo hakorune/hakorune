@@ -10,6 +10,8 @@ synthetic method body construction.
   naming (`__get_*`, `__get_once_*`, `__get_birth_*`,
   `__compute_once_*`, `__compute_birth_*`), and `birth_once` constructor
   prologue statements.
+- `postfix.rs`: the only owner for Box member postfix `catch/cleanup` parsing
+  and `TryCatch` wrapping.
 
 Rules:
 
@@ -18,4 +20,6 @@ Rules:
 - Do not duplicate synthetic property method bodies in parser entry modules.
 - Do not duplicate `birth_once` eager initializer AST construction outside
   `property_emit.rs`.
+- Do not duplicate Box member postfix `catch/cleanup` parsing outside
+  `postfix.rs`.
 - Keep AST/JSON/MIR shape stable unless a separate language decision changes it.

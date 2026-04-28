@@ -47,3 +47,41 @@ box SafeBox {
         "expected TryCatch inside method body"
     );
 }
+
+#[test]
+fn init_constructor_postfix_cleanup_wraps_trycatch() {
+    enable_stage3();
+    let src = r#"
+box SafeInit {
+  init() {
+    return 0
+  } cleanup {
+    print("done")
+  }
+}
+"#;
+    let ast = NyashParser::parse_from_string(src).expect("parse ok");
+
+    fn init_has_trycatch(ast: &crate::ast::ASTNode) -> bool {
+        match ast {
+            crate::ast::ASTNode::BoxDeclaration { constructors, .. } => {
+                let Some(crate::ast::ASTNode::FunctionDeclaration { body, .. }) =
+                    constructors.get("init/0")
+                else {
+                    return false;
+                };
+                body.iter()
+                    .any(|node| matches!(node, crate::ast::ASTNode::TryCatch { .. }))
+            }
+            crate::ast::ASTNode::Program { statements, .. } => {
+                statements.iter().any(init_has_trycatch)
+            }
+            _ => false,
+        }
+    }
+
+    assert!(
+        init_has_trycatch(&ast),
+        "expected TryCatch inside init constructor body"
+    );
+}
