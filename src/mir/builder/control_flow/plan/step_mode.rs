@@ -8,11 +8,6 @@ pub(in crate::mir::builder) fn inline_in_body_no_explicit_step() -> (LoopStepMod
 }
 
 #[inline]
-pub(in crate::mir::builder) fn inline_in_body_explicit_step() -> (LoopStepMode, bool) {
-    (LoopStepMode::InlineInBody, true)
-}
-
-#[inline]
 pub(in crate::mir::builder) fn extract_to_step_bb_explicit_step() -> (LoopStepMode, bool) {
     (LoopStepMode::ExtractToStepBb, true)
 }

@@ -24,10 +24,8 @@ mod tests {
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
     use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
-    use crate::mir::builder::control_flow::plan::step_mode::{
-        extract_to_step_bb_explicit_step, inline_in_body_explicit_step,
-    };
-    use crate::mir::builder::control_flow::plan::CoreIfJoin;
+    use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
+    use crate::mir::builder::control_flow::plan::{CoreIfJoin, LoopStepMode};
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::EdgeArgs;
     use crate::mir::{BasicBlockId, ConstValue, ValueId};
@@ -560,7 +558,7 @@ mod tests {
     #[test]
     fn test_v10c_inline_explicit_step_forbids_continue_depth1() {
         let mut loop_plan = make_loop_plan(vec![CorePlan::Exit(CoreExitPlan::Continue(1))]);
-        let (step_mode, has_explicit_step) = inline_in_body_explicit_step();
+        let (step_mode, has_explicit_step) = (LoopStepMode::InlineInBody, true);
         loop_plan.step_mode = step_mode;
         loop_plan.has_explicit_step = has_explicit_step;
         loop_plan.frag.wires = vec![edgecfg_stubs::build_loop_back_edge_with_args(
@@ -580,7 +578,7 @@ mod tests {
     #[test]
     fn test_v10d_inline_explicit_step_requires_single_normal_backedge() {
         let mut loop_plan = make_loop_plan(vec![]);
-        let (step_mode, has_explicit_step) = inline_in_body_explicit_step();
+        let (step_mode, has_explicit_step) = (LoopStepMode::InlineInBody, true);
         loop_plan.step_mode = step_mode;
         loop_plan.has_explicit_step = has_explicit_step;
         loop_plan.frag.wires = vec![];
@@ -593,7 +591,7 @@ mod tests {
     #[test]
     fn test_v10d_inline_explicit_step_single_normal_backedge_ok() {
         let mut loop_plan = make_loop_plan(vec![]);
-        let (step_mode, has_explicit_step) = inline_in_body_explicit_step();
+        let (step_mode, has_explicit_step) = (LoopStepMode::InlineInBody, true);
         loop_plan.step_mode = step_mode;
         loop_plan.has_explicit_step = has_explicit_step;
         loop_plan.frag.wires = vec![edgecfg_stubs::build_loop_back_edge_with_args(
