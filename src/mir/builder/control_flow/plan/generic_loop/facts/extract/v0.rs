@@ -1,9 +1,11 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::generic_loop::{
-    canon_condition_for_generic_loop_v0, canon_loop_increment_for_var, classify_step_placement,
-    StepPlacement,
+    canon_condition_for_generic_loop_v0, canon_loop_increment_for_var,
 };
 use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes;
+use crate::mir::builder::control_flow::plan::canon::generic_loop::{
+    classify_step_placement, StepPlacement,
+};
 use crate::mir::builder::control_flow::plan::facts::reject_reason::{
     handoff_tables, log_reject, RejectReason,
 };

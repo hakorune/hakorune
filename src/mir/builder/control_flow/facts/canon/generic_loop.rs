@@ -1,8 +1,7 @@
 //! Facts-side owner for generic-loop canon helpers.
 //!
 //! Condition/update canon types and related analysis-only helpers are owned
-//! here. Placement decision still forwards from `plan::canon::generic_loop`,
-//! but the forwarded owner surface is spelled out explicitly here.
+//! here. Plan-owned placement decisions stay under `plan::canon::generic_loop`.
 
 pub(in crate::mir::builder) mod condition;
 pub(in crate::mir::builder) mod step;
@@ -17,8 +16,3 @@ pub(crate) use step::{
 #[allow(unused_imports)]
 pub(crate) use types::{ConditionCanon, UpdateCanon};
 pub(crate) use update::canon_update_for_loop_var;
-
-#[allow(unused_imports)]
-pub(crate) use crate::mir::builder::control_flow::plan::canon::generic_loop::{
-    classify_step_placement, StepPlacement, StepPlacementDecision,
-};

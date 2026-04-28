@@ -44,9 +44,9 @@ Scope: current lane / next lane / restart order only.
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-658` prunes lower facade exports used only by
-  verifier tests after planner reject-detail diagnostics cleanup landed through
-  `291x-657`
+- latest known checkpoint: `291x-659` prunes facts-side reverse re-export of
+  generic-loop step placement after lower planner compat test-only export
+  pruning landed through `291x-658`
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
@@ -59,7 +59,7 @@ Scope: current lane / next lane / restart order only.
 ## Task Order
 
 - current task source:
-  `docs/development/current/main/phases/phase-291x/291x-658-lower-planner-compat-test-export-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-659-generic-loop-canon-reverse-export-prune-card.md`
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
@@ -78,13 +78,14 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-658`; detailed landed history lives in phase card
+- latest checkpoint: `291x-659`; detailed landed history lives in phase card
   files and the current `latest_card_path` in `CURRENT_STATE.toml`
 - next cleanup: choose the next compiler-cleanliness lane; the `291x-575`
   ordered compat residue queue and unified-member property cleanup are closed,
   parser member syntax SSOT is landed, planner reject-detail diagnostics
-  cleanup and lower planner compat test-only export pruning are landed, and
-  broad facts/planner ownership work must reopen as its own lane
+  cleanup, lower planner compat test-only export pruning, and generic-loop
+  canon reverse export pruning are landed, and broad facts/planner ownership
+  work must reopen as its own lane
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
@@ -96,7 +97,7 @@ Scope: current lane / next lane / restart order only.
 - CoreBox surface phase:
   `docs/development/current/main/phases/phase-291x/README.md`
 - Current cleanup checkpoint:
-  `docs/development/current/main/phases/phase-291x/291x-658-lower-planner-compat-test-export-prune-card.md`
+  `docs/development/current/main/phases/phase-291x/291x-659-generic-loop-canon-reverse-export-prune-card.md`
 - CoreBox design brief:
   `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 - StringBox taskboard:

@@ -1,10 +1,12 @@
 use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::facts::canon::generic_loop::{
-    canon_condition_for_generic_loop_v0, canon_loop_increment_for_var, classify_step_placement,
-    matches_loop_increment, StepPlacement,
+    canon_condition_for_generic_loop_v0, canon_loop_increment_for_var, matches_loop_increment,
 };
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes;
+use crate::mir::builder::control_flow::plan::canon::generic_loop::{
+    classify_step_placement, StepPlacement,
+};
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
     try_build_exit_allowed_block_recipe, ExitAllowedBlockRecipe,
 };

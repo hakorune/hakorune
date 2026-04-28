@@ -4,6 +4,58 @@ mod tests {
     use super::super::v1::try_extract_generic_loop_v1_facts;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::policies::BodyLoweringPolicy;
+    use std::ffi::OsString;
+    use std::sync::Mutex;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    struct EnvRestore {
+        joinir_dev: Option<OsString>,
+        planner_required: Option<OsString>,
+    }
+
+    impl EnvRestore {
+        fn set(joinir_dev: Option<&str>, planner_required: Option<&str>) -> Self {
+            let restore = Self {
+                joinir_dev: std::env::var_os("NYASH_JOINIR_DEV"),
+                planner_required: std::env::var_os("HAKO_JOINIR_PLANNER_REQUIRED"),
+            };
+            set_or_remove("NYASH_JOINIR_DEV", joinir_dev);
+            set_or_remove("HAKO_JOINIR_PLANNER_REQUIRED", planner_required);
+            restore
+        }
+    }
+
+    impl Drop for EnvRestore {
+        fn drop(&mut self) {
+            restore_var("NYASH_JOINIR_DEV", self.joinir_dev.take());
+            restore_var("HAKO_JOINIR_PLANNER_REQUIRED", self.planner_required.take());
+        }
+    }
+
+    fn set_or_remove(name: &str, value: Option<&str>) {
+        match value {
+            Some(value) => std::env::set_var(name, value),
+            None => std::env::remove_var(name),
+        }
+    }
+
+    fn restore_var(name: &str, value: Option<OsString>) {
+        match value {
+            Some(value) => std::env::set_var(name, value),
+            None => std::env::remove_var(name),
+        }
+    }
+
+    fn with_joinir_env<T>(
+        joinir_dev: Option<&str>,
+        planner_required: Option<&str>,
+        f: impl FnOnce() -> T,
+    ) -> T {
+        let _lock = ENV_LOCK.lock().expect("joinir env lock poisoned");
+        let _restore = EnvRestore::set(joinir_dev, planner_required);
+        f()
+    }
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -115,210 +167,209 @@ mod tests {
 
     #[test]
     fn generic_loop_v0_allows_loop_var_from_add_expr_in_condition() {
-        let cond = bin(
-            BinaryOperator::LessEqual,
-            bin(BinaryOperator::Add, var("j"), var("m")),
-            var("n"),
-        );
-        let body = vec![assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1)))];
+        with_joinir_env(None, None, || {
+            let cond = bin(
+                BinaryOperator::LessEqual,
+                bin(BinaryOperator::Add, var("j"), var("m")),
+                var("n"),
+            );
+            let body = vec![assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1)))];
 
-        let facts = try_extract_generic_loop_v0_facts(&cond, &body)
-            .expect("no freeze")
-            .expect("should match");
-        assert_eq!(facts.loop_var, "j");
+            let facts = try_extract_generic_loop_v0_facts(&cond, &body)
+                .expect("no freeze")
+                .expect("should match");
+            assert_eq!(facts.loop_var, "j");
+        });
     }
 
     #[test]
     fn generic_loop_v0_rejects_control_flow_after_step() {
-        std::env::set_var("NYASH_JOINIR_DEV", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        with_joinir_env(Some("1"), Some("1"), || {
+            let cond = bin(BinaryOperator::Less, var("i"), var("n"));
+            let body = vec![
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+                ASTNode::Break {
+                    span: Span::unknown(),
+                },
+            ];
 
-        let cond = bin(BinaryOperator::Less, var("i"), var("n"));
-        let body = vec![
-            assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
-            ASTNode::Break {
-                span: Span::unknown(),
-            },
-        ];
-
-        let facts = try_extract_generic_loop_v0_facts(&cond, &body).expect("no freeze");
-        assert!(facts.is_none());
+            let facts = try_extract_generic_loop_v0_facts(&cond, &body).expect("no freeze");
+            assert!(facts.is_none());
+        });
     }
 
     #[test]
     fn generic_loop_v0_rejects_v1_shape_effect_step_only() {
-        let cond = bin(BinaryOperator::Less, var("i"), var("n"));
-        let body = vec![
-            method_call("s", "len"),
-            assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
-        ];
+        with_joinir_env(None, None, || {
+            let cond = bin(BinaryOperator::Less, var("i"), var("n"));
+            let body = vec![
+                method_call("s", "len"),
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+            ];
 
-        let facts = try_extract_generic_loop_v0_facts(&cond, &body).expect("no freeze");
-        assert!(facts.is_none());
+            let facts = try_extract_generic_loop_v0_facts(&cond, &body).expect("no freeze");
+            assert!(facts.is_none());
+        });
     }
 
     #[test]
     fn generic_loop_v1_policy_exit_allowed_without_break() {
-        std::env::set_var("NYASH_JOINIR_DEV", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        with_joinir_env(Some("1"), Some("1"), || {
+            let cond = bin(BinaryOperator::Less, var("i"), var("n"));
+            let body = vec![
+                local_init("tmp0", lit_i(0)),
+                ASTNode::If {
+                    condition: Box::new(cond.clone()),
+                    then_body: vec![assign("tmp1", lit_i(1))],
+                    else_body: Some(vec![assign("tmp2", lit_i(2))]),
+                    span: Span::unknown(),
+                },
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+            ];
 
-        let cond = bin(BinaryOperator::Less, var("i"), var("n"));
-        let body = vec![
-            local_init("tmp0", lit_i(0)),
-            ASTNode::If {
-                condition: Box::new(cond.clone()),
-                then_body: vec![assign("tmp1", lit_i(1))],
-                else_body: Some(vec![assign("tmp2", lit_i(2))]),
-                span: Span::unknown(),
-            },
-            assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
-        ];
+            let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+                .expect("no freeze")
+                .expect("should match");
 
-        let facts = try_extract_generic_loop_v1_facts(&cond, &body)
-            .expect("no freeze")
-            .expect("should match");
-
-        assert!(matches!(
-            facts.body_lowering_policy,
-            BodyLoweringPolicy::ExitAllowed { .. }
-        ));
+            assert!(matches!(
+                facts.body_lowering_policy,
+                BodyLoweringPolicy::ExitAllowed { .. }
+            ));
+        });
     }
 
     #[test]
     fn generic_loop_v1_policy_recipe_only_with_break() {
-        std::env::set_var("NYASH_JOINIR_DEV", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        with_joinir_env(Some("1"), Some("1"), || {
+            let cond = bin(BinaryOperator::Less, var("i"), var("n"));
+            let general_if = simple_general_if(cond.clone());
+            let else_body = vec![
+                local_init("tmp0", lit_i(0)),
+                local_init("tmp1", lit_i(1)),
+                assign("tmp2", lit_i(2)),
+                assign("tmp3", lit_i(3)),
+                simple_general_if(cond.clone()),
+                assign("tmp4", lit_i(4)),
+                local_init("tmp5", lit_i(5)),
+                assign("tmp6", lit_i(6)),
+                simple_general_if(cond.clone()),
+                assign("tmp7", lit_i(7)),
+                assign("tmp8", lit_i(8)),
+                simple_general_if(cond.clone()),
+            ];
+            let parse_map_if = ASTNode::If {
+                condition: Box::new(cond.clone()),
+                then_body: vec![assign("tmp9", lit_i(9))],
+                else_body: Some(else_body),
+                span: Span::unknown(),
+            };
+            let body = vec![
+                assign("tmp10", lit_i(10)),
+                exit_if_break(cond.clone()),
+                exit_if_break(cond.clone()),
+                parse_map_if,
+                assign("tmp11", lit_i(11)),
+                general_if,
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+            ];
 
-        let cond = bin(BinaryOperator::Less, var("i"), var("n"));
-        let general_if = simple_general_if(cond.clone());
-        let else_body = vec![
-            local_init("tmp0", lit_i(0)),
-            local_init("tmp1", lit_i(1)),
-            assign("tmp2", lit_i(2)),
-            assign("tmp3", lit_i(3)),
-            simple_general_if(cond.clone()),
-            assign("tmp4", lit_i(4)),
-            local_init("tmp5", lit_i(5)),
-            assign("tmp6", lit_i(6)),
-            simple_general_if(cond.clone()),
-            assign("tmp7", lit_i(7)),
-            assign("tmp8", lit_i(8)),
-            simple_general_if(cond.clone()),
-        ];
-        let parse_map_if = ASTNode::If {
-            condition: Box::new(cond.clone()),
-            then_body: vec![assign("tmp9", lit_i(9))],
-            else_body: Some(else_body),
-            span: Span::unknown(),
-        };
-        let body = vec![
-            assign("tmp10", lit_i(10)),
-            exit_if_break(cond.clone()),
-            exit_if_break(cond.clone()),
-            parse_map_if,
-            assign("tmp11", lit_i(11)),
-            general_if,
-            assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
-        ];
+            let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+                .expect("no freeze")
+                .expect("should match");
 
-        let facts = try_extract_generic_loop_v1_facts(&cond, &body)
-            .expect("no freeze")
-            .expect("should match");
-
-        assert!(matches!(
-            facts.body_lowering_policy,
-            BodyLoweringPolicy::RecipeOnly
-        ));
+            assert!(matches!(
+                facts.body_lowering_policy,
+                BodyLoweringPolicy::RecipeOnly
+            ));
+        });
     }
 
     #[test]
     fn generic_loop_nested_program_stmt_preserves_outer_loop_step_expr() {
-        std::env::set_var("NYASH_JOINIR_DEV", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
-
-        let outer_cond = bin(BinaryOperator::Less, var("i"), var("n"));
-        let inner_cond = bin(BinaryOperator::Less, var("j"), var("n"));
-        let inner_body = vec![
-            ASTNode::If {
-                condition: Box::new(bin(BinaryOperator::Equal, var("j"), lit_i(1))),
-                then_body: vec![ASTNode::Break {
-                    span: Span::unknown(),
-                }],
-                else_body: None,
-                span: Span::unknown(),
-            },
-            assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
-        ];
-        let body = vec![
-            ASTNode::If {
-                condition: Box::new(bin(BinaryOperator::Equal, var("i"), lit_i(2))),
-                then_body: vec![ASTNode::Break {
-                    span: Span::unknown(),
-                }],
-                else_body: None,
-                span: Span::unknown(),
-            },
-            ASTNode::Program {
-                statements: vec![
-                    local_init("j", lit_i(0)),
-                    ASTNode::Loop {
-                        condition: Box::new(inner_cond),
-                        body: inner_body,
+        with_joinir_env(Some("1"), Some("1"), || {
+            let outer_cond = bin(BinaryOperator::Less, var("i"), var("n"));
+            let inner_cond = bin(BinaryOperator::Less, var("j"), var("n"));
+            let inner_body = vec![
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("j"), lit_i(1))),
+                    then_body: vec![ASTNode::Break {
                         span: Span::unknown(),
-                    },
-                ],
-                span: Span::unknown(),
-            },
-            assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
-        ];
+                    }],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+            ];
+            let body = vec![
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("i"), lit_i(2))),
+                    then_body: vec![ASTNode::Break {
+                        span: Span::unknown(),
+                    }],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                ASTNode::Program {
+                    statements: vec![
+                        local_init("j", lit_i(0)),
+                        ASTNode::Loop {
+                            condition: Box::new(inner_cond),
+                            body: inner_body,
+                            span: Span::unknown(),
+                        },
+                    ],
+                    span: Span::unknown(),
+                },
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+            ];
 
-        if let Some(v0) =
-            try_extract_generic_loop_v0_facts(&outer_cond, &body).expect("v0: no freeze")
-        {
-            assert_eq!(v0.loop_var, "i");
-            assert_is_loop_var_plus_one(&v0.loop_increment, "i");
-        }
+            if let Some(v0) =
+                try_extract_generic_loop_v0_facts(&outer_cond, &body).expect("v0: no freeze")
+            {
+                assert_eq!(v0.loop_var, "i");
+                assert_is_loop_var_plus_one(&v0.loop_increment, "i");
+            }
 
-        let v1 = try_extract_generic_loop_v1_facts(&outer_cond, &body)
-            .expect("v1: no freeze")
-            .expect("v1 should match");
-        assert_eq!(v1.loop_var, "i");
-        assert_is_loop_var_plus_one(&v1.loop_increment, "i");
+            let v1 = try_extract_generic_loop_v1_facts(&outer_cond, &body)
+                .expect("v1: no freeze")
+                .expect("v1 should match");
+            assert_eq!(v1.loop_var, "i");
+            assert_is_loop_var_plus_one(&v1.loop_increment, "i");
+        });
     }
 
     #[test]
     fn generic_loop_v1_accepts_if_condition_with_blockexpr_loop_prelude() {
-        std::env::set_var("NYASH_JOINIR_DEV", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
-
-        let cond = bin(BinaryOperator::Less, var("i"), lit_i(3));
-        let prelude_loop = ASTNode::Loop {
-            condition: Box::new(bin(BinaryOperator::Less, var("j"), lit_i(1))),
-            body: vec![assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1)))],
-            span: Span::unknown(),
-        };
-        let if_cond = ASTNode::BlockExpr {
-            prelude_stmts: vec![local_init("j", lit_i(0)), prelude_loop],
-            tail_expr: Box::new(bin(BinaryOperator::Equal, var("j"), lit_i(1))),
-            span: Span::unknown(),
-        };
-        let body = vec![
-            ASTNode::If {
-                condition: Box::new(if_cond),
-                then_body: vec![assign(
-                    "sum",
-                    bin(BinaryOperator::Add, var("sum"), lit_i(1)),
-                )],
-                else_body: None,
+        with_joinir_env(Some("1"), Some("1"), || {
+            let cond = bin(BinaryOperator::Less, var("i"), lit_i(3));
+            let prelude_loop = ASTNode::Loop {
+                condition: Box::new(bin(BinaryOperator::Less, var("j"), lit_i(1))),
+                body: vec![assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1)))],
                 span: Span::unknown(),
-            },
-            assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
-        ];
+            };
+            let if_cond = ASTNode::BlockExpr {
+                prelude_stmts: vec![local_init("j", lit_i(0)), prelude_loop],
+                tail_expr: Box::new(bin(BinaryOperator::Equal, var("j"), lit_i(1))),
+                span: Span::unknown(),
+            };
+            let body = vec![
+                ASTNode::If {
+                    condition: Box::new(if_cond),
+                    then_body: vec![assign(
+                        "sum",
+                        bin(BinaryOperator::Add, var("sum"), lit_i(1)),
+                    )],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+            ];
 
-        let facts = try_extract_generic_loop_v1_facts(&cond, &body)
-            .expect("v1: no freeze")
-            .expect("v1 should match");
-        assert_eq!(facts.loop_var, "i");
-        assert!(facts.body_exit_allowed.is_some());
+            let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+                .expect("v1: no freeze")
+                .expect("v1 should match");
+            assert_eq!(facts.loop_var, "i");
+            assert!(facts.body_exit_allowed.is_some());
+        });
     }
 }
