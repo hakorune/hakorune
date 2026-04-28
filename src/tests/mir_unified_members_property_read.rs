@@ -85,9 +85,22 @@ fn count_field_gets(module: &MirModule, field_name: &str) -> usize {
         .count()
 }
 
+fn assert_property_read_uses_getter(
+    src: &str,
+    box_type: &str,
+    property_name: &str,
+    getter_name: &str,
+) {
+    let module = compile_src(src);
+
+    assert_eq!(count_newbox(&module, box_type), 1);
+    assert_eq!(count_getter_calls(&module, getter_name), 1);
+    assert_eq!(count_field_gets(&module, property_name), 0);
+}
+
 #[test]
 fn property_read_on_newbox_reuses_lowered_receiver() {
-    let module = compile_src(
+    assert_property_read_uses_getter(
         r#"
 box PropBox {
   get value: IntegerBox => 42
@@ -99,9 +112,48 @@ static box Main {
   }
 }
 "#,
+        "PropBox",
+        "value",
+        "__get_value",
     );
+}
 
-    assert_eq!(count_newbox(&module, "PropBox"), 1);
-    assert_eq!(count_getter_calls(&module, "__get_value"), 1);
-    assert_eq!(count_field_gets(&module, "value"), 0);
+#[test]
+fn once_property_read_uses_once_getter() {
+    assert_property_read_uses_getter(
+        r#"
+box PropBox {
+  once cached: IntegerBox => 7
+}
+
+static box Main {
+  main() {
+    return (new PropBox()).cached
+  }
+}
+"#,
+        "PropBox",
+        "cached",
+        "__get_once_cached",
+    );
+}
+
+#[test]
+fn birth_once_property_read_uses_birth_getter() {
+    assert_property_read_uses_getter(
+        r#"
+box PropBox {
+  birth_once config: IntegerBox => 9
+}
+
+static box Main {
+  main() {
+    return (new PropBox()).config
+  }
+}
+"#,
+        "PropBox",
+        "config",
+        "__get_birth_config",
+    );
 }
