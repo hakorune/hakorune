@@ -52,9 +52,6 @@ pub(in crate::mir::builder) use matcher::RecipeMatcher;
 pub(in crate::mir::builder) mod verified;
 
 // Re-export builder types (maintains backward compatibility)
-pub(in crate::mir::builder) use accum_const_loop_builder::{
-    build_accum_const_loop_recipe, AccumConstLoopRecipe,
-};
 pub(in crate::mir::builder) use array_join_builder::{build_array_join_recipe, ArrayJoinRecipe};
 pub(in crate::mir::builder) use char_map_builder::{build_char_map_recipe, CharMapRecipe};
 pub(in crate::mir::builder) use loop_break_builder::{build_loop_break_recipe, LoopBreakRecipe};
