@@ -4,14 +4,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 #[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct StringIsIntegerFacts {
-    pub loop_var: String,
-    pub s_var: String,
-    pub loop_condition: ASTNode,
-    pub loop_increment: ASTNode,
-    pub digit_call: ASTNode,
-    pub return_zero_on_fail: bool,
-}
+pub(in crate::mir::builder) struct StringIsIntegerFacts;
 
 pub(in crate::mir::builder) fn try_extract_string_is_integer_facts(
     condition: &ASTNode,
@@ -21,7 +14,7 @@ pub(in crate::mir::builder) fn try_extract_string_is_integer_facts(
         return Ok(None);
     };
 
-    let Some((s_var, digit_call, loop_increment, return_zero_on_fail)) =
+    let Some((s_var, _digit_call, _loop_increment, _return_zero_on_fail)) =
         match_loop_body(body, &loop_var)
     else {
         return Ok(None);
@@ -33,19 +26,13 @@ pub(in crate::mir::builder) fn try_extract_string_is_integer_facts(
         }
     }
 
-    Ok(Some(StringIsIntegerFacts {
-        loop_var,
-        s_var,
-        loop_condition: condition.clone(),
-        loop_increment,
-        digit_call,
-        return_zero_on_fail,
-    }))
+    let _ = loop_var;
+    Ok(Some(StringIsIntegerFacts))
 }
 
 enum LoopBound {
     LengthCall { s_var: String },
-    LengthVar { len_var: String },
+    LengthVar,
 }
 
 fn match_loop_condition(condition: &ASTNode) -> Option<(String, LoopBound)> {
@@ -83,12 +70,7 @@ fn match_loop_condition(condition: &ASTNode) -> Option<(String, LoopBound)> {
                 },
             ))
         }
-        ASTNode::Variable { name: len_var, .. } => Some((
-            loop_var.clone(),
-            LoopBound::LengthVar {
-                len_var: len_var.clone(),
-            },
-        )),
+        ASTNode::Variable { .. } => Some((loop_var.clone(), LoopBound::LengthVar)),
         _ => None,
     }
 }
