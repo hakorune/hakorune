@@ -341,7 +341,7 @@ MIR Terminator Instructions
 
 物理配置（案）:
 
-- `src/mir/builder/control_flow/edgecfg/api/`（または `.../joinir/api/` に併設してもよい）
+- `src/mir/builder/control_flow/edgecfg/api/`
   - `frag.rs` / `exit_kind.rs` / `compose.rs` / `patch.rs`
 
 ## verify（Fail-Fast の置き場所）

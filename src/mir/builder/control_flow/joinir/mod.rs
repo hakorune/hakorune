@@ -9,7 +9,6 @@
 //! - Unified tracing (trace.rs) ✅ Phase 195
 //! - Control tree capability guard (control_tree_capability_guard.rs) ✅ Phase 112
 
-pub(in crate::mir::builder) mod api;
 pub(in crate::mir::builder) mod control_tree_capability_guard;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_context;
