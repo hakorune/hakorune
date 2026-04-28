@@ -77,7 +77,7 @@ pub(super) fn verify_no_exit_block_recipe(
     recipe: &crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     check_block_contract(
@@ -94,7 +94,7 @@ pub(super) fn verify_exit_allowed_block_recipe(
     recipe: &crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     check_block_contract(
@@ -113,7 +113,7 @@ pub(super) fn verify_stmt_only_block_recipe(
     recipe: &crate::mir::builder::control_flow::facts::stmt_view::StmtOnlyBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     check_block_contract(
@@ -182,7 +182,7 @@ pub(super) fn verify_exit_only_block_recipe(
     recipe: &crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitOnlyBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     check_block_contract(

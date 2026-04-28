@@ -49,8 +49,12 @@ mod split_scan_composer;
 mod contracts;
 pub(in crate::mir::builder) mod matcher;
 pub(in crate::mir::builder) use matcher::RecipeMatcher;
-pub(in crate::mir::builder) mod verified;
+mod verified;
 pub(in crate::mir::builder) use contracts::{RecipeContract, RecipeContractKind, StmtConstraint};
+pub(in crate::mir::builder::control_flow::plan) use verified::verify_block_contract_with_pre;
+pub(in crate::mir::builder) use verified::{
+    check_block_contract, ObligationState, PortType, VerifiedRecipeBlock,
+};
 
 // ===== RecipeComposer route entry facade =====
 pub(in crate::mir::builder) struct RecipeComposer;

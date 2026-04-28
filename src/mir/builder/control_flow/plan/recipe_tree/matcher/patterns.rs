@@ -41,7 +41,7 @@ pub(super) fn verify_loop_break_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     // Create dummy loop_stmt (structure verification only)
@@ -92,7 +92,7 @@ pub(super) fn verify_loop_break_recipe(
 pub(super) fn verify_generic_loop_v1_recipe(
     generic_loop: &crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let Some(recipe) = generic_loop.body_exit_allowed.as_ref() else {
@@ -117,7 +117,7 @@ pub(super) fn verify_if_phi_join_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -162,7 +162,7 @@ pub(super) fn verify_loop_continue_only_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -211,7 +211,7 @@ pub(super) fn verify_loop_true_early_exit_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -258,7 +258,7 @@ pub(super) fn verify_loop_simple_while_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -306,7 +306,7 @@ pub(super) fn verify_loop_char_map_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -354,7 +354,7 @@ pub(super) fn verify_loop_array_join_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -402,7 +402,7 @@ pub(super) fn verify_scan_with_init_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -445,7 +445,7 @@ pub(super) fn verify_split_scan_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -488,7 +488,7 @@ pub(super) fn verify_bool_predicate_scan_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
@@ -533,7 +533,7 @@ pub(super) fn verify_accum_const_loop_recipe(
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);

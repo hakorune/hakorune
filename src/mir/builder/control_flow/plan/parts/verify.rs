@@ -10,10 +10,9 @@
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::ObligationState;
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, ExitKind, IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
+    BlockContractKind, ExitKind, IfContractKind, IfMode, ObligationState, RecipeBlock,
+    RecipeBodies, RecipeItem, VerifiedRecipeBlock,
 };
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
@@ -218,7 +217,7 @@ pub(in crate::mir::builder) fn verify_port_sig_obligations_if_enabled(
     verified: &VerifiedRecipeBlock<'_>,
     context: &str,
 ) -> Result<(), String> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::verified::PortType;
+    use crate::mir::builder::control_flow::plan::recipe_tree::PortType;
 
     // SSOT: docs/development/current/main/design/verified-recipe-port-sig-ssot.md
     // PortSig obligations are enforced for NoExit/ExitAllowed/ExitOnly

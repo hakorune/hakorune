@@ -7,11 +7,9 @@
 //! Notes:
 //! - This module is intended to become the only place that creates `VerifiedRecipeBlock`.
 
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::{
-    verify_block_contract_with_pre, VerifiedRecipeBlock,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, ExitKind, RecipeBlock, RecipeBodies,
+    verify_block_contract_with_pre, BlockContractKind, ExitKind, RecipeBlock, RecipeBodies,
+    VerifiedRecipeBlock,
 };
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};

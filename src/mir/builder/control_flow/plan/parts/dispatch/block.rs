@@ -9,7 +9,7 @@
 use super::super::stmt as parts_stmt;
 #[cfg(debug_assertions)]
 use super::super::verify;
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
+use crate::mir::builder::control_flow::plan::recipe_tree::VerifiedRecipeBlock;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     IfContractKind, RecipeBlock, RecipeBodies, RecipeItem,
 };

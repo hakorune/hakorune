@@ -356,7 +356,7 @@ mod tests {
 
     #[test]
     fn test_joinir_obligation_exit_allowed_port_sig_is_seeded() {
-        use crate::mir::builder::control_flow::plan::recipe_tree::verified::PortType;
+        use crate::mir::builder::control_flow::plan::recipe_tree::PortType;
 
         std::env::set_var("HAKO_JOINIR_STRICT", "1");
         std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
@@ -418,7 +418,7 @@ mod tests {
 
     #[test]
     fn test_joinir_obligation_exit_only_port_sig_is_seeded() {
-        use crate::mir::builder::control_flow::plan::recipe_tree::verified::PortType;
+        use crate::mir::builder::control_flow::plan::recipe_tree::PortType;
 
         std::env::set_var("HAKO_JOINIR_STRICT", "1");
         std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");

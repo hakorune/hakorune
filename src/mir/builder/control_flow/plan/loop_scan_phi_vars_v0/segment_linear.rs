@@ -1,6 +1,6 @@
 use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
+use crate::mir::builder::control_flow::plan::recipe_tree::VerifiedRecipeBlock;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;

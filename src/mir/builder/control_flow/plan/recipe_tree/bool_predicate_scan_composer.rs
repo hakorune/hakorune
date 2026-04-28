@@ -10,7 +10,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::bool_predicate_scan_builder::{
     build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+use crate::mir::builder::control_flow::plan::recipe_tree::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
