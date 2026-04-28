@@ -2,8 +2,9 @@ use crate::ast::ASTNode;
 use crate::parser::NyashParser;
 
 fn parse(src: &str) -> ASTNode {
-    std::env::set_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1");
-    NyashParser::parse_from_string(src).expect("parse ok")
+    crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || {
+        NyashParser::parse_from_string(src).expect("parse ok")
+    })
 }
 
 fn find_box<'a>(ast: &'a ASTNode, box_name: &str) -> &'a ASTNode {
