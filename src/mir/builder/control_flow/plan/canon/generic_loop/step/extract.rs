@@ -1,10 +1,5 @@
 use crate::ast::ASTNode;
 
-mod complex_step;
-mod next_step;
-mod shared;
-mod var_step;
-
 pub(crate) fn canon_loop_increment_for_var(
     body: &[ASTNode],
     loop_var: &str,
