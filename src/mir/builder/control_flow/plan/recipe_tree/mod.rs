@@ -47,7 +47,7 @@ mod scan_with_init_composer;
 mod split_scan_composer;
 
 mod contracts;
-pub(in crate::mir::builder) mod matcher;
+mod matcher;
 pub(in crate::mir::builder) use matcher::RecipeMatcher;
 mod verified;
 pub(in crate::mir::builder) use contracts::{RecipeContract, RecipeContractKind, StmtConstraint};
