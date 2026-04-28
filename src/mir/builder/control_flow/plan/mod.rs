@@ -134,7 +134,7 @@ mod route_prep_pipeline;
 // ============================================================================
 //
 // Plan pipeline entrypoints:
-// - planner::build_plan_with_facts* (Facts + recipe contract)
+// - planner::build_plan_with_facts_ctx (Facts + recipe contract)
 // - PlanVerifier::verify (CorePlan invariants)
 // - PlanLowerer::lower (CorePlan → MIR)
 #[allow(unused_imports)]
@@ -144,9 +144,7 @@ pub(in crate::mir::builder) use lowerer::PlanLowerer;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use normalizer::PlanNormalizer;
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use planner::{
-    build_plan_with_facts, build_plan_with_facts_ctx, PlanBuildOutcome,
-};
+pub(in crate::mir::builder) use planner::{build_plan_with_facts_ctx, PlanBuildOutcome};
 
 pub(in crate::mir::builder) use branchn::CoreBranchNPlan;
 pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;

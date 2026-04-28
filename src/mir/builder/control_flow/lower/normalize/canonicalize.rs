@@ -104,16 +104,6 @@ mod tests {
             loop_char_map: None,
             loop_array_join: None,
             string_is_integer: None,
-
-            starts_with: None,
-
-            int_to_str: None,
-
-            escape_map: None,
-
-            split_lines: None,
-
-            skip_whitespace: None,
             generic_loop_v0: None,
             generic_loop_v1: None,
             if_phi_join: None,
@@ -173,16 +163,6 @@ mod tests {
             loop_char_map: None,
             loop_array_join: None,
             string_is_integer: None,
-
-            starts_with: None,
-
-            int_to_str: None,
-
-            escape_map: None,
-
-            split_lines: None,
-
-            skip_whitespace: None,
             generic_loop_v0: None,
             generic_loop_v1: None,
             if_phi_join: None,
@@ -243,21 +223,6 @@ mod tests {
             loop_char_map: None,
             loop_array_join: None,
             string_is_integer: None,
-
-            starts_with: None,
-
-
-            int_to_str: None,
-
-
-            escape_map: None,
-
-
-            split_lines: None,
-
-
-
-            skip_whitespace: None,
             generic_loop_v0: None,
             generic_loop_v1: None,
             if_phi_join: None,

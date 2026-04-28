@@ -4,9 +4,7 @@
 
 use super::accum_const_loop_facts::AccumConstLoopFacts;
 use super::bool_predicate_scan_facts::BoolPredicateScanFacts;
-use super::escape_map_facts::EscapeMapFacts;
 use super::feature_facts::LoopFeatureFacts;
-use super::int_to_str_facts::IntToStrFacts;
 use super::loop_array_join_facts::LoopArrayJoinFacts;
 use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
@@ -14,9 +12,6 @@ use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
 use super::scan_shapes::{ConditionShape, SplitScanShape, StepShape};
 use super::skeleton_facts::SkeletonFacts;
-use super::skip_whitespace_facts::SkipWhitespaceFacts;
-use super::split_lines_facts::SplitLinesFacts;
-use super::starts_with_facts::StartsWithFacts;
 use super::string_is_integer_facts::StringIsIntegerFacts;
 use super::LoopContinueOnlyFacts;
 use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
@@ -49,11 +44,6 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub loop_char_map: Option<LoopCharMapFacts>,
     pub loop_array_join: Option<LoopArrayJoinFacts>,
     pub string_is_integer: Option<StringIsIntegerFacts>,
-    pub starts_with: Option<StartsWithFacts>,
-    pub int_to_str: Option<IntToStrFacts>,
-    pub escape_map: Option<EscapeMapFacts>,
-    pub split_lines: Option<SplitLinesFacts>,
-    pub skip_whitespace: Option<SkipWhitespaceFacts>,
     pub generic_loop_v0: Option<GenericLoopV0Facts>,
     pub generic_loop_v1: Option<GenericLoopV1Facts>,
     pub if_phi_join: Option<IfPhiJoinFacts>,
@@ -101,26 +91,6 @@ impl LoopFacts {
 
     pub fn string_is_integer(&self) -> Option<&StringIsIntegerFacts> {
         self.string_is_integer.as_ref()
-    }
-
-    pub fn starts_with(&self) -> Option<&StartsWithFacts> {
-        self.starts_with.as_ref()
-    }
-
-    pub fn int_to_str(&self) -> Option<&IntToStrFacts> {
-        self.int_to_str.as_ref()
-    }
-
-    pub fn escape_map(&self) -> Option<&EscapeMapFacts> {
-        self.escape_map.as_ref()
-    }
-
-    pub fn split_lines(&self) -> Option<&SplitLinesFacts> {
-        self.split_lines.as_ref()
-    }
-
-    pub fn skip_whitespace(&self) -> Option<&SkipWhitespaceFacts> {
-        self.skip_whitespace.as_ref()
     }
 
     pub fn if_phi_join(&self) -> Option<&IfPhiJoinFacts> {

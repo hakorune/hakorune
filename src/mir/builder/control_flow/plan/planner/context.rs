@@ -6,13 +6,3 @@ pub(in crate::mir::builder) struct PlannerContext {
     pub in_static_box: bool,
     pub debug: bool,
 }
-
-impl PlannerContext {
-    pub(in crate::mir::builder) fn default_for_legacy() -> Self {
-        Self {
-            route_kind: None,
-            in_static_box: false,
-            debug: false,
-        }
-    }
-}

@@ -9,6 +9,4 @@ pub(in crate::mir::builder) mod validators;
 
 pub(in crate::mir::builder) use context::PlannerContext;
 pub(in crate::mir::builder) use freeze::Freeze;
-pub(in crate::mir::builder) use outcome::{
-    build_plan_with_facts, build_plan_with_facts_ctx, PlanBuildOutcome,
-};
+pub(in crate::mir::builder) use outcome::{build_plan_with_facts_ctx, PlanBuildOutcome};
