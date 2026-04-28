@@ -48,8 +48,8 @@ mod tests {
         CleanupFacts, CleanupKindFacts, ExitKindFacts, ExitMapFacts, ExitUsageFacts,
         LoopFeatureFacts,
     };
-    use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use std::collections::BTreeSet;
 

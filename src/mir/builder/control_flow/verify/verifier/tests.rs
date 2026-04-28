@@ -8,8 +8,6 @@ mod tests {
         LoopFeatureFacts, ValueJoinFacts,
     };
     #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
-    #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     #[cfg(debug_assertions)]
     #[cfg(debug_assertions)]
@@ -18,6 +16,8 @@ mod tests {
         CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
         CoreLoopPlan, CorePlan, Frag,
     };
+    #[cfg(debug_assertions)]
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
