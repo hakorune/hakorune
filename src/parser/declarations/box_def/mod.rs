@@ -165,13 +165,6 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
             continue;
         }
 
-        // 分類（段階移行用の観測）: 将来の分岐移譲のための前処理
-        if crate::config::env::parser_stage3_enabled() {
-            if let Ok(kind) = members::common::classify_member(p) {
-                let _ = kind; // 現段階では観測のみ（無副作用）
-            }
-        }
-
         // nyashモード（block-first）: { body } as (once|birth_once)? name : Type
         if box_try_block_first_property(p, &mut methods, &mut birth_once_props)? {
             continue;
