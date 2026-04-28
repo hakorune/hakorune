@@ -9,9 +9,9 @@
 //! - Router only coordinates planner/composer adoption
 //! - rule-specific logic lives in plan layer
 //!
-//! Phase 193: AST Feature Extraction Modularization
-//! - ast_feature_extractor.rs: Pure function module for analyzing loop AST (thin wrapper)
-//! - High reusability for loop analysis tools
+//! Phase 193 / 291x: Route-shape analyzer ownership
+//! - aggregate LoopFeatures extraction lives in facts/ast_feature_extractor.rs
+//! - shape-specific detector exports below point at their recognizer owners
 //!
 //! Phase 193-4 / Phase 222.5-C: Exit Binding Builder
 //! - exit_binding.rs: Fully boxified exit binding generation (orchestrator, thin wrapper)
@@ -39,8 +39,8 @@
 //! - route_prep_pipeline.rs: Unified preprocessing pipeline for simple loop families (moved to plan/)
 //!
 //! Phase 91 P5b: Escape Route-Shape Recognizer
-//! - escape_shape_recognizer.rs: P5b (escape sequence handling) route-shape detection (thin wrapper)
-//! - Extracted from ast_feature_extractor for improved modularity
+//! - escape_shape_recognizer.rs: P5b (escape sequence handling) route-shape detection
+//! - Owned outside ast_feature_extractor to keep route-shape entrances explicit
 //!
 //! Phase 93/94: Route Policies
 //! - route-policy compatibility re-exports have been retired

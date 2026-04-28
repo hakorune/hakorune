@@ -1,6 +1,7 @@
 //! Route-Shape Recognition Helpers
 //!
-//! Phase 140-P4-B: This module now delegates to SSOT implementations in ast_feature_extractor.
+//! Phase 140-P4-B / 291x: This module delegates to builder/control-flow
+//! route-shape recognizer owners.
 //! Provides route-shape wrappers for canonicalizer callsites.
 
 use crate::ast::ASTNode;

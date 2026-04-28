@@ -1,7 +1,5 @@
 //! Phase 193: AST Feature Extractor Box
 //!
-//! Phase 287 P1: Facade pattern - re-exports recognizers from route_shape_recognizers
-//!
 //! Modularized feature extraction from loop AST nodes.
 //! Separated from router.rs to improve reusability and testability.
 //!
@@ -15,7 +13,6 @@
 //!   route expansions, and route-shape analysis tools
 //! - **Independent testability**: Can be unit tested without MirBuilder context
 //! - **Extension-friendly**: Easy to add new feature detection methods
-//! - **Facade pattern**: Re-exports from `route_shape_recognizers` for backward compatibility
 //!
 //! # Phase 33-23: Refactoring
 //!
@@ -23,11 +20,11 @@
 //! - This module now focuses on high-level feature extraction
 //! - Delegates to specialized analyzers for break/continue logic
 //!
-//! # Phase 287 P1: Modularization
+//! # Route-Shape Recognizers
 //!
-//! - Individual recognizers extracted to `route_shape_recognizers`
-//! - This file now acts as a facade, re-exporting public APIs
-//! - Internal implementation moved to specialized modules
+//! - Shape-specific recognizers live under `route_shape_recognizers`
+//! - This file owns aggregate `LoopFeatures` extraction only
+//! - External route-shape exports should point at their recognizer owner modules
 //!
 //! # Boundary (Phase 110)
 //!
@@ -39,10 +36,10 @@
 use crate::ast::ASTNode;
 use crate::mir::loop_route_detection::LoopFeatures;
 
-// Phase 287 P1: Use recognizer modules from parent
 use super::route_shape_recognizers;
 
-// Re-export continue/break/return detection
+// Keep control-flow presence helpers here because aggregate feature extraction
+// and loop-cond facts still share this vocabulary.
 pub(crate) use route_shape_recognizers::continue_break::{
     detect_break_in_body, detect_continue_in_body, detect_return_in_body,
     find_first_control_flow_stmt,
