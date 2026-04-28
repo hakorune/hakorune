@@ -6,6 +6,40 @@ use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PropertyMemberKind {
+    Computed,
+    Once,
+    BirthOnce,
+}
+
+impl PropertyMemberKind {
+    fn from_keyword(keyword: &str) -> Option<Self> {
+        match keyword {
+            "once" => Some(Self::Once),
+            "birth_once" => Some(Self::BirthOnce),
+            _ => None,
+        }
+    }
+
+    fn emit(
+        self,
+        methods: &mut HashMap<String, ASTNode>,
+        birth_once_props: &mut Vec<String>,
+        name: String,
+        body: Vec<ASTNode>,
+    ) {
+        match self {
+            Self::Computed => property_emit::insert_computed_getter(methods, name, body),
+            Self::Once => property_emit::insert_once_methods(methods, name, body),
+            Self::BirthOnce => {
+                birth_once_props.push(name.clone());
+                property_emit::insert_birth_once_methods(methods, name, body);
+            }
+        }
+    }
+}
+
 /// Try to parse a unified member property: `once name: Type ...` or `birth_once name: Type ...`
 /// Returns Ok(true) if consumed and handled; otherwise Ok(false).
 pub(crate) fn try_parse_unified_property(
@@ -14,9 +48,10 @@ pub(crate) fn try_parse_unified_property(
     methods: &mut HashMap<String, ASTNode>,
     birth_once_props: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
-    if !(kind_kw == "once" || kind_kw == "birth_once") {
+    let Some(kind) = PropertyMemberKind::from_keyword(kind_kw) else {
         return Ok(false);
-    }
+    };
+
     // Name
     let name = if let TokenType::IDENTIFIER(n) = &p.current_token().token_type {
         let n2 = n.clone();
@@ -64,13 +99,7 @@ pub(crate) fn try_parse_unified_property(
         crate::parser::declarations::box_def::members::postfix::wrap_with_optional_postfix(
             p, orig_body,
         )?;
-    if kind_kw == "once" {
-        property_emit::insert_once_methods(methods, name, final_body);
-        return Ok(true);
-    }
-
-    birth_once_props.push(name.clone());
-    property_emit::insert_birth_once_methods(methods, name, final_body);
+    kind.emit(methods, birth_once_props, name, final_body);
     Ok(true)
 }
 
@@ -108,10 +137,10 @@ pub(crate) fn try_parse_block_first_property(
     p.advance(); // consume 'as'
 
     // 3) Optional kind keyword: once | birth_once
-    let mut kind = "computed".to_string();
+    let mut kind = PropertyMemberKind::Computed;
     if let TokenType::IDENTIFIER(k) = &p.current_token().token_type {
-        if k == "once" || k == "birth_once" {
-            kind = k.clone();
+        if let Some(parsed_kind) = PropertyMemberKind::from_keyword(k) {
+            kind = parsed_kind;
             p.advance();
         }
     }
@@ -156,14 +185,6 @@ pub(crate) fn try_parse_block_first_property(
             p, final_body,
         )?;
 
-    match kind.as_str() {
-        "computed" => property_emit::insert_computed_getter(methods, name, final_body),
-        "once" => property_emit::insert_once_methods(methods, name, final_body),
-        "birth_once" => {
-            birth_once_props.push(name.clone());
-            property_emit::insert_birth_once_methods(methods, name, final_body);
-        }
-        _ => unreachable!("block-first unified member kind is validated above"),
-    }
+    kind.emit(methods, birth_once_props, name, final_body);
     Ok(true)
 }
