@@ -133,3 +133,55 @@ box VisibleComputed {
     assert!(!fields.contains(&"size".to_string()));
     assert!(methods.contains_key("__get_size"));
 }
+
+#[test]
+fn private_get_computed_property_tracks_visibility_name() {
+    let ast = parse(
+        r#"
+box PrivateComputed {
+  private get hidden: IntegerBox => 1
+}
+"#,
+    );
+
+    let ASTNode::BoxDeclaration {
+        private_fields,
+        public_fields,
+        fields,
+        methods,
+        ..
+    } = find_box(&ast, "PrivateComputed")
+    else {
+        panic!("expected BoxDeclaration");
+    };
+
+    assert!(private_fields.contains(&"hidden".to_string()));
+    assert!(!public_fields.contains(&"hidden".to_string()));
+    assert!(!fields.contains(&"hidden".to_string()));
+    assert!(methods.contains_key("__get_hidden"));
+}
+
+#[test]
+fn visible_get_identifier_can_remain_stored_field_name() {
+    let ast = parse(
+        r#"
+box VisibleGetField {
+  public get: StringBox
+}
+"#,
+    );
+
+    let ASTNode::BoxDeclaration {
+        public_fields,
+        fields,
+        methods,
+        ..
+    } = find_box(&ast, "VisibleGetField")
+    else {
+        panic!("expected BoxDeclaration");
+    };
+
+    assert!(public_fields.contains(&"get".to_string()));
+    assert!(fields.contains(&"get".to_string()));
+    assert!(!methods.contains_key("__get_get"));
+}

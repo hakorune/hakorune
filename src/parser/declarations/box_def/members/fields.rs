@@ -149,6 +149,19 @@ pub(crate) fn try_parse_header_first_field_or_property(
     Ok(true)
 }
 
+fn record_visibility(
+    visibility: &str,
+    member_name: String,
+    public_fields: &mut Vec<String>,
+    private_fields: &mut Vec<String>,
+) {
+    match visibility {
+        "public" => public_fields.push(member_name),
+        "private" => private_fields.push(member_name),
+        _ => unreachable!("visibility keyword is validated before member recording"),
+    }
+}
+
 /// Parse a visibility block or a single header-first property with visibility prefix.
 /// Handles:
 /// - `public { a, b, c }`  → pushes to fields/public_fields
@@ -182,11 +195,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
 
             if let TokenType::IDENTIFIER(fname) = &p.current_token().token_type {
                 let fname = fname.clone();
-                if visibility == "public" {
-                    public_fields.push(fname.clone());
-                } else {
-                    private_fields.push(fname.clone());
-                }
+                record_visibility(visibility, fname.clone(), public_fields, private_fields);
                 if is_weak {
                     weak_fields.push(fname.clone());
                 }
@@ -229,11 +238,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
             parse_weak_field(p, fname.clone(), methods, fields, field_decls, weak_fields)?;
 
             // Register with visibility tracking
-            if visibility == "public" {
-                public_fields.push(fname);
-            } else {
-                private_fields.push(fname);
-            }
+            record_visibility(visibility, fname, public_fields, private_fields);
 
             *last_method_name = None; // Reset method context (Phase 285A1.4)
             return Ok(true);
@@ -251,11 +256,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
             let get_line = p.current_token().line;
             p.advance();
             if let Some(property_name) = try_parse_get_computed_property(p, get_line, methods)? {
-                if visibility == "public" {
-                    public_fields.push(property_name);
-                } else {
-                    private_fields.push(property_name);
-                }
+                record_visibility(visibility, property_name, public_fields, private_fields);
                 *last_method_name = None;
                 return Ok(true);
             }
@@ -269,11 +270,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
                 weak_fields,
                 false,
             )? {
-                if visibility == "public" {
-                    public_fields.push(fname.clone());
-                } else {
-                    private_fields.push(fname.clone());
-                }
+                record_visibility(visibility, fname, public_fields, private_fields);
                 *last_method_name = None;
                 return Ok(true);
             }
@@ -290,20 +287,8 @@ pub(crate) fn try_parse_visibility_block_or_single(
             weak_fields,
             false,
         )? {
-            if visibility == "public" {
-                public_fields.push(fname.clone());
-            } else {
-                private_fields.push(fname.clone());
-            }
+            record_visibility(visibility, fname, public_fields, private_fields);
             *last_method_name = None;
-            return Ok(true);
-        } else {
-            if visibility == "public" {
-                public_fields.push(fname.clone());
-            } else {
-                private_fields.push(fname.clone());
-            }
-            fields.push(fname);
             return Ok(true);
         }
     }
