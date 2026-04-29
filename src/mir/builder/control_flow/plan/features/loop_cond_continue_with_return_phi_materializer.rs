@@ -72,12 +72,6 @@ impl LoopCondContinueWithReturnPhiMaterializer {
         &self.current_bindings
     }
 
-    pub(in crate::mir::builder) fn current_bindings_mut(
-        &mut self,
-    ) -> &mut BTreeMap<String, ValueId> {
-        &mut self.current_bindings
-    }
-
     pub(in crate::mir::builder) fn continue_target(&self) -> BasicBlockId {
         self.continue_target
     }
