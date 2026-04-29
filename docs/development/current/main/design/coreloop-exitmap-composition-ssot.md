@@ -22,6 +22,8 @@ Related:
   - `Frag.exits` は “出口エッジ” の SSOT（presence と実エッジを同じ語彙で扱う）
 - **Cleanup presence**:
   - `cleanup_kinds_present` は ExitKind 語彙として扱う
+  - separate `CleanupKindFacts` / cleanup-kind enum は作らない（cleanup は
+    `ExitKindFacts` の存在集合を共有する）
   - cleanup の意味論は `exitkind-cleanup-effect-contract-ssot.md` に従う
 - **ValueJoin**:
   - join 値は `Frag.block_params` と `EdgeArgs(values)` で表現する

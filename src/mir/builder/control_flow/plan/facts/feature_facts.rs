@@ -25,16 +25,9 @@ pub(in crate::mir::builder) struct ExitMapFacts {
     pub kinds_present: BTreeSet<ExitKindFacts>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir::builder) enum CleanupKindFacts {
-    /// Cleanup vocabulary is kept as a structural slot for CorePlan adoption.
-    /// Release extraction currently projects exit usage, not cleanup facts.
-    Return,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct CleanupFacts {
-    pub kinds_present: BTreeSet<CleanupKindFacts>,
+    pub kinds_present: BTreeSet<ExitKindFacts>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]

@@ -1,7 +1,7 @@
 //! Phase 29ai P0: Canonicalize Facts (pure transform) — skeleton
 
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
-    CleanupKindFacts, ExitKindFacts, ExitUsageFacts,
+    ExitKindFacts, ExitUsageFacts,
 };
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
 use crate::mir::builder::control_flow::plan::facts::LoopFacts;
@@ -14,7 +14,7 @@ pub(in crate::mir::builder) struct CanonicalLoopFacts {
     pub nested_loop: bool,
     pub exit_usage: ExitUsageFacts,
     pub exit_kinds_present: BTreeSet<ExitKindFacts>,
-    pub cleanup_kinds_present: BTreeSet<CleanupKindFacts>,
+    pub cleanup_kinds_present: BTreeSet<ExitKindFacts>,
     pub value_join_needed: bool,
 }
 
@@ -45,8 +45,7 @@ mod tests {
     use super::canonicalize_loop_facts;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
-        CleanupFacts, CleanupKindFacts, ExitKindFacts, ExitMapFacts, ExitUsageFacts,
-        LoopFeatureFacts,
+        CleanupFacts, ExitKindFacts, ExitMapFacts, ExitUsageFacts, LoopFeatureFacts,
     };
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
@@ -76,7 +75,7 @@ mod tests {
         kinds_present.insert(ExitKindFacts::Continue);
         kinds_present.insert(ExitKindFacts::Return);
         let mut cleanup_kinds_present = BTreeSet::new();
-        cleanup_kinds_present.insert(CleanupKindFacts::Return);
+        cleanup_kinds_present.insert(ExitKindFacts::Return);
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
@@ -143,7 +142,7 @@ mod tests {
         assert_eq!(canonical.cleanup_kinds_present.len(), 1);
         assert!(canonical
             .cleanup_kinds_present
-            .contains(&CleanupKindFacts::Return));
+            .contains(&ExitKindFacts::Return));
         assert!(!canonical.value_join_needed);
     }
 
