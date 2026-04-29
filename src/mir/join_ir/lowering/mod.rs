@@ -65,12 +65,8 @@ pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for s
                             // Phase 242-EX-A: loop_with_if_phi_minimal removed - replaced by loop_with_if_phi_if_sum
 pub mod loop_with_if_phi_if_sum; // Phase 213: if_phi_join AST-based if-sum lowerer (Phase 242-EX-A: supports complex conditions)
 pub mod min_loop;
-pub mod scan_bool_predicate_minimal; // Phase 259 P0: bool_predicate_scan minimal lowerer (is_integer/is_valid boolean predicate scan)
-pub mod scan_with_init_minimal; // Phase 254 P1: scan_with_init minimal lowerer (index_of/find/contains)
-pub mod scan_with_init_reverse; // Phase 257 P0: scan_with_init reverse scan lowerer (last_index_of)
 pub mod simple_while_minimal; // Phase 188-Impl-1: loop_simple_while minimal lowerer
 pub mod skip_ws;
-pub mod split_scan_minimal; // Phase 256 P0: split_scan minimal lowerer (split/tokenization with variable step)
 pub mod stage1_using_resolver;
 pub mod stageb_body;
 pub mod stageb_funcscanner;
