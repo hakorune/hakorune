@@ -17,11 +17,3 @@ pub(in crate::mir::builder) type LoopScanSegment =
     crate::mir::builder::control_flow::recipes::scan_loop_segments::LoopScanSegment<
         ExitAllowedBlockRecipe,
     >;
-
-/// Segment vocabulary for loop_scan_v0.
-///
-/// Note: Stored on Facts to keep "1 file = 1 commit" compile-friendly across steps.
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct LoopScanV0Segments {
-    pub segments: Vec<LoopScanSegment>,
-}
