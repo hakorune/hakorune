@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint. The compiler-cleanliness burst is landed through 291x-769: worker inventory is recorded, dead JoinIR lowering shelves are pruned, JoinValueSpace helper surface is narrowed, duplicate CleanupKindFacts vocabulary is retired, LoopFacts condition-shape storage is pruned, loop-facts SkeletonKind no longer mirrors If2/BranchN, old cfg-test plan helper shelves are deleted, SplitScanFacts shape vocabulary is pruned, the cfg-test ScanDirection helper is removed, old coreloop v0/v1 composer shelves are retired, current mirrors now use CURRENT_STATE for the latest checkpoint, the StepMode source pointer is synced to recipe-tree, UpdateEnv is test-only, ConditionLoweringBox is test-only, condition_to_joinir is test-only, bridge env naming reflects JoinIR core, LowerOnly strict fallback semantics are explicit, the broad JoinIR lowering dead-code allow is removed, bridge dispatch redundant gate state is pruned, the broad JoinIR VM bridge dead-code allow is removed, the legacy JoinIR-to-MIR facade is test-only, and the bridge metadata PHI stub shelf is removed. Remaining surfaces are structural/test-surface reconcile candidates. The release lib-warning backlog is zero and `cargo test --lib --no-run` is warning-free for this lane."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint. The compiler-cleanliness burst is landed through 291x-770: worker inventory is recorded, dead JoinIR lowering shelves are pruned, JoinValueSpace helper surface is narrowed, duplicate CleanupKindFacts vocabulary is retired, LoopFacts condition-shape storage is pruned, loop-facts SkeletonKind no longer mirrors If2/BranchN, old cfg-test plan helper shelves are deleted, SplitScanFacts shape vocabulary is pruned, the cfg-test ScanDirection helper is removed, old coreloop v0/v1 composer shelves are retired, current mirrors now use CURRENT_STATE for the latest checkpoint, the StepMode source pointer is synced to recipe-tree, UpdateEnv is test-only, ConditionLoweringBox is test-only, condition_to_joinir is test-only, bridge env naming reflects JoinIR core, LowerOnly strict fallback semantics are explicit, the broad JoinIR lowering dead-code allow is removed, bridge dispatch redundant gate state is pruned, the broad JoinIR VM bridge dead-code allow is removed, the legacy JoinIR-to-MIR facade is test-only, the bridge metadata PHI stub shelf is removed, and the dead PHI metrics env accessor is pruned. Remaining surfaces are structural/test-surface reconcile candidates. The release lib-warning backlog is zero and `cargo test --lib --no-run` is warning-free for this lane."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-769"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-769-joinir-vm-bridge-meta-phi-stub-prune-card.md"
-latest_card_summary = "Remove the inactive JoinIR VM bridge metadata PHI stub and stale commented hook."
+latest_card = "291x-770"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-770-phi-metrics-env-accessor-prune-card.md"
+latest_card_summary = "Remove the dead PHI metrics env accessor and current inventory rows."
 
 current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -61,4 +61,5 @@ landed_tail = [
   "291x-767 JoinIR VM bridge module dead-code allow prune landed",
   "291x-768 JoinIR VM bridge convert facade test-surface landed",
   "291x-769 JoinIR VM bridge meta PHI stub prune landed",
+  "291x-770 PHI metrics env accessor prune landed",
 ]

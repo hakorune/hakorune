@@ -42,7 +42,6 @@ tools/checks/env_dead_accessors_report.sh
 |--------|------|----------|--------|
 | `NYASH_SYNTAX_SUGAR_LEVEL` | 使用箇所不明 | 削除検討 | 高 |
 | `NYASH_LEGACY_LOOPBUILDER` | 開発用のみ | ドキュ化 or 削除 | 中 |
-| `NYASH_PHI_METRICS` | 統計用 | ドキュ化 | 低 |
 | `NYASH_TEST_*` (6個) | テスト用のみ | スコープ限定 | 低 |
 
 ---
@@ -186,7 +185,6 @@ tools/checks/env_dead_accessors_report.sh
 | `NYASH_MIR_UNIFIED_CALL` | bool | false | Unified call | 低 |
 | `NYASH_SYNTAX_SUGAR_LEVEL` | ? | ? | (使用箇所不明) | - |
 | `NYASH_LEGACY_LOOPBUILDER` | bool | false | Legacy loop builder (開発用) | 低 |
-| `NYASH_PHI_METRICS` | bool | false | PHI metrics (統計用) | 低 |
 | `NYASH_CHECK_MIR` | bool | false | Check MIR | 低 |
 | `NYASH_CHECK_BB` | bool | false | Check basic block | 低 |
 
@@ -288,9 +286,8 @@ tools/checks/env_dead_accessors_report.sh
 
 ### 優先度低
 
-1. `NYASH_PHI_METRICS` のドキュ化
-2. `NYASH_TEST_*` 系のスコープ限定
-3. 各変数の使用箇所自動生成
+1. `NYASH_TEST_*` 系のスコープ限定
+2. 各変数の使用箇所自動生成
 
 ---
 

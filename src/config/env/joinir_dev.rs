@@ -127,40 +127,6 @@ pub fn joinir_test_debug_enabled() -> bool {
     env_bool("JOINIR_TEST_DEBUG") || env_bool("NYASH_JOINIR_TEST_DEBUG")
 }
 
-/// Phase 82: NYASH_PHI_FALLBACK_DISABLED=1 - Disable if_phi fallback (dev mode)
-///
-/// lifecycle.rs の infer_type_from_phi* callsite を封じて、
-/// 実際に呼ばれているかどうかを確認するためのフラグ。
-///
-/// # 使用方法
-///
-/// ```bash
-/// NYASH_PHI_FALLBACK_DISABLED=1 cargo test --release mir_joinir_if_select
-/// ```
-///
-/// # 期待される動作
-///
-/// - callsite が呼ばれる → panic (関数名・ValueId・Case を出力)
-/// - callsite が一度も呼ばれない → テスト成功（削除候補確定）
-///
-/// # Case 分類
-///
-/// - **Case A**: P1/P2/P3-A/P3-B + hint 成功（hint 即座に返す）
-/// - **Case B**: P1/P2/P3-A/P3-B + hint 失敗（PHI 走査）
-/// - **Case D**: P3-C + GenericTypeResolver 失敗（PHI 走査・無駄な再実行）
-///
-/// Phase 84-5: if_phi.rs 削除後は常に true
-/// 環境変数は統計目的でのみ残す
-pub fn phi_fallback_disabled() -> bool {
-    true // Phase 84-5: Always disabled after if_phi.rs deletion
-}
-
-/// Phase 84-5: 統計・メトリクス用（オプション）
-#[allow(dead_code)]
-pub fn phi_metrics_enabled() -> bool {
-    env_bool("NYASH_PHI_METRICS")
-}
-
 /// Phase 183: NYASH_LEGACY_LOOPBUILDER=1 - Legacy LoopBuilder 経路を明示的に opt-in
 ///
 /// デフォルトはJoinIR優先。どうしても古いLoopBuilder経路を使う必要がある場合のみ設定。
