@@ -7,7 +7,8 @@ Purpose:
 
 Layout:
 - `mod.rs`: public entry (`try_run_joinir_vm_bridge`) + shared routing glue
-- `env_flags.rs`: env flag evaluation (`NYASH_JOINIR_EXPERIMENT`, `NYASH_JOINIR_VM_BRIDGE`)
+- `env_flags.rs`: env flag evaluation (`NYASH_JOINIR_CORE` always-on policy,
+  `NYASH_JOINIR_VM_BRIDGE`)
 - `targets.rs`: descriptor table (`JOINIR_TARGETS`, `JoinIrBridgeKind`, `JoinIrTargetDesc`)
 - `exec_routes.rs`: Exec-capable routes (skip_ws, trim)
 - `lower_only_routes.rs`: LowerOnly routes (Stage1/StageB) for structural verification only
