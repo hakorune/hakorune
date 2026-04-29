@@ -55,12 +55,3 @@ pub(in crate::mir::builder) fn lower_local_init_stmt(
     }
     Ok(effects)
 }
-
-pub(in crate::mir::builder) fn build_final_values(
-    pairs: Vec<(&str, crate::mir::ValueId)>,
-) -> Vec<(String, crate::mir::ValueId)> {
-    pairs
-        .into_iter()
-        .map(|(name, value)| (name.to_string(), value))
-        .collect()
-}
