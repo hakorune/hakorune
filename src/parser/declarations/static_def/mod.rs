@@ -1,5 +1,4 @@
 //! Static Box Definition (staged split)
-#![allow(dead_code)]
 
 use crate::ast::{ASTNode, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
@@ -9,7 +8,6 @@ use std::collections::HashMap;
 
 pub mod header;
 pub mod members;
-pub mod validators;
 
 /// Parse static box declaration: static box Name { ... }
 pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
@@ -38,7 +36,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         )? {
             continue;
         }
-        let trace = std::env::var("NYASH_PARSER_TRACE_STATIC").ok().as_deref() == Some("1");
+        let trace = crate::config::env::parser_static_trace_enabled();
         if trace {
             crate::runtime::get_global_ring0().log.debug(&format!(
                 "[parser][static-box] loop token={:?}",
@@ -64,12 +62,8 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         } else if p.match_token(&TokenType::STATIC) {
             // 互換用の暫定ガード（既定OFF）: using テキスト結合の継ぎ目で誤って 'static' が入った場合に
             // ループを抜けて外側の '}' 消費に委ねる。既定では無効化し、文脈エラーとして扱う。
-            if std::env::var("NYASH_PARSER_SEAM_BREAK_ON_STATIC")
-                .ok()
-                .as_deref()
-                == Some("1")
-            {
-                if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+            if crate::config::env::parser_static_seam_break_on_static_enabled() {
+                if crate::config::env::cli_verbose_enabled() {
                     crate::runtime::get_global_ring0().log.debug("[parser][static-box][seam] encountered 'static' inside static box; breaking (compat shim)");
                 }
                 break;
@@ -96,7 +90,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             | TokenType::BREAK
             | TokenType::CONTINUE
             | TokenType::PRINT => {
-                if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+                if crate::config::env::cli_verbose_enabled() {
                     crate::runtime::get_global_ring0().log.debug(&format!("[parser][static-box][safety] encountered statement keyword {:?} at member level (line {}); assuming premature method body exit",
                              p.current_token().token_type, p.current_token().line));
                 }
@@ -116,10 +110,9 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             // If we encounter a bare '=' at member level, treat as seam boundary (gated by flag)
             // Resynchronize by advancing to the closing '}' so outer logic can consume it.
             TokenType::ASSIGN => {
-                let seam_tolerant =
-                    std::env::var("NYASH_PARSER_SEAM_TOLERANT").ok().as_deref() == Some("1");
+                let seam_tolerant = crate::config::env::parser_static_seam_tolerant_enabled();
                 if seam_tolerant {
-                    if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+                    if crate::config::env::cli_verbose_enabled() {
                         crate::runtime::get_global_ring0().log.debug(&format!(
                             "[parser][static-box][seam] encountered ASSIGN at member level (line {}); treating as seam boundary (closing box)",
                             p.current_token().line
@@ -165,7 +158,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
     while p.match_token(&TokenType::NEWLINE) {
         p.advance();
     }
-    if std::env::var("NYASH_PARSER_TRACE_STATIC").ok().as_deref() == Some("1") {
+    if crate::config::env::parser_static_trace_enabled() {
         crate::runtime::get_global_ring0().log.debug(&format!(
             "[parser][static-box] closing '}}' at token={:?}",
             p.current_token().token_type
@@ -175,7 +168,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
     // Consume the closing RBRACE of the static box
     p.consume(TokenType::RBRACE)?;
 
-    if std::env::var("NYASH_PARSER_TRACE_STATIC").ok().as_deref() == Some("1") {
+    if crate::config::env::parser_static_trace_enabled() {
         crate::runtime::get_global_ring0().log.debug(&format!(
             "[parser][static-box] successfully closed static box '{}'",
             name

@@ -33,7 +33,7 @@ checkpoint pointer.
 - `cargo test --lib --no-run` is warning-free.
 - The JoinIR / bridge / config-env `dead_code` allowance sweep is closed
   through `291x-775`; the orphan semantics eval scaffold is closed in
-  `291x-777`.
+  `291x-777`; the static-box parser seam shelf is closed in `291x-778`.
 - Remaining cleanup is no longer a known dead shelf in this slice; it is
   structural vocabulary inventory for the next selected lane.
 
@@ -43,10 +43,6 @@ These came from the post-291x-775 read-only worker inventory. Treat each item as
 a separate card; do not mix them with the closed JoinIR / bridge / config-env
 allowance sweep.
 
-- Parser static-box seam:
-  `src/parser/declarations/static_def/mod.rs` has a module-level `dead_code`
-  allowance plus direct parser seam env reads. Decide config/env ownership,
-  fail-fast default, and whether the broad allowance can be removed or narrowed.
 - Parser expression cursor:
   `src/parser/expressions.rs` keeps a broad allowance and the
   `NYASH_PARSER_TOKEN_CURSOR` bridge. Related cursor code lives in
@@ -77,6 +73,7 @@ This burst removed or narrowed the active dead-code shelves around:
 - ExprLowerer/progress verifier stub surface
 - final JoinIR shape allowances
 - orphan semantics eval scaffold and broad semantics module allowance
+- static-box parser seam env direct reads and no-op validator shelf
 
 The durable result is that the scanned JoinIR / bridge / config-env surface no
 longer relies on `#[allow(dead_code)]` to hide known shelves.

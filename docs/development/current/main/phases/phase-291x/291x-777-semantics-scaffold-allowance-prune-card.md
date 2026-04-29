@@ -51,6 +51,12 @@ The next cleanup choice should be one of:
 - parser expression cursor ownership inventory
 - MIR structural vocabulary / owner-seam inventory
 
+## Supersession Note
+
+The parser static-box seam candidate was closed by 291x-778. Parser expression
+cursor ownership and MIR structural vocabulary remain separate next-lane
+candidates.
+
 ## Proof
 
 - `rg -n "allow\\(dead_code\\)" src/semantics src/lib.rs -g '*.rs'`

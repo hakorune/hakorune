@@ -13,10 +13,7 @@ pub(crate) fn parse_static_initializer_if_any(
     if !p.match_token(&TokenType::STATIC) {
         return Ok(None);
     }
-    let strict = std::env::var("NYASH_PARSER_STATIC_INIT_STRICT")
-        .ok()
-        .as_deref()
-        == Some("1");
+    let strict = crate::config::env::parser_static_init_strict_enabled();
     if strict {
         match p.peek_token() {
             TokenType::LBRACE => {
@@ -61,7 +58,7 @@ pub(crate) fn try_parse_method_or_field(
     fields: &mut Vec<String>,
     last_method_name: &mut Option<String>,
 ) -> Result<bool, ParseError> {
-    let trace = std::env::var("NYASH_PARSER_TRACE_STATIC").ok().as_deref() == Some("1");
+    let trace = crate::config::env::parser_static_trace_enabled();
     // Allow NEWLINE(s) between identifier and '('
     if !p.match_token(&TokenType::LPAREN) {
         // Lookahead skipping NEWLINE to see if a '(' follows → treat as method head
@@ -119,11 +116,7 @@ pub(crate) fn try_parse_method_or_field(
             }
             _ => {
                 // Unexpected token handling
-                if std::env::var("NYASH_PARSER_METHOD_PARAM_STRICT")
-                    .ok()
-                    .as_deref()
-                    == Some("1")
-                {
+                if crate::config::env::parser_method_param_strict_enabled() {
                     return Err(ParseError::UnexpectedToken {
                         found: p.current_token().token_type.clone(),
                         expected:
@@ -144,11 +137,7 @@ pub(crate) fn try_parse_method_or_field(
         p.advance();
     }
     // Parse method body; optionally use strict method-body guard when enabled
-    let body = if std::env::var("NYASH_PARSER_METHOD_BODY_STRICT")
-        .ok()
-        .as_deref()
-        == Some("1")
-    {
+    let body = if crate::config::env::parser_method_body_strict_enabled() {
         p.parse_method_body_statements()?
     } else {
         p.parse_block_statements()?

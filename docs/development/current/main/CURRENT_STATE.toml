@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-777. The JoinIR / bridge / config-env dead-code allowance sweep is closed, the old semantics orphan eval shelf is retired, `cargo test --lib --no-run` is warning-free, and current docs stay thin: CURRENT_STATE owns the latest pointer while the phase README is navigation plus closeout summary. Next work is parser seam/cursor inventory or MIR structural vocabulary inventory as separate focused lanes."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-778. The JoinIR / bridge / config-env dead-code allowance sweep is closed, old semantics and static-box parser shelves are retired, `cargo test --lib --no-run` is warning-free, and current docs stay thin: CURRENT_STATE owns the latest pointer while the phase README is navigation plus closeout summary. Next work is parser cursor ownership inventory or MIR structural vocabulary inventory as separate focused lanes."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-777"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-777-semantics-scaffold-allowance-prune-card.md"
-latest_card_summary = "Retire the orphan semantics eval scaffold and remove the broad semantics module dead-code allowance."
+latest_card = "291x-778"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-778-parser-static-box-seam-cleanup-card.md"
+latest_card_summary = "Centralize static-box parser seam flags and remove the broad static_def dead-code shelf."
 
 current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -69,4 +69,5 @@ landed_tail = [
   "291x-775 JoinIR shape allowance prune landed",
   "291x-776 phase README readability closeout landed",
   "291x-777 semantics scaffold allowance prune landed",
+  "291x-778 parser static-box seam cleanup landed",
 ]

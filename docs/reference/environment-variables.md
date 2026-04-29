@@ -117,6 +117,12 @@ Note:
 | `NYASH_RESOLVE_SEAM_DEBUG=1` | OFF | Any | using/prelude の結合境界マーカーを挿入（診断用） |
 | `NYASH_RESOLVE_DUMP_MERGED=/path/to/out.hako` | unset | Any | using/prelude の text-merge 後ソースを指定パスにダンプ（診断用） |
 | `NYASH_VM_DUMP_MERGED_HAKO=1` | OFF | Rust AST | using/prelude マージ後の Hako ソースをダンプ |
+| `NYASH_PARSER_TRACE_STATIC=1` | OFF | Rust AST | static box parser の1行診断ログを有効化 |
+| `NYASH_PARSER_SEAM_BREAK_ON_STATIC=1` | OFF | Rust AST | static box 内で継ぎ目由来の `static` を見た時に箱を閉じる compat shim |
+| `NYASH_PARSER_SEAM_TOLERANT=1` | OFF | Rust AST | static box member level の bare `=` を text-merge seam として扱う compat shim |
+| `NYASH_PARSER_STATIC_INIT_STRICT=1` | OFF | Rust AST | static initializer の `static` 判定を strict gate に通す |
+| `NYASH_PARSER_METHOD_PARAM_STRICT=1` | OFF | Rust AST | static box method parameter list の unexpected token を fail-fast する |
+| `NYASH_PARSER_METHOD_BODY_STRICT=1` | OFF | Rust AST | static box method body を strict method-body parser で読む |
 
 Throw surface policy:
 - parser は `throw` を常時拒否する（`[freeze:contract][parser/throw_reserved]`）。

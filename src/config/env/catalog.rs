@@ -361,6 +361,42 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: Some("1"),
         },
         EnvVarMeta {
+            name: "NYASH_PARSER_TRACE_STATIC",
+            description: "Trace static box parser decisions (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
+            name: "NYASH_PARSER_SEAM_BREAK_ON_STATIC",
+            description: "Compat shim: close static box on seam-origin static token (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
+            name: "NYASH_PARSER_SEAM_TOLERANT",
+            description: "Compat shim: treat bare '=' at static box member level as text-merge seam",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
+            name: "NYASH_PARSER_STATIC_INIT_STRICT",
+            description: "Strict static initializer parsing gate (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
+            name: "NYASH_PARSER_METHOD_PARAM_STRICT",
+            description: "Fail-fast unexpected static box method parameters (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
+            name: "NYASH_PARSER_METHOD_BODY_STRICT",
+            description: "Use strict static box method-body parser (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
             name: "NYASH_STRICT_12_7",
             description: "Tokenizer strict 12.7 mode (1=true)",
             applies_to: AppliesTo::Compiler,

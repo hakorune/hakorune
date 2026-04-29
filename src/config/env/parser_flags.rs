@@ -186,3 +186,33 @@ pub fn macro_selfhost_pre_expand() -> Option<String> {
 pub fn scopebox_enable() -> bool {
     std::env::var("NYASH_SCOPEBOX_ENABLE").ok().as_deref() == Some("1")
 }
+
+/// Static box parser trace gate (NYASH_PARSER_TRACE_STATIC=1).
+pub fn parser_static_trace_enabled() -> bool {
+    env_flag("NYASH_PARSER_TRACE_STATIC").unwrap_or(false)
+}
+
+/// Compat seam gate for a stray `static` token inside static box parsing.
+pub fn parser_static_seam_break_on_static_enabled() -> bool {
+    env_flag("NYASH_PARSER_SEAM_BREAK_ON_STATIC").unwrap_or(false)
+}
+
+/// Compat seam gate for bare `=` at static box member level.
+pub fn parser_static_seam_tolerant_enabled() -> bool {
+    env_flag("NYASH_PARSER_SEAM_TOLERANT").unwrap_or(false)
+}
+
+/// Strict static initializer gate.
+pub fn parser_static_init_strict_enabled() -> bool {
+    env_flag("NYASH_PARSER_STATIC_INIT_STRICT").unwrap_or(false)
+}
+
+/// Strict static box method parameter gate.
+pub fn parser_method_param_strict_enabled() -> bool {
+    env_flag("NYASH_PARSER_METHOD_PARAM_STRICT").unwrap_or(false)
+}
+
+/// Strict static box method body gate.
+pub fn parser_method_body_strict_enabled() -> bool {
+    env_flag("NYASH_PARSER_METHOD_BODY_STRICT").unwrap_or(false)
+}
