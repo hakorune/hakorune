@@ -1,13 +1,9 @@
 /*!
- * Semantics Layer (skeleton)
+ * Experimental MIR semantics facade.
  *
- * Single source of truth for MIR semantics. Backends implement this trait
- * to realize the same MIR behavior in different targets (VM/Cranelift/LLVM/WASM).
- *
- * Phase 11.7 PoC: interface only — no wiring yet.
+ * This module keeps the Semantics trait and VM-backed parity adapter. It is
+ * not the production execution owner; that remains backend::mir_interpreter.
  */
-
-#![allow(dead_code)]
 
 use crate::mir::{BasicBlockId, ValueId};
 

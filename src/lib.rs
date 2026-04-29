@@ -63,7 +63,7 @@ pub mod mir_aot_plan_import {
 // Backends
 pub mod backend;
 // JIT functionality archived to archive/jit-cranelift/
-pub mod semantics; // Unified semantics trait for MIR evaluation/lowering
+pub mod semantics; // Experimental MIR semantics facade; backend::mir_interpreter owns execution.
 
 #[path = "benchmarks/mod.rs"]
 pub mod benchmarks;

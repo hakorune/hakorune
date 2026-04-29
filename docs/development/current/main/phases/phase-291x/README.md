@@ -31,8 +31,9 @@ checkpoint pointer.
 - Current blocker token: `phase-291x next compiler-cleanliness lane selection pending`.
 - Release lib-warning backlog for this lane is zero.
 - `cargo test --lib --no-run` is warning-free.
-- The JoinIR / bridge / config-env `dead_code` allowance sweep for this lane is
-  closed through `291x-775`.
+- The JoinIR / bridge / config-env `dead_code` allowance sweep is closed
+  through `291x-775`; the orphan semantics eval scaffold is closed in
+  `291x-777`.
 - Remaining cleanup is no longer a known dead shelf in this slice; it is
   structural vocabulary inventory for the next selected lane.
 
@@ -51,10 +52,6 @@ allowance sweep.
   `NYASH_PARSER_TOKEN_CURSOR` bridge. Related cursor code lives in
   `src/parser/common/mod.rs` and `src/parser/cursor.rs`. Decide legacy parser
   index vs `TokenCursor` ownership before deleting or gating anything.
-- Semantics scaffold:
-  `src/semantics/mod.rs` and `src/semantics/eval.rs` are old PoC skeleton
-  surfaces with broad allowances. Either document them as structural holds or
-  retire/gate the scaffold in one focused card.
 - MIR structural vocabulary:
   `src/mir/policies/cond_profile.rs`, `src/mir/hints.rs`,
   `src/mir/phi_query.rs`, LocalSSA finalizer seams, exit-binding seams, and
@@ -64,7 +61,7 @@ allowance sweep.
 No-action inventory: moved-stub / traceability docs and `src/ring0/LAYER_GUARD.rs`
 metadata are intentional and outside this cleanup lane.
 
-## Cleanup Closeout Through 291x-775
+## Cleanup Closeout Through 291x-777
 
 This burst removed or narrowed the active dead-code shelves around:
 
@@ -79,6 +76,7 @@ This burst removed or narrowed the active dead-code shelves around:
 - loop route error payload ownership
 - ExprLowerer/progress verifier stub surface
 - final JoinIR shape allowances
+- orphan semantics eval scaffold and broad semantics module allowance
 
 The durable result is that the scanned JoinIR / bridge / config-env surface no
 longer relies on `#[allow(dead_code)]` to hide known shelves.

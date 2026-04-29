@@ -70,6 +70,12 @@ new focused lane:
 Do not include moved-stub traceability docs or `src/ring0/LAYER_GUARD.rs` guard
 metadata as cleanup debt.
 
+## Supersession Note
+
+The semantics scaffold candidate from this inventory was closed by 291x-777.
+The parser seam/cursor and MIR structural vocabulary entries remain separate
+next-lane candidates.
+
 ## Proof
 
 - `bash tools/checks/current_state_pointer_guard.sh`
