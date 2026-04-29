@@ -10,7 +10,6 @@ pub mod case_a;
 pub mod condition_only_emitter; // Phase 93 P0: ConditionOnly (Derived Slot) recalculation
 pub mod conditional_step_emitter; // Phase 92 P1-1: ConditionalStep emission module
 pub mod dual_value_rewriter; // Phase 246-EX/247-EX: name-based dual-value rewrites
-pub mod string_accumulator_emitter; // Phase 100 P3-2: String accumulator (out = out + ch)
 
 use crate::mir::loop_form::LoopForm;
 use crate::mir::query::{MirQuery, MirQueryBox};
