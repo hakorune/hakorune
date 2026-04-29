@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-24
+Date: 2026-04-30
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -18,12 +18,12 @@ Related:
 | Item | State |
 | --- | --- |
 | Current-state SSOT | `docs/development/current/main/CURRENT_STATE.toml` |
-| Now | `phase-291x CoreBox surface contract cleanup` |
+| Now | read `active_lane` in `CURRENT_STATE.toml` |
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
-| Blocker | `phase-291x push metadata carrier preflight pending` |
-| Next | `inventory push CoreMethod metadata coverage before touching the mutating legacy mirror row` |
-| After Next | `avoid native storage lanes without broader owner evidence` |
+| Blocker | read `current_blocker_token` in `CURRENT_STATE.toml` |
+| Next | choose the next focused compiler-cleanliness lane from the latest card / worker inventory |
+| After Next | keep Stage-B adapter thinning and native storage lanes separate unless reopened with evidence |
 
 ## Current Read
 
@@ -37,10 +37,12 @@ Related:
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
-2. Inventory `push` CoreMethod metadata coverage before touching the mutating legacy mirror row.
-3. Keep compatibility fallback unchanged for rows without carrier metadata.
-4. Do not add hot inline lowering without proof/evidence gate.
-5. Keep Stage-B adapter thinning as a separate BoxShape series.
+2. Read `latest_card_path`, `latest_card_summary`, and `current_blocker_token`
+   from `CURRENT_STATE.toml`.
+3. If compiler-cleanliness continues, open one focused card for the selected
+   lane before editing code.
+4. Keep Stage-B adapter thinning as a separate BoxShape series.
+5. Do not add hot inline lowering without proof/evidence gate.
 
 ## Parked Corridor
 

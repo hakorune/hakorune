@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint. The compiler-cleanliness burst is landed through 291x-775: worker inventory is recorded, dead JoinIR lowering shelves are pruned, JoinValueSpace helper surface is narrowed, duplicate CleanupKindFacts vocabulary is retired, LoopFacts condition-shape storage is pruned, loop-facts SkeletonKind no longer mirrors If2/BranchN, old cfg-test plan helper shelves are deleted, SplitScanFacts shape vocabulary is pruned, the cfg-test ScanDirection helper is removed, old coreloop v0/v1 composer shelves are retired, current mirrors now use CURRENT_STATE for the latest checkpoint, the StepMode source pointer is synced to recipe-tree, UpdateEnv is test-only, ConditionLoweringBox is test-only, condition_to_joinir is test-only, bridge env naming reflects JoinIR core, LowerOnly strict fallback semantics are explicit, the broad JoinIR lowering dead-code allow is removed, bridge dispatch redundant gate state is pruned, the broad JoinIR VM bridge dead-code allow is removed, the legacy JoinIR-to-MIR facade is test-only, the bridge metadata PHI stub shelf is removed, the dead PHI metrics env accessor is pruned, the AST lowerer stale value surface is pruned, the if-in-loop metadata extraction helpers are test-only, loop route errors read their payloads through Display, the ExprLowerer/progress verifier stub surface is pruned, and remaining JoinIR shape allowances are removed. Remaining cleanup is structural vocabulary inventory only. The release lib-warning backlog is zero and `cargo test --lib --no-run` is warning-free for this lane."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-776. The JoinIR / bridge / config-env dead-code allowance sweep for this lane is closed, `cargo test --lib --no-run` is warning-free, and current docs are thin again: CURRENT_STATE owns the latest pointer while the phase README is navigation plus closeout summary. Next work is to choose a new focused compiler-cleanliness lane or switch to an explicitly reopened blocker; remaining cleanup is structural vocabulary inventory outside this cleared slice."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-775"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-775-joinir-shape-allowance-prune-card.md"
-latest_card_summary = "Remove the final local JoinIR shape dead-code allowances after live-use verification."
+latest_card = "291x-776"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-776-phase-readme-readability-closeout-card.md"
+latest_card_summary = "Refresh phase-291x docs for readable closeout navigation and next-lane inventory after the dead-code allowance sweep."
 
 current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -67,4 +67,5 @@ landed_tail = [
   "291x-773 loop route error surface prune landed",
   "291x-774 JoinIR expr/progress stub surface prune landed",
   "291x-775 JoinIR shape allowance prune landed",
+  "291x-776 phase README readability closeout landed",
 ]

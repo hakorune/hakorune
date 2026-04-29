@@ -39,6 +39,13 @@ The lane is at a clean checkpoint:
 - quick gate is green, aside from the known chip8 release-artifact sync warning
 - no uncommitted code cleanup is pending
 
+## Supersession Note
+
+This card is the historical inventory boundary after 291x-746, not the current
+deletion queue. Later cards 291x-747 through 291x-775 worked through this
+inventory, and `CURRENT_STATE.toml` owns the live latest-card pointer and next
+blocker token.
+
 ## Remaining Inventory
 
 These are not immediate deletes without a small inventory card first:

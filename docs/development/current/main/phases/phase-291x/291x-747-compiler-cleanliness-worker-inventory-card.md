@@ -46,6 +46,13 @@ bridge route semantics in this same card. Those need separate reconcile cards.
 - Removed stale comments that pointed future work at the deleted array-method helper.
 - Updated `common/README.md` to mark name-based dual-value rewrites as retired.
 
+## Supersession Note
+
+This remaining queue was the worker handoff after 291x-747. Later cards
+291x-748 through 291x-775 closed or transformed these entries. Use
+`CURRENT_STATE.toml` for the current latest-card pointer and treat this section
+as historical context only.
+
 ## Remaining Queue
 
 Near-term deletion/test-surface cards:
