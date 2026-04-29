@@ -8,7 +8,6 @@
 //! ## 構成:
 //! - `common.rs`: CFG sanity checks と lowering 共通ユーティリティ（Phase 27.10）
 //! - `value_id_ranges.rs`: ValueId 範囲管理（Phase 27.13+）
-//! - `min_loop.rs`: JoinIrMin.main/0 専用の最小ループ lowering
 //! - `skip_ws.rs`: Main.skip/1 の空白スキップ lowering（手書き版＋MIR自動解析版）
 //! - `funcscanner_trim.rs`: FuncScannerBox.trim/1 の trim lowering
 //! - `stage1_using_resolver.rs`: Stage1UsingResolverBox.resolve_for_source entries loop lowering（Phase 27.12）
@@ -59,7 +58,6 @@ pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carri
 pub(crate) mod loop_view_builder; // Phase 33-23: Loop lowering dispatch
 pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-driven)
 pub mod method_return_hint; // Phase 83: P3-D 既知メソッド戻り値型推論箱
-pub mod min_loop;
 pub(crate) mod return_collector; // Phase 284 P1: Return statement collector SSOT
 pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: loop_continue_only minimal lowerer support
 pub mod simple_while_minimal; // Phase 188-Impl-1: loop_simple_while minimal lowerer
@@ -80,8 +78,6 @@ pub use funcscanner_trim::lower_funcscanner_trim_to_joinir;
 pub use inline_boundary_builder::JoinInlineBoundaryBuilder;
 // Phase 31: LoopToJoinLowerer 統一箱
 pub use loop_to_join::LoopToJoinLowerer;
-// Phase 30 F-3: 旧 lower_case_a_loop_to_joinir_for_minimal_skip_ws は _with_scope に置き換え済みのため削除
-pub use min_loop::lower_min_loop_to_joinir;
 pub use skip_ws::lower_skip_ws_to_joinir;
 pub use stage1_using_resolver::lower_stage1_usingresolver_to_joinir;
 pub use stageb_body::lower_stageb_body_to_joinir;

@@ -46,9 +46,7 @@ pub mod ownership;
 pub mod verify_phi_reserved;
 
 // Re-export lowering functions for backward compatibility
-pub use lowering::{
-    lower_funcscanner_trim_to_joinir, lower_min_loop_to_joinir, lower_skip_ws_to_joinir,
-};
+pub use lowering::{lower_funcscanner_trim_to_joinir, lower_skip_ws_to_joinir};
 
 pub use verify::verify_progress_for_skip_ws;
 

@@ -36,6 +36,9 @@ the active route ranges.
 `value_id_ranges` now describes only active route owners, and its next-range
 guidance no longer points at already allocated ranges.
 
+Follow-up: the remaining fixed `lowering/min_loop.rs` direct lowerer shelf was
+retired later in `291x-736`.
+
 ## Proof
 
 ```bash

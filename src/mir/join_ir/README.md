@@ -77,7 +77,6 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
   - `simple_while*`
   - `scan_*`
 - `lowering` target-specific lowerers
-  - `min_loop.rs`
   - `skip_ws.rs`
   - `funcscanner_trim.rs`
   - `funcscanner_append_defs.rs`
