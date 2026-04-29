@@ -8,11 +8,8 @@
 //!
 //! Phase 184: Added UpdateEnv support for body-local variable resolution.
 
-mod conditional_step;
 #[cfg(test)]
 mod tests;
 mod with_env;
 
-#[allow(unused_imports)]
-pub use conditional_step::emit_conditional_step_update;
 pub use with_env::emit_carrier_update_with_env;
