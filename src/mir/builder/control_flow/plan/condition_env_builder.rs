@@ -123,7 +123,6 @@ impl ConditionEnvBuilder {
         env.insert(loop_var_name.to_string(), loop_var_join_id);
         (env, loop_var_join_id)
     }
-
 }
 
 #[cfg(test)]

@@ -847,14 +847,17 @@ mod tests {
 
         restore_env_and_cwd(original_root, original_dir);
 
-        assert!(result.is_ok(), "populate_from_toml should succeed: {result:?}");
+        assert!(
+            result.is_ok(),
+            "populate_from_toml should succeed: {result:?}"
+        );
         let expected_module = root_dir
             .join("lang/src/vm/boxes/mini_vm_s0_entry.hako")
             .to_string_lossy()
             .to_string();
-        assert!(pending_modules.iter().any(|(name, path)| {
-            name == "selfhost.vm.entry_s0" && path == &expected_module
-        }));
+        assert!(pending_modules
+            .iter()
+            .any(|(name, path)| { name == "selfhost.vm.entry_s0" && path == &expected_module }));
         let expected_using_path = local_dir.join("lib").to_string_lossy().to_string();
         assert!(using_paths.iter().any(|path| path == &expected_using_path));
 
@@ -877,7 +880,10 @@ mod tests {
             &root_dir.join("hako.toml"),
             "[modules]\nfoo.bar = \"root/foo/bar.hako\"\n",
         );
-        write_file(&root_dir.join("root/foo/bar.hako"), "static box RootBar {}\n");
+        write_file(
+            &root_dir.join("root/foo/bar.hako"),
+            "static box RootBar {}\n",
+        );
         write_file(
             &local_dir.join("nyash.toml"),
             "[modules]\nfoo.bar = \"local/foo/bar.hako\"\n",
@@ -905,7 +911,10 @@ mod tests {
 
         restore_env_and_cwd(original_root, original_dir);
 
-        assert!(result.is_ok(), "populate_from_toml should succeed: {result:?}");
+        assert!(
+            result.is_ok(),
+            "populate_from_toml should succeed: {result:?}"
+        );
         let expected_local = local_dir
             .join("local/foo/bar.hako")
             .to_string_lossy()

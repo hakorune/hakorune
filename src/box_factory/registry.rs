@@ -86,7 +86,8 @@ impl UnifiedBoxRegistry {
                     match entry {
                         Entry::Occupied(existing) => {
                             if crate::config::env::cli_verbose_enabled() {
-                                let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+                                let ring0 =
+                                    crate::runtime::ring0::ensure_global_ring0_initialized();
                                 ring0.log.warn(&format!("[UnifiedBoxRegistry] ⚠️ Policy '{}': type '{}' kept by higher priority factory #{}, ignoring factory #{}",
                                           format!("{:?}", self.policy), existing.key(), existing.get(), factory_index));
                             }
@@ -267,7 +268,8 @@ impl UnifiedBoxRegistry {
                         match factory.create_box(name, args) {
                             Ok(boxed) => {
                                 if crate::config::env::cli_verbose_enabled() {
-                                    let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+                                    let ring0 =
+                                        crate::runtime::ring0::ensure_global_ring0_initialized();
                                     ring0.log.debug(
                                         "[FileBox] Successfully created with builtin factory",
                                     );
@@ -275,7 +277,8 @@ impl UnifiedBoxRegistry {
                                 return Some(Ok(boxed));
                             }
                             Err(e) => {
-                                let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+                                let ring0 =
+                                    crate::runtime::ring0::ensure_global_ring0_initialized();
                                 ring0.log.error(&format!(
                                     "[FileBox] Builtin factory also failed: {}",
                                     e

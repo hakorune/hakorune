@@ -6,9 +6,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::lower::normalize::{
     canonicalize_loop_facts, CanonicalLoopFacts,
 };
-use crate::mir::builder::control_flow::plan::facts::{
-    try_build_loop_facts_with_ctx, LoopFacts,
-};
+use crate::mir::builder::control_flow::plan::facts::{try_build_loop_facts_with_ctx, LoopFacts};
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeContract;
 
 #[derive(Debug, Clone)]

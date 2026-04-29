@@ -156,12 +156,7 @@ fn loopfacts_ctx_allows_bool_predicate_scan_route_in_static_box() {
 #[test]
 fn loopfacts_ok_none_when_condition_not_supported() {
     let condition = v("i"); // not `i < n`
-    let facts = try_build_loop_facts_with_ctx(
-        &PlannerContext {},
-        &condition,
-        &[],
-    )
-    .expect("Ok");
+    let facts = try_build_loop_facts_with_ctx(&PlannerContext {}, &condition, &[]).expect("Ok");
     assert!(facts.is_none());
 }
 
@@ -192,11 +187,6 @@ fn loopfacts_ok_none_when_step_var_differs_from_condition_var() {
         span: Span::unknown(),
     };
 
-    let facts = try_build_loop_facts_with_ctx(
-        &PlannerContext {},
-        &condition,
-        &[step],
-    )
-    .expect("Ok");
+    let facts = try_build_loop_facts_with_ctx(&PlannerContext {}, &condition, &[step]).expect("Ok");
     assert!(facts.is_none());
 }

@@ -55,7 +55,6 @@ impl PlanBuildSession {
     pub fn emit_and_seal(&mut self, func: &mut MirFunction, frag: &Frag) -> Result<(), String> {
         self.session.emit_and_seal(func, frag)
     }
-
 }
 
 impl Default for PlanBuildSession {
