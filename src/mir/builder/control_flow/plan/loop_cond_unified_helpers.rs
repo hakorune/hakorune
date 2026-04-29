@@ -39,10 +39,3 @@ pub(in crate::mir::builder) fn count_control_flow_with_returns(
     detector.count_returns = true;
     count_control_flow(body, detector)
 }
-
-/// Counts control flow with basic detector (no special flags).
-#[allow(dead_code)]
-pub(super) fn count_control_flow_basic(body: &[ASTNode]) -> ControlFlowCounts {
-    let detector = ControlFlowDetector::default();
-    count_control_flow(body, detector)
-}
