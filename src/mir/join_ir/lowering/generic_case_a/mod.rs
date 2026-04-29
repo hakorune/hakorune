@@ -24,7 +24,6 @@
 //! ### Helper Modules (Shared Utilities)
 //!
 //! - `entry_builder` - Entry function construction helper (~150 lines)
-//! - `whitespace_check` - Whitespace detection utilities (~150 lines)
 //!
 //! ## Design Constraints (Critical)
 //!
@@ -72,7 +71,6 @@
 //! - append_defs.rs: 202 lines (array concatenation)
 //! - stage1_using_resolver.rs: 228 lines (namespace resolution)
 //! - entry_builder.rs: 165 lines (helper, shared initialization)
-//! - whitespace_check.rs: 151 lines (helper, shared validation)
 //!
 //! **Total**: 1,634 lines modularized (7 focused modules)
 //! **Average module size**: 233 lines (vs. 1,056-line monolith)
@@ -91,7 +89,6 @@ pub mod trim;
 
 // Helper modules
 pub mod entry_builder;
-pub mod whitespace_check;
 
 // Re-export public lowering functions
 pub(crate) use append_defs::lower_case_a_append_defs_with_scope;

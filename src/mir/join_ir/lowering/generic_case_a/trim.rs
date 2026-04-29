@@ -42,7 +42,6 @@
 //! ## See Also
 //!
 //! - `value_id_ranges::funcscanner_trim` - ValueId allocation strategy
-//! - `whitespace_check` - Whitespace detection helper (shared with skip_ws)
 
 use crate::mir::join_ir::lowering::loop_scope_shape::CaseAContext;
 use crate::mir::join_ir::lowering::value_id_ranges;
