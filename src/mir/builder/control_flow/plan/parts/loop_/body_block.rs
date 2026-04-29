@@ -27,28 +27,6 @@ pub(in crate::mir::builder) fn lower_loop_with_body_block(
     )
 }
 
-pub(in crate::mir::builder) fn lower_loop_with_body_block_with_break_phi_dsts(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    arena: &RecipeBodies,
-    body_block: &RecipeBlock,
-    contract: LoopBodyContractKind,
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    lower_loop_with_body_block_internal(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        Some(break_phi_dsts),
-        arena,
-        body_block,
-        contract,
-        error_prefix,
-    )
-}
-
 fn lower_loop_with_body_block_internal(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
@@ -148,32 +126,4 @@ fn lower_loop_with_body_block_internal(
             )
         }
     }
-}
-
-/// Lower an exit-only `RecipeBlock` in loop context.
-///
-/// This is a thin Parts entry (BoxShape): producers should pass an already-built exit-only block.
-pub(in crate::mir::builder) fn lower_loop_with_exit_only_body_block(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    arena: &RecipeBodies,
-    body_block: &RecipeBlock,
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    let verified = entry::verify_exit_only_block_with_pre(
-        arena,
-        body_block,
-        error_prefix,
-        Some(current_bindings),
-    )?;
-    entry::lower_exit_only_block_verified(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        verified,
-        error_prefix,
-    )
 }
