@@ -1,82 +1,10 @@
 // Phase 65-2-A: JoinIR 型推論ユーティリティ
 //
-// MethodCall / NewBox 命令に対する型ヒント生成を提供する。
-// P3-A（StringBox メソッド）と P3-B（Box コンストラクタ）のみ対応。
+// NewBox 命令に対する型ヒント生成を提供する。
+// P3-B（Box コンストラクタ）のみ対応。
 // P3-C（ジェネリック型推論）は Phase 66+ に延期。
 
 use crate::mir::MirType;
-use crate::runtime::core_box_ids::{CoreBoxId, CoreMethodId};
-use crate::runtime::core_method_aliases::canonical_method_name;
-
-/// Phase 65-2-A: MethodCall 戻り値型推論
-///
-/// 受け手 Box 名とメソッド名から戻り値型を推論する。
-/// P3-A（StringBox, ArrayBox の基本メソッド）のみ対応。
-/// P3-C（ジェネリック型）は Phase 66+ で対応。
-///
-/// # 引数
-/// - `receiver_type`: 受け手の型（MirType::String, MirType::Box("ArrayBox") など）
-/// - `method_name`: メソッド名（"substring", "length" など）
-///
-/// # 戻り値
-/// - `Some(MirType)`: 推論成功時の戻り値型
-/// - `None`: 推論失敗（未知のメソッド、P3-C 対象など）
-pub fn infer_method_return_type(receiver_type: &MirType, method_name: &str) -> Option<MirType> {
-    let canonical = canonical_method_name(method_name);
-    if let Some(core_box_id) = core_box_id_for_receiver(receiver_type) {
-        if let MirType::Array(element_type) = receiver_type {
-            let method_id =
-                crate::boxes::array::ArrayMethodId::from_name(method_name).filter(|method_id| {
-                    matches!(
-                        method_id,
-                        crate::boxes::array::ArrayMethodId::Get
-                            | crate::boxes::array::ArrayMethodId::Pop
-                            | crate::boxes::array::ArrayMethodId::Remove
-                    )
-                });
-            if method_id.is_some() && !matches!(**element_type, MirType::Unknown | MirType::Void) {
-                return Some((**element_type).clone());
-            }
-        }
-        if let Some(method_id) = CoreMethodId::iter()
-            .find(|method_id| method_id.box_id() == core_box_id && method_id.name() == canonical)
-        {
-            return mir_type_from_return_name(method_id.return_type_name());
-        }
-    }
-
-    // Phase 65-2-A: non-core (legacy) method hints
-    match receiver_type {
-        MirType::String => match canonical {
-            "charAt" => Some(MirType::String),
-            _ => None,
-        },
-        MirType::Box(box_name) => match box_name.as_str() {
-            "ArrayBox" => match canonical {
-                "size" => Some(MirType::Integer),
-                "push" | "clear" => Some(MirType::Void),
-                _ => None,
-            },
-            "MapBox" => crate::boxes::MapMethodId::from_name(method_name).and_then(|method_id| {
-                match method_id {
-                    crate::boxes::MapMethodId::Size | crate::boxes::MapMethodId::Len => {
-                        Some(MirType::Integer)
-                    }
-                    crate::boxes::MapMethodId::Has => Some(MirType::Bool),
-                    crate::boxes::MapMethodId::Get => None,
-                    crate::boxes::MapMethodId::Set
-                    | crate::boxes::MapMethodId::Delete
-                    | crate::boxes::MapMethodId::Clear => Some(MirType::String),
-                    crate::boxes::MapMethodId::Keys | crate::boxes::MapMethodId::Values => {
-                        Some(MirType::Box("ArrayBox".to_string()))
-                    }
-                }
-            }),
-            _ => None,
-        },
-        _ => None,
-    }
-}
 
 /// Phase 65-2-B: Box コンストラクタ型推論
 ///
@@ -109,118 +37,9 @@ pub fn infer_box_type(box_name: &str) -> Option<MirType> {
     }
 }
 
-fn core_box_id_for_receiver(receiver_type: &MirType) -> Option<CoreBoxId> {
-    match receiver_type {
-        MirType::String => Some(CoreBoxId::String),
-        MirType::Integer => Some(CoreBoxId::Integer),
-        MirType::Bool => Some(CoreBoxId::Bool),
-        MirType::Array(_) => Some(CoreBoxId::Array),
-        MirType::Box(box_name) => CoreBoxId::from_name(box_name),
-        _ => None,
-    }
-}
-
-fn mir_type_from_return_name(return_name: &str) -> Option<MirType> {
-    match return_name {
-        "IntegerBox" => Some(MirType::Integer),
-        "StringBox" => Some(MirType::String),
-        "BoolBox" => Some(MirType::Bool),
-        "Void" => Some(MirType::Void),
-        "Unknown" => None,
-        other if other.ends_with("Box") => Some(MirType::Box(other.to_string())),
-        _ => None,
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_infer_method_return_type_string_methods() {
-        // StringBox メソッド
-        assert_eq!(
-            infer_method_return_type(&MirType::String, "substring"),
-            Some(MirType::String)
-        );
-        assert_eq!(
-            infer_method_return_type(&MirType::String, "length"),
-            Some(MirType::Integer)
-        );
-        assert_eq!(
-            infer_method_return_type(&MirType::String, "charAt"),
-            Some(MirType::String)
-        );
-        assert_eq!(
-            infer_method_return_type(&MirType::String, "indexOf"),
-            Some(MirType::Integer)
-        );
-    }
-
-    #[test]
-    fn test_infer_method_return_type_arraybox_methods() {
-        let array_type = MirType::Box("ArrayBox".to_string());
-        assert_eq!(
-            infer_method_return_type(&array_type, "size"),
-            Some(MirType::Integer)
-        );
-        assert_eq!(
-            infer_method_return_type(&array_type, "push"),
-            Some(MirType::Void)
-        );
-        assert_eq!(
-            infer_method_return_type(&array_type, "clear"),
-            Some(MirType::Void)
-        );
-        // P3-C: get は Phase 66+
-        assert_eq!(infer_method_return_type(&array_type, "get"), None);
-        assert_eq!(
-            infer_method_return_type(&MirType::Array(Box::new(MirType::Integer)), "get"),
-            Some(MirType::Integer)
-        );
-        assert_eq!(
-            infer_method_return_type(&MirType::Array(Box::new(MirType::String)), "pop"),
-            Some(MirType::String)
-        );
-        assert_eq!(
-            infer_method_return_type(&MirType::Array(Box::new(MirType::Unknown)), "remove"),
-            None
-        );
-    }
-
-    #[test]
-    fn test_infer_method_return_type_mapbox_methods() {
-        let map_type = MirType::Box("MapBox".to_string());
-        assert_eq!(
-            infer_method_return_type(&map_type, "size"),
-            Some(MirType::Integer)
-        );
-        assert_eq!(
-            infer_method_return_type(&map_type, "length"),
-            Some(MirType::Integer)
-        );
-        assert_eq!(
-            infer_method_return_type(&map_type, "has"),
-            Some(MirType::Bool)
-        );
-        assert_eq!(infer_method_return_type(&map_type, "get"), None);
-        assert_eq!(
-            infer_method_return_type(&map_type, "set"),
-            Some(MirType::String)
-        );
-        assert_eq!(
-            infer_method_return_type(&map_type, "delete"),
-            Some(MirType::String)
-        );
-        assert_eq!(
-            infer_method_return_type(&map_type, "remove"),
-            Some(MirType::String)
-        );
-        assert_eq!(
-            infer_method_return_type(&map_type, "clear"),
-            Some(MirType::String)
-        );
-    }
 
     #[test]
     fn test_infer_box_type_builtin_boxes() {
