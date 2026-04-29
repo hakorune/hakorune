@@ -1,5 +1,5 @@
 use crate::config::env;
-use crate::config::env::{joinir_dev_enabled, joinir_strict_enabled};
+use crate::config::env::joinir_dev_enabled;
 use crate::mir::join_ir::{lower_funcscanner_trim_to_joinir, lower_skip_ws_to_joinir, JoinFuncId};
 use crate::mir::join_ir_ops::JoinValue;
 use crate::mir::join_ir_vm_bridge::run_joinir_via_vm;
@@ -41,7 +41,6 @@ pub(crate) fn try_run_skip_ws(module: &MirModule, quiet_pipe: bool) -> bool {
     }
 
     let dev_bridge = joinir_dev_enabled() || env::env_bool("NYASH_EMIT_MIR_TRACE");
-    let strict = joinir_strict_enabled();
 
     match run_joinir_via_vm(&join_module, JoinFuncId::new(0), &[JoinValue::Str(input)]) {
         Ok(result) => {
@@ -68,11 +67,6 @@ pub(crate) fn try_run_skip_ws(module: &MirModule, quiet_pipe: bool) -> bool {
                     println!("RC: {}", exit_code);
                 }
                 return true;
-            } else if strict {
-                if !quiet_pipe {
-                    println!("RC: {}", exit_code);
-                }
-                process::exit(exit_code);
             } else {
                 if !quiet_pipe {
                     println!("RC: {}", exit_code);
@@ -128,7 +122,6 @@ pub(crate) fn try_run_trim(module: &MirModule, quiet_pipe: bool) -> bool {
     }
 
     let dev_bridge = joinir_dev_enabled() || env::env_bool("NYASH_EMIT_MIR_TRACE");
-    let strict = joinir_strict_enabled();
 
     match run_joinir_via_vm(&join_module, JoinFuncId::new(0), &[JoinValue::Str(input)]) {
         Ok(result) => {
@@ -146,14 +139,6 @@ pub(crate) fn try_run_trim(module: &MirModule, quiet_pipe: bool) -> bool {
                     }
                 }
                 return true;
-            } else if strict {
-                if !quiet_pipe {
-                    match &result {
-                        JoinValue::Str(s) => println!("{}", s),
-                        _ => println!("{:?}", result),
-                    }
-                }
-                process::exit(0);
             } else {
                 if !quiet_pipe {
                     match &result {

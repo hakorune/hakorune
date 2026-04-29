@@ -3,12 +3,13 @@ JoinIR VM Bridge Dispatch
 Purpose:
 - Centralize JoinIR→VM routing away from the VM runner.
 - Table-driven mapping of MIR function names to JoinIR lowering/exec behavior.
-- Keep Exec vs LowerOnly paths explicit and opt-in via env flags or defaults.
+- Keep Exec vs LowerOnly paths explicit. Loop bridge execution is opt-in via
+  `NYASH_JOINIR_VM_BRIDGE`; If mainline defaults are owned by the target table.
 
 Layout:
 - `mod.rs`: public entry (`try_run_joinir_vm_bridge`) + shared routing glue
-- `env_flags.rs`: env flag evaluation (`NYASH_JOINIR_CORE` always-on policy,
-  `NYASH_JOINIR_VM_BRIDGE`)
+- `env_flags.rs`: bridge enablement wrapper (`NYASH_JOINIR_VM_BRIDGE`; core
+  always-on/deprecation handling stays in `src/config/env/joinir_flags.rs`)
 - `targets.rs`: descriptor table (`JOINIR_TARGETS`, `JoinIrBridgeKind`, `JoinIrTargetDesc`)
 - `exec_routes.rs`: Exec-capable routes (skip_ws, trim)
 - `lower_only_routes.rs`: LowerOnly routes (Stage1/StageB) for structural verification only
