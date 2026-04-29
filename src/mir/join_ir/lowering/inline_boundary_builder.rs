@@ -24,7 +24,7 @@
 //!     .build();
 //! ```
 
-use super::condition_to_joinir::ConditionBinding;
+use super::condition_env::ConditionBinding;
 use super::inline_boundary::{JoinInlineBoundary, JumpArgsLayout, LoopExitBinding};
 use crate::mir::ValueId;
 

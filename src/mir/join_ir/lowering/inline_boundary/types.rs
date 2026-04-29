@@ -1,5 +1,5 @@
 use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, CarrierRole, ExitReconnectMode};
-use crate::mir::join_ir::lowering::condition_to_joinir::ConditionBinding;
+use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::ValueId;
 use std::collections::BTreeSet;
 

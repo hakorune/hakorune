@@ -1,6 +1,6 @@
 use super::types::{JoinInlineBoundary, JumpArgsLayout, LoopExitBinding};
 use crate::mir::join_ir::lowering::carrier_info::{CarrierRole, ExitReconnectMode};
-use crate::mir::join_ir::lowering::condition_to_joinir::ConditionBinding;
+use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::ValueId;
 use std::collections::BTreeSet;
 

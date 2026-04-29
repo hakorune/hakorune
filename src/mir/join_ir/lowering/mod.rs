@@ -24,7 +24,8 @@ pub mod condition_env; // Phase 171-fix: Condition expression environment
 pub(crate) mod condition_lowerer; // Phase 171-fix: Core condition lowering logic
 #[cfg(test)]
 pub mod condition_lowering_box; // Legacy trait-adapter self-test harness
-pub mod condition_to_joinir; // Phase 169: JoinIR condition lowering orchestrator (refactored)
+#[cfg(test)]
+pub mod condition_to_joinir; // Legacy re-export facade self-test harness
 pub(crate) mod condition_var_extractor; // Phase 171-fix: Variable extraction from condition AST
 pub mod debug_output_box; // Phase 85: Centralized debug output management
 pub mod error_tags; // Phase 86: Centralized error message formatting

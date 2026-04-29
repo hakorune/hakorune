@@ -63,7 +63,7 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
 - `lowering` condition cluster
   - `condition_env.rs`
   - `condition_lowering_box.rs` (test-only legacy trait harness)
-  - `condition_to_joinir.rs`
+  - `condition_to_joinir.rs` (test-only legacy re-export facade)
   - `condition_var_extractor.rs`
   - `scope_manager.rs`
   - `update_env.rs` (test-only legacy harness)
