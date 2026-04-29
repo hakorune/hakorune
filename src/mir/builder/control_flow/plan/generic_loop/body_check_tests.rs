@@ -2,7 +2,7 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::mir::builder::control_flow::plan::generic_loop::body_check::shape_resolution::resolve_v1_shape_matches;
+    use crate::mir::builder::control_flow::plan::generic_loop::body_check::shape_detection::resolve_v1_shape_matches;
     use crate::mir::policies::GenericLoopV1ShapeId;
 
     #[test]

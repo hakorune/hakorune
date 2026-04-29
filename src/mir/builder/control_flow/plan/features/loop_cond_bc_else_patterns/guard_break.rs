@@ -10,35 +10,6 @@ use std::collections::BTreeMap;
 
 use super::super::loop_cond_bc::LOOP_COND_ERR;
 
-/// Lower if-else where else has guard breaks (exit-ifs)
-/// Pattern: if cond { non-exit } else { (if guard { break })+ + non-exit }
-/// Recipe-first: both branches are pre-classified recipes.
-/// 箱内ローカル（exit_if_map.rs には追加しない）
-pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_guard_break_if(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    condition: &ASTNode,
-    then_no_exit: Option<&NoExitBlockRecipe>,
-    then_recipe: &LoopCondBreakContinueRecipe,
-    else_recipe: &LoopCondBreakContinueRecipe,
-) -> Result<Vec<LoweredRecipe>, String> {
-    lower_else_guard_break_if_with_exit_allowed(
-        builder,
-        current_bindings,
-        carrier_phis,
-        carrier_step_phis,
-        break_phi_dsts,
-        condition,
-        then_no_exit,
-        then_recipe,
-        None,
-        else_recipe,
-    )
-}
-
 pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_guard_break_if_with_exit_allowed(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
