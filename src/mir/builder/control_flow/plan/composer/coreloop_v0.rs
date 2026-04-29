@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     coreloop_base_gate, exit_kinds_empty,
 };
-use crate::mir::builder::control_flow::plan::normalizer::build_simple_while_coreloop;
+use crate::mir::builder::control_flow::plan::normalizer::simple_while_coreloop_builder::build_simple_while_coreloop;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 

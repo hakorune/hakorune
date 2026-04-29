@@ -22,7 +22,7 @@ pub(in crate::mir::builder) mod helpers_pure_value;
 pub(in crate::mir::builder) mod helpers_value;
 #[cfg(test)]
 mod loop_break;
-mod simple_while_coreloop_builder;
+pub(in crate::mir::builder) mod simple_while_coreloop_builder;
 
 // Cond lowering modules (flattened from cond_lowering/)
 pub(in crate::mir::builder) mod cond_lowering_entry;
@@ -36,28 +36,11 @@ pub(in crate::mir::builder) mod loop_body_lowering;
 #[cfg(test)]
 mod value_join_demo_if2;
 
-use super::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
-use crate::ast::ASTNode;
+use super::{CoreEffectPlan, LoweredRecipe};
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
-
-pub(in crate::mir::builder) fn build_simple_while_coreloop(
-    builder: &mut MirBuilder,
-    loop_var: &str,
-    condition: &ASTNode,
-    loop_increment: &ASTNode,
-    ctx: &LoopRouteContext,
-) -> Result<CoreLoopPlan, String> {
-    simple_while_coreloop_builder::build_simple_while_coreloop(
-        builder,
-        loop_var,
-        condition,
-        loop_increment,
-        ctx,
-    )
-}
 
 /// Phase 273 P1: PlanNormalizer - facts/recipe contract → CorePlan 変換 (SSOT)
 pub(in crate::mir::builder) struct PlanNormalizer;
