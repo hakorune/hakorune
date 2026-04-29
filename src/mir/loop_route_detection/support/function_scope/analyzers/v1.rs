@@ -179,7 +179,7 @@ pub(crate) fn analyze_captured_vars(
 
         // All checks passed: add to CapturedEnv
         // Note: We don't have access to variable_map here, so we use a placeholder ValueId
-        // The actual host_id will be resolved in ConditionEnvBuilder
+        // The actual host_id is resolved by the active condition/boundary binding path.
         if debug {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
@@ -190,7 +190,7 @@ pub(crate) fn analyze_captured_vars(
 
         env.add_var(CapturedVar {
             name: name.clone(),
-            host_id: ValueId(0), // Placeholder, will be resolved in ConditionEnvBuilder
+            host_id: ValueId(0), // Placeholder, resolved by active binding path.
             is_immutable: true,
             kind: CapturedKind::Explicit,
         });

@@ -15,7 +15,7 @@
 //! This is a **thin coordinator** that reuses existing boxes:
 //! - LoopBodyCarrierPromoter: Promotion logic (trim route-shape detection)
 //! - TrimLoopHelper: Route-specific metadata
-//! - ConditionEnvBuilder: Binding generation
+//! - active condition/boundary binding contracts: Binding generation
 //!
 //! ## P0 Requirements (Category A-3)
 //!

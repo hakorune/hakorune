@@ -159,7 +159,7 @@ pub(crate) fn analyze_captured_vars_v2(
 
         env.add_var(CapturedVar {
             name: name.clone(),
-            host_id: ValueId(0), // Placeholder, will be resolved in ConditionEnvBuilder
+            host_id: ValueId(0), // Placeholder, resolved by active binding path.
             is_immutable: true,
             kind: CapturedKind::Explicit,
         });
@@ -212,7 +212,7 @@ pub(crate) fn analyze_captured_vars_v2(
 
         env.add_var(CapturedVar {
             name: name.clone(),
-            host_id: ValueId(0), // Placeholder, will be resolved in ConditionEnvBuilder
+            host_id: ValueId(0), // Placeholder, resolved by active binding path.
             is_immutable: true,
             kind: CapturedKind::Explicit,
         });

@@ -21,14 +21,11 @@
 //! - Eliminates hardcoded variable names and ValueId assumptions
 //! - Supports both single and multi-carrier loop routes
 //!
-//! Phase 171-172: Refactoring Infrastructure
-//! - condition_env_builder.rs: Unified ConditionEnv construction (Issue 5, thin wrapper)
-//!
 //! Phase 33-23: Route-Shape Analyzers (Stage 2)
 //!
-//! Stage 3 + Issue 1: Trim Route Extraction
-//! - trim_validator.rs: Trim whitespace validation and helper generation (moved to plan/)
-//! - trim_lowerer.rs: Trim-specific JoinIR lowering (moved to plan/)
+//! Retired helper shelves:
+//! - condition_env_builder.rs was deleted in 291x-751 after becoming self-test only.
+//! - trim_validator.rs / trim_lowerer.rs were deleted in 291x-751 after becoming self-test only.
 //!
 //! Phase 91 P5b: Escape Route-Shape Recognizer
 //! - escape_shape_recognizer.rs: P5b (escape sequence handling) route-shape detection

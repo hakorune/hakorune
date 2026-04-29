@@ -100,11 +100,15 @@ route_shape_recognizers - route recognizers
 **責務**: 歴史的経緯で残存、将来的には整理予定
 
 ```
-condition_env_builder - 条件環境ビルダー
 ast_feature_extractor - AST feature 抽出
 escape_shape_recognizer - エスケープパターン認識
 plan_build_session - emit/seal 設計セッション
 ```
+
+Retired shelves:
+
+- `condition_env_builder`, `trim_lowerer`, and `trim_validator` were deleted in
+  291x-751 after their remaining users were confirmed to be self-tests only.
 
 ---
 

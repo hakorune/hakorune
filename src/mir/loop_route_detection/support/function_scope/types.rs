@@ -45,8 +45,8 @@ pub struct CapturedVar {
 /// Environment containing function-scoped captured variables.
 ///
 /// Phase 200-A: Type definition only, not yet integrated with ConditionEnv.
-/// Phase 200-B: Will be populated by FunctionScopeCaptureAnalyzer and
-///               integrated into ConditionEnv via ConditionEnvBuilder v2.
+/// Phase 200-B: Populated by FunctionScopeCaptureAnalyzer and integrated by
+///               the active condition/boundary binding path.
 #[derive(Debug, Clone, Default)]
 pub struct CapturedEnv {
     /// List of captured variables

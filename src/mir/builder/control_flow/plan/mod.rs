@@ -92,8 +92,6 @@ mod nested_loop_plan_bridge;
 mod nested_loop_plan_continue_with_return;
 mod nested_loop_plan_recipe_fallback;
 mod nested_loop_plan_recipe_fallback_policy;
-mod trim_lowerer;
-mod trim_validator;
 
 // Layer 6: Data Structures (データ構造)
 // CorePlan の構成要素
@@ -116,8 +114,6 @@ pub(in crate::mir::builder) mod single_planner;
 // 共通機能・ポリシー
 // Layer 9: Legacy/Scaffolding (残骸・足場)
 // 歴史的経緯で残存、将来的には整理予定
-// Phase 29bq+: Condition env builder moved to plan side
-mod condition_env_builder;
 mod plan_build_session;
 
 // ============================================================================
