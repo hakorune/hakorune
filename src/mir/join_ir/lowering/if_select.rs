@@ -60,15 +60,6 @@ impl IfSelectLowerer {
         }
     }
 
-    /// Phase 33-8: debug-level legacy shim
-    #[allow(dead_code)]
-    pub fn with_debug(debug: bool) -> Self {
-        Self {
-            debug_level: if debug { 1 } else { 0 },
-            context: None, // Phase 61-1: デフォルトは Pure If
-        }
-    }
-
     /// Phase 61-1: If-in-loop 用コンストラクタ
     ///
     /// # Arguments
