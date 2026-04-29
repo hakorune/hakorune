@@ -7,7 +7,6 @@
 //!
 //! | Module                  | Range      | Entry  | Loop   | Notes |
 //! |-------------------------|------------|--------|--------|-------|
-//! | min_loop                | 1000-2999  | 1000+  | 2000+  | Minimal loop test |
 //! | skip_ws                 | 3000-4999  | 3000+  | 4000+  | Skip whitespace |
 //! | funcscanner_trim        | 5000-6999  | 5000+  | 6000+  | Trim whitespace |
 //! | stage1_using_resolver   | 7000-8999  | 7000+  | 8000+  | Stage-1 using resolver |
@@ -29,19 +28,13 @@
 //! ## Future Extensions
 //!
 //! When adding new lowering modules, allocate ranges in increments of 2000:
-//! - 9000-10999 (next available)
-//! - 11000-12999
-//! - 13000-14999
+//! - 15000-16999 (next available)
 //! - etc.
 
 use crate::mir::ValueId;
 
 /// Base addresses for each lowering module's ValueId range
 pub mod base {
-    /// min_loop: Minimal loop test (1000-2999)
-    #[allow(dead_code)]
-    pub const MIN_LOOP: u32 = 1000;
-
     /// skip_ws: Skip whitespace loop (3000-4999)
     pub const SKIP_WS: u32 = 3000;
 
@@ -67,26 +60,6 @@ pub mod base {
 #[inline]
 pub const fn id(base: u32, offset: u32) -> ValueId {
     ValueId(base + offset)
-}
-
-/// ValueId helpers for min_loop lowering module
-pub mod min_loop {
-    use super::{base, id};
-    use crate::mir::ValueId;
-
-    /// Entry function ValueIds (1000-1999)
-    #[inline]
-    #[allow(dead_code)]
-    pub const fn entry(offset: u32) -> ValueId {
-        id(base::MIN_LOOP, offset)
-    }
-
-    /// Loop function ValueIds (2000-2999)
-    #[inline]
-    #[allow(dead_code)]
-    pub const fn loop_step(offset: u32) -> ValueId {
-        id(base::MIN_LOOP, 1000 + offset)
-    }
 }
 
 /// ValueId helpers for skip_ws lowering module
@@ -227,7 +200,6 @@ mod tests {
     #[test]
     fn test_value_id_ranges_no_overlap() {
         // Test each module's range boundaries
-        test_value_id_range!(min_loop, 1000, 2000);
         test_value_id_range!(skip_ws, 3000, 4000);
         test_value_id_range!(funcscanner_trim, 5000, 6000);
         test_value_id_range!(stage1_using_resolver, 7000, 8000);
@@ -238,7 +210,6 @@ mod tests {
         // Automated overlap detection
         // Each range is 2000 units: (base, base+1999)
         let ranges = vec![
-            (1000, 2999),   // min_loop
             (3000, 4999),   // skip_ws
             (5000, 6999),   // funcscanner_trim
             (7000, 8999),   // stage1_using_resolver
