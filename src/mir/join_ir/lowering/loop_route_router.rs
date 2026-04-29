@@ -10,7 +10,7 @@
 //! Routes to:
 //! - `LoopSimpleWhile`: `loop_routes::simple_while` (no break/continue)
 //! - `LoopBreak`: `loop_routes::with_break` (conditional break)
-//! - `IfPhiJoin`: `loop_routes::with_if_phi` (if + PHI merging)
+//! - `IfPhiJoin`: no LoopForm lowerer; plan/AST route path owns live lowering
 //! - `LoopContinueOnly`: `loop_routes::with_continue` (deferred to Phase 195)
 //! - `LoopTrueEarlyExit`: planned route family for `loop(true)` + early exit
 //!
@@ -36,7 +36,7 @@
 //! `loop_route_detection::classify()` chooses one flat route family, then this
 //! router dispatches to that lowerer. The current match order is:
 //! - `LoopContinueOnly`
-//! - `IfPhiJoin`
+//! - `IfPhiJoin` (LoopForm router fallthrough; plan/AST path owns lowering)
 //! - `LoopBreak`
 //! - `LoopSimpleWhile`
 //! - `LoopTrueEarlyExit` (stub / fallback)
@@ -145,15 +145,13 @@ pub fn try_lower_loop_route_to_joinir(
             }
         }
         LoopRouteKind::IfPhiJoin => {
-            if let Some(inst) =
-                super::loop_routes::lower_loop_with_conditional_phi_to_joinir(loop_form, lowerer)
-            {
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    get_global_ring0()
-                        .log
-                        .debug("[try_lower_loop_route] ✅ IfPhiJoin matched");
-                }
-                return Some(inst);
+            // Live IfPhiJoin lowering is owned by the plan/AST route path. The
+            // former LoopForm-route module was a compatibility stub returning
+            // None, so this arm deliberately falls through to existing lowering.
+            if crate::config::env::joinir_dev::debug_enabled() {
+                get_global_ring0().log.debug(
+                    "[try_lower_loop_route] IfPhiJoin has no LoopForm lowerer; falling through",
+                );
             }
         }
         LoopRouteKind::LoopBreak => {

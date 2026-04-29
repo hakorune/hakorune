@@ -11,8 +11,9 @@
 //! ### LoopBreak route (`with_break.rs`)
 //! Conditional break → two exit paths (natural + break)
 //!
-//! ### IfPhiJoin route (`with_if_phi.rs`)
-//! If-expressions inside loops → PHI merging at exit
+//! ### IfPhiJoin route
+//! LoopForm-route lowering is not implemented here. Live IfPhiJoin lowering is
+//! owned by the plan/AST route path and `loop_with_if_phi_if_sum.rs`.
 //!
 //! ### LoopContinueOnly route (`with_continue.rs`) [STUB]
 //! Not yet implemented, deferred to Phase 195+
@@ -22,7 +23,7 @@
 //! - **Testability**: Each route independently testable
 //! - **Clarity**: Code for LoopBreak route is in `with_break.rs`, not buried in 735 lines
 //! - **Scalability**: Adding a new route is just creating a new file
-//! - **Maintainability**: Changes to LoopSimpleWhile don't touch IfPhiJoin
+//! - **Maintainability**: Changes to one route module do not touch unrelated routes
 //!
 //! ## Shared Utilities
 //! Common helper functions are in `mod.rs` for all route modules to use.
@@ -50,13 +51,11 @@ pub mod nested_minimal;
 pub mod simple_while;
 pub mod with_break;
 pub mod with_continue;
-pub mod with_if_phi; // Phase 188.1
 
 pub use nested_minimal::lower_nested_loop_minimal_to_joinir;
 pub use simple_while::lower_simple_while_to_joinir;
 pub use with_break::lower_loop_with_break_to_joinir;
 pub use with_continue::lower_loop_with_continue_to_joinir;
-pub use with_if_phi::lower_loop_with_conditional_phi_to_joinir; // Phase 188.1
 
 // ============================================================================
 // Helper Functions (Shared Utilities)
@@ -126,41 +125,6 @@ mod tests {
         // Step 2: Call lower_loop_with_break_to_joinir()
         // Step 3: Verify k_exit params = [i_exit]
         // Step 4: Verify both Jumps pass current i as argument
-    }
-
-    // ========================================================================
-    // IfPhiJoin: Loop with If-Else PHI Tests
-    // ========================================================================
-
-    #[test]
-    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
-    fn test_if_phi_join_lowering_success() {
-        // Placeholder: add integration test for IfPhiJoin route lowering
-        // Step 1: Create mock LoopForm for IfPhiJoin route
-        // Step 2: Create mock LoopToJoinLowerer
-        // Step 3: Call lower_loop_with_conditional_phi_to_joinir()
-        // Step 4: Assert returns Some(JoinInst)
-        // Step 5: Verify generated JoinIR structure (Select instruction)
-    }
-
-    #[test]
-    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
-    fn test_if_phi_join_multiple_carriers() {
-        // Placeholder: add test that verifies multiple carrier variables
-        // Step 1: Create mock LoopForm with i + sum carriers
-        // Step 2: Call lower_loop_with_conditional_phi_to_joinir()
-        // Step 3: Verify loop_step params = [i, sum]
-        // Step 4: Verify tail Call args = [i_next, sum_new]
-    }
-
-    #[test]
-    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
-    fn test_if_phi_join_lowering_integration() {
-        // Placeholder: add test that verifies If lowering integration
-        // Step 1: Create mock LoopForm with if-else
-        // Step 2: Call lower_loop_with_conditional_phi_to_joinir()
-        // Step 3: Verify Select instruction is generated
-        // Step 4: Verify Select has correct cond/then_val/else_val
     }
 
     // ========================================================================
