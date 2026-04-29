@@ -118,7 +118,7 @@ pub fn lower_loop_by_function_name(
     // 4. loop_routes 層に委譲
     match loop_routes::lower_loop_with_route(route.clone(), lowerer, program_json) {
         Ok(module) => module,
-        Err(e) => panic!("LoopFrontendBinding error: {:?}", e),
+        Err(e) => panic!("LoopFrontendBinding error: {}", e),
     }
 }
 

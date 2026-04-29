@@ -14,6 +14,7 @@
 //! - エラーは Err(UnimplementedRoute) で返す
 
 use super::{AstToJoinIrLowerer, JoinModule};
+use std::fmt;
 
 pub mod break_route;
 pub mod common;
@@ -67,34 +68,27 @@ pub enum LoopRoute {
 
 /// ループ route lowering エラー
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub enum LoweringError {
     /// 未実装の route
     UnimplementedRoute { route: LoopRoute, reason: String },
-    /// JSON パースエラー
-    JsonParseError { message: String },
     /// ループ body が不正
     InvalidLoopBody { message: String },
 }
 
-/// LoopRoute lowering の統一インターフェース
-///
-/// 各 route の lowering モジュールはこの trait を実装する。
-#[allow(dead_code)]
-pub trait LoopRouteLowerer {
-    /// LoopRoute を JoinModule に変換
-    ///
-    /// # Arguments
-    /// * `lowerer` - AstToJoinIrLowerer インスタンス
-    /// * `program_json` - Program(JSON v0)
-    ///
-    /// # Returns
-    /// JoinModule または LoweringError
-    fn lower(
-        lowerer: &mut AstToJoinIrLowerer,
-        program_json: &serde_json::Value,
-    ) -> Result<JoinModule, LoweringError>;
+impl fmt::Display for LoweringError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            LoweringError::UnimplementedRoute { route, reason } => {
+                write!(f, "unimplemented loop route {:?}: {}", route, reason)
+            }
+            LoweringError::InvalidLoopBody { message } => {
+                write!(f, "invalid loop body: {}", message)
+            }
+        }
+    }
 }
+
+impl std::error::Error for LoweringError {}
 
 /// LoopRoute に応じた lowering を実行（ディスパッチ箱）
 ///
