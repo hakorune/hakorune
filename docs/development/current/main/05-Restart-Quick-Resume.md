@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-28
+Date: 2026-04-30
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -41,8 +41,9 @@ cargo check -q
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
-- latest known checkpoint: `291x-691` inventories the remaining compiler-cleanliness
-  backlog and syncs stale current-doc pointers to `CURRENT_STATE.toml`
+- latest known checkpoint: read `latest_card` / `latest_card_path` in
+  `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
+  inventory baseline
 - no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
   classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is

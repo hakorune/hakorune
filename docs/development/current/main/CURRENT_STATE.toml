@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint. The compiler-cleanliness burst is landed through 291x-757: worker inventory is recorded, dead JoinIR lowering shelves are pruned, JoinValueSpace helper surface is narrowed, duplicate CleanupKindFacts vocabulary is retired, LoopFacts condition-shape storage is pruned, loop-facts SkeletonKind no longer mirrors If2/BranchN, old cfg-test plan helper shelves are deleted, SplitScanFacts shape vocabulary is pruned, the cfg-test ScanDirection helper is removed, and old coreloop v0/v1 composer shelves are retired. Remaining surfaces are structural/test-surface reconcile candidates. Current docs should use `CURRENT_STATE.toml` plus the latest phase-291x card instead of hard-coded checkpoint pins. The release lib-warning backlog is zero and `cargo test --lib --no-run` is warning-free for this lane."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint. The compiler-cleanliness burst is landed through 291x-758: worker inventory is recorded, dead JoinIR lowering shelves are pruned, JoinValueSpace helper surface is narrowed, duplicate CleanupKindFacts vocabulary is retired, LoopFacts condition-shape storage is pruned, loop-facts SkeletonKind no longer mirrors If2/BranchN, old cfg-test plan helper shelves are deleted, SplitScanFacts shape vocabulary is pruned, the cfg-test ScanDirection helper is removed, old coreloop v0/v1 composer shelves are retired, and current mirrors now use CURRENT_STATE for the latest checkpoint. Remaining surfaces are structural/test-surface reconcile candidates. The release lib-warning backlog is zero and `cargo test --lib --no-run` is warning-free for this lane."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-757"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-757-skeleton-kind-region-variant-prune-card.md"
-latest_card_summary = "Remove If2/BranchN from loop-facts SkeletonKind while keeping CorePlan FlowBox vocabulary."
+latest_card = "291x-758"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-758-current-mirror-checkpoint-thin-sync-card.md"
+latest_card_summary = "Sync current mirror checkpoint wording back to CURRENT_STATE pointers."
 
 current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -49,4 +49,5 @@ landed_tail = [
   "291x-755 cleanup ExitKind vocabulary reconcile landed",
   "291x-756 LoopFacts condition-shape slot prune landed",
   "291x-757 SkeletonKind region variant prune landed",
+  "291x-758 current mirror checkpoint thin sync landed",
 ]

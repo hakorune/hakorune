@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-28
+Date: 2026-04-30
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -44,8 +44,9 @@ Scope: current lane / next lane / restart order only.
 ## Restart Handoff
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- latest known checkpoint: `291x-691` inventories the remaining compiler-cleanliness
-  backlog and syncs stale current-doc pointers to `CURRENT_STATE.toml`
+- latest known checkpoint: read `latest_card` / `latest_card_path` in
+  `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
+  inventory baseline
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
@@ -57,8 +58,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Task Order
 
-- current task source:
-  `docs/development/current/main/phases/phase-291x/291x-691-warning-backlog-inventory-doc-sync-card.md`
+- current task source: `CURRENT_STATE.toml` plus the latest phase-291x card
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
@@ -77,8 +77,8 @@ Scope: current lane / next lane / restart order only.
 
 - latest cleanup card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: `291x-691`; detailed landed history lives in phase card
-  files and the current `latest_card_path` in `CURRENT_STATE.toml`
+- latest checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
+  landed history lives in phase card files
 - next cleanup: choose the next compiler-cleanliness lane; the `291x-575`
   ordered compat residue queue and unified-member property cleanup are closed,
   parser member syntax SSOT is landed, planner reject-detail diagnostics
@@ -99,8 +99,8 @@ Scope: current lane / next lane / restart order only.
 
 - CoreBox surface phase:
   `docs/development/current/main/phases/phase-291x/README.md`
-- Current cleanup checkpoint:
-  `docs/development/current/main/phases/phase-291x/291x-691-warning-backlog-inventory-doc-sync-card.md`
+- Current cleanup checkpoint: read `latest_card_path` in
+  `docs/development/current/main/CURRENT_STATE.toml`
 - CoreBox design brief:
   `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
 - StringBox taskboard:

@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-28
+Date: 2026-04-30
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -28,11 +28,10 @@ Related:
 
 - choose the next compiler-cleanliness lane, or switch to an explicitly
   reopened non-cleanup blocker
-- cleanup checkpoint: latest known card `291x-691`; detailed closed history
-  lives in phase card files and `latest_card_path` in `CURRENT_STATE.toml`
-- latest docs/inventory sync: `291x-691` catalogs the remaining cleanup backlog,
-  separates false positives from true-dead shelves, and removes stale
-  `291x-666` pins from current mirrors
+- cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
+  closed history lives in phase card files
+- latest docs/inventory baseline: `291x-691` remains the historical backlog
+  inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

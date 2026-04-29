@@ -265,15 +265,16 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-691`
+- latest known cleanup checkpoint: read `latest_card` / `latest_card_path` in
+  `docs/development/current/main/CURRENT_STATE.toml`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the current
   `latest_card_path` in `CURRENT_STATE.toml`
-- latest docs/inventory sync card: `291x-691-warning-backlog-inventory-doc-sync-card.md`
-- latest inventory baseline: `cargo build --release` reports 48 `nyash-rust (lib)`
-  warnings after the recent low-risk cleanup burst
-- false-positive wall and the next low-risk clusters are catalogued in `291x-691`;
-  use that card before reopening the next code slice
+- latest docs/inventory baseline: `291x-691-warning-backlog-inventory-doc-sync-card.md`
+- latest inventory result for this lane: release lib-warning backlog is zero;
+  `cargo test --lib --no-run` is warning-free
+- false-positive wall and historical low-risk clusters are catalogued in
+  `291x-691`; current code-slice choice should start from `CURRENT_STATE.toml`
 - next cleanup: choose the next compiler-cleanliness lane; broad
   facts/planner and lower planner compat ownership work must reopen as focused
   BoxShape lanes
@@ -305,6 +306,7 @@ in one card.
 | IfPhiJoin recipe re-export prune | `291x-665-if-phi-join-recipe-reexport-prune-card.md` |
 | LoopTrueEarlyExit recipe re-export prune | `291x-666-loop-true-early-exit-recipe-reexport-prune-card.md` |
 | Warning backlog inventory / docs sync | `291x-691-warning-backlog-inventory-doc-sync-card.md` |
+| Latest cleanup checkpoint | `docs/development/current/main/CURRENT_STATE.toml` `latest_card_path` |
 | Current task-order baseline | `291x-488-current-task-order-baseline-refresh-card.md` |
 | Historical post-birth row-prune order | `291x-255-post-birth-cleanup-task-order-card.md` |
 | CoreMethodContract / Hotline policy | `docs/development/current/main/design/hotline-core-method-contract-ssot.md` |
