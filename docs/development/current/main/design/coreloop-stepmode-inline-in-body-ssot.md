@@ -79,7 +79,10 @@ step（loop increment / update）が loop body の末尾に無いループを、
   - Code: `src/mir/builder/control_flow/plan/verifier/loop_validators.rs`
   - Contract: branch/exit 経路で continue_target へ直結する形を禁止
 - [x] S3: `InlineInBody && has_explicit_step=true` の実受理形を 1つ固定し、runtime fixture で pin
-  - Source: `src/mir/builder/control_flow/plan/normalizer/simple_while_coreloop_builder.rs`
+  - Source: `src/mir/builder/control_flow/plan/recipe_tree/loop_simple_while_builder.rs`
+  - Composer: `src/mir/builder/control_flow/plan/recipe_tree/loop_simple_while_composer.rs`
+  - Retired source: `src/mir/builder/control_flow/plan/normalizer/simple_while_coreloop_builder.rs`
+    was removed in 291x-754.
   - Runtime pin semantics: `loop_simple_while explicit-step`
   - legacy fixture pin token: see `joinir-legacy-fixture-pin-inventory-ssot.md` entry for `loop_simple_while explicit-step`
   - Gate case semantics: `loop_simple_while explicit-step`
