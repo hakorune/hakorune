@@ -361,23 +361,6 @@ pub(crate) fn build_route_prep_context(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{BinaryOperator, LiteralValue, Span};
-
-    // Helper: Create a simple condition (i < 10)
-    fn test_condition(var_name: &str) -> ASTNode {
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Less,
-            left: Box::new(ASTNode::Variable {
-                name: var_name.to_string(),
-                span: Span::unknown(),
-            }),
-            right: Box::new(ASTNode::Literal {
-                value: LiteralValue::Integer(10),
-                span: Span::unknown(),
-            }),
-            span: Span::unknown(),
-        }
-    }
 
     #[test]
     fn test_route_variant_equality() {

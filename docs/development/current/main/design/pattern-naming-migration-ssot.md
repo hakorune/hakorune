@@ -11,7 +11,7 @@
 
 ### 対象 (In Scope)
 
-- **コード内の型名**: `Pattern1SimpleWhilePlan`, `LoopBreakPlan` などの型名
+- **コード内の型名**: `Pattern1SimpleWhilePlan` などの旧 planner payload 型名
 - **関数名**: `try_extract_pattern1_simplewhile` などの関数名
 - **モジュール名**: `pattern1_simple_while.rs` などのモジュール名
 - **構造体フィールド**: Pattern 構造体のフィールド名
@@ -126,7 +126,7 @@ Note:
 | 現在 | 新名 | 用途 |
 |------|------|------|
 | `Pattern1SimpleWhilePlan` | `LoopSimpleWhilePlan` | ドメイン計画型 |
-| `Pattern2BreakPlan` | `LoopBreakPlan` | ドメイン計画型 |
+| `Pattern2BreakPlan` | `LoopBreakPlan` | historical mapping; current test harness retired in 291x-711 |
 | `Pattern3IfPhiPlan` | `IfPhiJoinPlan` | ドメイン計画型 |
 | `Pattern4ContinuePlan` | `LoopContinueOnlyPlan` | ドメイン計画型 |
 | `Pattern5InfiniteEarlyExitPlan` | `LoopTrueEarlyExitPlan` | ドメイン計画型 |

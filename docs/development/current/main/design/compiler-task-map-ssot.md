@@ -151,7 +151,7 @@ NOTE:
 RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recipe-first の最終形）。
 
 順序（1ブロッカー=1コミット）:
-1) ✅ LoopBreakRecipe: break-subset route（old numbered label is traceability-only, semantic helper: `normalize_loop_break`, current test harness: `loop_break.rs`）依存を外して RecipeBlock 構築へ置換
+1) ✅ LoopBreakRecipe: break-subset route（old numbered label is traceability-only）依存を外して RecipeBlock 構築へ置換。旧 test harness `normalizer/loop_break.rs` は 291x-711 で撤去済み
 2) ✅ IfPhiJoin: IfV2 + join_payload 直構築へ置換
 3) ✅ LoopContinueOnly: LoopV0 + Continue port 直構築へ置換
 4) ✅ condition-driven loop routes（legacy label family: LoopCond*）/ loop-true routes（legacy label family: LoopTrue*）の normalize 依存を段階的に置換

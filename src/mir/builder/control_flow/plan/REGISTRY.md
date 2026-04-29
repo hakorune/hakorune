@@ -145,11 +145,12 @@ SSOT: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 | Legacy normalizer | Current state | Planned direction | Promotion trigger |
 |---|---|---|---|
 | `normalizer/simple_while_coreloop_builder.rs` | legacy helper lane | `generic_loop_v0/v1` へ寄せるか、`LoopSkeleton + ExitMap/ValueJoin` 合成へ分解 | simple-while helper に route-specific 分岐を足したくなった時点 |
-| `normalizer/loop_break.rs` | test-only loop_break harness | `ExitMap` feature へ（“別pattern” を増やさない） | break/return 形の拡張が必要になった時点 |
 | `normalizer/pattern_*`（string/helpers: skip_ws/split_lines/escape_map/is_integer/int_to_str/starts_with 等） | legacy（小粒） | 直近は現状維持（小粒）。将来は `generic_loop_v1`/FlowBox へ吸収候補 | 2 箇所以上で同型の手書き合流が増えた時点 |
 
 Note:
 - `bool_predicate_scan` / `accum_const_loop` は facts + recipe_tree entry へ収束済みで、dedicated normalizer file は現行 tree に存在しない。
+- `normalizer/loop_break.rs` は 291x-711 で撤去済み。break 系の再拡張は
+  `ExitMap` / feature pipeline 側に新しい最小箱として足す。
 
 Hard patterns (special-rule required):
 - irreducible/multi-entry loop, unwind/finally, coroutine/yield 等は “例外で通す” ではなく Freeze taxonomy + SSOT で扱う（入口: `docs/development/current/main/design/coreplan-skeleton-feature-model.md` の Section 3）。

@@ -18,4 +18,7 @@ Modules:
 - cond_lowering_*.rs: header/body/value condition lowering entry points.
 - loop_body_lowering.rs: statement/effect lowering helpers used by loop pipelines.
 - simple_while_coreloop_builder.rs: simple-while coreloop scaffold helper.
-- loop_break.rs: test-only loop-break normalization harness.
+
+Retired:
+- loop_break.rs: removed in 291x-711; break expansion belongs in ExitMap /
+  feature pipelines, not a test-only normalizer shelf.

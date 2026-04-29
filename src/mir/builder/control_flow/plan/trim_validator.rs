@@ -9,75 +9,10 @@
 #[cfg(test)]
 use crate::ast::ASTNode;
 #[cfg(test)]
-use crate::mir::builder::MirBuilder;
-#[cfg(test)]
-use crate::mir::ValueId;
-
-#[cfg(test)]
 pub(in crate::mir::builder) struct TrimValidator;
 
 #[cfg(test)]
 impl TrimValidator {
-    /// Generate MIR for OR chain of whitespace character comparisons
-    ///
-    /// Creates: ch == " " || ch == "\t" || ch == "\n" || ch == "\r" ...
-    ///
-    /// # Arguments
-    ///
-    /// * `builder` - MirBuilder for emitting instructions
-    /// * `ch_value` - ValueId of character to check
-    /// * `whitespace_chars` - List of whitespace characters to compare against
-    ///
-    /// # Returns
-    ///
-    /// ValueId of bool result (true if ch matches any whitespace char)
-    pub(in crate::mir::builder) fn emit_whitespace_check(
-        builder: &mut MirBuilder,
-        ch_value: ValueId,
-        whitespace_chars: &[String],
-    ) -> Result<ValueId, String> {
-        use crate::mir::builder::emission::compare::emit_to as emit_compare_to;
-        use crate::mir::builder::emission::constant::emit_string;
-        use crate::mir::instruction::MirInstruction;
-        use crate::mir::{CompareOp, types::BinaryOp};
-
-        if whitespace_chars.is_empty() {
-            return Err("[emit_whitespace_check] Empty whitespace_chars".to_string());
-        }
-
-        let mut result_opt: Option<ValueId> = None;
-
-        for ws_char in whitespace_chars {
-            // ws_const = const " " (or "\t", etc.)
-            let ws_const = emit_string(builder, ws_char.clone())?;
-
-            // eq_check = ch == ws_const
-            // Phase 135 P0: Use function-level ValueId (SSOT)
-            let eq_dst = builder.next_value_id();
-            emit_compare_to(builder, eq_dst, CompareOp::Eq, ch_value, ws_const)?;
-
-            result_opt = Some(if let Some(prev_result) = result_opt {
-                // result = prev_result || eq_check
-                // Phase 135 P0: Use function-level ValueId (SSOT)
-                let dst = builder.next_value_id();
-                builder.emit_instruction(MirInstruction::BinOp {
-                    dst,
-                    op: BinaryOp::Or,
-                    lhs: prev_result,
-                    rhs: eq_dst,
-                })?;
-                dst
-            } else {
-                // First comparison, no OR needed yet
-                eq_dst
-            });
-        }
-
-        result_opt.ok_or_else(|| {
-            "[emit_whitespace_check] Internal error: result should be Some".to_string()
-        })
-    }
-
     /// Extract the substring method call arguments from loop body
     ///
     /// Looks for pattern: local ch = s.substring(start, start+1)

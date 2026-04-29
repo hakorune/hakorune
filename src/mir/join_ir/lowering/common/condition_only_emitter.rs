@@ -11,7 +11,7 @@
 //! ConditionOnlyをConditionBindingで運ばず、「再計算レシピ」として扱う：
 //! 1. 初回計算値をConditionBindingに入れない
 //! 2. 代わりにDerived slotとして、毎イテレーションで再計算する
-//! 3. TrimValidator::emit_whitespace_check() を毎周回呼ぶ
+//! 3. インライン whitespace check を毎周回呼ぶ
 //!
 //! ## アーキテクチャ
 //! ```
@@ -176,7 +176,6 @@ impl ConditionOnlyEmitter {
         })?;
 
         // Step 2: Trim patternの条件を再評価
-        // TrimValidator::emit_whitespace_check() 相当の処理
         let condition_value = Self::emit_whitespace_check_inline(
             source_value,
             &recipe.whitespace_chars,
@@ -191,8 +190,6 @@ impl ConditionOnlyEmitter {
     }
 
     /// Whitespace check（インライン実装）
-    ///
-    /// # Phase 93 P0: TrimValidator::emit_whitespace_check() 相当
     ///
     /// ## 処理
     /// ```mir
