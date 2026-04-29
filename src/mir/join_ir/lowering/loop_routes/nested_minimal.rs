@@ -141,7 +141,6 @@ pub fn lower_nested_loop_minimal_to_joinir(
     //
     // ```rust
     // let inner_loop = find_inner_loop_in_body(loop_form)?;
-    // validate_nested_structure(loop_form, inner_loop)?;
     // ```
     //
     // Step 2: Extract Outer Loop Variables
@@ -221,105 +220,6 @@ pub fn lower_nested_loop_minimal_to_joinir(
     // For now, return None (stub implementation)
     // Actual implementation will be added incrementally
     None
-}
-
-/// Validate nested loop structure meets NestedLoopMinimal route requirements
-///
-/// # Validation Rules (Phase 188.1)
-///
-/// 1. **Outer loop must match LoopSimpleWhile route shape**
-///    - No break statements
-///    - No continue statements
-///    - Simple while condition
-///
-/// 2. **Inner loop must match LoopSimpleWhile route shape**
-///    - No break statements
-///    - No continue statements
-///    - Simple while condition
-///
-/// 3. **Nesting depth must be exactly 2**
-///    - Only 1 level of nesting (max_loop_depth == 2)
-///    - Deeper nesting (3+ levels) is out-of-scope
-///
-/// 4. **No multiple inner loops**
-///    - Only one inner loop allowed (no siblings)
-///
-/// # Arguments
-///
-/// * `outer_loop` - The outer loop structure
-/// * `inner_loop` - The inner loop structure
-///
-/// # Returns
-///
-/// * `Ok(())` - Validation passed
-/// * `Err(String)` - Validation failed with error message
-///
-/// # Errors
-///
-/// Uses `error_tags::freeze_with_hint()` format for explicit errors:
-///
-/// - `[joinir/nested_loop/outer_control_flow]` - Outer loop has break/continue
-/// - `[joinir/nested_loop/inner_control_flow]` - Inner loop has break/continue
-/// - `[joinir/nested_loop/depth_exceeded]` - Nesting depth > 2
-/// - `[joinir/nested_loop/multiple_inner]` - Multiple inner loops detected
-#[allow(dead_code)]
-fn validate_nested_structure(_outer_loop: &LoopForm, _inner_loop: &LoopForm) -> Result<(), String> {
-    // TODO: Implement validation (Phase 188.1 Task 4)
-    //
-    // Check 1: Outer loop must match LoopSimpleWhile route shape
-    // ======================================
-    // if has_break_or_continue(outer_loop) {
-    //     return Err(error_tags::freeze_with_hint(
-    //         "nested_loop/outer_control_flow",
-    //         "Outer loop has break/continue (not supported in NestedLoopMinimal route)",
-    //         "Only LoopSimpleWhile route shape is supported as outer loop",
-    //     ));
-    // }
-    //
-    // Check 2: Inner loop must match LoopSimpleWhile route shape
-    // ======================================
-    // if has_break_or_continue(inner_loop) {
-    //     return Err(error_tags::freeze_with_hint(
-    //         "nested_loop/inner_control_flow",
-    //         "Inner loop has break/continue (not supported in NestedLoopMinimal route)",
-    //         "Only LoopSimpleWhile route shape is supported as inner loop",
-    //     ));
-    // }
-    //
-    // Check 3: Nesting depth must be exactly 2
-    // =========================================
-    // (This is validated earlier in classify(), but double-check here)
-    //
-    // Check 4: No multiple inner loops
-    // =================================
-    // let inner_loop_count = count_inner_loops(outer_loop);
-    // if inner_loop_count > 1 {
-    //     return Err(error_tags::freeze_with_hint(
-    //         "nested_loop/multiple_inner",
-    //         &format!("Multiple inner loops detected ({} loops)", inner_loop_count),
-    //         "Only one inner loop supported in NestedLoopMinimal route (Phase 188.1 scope)",
-    //     ));
-    // }
-
-    // For now, return Ok (stub implementation)
-    Ok(())
-}
-
-/// Check if loop has break or continue statements
-///
-/// # Arguments
-///
-/// * `loop_form` - The loop structure to check
-///
-/// # Returns
-///
-/// * `true` - Loop has break or continue
-/// * `false` - Loop matches LoopSimpleWhile route shape (no break/continue)
-#[allow(dead_code)]
-fn has_break_or_continue(_loop_form: &LoopForm) -> bool {
-    // TODO: Check loop_form.break_targets, loop_form.continue_targets
-    // For now, assume no break/continue (conservative)
-    false
 }
 
 #[cfg(test)]
