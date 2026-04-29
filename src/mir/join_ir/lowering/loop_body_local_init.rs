@@ -9,7 +9,7 @@
 //! **Single Responsibility**: This module ONLY handles body-local init lowering.
 //! It does NOT:
 //! - Store variables (that's LoopBodyLocalEnv)
-//! - Resolve variable priority (that's UpdateEnv)
+//! - Resolve variable priority (that's ScopeManager / ConditionEnv)
 //! - Emit update instructions (that's CarrierUpdateEmitter)
 //!
 //! ## Box-First Design

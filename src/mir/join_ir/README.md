@@ -66,7 +66,7 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
   - `condition_to_joinir.rs`
   - `condition_var_extractor.rs`
   - `scope_manager.rs`
-  - `update_env.rs`
+  - `update_env.rs` (test-only legacy harness)
 - `lowering` loop-route cluster
   - `loop_form_intake.rs`
   - `loop_route_validator.rs`

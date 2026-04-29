@@ -9,7 +9,7 @@
 //! **Single Responsibility**: This module ONLY handles body-local variable storage.
 //! It does NOT:
 //! - Resolve condition variables (that's ConditionEnv)
-//! - Perform variable resolution priority logic (that's UpdateEnv)
+//! - Perform variable resolution priority logic (that's ScopeManager)
 //! - Lower AST to JoinIR (that's JoinIrBuilder)
 //!
 //! ## Box-First Design

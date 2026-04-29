@@ -61,7 +61,8 @@ pub mod stageb_body;
 pub mod stageb_funcscanner;
 pub mod type_hint_policy; // Phase 65.5: 型ヒントポリシー箱化
 pub mod type_inference; // Phase 65-2-A
-pub mod update_env; // Phase 184: Unified variable resolution for update expressions
+#[cfg(test)]
+pub mod update_env; // Legacy self-test harness for old update-expression env resolution
 pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
 pub(crate) mod value_id_ranges; // Internal ValueId range management
 
