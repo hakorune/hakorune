@@ -29,12 +29,7 @@ pub(in crate::mir::builder) struct ExitMapFacts {
 pub(in crate::mir::builder) enum CleanupKindFacts {
     /// Cleanup vocabulary is kept as a structural slot for CorePlan adoption.
     /// Release extraction currently projects exit usage, not cleanup facts.
-    #[allow(dead_code)]
     Return,
-    #[allow(dead_code)]
-    Break,
-    #[allow(dead_code)]
-    Continue,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
