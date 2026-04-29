@@ -99,7 +99,6 @@ impl CaseALoweringShape {
     /// * `features` - LoopFeatures (structure-based, name-agnostic)
     /// * `carrier_count` - Number of carrier variables from LoopScopeShape
     /// * `has_progress_carrier` - Whether progress carrier exists
-    #[allow(dead_code)]
     pub fn detect_from_features(
         features: &crate::mir::loop_route_detection::LoopFeatures,
         carrier_count: usize,
@@ -127,38 +126,6 @@ impl CaseALoweringShape {
         }
     }
 
-    /// Legacy wrapper: Detect from LoopScopeShape (deprecated, use detect_from_features)
-    ///
-    /// Phase 170-A: Kept for backward compatibility during transition.
-    #[deprecated(
-        since = "Phase 170-A",
-        note = "Use detect_from_features() with LoopFeatures instead"
-    )]
-    #[allow(dead_code)]
-    pub fn detect(scope: &super::shape::LoopScopeShape) -> Self {
-        // Construct minimal LoopFeatures from LoopScopeShape
-        // Note: This loses some information (has_break, has_continue not available)
-        let has_progress_carrier = scope.progress_carrier.is_some();
-        let carrier_count = scope.carriers.len();
-
-        // Carrier names alone are not an update-kind proof.
-        let stub_features = crate::mir::loop_route_detection::LoopFeatures {
-            carrier_count,
-            ..Default::default()
-        };
-
-        Self::detect_from_features(&stub_features, carrier_count, has_progress_carrier)
-    }
-
-    /// Is this a recognized lowering shape?
-    #[allow(dead_code)]
-    pub fn is_recognized(&self) -> bool {
-        !matches!(
-            self,
-            CaseALoweringShape::NotCaseA | CaseALoweringShape::Generic
-        )
-    }
-
     /// Get human-readable name for tracing/debugging
     pub fn name(&self) -> &'static str {
         match self {
@@ -174,8 +141,6 @@ impl CaseALoweringShape {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::BasicBlockId;
-    use std::collections::{BTreeMap, BTreeSet};
 
     #[test]
     fn test_shape_display() {
@@ -193,44 +158,6 @@ mod tests {
         );
         assert_eq!(CaseALoweringShape::Generic.name(), "Generic");
         assert_eq!(CaseALoweringShape::NotCaseA.name(), "NotCaseA");
-    }
-
-    #[test]
-    fn test_is_recognized() {
-        assert!(CaseALoweringShape::StringExamination.is_recognized());
-        assert!(CaseALoweringShape::ArrayAccumulation.is_recognized());
-        assert!(CaseALoweringShape::IterationWithAccumulation.is_recognized());
-        assert!(!CaseALoweringShape::Generic.is_recognized());
-        assert!(!CaseALoweringShape::NotCaseA.is_recognized());
-    }
-
-    fn scope_with_carriers(
-        carriers: &[&str],
-        progress_carrier: Option<&str>,
-    ) -> super::super::shape::LoopScopeShape {
-        super::super::shape::LoopScopeShape {
-            header: BasicBlockId::new(1),
-            body: BasicBlockId::new(2),
-            latch: BasicBlockId::new(3),
-            exit: BasicBlockId::new(4),
-            pinned: BTreeSet::new(),
-            carriers: carriers.iter().map(|name| (*name).to_string()).collect(),
-            body_locals: BTreeSet::new(),
-            exit_live: BTreeSet::new(),
-            progress_carrier: progress_carrier.map(str::to_string),
-            variable_definitions: BTreeMap::new(),
-        }
-    }
-
-    #[test]
-    #[allow(deprecated)]
-    fn case_a_name_only_does_not_synthesize_accumulation() {
-        let scope = scope_with_carriers(&["defs"], Some("defs"));
-
-        assert_eq!(
-            CaseALoweringShape::detect(&scope),
-            CaseALoweringShape::Generic
-        );
     }
 
     #[test]
