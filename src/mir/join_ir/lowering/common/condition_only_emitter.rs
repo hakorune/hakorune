@@ -25,7 +25,7 @@
 //! ```
 //!
 //! ## 配置理由
-//! Phase 92の`body_local_slot.rs`と並べる（`src/mir/join_ir/lowering/common/`）：
+//! `src/mir/join_ir/lowering/common/` に置く：
 //! - body-local変数とConditionOnly変数は密接に関連
 //! - 両方とも「ループbody内でのみ有効」な派生値
 
