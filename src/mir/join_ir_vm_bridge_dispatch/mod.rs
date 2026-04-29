@@ -6,6 +6,7 @@
 //!
 //! 関数名→役割のマッピングを `JOINIR_TARGETS` テーブルで管理し、
 //! 「どの関数が Exec（実行可能）か LowerOnly（検証のみ）か」を明示する。
+//! VM bridge 実行そのものは常に明示 env でだけ有効化する。
 //!
 //! 将来は LoopScopeShape / ExitAnalysis ベースの構造判定に差し替え予定。
 
@@ -40,8 +41,8 @@ use crate::runtime::get_global_ring0;
 ///
 /// # Phase 32 L-4: テーブル駆動ルーティング
 ///
-/// `JOINIR_TARGETS` テーブルから対象関数を探し、`JoinIrBridgeKind` に応じて
-/// Exec（実行）または LowerOnly（検証のみ）のパスに分岐する。
+/// `JOINIR_TARGETS` テーブルから対象関数を探し、関数名ごとの route に分岐する。
+/// `JoinIrBridgeKind` は route の実行範囲を表す metadata として保持する。
 pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
     let flags = JoinIrEnvFlags::from_env();
     let strict = crate::config::env::joinir_strict_enabled();

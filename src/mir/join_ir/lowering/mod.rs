@@ -87,7 +87,7 @@ pub use if_lowering_router::try_lower_if_to_joinir;
 /// これらの関数は Phase 32/33 で LoopToJoinLowerer によって処理されます。
 /// If lowering (Select/IfMerge) の対象から除外することで、Loop/If の責務を明確に分離します。
 ///
-/// Phase 82 SSOT: JOINIR_TARGETS テーブルから Exec 対象を参照
+/// Phase 82 SSOT: JOINIR_TARGETS テーブルから Loop lowering 対象を参照
 /// （テーブルは vm_bridge_dispatch/targets.rs で一元管理）
 ///
 /// ## 対象関数（6本）

@@ -21,7 +21,11 @@ pub struct JoinIrTargetDesc {
     pub func_name: &'static str,
     /// 実行範囲
     pub kind: JoinIrBridgeKind,
-    /// デフォルト有効化（env フラグなしでも JoinIR 経路に入る）
+    /// デフォルト有効化。
+    ///
+    /// `JOINIR_IF_TARGETS` では mainline 対象の判定に使う。Loop bridge
+    /// (`JOINIR_TARGETS`) は常に明示 env でだけ VM bridge に入り、loop
+    /// mainline 判定は登録行の有無だけを見る。
     pub default_enabled: bool,
 }
 
@@ -29,21 +33,21 @@ pub struct JoinIrTargetDesc {
 ///
 /// Phase 32 L-4: 全対象関数を一覧化し、Exec/LowerOnly の区分を明示する。
 /// Phase 82: このテーブルが唯一の SSOT。is_loop_lowered_function() はここから参照。
-/// Phase 182: representative paths 対応（3 upgrades - LOOP ONLY）
+/// Phase 182: representative loop paths inventory（LOOP ONLY）
 /// Phase 184: Loop/If 分離を明文化（If は JOINIR_IF_TARGETS へ）
 ///
 /// **重要**: このテーブルは LOOP lowering 専用です。
 /// If lowering の関数を追加すると、is_loop_lowered_function() で除外され、
 /// if-lowering が機能しなくなります。If 関数は JOINIR_IF_TARGETS で管理。
 ///
-/// | 関数 | Kind | デフォルト有効 | 備考 |
-/// |-----|------|---------------|------|
+/// | 関数 | Kind | Bridge default | 備考 |
+/// |-----|------|----------------|------|
 /// | Main.skip/1 | Exec | No | PHI canary のため env 必須 |
-/// | FuncScannerBox.trim/1 | Exec | Yes | A/B 実証済み、事実上本線 |
-/// | FuncScannerBox.append_defs/2 | Exec | No | Phase 82 SSOT統一で追加 |
-/// | Stage1UsingResolverBox.resolve_for_source/5 | Exec | Yes | Phase 182: LowerOnly→Exec 昇格 |
-/// | StageBBodyExtractorBox.build_body_src/2 | Exec | Yes | Phase 182: LowerOnly→Exec 昇格 |
-/// | StageBFuncScannerBox.scan_all_boxes/1 | Exec | Yes | Phase 182: LowerOnly→Exec 昇格 |
+/// | FuncScannerBox.trim/1 | Exec | No | A/B 実証済み。ただし VM bridge は env 必須 |
+/// | FuncScannerBox.append_defs/2 | LowerOnly | No | Case-A loop lowering target。bridge exec route なし |
+/// | Stage1UsingResolverBox.resolve_for_source/5 | LowerOnly | No | lowering/構造検証のみ。実行は VM Route A |
+/// | StageBBodyExtractorBox.build_body_src/2 | LowerOnly | No | lowering/構造検証のみ。実行は VM Route A |
+/// | StageBFuncScannerBox.scan_all_boxes/1 | LowerOnly | No | lowering/構造検証のみ。実行は VM Route A |
 ///
 /// Phase 181/182 設計ドキュメント:
 /// - docs/private/roadmap2/phases/phase-181/joinir-targets-mapping.md
@@ -59,28 +63,28 @@ pub const JOINIR_TARGETS: &[JoinIrTargetDesc] = &[
     JoinIrTargetDesc {
         func_name: "FuncScannerBox.trim/1",
         kind: JoinIrBridgeKind::Exec,
-        default_enabled: true, // A/B 実証済み、事実上本線
+        default_enabled: false, // VM bridge は env 必須
     },
     JoinIrTargetDesc {
         func_name: "FuncScannerBox.append_defs/2",
-        kind: JoinIrBridgeKind::Exec,
+        kind: JoinIrBridgeKind::LowerOnly,
         default_enabled: false,
     },
-    // Phase 182 昇格: Stage-1/Stage-B infrastructure (LowerOnly → Exec)
+    // Stage-1/Stage-B infrastructure: lowering/structure verification only.
     JoinIrTargetDesc {
         func_name: "Stage1UsingResolverBox.resolve_for_source/5",
-        kind: JoinIrBridgeKind::Exec, // Phase 182: LowerOnly から昇格
-        default_enabled: true,
+        kind: JoinIrBridgeKind::LowerOnly,
+        default_enabled: false,
     },
     JoinIrTargetDesc {
         func_name: "StageBBodyExtractorBox.build_body_src/2",
-        kind: JoinIrBridgeKind::Exec, // Phase 182: LowerOnly から昇格
-        default_enabled: true,
+        kind: JoinIrBridgeKind::LowerOnly,
+        default_enabled: false,
     },
     JoinIrTargetDesc {
         func_name: "StageBFuncScannerBox.scan_all_boxes/1",
-        kind: JoinIrBridgeKind::Exec, // Phase 182: LowerOnly から昇格
-        default_enabled: true,
+        kind: JoinIrBridgeKind::LowerOnly,
+        default_enabled: false,
     },
 ];
 
@@ -191,4 +195,26 @@ pub fn is_if_toplevel_prefix_target(name: &str) -> bool {
     name.starts_with("IfSelectTest.")
         || name.starts_with("IfToplevelTest.")
         || name.starts_with("IfMergeTest.")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn loop_bridge_non_exec_rows_are_marked_lower_only() {
+        for func_name in [
+            "FuncScannerBox.append_defs/2",
+            "Stage1UsingResolverBox.resolve_for_source/5",
+            "StageBBodyExtractorBox.build_body_src/2",
+            "StageBFuncScannerBox.scan_all_boxes/1",
+        ] {
+            let target = JOINIR_TARGETS
+                .iter()
+                .find(|target| target.func_name == func_name)
+                .expect("target row exists");
+            assert_eq!(target.kind, JoinIrBridgeKind::LowerOnly);
+            assert!(!target.default_enabled);
+        }
+    }
 }

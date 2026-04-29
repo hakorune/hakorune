@@ -97,7 +97,7 @@ pub(crate) fn try_run_skip_ws(module: &MirModule, quiet_pipe: bool) -> bool {
 
 /// FuncScannerBox.trim/1 用 JoinIR ブリッジ（Exec: JoinIR→VM 実行まで対応）
 ///
-/// A/B 実証済み、事実上本線。default_enabled=true で env フラグなしでも有効。
+/// A/B 実証済み。ただし VM bridge 実行は env フラグが必要。
 pub(crate) fn try_run_trim(module: &MirModule, quiet_pipe: bool) -> bool {
     let log_enabled = !quiet_pipe && (env::joinir_vm_bridge_debug() || env::cli_verbose_enabled());
     if log_enabled {
