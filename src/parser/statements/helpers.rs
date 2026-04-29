@@ -19,7 +19,7 @@ pub(crate) enum AnnotationSite {
 
 /// Check if token cursor is enabled
 pub(super) fn cursor_enabled() -> bool {
-    std::env::var("NYASH_PARSER_TOKEN_CURSOR").ok().as_deref() == Some("1")
+    crate::config::env::parser_token_cursor_enabled()
 }
 
 impl NyashParser {

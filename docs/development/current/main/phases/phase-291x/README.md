@@ -33,7 +33,8 @@ checkpoint pointer.
 - `cargo test --lib --no-run` is warning-free.
 - The JoinIR / bridge / config-env `dead_code` allowance sweep is closed
   through `291x-775`; the orphan semantics eval scaffold is closed in
-  `291x-777`; the static-box parser seam shelf is closed in `291x-778`.
+  `291x-777`; the static-box parser seam shelf is closed in `291x-778`; parser
+  token-cursor env ownership is centralized in `291x-779`.
 - Remaining cleanup is no longer a known dead shelf in this slice; it is
   structural vocabulary inventory for the next selected lane.
 
@@ -43,11 +44,12 @@ These came from the post-291x-775 read-only worker inventory. Treat each item as
 a separate card; do not mix them with the closed JoinIR / bridge / config-env
 allowance sweep.
 
-- Parser expression cursor:
-  `src/parser/expressions.rs` keeps a broad allowance and the
-  `NYASH_PARSER_TOKEN_CURSOR` bridge. Related cursor code lives in
-  `src/parser/common/mod.rs` and `src/parser/cursor.rs`. Decide legacy parser
-  index vs `TokenCursor` ownership before deleting or gating anything.
+- Parser cursor helper surface:
+  `NYASH_PARSER_TOKEN_CURSOR` env ownership is centralized in `291x-779`, but
+  the broad `src/parser/expressions.rs` allowance and local cursor/common helper
+  `dead_code` allowances still need a separate ownership card. Decide legacy
+  parser index vs `TokenCursor` helper API before deleting or gating those
+  helpers.
 - MIR structural vocabulary:
   `src/mir/policies/cond_profile.rs`, `src/mir/hints.rs`,
   `src/mir/phi_query.rs`, LocalSSA finalizer seams, exit-binding seams, and
@@ -74,6 +76,7 @@ This burst removed or narrowed the active dead-code shelves around:
 - final JoinIR shape allowances
 - orphan semantics eval scaffold and broad semantics module allowance
 - static-box parser seam env direct reads and no-op validator shelf
+- parser token-cursor env direct reads
 
 The durable result is that the scanned JoinIR / bridge / config-env surface no
 longer relies on `#[allow(dead_code)]` to hide known shelves.

@@ -123,6 +123,7 @@ Note:
 | `NYASH_PARSER_STATIC_INIT_STRICT=1` | OFF | Rust AST | static initializer の `static` 判定を strict gate に通す |
 | `NYASH_PARSER_METHOD_PARAM_STRICT=1` | OFF | Rust AST | static box method parameter list の unexpected token を fail-fast する |
 | `NYASH_PARSER_METHOD_BODY_STRICT=1` | OFF | Rust AST | static box method body を strict method-body parser で読む |
+| `NYASH_PARSER_TOKEN_CURSOR=1` | OFF | Rust AST | experimental TokenCursor expression path and newline handling bridge |
 
 Throw surface policy:
 - parser は `throw` を常時拒否する（`[freeze:contract][parser/throw_reserved]`）。

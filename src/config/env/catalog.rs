@@ -397,6 +397,12 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: None,
         },
         EnvVarMeta {
+            name: "NYASH_PARSER_TOKEN_CURSOR",
+            description: "Enable experimental TokenCursor expression parser bridge (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
             name: "NYASH_STRICT_12_7",
             description: "Tokenizer strict 12.7 mode (1=true)",
             applies_to: AppliesTo::Compiler,

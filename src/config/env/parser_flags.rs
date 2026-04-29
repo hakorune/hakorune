@@ -216,3 +216,8 @@ pub fn parser_method_param_strict_enabled() -> bool {
 pub fn parser_method_body_strict_enabled() -> bool {
     env_flag("NYASH_PARSER_METHOD_BODY_STRICT").unwrap_or(false)
 }
+
+/// Experimental TokenCursor parser bridge.
+pub fn parser_token_cursor_enabled() -> bool {
+    env_flag("NYASH_PARSER_TOKEN_CURSOR").unwrap_or(false)
+}
