@@ -363,7 +363,7 @@ pub(super) fn verify_condition_bindings_consistent(boundary: &JoinInlineBoundary
                     "[JoinIRVerifier/Phase135-P1] condition_bindings conflict: join_value {:?} mapped to both {:?} and {:?}\n\
                      Binding names with conflict: check all bindings with join_value={:?}\n\
                      Contract: Same join_value can have multiple names (alias) but must have same host_value.\n\
-                     Fix: Ensure ConditionLoweringBox uses SSOT allocator (ConditionContext.alloc_value).",
+                     Fix: Ensure condition lowering uses the caller-provided SSOT allocator.",
                     binding.join_value, existing_host, binding.host_value, binding.join_value
                 );
             }
@@ -390,7 +390,7 @@ pub(super) fn verify_condition_bindings_consistent(boundary: &JoinInlineBoundary
 /// ```
 ///
 /// This typically happens when:
-/// - ConditionLoweringBox bypasses SSOT allocator and reuses PHI dst ValueIds
+/// - condition lowering bypasses the SSOT allocator and reuses PHI dst ValueIds
 /// - JoinIR merge incorrectly remaps values to PHI dst range
 ///
 /// # Panics
@@ -421,7 +421,7 @@ pub(super) fn verify_header_phi_dsts_not_redefined(
                         "[JoinIRVerifier/Phase135-P1] Header PHI dst {:?} redefined by non-PHI instruction in block {}:\n\
                          Instruction: {:?}\n\
                          Contract: Header PHI dsts must not be reused as dst in other instructions.\n\
-                         Fix: Ensure ConditionLoweringBox uses SSOT allocator (ConditionContext.alloc_value) to avoid ValueId collisions.",
+                         Fix: Ensure condition lowering uses the caller-provided SSOT allocator to avoid ValueId collisions.",
                         dst, block_id.0, instr
                     );
                 }

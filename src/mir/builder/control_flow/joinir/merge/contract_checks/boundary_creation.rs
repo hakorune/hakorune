@@ -83,7 +83,7 @@ pub(in crate::mir::builder::control_flow::joinir) fn verify_boundary_contract_at
                     "[{}] condition_binding '{}' join_value {:?} outside Param region",
                     context, binding.name, binding.join_value
                 ),
-                "use ConditionContext.alloc_value() for JoinIR ValueIds",
+                "use the caller-provided JoinIR ValueId allocator",
             ));
         }
     }

@@ -7,9 +7,10 @@ use crate::mir::join_ir::JoinInst;
 use crate::mir::ValueId;
 use crate::runtime::get_global_ring0;
 
-use super::super::condition_lowerer::{
-    lower_condition_to_joinir, lower_condition_to_joinir_no_body_locals,
-};
+#[cfg(test)]
+use super::super::condition_lowerer::lower_condition_to_joinir;
+use super::super::condition_lowerer::lower_condition_to_joinir_no_body_locals;
+#[cfg(test)]
 use super::super::condition_lowering_box::{ConditionContext, ConditionLoweringBox};
 use super::super::scope_manager::ScopeManager;
 
@@ -165,6 +166,7 @@ impl<'env, 'builder, S: ScopeManager> ExprLowerer<'env, 'builder, S> {
     }
 }
 
+#[cfg(test)]
 impl<'env, 'builder, S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'env, 'builder, S> {
     /// Phase 244: Implement ConditionLoweringBox trait for ExprLowerer
     ///
