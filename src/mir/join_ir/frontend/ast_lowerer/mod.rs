@@ -50,17 +50,12 @@ pub(crate) use stmt_handlers::StatementEffect;
 /// Phase 34-2: Program(JSON v0) から tiny IfSelect ケースを JoinIR に変換
 pub struct AstToJoinIrLowerer {
     pub(crate) next_func_id: u32,
-    #[allow(dead_code)]
-    pub(crate) next_var_id: u32,
 }
 
 impl AstToJoinIrLowerer {
     /// 新しい lowerer を作成
     pub fn new() -> Self {
-        Self {
-            next_func_id: 0,
-            next_var_id: 0,
-        }
+        Self { next_func_id: 0 }
     }
 
     /// Program(JSON v0) → JoinModule

@@ -22,7 +22,6 @@ impl AstToJoinIrLowerer {
     /// ## Panics
     ///
     /// - 未対応の expr 形式（Phase 34-5 は tiny テスト専用）
-    #[allow(dead_code)] // Phase 34-5.4 で lower_if_return_pattern から呼ばれる
     pub(super) fn extract_value(
         &self,
         expr: &serde_json::Value,
