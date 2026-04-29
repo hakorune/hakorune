@@ -28,20 +28,11 @@ Related:
 
 - choose the next compiler-cleanliness lane, or switch to an explicitly
   reopened non-cleanup blocker
-- cleanup checkpoint: latest known card `291x-666`; detailed closed history
+- cleanup checkpoint: latest known card `291x-691`; detailed closed history
   lives in phase card files and `latest_card_path` in `CURRENT_STATE.toml`
-- unified-member property cleanup is closed through `291x-655`
-- parser member syntax SSOT cleanup is landed through `291x-656`
-- planner reject-detail diagnostics cleanup is landed through `291x-657`
-- lower planner compat test-only export pruning is landed through `291x-658`
-- generic-loop canon reverse export pruning is landed through `291x-659`
-- BodyLocalRoute facade pruning is landed through `291x-660`
-- DigitPos reject-message test cleanup is landed through `291x-661`
-- loop-cond feature pipeline re-export pruning is landed through `291x-662`
-- IfPhiJoinFacts alias pruning is landed through `291x-663`
-- LoopContinueOnly recipe re-export pruning is landed through `291x-664`
-- IfPhiJoin recipe re-export pruning is landed through `291x-665`
-- LoopTrueEarlyExit recipe re-export pruning is landed through `291x-666`
+- latest docs/inventory sync: `291x-691` catalogs the remaining cleanup backlog,
+  separates false positives from true-dead shelves, and removes stale
+  `291x-666` pins from current mirrors
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

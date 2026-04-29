@@ -14,6 +14,11 @@ Date: 2025-12-29
 Status: Ready for execution  
 Scope: planner の内部構造だけを Skeleton→Feature の段取りへ寄せる（出力/観測は不変）
 
+> Historical note (2026-04-29): the Step 1 helper names in this staging plan
+> (`infer_skeleton_kind`, `infer_exit_usage`) are now historical vocabulary.
+> Their present cleanup/audit status is tracked from `CURRENT_STATE.toml` via
+> the latest phase-291x card.
+
 ## Objective
 
 - `build_plan_from_facts_ctx()` を「complete route-family 列挙」から、**Skeleton inference → Feature inference → CandidateSet finalize** の段取りへ寄せる

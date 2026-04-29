@@ -11,6 +11,12 @@
 
 Completed the final Tier 3 refinement of `build.rs`, bringing it to its cleanest possible state with all helper logic extracted to focused modules.
 
+> Historical note (2026-04-29): this document records the original extraction
+> of `infer_skeleton_kind()` / `infer_exit_usage()`. Their current ownership is
+> under the phase-291x compiler-cleanliness audit; use `CURRENT_STATE.toml` and
+> the latest phase-291x card for current status instead of treating this file as
+> the live owner map.
+
 ## Tasks Completed
 
 ### Task 9: Create helpers.rs ✅

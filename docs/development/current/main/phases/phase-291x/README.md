@@ -201,6 +201,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-664-loop-continue-only-recipe-reexport-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-665-if-phi-join-recipe-reexport-prune-card.md
   - docs/development/current/main/phases/phase-291x/291x-666-loop-true-early-exit-recipe-reexport-prune-card.md
+  - docs/development/current/main/phases/phase-291x/291x-691-warning-backlog-inventory-doc-sync-card.md
 ---
 
 # Phase 291x: CoreBox Surface Contract Cleanup
@@ -220,7 +221,7 @@ Read these first:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/phase-291x/291x-255-post-birth-cleanup-task-order-card.md`
-3. `docs/development/current/main/phases/phase-291x/291x-666-loop-true-early-exit-recipe-reexport-prune-card.md`
+3. `docs/development/current/main/phases/phase-291x/291x-691-warning-backlog-inventory-doc-sync-card.md`
 4. `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 5. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
 6. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
@@ -264,24 +265,15 @@ in one card.
 
 ## Current Checkpoint
 
-- latest known cleanup checkpoint: `291x-666`
+- latest known cleanup checkpoint: `291x-691`
 - no-growth baseline: `classifiers=0 rows=0`
 - detailed landed history lives in phase card files and the current
   `latest_card_path` in `CURRENT_STATE.toml`
-- closed cleanup bursts:
-  - `291x-575` ordered plan-side compat residue queue through `291x-634`
-  - unified-member property cleanup through `291x-655`
-  - parser member syntax SSOT cleanup through `291x-656`
-  - planner reject-detail diagnostics cleanup through `291x-657`
-  - lower planner compat test-only export pruning through `291x-658`
-  - generic-loop canon reverse export pruning through `291x-659`
-  - BodyLocalRoute facade pruning through `291x-660`
-  - DigitPos reject-message test cleanup through `291x-661`
-  - loop-cond feature pipeline re-export pruning through `291x-662`
-  - IfPhiJoinFacts alias pruning through `291x-663`
-  - LoopContinueOnly recipe re-export pruning through `291x-664`
-  - IfPhiJoin recipe re-export pruning through `291x-665`
-  - LoopTrueEarlyExit recipe re-export pruning through `291x-666`
+- latest docs/inventory sync card: `291x-691-warning-backlog-inventory-doc-sync-card.md`
+- latest inventory baseline: `cargo build --release` reports 48 `nyash-rust (lib)`
+  warnings after the recent low-risk cleanup burst
+- false-positive wall and the next low-risk clusters are catalogued in `291x-691`;
+  use that card before reopening the next code slice
 - next cleanup: choose the next compiler-cleanliness lane; broad
   facts/planner and lower planner compat ownership work must reopen as focused
   BoxShape lanes
@@ -312,6 +304,7 @@ in one card.
 | LoopContinueOnly recipe re-export prune | `291x-664-loop-continue-only-recipe-reexport-prune-card.md` |
 | IfPhiJoin recipe re-export prune | `291x-665-if-phi-join-recipe-reexport-prune-card.md` |
 | LoopTrueEarlyExit recipe re-export prune | `291x-666-loop-true-early-exit-recipe-reexport-prune-card.md` |
+| Warning backlog inventory / docs sync | `291x-691-warning-backlog-inventory-doc-sync-card.md` |
 | Current task-order baseline | `291x-488-current-task-order-baseline-refresh-card.md` |
 | Historical post-birth row-prune order | `291x-255-post-birth-cleanup-task-order-card.md` |
 | CoreMethodContract / Hotline policy | `docs/development/current/main/design/hotline-core-method-contract-ssot.md` |
