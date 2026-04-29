@@ -169,11 +169,12 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
 1) Router registryization（挙動不変）
    - `router.rs` の “候補列挙 + compose 呼び出し” をテーブル化し、見通しを改善する（分岐爆発の抑止）。
 2) Route implementation relocation（挙動不変, legacy numbered/file labels are traceability-only）
-   - `simple_while_minimal.rs` / `loop_with_if_phi_if_sum.rs` 等の “直接MIR構築” を plan/recipe-first（Composer/Normalizer/Parts）側へ移す。
+   - `simple_while_minimal.rs` 等の “直接MIR構築” を plan/recipe-first（Composer/Normalizer/Parts）側へ移す。
    - Scan family direct JoinIR lowerer shelves (`scan_with_init_minimal.rs`, `scan_with_init_reverse.rs`, `split_scan_minimal.rs`, `scan_bool_predicate_minimal.rs`) were retired in `291x-734`; active ownership is `joinir::route_entry` registry + `RecipeComposer` + Facts.
+   - IfPhiJoin direct JoinIR lowerer shelf (`loop_with_if_phi_if_sum`) was retired in `291x-735`; active ownership is `joinir::route_entry` registry + `RecipeComposer::compose_if_phi_join_recipe` + IfPhiJoin Facts.
    - `route_entry` 層は “入口選択と呼び出し” のみ（Verify/Lower の真実は持たない）。
    - Phase‑2/Step1: simple-while route（`simple_while_minimal.rs`; old numbered label is traceability-only） の実装本体を plan 側へ移設。
-   - Phase‑2/Step2: if-phi join route（legacy file label only, `loop_with_if_phi_if_sum.rs`）の実装本体を plan 側へ移設。
+   - Phase‑2/Step2: if-phi join route（old module label `loop_with_if_phi_if_sum` is traceability-only and retired in `291x-735`）の実装本体を plan 側へ移設。
    - Phase‑2/Step3: bool-predicate scan route（old file label `scan_bool_predicate_minimal.rs` is traceability-only and retired in `291x-734`） の実装本体を plan 側へ移設。
    - Phase‑2/Step4: route-prep pipeline scaffold was retired in `291x-713`;
      future shared preprocessing must enter through active Facts/Recipe/Composer

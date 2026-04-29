@@ -34,7 +34,9 @@ Related:
 ### 2) デバッグ出力のクリーンアップ
 
 ファイル:
-- `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs`
+- historical direct lowerer: `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs`
+  - retired in `291x-735`; active IfPhiJoin lowering now goes through
+    `route_entry` registry + `RecipeComposer::compose_if_phi_join_recipe`
 
 問題:
 - 無条件 `eprintln!` が quick smoke の期待出力を壊す

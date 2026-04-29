@@ -67,7 +67,11 @@ let has_if_else_phi = carrier_count > 1;
 
 Current route-family surfaces:
 - `src/mir/builder/control_flow/plan/extractors/if_phi_join.rs`
-- `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs`
+- `src/mir/builder/control_flow/plan/recipe_tree/if_phi_join_composer.rs`
+- route entry: `src/mir/builder/control_flow/joinir/route_entry/registry/handlers/routes.rs`
+
+Historical direct lowerer token `loop_with_if_phi_if_sum` was retired in
+`291x-735`; keep it as traceability only when reading older evidence.
 
 historical path token at the time: old if-phi rejection lane (exact basename omitted here; see the archived evidence lane) under the old `joinir/patterns/` lane
 

@@ -59,12 +59,9 @@ pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carri
 pub(crate) mod loop_view_builder; // Phase 33-23: Loop lowering dispatch
 pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-driven)
 pub mod method_return_hint; // Phase 83: P3-D 既知メソッド戻り値型推論箱
+pub mod min_loop;
 pub(crate) mod return_collector; // Phase 284 P1: Return statement collector SSOT
 pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: loop_continue_only minimal lowerer support
-pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
-                            // Phase 242-EX-A: loop_with_if_phi_minimal removed - replaced by loop_with_if_phi_if_sum
-pub mod loop_with_if_phi_if_sum; // Phase 213: if_phi_join AST-based if-sum lowerer (Phase 242-EX-A: supports complex conditions)
-pub mod min_loop;
 pub mod simple_while_minimal; // Phase 188-Impl-1: loop_simple_while minimal lowerer
 pub mod skip_ws;
 pub mod stage1_using_resolver;
@@ -73,6 +70,7 @@ pub mod stageb_funcscanner;
 pub mod type_hint_policy; // Phase 65.5: 型ヒントポリシー箱化
 pub mod type_inference; // Phase 65-2-A
 pub mod update_env; // Phase 184: Unified variable resolution for update expressions
+pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
 pub(crate) mod value_id_ranges; // Internal ValueId range management
 
 // Re-export public lowering functions

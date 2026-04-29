@@ -28,9 +28,10 @@ valid gate.
 ## Decision
 
 Remove the unused LoopForm route-router surface. Live loop route lowering remains
-owned by the plan/AST route path and the concrete minimal lowerers
-(`loop_with_break_minimal`, `loop_with_if_phi_if_sum`, `simple_while_minimal`,
-and scan/split lowerers).
+owned by the plan/recipe path plus the still-live direct lowerers. Several old
+direct lowerer shelves were retired later (`loop_with_break_minimal` in
+`291x-733`, scan/split shelves in `291x-734`, and `loop_with_if_phi_if_sum` in
+`291x-735`).
 
 ## Changes
 

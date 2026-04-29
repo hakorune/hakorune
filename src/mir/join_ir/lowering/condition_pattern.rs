@@ -168,8 +168,8 @@ pub fn analyze_condition_pattern(cond: &ASTNode) -> ConditionPattern {
             }
 
             // Phase 242-EX-A: Accept any expr CmpOp expr pattern.
-            // The IfPhiJoin-route lowerer (legacy file name contains if_sum,
-            // traceability-only) handles BinaryOp via lower_value_expression.
+            // IfPhiJoin handling now belongs to the recipe/facts route; this
+            // analysis remains a capability view and does not lower expressions.
 
             // Check LHS/RHS patterns
             let left_is_var = matches!(left.as_ref(), ASTNode::Variable { .. });

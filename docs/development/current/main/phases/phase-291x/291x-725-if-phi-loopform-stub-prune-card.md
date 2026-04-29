@@ -16,7 +16,10 @@ Lane: phase-291x CoreBox surface contract cleanup
 
 ## Decision
 
-Keep the `LoopRouteKind::IfPhiJoin` match arm for route-kind exhaustiveness, but make the fallthrough explicit in the router. Live IfPhiJoin lowering remains owned by the plan/AST route path and `loop_with_if_phi_if_sum.rs`.
+Keep the `LoopRouteKind::IfPhiJoin` match arm for route-kind exhaustiveness,
+but make the fallthrough explicit in the router. Live IfPhiJoin lowering remains
+owned by the plan/recipe path. The older direct `loop_with_if_phi_if_sum`
+lowerer shelf was removed later in `291x-735`.
 
 ## Changes
 
