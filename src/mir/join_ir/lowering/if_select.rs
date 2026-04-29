@@ -13,16 +13,9 @@
 use crate::mir::join_ir::JoinInst;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use crate::runtime::get_global_ring0;
-// Phase 63-2: Type hint inference from MIR
-
-// Phase 61-1: If-in-loop context support
-use super::if_phi_context::IfPhiContext;
 
 pub struct IfSelectLowerer {
     debug_level: u8,
-    // Phase 61-1: If-in-loop context (None = Pure If)
-    #[allow(dead_code)]
-    context: Option<IfPhiContext>,
 }
 
 /// If/Else パターンの分類
@@ -54,30 +47,7 @@ struct IfBranch {
 
 impl IfSelectLowerer {
     pub fn new(debug_level: u8) -> Self {
-        Self {
-            debug_level,
-            context: None, // Phase 61-1: デフォルトは Pure If
-        }
-    }
-
-    /// Phase 61-1: If-in-loop 用コンストラクタ
-    ///
-    /// # Arguments
-    ///
-    /// * `debug_level` - デバッグログレベル (0-3)
-    /// * `context` - If-in-loop コンテキスト（carrier_names 情報を含む）
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// let context = IfPhiContext::for_loop_body(carrier_names);
-    /// let lowerer = IfSelectLowerer::with_context(debug_level, context);
-    /// ```
-    pub fn with_context(debug_level: u8, context: IfPhiContext) -> Self {
-        Self {
-            debug_level,
-            context: Some(context),
-        }
+        Self { debug_level }
     }
 
     /// if/else が Select に lowering できるかチェック

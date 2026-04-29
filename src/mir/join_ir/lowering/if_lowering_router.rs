@@ -144,15 +144,8 @@ pub fn try_lower_if_to_joinir(
     }
 
     // 4. IfMerge が失敗したら Select を試行（単一変数shape）
-    // Phase 61-1: context がある場合は with_context() を使用
-    let if_select_lowerer = if let Some(ctx) = context {
-        crate::mir::join_ir::lowering::if_select::IfSelectLowerer::with_context(
-            debug_level,
-            ctx.clone(),
-        )
-    } else {
-        crate::mir::join_ir::lowering::if_select::IfSelectLowerer::new(debug_level)
-    };
+    let if_select_lowerer =
+        crate::mir::join_ir::lowering::if_select::IfSelectLowerer::new(debug_level);
 
     // Phase 185: Remove strict checks from lowerer (thin Result-returning box)
     // Strict mode panic should happen at caller level (if_form.rs), not here
