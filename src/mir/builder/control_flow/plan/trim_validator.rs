@@ -6,12 +6,17 @@
 //! - Whitespace check generation
 //! - Substring argument extraction
 
+#[cfg(test)]
 use crate::ast::ASTNode;
+#[cfg(test)]
 use crate::mir::builder::MirBuilder;
+#[cfg(test)]
 use crate::mir::ValueId;
 
+#[cfg(test)]
 pub(in crate::mir::builder) struct TrimValidator;
 
+#[cfg(test)]
 impl TrimValidator {
     /// Generate MIR for OR chain of whitespace character comparisons
     ///

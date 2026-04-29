@@ -5,13 +5,19 @@
 //! - Trim break condition generation
 //! - Carrier binding setup in ConditionEnv
 
+#[cfg(test)]
 use crate::ast::{ASTNode, Span, UnaryOperator};
+#[cfg(test)]
 use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
+#[cfg(test)]
 use crate::mir::loop_route_detection::support::trim::TrimLoopHelper;
+#[cfg(test)]
 use crate::mir::ValueId;
 
+#[cfg(test)]
 pub(in crate::mir::builder) struct TrimLowerer;
 
+#[cfg(test)]
 impl TrimLowerer {
     /// Generate Trim-specific JoinIR break condition
     ///
