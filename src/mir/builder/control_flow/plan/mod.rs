@@ -148,6 +148,4 @@ pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
 
 // Domain types
-#[cfg(test)]
-pub(in crate::mir::builder) use self::domain::scan_direction_from_step_lit;
 pub(in crate::mir::builder) use self::domain::LoopBreakStepPlacement;

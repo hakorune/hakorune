@@ -15,7 +15,7 @@ use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     cond_profile_from_scan_shapes, match_scan_with_init_shape, ConditionShape,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
-use crate::mir::builder::control_flow::plan::{scan_direction_from_step_lit, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 /// Unified ScanWithInit composer with all v0/v1 gate conditions preserved.
@@ -46,10 +46,10 @@ pub(super) fn try_compose_scan_with_init_unified(
         return Ok(None);
     }
 
-    // v0 gate: scan_direction ±1 のみ
-    let Some(_scan_direction) = scan_direction_from_step_lit(scan.step_lit) else {
+    // v0 gate: scan direction ±1 only.
+    if !matches!(scan.step_lit, 1 | -1) {
         return Ok(None);
-    };
+    }
 
     // v0 gate: shapes_match (完全移植)
     let shapes_match = if matches!(facts.facts.condition_shape, ConditionShape::Unknown) {
