@@ -43,7 +43,8 @@ pub mod if_phi_context; // Phase 61-1
 pub mod if_phi_spec; // Phase 61-2
 pub(crate) mod if_select; // Phase 33: Internal If/Select lowering
 pub mod inline_boundary; // Phase 188-Impl-3: JoinIR→Host boundary
-pub mod inline_boundary_builder; // Phase 200-2: Builder pattern for JoinInlineBoundary
+#[cfg(test)]
+pub mod inline_boundary_builder; // Test-only builder pattern for JoinInlineBoundary
 pub mod join_value_space; // Phase 201: Unified JoinIR ValueId allocation
 pub mod loop_body_local_env; // Phase 184: Body-local variable environment
 pub mod loop_body_local_init; // Phase 186: Body-local init expression lowering
@@ -70,7 +71,7 @@ pub(crate) mod value_id_ranges; // Internal ValueId range management
 
 // Re-export public lowering functions
 pub use funcscanner_trim::lower_funcscanner_trim_to_joinir;
-// Phase 200-2: Builder pattern
+#[cfg(test)]
 pub use inline_boundary_builder::JoinInlineBoundaryBuilder;
 // Phase 31: LoopToJoinLowerer 統一箱
 pub use loop_to_join::LoopToJoinLowerer;
