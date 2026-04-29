@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 /*!
  * Nyash Parser - Expression Parsing Module
  *
@@ -135,66 +134,6 @@ impl NyashParser {
         self.expr_parse_ternary()
     }
 
-    /// デフォルト値（??）: x ?? y => peek x { null => y, else => x }
-    fn parse_coalesce(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_coalesce()
-    }
-
-    /// OR演算子をパース: ||
-    fn parse_or(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_or()
-    }
-
-    /// AND演算子をパース: &&
-    fn parse_and(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_and()
-    }
-
-    /// ビットOR: |
-    pub(crate) fn parse_bit_or(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_bit_or()
-    }
-
-    /// ビットXOR: ^
-    fn parse_bit_xor(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_bit_xor()
-    }
-
-    /// ビットAND: &
-    fn parse_bit_and(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_bit_and()
-    }
-
-    /// 等値演算子をパース: == !=
-    pub(crate) fn parse_equality(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_equality()
-    }
-
-    /// 比較演算子をパース: < <= > >=
-    fn parse_comparison(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_comparison()
-    }
-
-    /// 範囲演算子: a .. b => Range(a,b)
-    fn parse_range(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_range()
-    }
-
-    /// 項をパース: + -
-    fn parse_term(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_term()
-    }
-
-    /// シフトをパース: << >>
-    fn parse_shift(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_shift()
-    }
-
-    /// 因子をパース: * /
-    fn parse_factor(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_factor()
-    }
-
     /// 単項演算子をパース
     pub(crate) fn parse_unary(&mut self) -> Result<ASTNode, ParseError> {
         // debug removed
@@ -269,58 +208,9 @@ impl NyashParser {
 
     // parse_match_expr moved to expr/match_expr.rs as expr_parse_match
 
-    fn parse_literal_only(&mut self) -> Result<crate::ast::LiteralValue, ParseError> {
-        match &self.current_token().token_type {
-            TokenType::STRING(s) => {
-                let v = crate::ast::LiteralValue::String(s.clone());
-                self.advance();
-                Ok(v)
-            }
-            TokenType::NUMBER(n) => {
-                let v = crate::ast::LiteralValue::Integer(*n);
-                self.advance();
-                Ok(v)
-            }
-            TokenType::FLOAT(f) => {
-                let v = crate::ast::LiteralValue::Float(*f);
-                self.advance();
-                Ok(v)
-            }
-            TokenType::TRUE => {
-                self.advance();
-                Ok(crate::ast::LiteralValue::Bool(true))
-            }
-            TokenType::FALSE => {
-                self.advance();
-                Ok(crate::ast::LiteralValue::Bool(false))
-            }
-            TokenType::NULL => {
-                self.advance();
-                Ok(crate::ast::LiteralValue::Null)
-            }
-            TokenType::VOID => {
-                self.advance();
-                Ok(crate::ast::LiteralValue::Void)
-            }
-            _ => {
-                let line = self.current_token().line;
-                Err(ParseError::UnexpectedToken {
-                    found: self.current_token().token_type.clone(),
-                    expected: "literal".to_string(),
-                    line,
-                })
-            }
-        }
-    }
-
     /// 関数・メソッド呼び出しをパース
     fn parse_call(&mut self) -> Result<ASTNode, ParseError> {
         self.expr_parse_call()
-    }
-
-    /// 基本式をパース: リテラル、変数、括弧、this、new、配列リテラル（糖衣）
-    fn parse_primary(&mut self) -> Result<ASTNode, ParseError> {
-        self.expr_parse_primary()
     }
 
     /// from構文をパース: from Parent.method(arguments)

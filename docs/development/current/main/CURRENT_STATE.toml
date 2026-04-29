@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-780. The JoinIR / bridge / config-env dead-code allowance sweep is closed, old semantics and static-box parser shelves are retired, parser token-cursor env ownership is centralized, unused TokenCursor public helpers are removed, `cargo test --lib --no-run` is warning-free, and current docs stay thin. Next work is parser expression/common helper inventory or MIR structural vocabulary inventory as separate focused lanes."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-781. The JoinIR / bridge / config-env dead-code allowance sweep is closed, old semantics and static-box parser shelves are retired, parser token-cursor env ownership is centralized, unused TokenCursor and expression/common helper shelves are removed, `cargo test --lib --no-run` is warning-free, and current docs stay thin. Next work is MIR structural vocabulary inventory as a separate focused lane."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-780"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-780-token-cursor-helper-allowance-prune-card.md"
-latest_card_summary = "Remove unused TokenCursor public helper methods and their obsolete dead-code allowances."
+latest_card = "291x-781"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-781-parser-expression-helper-shelf-prune-card.md"
+latest_card_summary = "Remove unused parser expression/common helper shelves and close the broad expressions dead-code allowance."
 
 current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -72,4 +72,5 @@ landed_tail = [
   "291x-778 parser static-box seam cleanup landed",
   "291x-779 parser token-cursor env cleanup landed",
   "291x-780 token cursor helper allowance prune landed",
+  "291x-781 parser expression helper shelf prune landed",
 ]

@@ -490,26 +490,4 @@ impl NyashParser {
             _ => None,
         }
     }
-
-    /// Small helper: build UnexpectedToken with current token and line
-    #[allow(dead_code)]
-    pub(super) fn err_unexpected<S: Into<String>>(&self, expected: S) -> ParseError {
-        ParseError::UnexpectedToken {
-            found: self.current_token().token_type.clone(),
-            expected: expected.into(),
-            line: self.current_token().line,
-        }
-    }
-
-    /// Expect an identifier and advance. Returns its string or an UnexpectedToken error
-    #[allow(dead_code)]
-    pub(super) fn expect_identifier(&mut self, what: &str) -> Result<String, ParseError> {
-        if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {
-            let out = name.clone();
-            self.advance();
-            Ok(out)
-        } else {
-            Err(self.err_unexpected(what))
-        }
-    }
 }

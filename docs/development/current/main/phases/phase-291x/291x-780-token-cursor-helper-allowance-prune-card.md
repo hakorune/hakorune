@@ -36,6 +36,10 @@ The parser follow-up is now narrower: `src/parser/expressions.rs`,
 `src/parser/common/mod.rs`, and `src/parser/statements/helpers.rs` still need a
 separate expression/common helper ownership inventory.
 
+## Supersession Note
+
+The expression/common helper ownership follow-up was closed by 291x-781.
+
 ## Proof
 
 - `rg -n "peek\\(|peek_nth\\(|get_mode\\(|set_mode\\(|allow\\(dead_code\\)" src/parser/cursor.rs src/parser/expr_cursor.rs -g '*.rs'`
