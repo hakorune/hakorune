@@ -47,8 +47,6 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts(
         );
         return Ok(None);
     };
-    let cond_profile = canon.cond_profile.clone();
-
     let mut matches = Vec::new();
     for loop_var in &canon.loop_var_candidates {
         let Some(loop_increment) =
@@ -106,7 +104,6 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts(
             condition: condition.clone(),
             loop_increment,
             body: RecipeBody::new(flat_body.clone()),
-            cond_profile: cond_profile.clone(),
         });
     }
 

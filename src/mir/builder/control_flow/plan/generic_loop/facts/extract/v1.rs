@@ -90,7 +90,6 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
         );
         return Ok(None);
     };
-    let cond_profile = canon.cond_profile.clone();
     let preferred_loop_var = preferred_loop_var_from_condition(condition);
 
     let mut loop_var_candidates = canon.loop_var_candidates;
@@ -202,11 +201,9 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
             condition: condition.clone(),
             loop_increment,
             body: RecipeBody::new(flat_body.clone()),
-            shape_id,
             body_lowering_policy,
             body_exit_allowed: body_exit_allowed.clone(),
             body_no_exit,
-            cond_profile: cond_profile.clone(),
         });
     }
 
