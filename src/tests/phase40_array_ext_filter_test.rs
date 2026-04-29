@@ -228,7 +228,7 @@ fn phase40_joinir_nested_if_local() {
 // ## Note
 // フルパイプライン統合は非常に複雑なため、Phase 40-3では以下を実装：
 // 1. ✅ Dev flag (HAKO_JOINIR_ARRAY_FILTER)
-// 2. ✅ Public API (lower_loop_with_if_meta, extract_if_in_loop_modified_vars)
+// 2. ✅ Test API (extract_if_in_loop_modified_vars)
 // 3. ✅ Test infrastructure
 // 4. ✅ Phase 40-3.5 A/B route switching実装完了
 //
@@ -243,9 +243,9 @@ fn phase40_joinir_nested_if_local() {
 // ========================================
 //
 // ✅ Step 1: func_meta.rs 作成完了（Phase 40-1.1）
-// ✅ Step 2: lower_loop_with_if_meta() 実装完了（Phase 40-1.1）
+// ✅ Step 2: metadata extraction helper tests retained（Phase 40-1.1）
 // ✅ Step 3: convert_join_module_to_mir_with_meta() 実装完了（Phase 40-1.2）
-// ✅ Step 4: emit_loop_exit_phi_for_if_modified() スケルトン完了（Phase 40-1.2）
+// ✅ Step 4: metadata observation path retained（Phase 40-1.2）
 // ✅ Step 5: Integration test 作成完了（Phase 40-1.2）
 // ✅ Step 6: collect_assigned_vars削除判定完了（削除不可確認）
 //

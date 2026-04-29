@@ -1,5 +1,6 @@
-use super::{loop_routes, AstToJoinIrLowerer, HashSet, JoinModule};
-use crate::mir::join_ir::frontend::func_meta::{JoinFuncMeta, JoinFuncMetaMap};
+use super::AstToJoinIrLowerer;
+#[cfg(test)]
+use super::HashSet;
 
 impl AstToJoinIrLowerer {
     /// Phase 40-1で実装予定: ループ内if文の変数追跡
@@ -75,7 +76,7 @@ impl AstToJoinIrLowerer {
     ///     if_assigned.intersection(loop_vars).cloned().collect()
     /// }
     /// ```
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn extract_if_in_loop_modified_vars(
         &mut self,
         loop_body: &serde_json::Value,
@@ -102,6 +103,7 @@ impl AstToJoinIrLowerer {
     ///
     /// loop body内のif文でのみ代入される変数を抽出する。
     /// これはloop exit PHI生成に必要。
+    #[cfg(test)]
     pub fn extract_if_assigned_vars(
         &mut self,
         body: &serde_json::Value,
@@ -181,7 +183,7 @@ impl AstToJoinIrLowerer {
     /// ```
     /// Result: {x, y}
     ///
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn extract_assigned_vars_from_body(
         &mut self,
         body: &serde_json::Value,
@@ -210,6 +212,7 @@ impl AstToJoinIrLowerer {
     /// # Purpose
     ///
     /// 単一のAST文を処理し、代入された変数を収集する。
+    #[cfg(test)]
     pub(crate) fn extract_assigned_vars_from_stmt(
         &mut self,
         stmt: &serde_json::Value,
@@ -247,101 +250,6 @@ impl AstToJoinIrLowerer {
                 // その他の文は無視（Return, Call, etc.）
             }
         }
-    }
-
-    /// Phase 40-1実験用: array_ext.filter route 専用 lowering
-    ///
-    /// 通常の Simple route ループ lowering に加えて、
-    /// if-in-loop modified varsをJoinFuncMetaMapとして返す。
-    ///
-    /// # Returns
-    /// - `JoinModule`: 通常のJoinIR module
-    /// - `JoinFuncMetaMap`: loop_step関数のif_modified_vars情報
-    ///
-    /// # Phase 40-1専用
-    /// この関数はPhase 40-1 A/Bテスト専用。
-    /// 本番パスでは使わない（`loop_routes::simple::lower()` を使う）。
-    ///
-    /// # Phase 85 Note
-    /// 旧 dispatcher 削除に伴い、`loop_routes::simple::lower()` に委譲
-    #[allow(dead_code)]
-    pub fn lower_loop_with_if_meta(
-        &mut self,
-        program_json: &serde_json::Value,
-    ) -> (JoinModule, JoinFuncMetaMap) {
-        // 1. 通常の JoinModule 生成（loop route lowering に委譲）
-        let module = loop_routes::simple::lower(self, program_json)
-            .expect("Simple route lowering failed in lower_loop_with_if_meta");
-
-        // 2. loop body ASTからif-in-loop modified varsを抽出
-        let loop_body = self.extract_loop_body_from_program(program_json);
-        let loop_vars = self.get_loop_carried_vars_from_program(program_json);
-        let if_modified = self.extract_if_in_loop_modified_vars(&loop_body, &loop_vars);
-
-        // 3. JoinFuncMetaMap組み立て
-        // loop_step関数のIDを特定（通常は2番目の関数、名前に"loop_step"を含む）
-        let mut meta_map = JoinFuncMetaMap::new();
-        if let Some((loop_step_id, _)) = module
-            .functions
-            .iter()
-            .find(|(_, func)| func.name.contains("loop_step"))
-        {
-            meta_map.insert(
-                *loop_step_id,
-                JoinFuncMeta {
-                    if_modified_vars: if if_modified.is_empty() {
-                        None
-                    } else {
-                        Some(if_modified)
-                    },
-                    ..Default::default()
-                },
-            );
-        }
-
-        (module, meta_map)
-    }
-
-    /// loop body ASTを抽出するヘルパー
-    ///
-    /// # Purpose
-    /// Program → defs[0] → body → Loop statement → body のパスでloop bodyを取得
-    pub fn extract_loop_body_from_program(
-        &self,
-        program_json: &serde_json::Value,
-    ) -> serde_json::Value {
-        // Program → defs[0] → body → Loop statement → body
-        program_json["defs"][0]["body"]
-            .as_array()
-            .and_then(|stmts| stmts.iter().find(|s| s["type"] == "Loop"))
-            .and_then(|loop_stmt| loop_stmt.get("body"))
-            .cloned()
-            .unwrap_or(serde_json::Value::Null)
-    }
-
-    /// loop-carried varsを抽出するヘルパー
-    ///
-    /// # Purpose
-    /// loop前に宣言された変数を収集（簡易実装）
-    /// より正確な実装はPhase 40-2で拡張
-    pub fn get_loop_carried_vars_from_program(
-        &self,
-        program_json: &serde_json::Value,
-    ) -> HashSet<String> {
-        let mut vars = HashSet::new();
-        if let Some(body) = program_json["defs"][0]["body"].as_array() {
-            for stmt in body {
-                if stmt["type"] == "Local" {
-                    if let Some(name) = stmt["name"].as_str() {
-                        vars.insert(name.to_string());
-                    }
-                }
-                if stmt["type"] == "Loop" {
-                    break; // loop以降は無視
-                }
-            }
-        }
-        vars
     }
 
     /// Phase 85: Loop body に Break があるかチェック（再帰的探索）
