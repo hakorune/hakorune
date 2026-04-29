@@ -2,23 +2,24 @@
 use super::{JoinIrFunctionConverter, JoinIrVmBridgeError};
 use crate::mir::join_ir::frontend::JoinFuncMetaMap;
 use crate::mir::join_ir::{JoinFuncId, JoinModule};
-use crate::mir::{MirFunction, MirModule};
+use crate::mir::MirModule;
 use std::collections::BTreeMap;
 
 /// Phase 40-1実験用: JoinFuncMetaを使ったMIR変換
 ///
-/// 既存の run_joinir_via_vm() を拡張し、
-/// if_modified_varsがあればloop exit PHIを生成する。
+/// JoinFuncMetaを参照できるMIR変換入口。
 ///
-/// # Phase 40-1専用
-/// この関数はPhase 40-1 A/Bテスト専用。
-/// 本番パスでは使わない（従来のrun_joinir_via_vm()を使う）。
+/// # Role
+/// The standard `run_joinir_via_vm()` path reaches this through
+/// `bridge_joinir_to_mir()`. Tests may call it directly to verify metadata
+/// handling.
 ///
 /// # Architecture
-/// JoinModule → MirModule変換において、JoinFuncMetaを参照してPHI生成を拡張
+/// JoinModule → MirModule変換において、JoinFuncMetaを観測する。
+/// 現在はPHI拡張をここでは生成しない。
 ///
 /// # Returns
-/// - `Ok(MirModule)`: 変換済みMIRモジュール（PHI拡張版）
+/// - `Ok(MirModule)`: 変換済みMIRモジュール
 pub fn convert_join_module_to_mir_with_meta(
     module: &JoinModule,
     meta: &JoinFuncMetaMap,
@@ -80,7 +81,7 @@ pub fn convert_join_module_to_mir_with_meta(
             }
         }
 
-        // 3. Phase 40-1: if_modified_varsがあればloop exit PHI生成
+        // 3. Phase 40-1: if_modified_vars observation
         if let Some(m) = meta.get(func_id) {
             if let Some(if_vars) = &m.if_modified_vars {
                 debug_log!(
@@ -89,8 +90,8 @@ pub fn convert_join_module_to_mir_with_meta(
                     if_vars
                 );
 
-                // TODO(Phase 40-1.2): emit_loop_exit_phi_for_if_modified()実装後に有効化
-                // emit_loop_exit_phi_for_if_modified(&mut mir_func, join_func, if_vars)?;
+                // Metadata observation only. PHI generation belongs in an active
+                // lowering contract with fixtures, not in this bridge helper.
             }
         }
 
@@ -104,51 +105,4 @@ pub fn convert_join_module_to_mir_with_meta(
     }
 
     Ok(mir_module)
-}
-
-/// if-in-loop modified varsに対するloop exit PHI生成
-///
-/// # Purpose
-/// JoinIR Frontendで検出されたif-in-loop修正変数に対して、
-/// loop exit blockにPHI命令を追加する。
-///
-/// # Arguments
-/// - `mir_func`: 変換済みMIR関数（ミュータブル）
-/// - `join_func`: 元のJoinIR関数（メタデータ参照用）
-/// - `if_modified_vars`: if-in-loop修正変数名のセット
-///
-/// # Implementation Note
-/// 現在の実装では、JoinIRのloop_step関数は単一ブロックベースであり、
-/// exit blockの特定が困難。Phase 40-1では**ログ出力のみ**を行い、
-/// 実際のPHI生成はPhase 40-2以降で実装する。
-///
-/// # TODO(Phase 40-2)
-/// - exit block特定ロジック実装
-/// - PHI incoming value特定（header vs loop body）
-/// - PHI命令生成とブロックへの挿入
-#[allow(dead_code)]
-pub(crate) fn emit_loop_exit_phi_for_if_modified(
-    _mir_func: &mut MirFunction,
-    join_func: &crate::mir::join_ir::JoinFunction,
-    if_modified_vars: &std::collections::HashSet<String>,
-) -> Result<(), JoinIrVmBridgeError> {
-    debug_log!(
-        "[Phase 40-1] emit_loop_exit_phi_for_if_modified: func={}, vars={:?}",
-        join_func.name,
-        if_modified_vars
-    );
-
-    // Phase 40-1 minimal implementation: ログ出力のみ
-    // 理由: JoinIRのloop_step関数はtail-recursiveで、exit blockが明示的でない
-    // TODO(Phase 40-2): JoinIR構造を拡張してexit block情報を保持
-
-    if !if_modified_vars.is_empty() {
-        debug_log!(
-            "[Phase 40-1] Would generate {} loop exit PHIs for: {:?}",
-            if_modified_vars.len(),
-            if_modified_vars
-        );
-    }
-
-    Ok(())
 }
