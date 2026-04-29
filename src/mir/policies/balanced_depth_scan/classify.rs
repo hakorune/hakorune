@@ -1,5 +1,4 @@
 use crate::ast::{ASTNode, BinaryOperator, Span};
-use crate::mir::join_ir::lowering::common::balanced_depth_scan_emitter::BalancedDepthScanRecipe;
 use crate::mir::join_ir::lowering::error_tags;
 use crate::mir::join_ir::lowering::loop_update_analyzer::{UpdateExpr, UpdateRhs};
 use crate::mir::join_ir::BinOpKind;
@@ -9,7 +8,7 @@ use std::collections::BTreeMap;
 use super::super::PolicyDecision;
 use super::ast_helpers::{eq_int, eq_str, var};
 use super::extract::{extract_bounded_loop_counter, extract_depth_scan_shape};
-use super::types::BalancedDepthScanPolicyResult;
+use super::types::{BalancedDepthScanPolicyResult, BalancedDepthScanRecipe};
 
 pub fn classify_balanced_depth_scan_array_end(
     condition: &ASTNode,

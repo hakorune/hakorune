@@ -211,8 +211,6 @@ SSOT（設計目標）:
 - Trace（JoinIR ルートの統一トレース）: [`src/mir/builder/control_flow/joinir/trace.rs`](../../../../../src/mir/builder/control_flow/joinir/trace.rs)
 - Error tags（SSOT）: [`src/mir/join_ir/lowering/error_tags.rs`](../../../../../src/mir/join_ir/lowering/error_tags.rs)
 - Loop Canonicalizer（前処理 SSOT）: [`src/mir/loop_canonicalizer/mod.rs`](../../../../../src/mir/loop_canonicalizer/mod.rs)
-- ConditionOnly Derived Slot（Phase 93）: [`src/mir/join_ir/lowering/common/condition_only_emitter.rs`](../../../../../src/mir/join_ir/lowering/common/condition_only_emitter.rs)
-- BodyLocalDerived Slot（Phase 94 / P5b）: [`src/mir/join_ir/lowering/common/body_local_derived_emitter.rs`](../../../../../src/mir/join_ir/lowering/common/body_local_derived_emitter.rs)
 
 ---
 

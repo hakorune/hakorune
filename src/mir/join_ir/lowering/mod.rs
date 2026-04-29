@@ -21,7 +21,6 @@
 
 pub mod canonical_names; // Phase 256 P1.7: SSOT for JoinIR function names (k_exit, loop_step, main)
 pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
-pub(crate) mod carrier_update_emitter; // Phase 179: Carrier update instruction emission
 pub(crate) mod common; // Internal lowering utilities
 pub mod complex_addend_normalizer; // Phase 192: Complex addend normalization (AST preprocessing)
 pub mod condition_env; // Phase 171-fix: Condition expression environment
@@ -58,12 +57,10 @@ pub mod loop_scope_shape;
 pub mod loop_to_join;
 pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carrier semantics
 pub(crate) mod loop_view_builder; // Phase 33-23: Loop lowering dispatch
-pub mod loop_with_break_minimal; // Phase 188-Impl-2: loop_break minimal lowerer
 pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-driven)
 pub mod method_return_hint; // Phase 83: P3-D 既知メソッド戻り値型推論箱
 pub(crate) mod return_collector; // Phase 284 P1: Return statement collector SSOT
 pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: loop_continue_only minimal lowerer support
-pub(crate) mod step_schedule;
 pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
                             // Phase 242-EX-A: loop_with_if_phi_minimal removed - replaced by loop_with_if_phi_if_sum
 pub mod loop_with_if_phi_if_sum; // Phase 213: if_phi_join AST-based if-sum lowerer (Phase 242-EX-A: supports complex conditions)

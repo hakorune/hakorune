@@ -1,8 +1,17 @@
 use crate::ast::ASTNode;
-use crate::mir::join_ir::lowering::common::balanced_depth_scan_emitter::BalancedDepthScanRecipe;
 use crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr;
 use crate::mir::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan;
 use std::collections::BTreeMap;
+
+#[derive(Debug, Clone)]
+pub struct BalancedDepthScanRecipe {
+    pub depth_var: String,
+    pub ch_var: String,
+    pub open: String,
+    pub close: String,
+    pub depth_delta_name: String,
+    pub depth_next_name: String,
+}
 
 #[derive(Debug, Clone)]
 pub struct BalancedDepthScanPolicyResult {
