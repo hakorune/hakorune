@@ -78,12 +78,6 @@ impl BlockAllocator {
     pub fn peek_next(&self) -> u32 {
         self.next_id
     }
-
-    /// Get current next ID and update internal state
-    /// Used for compatibility with existing converter code
-    pub fn next_id_mut(&mut self) -> &mut u32 {
-        &mut self.next_id
-    }
 }
 
 #[cfg(test)]

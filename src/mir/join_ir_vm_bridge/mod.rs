@@ -22,8 +22,6 @@
 //!
 //! Phase 27-shortterm scope: skip_ws で green 化できれば成功
 
-#![allow(dead_code)]
-
 use crate::backend::VMError;
 use crate::mir::join_ir::JoinFuncId;
 
