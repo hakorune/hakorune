@@ -63,7 +63,6 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
 - `lowering` condition cluster
   - `condition_env.rs`
   - `condition_lowering_box.rs`
-  - `condition_pattern.rs`
   - `condition_to_joinir.rs`
   - `condition_var_extractor.rs`
   - `scope_manager.rs`

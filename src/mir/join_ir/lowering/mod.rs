@@ -23,7 +23,6 @@ pub(crate) mod common; // Internal lowering utilities
 pub mod condition_env; // Phase 171-fix: Condition expression environment
 pub(crate) mod condition_lowerer; // Phase 171-fix: Core condition lowering logic
 pub mod condition_lowering_box; // Phase 244: Unified condition lowering interface (trait-based)
-pub mod condition_pattern; // Phase 219-fix: If condition pattern detection (simple vs complex)
 pub mod condition_to_joinir; // Phase 169: JoinIR condition lowering orchestrator (refactored)
 pub(crate) mod condition_var_extractor; // Phase 171-fix: Variable extraction from condition AST
 pub mod debug_output_box; // Phase 85: Centralized debug output management
