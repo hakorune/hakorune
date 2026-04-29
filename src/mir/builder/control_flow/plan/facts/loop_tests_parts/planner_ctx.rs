@@ -1,7 +1,6 @@
 use super::super::try_build_loop_facts_with_ctx;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::planner::PlannerContext;
-use crate::mir::loop_route_detection::LoopRouteKind;
 
 fn v(name: &str) -> ASTNode {
     ASTNode::Variable {
@@ -34,11 +33,7 @@ fn loopfacts_ctx_keeps_simple_while_route_even_when_kind_mismatch() {
         }),
         span: Span::unknown(),
     };
-    let ctx = PlannerContext {
-        route_kind: Some(LoopRouteKind::LoopBreak),
-        in_static_box: false,
-        debug: false,
-    };
+    let ctx = PlannerContext {};
 
     let facts = try_build_loop_facts_with_ctx(&ctx, &condition, &[step]).expect("Ok");
     let facts = facts.expect("Some");
@@ -69,11 +64,7 @@ fn loopfacts_ctx_allows_simple_while_route_when_kind_matches() {
         }),
         span: Span::unknown(),
     };
-    let ctx = PlannerContext {
-        route_kind: Some(LoopRouteKind::LoopSimpleWhile),
-        in_static_box: false,
-        debug: false,
-    };
+    let ctx = PlannerContext {};
 
     let facts = try_build_loop_facts_with_ctx(&ctx, &condition, &[step]).expect("Ok");
     let facts = facts.expect("Some");
@@ -146,16 +137,8 @@ fn loopfacts_ctx_allows_bool_predicate_scan_route_in_static_box() {
         span: Span::unknown(),
     };
     let body = vec![predicate_if, step];
-    let allow_ctx = PlannerContext {
-        route_kind: None,
-        in_static_box: false,
-        debug: false,
-    };
-    let block_ctx = PlannerContext {
-        route_kind: None,
-        in_static_box: true,
-        debug: false,
-    };
+    let allow_ctx = PlannerContext {};
+    let block_ctx = PlannerContext {};
 
     let allow = try_build_loop_facts_with_ctx(&allow_ctx, &condition, &body).expect("Ok");
     assert!(allow
@@ -174,11 +157,7 @@ fn loopfacts_ctx_allows_bool_predicate_scan_route_in_static_box() {
 fn loopfacts_ok_none_when_condition_not_supported() {
     let condition = v("i"); // not `i < n`
     let facts = try_build_loop_facts_with_ctx(
-        &PlannerContext {
-            route_kind: None,
-            in_static_box: false,
-            debug: false,
-        },
+        &PlannerContext {},
         &condition,
         &[],
     )
@@ -214,11 +193,7 @@ fn loopfacts_ok_none_when_step_var_differs_from_condition_var() {
     };
 
     let facts = try_build_loop_facts_with_ctx(
-        &PlannerContext {
-            route_kind: None,
-            in_static_box: false,
-            debug: false,
-        },
+        &PlannerContext {},
         &condition,
         &[step],
     )
