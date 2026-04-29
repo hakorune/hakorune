@@ -2,10 +2,8 @@
 
 pub(in crate::mir::builder) mod context;
 pub(in crate::mir::builder) mod freeze;
-pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod outcome;
 pub(in crate::mir::builder) mod tags;
-pub(in crate::mir::builder) mod validators;
 
 pub(in crate::mir::builder) use context::PlannerContext;
 pub(in crate::mir::builder) use freeze::Freeze;

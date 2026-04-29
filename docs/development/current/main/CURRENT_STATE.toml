@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-29"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is active. The .inc method/box classifier baseline is zero, BuildBox/runtime-meta cleanup is closed, the 291x-575 plan-side compat/facade prune queue is closed through 291x-634, unified-member property cleanup is closed through 291x-655, parser member syntax SSOT cleanup is landed through 291x-656, planner reject-detail diagnostics cleanup is landed through 291x-657, lower planner compat test-only export pruning is landed through 291x-658, generic-loop canon reverse export pruning is landed through 291x-659, BodyLocalRoute facade pruning is landed through 291x-660, DigitPos reject-message test cleanup is landed through 291x-661, loop-cond feature pipeline re-export pruning is landed through 291x-662, IfPhiJoinFacts alias pruning is landed through 291x-663, LoopContinueOnly recipe re-export pruning is landed through 291x-664, IfPhiJoin recipe re-export pruning is landed through 291x-665, LoopTrueEarlyExit recipe re-export pruning is landed through 291x-666, BoolPredicateScan recipe re-export pruning is landed through 291x-667, AccumConstLoop facts fixture observation cleanup is landed through 291x-668, ScanWithInit/SplitScan/LoopBreak/CharMap/ArrayJoin/LoopSimpleWhile recipe re-export pruning is landed through 291x-675, recipe builder and RecipeTree facade pruning is landed through 291x-690, warning-backlog inventory/docs sync is landed through 291x-691, and loop-cond unused entry pruning is landed through 291x-692. Current docs should use `CURRENT_STATE.toml` plus the latest phase-291x card instead of hard-coded checkpoint pins. Broad plan/facts and lower/planner_compat work require focused BoxShape lanes if reopened."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is active. The .inc method/box classifier baseline is zero, BuildBox/runtime-meta cleanup is closed, the 291x-575 plan-side compat/facade prune queue is closed through 291x-634, unified-member property cleanup is closed through 291x-655, parser member syntax SSOT cleanup is landed through 291x-656, planner reject-detail diagnostics cleanup is landed through 291x-657, lower planner compat test-only export pruning is landed through 291x-658, generic-loop canon reverse export pruning is landed through 291x-659, BodyLocalRoute facade pruning is landed through 291x-660, DigitPos reject-message test cleanup is landed through 291x-661, loop-cond feature pipeline re-export pruning is landed through 291x-662, IfPhiJoinFacts alias pruning is landed through 291x-663, LoopContinueOnly recipe re-export pruning is landed through 291x-664, IfPhiJoin recipe re-export pruning is landed through 291x-665, LoopTrueEarlyExit recipe re-export pruning is landed through 291x-666, BoolPredicateScan recipe re-export pruning is landed through 291x-667, AccumConstLoop facts fixture observation cleanup is landed through 291x-668, ScanWithInit/SplitScan/LoopBreak/CharMap/ArrayJoin/LoopSimpleWhile recipe re-export pruning is landed through 291x-675, recipe builder and RecipeTree facade pruning is landed through 291x-690, warning-backlog inventory/docs sync is landed through 291x-691, loop-cond unused entry pruning is landed through 291x-692, and planner dead helper pruning is landed through 291x-693. Current docs should use `CURRENT_STATE.toml` plus the latest phase-291x card instead of hard-coded checkpoint pins. Broad plan/facts and lower/planner_compat work require focused BoxShape lanes if reopened."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-692"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-692-loop-cond-unused-entry-prune-card.md"
-latest_card_summary = "Prune dead loop-cond convenience entrypoints and fix the coupled body-check test import drift."
+latest_card = "291x-693"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-693-planner-dead-helper-prune-card.md"
+latest_card_summary = "Remove dead planner helper and validator shelves after confirming the active planner path reads canonical facts directly."
 
 current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -328,4 +328,5 @@ landed_tail = [
   "291x-606 scan final-values helper owner landed",
   "291x-691 warning backlog inventory and doc sync landed",
   "291x-692 loop-cond unused entry prune landed",
+  "291x-693 planner dead helper prune landed",
 ]
