@@ -1,8 +1,5 @@
 use super::{parts_exit, CondUpdateBranch};
 use crate::ast::{ASTNode, BinaryOperator};
-use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
-    count_control_flow, ControlFlowDetector,
-};
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan};
 use crate::mir::builder::MirBuilder;
@@ -275,11 +272,4 @@ pub(super) fn is_pure_value_expr(ast: &ASTNode) -> bool {
         }
         _ => false,
     }
-}
-
-pub(super) fn body_has_exit(body: &[ASTNode]) -> bool {
-    let mut detector = ControlFlowDetector::default();
-    detector.count_returns = true;
-    let counts = count_control_flow(body, detector);
-    counts.break_count > 0 || counts.continue_count > 0 || counts.return_count > 0
 }
