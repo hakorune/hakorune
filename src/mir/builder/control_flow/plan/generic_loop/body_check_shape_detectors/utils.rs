@@ -78,31 +78,6 @@ pub fn is_loop_var_plus_one(expr: &ASTNode, loop_var: &str) -> bool {
         || (is_loop_var(right.as_ref()) && is_one(left.as_ref()))
 }
 
-/// Check if expression is `loop_var - 1`.
-pub fn is_loop_var_minus_one(expr: &ASTNode, loop_var: &str) -> bool {
-    let ASTNode::BinaryOp {
-        operator: BinaryOperator::Subtract,
-        left,
-        right,
-        ..
-    } = expr
-    else {
-        return false;
-    };
-    let is_loop_var =
-        |node: &ASTNode| matches!(node, ASTNode::Variable { name, .. } if name == loop_var);
-    matches!(
-        (left.as_ref(), right.as_ref()),
-        (
-            node_left,
-            ASTNode::Literal {
-                value: LiteralValue::Integer(1),
-                ..
-            }
-        ) if is_loop_var(node_left)
-    )
-}
-
 /// Matches `loop_var % 10` pattern.
 pub fn matches_mod_ten_of_loop_var(expr: &ASTNode, loop_var: &str) -> bool {
     let ASTNode::BinaryOp {
