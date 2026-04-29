@@ -99,19 +99,9 @@ pub(in crate::mir::builder) fn build_break_exit_plan(depth: usize) -> CoreExitPl
     CoreExitPlan::Break(depth)
 }
 
-/// Build a break-only exit plan.
-pub(in crate::mir::builder) fn build_break_only(depth: usize) -> LoweredRecipe {
-    CorePlan::Exit(build_break_exit_plan(depth))
-}
-
 /// Build a CoreExitPlan::Continue (for ExitIf / low-level usage).
 pub(in crate::mir::builder) fn build_continue_exit_plan(depth: usize) -> CoreExitPlan {
     CoreExitPlan::Continue(depth)
-}
-
-/// Build a continue-only exit plan.
-pub(in crate::mir::builder) fn build_continue_only(depth: usize) -> LoweredRecipe {
-    CorePlan::Exit(build_continue_exit_plan(depth))
 }
 
 #[track_caller]
