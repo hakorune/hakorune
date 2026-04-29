@@ -42,26 +42,6 @@ impl<'a> TokenCursor<'a> {
         })
     }
 
-    /// 次のトークンをピーク
-    #[allow(dead_code)]
-    pub fn peek(&self) -> &Token {
-        self.tokens.get(self.idx + 1).unwrap_or(&Token {
-            token_type: TokenType::EOF,
-            line: 0,
-            column: 0,
-        })
-    }
-
-    /// N番目のトークンをピーク
-    #[allow(dead_code)]
-    pub fn peek_nth(&self, n: usize) -> &Token {
-        self.tokens.get(self.idx + n).unwrap_or(&Token {
-            token_type: TokenType::EOF,
-            line: 0,
-            column: 0,
-        })
-    }
-
     /// 次のトークンに進む（改行を考慮）
     pub fn advance(&mut self) {
         if self.idx < self.tokens.len() {
@@ -220,18 +200,6 @@ impl<'a> TokenCursor<'a> {
                 _ => {}
             }
         }
-    }
-
-    /// モードを取得
-    #[allow(dead_code)]
-    pub fn get_mode(&self) -> NewlineMode {
-        self.mode
-    }
-
-    /// モードを設定
-    #[allow(dead_code)]
-    pub fn set_mode(&mut self, mode: NewlineMode) {
-        self.mode = mode;
     }
 }
 
