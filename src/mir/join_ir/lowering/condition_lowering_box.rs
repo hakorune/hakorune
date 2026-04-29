@@ -94,7 +94,7 @@ pub struct ConditionContext<'a, S: ScopeManager> {
 /// # Example Implementation
 ///
 /// ```ignore
-/// impl<S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'_, '_, S> {
+/// impl<S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'_, S> {
 ///     fn lower_condition(
 ///         &mut self,
 ///         condition: &ASTNode,

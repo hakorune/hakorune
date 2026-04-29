@@ -9,8 +9,9 @@
 //! **Box-First**: ExprLowerer is a "box" that encapsulates expression lowering
 //! logic with clean boundaries: takes AST + ScopeManager, returns ValueId + instructions.
 //!
-//! **Incremental Adoption**: Phase 231 starts with Condition context only.
-//! Future phases will expand to support General expressions (method calls, etc.).
+//! **Incremental Adoption**: Phase 231 exposes Condition context only.
+//! Future phases should add a new context variant together with a live lowering
+//! contract and tests.
 //!
 //! **Fail-Safe**: Unsupported AST nodes return explicit errors, allowing callers
 //! to fall back to legacy paths.

@@ -6,10 +6,6 @@
 pub enum ExprContext {
     /// Loop condition expression (limited subset: comparisons, logical ops)
     Condition,
-
-    /// General expression (future: method calls, box ops, etc.)
-    #[allow(dead_code)] // Phase 231: Not yet implemented
-    General,
 }
 
 /// Phase 231: Expression lowering error

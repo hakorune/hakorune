@@ -43,16 +43,12 @@ use super::super::scope_manager::ScopeManager;
 ///     }
 /// }
 /// ```
-pub struct ExprLowerer<'env, 'builder, S: ScopeManager> {
+pub struct ExprLowerer<'env, S: ScopeManager> {
     /// Scope manager for variable resolution
     scope: &'env S,
 
     /// Expression context (Condition vs General)
     context: ExprContext,
-
-    /// MIR builder (for ValueId allocation, not used in Phase 231)
-    #[allow(dead_code)] // Phase 231: Reserved for future use
-    builder: &'builder mut MirBuilder,
 
     /// Debug flag (inherited from caller)
     debug: bool,
@@ -64,19 +60,18 @@ pub struct ExprLowerer<'env, 'builder, S: ScopeManager> {
     last_instructions: Vec<JoinInst>,
 }
 
-impl<'env, 'builder, S: ScopeManager> ExprLowerer<'env, 'builder, S> {
+impl<'env, S: ScopeManager> ExprLowerer<'env, S> {
     /// Create a new expression lowerer
     ///
     /// # Arguments
     ///
     /// * `scope` - ScopeManager for variable resolution
-    /// * `context` - Expression context (Condition or General)
-    /// * `builder` - MIR builder (for future use)
-    pub fn new(scope: &'env S, context: ExprContext, builder: &'builder mut MirBuilder) -> Self {
+    /// * `context` - Expression context (currently Condition only)
+    /// * `_builder` - Retained for caller compatibility; value allocation is not owned here
+    pub fn new(scope: &'env S, context: ExprContext, _builder: &mut MirBuilder) -> Self {
         Self {
             scope,
             context,
-            builder,
             debug: false,
             last_instructions: Vec::new(),
         }
@@ -108,9 +103,6 @@ impl<'env, 'builder, S: ScopeManager> ExprLowerer<'env, 'builder, S> {
     pub fn lower(&mut self, ast: &ASTNode) -> Result<ValueId, ExprLoweringError> {
         match self.context {
             ExprContext::Condition => self.lower_condition(ast),
-            ExprContext::General => Err(ExprLoweringError::UnsupportedNode(
-                "General expression context not yet implemented (Phase 231)".to_string(),
-            )),
         }
     }
 
@@ -167,7 +159,7 @@ impl<'env, 'builder, S: ScopeManager> ExprLowerer<'env, 'builder, S> {
 }
 
 #[cfg(test)]
-impl<'env, 'builder, S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'env, 'builder, S> {
+impl<'env, S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'env, S> {
     /// Phase 244: Implement ConditionLoweringBox trait for ExprLowerer
     ///
     /// This allows ExprLowerer to be used interchangeably with other condition

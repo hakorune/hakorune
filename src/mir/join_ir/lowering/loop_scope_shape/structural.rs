@@ -81,13 +81,13 @@ impl LoopStructuralAnalysis {
     /// - 出口グループ数の確認
     /// - 非局所 exit の有無確認
     /// - 出口先ブロックの取得
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn exit_analysis(&self) -> &ExitAnalysis {
         &self.exit_analysis
     }
 
     /// progress_carrier の有無
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn has_progress_carrier(&self) -> bool {
         self.has_progress_carrier
     }

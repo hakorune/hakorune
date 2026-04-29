@@ -148,20 +148,6 @@ fn check_progress_update_before(instructions: &[JoinInst], progress_param: Value
     false
 }
 
-/// Verify progress carrier for a generic loop (future extension)
-///
-/// This is a placeholder for Phase 30 where we'll support arbitrary loops.
-#[allow(dead_code)]
-pub fn verify_progress_generic(
-    _join_module: &JoinModule,
-    _loop_func_id: JoinFuncId,
-    _progress_param_index: usize,
-) -> Result<(), ProgressError> {
-    // Phase 30: 汎用ループの progress チェック
-    // 現在は未実装（skip_ws 専用版のみ）
-    Ok(())
-}
-
 // ============================================================================
 // Phase 33-3.2: Select Minimal Invariant Verification
 // ============================================================================
