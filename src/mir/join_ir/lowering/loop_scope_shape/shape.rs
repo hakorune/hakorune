@@ -57,19 +57,13 @@ impl LoopVarClass {
 /// - `progress_carrier`: 進捗チェック用（将来の Verifier で使用予定）
 /// - `variable_definitions`: definition blocks collected from LoopFormIntake snapshots
 ///
-/// # Phase 183-3: Construction Paths
+/// # Phase 183-3: Construction Path
 ///
-/// LoopScopeShape has two construction paths depending on context:
+/// LoopScopeShape construction is owned by the LoopForm-based builder:
 ///
-/// 1. **AST-based** (MIR building): `plan/loop_scope_shape_builder.rs`
-///    - Extracts body_locals from AST nodes
-///    - Used during initial MIR generation from source
-///
-/// 2. **LoopForm-based** (JoinIR lowering): `loop_scope_shape/builder.rs`
-///    - Analyzes LoopForm and LoopFormIntake
-///    - Used during JoinIR lowering from LoopForm
-///
-/// Both paths maintain consistent field initialization and variable classification.
+/// - **LoopForm-based** (JoinIR lowering): `loop_scope_shape/builder.rs`
+/// - analyzes LoopForm and LoopFormIntake
+/// - keeps field initialization and variable classification in one owner
 #[derive(Debug, Clone)]
 pub(crate) struct LoopScopeShape {
     pub header: BasicBlockId,

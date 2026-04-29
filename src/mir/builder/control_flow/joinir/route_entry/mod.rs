@@ -21,11 +21,7 @@
 //! - Eliminates hardcoded variable names and ValueId assumptions
 //! - Supports both single and multi-carrier loop routes
 //!
-//! Phase 33-22: Common Loop Infrastructure
-//! - common_init.rs: CommonPatternInitializer for unified initialization (thin wrapper)
-//!
 //! Phase 171-172: Refactoring Infrastructure
-//! - loop_scope_shape_builder.rs: Unified LoopScopeShape initialization (Issue 4, thin wrapper)
 //! - condition_env_builder.rs: Unified ConditionEnv construction (Issue 5, thin wrapper)
 //!
 //! Phase 33-23: Route-Shape Analyzers (Stage 2)
@@ -33,9 +29,6 @@
 //! Stage 3 + Issue 1: Trim Route Extraction
 //! - trim_validator.rs: Trim whitespace validation and helper generation (moved to plan/)
 //! - trim_lowerer.rs: Trim-specific JoinIR lowering (moved to plan/)
-//!
-//! Phase 179-B: Generic Loop Framework
-//! - route_prep_pipeline.rs: Unified preprocessing pipeline for simple loop families (moved to plan/)
 //!
 //! Phase 91 P5b: Escape Route-Shape Recognizer
 //! - escape_shape_recognizer.rs: P5b (escape sequence handling) route-shape detection
@@ -45,9 +38,6 @@
 //! - route-policy compatibility re-exports have been retired
 //! - Active route/policy owners are addressed by their physical modules
 //!
-//! Phase 255 P2: Common Utilities
-//! - common/: Shared helper functions (moved to plan/, thin wrapper)
-
 pub(in crate::mir::builder) mod registry;
 pub(in crate::mir::builder) mod router;
 

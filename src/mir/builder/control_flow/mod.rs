@@ -10,7 +10,7 @@
 //! # Architecture
 //!
 //! Originally a monolithic 1,632-line file, this module has been modularized
-//! into 19 focused submodules for better maintainability and clarity:
+//! into focused submodules for better maintainability and clarity:
 //!
 //! ## Submodules
 //!
@@ -20,7 +20,6 @@
 //!   - `routing` - Route routing and dispatch
 //!   - `merge` - MIR block merging (5 phases)
 //! - `exception` - Exception handling (try/catch/throw)
-//! - `utils` - Utility functions (loop variable extraction)
 //!
 //! ## Modularization History
 //!
@@ -29,8 +28,7 @@
 //! - Phase 3: JoinIR routing (joinir/routing.rs) ✅
 //! - Phase 4: Merge implementation (joinir/merge/) ✅
 //! - Phase 5: Exception handling (exception/) ✅
-//! - Phase 6: Utility functions (utils.rs) ✅
-//! - Phase 7: Documentation and cleanup ✅
+//! - Phase 6: Documentation and cleanup ✅
 //!
 //! # Design Philosophy
 //!
@@ -51,9 +49,6 @@ pub(in crate::mir::builder) mod joinir;
 
 // Phase 5: Exception handling
 pub(in crate::mir::builder) mod exception;
-
-// Phase 6: Utility functions
-pub(in crate::mir::builder) mod utils;
 
 // Phase 134 P0: Normalization entry point consolidation
 pub(in crate::mir::builder) mod normalization;
@@ -198,16 +193,6 @@ impl super::MirBuilder {
         finally_body: Option<Vec<ASTNode>>,
     ) -> Result<ValueId, String> {
         exception::cf_try_catch(self, try_body, catch_clauses, finally_body)
-    }
-
-    /// Phase 188-Impl-2: Extract loop variable name from condition
-    ///
-    /// For `i < 3`, extracts `i`.
-    /// For `arr.length() > 0`, extracts `arr`.
-    ///
-    /// Delegates to utils::extract_loop_variable_from_condition for implementation.
-    fn extract_loop_variable_from_condition(&self, condition: &ASTNode) -> Result<String, String> {
-        utils::extract_loop_variable_from_condition(condition)
     }
 
     /// Control-flow: throw

@@ -174,21 +174,29 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
    - Phase‑2/Step1: simple-while route（`simple_while_minimal.rs`; old numbered label is traceability-only） の実装本体を plan 側へ移設。
    - Phase‑2/Step2: if-phi join route（legacy file label only, `loop_with_if_phi_if_sum.rs`）の実装本体を plan 側へ移設。
    - Phase‑2/Step3: bool-predicate scan route（`scan_bool_predicate_minimal.rs`; old numbered label is traceability-only） の実装本体を plan 側へ移設。
-   - Phase‑2/Step4: `route_prep_pipeline.rs`（旧: `pattern_pipeline.rs`; legacy file token is traceability-only）を plan 側へ移設。
+   - Phase‑2/Step4: route-prep pipeline scaffold was retired in `291x-713`;
+     future shared preprocessing must enter through active Facts/Recipe/Composer
+     owners instead of reviving `route_prep_pipeline.rs`.
    - Phase‑2/Step5: break-subset orchestration route（old numbered label is traceability-only, old lowering orchestrator wrapper）を plan 側へ移設。
    - Phase‑2/Step6: break-subset input facts route（old numbered label is traceability-only, `loop_break_prep_box.rs`）を plan 側へ移設。
    - Phase‑2/Step7: break-subset policy routing（old numbered label is traceability-only, current path `loop_break_policy_router.rs`）を plan 側へ移設。
    - Phase‑2/Step8: break-subset steps route（old numbered label is traceability-only, `loop_break_steps/`）を plan 側へ移設。
    - Phase‑2/Step9: `conversion_pipeline.rs` を plan 側へ移設。
   - Phase‑2/Step10: trim 系（`trim_loop_lowering.rs` / `trim_lowerer.rs` / `trim_validator.rs`）を plan 側へ移設。
-  - Phase‑2/Step11: loop_true_counter_extractor を plan 側へ移設。
-  - Phase‑2/Step12: loop_scope_shape_builder を plan 側へ移設。
+  - Phase‑2/Step11: loop_true_counter_extractor scaffold was retired in
+    `291x-713`; future loop(true) support must enter through active Facts/Recipe
+    owners with fixtures.
+  - Phase‑2/Step12: loop_scope_shape_builder scaffold was retired in
+    `291x-713`; active LoopScopeShape construction is owned by
+    `src/mir/join_ir/lowering/loop_scope_shape/builder.rs`.
   - Phase‑2/Step13: exit_binding 系（orchestrator/validator/constructor/applicator）を plan 側へ移設。
   - Phase‑2/Step14: condition_env_builder を plan 側へ移設。
   - Phase‑2/Step15: ast_feature_extractor / escape_shape_recognizer を plan 側へ移設。
   - Phase‑2/Step16: route_shape_recognizers を plan 側へ移設。
   - Phase‑2/Step17: policies/ を plan 側へ移設。
-  - Phase‑2/Step18: common_init + common/ を plan 側へ移設。
+  - Phase‑2/Step18: common_init scaffold was retired in `291x-713`; shared
+    route setup must be owned by the active Facts/Recipe/Composer path instead
+    of a dormant initializer.
   - Phase‑2/Step19: read_digits_break_condition_box は historical traceability label として残しつつ、current live owner を `cleanup/policies/` へ寄せた（plan 側は compat surface）。
   - Phase‑2/Step20: body_local_policy を plan 側へ移設。
   - Phase‑2/Step21: expectations を plan 側へ移設。

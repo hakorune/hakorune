@@ -81,12 +81,8 @@ mod loop_scan_methods_v0;
 mod loop_scan_phi_vars_v0;
 // Phase 29bq+: one-shape scan loop coverage (BoxCount)
 mod loop_scan_v0;
-// Phase 29bq+: Loop scope shape builder moved to plan side
-mod loop_scope_shape_builder;
 // Phase 29bq P2: loop(true) break/continue coverage
 mod loop_true_break_continue;
-// Phase 29bq+: loop(true) counter extractor moved to plan side
-mod loop_true_counter_extractor;
 // Phase 12: Unified nested loop depth1 module (consolidates 4 variants)
 mod nested_loop_depth1;
 // Phase 29bq+: Shared nested loop plan lowering helper
@@ -118,16 +114,11 @@ pub(in crate::mir::builder) mod single_planner;
 
 // Layer 8: Utilities (ユーティリティ)
 // 共通機能・ポリシー
-// Phase 29bq+: Common route helpers moved to plan side
-// Phase 29bq+: Common route initializer moved to plan side
-mod common_init;
 // Layer 9: Legacy/Scaffolding (残骸・足場)
 // 歴史的経緯で残存、将来的には整理予定
 // Phase 29bq+: Condition env builder moved to plan side
 mod condition_env_builder;
-// Phase 29bq+: Route prep pipeline moved to plan side (patterns layer thin)
 mod plan_build_session;
-mod route_prep_pipeline;
 
 // ============================================================================
 // Entrypoints (SSOT)

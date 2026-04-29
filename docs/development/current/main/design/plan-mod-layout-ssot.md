@@ -92,7 +92,6 @@ single_planner - Plan order 管理
 policies      - Plan policies
 extractors    - AST 抽出
 observability  - FlowBox タグ (debug/dev)
-common_init    - 共通初期化
 common         - 共通ヘルパー
 route_shape_recognizers - route recognizers
 ```
@@ -105,7 +104,6 @@ condition_env_builder - 条件環境ビルダー
 ast_feature_extractor - AST feature 抽出
 escape_shape_recognizer - エスケープパターン認識
 plan_build_session - emit/seal 設計セッション
-route_prep_pipeline - ルート前処理パイプライン
 ```
 
 ---
