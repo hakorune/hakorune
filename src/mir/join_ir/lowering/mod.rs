@@ -27,7 +27,6 @@ pub mod condition_pattern; // Phase 219-fix: If condition pattern detection (sim
 pub mod condition_to_joinir; // Phase 169: JoinIR condition lowering orchestrator (refactored)
 pub(crate) mod condition_var_extractor; // Phase 171-fix: Variable extraction from condition AST
 pub mod debug_output_box; // Phase 85: Centralized debug output management
-pub mod digitpos_condition_normalizer; // Phase 224-E: DigitPos condition normalizer (digit_pos < 0 → !is_digit_pos)
 pub mod error_tags; // Phase 86: Centralized error message formatting
 pub(crate) mod exit_args_resolver; // Internal exit argument resolution
 pub mod expr_lowerer; // Phase 231: Unified expression lowering with scope management
