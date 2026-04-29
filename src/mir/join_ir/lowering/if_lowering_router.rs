@@ -59,16 +59,11 @@ use crate::runtime::get_global_ring0;
 /// - 1 variable → Select
 /// - 2+ variables → IfMerge
 ///
-/// Phase 61-1: If-in-loop support
-/// - `context` parameter: If-in-loop context (carrier_names for loop variables)
-/// - None = Pure If, Some(_) = If-in-loop
-///
 /// Returns Some(JoinInst::Select) or Some(JoinInst::IfMerge) if a supported shape matched, None otherwise.
 pub fn try_lower_if_to_joinir(
     func: &MirFunction,
     block_id: BasicBlockId,
     debug: bool,
-    context: Option<&crate::mir::join_ir::lowering::if_phi_context::IfPhiContext>, // Phase 61-1: If-in-loop context
 ) -> Option<JoinInst> {
     // 1. dev/Core トグルチェック
     //
@@ -121,15 +116,8 @@ pub fn try_lower_if_to_joinir(
 
     // 3. Phase 33-7: IfMerge を優先的に試行（複数変数shape）
     //    IfMerge が成功すればそれを返す、失敗したら Select を試行
-    // Phase 61-1: context がある場合は with_context() を使用
-    let if_merge_lowerer = if let Some(ctx) = context {
-        crate::mir::join_ir::lowering::if_merge::IfMergeLowerer::with_context(
-            debug_level,
-            ctx.clone(),
-        )
-    } else {
-        crate::mir::join_ir::lowering::if_merge::IfMergeLowerer::new(debug_level)
-    };
+    let if_merge_lowerer =
+        crate::mir::join_ir::lowering::if_merge::IfMergeLowerer::new(debug_level);
 
     if if_merge_lowerer.can_lower_to_if_merge(func, block_id) {
         if let Some(result) = if_merge_lowerer.lower_if_to_if_merge(func, block_id) {

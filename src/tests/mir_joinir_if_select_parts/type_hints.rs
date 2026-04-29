@@ -13,7 +13,7 @@ fn test_type_hint_propagation_simple() {
 
     let func = create_simple_pattern_mir_with_const();
     let entry_block = func.entry_block;
-    let result = try_lower_if_to_joinir(&func, entry_block, true, None);
+    let result = try_lower_if_to_joinir(&func, entry_block, true);
 
     assert!(
         result.is_some(),
@@ -46,7 +46,7 @@ fn test_p1_ab_type_inference() {
 
     let func = create_simple_pattern_mir_with_const();
     let entry_block = func.entry_block;
-    let join_inst = try_lower_if_to_joinir(&func, entry_block, true, None)
+    let join_inst = try_lower_if_to_joinir(&func, entry_block, true)
         .expect("P1 simple pattern should lower to Select");
 
     if let crate::mir::join_ir::JoinInst::Select { type_hint, .. } = join_inst {

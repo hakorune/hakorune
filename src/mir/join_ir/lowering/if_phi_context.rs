@@ -1,12 +1,13 @@
 //! Phase 61-1: If-in-loop 用 PHI コンテキスト
 //!
-//! loop_builder.rs から carrier_names 情報を JoinIR に渡すための構造体
+//! PhiBuilder/IfPhi contracts で carrier_names 情報を保持するための構造体
 //!
 //! ## 背景
 //!
 //! ループ内の if では、ループキャリア変数に対して「片腕 PHI」が必要になる。
-//! 従来は PhiBuilderBox::set_if_context() で carrier_names を渡していたが、
-//! Phase 61-1 で JoinIR 経路に統一するため、この情報を渡す手段が必要。
+//! 従来は PhiBuilderBox::set_if_context() で carrier_names を渡していた。
+//! IfSelect/IfMerge router は context-free に整理済みで、この型は PHI 契約側の
+//! 観測語彙として保持する。
 //!
 //! ## Phase 61-3 拡張
 //!
@@ -15,10 +16,9 @@
 //! ## 設計
 //!
 //! ```
-//! // loop_builder.rs
 //! let carrier_names = ...;
 //! let context = IfPhiContext::for_loop_body(carrier_names);
-//! try_lower_if_to_joinir(func, block_id, debug, Some(&context));
+//! phi_builder.set_if_context(context);
 //! ```
 //!
 //! ## 責務
@@ -73,13 +73,14 @@ impl IfPhiContext {
     /// ループ外 if 用コンテキスト作成（Phase 61-4）
     ///
     /// ループ外の純粋な if に対しては、carrier_names は空になる。
-    /// これにより、JoinIR は純粋な Select/IfMerge パターンとして処理する。
+    /// IfSelect/IfMerge router は context-free なので、この値は PHI 契約側の
+    /// pure-if 観測にだけ使う。
     ///
     /// # Example
     ///
     /// ```ignore
     /// let context = IfPhiContext::pure_if();
-    /// try_lower_if_to_joinir(func, block_id, debug, Some(&context));
+    /// phi_builder.set_if_context(context);
     /// ```
     pub fn pure_if() -> Self {
         Self {

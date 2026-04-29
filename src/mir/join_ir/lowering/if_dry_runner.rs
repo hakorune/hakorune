@@ -65,7 +65,6 @@ impl IfLoweringDryRunner {
                         func,
                         *block_id,
                         self.debug_level >= 3,
-                        None, // Phase 61-1: Pure If（dry-runは常にPure If）
                     ) {
                         Some(join_inst) => {
                             lowered_count += 1;

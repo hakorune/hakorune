@@ -291,14 +291,10 @@ impl MirBuilder {
 
         if should_try_joinir {
             if let Some(ref func) = self.scope_ctx.current_function {
-                let context =
-                    crate::mir::join_ir::lowering::if_phi_context::IfPhiContext::pure_if();
-
                 match crate::mir::join_ir::lowering::try_lower_if_to_joinir(
                     func,
                     pre_branch_bb,
                     false,
-                    Some(&context),
                 ) {
                     Some(join_inst) => {
                         if joinir_dryrun || joinir_toplevel {
@@ -310,6 +306,8 @@ impl MirBuilder {
                         }
 
                         // PhiSpec 計算
+                        let context =
+                            crate::mir::join_ir::lowering::if_phi_context::IfPhiContext::pure_if();
                         let phi_spec = crate::mir::join_ir::lowering::if_phi_spec::compute_phi_spec_from_joinir(&context, &join_inst);
 
                         if joinir_dryrun {

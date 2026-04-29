@@ -16,7 +16,7 @@ fn test_if_select_pattern_matching() {
 
     let func = create_simple_pattern_mir();
     let entry_block = func.entry_block;
-    let result = try_lower_if_to_joinir(&func, entry_block, true, None);
+    let result = try_lower_if_to_joinir(&func, entry_block, true);
 
     assert!(
         result.is_some(),
@@ -42,7 +42,7 @@ fn test_if_select_pattern_matching() {
 
     let func = create_local_pattern_mir();
     let entry_block = func.entry_block;
-    let result = try_lower_if_to_joinir(&func, entry_block, true, None);
+    let result = try_lower_if_to_joinir(&func, entry_block, true);
 
     assert!(
         result.is_some(),
@@ -70,7 +70,7 @@ fn test_if_select_pattern_matching() {
 
     let func = create_simple_pattern_mir();
     let entry_block = func.entry_block;
-    let result = try_lower_if_to_joinir(&func, entry_block, false, None);
+    let result = try_lower_if_to_joinir(&func, entry_block, false);
 
     if result.is_some() {
         eprintln!("✅ If/Select lowering works under structure-first routing (core always on, no toggles)");
@@ -83,7 +83,7 @@ fn test_if_select_pattern_matching() {
     let mut func = create_simple_pattern_mir();
     func.signature.name = "WrongName.test/1".to_string();
     let entry_block = func.entry_block;
-    let result = try_lower_if_to_joinir(&func, entry_block, true, None);
+    let result = try_lower_if_to_joinir(&func, entry_block, true);
 
     assert!(
         result.is_none(),

@@ -13,7 +13,7 @@ fn test_if_merge_simple_pattern() {
 
     let func = create_if_merge_simple_pattern_mir();
     let entry_block = func.entry_block;
-    let result = try_lower_if_to_joinir(&func, entry_block, true, None);
+    let result = try_lower_if_to_joinir(&func, entry_block, true);
 
     assert!(
         result.is_some(),
@@ -54,7 +54,7 @@ fn test_if_merge_multiple_pattern() {
 
     let func = create_if_merge_multiple_pattern_mir();
     let entry_block = func.entry_block;
-    let result = try_lower_if_to_joinir(&func, entry_block, true, None);
+    let result = try_lower_if_to_joinir(&func, entry_block, true);
 
     assert!(
         result.is_some(),
