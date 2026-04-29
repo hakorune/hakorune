@@ -1,5 +1,3 @@
-#[path = "../../mir_joinir_funcscanner_append_defs.rs"]
-pub mod mir_joinir_funcscanner_append_defs;
 #[path = "../../mir_joinir_funcscanner_trim.rs"]
 pub mod mir_joinir_funcscanner_trim;
 #[path = "../../mir_joinir_if_select/mod.rs"]

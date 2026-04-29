@@ -248,8 +248,8 @@ fn test_all_instruction_types_json() {
 
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::{
-    lower_funcscanner_append_defs_to_joinir, lower_funcscanner_trim_to_joinir,
-    lower_skip_ws_to_joinir, lower_stage1_usingresolver_to_joinir, lower_stageb_body_to_joinir,
+    lower_funcscanner_trim_to_joinir, lower_skip_ws_to_joinir,
+    lower_stage1_usingresolver_to_joinir, lower_stageb_body_to_joinir,
     lower_stageb_funcscanner_to_joinir,
 };
 use crate::mir::MirCompiler;
@@ -263,7 +263,6 @@ const FIXTURE_DIR: &str = "tests/fixtures/joinir";
 enum SnapshotCase {
     SkipWsMin,
     FuncscannerTrimMin,
-    FuncscannerAppendDefsMin,
     Stage1UsingresolverMin,
     StagebBodyMin,
     StagebFuncscannerMin,
@@ -274,7 +273,6 @@ impl SnapshotCase {
         match self {
             Self::SkipWsMin => "v0_skip_ws_min.jsonir",
             Self::FuncscannerTrimMin => "v0_funcscanner_trim_min.jsonir",
-            Self::FuncscannerAppendDefsMin => "v0_funcscanner_append_defs_min.jsonir",
             Self::Stage1UsingresolverMin => "v0_stage1_usingresolver_min.jsonir",
             Self::StagebBodyMin => "v0_stageb_body_min.jsonir",
             Self::StagebFuncscannerMin => "v0_stageb_funcscanner_min.jsonir",
@@ -285,7 +283,6 @@ impl SnapshotCase {
         match self {
             Self::SkipWsMin => "apps/tests/minimal_ssa_skip_ws.hako",
             Self::FuncscannerTrimMin => "lang/src/compiler/tests/funcscanner_trim_min.hako",
-            Self::FuncscannerAppendDefsMin => "apps/tests/funcscanner_append_defs_minimal.hako",
             Self::Stage1UsingresolverMin => "apps/tests/stage1_usingresolver_minimal.hako",
             Self::StagebBodyMin => "apps/tests/stageb_body_extract_minimal.hako",
             Self::StagebFuncscannerMin => "apps/tests/stageb_funcscanner_scan_boxes_minimal.hako",
@@ -296,7 +293,6 @@ impl SnapshotCase {
         match self {
             Self::SkipWsMin => "skip_ws_min",
             Self::FuncscannerTrimMin => "funcscanner_trim_min",
-            Self::FuncscannerAppendDefsMin => "funcscanner_append_defs_min",
             Self::Stage1UsingresolverMin => "stage1_usingresolver_min",
             Self::StagebBodyMin => "stageb_body_min",
             Self::StagebFuncscannerMin => "stageb_funcscanner_min",
@@ -327,9 +323,6 @@ fn generate_joinir_json(case: SnapshotCase) -> Option<String> {
     let join_module = match case {
         SnapshotCase::SkipWsMin => lower_skip_ws_to_joinir(&compiled.module),
         SnapshotCase::FuncscannerTrimMin => lower_funcscanner_trim_to_joinir(&compiled.module),
-        SnapshotCase::FuncscannerAppendDefsMin => {
-            lower_funcscanner_append_defs_to_joinir(&compiled.module)
-        }
         SnapshotCase::Stage1UsingresolverMin => {
             lower_stage1_usingresolver_to_joinir(&compiled.module)
         }
@@ -419,11 +412,6 @@ fn joinir_json_v0_skip_ws_min_matches_fixture() {
 #[test]
 fn joinir_json_v0_funcscanner_trim_min_matches_fixture() {
     run_snapshot_test(SnapshotCase::FuncscannerTrimMin);
-}
-
-#[test]
-fn joinir_json_v0_funcscanner_append_defs_min_matches_fixture() {
-    run_snapshot_test(SnapshotCase::FuncscannerAppendDefsMin);
 }
 
 #[test]

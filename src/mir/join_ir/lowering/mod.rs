@@ -11,7 +11,6 @@
 //! - `skip_ws.rs`: Main.skip/1 の空白スキップ lowering（手書き版＋MIR自動解析版）
 //! - `funcscanner_trim.rs`: FuncScannerBox.trim/1 の trim lowering
 //! - `stage1_using_resolver.rs`: Stage1UsingResolverBox.resolve_for_source entries loop lowering（Phase 27.12）
-//! - `funcscanner_append_defs.rs`: FuncScannerBox._append_defs/2 の配列結合 lowering（Phase 27.14）
 //! - `if_select.rs`: Phase 33 If/Else → Select lowering
 //! - `if_dry_runner.rs`: Phase 33-10 If lowering dry-run スキャナー（箱化版）
 //! - `if_lowering_router.rs`: Phase 33-12 If-expression routing (Select/IfMerge dispatcher)
@@ -35,7 +34,6 @@ pub mod error_tags; // Phase 86: Centralized error message formatting
 pub(crate) mod exit_args_resolver; // Internal exit argument resolution
 pub mod exit_meta_builder; // Phase 118: ExitMeta builder box for if_phi_join route shape
 pub mod expr_lowerer; // Phase 231: Unified expression lowering with scope management
-pub mod funcscanner_append_defs;
 pub mod funcscanner_trim;
 pub(crate) mod generic_case_a; // Phase 192: Modularized Case A lowering
 pub mod generic_type_resolver; // Phase 66: P3-C ジェネリック型推論箱
@@ -72,7 +70,6 @@ pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for s
 pub(crate) mod value_id_ranges; // Internal ValueId range management
 
 // Re-export public lowering functions
-pub use funcscanner_append_defs::lower_funcscanner_append_defs_to_joinir;
 pub use funcscanner_trim::lower_funcscanner_trim_to_joinir;
 // Phase 200-2: Builder pattern
 pub use inline_boundary_builder::JoinInlineBoundaryBuilder;

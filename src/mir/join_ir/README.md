@@ -79,10 +79,11 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
 - `lowering` target-specific lowerers
   - `skip_ws.rs`
   - `funcscanner_trim.rs`
-  - `funcscanner_append_defs.rs`
   - `stage1_using_resolver.rs`
   - `stageb_body.rs`
   - `stageb_funcscanner.rs`
+- `lowering/generic_case_a/*`
+  - active Case-A loop lowerers, including the append-defs effect-step shape
 - bridge fence
   - `join_ir_vm_bridge/`
   - `join_ir_vm_bridge_dispatch/`
