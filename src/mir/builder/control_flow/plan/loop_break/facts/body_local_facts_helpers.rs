@@ -23,7 +23,6 @@ pub(super) fn try_extract_loop_break_body_local_facts_inner(
         return Ok(Some(LoopBreakBodyLocalFacts {
             loop_var,
             body_local_var,
-            break_uses_body_local: true,
             shape,
         }));
     }
@@ -34,7 +33,6 @@ pub(super) fn try_extract_loop_break_body_local_facts_inner(
         return Ok(Some(LoopBreakBodyLocalFacts {
             loop_var,
             body_local_var,
-            break_uses_body_local: true,
             shape,
         }));
     }

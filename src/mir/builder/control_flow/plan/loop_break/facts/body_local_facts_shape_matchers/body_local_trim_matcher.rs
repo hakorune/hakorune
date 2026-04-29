@@ -159,7 +159,6 @@ mod tests {
         let facts = facts.expect("Some facts");
         assert_eq!(facts.loop_var, "i");
         assert_eq!(facts.body_local_var, "seg");
-        assert!(facts.break_uses_body_local);
         match facts.shape {
             LoopBodyLocalShape::TrimSeg { s_var, i_var } => {
                 assert_eq!(s_var, "s");

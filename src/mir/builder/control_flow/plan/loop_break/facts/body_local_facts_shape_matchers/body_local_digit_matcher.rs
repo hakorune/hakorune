@@ -160,7 +160,6 @@ mod tests {
         let facts = facts.expect("Some facts");
         assert_eq!(facts.loop_var, "p");
         assert_eq!(facts.body_local_var, "digit_pos");
-        assert!(facts.break_uses_body_local);
         match facts.shape {
             LoopBodyLocalShape::DigitPos { digits_var, ch_var } => {
                 assert_eq!(digits_var, "digits");

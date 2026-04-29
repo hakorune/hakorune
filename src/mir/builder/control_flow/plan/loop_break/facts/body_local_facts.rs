@@ -15,7 +15,6 @@ pub(in crate::mir::builder) enum LoopBodyLocalShape {
 pub(in crate::mir::builder) struct LoopBreakBodyLocalFacts {
     pub loop_var: String,
     pub body_local_var: String,
-    pub break_uses_body_local: bool,
     pub shape: LoopBodyLocalShape,
 }
 
