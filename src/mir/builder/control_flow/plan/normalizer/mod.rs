@@ -22,6 +22,7 @@ pub(in crate::mir::builder) mod helpers_pure_value;
 pub(in crate::mir::builder) mod helpers_value;
 #[cfg(test)]
 mod loop_break;
+#[cfg(test)]
 pub(in crate::mir::builder) mod simple_while_coreloop_builder;
 
 // Cond lowering modules (flattened from cond_lowering/)

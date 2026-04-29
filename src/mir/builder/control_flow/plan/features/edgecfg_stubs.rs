@@ -56,6 +56,7 @@ pub(in crate::mir::builder) fn build_loop_header_branch_with_args(
     build_branch_stub(header_bb, cond, body_bb, body_args, after_bb, after_args)
 }
 
+#[cfg(test)]
 pub(in crate::mir::builder) fn build_loop_cond_branch(
     from: BasicBlockId,
     cond: ValueId,
