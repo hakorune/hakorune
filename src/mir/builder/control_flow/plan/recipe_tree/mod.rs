@@ -47,7 +47,7 @@ mod contracts;
 mod matcher;
 pub(in crate::mir::builder) use matcher::RecipeMatcher;
 mod verified;
-pub(in crate::mir::builder) use contracts::{RecipeContract, RecipeContractKind, StmtConstraint};
+pub(in crate::mir::builder) use contracts::{RecipeContract, RecipeContractKind};
 pub(in crate::mir::builder::control_flow::plan) use verified::verify_block_contract_with_pre;
 pub(in crate::mir::builder) use verified::{
     verify_port_sig_obligations_if_enabled, VerifiedRecipeBlock,

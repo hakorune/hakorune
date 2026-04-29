@@ -3,7 +3,7 @@
 //! Matches Facts to RecipeContract using route semantics.
 //! Phase C2: centralizes loop-break verification.
 
-use super::{RecipeContract, RecipeContractKind, StmtConstraint};
+use super::{RecipeContract, RecipeContractKind};
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::ExitKindFacts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
@@ -231,8 +231,6 @@ impl RecipeMatcher {
                 has_continue,
                 has_return,
             },
-            required_exits: vec![],
-            allowed_stmts: StmtConstraint::Any,
         }))
     }
 }

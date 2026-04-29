@@ -129,14 +129,11 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
                 RecipeMatcher::try_match_loop(facts).map_err(|freeze| freeze.to_string())?;
             if crate::config::env::joinir_dev::debug_enabled() {
                 if let Some(ref c) = contract {
-                    let (has_break, has_continue, has_return) = match &c.kind {
-                        RecipeContractKind::LoopWithExit {
-                            has_break,
-                            has_continue,
-                            has_return,
-                        } => (*has_break, *has_continue, *has_return),
-                        _ => (false, false, false),
-                    };
+                    let RecipeContractKind::LoopWithExit {
+                        has_break,
+                        has_continue,
+                        has_return,
+                    } = &c.kind;
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
                         "[recipe:match] kind=LoopWithExit break={} continue={} return={}",
