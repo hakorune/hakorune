@@ -2,7 +2,7 @@
 //! Safe access (?.), default (??), pipeline (|>), compound-assign (+=/-=/*=/=), range (..)
 //! Note: This is a shallow AST-to-AST transform; semantic phases remain unchanged.
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::ast::ASTNode;
 use crate::syntax::sugar_config::{SugarConfig, SugarLevel};
 
 pub fn apply_sugar(ast: ASTNode, cfg: &SugarConfig) -> ASTNode {
@@ -157,18 +157,5 @@ fn rewrite(ast: ASTNode) -> ASTNode {
             span,
         },
         other => other,
-    }
-}
-
-#[allow(dead_code)]
-fn make_eq_null(expr: ASTNode) -> ASTNode {
-    ASTNode::BinaryOp {
-        operator: BinaryOperator::Equal,
-        left: Box::new(expr),
-        right: Box::new(ASTNode::Literal {
-            value: LiteralValue::Null,
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
     }
 }

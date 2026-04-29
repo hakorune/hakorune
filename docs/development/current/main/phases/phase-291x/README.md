@@ -36,7 +36,8 @@ checkpoint pointer.
   `291x-777`; the static-box parser seam shelf is closed in `291x-778`; parser
   token-cursor env ownership is centralized in `291x-779`; unused TokenCursor
   public helpers are removed in `291x-780`; parser expression/common helper
-  shelves are closed in `291x-781`.
+  shelves are closed in `291x-781`; residual parser sugar/ternary helper
+  allowances are closed in `291x-782`.
 - Remaining cleanup is no longer a known dead shelf in this slice; it is
   structural vocabulary inventory for the next selected lane.
 
@@ -75,6 +76,7 @@ This burst removed or narrowed the active dead-code shelves around:
 - parser token-cursor env direct reads
 - unused TokenCursor public helper methods and their local allowances
 - unused parser expression/common helper shelves and broad expressions allowance
+- residual parser sugar/ternary local helper allowances
 
 The durable result is that the cleaned JoinIR / bridge / config-env and parser
 slices no longer rely on broad `#[allow(dead_code)]` shelves.

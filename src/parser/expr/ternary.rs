@@ -4,12 +4,6 @@ use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
 #[inline]
-#[allow(dead_code)]
-fn is_sugar_enabled() -> bool {
-    crate::parser::sugar_gate::is_enabled()
-}
-
-#[inline]
 fn wrap_ternary_branch_expr(expr: ASTNode) -> ASTNode {
     // Keep ternary branches in expression lane.
     // Without this wrapper, nested ternary can be treated as statement-if in block lowering.

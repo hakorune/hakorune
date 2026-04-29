@@ -45,6 +45,11 @@ remove their obsolete local allowances.
 The worker-listed parser cleanup candidates are now closed for this pass. The
 remaining queue is MIR structural vocabulary / owner-seam inventory.
 
+## Supersession Note
+
+Residual parser sugar/ternary local allowances found by the final broad parser
+scan were closed by 291x-782.
+
 ## Proof
 
 - `rg -n "allow\\(dead_code\\)" src/parser/expressions.rs src/parser/common/mod.rs src/parser/statements/helpers.rs -g '*.rs'`
