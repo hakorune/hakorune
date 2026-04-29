@@ -55,7 +55,7 @@ mod tests;
 
 // Phase 190: Use modularized converters
 pub(crate) use bridge::{bridge_joinir_to_mir, bridge_joinir_to_mir_with_meta};
-#[allow(unused_imports)]
+#[cfg(test)]
 pub(crate) use convert::convert_joinir_to_mir;
 pub(crate) use convert::convert_mir_like_inst; // helper for sub-modules
 pub(crate) use joinir_function_converter::JoinIrFunctionConverter;

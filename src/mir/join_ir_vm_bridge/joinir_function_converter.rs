@@ -19,7 +19,7 @@ impl JoinIrFunctionConverter {
     /// JoinIR モジュール全体を MIR モジュールに変換
     ///
     /// Phase 32 L-2.2 Step-3: テストから呼び出し可能に `pub(crate)` 化
-    #[cfg_attr(not(test), allow(dead_code))]
+    #[cfg(test)]
     pub(crate) fn convert_joinir_to_mir(
         join_module: &JoinModule,
     ) -> Result<MirModule, JoinIrVmBridgeError> {

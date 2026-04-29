@@ -13,7 +13,7 @@ use super::joinir_function_converter::JoinIrFunctionConverter;
 /// Phase 190: JoinIR → MIR 変換器（統合エントリーポイント）
 ///
 /// Phase 32 L-2.2 Step-3: テストから呼び出し可能に `pub(crate)` 化
-#[cfg_attr(not(test), allow(dead_code))]
+#[cfg(test)]
 pub(crate) fn convert_joinir_to_mir(
     join_module: &JoinModule,
 ) -> Result<MirModule, JoinIrVmBridgeError> {
