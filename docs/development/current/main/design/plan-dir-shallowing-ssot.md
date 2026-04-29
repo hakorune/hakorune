@@ -140,7 +140,7 @@ recipe_tree/
 
 **→ 提案**: route別 builder/composer を `recipe_tree/<route>_builder.rs` と `recipe_tree/<route>_composer.rs` へ集約 (23ファイルをフラット化、legacy numbered labels は traceability-only)
 
-### 深さ3の例: composer/coreloop_v0/ と coreloop_v1/
+### 深さ3の例: composer/coreloop_v0/ と coreloop_v1/（retired 291x-754）
 
 ```
 composer/coreloop_v0/
@@ -152,7 +152,7 @@ composer/coreloop_v1/
   └── tests.rs
 ```
 
-**→ 提案**: `composer/coreloop_v0_*.rs` と `composer/coreloop_v1_*.rs` (6ファイルをフラット化)
+**→ 結果**: flatten 後に cfg-test shelf として残っていたが、291x-754 で retired。Current composition should enter through active recipe-tree composers.
 
 ---
 
@@ -241,23 +241,11 @@ generic_loop/normalizer.rs
 
 **命名規則**: `generic_loop/<component>_<module>.rs`
 
-#### 5. composer/ (13ファイル → 1階層)
+#### 5. composer/ (old v0/v1 shelf retired)
 
-**現在**:
-```
-composer/coreloop_v0/*.rs (3ファイル)
-composer/coreloop_v1/*.rs (3ファイル)
-composer/*.rs (7ファイル)
-```
-
-**提案**:
-```
-composer/coreloop_v0_*.rs (3ファイル)
-composer/coreloop_v1_*.rs (3ファイル)
-composer/*.rs (既存維持)
-```
-
-**命名規則**: `composer/<version>_<component>.rs`
+291x-754 removed the old cfg-test `coreloop_v0` / `coreloop_v1` /
+`coreloop_single_entry` shelf. Keep new route composition in active
+recipe-tree composers instead of adding versioned composer files.
 
 #### 6. recipe_tree/ (28ファイル → 1階層; route別 builder/composer)
 

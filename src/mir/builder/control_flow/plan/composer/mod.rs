@@ -1,20 +1,10 @@
 //! Phase 29ao P0: CorePlan composer scaffold (CanonicalLoopFacts -> CorePlan)
 //!
 //! SSOT: docs/development/current/main/design/plan-dir-shallowing-ssot.md
-//! Flattened: coreloop_v0/ and coreloop_v1/ moved to composer/ root
+//! Old cfg-test versioned coreloop shelves retired in 291x-754.
 
 mod branchn_return;
 pub(super) mod coreloop_gates;
-#[cfg(test)]
-pub(super) mod coreloop_single_entry;
-#[cfg(test)]
-mod coreloop_v0;
-#[cfg(test)]
-mod coreloop_v0_tests;
-#[cfg(test)]
-pub(super) mod coreloop_v1;
-#[cfg(test)]
-mod coreloop_v1_tests;
 pub(super) mod coreloop_v2_nested_minimal;
 mod shadow_adopt;
 

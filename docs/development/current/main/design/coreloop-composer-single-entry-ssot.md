@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Retired
 Scope: CoreLoopComposer single entry (feature-driven)
 Related:
 - docs/development/current/main/design/coreplan-flowbox-interface-ssot.md
@@ -9,6 +9,12 @@ Related:
 ---
 
 # CoreLoopComposer single entry SSOT
+
+Retired: 291x-754 removed the cfg-test-only `coreloop_v0` / `coreloop_v1` /
+`coreloop_single_entry` composer shelf. This document is retained as historical
+context for the retired version-selection design. Current route composition
+should use active Facts/Recipe/Composer owners and `recipe_tree/*_composer.rs`;
+do not revive this single-entry shelf.
 
 目的: `coreloop_v0/v1/v2` を外に露出せず、**facts/features 駆動の単一入口**で CoreLoop 合成を行う。
 
