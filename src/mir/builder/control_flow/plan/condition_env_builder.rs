@@ -26,15 +26,23 @@
 //! )?;
 //! ```
 
+#[cfg(test)]
 use crate::ast::ASTNode;
+#[cfg(test)]
 use crate::mir::join_ir::lowering::condition_env::{ConditionBinding, ConditionEnv};
+#[cfg(test)]
 use crate::mir::join_ir::lowering::condition_to_joinir::extract_condition_variables;
+#[cfg(test)]
 use crate::mir::join_ir::lowering::join_value_space::JoinValueSpace;
+#[cfg(test)]
 use crate::mir::ValueId;
+#[cfg(test)]
 use std::collections::BTreeMap;
 
+#[cfg(test)]
 pub(crate) struct ConditionEnvBuilder;
 
+#[cfg(test)]
 impl ConditionEnvBuilder {
     /// Phase 201: Build ConditionEnv using JoinValueSpace (disjoint ValueId regions)
     ///
