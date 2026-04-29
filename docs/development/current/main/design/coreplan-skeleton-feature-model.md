@@ -17,6 +17,8 @@ Related:
 - **CorePlan は構造SSOT**（emit/merge は CorePlan/Frag 以外を再解析しない）
 - **Recipe / VerifiedRecipe は意味の入口**（受理契約はここで閉じる）
 - numbered route labels は入口の分岐名ではなく、**(Skeleton, FeatureSet)** の合成へ落とす
+- 291x-757: Rust の loop-facts `SkeletonKind` は CorePlan の If2/BranchN
+  語彙を mirror しない。If2/BranchN の構造SSOTは CorePlan / FlowBox 側。
 
 ## 1. Skeleton（骨格）= まず一意に決める
 

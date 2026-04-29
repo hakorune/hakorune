@@ -40,6 +40,8 @@ FlowBox は最低限、次を持つ（概念インターフェース）。
 ## 3. Skeleton / Feature との関係
 
 - Skeleton（骨格）は FlowBox の “構造カテゴリ”（Loop/If2/BranchN/Seq/LeafEffects 等）。
+- 291x-757: loop-facts `SkeletonKind` は Loop/StraightLine に縮退済み。
+  FlowBox の If2/BranchN 語彙は `CorePlan::{If,BranchN}` から観測する。
 - Feature（直交特徴）は FlowBox の “属性”。
   - ExitMap / Cleanup / ValueJoin 等は、**別パターンを増やさず** FlowBox に付与する。
 

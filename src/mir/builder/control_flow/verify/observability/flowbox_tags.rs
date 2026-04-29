@@ -61,8 +61,6 @@ pub(in crate::mir::builder) fn box_kind_from_facts(
     };
     match facts.skeleton_kind {
         SkeletonKind::Loop => FlowboxBoxKind::Loop,
-        SkeletonKind::If2 => FlowboxBoxKind::If2,
-        SkeletonKind::BranchN => FlowboxBoxKind::BranchN,
         SkeletonKind::StraightLine => FlowboxBoxKind::Seq,
     }
 }
