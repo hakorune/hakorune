@@ -1,15 +1,18 @@
 //! # Loop Route Lowering Module
 //!
-//! **Phase 33-12 Modularization**: Split from single 735-line route lowering stub
+//! **Phase 33-12 Modularization**: split from the historical LoopForm route lowerer.
 //!
 //! ## Structure
-//! Each route-focused lowering is a separate sub-module for single responsibility:
+//! LoopForm routes that still own lowering code live in separate sub-modules.
+//! Route families owned by the plan/AST path are documented here but do not get
+//! compatibility stubs.
 //!
 //! ### LoopSimpleWhile route (`simple_while.rs`)
 //! No break/continue, straightforward loop transformation
 //!
-//! ### LoopBreak route (`with_break.rs`)
-//! Conditional break → two exit paths (natural + break)
+//! ### LoopBreak route
+//! LoopForm-route lowering is not implemented here. Live LoopBreak lowering is
+//! owned by the plan/composer route path and `loop_with_break_minimal.rs`.
 //!
 //! ### IfPhiJoin route
 //! LoopForm-route lowering is not implemented here. Live IfPhiJoin lowering is
@@ -21,7 +24,7 @@
 //! ## Design Philosophy: Per-Route Modules
 //! Benefits of this structure:
 //! - **Testability**: Each route independently testable
-//! - **Clarity**: Code for LoopBreak route is in `with_break.rs`, not buried in 735 lines
+//! - **Clarity**: live route ownership is explicit at the module boundary
 //! - **Scalability**: Adding a new route is just creating a new file
 //! - **Maintainability**: Changes to one route module do not touch unrelated routes
 //!
@@ -49,31 +52,27 @@
 
 pub mod nested_minimal;
 pub mod simple_while;
-pub mod with_break;
 pub mod with_continue;
 
 pub use nested_minimal::lower_nested_loop_minimal_to_joinir;
 pub use simple_while::lower_simple_while_to_joinir;
-pub use with_break::lower_loop_with_break_to_joinir;
 pub use with_continue::lower_loop_with_continue_to_joinir;
 
 // ============================================================================
 // Helper Functions (Shared Utilities)
 // ============================================================================
 
-// TODO: Implement helper functions for extraction and translation
-// These will be shared across all 4 route modules:
+// TODO: Implement helper functions for extraction and translation when a real
+// LoopForm route needs them.
 //
 // 1. extract_carriers_from_header_phi(loop_form) -> Vec<CarrierVar>
 // 2. extract_loop_condition_from_header(loop_form) -> ValueId
 // 3. extract_body_instructions(loop_form) -> Vec<MirInstruction>
 // 4. translate_mir_inst_to_joinir(inst, lowerer) -> JoinInst
-// 5. find_break_block(loop_form) -> BasicBlockId
-// 6. extract_break_condition(block) -> ValueId
-// 7. find_if_else_block(loop_form) -> BasicBlockId
-// 8. extract_if_condition(block) -> ValueId
-// 9. extract_then_value(block) -> ValueId
-// 10. extract_else_value(block) -> ValueId
+// 5. find_if_else_block(loop_form) -> BasicBlockId
+// 6. extract_if_condition(block) -> ValueId
+// 7. extract_then_value(block) -> ValueId
+// 8. extract_else_value(block) -> ValueId
 
 #[cfg(test)]
 mod tests {
@@ -100,31 +99,6 @@ mod tests {
         // Step 1: Create mock LoopForm with break
         // Step 2: Call lower_simple_while_to_joinir()
         // Step 3: Assert returns None (unsupported route shape)
-    }
-
-    // ========================================================================
-    // LoopBreak route tests
-    // ========================================================================
-
-    #[test]
-    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
-    fn test_loop_break_lowering_success() {
-        // Placeholder: add integration test for LoopBreak route lowering
-        // Step 1: Create mock LoopForm for LoopBreak route
-        // Step 2: Create mock LoopToJoinLowerer
-        // Step 3: Call lower_loop_with_break_to_joinir()
-        // Step 4: Assert returns Some(JoinInst)
-        // Step 5: Verify generated JoinIR structure (two Jumps to k_exit)
-    }
-
-    #[test]
-    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
-    fn test_loop_break_exit_phi_correct() {
-        // Placeholder: add test that verifies k_exit receives correct exit values
-        // Step 1: Create mock LoopForm for LoopBreak route
-        // Step 2: Call lower_loop_with_break_to_joinir()
-        // Step 3: Verify k_exit params = [i_exit]
-        // Step 4: Verify both Jumps pass current i as argument
     }
 
     // ========================================================================

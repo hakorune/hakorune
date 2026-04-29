@@ -9,7 +9,7 @@
 //! ## Route Dispatch
 //! Routes to:
 //! - `LoopSimpleWhile`: `loop_routes::simple_while` (no break/continue)
-//! - `LoopBreak`: `loop_routes::with_break` (conditional break)
+//! - `LoopBreak`: no LoopForm lowerer; plan/composer route path owns live lowering
 //! - `IfPhiJoin`: no LoopForm lowerer; plan/AST route path owns live lowering
 //! - `LoopContinueOnly`: `loop_routes::with_continue` (deferred to Phase 195)
 //! - `LoopTrueEarlyExit`: planned route family for `loop(true)` + early exit
@@ -155,15 +155,14 @@ pub fn try_lower_loop_route_to_joinir(
             }
         }
         LoopRouteKind::LoopBreak => {
-            if let Some(inst) =
-                super::loop_routes::lower_loop_with_break_to_joinir(loop_form, lowerer)
-            {
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    get_global_ring0()
-                        .log
-                        .debug("[try_lower_loop_route] ✅ LoopBreak matched");
-                }
-                return Some(inst);
+            // Live LoopBreak lowering is owned by the plan/composer route path.
+            // The former LoopForm-route module was a compatibility stub
+            // returning None, so this arm deliberately falls through to
+            // existing lowering.
+            if crate::config::env::joinir_dev::debug_enabled() {
+                get_global_ring0().log.debug(
+                    "[try_lower_loop_route] LoopBreak has no LoopForm lowerer; falling through",
+                );
             }
         }
         LoopRouteKind::LoopSimpleWhile => {
