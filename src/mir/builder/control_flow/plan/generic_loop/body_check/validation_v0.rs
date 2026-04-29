@@ -10,14 +10,6 @@ use super::super::facts::stmt_classifier::{
     unsupported_stmt_detail,
 };
 
-pub(in crate::mir::builder) fn body_is_generic_v0(
-    body: &[ASTNode],
-    loop_var: &str,
-    loop_increment: &ASTNode,
-) -> bool {
-    check_body_generic_v0(body, loop_var, loop_increment).is_none()
-}
-
 pub(in crate::mir::builder) fn check_body_generic_v0(
     body: &[ASTNode],
     loop_var: &str,

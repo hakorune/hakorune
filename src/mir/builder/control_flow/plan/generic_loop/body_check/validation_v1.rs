@@ -11,21 +11,6 @@ use super::super::facts::stmt_classifier::{
 };
 use super::shape_detection::detect_generic_loop_v1_shape;
 
-pub(in crate::mir::builder) fn body_is_generic_v1(
-    body: &[ASTNode],
-    loop_var: &str,
-    loop_increment: &ASTNode,
-    condition: &ASTNode,
-) -> bool {
-    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
-        || crate::config::env::joinir_dev_enabled();
-    let require_shape = strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
-    matches!(
-        check_body_generic_v1(body, loop_var, loop_increment, condition, require_shape),
-        Ok(None)
-    )
-}
-
 pub(in crate::mir::builder) fn check_body_generic_v1(
     body: &[ASTNode],
     loop_var: &str,
