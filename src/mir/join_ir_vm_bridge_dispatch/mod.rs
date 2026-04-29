@@ -64,16 +64,16 @@ pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
         return false;
     }
 
+    if matches!(target.kind, JoinIrBridgeKind::LowerOnly) {
+        observe_lower_only_target(target.func_name, module, quiet_pipe);
+        return false;
+    }
+
     // Phase 32 L-4: テーブル駆動ディスパッチ
     // 関数名でルーティング（将来は lowering テーブルベースに差し替え予定）
     let handled = match target.func_name {
         "Main.skip/1" => try_run_skip_ws(module, quiet_pipe),
         "FuncScannerBox.trim/1" => try_run_trim(module, quiet_pipe),
-        "Stage1UsingResolverBox.resolve_for_source/5" => {
-            try_run_stage1_usingresolver(module, quiet_pipe)
-        }
-        "StageBBodyExtractorBox.build_body_src/2" => try_run_stageb_body(module, quiet_pipe),
-        "StageBFuncScannerBox.scan_all_boxes/1" => try_run_stageb_funcscanner(module, quiet_pipe),
         _ => false,
     };
 
@@ -92,4 +92,19 @@ pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
         }
     }
     true
+}
+
+fn observe_lower_only_target(func_name: &str, module: &MirModule, quiet_pipe: bool) {
+    match func_name {
+        "Stage1UsingResolverBox.resolve_for_source/5" => {
+            let _ = try_run_stage1_usingresolver(module, quiet_pipe);
+        }
+        "StageBBodyExtractorBox.build_body_src/2" => {
+            let _ = try_run_stageb_body(module, quiet_pipe);
+        }
+        "StageBFuncScannerBox.scan_all_boxes/1" => {
+            let _ = try_run_stageb_funcscanner(module, quiet_pipe);
+        }
+        _ => {}
+    }
 }

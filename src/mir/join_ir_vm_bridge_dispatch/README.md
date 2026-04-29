@@ -13,6 +13,11 @@ Layout:
 - `exec_routes.rs`: Exec-capable routes (skip_ws, trim)
 - `lower_only_routes.rs`: LowerOnly routes (Stage1/StageB) for structural verification only
 
+Routing rule:
+- `Exec` targets may handle process output/exit through JoinIR VM bridge.
+- `LowerOnly` targets may run structural lowering observation, but must always
+  return to normal VM Route A, including strict mode.
+
 ## P5 Crate Split Prep
 
 `join_ir_vm_bridge_dispatch/` stays inside the future `hakorune-mir-joinir` boundary for
