@@ -8,7 +8,7 @@
 //! Route-shape classification helpers for JoinIR loop lowering.
 //!
 //! This module provides the flat `LoopFeatures -> classify -> LoopRouteKind`
-//! route-classification surface for the current loop route families:
+//! route-classification vocabulary for the current loop route families:
 //! - `LoopSimpleWhile` (foundational)
 //! - `LoopBreak` (early exit)
 //! - `IfPhiJoin` (variable mutation)
@@ -20,12 +20,6 @@
 //!
 //! Phase 194+: Structure-based flat route detection using LoopFeatures.
 //! Flat route shapes are classified based on CFG structure, not function names.
-//!
-//! # Architecture
-//!
-//! ```
-//! LoopForm → extract_features() → LoopFeatures → classify() → flat LoopRouteKind
-//! ```
 //!
 //! Reference: docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md
 //!
@@ -41,6 +35,5 @@ mod kind;
 pub mod support;
 
 pub use classify::classify;
-pub(crate) use features::extract_features;
 pub use features::LoopFeatures;
 pub use kind::LoopRouteKind;

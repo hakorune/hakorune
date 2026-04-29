@@ -1,5 +1,3 @@
-use crate::mir::loop_form::LoopForm;
-
 /// Feature vector extracted from loop structure.
 ///
 /// This structure captures all relevant properties needed for pattern classification.
@@ -32,27 +30,5 @@ impl Default for LoopFeatures {
             carrier_count: 0,
             is_infinite_loop: false,
         }
-    }
-}
-
-/// Extract features from LoopForm for route classification.
-///
-/// This function is the entry point for structure-based pattern detection.
-/// It analyzes the CFG structure without relying on variable names.
-///
-/// # Arguments
-/// * `loop_form` - The loop structure to analyze
-///
-/// # Returns
-/// * `LoopFeatures` - Feature vector for route classification
-pub(crate) fn extract_features(loop_form: &LoopForm) -> LoopFeatures {
-    // Phase 194: Basic feature extraction from LoopForm
-    let has_break = !loop_form.break_targets.is_empty();
-    let has_continue = !loop_form.continue_targets.is_empty();
-
-    LoopFeatures {
-        has_break,
-        has_continue,
-        ..Default::default()
     }
 }

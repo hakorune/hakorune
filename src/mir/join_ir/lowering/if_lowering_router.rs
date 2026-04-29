@@ -18,7 +18,7 @@
 //! - Keeping separate: Easier to extend, test, and maintain
 //!
 //! ## Related Modules
-//! - See also: `loop_route_router.rs` (loop lowering)
+//! - Loop route lowering is owned by the plan/AST route path.
 //! - Parent: `mod.rs` (central lowering dispatcher)
 //!
 //! # Routing Strategy
