@@ -147,6 +147,7 @@ Failure handling (design-only):
 | `src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs` | ConditionShape | Condition extractor |
 | `src/mir/builder/control_flow/plan/facts/loop_step_shape.rs` | StepShape | Step extractor |
 | `src/mir/builder/control_flow/plan/facts/scan_shapes.rs` | ConditionShape, StepShape | Scan helpers (cmp/bound/step) |
+| `src/mir/builder/control_flow/plan/facts/loop_types.rs` | StepShape | 291x-756 removed `LoopFacts::condition_shape`; condition shape stays extractor-local |
 | `src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs` | ConditionShape, StepShape | ScanWithInit facts |
 | `src/mir/builder/control_flow/plan/facts/loop_array_join_facts.rs` | ConditionShape, StepShape | LoopArrayJoin facts |
 | `src/mir/builder/control_flow/plan/facts/loop_char_map_facts.rs` | ConditionShape, StepShape | LoopCharMap facts |

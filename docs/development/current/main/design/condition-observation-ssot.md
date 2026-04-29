@@ -43,6 +43,8 @@ This is **analysis-only** (no rewrite, no semantic change).
 - Note: D14 keeps legacy fallback on incomplete (fail-fast is deferred).
 - Note: D16 freezes on incomplete for scan facts (no legacy fallback).
 - Note: D17 plans expansion order for incomplete-freeze beyond scan facts.
+- Note: 291x-756 removed `LoopFacts::condition_shape`; `ConditionShape` now
+  stays extractor-local until CondProfile fully replaces those APIs.
 - Note: D18 applies incomplete-freeze to loop-char-map only (legacy numbered label is traceability-only; others keep fallback).
 - Note: D19 applies incomplete-freeze to loop-array-join (legacy numbered label is traceability-only).
 - Note: D20 applies incomplete-freeze to bool-predicate-scan / accum-const-loop (legacy numbered labels are traceability-only).
@@ -132,7 +134,7 @@ Rationale:
 - Non-goal: rewrite AST or change acceptance.
 
 ### Scope (design-only)
-- Facts: ConditionShape/StepShape は観測用に残す（受理判断はしない）
+- Facts: ConditionShape/StepShape は extractor-local 観測用に残す（受理判断はしない）
 - Canon: CondBlockView は観測の入口（ASTからの唯一の入口）
 - 目標: 二重抽出の排除（Facts と Canon の役割分担を固定）
 

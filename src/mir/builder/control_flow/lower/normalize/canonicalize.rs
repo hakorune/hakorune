@@ -47,7 +47,7 @@ mod tests {
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         CleanupFacts, ExitKindFacts, ExitMapFacts, ExitUsageFacts, LoopFeatureFacts,
     };
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::StepShape;
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
     };
@@ -77,7 +77,6 @@ mod tests {
         let mut cleanup_kinds_present = BTreeSet::new();
         cleanup_kinds_present.insert(ExitKindFacts::Return);
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
@@ -149,7 +148,6 @@ mod tests {
     #[test]
     fn canonical_projects_empty_exit_kinds_present() {
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
@@ -193,7 +191,6 @@ mod tests {
     #[test]
     fn canonical_preserves_loop_facts_content() {
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,

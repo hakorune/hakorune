@@ -15,7 +15,7 @@ mod tests {
         LoopFeatureFacts, ValueJoinFacts,
     };
     #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::StepShape;
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
@@ -397,7 +397,6 @@ mod tests {
     #[test]
     fn debug_value_join_invariant_allows_empty_when_not_needed() {
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
@@ -441,7 +440,6 @@ mod tests {
     #[should_panic]
     fn debug_value_join_invariant_panics_without_exit_kinds() {
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,

@@ -287,7 +287,7 @@ mod tests {
         LoopFeatureFacts, ValueJoinFacts,
     };
     use crate::mir::builder::control_flow::plan::facts::nested_loop_minimal_facts::NestedLoopMinimalFacts;
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::StepShape;
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
     };
@@ -406,7 +406,6 @@ mod tests {
 
         let (nested, condition, body) = nested_facts();
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
@@ -470,7 +469,6 @@ mod tests {
 
         let (nested, condition, body) = nested_facts();
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,

@@ -213,7 +213,6 @@ fn try_build_loop_facts_inner(
     let features = try_extract_loop_feature_facts(body)?;
 
     let facts = LoopFacts {
-        condition_shape,
         step_shape,
         skeleton,
         features,

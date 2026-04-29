@@ -35,7 +35,7 @@ mod tests {
     use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::LoopCondContinueWithReturnFacts;
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::plan::facts::feature_facts::LoopFeatureFacts;
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::StepShape;
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
     };
@@ -58,7 +58,6 @@ mod tests {
 
     fn base_loop_facts() -> LoopFacts {
         LoopFacts {
-            condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,

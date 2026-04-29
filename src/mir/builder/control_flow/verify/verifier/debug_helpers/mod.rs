@@ -1,16 +1,4 @@
-use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-#[cfg(debug_assertions)]
-use crate::mir::builder::control_flow::plan::facts::scan_shapes::cond_profile_from_scan_shapes;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::StepShape;
-
-#[cfg(debug_assertions)]
-#[allow(dead_code)] // Phase 291x-126: umbrella probe retained for targeted verifier debugging.
-pub(in crate::mir::builder) fn debug_observe_cond_profile(facts: &CanonicalLoopFacts) {
-    let cond_profile =
-        cond_profile_from_scan_shapes(&facts.facts.condition_shape, &facts.facts.step_shape);
-    debug_observe_cond_profile_value(&cond_profile);
-    let _ = cond_profile;
-}
 
 #[cfg(debug_assertions)]
 pub(in crate::mir::builder) fn debug_observe_cond_profile_value(
@@ -26,10 +14,6 @@ pub(in crate::mir::builder) fn debug_observe_cond_profile_value(
         ));
     }
 }
-
-#[cfg(not(debug_assertions))]
-#[allow(dead_code)] // Phase 291x-126: keep release stub paired with debug probe.
-pub(in crate::mir::builder) fn debug_observe_cond_profile(_facts: &CanonicalLoopFacts) {}
 
 #[cfg(not(debug_assertions))]
 pub(in crate::mir::builder) fn debug_observe_cond_profile_value(

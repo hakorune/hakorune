@@ -10,7 +10,7 @@ use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
 use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
-use super::scan_shapes::{ConditionShape, StepShape};
+use super::scan_shapes::StepShape;
 use super::skeleton_facts::SkeletonFacts;
 use super::string_is_integer_facts::StringIsIntegerFacts;
 use super::LoopContinueOnlyFacts;
@@ -34,10 +34,6 @@ use crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopFacts {
-    /// Structural condition vocabulary retained for composer/test observation.
-    /// The release route currently consumes CondProfile-derived facts directly.
-    #[allow(dead_code)]
-    pub condition_shape: ConditionShape,
     pub step_shape: StepShape,
     pub skeleton: SkeletonFacts,
     pub features: LoopFeatureFacts,
