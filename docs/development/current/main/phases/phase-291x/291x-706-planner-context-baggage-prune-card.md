@@ -32,7 +32,9 @@ had become pure baggage in lib builds.
 
 ## Result
 
-- `cargo build --release` warning count moved from **8** to **7**
+- `cargo build --release` dropped the `PlannerContext` warning and exposed the next
+  unread baggage field (`LoopRouteContext::skeleton`), so the overall lib-warning
+  count stayed at **8** while the backlog shifted forward
 - planner/facts tests still exercise the ctx-taking API surface without carrying dead
   metadata fields
 

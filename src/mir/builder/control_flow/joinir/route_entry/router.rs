@@ -34,9 +34,6 @@ use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detai
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 
-/// Phase 92 P0-2: Import LoopSkeleton for Option A
-use crate::mir::loop_canonicalizer::LoopSkeleton;
-
 /// Context passed to loop route detection/lowering functions.
 pub(crate) struct LoopRouteContext<'a> {
     /// Loop condition AST node
@@ -60,12 +57,6 @@ pub(crate) struct LoopRouteContext<'a> {
     /// Phase 200-C: Optional function body AST for capture analysis
     /// None if not available, Some(&[ASTNode]) if function body is accessible
     pub fn_body: Option<&'a [ASTNode]>,
-
-    /// Phase 92 P0-2: Optional LoopSkeleton from canonicalizer
-    /// This provides ConditionalStep information for loop-break recipe lowering.
-    /// None if canonicalizer hasn't run yet (backward compatibility).
-    /// SSOT Principle: Avoid re-detecting ConditionalStep in lowering phase.
-    pub skeleton: Option<&'a LoopSkeleton>,
 
     /// Phase 188.3: Cached StepTree max_loop_depth for nested-loop minimal routes.
     /// None if not computed, Some(depth) when nested-loop candidate is present.
@@ -99,7 +90,6 @@ impl<'a> LoopRouteContext<'a> {
             in_static_box,
             route_kind,
             fn_body: None,                  // Phase 200-C: Default to None
-            skeleton: None,                 // Phase 92 P0-2: Default to None
             step_tree_max_loop_depth: None, // Phase 188.3: Default to None
         }
     }
