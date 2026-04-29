@@ -15,8 +15,6 @@
 //! - `if_dry_runner.rs`: Phase 33-10 If lowering dry-run スキャナー（箱化版）
 //! - `if_lowering_router.rs`: Phase 33-12 If-expression routing (Select/IfMerge dispatcher)
 
-#![allow(dead_code)]
-
 pub mod canonical_names; // Phase 256 P1.7: SSOT for JoinIR function names (k_exit, loop_step, main)
 pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
 pub(crate) mod common; // Internal lowering utilities
