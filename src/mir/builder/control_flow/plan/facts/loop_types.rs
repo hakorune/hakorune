@@ -10,7 +10,7 @@ use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
 use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
-use super::scan_shapes::{ConditionShape, SplitScanShape, StepShape};
+use super::scan_shapes::{ConditionShape, StepShape};
 use super::skeleton_facts::SkeletonFacts;
 use super::string_is_integer_facts::StringIsIntegerFacts;
 use super::LoopContinueOnlyFacts;
@@ -197,8 +197,4 @@ pub(in crate::mir::builder) struct SplitScanFacts {
     pub result_var: String,
     pub i_var: String,
     pub start_var: String,
-    /// Structural split-scan vocabulary retained for composer/test observation.
-    /// Current release routing only needs the presence of SplitScan facts.
-    #[allow(dead_code)]
-    pub shape: SplitScanShape,
 }

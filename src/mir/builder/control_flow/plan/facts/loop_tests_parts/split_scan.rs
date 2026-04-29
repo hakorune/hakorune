@@ -114,10 +114,6 @@ fn loopfacts_ok_some_for_canonical_split_scan_minimal() {
     assert_eq!(split_scan.result_var, "result");
     assert_eq!(split_scan.i_var, "i");
     assert_eq!(split_scan.start_var, "start");
-    assert!(matches!(
-        split_scan.shape,
-        crate::mir::builder::control_flow::plan::facts::scan_shapes::SplitScanShape::Minimal
-    ));
 }
 
 #[test]

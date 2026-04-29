@@ -12,7 +12,7 @@ use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-    cond_profile_from_scan_shapes, match_scan_with_init_shape, ConditionShape, SplitScanShape,
+    cond_profile_from_scan_shapes, match_scan_with_init_shape, ConditionShape,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::{scan_direction_from_step_lit, LoweredRecipe};
@@ -121,11 +121,6 @@ pub(super) fn try_compose_split_scan_unified(
         return Ok(None);
     }
 
-    // 共通: SplitScanShape::Minimal
-    if !matches!(split_scan.shape, SplitScanShape::Minimal) {
-        return Ok(None);
-    }
-
     // gate 通過 → PlanNormalizer
     let _ = split_scan;
     let core = RecipeComposer::compose_split_scan_recipe(builder, facts, ctx)
@@ -175,7 +170,7 @@ mod tests {
     };
     use crate::mir::builder::control_flow::plan::facts::loop_simple_while_facts::LoopSimpleWhileFacts;
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-        ConditionShape, SplitScanShape, StepShape,
+        ConditionShape, StepShape,
     };
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
@@ -299,7 +294,6 @@ mod tests {
                     result_var: "result".to_string(),
                     i_var: "i".to_string(),
                     start_var: "start".to_string(),
-                    shape: SplitScanShape::Minimal,
                 },
             ),
             loop_simple_while: None,

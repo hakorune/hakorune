@@ -39,11 +39,6 @@ pub(in crate::mir::builder) enum ConditionShape {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum SplitScanShape {
-    Minimal,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct ScanConditionObservation {
     pub condition_shape: ConditionShape,
     pub step_shape: StepShape,

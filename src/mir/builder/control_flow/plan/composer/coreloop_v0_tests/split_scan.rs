@@ -6,7 +6,7 @@ use crate::mir::builder::control_flow::plan::facts::feature_facts::{
 };
 use crate::mir::builder::control_flow::plan::facts::loop_types::LoopFacts;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-    ConditionShape, SplitScanShape, StepShape,
+    ConditionShape, StepShape,
 };
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
 use crate::mir::builder::control_flow::plan::CorePlan;
@@ -38,7 +38,6 @@ fn coreloop_v0_composes_split_scan_subset() {
                 result_var: "result".to_string(),
                 i_var: "i".to_string(),
                 start_var: "start".to_string(),
-                shape: SplitScanShape::Minimal,
             },
         ),
         loop_simple_while: None,
@@ -126,7 +125,6 @@ fn coreloop_v0_rejects_split_scan_value_join_entrypoint() {
                 result_var: "result".to_string(),
                 i_var: "i".to_string(),
                 start_var: "start".to_string(),
-                shape: SplitScanShape::Minimal,
             },
         ),
         loop_simple_while: None,
@@ -193,7 +191,6 @@ fn coreloop_v0_rejects_split_scan_value_join_direct() {
                 result_var: "result".to_string(),
                 i_var: "i".to_string(),
                 start_var: "start".to_string(),
-                shape: SplitScanShape::Minimal,
             },
         ),
         loop_simple_while: None,

@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::plan::facts::loop_types::{
     LoopFacts, ScanWithInitFacts, SplitScanFacts,
 };
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-    ConditionShape, SplitScanShape, StepShape,
+    ConditionShape, StepShape,
 };
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
 use crate::mir::builder::MirBuilder;
@@ -44,7 +44,6 @@ fn coreloop_v1_composes_split_scan_with_value_join() {
             result_var: "result".to_string(),
             i_var: "i".to_string(),
             start_var: "start".to_string(),
-            shape: SplitScanShape::Minimal,
         }),
         loop_simple_while: None,
         loop_char_map: None,
@@ -129,7 +128,6 @@ fn coreloop_v1_rejects_split_scan_without_value_join() {
             result_var: "result".to_string(),
             i_var: "i".to_string(),
             start_var: "start".to_string(),
-            shape: SplitScanShape::Minimal,
         }),
         loop_simple_while: None,
         loop_char_map: None,
@@ -204,7 +202,6 @@ fn coreloop_v1_rejects_split_scan_with_disallowed_exitmap() {
             result_var: "result".to_string(),
             i_var: "i".to_string(),
             start_var: "start".to_string(),
-            shape: SplitScanShape::Minimal,
         }),
         loop_simple_while: None,
         loop_char_map: None,

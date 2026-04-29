@@ -1,7 +1,6 @@
 //! Split scan facts extraction
 
 use super::loop_types::SplitScanFacts;
-use super::scan_shapes::SplitScanShape;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
@@ -75,7 +74,6 @@ pub(super) fn try_extract_split_scan_facts(
         result_var,
         i_var,
         start_var,
-        shape: SplitScanShape::Minimal,
     }))
 }
 
