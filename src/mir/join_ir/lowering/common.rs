@@ -3,7 +3,6 @@
 //! CFG sanity checks and dispatcher helpers for MIR-based lowering.
 
 pub mod case_a;
-pub mod dual_value_rewriter; // Phase 246-EX/247-EX: name-based dual-value rewrites
 
 use crate::mir::loop_form::LoopForm;
 use crate::mir::query::{MirQuery, MirQueryBox};
@@ -153,44 +152,6 @@ pub fn has_binop(query: &MirQueryBox, bb: BasicBlockId, op: BinaryOp) -> bool {
             MirInstruction::BinOp { op: o, .. } if *o == op
         )
     })
-}
-
-/// Check if a basic block contains method call `Call { callee: Method { method } }`
-///
-/// Returns `true` if the block contains a method call instruction with the specified method name.
-/// Note: This cannot distinguish between different box types (e.g., ArrayBox.get vs StringBox.get)
-/// when callers use runtime-dynamic callee metadata.
-///
-/// For more precise type checking, use TypeRegistry (future enhancement).
-///
-/// # Example
-/// ```ignore
-/// // Check if entry block contains ArrayBox.length()
-/// // (Note: will also match StringBox.length() if it exists)
-/// if has_array_method(&query, entry_id, "length") {
-///     // ...
-/// }
-/// ```
-pub fn has_array_method(query: &MirQueryBox, bb: BasicBlockId, method: &str) -> bool {
-    // Note: This is intentionally the same as has_string_method().
-    // Future enhancement: Use TypeRegistry to check box_val's type
-    has_string_method(query, bb, method)
-}
-
-/// Check if a basic block contains a loop increment pattern (`i + 1`)
-///
-/// Returns `true` if the block contains a `BinOp::Add` instruction.
-/// This is a convenience wrapper for `has_binop(query, bb, BinaryOp::Add)`.
-///
-/// # Example
-/// ```ignore
-/// // Check if loop body contains i + 1
-/// if has_loop_increment(&query, loop_body_id) {
-///     // ...
-/// }
-/// ```
-pub fn has_loop_increment(query: &MirQueryBox, bb: BasicBlockId) -> bool {
-    has_binop(query, bb, BinaryOp::Add)
 }
 
 /// Log fallback to handwritten lowering with reason

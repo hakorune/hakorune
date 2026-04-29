@@ -352,12 +352,9 @@ fn lower_from_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
 
     // Signal B: entries.length() の検出
     // Phase 27.13: 簡略化のため、複雑な BoxCall 検出は省略
-    // 将来的には has_array_method(&query, entry, "length") を実装可能
     // 現時点では Const(0) の存在で最小限の sanity check とする
 
     // TODO (Phase 27.14+): より厳密な CFG パターンマッチング
-    //   - has_array_method(&query, entry_or_succ, "length") でループ上限 n 確認
-    //   - has_array_method(&query, loop_body, "get") でループ内配列アクセス確認
     //   - has_binop(&query, loop_body, BinaryOp::Add) で i + 1 確認
 
     if crate::config::env::joinir_dev::debug_enabled() {

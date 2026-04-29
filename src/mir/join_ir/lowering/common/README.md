@@ -2,7 +2,8 @@
 
 このディレクトリは「JoinIR lowerer の縫い目」を担う小箱の入口だよ。責務を混ぜないためのメモ。
 
-- `dual_value_rewriter.rs` — name ベースの dual-value 書き換え（BodyLocal vs Carrier）を一箇所に閉じ込める
+- `case_a/` — Generic Case-A lowering helpers. route vocabulary and guards live with the active lowerer.
+- retired: name-based dual-value rewrite helpers were removed in 291x-747. Do not reintroduce AST/name rewrite shelves; add analysis-only observations to the active route facts instead.
 
 Fail-Fast 原則:
 - 未対応 shape は error_tags::freeze などで理由付き停止（サイレント回避禁止）。
