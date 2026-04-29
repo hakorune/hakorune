@@ -378,7 +378,7 @@ fn lower_from_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
     }
 
     // Phase 31: LoopToJoinLowerer 統一箱経由に移行
-    if crate::mir::join_ir::env_flag_is_1("NYASH_JOINIR_LOWER_GENERIC") {
+    if crate::config::env::joinir_dev::lower_generic_enabled() {
         use crate::mir::join_ir::lowering::loop_to_join::LoopToJoinLowerer;
 
         let header = query.succs(entry).get(0).copied().unwrap_or(entry);

@@ -354,7 +354,7 @@ fn lower_skip_ws_handwritten(module: &crate::mir::MirModule) -> Option<JoinModul
 /// ```
 pub fn lower_skip_ws_to_joinir(module: &crate::mir::MirModule) -> Option<JoinModule> {
     // Phase 28: Generic Case A トグル（minimal_ssa_skip_ws 限定）
-    if crate::mir::join_ir::env_flag_is_1("NYASH_JOINIR_LOWER_GENERIC") {
+    if crate::config::env::joinir_dev::lower_generic_enabled() {
         if let Some(jm) = try_lower_skip_ws_generic_case_a(module) {
             return Some(jm);
         }

@@ -3,8 +3,7 @@
 
 use crate::config::env::env_bool;
 
-/// NYASH_JOINIR_LOWER_GENERIC=1 - Enable generic lowering path for JoinIR
-/// (CRITICAL: 15 occurrences in codebase)
+/// NYASH_JOINIR_LOWER_GENERIC=1 - Enable generic lowering path for JoinIR.
 pub fn lower_generic_enabled() -> bool {
     env_bool("NYASH_JOINIR_LOWER_GENERIC")
 }

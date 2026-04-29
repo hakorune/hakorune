@@ -10,7 +10,7 @@ use crate::mir::MirFunction;
 use crate::runtime::get_global_ring0;
 
 fn generic_case_a_enabled() -> bool {
-    crate::mir::join_ir::env_flag_is_1("NYASH_JOINIR_LOWER_GENERIC")
+    crate::config::env::joinir_dev::lower_generic_enabled()
 }
 
 /// Loop→JoinIR 変換の統一箱（coordinator）

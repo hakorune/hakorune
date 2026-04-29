@@ -109,35 +109,6 @@ impl JoinContId {
 /// 変数ID（Phase 26-H では MIR の ValueId を再利用）
 pub type VarId = ValueId;
 
-/// 環境変数フラグが "1" かチェックするヘルパー（JoinIR 実験経路用）
-/// Phase 72-C Step 2: SSOT統一 - すべてのリードを config::env::joinir_dev 経由に
-pub(crate) fn env_flag_is_1(name: &str) -> bool {
-    use crate::config::env::joinir_dev;
-    match name {
-        "NYASH_JOINIR_LOWER_GENERIC" => joinir_dev::lower_generic_enabled(),
-        "NYASH_JOINIR_MAINLINE_DEBUG" => joinir_dev::mainline_debug_enabled(),
-        "NYASH_JOINIR_IF_MERGE" => joinir_dev::if_merge_enabled(),
-        "NYASH_JOINIR_DEBUG" => joinir_dev::debug_enabled(),
-        "NYASH_JOINIR_VM_BRIDGE" => joinir_dev::vm_bridge_enabled(),
-        "NYASH_JOINIR_STRICT" => joinir_dev::strict_enabled(),
-        "NYASH_JOINIR_SNAPSHOT_GENERATE" => joinir_dev::snapshot_generate_enabled(),
-        "NYASH_JOINIR_SNAPSHOT_TEST" => joinir_dev::snapshot_test_enabled(),
-        "NYASH_JOINIR_LOWER_FROM_MIR" => joinir_dev::lower_from_mir_enabled(),
-        "NYASH_JOINIR_LLVM_EXPERIMENT" => joinir_dev::llvm_experiment_enabled(),
-        "HAKO_JOINIR_IF_TOPLEVEL" => joinir_dev::if_toplevel_enabled(),
-        "HAKO_JOINIR_IF_TOPLEVEL_TRACE" => joinir_dev::if_toplevel_trace_enabled(),
-        "HAKO_JOINIR_IF_IN_LOOP_TRACE" => joinir_dev::if_in_loop_trace_enabled(),
-        "HAKO_JOINIR_NESTED_IF" => joinir_dev::nested_if_enabled(),
-        "HAKO_JOINIR_PRINT_TOKENS_MAIN" => joinir_dev::print_tokens_main_enabled(),
-        "HAKO_JOINIR_ARRAY_FILTER_MAIN" => joinir_dev::array_filter_main_enabled(),
-        "HAKO_JOINIR_READ_QUOTED" => joinir_dev::read_quoted_enabled(),
-        "HAKO_JOINIR_READ_QUOTED_IFMERGE" => joinir_dev::read_quoted_ifmerge_enabled(),
-        // Fallback for unknown flags (shouldn't happen in normal operation)
-        // NYASH_JOINIR_EXPERIMENT is handled by test helpers, not body code
-        _ => std::env::var(name).ok().as_deref() == Some("1"),
-    }
-}
-
 /// Phase 27.4-A: ループ header φ の意味を表す構造（Pinned/Carrier 分類）
 ///
 /// HeaderPhiBuilder が生成していた「ループ変数の合流」を JoinIR の loop_step 引数として表現するためのヘルパー。

@@ -655,7 +655,7 @@ fn lower_trim_from_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
 
     // Phase 31: LoopToJoinLowerer 統一箱経由に移行
     // Phase 32: construct_simple_while_loopform 共通ヘルパーを使用
-    if crate::mir::join_ir::env_flag_is_1("NYASH_JOINIR_LOWER_GENERIC") {
+    if crate::config::env::joinir_dev::lower_generic_enabled() {
         use crate::mir::join_ir::lowering::common::construct_simple_while_loopform;
         use crate::mir::join_ir::lowering::loop_to_join::LoopToJoinLowerer;
 

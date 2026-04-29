@@ -252,9 +252,7 @@ where
     F1: FnOnce(&crate::mir::MirModule) -> Option<crate::mir::join_ir::JoinModule>,
     F2: FnOnce(&crate::mir::MirModule) -> Option<crate::mir::join_ir::JoinModule>,
 {
-    use crate::mir::join_ir::env_flag_is_1;
-
-    if env_flag_is_1("NYASH_JOINIR_LOWER_FROM_MIR") {
+    if crate::config::env::joinir_dev::lower_from_mir_enabled() {
         if crate::config::env::joinir_dev::debug_enabled() {
             get_global_ring0().log.debug(&format!(
                 "[joinir/{}] Using MIR-based lowering (NYASH_JOINIR_LOWER_FROM_MIR=1)",

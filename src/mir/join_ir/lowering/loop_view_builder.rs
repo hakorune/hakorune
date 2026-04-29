@@ -271,7 +271,7 @@ impl LoopViewBuilder {
 
     /// Phase 32 L-1.2: 汎用Case-A loweringが有効かどうか
     fn generic_case_a_enabled(&self) -> bool {
-        crate::mir::join_ir::env_flag_is_1("NYASH_JOINIR_LOWER_GENERIC")
+        crate::config::env::joinir_dev::lower_generic_enabled()
     }
 }
 
