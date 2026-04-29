@@ -20,7 +20,6 @@
 pub mod canonical_names; // Phase 256 P1.7: SSOT for JoinIR function names (k_exit, loop_step, main)
 pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
 pub(crate) mod common; // Internal lowering utilities
-pub mod complex_addend_normalizer; // Phase 192: Complex addend normalization (AST preprocessing)
 pub mod condition_env; // Phase 171-fix: Condition expression environment
 pub(crate) mod condition_lowerer; // Phase 171-fix: Core condition lowering logic
 pub mod condition_lowering_box; // Phase 244: Unified condition lowering interface (trait-based)
