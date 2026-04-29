@@ -34,6 +34,9 @@ use crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopFacts {
+    /// Structural condition vocabulary retained for composer/test observation.
+    /// The release route currently consumes CondProfile-derived facts directly.
+    #[allow(dead_code)]
     pub condition_shape: ConditionShape,
     pub step_shape: StepShape,
     pub skeleton: SkeletonFacts,
@@ -194,5 +197,8 @@ pub(in crate::mir::builder) struct SplitScanFacts {
     pub result_var: String,
     pub i_var: String,
     pub start_var: String,
+    /// Structural split-scan vocabulary retained for composer/test observation.
+    /// Current release routing only needs the presence of SplitScan facts.
+    #[allow(dead_code)]
     pub shape: SplitScanShape,
 }

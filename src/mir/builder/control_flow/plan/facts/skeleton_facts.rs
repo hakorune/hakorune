@@ -6,7 +6,11 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum SkeletonKind {
     Loop,
+    /// Region-level skeleton vocabulary retained for FlowBox/test observation.
+    /// Release loop extraction currently constructs `Loop` for this path.
+    #[allow(dead_code)]
     If2,
+    #[allow(dead_code)]
     BranchN,
     StraightLine,
 }
