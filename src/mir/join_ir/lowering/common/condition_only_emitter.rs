@@ -90,14 +90,6 @@ impl ConditionOnlyRecipe {
         }
     }
 
-    /// Trim patternからレシピを作成（後方互換性）
-    ///
-    /// Phase 93 Refactoring: WhenMatchをデフォルトとして使用
-    #[allow(dead_code)]
-    pub fn from_trim_helper(trim_helper: &TrimLoopHelper) -> Self {
-        Self::from_trim_helper_condition_only(trim_helper)
-    }
-
     /// Break条件AST生成（semanticsに基づく）
     ///
     /// Phase 93 Refactoring: Break semanticsに基づいて適切な条件を生成
