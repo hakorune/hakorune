@@ -67,7 +67,6 @@ impl LoopVarClass {
 #[derive(Debug, Clone)]
 pub(crate) struct LoopScopeShape {
     pub header: BasicBlockId,
-    #[allow(dead_code)]
     pub body: BasicBlockId,
     pub latch: BasicBlockId,
     pub exit: BasicBlockId,

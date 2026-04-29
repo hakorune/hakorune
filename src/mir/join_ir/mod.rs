@@ -117,7 +117,6 @@ pub type VarId = ValueId;
 ///
 /// Phase 27.4 では minimal/trim 用に手動で構成するが、将来は LoopScopeShape から自動導出する。
 #[derive(Debug, Clone)]
-#[allow(dead_code)] // Phase 27.4-C で実際に使用予定（現在は設計の雛形）
 pub(crate) struct LoopHeaderShape {
     /// Pinned: ループ中で不変の変数リスト（初期値がそのまま使われる）
     pinned: Vec<ValueId>,
@@ -125,7 +124,6 @@ pub(crate) struct LoopHeaderShape {
     carriers: Vec<ValueId>,
 }
 
-#[allow(dead_code)] // Phase 27.4-C で実際に使用予定
 impl LoopHeaderShape {
     /// Phase 27.4-A: 手動で Pinned/Carrier を指定して構築
     pub(crate) fn new_manual(pinned: Vec<ValueId>, carriers: Vec<ValueId>) -> Self {
@@ -155,13 +153,11 @@ impl LoopHeaderShape {
 ///
 /// Phase 27.5 では minimal/trim 用に手動で構成するが、将来は ExitPhiBuilder の分析から自動導出する。
 #[derive(Debug, Clone)]
-#[allow(dead_code)] // Phase 27.6 で Exit φ 統合の実装フェーズで使用予定（現在は設計の雛形）
 pub(crate) struct LoopExitShape {
     /// Exit 時に k_exit に渡したい値（JoinIR 引数）
     exit_args: Vec<ValueId>,
 }
 
-#[allow(dead_code)] // Phase 27.6 で実際に使用予定
 impl LoopExitShape {
     /// Phase 27.5: 手動で exit_args を指定して構築
     pub(crate) fn new_manual(exit_args: Vec<ValueId>) -> Self {
