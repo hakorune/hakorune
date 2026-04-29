@@ -74,7 +74,6 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
   - `loop_route_validator.rs`
   - `loop_view_builder.rs`
   - `loop_update_analyzer.rs`
-  - `loop_update_summary.rs`
   - `loop_with_*`
   - `simple_while*`
   - `scan_*`
