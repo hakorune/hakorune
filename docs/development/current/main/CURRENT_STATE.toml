@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES.md"
-latest_card_summary = "Archive old Stage-B LoopSSA debug harnesses out of root tools while preserving manual historical evidence."
+latest_card = "P24-KEEPER-DELETE-LAST-ORDER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P24-KEEPER-DELETE-LAST-ORDER.md"
+latest_card_summary = "Fix the remaining Program(JSON v0) keeper delete-last order and thin the retired Stage1 wrapper seam first."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

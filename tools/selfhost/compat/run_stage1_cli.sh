@@ -38,28 +38,11 @@ ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 BIN="${ROOT_DIR}/target/selfhost/hakorune"
 source "${ROOT_DIR}/tools/selfhost/lib/stage1_contract.sh"
 
-read_entry_source_text() {
-  local entry="$1"
-  if [[ -z "$entry" ]]; then
-    echo "[run-stage1] source path is required" >&2
-    exit 2
-  fi
-  if [[ ! -f "$entry" ]]; then
-    echo "[run-stage1] source not found: $entry" >&2
-    exit 2
-  fi
-  stage1_contract_source_text "$entry"
-}
-
 exit_emit_program_json_wrapper_retired() {
   echo "[run-stage1] emit program-json is retired from this wrapper" >&2
   echo "             use emit mir-json for MIR-first flow" >&2
   echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit Program(JSON) compat proof" >&2
   exit 2
-}
-
-run_emit_program_json() {
-  exit_emit_program_json_wrapper_retired
 }
 
 run_emit_mir_json() {
@@ -143,8 +126,7 @@ if [[ "$1" == "emit" ]]; then
   shift 2
   case "$subcmd" in
     program-json)
-      run_emit_program_json "$@"
-      exit $?
+      exit_emit_program_json_wrapper_retired
       ;;
     mir-json)
       run_emit_mir_json "$@"
