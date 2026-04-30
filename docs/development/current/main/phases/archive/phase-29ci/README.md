@@ -163,6 +163,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 - retired smoke-local legacy fallback:
   - `tools/smokes/v2/profiles/integration/core/phase2043/program_new_array_delegate_struct_canary_vm.sh`
     no longer falls back to raw `--program-json-to-mir`
+- parser dual-route migration:
+  - `tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh`
+    now uses Rust AST JSON for Rust-side observation instead of raw
+    `--emit-program-json-v0`
 
 ## Non-goals
 

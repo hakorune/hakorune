@@ -30,7 +30,7 @@ Conclusion:
 | Stage-B producer helper | `tools/selfhost/lib/selfhost_build_stageb.sh` | migrate only with selfhost build route proof |
 | hako mirbuilder fixture producer | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*` | keep; these pin Program(JSON) fixtures for `.hako mirbuilder` |
 | Program(JSON) contract pin | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh` | keep as explicit contract evidence |
-| parser dual-route probe | `tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh` | migrate separately after parser-route owner proof |
+| parser dual-route probe | `tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh` | migrated in P11; Rust-side now uses AST JSON, Hako-side keeps wrapper Program(JSON) observation |
 
 ## `--program-json-to-mir` Buckets
 
