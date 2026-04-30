@@ -40,6 +40,9 @@ implementation-side cleanup:
 - CLI arg/config fields
 - preservation proof for `user_box_decls`
 
+P16 follow-up deletes that raw CLI implementation/config surface. The
+`user_box_decls` proof remains in `src/host_providers/mir_builder.rs`.
+
 ## Acceptance
 
 ```bash

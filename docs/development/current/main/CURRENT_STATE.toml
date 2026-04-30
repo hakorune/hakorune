@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-29ci Program(JSON v0) public compat retirement"
-active_lane_status = "Program(JSON v0) hard-delete resumes as a public-surface cleanup lane. P15 retires the last tools/src --program-json-to-mir shell caller; remaining work is raw CLI implementation/config deletion plus user_box_decls proof relocation."
+active_lane_status = "Program(JSON v0) hard-delete resumes as a public-surface cleanup lane. P16 deletes the raw --program-json-to-mir CLI/config/pipe_io surface; remaining raw Program(JSON) work is --emit-program-json-v0 caller migration."
 active_phase = "docs/development/current/main/phases/archive/phase-29ci/README.md"
-phase_status = "docs/development/current/main/phases/phase-29ci/P15-PHASE29CG-RAW-BRIDGE-RETIRE.md"
+phase_status = "docs/development/current/main/phases/phase-29ci/P16-PROGRAM-JSON-TO-MIR-CLI-DELETE.md"
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-29ci/P15-PHASE29CG-RAW-BRIDGE-RETIRE.md"
+taskboard = "docs/development/current/main/phases/phase-29ci/P16-PROGRAM-JSON-TO-MIR-CLI-DELETE.md"
 
-latest_card = "P15-PHASE29CG-RAW-BRIDGE-RETIRE"
-latest_card_path = "docs/development/current/main/phases/phase-29ci/P15-PHASE29CG-RAW-BRIDGE-RETIRE.md"
-latest_card_summary = "Retire the phase29cg raw Program(JSON)->MIR caller through the shared non-raw bridge."
+latest_card = "P16-PROGRAM-JSON-TO-MIR-CLI-DELETE"
+latest_card_path = "docs/development/current/main/phases/phase-29ci/P16-PROGRAM-JSON-TO-MIR-CLI-DELETE.md"
+latest_card_summary = "Delete the raw --program-json-to-mir CLI/config/pipe_io surface after zero caller inventory."
 
 current_blocker_token = "phase-29ci raw compat caller migration pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -93,4 +93,5 @@ landed_tail = [
   "29ci-P13 shared smoke helper raw fallback retirement landed",
   "29ci-P14 selfhost EXE raw bridge retirement landed",
   "29ci-P15 phase29cg raw bridge retirement landed",
+  "29ci-P16 raw Program(JSON)->MIR CLI deletion landed",
 ]

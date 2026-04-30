@@ -20,7 +20,7 @@ P6 で重複 public alias (`--hako-emit-program-json`) を削除した後、raw 
 
 Conclusion:
 - `--emit-program-json-v0` はまだ削らない。
-- `--program-json-to-mir` はまだ削らない。
+- `--program-json-to-mir` は P16 で削除済み。
 - unreferenced diagnostic helper `tools/dump_stageb_min_mir.sh` はこの slice で削除する。
 
 ## `--emit-program-json-v0` Buckets
@@ -37,7 +37,7 @@ Conclusion:
 
 | Bucket | Representative callers | Action |
 | --- | --- | --- |
-| CLI implementation | `src/runner/pipe_io.rs` | keep until all external callers migrate; tests preserve `user_box_decls` behavior |
+| CLI implementation | `src/runner/pipe_io.rs` | retired in P16; `user_box_decls` proof lives in `src/host_providers/mir_builder.rs` |
 | shared emit helper fallback | `tools/hakorune_emit_mir.sh` | retired in P8; helper now stops at selfhost/provider routes |
 | selfhost EXE / Stage-B delegate | `tools/selfhost/lib/selfhost_build_exe.sh`, `tools/selfhost_exe_stageb.sh` | retired in P14; both use `tools/selfhost/lib/program_json_mir_bridge.sh` |
 | dev/proof probe | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | retired in P15; proof now uses `program_json_mir_bridge.sh` |
@@ -88,4 +88,4 @@ Candidate E (`--emit-program-json-v0` fixture producer):
 
 Guardrail:
 - do not delete `src/runner/stage1_bridge/program_json_entry/**` until `--emit-program-json-v0` caller inventory reaches zero
-- do not delete `src/runner/pipe_io.rs` `program_json_to_mir` path until all `--program-json-to-mir` shell callers are gone and `user_box_decls` preservation is pinned elsewhere
+- `src/runner/pipe_io.rs` `program_json_to_mir` path is deleted in P16; `user_box_decls` preservation is pinned in `src/host_providers/mir_builder.rs`

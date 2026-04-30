@@ -15,7 +15,6 @@ fn warn_once(flag: &'static OnceLock<()>, msg: &str) {
 
 static NYASH_TOML_WARN_ONCE: OnceLock<()> = OnceLock::new();
 static EMIT_PROGRAM_JSON_V0_CLI_WARN_ONCE: OnceLock<()> = OnceLock::new();
-static PROGRAM_JSON_TO_MIR_CLI_WARN_ONCE: OnceLock<()> = OnceLock::new();
 static STAGE1_BRIDGE_PROGRAM_JSON_WARN_ONCE: OnceLock<()> = OnceLock::new();
 
 /// Warn once per process when nyash.toml is used while hako.toml is absent.
@@ -30,13 +29,6 @@ pub fn warn_emit_program_json_v0_cli_once() {
     warn_once(
         &EMIT_PROGRAM_JSON_V0_CLI_WARN_ONCE,
         "[deprecate] --emit-program-json-v0 is compat-only; prefer MIR-first routes such as --emit-mir-json",
-    );
-}
-
-pub fn warn_program_json_to_mir_cli_once() {
-    warn_once(
-        &PROGRAM_JSON_TO_MIR_CLI_WARN_ONCE,
-        "[deprecate] Program(JSON v0) -> MIR(JSON) CLI conversion is compat-only; prefer source -> MIR(JSON) routes",
     );
 }
 

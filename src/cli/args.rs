@@ -87,7 +87,6 @@ pub fn build_command() -> Command {
                     "run-task",
                     "repl",
                     "benchmark",
-                    "program-json-to-mir",
                     "emit-exe",
                     "compile-native",
                     "compile-wasm",
@@ -111,7 +110,6 @@ pub fn build_command() -> Command {
                     "emit-program-json",
                     "emit-ast-json",
                     "hako-run",
-                    "program-json-to-mir",
                 ]),
         )
         .arg(
@@ -125,10 +123,8 @@ pub fn build_command() -> Command {
                     "emit-program-json",
                     "emit-ast-json",
                     "emit-mir-json",
-                    "program-json-to-mir",
                 ]),
         )
-        .arg(Arg::new("program-json-to-mir").long("program-json-to-mir").value_name("FILE").help("[Compat-only, deprecated boundary] Convert Program(JSON v0) to MIR(JSON) and exit (use with --json-file)"))
         .arg(Arg::new("emit-exe").long("emit-exe").value_name("FILE").help("Emit native executable via ny-llvmc and exit"))
         .arg(Arg::new("emit-exe-nyrt").long("emit-exe-nyrt").value_name("DIR").help("Directory containing libnyash_kernel.a (used with --emit-exe). Hint: build via `cargo build -p nyash_kernel --release` (default output: target/release/libnyash_kernel.a)"))
         .arg(Arg::new("emit-exe-libs").long("emit-exe-libs").value_name("FLAGS").help("Extra linker flags for ny-llvmc when emitting executable"))
@@ -289,7 +285,6 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         emit_program_json_v0: matches.get_one::<String>("emit-program-json-v0").cloned(),
         hako_emit_mir_json: hako_emit_mir_path.is_some(),
         hako_run: matches.get_flag("hako-run"),
-        program_json_to_mir: matches.get_one::<String>("program-json-to-mir").cloned(),
         emit_exe: matches.get_one::<String>("emit-exe").cloned(),
         emit_exe_nyrt: matches.get_one::<String>("emit-exe-nyrt").cloned(),
         emit_exe_libs: matches.get_one::<String>("emit-exe-libs").cloned(),
@@ -336,9 +331,6 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
     }
     if cfg.emit_program_json_v0.is_some() {
         crate::runtime::deprecations::warn_emit_program_json_v0_cli_once();
-    }
-    if cfg.program_json_to_mir.is_some() {
-        crate::runtime::deprecations::warn_program_json_to_mir_cli_once();
     }
     if cfg.jit_stats {
         std::env::set_var("NYASH_JIT_STATS", "1");

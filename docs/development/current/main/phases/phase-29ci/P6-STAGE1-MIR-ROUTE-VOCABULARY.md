@@ -29,14 +29,14 @@ Related:
 | raw `stage1-cli emit mir-json` / binary-only direct | monitor-only legacy | keep until evidence lanes are retired |
 | `stage1-env-mir-program` | explicit Program(JSON) -> MIR compat | keep as exact probe/helper only |
 | `--emit-program-json-v0` | raw Program(JSON v0) compat emit | keep until smoke/tool callers are migrated |
-| `--program-json-to-mir` | raw Program(JSON v0) -> MIR compat convert | keep until shell/helper callers are migrated |
+| `--program-json-to-mir` | raw Program(JSON v0) -> MIR compat convert | retired in P16 |
 | `--hako-emit-program-json` | hako-prefixed Program(JSON) public alias | retired in this slice; it had no current tool/smoke caller bucket |
 
 ## Delete Order
 
 1. Sync docs/help so `--hako-emit-mir-json` reads as the MIR authority launcher, not as a generic `json_v0_bridge` route.
 2. Remove the hako-prefixed Program(JSON) public alias first: `--hako-emit-program-json`. Status: landed in this slice.
-3. Keep raw compat flags (`--emit-program-json-v0`, `--program-json-to-mir`) until their shell/smoke callers are migrated or explicitly quarantined.
+3. Keep raw `--emit-program-json-v0` until its shell/smoke callers are migrated or explicitly quarantined. `--program-json-to-mir` is retired in P16.
 4. Only after raw compat caller inventory reaches zero, reopen `src/runner/stage1_bridge/program_json*` / `src/stage1/program_json_v0*` hard delete.
 
 ## Guardrails
@@ -44,9 +44,8 @@ Related:
 - Do not remove `--hako-emit-mir-json`; it is the public/dev launcher for the current source -> MIR route.
 - Do not mix raw compat flag deletion with `.hako` live/bootstrap caller cleanup.
 - Do not delete `--emit-program-json-v0` while phase29bq mirbuilder smokes still pin Program(JSON) fixtures through it.
-- Do not delete `--program-json-to-mir` until the raw implementation in
-  `src/runner/pipe_io.rs` and its CLI arg/config fields are removed together,
-  with `user_box_decls` preservation pinned outside the raw CLI route.
+- Do not reintroduce `--program-json-to-mir`; explicit helper work must use
+  `env.mirbuilder.emit` / `tools/selfhost/lib/program_json_mir_bridge.sh`.
 
 ## Acceptance
 

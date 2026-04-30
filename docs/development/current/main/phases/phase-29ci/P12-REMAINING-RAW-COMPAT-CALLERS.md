@@ -29,6 +29,7 @@ Conclusion:
 - P14 で selfhost EXE / Stage-B delegate は retired。現在の live caller は
   phase29cg proof の 1 ファイル。
 - P15 で phase29cg proof は retired。current tools/src shell caller は 0。
+- P16 で raw CLI implementation/config も retired。
 - selfhost EXE / Stage-B delegate / phase29cg proof は、EXE または
   compiled-stage1 生成路の置換 proof が必要なので、同時に削らない。
 - `--emit-program-json-v0` は mirbuilder fixture producer と stage0/stageB

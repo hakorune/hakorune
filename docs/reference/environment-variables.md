@@ -95,13 +95,14 @@ NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_MIR_JSON=1 \
 Compat-only raw Program(JSON) route:
 ```bash
 ./target/release/hakorune --emit-program-json-v0 /tmp/out.json apps/tests/minimal.hako
-./target/release/hakorune --program-json-to-mir /tmp/out.mir --json-file /tmp/out.json
 ```
 
 Note:
 - `--hako-emit-mir-json` is the current Stage-1 MIR launcher entry.
-- Program(JSON) is compat-only; hako-prefixed Program(JSON) public aliases are retired.
-- explicit Program(JSON) work should stay on raw compat flags or dedicated compat probes.
+- Program(JSON) is compat-only; hako-prefixed Program(JSON) public aliases and
+  raw Program(JSON)->MIR CLI conversion are retired.
+- explicit Program(JSON)->MIR helper work should use `env.mirbuilder.emit` /
+  `tools/selfhost/lib/program_json_mir_bridge.sh` or dedicated compat probes.
 
 ---
 

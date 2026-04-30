@@ -35,9 +35,9 @@ Related:
   - route path: `runner::pipe_io::try_run_json_v0_pipe` -> `core_executor::execute_json_artifact` -> `json_artifact::load_json_artifact_to_module` -> `program_json_v0_loader::load_program_json_v0_to_module` -> `compile_program_json_v0_imports_bundle`
   - this is the route that owns the `NYASH_JSON_V0_IMPORT_TRACE` observation
 - `--program-json-to-mir <out> --json-file <program.json>`
-  - explicit compat bridge route
-  - convert Program(JSON v0) to MIR(JSON) and write a file
-  - keep lane, not the primary mainline emit path
+  - retired in phase-29ci P16
+  - use `env.mirbuilder.emit` / `tools/selfhost/lib/program_json_mir_bridge.sh`
+    for explicit Program(JSON)->MIR helper work
 - `--mir-json-file <mir.json>`
   - direct MIR execute route
   - mainline intake route
@@ -72,7 +72,8 @@ Related:
    - keep public mainline docs on `--emit-mir-json` / `--mir-json-file`
    - keep `--hako-emit-mir-json` as the Stage-1 MIR launcher for `stage1-env-mir-source`
    - `--hako-emit-program-json` is retired as the first duplicate public Program(JSON) alias
-   - demote `--json-file` / `--program-json-to-mir` / `--emit-program-json-v0` to explicit compat guidance
+  - demote `--json-file` / `--emit-program-json-v0` to explicit compat guidance
+  - retire `--program-json-to-mir` after caller inventory reaches zero (landed in P16)
    - hard delete only after the compat caller inventory reaches zero
 
 ## Caller Reduction Rule

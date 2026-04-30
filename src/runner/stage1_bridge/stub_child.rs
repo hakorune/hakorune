@@ -273,7 +273,6 @@ mod tests {
                 emit_program_json_v0: None,
                 hako_emit_mir_json: false,
                 hako_run: false,
-                program_json_to_mir: None,
                 emit_exe: None,
                 emit_exe_nyrt: None,
                 emit_exe_libs: None,
