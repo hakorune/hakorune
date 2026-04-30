@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# selfhost_build.sh — Direct/core-first selfhost facade (MIR-only direct; Stage-B → Program(JSON v0) for run/exe/debug)
+# selfhost_build.sh — Direct/core-first selfhost facade
 #
 # Goals:
-# - Take a Hako source (.hako), compile MIR-only requests directly, and keep
-#   Stage-B Program(JSON v0) production for run/exe/debug routes.
+# - Take a Hako source (.hako), compile MIR/EXE requests through direct MIR,
+#   and keep Stage-B Program(JSON v0) production for run/debug/explicit raw routes.
 # - Keep Stage‑B producer, direct MIR, EXE artifact, and final dispatcher logic in helper files.
 # - Optionally run via Gate‑C/Core Direct (in‑proc) to verify exit code.
-# - (Future) Optionally convert to MIR and build an executable via ny-llvmc.
+# - Optionally build an executable via ny-llvmc.
 #
 # Usage:
 #   tools/selfhost/selfhost_build.sh --in source.hako [--mir out.json] [--run]

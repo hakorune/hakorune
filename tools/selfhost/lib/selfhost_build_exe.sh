@@ -2,7 +2,8 @@
 # selfhost_build_exe.sh — EXE artifact owner helpers
 #
 # Purpose:
-# - Own the Program(JSON v0) → MIR(JSON) → EXE artifact lane.
+# - Own the direct source MIR -> EXE artifact lane.
+# - Keep the diagnostic Program(JSON v0) -> MIR(JSON) -> EXE consumer explicit.
 # - Keep this helper separate from direct MIR / core-direct and dispatcher logic.
 
 if [ -n "${ROOT:-}" ] && [ -f "$ROOT/tools/selfhost/lib/program_json_mir_bridge.sh" ]; then

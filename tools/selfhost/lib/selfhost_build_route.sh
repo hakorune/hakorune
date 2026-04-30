@@ -14,17 +14,19 @@ exit_program_json_wrapper_retired() {
 
 direct_mir_only_route_requested() {
   [ -n "$MIR_OUT" ] \
-    && [ "$DO_RUN" != "1" ] \
     && [ -z "$EXE_OUT" ] \
-    && [ "$KEEP_TMP" != "1" ] \
-    && [ "$RAW_KEEP" != "1" ]
+    && ! stageb_program_json_artifact_required
 }
 
 direct_exe_route_requested() {
   [ -n "$EXE_OUT" ] \
-    && [ "$DO_RUN" != "1" ] \
-    && [ "$KEEP_TMP" != "1" ] \
-    && [ "$RAW_KEEP" != "1" ]
+    && ! stageb_program_json_artifact_required
+}
+
+stageb_program_json_artifact_required() {
+  [ "$DO_RUN" = "1" ] \
+    || [ "$KEEP_TMP" = "1" ] \
+    || [ "$RAW_KEEP" = "1" ]
 }
 
 apply_selfhost_env() {
