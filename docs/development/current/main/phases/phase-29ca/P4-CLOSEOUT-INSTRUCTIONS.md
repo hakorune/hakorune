@@ -24,7 +24,7 @@ Scope: Phase 29ca closeout (docs-only)
 
 ## 検証（任意）
 
-- `./tools/hako_check_deadcode_smoke.sh`
+- `./tools/hako_check/deadcode_smoke.sh`
 - `bash tools/hako_check/run_tests.sh`
 
 ## コミット

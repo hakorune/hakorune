@@ -12,6 +12,7 @@ Archived scripts:
 - `aot_counter_smoke.sh`
 - `apps_tri_backend_smoke.sh`
 - `cross_backend_smoke.sh`
+- `hako_check_deadcode_smoke.sh`
 - `mir_builder_exe_smoke.sh`
 - `ny_me_dummy_smoke.sh`
 - `nyfmt_smoke.sh`

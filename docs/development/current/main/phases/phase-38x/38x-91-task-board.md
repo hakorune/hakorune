@@ -16,5 +16,5 @@ Date: 2026-04-03
 | --- | --- | --- |
 | `38xA1` | landed | `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh` |
 | `38xB1` | landed | `tools/hako_check_deadblocks_smoke.sh` delete-ready pointer sweep |
-| `38xC1` | landed | freeze `tools/bootstrap_selfhost_smoke.sh`, `tools/plugin_v2_smoke.sh`, `tools/hako_check_deadcode_smoke.sh` as archive-later |
+| `38xC1` | landed | freeze `tools/bootstrap_selfhost_smoke.sh`, `tools/plugin_v2_smoke.sh`, `tools/hako_check/deadcode_smoke.sh` as archive-later |
 | `38xD1` | landed | closeout and handoff |

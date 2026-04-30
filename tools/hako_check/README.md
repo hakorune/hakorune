@@ -9,7 +9,8 @@ Canonical helpers
 - `bash tools/hako_check/run_tests.sh`
 - `bash tools/hako_check/deadcode_smoke.sh`
 - `bash tools/hako_check/deadblocks_smoke.sh`
-- top-level `tools/hako_check_deadcode_smoke.sh` remains a compatibility shim only
+- archived top-level compatibility shim:
+  `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
 
 Execution lane
 - `hako_check` no longer treats explicit `--backend vm` as its canonical runtime.

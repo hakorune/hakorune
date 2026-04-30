@@ -362,7 +362,7 @@ Read as:
 | --- | --- | --- |
 | `tools/hako_check.sh` | keep here | shared analysis entry with live smoke and docs callers |
 | `tools/hako_check/deadcode_smoke.sh` | family-home rehome | deadcode smoke belongs with the `tools/hako_check/**` family |
-| `tools/hako_check_deadcode_smoke.sh` | shim-only | compatibility path kept while historical/current docs drain |
+| `tools/hako_check/deadcode_smoke.sh` | shim-only | compatibility path kept while historical/current docs drain |
 | `tools/hakorune_emit_mir.sh` | keep here | shared route/helper with broad live script/docs integration |
 
 - `hako_check_deadcode_smoke.sh` moved to:

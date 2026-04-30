@@ -18,12 +18,12 @@ Make sure the selfhost toolchain can be exercised end-to-end without tripping Jo
 ## Commands (SSOT)
 
 - Build: `cargo build --release`
-- Smoke (deadcode): `./tools/hako_check_deadcode_smoke.sh`
+- Smoke (deadcode): `./tools/hako_check/deadcode_smoke.sh`
 - Smoke (deadblocks): `./tools/hako_check_deadblocks_smoke.sh`
 - Rule fixtures (JSON-LSP): `bash tools/hako_check/run_tests.sh`
 
 Optional diagnostics:
-- VM trace: `NYASH_VM_TRACE_LOG=__mir__.log ./tools/hako_check_deadcode_smoke.sh`
+- VM trace: `NYASH_VM_TRACE_LOG=__mir__.log ./tools/hako_check/deadcode_smoke.sh`
 
 Notes:
 - deadblocks smoke currently warns about CFG integration and may report 0 passes without failing the script.

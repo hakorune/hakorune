@@ -35,7 +35,7 @@ Related:
 3. `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
 4. `tools/bootstrap_selfhost_smoke.sh`
 5. `tools/plugin_v2_smoke.sh`
-6. `tools/hako_check_deadcode_smoke.sh`
+6. `tools/hako_check/deadcode_smoke.sh`
 
 - successor lane: `phase-39x stage0 vm gate thinning`
 - next micro task: `39xA1 stage0 gate route inventory`

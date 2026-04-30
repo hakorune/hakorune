@@ -172,7 +172,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `tools/plugin_v2_smoke.sh`
   - `tools/engineering/run_vm_stats.sh`
   - `tools/hako_check.sh`
-  - `tools/hako_check_deadcode_smoke.sh`
+  - `tools/hako_check/deadcode_smoke.sh`
   - `tools/hakorune_emit_mir.sh`
   - `tools/engineering/parity.sh`
 - archived/manual residue:

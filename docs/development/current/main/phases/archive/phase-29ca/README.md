@@ -32,7 +32,7 @@ Related:
 
 ## Selfhost bringup gate (SSOT)
 
-- `./tools/hako_check_deadcode_smoke.sh`
+- `./tools/hako_check/deadcode_smoke.sh`
 - `bash tools/hako_check/run_tests.sh`
 
 ## Acceptance boundary (generic loop v0 / v0.1)

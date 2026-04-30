@@ -259,7 +259,7 @@ Bootstrap/selfhost archive/delete result (`30xC1`):
 - `tools/engineering/run_vm_stats.sh`
 - `tools/engineering/parity.sh`
 - `tools/hako_check.sh`
-- `tools/hako_check_deadcode_smoke.sh`
+- `tools/hako_check/deadcode_smoke.sh`
 - `tools/archive/manual-smokes/async_smokes.sh`
 - `tools/hakorune_emit_mir.sh`
 
@@ -280,7 +280,7 @@ Plugin/macro/tooling findings (`30xC2`):
 - `tools/hako_check.sh`
   - current helper/lint route still exercises Rust VM
   - keep as engineering/tooling surface
-- `tools/hako_check_deadcode_smoke.sh`
+- `tools/hako_check/deadcode_smoke.sh`
   - deadcode helper smoke is still part of current tooling/docs flow
   - keep as engineering/tooling surface
 - `tools/hakorune_emit_mir.sh`

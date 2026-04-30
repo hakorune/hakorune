@@ -60,7 +60,7 @@ bash tools/engineering/parity.sh --help >/dev/null
 ## 31xC Result
 
 - `tools/hako_check.sh` = keep here
-- `tools/hako_check_deadcode_smoke.sh` = keep here with the `hako_check` family
+- `tools/hako_check/deadcode_smoke.sh` = keep here with the `hako_check` family
 - `tools/hakorune_emit_mir.sh` = keep here as a shared route/helper script
 - result:
   - no helper in this family is a low-blast `tools/engineering/**` move candidate

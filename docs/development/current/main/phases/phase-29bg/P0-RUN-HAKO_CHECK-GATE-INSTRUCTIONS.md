@@ -24,7 +24,7 @@ Scope: docs-only (runbook)
    - `cargo build --release`
 
 2. Smoke: dead code（HC019）
-   - `./tools/hako_check_deadcode_smoke.sh`
+   - `./tools/hako_check/deadcode_smoke.sh`
 
 3. Smoke: dead blocks（HC020, MVP）
    - `./tools/hako_check_deadblocks_smoke.sh`

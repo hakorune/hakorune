@@ -102,7 +102,7 @@ rg -n -- '--backend vm|--backend llvm|cranelift|ny-llvmc|llvmlite|phase2100' \
 - `32xF1` landed:
   - `tools/hako_check.sh` stays top-level keep
   - `tools/hako_check/deadcode_smoke.sh` is the canonical family home
-  - `tools/hako_check_deadcode_smoke.sh` is shim-only
+  - `tools/hako_check/deadcode_smoke.sh` is shim-only
   - `tools/hakorune_emit_mir.sh` stays top-level keep
 - `32xG1` landed:
   - `args.rs` still defaults to `vm` and still advertises `interpreter`

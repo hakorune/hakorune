@@ -33,7 +33,7 @@ Related:
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - current shared-helper inventory starts before rehoming:
   - `tools/hako_check.sh`
-  - `tools/hako_check_deadcode_smoke.sh`
+  - `tools/hako_check/deadcode_smoke.sh`
   - `tools/hakorune_emit_mir.sh`
 
 ## Macro Tasks
@@ -84,7 +84,7 @@ Related:
 | Helper | Disposition | Read as |
 | --- | --- | --- |
 | `tools/hako_check.sh` | keep here | shared helper keep; still live in current design gates, current phase docs, and analyze smoke callers |
-| `tools/hako_check_deadcode_smoke.sh` | keep here | stays with the `hako_check` family; loopless/deadcode gates still call the top-level path |
+| `tools/hako_check/deadcode_smoke.sh` | keep here | stays with the `hako_check` family; loopless/deadcode gates still call the top-level path |
 | `tools/hakorune_emit_mir.sh` | keep here | shared route/helper script with live `README`, `smokes/v2/lib`, `route_env_probe`, and runner integrations |
 
 - `31xC1` confirmed blast radius before any move.

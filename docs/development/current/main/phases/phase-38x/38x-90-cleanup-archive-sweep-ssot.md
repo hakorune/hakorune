@@ -21,7 +21,7 @@ Scope: post-37x cleanup/archive sweep
 | `tools/hako_check_deadblocks_smoke.sh` | deleted | canonical path already lives under `tools/hako_check/deadblocks_smoke.sh`; no live executable callers remained |
 | `tools/bootstrap_selfhost_smoke.sh` | archive-later | top-level shim only, but current/historical docs drain remains |
 | `tools/plugin_v2_smoke.sh` | archive-later | top-level shim only, but plugin lane historical/current docs still point here |
-| `tools/hako_check_deadcode_smoke.sh` | archive-later | shim-only, but current/historical docs drain remains |
+| `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh` | archived | former top-level shim; canonical helper remains `tools/hako_check/deadcode_smoke.sh` |
 
 ## Active Front
 

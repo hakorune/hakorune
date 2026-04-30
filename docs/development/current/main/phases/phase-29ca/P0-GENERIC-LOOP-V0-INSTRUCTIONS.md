@@ -72,7 +72,7 @@ release は恒常ログ/意味論不変。
 ## First target (P1)
 
 最初の受理対象は **selfhost tooling の “単純走査”** とする。
-最低1件は `./tools/hako_check_deadcode_smoke.sh` の失敗点に合わせて採用し、
+最低1件は `./tools/hako_check/deadcode_smoke.sh` の失敗点に合わせて採用し、
 gate 回復を効果検証に使う（例: `HakoAnalysisBuilderBox._infer_call_arity/2`）。
 
 ## Acceptance (during migration)
@@ -81,4 +81,4 @@ gate 回復を効果検証に使う（例: `HakoAnalysisBuilderBox._infer_call_a
 
 - `cargo build --release`
 - 追加した unit tests（CorePlan verifier/lowerer のみ）
-- 可能なら `./tools/hako_check_deadcode_smoke.sh` の再実行（selfhost導線の確認）
+- 可能なら `./tools/hako_check/deadcode_smoke.sh` の再実行（selfhost導線の確認）

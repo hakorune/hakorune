@@ -39,7 +39,7 @@ Related:
 ## Gate (SSOT)
 
 - `./tools/hako_check_loopless_gate.sh` (P2 gate wrapper)
-- `./tools/hako_check_deadcode_smoke.sh`
+- `./tools/hako_check/deadcode_smoke.sh`
 - `bash tools/hako_check/run_tests.sh`
 
 Default entry: `./tools/hako_check_loopless_gate.sh` (use `--only {quick|joinir|deadcode|run_tests}` for reruns)
@@ -49,7 +49,7 @@ Default entry: `./tools/hako_check_loopless_gate.sh` (use `--only {quick|joinir|
 | Command | RC | Notes |
 | --- | --- | --- |
 | `./tools/hako_check_loopless_gate.sh` | 0 | quick + JoinIR gate + deadcode + run_tests |
-| `./tools/hako_check_deadcode_smoke.sh` | 0 | selfhost 前の最小ゲート |
+| `./tools/hako_check/deadcode_smoke.sh` | 0 | selfhost 前の最小ゲート |
 | `bash tools/hako_check/run_tests.sh` | 0 | JSON 出力は filter 済み |
 
 ## Deadcode smoke contract
