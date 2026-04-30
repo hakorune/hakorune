@@ -72,7 +72,6 @@ selfhost_build_main() {
   # explicit compat-only and is off the default caller path here.
   RAW="/tmp/hako_stageb_raw_$$.txt"
   stageb_rc=0
-  SRC_CONTENT="$(cat "$IN")"
   stageb_cmd_desc=""
   apply_selfhost_env
   if [ -z "${HAKO_STAGEB_MODULES_LIST:-}" ]; then
