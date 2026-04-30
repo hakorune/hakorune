@@ -70,11 +70,6 @@ run_emit_mir_json() {
     exit 2
   fi
 
-  run_emit_mir_json_from_source "$entry"
-}
-
-run_emit_mir_json_from_source() {
-  local entry="$1"
   stage1_contract_exec_direct_emit_mode "$ROOT_DIR/target/release/hakorune" "emit-mir" "$entry"
 }
 
