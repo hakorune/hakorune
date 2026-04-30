@@ -8,7 +8,11 @@ if [ "${SMOKES_ENABLE_SELFHOST:-0}" != "1" ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null || cd "$SCRIPT_DIR/../../../../../../.." && pwd)"
+if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
+  ROOT="$ROOT_GIT"
+else
+  ROOT="$(cd "$SCRIPT_DIR/../../../../../.." && pwd)"
+fi
 source "$ROOT/tools/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
 
@@ -39,4 +43,3 @@ else
   echo "[FAIL] selfhost_build_exe_return (rc=$rc)" >&2
   exit 1
 fi
-

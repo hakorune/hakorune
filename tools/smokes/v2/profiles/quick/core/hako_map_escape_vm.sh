@@ -9,7 +9,11 @@ if [ "${SMOKES_ENABLE_STAGEA_BOUNDARY:-0}" != "1" ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null || cd "$SCRIPT_DIR/../../../../.." && pwd)"
+if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
+  ROOT="$ROOT_GIT"
+else
+  ROOT="$(cd "$SCRIPT_DIR/../../../../../.." && pwd)"
+fi
 BIN="$ROOT/target/release/nyash"
 
 if [ ! -x "$BIN" ]; then

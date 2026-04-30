@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
   ROOT="$ROOT_GIT"
 else
-  ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../.." && pwd)"
+  ROOT="$(cd "$SCRIPT_DIR/../../../../../.." && pwd)"
 fi
 source "$ROOT/tools/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
@@ -32,4 +32,3 @@ else
   echo "[FAIL] selfhost_build_binop_vm (rc=$rc)" >&2
   exit 1
 fi
-
