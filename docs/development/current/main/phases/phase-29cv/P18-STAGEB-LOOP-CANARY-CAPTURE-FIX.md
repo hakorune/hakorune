@@ -1,7 +1,10 @@
 # P18: Stage-B loop canary capture fix
 
-Scope: repair `tools/dev/stageb_loop_json_canary.sh` and route its
+Scope: repair the Stage-B loop JSON canary and route its
 Program(JSON v0) capture through the shared extractor.
+
+P39 later archived the canary at
+`tools/archive/legacy-selfhost/engineering/stageb_loop_json_canary.sh`.
 
 ## Why
 
@@ -23,8 +26,8 @@ This keeps the canary dev-only. It does not add a new gate.
 ## Acceptance
 
 ```bash
-bash -n tools/dev/stageb_loop_json_canary.sh
-bash tools/dev/stageb_loop_json_canary.sh
+bash -n tools/archive/legacy-selfhost/engineering/stageb_loop_json_canary.sh
+bash tools/archive/legacy-selfhost/engineering/stageb_loop_json_canary.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
