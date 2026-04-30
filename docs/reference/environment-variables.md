@@ -103,6 +103,9 @@ Note:
   raw Program(JSON)->MIR CLI conversion are retired.
 - explicit Program(JSON)->MIR helper work should use `env.mirbuilder.emit` /
   `tools/selfhost/lib/program_json_mir_bridge.sh` or dedicated compat probes.
+- `--emit-program-json-v0` remains delete-last while explicit keeper/probe
+  routes still exist (for example `tools/dev/phase29cv_stageb_artifact_probe.sh`
+  and `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`).
 
 ---
 

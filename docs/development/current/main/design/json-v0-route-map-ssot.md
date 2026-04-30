@@ -69,12 +69,20 @@ Related:
    - archive-ready monitor/probe/docs bucket is archive-only evidence
    - mixed route probe helper split is explicit now; keep it inside compat-loader routing, not as a separate cleanup bucket
 5. public-surface cleanup
-   - keep public mainline docs on `--emit-mir-json` / `--mir-json-file`
-   - keep `--hako-emit-mir-json` as the Stage-1 MIR launcher for `stage1-env-mir-source`
-   - `--hako-emit-program-json` is retired as the first duplicate public Program(JSON) alias
-  - demote `--json-file` / `--emit-program-json-v0` to explicit compat guidance
-  - retire `--program-json-to-mir` after caller inventory reaches zero (landed in P16)
-   - hard delete only after the compat caller inventory reaches zero
+    - keep public mainline docs on `--emit-mir-json` / `--mir-json-file`
+    - keep `--hako-emit-mir-json` as the Stage-1 MIR launcher for `stage1-env-mir-source`
+    - `--hako-emit-program-json` is retired as the first duplicate public Program(JSON) alias
+   - demote `--json-file` / `--emit-program-json-v0` to explicit compat guidance
+   - current explicit keepers that still block hard delete are:
+     - `tools/dev/phase29cv_stageb_artifact_probe.sh`
+     - `tools/lib/program_json_v0_compat.sh`
+     - `tools/selfhost/lib/program_json_mir_bridge.sh`
+     - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+     - `tools/selfhost/lib/stage1_contract.sh`
+     - `tools/selfhost/compat/run_stage1_cli.sh`
+     - `tools/smokes/v2/lib/stageb_helpers.sh`
+    - retire `--program-json-to-mir` after caller inventory reaches zero (landed in P16)
+    - hard delete only after the compat caller inventory reaches zero
 
 ## Caller Reduction Rule
 
@@ -113,3 +121,5 @@ Related:
 
 - do not reopen `Program(JSON v0)` as a mainline artifact family
 - do not jump directly to CLI removal or hard delete before `phase-29ci` / `phase-29cj` caller inventory is empty
+- do not treat the remaining explicit probe/fixture keepers as proof that public
+  compat deletion is ready
