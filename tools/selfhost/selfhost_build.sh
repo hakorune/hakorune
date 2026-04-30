@@ -44,9 +44,14 @@ if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_stageb.sh" ]; then
   source "$ROOT/tools/selfhost/lib/selfhost_build_stageb.sh"
 fi
 if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_direct.sh" ]; then
-  # Direct MIR / core-direct owner lives in its own helper file.
-  # Keep this script focused on exe-artifact / dispatcher routing.
+  # Direct MIR owner lives in its own helper file.
+  # Keep this script focused on run / exe-artifact / dispatcher routing.
   source "$ROOT/tools/selfhost/lib/selfhost_build_direct.sh"
+fi
+if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_run.sh" ]; then
+  # Stage-B run keeper lives in its own helper file.
+  # Keep this script focused on exe-artifact / dispatcher routing.
+  source "$ROOT/tools/selfhost/lib/selfhost_build_run.sh"
 fi
 if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_exe.sh" ]; then
   # EXE artifact owner lives in its own helper file.

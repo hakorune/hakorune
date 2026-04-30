@@ -55,6 +55,7 @@ Script
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
   - --keep-tmp: explicit diagnostic route; keeps and prints the Stage-B artifact path when no downstream output mode is selected.
   - diagnostic Program(JSON)->MIR->EXE probes stay behind `emit_exe_from_program_json_v0_with_context()`; the normal `--exe` route no longer produces Stage-B Program(JSON v0).
+  - `--run` remains a Program(JSON v0) keeper owned by `tools/selfhost/lib/selfhost_build_run.sh` until direct MIR execution has a separate proof.
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)

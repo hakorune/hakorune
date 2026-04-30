@@ -4,7 +4,7 @@
 # Purpose:
 # - Own the direct source MIR -> EXE artifact lane.
 # - Keep the diagnostic Program(JSON v0) -> MIR(JSON) -> EXE consumer explicit.
-# - Keep this helper separate from direct MIR / core-direct and dispatcher logic.
+# - Keep this helper separate from direct MIR / run keeper / dispatcher logic.
 
 if [ -n "${ROOT:-}" ] && [ -f "$ROOT/tools/selfhost/lib/program_json_mir_bridge.sh" ]; then
   # Non-raw Program(JSON)->MIR bridge owner.
