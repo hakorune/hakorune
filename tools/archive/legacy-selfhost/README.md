@@ -7,3 +7,5 @@
   - `compat-codegen/`
 - Historical engineering helper evidence lives under:
   - `engineering/`
+- Historical Stage1 CLI root helpers live under:
+  - `stage1-cli/`

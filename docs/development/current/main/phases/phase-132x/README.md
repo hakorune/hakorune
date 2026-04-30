@@ -5,8 +5,8 @@
   - `src/cli/args.rs`
   - `src/runner/dispatch.rs`
   - `src/runner/stage1_bridge/direct_route/mod.rs`
-  - `tools/stage1_minimal.sh`
-  - `tools/stage1_debug.sh`
+  - `tools/archive/legacy-selfhost/stage1-cli/stage1_minimal.sh`（archived）
+  - `tools/archive/legacy-selfhost/stage1-cli/stage1_debug.sh`（archived）
   - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_direct_emit_dominance_block_vm.sh`
 - success:
   - caller bucketization is complete
@@ -68,3 +68,6 @@
 - `README.md` / `README.ja.md` no longer describe raw CLI ingress as defaulting to `vm`
 - `tools/using_e2e_smoke.sh` now uses `tools/selfhost/run.sh --runtime --runtime-route mainline`
 - `phase21_5_perf_direct_emit_dominance_block_vm.sh` now pins its first two legacy assertions to explicit `--backend vm`
+- `tools/stage1_minimal.sh` and `tools/stage1_debug.sh` are retired from
+  active root tools; use `tools/selfhost/compat/run_stage1_cli.sh` for the
+  current Stage1 CLI compatibility wrapper.

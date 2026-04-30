@@ -13,7 +13,7 @@
 # 使い方（暫定仕様）:
 #   NYASH_STAGE1_MODE=emit-program-json \
 #   NYASH_STAGE1_INPUT=apps/tests/minimal.hako \
-#   ./tools/stage1_minimal.sh
+#   ./tools/archive/legacy-selfhost/stage1-cli/stage1_minimal.sh
 #
 #   # 省略時デフォルト:
 #   #   MODE = emit-program-json
@@ -22,11 +22,16 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
+  ROOT_DIR="$ROOT_GIT"
+else
+  ROOT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+fi
 
 usage() {
   cat <<'USAGE' >&2
-Usage: tools/stage1_minimal.sh [<source.hako>]
+Usage: tools/archive/legacy-selfhost/stage1-cli/stage1_minimal.sh [<source.hako>]
 
 Environment (logical vars):
   NYASH_STAGE1_MODE   : emit-program-json | emit-mir-json | run-vm (default: emit-program-json)
@@ -36,9 +41,9 @@ Environment (logical vars):
 Examples:
   NYASH_STAGE1_MODE=emit-program-json \
     NYASH_STAGE1_INPUT=apps/tests/minimal.hako \
-    ./tools/stage1_minimal.sh
+    ./tools/archive/legacy-selfhost/stage1-cli/stage1_minimal.sh
 
-  ./tools/stage1_minimal.sh apps/tests/minimal.hako
+  ./tools/archive/legacy-selfhost/stage1-cli/stage1_minimal.sh apps/tests/minimal.hako
     # → MODE=emit-program-json, INPUT=apps/tests/minimal.hako で実行
 USAGE
 }

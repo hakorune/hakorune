@@ -13,17 +13,22 @@
 #     薄いラッパとして実装する。
 #
 # 使い方:
-#   tools/stage1_debug.sh <source.hako>
-#   tools/stage1_debug.sh --mode emit-program-json <source.hako>
+#   tools/archive/legacy-selfhost/stage1-cli/stage1_debug.sh <source.hako>
+#   tools/archive/legacy-selfhost/stage1-cli/stage1_debug.sh --mode emit-program-json <source.hako>
 #
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
+  ROOT_DIR="$ROOT_GIT"
+else
+  ROOT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+fi
 
 usage() {
   cat <<'USAGE' >&2
-Usage: tools/stage1_debug.sh [--mode <mode>] <source.hako>
+Usage: tools/archive/legacy-selfhost/stage1-cli/stage1_debug.sh [--mode <mode>] <source.hako>
 
 Modes (current stub):
   emit-program-json   : Stage-1 CLI で Program(JSON v0) を emit
@@ -31,8 +36,8 @@ Modes (current stub):
   run-vm              : Stage-1 CLI で vm backend 実行（予定）
 
 Examples:
-  tools/stage1_debug.sh apps/tests/minimal.hako
-  tools/stage1_debug.sh --mode emit-mir-json apps/tests/minimal.hako
+  tools/archive/legacy-selfhost/stage1-cli/stage1_debug.sh apps/tests/minimal.hako
+  tools/archive/legacy-selfhost/stage1-cli/stage1_debug.sh --mode emit-mir-json apps/tests/minimal.hako
 
 Note:
   - 現時点では、内部的には既存の NYASH_USE_STAGE1_CLI / STAGE1_EMIT_* を

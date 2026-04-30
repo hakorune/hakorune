@@ -51,7 +51,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
      `selfhost_build.sh` mainline routing.
 3. Stage1 contract keepers
    - `tools/selfhost/lib/stage1_contract.sh`
+   - `tools/selfhost/compat/run_stage1_cli.sh`
    - Keep only for explicit contract/probe coverage.
+   - Old root helpers `tools/stage1_debug.sh` and `tools/stage1_minimal.sh`
+     are archived under `tools/archive/legacy-selfhost/stage1-cli/`.
 4. JoinIR / MirBuilder fixture keepers
    - `tools/smokes/v2/lib/stageb_helpers.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`
