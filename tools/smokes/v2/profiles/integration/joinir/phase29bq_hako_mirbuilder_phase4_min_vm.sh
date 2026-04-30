@@ -8,6 +8,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/smokes/v2/lib/stageb_helpers.sh"
 require_env || exit 2
 
 # Phase-29bq selfhost pins run in planner-required mode to exercise JoinIR plan boxes (no legacy fallback).
@@ -24,7 +25,7 @@ MJSON="$TMP_DIR/${RUN_ID}_mir.json"
 rm -f "$PJSON" "$MJSON"
 
 # 1) Rust Stage-0: emit Program(JSON v0)
-"$NYASH_BIN" --emit-program-json-v0 "$PJSON" "$FIXTURE" >/dev/null
+stageb_emit_program_json_v0_fixture "$PJSON" "$FIXTURE"
 
 # 2) .hako mirbuilder (Phase-4): Program(JSON v0) → MIR JSON v0
 HAKO_PROGRAM_JSON_FILE="$PJSON" "$NYASH_BIN" --backend vm "$ENTRY" >"$MJSON"

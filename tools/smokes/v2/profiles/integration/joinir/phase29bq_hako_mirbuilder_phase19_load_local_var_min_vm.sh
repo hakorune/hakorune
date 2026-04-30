@@ -7,6 +7,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/smokes/v2/lib/stageb_helpers.sh"
 require_env || exit 2
 
 export HAKO_JOINIR_PLANNER_REQUIRED=1
@@ -21,7 +22,7 @@ MJSON="$TMP_DIR/${RUN_ID}_mir.json"
 
 rm -f "$PJSON" "$MJSON"
 
-"$NYASH_BIN" --emit-program-json-v0 "$PJSON" "$FIXTURE" >/dev/null
+stageb_emit_program_json_v0_fixture "$PJSON" "$FIXTURE"
 HAKO_PROGRAM_JSON_FILE="$PJSON" "$NYASH_BIN" --backend vm "$ENTRY" >"$MJSON"
 
 if ! rg -q '"op":"load"' "$MJSON"; then

@@ -233,7 +233,7 @@ Helper — Stage3 Same-Result Check
 - `tools/selfhost/stage3_same_result_check.sh`
   - Stage3 is the bootstrap same-result sanity check, not the parser/bridge `Stage3` acceptance smoke.
   - `stage2-bin` / `stage3-bin` in this helper are compare-artifact labels only; they are not separate artifact-kind families.
-  - Build lane: re-emit Program(JSON v0) and MIR(JSON) snapshots twice from a known-good seed, then compare the snapshots plus `.artifact_kind`.
+  - Build lane: materialize Program(JSON v0) and MIR(JSON) snapshots twice from a known-good seed through the stage1 env contract helper, then compare the snapshots plus `.artifact_kind`.
   - `--artifact-kind stage1-cli` is the working build lane today; `--seed-bin` can override the payload seed.
   - `--skip-build` compares an explicit prebuilt Stage2/Stage3 pair only.
   - Use this helper when you want to confirm bootstrap reproducibility without touching G1 Program/MIR identity comparison.

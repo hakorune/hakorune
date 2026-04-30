@@ -30,6 +30,14 @@ Conclusion:
   phase29cg proof の 1 ファイル。
 - P15 で phase29cg proof は retired。current tools/src shell caller は 0。
 - P16 で raw CLI implementation/config も retired。
+- follow-up cleanup slices then retired the G1 identity `program-json`
+  stage0/auto wrapper surface and rerouted stale helper callers
+  (`tools/selfhost/stage3_same_result_check.sh`,
+  `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`) onto the
+  stage1 env contract instead of the retired `run_stage1_cli.sh emit
+  program-json` wrapper surface.
+- remaining live raw emit callers are now the two true shell keepers plus the
+  active `phase29bq` fixture/contract-pin family.
 - selfhost EXE / Stage-B delegate / phase29cg proof は、EXE または
   compiled-stage1 生成路の置換 proof が必要なので、同時に削らない。
 - `--emit-program-json-v0` は mirbuilder fixture producer と stage0/stageB
@@ -53,11 +61,21 @@ Guardrail:
 
 | Owner | Caller family | Next action |
 | --- | --- | --- |
-| stage0 direct compat | `tools/selfhost/lib/identity_routes.sh`, `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost_identity_check.sh` | keep until stage0 direct compat lane is retired |
+| explicit stage1 compat/direct emit keeper | `tools/selfhost/lib/stage1_contract.sh` | keep until the explicit compat probe lane is migrated |
 | Stage-B Program producer | `tools/selfhost/lib/selfhost_build_stageb.sh` | keep until selfhost build route can produce MIR directly |
-| hako mirbuilder fixture producer | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*` | keep as Program(JSON) fixture evidence until each family is rewritten |
+| hako mirbuilder fixture producer | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`, `tools/smokes/v2/lib/stageb_helpers.sh` | keep as Program(JSON) fixture evidence until each family is rewritten; single-fixture callers are now centralized behind `stageb_emit_program_json_v0_fixture()` |
 | Program(JSON) contract pin | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh` | keep as explicit compat contract evidence |
 | deprecation warning text | `src/runtime/deprecations.rs` | keep while raw compat flag exists |
+
+Notes:
+- `tools/selfhost/lib/identity_routes.sh` and `tools/selfhost_identity_check.sh`
+  still route around the compat lane, but they no longer front a live
+  `program-json` stage0/auto identity surface.
+- `tools/selfhost/compat/run_stage1_cli.sh emit program-json` remains a retired
+  wrapper contract with a dedicated smoke, not a live producer path.
+- remaining bespoke `phase29bq` raw emit callers are the multi-case / cleanup /
+  contract-pin scripts (`phase2`, `cleanup_try*`, and
+  `phase29bq_hako_program_json_contract_pin_vm.sh`).
 
 ## Delete Order
 
@@ -70,7 +88,8 @@ Guardrail:
 4. After `--program-json-to-mir` shell callers are gone, reopen
    `src/runner/pipe_io.rs` deletion.
 5. Only then start per-family migration of `phase29bq_hako_mirbuilder_*`
-   Program(JSON) fixture producers.
+   Program(JSON) fixture producers, or centralize identical producer boilerplate
+   behind a shared helper without weakening the pin.
 
 ## Acceptance
 

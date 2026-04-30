@@ -113,6 +113,14 @@ stageb_json_nonempty() {
   [ -s "$path" ]
 }
 
+# Thin shared wrapper for the phase29bq Program(JSON v0) fixture producers.
+# Keep the exact raw CLI contract in one place without changing downstream pins.
+stageb_emit_program_json_v0_fixture() {
+  local out_path="$1"
+  local fixture="$2"
+  "$NYASH_BIN" --emit-program-json-v0 "$out_path" "$fixture" >/dev/null
+}
+
 # Execute a compiled Stage‑B Program(JSON v0) via the compat umbrella intake and expect specific rc
 # Args: JSON_PATH EXPECTED_RC
 stageb_gatec_expect_rc() {

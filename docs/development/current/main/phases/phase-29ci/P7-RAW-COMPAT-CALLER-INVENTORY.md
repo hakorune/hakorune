@@ -27,11 +27,23 @@ Conclusion:
 
 | Bucket | Representative callers | Action |
 | --- | --- | --- |
-| stage0 identity / direct compat | `tools/selfhost/lib/identity_routes.sh`, `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost_identity_check.sh` | keep until stage0 direct compat lane is retired |
+| explicit compat/direct emit keeper | `tools/selfhost/lib/stage1_contract.sh` | keep until the explicit compat probe lane is retired |
 | Stage-B producer helper | `tools/selfhost/lib/selfhost_build_stageb.sh` | migrate only with selfhost build route proof |
-| hako mirbuilder fixture producer | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*` | keep; these pin Program(JSON) fixtures for `.hako mirbuilder` |
+| hako mirbuilder fixture producer | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`, `tools/smokes/v2/lib/stageb_helpers.sh` | keep; these pin Program(JSON) fixtures for `.hako mirbuilder` and now share the thin producer helper where the caller shape is identical |
 | Program(JSON) contract pin | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh` | keep as explicit contract evidence |
 | parser dual-route probe | `tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh` | migrated in P11; Rust-side now uses AST JSON, Hako-side keeps wrapper Program(JSON) observation |
+
+Notes:
+- `tools/selfhost/lib/identity_routes.sh` / `tools/selfhost_identity_check.sh`
+  still own stage1 routing policy, but the retired wrapper-local
+  `program-json` caller surface is no longer a live bucket here.
+- `tools/selfhost/stage3_same_result_check.sh` and
+  `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh` now materialize
+  Program(JSON) through the stage1 env contract helper instead of the retired
+  `run_stage1_cli.sh emit program-json` wrapper surface.
+- `phase29bq` single-fixture producer callers now funnel through
+  `stageb_emit_program_json_v0_fixture()`; bespoke multi-case / cleanup /
+  contract-pin scripts remain direct for now.
 
 ## `--program-json-to-mir` Buckets
 
