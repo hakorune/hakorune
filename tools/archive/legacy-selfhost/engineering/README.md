@@ -16,5 +16,7 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `test_stageb_using.sh`
 - `selfhost_compiler_smoke.sh`
 - `ny_selfhost_using_smoke.sh`
+- `test_stageb_min.sh`
+- `stageb_loopssa_debug.sh`
 
 Read this directory as the archived engineering helper bucket.

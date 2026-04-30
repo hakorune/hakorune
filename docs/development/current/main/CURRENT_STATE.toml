@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md"
-latest_card_summary = "Archive stale root compat/manual smoke helpers out of active tools while preserving historical evidence."
+latest_card = "P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES.md"
+latest_card_summary = "Archive old Stage-B LoopSSA debug harnesses out of root tools while preserving manual historical evidence."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -78,7 +78,7 @@ $ NYASH_DISABLE_PLUGINS=1 NYASH_PARSER_STAGE3=1 \
 # Output: 0 (success)
 
 # Test 2: Stage-B compilation (fails - Rust MIR builder bug)
-$ HAKO_COMPILER_BUILDER_TRACE=1 bash tools/test_stageb_min.sh
+$ HAKO_COMPILER_BUILDER_TRACE=1 bash tools/archive/legacy-selfhost/engineering/test_stageb_min.sh
 # Error: phi pred mismatch at ValueId(5937)
 ```
 

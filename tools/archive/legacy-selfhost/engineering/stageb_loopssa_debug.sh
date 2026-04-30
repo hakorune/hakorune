@@ -2,7 +2,7 @@
 # stageb_loopssa_debug.sh — Stage‑B LoopSSA 専用トレースプリセット
 #
 # 目的:
-#   - Stage‑B 最小ハーネス（tools/test_stageb_min.sh）を、
+#   - Stage‑B 最小ハーネス（同じ archive bucket の test_stageb_min.sh）を、
 #     LoopSSA v2 / BreakFinderBox / PhiInjectorBox / LocalSSA / receiver 実体化の
 #     デバッグに適した ENV セットで実行するよ。
 #   - 「いつも同じ環境変数を手で並べる」手間を減らし、ログの再現性を高める。
@@ -18,7 +18,7 @@
 #
 set -e
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export HAKO_LOOPSSA_EXIT_PHI="${HAKO_LOOPSSA_EXIT_PHI:-1}"
 export HAKO_LOOPSSA_TRACE="${HAKO_LOOPSSA_TRACE:-1}"
@@ -37,4 +37,4 @@ echo "NYASH_LOCAL_SSA_TRACE=${NYASH_LOCAL_SSA_TRACE}"
 echo "NYASH_BUILDER_TRACE_RECV=${NYASH_BUILDER_TRACE_RECV}"
 echo ""
 
-exec "${ROOT}/tools/test_stageb_min.sh"
+exec "${SCRIPT_DIR}/test_stageb_min.sh"

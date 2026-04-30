@@ -4,8 +4,11 @@
 
 set -e
 
-NYASH_BIN="${NYASH_BIN:-./target/release/hakorune}"
-TEST_FILE="lang/src/compiler/tests/stageb_min_sample.hako"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+cd "$ROOT"
+
+NYASH_BIN="${NYASH_BIN:-$ROOT/target/release/hakorune}"
+TEST_FILE="$ROOT/lang/src/compiler/tests/stageb_min_sample.hako"
 
 # Stage‑B / LoopSSA related env (can be overridden by caller)
 # - HAKO_LOOPSSA_EXIT_PHI: 1=LoopSSA ON (dev検証), 0=OFF（既定は0: 安全側）
@@ -31,14 +34,14 @@ echo "--- Test 2: Stage-B compilation ---"
 NYASH_JSON_ONLY=1 \
 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
 HAKO_STAGEB_FUNC_SCAN=1 \
-NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 \
+NYASH_FEATURES=stage3 \
 NYASH_PARSER_ALLOW_SEMICOLON=1 \
 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
 HAKO_LOOPSSA_EXIT_PHI="$HAKO_LOOPSSA_EXIT_PHI" \
 HAKO_COMPILER_BUILDER_TRACE="$HAKO_COMPILER_BUILDER_TRACE" \
 NYASH_VM_TRACE="$NYASH_VM_TRACE" \
   "$NYASH_BIN" --backend vm lang/src/compiler/entry/compiler_stageb.hako \
-    -- --source "$(cat $TEST_FILE)" 2>&1 | tail -20
+    -- --source "$(cat "$TEST_FILE")" 2>&1 | tail -20
 echo ""
 
 # Test 3: MIR verification (check for SSA errors)
