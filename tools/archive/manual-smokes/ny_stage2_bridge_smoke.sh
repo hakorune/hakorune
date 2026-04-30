@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)
 BIN="$ROOT_DIR/target/release/nyash"
 
 if [[ ! -x "$BIN" ]]; then

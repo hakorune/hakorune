@@ -162,8 +162,8 @@ Call { callee: Callee, args }
 - Smokes / Tools（更新）
   - `tools/selfhost_compiler_smoke.sh`（入口）
   - `tools/build_compiler_exe.sh`（Selfhost Parser のEXE化）
-  - `tools/ny_stage2_bridge_smoke.sh`（算術/比較/短絡/ネストif）
-  - `tools/ny_parser_stage2_phi_smoke.sh`（If/Loop の PHI 合流）
+  - `tools/archive/manual-smokes/ny_stage2_bridge_smoke.sh`（算術/比較/短絡/ネストif）
+  - `tools/archive/manual-smokes/ny_parser_stage2_phi_smoke.sh`（If/Loop の PHI 合流）
   - `tools/parity.sh --lhs pyvm --rhs llvmlite <test.hako>`（常時）
 
 Imports/Namespace plan（15.3‑late）
@@ -437,7 +437,7 @@ ny_free_buf(buffer)
 - dep_tree（ハーネスON）: `NYASH_LLVM_FEATURE=llvm ./tools/build_llvm.sh apps/selfhost/tools/dep_tree_min_string.hako -o app_dep && ./app_dep`
 - Selfhost Parser EXE: `tools/build_compiler_exe.sh && (cd dist/nyash_compiler && ./nyash_compiler tmp/sample.hako > sample.json)`
 - JSON v0 bridge spec: `docs/reference/ir/json_v0.md`
-- Stage‑2 smokes: `tools/ny_stage2_bridge_smoke.sh`, `tools/ny_parser_stage2_phi_smoke.sh`, `tools/ny_me_dummy_smoke.sh`
+- Stage‑2 smokes: `tools/archive/manual-smokes/ny_stage2_bridge_smoke.sh`, `tools/archive/manual-smokes/ny_parser_stage2_phi_smoke.sh`, `tools/archive/manual-smokes/ny_me_dummy_smoke.sh`
 
 WSL Quickstart
 - See: `docs/guides/exe-first-wsl.md`（依存の導入→Parser EXE バンドル→スモークの順）
