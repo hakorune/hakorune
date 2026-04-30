@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P3-SELFHOST-RUN-KEEPER-HELPER-SPLIT"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P3-SELFHOST-RUN-KEEPER-HELPER-SPLIT.md"
-latest_card_summary = "Move the remaining selfhost Program(JSON v0) --run keeper out of the direct MIR helper and into a dedicated run helper."
+latest_card = "P4-DIRECT-MIR-RUN-LOADER-BLOCKER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P4-DIRECT-MIR-RUN-LOADER-BLOCKER.md"
+latest_card_summary = "Pin why selfhost --run remains on the Program(JSON v0) keeper route: direct MIR execution loader still rejects newbox/field_get shapes."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
