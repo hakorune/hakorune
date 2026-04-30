@@ -1,6 +1,9 @@
 #!/bin/bash
 # stageb_helpers.sh — Helpers to compile Hako(Stage‑B) source to Program(JSON v0)
 
+_STAGEB_HELPERS_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+source "${_STAGEB_HELPERS_TOOLS_DIR}/lib/program_json_v0_compat.sh"
+
 stageb_export_vm_compile_env() {
   export NYASH_PARSER_ALLOW_SEMICOLON=1
   export NYASH_ALLOW_USING_FILE=0
@@ -118,7 +121,7 @@ stageb_json_nonempty() {
 stageb_emit_program_json_v0_fixture() {
   local out_path="$1"
   local fixture="$2"
-  "$NYASH_BIN" --emit-program-json-v0 "$out_path" "$fixture" >/dev/null
+  program_json_v0_compat_emit_to_file "$NYASH_BIN" "$out_path" "$fixture" >/dev/null
 }
 
 # Execute a compiled Stage‑B Program(JSON v0) via the compat umbrella intake and expect specific rc

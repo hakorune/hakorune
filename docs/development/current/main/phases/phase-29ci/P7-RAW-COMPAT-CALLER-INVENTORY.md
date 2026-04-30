@@ -27,8 +27,9 @@ Conclusion:
 
 | Bucket | Representative callers | Action |
 | --- | --- | --- |
-| explicit compat/direct emit keeper | `tools/selfhost/lib/program_json_v0_compat.sh` via `tools/selfhost/lib/stage1_contract.sh` | keep until the explicit compat probe lane is retired |
-| Stage-B producer helper | `tools/selfhost/lib/program_json_v0_compat.sh` via `tools/selfhost/lib/selfhost_build_stageb.sh` | migrate only with selfhost build route proof |
+| neutral shell compat owner | `tools/lib/program_json_v0_compat.sh` | only current non-archive shell spelling of `--emit-program-json-v0` |
+| explicit compat/direct emit keeper | `tools/selfhost/lib/stage1_contract.sh` via neutral helper | keep until the explicit compat probe lane is retired |
+| Stage-B producer helper | `tools/selfhost/lib/selfhost_build_stageb.sh` via neutral helper | migrate only with selfhost build route proof |
 | hako mirbuilder fixture producer | `tools/smokes/v2/lib/stageb_helpers.sh` via `phase29bq_hako_mirbuilder_*` smokes | keep; these pin Program(JSON) fixtures for `.hako mirbuilder` and share the thin producer helper |
 | Program(JSON) contract pin | `tools/smokes/v2/lib/stageb_helpers.sh` via `phase29bq_hako_program_json_contract_pin_vm.sh` | keep as explicit contract evidence |
 | parser dual-route probe | `tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh` | migrated in P11; Rust-side now uses AST JSON, Hako-side keeps wrapper Program(JSON) observation |

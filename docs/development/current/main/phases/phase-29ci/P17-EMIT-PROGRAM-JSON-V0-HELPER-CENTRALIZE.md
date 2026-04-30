@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P7-RAW-COMPAT-CALLER-INVENTORY.md
   - docs/development/current/main/phases/phase-29ci/P12-REMAINING-RAW-COMPAT-CALLERS.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
-  - tools/selfhost/lib/program_json_v0_compat.sh
+  - tools/lib/program_json_v0_compat.sh
   - tools/smokes/v2/lib/stageb_helpers.sh
 ---
 
@@ -28,7 +28,7 @@ This is a structure-only cleanup:
 
 | Surface | Owner after P17 | Notes |
 | --- | --- | --- |
-| selfhost Stage1 / Stage-B Program(JSON v0) emit | `tools/selfhost/lib/program_json_v0_compat.sh` | Single selfhost owner for the raw compat emit CLI |
+| selfhost Stage1 / Stage-B Program(JSON v0) emit | `tools/lib/program_json_v0_compat.sh` via selfhost helpers | Single neutral owner for the raw compat emit CLI after P18 |
 | phase29bq Program(JSON v0) fixture producer | `tools/smokes/v2/lib/stageb_helpers.sh` | Single smoke fixture producer helper |
 | runtime deprecation text | `src/runtime/deprecations.rs` | Kept while the public compat flag exists |
 | archive phase pins | `tools/smokes/v2/profiles/archive/joinir/*` | Historical keep; not a current surface |
@@ -49,7 +49,7 @@ duplicate shell syntax.
 
 ```bash
 rg -n -g '!tools/historical/**' -g '!target/**' -- '--emit-program-json-v0' src tools
-bash -n tools/selfhost/lib/program_json_v0_compat.sh tools/selfhost/lib/stage1_contract.sh tools/selfhost/lib/selfhost_build_stageb.sh
+bash -n tools/lib/program_json_v0_compat.sh tools/selfhost/lib/stage1_contract.sh tools/selfhost/lib/selfhost_build_stageb.sh
 bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_cleanup_try_min_vm.sh
 bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh
 ```

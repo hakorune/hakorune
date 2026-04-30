@@ -7,15 +7,15 @@
 # - Prefer direct/source route defaults; keep VM compiler route explicit-only.
 # - BuildBox emit-only is retired from the default caller path.
 
-_SELFHOST_STAGEB_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${_SELFHOST_STAGEB_LIB_DIR}/program_json_v0_compat.sh"
+_SELFHOST_STAGEB_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "${_SELFHOST_STAGEB_TOOLS_DIR}/lib/program_json_v0_compat.sh"
 
 timestamp_now() { date +%Y%m%d_%H%M%S; }
 
 emit_program_json_v0_via_direct_source() {
   local raw_path="$1" json_path="$2"
   (
-    selfhost_emit_program_json_v0_to_file "$BIN" "$json_path" "$IN"
+    program_json_v0_compat_emit_to_file "$BIN" "$json_path" "$IN"
   ) > "$raw_path" 2>&1
   local rc=$?
   if [ "$rc" -eq 0 ] && [ -s "$json_path" ]; then

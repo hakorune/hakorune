@@ -58,7 +58,7 @@ Related:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/archive/phase-29ci/README.md`
-3. `docs/development/current/main/phases/phase-29ci/P17-EMIT-PROGRAM-JSON-V0-HELPER-CENTRALIZE.md`
+3. `docs/development/current/main/phases/phase-29ci/P18-PROGRAM-JSON-V0-SHELL-EMIT-SSOT.md`
 4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
