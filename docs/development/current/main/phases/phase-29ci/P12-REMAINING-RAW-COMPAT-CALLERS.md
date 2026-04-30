@@ -21,8 +21,11 @@ P8-P11 で helper-local / smoke-local fallback を削った後、残りの
 単位で読み直す。
 
 Conclusion:
-- `--program-json-to-mir` は live caller が 4 ファイルまで減った。
-- 次の安全な削除対象は shared smoke helper fallback。
+- P12 checkpoint では `--program-json-to-mir` live caller が 4 ファイルまで
+  減っていた。
+- 次の安全な削除対象は shared smoke helper fallback だった。
+- P13 で shared smoke helper fallback は retired。現在の live caller は
+  selfhost EXE / Stage-B delegate / phase29cg proof の 3 ファイル。
 - selfhost EXE / Stage-B delegate / phase29cg proof は、EXE または
   compiled-stage1 生成路の置換 proof が必要なので、同時に削らない。
 - `--emit-program-json-v0` は mirbuilder fixture producer と stage0/stageB
@@ -32,7 +35,7 @@ Conclusion:
 
 | Owner | Caller | Next action |
 | --- | --- | --- |
-| shared smoke helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh` | migrate to provider/selfhost builder route first |
+| shared smoke helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh` | retired in P13; non-raw builder fallback now owns this path |
 | selfhost EXE helper | `tools/selfhost/lib/selfhost_build_exe.sh` | keep until EXE lane has Program(JSON)->MIR provider proof |
 | Stage-B delegate CLI helper | `tools/selfhost_exe_stageb.sh` | keep until stageb-delegate can emit MIR without raw CLI bridge |
 | stage2 bootstrap proof | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | keep or rewrite only with available stage1 binary proof |

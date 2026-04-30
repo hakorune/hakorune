@@ -41,7 +41,7 @@ Conclusion:
 | shared emit helper fallback | `tools/hakorune_emit_mir.sh` | retired in P8; helper now stops at selfhost/provider routes |
 | selfhost EXE / Stage-B delegate | `tools/selfhost/lib/selfhost_build_exe.sh`, `tools/selfhost_exe_stageb.sh` | keep; exact build helpers still terminate through this bridge |
 | dev/proof probe | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | keep as historical reduced-stage proof unless replaced by MIR-first proof |
-| smoke/test helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh` | keep until shared builder fallback helper is rewritten |
+| smoke/test helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh` | retired in P13; shared helper fallback now uses non-raw builder route |
 | retired smoke fallback | `tools/smokes/v2/profiles/integration/core/phase2043/program_new_array_delegate_struct_canary_vm.sh` | retired in P10; canary now reports explicit SKIP instead of raw CLI fallback when `.hako MirBuilder` is not ready |
 | historical pyvm helper | `tools/historical/pyvm/common.sh` | historical keep; do not mix with current phase cleanup |
 
@@ -62,7 +62,7 @@ Candidate A (`tools/hakorune_emit_mir.sh` thin fallback, landed in P8):
 3. if green, delete only that legacy fallback function
 4. if not green, keep the fallback and record the missing provider/selfhost route proof
 
-Candidate B (`tools/smokes/v2/lib/test_runner_builder_helpers.sh` shared fallback, next after P12):
+Candidate B (`tools/smokes/v2/lib/test_runner_builder_helpers.sh` shared fallback, landed in P13):
 1. replace raw `--program-json-to-mir` with provider/selfhost builder route
 2. keep builder-only and core-exec result routing unchanged
 3. prove with representative phase2043 / mirbuilder-provider smokes

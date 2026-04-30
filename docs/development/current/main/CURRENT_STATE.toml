@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-29ci Program(JSON v0) public compat retirement"
-active_lane_status = "Program(JSON v0) hard-delete resumes as a public-surface cleanup lane. P12 re-inventories the remaining raw compat callers after P8-P11 and fixes the next delete order around the shared smoke helper fallback."
+active_lane_status = "Program(JSON v0) hard-delete resumes as a public-surface cleanup lane. P13 retires the shared smoke helper raw Program(JSON)->MIR fallback; remaining --program-json-to-mir callers are selfhost EXE, Stage-B delegate, and phase29cg proof."
 active_phase = "docs/development/current/main/phases/archive/phase-29ci/README.md"
-phase_status = "docs/development/current/main/phases/phase-29ci/P12-REMAINING-RAW-COMPAT-CALLERS.md"
+phase_status = "docs/development/current/main/phases/phase-29ci/P13-SHARED-SMOKE-HELPER-FALLBACK-RETIRE.md"
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-29ci/P12-REMAINING-RAW-COMPAT-CALLERS.md"
+taskboard = "docs/development/current/main/phases/phase-29ci/P13-SHARED-SMOKE-HELPER-FALLBACK-RETIRE.md"
 
-latest_card = "P12-REMAINING-RAW-COMPAT-CALLERS"
-latest_card_path = "docs/development/current/main/phases/phase-29ci/P12-REMAINING-RAW-COMPAT-CALLERS.md"
-latest_card_summary = "Re-inventory remaining raw compat callers after P8-P11 and set the next delete order."
+latest_card = "P13-SHARED-SMOKE-HELPER-FALLBACK-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-29ci/P13-SHARED-SMOKE-HELPER-FALLBACK-RETIRE.md"
+latest_card_summary = "Retire the shared smoke helper raw Program(JSON)->MIR fallback and use the non-raw builder route."
 
 current_blocker_token = "phase-29ci raw compat caller migration pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -90,4 +90,5 @@ landed_tail = [
   "29ci-P10 phase2043 raw Program(JSON)->MIR smoke fallback retirement landed",
   "29ci-P11 parser dual-route Rust AST observation migration landed",
   "29ci-P12 remaining raw compat caller re-inventory landed",
+  "29ci-P13 shared smoke helper raw fallback retirement landed",
 ]

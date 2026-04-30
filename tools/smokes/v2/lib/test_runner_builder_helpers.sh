@@ -437,20 +437,25 @@ emit_mir_json_via_builder_from_program_json_file() {
     printf '%s' "$mir_json"
 }
 
-run_rust_cli_builder_fallback_for_verify() {
+run_non_raw_builder_fallback_for_verify() {
     local prog_json_path="$1"
     local builder_stderr="$2"
     local builder_stdout="$3"
     local allow_builder_only="${4:-0}"
 
     if [ "${HAKO_MIR_BUILDER_DEBUG:-0}" = "1" ] && [ -f "$builder_stderr" ]; then
-        echo "[builder debug] Hako builder output unusable, falling back to Rust CLI" >&2
+        echo "[builder debug] Hako builder output unusable, falling back to non-raw builder route" >&2
         cat "$builder_stderr" >&2
         cp "$builder_stderr" /tmp/builder_last_error.log
     fi
 
-    rm -f "$builder_stderr" "$builder_stdout"
-    run_program_json_v0_via_rust_cli_builder "$prog_json_path" "$allow_builder_only"
+    : > "$builder_stderr"
+    : > "$builder_stdout"
+    run_program_json_v0_via_non_raw_builder_fallback \
+        "$prog_json_path" \
+        "$allow_builder_only" \
+        "$builder_stderr" \
+        "$builder_stdout"
 }
 
 verify_builder_no_fallback_requested() {
@@ -508,17 +513,29 @@ run_built_mir_json_file_via_core_v0() {
     "$NYASH_BIN" --mir-json-file "$mir_json_path" >/dev/null 2>&1
 }
 
-# Program(JSON v0) -> Rust CLI builder fallback
+# Program(JSON v0) -> non-raw builder fallback
 # - with allow_builder_only=1, HAKO_VERIFY_BUILDER_ONLY=1 keeps the old structure-only contract
 # - otherwise the helper executes the produced MIR and returns its rc
-run_program_json_v0_via_rust_cli_builder() {
+run_program_json_v0_via_non_raw_builder_fallback() {
     local prog_json_path="$1"
     local allow_builder_only="${2:-0}"
-    local tmp_mir="/tmp/ny_builder_conv_$$.json"
+    local builder_stderr="${3:-/tmp/builder_non_raw_fallback_stderr_$$.log}"
+    local builder_stdout="${4:-/tmp/builder_non_raw_fallback_stdout_$$.log}"
+    local tmp_mir="/tmp/ny_builder_non_raw_fallback_$$.json"
+    local mir_json=""
 
-    if ! "$NYASH_BIN" --program-json-to-mir "$tmp_mir" --json-file "$prog_json_path" >/dev/null 2>&1; then
+    # This fallback replaces the old raw CLI bridge. Keep provider stubs from
+    # the failed primary route out of the recovery path so the selfhost/min
+    # builder lane can produce the MIR payload.
+    mir_json=$(HAKO_PREFER_MIRBUILDER=0 HAKO_V1_EXTERN_PROVIDER=0 emit_mir_json_via_builder_from_program_json_file \
+        "$prog_json_path" \
+        "$builder_stderr" \
+        "$builder_stdout") || {
+        rm -f "$tmp_mir"
         return 1
-    fi
+    }
+
+    persist_mir_json_text_to_path "$mir_json" "$tmp_mir"
 
     if [ "$allow_builder_only" = "1" ] && [ "${HAKO_VERIFY_BUILDER_ONLY:-0}" = "1" ]; then
         if mir_json_file_looks_like_v0_module "$tmp_mir"; then
@@ -698,12 +715,12 @@ run_built_mir_json_via_verify_routes() {
     return $?
 }
 
-run_verify_builder_emit_rust_cli_fallback() {
+run_verify_builder_emit_non_raw_fallback() {
     local prog_json_path="$1"
     local builder_stderr="$2"
     local builder_stdout="$3"
 
-    run_rust_cli_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 1
+    run_non_raw_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 1
 }
 
 coerce_verify_builder_emit_result_kind() {
@@ -733,7 +750,7 @@ run_verify_builder_emit_failure_policy() {
         return 1
     fi
 
-    run_verify_builder_emit_rust_cli_fallback "$prog_json_path" "$builder_stderr" "$builder_stdout"
+    run_verify_builder_emit_non_raw_fallback "$prog_json_path" "$builder_stderr" "$builder_stdout"
 }
 
 run_verify_builder_emit_success_policy() {

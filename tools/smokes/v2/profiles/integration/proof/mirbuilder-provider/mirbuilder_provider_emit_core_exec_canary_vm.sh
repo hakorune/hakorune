@@ -24,7 +24,8 @@ if [ "$rc" -ne 42 ]; then
   exit 1
 fi
 
-# Case B: stub provider enabled; harness should fallback to Rust CLI and still yield rc=42
+# Case B: stub provider enabled; harness should fallback to the non-raw builder
+# route and still yield rc=42.
 set +e
 HAKO_V1_EXTERN_PROVIDER=1 \
 run_verify_program_via_preferred_mirbuilder_to_core "$prog_json_path"
