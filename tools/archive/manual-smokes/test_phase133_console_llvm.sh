@@ -4,6 +4,8 @@
 
 # Don't use set -e because we want to continue testing all cases even if one fails
 
+cd "$(dirname "$0")/../../.."
+
 # Color output
 GREEN='\033[0;32m'
 RED='\033[0;31m'

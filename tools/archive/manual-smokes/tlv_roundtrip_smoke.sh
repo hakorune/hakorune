@@ -4,7 +4,7 @@
 # Always runs a focused test against the nyash-tlv crate only.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 echo "[info] Building nyash-tlv (c-shim) ..." >&2
 (
   cd "$ROOT" && cargo build -p nyash-tlv --features c-shim --release >/dev/null

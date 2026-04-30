@@ -3,7 +3,7 @@
 set -euo pipefail
 [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]] && set -x
 
-ROOT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+ROOT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 cd "$ROOT_DIR"
 
 echo "[1/5] Build parser EXE bundle ..."

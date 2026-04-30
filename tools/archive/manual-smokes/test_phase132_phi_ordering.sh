@@ -4,7 +4,7 @@
 
 set -e
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../../.."
 
 echo "=== Phase 132: PHI Ordering Test ==="
 echo ""

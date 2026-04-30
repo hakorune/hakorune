@@ -10,6 +10,8 @@
 #
 set -e
 
+cd "$(dirname "$0")/../../.."
+
 NYASH_BIN="${NYASH_BIN:-./target/release/hakorune}"
 TEST_FILE="lang/src/compiler/tests/loopssa_breakfinder_slot.hako"
 
@@ -25,4 +27,3 @@ NYASH_DISABLE_PLUGINS=1 NYASH_FEATURES=stage3 \
 
 echo ""
 echo "=== Test complete ==="
-

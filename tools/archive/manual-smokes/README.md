@@ -11,6 +11,7 @@ Archived scripts:
 - `async_smokes.sh`
 - `apps_tri_backend_smoke.sh`
 - `cross_backend_smoke.sh`
+- `mir_builder_exe_smoke.sh`
 - `ny_me_dummy_smoke.sh`
 - `ny_parser_bridge_smoke.ps1`
 - `ny_parser_run.sh`
@@ -22,10 +23,17 @@ Archived scripts:
 - `ny_parser_mvp_roundtrip.sh`
 - `ny_roundtrip_smoke.ps1`
 - `ny_stage3_bridge_accept_smoke.sh`
+- `phase24_comprehensive_smoke.sh`
 - `selfhost_json_guard_smoke.sh`
 - `selfhost_parser_json_smoke.sh`
 - `smoke_aot_vs_vm.sh`
 - `selfhost_stage2_smoke.sh`
+- `test_joinir_freeze_inventory.sh`
+- `test_loopssa_breakfinder_min.sh`
+- `test_loopssa_breakfinder_slot.sh`
+- `test_phase132_phi_ordering.sh`
+- `test_phase133_console_llvm.sh`
+- `tlv_roundtrip_smoke.sh`
 
 Current reading:
 

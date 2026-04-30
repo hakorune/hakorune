@@ -4,6 +4,9 @@
 
 set -e
 
+ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+cd "$ROOT_DIR"
+
 HAKORUNE_BIN="./target/release/hakorune"
 
 # Check if hakorune binary exists

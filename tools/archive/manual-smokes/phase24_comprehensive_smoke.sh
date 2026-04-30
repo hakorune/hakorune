@@ -5,7 +5,7 @@ set -euo pipefail
 # Tests all major functionality after NyRT→NyKernel transformation and legacy cleanup
 # Created after 151MB repository cleanup (plugin_box_legacy.rs, venv, llvm_legacy removed)
 
-ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
+ROOT_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
 BIN="$ROOT_DIR/target/release/hakorune"
 FAILED=0
 TOTAL=0
