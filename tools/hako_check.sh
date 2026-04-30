@@ -47,6 +47,24 @@ list_targets() {
   fi
 }
 
+TEMP_DIRS=()
+
+make_temp_dir() {
+  local dir
+  dir="$(mktemp -d "${TMPDIR:-/tmp}/hako_check.XXXXXX")"
+  TEMP_DIRS+=("$dir")
+  printf '%s\n' "$dir"
+}
+
+cleanup_temp_dirs() {
+  local dir
+  for dir in "${TEMP_DIRS[@]}"; do
+    [ -e "$dir" ] && rm -rf "$dir"
+  done
+}
+
+trap cleanup_temp_dirs EXIT
+
 cache_lookup_mir() {
   local input_path="$1"
   local info_path="$2"
@@ -93,15 +111,18 @@ run_one() {
   # Run analyzer main with inlined source text to avoid FileBox dependency
   local text
   text="$(sed 's/\r$//' "$f")"
+  local temp_dir
+  temp_dir="$(make_temp_dir)"
 
   # Phase 156: Generate MIR JSON for CFG-based analysis and pass inline
-  local mir_json_path="/tmp/hako_check_mir_$$.json"
+  local mir_json_path="$temp_dir/mir.json"
   local mir_json_content=""
   local emit_timeout="${HAKO_CHECK_EMIT_TIMEOUT_SECS:-20}"
   local require_mir="${HAKO_CHECK_REQUIRE_MIR:-0}"
-  local emit_log="/tmp/hako_check_emit_$$.log"
-  local cache_info="/tmp/hako_check_cache_$$.log"
-  local cache_key_info_path="/tmp/hako_check_cache_key_$$.log"
+  local emit_log="$temp_dir/emit.log"
+  local cache_info="$temp_dir/cache.log"
+  local cache_key_info_path="$temp_dir/cache_key.log"
+  local lint_out="$temp_dir/lint.out"
   local cache_enabled="${HAKO_CHECK_MIR_CACHE:-1}"
   local cache_profile="${HAKO_CHECK_MIR_CACHE_PROFILE:-hako-check}"
   local cache_target="${HAKO_CHECK_MIR_CACHE_TARGET:-native}"
@@ -183,7 +204,7 @@ run_one() {
       if [ "$require_mir" = "1" ]; then
         echo "[FAIL] emit-mir failed for hako_check target: $f (rc=$emit_rc)" >&2
         tail -n 80 "$emit_log" >&2 || true
-        rm -f "$emit_log" "$mir_json_path" "$cache_info" "$cache_key_info_path"
+        rm -rf "$temp_dir"
         fail=$((fail+1))
         return
       fi
@@ -200,14 +221,13 @@ run_one() {
         if [ -n "$cache_fail_path" ]; then rm -f "$cache_fail_path"; fi
       fi
     fi
-    rm -f "$emit_log"
   fi
   if [ -z "$mir_json_content" ] && [ "$skip_emit_route" = "1" ] && [ "$require_mir" = "1" ]; then
     echo "[FAIL] emit-mir failed for hako_check target: $f (rc=${cached_emit_rc:-cached})" >&2
     if [ -n "$cache_fail_path" ] && [ -f "$cache_fail_path" ]; then
       cache_fail_log "$cache_fail_path" | tail -n 80 >&2 || true
     fi
-    rm -f "$mir_json_path" "$cache_info" "$cache_key_info_path"
+    rm -rf "$temp_dir"
     fail=$((fail+1))
     return
   fi
@@ -235,11 +255,11 @@ run_one() {
   HAKO_CHECK_DEBUG="${HAKO_CHECK_DEBUG:-0}" \
   HAKO_CHECK_VERBOSE="${HAKO_CHECK_VERBOSE:-0}" \
   "$BIN" "$ROOT/tools/hako_check/cli.hako" -- "${args_arr[@]}" --format "$FORMAT" $EXTRA_ARGS \
-    >"/tmp/hako_lint_out_$$.log" 2>&1
+    >"$lint_out" 2>&1
   local cmd_rc=$?
   set -e
   local out rc
-  out="$(cat "/tmp/hako_lint_out_$$.log")"; rc="$cmd_rc"
+  out="$(cat "$lint_out")"; rc="$cmd_rc"
 
   # Phase 1: Filter out debug noise unless HAKO_CHECK_DEBUG=1
   if [ "${HAKO_CHECK_DEBUG:-0}" != "1" ]; then
@@ -254,15 +274,17 @@ run_one() {
     echo "$out" | sed -n '1,200p'
     fail=$((fail+1))
   fi
-  rm -f "/tmp/hako_lint_out_$$.log" "$mir_json_path" "$cache_info" "$cache_key_info_path"
+  rm -rf "$temp_dir"
 }
 
 if [ "$FORMAT" = "dot" ]; then
   # Aggregate all targets and render DOT once
-  TMP_LIST="/tmp/hako_targets_$$.txt"; : >"$TMP_LIST"
+  TMP_DIR="$(make_temp_dir)"
+  TMP_LIST="$TMP_DIR/targets.txt"; : >"$TMP_LIST"
+  DOT_OUT="$TMP_DIR/dot.out"
+  DOT_ERR="$TMP_DIR/dot.err"
   for p in "$@"; do list_targets "$p" >>"$TMP_LIST"; done
   mapfile -t FILES <"$TMP_LIST"
-  rm -f "$TMP_LIST"
   ARGS=()
   for f in "${FILES[@]}"; do
     text="$(sed 's/\r$//' "$f")"
@@ -273,7 +295,6 @@ if [ "$FORMAT" = "dot" ]; then
   NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
   NYASH_USE_NY_COMPILER=0 \
-  HAKO_DISABLE_NY_COMPILER=1 \
   NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
   NYASH_PARSER_SEAM_TOLERANT=1 \
   HAKO_PARSER_SEAM_TOLERANT=1 \
@@ -284,24 +305,23 @@ if [ "$FORMAT" = "dot" ]; then
   NYASH_JSON_ONLY=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="${NYASH_NY_COMPILER_TIMEOUT_MS:-8000}" \
   "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --format dot "${FILES[@]}" \
-    >"/tmp/hako_lint_out_$$.log" 2>/tmp/hako_lint_err_$$.log
+    >"$DOT_OUT" 2>"$DOT_ERR"
   rc=$?
   set -e
   # Only print DOT graph body to STDOUT
-  awk '/^digraph /, /^}/' "/tmp/hako_lint_out_$$.log"
-  rm -f "/tmp/hako_lint_out_$$.log" "/tmp/hako_lint_err_$$.log"
+  awk '/^digraph /, /^}/' "$DOT_OUT"
+  rm -rf "$TMP_DIR"
   exit $([ "$rc" -eq 0 ] && echo 0 || echo 1)
 elif [ "$FORMAT" = "json-lsp" ]; then
   # Aggregate and emit pure JSON (no summaries). Exit code = findings count.
-  TMP_LIST="/tmp/hako_targets_$$.txt"; : >"$TMP_LIST"
+  TMP_DIR="$(make_temp_dir)"
+  TMP_LIST="$TMP_DIR/targets.txt"; : >"$TMP_LIST"
   for p in "$@"; do list_targets "$p" >>"$TMP_LIST"; done
   mapfile -t FILES <"$TMP_LIST"
-  rm -f "$TMP_LIST"
 
   NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
   NYASH_USE_NY_COMPILER=0 \
-  HAKO_DISABLE_NY_COMPILER=1 \
   NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
   NYASH_PARSER_SEAM_TOLERANT=1 \
   HAKO_PARSER_SEAM_TOLERANT=1 \
@@ -312,6 +332,7 @@ elif [ "$FORMAT" = "json-lsp" ]; then
   NYASH_JSON_ONLY=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="${NYASH_NY_COMPILER_TIMEOUT_MS:-8000}" \
   "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --format json-lsp "${ARGS[@]}"
+  rm -rf "$TMP_DIR"
   exit $?
 else
   for p in "$@"; do

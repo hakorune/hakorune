@@ -54,8 +54,9 @@ tools/dev/bug_origin_triage.sh apps/tests/phase29y_loop_if_assignment_carry_min.
 
 - `hako_check` は explicit `--backend vm` を正本にしない
 - 入口は `bash tools/hako_check/*.sh` / `bash tools/hako_check/run_tests.sh` の薄い wrapper に寄せる
-- analyzer test では `NYASH_USE_NY_COMPILER=0` を使い、古い `NYASH_DISABLE_NY_COMPILER` は増やさない
+- analyzer test では `NYASH_USE_NY_COMPILER=0` を使い、legacy disable aliases は増やさない
 - `tools/hako_check.sh` は既存の L1 MIR cache を優先利用してから通常 emit にフォールバックできる
+- 変わっていない失敗 emit は key 単位の `emit-failed` marker で再試行を抑制できる
 - cache fast path を切るときだけ `HAKO_CHECK_MIR_CACHE=0` を使う
 
 全ルール:

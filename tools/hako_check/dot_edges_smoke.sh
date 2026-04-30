@@ -24,7 +24,7 @@ HK
 
 export LD_LIBRARY_PATH="${ROOT}/target/release:${LD_LIBRARY_PATH:-}"
 OUT=$(
-  NYASH_USE_NY_COMPILER=0 HAKO_DISABLE_NY_COMPILER=1 \
+  NYASH_USE_NY_COMPILER=0 \
   NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 \
   NYASH_DISABLE_PLUGINS=1 NYASH_BOX_FACTORY_POLICY=builtin_first \
   "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --format dot --source-file "$TMP_HAKO" "$(sed 's/\r$//' "$TMP_HAKO")"

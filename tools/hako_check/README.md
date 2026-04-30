@@ -80,7 +80,7 @@ Performance / MIR cache
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise
 - `NYASH_BOX_FACTORY_POLICY=builtin_first` – prefer builtin/ring‑1 for stability
-- `NYASH_USE_NY_COMPILER=0` and `HAKO_DISABLE_NY_COMPILER=1` – disable inline compiler in tests
+- `NYASH_USE_NY_COMPILER=0` – disable inline compiler in tests
 - `NYASH_JSON_ONLY=1` – stdout is pure JSON (logs go to stderr)
 
 ## Known Limitations
