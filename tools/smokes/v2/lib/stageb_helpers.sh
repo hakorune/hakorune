@@ -25,90 +25,63 @@ stageb_export_vm_compile_env() {
   unset NYASH_MODULES
 }
 
-stageb_compile_to_json() {
-  # Args: HAKO_CODE
-  local code="$1"
-  local hako_tmp="/tmp/hako_stageb_$$.hako"
-  local json_out="/tmp/hako_stageb_$$.mir.json"
-  printf "%s\n" "$code" > "$hako_tmp"
-  local raw="/tmp/hako_stageb_raw_$$.txt"
-  # Route A: Hako(Stage-B) entry — preferred when available (run from repo root so nyash.toml resolves)
-  (
-    stageb_export_vm_compile_env
-    cd "$NYASH_ROOT" && \
-      "$NYASH_BIN" --backend vm \
-        "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$(cat "$hako_tmp")"
-  ) > "$raw" 2>&1 || true
-  # Require Program(JSON v0) header: {"version":0, "kind":"Program", ...}
-  if awk '(/"version":0/ && /"kind":"Program"/) {print; found=1; exit} END{exit(found?0:1)}' "$raw" > "$json_out"; then
-    rm -f "$raw" "$hako_tmp"
-    echo "$json_out"
-    return 0
-  fi
-
-  # Debug aid on failure: show a tail of the raw output
-  echo "[stageB/emit-debug] failed to extract v0 JSON; raw tail:" >&2
-  tail -n 120 "$raw" >&2 || true
-  # Give up; return an empty path (caller treats as failure)
-  rm -f "$raw" "$hako_tmp" "$json_out"
-  return 1
-}
-
-stageb_compile_to_json_with_bundles() {
-  # Args: MAIN_CODE [BUNDLE1] [BUNDLE2] ...
+stageb_compile_to_json_with_args() {
+  # Args: HAKO_CODE [STAGEB_ARGS...]
   local code="$1"; shift || true
+  local debug_on_failure="${STAGEB_COMPILE_DEBUG_ON_FAILURE:-0}"
   local hako_tmp="/tmp/hako_stageb_$$.hako"
   local json_out="/tmp/hako_stageb_$$.mir.json"
   printf "%s\n" "$code" > "$hako_tmp"
   local raw="/tmp/hako_stageb_raw_$$.txt"
-  local extra_args=()
-  while [ "$#" -gt 0 ]; do
-    extra_args+=("--bundle-src" "$1")
-    shift
-  done
   (
     stageb_export_vm_compile_env
     cd "$NYASH_ROOT" && \
       "$NYASH_BIN" --backend vm \
         "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- \
-        "${extra_args[@]}" --source "$(cat "$hako_tmp")"
+        "$@" --source "$(cat "$hako_tmp")"
   ) > "$raw" 2>&1 || true
   if awk '(/"version":0/ && /"kind":"Program"/) {print; found=1; exit} END{exit(found?0:1)}' "$raw" > "$json_out"; then
     rm -f "$raw" "$hako_tmp"
     echo "$json_out"
     return 0
   fi
+
+  if [ "$debug_on_failure" = "1" ]; then
+    echo "[stageB/emit-debug] failed to extract v0 JSON; raw tail:" >&2
+    tail -n 120 "$raw" >&2 || true
+  fi
+  # Give up; return an empty path (caller treats as failure)
   rm -f "$raw" "$hako_tmp" "$json_out"
   return 1
+}
+
+stageb_compile_to_json() {
+  # Args: HAKO_CODE
+  local code="$1"
+  STAGEB_COMPILE_DEBUG_ON_FAILURE=1 stageb_compile_to_json_with_args "$code"
+}
+
+stageb_compile_to_json_with_bundles() {
+  # Args: MAIN_CODE [BUNDLE1] [BUNDLE2] ...
+  local code="$1"; shift || true
+  local extra_args=()
+  while [ "$#" -gt 0 ]; do
+    extra_args+=("--bundle-src" "$1")
+    shift
+  done
+  stageb_compile_to_json_with_args "$code" "${extra_args[@]}"
 }
 
 stageb_compile_to_json_with_require() {
   # Args: MAIN_CODE REQUIRES_CSV (e.g., "U1,U2")
   local code="$1"; shift || true
   local requires_csv="$1"; shift || true
-  local hako_tmp="/tmp/hako_stageb_$$.hako"
-  local json_out="/tmp/hako_stageb_$$.mir.json"
-  printf "%s\n" "$code" > "$hako_tmp"
-  local raw="/tmp/hako_stageb_raw_$$.txt"
   local extra_args=()
   IFS=',' read -r -a REQS <<< "$requires_csv"
   for r in "${REQS[@]}"; do
     [ -n "$r" ] && extra_args+=("--require-mod" "$r")
   done
-  (
-    stageb_export_vm_compile_env
-    cd "$NYASH_ROOT" && \
-      "$NYASH_BIN" --backend vm \
-        "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- \
-        "${extra_args[@]}" --source "$(cat "$hako_tmp")"
-  ) > "$raw" 2>&1 || true
-  if awk '(/"version":0/ && /"kind":"Program"/) {print; found=1; exit} END{exit(found?0:1)}' "$raw" > "$json_out"; then
-    rm -f "$raw" "$hako_tmp"
-    echo "$json_out"
-    return 0
-  fi
-  rm -f "$raw" "$hako_tmp" "$json_out"
-  return 1
+  stageb_compile_to_json_with_args "$code" "${extra_args[@]}"
 }
 
 stageb_json_nonempty() {
