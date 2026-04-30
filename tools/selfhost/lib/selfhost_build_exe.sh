@@ -5,6 +5,11 @@
 # - Own the Program(JSON v0) → MIR(JSON) → EXE artifact lane.
 # - Keep this helper separate from direct MIR / core-direct and dispatcher logic.
 
+if [ -n "${ROOT:-}" ] && [ -f "$ROOT/tools/selfhost/lib/program_json_mir_bridge.sh" ]; then
+  # Non-raw Program(JSON)->MIR bridge owner.
+  source "$ROOT/tools/selfhost/lib/program_json_mir_bridge.sh"
+fi
+
 resolve_emit_exe_nyllvm() {
   local nyll="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}"
   if [ ! -x "$nyll" ] && [ ! -f "$nyll" ]; then
@@ -50,8 +55,12 @@ cleanup_emit_exe_temp_outputs() {
 
 emit_mir_json_from_program_json_v0() {
   local json_path="$1" mir_out_path="$2"
-  echo "[selfhost] converting Program(JSON v0) → MIR(JSON)" >&2
-  "$BIN" --json-file "$json_path" --program-json-to-mir "$mir_out_path"
+  echo "[selfhost] converting Program(JSON v0) -> MIR(JSON)" >&2
+  if ! declare -F program_json_mir_bridge_emit >/dev/null 2>&1; then
+    echo "[selfhost] Program(JSON)->MIR bridge helper is not loaded" >&2
+    return 2
+  fi
+  program_json_mir_bridge_emit "$BIN" "$json_path" "$mir_out_path" "[selfhost]"
 }
 
 emit_exe_from_mir_json() {

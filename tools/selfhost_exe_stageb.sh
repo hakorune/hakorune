@@ -5,7 +5,7 @@
 #
 # Emit route (env):
 #   HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate  (default)
-#     Stage-B compiler emits Program(JSON v0), then --program-json-to-mir.
+#     Stage-B compiler emits Program(JSON v0), then env.mirbuilder.emit bridge.
 #   HAKORUNE_STAGE1_EMIT_ROUTE=direct
 #     Direct --emit-mir-json route (debug/probe use).
 #
@@ -37,6 +37,9 @@ fi
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 EMIT_ROUTE="${HAKORUNE_STAGE1_EMIT_ROUTE:-stageb-delegate}"
+
+# shellcheck source=/dev/null
+source "$ROOT_DIR/tools/selfhost/lib/program_json_mir_bridge.sh"
 
 TMP_JSON="$(mktemp --suffix .json)"
 TMP_FILES=("$TMP_JSON")
@@ -271,11 +274,11 @@ emit_mir_stageb_delegate() {
   HAKO_MIR_BUILDER_CALL_RESOLVE="${HAKO_MIR_BUILDER_CALL_RESOLVE:-}" \
   NYASH_JSON_SCHEMA_V1="${NYASH_JSON_SCHEMA_V1:-1}" \
   NYASH_MIR_UNIFIED_CALL="${NYASH_MIR_UNIFIED_CALL:-1}" \
-    "$NYASH_BIN" --program-json-to-mir "$TMP_JSON" --json-file "$tmp_prog_merged" >"$tmp_log" 2>&1
+    program_json_mir_bridge_emit "$NYASH_BIN" "$tmp_prog_merged" "$TMP_JSON" "[emit]" >"$tmp_log" 2>&1
   local to_mir_rc=$?
   set -e
   if [[ "$to_mir_rc" -ne 0 ]]; then
-    echo "[emit] stageb route failed in --program-json-to-mir (rc=$to_mir_rc): $INPUT" >&2
+    echo "[emit] stageb route failed in env.mirbuilder.emit bridge (rc=$to_mir_rc): $INPUT" >&2
     tail -n 80 "$tmp_log" >&2 || true
     return "$to_mir_rc"
   fi
@@ -286,7 +289,7 @@ emit_mir_stageb_delegate() {
     return 1
   fi
 
-  echo "[emit-route] stageb-delegate (--backend vm compiler_stageb.hako -> --program-json-to-mir)"
+  echo "[emit-route] stageb-delegate (--backend vm compiler_stageb.hako -> env.mirbuilder.emit)"
   return 0
 }
 

@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-29ci Program(JSON v0) public compat retirement"
-active_lane_status = "Program(JSON v0) hard-delete resumes as a public-surface cleanup lane. P13 retires the shared smoke helper raw Program(JSON)->MIR fallback; remaining --program-json-to-mir callers are selfhost EXE, Stage-B delegate, and phase29cg proof."
+active_lane_status = "Program(JSON v0) hard-delete resumes as a public-surface cleanup lane. P14 retires the selfhost EXE / Stage-B EXE raw Program(JSON)->MIR callers; remaining --program-json-to-mir shell caller is phase29cg proof."
 active_phase = "docs/development/current/main/phases/archive/phase-29ci/README.md"
-phase_status = "docs/development/current/main/phases/phase-29ci/P13-SHARED-SMOKE-HELPER-FALLBACK-RETIRE.md"
+phase_status = "docs/development/current/main/phases/phase-29ci/P14-SELFHOST-EXE-BRIDGE-NONRAW.md"
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-29ci/P13-SHARED-SMOKE-HELPER-FALLBACK-RETIRE.md"
+taskboard = "docs/development/current/main/phases/phase-29ci/P14-SELFHOST-EXE-BRIDGE-NONRAW.md"
 
-latest_card = "P13-SHARED-SMOKE-HELPER-FALLBACK-RETIRE"
-latest_card_path = "docs/development/current/main/phases/phase-29ci/P13-SHARED-SMOKE-HELPER-FALLBACK-RETIRE.md"
-latest_card_summary = "Retire the shared smoke helper raw Program(JSON)->MIR fallback and use the non-raw builder route."
+latest_card = "P14-SELFHOST-EXE-BRIDGE-NONRAW"
+latest_card_path = "docs/development/current/main/phases/phase-29ci/P14-SELFHOST-EXE-BRIDGE-NONRAW.md"
+latest_card_summary = "Retire selfhost EXE raw Program(JSON)->MIR callers through a shared non-raw env.mirbuilder.emit bridge."
 
 current_blocker_token = "phase-29ci raw compat caller migration pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -91,4 +91,5 @@ landed_tail = [
   "29ci-P11 parser dual-route Rust AST observation migration landed",
   "29ci-P12 remaining raw compat caller re-inventory landed",
   "29ci-P13 shared smoke helper raw fallback retirement landed",
+  "29ci-P14 selfhost EXE raw bridge retirement landed",
 ]

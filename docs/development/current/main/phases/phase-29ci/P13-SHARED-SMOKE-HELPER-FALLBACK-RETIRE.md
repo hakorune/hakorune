@@ -38,6 +38,9 @@ selfhost EXE / Stage-B delegate / phase29cg proof の raw caller は別 slice �
 2. `tools/selfhost_exe_stageb.sh`
 3. `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
 
+P14 follow-up retires the first two; the only remaining shell caller is
+`tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`.
+
 `tools/smokes/v2/lib/test_runner_builder_helpers.sh` no longer calls raw
 `--program-json-to-mir`.
 
