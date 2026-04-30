@@ -172,7 +172,8 @@ Notes
 - `tools/selfhost_exe_stageb.sh` is route-selectable:
   - `HAKORUNE_STAGE1_EMIT_ROUTE=direct` is the MIR-first probe route.
   - `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a Program(JSON v0)
-    bridge compat capsule, kept only while direct coverage is incomplete.
+    bridge compat capsule, kept only while bridge replacement/archive coverage
+    is incomplete.
 - raw `selfhost_build.sh --in ...` whole-script output, `--keep-tmp`, and `NYASH_SELFHOST_KEEP_RAW=1` are retired facade routes.
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。

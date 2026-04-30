@@ -104,6 +104,9 @@ Current capsule classes:
      - `tools/selfhost/lib/stage1_contract.sh`
      - `tools/selfhost/compat/run_stage1_cli.sh`
      - `tools/smokes/v2/lib/stageb_helpers.sh`
+     - Rust/public delete-last surface:
+       `src/runtime/deprecations.rs`, `src/stage1/program_json_v0*`,
+       `src/runner/stage1_bridge/**`
     - retire `--program-json-to-mir` after caller inventory reaches zero (landed in P16)
     - hard delete only after the compat caller inventory reaches zero
 
