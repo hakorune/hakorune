@@ -34,6 +34,8 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - `Program(JSON v0)` remains as internal/compat/debug infrastructure only.
 - The remaining work is keeper classification plus small delete slices, not a
   new acceptance-shape expansion.
+- Thin shell/test seam cleanup is effectively exhausted through P32. Remaining
+  work is explicit keeper replacement or final delete-last cleanup.
 
 ## Keeper Buckets
 

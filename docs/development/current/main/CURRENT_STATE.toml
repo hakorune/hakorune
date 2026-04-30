@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P32-INLINE-STAGE1-MIR-JSON-DISPATCH-SEAM"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P32-INLINE-STAGE1-MIR-JSON-DISPATCH-SEAM.md"
-latest_card_summary = "Inline the wrapper-local emit mir-json dispatch seam in the retired Stage1 CLI wrapper while keeping route behavior unchanged."
+latest_card = "P33-DELETE-LAST-BLOCKERS-ONLY"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
+latest_card_summary = "Record that thin shell/test seam cleanup is exhausted through P32 and the remaining Program(JSON v0) work is blocked on explicit keeper replacement."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
