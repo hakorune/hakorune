@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 ENTRY=${1:-lang/src/compiler/entry/compiler_stageb.hako}
 
 # Phase‑20.33: legacy apps/selfhost/tools/dep_tree_main.hako has been retired.

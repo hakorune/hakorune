@@ -1,12 +1,14 @@
 #!/bin/bash
 # Keep two codex exec jobs running by topping up when fewer are active.
 # Usage:
-#   tools/codex-keep-two.sh <tmux_session> "Task A" "Task B" ["Task C" ...]
+#   ./codex-keep-two.sh <tmux_session> "Task A" "Task B" ["Task C" ...]
 # Notes:
 #   - Detects only real `codex exec` processes via ps/awk (avoids self-matches).
 #   - Starts tasks in order, cycling if more top-ups are needed.
 
 set -euo pipefail
+
+ROOT_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
 
 if [ $# -lt 2 ]; then
   echo "Usage: $0 <tmux_session> \"Task A\" \"Task B\" [\"Task C\" ...]" >&2
@@ -94,7 +96,7 @@ idx=0
 for ((i=0; i<NEED; i++)); do
   TASK="${TASKS[$idx]}"; idx=$(((idx+1) % ${#TASKS[@]}))
   echo "[keep-two] start: $TASK"
-  CODEX_ASYNC_DETACH=1 ./tools/codex-async-notify.sh "$TASK" "$SESSION" >/dev/null 2>&1 || true
+  CODEX_ASYNC_DETACH=1 "$ROOT_DIR/tools/codex-async-notify.sh" "$TASK" "$SESSION" >/dev/null 2>&1 || true
 done
 
 echo "[keep-two] now running: $(count_running)"

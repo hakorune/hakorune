@@ -4,7 +4,7 @@ set -euo pipefail
 # Non-destructive cleaner for stray build artifacts in repo root.
 # Dry-run by default; pass --apply to actually remove.
 
-ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
+ROOT_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
 APPLY=0
 [[ "${1:-}" == "--apply" ]] && APPLY=1
 
@@ -44,4 +44,3 @@ if (( APPLY )); then
 else
   echo "[clean-root] dry-run (no files removed). Use --apply to remove."
 fi
-

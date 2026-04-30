@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
+
 # === Nyash特化版：並列リファクタリング自動化 ===
 # ChatGPT5のアイデアをNyashプロジェクト用にカスタマイズ
 
@@ -13,7 +15,7 @@ TEST_CMD="cargo test --lib"                # 基本的なユニットテスト
 FMT_CMD="cargo fmt"                        # Rustフォーマッタ
 
 # Codex非同期実行（通知機能付き）
-CODEX_CMD="./tools/codex-async-notify.sh"  
+CODEX_CMD="$ROOT_DIR/tools/codex-async-notify.sh"
 
 # === 準備 ===
 WORK_DIR="refactor-$(date +%Y%m%d-%H%M%S)"
