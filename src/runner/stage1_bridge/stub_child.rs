@@ -271,7 +271,6 @@ mod tests {
                 emit_wat: None,
                 emit_ast_json: None,
                 emit_program_json_v0: None,
-                hako_emit_program_json: false,
                 hako_emit_mir_json: false,
                 hako_run: false,
                 program_json_to_mir: None,

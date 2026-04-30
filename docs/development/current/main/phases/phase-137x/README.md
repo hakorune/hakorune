@@ -25,7 +25,7 @@
 
 ## Quick Scan
 
-- current-state token: `phase-291x CoreBox surface contract cleanup`
+- current-state token: `phase-29ci Program(JSON v0) public compat retirement`
 - current lane: `phase-137x observe-only guardrail`
 - active current entry: `137x-current.md`
 - active contract map: `137x-array-text-contract-map.md`

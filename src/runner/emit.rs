@@ -6,10 +6,7 @@ impl NyashRunner {
     pub(super) fn maybe_emit_and_exit(&self, groups: &CliGroups) -> bool {
         // RVP-0-min1:
         // hako-prefixed routes are stage1-only; rust emit path must not absorb them implicitly.
-        if groups.emit.hako_emit_program_json
-            || groups.emit.hako_emit_mir_json
-            || groups.emit.hako_run
-        {
+        if groups.emit.hako_emit_mir_json || groups.emit.hako_run {
             eprintln!(
                 "[freeze:contract][stage1-route/hako-cli] expected=stage1-stub got=rust-emit"
             );

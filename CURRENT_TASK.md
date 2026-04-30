@@ -34,11 +34,11 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-291x CoreBox surface contract cleanup`
+- active lane: `phase-29ci Program(JSON v0) public compat retirement`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x post-cleanup lane selection pending`
-- primary mode: compiler cleanup lane
+- current blocker token: `phase-29ci raw compat caller inventory pending`
+- primary mode: Program(JSON v0) public-surface cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -50,22 +50,21 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: select the next post-cleanup phase-291x compiler-cleanliness lane,
-  or switch to an explicitly reopened non-cleanup blocker
+- resume point: continue `phase-29ci` raw compat caller inventory after the
+  P6 public alias retirement
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
 
 ## Task Order
 
-- current task source: `CURRENT_STATE.toml` plus the latest phase-291x card
+- current task source: `CURRENT_STATE.toml` plus the latest phase-29ci card
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: choose the next post-cleanup compiler-cleanliness lane; broad `plan/facts`
-  and `lower::planner_compat` work require a new family-sized BoxShape lane if
-  reopened
+- next: inventory raw compat flag callers (`--emit-program-json-v0` and
+  `--program-json-to-mir`) before any broader Program(JSON) deletion
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -82,16 +81,9 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/CURRENT_STATE.toml`
 - latest checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   landed history lives in phase card files
-- next cleanup: choose the next compiler-cleanliness lane; the `291x-575`
-  ordered compat residue queue and unified-member property cleanup are closed,
-  parser member syntax SSOT is landed, planner reject-detail diagnostics
-  cleanup, lower planner compat test-only export pruning, generic-loop canon
-  reverse export pruning, BodyLocalRoute facade pruning, and DigitPos
-  reject-message test cleanup, and loop-cond feature pipeline re-export pruning
-  and IfPhiJoinFacts alias pruning, and LoopContinueOnly recipe re-export
-  pruning, IfPhiJoin recipe re-export pruning, and LoopTrueEarlyExit recipe
-  re-export pruning are landed, and broad facts/planner ownership work must
-  reopen as its own lane
+- next cleanup: Program(JSON v0) public compat retirement is reopened through
+  `phase-29ci`; `--hako-emit-program-json` is retired, and raw compat flag
+  callers must be inventoried before deletion
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
@@ -100,18 +92,14 @@ Scope: current lane / next lane / restart order only.
 
 ## Detail Pointers
 
-- CoreBox surface phase:
-  `docs/development/current/main/phases/phase-291x/README.md`
+- Program(JSON v0) boundary retirement phase:
+  `docs/development/current/main/phases/archive/phase-29ci/README.md`
 - Current cleanup checkpoint: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- CoreBox design brief:
-  `docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md`
-- StringBox taskboard:
-  `docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md`
-- CoreBox inventory:
-  `docs/development/current/main/phases/phase-291x/291x-92-corebox-surface-inventory-ledger.md`
-- Smoke index:
-  `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
+- Route vocabulary card:
+  `docs/development/current/main/phases/phase-29ci/P6-STAGE1-MIR-ROUTE-VOCABULARY.md`
+- Bootstrap route SSOT:
+  `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Perf owner-first policy:
   `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 - Hotline/CoreMethodContract SSOT:

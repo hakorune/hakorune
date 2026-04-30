@@ -78,7 +78,6 @@ pub fn build_command() -> Command {
                     "emit-ast-json",
                     "emit-program-json-v0",
                     "emit-program-json",
-                    "hako-emit-program-json",
                     "hako-emit-mir-json",
                     "hako-run",
                     "macro-expand-child",
@@ -102,31 +101,15 @@ pub fn build_command() -> Command {
         .arg(Arg::new("emit-program-json").long("emit-program-json").value_name("FILE").help("[Deprecated] Alias of --emit-ast-json (was misnamed)"))
         .arg(Arg::new("emit-program-json-v0").long("emit-program-json-v0").value_name("FILE").help("[Compat-only, deprecated boundary] Emit Program(JSON v0) to file and exit (Stage-1 stub route)"))
         .arg(
-            Arg::new("hako-emit-program-json")
-                .long("hako-emit-program-json")
-                .value_name("FILE")
-                .help("[Compat-only, deprecated boundary] Emit Program(JSON v0) via Stage-1 (.hako) stub and exit")
-                .conflicts_with_all([
-                    "emit-program-json-v0",
-                    "emit-program-json",
-                    "emit-ast-json",
-                    "emit-mir-json",
-                    "hako-emit-mir-json",
-                    "hako-run",
-                    "program-json-to-mir",
-                ]),
-        )
-        .arg(
             Arg::new("hako-emit-mir-json")
                 .long("hako-emit-mir-json")
                 .value_name("FILE")
-                .help("Emit MIR(JSON) via Stage-1 (.hako) stub (json_v0_bridge path)")
+                .help("Emit MIR(JSON) via Stage-1 source->MIR authority route (stage1-env-mir-source)")
                 .conflicts_with_all([
                     "emit-mir-json",
                     "emit-program-json-v0",
                     "emit-program-json",
                     "emit-ast-json",
-                    "hako-emit-program-json",
                     "hako-run",
                     "program-json-to-mir",
                 ]),
@@ -137,7 +120,6 @@ pub fn build_command() -> Command {
                 .help("Run via Stage-1 (.hako) stub (equivalent to NYASH_USE_STAGE1_CLI=1)")
                 .action(clap::ArgAction::SetTrue)
                 .conflicts_with_all([
-                    "hako-emit-program-json",
                     "hako-emit-mir-json",
                     "emit-program-json-v0",
                     "emit-program-json",
@@ -239,7 +221,6 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
     if let Some(a) = matches.get_one::<String>("ny-compiler-args") {
         std::env::set_var("NYASH_NY_COMPILER_CHILD_ARGS", a);
     }
-    let hako_emit_program_path = matches.get_one::<String>("hako-emit-program-json").cloned();
     let hako_emit_mir_path = matches.get_one::<String>("hako-emit-mir-json").cloned();
     let cfg = CliConfig {
         file: matches.get_one::<String>("file").cloned(),
@@ -306,7 +287,6 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
             .cloned()
             .or_else(|| matches.get_one::<String>("emit-program-json").cloned()),
         emit_program_json_v0: matches.get_one::<String>("emit-program-json-v0").cloned(),
-        hako_emit_program_json: hako_emit_program_path.is_some(),
         hako_emit_mir_json: hako_emit_mir_path.is_some(),
         hako_run: matches.get_flag("hako-run"),
         program_json_to_mir: matches.get_one::<String>("program-json-to-mir").cloned(),
@@ -330,20 +310,6 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         std::env::set_var("NYASH_VM_STATS_JSON", "1");
     }
     // hako-prefixed Stage-1 stub routes
-    if cfg.hako_emit_program_json {
-        crate::runtime::deprecations::warn_hako_emit_program_json_cli_once();
-        std::env::set_var("NYASH_USE_STAGE1_CLI", "1");
-        std::env::set_var("HAKO_STAGE1_MODE", "emit-program");
-        std::env::set_var("HAKO_EMIT_PROGRAM_JSON", "1");
-        std::env::set_var("STAGE1_EMIT_PROGRAM_JSON", "1");
-        if let Some(out) = hako_emit_program_path.as_ref() {
-            std::env::set_var("NYASH_STAGE1_EMIT_PROGRAM_OUT", out);
-        }
-        if let Some(f) = cfg.file.as_ref() {
-            std::env::set_var("HAKO_STAGE1_INPUT", f);
-            std::env::set_var("NYASH_STAGE1_INPUT", f);
-        }
-    }
     if cfg.hako_emit_mir_json {
         std::env::set_var("NYASH_USE_STAGE1_CLI", "1");
         std::env::set_var("HAKO_STAGE1_MODE", "emit-mir");
@@ -497,33 +463,14 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
 mod tests {
     use super::*;
 
-    fn clear_stage1_env() {
-        for key in [
-            "NYASH_USE_STAGE1_CLI",
-            "HAKO_STAGE1_MODE",
-            "HAKO_EMIT_PROGRAM_JSON",
-            "STAGE1_EMIT_PROGRAM_JSON",
-            "HAKO_EMIT_MIR_JSON",
-            "STAGE1_EMIT_MIR_JSON",
-            "NYASH_STAGE1_EMIT_PROGRAM_OUT",
-            "NYASH_STAGE1_EMIT_MIR_OUT",
-            "HAKO_STAGE1_INPUT",
-            "NYASH_STAGE1_INPUT",
-        ] {
-            std::env::remove_var(key);
-        }
-    }
-
     #[test]
-    fn hako_emit_program_does_not_alias_emit_program_json_v0() {
-        clear_stage1_env();
-        let matches = build_command()
-            .try_get_matches_from(["hakorune", "--hako-emit-program-json", "/tmp/out.json"])
-            .expect("hako emit program args should parse");
-
-        let cfg = from_matches(&matches);
-        assert!(cfg.hako_emit_program_json);
-        assert_eq!(cfg.emit_program_json_v0, None);
+    fn hako_emit_program_json_is_retired() {
+        let result = build_command().try_get_matches_from([
+            "hakorune",
+            "--hako-emit-program-json",
+            "/tmp/out.json",
+        ]);
+        assert!(result.is_err(), "retired hako Program(JSON) alias must not parse");
     }
 
     #[test]

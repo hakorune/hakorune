@@ -88,17 +88,19 @@ RUST_MIR_DUMP_PATH=/tmp/out.mir \
 NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_MIR_JSON=1 \
   ./target/release/hakorune --dump-mir apps/tests/minimal.hako
 
-# hako- 前置で Stage-1 stub 経由（preferred）
+# hako- 前置の Stage-1 MIR launcher（stage1-env-mir-source）
 ./target/release/hakorune --hako-emit-mir-json /tmp/out.mir apps/tests/minimal.hako --dump-mir
 ```
 
-Compat-only route:
+Compat-only raw Program(JSON) route:
 ```bash
-./target/release/hakorune --hako-emit-program-json /tmp/out.json apps/tests/minimal.hako
+./target/release/hakorune --emit-program-json-v0 /tmp/out.json apps/tests/minimal.hako
+./target/release/hakorune --program-json-to-mir /tmp/out.mir --json-file /tmp/out.json
 ```
 
 Note:
-- Program(JSON) is compat-only; shell/public helper surfaces are retired.
+- `--hako-emit-mir-json` is the current Stage-1 MIR launcher entry.
+- Program(JSON) is compat-only; hako-prefixed Program(JSON) public aliases are retired.
 - explicit Program(JSON) work should stay on raw compat flags or dedicated compat probes.
 
 ---

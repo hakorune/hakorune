@@ -46,7 +46,7 @@ current launcher implementation keeps top-level command selection and bootstrap 
 - Stage0 直通: Rust AST → MirCompiler で MIR を生成し、`--dump-mir` は MirPrinter の stdout 出力のみ（Program(JSON v0) は介さない）。
 - Stage1/selfhost: BuildBox/ParserBox などが `Program(JSON v0)` を返し、Stage0 は `json_v0_bridge::parse_json_v0_to_module` → `maybe_dump_mir`（`RUST_MIR_DUMP_PATH`/`--dump-mir` 両対応） → VM/LLVM という共通導線で処理する。
 - Stage‑1 専用モード: `STAGE1_EMIT_MIR_JSON=1` で Program(JSON v0) を生成して Rust 側が即座に MIR 化し dump/emit までを行う（実行はしない。`RUST_MIR_DUMP_PATH` / `--dump-mir` / `--emit-mir-json` が JSON v0→MIR 共通パスで効く）。
-- CLI フラグ整理: `.hako` / Stage‑1 を経由する入口は `--hako-emit-mir-json` / `--hako-run` を mainline とし、`--hako-emit-program-json` は compat-only boundary として扱う。
+- CLI フラグ整理: `.hako` / Stage‑1 を経由する入口は `--hako-emit-mir-json` / `--hako-run` を mainline とし、hako-prefixed Program(JSON) public alias は retired。Program(JSON) compat work は raw `--emit-program-json-v0` / dedicated probes に限定する。
 
 ## トップレベル構文
 

@@ -18,6 +18,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
   - docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md
   - docs/development/current/main/phases/phase-29ci/P5-STAGEB-MALFORMED-PROGRAM-JSON.md
+  - docs/development/current/main/phases/phase-29ci/P6-STAGE1-MIR-ROUTE-VOCABULARY.md
   - docs/development/current/main/phases/phase-29cj/README.md
   - src/stage1/program_json_v0/README.md
   - src/runner/stage1_bridge/README.md
@@ -61,6 +62,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 - reopen only if:
   - a new exact caller/helper gap appears under boundary-retirement scope
   - or hard delete / broad internal removal explicitly resumes
+- reopen note (2026-04-30):
+  - hard delete resumes through `P6-STAGE1-MIR-ROUTE-VOCABULARY.md`
+  - `--hako-emit-mir-json` is kept as the Stage-1 MIR launcher for `stage1-env-mir-source`
+  - `--hako-emit-program-json` is the first retired duplicate public compat alias
 
 ## Entry Conditions
 
@@ -134,9 +139,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - `tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh` pins that retired lane as an absence proof
 - raw compat keep after wrapper retirement:
   - CLI `--emit-program-json-v0`
-  - CLI `--hako-emit-program-json`
   - CLI `--program-json-to-mir`
   - Stage1 bridge explicit `emit-program-json-v0` route
+- retired first public alias:
+  - CLI `--hako-emit-program-json` (removed in P6)
 - compat/internal keep after that:
   - `src/stage1/program_json_v0.rs` cluster
   - `src/runner/json_artifact/program_json_v0_loader.rs`

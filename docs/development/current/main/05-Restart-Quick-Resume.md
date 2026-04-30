@@ -30,17 +30,17 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-291x CoreBox surface contract cleanup`
+- active lane: `phase-29ci Program(JSON v0) public compat retirement`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x post-cleanup lane selection pending`
+- current blocker token: `phase-29ci raw compat caller inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x post-cleanup lane selection pending`
+- current blocker token: `phase-29ci raw compat caller inventory pending`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -51,11 +51,11 @@ cargo check -q
 
 ## Immediate Next
 
-- choose the next post-cleanup compiler-cleanliness lane, or switch to an explicitly
-  reopened non-cleanup blocker
-- the MIR structural dead-shelf burst is closed through `291x-791`; the old
-  standalone `src/mir/hints.rs` scaffold is retired, and no broad
-  `dead_code` hold remains in the audited MIR cleanup set
+- continue `phase-29ci` raw compat caller inventory after the P6 route
+  vocabulary / alias-retirement slice
+- `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
+  `stage1-env-mir-source`; `--hako-emit-program-json` is retired and raw
+  Program(JSON) compat callers are the next inventory target
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

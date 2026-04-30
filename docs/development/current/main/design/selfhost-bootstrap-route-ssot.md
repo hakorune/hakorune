@@ -162,6 +162,26 @@ SSOT:
 - reduced artifact 自身の exact emit contract は `tools/selfhost/compat/run_stage1_cli.sh --bin <stage1-cli> emit {program-json|mir-json} <entry>` と `tools/smokes/v2/profiles/integration/selfhost/phase29ci_stage1_cli_exact_emit_contract_vm.sh` で別に監視する
 - `tools/selfhost/mainline/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体は direct helper route で MIR(JSON) を materialize するが、出力 artifact 自体は runnable bootstrap output として扱う
 
+## Stage1 MIR Route Vocabulary (2026-04-30)
+
+`--hako-emit-mir-json` は Program(JSON) compat public alias ではなく、current Stage-1 source -> MIR authority route へ入る launcher CLI entry と読む。
+
+| Surface | Route class | Status | Delete posture |
+| --- | --- | --- | --- |
+| `stage1-env-mir-source` | current authority route id | source -> MIR(JSON) env route | keep |
+| `--hako-emit-mir-json <out> <src>` | launcher CLI entry | enters `stage1-env-mir-source` | keep; help/docs must name the route id |
+| `--emit-mir-json <out> <src>` | Rust direct emit | direct MIR emit/debug route | keep; not selfhost authority evidence |
+| raw `stage1-cli emit mir-json` / binary-only direct | monitor-only legacy | ported contract evidence | retire only after evidence lanes close |
+| `stage1-env-mir-program` | explicit Program(JSON) compat route | exact probe/helper only | keep quarantined; not authority |
+| `--emit-program-json-v0` | raw Program(JSON v0) compat emit | public compat/deprecated | keep until smoke/tool caller inventory reaches zero |
+| `--program-json-to-mir` | raw Program(JSON v0) -> MIR convert | public compat/deprecated | keep until shell/helper callers migrate |
+| `--hako-emit-program-json` | hako-prefixed Program(JSON) alias | retired duplicate public compat alias | removed in P6; do not reintroduce |
+
+Deletion rule:
+- remove duplicate public aliases before raw compat flags
+- keep `--hako-emit-mir-json` out of Program(JSON) retirement buckets
+- hard-delete of `src/stage1/program_json_v0*` or `src/runner/stage1_bridge/program_json*` requires a fresh zero-caller inventory
+
 ## Non-goals
 
 - 大規模な仕様拡張

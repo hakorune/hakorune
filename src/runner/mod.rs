@@ -118,9 +118,7 @@ impl NyashRunner {
             ));
         }
 
-        let force_stage1_stub = groups.emit.hako_emit_program_json
-            || groups.emit.hako_emit_mir_json
-            || groups.emit.hako_run;
+        let force_stage1_stub = groups.emit.hako_emit_mir_json || groups.emit.hako_run;
         let skip_stage1_stub = !force_stage1_stub
             && (groups.emit.emit_cfg.is_some()
                 || groups.emit.emit_mir_json_minimal.is_some()

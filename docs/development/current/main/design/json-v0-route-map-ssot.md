@@ -25,6 +25,10 @@ Related:
   - source `.hako` -> Program(JSON v0)
   - compat-only / future-retire public surface
   - does **not** exercise the import-bundle execute path
+- `--hako-emit-program-json`
+  - retired hako-prefixed Program(JSON v0) public alias
+  - removed in P6; do not use as a live compatibility entry
+  - explicit Program(JSON) work stays on raw compat flags or dedicated probes
 - `--json-file <program.json>`
   - compat umbrella intake
   - accepts mixed JSON artifacts, not just Program(JSON v0)
@@ -66,6 +70,8 @@ Related:
    - mixed route probe helper split is explicit now; keep it inside compat-loader routing, not as a separate cleanup bucket
 5. public-surface cleanup
    - keep public mainline docs on `--emit-mir-json` / `--mir-json-file`
+   - keep `--hako-emit-mir-json` as the Stage-1 MIR launcher for `stage1-env-mir-source`
+   - `--hako-emit-program-json` is retired as the first duplicate public Program(JSON) alias
    - demote `--json-file` / `--program-json-to-mir` / `--emit-program-json-v0` to explicit compat guidance
    - hard delete only after the compat caller inventory reaches zero
 

@@ -14,25 +14,25 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-291x CoreBox surface contract cleanup`
+- active lane: `phase-29ci Program(JSON v0) public compat retirement`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x post-cleanup lane selection pending`
+- current blocker token: `phase-29ci raw compat caller inventory pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- choose the next post-cleanup compiler-cleanliness lane, or switch to an
-  explicitly reopened non-cleanup blocker
+- continue `phase-29ci` raw compat caller inventory after the P6 route
+  vocabulary / alias-retirement slice
 - cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   closed history lives in phase card files
-- the MIR structural dead-shelf burst is closed through `291x-791`; the
-  obsolete standalone MIR hints scaffold is retired and the audited MIR
-  vocabulary set no longer carries a broad dead-code hold
+- `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
+  `stage1-env-mir-source`; `--hako-emit-program-json` is retired and raw
+  Program(JSON) compat callers are the next inventory target
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
@@ -57,8 +57,8 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-291x/README.md`
-3. `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
+2. `docs/development/current/main/phases/archive/phase-29ci/README.md`
+3. `docs/development/current/main/phases/phase-29ci/P6-STAGE1-MIR-ROUTE-VOCABULARY.md`
 4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
