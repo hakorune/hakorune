@@ -126,7 +126,7 @@ run_one() {
   # Extract RC
   if echo "$out" | grep -q '^RC: '; then
     rc="$(echo "$out" | sed -n 's/^RC: //p' | tail -n1)"
-  else rc=1; fi
+  else rc="$cmd_rc"; fi
   if [ "$rc" != "0" ]; then
     echo "$out" | sed -n '1,200p'
     fail=$((fail+1))
