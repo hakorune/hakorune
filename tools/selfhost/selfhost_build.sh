@@ -9,14 +9,14 @@
 # - Optionally build an executable via ny-llvmc.
 #
 # Usage:
-#   tools/selfhost/selfhost_build.sh --in source.hako [--mir out.json] [--run]
+#   tools/selfhost/selfhost_build.sh --in source.hako (--mir out.json | --exe out | --run | --keep-tmp)
 #   Options:
 #     --in FILE     Input .hako source file (required)
 #     --json FILE   Retired wrapper surface (compat-only; rejected with redirect)
 #     --run         Run via Core-Direct after compilation
 #     --mir FILE    Emit MIR(JSON) to FILE; MIR-only requests use the direct route
 #     --exe FILE    Build native EXE via ny-llvmc
-#     --keep-tmp    Keep temporary files
+#     --keep-tmp    Keep and print the temporary Stage-B artifact path
 #     --core        Deprecated (JoinIR Core は常時 ON のため無視・警告のみ)
 #     --strict      Phase 81: Enable Strict mode (fail-fast, no fallback)
 #   Env:

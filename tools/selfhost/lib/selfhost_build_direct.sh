@@ -29,13 +29,6 @@ cleanup_program_json_tmp_if_needed() {
   fi
 }
 
-announce_program_json_output_if_requested() {
-  local json_path="$1"
-  if [ -n "$JSON_OUT" ]; then
-    echo "[selfhost] JSON v0 written: $json_path" >&2
-  fi
-}
-
 emit_requested_mir_output_if_needed() {
   if [ -z "$MIR_OUT" ]; then
     return 0

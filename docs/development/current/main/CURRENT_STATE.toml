@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P1-STAGEB-ARTIFACT-ROUTE-PREDICATE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P1-STAGEB-ARTIFACT-ROUTE-PREDICATE.md"
-latest_card_summary = "Centralize the remaining selfhost Stage-B Program(JSON v0) artifact condition behind one route predicate and sync route comments."
+latest_card = "P2-SELFHOST-BARE-STAGEB-ROUTE-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P2-SELFHOST-BARE-STAGEB-ROUTE-RETIRE.md"
+latest_card_summary = "Retire bare selfhost_build.sh --in Program(JSON v0) path output; keep Stage-B artifact production explicit via run, keep-tmp, or raw diagnostics."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

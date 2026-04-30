@@ -29,7 +29,6 @@ dispatch_stageb_primary_output() {
 
 dispatch_stageb_downstream_outputs() {
   local json_path="$1"
-  announce_program_json_output_if_requested "$json_path"
   emit_requested_mir_output_if_needed
   dispatch_stageb_primary_output "$json_path"
 }

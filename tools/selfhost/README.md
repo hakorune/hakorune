@@ -53,6 +53,7 @@ Script
   - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); when used without `--run`, `--keep-tmp`, or `NYASH_SELFHOST_KEEP_RAW=1`, this bypasses Stage-B Program(JSON v0) production, and it also stays direct when combined with `--exe`
   - --exe <out>: build native executable via the direct source MIR -> ny-llvmc mainline route
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
+  - --keep-tmp: explicit diagnostic route; keeps and prints the Stage-B artifact path when no downstream output mode is selected.
   - diagnostic Program(JSON)->MIR->EXE probes stay behind `emit_exe_from_program_json_v0_with_context()`; the normal `--exe` route no longer produces Stage-B Program(JSON v0).
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
@@ -151,7 +152,7 @@ bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh
 
 Notes
 - `selfhost_build.sh` keeps Stage-B Program(JSON v0) production helper-owned through `tools/lib/program_json_v0_compat.sh`; BuildBox emit-only is retired from the day-to-day caller path
-- raw `selfhost_build.sh --in ...` whole-script routes are not the current helper-local acceptance line; use the focused probe above for the EXE consumer seam while upstream Stage-B source-route freezes remain
+- raw `selfhost_build.sh --in ...` whole-script output is retired; use `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1` for explicit Stage-B artifact diagnostics
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。
 - For heavier cases (bundles/alias/require), keep Stage‑B canaries opt‑in in quick profile.

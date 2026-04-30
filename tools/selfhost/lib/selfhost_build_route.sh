@@ -12,6 +12,12 @@ exit_program_json_wrapper_retired() {
   exit 2
 }
 
+exit_bare_stageb_route_retired() {
+  echo "[selfhost] bare --in Program(JSON v0) output is retired" >&2
+  echo "           use --mir <file>, --exe <file>, --run, --keep-tmp, or NYASH_SELFHOST_KEEP_RAW=1" >&2
+  exit 2
+}
+
 direct_mir_only_route_requested() {
   [ -n "$MIR_OUT" ] \
     && [ -z "$EXE_OUT" ] \
@@ -27,6 +33,12 @@ stageb_program_json_artifact_required() {
   [ "$DO_RUN" = "1" ] \
     || [ "$KEEP_TMP" = "1" ] \
     || [ "$RAW_KEEP" = "1" ]
+}
+
+selfhost_build_output_route_requested() {
+  [ -n "$MIR_OUT" ] \
+    || [ -n "$EXE_OUT" ] \
+    || stageb_program_json_artifact_required
 }
 
 apply_selfhost_env() {
@@ -81,6 +93,10 @@ selfhost_build_main() {
 
   if [ -n "$JSON_OUT" ]; then
     exit_program_json_wrapper_retired
+  fi
+
+  if ! selfhost_build_output_route_requested; then
+    exit_bare_stageb_route_retired
   fi
 
   if direct_mir_only_route_requested; then
