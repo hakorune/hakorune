@@ -26,6 +26,9 @@ else
   ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 fi
 
+# shellcheck source=/dev/null
+source "$ROOT/tools/selfhost/lib/stageb_program_json_capture.sh"
+
 # Resolve nyash/hakorune binary via test_runner helper (ensures consistent env)
 if [ ! -f "$IN" ]; then
   echo "[FAIL] input not found: $IN" >&2
@@ -359,62 +362,8 @@ if [ "${HAKO_EMIT_MIR_FORCE_DIRECT:-0}" = "1" ]; then
 fi
 
 # 1) Stage‑B: Hako parser emits Program(JSON v0) to stdout
-# Extract Program JSON robustly using Python3 bracket balancing
 extract_program_json() {
-  python3 -c '
-import sys
-
-stdin = sys.stdin.read()
-# Find the start of Program JSON (look for "kind":"Program")
-start = stdin.find("\"kind\":\"Program\"")
-if start < 0:
-    sys.exit(1)
-
-# Walk back to find the opening brace of the object containing "kind":"Program"
-pos = start
-depth = 0
-while pos >= 0:
-    if stdin[pos] == "{":
-        depth += 1
-        if depth == 1:
-            break
-    elif stdin[pos] == "}":
-        depth -= 1
-    pos -= 1
-
-if pos < 0:
-    sys.exit(1)
-
-# Walk forward and find matching closing brace with string/escape handling.
-obj_start = pos
-depth = 0
-in_string = False
-escape = False
-i = obj_start
-
-while i < len(stdin):
-    ch = stdin[i]
-    if escape:
-        escape = False
-    elif in_string:
-        if ch == "\\":
-            escape = True
-        elif ch == "\"":
-            in_string = False
-    else:
-        if ch == "\"":
-            in_string = True
-        elif ch == "{":
-            depth += 1
-        elif ch == "}":
-            depth -= 1
-            if depth == 0:
-                print(stdin[obj_start:i + 1])
-                sys.exit(0)
-    i += 1
-
-sys.exit(1)
-'
+  stageb_program_json_extract_from_stdin
 }
 
 emit_stageb_program_json_v0() {

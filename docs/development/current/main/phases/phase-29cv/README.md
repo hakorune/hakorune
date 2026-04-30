@@ -43,6 +43,7 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - Kept for deliberate Program(JSON v0) artifact capture only.
      `selfhost_build.sh` must not own or source this route.
 2. Explicit Program(JSON)->MIR bridge probes
+   - `tools/selfhost/lib/stageb_program_json_capture.sh`
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh`
    - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`

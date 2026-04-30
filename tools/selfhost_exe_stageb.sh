@@ -40,6 +40,8 @@ EMIT_ROUTE="${HAKORUNE_STAGE1_EMIT_ROUTE:-stageb-delegate}"
 
 # shellcheck source=/dev/null
 source "$ROOT_DIR/tools/selfhost/lib/program_json_mir_bridge.sh"
+# shellcheck source=/dev/null
+source "$ROOT_DIR/tools/selfhost/lib/stageb_program_json_capture.sh"
 
 TMP_JSON="$(mktemp --suffix .json)"
 TMP_FILES=("$TMP_JSON")
@@ -62,57 +64,7 @@ resolve_nyash_bin() {
 }
 
 extract_program_json() {
-  python3 -c '
-import sys
-
-stdin = sys.stdin.read()
-start = stdin.find("\"kind\":\"Program\"")
-if start < 0:
-    sys.exit(1)
-
-pos = start
-depth = 0
-while pos >= 0:
-    if stdin[pos] == "{":
-        depth += 1
-        if depth == 1:
-            break
-    elif stdin[pos] == "}":
-        depth -= 1
-    pos -= 1
-
-if pos < 0:
-    sys.exit(1)
-
-obj_start = pos
-depth = 0
-in_string = False
-escape = False
-i = obj_start
-
-while i < len(stdin):
-    ch = stdin[i]
-    if escape:
-        escape = False
-    elif in_string:
-        if ch == "\\":
-            escape = True
-        elif ch == "\"":
-            in_string = False
-    else:
-        if ch == "\"":
-            in_string = True
-        elif ch == "{":
-            depth += 1
-        elif ch == "}":
-            depth -= 1
-            if depth == 0:
-                print(stdin[obj_start:i + 1])
-                sys.exit(0)
-    i += 1
-
-sys.exit(1)
-'
+  stageb_program_json_extract_from_stdin
 }
 
 merge_source_imports_into_program_json() {
