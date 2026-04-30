@@ -35,7 +35,7 @@
   - `tools/using_resolve_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
   - `tools/selfhost_read_tmp_dev_smoke.sh`
-  - `tools/ny_selfhost_inline.sh`
+  - `tools/archive/legacy-selfhost/engineering/ny_selfhost_inline.sh`
   - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
   - `tools/selfhost/proof/selfhost_vm_smoke.sh`
   - `tools/selfhost/proof/bootstrap_selfhost_smoke.sh`
@@ -71,3 +71,6 @@
 - `tools/stage1_minimal.sh` and `tools/stage1_debug.sh` are retired from
   active root tools; use `tools/selfhost/compat/run_stage1_cli.sh` for the
   current Stage1 CLI compatibility wrapper.
+- The former root ny selfhost inline helper is retired from active root tools;
+  historical evidence lives under
+  `tools/archive/legacy-selfhost/engineering/ny_selfhost_inline.sh`.

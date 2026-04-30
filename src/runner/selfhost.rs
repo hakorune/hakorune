@@ -238,7 +238,7 @@ impl NyashRunner {
         // Fallback: inline VM run (embed source into a tiny wrapper that prints JSON)
         // Phase 25.1b: この経路は Ny selfhost 実験用だったが、現在は不安定かつ .hako 側 selfhost builder の
         // デバッグを阻害するため、既定で無効化する。Ny selfhost が必要な場合は別の .sh ベースの
-        // パイプライン（tools/ny_selfhost_inline.sh など）を使う想定とし、ここでは常に Rust 既定
+        // パイプライン（legacy selfhost archive helper など）を使う想定とし、ここでは常に Rust 既定
         // パスへフォールバックする。
         crate::cli_v!("[ny-compiler] inline selfhost pipeline disabled (Phase 25.1b); falling back to default path");
 

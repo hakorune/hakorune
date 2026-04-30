@@ -8,12 +8,12 @@
 #   - Intended for debugging / compat only; explicit compat route, not wired into the main CLI or build scripts.
 #
 # Usage:
-#   tools/ny_selfhost_inline.sh <source.ny> [nyash_binary]
+#   tools/archive/legacy-selfhost/engineering/ny_selfhost_inline.sh <source.ny> [nyash_binary]
 #     - <source.ny>: Nyash/Ny source file to parse.
 #     - nyash_binary: optional path to hakorune/nyash binary (default: target/release/hakorune or nyash).
 #
 # Notes:
-#   - Forces Stage-3 parser ON for the child (NYASH_FEATURES=stage3/NYASH_FEATURES=stage3).
+#   - Forces Stage-3 parser ON for the child (NYASH_FEATURES=stage3).
 #   - Enables using resolver with file-based using (dev profile) so that lang.compiler.* modules can be found.
 #   - Does NOT perform Stage-0 prelude text merge or preexpand_at_local; it feeds the raw source to ParserBox.
 
@@ -32,7 +32,7 @@ if [ ! -f "$SRC" ]; then
   exit 1
 fi
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 
 if [ -z "$BIN" ]; then
   if [ -x "$ROOT/target/release/hakorune" ]; then
@@ -79,8 +79,7 @@ SRC_CONTENT="$(cat "$SRC")"
 
 NYASH_INLINE_SRC="$SRC_CONTENT" \
 NYASH_JSON_ONLY=1 \
-NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
+NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
 NYASH_ALLOW_USING_FILE=1 HAKO_ALLOW_USING_FILE=1 \
-# Explicit compat route through the bridge.
 "$BIN" --backend vm "$HARNESS"

@@ -23,7 +23,7 @@
   - `tools/using_resolve_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
   - `tools/selfhost_read_tmp_dev_smoke.sh`
-  - `tools/ny_selfhost_inline.sh`
+  - `tools/archive/legacy-selfhost/engineering/ny_selfhost_inline.sh`
   - explicit proof/debug/compat callers
   - vm-hako reference/conformance callers
   - route observability and direct bridge probes that still intentionally observe vm-family behavior

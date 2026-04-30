@@ -12,7 +12,7 @@
   - `tools/using_resolve_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
   - `tools/selfhost_read_tmp_dev_smoke.sh`
-  - `tools/ny_selfhost_inline.sh`
+  - `tools/archive/legacy-selfhost/engineering/ny_selfhost_inline.sh`
   - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
   - `tools/selfhost/proof/selfhost_vm_smoke.sh`
   - `tools/selfhost/proof/bootstrap_selfhost_smoke.sh`

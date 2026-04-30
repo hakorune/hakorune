@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P20-DELETE-DUP-PROVIDER-MIN-HELPER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P20-DELETE-DUP-PROVIDER-MIN-HELPER.md"
-latest_card_summary = "Delete the uncalled duplicate provider-min Program(JSON v0) helper and keep the canonical provider generator."
+latest_card = "P21-ARCHIVE-NY-SELFHOST-INLINE-HELPER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P21-ARCHIVE-NY-SELFHOST-INLINE-HELPER.md"
+latest_card_summary = "Archive the uncalled ny_selfhost_inline Program(JSON v0) debug helper out of active root tools."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
