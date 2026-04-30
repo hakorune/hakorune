@@ -51,7 +51,7 @@ Scope: current lane / next lane / restart order only.
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
 - resume point: continue `phase-29ci` raw compat caller migration after the
-  P9 route proof helper root/source fix
+  P10 phase2043 smoke-local fallback retirement
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready

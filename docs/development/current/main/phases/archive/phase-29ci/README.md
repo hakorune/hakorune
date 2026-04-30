@@ -160,6 +160,9 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 - route proof helper fix:
   - `tools/checks/route_env_probe.sh` resolves repo root/source paths correctly
     for no-fallback route proof commands
+- retired smoke-local legacy fallback:
+  - `tools/smokes/v2/profiles/integration/core/phase2043/program_new_array_delegate_struct_canary_vm.sh`
+    no longer falls back to raw `--program-json-to-mir`
 
 ## Non-goals
 

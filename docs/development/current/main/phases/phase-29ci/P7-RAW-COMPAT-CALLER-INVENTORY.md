@@ -40,7 +40,8 @@ Conclusion:
 | shared emit helper fallback | `tools/hakorune_emit_mir.sh` | retired in P8; helper now stops at selfhost/provider routes |
 | selfhost EXE / Stage-B delegate | `tools/selfhost/lib/selfhost_build_exe.sh`, `tools/selfhost_exe_stageb.sh` | keep; exact build helpers still terminate through this bridge |
 | dev/proof probe | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | keep as historical reduced-stage proof unless replaced by MIR-first proof |
-| smoke/test helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh`, `tools/smokes/v2/profiles/integration/core/phase2043/program_new_array_delegate_struct_canary_vm.sh` | keep until builder fallback helpers are rewritten |
+| smoke/test helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh` | keep until shared builder fallback helper is rewritten |
+| retired smoke fallback | `tools/smokes/v2/profiles/integration/core/phase2043/program_new_array_delegate_struct_canary_vm.sh` | retired in P10; canary now reports explicit SKIP instead of raw CLI fallback when `.hako MirBuilder` is not ready |
 | historical pyvm helper | `tools/historical/pyvm/common.sh` | historical keep; do not mix with current phase cleanup |
 
 ## Deleted In This Slice

@@ -26,8 +26,8 @@ Related:
 
 ## Next
 
-- continue `phase-29ci` raw compat caller migration after the P9 route proof
-  helper root/source fix
+- continue `phase-29ci` raw compat caller migration after the P10 phase2043
+  smoke-local fallback retirement
 - cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   closed history lives in phase card files
 - `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
@@ -58,7 +58,7 @@ Related:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/archive/phase-29ci/README.md`
-3. `docs/development/current/main/phases/phase-29ci/P9-ROUTE-PROBE-ROOT-FIX.md`
+3. `docs/development/current/main/phases/phase-29ci/P10-PHASE2043-DELEGATE-SMOKE-FALLBACK-RETIRE.md`
 4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`

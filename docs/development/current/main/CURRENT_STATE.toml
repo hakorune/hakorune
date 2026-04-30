@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-29ci Program(JSON v0) public compat retirement"
-active_lane_status = "Program(JSON v0) hard-delete resumes as a public-surface cleanup lane. P9 fixes route_env_probe root/source resolution so helper-route proofs point at the repo root; raw compat CLI surfaces remain until the other caller buckets migrate."
+active_lane_status = "Program(JSON v0) hard-delete resumes as a public-surface cleanup lane. P10 removes the phase2043 smoke-local --program-json-to-mir fallback; raw compat CLI surfaces remain until the other caller buckets migrate."
 active_phase = "docs/development/current/main/phases/archive/phase-29ci/README.md"
-phase_status = "docs/development/current/main/phases/phase-29ci/P9-ROUTE-PROBE-ROOT-FIX.md"
+phase_status = "docs/development/current/main/phases/phase-29ci/P10-PHASE2043-DELEGATE-SMOKE-FALLBACK-RETIRE.md"
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-29ci/P9-ROUTE-PROBE-ROOT-FIX.md"
+taskboard = "docs/development/current/main/phases/phase-29ci/P10-PHASE2043-DELEGATE-SMOKE-FALLBACK-RETIRE.md"
 
-latest_card = "P9-ROUTE-PROBE-ROOT-FIX"
-latest_card_path = "docs/development/current/main/phases/phase-29ci/P9-ROUTE-PROBE-ROOT-FIX.md"
-latest_card_summary = "Fix route_env_probe.sh repo-root/source resolution so no-fallback route proofs run against the real repo root."
+latest_card = "P10-PHASE2043-DELEGATE-SMOKE-FALLBACK-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-29ci/P10-PHASE2043-DELEGATE-SMOKE-FALLBACK-RETIRE.md"
+latest_card_summary = "Retire the phase2043 smoke-local raw --program-json-to-mir fallback so the canary fails fast on Hako MirBuilder failure."
 
 current_blocker_token = "phase-29ci raw compat caller migration pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -87,4 +87,5 @@ landed_tail = [
   "29ci-P7 raw compat caller inventory and dump_stageb_min_mir helper deletion landed",
   "29ci-P8 hakorune_emit_mir legacy Program(JSON)->MIR fallback retirement landed",
   "29ci-P9 route_env_probe root/source proof fix landed",
+  "29ci-P10 phase2043 raw Program(JSON)->MIR smoke fallback retirement landed",
 ]

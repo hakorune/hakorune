@@ -51,8 +51,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-29ci` raw compat caller migration after the P9 route proof
-  helper root/source fix
+- continue `phase-29ci` raw compat caller migration after the P10 phase2043
+  smoke-local fallback retirement
 - `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
   `stage1-env-mir-source`; raw Program(JSON) compat callers are inventoried and
   the next work is migration by caller family
