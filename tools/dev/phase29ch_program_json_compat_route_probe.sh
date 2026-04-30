@@ -50,7 +50,6 @@ fi
 tmp_dir="$(mktemp -d)"
 tmp_prog="${tmp_dir}/program.json"
 out_file="${tmp_dir}/mir.json"
-route_file="${tmp_dir}/route.txt"
 
 if ! run_stage1_env_route "$BIN" "program-json" "$ENTRY" "$tmp_prog"; then
   cleanup_stage_temp_dir "$tmp_dir"
@@ -68,11 +67,8 @@ if ! run_and_extract_stage_payload \
   exit 1
 fi
 
-echo "stage1-env-mir-program" >"$route_file"
-
-route="$(route_file_value "$route_file")"
 echo "bin=${BIN}"
 echo "entry=${ENTRY}"
-echo "compat_route=${route}"
+echo "compat_route=stage1-env-mir-program"
 
 cleanup_stage_temp_dir "$tmp_dir"

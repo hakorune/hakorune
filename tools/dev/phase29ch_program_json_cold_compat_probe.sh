@@ -79,7 +79,6 @@ tmp_dir="$(mktemp -d)"
 trap 'cleanup_stage_temp_dir "$tmp_dir"' EXIT
 tmp_prog="${tmp_dir}/program.json"
 out_file="${tmp_dir}/mir.json"
-route_file="${tmp_dir}/route.txt"
 
 if ! run_stage1_env_route "$BIN" "program-json" "$ENTRY" "$tmp_prog"; then
   echo "[phase29ch/cold-compat-probe] failed to materialize Program(JSON)" >&2
@@ -94,8 +93,7 @@ if run_and_extract_stage_payload \
   "mir-json" \
   "$out_file" \
   run_cold_legacy_env_mir_route "$BIN" "$ENTRY" "$program_json_text"; then
-  echo "stage1-env-mir-program" >"$route_file"
-  echo "legacy_env_program_json=$(route_file_value "$route_file")"
+  echo "legacy_env_program_json=stage1-env-mir-program"
 else
   echo "legacy_env_program_json=none"
 fi

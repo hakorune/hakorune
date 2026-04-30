@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P26-DELETE-DEAD-STAGEB-FIXTURE-EMIT-WRAPPER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P26-DELETE-DEAD-STAGEB-FIXTURE-EMIT-WRAPPER.md"
-latest_card_summary = "Delete the dead Stage-B fixture emit wrapper while keeping the live Program(JSON v0) shell compat owner intact."
+latest_card = "P27-DELETE-DEAD-COMPAT-PROBE-ROUTE-FILES"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P27-DELETE-DEAD-COMPAT-PROBE-ROUTE-FILES.md"
+latest_card_summary = "Delete dead route-file scaffolding from the explicit Program(JSON) compat probes while keeping their output unchanged."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
