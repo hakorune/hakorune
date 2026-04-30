@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P14-STAGEB-PROGRAM-JSON-CAPTURE-SSOT"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P14-STAGEB-PROGRAM-JSON-CAPTURE-SSOT.md"
-latest_card_summary = "Move duplicate Stage-B Program(JSON v0) stdout extraction into a shared shell helper."
+latest_card = "P15-SOURCE-ROUTE-PROBE-LABELS"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P15-SOURCE-ROUTE-PROBE-LABELS.md"
+latest_card_summary = "Clarify source-route probe output so helper build route and probe target are reported separately."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

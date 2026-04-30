@@ -17,6 +17,7 @@ trap cleanup EXIT
 
 helper_src="$tmp_dir/phase29ch_source_route_materialize_probe.hako"
 helper_bin="$tmp_dir/phase29ch_source_route_materialize_probe"
+helper_route="${HAKORUNE_STAGE1_EMIT_ROUTE:-stageb-delegate}"
 
 python3 - "$helper_src" <<'PY'
 import json
@@ -68,6 +69,7 @@ NYASH_FILEBOX_MODE="${NYASH_FILEBOX_MODE:-core-ro}" \
 "$helper_bin" >"$out" 2>&1
 
 echo "[source-route-materialize] bin=$BIN"
-echo "[source-route-materialize] helper-build=compiled-artifact post-call materialization probe"
+echo "[source-route-materialize] helper-build=selfhost_exe_stageb route=$helper_route"
+echo "[source-route-materialize] probe-target=post-call materialization"
 echo "[source-route-materialize] note=diagnostics-only (host-compiled helper, not selfhost authority evidence)"
 sed -n '1,20p' "$out"

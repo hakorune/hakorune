@@ -24,6 +24,7 @@ helper_src="$tmp_dir/phase29ch_source_route_probe.hako"
 helper_bin="$tmp_dir/phase29ch_source_route_probe"
 helper_out="$tmp_dir/probe.out"
 helper_json="$tmp_dir/probe.json"
+helper_route="${HAKORUNE_STAGE1_EMIT_ROUTE:-stageb-delegate}"
 
 extract_json() {
   local src="$1"
@@ -76,7 +77,8 @@ extract_json "$helper_out" "$helper_json"
 
 echo "[source-route-direct] bin=$BIN"
 echo "[source-route-direct] entry=$ENTRY"
-echo "[source-route-direct] helper-build=compiled-artifact direct probe"
+echo "[source-route-direct] helper-build=selfhost_exe_stageb route=$helper_route"
+echo "[source-route-direct] probe-target=MirBuilderBox.emit_from_source_v0"
 echo "[source-route-direct] note=diagnostics-only (helper artifact, not reduced-case authority evidence)"
 python3 - "$helper_json" <<'PY'
 import json

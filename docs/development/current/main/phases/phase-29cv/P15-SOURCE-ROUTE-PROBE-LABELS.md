@@ -1,0 +1,34 @@
+# P15: source-route probe labels
+
+Scope: make source-route diagnostic probe output distinguish helper build route
+from the source-route behavior being observed.
+
+## Why
+
+`tools/dev/phase29ch_source_route_direct_probe.sh` and
+`tools/dev/phase29ch_source_route_materialize_probe.sh` build a temporary
+helper executable through `tools/selfhost_exe_stageb.sh`. That helper build
+defaults to `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`.
+
+Their diagnostic labels previously read like the helper artifact itself was the
+direct source route. That is easy to misread while cleaning Program(JSON v0)
+keepers.
+
+## Decision
+
+Print two separate facts:
+
+- `helper-build=selfhost_exe_stageb route=<stageb-delegate|direct>`
+- `probe-target=<the MirBuilderBox source-route observation>`
+
+This is output-label cleanup only. It does not change helper build routing or
+probe acceptance.
+
+## Acceptance
+
+```bash
+bash -n tools/dev/phase29ch_source_route_direct_probe.sh \
+  tools/dev/phase29ch_source_route_materialize_probe.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
