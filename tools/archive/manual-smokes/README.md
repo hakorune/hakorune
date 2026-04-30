@@ -12,6 +12,7 @@ Archived scripts:
 - `apps_tri_backend_smoke.sh`
 - `cross_backend_smoke.sh`
 - `ny_stage1_asi_smoke.sh`
+- `ny_parser_mvp_roundtrip.sh`
 - `ny_stage3_bridge_accept_smoke.sh`
 - `smoke_aot_vs_vm.sh`
 - `selfhost_stage2_smoke.sh`

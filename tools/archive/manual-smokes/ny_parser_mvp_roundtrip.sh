@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)
 BIN="$ROOT_DIR/target/release/hakorune"
 
 if [[ ! -x "$BIN" ]]; then
@@ -20,13 +20,16 @@ if [[ -z "$JSON_OUT" ]]; then
   echo "error: parser produced no JSON" >&2
   exit 1
 fi
-echo "$JSON_OUT" | "$BIN" --ny-parser-pipe >/tmp/ny_parser_mvp_rt.out || true
+set +e
+echo "$JSON_OUT" | "$BIN" --ny-parser-pipe >/tmp/ny_parser_mvp_rt.out 2>&1
+PIPE_RC=${PIPESTATUS[1]}
+set -e
 
-if rg -q '^Result:\s*7\b' /tmp/ny_parser_mvp_rt.out; then
+if [[ "$PIPE_RC" -eq 7 ]] || rg -q '^Result:\s*7\b' /tmp/ny_parser_mvp_rt.out; then
   echo "✅ Ny parser MVP roundtrip OK" >&2
   exit 0
 else
-  echo "❌ Ny parser MVP roundtrip FAILED" >&2
+  echo "❌ Ny parser MVP roundtrip FAILED (rc=$PIPE_RC)" >&2
   cat /tmp/ny_parser_mvp_rt.out >&2 || true
   exit 2
 fi
