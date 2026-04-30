@@ -1,7 +1,7 @@
 Param()
 $ErrorActionPreference = 'Stop'
 
-$root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$root = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) '..\..\..' | Resolve-Path
 $bin = Join-Path $root 'target\release\hakorune.exe'
 if (-not (Test-Path $bin)) {
   $bin = Join-Path $root 'target\release\hakorune'

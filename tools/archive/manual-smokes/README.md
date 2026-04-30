@@ -12,12 +12,15 @@ Archived scripts:
 - `apps_tri_backend_smoke.sh`
 - `cross_backend_smoke.sh`
 - `ny_me_dummy_smoke.sh`
+- `ny_parser_bridge_smoke.ps1`
 - `ny_parser_run.sh`
+- `ny_parser_run.ps1`
 - `ny_parser_stage2_phi_smoke.sh`
 - `ny_stage1_asi_smoke.sh`
 - `ny_stage2_new_method_smoke.sh`
 - `ny_stage2_bridge_smoke.sh`
 - `ny_parser_mvp_roundtrip.sh`
+- `ny_roundtrip_smoke.ps1`
 - `ny_stage3_bridge_accept_smoke.sh`
 - `selfhost_json_guard_smoke.sh`
 - `selfhost_parser_json_smoke.sh`

@@ -1,9 +1,9 @@
 Param()
 $ErrorActionPreference = 'Stop'
 
-$root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$root = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) '..\..\..' | Resolve-Path
 $bin = Join-Path $root 'target\release\nyash.exe'
-$nyParser = Join-Path $root 'tools\ny_parser_run.ps1'
+$nyParser = Join-Path $root 'tools\archive\manual-smokes\ny_parser_run.ps1'
 
 if (-not (Test-Path $bin)) {
   Write-Host 'Building nyash (release)...'

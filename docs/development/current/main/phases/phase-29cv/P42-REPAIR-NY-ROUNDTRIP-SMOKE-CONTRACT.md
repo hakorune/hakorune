@@ -29,6 +29,7 @@ root helper surface.
 
 - do not change the Makefile `roundtrip` target
 - do not change the Windows `.ps1` wrappers in this Linux smoke cleanup
+  (handled later by P44)
 - do not alter JSON v0 loader behavior
 
 ## Acceptance
