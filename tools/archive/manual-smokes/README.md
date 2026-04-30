@@ -12,6 +12,7 @@ Archived scripts:
 - `apps_tri_backend_smoke.sh`
 - `cross_backend_smoke.sh`
 - `ny_me_dummy_smoke.sh`
+- `ny_parser_run.sh`
 - `ny_parser_stage2_phi_smoke.sh`
 - `ny_stage1_asi_smoke.sh`
 - `ny_stage2_bridge_smoke.sh`
