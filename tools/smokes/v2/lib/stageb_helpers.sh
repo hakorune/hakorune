@@ -3,6 +3,7 @@
 
 _STAGEB_HELPERS_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 source "${_STAGEB_HELPERS_TOOLS_DIR}/lib/program_json_v0_compat.sh"
+source "${_STAGEB_HELPERS_TOOLS_DIR}/selfhost/lib/stageb_program_json_capture.sh"
 
 stageb_export_vm_compile_env() {
   export NYASH_PARSER_ALLOW_SEMICOLON=1
@@ -40,7 +41,7 @@ stageb_compile_to_json_with_args() {
         "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- \
         "$@" --source "$(cat "$hako_tmp")"
   ) > "$raw" 2>&1 || true
-  if awk '(/"version":0/ && /"kind":"Program"/) {print; found=1; exit} END{exit(found?0:1)}' "$raw" > "$json_out"; then
+  if stageb_program_json_extract_from_stdin < "$raw" > "$json_out"; then
     rm -f "$raw" "$hako_tmp"
     echo "$json_out"
     return 0

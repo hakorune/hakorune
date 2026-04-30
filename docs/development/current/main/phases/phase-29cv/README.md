@@ -60,6 +60,8 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`
    - Keep while those tests explicitly assert the Program(JSON)->.hako
      MirBuilder contract.
+   - Stage-B stdout capture is shared through
+     `tools/selfhost/lib/stageb_program_json_capture.sh`.
 5. Rust public compat delete-last surface
    - `--emit-program-json-v0`
    - `src/runtime/deprecations.rs`

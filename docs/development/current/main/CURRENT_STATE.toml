@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P16-ARCHIVE-LEGACY-STAGE1-ROOT-HELPERS"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P16-ARCHIVE-LEGACY-STAGE1-ROOT-HELPERS.md"
-latest_card_summary = "Archive legacy Stage1 root helpers so active Stage1 mode ownership stays in stage1_contract/run_stage1_cli."
+latest_card = "P17-STAGEB-HELPERS-CAPTURE-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P17-STAGEB-HELPERS-CAPTURE-SSOT.md"
+latest_card_summary = "Route stageb_helpers Program(JSON v0) stdout capture through the shared balanced extractor."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
