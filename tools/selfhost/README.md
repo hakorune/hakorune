@@ -215,7 +215,7 @@ Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
 - `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
-- `selfhost_build.sh` keeps its Stage-B diagnostic output selection behind `dispatch_stageb_primary_output()`. `--mir`, `--run`, and `--exe` now exit before Stage-B through direct source->MIR(JSON), while `--keep-tmp` and raw snapshot diagnostics keep the Stage-B Program(JSON v0) artifact route.
+- `selfhost_build.sh` prints the Stage-B diagnostic artifact path directly from the route owner. `--mir`, `--run`, and `--exe` now exit before Stage-B through direct source->MIR(JSON), while `--keep-tmp` and raw snapshot diagnostics keep the Stage-B Program(JSON v0) artifact route.
 - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.

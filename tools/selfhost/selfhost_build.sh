@@ -58,11 +58,6 @@ if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_exe.sh" ]; then
   # Keep this script focused on dispatcher routing.
   source "$ROOT/tools/selfhost/lib/selfhost_build_exe.sh"
 fi
-if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_dispatch.sh" ]; then
-  # Final route dispatcher lives in its own helper file.
-  # Keep this script focused on arg parsing and top-level tail orchestration.
-  source "$ROOT/tools/selfhost/lib/selfhost_build_dispatch.sh"
-fi
 if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_route.sh" ]; then
   # Route-main orchestration lives in its own helper file.
   # Keep this script as a thin facade over the route main.

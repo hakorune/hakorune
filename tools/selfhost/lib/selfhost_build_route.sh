@@ -184,6 +184,6 @@ selfhost_build_main() {
   fi
   rm -f "$RAW" 2>/dev/null || true
 
-  dispatch_stageb_downstream_outputs "$tmp_json"
-  exit $?
+  echo "$tmp_json"
+  exit 0
 }

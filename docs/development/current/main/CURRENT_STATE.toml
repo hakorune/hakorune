@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P10-RETIRE-MIR-ARTIFACT-COMBO"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P10-RETIRE-MIR-ARTIFACT-COMBO.md"
-latest_card_summary = "Retire mixed direct MIR plus Stage-B artifact combos so selfhost --mir is direct-only."
+latest_card = "P11-INLINE-STAGEB-ARTIFACT-DISPATCH"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P11-INLINE-STAGEB-ARTIFACT-DISPATCH.md"
+latest_card_summary = "Inline the final Stage-B artifact path output and delete the now-empty selfhost dispatch helper."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
