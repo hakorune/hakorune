@@ -22,7 +22,8 @@ if [[ "$ENTRY" != /* ]]; then
 fi
 
 if [ ! -x "$BIN" ]; then
-  log_error "stage1 contract smoke binary not found/executable: $BIN"
+  log_error "stage1 contract smoke requires a prebuilt stage1-cli artifact: $BIN"
+  log_error "build first: tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli"
   exit 2
 fi
 if [ ! -f "$ENTRY" ]; then

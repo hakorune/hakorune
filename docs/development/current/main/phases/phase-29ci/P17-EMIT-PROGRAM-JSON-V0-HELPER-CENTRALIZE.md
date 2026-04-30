@@ -58,3 +58,10 @@ Known observation: `phase29bq_hako_mirbuilder_phase2_min_vm.sh` still returns
 rc=2 in the current `.hako mirbuilder` route. Its Stage-0 Program(JSON v0)
 emission is helper-mediated after this slice; the remaining failure is not a
 raw emit callsite ownership issue.
+
+`phase29bq_selfhost_stage1_contract_smoke_vm.sh` requires a prebuilt
+`target/selfhost/hakorune.stage1_cli` artifact. If that artifact is absent,
+the smoke exits during preflight and is not the P17 acceptance line. P17 uses
+the lower-level `stage1_contract_exec_direct_emit_mode ... emit-program`
+helper check to verify the selfhost compat emit owner without requiring a
+prebuilt Stage1 artifact.
