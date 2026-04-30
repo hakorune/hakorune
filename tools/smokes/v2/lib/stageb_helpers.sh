@@ -2,7 +2,6 @@
 # stageb_helpers.sh — Helpers to compile Hako(Stage‑B) source to Program(JSON v0)
 
 _STAGEB_HELPERS_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-source "${_STAGEB_HELPERS_TOOLS_DIR}/lib/program_json_v0_compat.sh"
 source "${_STAGEB_HELPERS_TOOLS_DIR}/selfhost/lib/stageb_program_json_capture.sh"
 
 stageb_export_vm_compile_env() {
@@ -88,14 +87,6 @@ stageb_compile_to_json_with_require() {
 stageb_json_nonempty() {
   local path="$1"
   [ -s "$path" ]
-}
-
-# Thin shared wrapper for the phase29bq Program(JSON v0) fixture producers.
-# Keep the exact raw CLI contract in one place without changing downstream pins.
-stageb_emit_program_json_v0_fixture() {
-  local out_path="$1"
-  local fixture="$2"
-  program_json_v0_compat_emit_to_file "$NYASH_BIN" "$out_path" "$fixture" >/dev/null
 }
 
 # Execute a compiled Stage‑B Program(JSON v0) via the compat umbrella intake and expect specific rc
