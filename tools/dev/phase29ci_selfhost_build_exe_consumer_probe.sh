@@ -10,20 +10,21 @@ if [ ! -x "$NYASH_BIN" ]; then
   exit 2
 fi
 
-PRELUDE="$(mktemp --suffix .selfhost_build_prelude.sh)"
 TMP_JSON="$(mktemp --suffix .phase29ci.program.json)"
 TMP_MIR="/tmp/phase29ci_selfhost_build_consumer_probe.mir.json"
 TMP_EXE="/tmp/phase29ci_selfhost_build_consumer_probe.exe"
 
 cleanup() {
-  rm -f "$PRELUDE" "$TMP_JSON" 2>/dev/null || true
+  rm -f "$TMP_JSON" "$TMP_MIR" "$TMP_EXE" 2>/dev/null || true
 }
 trap cleanup EXIT
 
-awk 'BEGIN{keep=1} /^while \[ \$# -gt 0 \]; do$/{keep=0} keep{print}' \
-  "$ROOT/tools/selfhost/selfhost_build.sh" > "$PRELUDE"
+BIN="$NYASH_BIN"
+JSON_OUT=""
+MIR_OUT=""
+KEEP_TMP=0
 
-source "$PRELUDE"
+source "$ROOT/tools/selfhost/lib/selfhost_build_exe.sh"
 
 cat > "$TMP_JSON" <<'JSON'
 {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Int","value":0}}]}
