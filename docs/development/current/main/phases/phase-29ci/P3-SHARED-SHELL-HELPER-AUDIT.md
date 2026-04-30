@@ -42,7 +42,8 @@ shared shell helper keep として残っている 3 file について、
 
 - role:
   - shared selfhost build contract
-  - optional `HAKO_USE_BUILDBOX=1` lane still uses `BuildBox.emit_program_json_v0(...)`
+  - MIR-only `--mir <file>` now uses the direct MIR owner before Stage-B Program(JSON v0) production
+  - `--run`, `--exe`, raw snapshot, and keep-tmp routes still use the Stage-B Program(JSON v0) owner
   - post-emit final output selection now stays behind `dispatch_stageb_primary_output()`
 - contract shape:
   - build pipeline helper
@@ -95,9 +96,7 @@ shared shell helper keep として残っている 3 file について、
 - `tools/hakorune_emit_mir.sh` now also keeps explicit direct-emit exit and loop-force JSONFrag MIR assembly behind `exit_after_forced_direct_emit()`, `extract_loop_force_limit_from_program_json()`, and `write_loop_force_jsonfrag_mir_json()`, so the remaining helper-local tail is delegate/fallback route order rather than inline direct/force branches
 - `tools/hakorune_emit_mir.sh` now also keeps the remaining non-direct route order behind `emit_mir_json_via_non_direct_routes()`, so the script top-level no longer mixes selfhost-first / loop-force / delegate chain branching inline
 - `tools/smokes/v2/lib/test_runner.sh` should be treated as the bridge between helper keep and smoke tail, not as “just another helper script”
-- `tools/selfhost/selfhost_build.sh` now keeps its Stage-B Program(JSON) raw-production split behind `emit_stageb_program_json_raw()`, with `emit_program_json_v0_via_buildbox()` and `emit_program_json_v0_via_stageb_compiler()` isolating the two live lanes; this keeps `HAKO_USE_BUILDBOX=1` as an explicit build-contract keep without leaving the top-level branch duplicated
-- `tools/selfhost/selfhost_build.sh` no longer shows the old `hello_simple_llvm` freeze split, and both the helper's default `compiler.hako --stage-b --stage3` lane and the explicit `HAKO_USE_BUILDBOX=1` emit-only keep are healthy again on that fixture (`Extern(log 42) + Return(Int 0)`)
-- `tools/selfhost/selfhost_build.sh` now pins that keep behind `buildbox_emit_only_keep_requested()`, so the exact live-contract predicate (`HAKO_USE_BUILDBOX=1` + emit-only + no EXE lane) is SSOT in code as well as docs
+- `tools/selfhost/selfhost_build.sh` now keeps its Stage-B Program(JSON) raw-production split behind `emit_stageb_program_json_raw()` and the direct/source `program_json_v0_compat_emit_to_file(...)` helper, so the raw emit spelling remains in `tools/lib/program_json_v0_compat.sh` instead of the route main
 - `tools/selfhost/selfhost_build.sh` now keeps its post-emit Stage-B success/failure funnel behind `stageb_program_json_output_ready()`, `persist_stageb_raw_snapshot()`, and `exit_after_stageb_emit_failure()`, so the emitted Program(JSON) file stays the authority and raw snapshots remain observability-only
 - `tools/selfhost/selfhost_build.sh` now keeps the source-direct `--mir` consumer behind `emit_mir_json_from_source()`, so downstream consumer audit can proceed one lane at a time without mixing `--exe` or `--run`
 - `tools/selfhost/selfhost_build.sh` now also keeps the Core-Direct `--run` consumer behind `run_program_json_v0_via_core_direct()`, so the remaining downstream helper-local work is the Program(JSON)->MIR->EXE lane rather than mixed run/EXE cleanup
@@ -105,9 +104,10 @@ shared shell helper keep として残っている 3 file について、
 - `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR step behind `emit_mir_json_from_program_json_v0()`, so `emit_exe_from_program_json_v0()` no longer mixes MIR generation with ny-llvmc EXE emission inline
 - `tools/selfhost/selfhost_build.sh` now also keeps the MIR(JSON)->EXE step behind `emit_exe_from_mir_json()`, so `emit_exe_from_program_json_v0()` reads as resolve env -> Program(JSON)->MIR -> MIR->EXE -> cleanup
 - `tools/selfhost/selfhost_build.sh` now also keeps top-level post-emit route order behind `dispatch_stageb_downstream_outputs()`, with `cleanup_program_json_tmp_if_needed()` owning the emit-only/run temp-json cleanup contract, so the script tail no longer mixes `--json / --mir / --exe / --run` branching inline
+- `tools/selfhost/selfhost_build.sh --mir <file>` now exits through the direct MIR-only route before Stage-B Program(JSON v0) production when no `--run`, `--exe`, `--keep-tmp`, or `NYASH_SELFHOST_KEEP_RAW=1` diagnostic output is requested; diagnostic/build routes keep their older Stage-B behavior
 - `tools/selfhost/selfhost_build.sh` now also has an exact helper-local proof for that EXE consumer lane via `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, which seeds a minimal Program(JSON v0) directly into the landed helper seam
 - raw `tools/selfhost/selfhost_build.sh --in ...` whole-script routes remain upstream Stage-B source-route diagnostics for now, so they are not the acceptance line for this helper-local slice
-- for this fixture, `HAKO_USE_BUILDBOX=1` is still an explicit keep contract in code, but it no longer distinguishes success from failure; delete/retire arguments need caller-inventory proof rather than malformed-producer proof from `hello_simple_llvm`
+- the old `HAKO_USE_BUILDBOX=1` helper-local wording is docs-only history now; current delete/retire arguments need caller-inventory proof rather than malformed-producer proof from `hello_simple_llvm`
 - `tools/smokes/v2/lib/test_runner.sh` is now safe to thin one lane at a time inside `verify_program_via_builder_to_core()`: the provider emit lane now lives behind `emit_mir_json_via_provider_extern_v1()`, so the helper keeps the provider route exact without compiling a temporary `.hako` wrapper through vm-hako subset-check
 - `tools/smokes/v2/lib/test_runner.sh` now keeps that Rust CLI Program(JSON v0) fallback behind `run_program_json_v0_via_rust_cli_builder()`, so both builder lanes are owner-local helpers and the remaining top-level tail is shape/result routing rather than builder-lane duplication
 - `tools/smokes/v2/lib/test_runner.sh` now also keeps its shape/result routing behind `mir_json_looks_like_v0_module_text()` and `run_built_mir_json_via_verify_routes()`, so `verify_program_via_builder_to_core()` is mostly lane selection + no-fallback policy instead of carrying hv1/core/result routing inline

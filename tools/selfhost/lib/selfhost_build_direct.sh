@@ -43,6 +43,11 @@ emit_requested_mir_output_if_needed() {
   emit_mir_json_from_source "$MIR_OUT"
 }
 
+emit_direct_mir_only_output() {
+  emit_requested_mir_output_if_needed || return $?
+  echo "$MIR_OUT"
+}
+
 run_program_json_requested() {
   [ "$DO_RUN" = "1" ]
 }

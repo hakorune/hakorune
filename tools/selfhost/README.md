@@ -1,7 +1,7 @@
 Hybrid Selfhost Build (80/20)
 
 Purpose
-- Provide a minimal, fast path to compile Hako source via Hakorune Stage‑B to Program(JSON v0), and optionally run it via Core‑Direct (in‑proc).
+- Provide a minimal, fast path to compile MIR-only Hako source directly, while keeping Hakorune Stage-B Program(JSON v0) production for run/exe/debug routes.
 - `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
 - Future: add MIR emit and ny-llvmc EXE build in small increments.
 - file-level responsibility inventory:
@@ -50,7 +50,7 @@ Script
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
   - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)
-  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path)
+  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); when used without `--run`, `--exe`, `--keep-tmp`, or `NYASH_SELFHOST_KEEP_RAW=1`, this bypasses Stage-B Program(JSON v0) production
   - --exe <out>: build native executable via ny-llvmc mainline route
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
   - `--exe` now keeps context resolution behind `resolve_emit_exe_context()` and Program(JSON)->MIR->EXE execution behind `emit_exe_from_program_json_v0_with_context()`, so EXE lane cleanup stays separate from the top-level route tail.
@@ -150,7 +150,7 @@ bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh
 - `phase-29x` cleanup bands are mirrored in `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`; the proof/example driver stays archive-later until the compat wrapper gains a root-first equivalent or is retired as a whole.
 
 Notes
-- Stage‑B emit uses the Stage‑B entry by default; BuildBox emit-only stays explicit compat/proof only and is retired from the day-to-day caller path
+- `selfhost_build.sh` keeps Stage-B Program(JSON v0) production helper-owned through `tools/lib/program_json_v0_compat.sh`; BuildBox emit-only is retired from the day-to-day caller path
 - raw `selfhost_build.sh --in ...` whole-script routes are not the current helper-local acceptance line; use the focused probe above for the EXE consumer seam while upstream Stage-B source-route freezes remain
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。

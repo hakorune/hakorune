@@ -12,6 +12,14 @@ exit_program_json_wrapper_retired() {
   exit 2
 }
 
+direct_mir_only_route_requested() {
+  [ -n "$MIR_OUT" ] \
+    && [ "$DO_RUN" != "1" ] \
+    && [ -z "$EXE_OUT" ] \
+    && [ "$KEEP_TMP" != "1" ] \
+    && [ "$RAW_KEEP" != "1" ]
+}
+
 apply_selfhost_env() {
   export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
   export NYASH_PARSER_ALLOW_SEMICOLON=1
@@ -66,10 +74,16 @@ selfhost_build_main() {
     exit_program_json_wrapper_retired
   fi
 
+  if direct_mir_only_route_requested; then
+    apply_selfhost_env
+    emit_direct_mir_only_output
+    exit $?
+  fi
+
   tmp_json="${JSON_OUT:-/tmp/hako_stageb_$$.json}"
 
-  # Emit Program(JSON v0; direct/source default. BuildBox emit-only stays
-  # explicit compat-only and is off the default caller path here.
+  # Emit Program(JSON v0) only for routes that still need the Stage-B artifact.
+  # Raw shell spelling stays in tools/lib/program_json_v0_compat.sh.
   RAW="/tmp/hako_stageb_raw_$$.txt"
   stageb_rc=0
   stageb_cmd_desc=""

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# selfhost_build.sh — Direct/core-first selfhost facade (Stage‑B → Program(JSON v0) → optional MIR/run/exe)
+# selfhost_build.sh — Direct/core-first selfhost facade (MIR-only direct; Stage-B → Program(JSON v0) for run/exe/debug)
 #
 # Goals:
-# - Take a Hako source (.hako), compile with Hakorune Stage‑B to Program(JSON v0).
+# - Take a Hako source (.hako), compile MIR-only requests directly, and keep
+#   Stage-B Program(JSON v0) production for run/exe/debug routes.
 # - Keep Stage‑B producer, direct MIR, EXE artifact, and final dispatcher logic in helper files.
 # - Optionally run via Gate‑C/Core Direct (in‑proc) to verify exit code.
 # - (Future) Optionally convert to MIR and build an executable via ny-llvmc.
@@ -13,7 +14,7 @@
 #     --in FILE     Input .hako source file (required)
 #     --json FILE   Retired wrapper surface (compat-only; rejected with redirect)
 #     --run         Run via Core-Direct after compilation
-#     --mir FILE    Also emit MIR(JSON) to FILE
+#     --mir FILE    Emit MIR(JSON) to FILE; MIR-only requests use the direct route
 #     --exe FILE    Build native EXE via ny-llvmc
 #     --keep-tmp    Keep temporary files
 #     --core        Deprecated (JoinIR Core は常時 ON のため無視・警告のみ)
