@@ -63,10 +63,6 @@ resolve_nyash_bin() {
   fi
 }
 
-extract_program_json() {
-  stageb_program_json_extract_from_stdin
-}
-
 merge_source_imports_into_program_json() {
   local src_file="$1"
   local in_program_json="$2"
@@ -206,7 +202,7 @@ emit_mir_stageb_delegate() {
                   HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
                   NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
                   NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}" HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}" \
-                  "$NYASH_BIN" --backend vm "$ROOT_DIR/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$code") 2>"$tmp_log" | extract_program_json)
+                  "$NYASH_BIN" --backend vm "$ROOT_DIR/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$code") 2>"$tmp_log" | stageb_program_json_extract_from_stdin)
   local stageb_rc=$?
   set -e
   if [[ "$stageb_rc" -ne 0 ]] || [[ -z "$prog_json_out" ]]; then
