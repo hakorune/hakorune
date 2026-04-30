@@ -3,8 +3,16 @@ set -euo pipefail
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
 cd "$ROOT"
+source "$ROOT/tools/selfhost/lib/stageb_program_json_capture.sh"
 
 TMP_SRC=$(mktemp --suffix .hako)
+RAW_OUT=$(mktemp)
+JSON_OUT=$(mktemp --suffix .program.json)
+cleanup() {
+  rm -f "$TMP_SRC" "$RAW_OUT" "$JSON_OUT" 2>/dev/null || true
+}
+trap cleanup EXIT
+
 cat >"$TMP_SRC" <<'HAKO'
 static box Main {
   method main(){
@@ -22,16 +30,18 @@ NYASH_BIN=${NYASH_BIN:-"$ROOT/target/release/hakorune"}
 [[ -x "$NYASH_BIN" ]] || NYASH_BIN="$ROOT/target/release/nyash"
 
 # Emit Program(JSON v0) via Stage‑B
-OUT=$(NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
-      NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-      NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-      "$NYASH_BIN" --backend vm lang/src/compiler/entry/compiler_stageb.hako -- --source "$(cat "$TMP_SRC")" 2>/dev/null | awk '/^{/,/^}$/')
+NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
+  NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
+  NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
+  "$NYASH_BIN" --backend vm lang/src/compiler/entry/compiler_stageb.hako -- --source "$(cat "$TMP_SRC")" >"$RAW_OUT" 2>/dev/null
+stageb_program_json_extract_from_stdin < "$RAW_OUT" > "$JSON_OUT"
 
-python3 - "$TMP_SRC" << 'PY' <<EOF
-import json,sys
-src_path=sys.stdin.readline().strip()  # not used, reserved
-s=sys.stdin.read()
-j=json.loads(s)
+python3 - "$JSON_OUT" <<'PY'
+import json
+import pathlib
+import sys
+
+j = json.loads(pathlib.Path(sys.argv[1]).read_text())
 assert j.get('kind')=='Program', 'not Program(JSON)'
 loops=[x for x in j.get('body',[]) if isinstance(x,dict) and x.get('type')=='Loop']
 assert loops, 'no Loop node found'
@@ -51,7 +61,3 @@ expr=local_i[0].get('expr',{})
 assert expr.get('type')=='Binary' and expr.get('op')=='+', 'Local i not Binary +'
 print('[PASS] stageb_loop_json_canary')
 PY
-EOF
-
-rm -f "$TMP_SRC"
-exit 0
