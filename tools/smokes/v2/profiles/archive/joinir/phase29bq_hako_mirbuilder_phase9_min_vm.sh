@@ -2,7 +2,7 @@
 # phase29bq_hako_mirbuilder_phase9_min_vm.sh
 # manual single-fixture pin.
 # Current canonical bundle is `phase29bq_hako_mirbuilder_quick_suite_vm.sh`.
-# Phase-9 pin: --emit-program-json-v0 → (.hako mirbuilder) MIR JSON v0 → --mir-json-file execution
+# Phase-9 pin: Stage-0 Program(JSON v0) fixture -> (.hako mirbuilder) MIR JSON v0 -> --mir-json-file execution
 #
 # Expected: stdout="1", RC=0
 
@@ -10,6 +10,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/lib/program_json_v0_compat.sh"
 require_env || exit 2
 
 # Phase-29bq selfhost pins run in planner-required mode to exercise JoinIR plan boxes (no legacy fallback).
@@ -26,7 +27,7 @@ MJSON="$TMP_DIR/${RUN_ID}_mir.json"
 rm -f "$PJSON" "$MJSON"
 
 # 1) Rust Stage-0: emit Program(JSON v0)
-"$NYASH_BIN" --emit-program-json-v0 "$PJSON" "$FIXTURE" >/dev/null
+program_json_v0_compat_emit_to_file "$NYASH_BIN" "$PJSON" "$FIXTURE" >/dev/null
 
 # 2) .hako mirbuilder (Phase-9): Program(JSON v0) → MIR JSON v0
 HAKO_PROGRAM_JSON_FILE="$PJSON" "$NYASH_BIN" --backend vm "$ENTRY" >"$MJSON"
