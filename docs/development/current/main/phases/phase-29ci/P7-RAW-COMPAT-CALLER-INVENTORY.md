@@ -40,7 +40,7 @@ Conclusion:
 | CLI implementation | `src/runner/pipe_io.rs` | keep until all external callers migrate; tests preserve `user_box_decls` behavior |
 | shared emit helper fallback | `tools/hakorune_emit_mir.sh` | retired in P8; helper now stops at selfhost/provider routes |
 | selfhost EXE / Stage-B delegate | `tools/selfhost/lib/selfhost_build_exe.sh`, `tools/selfhost_exe_stageb.sh` | retired in P14; both use `tools/selfhost/lib/program_json_mir_bridge.sh` |
-| dev/proof probe | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | keep as historical reduced-stage proof unless replaced by MIR-first proof |
+| dev/proof probe | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | retired in P15; proof now uses `program_json_mir_bridge.sh` |
 | smoke/test helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh` | retired in P13; shared helper fallback now uses non-raw builder route |
 | retired smoke fallback | `tools/smokes/v2/profiles/integration/core/phase2043/program_new_array_delegate_struct_canary_vm.sh` | retired in P10; canary now reports explicit SKIP instead of raw CLI fallback when `.hako MirBuilder` is not ready |
 | historical pyvm helper | `tools/historical/pyvm/common.sh` | historical keep; do not mix with current phase cleanup |
@@ -74,7 +74,13 @@ Candidate C (`selfhost EXE / Stage-B delegate raw bridge, landed in P14):
 3. prove bridge shape with direct conversion probes
 4. re-inventory `--program-json-to-mir`
 
-Candidate D (`--emit-program-json-v0` fixture producer):
+Candidate D (`phase29cg dev proof raw bridge, landed in P15):
+1. keep stage1-cli -> Program(JSON) proof shape
+2. replace raw Program(JSON)->MIR CLI call with `program_json_mir_bridge.sh`
+3. leave missing-stage1 fail-fast behavior unchanged
+4. re-inventory `--program-json-to-mir`
+
+Candidate E (`--emit-program-json-v0` fixture producer):
 1. pick one small `phase29bq_hako_mirbuilder_*` smoke family
 2. decide whether it truly needs Program(JSON) fixture evidence or can consume MIR(JSON)
 3. if MIR(JSON) is sufficient, rewrite that family to `--emit-mir-json` / `--mir-json-file`

@@ -38,6 +38,9 @@ Current `--program-json-to-mir` shell caller:
 
 selfhost EXE helpers no longer call the raw Program(JSON)->MIR CLI surface.
 
+P15 follow-up retires the phase29cg caller too; current tools/src grep has no
+raw `--program-json-to-mir` callers.
+
 ## Acceptance
 
 ```bash

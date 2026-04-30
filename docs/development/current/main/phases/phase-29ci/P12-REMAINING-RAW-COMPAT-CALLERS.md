@@ -28,6 +28,7 @@ Conclusion:
   selfhost EXE / Stage-B delegate / phase29cg proof の 3 ファイル。
 - P14 で selfhost EXE / Stage-B delegate は retired。現在の live caller は
   phase29cg proof の 1 ファイル。
+- P15 で phase29cg proof は retired。current tools/src shell caller は 0。
 - selfhost EXE / Stage-B delegate / phase29cg proof は、EXE または
   compiled-stage1 生成路の置換 proof が必要なので、同時に削らない。
 - `--emit-program-json-v0` は mirbuilder fixture producer と stage0/stageB
@@ -40,7 +41,7 @@ Conclusion:
 | shared smoke helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh` | retired in P13; non-raw builder fallback now owns this path |
 | selfhost EXE helper | `tools/selfhost/lib/selfhost_build_exe.sh` | retired in P14; uses `tools/selfhost/lib/program_json_mir_bridge.sh` |
 | Stage-B delegate CLI helper | `tools/selfhost_exe_stageb.sh` | retired in P14; uses `tools/selfhost/lib/program_json_mir_bridge.sh` |
-| stage2 bootstrap proof | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | keep or rewrite only with available stage1 binary proof |
+| stage2 bootstrap proof | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | retired in P15; still requires stage1 binary for full execution |
 
 Guardrail:
 - do not delete `src/runner/pipe_io.rs` `program_json_to_mir` until these
