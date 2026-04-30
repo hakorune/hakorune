@@ -11,8 +11,3 @@ program_json_v0_compat_emit_to_file() {
   local input_path="$3"
   "$bin" --emit-program-json-v0 "$out_path" "$input_path"
 }
-
-# Compatibility alias for older selfhost helper callsites.
-selfhost_emit_program_json_v0_to_file() {
-  program_json_v0_compat_emit_to_file "$@"
-}
