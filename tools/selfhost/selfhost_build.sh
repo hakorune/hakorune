@@ -2,21 +2,20 @@
 # selfhost_build.sh — Direct/core-first selfhost facade
 #
 # Goals:
-# - Take a Hako source (.hako), compile MIR/EXE requests through direct MIR,
-#   and keep Stage-B Program(JSON v0) production for debug/explicit raw routes.
-# - Keep Stage‑B producer, direct MIR, EXE artifact, and final dispatcher logic in helper files.
+# - Take a Hako source (.hako), compile MIR/EXE requests through direct MIR.
+# - Keep direct MIR, EXE artifact, run, and route-main logic in helper files.
 # - Optionally run via direct MIR(JSON) to verify exit code.
 # - Optionally build an executable via ny-llvmc.
 #
 # Usage:
-#   tools/selfhost/selfhost_build.sh --in source.hako (--mir out.json | --exe out | --run | --keep-tmp)
+#   tools/selfhost/selfhost_build.sh --in source.hako (--mir out.json | --exe out | --run)
 #   Options:
 #     --in FILE     Input .hako source file (required)
 #     --json FILE   Retired wrapper surface (compat-only; rejected with redirect)
 #     --run         Run via direct MIR(JSON) after compilation
 #     --mir FILE    Emit MIR(JSON) to FILE; MIR-only requests use the direct route
 #     --exe FILE    Build native EXE via ny-llvmc
-#     --keep-tmp    Keep and print the temporary Stage-B artifact path
+#     --keep-tmp    Retired; use tools/dev/phase29cv_stageb_artifact_probe.sh
 #     --core        Deprecated (JoinIR Core は常時 ON のため無視・警告のみ)
 #     --strict      Phase 81: Enable Strict mode (fail-fast, no fallback)
 #   Env:
@@ -37,11 +36,6 @@ fi
 SMOKE_ENV_SKIP_EXPORTS=1
 if [ -f "$ROOT/tools/smokes/v2/lib/env.sh" ]; then
   source "$ROOT/tools/smokes/v2/lib/env.sh"
-fi
-if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_stageb.sh" ]; then
-  # Stage-B producer owner lives in its own helper file.
-  # Keep this script focused on direct-run / exe-artifact / dispatcher routing.
-  source "$ROOT/tools/selfhost/lib/selfhost_build_stageb.sh"
 fi
 if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_direct.sh" ]; then
   # Direct MIR owner lives in its own helper file.

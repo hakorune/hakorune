@@ -3,7 +3,7 @@
 #
 # Purpose:
 # - Own the top-level arg parsing and route orchestration for selfhost_build.sh.
-# - Keep the shell facade thin while helper files own producer / direct / exe / dispatch details.
+# - Keep the shell facade thin while helper files own direct / run / exe details.
 
 exit_program_json_wrapper_retired() {
   echo "[selfhost] --json is retired from selfhost_build.sh" >&2
@@ -14,58 +14,35 @@ exit_program_json_wrapper_retired() {
 
 exit_bare_stageb_route_retired() {
   echo "[selfhost] bare --in Program(JSON v0) output is retired" >&2
-  echo "           use --mir <file>, --exe <file>, --run, --keep-tmp, or NYASH_SELFHOST_KEEP_RAW=1" >&2
+  echo "           use --mir <file>, --exe <file>, or --run" >&2
+  echo "           use tools/dev/phase29cv_stageb_artifact_probe.sh for Program(JSON v0) diagnostics" >&2
   exit 2
 }
 
-exit_run_stageb_artifact_combo_retired() {
-  echo "[selfhost] --run cannot be combined with Stage-B artifact diagnostics" >&2
-  echo "           use --run (or --run --mir <file>) for direct MIR execution" >&2
-  echo "           use --keep-tmp or NYASH_SELFHOST_KEEP_RAW=1 for Program(JSON v0) diagnostics" >&2
-  exit 2
-}
-
-exit_exe_stageb_artifact_combo_retired() {
-  echo "[selfhost] --exe cannot be combined with Stage-B artifact diagnostics" >&2
-  echo "           use --exe <file> (or --exe <file> --mir <file>) for direct EXE builds" >&2
-  echo "           use --keep-tmp or NYASH_SELFHOST_KEEP_RAW=1 for Program(JSON v0) diagnostics" >&2
-  exit 2
-}
-
-exit_mir_stageb_artifact_combo_retired() {
-  echo "[selfhost] --mir cannot be combined with Stage-B artifact diagnostics" >&2
-  echo "           use --mir <file> for direct MIR output" >&2
-  echo "           use --keep-tmp or NYASH_SELFHOST_KEEP_RAW=1 for Program(JSON v0) diagnostics" >&2
+exit_stageb_artifact_route_retired() {
+  echo "[selfhost] Stage-B Program(JSON v0) artifact output is retired from selfhost_build.sh" >&2
+  echo "           use tools/dev/phase29cv_stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]" >&2
   exit 2
 }
 
 direct_mir_only_route_requested() {
   [ -n "$MIR_OUT" ] \
-    && [ -z "$EXE_OUT" ] \
-    && ! stageb_program_json_artifact_required
+    && [ -z "$EXE_OUT" ]
 }
 
 direct_exe_route_requested() {
-  [ -n "$EXE_OUT" ] \
-    && ! stageb_program_json_artifact_required
+  [ -n "$EXE_OUT" ]
 }
 
 direct_run_route_requested() {
   [ "$DO_RUN" = "1" ] \
-    && [ -z "$EXE_OUT" ] \
-    && ! stageb_program_json_artifact_required
-}
-
-stageb_program_json_artifact_required() {
-  [ "$KEEP_TMP" = "1" ] \
-    || [ "$RAW_KEEP" = "1" ]
+    && [ -z "$EXE_OUT" ]
 }
 
 selfhost_build_output_route_requested() {
   [ -n "$MIR_OUT" ] \
     || [ -n "$EXE_OUT" ] \
-    || [ "$DO_RUN" = "1" ] \
-    || stageb_program_json_artifact_required
+    || [ "$DO_RUN" = "1" ]
 }
 
 apply_selfhost_env() {
@@ -96,10 +73,6 @@ selfhost_build_main() {
   KEEP_TMP=0
 
   RAW_KEEP="${NYASH_SELFHOST_KEEP_RAW:-0}"
-  RAW_DIR="${NYASH_SELFHOST_RAW_DIR:-$ROOT/logs/selfhost}"
-  if [ "$RAW_KEEP" = "1" ]; then
-    mkdir -p "$RAW_DIR" 2>/dev/null || RAW_KEEP=0
-  fi
 
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -122,20 +95,12 @@ selfhost_build_main() {
     exit_program_json_wrapper_retired
   fi
 
+  if [ "$KEEP_TMP" = "1" ] || [ "$RAW_KEEP" = "1" ]; then
+    exit_stageb_artifact_route_retired
+  fi
+
   if ! selfhost_build_output_route_requested; then
     exit_bare_stageb_route_retired
-  fi
-
-  if [ "$DO_RUN" = "1" ] && stageb_program_json_artifact_required; then
-    exit_run_stageb_artifact_combo_retired
-  fi
-
-  if [ -n "$EXE_OUT" ] && stageb_program_json_artifact_required; then
-    exit_exe_stageb_artifact_combo_retired
-  fi
-
-  if [ -n "$MIR_OUT" ] && stageb_program_json_artifact_required; then
-    exit_mir_stageb_artifact_combo_retired
   fi
 
   if direct_run_route_requested; then
@@ -155,35 +120,4 @@ selfhost_build_main() {
     emit_requested_direct_exe_output
     exit $?
   fi
-
-  tmp_json="${JSON_OUT:-/tmp/hako_stageb_$$.json}"
-
-  # Emit Program(JSON v0) only for routes that still need the Stage-B artifact.
-  # Raw shell spelling stays in tools/lib/program_json_v0_compat.sh.
-  RAW="/tmp/hako_stageb_raw_$$.txt"
-  stageb_rc=0
-  stageb_cmd_desc=""
-  apply_selfhost_env
-  if [ -z "${HAKO_STAGEB_MODULES_LIST:-}" ]; then
-    HAKO_STAGEB_MODULES_LIST="$(collect_stageb_modules_list "$ROOT")"
-  fi
-  if [ -z "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]; then
-    HAKO_STAGEB_MODULE_ROOTS_LIST="$(collect_stageb_module_roots_list "$ROOT")"
-  fi
-  emit_stageb_program_json_raw "$RAW" "$tmp_json" || stageb_rc=$?
-
-  output_ready=0
-  if [ "$stageb_rc" -eq 0 ] && stageb_program_json_output_ready "$tmp_json"; then
-    output_ready=1
-  fi
-
-  raw_log="$(persist_stageb_raw_snapshot "$RAW" "$tmp_json" "$output_ready")"
-
-  if [ "$output_ready" != "1" ]; then
-    exit_after_stageb_emit_failure "$RAW" "$raw_log"
-  fi
-  rm -f "$RAW" 2>/dev/null || true
-
-  echo "$tmp_json"
-  exit 0
 }

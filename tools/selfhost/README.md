@@ -1,7 +1,8 @@
 Hybrid Selfhost Build (80/20)
 
 Purpose
-- Provide a minimal, fast path to compile Hako source through direct MIR, while keeping Hakorune Stage-B Program(JSON v0) production for debug/explicit compat routes.
+- Provide a minimal, fast path to compile Hako source through direct MIR.
+- Program(JSON v0) artifact capture is explicit diagnostic/probe surface, not a `selfhost_build.sh` facade route.
 - `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
 - Direct MIR emit and ny-llvmc EXE build are the normal mainline route.
 - file-level responsibility inventory:
@@ -49,18 +50,18 @@ Script
   - keep these for bootstrap/acceptance engineering proof; they are not the general front-door proof surface.
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
-  - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)
+  - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and explicit dev/compat probes for Program(JSON)
   - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); this bypasses Stage-B Program(JSON v0) production and can be combined with `--run` or `--exe`
   - --exe <out>: build native executable via the direct source MIR -> ny-llvmc mainline route
   - --run: run via direct source MIR(JSON) -> `--mir-json-file`. Exit code mirrors program return.
-  - --keep-tmp: explicit diagnostic route; keeps and prints the Stage-B artifact path when no downstream output mode is selected.
+  - --keep-tmp: retired facade route; use `tools/dev/phase29cv_stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]`.
+  - `NYASH_SELFHOST_KEEP_RAW=1`: retired facade route; use the same explicit dev probe.
   - diagnostic Program(JSON)->MIR probes use `program_json_mir_bridge_emit()` directly; `selfhost_build.sh --exe` no longer produces or consumes Stage-B Program(JSON v0).
-  - `--run` cannot be combined with `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1`; choose direct MIR execution or Stage-B artifact diagnostics.
-  - `--exe` cannot be combined with `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1`; choose direct EXE build or Stage-B artifact diagnostics.
-  - `--mir` cannot be combined with `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1`; choose direct MIR output or Stage-B artifact diagnostics.
+  - `--keep-tmp` and `NYASH_SELFHOST_KEEP_RAW=1` now fail fast in all `selfhost_build.sh` routes.
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)
+    - NYASH_SELFHOST_KEEP_RAW: retired for this facade; use the explicit dev probe
     - BuildBox emit-only is retired from the default caller path; use the direct/source route instead
 - tools/archive/legacy-selfhost/engineering/promote_tier2_case.sh
   - Parser handoff Tier-2 の 1件PROMOTEを 1コマンドで同期するヘルパー。
@@ -120,6 +121,9 @@ Script
 
 Examples
 ```bash
+# Explicit Stage-B Program(JSON v0) artifact capture
+bash tools/dev/phase29cv_stageb_artifact_probe.sh --in apps/tests/phase122_if_only_normalized_emit_min.hako --out /tmp/phase122.program.json
+
 # Explicit Program(JSON)->MIR bridge + ny-llvmc compat proof
 bash tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh
 
@@ -154,8 +158,8 @@ bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh
 - `phase-29x` cleanup bands are mirrored in `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`; the proof/example driver stays archive-later until the compat wrapper gains a root-first equivalent or is retired as a whole.
 
 Notes
-- `selfhost_build.sh` keeps Stage-B Program(JSON v0) production helper-owned through `tools/lib/program_json_v0_compat.sh`; BuildBox emit-only is retired from the day-to-day caller path
-- raw `selfhost_build.sh --in ...` whole-script output is retired; use `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1` for explicit Stage-B artifact diagnostics
+- `selfhost_build.sh` no longer owns Stage-B Program(JSON v0) artifact production; use `tools/dev/phase29cv_stageb_artifact_probe.sh` for explicit diagnostics.
+- raw `selfhost_build.sh --in ...` whole-script output, `--keep-tmp`, and `NYASH_SELFHOST_KEEP_RAW=1` are retired facade routes.
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。
 - For heavier cases (bundles/alias/require), keep Stage‑B canaries opt‑in in quick profile.
@@ -215,7 +219,7 @@ Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
 - `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
-- `selfhost_build.sh` prints the Stage-B diagnostic artifact path directly from the route owner. `--mir`, `--run`, and `--exe` now exit before Stage-B through direct source->MIR(JSON), while `--keep-tmp` and raw snapshot diagnostics keep the Stage-B Program(JSON v0) artifact route.
+- `selfhost_build.sh` is direct source->MIR(JSON) for `--mir`, `--run`, and `--exe`. Stage-B Program(JSON v0) artifact diagnostics live in `tools/dev/phase29cv_stageb_artifact_probe.sh`.
 - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.

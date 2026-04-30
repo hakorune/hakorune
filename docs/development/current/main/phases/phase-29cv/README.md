@@ -28,16 +28,20 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   P26 unblocked the direct source -> MIR(JSON) -> ny-llvmc EXE route.
 - Normal `selfhost_build.sh --mir`, `--run`, and `--exe` are now direct
   MIR(JSON) routes.
+- `selfhost_build.sh --keep-tmp` and `NYASH_SELFHOST_KEEP_RAW=1` are retired
+  from the facade; explicit Program(JSON v0) artifact capture now lives in the
+  dev probe.
 - `Program(JSON v0)` remains as internal/compat/debug infrastructure only.
 - The remaining work is keeper classification plus small delete slices, not a
   new acceptance-shape expansion.
 
 ## Keeper Buckets
 
-1. Stage-B artifact-only diagnostic keepers
-   - `tools/selfhost/lib/selfhost_build_stageb.sh`
-   - Kept because `--keep-tmp` and raw snapshots still need the old artifact.
-     It must not feed `--mir`, `--run`, or `--exe`.
+1. Explicit Stage-B artifact diagnostic probe
+   - `tools/dev/phase29cv_stageb_artifact_probe.sh`
+   - `tools/lib/program_json_v0_compat.sh`
+   - Kept for deliberate Program(JSON v0) artifact capture only.
+     `selfhost_build.sh` must not own or source this route.
 2. Explicit Program(JSON)->MIR bridge probes
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh`
@@ -68,6 +72,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   EXE or artifact diagnostics.
 - Do not reintroduce mixed `--mir` + Stage-B artifact output. Use direct MIR or
   artifact diagnostics.
+- Do not reintroduce `selfhost_build.sh --keep-tmp` or
+  `NYASH_SELFHOST_KEEP_RAW=1` as facade artifact routes. Use
+  `tools/dev/phase29cv_stageb_artifact_probe.sh` for explicit diagnostics.
 - Do not expand ny-llvmc pure-first acceptance shapes here.
 - Do not revive `--hako-emit-program-json` or other retired public aliases.
 - Do not treat fixture-only Program(JSON) producers as day-to-day bootstrap
