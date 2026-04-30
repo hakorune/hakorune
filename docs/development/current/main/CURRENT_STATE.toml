@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P28-INLINE-STAGE1-MIR-JSON-WRAPPER-HELPER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P28-INLINE-STAGE1-MIR-JSON-WRAPPER-HELPER.md"
-latest_card_summary = "Inline the single-use mir-json forwarding helper in the retired Stage1 wrapper while keeping wrapper behavior unchanged."
+latest_card = "P29-INLINE-RETIRED-STAGE1-WRAPPER-EXIT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P29-INLINE-RETIRED-STAGE1-WRAPPER-EXIT.md"
+latest_card_summary = "Inline the single-use retired emit-program-json exit helper in the Stage1 wrapper while keeping the retirement message unchanged."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

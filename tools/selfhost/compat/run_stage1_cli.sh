@@ -38,13 +38,6 @@ ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 BIN="${ROOT_DIR}/target/selfhost/hakorune"
 source "${ROOT_DIR}/tools/selfhost/lib/stage1_contract.sh"
 
-exit_emit_program_json_wrapper_retired() {
-  echo "[run-stage1] emit program-json is retired from this wrapper" >&2
-  echo "             use emit mir-json for MIR-first flow" >&2
-  echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit Program(JSON) compat proof" >&2
-  exit 2
-}
-
 run_emit_mir_json() {
   local entry=""
   while [[ $# -gt 0 ]]; do
@@ -121,7 +114,10 @@ if [[ "$1" == "emit" ]]; then
   shift 2
   case "$subcmd" in
     program-json)
-      exit_emit_program_json_wrapper_retired
+      echo "[run-stage1] emit program-json is retired from this wrapper" >&2
+      echo "             use emit mir-json for MIR-first flow" >&2
+      echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit Program(JSON) compat proof" >&2
+      exit 2
       ;;
     mir-json)
       run_emit_mir_json "$@"
