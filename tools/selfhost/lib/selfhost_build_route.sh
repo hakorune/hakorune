@@ -18,6 +18,13 @@ exit_bare_stageb_route_retired() {
   exit 2
 }
 
+exit_run_stageb_artifact_combo_retired() {
+  echo "[selfhost] --run cannot be combined with Stage-B artifact diagnostics" >&2
+  echo "           use --run (or --run --mir <file>) for direct MIR execution" >&2
+  echo "           use --keep-tmp or NYASH_SELFHOST_KEEP_RAW=1 for Program(JSON v0) diagnostics" >&2
+  exit 2
+}
+
 direct_mir_only_route_requested() {
   [ -n "$MIR_OUT" ] \
     && [ -z "$EXE_OUT" ] \
@@ -103,6 +110,10 @@ selfhost_build_main() {
 
   if ! selfhost_build_output_route_requested; then
     exit_bare_stageb_route_retired
+  fi
+
+  if [ "$DO_RUN" = "1" ] && stageb_program_json_artifact_required; then
+    exit_run_stageb_artifact_combo_retired
   fi
 
   if direct_run_route_requested; then

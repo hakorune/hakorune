@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P7-RUN-ROUTE-DOC-FMT-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P7-RUN-ROUTE-DOC-FMT-CLEANUP.md"
-latest_card_summary = "Fix the global fmt check and sync route docs after normal selfhost --run moved to direct MIR(JSON)."
+latest_card = "P8-RETIRE-PROGRAM-JSON-RUN-COMBO"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P8-RETIRE-PROGRAM-JSON-RUN-COMBO.md"
+latest_card_summary = "Retire mixed Program(JSON v0) diagnostic run combos so selfhost --run is direct MIR only."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

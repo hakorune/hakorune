@@ -3,9 +3,9 @@
 Scope: record why `selfhost_build.sh --run` remains on the Program(JSON v0)
 keeper route after P3.
 
-Status note: superseded by P6. The `newbox` / `field_get` loader blocker is
-solved for normal `--run`; diagnostic artifact routes still stay on the
-Program(JSON v0) keeper.
+Status note: superseded by P6 and P8. The `newbox` / `field_get` loader
+blocker is solved for normal `--run`, and mixed diagnostic Program(JSON v0)
+run combos are retired.
 
 ## Probe
 

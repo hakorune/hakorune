@@ -3,8 +3,8 @@
 Scope: move the then-remaining Program(JSON v0) `--run` keeper out of the
 direct MIR helper and into a dedicated run helper.
 
-Status note: superseded by P6 for normal `--run`. The split still matters
-because diagnostic artifact routes keep the Program(JSON v0) run helper.
+Status note: superseded by P6 for normal `--run` and by P8 for mixed
+diagnostic run combos. `selfhost_build_run.sh` is now direct MIR run only.
 
 ## Why
 
@@ -13,8 +13,8 @@ owner, but it still carried the Program(JSON v0) diagnostic run path. That made
 the file name lie about the keeper boundary:
 
 - direct MIR output and direct EXE source MIR production are mainline
-- Program(JSON v0) diagnostic run helpers are keepers only while their
-  requested artifact route still needs the old payload
+- Program(JSON v0) diagnostic run helpers were keepers only while mixed
+  artifact/run requests were still allowed
 
 ## Decision
 

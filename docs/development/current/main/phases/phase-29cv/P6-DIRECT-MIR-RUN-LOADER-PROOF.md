@@ -29,9 +29,9 @@ and binop fixtures after `newbox` / `field_get` loader support. Normal
 `selfhost_build.sh --run` now uses direct source -> MIR(JSON) ->
 `--mir-json-file`.
 
-`--run --keep-tmp` and raw snapshot diagnostics stay on the Stage-B
-Program(JSON v0) artifact route because those modes explicitly request the
-old artifact.
+P8 later retired mixed `--run` + Stage-B artifact requests. Normal `--run`
+remains direct MIR(JSON); artifact diagnostics use `--keep-tmp` or
+`NYASH_SELFHOST_KEEP_RAW=1` without `--run`.
 
 ## Files
 
