@@ -9,6 +9,7 @@ historical/manual evidence only.
 Archived scripts:
 
 - `async_smokes.sh`
+- `aot_counter_smoke.sh`
 - `apps_tri_backend_smoke.sh`
 - `cross_backend_smoke.sh`
 - `mir_builder_exe_smoke.sh`

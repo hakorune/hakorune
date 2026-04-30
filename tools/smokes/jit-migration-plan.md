@@ -20,7 +20,7 @@ Historical note:
 
 ### 1. 即座にアーカイブ（JIT専用）
 ```bash
-tools/aot_counter_smoke.sh
+tools/archive/manual-smokes/aot_counter_smoke.sh
 tools/build_aot.sh
 tools/build_python_aot.sh
 ```
@@ -53,7 +53,7 @@ tools/using_unresolved_smoke.sh
 ### Phase 1: 即座の対応
 1. ✅ mir15_smoke.sh → archive/
 2. ✅ phase24_comprehensive_smoke.sh修正
-3. ⏳ AOT系3ファイル → archive/
+3. ⏳ AOT build helpers remain active; `aot_counter_smoke.sh` is archived
 
 ### Phase 2: ビルド修正（コメントアウト）
 - [ ] 3個のスモークでcranelift-jitビルドをコメントアウト
