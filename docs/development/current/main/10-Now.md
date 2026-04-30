@@ -20,16 +20,19 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x next compiler-cleanliness lane selection pending`
+- current blocker token: `phase-291x post-mir cleanup lane selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- choose the next compiler-cleanliness lane, or switch to an explicitly
-  reopened non-cleanup blocker
+- choose the next post-MIR compiler-cleanliness lane, or switch to an
+  explicitly reopened non-cleanup blocker
 - cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   closed history lives in phase card files
+- the MIR structural dead-shelf burst is closed through `291x-790`; the only
+  remaining broad hold in the audited MIR vocabulary set is the intentional
+  scaffold in `src/mir/hints.rs`
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work

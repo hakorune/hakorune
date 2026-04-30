@@ -13,14 +13,6 @@
 //! - aggregate LoopFeatures extraction lives in facts/ast_feature_extractor.rs
 //! - shape-specific detector exports below point at their recognizer owners
 //!
-//! Phase 193-4 / Phase 222.5-C: Exit Binding Builder
-//! - exit_binding.rs: Fully boxified exit binding generation (orchestrator, thin wrapper)
-//! - exit_binding_validator.rs: CarrierInfo and ExitMeta validation (thin wrapper)
-//! - exit_binding_constructor.rs: Exit binding construction and ValueId allocation (thin wrapper)
-//! - exit_binding_applicator.rs: Boundary application logic (thin wrapper)
-//! - Eliminates hardcoded variable names and ValueId assumptions
-//! - Supports both single and multi-carrier loop routes
-//!
 //! Phase 33-23: Route-Shape Analyzers (Stage 2)
 //!
 //! Retired helper shelves:

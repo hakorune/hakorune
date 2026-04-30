@@ -56,25 +56,3 @@ pub(crate) fn detect_if_else_phi_in_body(body: &[ASTNode]) -> bool {
     }
     false // No if-else found
 }
-
-/// Phase 212.5: Detect ANY if statement in loop body (structural detection)
-///
-/// This function detects any if statement, regardless of whether it has an else branch.
-/// Used for routing single-carrier if-update patterns to if_phi_join.
-///
-/// # Arguments
-///
-/// * `body` - Loop body statements to analyze
-///
-/// # Returns
-///
-/// `true` if at least one if statement is found (with or without else)
-#[allow(dead_code)] // Phase 291x-126: retained as structural detector vocabulary.
-fn detect_if_in_body(body: &[ASTNode]) -> bool {
-    for node in body {
-        if let ASTNode::If { .. } = node {
-            return true;
-        }
-    }
-    false
-}

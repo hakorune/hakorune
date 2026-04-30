@@ -707,32 +707,3 @@ pub fn finalize_compare(
     }
     Ok(())
 }
-
-/// Finalize field use sites: ensure base and all args are in the current block.
-#[allow(dead_code)] // Phase 291x-126: field-use finalizer seam kept for strict LocalSSA expansion.
-pub fn finalize_field_base_and_args(
-    builder: &mut MirBuilder,
-    base: &mut ValueId,
-    args: &mut Vec<ValueId>,
-) -> Result<(), String> {
-    *base = field_base(builder, *base);
-    for a in args.iter_mut() {
-        if strict_planner_required() {
-            *a = try_ensure(builder, *a, LocalKind::Arg)?;
-        } else {
-            *a = arg(builder, *a);
-        }
-    }
-    if crate::config::env::builder_local_ssa_trace() {
-        if let Some(bb) = builder.current_block {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[local-ssa] finalize-field bb={:?} base=%{} argc={}",
-                bb,
-                base.0,
-                args.len()
-            ));
-        }
-    }
-    Ok(())
-}

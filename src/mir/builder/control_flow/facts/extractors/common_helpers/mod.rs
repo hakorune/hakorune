@@ -15,9 +15,8 @@ pub(crate) use condition::is_true_literal;
 #[allow(unused_imports)]
 pub(crate) use control_flow::{
     branch_tail_is_continue, branch_tail_is_continue_flattened, count_control_flow,
-    find_if_else_statement, has_break_statement, has_continue_statement,
-    has_control_flow_statement, has_if_else_statement, has_return_statement, ControlFlowCounts,
-    ControlFlowDetector,
+    find_if_else_statement, has_break_statement, has_continue_statement, has_if_else_statement,
+    has_return_statement, ControlFlowCounts, ControlFlowDetector,
 };
 #[allow(unused_imports)]
 pub(crate) use increment::extract_loop_increment_plan;

@@ -114,20 +114,23 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - next actual move:
   - `none confirmed`
 
-### `ssa/`
+### `ssa/` (retired)
 
-- move only when bindings/phi repair stop leaking into semantic lowering:
+- former staged owner surface:
   - `plan/exit_binding`
   - `plan/exit_binding_applicator`
   - `plan/exit_binding_constructor`
   - `plan/exit_binding_validator`
-- rationale:
-  - PHI / binding repair must converge on a dedicated owner
-- actual owner surface already landed:
   - `ssa::exit_binding`
   - `ssa::exit_binding_constructor`
   - `ssa::exit_binding_applicator`
   - `ssa::exit_binding_validator`
+- rationale:
+  - exit-binding repair never became a standalone `control_flow::ssa` owner
+- durable owner path:
+  - `normalization::execute_box` for normalized JoinIR exit-binding materialization
+  - `join_ir::lowering::inline_boundary_builder`
+  - `join_ir::lowering::inline_boundary` constructors/types
 
 ### `cleanup/`
 

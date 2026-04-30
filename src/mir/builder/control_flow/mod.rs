@@ -68,9 +68,6 @@ pub(in crate::mir::builder) mod verify;
 // Phase 29ca P1: top-level lowering/orchestration owner surface (folderization first cut)
 pub(in crate::mir::builder) mod lower;
 
-// Phase 29ca P1: top-level SSA/exit-binding owner surface (folderization first cut)
-pub(in crate::mir::builder) mod ssa;
-
 // Phase 29ca P1: top-level cleanup/policy owner surface (folderization first cut)
 pub(in crate::mir::builder) mod cleanup;
 

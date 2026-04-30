@@ -2,8 +2,6 @@
 //!
 //! C19-A: type-only introduction. No routing, no lowering.
 
-#![allow(dead_code)]
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CondSkeleton {
     LoopCond,

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-782. The JoinIR / bridge / config-env dead-code allowance sweep is closed, old semantics and parser dead-code shelves found in this pass are retired, `cargo test --lib --no-run` is warning-free, and current docs stay thin. Next work is MIR structural vocabulary inventory as a separate focused lane."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-790. The JoinIR / bridge / config-env sweep is closed, the MIR structural dead-shelf burst is retired through exit-binding / phi-query / LocalSSA / extractor-detector cleanup, `cond_profile` no longer needs a broad hold, and `src/mir/hints.rs` remains the only intentional scaffold hold in this audited MIR set. Next work is selecting the next post-MIR compiler-cleanliness lane."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-782"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-782-parser-residual-local-allowance-prune-card.md"
-latest_card_summary = "Remove residual unused parser sugar/ternary helpers and clear parser local dead-code allowances."
+latest_card = "291x-790"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-790-cond-profile-allow-prune-card.md"
+latest_card_summary = "Remove the now-unneeded file-level dead_code hold from cond_profile.rs and keep hints.rs as the only intentional broad scaffold hold in this MIR audit."
 
-current_blocker_token = "phase-291x next compiler-cleanliness lane selection pending"
+current_blocker_token = "phase-291x post-mir cleanup lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -74,4 +74,12 @@ landed_tail = [
   "291x-780 token cursor helper allowance prune landed",
   "291x-781 parser expression helper shelf prune landed",
   "291x-782 parser residual local allowance prune landed",
+  "291x-783 SSA exit-binding owner shelf prune landed",
+  "291x-784 PHI query facade prune landed",
+  "291x-785 if-else PHI helper prune landed",
+  "291x-786 LocalSSA field finalizer prune landed",
+  "291x-787 loop_simple_while extractor shelf prune landed",
+  "291x-788 common helper control-flow prune landed",
+  "291x-789 PHI query wrapper retire landed",
+  "291x-790 cond_profile allow prune landed",
 ]

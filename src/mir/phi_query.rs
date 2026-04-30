@@ -56,25 +56,6 @@ pub(crate) fn collect_phi_carry_relations(
     out
 }
 
-#[allow(dead_code)] // Phase 291x-126: narrow query facade retained for tests / future callers.
-pub(crate) fn infer_phi_base_relation(
-    function: &MirFunction,
-    value: ValueId,
-    anchors: &BTreeSet<ValueId>,
-) -> PhiBaseRelation {
-    infer_phi_base_query(function, value, anchors).relation
-}
-
-#[allow(dead_code)] // Phase 291x-126: narrow query facade retained for tests / future callers.
-pub(crate) fn infer_phi_base_query(
-    function: &MirFunction,
-    value: ValueId,
-    anchors: &BTreeSet<ValueId>,
-) -> PhiBaseQueryResult {
-    let def_map = build_value_def_map(function);
-    infer_phi_base_query_with_anchors(function, &def_map, value, anchors)
-}
-
 pub(crate) fn collect_passthrough_phi_parents(function: &MirFunction) -> ParentMap {
     let mut parents: ParentMap = HashMap::new();
     for block in function.blocks.values() {
@@ -269,9 +250,11 @@ mod tests {
     #[test]
     fn infer_phi_base_relation_detects_same_base_through_single_input_phi() {
         let function = build_phi_function();
+        let def_map = build_value_def_map(&function);
         let anchors = BTreeSet::from([ValueId(10)]);
 
-        let relation = infer_phi_base_query(&function, ValueId(21), &anchors);
+        let relation =
+            infer_phi_base_query_with_anchors(&function, &def_map, ValueId(21), &anchors);
 
         assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
         assert!(!relation.window_safe);
@@ -291,9 +274,11 @@ mod tests {
     #[test]
     fn infer_phi_base_relation_reports_mixed_for_different_anchor_bases() {
         let function = build_phi_function();
+        let def_map = build_value_def_map(&function);
         let anchors = BTreeSet::from([ValueId(10), ValueId(11)]);
 
-        let relation = infer_phi_base_query(&function, ValueId(31), &anchors);
+        let relation =
+            infer_phi_base_query_with_anchors(&function, &def_map, ValueId(31), &anchors);
 
         assert_eq!(relation.relation, PhiBaseRelation::Mixed);
         assert!(!relation.window_safe);
@@ -302,9 +287,11 @@ mod tests {
     #[test]
     fn infer_phi_base_relation_marks_single_input_chain_as_window_safe() {
         let function = build_phi_function();
+        let def_map = build_value_def_map(&function);
         let anchors = BTreeSet::from([ValueId(10)]);
 
-        let relation = infer_phi_base_query(&function, ValueId(22), &anchors);
+        let relation =
+            infer_phi_base_query_with_anchors(&function, &def_map, ValueId(22), &anchors);
 
         assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
         assert!(relation.window_safe);

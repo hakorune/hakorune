@@ -128,12 +128,6 @@ pub(crate) fn has_return_statement(body: &[ASTNode]) -> bool {
     count_control_flow(body, detector).return_count > 0
 }
 
-/// Check if body has ANY break or continue
-pub(crate) fn has_control_flow_statement(body: &[ASTNode]) -> bool {
-    let counts = count_control_flow(body, ControlFlowDetector::default());
-    counts.break_count > 0 || counts.continue_count > 0
-}
-
 pub(crate) fn branch_tail_is_continue(body: &[ASTNode]) -> bool {
     matches!(body.last(), Some(ASTNode::Continue { .. }))
 }
