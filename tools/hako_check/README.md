@@ -59,6 +59,24 @@ Analyzer policy (plugins)
 - File I/O is avoided by passing source text via `--source-file <path> <text>`.
 - When plugins are needed (dev/prod), set `NYASH_FILEBOX_MODE=auto` and provide [libraries] in nyash.toml.
 
+Performance / MIR cache
+- `tools/hako_check.sh` may reuse the existing L1 MIR cache (`tools/cache/phase29x_l1_mir_cache.sh`) before falling back to the normal emit route.
+- Goal: repeated directory runs (especially selfhost trees) should skip redundant MIR emission for unchanged files while keeping analyzer behavior unchanged.
+- Default operation is cache-first, emit-second:
+  1. try L1 MIR cache
+  2. if cache lookup/build fails, fall back to the existing `emit_mir_route.sh` path
+- The wrapper may also memoize an `emit-failed` marker for the same cache key so repeated runs do not keep paying the same failed MIR emit cost for unchanged inputs.
+- Control knobs:
+  - `HAKO_CHECK_MIR_CACHE=0` disables the cache fast path
+  - `HAKO_CHECK_MIR_CACHE_PROFILE` overrides the cache profile label
+  - `HAKO_CHECK_MIR_CACHE_BACKEND` overrides the cache backend label
+  - `HAKO_CHECK_MIR_CACHE_TARGET` overrides the cache target label
+  - `HAKO_CHECK_MIR_CACHE_ROOT` overrides the cache root path
+- Contract:
+  - cache use must be conservative and behavior-preserving
+  - cache failure must not silently drop MIR-dependent rules; it must fall back to the existing emit route
+  - an `emit-failed` marker is advisory only and must remain key-scoped (source/profile/toolchain changes naturally invalidate it)
+
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise
 - `NYASH_BOX_FACTORY_POLICY=builtin_first` – prefer builtin/ring‑1 for stability

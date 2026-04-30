@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="${NYASH_BIN:-$ROOT/target/release/hakorune}"
 EMIT_ROUTE="${ROOT}/tools/smokes/v2/lib/emit_mir_route.sh"
+MIR_CACHE_TOOL="${ROOT}/tools/cache/phase29x_l1_mir_cache.sh"
+MIR_CACHE_KEY_TOOL="${ROOT}/tools/cache/phase29x_cache_keys.sh"
 
 if [ ! -x "$BIN" ]; then
   echo "[ERROR] hakorune binary not found: $BIN" >&2
@@ -45,6 +47,47 @@ list_targets() {
   fi
 }
 
+cache_lookup_mir() {
+  local input_path="$1"
+  local info_path="$2"
+  local cache_profile="${HAKO_CHECK_MIR_CACHE_PROFILE:-hako-check}"
+  local cache_backend="${HAKO_CHECK_MIR_CACHE_BACKEND:-analysis}"
+  local cache_target="${HAKO_CHECK_MIR_CACHE_TARGET:-native}"
+  local cmd=(bash "$MIR_CACHE_TOOL" --input "$input_path" --profile "$cache_profile" --backend "$cache_backend" --target "$cache_target")
+  if [ -n "${HAKO_CHECK_MIR_CACHE_ROOT:-}" ]; then
+    cmd+=(--cache-root "$HAKO_CHECK_MIR_CACHE_ROOT")
+  fi
+  set +e
+  NYASH_BIN="$BIN" "${cmd[@]}" >"$info_path" 2>&1
+  local cache_rc=$?
+  set -e
+  return "$cache_rc"
+}
+
+cache_key_info() {
+  local input_path="$1"
+  local info_path="$2"
+  local cache_profile="${HAKO_CHECK_MIR_CACHE_PROFILE:-hako-check}"
+  local cache_backend="${HAKO_CHECK_MIR_CACHE_BACKEND:-analysis}"
+  local cache_target="${HAKO_CHECK_MIR_CACHE_TARGET:-native}"
+  set +e
+  bash "$MIR_CACHE_KEY_TOOL" --input "$input_path" --profile "$cache_profile" --backend "$cache_backend" --target "$cache_target" >"$info_path" 2>&1
+  local key_rc=$?
+  set -e
+  return "$key_rc"
+}
+
+cache_info_value() {
+  local key="$1"
+  local info_path="$2"
+  sed -n "s/^${key}=//p" "$info_path" | tail -n1
+}
+
+cache_fail_log() {
+  local marker_path="$1"
+  sed -n '/^---log---$/,$p' "$marker_path" | tail -n +2
+}
+
 run_one() {
   local f="$1"
   # Run analyzer main with inlined source text to avoid FileBox dependency
@@ -57,12 +100,70 @@ run_one() {
   local emit_timeout="${HAKO_CHECK_EMIT_TIMEOUT_SECS:-20}"
   local require_mir="${HAKO_CHECK_REQUIRE_MIR:-0}"
   local emit_log="/tmp/hako_check_emit_$$.log"
+  local cache_info="/tmp/hako_check_cache_$$.log"
+  local cache_key_info_path="/tmp/hako_check_cache_key_$$.log"
+  local cache_enabled="${HAKO_CHECK_MIR_CACHE:-1}"
+  local cache_profile="${HAKO_CHECK_MIR_CACHE_PROFILE:-hako-check}"
+  local cache_target="${HAKO_CHECK_MIR_CACHE_TARGET:-native}"
+  local cache_root="${HAKO_CHECK_MIR_CACHE_ROOT:-$ROOT/target/hako-cache/v1}"
+  local cache_module_id=""
+  local cache_module_key=""
+  local cache_mir_path=""
+  local cache_fail_path=""
+  local skip_emit_route=0
+  local cached_emit_rc=""
   if ! [[ "$emit_timeout" =~ ^[0-9]+$ ]]; then
     echo "[ERROR] HAKO_CHECK_EMIT_TIMEOUT_SECS must be integer: $emit_timeout" >&2
     fail=$((fail+1))
     return
   fi
-  if [ -x "$EMIT_ROUTE" ]; then
+  if [ "$cache_enabled" != "0" ] && [ -x "$MIR_CACHE_KEY_TOOL" ]; then
+    if cache_key_info "$f" "$cache_key_info_path"; then
+      cache_module_id="$(cache_info_value module_id "$cache_key_info_path")"
+      cache_module_key="$(cache_info_value module_compile_key "$cache_key_info_path")"
+      if [ -n "$cache_module_id" ] && [ -n "$cache_module_key" ]; then
+        cache_mir_path="$cache_root/$cache_profile/$cache_target/mir/$cache_module_id/$cache_module_key.mir.json"
+        cache_fail_path="$cache_root/$cache_profile/$cache_target/mir-fail/$cache_module_id/$cache_module_key.emit-failed"
+        if [ -s "$cache_mir_path" ]; then
+          mir_json_content="$(cat "$cache_mir_path")"
+          if [ "${HAKO_CHECK_VERBOSE:-0}" = "1" ] || [ "${HAKO_CHECK_DEBUG:-0}" = "1" ]; then
+            echo "[hako_check/cache] hit file=$f mir=$cache_mir_path" >&2
+          fi
+        elif [ -s "$cache_fail_path" ]; then
+          skip_emit_route=1
+          cached_emit_rc="$(cache_info_value emit_rc "$cache_fail_path")"
+          if [ "${HAKO_CHECK_VERBOSE:-0}" = "1" ] || [ "${HAKO_CHECK_DEBUG:-0}" = "1" ]; then
+            echo "[hako_check/cache] emit-failed hit file=$f marker=$cache_fail_path" >&2
+            cache_fail_log "$cache_fail_path" | tail -n 20 >&2 || true
+          fi
+        fi
+      fi
+    elif [ "${HAKO_CHECK_VERBOSE:-0}" = "1" ] || [ "${HAKO_CHECK_DEBUG:-0}" = "1" ]; then
+      echo "[hako_check/cache] key derivation unavailable for $f" >&2
+      tail -n 20 "$cache_key_info_path" >&2 || true
+    fi
+  fi
+  if [ -z "$mir_json_content" ] && [ "$skip_emit_route" != "1" ] && [ "$cache_enabled" != "0" ] && [ -x "$MIR_CACHE_TOOL" ]; then
+    if cache_lookup_mir "$f" "$cache_info"; then
+      local cache_status built_mir_path
+      cache_status="$(cache_info_value cache_status "$cache_info")"
+      built_mir_path="$(cache_info_value mir_path "$cache_info")"
+      if [ -n "$built_mir_path" ] && [ -s "$built_mir_path" ]; then
+        mir_json_content="$(cat "$built_mir_path")"
+        cache_mir_path="$built_mir_path"
+        if [ -n "$cache_fail_path" ]; then rm -f "$cache_fail_path"; fi
+        if [ "${HAKO_CHECK_VERBOSE:-0}" = "1" ] || [ "${HAKO_CHECK_DEBUG:-0}" = "1" ]; then
+          echo "[hako_check/cache] ${cache_status:-ok} file=$f mir=$built_mir_path" >&2
+        fi
+      fi
+    else
+      if [ "${HAKO_CHECK_VERBOSE:-0}" = "1" ] || [ "${HAKO_CHECK_DEBUG:-0}" = "1" ]; then
+        echo "[hako_check/cache] unavailable for $f (falling back to emit route)" >&2
+        tail -n 20 "$cache_info" >&2 || true
+      fi
+    fi
+  fi
+  if [ -z "$mir_json_content" ] && [ "$skip_emit_route" != "1" ] && [ -x "$EMIT_ROUTE" ]; then
     set +e
     NYASH_DISABLE_PLUGINS=1 \
     NYASH_VM_USE_FALLBACK=0 \
@@ -71,10 +172,18 @@ run_one() {
     local emit_rc=$?
     set -e
     if [ "$emit_rc" -ne 0 ]; then
+      if [ -n "$cache_fail_path" ]; then
+        mkdir -p "$(dirname "$cache_fail_path")"
+        {
+          printf "emit_rc=%s\n" "$emit_rc"
+          printf '%s\n' '---log---'
+          cat "$emit_log"
+        } >"$cache_fail_path"
+      fi
       if [ "$require_mir" = "1" ]; then
         echo "[FAIL] emit-mir failed for hako_check target: $f (rc=$emit_rc)" >&2
         tail -n 80 "$emit_log" >&2 || true
-        rm -f "$emit_log" "$mir_json_path"
+        rm -f "$emit_log" "$mir_json_path" "$cache_info" "$cache_key_info_path"
         fail=$((fail+1))
         return
       fi
@@ -85,8 +194,22 @@ run_one() {
     fi
     if [ -f "$mir_json_path" ]; then
       mir_json_content="$(cat "$mir_json_path")"
+      if [ -n "$cache_mir_path" ]; then
+        mkdir -p "$(dirname "$cache_mir_path")"
+        cp "$mir_json_path" "$cache_mir_path"
+        if [ -n "$cache_fail_path" ]; then rm -f "$cache_fail_path"; fi
+      fi
     fi
     rm -f "$emit_log"
+  fi
+  if [ -z "$mir_json_content" ] && [ "$skip_emit_route" = "1" ] && [ "$require_mir" = "1" ]; then
+    echo "[FAIL] emit-mir failed for hako_check target: $f (rc=${cached_emit_rc:-cached})" >&2
+    if [ -n "$cache_fail_path" ] && [ -f "$cache_fail_path" ]; then
+      cache_fail_log "$cache_fail_path" | tail -n 80 >&2 || true
+    fi
+    rm -f "$mir_json_path" "$cache_info" "$cache_key_info_path"
+    fail=$((fail+1))
+    return
   fi
 
   # Build args array with optional MIR JSON
@@ -131,7 +254,7 @@ run_one() {
     echo "$out" | sed -n '1,200p'
     fail=$((fail+1))
   fi
-  rm -f "/tmp/hako_lint_out_$$.log" "$mir_json_path"
+  rm -f "/tmp/hako_lint_out_$$.log" "$mir_json_path" "$cache_info" "$cache_key_info_path"
 }
 
 if [ "$FORMAT" = "dot" ]; then
