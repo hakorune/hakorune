@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../../../../../../.." && pwd)"
 source "$ROOT/tools/smokes/v2/lib/test_runner.sh" || true
+source "$ROOT/tools/selfhost/lib/stageb_program_json_capture.sh"
 
 # Quick profile: Stage-B emit is flaky under Stage-3 default; skip for now.
 echo "[SKIP] stageb_parser_loop_json_canary_vm (disabled in quick profile after env consolidation)"
@@ -25,7 +26,8 @@ trap 'rm -f "$TMP_HAKO" "$OUT_JSON" 2>/dev/null || true' EXIT
 if ! NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
      NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
      NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 NYASH_DISABLE_PLUGINS=1 NYASH_FILEBOX_MODE="core-ro" \
-     "$ROOT/target/release/hakorune" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$(cat "$TMP_HAKO")" 2>/dev/null | awk '/^{/,/^}$/' >"$OUT_JSON"; then
+     "$ROOT/target/release/hakorune" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$(cat "$TMP_HAKO")" 2>/dev/null \
+     | stageb_program_json_extract_from_stdin >"$OUT_JSON"; then
   echo "[FAIL] stageb_parser_loop_json: failed to produce Program(JSON)"; exit 1
 fi
 

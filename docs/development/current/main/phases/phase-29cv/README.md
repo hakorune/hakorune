@@ -58,6 +58,7 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 4. JoinIR / MirBuilder fixture keepers
    - `tools/smokes/v2/lib/stageb_helpers.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`
+   - `tools/smokes/v2/profiles/integration/core/phase2160/stageb_*_canary_vm.sh`
    - Keep while those tests explicitly assert the Program(JSON)->.hako
      MirBuilder contract.
    - Stage-B stdout capture is shared through
