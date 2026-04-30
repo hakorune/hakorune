@@ -11,6 +11,11 @@ Canonical helpers
 - `bash tools/hako_check/deadblocks_smoke.sh`
 - top-level `tools/hako_check_deadcode_smoke.sh` remains a compatibility shim only
 
+Execution lane
+- `hako_check` no longer treats explicit `--backend vm` as its canonical runtime.
+- The CLI/scripts should run through the normal `hakorune` ingress (mainline/default route) and keep backend choice out of the tool surface unless a dedicated product-lane proof is being debugged.
+- Product/native LLVM proof is a separate concern. Keep `hako_check` docs/tests focused on the analyzer contract first; do not re-pin legacy VM just to make the wrapper run.
+
 Diagnostics schema (typed)
 - Map fields:
   - `rule`: string like "HC011"
@@ -57,7 +62,7 @@ Analyzer policy (plugins)
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise
 - `NYASH_BOX_FACTORY_POLICY=builtin_first` – prefer builtin/ring‑1 for stability
-- `NYASH_DISABLE_NY_COMPILER=1` and `HAKO_DISABLE_NY_COMPILER=1` – disable inline compiler in tests
+- `NYASH_USE_NY_COMPILER=0` and `HAKO_DISABLE_NY_COMPILER=1` – disable inline compiler in tests
 - `NYASH_JSON_ONLY=1` – stdout is pure JSON (logs go to stderr)
 
 ## Known Limitations

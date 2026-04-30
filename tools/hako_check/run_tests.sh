@@ -75,13 +75,13 @@ run_case() {
   # Ensure plugin path is set
   export LD_LIBRARY_PATH="${ROOT}/target/release:${LD_LIBRARY_PATH:-}"
 
-  NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
+  NYASH_USE_NY_COMPILER=0 HAKO_DISABLE_NY_COMPILER=1 \
   NYASH_FEATURES="${NYASH_FEATURES:-stage3}" NYASH_PARSER_SEAM_TOLERANT=1 HAKO_PARSER_SEAM_TOLERANT=1 \
   NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 NYASH_USING_AST=1 \
   NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
   NYASH_JSON_ONLY=1 \
-  "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- "${ARGS[@]}" >"$tmp_out" 2>&1 || true
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- "${ARGS[@]}" >"$tmp_out" 2>&1 || true
 
   # Some runtimes print plugin/deprecation banners to stdout/stderr even in JSON mode.
   # Filter those out before extracting the JSON-LSP block so tests remain stable.

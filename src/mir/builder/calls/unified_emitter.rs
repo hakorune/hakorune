@@ -198,7 +198,10 @@ impl UnifiedCallEmitterBox {
         };
 
         // 🎯 Phase 21.7: Methodization (HAKO_MIR_BUILDER_METHODIZE=1)
-        // Convert Global("BoxName.method/arity") → Method{receiver=static singleton}
+        // Convert lowered static-method globals to Method calls only for
+        // runtime data boxes. User-defined/static helper boxes must stay
+        // Global("Box.method/arity"), otherwise they become Method{recv=None}
+        // and break both VM and LLVM routes.
         let methodize_on = match crate::config::env::builder_methodize_mode().as_deref() {
             // 明示的に "0" が指定されたときだけ無効化。
             Some("0") => false,
@@ -217,7 +220,7 @@ impl UnifiedCallEmitterBox {
                         let box_kind = resolver.classify_box_kind(box_name);
 
                         if box_kind
-                            != crate::mir::definitions::call_unified::CalleeBoxKind::StaticCompiler
+                            == crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData
                         {
                             callee = Callee::Method {
                                 box_name: box_name.to_string(),
@@ -238,8 +241,8 @@ impl UnifiedCallEmitterBox {
                         } else if crate::config::env::builder_methodize_trace() {
                             let ring0 = crate::runtime::get_global_ring0();
                             ring0.log.debug(&format!(
-                                "[methodize] keep Global({}) for StaticCompiler {}.{}",
-                                name_clone, box_name, method
+                                "[methodize] keep Global({}) for non-runtime static method {}.{} kind={:?}",
+                                name_clone, box_name, method, box_kind
                             ));
                         }
                     }

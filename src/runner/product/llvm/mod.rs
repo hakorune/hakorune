@@ -161,6 +161,7 @@ fn execute_via_harness_or_fallback(
 ) -> Result<i32, LlvmRunError> {
     match harness_executor::HarnessExecutorBox::try_execute(module) {
         Ok(code) => Ok(code),
+        Err(e) if crate::config::env::env_bool("NYASH_LLVM_USE_HARNESS") => Err(e),
         Err(_e) => fallback_executor::FallbackExecutorBox::execute(module),
     }
 }

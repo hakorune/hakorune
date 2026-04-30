@@ -50,6 +50,12 @@ tools/dev/bug_origin_triage.sh apps/tests/phase29y_loop_if_assignment_carry_min.
 
 ## 2. `.hako` ルール検証（hako_check）
 
+前提:
+
+- `hako_check` は explicit `--backend vm` を正本にしない
+- 入口は `bash tools/hako_check/*.sh` / `bash tools/hako_check/run_tests.sh` の薄い wrapper に寄せる
+- analyzer test では `NYASH_USE_NY_COMPILER=0` を使い、古い `NYASH_DISABLE_NY_COMPILER` は増やさない
+
 全ルール:
 
 ```bash

@@ -98,7 +98,7 @@ run_one() {
   set +e
   NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
-  NYASH_DISABLE_NY_COMPILER=1 \
+  NYASH_USE_NY_COMPILER=0 \
   HAKO_DISABLE_NY_COMPILER=1 \
   NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
   NYASH_PARSER_SEAM_TOLERANT=1 \
@@ -110,7 +110,7 @@ run_one() {
   NYASH_NY_COMPILER_TIMEOUT_MS="${NYASH_NY_COMPILER_TIMEOUT_MS:-8000}" \
   HAKO_CHECK_DEBUG="${HAKO_CHECK_DEBUG:-0}" \
   HAKO_CHECK_VERBOSE="${HAKO_CHECK_VERBOSE:-0}" \
-  "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- "${args_arr[@]}" --format "$FORMAT" $EXTRA_ARGS \
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- "${args_arr[@]}" --format "$FORMAT" $EXTRA_ARGS \
     >"/tmp/hako_lint_out_$$.log" 2>&1
   local cmd_rc=$?
   set -e
@@ -148,7 +148,7 @@ if [ "$FORMAT" = "dot" ]; then
   set +e
   NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
-  NYASH_DISABLE_NY_COMPILER=1 \
+  NYASH_USE_NY_COMPILER=0 \
   HAKO_DISABLE_NY_COMPILER=1 \
   NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
   NYASH_PARSER_SEAM_TOLERANT=1 \
@@ -159,7 +159,7 @@ if [ "$FORMAT" = "dot" ]; then
   NYASH_USING_AST=1 \
   NYASH_JSON_ONLY=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="${NYASH_NY_COMPILER_TIMEOUT_MS:-8000}" \
-  "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- --format dot "${FILES[@]}" \
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --format dot "${FILES[@]}" \
     >"/tmp/hako_lint_out_$$.log" 2>/tmp/hako_lint_err_$$.log
   rc=$?
   set -e
@@ -176,7 +176,7 @@ elif [ "$FORMAT" = "json-lsp" ]; then
 
   NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
-  NYASH_DISABLE_NY_COMPILER=1 \
+  NYASH_USE_NY_COMPILER=0 \
   HAKO_DISABLE_NY_COMPILER=1 \
   NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
   NYASH_PARSER_SEAM_TOLERANT=1 \
@@ -187,7 +187,7 @@ elif [ "$FORMAT" = "json-lsp" ]; then
   NYASH_USING_AST=1 \
   NYASH_JSON_ONLY=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="${NYASH_NY_COMPILER_TIMEOUT_MS:-8000}" \
-  "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- --format json-lsp "${ARGS[@]}"
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --format json-lsp "${ARGS[@]}"
   exit $?
 else
   for p in "$@"; do

@@ -91,6 +91,7 @@ search_paths = ["target/release"]
 "apps.selfhost_runtime" = "apps/selfhost-runtime"
 "apps.lib" = "apps/lib"
 "tools.hako_shared" = "tools/hako_shared"
+"tools.hako_check" = "tools/hako_check"
 
 [modules]
 # Core shared helpers (needed by parser/compiler in Stage-B)

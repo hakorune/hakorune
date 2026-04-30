@@ -23,8 +23,9 @@ echo "[TEST 1] Testing --dead-code flag with dead method..." >&2
 TEST1_FILE="$ROOT/tools/hako_check/tests/HC019_dead_code/ng.hako"
 TEST1_OUTPUT=$(NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
+  NYASH_USE_NY_COMPILER=0 \
   NYASH_FEATURES=stage3 \
-  "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- --dead-code --source-file "$TEST1_FILE" "$(cat "$TEST1_FILE")" 2>&1 || true)
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --dead-code --source-file "$TEST1_FILE" "$(cat "$TEST1_FILE")" 2>&1 || true)
 
 if echo "$TEST1_OUTPUT" | grep -q "HC019.*unreachable method"; then
   echo "[PASS] Test 1: Dead method detected" >&2
@@ -47,8 +48,9 @@ echo "[TEST 2] Testing --dead-code flag with clean code..." >&2
 TEST2_FILE="$ROOT/tools/hako_check/tests/HC019_dead_code/ok.hako"
 TEST2_OUTPUT=$(NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
+  NYASH_USE_NY_COMPILER=0 \
   NYASH_FEATURES=stage3 \
-  "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- --dead-code --source-file "$TEST2_FILE" "$(cat "$TEST2_FILE")" 2>&1 || true)
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --dead-code --source-file "$TEST2_FILE" "$(cat "$TEST2_FILE")" 2>&1 || true)
 
 if echo "$TEST2_OUTPUT" | grep -q "HC019"; then
   echo "[FAIL] Test 2: False positive detected" >&2
@@ -62,8 +64,9 @@ fi
 echo "[TEST 3] Testing --rules dead_code..." >&2
 TEST3_OUTPUT=$(NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
+  NYASH_USE_NY_COMPILER=0 \
   NYASH_FEATURES=stage3 \
-  "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- --rules dead_code --source-file "$TEST1_FILE" "$(cat "$TEST1_FILE")" 2>&1 || true)
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --rules dead_code --source-file "$TEST1_FILE" "$(cat "$TEST1_FILE")" 2>&1 || true)
 
 if echo "$TEST3_OUTPUT" | grep -q "HC019"; then
   echo "[PASS] Test 3: --rules dead_code works" >&2
@@ -77,8 +80,9 @@ fi
 echo "[TEST 4] Testing JSON-LSP format with --dead-code..." >&2
 TEST4_OUTPUT=$(NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
+  NYASH_USE_NY_COMPILER=0 \
   NYASH_FEATURES=stage3 \
-  "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- --format json-lsp --dead-code --source-file "$TEST1_FILE" "$(cat "$TEST1_FILE")" || true)
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- --format json-lsp --dead-code --source-file "$TEST1_FILE" "$(cat "$TEST1_FILE")" || true)
 
 if echo "$TEST4_OUTPUT" | grep -q '"rule":"HC019"'; then
   echo "[PASS] Test 4: JSON-LSP format works" >&2
