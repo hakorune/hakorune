@@ -67,6 +67,17 @@ Default test env (recommended)
 
 ## Known Limitations
 
+### HC020: Dead Block Detection Producer Coverage
+
+**Status**: consumer-side CFG handoff is wired; live producer coverage is still shape-dependent
+
+**What is green now**:
+- `deadblocks_smoke.sh` proves the HC020 consumer/rule contract with a prebuilt MIR JSON fixture that already contains `cfg.functions[*].blocks[*].reachable`.
+- The wrapper now accepts `--dead-blocks` without mis-parsing it as a file path.
+
+**What may still lag**:
+- Some live `.hako` fixtures do not currently emit dead blocks in the active producer lane, so wrapper-driven HC020 runs may legitimately produce no findings even though the consumer path is working.
+
 ### HC017: Non-ASCII Quotes Detection (Temporarily Skipped)
 
 **Status**: ⏸️ Skipped until UTF-8 support is available

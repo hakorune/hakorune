@@ -179,7 +179,7 @@ static box HakoAnalyzerBox {
         ir.set("boxes", new ArrayBox())
         ir.set("entrypoints", new ArrayBox())
       }
-      if mir_json_content != null { ir.set("_mir_json_text", mir_json_content) }
+      HakoAnalysisBuilderBox.attach_mir_cfg(ir, mir_json_content)
     } else {
       ir = new MapBox()
       ir.set("path", p)
@@ -187,6 +187,7 @@ static box HakoAnalyzerBox {
       ir.set("calls", new ArrayBox())
       ir.set("boxes", new ArrayBox())
       ir.set("entrypoints", new ArrayBox())
+      HakoAnalysisBuilderBox.attach_mir_cfg(ir, mir_json_content)
     }
     // parse AST only when explicitly needed by active rules (include_forbidden fallback allowed)
     local ast = null

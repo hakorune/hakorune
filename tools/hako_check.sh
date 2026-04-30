@@ -27,7 +27,7 @@ while [ $# -gt 0 ]; do
       FORMAT="$2"
       shift 2 || true
       ;;
-    --dead-code|--rules|--no-ast|--debug)
+    --dead-code|--dead-blocks|--rules|--no-ast|--debug)
       EXTRA_ARGS="$EXTRA_ARGS $1"
       shift
       ;;
@@ -90,10 +90,11 @@ run_one() {
   fi
 
   # Build args array with optional MIR JSON
-  local args_arr=("--source-file" "$f" "$text")
+  local args_arr=()
   if [ -n "$mir_json_content" ]; then
     args_arr+=("--mir-json-content" "$mir_json_content")
   fi
+  args_arr+=("--source-file" "$f" "$text")
 
   set +e
   NYASH_DISABLE_PLUGINS=1 \

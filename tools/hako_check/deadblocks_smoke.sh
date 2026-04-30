@@ -23,52 +23,58 @@ fi
 echo "=== Phase 154: HC020 Dead Block Detection Smoke Test ==="
 echo
 
-TESTS=(
-  "$ROOT/apps/tests/hako_check/test_dead_blocks_early_return.hako"
-  "$ROOT/apps/tests/hako_check/test_dead_blocks_always_false.hako"
-  "$ROOT/apps/tests/hako_check/test_dead_blocks_infinite_loop.hako"
-  "$ROOT/apps/tests/hako_check/test_dead_blocks_after_break.hako"
-)
+SOURCE_FIXTURE="$ROOT/apps/tests/hako_check/test_dead_blocks_early_return.hako"
+MIR_FIXTURE="$ROOT/apps/tests/mir_shape_guard/bool_phi_branch_min_v1.mir.json"
 
-PASS=0
-FAIL=0
-
-for test_file in "${TESTS[@]}"; do
-  if [ ! -f "$test_file" ]; then
-    echo "[skip] $test_file (file not found)"
-    continue
-  fi
-
-  echo "Testing: $test_file"
-
-  output=$("$ROOT/tools/hako_check.sh" --dead-blocks "$test_file" 2>&1 || true)
-
-  if echo "$output" | grep -q "\[HC020\]"; then
-    echo "  ✓ HC020 detected unreachable blocks"
-    PASS=$((PASS + 1))
-  else
-    if echo "$output" | grep -q "CFG info not available"; then
-      echo "  ⚠ CFG info not available (expected in MVP)"
-      PASS=$((PASS + 1))
-    else
-      echo "  ✗ No HC020 output (CFG integration pending)"
-      FAIL=$((FAIL + 1))
-    fi
-  fi
-
-  echo
-done
-
-echo "=== Results ==="
-echo "Passed: $PASS"
-echo "Failed: $FAIL"
-echo
-
-if [ $FAIL -gt 0 ]; then
-  echo "[smoke/warn] Some tests failed - CFG integration may be incomplete"
-  echo "This is expected in Phase 154 MVP"
-  exit 0
+if [ ! -f "$SOURCE_FIXTURE" ]; then
+  echo "[smoke/error] Source fixture not found: $SOURCE_FIXTURE"
+  exit 1
 fi
 
-echo "[smoke/success] All tests passed"
+if [ ! -f "$MIR_FIXTURE" ]; then
+  echo "[smoke/error] MIR fixture not found: $MIR_FIXTURE"
+  exit 1
+fi
+
+echo "[TEST 1] Consumer contract with prebuilt MIR CFG..."
+SOURCE_TEXT="$(sed 's/\r$//' "$SOURCE_FIXTURE")"
+MIR_JSON_CONTENT="$(cat "$MIR_FIXTURE")"
+CONTRACT_OUTPUT=$(
+  NYASH_DISABLE_PLUGINS=1 \
+  NYASH_BOX_FACTORY_POLICY=builtin_first \
+  NYASH_USE_NY_COMPILER=0 \
+  HAKO_DISABLE_NY_COMPILER=1 \
+  NYASH_FEATURES=stage3 \
+  NYASH_PARSER_SEAM_TOLERANT=1 \
+  HAKO_PARSER_SEAM_TOLERANT=1 \
+  NYASH_PARSER_ALLOW_SEMICOLON=1 \
+  NYASH_ENABLE_USING=1 \
+  HAKO_ENABLE_USING=1 \
+  NYASH_USING_AST=1 \
+  "$BIN" "$ROOT/tools/hako_check/cli.hako" -- \
+    --dead-blocks \
+    --mir-json-content "$MIR_JSON_CONTENT" \
+    --source-file "$SOURCE_FIXTURE" "$SOURCE_TEXT" 2>&1 || true
+)
+
+if echo "$CONTRACT_OUTPUT" | grep -q "\[HC020\]"; then
+  echo "[PASS] Test 1: HC020 detected unreachable blocks from CFG"
+else
+  echo "[FAIL] Test 1: HC020 did not detect unreachable blocks"
+  echo "$CONTRACT_OUTPUT"
+  exit 1
+fi
+echo
+
+echo "[TEST 2] Wrapper accepts --dead-blocks and completes live analysis..."
+LIVE_OUTPUT=$("$ROOT/tools/hako_check.sh" --dead-blocks "$SOURCE_FIXTURE" 2>&1 || true)
+if echo "$LIVE_OUTPUT" | grep -q "sed: unrecognized option '--dead-blocks'"; then
+  echo "[FAIL] Test 2: wrapper still mis-parses --dead-blocks"
+  echo "$LIVE_OUTPUT"
+  exit 1
+fi
+echo "[PASS] Test 2: wrapper accepted --dead-blocks"
+echo
+
+echo "[smoke/success] HC020 CFG consumer contract is green"
 exit 0
