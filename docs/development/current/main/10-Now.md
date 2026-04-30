@@ -20,19 +20,19 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci raw compat caller inventory pending`
+- current blocker token: `phase-29ci raw compat caller migration pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue `phase-29ci` raw compat caller inventory after the P6 route
-  vocabulary / alias-retirement slice
+- continue `phase-29ci` raw compat caller migration after the P7 inventory /
+  unreferenced helper deletion slice
 - cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   closed history lives in phase card files
 - `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
-  `stage1-env-mir-source`; `--hako-emit-program-json` is retired and raw
-  Program(JSON) compat callers are the next inventory target
+  `stage1-env-mir-source`; raw Program(JSON) compat callers are inventoried and
+  the next work is migration by caller family
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
@@ -58,7 +58,7 @@ Related:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/archive/phase-29ci/README.md`
-3. `docs/development/current/main/phases/phase-29ci/P6-STAGE1-MIR-ROUTE-VOCABULARY.md`
+3. `docs/development/current/main/phases/phase-29ci/P7-RAW-COMPAT-CALLER-INVENTORY.md`
 4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`

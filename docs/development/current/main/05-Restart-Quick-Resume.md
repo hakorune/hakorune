@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-29ci Program(JSON v0) public compat retirement`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci raw compat caller inventory pending`
+- current blocker token: `phase-29ci raw compat caller migration pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci raw compat caller inventory pending`
+- current blocker token: `phase-29ci raw compat caller migration pending`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -51,11 +51,11 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-29ci` raw compat caller inventory after the P6 route
-  vocabulary / alias-retirement slice
+- continue `phase-29ci` raw compat caller migration after the P7 inventory /
+  unreferenced helper deletion slice
 - `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
-  `stage1-env-mir-source`; `--hako-emit-program-json` is retired and raw
-  Program(JSON) compat callers are the next inventory target
+  `stage1-env-mir-source`; raw Program(JSON) compat callers are inventoried and
+  the next work is migration by caller family
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

@@ -19,6 +19,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md
   - docs/development/current/main/phases/phase-29ci/P5-STAGEB-MALFORMED-PROGRAM-JSON.md
   - docs/development/current/main/phases/phase-29ci/P6-STAGE1-MIR-ROUTE-VOCABULARY.md
+  - docs/development/current/main/phases/phase-29ci/P7-RAW-COMPAT-CALLER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cj/README.md
   - src/stage1/program_json_v0/README.md
   - src/runner/stage1_bridge/README.md
@@ -63,9 +64,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - a new exact caller/helper gap appears under boundary-retirement scope
   - or hard delete / broad internal removal explicitly resumes
 - reopen note (2026-04-30):
-  - hard delete resumes through `P6-STAGE1-MIR-ROUTE-VOCABULARY.md`
+  - hard delete resumes through `P6-STAGE1-MIR-ROUTE-VOCABULARY.md` and `P7-RAW-COMPAT-CALLER-INVENTORY.md`
   - `--hako-emit-mir-json` is kept as the Stage-1 MIR launcher for `stage1-env-mir-source`
   - `--hako-emit-program-json` is the first retired duplicate public compat alias
+  - `tools/dump_stageb_min_mir.sh` is deleted as an unreferenced raw Program(JSON)->MIR diagnostic helper
 
 ## Entry Conditions
 
@@ -150,6 +152,8 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - `src/runner/stage1_bridge/program_json_entry/**`
   - `.hako` live/bootstrap callers
   - compiled-stage1 / shell callers that still terminate in MIR
+- deleted raw-compat diagnostic helper:
+  - `tools/dump_stageb_min_mir.sh`
 
 ## Non-goals
 

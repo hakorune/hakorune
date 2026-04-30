@@ -37,7 +37,7 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-29ci Program(JSON v0) public compat retirement`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci raw compat caller inventory pending`
+- current blocker token: `phase-29ci raw compat caller migration pending`
 - primary mode: Program(JSON v0) public-surface cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -50,8 +50,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue `phase-29ci` raw compat caller inventory after the
-  P6 public alias retirement
+- resume point: continue `phase-29ci` raw compat caller migration after the
+  P7 inventory and unreferenced helper deletion
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
@@ -63,7 +63,7 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: inventory raw compat flag callers (`--emit-program-json-v0` and
+- next: migrate raw compat flag callers (`--emit-program-json-v0` and
   `--program-json-to-mir`) before any broader Program(JSON) deletion
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
@@ -82,8 +82,8 @@ Scope: current lane / next lane / restart order only.
 - latest checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   landed history lives in phase card files
 - next cleanup: Program(JSON v0) public compat retirement is reopened through
-  `phase-29ci`; `--hako-emit-program-json` is retired, and raw compat flag
-  callers must be inventoried before deletion
+  `phase-29ci`; raw compat caller buckets are inventoried, and migration must
+  proceed one caller family at a time
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
