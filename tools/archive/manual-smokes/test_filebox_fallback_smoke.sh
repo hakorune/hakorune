@@ -4,6 +4,8 @@
 
 set -e
 
+cd "$(dirname "$0")/../../.."
+
 # Build first
 echo "=== Building hakorune ==="
 cargo build --release

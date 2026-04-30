@@ -2,7 +2,7 @@
 set -euo pipefail
 [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]] && set -x
 
-ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 BIN="$ROOT_DIR/target/release/hakorune"
 
 if [ ! -x "$BIN" ]; then

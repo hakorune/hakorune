@@ -4,6 +4,8 @@
 
 set -e
 
+cd "$(dirname "$0")/../../.."
+
 NYASH="./target/release/hakorune"
 TEST_FILE="/tmp/nyash_provider_test.txt"
 
