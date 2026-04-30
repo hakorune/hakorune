@@ -1,6 +1,6 @@
 # Stage1 Bridge Program JSON
 
-Scope: future-retire bridge-only `emit-program-json-v0` helpers under `src/runner/stage1_bridge/program_json/`.
+Scope: future-retire, explicit compat-only `emit-program-json-v0` helpers under `src/runner/stage1_bridge/program_json/`.
 
 ## Responsibility Split
 
@@ -23,6 +23,7 @@ Scope: future-retire bridge-only `emit-program-json-v0` helpers under `src/runne
 ## Guardrails
 
 - keep this lane future-retire only
+- keep this lane explicit/probe-only; do not present it as a normal emit surface
 - do not add parse/lower policy here
 - do not bypass `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)` from `mod.rs`
 - next Rust-only retire slices may stay inside this cluster; do not widen them into `src/runner/mod.rs` or `src/runner/emit.rs`

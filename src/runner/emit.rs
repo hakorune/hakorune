@@ -21,7 +21,7 @@ impl NyashRunner {
             self.execute_mir_json_minimal(file, path);
         }
 
-        // Emit Program(JSON v0) via Stage-1 bridge entry and exit (explicit SSOT flag).
+        // Emit Program(JSON v0) via the explicit compat-only Stage-1 bridge flag and exit.
         if program_json_entry::emit_program_json_v0_requested(groups) {
             crate::runtime::deprecations::warn_stage1_bridge_program_json_route_once();
             program_json_entry::emit_program_json_v0_and_exit(groups);

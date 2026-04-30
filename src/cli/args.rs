@@ -97,8 +97,8 @@ pub fn build_command() -> Command {
                 ]),
         )
         .arg(Arg::new("emit-ast-json").long("emit-ast-json").value_name("FILE").help("Emit AST JSON to file and exit (direct Rust parser route)"))
-        .arg(Arg::new("emit-program-json").long("emit-program-json").value_name("FILE").help("[Deprecated] Alias of --emit-ast-json (was misnamed)"))
-        .arg(Arg::new("emit-program-json-v0").long("emit-program-json-v0").value_name("FILE").help("[Compat-only, deprecated boundary] Emit Program(JSON v0) to file and exit (Stage-1 stub route)"))
+        .arg(Arg::new("emit-program-json").long("emit-program-json").value_name("FILE").help("[Deprecated] Alias of --emit-ast-json (historical misname; not Program(JSON v0))"))
+        .arg(Arg::new("emit-program-json-v0").long("emit-program-json-v0").value_name("FILE").help("[Compat-only, retire-target boundary] Emit Program(JSON v0) to file and exit for explicit compat/probe work; prefer --hako-emit-mir-json or --emit-mir-json for day-to-day routes"))
         .arg(
             Arg::new("hako-emit-mir-json")
                 .long("hako-emit-mir-json")

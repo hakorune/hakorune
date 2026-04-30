@@ -1,6 +1,6 @@
 # Stage1 Bridge Program JSON Entry
 
-Scope: future-retire bridge-only `emit-program-json-v0` entry helpers under `src/runner/stage1_bridge/program_json_entry/`.
+Scope: future-retire, explicit compat-only `emit-program-json-v0` entry helpers under `src/runner/stage1_bridge/program_json_entry/`.
 
 ## Responsibility Split
 
@@ -25,6 +25,7 @@ Scope: future-retire bridge-only `emit-program-json-v0` entry helpers under `src
 ## Guardrails
 
 - keep this lane future-retire only
+- keep this lane explicit/probe-only; do not grow new public CLI affordances around it
 - outer callers should use the `program_json_entry` module helpers directly
 - do not reintroduce bridge-local source-path precedence or emit-path extraction into `runner/mod.rs` or `runner/emit.rs`
 - do not fold request-local execution or typed response handoff back into `request.rs`

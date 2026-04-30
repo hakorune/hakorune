@@ -28,13 +28,13 @@ pub fn warn_nyash_toml_used_once() {
 pub fn warn_emit_program_json_v0_cli_once() {
     warn_once(
         &EMIT_PROGRAM_JSON_V0_CLI_WARN_ONCE,
-        "[deprecate] --emit-program-json-v0 is compat-only; prefer MIR-first routes such as --emit-mir-json",
+        "[deprecate] --emit-program-json-v0 is compat-only and retire-target; prefer MIR-first routes such as --hako-emit-mir-json or --emit-mir-json",
     );
 }
 
 pub fn warn_stage1_bridge_program_json_route_once() {
     warn_once(
         &STAGE1_BRIDGE_PROGRAM_JSON_WARN_ONCE,
-        "[deprecate] stage1 bridge emit-program-json route is compat-only; prefer MIR-first bootstrap routes",
+        "[deprecate] stage1 bridge emit-program-json route is compat-only; use dedicated compat probes for Program(JSON) proof and prefer MIR-first bootstrap routes otherwise",
     );
 }
