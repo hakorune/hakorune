@@ -37,9 +37,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/selfhost/lib/selfhost_build_stageb.sh`
    - `tools/selfhost/lib/selfhost_build_direct.sh`
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
-   - Kept because `--run`, `--keep-tmp`, and explicit raw snapshots still need
-     the old artifact until the direct MIR execution loader is separately
-     proved.
+   - Kept because `--keep-tmp`, raw snapshots, and diagnostic `--run`
+     combinations still need the old artifact. Normal `--run` uses direct
+     MIR(JSON) execution after P6.
 2. Stage1 contract keepers
    - `tools/selfhost/lib/stage1_contract.sh`
    - Keep only for explicit contract/probe coverage.
@@ -58,8 +58,8 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 
 ## Non-goals
 
-- Do not move `--run` to direct MIR execution in this phase without a separate
-  loader proof card.
+- Do not move any remaining diagnostic `--run` combination to direct MIR
+  execution without a separate artifact-policy card.
 - Do not expand ny-llvmc pure-first acceptance shapes here.
 - Do not revive `--hako-emit-program-json` or other retired public aliases.
 - Do not treat fixture-only Program(JSON) producers as day-to-day bootstrap
@@ -75,4 +75,3 @@ bash tools/checks/current_state_pointer_guard.sh
 SMOKES_ENABLE_SELFHOST=1 bash tools/smokes/v2/profiles/quick/selfhost/selfhost_build_exe_return.sh
 git diff --check
 ```
-

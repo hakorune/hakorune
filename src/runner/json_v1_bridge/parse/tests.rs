@@ -90,3 +90,44 @@ fn parse_v1_params_array_sets_function_arity() {
     assert_eq!(func.params, vec![ValueId::new(0), ValueId::new(1)]);
     assert!(func.next_value_id >= 5);
 }
+
+#[test]
+fn parse_v1_accepts_newbox_and_field_get() {
+    let payload = r#"{
+      "schema_version":"1.0",
+      "functions":[
+        {
+          "name":"main",
+          "params":[],
+          "blocks":[
+            { "id":0, "instructions":[
+              {"op":"newbox","dst":1,"type":"ArrayBox","args":[]},
+              {"op":"field_get","dst":2,"box":1,"field":"stringify"},
+              {"op":"ret","value":2}
+            ]}
+          ]
+        }
+      ]
+    }"#;
+
+    let module = try_parse_v1_to_module(payload)
+        .expect("v1 parse must succeed")
+        .expect("schema_version=1.0 must be handled");
+    let func = module.get_function("main").expect("main function");
+    let bb0 = func.get_block(BasicBlockId::new(0)).expect("bb0");
+
+    assert!(matches!(
+        &bb0.instructions[0],
+        MirInstruction::NewBox { dst, box_type, args }
+            if *dst == ValueId::new(1) && box_type == "ArrayBox" && args.is_empty()
+    ));
+    assert!(matches!(
+        &bb0.instructions[1],
+        MirInstruction::FieldGet { dst, base, field, declared_type }
+            if *dst == ValueId::new(2)
+                && *base == ValueId::new(1)
+                && field == "stringify"
+                && declared_type.is_none()
+    ));
+    assert!(func.next_value_id >= 3);
+}

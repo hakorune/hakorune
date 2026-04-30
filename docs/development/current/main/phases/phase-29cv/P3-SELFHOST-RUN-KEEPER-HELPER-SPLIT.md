@@ -1,17 +1,20 @@
 # P3: selfhost run keeper helper split
 
-Scope: move the remaining Program(JSON v0) `--run` keeper out of the direct
-MIR helper and into a dedicated run helper.
+Scope: move the then-remaining Program(JSON v0) `--run` keeper out of the
+direct MIR helper and into a dedicated run helper.
+
+Status note: superseded by P6 for normal `--run`. The split still matters
+because diagnostic artifact routes keep the Program(JSON v0) run helper.
 
 ## Why
 
-`tools/selfhost/lib/selfhost_build_direct.sh` is the direct MIR owner, but it
-still carried the Program(JSON v0) core-direct `--run` path. That made the file
-name lie about the keeper boundary:
+At P3 time, `tools/selfhost/lib/selfhost_build_direct.sh` was the direct MIR
+owner, but it still carried the Program(JSON v0) diagnostic run path. That made
+the file name lie about the keeper boundary:
 
 - direct MIR output and direct EXE source MIR production are mainline
-- Program(JSON v0) `--run` is a temporary keeper until the direct MIR execution
-  loader has a separate proof
+- Program(JSON v0) diagnostic run helpers are keepers only while their
+  requested artifact route still needs the old payload
 
 ## Decision
 
@@ -23,7 +26,8 @@ run helpers there:
 - `run_program_json_requested()`
 - `run_requested_program_json()`
 
-This is behavior-preserving. It does not move `--run` to MIR execution.
+This was behavior-preserving in P3. P6 later moved normal `--run` to direct
+MIR execution.
 
 ## Files
 
@@ -43,4 +47,3 @@ SMOKES_ENABLE_SELFHOST=1 bash tools/smokes/v2/profiles/quick/selfhost/selfhost_b
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
-

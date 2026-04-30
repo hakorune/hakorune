@@ -29,15 +29,21 @@ direct_exe_route_requested() {
     && ! stageb_program_json_artifact_required
 }
 
-stageb_program_json_artifact_required() {
+direct_run_route_requested() {
   [ "$DO_RUN" = "1" ] \
-    || [ "$KEEP_TMP" = "1" ] \
+    && [ -z "$EXE_OUT" ] \
+    && ! stageb_program_json_artifact_required
+}
+
+stageb_program_json_artifact_required() {
+  [ "$KEEP_TMP" = "1" ] \
     || [ "$RAW_KEEP" = "1" ]
 }
 
 selfhost_build_output_route_requested() {
   [ -n "$MIR_OUT" ] \
     || [ -n "$EXE_OUT" ] \
+    || [ "$DO_RUN" = "1" ] \
     || stageb_program_json_artifact_required
 }
 
@@ -97,6 +103,12 @@ selfhost_build_main() {
 
   if ! selfhost_build_output_route_requested; then
     exit_bare_stageb_route_retired
+  fi
+
+  if direct_run_route_requested; then
+    apply_selfhost_env
+    run_requested_direct_mir
+    exit $?
   fi
 
   if direct_mir_only_route_requested; then

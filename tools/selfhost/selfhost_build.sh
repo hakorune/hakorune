@@ -3,9 +3,9 @@
 #
 # Goals:
 # - Take a Hako source (.hako), compile MIR/EXE requests through direct MIR,
-#   and keep Stage-B Program(JSON v0) production for run/debug/explicit raw routes.
+#   and keep Stage-B Program(JSON v0) production for debug/explicit raw routes.
 # - Keep Stage‑B producer, direct MIR, EXE artifact, and final dispatcher logic in helper files.
-# - Optionally run via Gate‑C/Core Direct (in‑proc) to verify exit code.
+# - Optionally run via direct MIR(JSON) to verify exit code.
 # - Optionally build an executable via ny-llvmc.
 #
 # Usage:
@@ -13,7 +13,7 @@
 #   Options:
 #     --in FILE     Input .hako source file (required)
 #     --json FILE   Retired wrapper surface (compat-only; rejected with redirect)
-#     --run         Run via Core-Direct after compilation
+#     --run         Run via direct MIR(JSON) after compilation
 #     --mir FILE    Emit MIR(JSON) to FILE; MIR-only requests use the direct route
 #     --exe FILE    Build native EXE via ny-llvmc
 #     --keep-tmp    Keep and print the temporary Stage-B artifact path
@@ -49,7 +49,7 @@ if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_direct.sh" ]; then
   source "$ROOT/tools/selfhost/lib/selfhost_build_direct.sh"
 fi
 if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_run.sh" ]; then
-  # Stage-B run keeper lives in its own helper file.
+  # Run route helpers live in their own helper file.
   # Keep this script focused on exe-artifact / dispatcher routing.
   source "$ROOT/tools/selfhost/lib/selfhost_build_run.sh"
 fi

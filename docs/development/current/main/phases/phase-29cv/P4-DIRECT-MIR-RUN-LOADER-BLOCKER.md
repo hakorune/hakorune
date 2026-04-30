@@ -3,6 +3,10 @@
 Scope: record why `selfhost_build.sh --run` remains on the Program(JSON v0)
 keeper route after P3.
 
+Status note: superseded by P6. The `newbox` / `field_get` loader blocker is
+solved for normal `--run`; diagnostic artifact routes still stay on the
+Program(JSON v0) keeper.
+
 ## Probe
 
 The direct source MIR path can emit MIR(JSON), and normal `--exe` can compile
@@ -38,19 +42,19 @@ static box Main { method main(args) { local a=1; local b=2; local c=3; return a 
 
 ## Decision
 
-Keep `selfhost_build.sh --run` on the explicit Program(JSON v0) keeper route
+P4 kept `selfhost_build.sh --run` on the explicit Program(JSON v0) keeper route
 owned by `tools/selfhost/lib/selfhost_build_run.sh`.
 
-Do not move `--run` to direct MIR execution until a separate loader card proves
-the MIR JSON execution intake accepts the current direct source MIR dialect
-(`newbox` plus the entry-support `field_get` shape at minimum).
+P6 later proved the MIR JSON execution intake accepts the current direct source
+MIR dialect (`newbox` plus the entry-support `field_get` shape at minimum) and
+moved normal `--run` to direct MIR execution.
 
 ## Next
 
-The next cleanup work should avoid pretending `--run` is delete-ready. Prefer:
+The remaining cleanup work should avoid treating diagnostic artifact routes as
+delete-ready. Prefer:
 
 - Stage-B / smoke helper deduplication
 - Stage1 contract keep narrowing
 - JoinIR/MirBuilder fixture archive/owner review
 - direct MIR execution loader proof as its own BoxCount/acceptance lane
-

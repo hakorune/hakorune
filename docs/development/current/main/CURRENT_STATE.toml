@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P5-STAGEB-HELPER-EMIT-COMMON"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P5-STAGEB-HELPER-EMIT-COMMON.md"
-latest_card_summary = "Collapse duplicated Stage-B Program(JSON v0) smoke-helper emit/extract logic behind one common helper path."
+latest_card = "P6-DIRECT-MIR-RUN-LOADER-PROOF"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P6-DIRECT-MIR-RUN-LOADER-PROOF.md"
+latest_card_summary = "Move normal selfhost --run to direct MIR(JSON) execution after proving v1 loader support for newbox/field_get."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

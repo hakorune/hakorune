@@ -1,7 +1,7 @@
 Hybrid Selfhost Build (80/20)
 
 Purpose
-- Provide a minimal, fast path to compile Hako source through direct MIR, while keeping Hakorune Stage-B Program(JSON v0) production for run/debug/explicit compat routes.
+- Provide a minimal, fast path to compile Hako source through direct MIR, while keeping Hakorune Stage-B Program(JSON v0) production for debug/explicit compat routes.
 - `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
 - Direct MIR emit and ny-llvmc EXE build are the normal mainline route.
 - file-level responsibility inventory:
@@ -50,12 +50,12 @@ Script
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
   - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)
-  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); when used without `--run`, `--keep-tmp`, or `NYASH_SELFHOST_KEEP_RAW=1`, this bypasses Stage-B Program(JSON v0) production, and it also stays direct when combined with `--exe`
+  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); when used without `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1`, this bypasses Stage-B Program(JSON v0) production, and it also stays direct when combined with `--run` or `--exe`
   - --exe <out>: build native executable via the direct source MIR -> ny-llvmc mainline route
-  - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
+  - --run: run via direct source MIR(JSON) -> `--mir-json-file`. Exit code mirrors program return.
   - --keep-tmp: explicit diagnostic route; keeps and prints the Stage-B artifact path when no downstream output mode is selected.
   - diagnostic Program(JSON)->MIR->EXE probes stay behind `emit_exe_from_program_json_v0_with_context()`; the normal `--exe` route no longer produces Stage-B Program(JSON v0).
-  - `--run` remains a Program(JSON v0) keeper owned by `tools/selfhost/lib/selfhost_build_run.sh` until direct MIR execution has a separate proof.
+  - `--run --keep-tmp` and `NYASH_SELFHOST_KEEP_RAW=1 --run` remain Program(JSON v0) keeper routes because the requested diagnostic artifact is the Stage-B payload.
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)
@@ -213,7 +213,7 @@ Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
 - `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
-- `selfhost_build.sh` keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`. The normal non-diagnostic `--exe` lane now exits before Stage-B through direct source->MIR(JSON)->EXE, while `--run`, `--keep-tmp`, and raw snapshot diagnostics keep the Stage-B Program(JSON v0) artifact route.
+- `selfhost_build.sh` keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`. The normal non-diagnostic `--run` and `--exe` lanes now exit before Stage-B through direct source->MIR(JSON), while `--keep-tmp` and raw snapshot diagnostics keep the Stage-B Program(JSON v0) artifact route.
 - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.

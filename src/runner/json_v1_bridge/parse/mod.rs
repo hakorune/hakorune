@@ -167,6 +167,55 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                         });
                         max_value_id = max_value_id.max(dst + 1).max(src + 1);
                     }
+                    "newbox" => {
+                        let dst = require_u64(inst, "dst", "newbox dst")? as u32;
+                        let box_type = inst
+                            .get("type")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| {
+                                format!("newbox missing type in function '{}'", func_name)
+                            })?
+                            .to_string();
+                        let mut args: Vec<ValueId> = Vec::new();
+                        if let Some(arr) = inst.get("args").and_then(Value::as_array) {
+                            for arg in arr {
+                                let id = arg.as_u64().ok_or_else(|| {
+                                    format!(
+                                        "newbox arg must be integer value id in function '{}'",
+                                        func_name
+                                    )
+                                })? as u32;
+                                args.push(ValueId::new(id));
+                            }
+                        }
+                        if let Some(arg_max) = args.iter().map(|v| v.as_u32()).max() {
+                            max_value_id = max_value_id.max(arg_max + 1);
+                        }
+                        block_ref.add_instruction(MirInstruction::NewBox {
+                            dst: ValueId::new(dst),
+                            box_type,
+                            args,
+                        });
+                        max_value_id = max_value_id.max(dst + 1);
+                    }
+                    "field_get" => {
+                        let dst = require_u64(inst, "dst", "field_get dst")? as u32;
+                        let base = require_u64(inst, "box", "field_get box")? as u32;
+                        let field = inst
+                            .get("field")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| {
+                                format!("field_get missing field in function '{}'", func_name)
+                            })?
+                            .to_string();
+                        block_ref.add_instruction(MirInstruction::FieldGet {
+                            dst: ValueId::new(dst),
+                            base: ValueId::new(base),
+                            field,
+                            declared_type: None,
+                        });
+                        max_value_id = max_value_id.max(dst + 1).max(base + 1);
+                    }
                     "binop" => {
                         let dst = require_u64(inst, "dst", "binop dst")? as u32;
                         let lhs = require_u64(inst, "lhs", "binop lhs")? as u32;
