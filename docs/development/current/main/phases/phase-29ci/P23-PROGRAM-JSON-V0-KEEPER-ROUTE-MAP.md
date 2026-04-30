@@ -26,7 +26,7 @@ simple dead shelf.
 | Bucket | Owner | Current reason | Cleanup posture |
 | --- | --- | --- | --- |
 | shell emit spelling | `tools/lib/program_json_v0_compat.sh` | only current shell spelling of `--emit-program-json-v0` | keep until all shell callers leave |
-| selfhost Stage-B artifact | `tools/selfhost/lib/selfhost_build_stageb.sh` | `--run`, `--exe`, `--keep-tmp`, and raw snapshot routes still need a Stage-B artifact | split `--exe` first if direct source->MIR->EXE proves equivalent |
+| selfhost Stage-B artifact | `tools/selfhost/lib/selfhost_build_stageb.sh` | `--run`, `--exe`, `--keep-tmp`, and raw snapshot routes still need a Stage-B artifact | keep `--run`; direct `--exe` probe is blocked on ny-llvmc pure-shape support for quick fixtures |
 | stage1 contract emit-program | `tools/selfhost/lib/stage1_contract.sh` | exact compat/probe helper for Program(JSON) materialization | keep; prune aliases only if zero caller |
 | joinir/mirbuilder fixtures | `tools/smokes/v2/lib/stageb_helpers.sh` + `phase29bq_hako_mirbuilder_*` | `.hako` MirBuilder consumes Program(JSON v0) as its fixture input | keep unless a case is not testing MirBuilder-from-ProgramJSON |
 | Rust bridge public flag | `src/runner/stage1_bridge/program_json_entry/**`, `src/runner/stage1_bridge/program_json/**`, `src/stage1/program_json_v0*` | `--emit-program-json-v0` public compat/deprecation route | delete last after shell/tool caller count reaches zero |
@@ -36,9 +36,9 @@ simple dead shelf.
 
 1. Do not expand the historical ledgers unless a durable policy changes.
    Add compact cards like this one for active slices.
-2. Try `selfhost_build.sh --exe` next: it has an output artifact contract and
-   may be able to use direct source->MIR(JSON)->ny-llvmc without changing
-   `--run`.
+2. Do not move `selfhost_build.sh --exe` yet: P24 probing found direct
+   source->MIR(JSON)->ny-llvmc is not equivalent for the quick
+   `static box Main` fixture.
 3. Keep `selfhost_build.sh --run` on Program(JSON v0) until direct
    `--mir-json-file` execution is green for the same reduced fixtures.
 4. Keep joinir/mirbuilder fixture producers unless a caller only needs direct

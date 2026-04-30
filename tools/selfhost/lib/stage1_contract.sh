@@ -11,10 +11,10 @@ source "${_STAGE1_CONTRACT_TOOLS_DIR}/lib/program_json_v0_compat.sh"
 stage1_contract_emit_marker() {
   local mode="$1"
   case "$mode" in
-    emit-program|emit_program_json|emit-program-json)
+    emit-program)
       printf '%s' '"kind"[[:space:]]*:[[:space:]]*"Program"'
       ;;
-    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
+    emit-mir|emit-mir-program)
       printf '%s' '"functions"[[:space:]]*:'
       ;;
     *)
@@ -52,10 +52,10 @@ stage1_contract_artifact_kind() {
 stage1_contract_emit_flags_for_mode() {
   local mode="$1"
   case "$mode" in
-    emit-program|emit_program_json|emit-program-json)
+    emit-program)
       printf '%s\n' '1 0'
       ;;
-    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
+    emit-mir|emit-mir-program)
       printf '%s\n' '0 1'
       ;;
     *)
@@ -244,7 +244,7 @@ stage1_contract_exec_direct_emit_mode() {
   stderr_file="$(mktemp)"
 
   case "$mode" in
-    emit-program|emit_program_json|emit-program-json)
+    emit-program)
       if program_json_v0_compat_emit_to_file "$bin" "$payload_file" "$entry" >/dev/null 2>"$stderr_file"; then
         :
       else
@@ -255,7 +255,7 @@ stage1_contract_exec_direct_emit_mode() {
         return "$rc"
       fi
       ;;
-    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
+    emit-mir|emit-mir-program)
       if "$bin" --emit-mir-json "$payload_file" "$entry" >/dev/null 2>"$stderr_file"; then
         :
       else
@@ -403,7 +403,7 @@ stage1_contract_exec_mode() {
         "$bin" run "$source_text_for_mode"
         return $?
         ;;
-      emit-program|emit_program_json|emit-program-json|emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
+      emit-program|emit-mir|emit-mir-program)
         stage1_contract_exec_checked_mode \
           "$bin" \
           "$mode" \
