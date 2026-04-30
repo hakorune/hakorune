@@ -7,6 +7,7 @@ set -euo pipefail
 # tools/selfhost/proof/selfhost_stage3_accept_smoke.sh.
 
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
+source "$ROOT_DIR/tools/selfhost/lib/identity_routes.sh"
 ARTIFACT_KIND="stage1-cli"
 SKIP_BUILD=0
 BOOTSTRAP_BIN=""
@@ -68,8 +69,12 @@ emit_seed_payloads() {
   local prog_out="$3"
   local mir_out="$4"
 
-  bash "$ROOT_DIR/tools/selfhost/compat/run_stage1_cli.sh" --bin "$seed_bin" emit program-json "$entry" >"$prog_out"
-  bash "$ROOT_DIR/tools/selfhost/compat/run_stage1_cli.sh" --bin "$seed_bin" emit mir-json "$entry" >"$mir_out"
+  if ! run_stage1_env_route "$seed_bin" "program-json" "$entry" "$prog_out"; then
+    fail "failed to materialize Program(JSON) via stage1 env route: $seed_bin"
+  fi
+  if ! run_stage1_env_route "$seed_bin" "mir-json" "$entry" "$mir_out"; then
+    fail "failed to materialize MIR(JSON) via stage1 env route: $seed_bin"
+  fi
 }
 
 while [[ $# -gt 0 ]]; do

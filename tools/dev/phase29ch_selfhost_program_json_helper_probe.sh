@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
+source "$ROOT/tools/selfhost/lib/identity_routes.sh"
 STAGE1_BIN="${STAGE1_BIN:-target/selfhost/hakorune.stage1_cli}"
 STAGE2_BIN="${STAGE2_BIN:-target/selfhost/hakorune.stage1_cli.stage2}"
 ENTRY="${ENTRY:-apps/tests/hello_simple_llvm.hako}"
@@ -31,7 +32,10 @@ stage2_mir="$tmp_dir/stage2.mir.json"
 stage1_exe="$tmp_dir/stage1_probe"
 stage2_exe="$tmp_dir/stage2_probe"
 
-bash "$ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$STAGE1_BIN" emit program-json "$ENTRY" >"$program_json"
+if ! run_stage1_env_route "$STAGE1_BIN" "program-json" "$ENTRY" "$program_json"; then
+  echo "[FAIL] failed to materialize Program(JSON) via stage1 env route: $STAGE1_BIN" >&2
+  exit 1
+fi
 
 python3 - "$program_json" "$helper_src" <<'PY'
 import json
@@ -69,8 +73,14 @@ helper_path.write_text(
 )
 PY
 
-bash "$ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$STAGE1_BIN" emit mir-json "$helper_src" >"$stage1_mir"
-bash "$ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$STAGE2_BIN" emit mir-json "$helper_src" >"$stage2_mir"
+if ! run_stage1_env_route "$STAGE1_BIN" "mir-json" "$helper_src" "$stage1_mir"; then
+  echo "[FAIL] failed to materialize stage1 MIR via stage1 env route: $STAGE1_BIN" >&2
+  exit 1
+fi
+if ! run_stage1_env_route "$STAGE2_BIN" "mir-json" "$helper_src" "$stage2_mir"; then
+  echo "[FAIL] failed to materialize stage2 MIR via stage1 env route: $STAGE2_BIN" >&2
+  exit 1
+fi
 
 if ! diff -q "$stage1_mir" "$stage2_mir" >/dev/null; then
   echo "[FAIL] Stage1/Stage2 helper MIR mismatch" >&2
