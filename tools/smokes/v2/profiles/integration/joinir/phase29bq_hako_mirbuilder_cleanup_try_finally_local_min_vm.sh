@@ -12,6 +12,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/smokes/v2/lib/stageb_helpers.sh"
 require_env || exit 2
 
 export HAKO_JOINIR_PLANNER_REQUIRED=1
@@ -27,7 +28,7 @@ MJSON="$TMP_DIR/${RUN_ID}_mir.json"
 
 rm -f "$BASE_PJSON" "$PJSON" "$MJSON"
 
-"$NYASH_BIN" --emit-program-json-v0 "$BASE_PJSON" "$BASE_FIXTURE" >/dev/null
+stageb_emit_program_json_v0_fixture "$BASE_PJSON" "$BASE_FIXTURE"
 
 jq -c '
   (.body[] | select(.type=="Try") | .finally) = [

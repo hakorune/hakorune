@@ -5,6 +5,9 @@
 # - Keep Stage1 input/text contract resolution in one place.
 # - Share the same env-injection contract across selfhost helpers.
 
+_STAGE1_CONTRACT_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${_STAGE1_CONTRACT_LIB_DIR}/program_json_v0_compat.sh"
+
 stage1_contract_emit_marker() {
   local mode="$1"
   case "$mode" in
@@ -242,7 +245,7 @@ stage1_contract_exec_direct_emit_mode() {
 
   case "$mode" in
     emit-program|emit_program_json|emit-program-json)
-      if "$bin" --emit-program-json-v0 "$payload_file" "$entry" >/dev/null 2>"$stderr_file"; then
+      if selfhost_emit_program_json_v0_to_file "$bin" "$payload_file" "$entry" >/dev/null 2>"$stderr_file"; then
         :
       else
         rc=$?

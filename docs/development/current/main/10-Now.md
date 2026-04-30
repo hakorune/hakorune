@@ -20,19 +20,19 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci raw compat caller migration pending`
+- current blocker token: `phase-29ci emit-program-json-v0 helper-owned keepers pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue `phase-29ci` raw compat caller migration after the P11 parser
-  dual-route Rust AST observation migration
+- continue `phase-29ci` raw compat caller migration from the P17 helper-owned
+  `--emit-program-json-v0` keeper inventory
 - cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   closed history lives in phase card files
 - `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
-  `stage1-env-mir-source`; raw Program(JSON) compat callers are inventoried and
-  the next work is migration by caller family
+  `stage1-env-mir-source`; raw Program(JSON) compat emit syntax is
+  helper-owned and the next work is replacing each keeper lane
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
@@ -58,7 +58,7 @@ Related:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/phases/archive/phase-29ci/README.md`
-3. `docs/development/current/main/phases/phase-29ci/P11-PARSER-DUAL-ROUTE-AST-MIGRATION.md`
+3. `docs/development/current/main/phases/phase-29ci/P17-EMIT-PROGRAM-JSON-V0-HELPER-CENTRALIZE.md`
 4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`

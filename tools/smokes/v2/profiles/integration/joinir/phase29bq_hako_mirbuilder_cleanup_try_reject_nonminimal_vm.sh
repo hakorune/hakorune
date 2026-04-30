@@ -11,6 +11,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/smokes/v2/lib/stageb_helpers.sh"
 require_env || exit 2
 
 export HAKO_JOINIR_PLANNER_REQUIRED=1
@@ -22,7 +23,7 @@ TMP_DIR="${PHASE29BQ_FAST_LOG_DIR:-/tmp}"
 RUN_ID="phase29bq_hako_mirbuilder_cleanup_try_reject_nonminimal_${$}"
 BASE_PJSON="$TMP_DIR/${RUN_ID}_base_program.json"
 
-"$NYASH_BIN" --emit-program-json-v0 "$BASE_PJSON" "$BASE_FIXTURE" >/dev/null
+stageb_emit_program_json_v0_fixture "$BASE_PJSON" "$BASE_FIXTURE"
 
 run_reject_case() {
   local case_name="$1"

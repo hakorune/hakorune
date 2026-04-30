@@ -6,6 +6,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/smokes/v2/lib/stageb_helpers.sh"
 require_env || exit 2
 
 export HAKO_JOINIR_PLANNER_REQUIRED=1
@@ -21,7 +22,7 @@ OUT="$TMP_DIR/${RUN_ID}_emit.out"
 
 rm -f "$BASE_PJSON" "$PJSON" "$OUT"
 
-"$NYASH_BIN" --emit-program-json-v0 "$BASE_PJSON" "$BASE_FIXTURE" >/dev/null
+stageb_emit_program_json_v0_fixture "$BASE_PJSON" "$BASE_FIXTURE"
 
 # Keep Try body as `x = x + 10`, mutate finally to `y = y + 2`.
 jq -c '

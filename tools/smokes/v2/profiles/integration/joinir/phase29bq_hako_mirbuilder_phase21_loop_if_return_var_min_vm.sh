@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29bq_hako_mirbuilder_phase21_loop_if_return_var_min_vm.sh
-# Phase-21 pin: --emit-program-json-v0 -> (.hako mirbuilder) MIR JSON v0 -> --mir-json-file execution
+# Phase-21 pin: Stage-0 Program(JSON v0) fixture -> (.hako mirbuilder) MIR JSON v0 -> --mir-json-file execution
 #
 # Expected: stdout="", RC=3
 

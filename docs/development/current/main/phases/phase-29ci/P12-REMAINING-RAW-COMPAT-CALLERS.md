@@ -36,8 +36,9 @@ Conclusion:
   `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`) onto the
   stage1 env contract instead of the retired `run_stage1_cli.sh emit
   program-json` wrapper surface.
-- remaining live raw emit callers are now the two true shell keepers plus the
-  active `phase29bq` fixture/contract-pin family.
+- P17 centralizes the remaining live raw emit callers behind two helper-owned
+  keepers: `tools/selfhost/lib/program_json_v0_compat.sh` for selfhost and
+  `tools/smokes/v2/lib/stageb_helpers.sh` for smoke fixtures.
 - selfhost EXE / Stage-B delegate / phase29cg proof は、EXE または
   compiled-stage1 生成路の置換 proof が必要なので、同時に削らない。
 - `--emit-program-json-v0` は mirbuilder fixture producer と stage0/stageB
@@ -61,10 +62,10 @@ Guardrail:
 
 | Owner | Caller family | Next action |
 | --- | --- | --- |
-| explicit stage1 compat/direct emit keeper | `tools/selfhost/lib/stage1_contract.sh` | keep until the explicit compat probe lane is migrated |
-| Stage-B Program producer | `tools/selfhost/lib/selfhost_build_stageb.sh` | keep until selfhost build route can produce MIR directly |
-| hako mirbuilder fixture producer | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`, `tools/smokes/v2/lib/stageb_helpers.sh` | keep as Program(JSON) fixture evidence until each family is rewritten; single-fixture callers are now centralized behind `stageb_emit_program_json_v0_fixture()` |
-| Program(JSON) contract pin | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh` | keep as explicit compat contract evidence |
+| explicit stage1 compat/direct emit keeper | `tools/selfhost/lib/program_json_v0_compat.sh` via `tools/selfhost/lib/stage1_contract.sh` | keep until the explicit compat probe lane is migrated |
+| Stage-B Program producer | `tools/selfhost/lib/program_json_v0_compat.sh` via `tools/selfhost/lib/selfhost_build_stageb.sh` | keep until selfhost build route can produce MIR directly |
+| hako mirbuilder fixture producer | `tools/smokes/v2/lib/stageb_helpers.sh` via `phase29bq_hako_mirbuilder_*` smokes | keep as Program(JSON) fixture evidence until each family is rewritten |
+| Program(JSON) contract pin | `tools/smokes/v2/lib/stageb_helpers.sh` via `phase29bq_hako_program_json_contract_pin_vm.sh` | keep as explicit compat contract evidence |
 | deprecation warning text | `src/runtime/deprecations.rs` | keep while raw compat flag exists |
 
 Notes:
@@ -73,9 +74,8 @@ Notes:
   `program-json` stage0/auto identity surface.
 - `tools/selfhost/compat/run_stage1_cli.sh emit program-json` remains a retired
   wrapper contract with a dedicated smoke, not a live producer path.
-- remaining bespoke `phase29bq` raw emit callers are the multi-case / cleanup /
-  contract-pin scripts (`phase2`, `cleanup_try*`, and
-  `phase29bq_hako_program_json_contract_pin_vm.sh`).
+- `phase29bq` multi-case / cleanup / contract-pin scripts are now
+  helper-mediated; they no longer own raw emit syntax directly.
 
 ## Delete Order
 

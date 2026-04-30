@@ -173,7 +173,7 @@ SSOT:
 | `--emit-mir-json <out> <src>` | Rust direct emit | direct MIR emit/debug route | keep; not selfhost authority evidence |
 | raw `stage1-cli emit mir-json` / binary-only direct | monitor-only legacy | ported contract evidence | retire only after evidence lanes close |
 | `stage1-env-mir-program` | explicit Program(JSON) compat route | exact probe/helper only | keep quarantined; not authority |
-| `--emit-program-json-v0` | raw Program(JSON v0) compat emit | public compat/deprecated | keep until smoke/tool caller inventory reaches zero |
+| `--emit-program-json-v0` | raw Program(JSON v0) compat emit | public compat/deprecated | keep until smoke/tool caller inventory reaches zero; current shell syntax is helper-owned |
 | `--program-json-to-mir` | raw Program(JSON v0) -> MIR convert | retired public compat surface | removed in P16; use `env.mirbuilder.emit` / helper bridge |
 | `--hako-emit-program-json` | hako-prefixed Program(JSON) alias | retired duplicate public compat alias | removed in P6; do not reintroduce |
 

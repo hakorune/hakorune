@@ -12,6 +12,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/smokes/v2/lib/stageb_helpers.sh"
 require_env || exit 2
 
 export HAKO_JOINIR_PLANNER_REQUIRED=1
@@ -80,7 +81,7 @@ emit_and_run_case "print_node" "$PJSON_PRINT" "7" 0
 
 # 2) Expr(Call env.console.log(...)) shape from Stage-0 emit
 PJSON_EXPR_CALL="$TMP_DIR/${RUN_ID}_expr_call_node.json"
-"$NYASH_BIN" --emit-program-json-v0 "$PJSON_EXPR_CALL" "$FIXTURE_EXPR_CALL" >/dev/null
+stageb_emit_program_json_v0_fixture "$PJSON_EXPR_CALL" "$FIXTURE_EXPR_CALL"
 if ! rg -n '"type":"Expr"' "$PJSON_EXPR_CALL" >/dev/null; then
   echo "[FAIL] expr_call_node: Program JSON contract missing Expr node" >&2
   exit 1
@@ -93,7 +94,7 @@ emit_and_run_case "expr_call_node" "$PJSON_EXPR_CALL" "7" 0
 
 # 3) If node shape from Stage-0 emit
 PJSON_IF="$TMP_DIR/${RUN_ID}_if_node.json"
-"$NYASH_BIN" --emit-program-json-v0 "$PJSON_IF" "$FIXTURE_IF" >/dev/null
+stageb_emit_program_json_v0_fixture "$PJSON_IF" "$FIXTURE_IF"
 if ! rg -n '"type":"If"' "$PJSON_IF" >/dev/null; then
   echo "[FAIL] if_node: Program JSON contract missing If node" >&2
   exit 1
@@ -102,7 +103,7 @@ emit_and_run_case "if_node" "$PJSON_IF" "" 0
 
 # 4) Loop node shape from Stage-0 emit
 PJSON_LOOP="$TMP_DIR/${RUN_ID}_loop_node.json"
-"$NYASH_BIN" --emit-program-json-v0 "$PJSON_LOOP" "$FIXTURE_LOOP" >/dev/null
+stageb_emit_program_json_v0_fixture "$PJSON_LOOP" "$FIXTURE_LOOP"
 if ! rg -n '"type":"Loop"' "$PJSON_LOOP" >/dev/null; then
   echo "[FAIL] loop_node: Program JSON contract missing Loop node" >&2
   exit 1

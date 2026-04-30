@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29bq_hako_mirbuilder_cleanup_try_min_vm.sh
-# M7-min-1 pin: --emit-program-json-v0 -> (.hako mirbuilder) MIR JSON v0 -> --mir-json-file execution
+# M7-min-1 pin: Stage-0 Program(JSON v0) fixture -> (.hako mirbuilder) MIR JSON v0 -> --mir-json-file execution
 #
 # Expected: stdout="11", RC=0
 
@@ -8,6 +8,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/smokes/v2/lib/stageb_helpers.sh"
 require_env || exit 2
 
 export HAKO_JOINIR_PLANNER_REQUIRED=1
@@ -22,7 +23,7 @@ MJSON="$TMP_DIR/${RUN_ID}_mir.json"
 
 rm -f "$PJSON" "$MJSON"
 
-"$NYASH_BIN" --emit-program-json-v0 "$PJSON" "$FIXTURE" >/dev/null
+stageb_emit_program_json_v0_fixture "$PJSON" "$FIXTURE"
 HAKO_PROGRAM_JSON_FILE="$PJSON" "$NYASH_BIN" --backend vm "$ENTRY" >"$MJSON"
 
 set +e

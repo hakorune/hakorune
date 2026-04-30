@@ -27,10 +27,10 @@ Conclusion:
 
 | Bucket | Representative callers | Action |
 | --- | --- | --- |
-| explicit compat/direct emit keeper | `tools/selfhost/lib/stage1_contract.sh` | keep until the explicit compat probe lane is retired |
-| Stage-B producer helper | `tools/selfhost/lib/selfhost_build_stageb.sh` | migrate only with selfhost build route proof |
-| hako mirbuilder fixture producer | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`, `tools/smokes/v2/lib/stageb_helpers.sh` | keep; these pin Program(JSON) fixtures for `.hako mirbuilder` and now share the thin producer helper where the caller shape is identical |
-| Program(JSON) contract pin | `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh` | keep as explicit contract evidence |
+| explicit compat/direct emit keeper | `tools/selfhost/lib/program_json_v0_compat.sh` via `tools/selfhost/lib/stage1_contract.sh` | keep until the explicit compat probe lane is retired |
+| Stage-B producer helper | `tools/selfhost/lib/program_json_v0_compat.sh` via `tools/selfhost/lib/selfhost_build_stageb.sh` | migrate only with selfhost build route proof |
+| hako mirbuilder fixture producer | `tools/smokes/v2/lib/stageb_helpers.sh` via `phase29bq_hako_mirbuilder_*` smokes | keep; these pin Program(JSON) fixtures for `.hako mirbuilder` and share the thin producer helper |
+| Program(JSON) contract pin | `tools/smokes/v2/lib/stageb_helpers.sh` via `phase29bq_hako_program_json_contract_pin_vm.sh` | keep as explicit contract evidence |
 | parser dual-route probe | `tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh` | migrated in P11; Rust-side now uses AST JSON, Hako-side keeps wrapper Program(JSON) observation |
 
 Notes:
@@ -41,9 +41,9 @@ Notes:
   `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh` now materialize
   Program(JSON) through the stage1 env contract helper instead of the retired
   `run_stage1_cli.sh emit program-json` wrapper surface.
-- `phase29bq` single-fixture producer callers now funnel through
-  `stageb_emit_program_json_v0_fixture()`; bespoke multi-case / cleanup /
-  contract-pin scripts remain direct for now.
+- `phase29bq` single-fixture, multi-case, cleanup, and contract-pin callers now
+  funnel through `stageb_emit_program_json_v0_fixture()`; the raw emit syntax is
+  owned by `tools/smokes/v2/lib/stageb_helpers.sh`.
 
 ## `--program-json-to-mir` Buckets
 
