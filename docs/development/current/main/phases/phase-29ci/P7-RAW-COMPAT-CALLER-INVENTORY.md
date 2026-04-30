@@ -5,6 +5,7 @@ Date: 2026-04-30
 Scope: raw Program(JSON v0) compat flags (`--emit-program-json-v0`, `--program-json-to-mir`) の caller bucket と削除順を固定する。
 Related:
   - docs/development/current/main/phases/phase-29ci/P6-STAGE1-MIR-ROUTE-VOCABULARY.md
+  - docs/development/current/main/phases/phase-29ci/P12-REMAINING-RAW-COMPAT-CALLERS.md
   - docs/development/current/main/phases/archive/phase-29ci/README.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/json-v0-route-map-ssot.md
@@ -55,13 +56,19 @@ Conclusion:
 
 Start with caller migration, not raw CLI deletion.
 
-Candidate A (`--program-json-to-mir` thin fallback, landed in P8):
+Candidate A (`tools/hakorune_emit_mir.sh` thin fallback, landed in P8):
 1. probe `tools/hakorune_emit_mir.sh` without `try_legacy_program_json_delegate`
 2. require representative `hako-mainline` / `hako-helper` emit smokes to pass through provider/selfhost routes
 3. if green, delete only that legacy fallback function
 4. if not green, keep the fallback and record the missing provider/selfhost route proof
 
-Candidate B (`--emit-program-json-v0` fixture producer):
+Candidate B (`tools/smokes/v2/lib/test_runner_builder_helpers.sh` shared fallback, next after P12):
+1. replace raw `--program-json-to-mir` with provider/selfhost builder route
+2. keep builder-only and core-exec result routing unchanged
+3. prove with representative phase2043 / mirbuilder-provider smokes
+4. then re-inventory `--program-json-to-mir`
+
+Candidate C (`--emit-program-json-v0` fixture producer):
 1. pick one small `phase29bq_hako_mirbuilder_*` smoke family
 2. decide whether it truly needs Program(JSON) fixture evidence or can consume MIR(JSON)
 3. if MIR(JSON) is sufficient, rewrite that family to `--emit-mir-json` / `--mir-json-file`

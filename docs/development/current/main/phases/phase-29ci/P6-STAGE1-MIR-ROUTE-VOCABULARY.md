@@ -44,7 +44,8 @@ Related:
 - Do not remove `--hako-emit-mir-json`; it is the public/dev launcher for the current source -> MIR route.
 - Do not mix raw compat flag deletion with `.hako` live/bootstrap caller cleanup.
 - Do not delete `--emit-program-json-v0` while phase29bq mirbuilder smokes still pin Program(JSON) fixtures through it.
-- Do not delete `--program-json-to-mir` while `tools/hakorune_emit_mir.sh`, selfhost EXE helpers, and delegate smokes still call it.
+- Do not delete `--program-json-to-mir` while selfhost EXE helpers,
+  Stage-B delegate helpers, dev proofs, or shared smoke helpers still call it.
 
 ## Acceptance
 
