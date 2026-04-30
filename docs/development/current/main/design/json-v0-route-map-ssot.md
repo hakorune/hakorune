@@ -52,6 +52,28 @@ Related:
   - bridge-local lowering residue
 - `core_executor::execute_json_artifact(...)` is the terminal route owner once the artifact has been lowered to `MirModule`
 
+## Compat Capsule Model
+
+A `Program(JSON v0)` compat capsule is an explicit owner that keeps a bounded
+compatibility seam alive while the mainline stays MIR-first.
+
+Capsule invariants:
+
+- named entrypoint in docs
+- clear input/output boundary
+- no `selfhost_build.sh` facade shortcut
+- no promotion to mainline proof
+- delete or archive only after MIR-first replacement exists
+
+Current capsule classes:
+
+| Capsule | Entrypoints | Boundary | Reading |
+| --- | --- | --- | --- |
+| Stage-B artifact diagnostic | `tools/dev/phase29cv_stageb_artifact_probe.sh`, `tools/lib/program_json_v0_compat.sh` | source `.hako` -> Program(JSON v0) file | explicit artifact capture only |
+| Program(JSON)->MIR bridge | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`), `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh` | Program(JSON v0) -> MIR(JSON) -> optional ny-llvmc proof | compat conversion capsule, not primary proof |
+| Stage1 contract | `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost/compat/run_stage1_cli.sh` | Stage1 CLI env contract -> Program/MIR compatibility payloads | explicit contract pin |
+| Fixture contract | `tools/smokes/v2/lib/stageb_helpers.sh`, phase29bq JoinIR/MirBuilder pins | Program(JSON v0) fixture -> .hako MirBuilder / contract assertions | fixture-only compatibility |
+
 ## Migration Order
 
 1. docs lock
@@ -77,6 +99,7 @@ Related:
      - `tools/dev/phase29cv_stageb_artifact_probe.sh`
      - `tools/lib/program_json_v0_compat.sh`
      - `tools/selfhost/lib/program_json_mir_bridge.sh`
+     - `tools/selfhost_exe_stageb.sh` (`stageb-delegate` bridge capsule)
      - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
      - `tools/selfhost/lib/stage1_contract.sh`
      - `tools/selfhost/compat/run_stage1_cli.sh`
@@ -92,6 +115,8 @@ Related:
   - compat loader probes
   - v1/v0 fallback or downconvert coverage
   - import-bundle / bridge diagnostics
+- compat capsule callers must not be reused as primary proof gates; pair them
+  with an explicit MIR-first proof when validating mainline behavior
 
 ## Trace Ladder
 

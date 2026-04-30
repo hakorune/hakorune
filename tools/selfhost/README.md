@@ -5,6 +5,16 @@ Purpose
 - Program(JSON v0) artifact capture is explicit diagnostic/probe surface, not a `selfhost_build.sh` facade route.
 - `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
 - Direct MIR emit and ny-llvmc EXE build are the normal mainline route.
+- Program(JSON v0) compat capsule vocabulary:
+  - A capsule is an explicit, bounded compatibility owner. It may internally
+    produce or consume Program(JSON v0), but it is not a primary proof route.
+  - Primary proof stays on MIR-first routes: `selfhost_build.sh --mir`,
+    `selfhost_build.sh --run`, `selfhost_build.sh --exe`,
+    `--emit-mir-json`, and `--mir-json-file`.
+  - Bridge capsule:
+    `tools/selfhost/lib/program_json_mir_bridge.sh`,
+    `tools/selfhost_exe_stageb.sh` with `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`,
+    and `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`.
 - file-level responsibility inventory:
   - `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
 - shell split reading:
@@ -124,7 +134,7 @@ Examples
 # Explicit Stage-B Program(JSON v0) artifact capture
 bash tools/dev/phase29cv_stageb_artifact_probe.sh --in apps/tests/phase122_if_only_normalized_emit_min.hako --out /tmp/phase122.program.json
 
-# Explicit Program(JSON)->MIR bridge + ny-llvmc compat proof
+# Explicit Program(JSON)->MIR bridge compat capsule
 bash tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh
 
 # Day-to-day selfhost entrypoint
@@ -159,6 +169,10 @@ bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh
 
 Notes
 - `selfhost_build.sh` no longer owns Stage-B Program(JSON v0) artifact production; use `tools/dev/phase29cv_stageb_artifact_probe.sh` for explicit diagnostics.
+- `tools/selfhost_exe_stageb.sh` is route-selectable:
+  - `HAKORUNE_STAGE1_EMIT_ROUTE=direct` is the MIR-first probe route.
+  - `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a Program(JSON v0)
+    bridge compat capsule, kept only while direct coverage is incomplete.
 - raw `selfhost_build.sh --in ...` whole-script output, `--keep-tmp`, and `NYASH_SELFHOST_KEEP_RAW=1` are retired facade routes.
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。

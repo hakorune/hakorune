@@ -32,24 +32,41 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   from the facade; explicit Program(JSON v0) artifact capture now lives in the
   dev probe.
 - `Program(JSON v0)` remains as internal/compat/debug infrastructure only.
+- Remaining live Program(JSON v0) surfaces are compat capsules: explicit,
+  bounded owners that pin compatibility seams without becoming mainline proof.
 - The remaining work is keeper classification plus small delete slices, not a
   new acceptance-shape expansion.
 - Thin shell/test seam cleanup is effectively exhausted through P32. Remaining
   work is explicit keeper replacement or final delete-last cleanup.
 
-## Keeper Buckets
+## Compat Capsule Rules
+
+- A capsule must have a named entrypoint and a clear input/output boundary.
+- A capsule may produce or consume Program(JSON v0) internally, but it must not
+  be read as the day-to-day compiler route.
+- `selfhost_build.sh` must stay MIR-first and must not source capsule routes as
+  facade shortcuts.
+- A capsule is deleted only after it has a MIR-first replacement or an archive
+  owner.
+- Passing a capsule probe proves the compat seam only; primary proof stays on
+  MIR(JSON) mainline gates.
+
+## Compat Capsule Buckets
 
 1. Explicit Stage-B artifact diagnostic probe
    - `tools/dev/phase29cv_stageb_artifact_probe.sh`
    - `tools/lib/program_json_v0_compat.sh`
    - Kept for deliberate Program(JSON v0) artifact capture only.
      `selfhost_build.sh` must not own or source this route.
-2. Explicit Program(JSON)->MIR bridge probes
+2. Program(JSON)->MIR bridge capsule
    - `tools/selfhost/lib/stageb_program_json_capture.sh`
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh`
    - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
-   - Kept for explicit compat/probe work only; not part of
+   - Kept for explicit compat conversion work only.
+   - `tools/selfhost_exe_stageb.sh` `stageb-delegate` is a bridge capsule;
+     `direct` is the MIR-first probe route.
+   - This capsule is not a primary proof route and is not part of
      `selfhost_build.sh` mainline routing.
 3. Stage1 contract keepers
    - `tools/selfhost/lib/stage1_contract.sh`
@@ -73,6 +90,21 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `src/runner/stage1_bridge/**`
    - Delete only after every shell/test keeper has a replacement or an archive
      owner.
+
+## Primary Proof Reading
+
+- Mainline proof:
+  - `selfhost_build.sh --mir`, `--run`, and `--exe`
+  - `--emit-mir-json`
+  - `--mir-json-file`
+- Compat capsule proof:
+  - Program(JSON v0) artifact capture
+  - Program(JSON)->MIR bridge conversion
+  - Stage1 contract compatibility
+  - JoinIR / MirBuilder Program(JSON) fixture pins
+
+Do not use a compat capsule PASS as evidence that Program(JSON v0) is still a
+mainline artifact family.
 
 ## Non-goals
 

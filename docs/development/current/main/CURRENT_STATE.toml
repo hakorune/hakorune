@@ -6,18 +6,18 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-04-30"
+date = "2026-05-01"
 
 active_lane = "phase-29cv Program(JSON v0) keeper closeout"
-active_lane_status = "Post-P26 closeout: normal selfhost --exe is direct source MIR, and remaining Program(JSON v0) surface is bucketed as Stage-B diagnostic, Stage1 contract, JoinIR fixture, or Rust compat delete-last keepers."
+active_lane_status = "Post-P37 closeout: normal selfhost --exe is direct source MIR, and remaining Program(JSON v0) surface is bucketed as explicit compat capsules or Rust compat delete-last keepers."
 active_phase = "docs/development/current/main/phases/phase-29cv/README.md"
 phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P36-RESTORE-SHARED-STAGEB-FIXTURE-EMITTER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P36-RESTORE-SHARED-STAGEB-FIXTURE-EMITTER.md"
-latest_card_summary = "Restore the shared Stage-B fixture emitter as a thin wrapper over the current compat SSOT after P35 validation proved the stronger phase29bq keepers still depend on it."
+latest_card = "P37-PROGRAM-JSON-V0-COMPAT-CAPSULE-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON-V0-COMPAT-CAPSULE-SSOT.md"
+latest_card_summary = "Define Program(JSON v0) compat capsules and reclassify bridge keepers away from MIR-first mainline proof ownership."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

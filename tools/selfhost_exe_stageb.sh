@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# selfhost_exe_stageb.sh — helper-free emit route → ny-llvmc (crate) → EXE
-# Purpose: Build a native EXE from a Nyash .hako source without hakorune_emit_mir.sh.
+# selfhost_exe_stageb.sh — route-selectable emit → ny-llvmc (crate) → EXE
+# Purpose: Build a native EXE from a Nyash .hako source for explicit
+# bootstrap/compat work. This is not the selfhost_build.sh mainline facade.
 # Usage: tools/selfhost_exe_stageb.sh <input.hako> [-o <out>] [--run]
 #
 # Emit route (env):
-#   HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate  (default)
+#   HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate  (default bridge compat capsule)
 #     Stage-B compiler emits Program(JSON v0), then env.mirbuilder.emit bridge.
 #   HAKORUNE_STAGE1_EMIT_ROUTE=direct
-#     Direct --emit-mir-json route (debug/probe use).
+#     Direct --emit-mir-json route (MIR-first probe use).
 #
 # Prerequisites (one-time setup):
 #   cargo build --release -p nyash-llvm-compiler
@@ -162,7 +163,7 @@ emit_mir_direct() {
   set -e
   if [[ "$emit_rc" -eq 124 || "$emit_rc" -eq 137 || "$emit_rc" -eq 143 ]]; then
     echo "[emit] direct route timed out after ${timeout_secs}s: $INPUT" >&2
-    echo "       hint: use HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate for launcher build path" >&2
+    echo "       hint: use HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate for the bridge compat capsule" >&2
     tail -n 80 "$tmp_log" >&2 || true
     return "$emit_rc"
   fi
@@ -182,7 +183,7 @@ emit_mir_direct() {
     return 1
   fi
 
-  echo "[emit-route] direct (--emit-mir-json)"
+  echo "[emit-route] direct MIR-first (--emit-mir-json)"
   return 0
 }
 
@@ -237,7 +238,7 @@ emit_mir_stageb_delegate() {
     return 1
   fi
 
-  echo "[emit-route] stageb-delegate (--backend vm compiler_stageb.hako -> env.mirbuilder.emit)"
+  echo "[emit-route] stageb-delegate compat-capsule (--backend vm compiler_stageb.hako -> env.mirbuilder.emit)"
   return 0
 }
 
