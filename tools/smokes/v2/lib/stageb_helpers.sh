@@ -3,6 +3,13 @@
 
 _STAGEB_HELPERS_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 source "${_STAGEB_HELPERS_TOOLS_DIR}/selfhost/lib/stageb_program_json_capture.sh"
+source "${_STAGEB_HELPERS_TOOLS_DIR}/lib/program_json_v0_compat.sh"
+
+stageb_emit_program_json_v0_fixture() {
+  local out_path="$1"
+  local input_path="$2"
+  program_json_v0_compat_emit_to_file "$NYASH_BIN" "$out_path" "$input_path"
+}
 
 stageb_export_vm_compile_env() {
   export NYASH_PARSER_ALLOW_SEMICOLON=1

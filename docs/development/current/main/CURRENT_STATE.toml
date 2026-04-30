@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P34-SYNC-DELETE-LAST-BLOCKER-GUIDANCE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P34-SYNC-DELETE-LAST-BLOCKER-GUIDANCE.md"
-latest_card_summary = "Sync the route-map and environment-variable docs so Program(JSON v0) delete-last blockers stay explicit after P33."
+latest_card = "P36-RESTORE-SHARED-STAGEB-FIXTURE-EMITTER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P36-RESTORE-SHARED-STAGEB-FIXTURE-EMITTER.md"
+latest_card_summary = "Restore the shared Stage-B fixture emitter as a thin wrapper over the current compat SSOT after P35 validation proved the stronger phase29bq keepers still depend on it."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

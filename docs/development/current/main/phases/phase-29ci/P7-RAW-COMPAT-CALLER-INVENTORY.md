@@ -42,8 +42,9 @@ Notes:
   `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh` now materialize
   Program(JSON) through the stage1 env contract helper instead of the retired
   `run_stage1_cli.sh emit program-json` wrapper surface.
-- later phase-29cv cleanup deleted the dead `stageb_emit_program_json_v0_fixture()`
-  wrapper after its live callers disappeared; `tools/lib/program_json_v0_compat.sh`
+- phase-29cv first deleted `stageb_emit_program_json_v0_fixture()`, but P36
+  restored it as a live shared fixture helper after stronger phase29bq keeper
+  validation proved the caller set was still active; `tools/lib/program_json_v0_compat.sh`
   remains the neutral raw shell emit owner.
 
 ## `--program-json-to-mir` Buckets

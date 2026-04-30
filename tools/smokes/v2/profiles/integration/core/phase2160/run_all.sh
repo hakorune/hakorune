@@ -11,9 +11,6 @@ fi
 
 run() { local f="$1"; [[ -x "$f" ]] || chmod +x "$f"; bash "$f"; }
 
-run "$DIR/stageb_program_json_shape_canary_vm.sh" || true
-run "$DIR/stageb_program_json_method_shape_canary_vm.sh" || true
-run "$DIR/stageb_multi_method_shape_canary_vm.sh" || true
 run "$DIR/program_to_mir_exe_return_canary_vm.sh" || true
 run "$DIR/program_to_mir_exe_binop_canary_vm.sh" || true
 run "$DIR/program_to_mir_exe_compare_canary_vm.sh" || true
@@ -35,7 +32,10 @@ run "$DIR/loop_scan_ne_else_continue_canary_vm.sh" || true
 run "$DIR/selfhost_builder_first_return42_canary_vm.sh" || true
 run "$DIR/hako_mainline_loop_undefined_block_vm.sh" || true
 
-# Archived monitor-only probe:
+# Archived monitor-only probes:
 # tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh
+# tools/smokes/v2/profiles/archive/core/phase2160/stageb_program_json_shape_canary_vm.sh
+# tools/smokes/v2/profiles/archive/core/phase2160/stageb_program_json_method_shape_canary_vm.sh
+# tools/smokes/v2/profiles/archive/core/phase2160/stageb_multi_method_shape_canary_vm.sh
 
 echo "[phase2160] done"

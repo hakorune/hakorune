@@ -46,8 +46,8 @@ explicit keepers in the right order.
    - `tools/selfhost/compat/run_stage1_cli.sh`
 4. Fixture contract keepers
    - `tools/smokes/v2/lib/stageb_helpers.sh`
+   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`
-   - `tools/smokes/v2/profiles/integration/core/phase2160/stageb_*_canary_vm.sh`
 5. Rust/public delete-last surface
    - `src/runtime/deprecations.rs`
    - `src/stage1/program_json_v0*`

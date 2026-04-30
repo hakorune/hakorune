@@ -30,7 +30,7 @@ mainline. This card fixes the delete-last order and pins the next thin slice.
 | 2 | explicit Stage-B artifact diagnostic probe | `tools/dev/phase29cv_stageb_artifact_probe.sh`, `tools/lib/program_json_v0_compat.sh` | explicit probe / keep |
 | 3 | explicit Program(JSON)->MIR bridge probe | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, `tools/selfhost_exe_stageb.sh` | explicit probe / keep |
 | 4 | Stage1 contract keepers | `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost/compat/run_stage1_cli.sh` | explicit contract / keep |
-| 5 | JoinIR / MirBuilder fixture keepers | `tools/smokes/v2/lib/stageb_helpers.sh`, `phase29bq_hako_mirbuilder_*`, Stage-B canaries | true keeper |
+| 5 | JoinIR / MirBuilder fixture keepers | `tools/smokes/v2/lib/stageb_helpers.sh`, `phase29bq_hako_program_json_contract_pin_vm.sh`, `phase29bq_hako_mirbuilder_*` | true keeper |
 | 6 | raw shell spelling SSOT | `tools/lib/program_json_v0_compat.sh` | shell delete-last |
 | 7 | Rust/public compat surface | `src/runtime/deprecations.rs`, `src/stage1/program_json_v0*`, `src/runner/stage1_bridge/**` | final delete-last |
 

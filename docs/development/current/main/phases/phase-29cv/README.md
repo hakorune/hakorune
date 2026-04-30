@@ -59,12 +59,13 @@ right owner, and delete dead helper surface when the repo no longer calls it.
      are archived under `tools/archive/legacy-selfhost/stage1-cli/`.
 4. JoinIR / MirBuilder fixture keepers
    - `tools/smokes/v2/lib/stageb_helpers.sh`
+   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`
-   - `tools/smokes/v2/profiles/integration/core/phase2160/stageb_*_canary_vm.sh`
    - Keep while those tests explicitly assert the Program(JSON)->.hako
      MirBuilder contract.
    - Stage-B stdout capture is shared through
      `tools/selfhost/lib/stageb_program_json_capture.sh`.
+   - weaker phase2160 Stage-B shape canaries are archive-only after P35
 5. Rust public compat delete-last surface
    - `--emit-program-json-v0`
    - `src/runtime/deprecations.rs`

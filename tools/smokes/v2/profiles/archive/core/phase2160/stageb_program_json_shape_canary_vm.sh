@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify Stage‑B emits sane Program(JSON v0) for a minimal program (no include/IO).
+# Verify Stage-B emits sane Program(JSON v0) for a minimal program (no include/IO).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
