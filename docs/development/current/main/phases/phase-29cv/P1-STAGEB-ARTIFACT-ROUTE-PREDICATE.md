@@ -3,13 +3,17 @@
 Scope: make the remaining `selfhost_build.sh` Stage-B Program(JSON v0)
 keeper condition explicit in one shell predicate.
 
+Status note: superseded by P6 for normal `--run`. The predicate still owns
+diagnostic artifact requests such as `--keep-tmp` and
+`NYASH_SELFHOST_KEEP_RAW=1`.
+
 ## Why
 
 After P26/P0, normal `--exe` and MIR-only output can bypass Stage-B
 Program(JSON v0). The remaining Stage-B artifact route is still legitimate, but
-only for routes that need the old artifact:
+only for routes that needed the old artifact at that point:
 
-- `--run`
+- `--run` (normal route moved to direct MIR in P6)
 - `--keep-tmp`
 - `NYASH_SELFHOST_KEEP_RAW=1`
 
@@ -23,8 +27,8 @@ Add `stageb_program_json_artifact_required()` in
 `tools/selfhost/lib/selfhost_build_route.sh` and make both direct route
 predicates depend on it.
 
-This is behavior-preserving. It does not move `--run` to direct MIR execution
-and does not delete the Stage-B producer.
+This was behavior-preserving in P1. P6 later moved normal `--run` to direct
+MIR execution; diagnostic artifact requests still keep the Stage-B producer.
 
 ## Files
 

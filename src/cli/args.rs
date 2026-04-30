@@ -462,7 +462,10 @@ mod tests {
             "--hako-emit-program-json",
             "/tmp/out.json",
         ]);
-        assert!(result.is_err(), "retired hako Program(JSON) alias must not parse");
+        assert!(
+            result.is_err(),
+            "retired hako Program(JSON) alias must not parse"
+        );
     }
 
     #[test]
