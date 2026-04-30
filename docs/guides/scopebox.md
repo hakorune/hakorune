@@ -10,25 +10,18 @@ How to enable
 - Injection points:
   - If.then / If.else bodies
   - Loop.body
-  - Bare blocks are represented by `Program { statements }` and already get ScopeEnter/ScopeLeave hints.
+  - Bare blocks are represented by `Program { statements }` and still pass
+    through builder scope metadata hooks.
 
-MIR Scope Hints (unified env)
-- Configure hint output with a single env using a pipe-style syntax:
-  - `NYASH_MIR_HINTS="<target>|<filters>..."`
-- Targets:
-  - `trace` or `stderr`: print human-friendly hints to stderr
-  - `jsonl=<path>` or a file path: append one JSON object per line
-- Filters:
-  - `all` (default), `scope`, `join`, `loop`, `phi`
-- Examples:
-  - `NYASH_MIR_HINTS="trace|all"`
-  - `NYASH_MIR_HINTS="jsonl=tmp/hints.jsonl|scope|join"`
-  - `NYASH_MIR_HINTS="tmp/hints.jsonl|loop"`
-- Back-compat:
-  - `NYASH_MIR_TRACE_HINTS=1` is still accepted (equivalent to `trace|all`).
+MIR Scope Metadata
+- The old standalone MIR hint trace envs (`NYASH_MIR_HINTS`,
+  `NYASH_MIR_TRACE_HINTS`) were retired with `src/mir/hints.rs`.
+- ScopeBox remains a compile-time-only structure aid; builder scope metadata is
+  internal and no longer exported as a separate user-facing trace contract.
 
 Zero-cost policy
-- ScopeBox is removed implicitly during MIR lowering (treated as a block). ScopeEnter/ScopeLeave hints are observational only. Execution and IR are unchanged.
+- ScopeBox is removed implicitly during MIR lowering (treated as a block).
+  Execution and IR are unchanged.
 
 Notes (Selfhost path)
 - 当面は JSON v0 に `ScopeBox` 型は導入しない（互換維持）。前処理は恒等（identity）から開始し、将来は安全な包み込み/ヒント付与を検討する。

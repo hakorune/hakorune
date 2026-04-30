@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-04-30"
 
 active_lane = "phase-291x CoreBox surface contract cleanup"
-active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-790. The JoinIR / bridge / config-env sweep is closed, the MIR structural dead-shelf burst is retired through exit-binding / phi-query / LocalSSA / extractor-detector cleanup, `cond_profile` no longer needs a broad hold, and `src/mir/hints.rs` remains the only intentional scaffold hold in this audited MIR set. Next work is selecting the next post-MIR compiler-cleanliness lane."
+active_lane_status = "CoreBox/CoreMethodContract cleanup is at a clean checkpoint through 291x-791. The JoinIR / bridge / config-env sweep is closed, the MIR structural dead-shelf burst is retired through exit-binding / phi-query / LocalSSA / extractor-detector cleanup, the obsolete standalone MIR hints scaffold is retired in favor of MetadataContext-owned no-op hooks, and the audited MIR set no longer carries a broad dead_code hold. Next work is selecting the next post-cleanup compiler-cleanliness lane."
 active_phase = "docs/development/current/main/phases/phase-291x/README.md"
 phase_status = "docs/development/current/main/phases/phase-291x/README.md"
 method_anchor = "docs/development/current/main/phases/phase-291x/291x-90-corebox-surface-catalog-design-brief.md"
 taskboard = "docs/development/current/main/phases/phase-291x/291x-91-stringbox-surface-task-board.md"
 
-latest_card = "291x-790"
-latest_card_path = "docs/development/current/main/phases/phase-291x/291x-790-cond-profile-allow-prune-card.md"
-latest_card_summary = "Remove the now-unneeded file-level dead_code hold from cond_profile.rs and keep hints.rs as the only intentional broad scaffold hold in this MIR audit."
+latest_card = "291x-791"
+latest_card_path = "docs/development/current/main/phases/phase-291x/291x-791-hints-scaffold-retire-card.md"
+latest_card_summary = "Retire the obsolete standalone MIR hints scaffold and move current docs onto the MetadataContext-owned no-op hint contract."
 
-current_blocker_token = "phase-291x post-mir cleanup lane selection pending"
+current_blocker_token = "phase-291x post-cleanup lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -82,4 +82,5 @@ landed_tail = [
   "291x-788 common helper control-flow prune landed",
   "291x-789 PHI query wrapper retire landed",
   "291x-790 cond_profile allow prune landed",
+  "291x-791 hints scaffold retire landed",
 ]

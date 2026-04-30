@@ -16,11 +16,11 @@ Core
   - Carrier analysis emits observation hints only (zero runtime cost).
   - Break/continue lowering is unified via LoopBuilder; nested bare blocks inside loops are handled consistently (Program nodes recurse into loop‑aware lowering).
 - Scope
-- Enter/Leave scope events are observable through MIR hints; they do not affect program semantics.
+- Builder scope/join metadata remains observational only; it does not affect
+  program semantics.
 - Block‑scoped locals: `local x = ...` declares a binding limited to the lexical block. Assignment without `local` updates the nearest enclosing binding; redeclaration with `local` shadows the outer variable. This is Lua‑like and differs from Python's block (no) scope.
 
 Observability
-- MIR hints can be traced via `NYASH_MIR_HINTS` (pipe style): `trace|scope|join|loop|phi` or `jsonl=path|loop`.
 - Golden/Smoke tests cover representative invariants.
 
 Backends

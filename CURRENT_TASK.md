@@ -37,7 +37,7 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x post-mir cleanup lane selection pending`
+- current blocker token: `phase-291x post-cleanup lane selection pending`
 - primary mode: compiler cleanup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -50,7 +50,7 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: select the next post-MIR phase-291x compiler-cleanliness lane,
+- resume point: select the next post-cleanup phase-291x compiler-cleanliness lane,
   or switch to an explicitly reopened non-cleanup blocker
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
@@ -63,12 +63,12 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: choose the next post-MIR compiler-cleanliness lane; broad `plan/facts`
+- next: choose the next post-cleanup compiler-cleanliness lane; broad `plan/facts`
   and `lower::planner_compat` work require a new family-sized BoxShape lane if
   reopened
-- MIR structural dead-shelf cleanup is closed through `291x-790`; the only
-  remaining broad hold in that audited MIR vocabulary set is the intentional
-  scaffold in `src/mir/hints.rs`
+- MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
+  standalone MIR hints scaffold is retired and that audited MIR vocabulary set
+  no longer carries a broad dead-code hold
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep BoxShape cleanup separate from BoxCount feature rows

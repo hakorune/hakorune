@@ -28,19 +28,19 @@ checkpoint pointer.
 ## Current Checkpoint
 
 - Latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`.
-- Current blocker token: `phase-291x post-mir cleanup lane selection pending`.
+- Current blocker token: `phase-291x post-cleanup lane selection pending`.
 - Release lib-warning backlog for this lane is zero.
 - `cargo test --lib --no-run` is warning-free.
 - The JoinIR / bridge / config-env `dead_code` allowance sweep is closed
   through `291x-775`; the semantics/parser dead shelves are retired through
   `291x-782`; the MIR structural dead-shelf burst is retired through
-  `291x-790` (exit-binding owner shelf, phi-query wrappers, LocalSSA field
+  `291x-791` (exit-binding owner shelf, phi-query wrappers, LocalSSA field
   finalizer seam, route-shape helper residue, `loop_simple_while` extractor
-  shelf, common helper residue, and the unneeded broad allow in
-  `cond_profile.rs`).
+  shelf, common helper residue, the unneeded broad allow in `cond_profile.rs`,
+  and the obsolete standalone MIR hints scaffold).
 - Remaining cleanup in this audited MIR vocabulary set is no longer a dead
-  shelf: `src/mir/hints.rs` remains an intentional scaffold hold, and the next
-  step is selecting the next post-MIR compiler-cleanliness lane.
+  shelf, and the next step is selecting the next post-cleanup
+  compiler-cleanliness lane.
 
 ## Next Lane Candidates
 
@@ -48,16 +48,15 @@ These came from the post-291x-775 read-only worker inventory. Treat each item as
 a separate card; do not mix them with the closed JoinIR / bridge / config-env
 allowance sweep.
 
-- Post-MIR compiler-cleanliness lane:
+- Post-cleanup compiler-cleanliness lane:
   the dead-shelf subset of the MIR structural vocabulary inventory is closed
-  through `291x-790`. Do not reopen that burst unless a new owner-backed seam
-  appears. Treat `src/mir/hints.rs` as an intentional scaffold hold unless a
-  dedicated wiring/removal lane is opened.
+  through `291x-791`. Do not reopen that burst unless a new owner-backed seam
+  appears.
 
 No-action inventory: moved-stub / traceability docs and `src/ring0/LAYER_GUARD.rs`
 metadata are intentional and outside this cleanup lane.
 
-## Cleanup Closeout Through 291x-790
+## Cleanup Closeout Through 291x-791
 
 This burst removed or narrowed the active dead-code shelves around:
 
@@ -84,11 +83,12 @@ This burst removed or narrowed the active dead-code shelves around:
 - LocalSSA field-use finalizer seam
 - `loop_simple_while` dead extractor shelf and its helper residue
 - the now-unneeded broad allow in `cond_profile.rs`
+- the obsolete standalone `src/mir/hints.rs` scaffold and its current-doc contract
 
 The durable result is that the cleaned JoinIR / bridge / config-env and parser
 slices no longer rely on broad `#[allow(dead_code)]` shelves, and the audited
-MIR dead-shelf burst is closed with `src/mir/hints.rs` left as an intentional
-scaffold hold.
+MIR dead-shelf burst is closed without a remaining broad hold in that audited
+set.
 
 ## Current Rules
 

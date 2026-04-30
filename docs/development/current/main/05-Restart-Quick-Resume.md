@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-291x CoreBox surface contract cleanup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-291x post-mir cleanup lane selection pending`
+- current blocker token: `phase-291x post-cleanup lane selection pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-291x post-mir cleanup lane selection pending`
+- current blocker token: `phase-291x post-cleanup lane selection pending`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -51,11 +51,11 @@ cargo check -q
 
 ## Immediate Next
 
-- choose the next post-MIR compiler-cleanliness lane, or switch to an explicitly
+- choose the next post-cleanup compiler-cleanliness lane, or switch to an explicitly
   reopened non-cleanup blocker
-- the MIR structural dead-shelf burst is closed through `291x-790`;
-  `src/mir/hints.rs` remains an intentional scaffold hold, not an active prune
-  target
+- the MIR structural dead-shelf burst is closed through `291x-791`; the old
+  standalone `src/mir/hints.rs` scaffold is retired, and no broad
+  `dead_code` hold remains in the audited MIR cleanup set
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

@@ -58,7 +58,6 @@ pub mod cfg_extractor; // Phase 154: CFG extraction for hako_check
 pub mod control_form;
 pub mod control_tree; // Phase 110: Structure-only SSOT (StepTree)
 pub mod function_emission; // FunctionEmissionBox（MirFunction直編集の発行ヘルパ）
-pub mod hints; // scaffold: zero-cost guidance (no-op)
 pub mod join_ir; // Phase 26-H: 関数正規化IR（JoinIR）
 pub mod join_ir_ops; // Phase 27.8: JoinIR 命令意味箱（ops box）
 pub mod join_ir_runner; // Phase 27.2: JoinIR 実行器（実験用）
