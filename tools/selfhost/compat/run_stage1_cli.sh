@@ -38,34 +38,6 @@ ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 BIN="${ROOT_DIR}/target/selfhost/hakorune"
 source "${ROOT_DIR}/tools/selfhost/lib/stage1_contract.sh"
 
-run_emit_mir_json() {
-  local entry=""
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --from-program-json)
-        echo "[run-stage1] emit mir-json: --from-program-json is retired from this wrapper" >&2
-        echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh or stage1_contract_exec_program_json_compat" >&2
-        exit 2
-        ;;
-      *)
-        if [[ -n "$entry" ]]; then
-          echo "[run-stage1] emit mir-json: unexpected extra argument: $1" >&2
-          exit 2
-        fi
-        entry="$1"
-        shift
-        ;;
-    esac
-  done
-
-  if [[ -z "$entry" ]]; then
-    echo "[run-stage1] emit mir-json: require <source.hako>" >&2
-    exit 2
-  fi
-
-  stage1_contract_exec_direct_emit_mode "$ROOT_DIR/target/release/hakorune" "emit-mir" "$entry"
-}
-
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --bin)
@@ -120,7 +92,31 @@ if [[ "$1" == "emit" ]]; then
       exit 2
       ;;
     mir-json)
-      run_emit_mir_json "$@"
+      entry=""
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --from-program-json)
+            echo "[run-stage1] emit mir-json: --from-program-json is retired from this wrapper" >&2
+            echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh or stage1_contract_exec_program_json_compat" >&2
+            exit 2
+            ;;
+          *)
+            if [[ -n "$entry" ]]; then
+              echo "[run-stage1] emit mir-json: unexpected extra argument: $1" >&2
+              exit 2
+            fi
+            entry="$1"
+            shift
+            ;;
+        esac
+      done
+
+      if [[ -z "$entry" ]]; then
+        echo "[run-stage1] emit mir-json: require <source.hako>" >&2
+        exit 2
+      fi
+
+      stage1_contract_exec_direct_emit_mode "$ROOT_DIR/target/release/hakorune" "emit-mir" "$entry"
       exit $?
       ;;
   esac
