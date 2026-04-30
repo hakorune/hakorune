@@ -83,14 +83,14 @@ selfhost_build_main() {
   fi
   emit_stageb_program_json_raw "$RAW" "$tmp_json" || stageb_rc=$?
 
-  extract_ok=0
-  if extract_program_json_v0_from_raw "$RAW" "$tmp_json"; then
-    extract_ok=1
+  output_ready=0
+  if [ "$stageb_rc" -eq 0 ] && stageb_program_json_output_ready "$tmp_json"; then
+    output_ready=1
   fi
 
-  raw_log="$(persist_stageb_raw_snapshot "$RAW" "$tmp_json" "$extract_ok")"
+  raw_log="$(persist_stageb_raw_snapshot "$RAW" "$tmp_json" "$output_ready")"
 
-  if [ "$extract_ok" != "1" ]; then
+  if [ "$output_ready" != "1" ]; then
     exit_after_stageb_emit_failure "$RAW" "$raw_log"
   fi
   rm -f "$RAW" 2>/dev/null || true

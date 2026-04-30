@@ -31,13 +31,13 @@ emit_stageb_program_json_raw() {
   emit_program_json_v0_via_direct_source "$raw_path" "$json_path"
 }
 
-extract_program_json_v0_from_raw() {
-  local raw_path="$1" json_path="$2"
-  awk '(/"version":0/ && /"kind":"Program"/){print;found=1;exit} END{exit(found?0:1)}' "$raw_path" > "$json_path"
+stageb_program_json_output_ready() {
+  local json_path="$1"
+  [ -s "$json_path" ]
 }
 
 persist_stageb_raw_snapshot() {
-  local raw_path="$1" json_path="$2" extract_ok="$3"
+  local raw_path="$1" json_path="$2" output_ready="$3"
   if [ "$RAW_KEEP" != "1" ]; then
     return 0
   fi
@@ -47,12 +47,12 @@ persist_stageb_raw_snapshot() {
   raw_log_path="$RAW_DIR/stageb_${ts}_$$.log"
   {
     echo "[selfhost/raw] cmd: ${stageb_cmd_desc:-unknown}"
-    echo "[selfhost/raw] rc_stageb=${stageb_rc} extract_ok=${extract_ok}"
+    echo "[selfhost/raw] rc_stageb=${stageb_rc} output_ready=${output_ready}"
     echo "[selfhost/raw] src=${IN}"
     echo "[selfhost/raw] --- stdout+stderr ---"
     cat "$raw_path"
   } > "$raw_log_path" 2>/dev/null || true
-  if [ "$extract_ok" = "1" ] && [ -s "$json_path" ]; then
+  if [ "$output_ready" = "1" ] && [ -s "$json_path" ]; then
     cp "$json_path" "$RAW_DIR/stageb_${ts}_$$.json" 2>/dev/null || true
   fi
   printf '%s' "$raw_log_path"
