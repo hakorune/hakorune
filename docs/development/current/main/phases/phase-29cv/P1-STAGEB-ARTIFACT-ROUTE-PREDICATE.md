@@ -48,7 +48,6 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
-Additional route proof: `selfhost_build.sh --exe --keep-tmp` on the minimal
-`main(args) { return 7 }` fixture still logs the Program(JSON)->MIR conversion
-before ny-llvmc, proving the predicate keeps explicit artifact requests on the
-Stage-B route.
+Historical route proof: P1 checked `selfhost_build.sh --exe --keep-tmp` on the
+minimal `main(args) { return 7 }` fixture. P9 later retired that mixed EXE +
+Stage-B artifact route; explicit artifact diagnostics no longer build EXEs.

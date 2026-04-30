@@ -40,11 +40,10 @@ Repository search for the live spellings still shows four meaningful buckets:
 
 ## First Delete Slice
 
-The old helper-local `emit_exe_from_program_json_v0_with_mir_tmp()` wrapper has
-no in-repo callers. The context-owning helper
-`emit_exe_from_program_json_v0_with_context()` remains as the diagnostic
-Program(JSON)->MIR->EXE consumer, while the normal `--exe` route uses direct
-source MIR.
+The old helper-local `emit_exe_from_program_json_v0_with_mir_tmp()` wrapper had
+no in-repo callers and was removed first. P9 later removed the remaining
+selfhost_build Program(JSON)->MIR->EXE consumer as well; explicit compat probes
+call `program_json_mir_bridge_emit()` directly.
 
 Delete the stale wrapper definitions from both selfhost helper files and update
 the selfhost README so it no longer describes `--exe` as a Program(JSON)
@@ -61,4 +60,3 @@ bash tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
-

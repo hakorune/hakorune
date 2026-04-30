@@ -37,9 +37,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/selfhost/lib/selfhost_build_stageb.sh`
    - `tools/selfhost/lib/selfhost_build_direct.sh`
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
-   - Kept because `--keep-tmp`, raw snapshots, and diagnostic EXE/MIR
-     combinations still need the old artifact. `--run` is direct MIR(JSON)
-     only after P8.
+   - Kept because `--keep-tmp`, raw snapshots, and diagnostic MIR combinations
+     still need the old artifact. `--run` and `--exe` are direct MIR(JSON)
+     only after P9.
 2. Stage1 contract keepers
    - `tools/selfhost/lib/stage1_contract.sh`
    - Keep only for explicit contract/probe coverage.
@@ -60,6 +60,8 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 
 - Do not reintroduce mixed `--run` + Stage-B artifact execution. Use
   fail-fast and ask for either run or artifact diagnostics.
+- Do not reintroduce mixed `--exe` + Stage-B artifact execution. Use direct
+  EXE or artifact diagnostics.
 - Do not expand ny-llvmc pure-first acceptance shapes here.
 - Do not revive `--hako-emit-program-json` or other retired public aliases.
 - Do not treat fixture-only Program(JSON) producers as day-to-day bootstrap

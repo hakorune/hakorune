@@ -2,7 +2,7 @@
 # selfhost_build_dispatch.sh — Final route dispatcher helpers
 #
 # Purpose:
-# - Own the final output routing between Program(JSON path), MIR emit, and EXE.
+# - Own the final output routing between Program(JSON path) and MIR emit.
 # - Keep this helper separate from the producer / direct / exe artifact owners.
 
 print_program_json_path_result() {
@@ -13,11 +13,6 @@ print_program_json_path_result() {
 
 dispatch_stageb_primary_output() {
   local json_path="$1"
-
-  if exe_output_requested; then
-    emit_requested_exe_output "$json_path"
-    return $?
-  fi
 
   print_program_json_path_result "$json_path"
 }
