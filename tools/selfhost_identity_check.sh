@@ -8,7 +8,7 @@
 #   packaging is defined in the release/distribution SSOT, not here.
 #
 # Usage:
-#   tools/selfhost_identity_check.sh [--mode full|smoke] [--skip-build] [--build-timeout-secs <secs>] [--cli-mode auto|stage1|stage0] [--allow-compat-route] [--bin-stage1 <path>] [--bin-stage2 <path>]
+#   tools/selfhost_identity_check.sh [--mode full|smoke] [--skip-build] [--build-timeout-secs <secs>] [--cli-mode stage1|auto|stage0] [--allow-compat-route] [--bin-stage1 <path>] [--bin-stage2 <path>]
 #
 # Modes:
 #   full  - Use compiler_stageb.hako (G1 done criteria)
@@ -19,12 +19,11 @@
 #   --build-timeout-secs Timeout for each Stage1/Stage2 build invocation (default: 900, 0 disables)
 #   --cli-mode       Emit route for binaries:
 #                    stage1=stage1 selfhost emit route (default; env-mainline for stage1-cli artifacts)
-#                    stage0=direct flags (--emit-program-json-v0 / --emit-mir-json)
-#                    auto=try stage1 selfhost route then fallback to stage0 (compat-only)
+#                    auto/stage0 are retired for Program(JSON) identity; use the explicit compat probe instead
 #   --allow-compat-route
-#                    Required when --cli-mode is auto/stage0 (compat-only lane)
-#   --bin-stage1     Path to prebuilt Stage1 binary (default: cli-mode依存)
-#   --bin-stage2     Path to prebuilt Stage2 compare binary (default: cli-mode依存)
+#                    accepted for legacy invocation compatibility; identity still rejects compat route
+#   --bin-stage1     Path to prebuilt Stage1 binary (default: target/selfhost/hakorune.stage1_cli)
+#   --bin-stage2     Path to prebuilt Stage2 compare binary (default: target/selfhost/hakorune.stage1_cli.stage2)
 #
 # Note: Building Stage1/Stage2 requires ~35GB+ RAM. For environments with less memory,
 #       use --skip-build with prebuilt binaries from a larger machine.
@@ -73,17 +72,15 @@ Options:
                      smoke = hello_simple_llvm.hako (quick verification)
   --skip-build       Skip Stage1/Stage2 build (use prebuilt binaries)
   --build-timeout-secs <n>
-                     Timeout for each Stage build (default: 900, 0 disables)
+                      Timeout for each Stage build (default: 900, 0 disables)
   --cli-mode <m>     CLI emit route (default: stage1)
-                     stage1 = require stage1 selfhost emit route
-                     auto   = try stage1 selfhost route then fallback to stage0 flags (compat-only)
-                     stage0 = require stage0 direct flag route
+                      stage1 = require stage1 selfhost emit route
+                      auto/stage0 are retired for Program(JSON) identity and fail fast
   --allow-compat-route
-                     Explicitly allow compat-only route (required for cli-mode=auto|stage0)
+                      Accepted for legacy invocation compatibility; identity still rejects compat routes
   --bin-stage1 <p>   Path to prebuilt Stage1 binary
   --bin-stage2 <p>   Path to prebuilt Stage2 compare binary
-                     default(stage1/auto): target/selfhost/hakorune.stage1_cli(.stage2)
-                     default(stage0):      target/selfhost/hakorune(.stage2)
+                      defaults: target/selfhost/hakorune.stage1_cli(.stage2)
   -h, --help         Show this help
 
 Examples:
@@ -96,8 +93,8 @@ Examples:
   # Smoke test with default binary locations
   tools/selfhost_identity_check.sh --mode smoke --skip-build
 
-  # Compatibility probe (stage0 fallback path)
-  tools/selfhost_identity_check.sh --mode smoke --skip-build --cli-mode auto --allow-compat-route --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune
+  # Explicit Program(JSON) compat proof (identity helper no longer fronts this)
+  tools/dev/phase29ch_program_json_compat_route_probe.sh --bin target/selfhost/hakorune.stage1_cli apps/tests/hello_simple_llvm.hako
 USAGE
 }
 
@@ -155,27 +152,19 @@ if [[ "$CLI_MODE" != "auto" && "$CLI_MODE" != "stage1" && "$CLI_MODE" != "stage0
   echo "[G1] invalid --cli-mode: $CLI_MODE (must be auto|stage1|stage0)" >&2
   exit 2
 fi
-if [[ "$CLI_MODE" != "stage1" && "$ALLOW_COMPAT_ROUTE" -ne 1 ]]; then
-  echo "[G1] compat route requires explicit opt-in: --allow-compat-route (cli-mode=${CLI_MODE})" >&2
-  echo "     stage0/auto are compatibility-only and not accepted as main-route evidence" >&2
+if [[ "$CLI_MODE" != "stage1" ]]; then
+  echo "[G1] cli-mode=${CLI_MODE} is retired for Program(JSON) identity comparison" >&2
+  echo "     use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit compat proof" >&2
   exit 2
 fi
 
 # Set default binary paths for the compare pair if not specified.
-# stage1/auto mode defaults to stage1-cli artifacts; stage0 mode keeps launcher artifacts.
+# Identity compare is stage1-only; keep stage1-cli artifacts as the default pair.
 if [[ -z "$STAGE1_BIN" ]]; then
-  if [[ "$CLI_MODE" == "stage0" ]]; then
-    STAGE1_BIN="${ROOT}/target/selfhost/hakorune"
-  else
-    STAGE1_BIN="${ROOT}/target/selfhost/hakorune.stage1_cli"
-  fi
+  STAGE1_BIN="${ROOT}/target/selfhost/hakorune.stage1_cli"
 fi
 if [[ -z "$STAGE2_BIN" ]]; then
-  if [[ "$CLI_MODE" == "stage0" ]]; then
-    STAGE2_BIN="${ROOT}/target/selfhost/hakorune.stage2"
-  else
-    STAGE2_BIN="${ROOT}/target/selfhost/hakorune.stage1_cli.stage2"
-  fi
+  STAGE2_BIN="${ROOT}/target/selfhost/hakorune.stage1_cli.stage2"
 fi
 
 # Select entry by mode
@@ -195,9 +184,6 @@ fi
 # --- Build Stage1 and Stage2 ---
 if [[ "$SKIP_BUILD" -eq 0 ]]; then
   BUILD_ARTIFACT_KIND="stage1-cli"
-  if [[ "$CLI_MODE" == "stage0" ]]; then
-    BUILD_ARTIFACT_KIND="launcher-exe"
-  fi
   echo "[G1] Building Stage1 binary..." >&2
   echo "[G1] WARNING: Build requires ~35GB+ RAM. Use --skip-build for smaller environments." >&2
   echo "[G1] Build artifact-kind: ${BUILD_ARTIFACT_KIND} (cli-mode=${CLI_MODE})" >&2
@@ -278,7 +264,7 @@ emit_and_validate_stage_payload() {
 }
 
 
-if [[ "$MODE" == "full" && "$CLI_MODE" != "stage0" ]]; then
+if [[ "$MODE" == "full" ]]; then
   echo "[G1] Preflight: checking Stage1 CLI emit capability..." >&2
   if ! preflight_stage1_cli "Stage1" "$STAGE1_BIN"; then
     exit 2

@@ -220,11 +220,11 @@ Helper — G1 Identity Check
 - `tools/selfhost_identity_check.sh`
   - Orchestrates Stage1/Stage2 build+compare flow (argument parsing and gate flow only).
   - In this helper, Stage1/Stage2 are compare-pair labels; Stage2 distribution packaging is a separate future SSOT.
-  - `--cli-mode auto|stage0` is compatibility-only and requires `--allow-compat-route` explicit opt-in.
+  - `Program(JSON v0)` identity is stage1-only. `--cli-mode auto|stage0` are retired here; use the explicit compat probe instead.
   - Route/emit helpers are split into:
     - `tools/selfhost/lib/identity_routes.sh`
     - `tools/selfhost/lib/identity_compare.sh`
-  - This split keeps route policy and compare policy centralized, while preserving existing CLI behavior.
+  - This split keeps route policy and compare policy centralized while narrowing G1 identity to the stage1 mainline route.
   - MIR canonical compare helper/test:
     - `tools/selfhost/lib/mir_canonical_compare.py`
     - `python3 -m unittest tools.selfhost.lib.tests.test_mir_canonical_compare`

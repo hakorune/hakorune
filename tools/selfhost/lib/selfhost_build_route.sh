@@ -8,7 +8,7 @@
 exit_program_json_wrapper_retired() {
   echo "[selfhost] --json is retired from selfhost_build.sh" >&2
   echo "           use --mir for public/bootstrap output" >&2
-  echo "           use tools/dev/phase29ch_program_json_compat_route_probe.sh or raw --emit-program-json-v0 for explicit compat work" >&2
+  echo "           use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit compat proof" >&2
   exit 2
 }
 

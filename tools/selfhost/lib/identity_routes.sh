@@ -317,6 +317,12 @@ run_stage_cli() {
   local route_file="$5"
   local rc=0
 
+  if [[ "$subcmd" == "program-json" && "$CLI_MODE" != "stage1" ]]; then
+    echo "[identity/compat-retired] program-json cli-mode=${CLI_MODE} is retired for G1 identity" >&2
+    echo "                         use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit compat proof" >&2
+    return 2
+  fi
+
   if [[ "$CLI_MODE" == "stage1" ]]; then
     if run_stage1_route "$bin" "$subcmd" "$entry" "$outfile" "$route_file"; then
       return 0
@@ -325,13 +331,8 @@ run_stage_cli() {
   fi
 
   if [[ "$CLI_MODE" == "stage0" ]]; then
-    if [[ "$subcmd" == "program-json" ]]; then
-      "$bin" --emit-program-json-v0 "$outfile" "$entry" >/dev/null 2>&1
-      rc=$?
-    else
-      "$bin" --emit-mir-json "$outfile" "$entry" >/dev/null 2>&1
-      rc=$?
-    fi
+    "$bin" --emit-mir-json "$outfile" "$entry" >/dev/null 2>&1
+    rc=$?
     if [[ "$rc" -ne 0 ]]; then
       return "$rc"
     fi
@@ -347,13 +348,8 @@ run_stage_cli() {
   # It is useful for diagnostics, but it is not accepted as full-mode identity
   # evidence while `stage1` remains the mainline selfhost route.
   echo "[identity/compat-fallback] route=stage0 subcmd=${subcmd} reason=stage1-route-failed bin=$(basename "$bin")" >&2
-  if [[ "$subcmd" == "program-json" ]]; then
-    "$bin" --emit-program-json-v0 "$outfile" "$entry" >/dev/null 2>&1
-    rc=$?
-  else
-    "$bin" --emit-mir-json "$outfile" "$entry" >/dev/null 2>&1
-    rc=$?
-  fi
+  "$bin" --emit-mir-json "$outfile" "$entry" >/dev/null 2>&1
+  rc=$?
   if [[ "$rc" -ne 0 ]]; then
     return "$rc"
   fi
