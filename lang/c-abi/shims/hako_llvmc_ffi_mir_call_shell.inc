@@ -56,6 +56,37 @@
         }
         return -1;
       }
+      auto int emit_method_birth_mir_call(
+          enum MirCallMethodBirthSurfaceKind kind,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        int recv_org;
+        size_t argc;
+        if (kind == HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_NONE) {
+          return 0;
+        }
+        if (dst) {
+          return -1;
+        }
+        argc = (args && yyjson_is_arr(args)) ? yyjson_arr_size(args) : 0;
+        if (argc != 0) {
+          return -1;
+        }
+        recv_org = recv ? get_origin(recv) : ORG_NONE;
+        if (recv_org == ORG_NONE && recv) {
+          recv_org = get_scan_origin(recv);
+        }
+        if (kind == HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_ARRAY_BOX &&
+            recv_org == ORG_ARRAY_BIRTH) {
+          return 1;
+        }
+        if (kind == HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_MAP_BOX &&
+            recv_org == ORG_MAP_BIRTH) {
+          return 1;
+        }
+        return -1;
+      }
       auto int emit_global_mir_call(
           FILE* f,
           enum MirCallGlobalSurfaceKind kind,

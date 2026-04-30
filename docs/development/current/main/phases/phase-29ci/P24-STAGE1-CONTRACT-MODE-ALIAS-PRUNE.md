@@ -37,6 +37,11 @@ direct-MIR-replaceable, but the quick `static box Main` fixture still fails the
 direct source->MIR(JSON)->ny-llvmc route with unsupported pure shape. Keep EXE
 on Program(JSON v0) until that backend shape gap is fixed.
 
+P26 fixed that exact `main(args)` entry-args `ArrayBox.birth` pure-first gap and
+moved the normal non-diagnostic `--exe` route to direct source->MIR(JSON)->EXE.
+This P24 note remains as the historical reason the alias prune did not combine
+route movement in the same commit.
+
 ## Acceptance
 
 ```bash

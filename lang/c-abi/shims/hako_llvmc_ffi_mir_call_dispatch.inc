@@ -36,6 +36,13 @@
         }
 
         if (ctype && !strcmp(ctype, "Method")) {
+          enum MirCallMethodBirthSurfaceKind birth_kind =
+              classify_mir_call_method_birth_surface(bname, mname);
+          int birth_rc = emit_method_birth_mir_call(birth_kind, dst, recv, args);
+          if (birth_rc != 0) {
+            return birth_rc;
+          }
+
           struct GenericMethodRouteState route =
               classify_generic_method_route(bid, ii, bname, mname, recv);
           trace_generic_method_route_state(

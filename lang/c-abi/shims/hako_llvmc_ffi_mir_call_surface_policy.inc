@@ -4,6 +4,12 @@
         HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_ARRAY_BOX,
       };
 
+      enum MirCallMethodBirthSurfaceKind {
+        HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_NONE = 0,
+        HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_MAP_BOX,
+        HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_ARRAY_BOX,
+      };
+
       enum MirCallGlobalSurfaceKind {
         HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_NONE = 0,
         HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT,
@@ -29,6 +35,20 @@
           return HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_ARRAY_BOX;
         }
         return HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_NONE;
+      }
+
+      auto enum MirCallMethodBirthSurfaceKind
+      classify_mir_call_method_birth_surface(const char* bname, const char* mname) {
+        if (!(mname && !strcmp(mname, "birth"))) {
+          return HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_NONE;
+        }
+        if (bname && !strcmp(bname, "MapBox")) {
+          return HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_MAP_BOX;
+        }
+        if (bname && !strcmp(bname, "ArrayBox")) {
+          return HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_ARRAY_BOX;
+        }
+        return HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_NONE;
       }
 
       auto enum MirCallGlobalSurfaceKind classify_mir_call_global_surface(

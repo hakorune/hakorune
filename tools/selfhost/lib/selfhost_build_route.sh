@@ -20,6 +20,13 @@ direct_mir_only_route_requested() {
     && [ "$RAW_KEEP" != "1" ]
 }
 
+direct_exe_route_requested() {
+  [ -n "$EXE_OUT" ] \
+    && [ "$DO_RUN" != "1" ] \
+    && [ "$KEEP_TMP" != "1" ] \
+    && [ "$RAW_KEEP" != "1" ]
+}
+
 apply_selfhost_env() {
   export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
   export NYASH_PARSER_ALLOW_SEMICOLON=1
@@ -77,6 +84,12 @@ selfhost_build_main() {
   if direct_mir_only_route_requested; then
     apply_selfhost_env
     emit_direct_mir_only_output
+    exit $?
+  fi
+
+  if direct_exe_route_requested; then
+    apply_selfhost_env
+    emit_requested_direct_exe_output
     exit $?
   fi
 
