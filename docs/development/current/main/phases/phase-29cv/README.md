@@ -26,28 +26,33 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 
 - `phase-29ci` closed the public wrapper and raw-compat caller cleanup, then
   P26 unblocked the direct source -> MIR(JSON) -> ny-llvmc EXE route.
-- Normal `selfhost_build.sh --exe` is now a direct MIR producer/consumer route.
+- Normal `selfhost_build.sh --mir`, `--run`, and `--exe` are now direct
+  MIR(JSON) routes.
 - `Program(JSON v0)` remains as internal/compat/debug infrastructure only.
 - The remaining work is keeper classification plus small delete slices, not a
   new acceptance-shape expansion.
 
 ## Keeper Buckets
 
-1. Stage-B diagnostic keepers
+1. Stage-B artifact-only diagnostic keepers
    - `tools/selfhost/lib/selfhost_build_stageb.sh`
-   - `tools/selfhost/lib/selfhost_build_direct.sh`
-   - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - Kept because `--keep-tmp` and raw snapshots still need the old artifact.
-     `--run`, `--exe`, and `--mir` are direct MIR(JSON) only after P10.
-2. Stage1 contract keepers
+     It must not feed `--mir`, `--run`, or `--exe`.
+2. Explicit Program(JSON)->MIR bridge probes
+   - `tools/selfhost/lib/program_json_mir_bridge.sh`
+   - `tools/selfhost_exe_stageb.sh`
+   - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+   - Kept for explicit compat/probe work only; not part of
+     `selfhost_build.sh` mainline routing.
+3. Stage1 contract keepers
    - `tools/selfhost/lib/stage1_contract.sh`
    - Keep only for explicit contract/probe coverage.
-3. JoinIR / MirBuilder fixture keepers
+4. JoinIR / MirBuilder fixture keepers
    - `tools/smokes/v2/lib/stageb_helpers.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`
    - Keep while those tests explicitly assert the Program(JSON)->.hako
      MirBuilder contract.
-4. Rust public compat delete-last surface
+5. Rust public compat delete-last surface
    - `--emit-program-json-v0`
    - `src/runtime/deprecations.rs`
    - `src/stage1/program_json_v0*`
