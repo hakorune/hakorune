@@ -9,6 +9,7 @@ historical/manual evidence only.
 Archived scripts:
 
 - `async_smokes.sh`
+- `apps_tri_backend_smoke.sh`
 - `cross_backend_smoke.sh`
 - `ny_stage1_asi_smoke.sh`
 - `ny_stage3_bridge_accept_smoke.sh`

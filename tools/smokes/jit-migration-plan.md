@@ -4,6 +4,8 @@ Historical note:
 
 - `tools/cross_backend_smoke.sh` and `tools/async_smokes.sh` were archived in
   `tools/archive/manual-smokes/` during `phase-30x / 30xG1`.
+- `apps_tri_backend_smoke.sh` now also lives under
+  `tools/archive/manual-smokes/`.
 - This file is kept as a historical migration note, not as a current
   engineering entrypoint.
 
@@ -27,7 +29,7 @@ tools/build_python_aot.sh
 ```bash
 tools/smoke_plugins.sh
 tools/modules_smoke.sh
-tools/apps_tri_backend_smoke.sh
+tools/archive/manual-smokes/apps_tri_backend_smoke.sh
 ```
 
 ### 3. 重要テスト（修正して維持）

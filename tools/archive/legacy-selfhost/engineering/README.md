@@ -13,5 +13,8 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `program_analyze.hako`
 - `gen_v1_min.sh`
 - `ny_selfhost_inline.sh`
+- `test_stageb_using.sh`
+- `selfhost_compiler_smoke.sh`
+- `ny_selfhost_using_smoke.sh`
 
 Read this directory as the archived engineering helper bucket.

@@ -5,7 +5,7 @@ set -euo pipefail
 # - compares interpreter / compat / JIT routes
 # - not a mainline owner route
 
-ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 BIN="$ROOT_DIR/target/release/nyash"
 
 default_apps=(
