@@ -63,7 +63,7 @@ Guardrail:
 
 | Owner | Caller family | Next action |
 | --- | --- | --- |
-| neutral shell compat owner | `tools/lib/program_json_v0_compat.sh` | only current non-archive shell spelling of `--emit-program-json-v0` |
+| neutral shell compat owner | `tools/lib/program_json_v0_compat.sh` | only current shell emit spelling of `--emit-program-json-v0`; archive pins source this helper after P20 |
 | explicit stage1 compat/direct emit keeper | `tools/selfhost/lib/stage1_contract.sh` via neutral helper | keep until the explicit compat probe lane is migrated |
 | Stage-B Program producer | `tools/selfhost/lib/selfhost_build_stageb.sh` via neutral helper | keep until selfhost build route can produce MIR directly |
 | hako mirbuilder fixture producer | `tools/smokes/v2/lib/stageb_helpers.sh` via `phase29bq_hako_mirbuilder_*` smokes | keep as Program(JSON) fixture evidence until each family is rewritten |

@@ -36,7 +36,7 @@ This is still a cleanup slice, not a route migration:
 
 | Layer | Helper | Responsibility |
 | --- | --- | --- |
-| neutral shell compat owner | `tools/lib/program_json_v0_compat.sh` | the only current non-archive shell spelling of `--emit-program-json-v0` |
+| neutral shell compat owner | `tools/lib/program_json_v0_compat.sh` | the only current shell emit spelling of `--emit-program-json-v0`; archive pins source this helper after P20 |
 | selfhost | `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost/lib/selfhost_build_stageb.sh` | source the neutral helper; no raw flag spelling |
 | smoke fixture producer | `tools/smokes/v2/lib/stageb_helpers.sh` | source the neutral helper; no raw flag spelling |
 
