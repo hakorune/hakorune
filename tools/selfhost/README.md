@@ -50,13 +50,14 @@ Script
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
   - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)
-  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); when used without `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1`, this bypasses Stage-B Program(JSON v0) production, and it also stays direct when combined with `--run` or `--exe`
+  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); this bypasses Stage-B Program(JSON v0) production and can be combined with `--run` or `--exe`
   - --exe <out>: build native executable via the direct source MIR -> ny-llvmc mainline route
   - --run: run via direct source MIR(JSON) -> `--mir-json-file`. Exit code mirrors program return.
   - --keep-tmp: explicit diagnostic route; keeps and prints the Stage-B artifact path when no downstream output mode is selected.
   - diagnostic Program(JSON)->MIR probes use `program_json_mir_bridge_emit()` directly; `selfhost_build.sh --exe` no longer produces or consumes Stage-B Program(JSON v0).
   - `--run` cannot be combined with `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1`; choose direct MIR execution or Stage-B artifact diagnostics.
   - `--exe` cannot be combined with `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1`; choose direct EXE build or Stage-B artifact diagnostics.
+  - `--mir` cannot be combined with `--keep-tmp` or `NYASH_SELFHOST_KEEP_RAW=1`; choose direct MIR output or Stage-B artifact diagnostics.
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)
@@ -214,7 +215,7 @@ Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
 - `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
-- `selfhost_build.sh` keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`. `--run` and `--exe` now exit before Stage-B through direct source->MIR(JSON), while `--keep-tmp` and raw snapshot diagnostics keep the Stage-B Program(JSON v0) artifact route.
+- `selfhost_build.sh` keeps its Stage-B diagnostic output selection behind `dispatch_stageb_primary_output()`. `--mir`, `--run`, and `--exe` now exit before Stage-B through direct source->MIR(JSON), while `--keep-tmp` and raw snapshot diagnostics keep the Stage-B Program(JSON v0) artifact route.
 - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.

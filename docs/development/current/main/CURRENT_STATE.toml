@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRE
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P9-RETIRE-PROGRAM-JSON-EXE-COMBO"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P9-RETIRE-PROGRAM-JSON-EXE-COMBO.md"
-latest_card_summary = "Retire mixed Program(JSON v0) diagnostic EXE combos so selfhost --exe is direct MIR only."
+latest_card = "P10-RETIRE-MIR-ARTIFACT-COMBO"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P10-RETIRE-MIR-ARTIFACT-COMBO.md"
+latest_card_summary = "Retire mixed direct MIR plus Stage-B artifact combos so selfhost --mir is direct-only."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
