@@ -84,11 +84,11 @@ probe_bin() {
   fi
 
   set +e
-  stage1_contract_exec_program_json_text \
+  stage1_contract_exec_mode \
     "$bin" \
     "$ENTRY" \
-    "$program_json_text" \
-    "emit_mir_program" >"$alias_out" 2>"$alias_err"
+    "emit_mir_program" \
+    "$program_json_text" >"$alias_out" 2>"$alias_err"
   rc=$?
   set -e
 
@@ -100,11 +100,9 @@ probe_bin() {
     exit 1
   fi
 
-  if ! stage1_contract_exec_program_json_text \
+  if ! stage1_contract_exec_program_json_compat \
     "$bin" \
-    "$ENTRY" \
-    "$program_json_text" \
-    "$(stage1_contract_program_json_compat_mode)" >"$compat_out" 2>"$compat_err"; then
+    "$program_json_text" >"$compat_out" 2>"$compat_err"; then
     echo "[FAIL] ${label}: explicit compat mode failed" >&2
     cat "$compat_out" >&2
     cat "$compat_err" >&2

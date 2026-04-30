@@ -353,29 +353,12 @@ stage1_contract_exec_checked_mode() {
     ""
 }
 
-# Low-level text transport helper for probes/diagnostics only.
-# Live shell callers should prefer stage1_contract_exec_program_json_compat()
-# or stage1_contract_exec_mode() so the exact contract surface stays narrow.
-stage1_contract_exec_program_json_text() {
-  local bin="$1"
-  local entry="$2"
-  local program_json_text="$3"
-  local mode="${4:-$(stage1_contract_program_json_compat_mode)}"
-
-  stage1_contract_exec_mode \
-    "$bin" \
-    "$mode" \
-    "$entry" \
-    "$program_json_text"
-}
-
 # Exact-only compat helper for the current live shell contract.
-# Keep the generic text helper above it as probe/diagnostics-only entry so the
-# quarantine surface stays thin and explicit.
+# Keep this as the sole explicit Program(JSON) compat helper entry.
 stage1_contract_exec_program_json_compat() {
   local bin="$1"
   local program_json_text="$2"
-  stage1_contract_exec_program_json_text \
+  stage1_contract_exec_mode \
     "$bin" \
     "$(stage1_contract_program_json_compat_entry)" \
     "$program_json_text" \
