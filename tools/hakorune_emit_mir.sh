@@ -454,7 +454,7 @@ coerce_stageb_program_json_v0_output() {
   fi
 
   # Stage-B Program(JSON) may omit alias-less using entries in `imports`.
-  # Merge source-derived using aliases so Program→MIR delegate paths stay stable.
+  # Merge source-derived using aliases so Program→MIR provider paths stay stable.
   prog_json_out="$(merge_program_json_imports "$prog_json_out" "$MERGED_MIRBUILDER_IMPORTS_JSON")"
   printf '%s' "$prog_json_out"
   return 0
@@ -486,7 +486,7 @@ fi
 PROG_JSON_OUT="$STAGEB_PROGRAM_JSON_V0_OUT"
 
 # 2) Convert Program(JSON v0) → MIR(JSON)
-#    Prefer selfhost builder first when explicitly requested; otherwise use delegate (Gate‑C) for stability.
+#    Prefer selfhost builder first; use provider fallback only for compat helper paths.
 
 try_selfhost_builder() {
   local prog_json="$1" out_path="$2"
@@ -717,7 +717,7 @@ cleanup_selfhost_builder_runner_temp() {
   rm -f "${tmp_hako:-}" "${tmp_stdout:-}" 2>/dev/null || true
 }
 
-# Provider-first delegate: call env.mirbuilder.emit(prog_json) and capture v1 JSON
+# Provider fallback: call env.mirbuilder.emit(prog_json) and capture v1 JSON.
 try_provider_emit() {
   local prog_json="$1" out_path="$2"
   local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
@@ -778,34 +778,9 @@ cleanup_provider_emit_runner_temp() {
   rm -f "${tmp_hako:-}" "${tmp_stdout:-}" 2>/dev/null || true
 }
 
-try_legacy_program_json_delegate() {
-  local prog_json="$1" out_path="$2"
-  local tmp_prog
-  tmp_prog=$(mktemp)
-  printf '%s' "$prog_json" > "$tmp_prog"
-
-  if HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
-     HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
-     HAKO_MIR_BUILDER_FUNCS="${HAKO_MIR_BUILDER_FUNCS:-}" \
-     HAKO_MIR_BUILDER_CALL_RESOLVE="${HAKO_MIR_BUILDER_CALL_RESOLVE:-}" \
-     NYASH_JSON_SCHEMA_V1=${NYASH_JSON_SCHEMA_V1:-1} \
-     NYASH_MIR_UNIFIED_CALL=${NYASH_MIR_UNIFIED_CALL:-1} \
-     "$NYASH_BIN" --program-json-to-mir "$out_path" --json-file "$tmp_prog" >/dev/null 2>&1; then
-    rm -f "$tmp_prog" || true
-    echo "[OK] MIR JSON written (delegate-legacy): $out_path"
-    return 0
-  fi
-
-  rm -f "$tmp_prog" || true
-  return 1
-}
-
-emit_mir_json_via_delegate_routes() {
+emit_mir_json_via_provider_route() {
   local prog_json="$1" out_path="$2"
   if try_provider_emit "$prog_json" "$out_path"; then
-    return 0
-  fi
-  if try_legacy_program_json_delegate "$prog_json" "$out_path"; then
     return 0
   fi
   return 1
@@ -857,7 +832,7 @@ emit_mir_json_via_non_direct_routes() {
   if try_loop_force_jsonfrag_route "$prog_json" "$out_path"; then
     return 0
   fi
-  if emit_mir_json_via_delegate_routes "$prog_json" "$out_path"; then
+  if emit_mir_json_via_provider_route "$prog_json" "$out_path"; then
     return 0
   fi
   return 1
@@ -872,5 +847,5 @@ fi
 if emit_mir_json_via_non_direct_routes "$PROG_JSON_OUT" "$OUT"; then
   exit 0
 fi
-echo "[FAIL] Program→MIR delegate failed (provider+legacy)" >&2
+echo "[FAIL] Program→MIR helper routes failed (selfhost/provider)" >&2
 exit 1

@@ -51,8 +51,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-29ci` raw compat caller migration after the P7 inventory /
-  unreferenced helper deletion slice
+- continue `phase-29ci` raw compat caller migration after the P8 helper-local
+  legacy delegate retirement slice
 - `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
   `stage1-env-mir-source`; raw Program(JSON) compat callers are inventoried and
   the next work is migration by caller family

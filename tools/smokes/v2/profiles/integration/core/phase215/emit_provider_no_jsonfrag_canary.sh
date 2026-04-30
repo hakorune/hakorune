@@ -15,12 +15,12 @@ LOG=$(mktemp)
 trap 'rm -f "$SRC" "$OUT" "$LOG"' EXIT
 printf '%s' "$CODE" > "$SRC"
 
-# Provider-first emit; forbid forced jsonfrag
+# Provider-first emit; forbid forced jsonfrag and legacy CLI fallback.
 set +e
 HAKO_SELFHOST_BUILDER_FIRST=0 \
 HAKO_MIR_BUILDER_LOOP_JSONFRAG=0 \
 HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG=0 \
-NYASH_JSON_ONLY=1 bash "$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$OUT" --input "$SRC" 2>"$LOG" 1>/dev/null
+NYASH_JSON_ONLY=1 bash "$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$OUT" --input "$SRC" >"$LOG" 2>&1
 rc=$?
 set -e
 
@@ -31,6 +31,11 @@ fi
 
 if grep -q "\[emit/jsonfrag\]" "$LOG"; then
   echo "[FAIL] emit_provider_no_jsonfrag_canary: jsonfrag tag detected"
+  exit 1
+fi
+
+if grep -q "delegate-legacy" "$LOG"; then
+  echo "[FAIL] emit_provider_no_jsonfrag_canary: legacy CLI delegate detected"
   exit 1
 fi
 

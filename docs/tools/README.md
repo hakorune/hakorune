@@ -135,7 +135,7 @@ tools/smokes/v2/lib/emit_mir_route.sh --route hako-helper --timeout-secs 30 --ou
 route の意味:
 - `direct`: `hakorune --emit-mir-json` 直経路
 - `hako-mainline`: selfhost-first + no-delegate + mainline-only（fail-fast）
-- `hako-helper`: helper 既定経路（診断/互換向け）
+- `hako-helper`: helper 既定経路（selfhost-first、provider fallback まで。raw CLI delegate は使わない）
 
 補足:
 - 新規の smoke/check/perf/dev script は `emit_mir_route.sh` を使う。

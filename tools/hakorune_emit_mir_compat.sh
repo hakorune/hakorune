@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# hakorune_emit_mir_compat.sh — Program→MIR helper route preset (delegate/fallback allowed)
+# hakorune_emit_mir_compat.sh — Program→MIR helper route preset (provider fallback allowed)
 #
 # Usage: tools/hakorune_emit_mir_compat.sh <input.hako> <out.json>
 # Notes:

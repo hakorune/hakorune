@@ -154,6 +154,9 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - compiled-stage1 / shell callers that still terminate in MIR
 - deleted raw-compat diagnostic helper:
   - `tools/dump_stageb_min_mir.sh`
+- retired helper-local legacy delegate:
+  - `tools/hakorune_emit_mir.sh` no longer calls raw `--program-json-to-mir` as
+    its final fallback; helper compat stops at selfhost/provider routes
 
 ## Non-goals
 

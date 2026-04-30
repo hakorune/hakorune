@@ -37,7 +37,7 @@ Conclusion:
 | Bucket | Representative callers | Action |
 | --- | --- | --- |
 | CLI implementation | `src/runner/pipe_io.rs` | keep until all external callers migrate; tests preserve `user_box_decls` behavior |
-| shared emit helper fallback | `tools/hakorune_emit_mir.sh` | keep until provider route is sole accepted helper path |
+| shared emit helper fallback | `tools/hakorune_emit_mir.sh` | retired in P8; helper now stops at selfhost/provider routes |
 | selfhost EXE / Stage-B delegate | `tools/selfhost/lib/selfhost_build_exe.sh`, `tools/selfhost_exe_stageb.sh` | keep; exact build helpers still terminate through this bridge |
 | dev/proof probe | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | keep as historical reduced-stage proof unless replaced by MIR-first proof |
 | smoke/test helper fallback | `tools/smokes/v2/lib/test_runner_builder_helpers.sh`, `tools/smokes/v2/profiles/integration/core/phase2043/program_new_array_delegate_struct_canary_vm.sh` | keep until builder fallback helpers are rewritten |
@@ -54,7 +54,7 @@ Conclusion:
 
 Start with caller migration, not raw CLI deletion.
 
-Candidate A (`--program-json-to-mir` thin fallback):
+Candidate A (`--program-json-to-mir` thin fallback, landed in P8):
 1. probe `tools/hakorune_emit_mir.sh` without `try_legacy_program_json_delegate`
 2. require representative `hako-mainline` / `hako-helper` emit smokes to pass through provider/selfhost routes
 3. if green, delete only that legacy fallback function
