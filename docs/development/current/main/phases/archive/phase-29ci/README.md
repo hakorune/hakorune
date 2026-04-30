@@ -157,6 +157,9 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 - retired helper-local legacy delegate:
   - `tools/hakorune_emit_mir.sh` no longer calls raw `--program-json-to-mir` as
     its final fallback; helper compat stops at selfhost/provider routes
+- route proof helper fix:
+  - `tools/checks/route_env_probe.sh` resolves repo root/source paths correctly
+    for no-fallback route proof commands
 
 ## Non-goals
 

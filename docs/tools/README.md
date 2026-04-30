@@ -277,7 +277,7 @@ tools/checks/env_dead_accessors_report.sh
 
 ```bash
 cat docs/tools/script-index.md
-tools/checks/route_env_probe.sh --route hako-mainline --source apps/tests/minimal.hako
+tools/checks/route_env_probe.sh --route hako-mainline --source apps/tests/phase29bq_hako_mirbuilder_phase1_literal_return_min.hako
 tools/checks/route_env_probe.sh --route direct --require-no-fallback
 tools/checks/route_no_fallback_guard.sh
 tools/dev/direct_loop_progression_sweep.sh --profile default

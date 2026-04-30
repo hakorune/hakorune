@@ -14,8 +14,8 @@ Usage:
   route_env_probe.sh --route <direct|hako-mainline|hako-helper> [--source <path>] [--run] [--require-no-fallback]
 
 Examples:
-  route_env_probe.sh --route direct --source apps/tests/minimal.hako
-  route_env_probe.sh --route hako-mainline --source apps/tests/minimal.hako --run
+  route_env_probe.sh --route direct --source apps/tests/phase29bq_hako_mirbuilder_phase1_literal_return_min.hako
+  route_env_probe.sh --route hako-mainline --source apps/tests/phase29bq_hako_mirbuilder_phase1_literal_return_min.hako --run
   route_env_probe.sh --route direct --require-no-fallback
 USAGE
 }
@@ -69,7 +69,7 @@ case "$ROUTE" in
     ;;
 esac
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 NYASH_BIN="${NYASH_BIN:-$ROOT/target/release/hakorune}"
 if [[ ! -x "$NYASH_BIN" ]]; then
   FALLBACK_NYASH_BIN="$ROOT/target/release/nyash"
@@ -170,6 +170,10 @@ if [[ "$RUN_EMIT" -eq 1 ]]; then
   if [[ -z "$SOURCE" ]]; then
     echo "[route_env_probe] --run requires --source" >&2
     exit 2
+  fi
+
+  if [[ "$SOURCE" != /* ]]; then
+    SOURCE="$ROOT/$SOURCE"
   fi
 
   if [[ ! -f "$SOURCE" ]]; then
