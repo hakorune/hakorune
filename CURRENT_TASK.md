@@ -34,11 +34,11 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-29ci Program(JSON v0) public compat retirement`
+- active lane: `phase-29cv Program(JSON v0) keeper closeout`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci emit-program-json-v0 helper-owned keepers pending`
-- primary mode: Program(JSON v0) public-surface cleanup lane
+- current blocker token: `phase-29cv Program(JSON v0) keeper buckets pending`
+- primary mode: Program(JSON v0) keeper closeout lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -50,21 +50,21 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue `phase-29ci` raw compat caller migration from the P17
-  helper-owned `--emit-program-json-v0` keeper inventory
+- resume point: continue `phase-29cv` from the post-EXE-direct keeper
+  inventory
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/checks/dev_gate.sh quick` when the next slice is ready
 
 ## Task Order
 
-- current task source: `CURRENT_STATE.toml` plus the latest phase-29ci card
+- current task source: `CURRENT_STATE.toml` plus the latest phase-29cv card
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: replace the helper-owned `--emit-program-json-v0` keeper lanes before
-  any broader Program(JSON) deletion
+- next: retire or archive each remaining Program(JSON v0) keeper bucket before
+  any broader compat deletion
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -81,9 +81,9 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/CURRENT_STATE.toml`
 - latest checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   landed history lives in phase card files
-- next cleanup: Program(JSON v0) public compat retirement is reopened through
-  `phase-29ci`; remaining raw emit syntax is helper-owned, and each keeper
-  lane must be replaced before deleting the compat flag
+- next cleanup: Program(JSON v0) closeout continues through `phase-29cv`;
+  normal `selfhost_build.sh --exe` is direct MIR, while remaining keepers must
+  be retired or archived before deleting the compat flag
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do
@@ -92,12 +92,12 @@ Scope: current lane / next lane / restart order only.
 
 ## Detail Pointers
 
-- Program(JSON v0) boundary retirement phase:
-  `docs/development/current/main/phases/archive/phase-29ci/README.md`
+- Program(JSON v0) keeper closeout phase:
+  `docs/development/current/main/phases/phase-29cv/README.md`
 - Current cleanup checkpoint: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Route vocabulary card:
-  `docs/development/current/main/phases/phase-29ci/P6-STAGE1-MIR-ROUTE-VOCABULARY.md`
+- Current keeper inventory card:
+  `docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md`
 - Bootstrap route SSOT:
   `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Perf owner-first policy:

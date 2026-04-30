@@ -1,9 +1,9 @@
 Hybrid Selfhost Build (80/20)
 
 Purpose
-- Provide a minimal, fast path to compile MIR-only Hako source directly, while keeping Hakorune Stage-B Program(JSON v0) production for run/exe/debug routes.
+- Provide a minimal, fast path to compile Hako source through direct MIR, while keeping Hakorune Stage-B Program(JSON v0) production for run/debug/explicit compat routes.
 - `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
-- Future: add MIR emit and ny-llvmc EXE build in small increments.
+- Direct MIR emit and ny-llvmc EXE build are the normal mainline route.
 - file-level responsibility inventory:
   - `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
 - shell split reading:
@@ -50,10 +50,10 @@ Script
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
   - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)
-  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); when used without `--run`, `--exe`, `--keep-tmp`, or `NYASH_SELFHOST_KEEP_RAW=1`, this bypasses Stage-B Program(JSON v0) production
-  - --exe <out>: build native executable via ny-llvmc mainline route
+  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); when used without `--run`, `--keep-tmp`, or `NYASH_SELFHOST_KEEP_RAW=1`, this bypasses Stage-B Program(JSON v0) production, and it also stays direct when combined with `--exe`
+  - --exe <out>: build native executable via the direct source MIR -> ny-llvmc mainline route
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
-  - `--exe` now keeps context resolution behind `resolve_emit_exe_context()` and Program(JSON)->MIR->EXE execution behind `emit_exe_from_program_json_v0_with_context()`, so EXE lane cleanup stays separate from the top-level route tail.
+  - diagnostic Program(JSON)->MIR->EXE probes stay behind `emit_exe_from_program_json_v0_with_context()`; the normal `--exe` route no longer produces Stage-B Program(JSON v0).
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)

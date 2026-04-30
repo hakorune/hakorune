@@ -59,9 +59,3 @@ run_requested_program_json() {
   cleanup_program_json_tmp_if_needed "$json_path"
   return $rc
 }
-
-# Compat keep for older helper-local probes; W7.1 promotes the context form in selfhost_build.sh.
-emit_exe_from_program_json_v0_with_mir_tmp() {
-  local json_path="$1" exe_out_path="$2" mir_tmp="$3" nyll="$4" nyrt_dir="$5"
-  emit_exe_from_program_json_v0_with_context "$json_path" "$exe_out_path" "$nyll" "$nyrt_dir" "$mir_tmp"
-}

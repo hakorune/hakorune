@@ -14,25 +14,24 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-29ci Program(JSON v0) public compat retirement`
+- active lane: `phase-29cv Program(JSON v0) keeper closeout`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci emit-program-json-v0 helper-owned keepers pending`
+- current blocker token: `phase-29cv Program(JSON v0) keeper buckets pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue `phase-29ci` raw compat caller migration from the P17 helper-owned
-  `--emit-program-json-v0` keeper inventory
+- continue `phase-29cv` from the post-EXE-direct keeper inventory
 - cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   closed history lives in phase card files
-- `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
-  `stage1-env-mir-source`; raw Program(JSON) compat emit syntax is
-  helper-owned and the next work is replacing each keeper lane
+- normal `selfhost_build.sh --exe` is direct source MIR; raw Program(JSON)
+  compat emit syntax is helper-owned and the next work is retiring or archiving
+  each remaining keeper lane
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
@@ -57,8 +56,8 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/archive/phase-29ci/README.md`
-3. `docs/development/current/main/phases/phase-29ci/P18-PROGRAM-JSON-V0-SHELL-EMIT-SSOT.md`
+2. `docs/development/current/main/phases/phase-29cv/README.md`
+3. `docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md`
 4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`

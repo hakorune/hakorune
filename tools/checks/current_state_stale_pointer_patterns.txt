@@ -106,3 +106,5 @@ phase-291x residual MapBox.has fallback sentinel clarified; owner-path retiremen
 phase-291x CoreMethodContract inc classifier baseline zero; next cleanup selection pending
 phase-291x runtime/meta MirCallRoutePolicy owner audit pending
 phase-291x MirCallRoutePolicy export quarantine pending
+phase-29ci Program(JSON v0) public compat retirement
+phase-29ci emit-program-json-v0 helper-owned keepers pending

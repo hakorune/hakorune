@@ -22,15 +22,15 @@ Related:
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | read `current_blocker_token` in `CURRENT_STATE.toml` |
-| Next | choose the next focused compiler-cleanliness lane from the latest card / worker inventory |
+| Next | retire or archive the next Program(JSON v0) keeper bucket from the latest card |
 | After Next | keep Stage-B adapter thinning and native storage lanes separate unless reopened with evidence |
 
 ## Current Read
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-291x/README.md`
-3. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
-4. `docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md`
+2. `docs/development/current/main/phases/phase-29cv/README.md`
+3. `docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md`
+4. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 
@@ -40,7 +40,7 @@ Related:
 2. Read `latest_card_path`, `latest_card_summary`, and `current_blocker_token`
    from `CURRENT_STATE.toml`.
 3. If compiler-cleanliness continues, open one focused card for the selected
-   lane before editing code.
+   keeper bucket before editing code.
 4. Keep Stage-B adapter thinning as a separate BoxShape series.
 5. Do not add hot inline lowering without proof/evidence gate.
 

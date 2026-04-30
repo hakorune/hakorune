@@ -8,18 +8,18 @@
 status = "Active"
 date = "2026-04-30"
 
-active_lane = "phase-29ci Program(JSON v0) public compat retirement"
-active_lane_status = "Program(JSON v0) hard-delete continues as a public-surface cleanup lane. P26 pins the direct source -> MIR(JSON) -> ny-llvmc pure-first entry-args birth blocker before reopening selfhost EXE direct cleanup."
-active_phase = "docs/development/current/main/phases/archive/phase-29ci/README.md"
-phase_status = "docs/development/current/main/phases/phase-29ci/P26-NYLLVMC-ENTRY-ARGS-BIRTH-PURE-FIRST.md"
+active_lane = "phase-29cv Program(JSON v0) keeper closeout"
+active_lane_status = "Post-P26 closeout: normal selfhost --exe is direct source MIR, and remaining Program(JSON v0) surface is bucketed as Stage-B diagnostic, Stage1 contract, JoinIR fixture, or Rust compat delete-last keepers."
+active_phase = "docs/development/current/main/phases/phase-29cv/README.md"
+phase_status = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-29ci/P26-NYLLVMC-ENTRY-ARGS-BIRTH-PURE-FIRST.md"
+taskboard = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
 
-latest_card = "P26-NYLLVMC-ENTRY-ARGS-BIRTH-PURE-FIRST"
-latest_card_path = "docs/development/current/main/phases/phase-29ci/P26-NYLLVMC-ENTRY-ARGS-BIRTH-PURE-FIRST.md"
-latest_card_summary = "Pin the direct source -> MIR(JSON) -> ny-llvmc pure-first entry-args birth blocker before selfhost EXE direct cleanup."
+latest_card = "P0-POST-EXE-DIRECT-KEEPER-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
+latest_card_summary = "Cut phase-29cv after normal selfhost --exe moved to direct MIR, bucket remaining Program(JSON v0) keepers, and prune stale EXE helper wrappers."
 
-current_blocker_token = "phase-29ci emit-program-json-v0 helper-owned keepers pending"
+current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

@@ -30,17 +30,17 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-29ci Program(JSON v0) public compat retirement`
+- active lane: `phase-29cv Program(JSON v0) keeper closeout`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci emit-program-json-v0 helper-owned keepers pending`
+- current blocker token: `phase-29cv Program(JSON v0) keeper buckets pending`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29ci emit-program-json-v0 helper-owned keepers pending`
+- current blocker token: `phase-29cv Program(JSON v0) keeper buckets pending`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -51,11 +51,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-29ci` raw compat caller migration from the P17 helper-owned
-  `--emit-program-json-v0` keeper inventory
-- `--hako-emit-mir-json` stays as the Stage-1 MIR launcher for
-  `stage1-env-mir-source`; raw Program(JSON) compat emit syntax is
-  helper-owned and the next work is replacing each keeper lane
+- continue `phase-29cv` from the post-EXE-direct keeper inventory
+- normal `selfhost_build.sh --exe` is direct source MIR; raw Program(JSON)
+  compat emit syntax is helper-owned and the next work is retiring or archiving
+  each remaining keeper lane
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings
