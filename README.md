@@ -14,7 +14,7 @@ target/release/hakorune --mir-json-file /tmp/program.mir.json
 
 Notes
 - The wrapper runs Stage‑B with `NYASH_JSON_ONLY=1` to keep the output clean (no `RC:` lines).
-- When the Hako MirBuilder fails (e.g., under development), it automatically falls back to the explicit compat bridge `--program-json-to-mir` (no behavior change by default).
+- When the Hako MirBuilder fails (e.g., under development), the wrapper falls back to the Rust-side MIR builder route. Program(JSON v0) remains compat/proof-only and is not a day-to-day user route.
 
 [Performance quickstart]
 - MIR emit bench (Stage‑B → MIR(JSON))
@@ -89,9 +89,9 @@ Quick pointers
   - auto-selects `ny-llvmc` when present（`NYASH_LLVM_BACKEND=crate` 明示でも可）
 - Historical / direct-only PyVM parity check: `bash tools/historical/pyvm/pyvm_stage2_smoke.sh`.
 
-Program(JSON v0) → MIR(JSON)
-- Compat-only bridge route: convert a Stage‑B Program(JSON v0) file to MIR(JSON):
-  - `$NYASH_BIN --json-file /path/program.json --program-json-to-mir /tmp/mir.json`
+Program(JSON v0) compat note
+- Program(JSON v0) remains an internal compat/proof boundary.
+- Day-to-day users should prefer source → MIR routes such as `tools/hakorune_emit_mir.sh`, `--hako-emit-mir-json`, or `--emit-mir-json`.
 
 Dev shortcuts (Operator Boxes & JSON smokes)
 - One‑shot JSON verification (dev, Operator Boxes ON): `./tools/opbox-json.sh`
