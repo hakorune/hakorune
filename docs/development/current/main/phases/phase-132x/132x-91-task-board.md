@@ -6,8 +6,6 @@
   - `tools/using_e2e_smoke.sh`
 
 - keep now as explicit vm / vm-hako proof-debug / compat
-  - `tools/selfhost_json_guard_smoke.sh`
-  - `tools/selfhost_parser_json_smoke.sh`
   - `tools/using_unresolved_smoke.sh`
   - `tools/using_resolve_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
@@ -22,7 +20,6 @@
   - `tools/dev_stagea.sh`
   - `tools/dev_stageb.sh`
   - `tools/dev/hako_debug_run.sh`
-  - `tools/ny_stage2_new_method_smoke.sh`
   - `tools/phi_trace_bridge_try.sh`
   - `tools/modules_smoke.sh`
   - `tools/exe_first_smoke.sh`
@@ -32,8 +29,13 @@
   - `tools/smokes/v2/profiles/integration/selfhost/phase29bq/**`
   - `tools/smokes/v2/profiles/integration/apps/phase29y_*/phase29z_*/phase29cc_*/phase21_5_perf_direct_emit_dominance_block_vm.sh`
 
+- archived after phase-29cv P43 stale validation
+  - `tools/archive/manual-smokes/selfhost_json_guard_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_parser_json_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage2_new_method_smoke.sh`
+
 - delete/archive candidate
-  - none in the active tree
+  - none remaining in the active tree
 
 ## B. Decision
 

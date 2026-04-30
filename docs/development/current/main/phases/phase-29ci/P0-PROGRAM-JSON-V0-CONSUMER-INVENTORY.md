@@ -61,7 +61,7 @@ Caller action bucket:
 - [`tools/ny_parser_bridge_smoke.sh`](/home/tomoaki/git/hakorune-selfhost/tools/ny_parser_bridge_smoke.sh)
 - [`tools/ny_parser_bridge_smoke.ps1`](/home/tomoaki/git/hakorune-selfhost/tools/ny_parser_bridge_smoke.ps1)
 - [`tools/smokes/selfhost_local.sh`](/home/tomoaki/git/hakorune-selfhost/tools/smokes/selfhost_local.sh)
-- [`tools/selfhost_parser_json_smoke.sh`](/home/tomoaki/git/hakorune-selfhost/tools/selfhost_parser_json_smoke.sh)
+- [`tools/archive/manual-smokes/selfhost_parser_json_smoke.sh`](/home/tomoaki/git/hakorune-selfhost/tools/archive/manual-smokes/selfhost_parser_json_smoke.sh)
 - status: archive-only evidence; no longer a current cleanup bucket
 
 ## Closed In This Slice

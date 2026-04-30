@@ -39,7 +39,8 @@ it does not modernize them into active gates.
 - do not archive `tools/ny_parser_bridge_smoke.sh`
 - do not archive `tools/ny_roundtrip_smoke.sh`
 - do not archive `tools/ny_stage2_shortcircuit_smoke.sh`
-- do not archive phase-132x keepers such as `tools/ny_stage2_new_method_smoke.sh`
+- do not archive phase-132x keepers in this card; stale phase-132x proof
+  wrappers are handled separately by P43
 
 ## Acceptance
 

@@ -15,9 +15,12 @@ Archived scripts:
 - `ny_parser_run.sh`
 - `ny_parser_stage2_phi_smoke.sh`
 - `ny_stage1_asi_smoke.sh`
+- `ny_stage2_new_method_smoke.sh`
 - `ny_stage2_bridge_smoke.sh`
 - `ny_parser_mvp_roundtrip.sh`
 - `ny_stage3_bridge_accept_smoke.sh`
+- `selfhost_json_guard_smoke.sh`
+- `selfhost_parser_json_smoke.sh`
 - `smoke_aot_vs_vm.sh`
 - `selfhost_stage2_smoke.sh`
 

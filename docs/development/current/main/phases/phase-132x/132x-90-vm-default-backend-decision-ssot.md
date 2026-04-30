@@ -17,8 +17,6 @@
 - move to mainline / route-first candidates
   - `tools/using_e2e_smoke.sh`
 - keep now
-  - `tools/selfhost_json_guard_smoke.sh`
-  - `tools/selfhost_parser_json_smoke.sh`
   - `tools/using_unresolved_smoke.sh`
   - `tools/using_resolve_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
@@ -27,8 +25,12 @@
   - explicit proof/debug/compat callers
   - vm-hako reference/conformance callers
   - route observability and direct bridge probes that still intentionally observe vm-family behavior
+- archived after phase-29cv P43 stale validation
+  - `tools/archive/manual-smokes/selfhost_json_guard_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_parser_json_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage2_new_method_smoke.sh`
 - delete/archive candidate
-  - none in the active tree at this point; archive-only evidence already lives under `tools/archive/**`
+  - none remaining in the active tree at this point; archive-only evidence already lives under `tools/archive/**`
 
 ## Safe Order
 

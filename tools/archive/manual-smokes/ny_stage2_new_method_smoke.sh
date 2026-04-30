@@ -2,11 +2,11 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)
 BIN="$ROOT_DIR/target/release/hakorune"
 
 if [[ ! -x "$BIN" ]]; then
-  echo "[build] nyash (release) ..." >&2
+  echo "[build] hakorune (release) ..." >&2
   (cd "$ROOT_DIR" && cargo build --release >/dev/null)
 fi
 

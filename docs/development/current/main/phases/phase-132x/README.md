@@ -29,8 +29,6 @@
 - move to mainline / route-first candidates:
   - `tools/using_e2e_smoke.sh`
 - keep-now explicit vm / vm-hako proof-debug / compat:
-  - `tools/selfhost_json_guard_smoke.sh`
-  - `tools/selfhost_parser_json_smoke.sh`
   - `tools/using_unresolved_smoke.sh`
   - `tools/using_resolve_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
@@ -45,15 +43,18 @@
   - `tools/dev_stagea.sh`
   - `tools/dev_stageb.sh`
   - `tools/dev/hako_debug_run.sh`
-  - `tools/ny_stage2_new_method_smoke.sh`
   - `tools/phi_trace_bridge_try.sh`
   - `tools/modules_smoke.sh`
   - `tools/exe_first_smoke.sh`
   - `tools/exe_first_runner_smoke.sh`
   - `tools/selfhost_stage2_bridge_smoke.sh`
   - phase29x / phase29bq / phase29y / phase29z / phase29cc / phase21_5 explicit vm suites
+- archived after phase-29cv P43 stale validation:
+  - `tools/archive/manual-smokes/selfhost_json_guard_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_parser_json_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage2_new_method_smoke.sh`
 - delete/archive candidate:
-  - none in the active tree; archive-only surfaces already live under `tools/archive/**`
+  - none remaining in the active tree; archive-only surfaces already live under `tools/archive/**`
 
 ## Next
 
@@ -74,3 +75,6 @@
 - The former root ny selfhost inline helper is retired from active root tools;
   historical evidence lives under
   `tools/archive/legacy-selfhost/engineering/ny_selfhost_inline.sh`.
+- The former root selfhost JSON guard, selfhost parser JSON smoke, and Stage-2
+  new/method smoke are retired from active root tools after P43 stale
+  validation; historical evidence lives under `tools/archive/manual-smokes/`.

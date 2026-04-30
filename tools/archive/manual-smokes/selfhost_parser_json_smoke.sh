@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]]; then set -x; fi
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 cd "$ROOT"
 
 echo "[1/3] Build selfhost compiler EXE (no pack) ..." >&2
