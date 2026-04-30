@@ -55,6 +55,7 @@ fn is_stringbox_unified_value_path(method: &str, arity: usize) -> bool {
         crate::boxes::basic::StringMethodId::from_name_and_arity(method, arity),
         Some(
             crate::boxes::basic::StringMethodId::Length
+                | crate::boxes::basic::StringMethodId::SubstringFrom
                 | crate::boxes::basic::StringMethodId::Substring
                 | crate::boxes::basic::StringMethodId::Concat
                 | crate::boxes::basic::StringMethodId::Trim

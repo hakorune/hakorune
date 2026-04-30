@@ -338,6 +338,14 @@ mod tests {
     }
 
     #[test]
+    fn test_string_substring_slot_resolves_for_primitive_and_box_overloads() {
+        assert_eq!(resolve_slot_by_name("String", "substring", 1), Some(301));
+        assert_eq!(resolve_slot_by_name("String", "substring", 2), Some(301));
+        assert_eq!(resolve_slot_by_name("StringBox", "substring", 1), Some(301));
+        assert_eq!(resolve_slot_by_name("StringBox", "substring", 2), Some(301));
+    }
+
+    #[test]
     fn test_map_slots_resolve_from_surface_catalog() {
         for spec in crate::boxes::MAP_SURFACE_METHODS {
             assert_eq!(

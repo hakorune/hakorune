@@ -151,7 +151,8 @@ fn infer_string_method_return_type(method: crate::boxes::basic::StringMethodId) 
         | crate::boxes::basic::StringMethodId::LastIndexOfFrom => MirType::Integer,
         crate::boxes::basic::StringMethodId::Contains
         | crate::boxes::basic::StringMethodId::StartsWith => MirType::Bool,
-        crate::boxes::basic::StringMethodId::Substring
+        crate::boxes::basic::StringMethodId::SubstringFrom
+        | crate::boxes::basic::StringMethodId::Substring
         | crate::boxes::basic::StringMethodId::Concat
         | crate::boxes::basic::StringMethodId::Replace
         | crate::boxes::basic::StringMethodId::Trim

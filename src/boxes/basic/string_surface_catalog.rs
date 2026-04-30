@@ -6,6 +6,7 @@ use std::fmt;
 pub enum StringMethodId {
     Length,
     Substring,
+    SubstringFrom,
     Concat,
     IndexOf,
     IndexOfFrom,
@@ -75,6 +76,16 @@ pub const STRING_SURFACE_METHODS: &[StringMethodSpec] = &[
         aliases: &["len", "size"],
         arity: 0,
         slot: 300,
+        effect: StringSurfaceEffect::Read,
+        returns: StringSurfaceReturn::Value,
+        exposure: StringExposureState::STABLE,
+    },
+    StringMethodSpec {
+        id: StringMethodId::SubstringFrom,
+        canonical: "substring",
+        aliases: &["substr"],
+        arity: 1,
+        slot: 301,
         effect: StringSurfaceEffect::Read,
         returns: StringSurfaceReturn::Value,
         exposure: StringExposureState::STABLE,
@@ -331,6 +342,16 @@ impl StringBox {
                     crate::boxes::string_ops::substring(&self.value, start, Some(end), mode);
                 StringSurfaceInvokeResult::Value(Box::new(StringBox::new(substring)))
             }
+            StringMethodId::SubstringFrom => {
+                let start = arg_i64(
+                    args.next()
+                        .expect("validated StringBox.substring start")
+                        .as_ref(),
+                );
+                let mode = crate::boxes::string_ops::index_mode_from_env();
+                let substring = crate::boxes::string_ops::substring(&self.value, start, None, mode);
+                StringSurfaceInvokeResult::Value(Box::new(StringBox::new(substring)))
+            }
             StringMethodId::Concat => {
                 let rhs = arg_text(
                     args.next()
@@ -530,6 +551,18 @@ mod tests {
         match sub {
             StringSurfaceInvokeResult::Value(value) => {
                 assert_eq!(value.to_string_box().value, "ana");
+            }
+        }
+
+        let sub_from = text
+            .invoke_surface(
+                StringMethodId::SubstringFrom,
+                vec![Box::new(IntegerBox::new(2)) as Box<dyn NyashBox>],
+            )
+            .unwrap();
+        match sub_from {
+            StringSurfaceInvokeResult::Value(value) => {
+                assert_eq!(value.to_string_box().value, "nana");
             }
         }
 

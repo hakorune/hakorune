@@ -282,6 +282,7 @@ impl MirInterpreter {
             | StringMethodId::Trim
             | StringMethodId::Upper
             | StringMethodId::Lower => args.is_empty(),
+            StringMethodId::SubstringFrom => args.len() == 1 && self.arg_is_integer(args[0]),
             StringMethodId::Substring => {
                 args.len() == 2 && self.arg_is_integer(args[0]) && self.arg_is_integer(args[1])
             }
@@ -553,6 +554,10 @@ impl MirInterpreter {
 
         let method_args =
             self.strip_duplicate_receiver_value_arg_for_core_surface(receiver, method, args);
+
+        if method == "toString" && method_args.is_empty() {
+            return Ok(VMValue::String(receiver.to_string()));
+        }
 
         // 2. Lookup type in TypeRegistry and get slot
         let slot = crate::runtime::type_registry::resolve_slot_by_name(
