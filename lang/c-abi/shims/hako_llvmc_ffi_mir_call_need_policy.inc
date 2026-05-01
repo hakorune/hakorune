@@ -305,6 +305,16 @@
             lowering_plan_tier_is_direct_abi(view.tier)) {
           return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET;
         }
+        if (!strcmp(view.route_id, "generic_method.get") &&
+            !strcmp(view.core_op, "MapGet") &&
+            !strcmp(view.route_kind, "map_load_any") &&
+            view.symbol &&
+            !strcmp(view.symbol, "nyash.map.slot_load_hh") &&
+            view.route_proof &&
+            !strcmp(view.route_proof, "get_surface_policy") &&
+            lowering_plan_tier_is_direct_abi(view.tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
+        }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 
