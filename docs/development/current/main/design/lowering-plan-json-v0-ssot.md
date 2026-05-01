@@ -161,6 +161,7 @@ legacy route metadata retained only as the migration fallback.
 | `StringLen` | `DirectAbi` | `nyash.string.len_h` | P77 plan-only fixture |
 | `ArrayGet` | `DirectAbi` | `nyash.array.slot_load_hi` | P78 plan-only fixture |
 | `ArrayPush` | `ColdRuntime` | `nyash.array.slot_append_hh` | P83 plan-only fixture |
+| `MapSet` | `ColdRuntime` | `nyash.map.slot_store_hhh` | P85 plan-only fixture |
 
 ## Non-goals
 

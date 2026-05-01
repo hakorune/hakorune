@@ -1,0 +1,103 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "lowering_plan": [
+          {
+            "site": "b0.i3",
+            "block": 0,
+            "instruction_index": 3,
+            "source": "generic_method_routes",
+            "source_route_id": "generic_method.set",
+            "core_op": "MapSet",
+            "tier": "ColdRuntime",
+            "emit_kind": "runtime_call",
+            "symbol": "nyash.map.slot_store_hhh",
+            "proof": "core_method_contract_manifest",
+            "route_proof": "set_surface_policy",
+            "route_kind": "map_store_any",
+            "perf_proof": false,
+            "receiver_value": 1,
+            "receiver_origin_box": "MapBox",
+            "arity": 2,
+            "key_route": "i64_const",
+            "key_value": 2,
+            "result_value": 4,
+            "return_shape": null,
+            "value_demand": "write_any",
+            "publication_policy": null,
+            "effects": [
+              "mutate.slot"
+            ]
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "mir_call",
+              "dst": 1,
+              "mir_call": {
+                "callee": {
+                  "type": "Constructor",
+                  "box_name": "MapBox"
+                },
+                "args": [],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": 5
+              }
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": "i64",
+                "value": 42
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 4,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "set",
+                  "receiver": 1,
+                  "certainty": "Union"
+                },
+                "args": [
+                  2,
+                  3
+                ],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 4
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
