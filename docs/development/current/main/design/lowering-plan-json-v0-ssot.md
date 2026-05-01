@@ -165,6 +165,7 @@ variants must be added as rows rather than extending ad hoc branch ladders.
 | `ArrayPush` | `ColdRuntime` | `nyash.array.slot_append_hh` | P83 plan-only fixture |
 | `MapSet` | `ColdRuntime` | `nyash.map.slot_store_hhh` | P85 plan-only fixture |
 | `ArraySet` i64 | `ColdRuntime` | `nyash.array.slot_store_hii` | P88 plan-only fixture |
+| `ArraySet` handle | `ColdRuntime` | `nyash.array.slot_store_hih` | P89 plan-only fixture |
 
 ## Non-goals
 
