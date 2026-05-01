@@ -49,6 +49,9 @@ explicit keepers in the right order.
    - `tools/smokes/v2/lib/stageb_helpers.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`
+   - `tools/smokes/v2/profiles/integration/stageb/*`
+   - `tools/smokes/v2/profiles/integration/core_direct/*`
+   - related budget/quick core fixture gates
 5. Rust/public delete-last surface
    - `src/runtime/deprecations.rs`
    - `src/stage1/program_json_v0*`

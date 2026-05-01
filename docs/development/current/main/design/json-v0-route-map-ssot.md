@@ -72,7 +72,7 @@ Current capsule classes:
 | Stage-B artifact diagnostic | `tools/dev/program_json_v0/stageb_artifact_probe.sh`, `tools/lib/program_json_v0_compat.sh` | source `.hako` -> Program(JSON v0) file | explicit artifact capture only |
 | Program(JSON)->MIR bridge | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`), `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Program(JSON v0) -> MIR(JSON) -> optional ny-llvmc proof | compat conversion capsule, not primary proof |
 | Stage1 contract | `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost/compat/run_stage1_cli.sh` | Stage1 CLI env contract -> Program/MIR compatibility payloads | explicit contract pin |
-| Fixture contract | `tools/smokes/v2/lib/stageb_helpers.sh`, phase29bq JoinIR/MirBuilder pins | Program(JSON v0) fixture -> .hako MirBuilder / contract assertions | fixture-only compatibility |
+| Fixture contract | `tools/smokes/v2/lib/stageb_helpers.sh`, phase29bq JoinIR/MirBuilder pins, Stage-B/Core fixture smokes | Program(JSON v0) fixture -> smoke contract assertions | fixture-only compatibility |
 
 ## Migration Order
 
@@ -144,6 +144,22 @@ classes below are active.
 `tools/selfhost/run_stage1_cli.sh` is only a top-level shim to the compat
 wrapper. Count it under `tools/selfhost/compat/run_stage1_cli.sh`, not as a
 separate Program(JSON v0) keeper.
+
+## Fixture Caller Ownership Split
+
+`tools/smokes/v2/lib/stageb_helpers.sh` is broader than the phase29bq
+MirBuilder fixture pins. It owns Stage-B compiler fixture helpers for current
+smoke lanes and therefore keeps Program(JSON v0) fixture support live.
+
+| Helper surface | Current callers | Reading |
+| --- | --- | --- |
+| `stageb_emit_program_json_v0_fixture()` | `phase29bq_hako_program_json_contract_pin_vm.sh`, `phase29bq_hako_mirbuilder_*` | direct Stage-0 Program(JSON v0) fixture emit for .hako MirBuilder pins |
+| `stageb_compile_to_json*()` | `integration/stageb/*`, `integration/core_direct/*`, budget/core quick fixture smokes | Stage-B compiler stdout -> Program(JSON v0) fixture capture |
+| `stageb_json_nonempty()` / `stageb_gatec_expect_rc()` | Stage-B fixture execution smokes | Program(JSON v0) fixture assertions |
+| `stageb_export_vm_compile_env()` | bundle/require negative smokes | shared Stage-B compiler env contract |
+
+P65 pruned the unused Rust MIR fallback helper from `stageb_helpers.sh`; do not
+reintroduce a fallback route there without an active caller and a named owner.
 
 ## Caller Reduction Rule
 

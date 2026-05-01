@@ -112,20 +112,3 @@ stageb_gatec_expect_rc() {
     return 1
   fi
 }
-
-# Fallback: compile Ny source to MIR(JSON v1) via Rust MIR path (backend=mir)
-# Returns a path to JSON file (v1 schema). Caller may set NYASH_NYVM_V1_DOWNCONVERT=1 for execution.
-stageb_compile_via_rust_mir() {
-  local code="$1"
-  local ny_tmp="/tmp/hako_stageb_src_$$.hako"
-  local json_out="/tmp/hako_stageb_rust_$$.mir.json"
-  printf "%s\n" "$code" > "$ny_tmp"
-  if NYASH_FEATURES="${NYASH_FEATURES:-stage3}" NYASH_PARSER_ALLOW_SEMICOLON=1 \
-     "$NYASH_BIN" --backend mir --emit-mir-json "$json_out" "$ny_tmp" >/dev/null 2>&1; then
-    rm -f "$ny_tmp"
-    echo "$json_out"
-    return 0
-  fi
-  rm -f "$ny_tmp" "$json_out"
-  return 1
-}

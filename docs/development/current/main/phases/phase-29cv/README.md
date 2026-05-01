@@ -79,8 +79,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/smokes/v2/lib/stageb_helpers.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*`
+   - Stage-B/Core smoke callers under `tools/smokes/v2/profiles/integration/stageb/`,
+     `tools/smokes/v2/profiles/integration/core_direct/`, and related quick
+     core fixture gates.
    - Keep while those tests explicitly assert the Program(JSON)->.hako
-     MirBuilder contract.
+     MirBuilder or Stage-B/Core fixture contracts.
    - Stage-B stdout capture is shared through
      `tools/selfhost/lib/stageb_program_json_capture.sh`.
    - weaker phase2160 Stage-B shape canaries are archive-only after P35
