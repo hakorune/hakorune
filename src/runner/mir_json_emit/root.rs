@@ -735,6 +735,16 @@ pub(super) fn build_mir_json_root(
                 json!(build_lowering_plan_json(f)),
             );
             obj.insert(
+                "extern_call_routes".to_string(),
+                serde_json::Value::Array(
+                    f.metadata
+                        .extern_call_routes
+                        .iter()
+                        .map(build_extern_call_route_json)
+                        .collect(),
+                ),
+            );
+            obj.insert(
                 "array_getset_micro_seed_route".to_string(),
                 f.metadata
                     .array_getset_micro_seed_route
@@ -832,7 +842,8 @@ pub(super) fn build_mir_json_root(
 }
 
 fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde_json::Value> {
-    f.metadata
+    let mut entries = f
+        .metadata
         .generic_method_routes
         .iter()
         .filter_map(|route| {
@@ -867,7 +878,56 @@ fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde_json::Valu
                 "effects": route.effect_tags(),
             }))
         })
-        .collect()
+        .collect::<Vec<_>>();
+
+    entries.extend(f.metadata.extern_call_routes.iter().map(|route| {
+        json!({
+            "site": format!("b{}.i{}", route.block().as_u32(), route.instruction_index()),
+            "block": route.block().as_u32(),
+            "instruction_index": route.instruction_index(),
+            "source": "extern_call_routes",
+            "source_route_id": route.route_id(),
+            "source_symbol": route.source_symbol(),
+            "core_op": route.core_op(),
+            "tier": route.tier(),
+            "emit_kind": route.emit_kind(),
+            "symbol": route.symbol(),
+            "proof": route.proof(),
+            "route_proof": route.proof(),
+            "route_kind": route.route_id(),
+            "perf_proof": false,
+            "arity": 1,
+            "key_value": route.key_value().as_u32(),
+            "result_value": route.result_value().as_u32(),
+            "return_shape": route.return_shape(),
+            "value_demand": route.value_demand(),
+            "publication_policy": serde_json::Value::Null,
+            "effects": route.effect_tags(),
+        })
+    }));
+
+    entries
+}
+
+fn build_extern_call_route_json(
+    route: &crate::mir::extern_call_route_plan::ExternCallRoute,
+) -> serde_json::Value {
+    json!({
+        "route_id": route.route_id(),
+        "block": route.block().as_u32(),
+        "instruction_index": route.instruction_index(),
+        "source_symbol": route.source_symbol(),
+        "core_op": route.core_op(),
+        "tier": route.tier(),
+        "emit_kind": route.emit_kind(),
+        "symbol": route.symbol(),
+        "proof": route.proof(),
+        "key_value": route.key_value().as_u32(),
+        "result_value": route.result_value().as_u32(),
+        "return_shape": route.return_shape(),
+        "value_demand": route.value_demand(),
+        "effects": route.effect_tags(),
+    })
 }
 
 fn build_array_getset_micro_seed_route_json(

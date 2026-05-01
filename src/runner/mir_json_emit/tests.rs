@@ -7,6 +7,7 @@ mod array_routes;
 mod debug;
 mod decl_values;
 mod exact_seed_backend_route;
+mod extern_call_routes;
 mod function_attrs;
 mod generic_method_routes;
 mod map_lookup_fusion_routes;

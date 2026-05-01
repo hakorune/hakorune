@@ -36,6 +36,7 @@ pub mod diagnostics; // freeze diagnostics helpers (SSOT)
 pub mod effect;
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
+pub mod extern_call_route_plan; // MIR-owned extern call route policy plans
 pub mod function;
 pub(crate) mod generic_method_route_facts; // reusable facts for generic-method route planners
 pub mod generic_method_route_plan; // MIR-owned generic method route policy plans

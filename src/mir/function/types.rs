@@ -12,10 +12,10 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
-    exact_seed_backend_route::ExactSeedBackendRoute, generic_method_route_plan::GenericMethodRoute,
-    map_lookup_fusion_plan::MapLookupFusionRoute, placement_effect::PlacementEffectRoute,
-    storage_class::StorageClass, string_corridor::StringCorridorFact,
-    string_corridor_placement::StringCorridorCandidate,
+    exact_seed_backend_route::ExactSeedBackendRoute, extern_call_route_plan::ExternCallRoute,
+    generic_method_route_plan::GenericMethodRoute, map_lookup_fusion_plan::MapLookupFusionRoute,
+    placement_effect::PlacementEffectRoute, storage_class::StorageClass,
+    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
@@ -182,6 +182,12 @@ pub struct FunctionMetadata {
     /// These own narrow method-surface policy decisions in MIR so backend
     /// shims can emit selected helpers without reclassifying method strings.
     pub generic_method_routes: Vec<GenericMethodRoute>,
+
+    /// Backend-consumable extern call route plans.
+    /// These own narrow extern surface policy decisions in MIR so backend
+    /// shims can emit selected runtime ABI calls without classifying `env.*`
+    /// strings locally.
+    pub extern_call_routes: Vec<ExternCallRoute>,
 
     /// Metadata-only MapGet/MapHas same-key fusion preflight routes.
     /// These are derived from `generic_method_routes` and do not change

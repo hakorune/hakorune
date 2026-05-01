@@ -119,7 +119,8 @@ v0 bridges existing CoreMethodContract vocabulary into backend-facing tiers:
 
 ## Migration Rule
 
-v0 starts by deriving plan entries from `generic_method_routes`.
+v0 starts by deriving plan entries from `generic_method_routes` and narrow
+extern-call route plans.
 
 That is not the final architecture, but it creates the right boundary:
 
@@ -129,6 +130,17 @@ generic_method_routes
   -> ny-llvmc reads plan first
   -> legacy route readers stay as fallback only during migration
 ```
+
+Extern calls are not CoreMethodContract rows. They must use their own source:
+
+```text
+extern_call_routes
+  -> lowering_plan v0
+  -> ny-llvmc reads plan first
+```
+
+Do not force externs into `CoreMethodOp`; use a narrow `core_op` string such as
+`EnvGet` plus `proof=extern_registry`.
 
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
@@ -175,6 +187,7 @@ selecting a helper.
 | `ArraySet` string | `ColdRuntime` | `nyash.array.set_his` | P91 plan-only fixture |
 | `StringSubstring` | `DirectAbi` | `nyash.string.substring_hii` | P92 plan-only fixture |
 | `StringIndexOf` | `DirectAbi` | `nyash.string.indexOf_hh` | P93 plan-only fixture |
+| `EnvGet` | `ColdRuntime` | `nyash.env.get` | P107 metadata-only fixture |
 
 ## Non-goals
 

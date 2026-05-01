@@ -23,6 +23,7 @@ use super::{
     exact_seed_backend_route::{
         refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
     },
+    extern_call_route_plan::refresh_function_extern_call_routes,
     function::ModuleMetadata,
     generic_method_route_plan::refresh_function_generic_method_routes,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
@@ -73,6 +74,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_string_kernel_plans(function);
     refresh_function_string_direct_set_window_routes(function);
     refresh_function_generic_method_routes(function);
+    refresh_function_extern_call_routes(function);
     refresh_function_map_lookup_fusion_routes(function);
     refresh_function_array_rmw_window_routes(function);
     refresh_function_array_string_len_window_routes(function);
