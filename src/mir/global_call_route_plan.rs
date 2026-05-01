@@ -41,6 +41,7 @@ pub enum GlobalCallTargetShape {
     #[default]
     Unknown,
     NumericI64Leaf,
+    GenericPureStringBody,
 }
 
 impl GlobalCallTargetShape {
@@ -48,6 +49,7 @@ impl GlobalCallTargetShape {
         match self {
             Self::Unknown => "unknown",
             Self::NumericI64Leaf => "numeric_i64_leaf",
+            Self::GenericPureStringBody => "generic_pure_string_body",
         }
     }
 }
@@ -127,7 +129,7 @@ impl GlobalCallRoute {
     }
 
     pub fn tier(&self) -> &'static str {
-        if self.is_numeric_i64_leaf_direct_target() {
+        if self.is_direct_abi_target() {
             "DirectAbi"
         } else {
             "Unsupported"
@@ -135,7 +137,7 @@ impl GlobalCallRoute {
     }
 
     pub fn emit_kind(&self) -> &'static str {
-        if self.is_numeric_i64_leaf_direct_target() {
+        if self.is_direct_abi_target() {
             "direct_function_call"
         } else {
             "unsupported"
@@ -143,10 +145,12 @@ impl GlobalCallRoute {
     }
 
     pub fn proof(&self) -> &'static str {
-        if self.is_numeric_i64_leaf_direct_target() {
-            "typed_global_call_leaf_numeric_i64"
-        } else {
-            "typed_global_call_contract_missing"
+        match self.direct_target_shape() {
+            Some(GlobalCallTargetShape::NumericI64Leaf) => "typed_global_call_leaf_numeric_i64",
+            Some(GlobalCallTargetShape::GenericPureStringBody) => {
+                "typed_global_call_generic_pure_string"
+            }
+            _ => "typed_global_call_contract_missing",
         }
     }
 
@@ -190,20 +194,23 @@ impl GlobalCallRoute {
     }
 
     pub fn value_demand(&self) -> &'static str {
-        if self.is_numeric_i64_leaf_direct_target() {
-            "scalar_i64"
-        } else {
-            "typed_global_call_contract_missing"
+        match self.direct_target_shape() {
+            Some(GlobalCallTargetShape::NumericI64Leaf) => "scalar_i64",
+            Some(GlobalCallTargetShape::GenericPureStringBody) => "runtime_i64_or_handle",
+            _ => "typed_global_call_contract_missing",
         }
     }
 
     pub fn return_shape(&self) -> Option<&'static str> {
-        self.is_numeric_i64_leaf_direct_target()
-            .then_some("ScalarI64")
+        match self.direct_target_shape() {
+            Some(GlobalCallTargetShape::NumericI64Leaf) => Some("ScalarI64"),
+            Some(GlobalCallTargetShape::GenericPureStringBody) => Some("string_handle"),
+            _ => None,
+        }
     }
 
     pub fn reason(&self) -> Option<&'static str> {
-        if self.is_numeric_i64_leaf_direct_target() {
+        if self.is_direct_abi_target() {
             return None;
         }
         match self.arity_matches() {
@@ -217,10 +224,19 @@ impl GlobalCallRoute {
         &["call.global"]
     }
 
-    fn is_numeric_i64_leaf_direct_target(&self) -> bool {
-        self.target_exists()
-            && self.arity_matches() == Some(true)
-            && self.target.shape() == GlobalCallTargetShape::NumericI64Leaf
+    fn is_direct_abi_target(&self) -> bool {
+        self.direct_target_shape().is_some()
+    }
+
+    fn direct_target_shape(&self) -> Option<GlobalCallTargetShape> {
+        if !(self.target_exists() && self.arity_matches() == Some(true)) {
+            return None;
+        }
+        match self.target.shape() {
+            GlobalCallTargetShape::NumericI64Leaf
+            | GlobalCallTargetShape::GenericPureStringBody => Some(self.target.shape()),
+            GlobalCallTargetShape::Unknown => None,
+        }
     }
 }
 
@@ -240,7 +256,7 @@ pub fn refresh_function_global_call_routes(function: &mut MirFunction) {
 }
 
 fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCallTargetFacts> {
-    module
+    let mut targets = module
         .functions
         .iter()
         .map(|(name, function)| {
@@ -249,51 +265,68 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             } else {
                 function.params.len()
             };
-            (
-                name.clone(),
-                GlobalCallTargetFacts::present_with_shape(
-                    arity,
-                    classify_global_call_target_shape(function),
-                ),
-            )
+            (name.clone(), GlobalCallTargetFacts::present(arity))
         })
-        .collect()
+        .collect::<BTreeMap<_, _>>();
+    for _ in 0..module.functions.len() {
+        let mut changed = false;
+        for (name, function) in &module.functions {
+            let Some(current) = targets.get(name).cloned() else {
+                continue;
+            };
+            let shape = classify_global_call_target_shape(function, &targets);
+            if current.shape() != shape {
+                targets.insert(
+                    name.clone(),
+                    GlobalCallTargetFacts::present_with_shape(current.arity().unwrap_or(0), shape),
+                );
+                changed = true;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    targets
 }
 
-fn classify_global_call_target_shape(function: &MirFunction) -> GlobalCallTargetShape {
-    if !function
+fn classify_global_call_target_shape(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> GlobalCallTargetShape {
+    if function.params.len() != function.signature.params.len() {
+        return GlobalCallTargetShape::Unknown;
+    }
+    if function
         .signature
         .params
         .iter()
         .all(|ty| *ty == MirType::Integer)
-        || function.signature.return_type != MirType::Integer
-    {
-        return GlobalCallTargetShape::Unknown;
-    }
-    if function.params.len() != function.signature.params.len() {
-        return GlobalCallTargetShape::Unknown;
-    }
-    if function.blocks.len() != 1 {
-        return GlobalCallTargetShape::Unknown;
-    }
-    let Some(block) = function.blocks.get(&function.entry_block) else {
-        return GlobalCallTargetShape::Unknown;
-    };
-    if !matches!(
-        block.terminator,
-        Some(MirInstruction::Return { value: Some(_) })
-    ) {
-        return GlobalCallTargetShape::Unknown;
-    }
-    if block
-        .instructions
-        .iter()
-        .all(is_numeric_i64_leaf_instruction)
+        && function.signature.return_type == MirType::Integer
+        && is_numeric_i64_leaf_function(function)
     {
         GlobalCallTargetShape::NumericI64Leaf
+    } else if is_generic_pure_string_body(function, targets) {
+        GlobalCallTargetShape::GenericPureStringBody
     } else {
         GlobalCallTargetShape::Unknown
     }
+}
+
+fn is_numeric_i64_leaf_function(function: &MirFunction) -> bool {
+    if function.blocks.len() != 1 {
+        return false;
+    }
+    let Some(block) = function.blocks.get(&function.entry_block) else {
+        return false;
+    };
+    matches!(
+        block.terminator,
+        Some(MirInstruction::Return { value: Some(_) })
+    ) && block
+        .instructions
+        .iter()
+        .all(is_numeric_i64_leaf_instruction)
 }
 
 fn is_numeric_i64_leaf_instruction(instruction: &MirInstruction) -> bool {
@@ -308,6 +341,284 @@ fn is_numeric_i64_leaf_instruction(instruction: &MirInstruction) -> bool {
             BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
         ),
         _ => false,
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GenericPureValueClass {
+    Unknown,
+    I64,
+    Bool,
+    String,
+}
+
+fn is_generic_pure_string_body(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    if !generic_pure_string_abi_type_is_handle_compatible(&function.signature.return_type) {
+        return false;
+    }
+    if !function
+        .signature
+        .params
+        .iter()
+        .all(generic_pure_string_abi_type_is_handle_compatible)
+    {
+        return false;
+    }
+    if function.params.len() != function.signature.params.len() {
+        return false;
+    }
+
+    let mut values = BTreeMap::<ValueId, GenericPureValueClass>::new();
+    let mut has_string_surface = false;
+    for param in &function.params {
+        values.insert(*param, GenericPureValueClass::String);
+    }
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in &block.instructions {
+                if !mark_generic_pure_string_instruction(
+                    instruction,
+                    targets,
+                    &mut values,
+                    &mut has_string_surface,
+                    &mut changed,
+                ) {
+                    return false;
+                }
+            }
+            if let Some(terminator) = &block.terminator {
+                if !mark_generic_pure_string_instruction(
+                    terminator,
+                    targets,
+                    &mut values,
+                    &mut has_string_surface,
+                    &mut changed,
+                ) {
+                    return false;
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    if !has_string_surface {
+        return false;
+    }
+
+    let mut saw_return = false;
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            if let MirInstruction::Return { value: Some(value) } = instruction {
+                saw_return = true;
+                if value_class(&values, *value) != GenericPureValueClass::String {
+                    return false;
+                }
+            } else if matches!(instruction, MirInstruction::Return { value: None }) {
+                return false;
+            }
+        }
+    }
+    saw_return
+}
+
+fn generic_pure_string_abi_type_is_handle_compatible(ty: &MirType) -> bool {
+    match ty {
+        MirType::Integer | MirType::String | MirType::Unknown => true,
+        MirType::Box(name) => name == "StringBox",
+        _ => false,
+    }
+}
+
+fn mark_generic_pure_string_instruction(
+    instruction: &MirInstruction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    has_string_surface: &mut bool,
+    changed: &mut bool,
+) -> bool {
+    match instruction {
+        MirInstruction::Const { dst, value } => {
+            let class = match value {
+                ConstValue::String(_) => {
+                    *has_string_surface = true;
+                    GenericPureValueClass::String
+                }
+                ConstValue::Integer(_) => GenericPureValueClass::I64,
+                ConstValue::Bool(_) => GenericPureValueClass::Bool,
+                _ => GenericPureValueClass::Unknown,
+            };
+            set_value_class(values, *dst, class, changed);
+            class != GenericPureValueClass::Unknown
+        }
+        MirInstruction::Copy { dst, src } => {
+            let class = value_class(values, *src);
+            if class != GenericPureValueClass::Unknown {
+                set_value_class(values, *dst, class, changed);
+            }
+            true
+        }
+        MirInstruction::BinOp {
+            dst, op, lhs, rhs, ..
+        } => {
+            if *op != BinaryOp::Add
+                && *op != BinaryOp::Sub
+                && *op != BinaryOp::Mul
+                && *op != BinaryOp::Div
+                && *op != BinaryOp::Mod
+            {
+                return false;
+            }
+            let lhs_class = value_class(values, *lhs);
+            let rhs_class = value_class(values, *rhs);
+            if lhs_class == GenericPureValueClass::Unknown
+                || rhs_class == GenericPureValueClass::Unknown
+            {
+                return true;
+            }
+            let class = if *op == BinaryOp::Add {
+                if lhs_class == GenericPureValueClass::String
+                    || rhs_class == GenericPureValueClass::String
+                {
+                    *has_string_surface = true;
+                    GenericPureValueClass::String
+                } else {
+                    GenericPureValueClass::I64
+                }
+            } else if lhs_class == GenericPureValueClass::String
+                || rhs_class == GenericPureValueClass::String
+            {
+                return false;
+            } else {
+                GenericPureValueClass::I64
+            };
+            set_value_class(values, *dst, class, changed);
+            true
+        }
+        MirInstruction::Compare {
+            dst, op, lhs, rhs, ..
+        } => {
+            let lhs_class = value_class(values, *lhs);
+            let rhs_class = value_class(values, *rhs);
+            if lhs_class == GenericPureValueClass::Unknown
+                || rhs_class == GenericPureValueClass::Unknown
+            {
+                return true;
+            }
+            if lhs_class == GenericPureValueClass::String
+                || rhs_class == GenericPureValueClass::String
+            {
+                if !matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne) {
+                    return false;
+                }
+                *has_string_surface = true;
+            }
+            set_value_class(values, *dst, GenericPureValueClass::Bool, changed);
+            true
+        }
+        MirInstruction::Phi { dst, inputs, .. } => {
+            let mut saw_string = false;
+            let mut all_string = !inputs.is_empty();
+            let mut saw_unknown = false;
+            for (_, value) in inputs {
+                let class = value_class(values, *value);
+                saw_unknown |= class == GenericPureValueClass::Unknown;
+                saw_string |= class == GenericPureValueClass::String;
+                all_string &= class == GenericPureValueClass::String;
+            }
+            if saw_unknown {
+                return true;
+            } else if all_string {
+                set_value_class(values, *dst, GenericPureValueClass::String, changed);
+            } else if saw_string {
+                return false;
+            } else {
+                set_value_class(values, *dst, GenericPureValueClass::I64, changed);
+            }
+            true
+        }
+        MirInstruction::Call {
+            dst,
+            callee: Some(Callee::Extern(name)),
+            ..
+        } if name == "env.get/1" => {
+            if let Some(dst) = dst {
+                *has_string_surface = true;
+                set_value_class(values, *dst, GenericPureValueClass::String, changed);
+            }
+            true
+        }
+        MirInstruction::Call {
+            dst,
+            callee: Some(Callee::Global(name)),
+            ..
+        } if !supported_backend_global(name) => {
+            let Some(target) = targets.get(name) else {
+                return false;
+            };
+            match target.shape() {
+                GlobalCallTargetShape::GenericPureStringBody => {
+                    if let Some(dst) = dst {
+                        *has_string_surface = true;
+                        set_value_class(values, *dst, GenericPureValueClass::String, changed);
+                    }
+                    true
+                }
+                GlobalCallTargetShape::NumericI64Leaf => {
+                    if let Some(dst) = dst {
+                        set_value_class(values, *dst, GenericPureValueClass::I64, changed);
+                    }
+                    true
+                }
+                GlobalCallTargetShape::Unknown => false,
+            }
+        }
+        MirInstruction::Branch { .. }
+        | MirInstruction::Jump { .. }
+        | MirInstruction::Return { .. }
+        | MirInstruction::KeepAlive { .. }
+        | MirInstruction::ReleaseStrong { .. } => true,
+        _ => false,
+    }
+}
+
+fn value_class(
+    values: &BTreeMap<ValueId, GenericPureValueClass>,
+    value: ValueId,
+) -> GenericPureValueClass {
+    values
+        .get(&value)
+        .copied()
+        .unwrap_or(GenericPureValueClass::Unknown)
+}
+
+fn set_value_class(
+    values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    value: ValueId,
+    class: GenericPureValueClass,
+    changed: &mut bool,
+) {
+    if class == GenericPureValueClass::Unknown {
+        return;
+    }
+    match values.get(&value).copied() {
+        Some(existing) if existing == class => {}
+        Some(GenericPureValueClass::Unknown) | None => {
+            values.insert(value, class);
+            *changed = true;
+        }
+        Some(_) => {}
     }
 }
 
@@ -355,7 +666,7 @@ fn refresh_function_global_call_routes_with_targets(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{BasicBlock, EffectMask, FunctionSignature, MirType};
+    use crate::mir::{BasicBlock, CompareOp, EffectMask, FunctionSignature, MirType};
 
     fn make_function_with_global_call(name: &str, dst: Option<ValueId>) -> MirFunction {
         let mut function = MirFunction::new(
@@ -485,6 +796,98 @@ mod tests {
         assert_eq!(route.proof(), "typed_global_call_leaf_numeric_i64");
         assert_eq!(route.return_shape(), Some("ScalarI64"));
         assert_eq!(route.value_demand(), "scalar_i64");
+        assert_eq!(route.reason(), None);
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_generic_pure_string_body_direct_target() {
+        let mut module = MirModule::new("global_call_generic_string_test".to_string());
+        let caller = make_function_with_global_call("Helper.normalize/2", Some(ValueId::new(7)));
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.normalize/2".to_string(),
+                params: vec![MirType::String, MirType::String],
+                return_type: MirType::String,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        callee.params = vec![ValueId::new(1), ValueId::new(9)];
+        let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        entry.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(2),
+                value: ConstValue::String("dev".to_string()),
+            },
+            MirInstruction::Compare {
+                dst: ValueId::new(3),
+                op: CompareOp::Eq,
+                lhs: ValueId::new(1),
+                rhs: ValueId::new(2),
+            },
+        ]);
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(3),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+
+        let mut then_block = BasicBlock::new(BasicBlockId::new(1));
+        then_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::String("vm".to_string()),
+        });
+        then_block.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId::new(3),
+            edge_args: None,
+        });
+
+        let mut else_block = BasicBlock::new(BasicBlockId::new(2));
+        else_block.instructions.push(MirInstruction::Copy {
+            dst: ValueId::new(5),
+            src: ValueId::new(1),
+        });
+        else_block.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId::new(3),
+            edge_args: None,
+        });
+
+        let mut merge_block = BasicBlock::new(BasicBlockId::new(3));
+        merge_block.instructions.push(MirInstruction::Phi {
+            dst: ValueId::new(6),
+            inputs: vec![
+                (BasicBlockId::new(1), ValueId::new(4)),
+                (BasicBlockId::new(2), ValueId::new(5)),
+            ],
+            type_hint: Some(MirType::String),
+        });
+        merge_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(6)),
+        });
+
+        callee.blocks.insert(BasicBlockId::new(1), then_block);
+        callee.blocks.insert(BasicBlockId::new(2), else_block);
+        callee.blocks.insert(BasicBlockId::new(3), merge_block);
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Helper.normalize/2".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert!(route.target_exists());
+        assert_eq!(route.target_symbol(), Some("Helper.normalize/2"));
+        assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+        assert_eq!(route.target_arity(), Some(2));
+        assert_eq!(route.arity_matches(), Some(true));
+        assert_eq!(route.tier(), "DirectAbi");
+        assert_eq!(route.emit_kind(), "direct_function_call");
+        assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+        assert_eq!(route.return_shape(), Some("string_handle"));
+        assert_eq!(route.value_demand(), "runtime_i64_or_handle");
         assert_eq!(route.reason(), None);
     }
 }

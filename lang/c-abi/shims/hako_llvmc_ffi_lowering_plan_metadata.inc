@@ -156,10 +156,17 @@
         return proof && !strcmp(proof, "typed_global_call_leaf_numeric_i64");
       }
 
+      auto int lowering_plan_entry_is_typed_global_call_generic_pure_string(
+          yyjson_val* entry) {
+        const char* proof = read_str(entry, "proof");
+        return proof && !strcmp(proof, "typed_global_call_generic_pure_string");
+      }
+
       auto int lowering_plan_entry_is_typed_global_call_contract(
           yyjson_val* entry) {
         return lowering_plan_entry_is_typed_global_call_contract_missing(entry) ||
-               lowering_plan_entry_is_typed_global_call_leaf_numeric_i64(entry);
+               lowering_plan_entry_is_typed_global_call_leaf_numeric_i64(entry) ||
+               lowering_plan_entry_is_typed_global_call_generic_pure_string(entry);
       }
 
       auto int read_lowering_plan_generic_method_view(
@@ -302,7 +309,8 @@
                !strcmp(view->route_kind, "global.user_call") &&
                view->proof &&
                (!strcmp(view->proof, "typed_global_call_contract_missing") ||
-                !strcmp(view->proof, "typed_global_call_leaf_numeric_i64")) &&
+                !strcmp(view->proof, "typed_global_call_leaf_numeric_i64") ||
+                !strcmp(view->proof, "typed_global_call_generic_pure_string")) &&
                view->target_exists &&
                view->has_target_arity &&
                view->has_arity_matches &&
@@ -327,6 +335,24 @@
                !strcmp(view->return_shape, "ScalarI64") &&
                view->value_demand &&
                !strcmp(view->value_demand, "scalar_i64");
+      }
+
+      auto int lowering_plan_global_call_view_is_direct_generic_string(
+          const struct LoweringPlanGlobalCallView* view) {
+        return lowering_plan_global_call_view_has_direct_target(view) &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "direct_function_call") &&
+               view->proof &&
+               !strcmp(view->proof, "typed_global_call_generic_pure_string") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "typed_global_call_generic_pure_string") &&
+               view->target_shape &&
+               !strcmp(view->target_shape, "generic_pure_string_body") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "string_handle") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "runtime_i64_or_handle");
       }
 
       auto void trace_lowering_plan_entry_hit(

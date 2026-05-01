@@ -614,24 +614,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
         return (params && yyjson_is_arr(params)) ? yyjson_arr_size(params) : 0;
       }
-      #include "hako_llvmc_ffi_module_leaf_function_emit.inc"
-      auto void emit_i64_function_declaration(FILE* f, const char* name, size_t argc) {
-        if (!llvm_quoted_symbol_name_is_safe(name)) return;
-        fprintf(f, "declare i64 @\"%s\"(", name);
-        for (size_t i = 0; i < argc; i++) {
-          fprintf(f, "%si64", i ? ", " : "");
-        }
-        fprintf(f, ")\n");
-      }
-      auto void emit_module_function_declarations(FILE* f) {
-        for (size_t i = 0; i < program.function_count; i++) {
-          yyjson_val* fn = yyjson_arr_get(program.functions, i);
-          const char* name = fn ? read_str(fn, "name") : NULL;
-          if (!name || fn == fn0) continue;
-          if (module_function_is_numeric_i64_leaf(fn)) continue;
-          emit_i64_function_declaration(f, name, generic_pure_function_param_count(fn));
-        }
-      }
       auto char* concat_owned_string_consts(const char* lhs, const char* rhs) {
         size_t lhs_len = lhs ? strlen(lhs) : 0;
         size_t rhs_len = rhs ? strlen(rhs) : 0;
@@ -674,6 +656,26 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_const_string_hoist.inc"
       #include "hako_llvmc_ffi_core_method_metadata.inc"
       #include "hako_llvmc_ffi_lowering_plan_metadata.inc"
+      #include "hako_llvmc_ffi_module_leaf_function_emit.inc"
+      #include "hako_llvmc_ffi_module_generic_string_plan.inc"
+      auto void emit_i64_function_declaration(FILE* f, const char* name, size_t argc) {
+        if (!llvm_quoted_symbol_name_is_safe(name)) return;
+        fprintf(f, "declare i64 @\"%s\"(", name);
+        for (size_t i = 0; i < argc; i++) {
+          fprintf(f, "%si64", i ? ", " : "");
+        }
+        fprintf(f, ")\n");
+      }
+      auto void emit_module_function_declarations(FILE* f) {
+        for (size_t i = 0; i < program.function_count; i++) {
+          yyjson_val* fn = yyjson_arr_get(program.functions, i);
+          const char* name = fn ? read_str(fn, "name") : NULL;
+          if (!name || fn == fn0) continue;
+          if (module_function_is_numeric_i64_leaf(fn)) continue;
+          if (module_generic_symbol_will_be_defined(name)) continue;
+          emit_i64_function_declaration(f, name, generic_pure_function_param_count(fn));
+        }
+      }
       #include "hako_llvmc_ffi_mir_call_route_policy.inc"
       #include "hako_llvmc_ffi_mir_call_need_policy.inc"
       #include "hako_llvmc_ffi_mir_call_prepass.inc"

@@ -381,6 +381,11 @@
         }
       }
 
+      if (plan_module_generic_string_definitions() < 0) {
+        yyjson_doc_free(d);
+        goto GEN_ABORT;
+      }
+
       // IR temp file
       char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_gen_%d.ll", "/tmp", (int)getpid());
       FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(d); break; }
@@ -441,7 +446,8 @@
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_string_indexof_const_utf8) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hisi\"(i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_slot_load) fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
+      if (needs.string_const_box || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.string.eq_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
@@ -457,8 +463,10 @@
       if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
         fprintf(f, "declare i64 @\"nyash.string.kernel_slot_publish_h\"(ptr)\n");
       if (needs.string_indexof || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
-      if (needs.env_get) fprintf(f, "declare i64 @\"nyash.env.get\"(i64)\n");
-      if (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof) {
+      if (needs.env_get || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.env.get\"(i64)\n");
+      if (needs.string_concat || needs.string_substring || needs.arr_get ||
+          needs.arr_string_indexof || module_has_planned_generic_string_definition()) {
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat_hs\"(i64, ptr)\n");
         fprintf(f, "declare i64 @\"nyash.string.kernel_slot_concat_hs\"(ptr, i64, ptr)\n");
@@ -483,8 +491,6 @@
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
-      // Unboxer (declare opportunistically; low cost)
-      hako_llvmc_emit_entry_header(f, &selection);
       // Emit blocks
       #define EMIT(...) do { fprintf(f, __VA_ARGS__); } while(0)
       #include "hako_llvmc_ffi_emit_seam.inc"
@@ -606,6 +612,14 @@
         }
         set_type(dst, T_I1);
       }
+      #include "hako_llvmc_ffi_module_generic_string_function_emit.inc"
+      if (emit_module_function_generic_string_definitions(f) < 0) {
+        fclose(f);
+        yyjson_doc_free(d);
+        goto GEN_ABORT;
+      }
+      // Unboxer (declare opportunistically; low cost)
+      hako_llvmc_emit_entry_header(f, &selection);
       auto int should_skip_string_const_box_for_known_len_use(
           size_t ii,
           size_t ilen,
