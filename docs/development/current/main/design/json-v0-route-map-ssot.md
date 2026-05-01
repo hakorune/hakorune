@@ -161,6 +161,23 @@ smoke lanes and therefore keeps Program(JSON v0) fixture support live.
 P65 pruned the unused Rust MIR fallback helper from `stageb_helpers.sh`; do not
 reintroduce a fallback route there without an active caller and a named owner.
 
+## Rust Public Delete-Last Surface Split
+
+The Rust/public delete-last bucket has two separate compat surfaces.
+
+| Surface | Owner | Reading |
+| --- | --- | --- |
+| `--emit-program-json-v0` parse/deprecation | `src/cli/args.rs`, `src/runtime/deprecations.rs` | public compat emit flag, keep until shell/tool emit callers reach zero |
+| `--emit-program-json-v0` execution | `src/runner/emit.rs`, `src/runner/stage1_bridge/program_json_entry/`, `src/runner/stage1_bridge/program_json/` | bridge-local file read -> Program(JSON v0) payload -> writeback |
+| Program(JSON v0) payload authority | `src/stage1/program_json_v0.rs`, `src/stage1/program_json_v0/**` | shared Rust owner for strict authority source, `host_providers/mir_builder` handoff, stage1 bridge payload, and BuildBox/module-string bootstrap support |
+| `--json-file` Program(JSON v0) intake | `src/runner/json_artifact/program_json_v0_loader.rs` | compat umbrella intake; separate from the emit flag |
+| Program(JSON v0) fixture env transport | `src/main.rs` (`HAKO_PROGRAM_JSON_FILE` -> `HAKO_PROGRAM_JSON`) | `.hako` MirBuilder fixture handoff; separate from CLI emit and `--json-file` intake |
+
+Do not delete `src/stage1/program_json_v0*` just because the public emit flag
+is retired; it also serves non-CLI Rust callers. Do not delete the
+Program(JSON v0) loader until `--json-file` Program(JSON v0) intake callers are
+also replaced or archived.
+
 ## Caller Reduction Rule
 
 - if a caller already feeds `MIR(JSON)` directly, it should use `--mir-json-file`
