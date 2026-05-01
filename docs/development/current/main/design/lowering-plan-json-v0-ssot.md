@@ -142,6 +142,14 @@ extern_call_routes
 Do not force externs into `CoreMethodOp`; use a narrow `core_op` string such as
 `EnvGet` plus `proof=extern_registry`.
 
+Global user/static calls are also not a `generic_method_routes` or
+`extern_call_routes` slice. Do not add one-off `.inc` matchers for concrete
+global names such as `BuildBox.emit_program_json_v0/2`. If same-module global
+user calls become a backend contract, they need their own typed plan family with
+owner, call target, arity, value/result representation, and effect proof.
+Until that exists, a global-call stop in the full Stage1 env source is an
+owner/route split issue, not a license to grow backend-local policy.
+
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
 consumer is proven.

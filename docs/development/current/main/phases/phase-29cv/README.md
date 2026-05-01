@@ -65,6 +65,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   moved the Stage1 env direct MIR stop-line from `env.get/1` to lifecycle
   intent. The next observed pure-first stop is
   `mir_call Global BuildBox.emit_program_json_v0/2`.
+- P110 locks that `BuildBox.emit_program_json_v0/2` stop as a Stage1
+  authority/route split issue, not a backend accept-shape target. The thin
+  `entry/stage1_cli_env_entry.hako` remains a green run-only bootstrap entry;
+  the full `stage1_cli_env.hako` remains the emit-capable authority cluster and
+  must not be made green by adding a raw ny-llvmc `BuildBox` matcher.
 
 ## Compat Capsule Rules
 
@@ -99,9 +104,12 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` is now guarded so it
      cannot misread the reduced run-only `stage1-cli` artifact as an
      emit-capable Stage1 env artifact.
-   - P108 proved the plan-backed `env.get/1` consumer. This caller stays in
-     the bridge capsule until an emit-capable Stage1 env artifact and MIR
-     dominance proof are both green on the MIR-first replacement path.
+   - P108 proved the plan-backed `env.get/1` consumer and P109 removed
+     `keepalive` as a backend blocker. P110 records the next full-env stop as
+     `BuildBox.emit_program_json_v0/2`, which is Stage1 authority surface
+     rather than a backend matcher target. This caller stays in the bridge
+     capsule until an emit-capable Stage1 env artifact or narrower emit-MIR-only
+     owner is green on the MIR-first replacement path.
    - This capsule is not a primary proof route and is not part of
      `selfhost_build.sh` mainline routing.
 3. Stage1 contract keepers

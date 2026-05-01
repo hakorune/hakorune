@@ -182,9 +182,10 @@ Notes
   it is guarded against the reduced run-only `stage1-cli` artifact. Keep it in
   the bridge capsule inventory until an emit-capable Stage1 env artifact makes
   the MIR-first `stage1_contract_exec_mode ... emit-mir` replacement green.
-  P106 records the current blockers: Stage-B mainline-only does not emit the
-  full Stage1 env MIR yet, pure-first still needs plan-backed `env.get/1`, and
-  the full Stage1 env direct route still has MIR dominance failures.
+  P106 records the original replacement blockers. P108/P109 removed
+  plan-backed `env.get/1` and `keepalive` as pure-first blockers; P110 records
+  the next full-env stop as `BuildBox.emit_program_json_v0/2`, which is Stage1
+  authority surface rather than a backend matcher target.
 - raw `selfhost_build.sh --in ...` whole-script output, `--keep-tmp`, and `NYASH_SELFHOST_KEEP_RAW=1` are retired facade routes.
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。

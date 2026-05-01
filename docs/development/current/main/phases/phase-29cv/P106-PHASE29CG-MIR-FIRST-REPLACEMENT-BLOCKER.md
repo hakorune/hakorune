@@ -114,6 +114,17 @@ The root fix is not a new raw `.inc` matcher. `env.get/1` needs a
 LoweringPlan/CoreOp/runtime ABI contract, likely as explicit `ColdRuntime`
 while it is not a hot proof.
 
+Post-P108/P109 update:
+
+```text
+env.get/1: plan-backed consumer landed
+keepalive: pure-first no-op landed
+next stop: mir_call Global BuildBox.emit_program_json_v0/2
+```
+
+P110 classifies that next stop as Stage1 authority surface, not a backend raw
+matcher target.
+
 ### 5. Direct EXE build of the full Stage1 env still fails MIR verify
 
 ```bash
