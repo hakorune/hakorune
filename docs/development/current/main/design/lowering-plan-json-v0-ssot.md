@@ -259,6 +259,18 @@ same string body subset when canonical returns are string handles or a void/null
 sentinel. It uses the generic string function emitter and reports
 `return_shape=string_handle_or_null`.
 MIR owns these classifications and records them as `target_shape`.
+The string-or-void sentinel return-profile scan may classify
+`RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)` as a
+string return only when the receiver is already known string and both arguments
+are scalar-like values. The body scan and LoweringPlan `generic_method.substring`
+metadata remain the authority for actual emission.
+Generic string scans seed value classes from existing MIR `value_types` and
+declared signatures; unknown parameters must not be treated as string by
+default. A string concat surface such as `"" + value` may prove only the concat
+result is string, while scalar substring bounds must still come from typed
+value evidence. Relational i64 comparisons and exact MIR copies may propagate
+scalar evidence inside the analysis; method rejection may only be deferred while
+the value-class fixpoint is still changing.
 Within `generic_pure_string_body`, MIR may accept string-class
 `RuntimeDataBox.length()` and `RuntimeDataBox.substring(i64, i64)` only when the
 receiver is already classified as a string value. These methods must also carry

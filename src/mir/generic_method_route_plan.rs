@@ -12,7 +12,9 @@ use super::generic_method_route_facts::{
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
-use super::{BasicBlockId, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId};
+use super::{
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
+};
 use crate::mir::verification::utils::compute_dominators;
 use std::collections::BTreeSet;
 
@@ -1394,6 +1396,15 @@ fn generic_pure_string_flow_marks_instruction(
         MirInstruction::Copy { dst, src } if string_values.contains(src) => {
             mark(string_values, *dst)
         }
+        MirInstruction::BinOp {
+            dst,
+            op: BinaryOp::Add,
+            lhs,
+            rhs,
+            ..
+        } if string_values.contains(lhs) || string_values.contains(rhs) => {
+            mark(string_values, *dst)
+        }
         MirInstruction::Phi { dst, inputs, .. }
             if !inputs.is_empty()
                 && inputs
@@ -2352,6 +2363,54 @@ mod tests {
             CoreMethodLoweringTier::WarmDirectAbi
         );
         assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+    }
+
+    #[test]
+    fn records_runtime_data_substring_from_string_concat_origin() {
+        let mut function = make_function();
+        function.params = vec![ValueId::new(0)];
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::String(String::new()),
+        });
+        block.add_instruction(MirInstruction::BinOp {
+            dst: ValueId::new(2),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(0),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Integer(0),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::Integer(8),
+        });
+        block.add_instruction(method_call(
+            Some(5),
+            "RuntimeDataBox",
+            "substring",
+            2,
+            vec![3, 4],
+        ));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "substring");
+        assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::StringSubstring);
+        let core_method = route
+            .core_method()
+            .expect("RuntimeData StringSubstring carrier");
+        assert_eq!(core_method.op, CoreMethodOp::StringSubstring);
     }
 
     #[test]
