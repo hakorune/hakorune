@@ -200,6 +200,82 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
   // then fall back to a few pattern lowers, and finally to AOT helper.
   char* verr = NULL;
+  char unsupported_shape_first_op[64] = "";
+  char unsupported_shape_reason[64] = "";
+  long long unsupported_shape_first_block = -1;
+  long long unsupported_shape_first_inst = -1;
+
+  auto const char* pure_unsupported_owner_hint(const char* op) {
+    if (!op || !op[0]) return "unknown";
+    if (strcmp(op, "boxcall") == 0 ||
+        strcmp(op, "call") == 0 ||
+        strcmp(op, "externcall") == 0 ||
+        strcmp(op, "newbox") == 0 ||
+        strcmp(op, "copy") == 0 ||
+        strcmp(op, "phi") == 0) {
+      return "mir_normalizer";
+    }
+    if (strcmp(op, "mir_call") == 0) {
+      return "backend_lowering";
+    }
+    if (strcmp(op, "const") == 0 ||
+        strcmp(op, "compare") == 0 ||
+        strcmp(op, "select") == 0 ||
+        strcmp(op, "branch") == 0 ||
+        strcmp(op, "jump") == 0 ||
+        strcmp(op, "ret") == 0 ||
+        strcmp(op, "binop") == 0) {
+      return "backend_lowering";
+    }
+    return "unknown";
+  }
+
+  auto void note_pure_unsupported_shape(
+      long long block_id,
+      size_t inst_idx,
+      const char* op,
+      const char* reason) {
+    if (unsupported_shape_first_op[0]) return;
+    snprintf(
+        unsupported_shape_first_op,
+        sizeof(unsupported_shape_first_op),
+        "%s",
+        (op && op[0]) ? op : "unknown");
+    snprintf(
+        unsupported_shape_reason,
+        sizeof(unsupported_shape_reason),
+        "%s",
+        (reason && reason[0]) ? reason : "no_lowering_variant");
+    unsupported_shape_first_block = block_id;
+    unsupported_shape_first_inst = (long long)inst_idx;
+  }
+
+  auto void emit_pure_unsupported_shape_inventory(void) {
+    char block_buf[32];
+    char inst_buf[32];
+    const char* op = unsupported_shape_first_op[0] ? unsupported_shape_first_op : "unknown";
+    const char* reason = unsupported_shape_reason[0] ? unsupported_shape_reason : "no_lowering_variant";
+    if (!hako_llvmc_route_trace_enabled()) return;
+    if (unsupported_shape_first_block >= 0) {
+      snprintf(block_buf, sizeof(block_buf), "%lld", unsupported_shape_first_block);
+    } else {
+      snprintf(block_buf, sizeof(block_buf), "-");
+    }
+    if (unsupported_shape_first_inst >= 0) {
+      snprintf(inst_buf, sizeof(inst_buf), "%lld", unsupported_shape_first_inst);
+    } else {
+      snprintf(inst_buf, sizeof(inst_buf), "-");
+    }
+    fprintf(
+        stderr,
+        "[llvm-pure/unsupported-shape] recipe=pure-first first_block=%s first_inst=%s first_op=%s owner_hint=%s reason=%s\n",
+        block_buf,
+        inst_buf,
+        op,
+        pure_unsupported_owner_hint(op),
+        reason);
+  }
+
   if (hako_json_v1_validate_file(json_in, &verr) != 0) {
     return set_err_owned(err_out, verr ? verr : "invalid v1 json");
   }
@@ -470,6 +546,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }
   hako_llvmc_emit_route_replay("none", "unsupported_pure_shape");
+  emit_pure_unsupported_shape_inventory();
   return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
 }
 

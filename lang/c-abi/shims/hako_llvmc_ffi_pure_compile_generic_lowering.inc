@@ -706,7 +706,12 @@
         for (size_t ii=0; ii<ilen; ii++) {
           if (skip_inst[ii]) continue;
           yyjson_val* ins = yyjson_arr_get(insts, ii);
-          const char* op = read_str(ins, "op"); if (!op) { yyjson_doc_free(d); goto GEN_ABORT; }
+          const char* op = read_str(ins, "op");
+          if (!op) {
+            note_pure_unsupported_shape(bid, ii, "unknown", "missing_op");
+            yyjson_doc_free(d);
+            goto GEN_ABORT;
+          }
           if (hako_llvmc_route_trace_enabled() && generic_walk_trace_budget > 0) {
             char extra[256];
             long long dst_dbg = read_int(ins, "dst");
@@ -765,6 +770,11 @@
                 if (should_skip_hoisted_string_const_box(arg0) &&
                     !string_const_box_was_emitted(arg0) &&
                     !emit_materialized_string_const_box_result(f, arg0)) {
+                  note_pure_unsupported_shape(
+                      bid,
+                      ii,
+                      op,
+                      "string_const_materialization_failed");
                   yyjson_doc_free(d);
                   goto GEN_ABORT;
                 }
@@ -775,6 +785,7 @@
                 continue;
               }
             }
+            note_pure_unsupported_shape(bid, ii, op, "unsupported_newbox_type");
             yyjson_doc_free(d); goto GEN_ABORT;
           }
           if (strcmp(op, "copy")==0) {
@@ -800,8 +811,14 @@
           if (strcmp(op, "compare")==0) {
             const char* pred = read_str(ins, "cmp"); if (!pred) pred = read_str(ins, "operation");
             const char* p2 = NULL; if (pred){ if (!strcmp(pred,"Lt")||!strcmp(pred,"lt")||!strcmp(pred,"<")) p2="slt"; else if (!strcmp(pred,"Le")||!strcmp(pred,"le")||!strcmp(pred,"<=")) p2="sle"; else if (!strcmp(pred,"Eq")||!strcmp(pred,"eq")||!strcmp(pred,"==")) p2="eq"; else if (!strcmp(pred,"Ne")||!strcmp(pred,"ne")||!strcmp(pred,"!=")) p2="ne"; else if (!strcmp(pred,"Ge")||!strcmp(pred,"ge")||!strcmp(pred,">=")) p2="sge"; else if (!strcmp(pred,"Gt")||!strcmp(pred,"gt")||!strcmp(pred,">")) p2="sgt"; }
-            if (!p2) { yyjson_doc_free(d); goto GEN_ABORT; }
-            long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); if (!lhs) lhs=read_int(ins, "left"); long long rhs = read_int(ins, "rhs"); if (!rhs) rhs=read_int(ins, "right"); if (!lhs && !rhs){ yyjson_doc_free(d); goto GEN_ABORT; }
+            if (!p2) {
+              note_pure_unsupported_shape(bid, ii, op, "unsupported_compare_predicate");
+              yyjson_doc_free(d); goto GEN_ABORT;
+            }
+            long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); if (!lhs) lhs=read_int(ins, "left"); long long rhs = read_int(ins, "rhs"); if (!rhs) rhs=read_int(ins, "right"); if (!lhs && !rhs){
+              note_pure_unsupported_shape(bid, ii, op, "malformed_compare_operands");
+              yyjson_doc_free(d); goto GEN_ABORT;
+            }
             if ((strcmp(p2, "eq") == 0 || strcmp(p2, "ne") == 0) &&
                 should_emit_string_compare(ins, lhs, rhs)) {
               emit_string_compare(dst, p2, lhs, rhs);
@@ -908,7 +925,10 @@
               else if (!strcmp(k, "Div") || !strcmp(k, "/")) irop = "sdiv";
               else if (!strcmp(k, "Mod") || !strcmp(k, "%")) irop = "srem";
             }
-            if (!irop) { yyjson_doc_free(d); goto GEN_ABORT; }
+            if (!irop) {
+              note_pure_unsupported_shape(bid, ii, op, "unsupported_binop_kind");
+              yyjson_doc_free(d); goto GEN_ABORT;
+            }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); long long rhs = read_int(ins, "rhs");
             if (!strcmp(irop, "add") && lhs_org == ORG_STRING && rhs_org == ORG_STRING) {
               emit_string_concat_pair_by_policy(f, ii, ilen, insts, dst, lhs, rhs);
@@ -944,12 +964,14 @@
             if (emit_mir_call_dispatch(
                     f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
                     dst, recv, args, a0, a1, skip_inst) < 0) {
+              note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route");
               yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             continue;
           }
           // any other op unsupported
+          note_pure_unsupported_shape(bid, ii, op, "unknown_op");
           yyjson_doc_free(d); goto GEN_ABORT;
         }
       }
