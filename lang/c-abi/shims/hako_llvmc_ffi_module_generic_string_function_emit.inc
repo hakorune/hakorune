@@ -254,10 +254,15 @@
                 set_type(dst, T_I64);
               }
             } else if (!strcmp(op, "mir_call")) {
+              yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
+              yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+              yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
               yyjson_val* entry = find_lowering_plan_entry_for_site(block.id, ii);
               struct LoweringPlanGenericMethodView method_view;
               struct LoweringPlanExternCallView extern_view;
               struct LoweringPlanGlobalCallView global_view;
+              const char* ctype = cal ? read_str(cal, "type") : NULL;
+              const char* mname = cal ? read_str(cal, "name") : NULL;
               long long dst = read_int(ins, "dst");
               if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                   module_generic_string_method_view_is_direct_string_len(&method_view)) {
@@ -283,6 +288,11 @@
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_generic_i64(&global_view)) {
                 set_type(dst, T_I64);
+              } else if (ctype && !strcmp(ctype, "Global") &&
+                         classify_mir_call_global_surface(mname) ==
+                             HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT &&
+                         args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1) {
+                continue;
               } else {
                 return 0;
               }
@@ -486,6 +496,15 @@
           rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
         } else if (ctype && !strcmp(ctype, "Global")) {
           rc = emit_global_call_lowering_plan_mir_call(f, bid, ii, dst, args);
+          if (rc != 1) {
+            long long a0 = 0;
+            if (module_generic_string_read_arg_reg(args, 0, &a0)) {
+              rc = emit_global_mir_call(
+                  f,
+                  classify_mir_call_global_surface(read_str(cal, "name")),
+                  a0);
+            }
+          }
         } else if (ctype && !strcmp(ctype, "Method")) {
           long long recv = read_int(cal, "receiver");
           rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);

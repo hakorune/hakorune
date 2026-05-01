@@ -250,6 +250,10 @@ the matching `generic_method.len` / `StringLen` or `generic_method.substring` /
 `nyash.string.len_h` or `nyash.string.substring_hii`; backend shims must not
 infer this from the raw method name alone. This does not accept other string
 methods.
+`generic_pure_string_body` may also contain the existing supported backend
+global `print` as a no-result debug side-effect. That surface is not a
+same-module user/global call and must not create a `global.user_call`
+LoweringPlan entry or externalize to an unresolved function symbol.
 The lowerable v0 rows are:
 
 | route | target_shape | tier | emit_kind | proof |

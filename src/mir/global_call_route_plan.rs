@@ -67,7 +67,6 @@ enum GlobalCallTargetShapeReason {
     GenericStringUnsupportedCall,
     GenericStringUnsupportedMethodCall,
     GenericStringUnsupportedExternCall,
-    GenericStringUnsupportedBackendGlobalCall,
     GenericStringGlobalTargetMissing,
     GenericStringGlobalTargetShapeUnknown,
     GenericStringNoStringSurface,
@@ -94,9 +93,6 @@ impl GlobalCallTargetShapeReason {
             Self::GenericStringUnsupportedCall => "generic_string_unsupported_call",
             Self::GenericStringUnsupportedMethodCall => "generic_string_unsupported_method_call",
             Self::GenericStringUnsupportedExternCall => "generic_string_unsupported_extern_call",
-            Self::GenericStringUnsupportedBackendGlobalCall => {
-                "generic_string_unsupported_backend_global_call"
-            }
             Self::GenericStringGlobalTargetMissing => "generic_string_global_target_missing",
             Self::GenericStringGlobalTargetShapeUnknown => {
                 "generic_string_global_target_shape_unknown"
@@ -1507,9 +1503,7 @@ fn generic_pure_string_instruction_reject_reason(
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
-        } if supported_backend_global(name) => Some(GenericPureStringReject::new(
-            GlobalCallTargetShapeReason::GenericStringUnsupportedBackendGlobalCall,
-        )),
+        } if supported_backend_global(name) => None,
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
@@ -2194,6 +2188,60 @@ mod tests {
         module
             .functions
             .insert("Helper.debug_preview/1".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+        assert_eq!(route.target_shape_reason(), None);
+        assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_accepts_print_in_generic_pure_string_body() {
+        let mut module = MirModule::new("global_call_string_print_method_test".to_string());
+        let caller = make_function_with_global_call_args(
+            "Helper.debug_print/1",
+            Some(ValueId::new(7)),
+            vec![ValueId::new(1)],
+        );
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.debug_print/1".to_string(),
+                params: vec![MirType::String],
+                return_type: MirType::String,
+                effects: EffectMask::IO,
+            },
+            BasicBlockId::new(0),
+        );
+        callee.params = vec![ValueId::new(1)];
+        let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(2),
+                value: ConstValue::String("[debug] ".to_string()),
+            },
+            MirInstruction::BinOp {
+                dst: ValueId::new(3),
+                op: BinaryOp::Add,
+                lhs: ValueId::new(2),
+                rhs: ValueId::new(1),
+            },
+            MirInstruction::Call {
+                dst: None,
+                func: ValueId::INVALID,
+                callee: Some(Callee::Global("print".to_string())),
+                args: vec![ValueId::new(3)],
+                effects: EffectMask::IO,
+            },
+        ]);
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Helper.debug_print/1".to_string(), callee);
 
         refresh_module_global_call_routes(&mut module);
 
