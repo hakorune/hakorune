@@ -21,6 +21,21 @@
         enum LoweringPlanTierMetadata tier;
       };
 
+      struct LoweringPlanExternCallView {
+        yyjson_val* entry;
+        const char* route_id;
+        const char* source_symbol;
+        const char* core_op;
+        const char* route_kind;
+        const char* emit_kind;
+        const char* symbol;
+        const char* proof;
+        const char* route_proof;
+        const char* return_shape;
+        const char* value_demand;
+        enum LoweringPlanTierMetadata tier;
+      };
+
       auto int lowering_plan_read_i64_field(
           yyjson_val* obj,
           const char* key,
@@ -89,6 +104,11 @@
         return proof && !strcmp(proof, "core_method_contract_manifest");
       }
 
+      auto int lowering_plan_entry_is_extern_registry(yyjson_val* entry) {
+        const char* proof = read_str(entry, "proof");
+        return proof && !strcmp(proof, "extern_registry");
+      }
+
       auto int read_lowering_plan_generic_method_view(
           yyjson_val* entry,
           struct LoweringPlanGenericMethodView* out) {
@@ -120,6 +140,42 @@
                out->route_id &&
                out->core_op &&
                out->route_kind;
+      }
+
+      auto int read_lowering_plan_extern_call_view(
+          yyjson_val* entry,
+          struct LoweringPlanExternCallView* out) {
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        if (out) memset(out, 0, sizeof(*out));
+        if (!(source && !strcmp(source, "extern_call_routes")) ||
+            invalid ||
+            !lowering_plan_entry_is_extern_registry(entry)) {
+          return 0;
+        }
+        if (out) {
+          out->entry = entry;
+          out->route_id = read_str(entry, "source_route_id");
+          out->source_symbol = read_str(entry, "source_symbol");
+          out->core_op = read_str(entry, "core_op");
+          out->route_kind = read_str(entry, "route_kind");
+          out->emit_kind = read_str(entry, "emit_kind");
+          out->symbol = read_str(entry, "symbol");
+          out->proof = read_str(entry, "proof");
+          out->route_proof = read_str(entry, "route_proof");
+          out->return_shape = read_str(entry, "return_shape");
+          out->value_demand = read_str(entry, "value_demand");
+          out->tier = tier;
+        }
+        return out &&
+               out->route_id &&
+               out->core_op &&
+               out->route_kind &&
+               out->emit_kind &&
+               out->symbol &&
+               out->proof;
       }
 
       auto void trace_lowering_plan_entry_hit(

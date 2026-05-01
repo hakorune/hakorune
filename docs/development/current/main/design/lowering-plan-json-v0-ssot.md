@@ -187,7 +187,7 @@ selecting a helper.
 | `ArraySet` string | `ColdRuntime` | `nyash.array.set_his` | P91 plan-only fixture |
 | `StringSubstring` | `DirectAbi` | `nyash.string.substring_hii` | P92 plan-only fixture |
 | `StringIndexOf` | `DirectAbi` | `nyash.string.indexOf_hh` | P93 plan-only fixture |
-| `EnvGet` | `ColdRuntime` | `nyash.env.get` | P107 metadata-only fixture |
+| `EnvGet` | `ColdRuntime` | `nyash.env.get` | P108 plan-only fixture |
 
 ## Non-goals
 

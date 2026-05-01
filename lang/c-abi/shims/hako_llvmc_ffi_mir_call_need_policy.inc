@@ -21,6 +21,7 @@
         int string_substring_len;
         int string_indexof;
         int string_concat;
+        int env_get;
         int printf;
       };
 
@@ -44,6 +45,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
+        HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
         HAKO_LLVMC_MIR_CALL_NEED_PRINTF,
       };
 
@@ -106,6 +108,9 @@
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT:
             needs->string_concat = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_ENV_GET:
+            needs->env_get = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_PRINTF:
             needs->printf = 1;
@@ -525,6 +530,79 @@
         }
         if (mname && !strcmp(mname, "nyash.string.substring_len_hii")) {
           return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN;
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
+      struct LoweringPlanExternNeedRule {
+        const char* route_id;
+        const char* core_op;
+        const char* route_kind;
+        const char* emit_kind;
+        const char* symbol;
+        const char* proof;
+        enum LoweringPlanTierMetadata tier;
+        enum MirCallNeedKind need_kind;
+      };
+
+      auto int lowering_plan_extern_need_rule_matches(
+          const struct LoweringPlanExternCallView* view,
+          const struct LoweringPlanExternNeedRule* rule) {
+        if (!(view && rule)) return 0;
+        return view->route_id &&
+               !strcmp(view->route_id, rule->route_id) &&
+               view->core_op &&
+               !strcmp(view->core_op, rule->core_op) &&
+               view->route_kind &&
+               !strcmp(view->route_kind, rule->route_kind) &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, rule->emit_kind) &&
+               view->symbol &&
+               !strcmp(view->symbol, rule->symbol) &&
+               view->proof &&
+               !strcmp(view->proof, rule->proof) &&
+               view->tier == rule->tier;
+      }
+
+      auto enum MirCallNeedKind
+      mir_call_extern_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
+        static const struct LoweringPlanExternNeedRule rules[] = {
+          {
+            "extern.env.get",
+            "EnvGet",
+            "extern.env.get",
+            "runtime_call",
+            "nyash.env.get",
+            "extern_registry",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
+          },
+        };
+        struct LoweringPlanExternCallView view;
+        size_t ri = 0;
+        if (!read_lowering_plan_extern_call_view(entry, &view)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          if (lowering_plan_extern_need_rule_matches(&view, &rules[ri])) {
+            return rules[ri].need_kind;
+          }
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
+      auto enum MirCallNeedKind
+      classify_mir_call_extern_need_kind_from_lowering_plan(
+          long long bid,
+          size_t ii) {
+        yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (plan_entry) {
+          enum MirCallNeedKind plan_need =
+              mir_call_extern_need_kind_from_lowering_plan_entry(plan_entry);
+          if (plan_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
+            trace_lowering_plan_entry_hit(plan_entry, "mir_call_extern_need");
+            return plan_need;
+          }
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }

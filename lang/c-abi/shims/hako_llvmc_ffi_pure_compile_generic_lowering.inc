@@ -456,6 +456,7 @@
       if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
         fprintf(f, "declare i64 @\"nyash.string.kernel_slot_publish_h\"(ptr)\n");
       if (needs.string_indexof || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
+      if (needs.env_get) fprintf(f, "declare i64 @\"nyash.env.get\"(i64)\n");
       if (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof) {
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat_hs\"(i64, ptr)\n");

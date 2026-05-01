@@ -117,9 +117,16 @@
 
         if (ctype && !strcmp(ctype, "Extern") && mname) {
           enum MirCallNeedKind need_kind =
-              classify_mir_call_extern_need_kind(mname);
+              classify_mir_call_extern_need_kind_from_lowering_plan(bid, ii);
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE) {
+            need_kind = classify_mir_call_extern_need_kind(mname);
+          }
           apply_mir_call_need_kind(needs, need_kind);
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT &&
+              read_int(ins, "dst")) {
+            set_scan_origin(read_int(ins, "dst"), ORG_STRING);
+          }
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ENV_GET &&
               read_int(ins, "dst")) {
             set_scan_origin(read_int(ins, "dst"), ORG_STRING);
           }

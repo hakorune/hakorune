@@ -56,6 +56,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   not emit the full Stage1 env MIR yet, Rust direct MIR is diagnostic-only,
   pure-first stops on unplanned `env.get/1`, and the full Stage1 env direct EXE
   route still fails MIR dominance verification.
+- P107 added MIR-owned `extern_call_routes` / `LoweringPlan` metadata for
+  `env.get/1`.
+- P108 consumes that `EnvGet` plan in ny-llvmc pure-first without adding a raw
+  backend `env.get` matcher. Remaining replacement blockers are the
+  emit-capable Stage1 env artifact and the direct EXE MIR dominance failure.
 
 ## Compat Capsule Rules
 
@@ -90,9 +95,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` is now guarded so it
      cannot misread the reduced run-only `stage1-cli` artifact as an
      emit-capable Stage1 env artifact.
-   - P106 keeps this caller in the bridge capsule until an emit-capable Stage1
-     env artifact, plan-backed `env.get/1`, and MIR dominance proof are all
-     green on the MIR-first replacement path.
+   - P108 proved the plan-backed `env.get/1` consumer. This caller stays in
+     the bridge capsule until an emit-capable Stage1 env artifact and MIR
+     dominance proof are both green on the MIR-first replacement path.
    - This capsule is not a primary proof route and is not part of
      `selfhost_build.sh` mainline routing.
 3. Stage1 contract keepers

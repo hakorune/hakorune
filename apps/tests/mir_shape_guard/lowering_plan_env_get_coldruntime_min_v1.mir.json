@@ -1,0 +1,79 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "lowering_plan": [
+          {
+            "site": "b0.i1",
+            "block": 0,
+            "instruction_index": 1,
+            "source": "extern_call_routes",
+            "source_route_id": "extern.env.get",
+            "source_symbol": "env.get/1",
+            "core_op": "EnvGet",
+            "tier": "ColdRuntime",
+            "emit_kind": "runtime_call",
+            "symbol": "nyash.env.get",
+            "proof": "extern_registry",
+            "route_proof": "extern_registry",
+            "route_kind": "extern.env.get",
+            "perf_proof": false,
+            "arity": 1,
+            "key_value": 1,
+            "result_value": 2,
+            "return_shape": "string_handle_or_null",
+            "value_demand": "runtime_i64_or_handle",
+            "publication_policy": null,
+            "effects": [
+              "read.env"
+            ]
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "PATH"
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 2,
+              "mir_call": {
+                "callee": {
+                  "type": "Extern",
+                  "name": "env.get/1"
+                },
+                "args": [
+                  1
+                ],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
