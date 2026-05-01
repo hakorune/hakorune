@@ -241,6 +241,10 @@ The first lowerable same-module user/global-call target shape is
 `generic_pure_string_body` for the narrow generic pure string/env/global-call
 subset. The third lowerable shape is `generic_i64_body` for narrow i64 helpers
 that use the same generic function emitter contract but return `ScalarI64`.
+The fourth lowerable shape is `generic_string_or_void_sentinel_body` for the
+same string body subset when canonical returns are string handles or a void/null
+sentinel. It uses the generic string function emitter and reports
+`return_shape=string_handle_or_null`.
 MIR owns these classifications and records them as `target_shape`.
 Within `generic_pure_string_body`, MIR may accept string-class
 `RuntimeDataBox.length()` and `RuntimeDataBox.substring(i64, i64)` only when the
@@ -260,6 +264,7 @@ The lowerable v0 rows are:
 | --- | --- | --- | --- | --- |
 | `global.user_call` | `numeric_i64_leaf` | `DirectAbi` | `direct_function_call` | `typed_global_call_leaf_numeric_i64` |
 | `global.user_call` | `generic_pure_string_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_pure_string` |
+| `global.user_call` | `generic_string_or_void_sentinel_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_string_or_void_sentinel` |
 | `global.user_call` | `generic_i64_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_i64` |
 
 ny-llvmc may emit a direct call only after it has emitted the target function as

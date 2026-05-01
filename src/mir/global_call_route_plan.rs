@@ -42,6 +42,7 @@ pub enum GlobalCallTargetShape {
     Unknown,
     NumericI64Leaf,
     GenericPureStringBody,
+    GenericStringOrVoidSentinelBody,
     GenericI64Body,
 }
 
@@ -51,6 +52,7 @@ impl GlobalCallTargetShape {
             Self::Unknown => "unknown",
             Self::NumericI64Leaf => "numeric_i64_leaf",
             Self::GenericPureStringBody => "generic_pure_string_body",
+            Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
             Self::GenericI64Body => "generic_i64_body",
         }
     }
@@ -316,6 +318,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::GenericPureStringBody) => {
                 "typed_global_call_generic_pure_string"
             }
+            Some(GlobalCallTargetShape::GenericStringOrVoidSentinelBody) => {
+                "typed_global_call_generic_string_or_void_sentinel"
+            }
             Some(GlobalCallTargetShape::GenericI64Body) => "typed_global_call_generic_i64",
             _ => "typed_global_call_contract_missing",
         }
@@ -397,7 +402,10 @@ impl GlobalCallRoute {
         match self.direct_target_shape() {
             Some(GlobalCallTargetShape::NumericI64Leaf)
             | Some(GlobalCallTargetShape::GenericI64Body) => "scalar_i64",
-            Some(GlobalCallTargetShape::GenericPureStringBody) => "runtime_i64_or_handle",
+            Some(
+                GlobalCallTargetShape::GenericPureStringBody
+                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody,
+            ) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
         }
     }
@@ -407,6 +415,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::NumericI64Leaf)
             | Some(GlobalCallTargetShape::GenericI64Body) => Some("ScalarI64"),
             Some(GlobalCallTargetShape::GenericPureStringBody) => Some("string_handle"),
+            Some(GlobalCallTargetShape::GenericStringOrVoidSentinelBody) => {
+                Some("string_handle_or_null")
+            }
             _ => None,
         }
     }
@@ -437,6 +448,7 @@ impl GlobalCallRoute {
         match self.target.shape() {
             GlobalCallTargetShape::NumericI64Leaf
             | GlobalCallTargetShape::GenericPureStringBody
+            | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
             | GlobalCallTargetShape::GenericI64Body => Some(self.target.shape()),
             GlobalCallTargetShape::Unknown => None,
         }
@@ -521,6 +533,27 @@ fn classify_global_call_target_shape(
     }
     if is_generic_i64_body_function(function, targets) {
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericI64Body);
+    }
+    if function.signature.return_type == MirType::Void {
+        if let Some(reject) = generic_string_void_sentinel_body_reject_reason(function, targets) {
+            if reject.reason
+                == GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate
+                && reject.blocker.is_none()
+            {
+                return GlobalCallTargetClassification::direct(
+                    GlobalCallTargetShape::GenericStringOrVoidSentinelBody,
+                );
+            }
+            return if let Some(blocker) = reject.blocker {
+                GlobalCallTargetClassification::unknown_with_blocker(
+                    reject.reason,
+                    blocker.symbol,
+                    blocker.reason,
+                )
+            } else {
+                GlobalCallTargetClassification::unknown(reject.reason)
+            };
+        }
     }
     if let Some(reject) = generic_pure_string_body_reject_reason(function, targets) {
         if let Some(blocker) = reject.blocker {
@@ -764,7 +797,10 @@ fn generic_i64_body_refine_instruction(
                 return false;
             };
             let class = match target.shape() {
-                GlobalCallTargetShape::GenericPureStringBody => GenericI64ValueClass::String,
+                GlobalCallTargetShape::GenericPureStringBody
+                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
+                    GenericI64ValueClass::String
+                }
                 GlobalCallTargetShape::NumericI64Leaf | GlobalCallTargetShape::GenericI64Body => {
                     GenericI64ValueClass::I64
                 }
@@ -1200,6 +1236,9 @@ fn refine_generic_string_return_value_class(
                     GlobalCallTargetShape::GenericPureStringBody => {
                         GenericStringReturnValueClass::String
                     }
+                    GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
+                        GenericStringReturnValueClass::String
+                    }
                     GlobalCallTargetShape::NumericI64Leaf => GenericStringReturnValueClass::Other,
                     GlobalCallTargetShape::GenericI64Body => GenericStringReturnValueClass::Other,
                     GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
@@ -1517,7 +1556,8 @@ fn generic_pure_string_instruction_reject_reason(
                 ));
             };
             match target.shape() {
-                GlobalCallTargetShape::GenericPureStringBody => {
+                GlobalCallTargetShape::GenericPureStringBody
+                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                     if let Some(dst) = dst {
                         *has_string_surface = true;
                         set_value_class(values, *dst, GenericPureValueClass::String, changed);
@@ -1771,7 +1811,7 @@ mod tests {
     }
 
     #[test]
-    fn refresh_module_global_call_routes_marks_string_or_void_sentinel_candidate() {
+    fn refresh_module_global_call_routes_marks_string_or_void_sentinel_body_direct_target() {
         let mut module = MirModule::new("global_call_void_sentinel_test".to_string());
         let caller = make_function_with_global_call_args(
             "Helper.maybe_text/0",
@@ -1828,13 +1868,19 @@ mod tests {
         assert!(route.target_exists());
         assert_eq!(route.target_symbol(), Some("Helper.maybe_text/0"));
         assert_eq!(route.target_return_type(), Some("void".to_string()));
-        assert_eq!(route.target_shape(), None);
         assert_eq!(
-            route.target_shape_reason(),
-            Some("generic_string_return_void_sentinel_candidate")
+            route.target_shape(),
+            Some("generic_string_or_void_sentinel_body")
         );
-        assert_eq!(route.tier(), "Unsupported");
-        assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
+        assert_eq!(route.target_shape_reason(), None);
+        assert_eq!(
+            route.proof(),
+            "typed_global_call_generic_string_or_void_sentinel"
+        );
+        assert_eq!(route.tier(), "DirectAbi");
+        assert_eq!(route.return_shape(), Some("string_handle_or_null"));
+        assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+        assert_eq!(route.reason(), None);
     }
 
     #[test]

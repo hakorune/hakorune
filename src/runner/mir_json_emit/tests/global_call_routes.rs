@@ -212,7 +212,7 @@ fn build_mir_json_root_emits_target_return_type_for_return_abi_blocker() {
 }
 
 #[test]
-fn build_mir_json_root_emits_target_reason_for_string_or_void_sentinel_candidate() {
+fn build_mir_json_root_emits_string_or_void_sentinel_direct_route() {
     let mut module = crate::mir::MirModule::new("json_global_call_void_sentinel_test".to_string());
     let mut caller = make_function("main", true);
     caller
@@ -277,20 +277,28 @@ fn build_mir_json_root_emits_target_reason_for_string_or_void_sentinel_candidate
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
     assert_eq!(route["target_exists"], true);
     assert_eq!(route["target_return_type"], "void");
-    assert_eq!(route["target_shape"], serde_json::Value::Null);
     assert_eq!(
-        route["target_shape_reason"],
-        "generic_string_return_void_sentinel_candidate"
+        route["target_shape"],
+        "generic_string_or_void_sentinel_body"
     );
+    assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
+    assert_eq!(
+        route["proof"],
+        "typed_global_call_generic_string_or_void_sentinel"
+    );
+    assert_eq!(route["tier"], "DirectAbi");
+    assert_eq!(route["return_shape"], "string_handle_or_null");
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
     assert_eq!(plan["target_exists"], true);
     assert_eq!(plan["target_return_type"], "void");
-    assert_eq!(plan["target_shape"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape"], "generic_string_or_void_sentinel_body");
+    assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(
-        plan["target_shape_reason"],
-        "generic_string_return_void_sentinel_candidate"
+        plan["route_proof"],
+        "typed_global_call_generic_string_or_void_sentinel"
     );
+    assert_eq!(plan["return_shape"], "string_handle_or_null");
 }
 
 #[test]

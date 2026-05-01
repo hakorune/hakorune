@@ -355,20 +355,31 @@
 
       auto int lowering_plan_global_call_view_is_direct_generic_string(
           const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_generic_pure_string") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_generic_pure_string") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "generic_pure_string_body") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
+        if (!(lowering_plan_global_call_view_has_direct_target(view) &&
+              view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
+              view->emit_kind &&
+              !strcmp(view->emit_kind, "direct_function_call") &&
+              view->proof &&
+              view->route_proof &&
+              view->target_shape &&
+              view->return_shape &&
+              view->value_demand &&
+              !strcmp(view->value_demand, "runtime_i64_or_handle"))) {
+          return 0;
+        }
+        if (!strcmp(view->proof, "typed_global_call_generic_pure_string") &&
+            !strcmp(view->route_proof, "typed_global_call_generic_pure_string") &&
+            !strcmp(view->target_shape, "generic_pure_string_body") &&
+            !strcmp(view->return_shape, "string_handle")) {
+          return 1;
+        }
+        if (!strcmp(view->proof, "typed_global_call_generic_string_or_void_sentinel") &&
+            !strcmp(view->route_proof, "typed_global_call_generic_string_or_void_sentinel") &&
+            !strcmp(view->target_shape, "generic_string_or_void_sentinel_body") &&
+            !strcmp(view->return_shape, "string_handle_or_null")) {
+          return 1;
+        }
+        return 0;
       }
 
       auto int lowering_plan_global_call_view_is_direct_generic_i64(

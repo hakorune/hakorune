@@ -1322,7 +1322,10 @@ fn generic_pure_string_global_call_origin_box_name(
             route.block() == block
                 && route.instruction_index() == instruction_index
                 && route.result_value() == Some(origin)
-                && route.target_shape() == Some("generic_pure_string_body")
+                && matches!(
+                    route.target_shape(),
+                    Some("generic_pure_string_body" | "generic_string_or_void_sentinel_body")
+                )
         })
         .then(|| "StringBox".to_string())
 }
@@ -1407,7 +1410,10 @@ fn generic_pure_string_flow_marks_instruction(
             route.block() == block_id
                 && route.instruction_index() == instruction_index
                 && route.result_value() == Some(*dst)
-                && route.target_shape() == Some("generic_pure_string_body")
+                && matches!(
+                    route.target_shape(),
+                    Some("generic_pure_string_body" | "generic_string_or_void_sentinel_body")
+                )
         }) =>
         {
             mark(string_values, *dst)
