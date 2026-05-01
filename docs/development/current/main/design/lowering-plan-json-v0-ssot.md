@@ -190,7 +190,11 @@ backend.
 Reason strings should be specific enough to preserve ownership boundaries. In
 particular, unsupported local instructions, method calls, unsupported extern or
 backend-global surfaces, missing global targets, and child targets whose own
-shape remains unknown are distinct causes.
+shape remains unknown are distinct causes. A `void` signature whose observed
+returns are string-or-void sentinel values must use
+`generic_string_return_void_sentinel_candidate`, not the broader
+`generic_string_return_abi_not_handle_compatible`; it is still unsupported
+until a separate shape/proof makes the sentinel ABI lowerable.
 
 Same-module global user-call target evidence must also include
 `target_return_type` when `target_exists=true`. This is the compact MIR

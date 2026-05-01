@@ -58,6 +58,7 @@ impl GlobalCallTargetShape {
 enum GlobalCallTargetShapeReason {
     ParamBindingMismatch,
     GenericStringReturnAbiNotHandleCompatible,
+    GenericStringReturnVoidSentinelCandidate,
     GenericStringParamAbiNotHandleCompatible,
     GenericStringUnsupportedInstruction,
     GenericStringUnsupportedCall,
@@ -76,6 +77,9 @@ impl GlobalCallTargetShapeReason {
             Self::ParamBindingMismatch => "param_binding_mismatch",
             Self::GenericStringReturnAbiNotHandleCompatible => {
                 "generic_string_return_abi_not_handle_compatible"
+            }
+            Self::GenericStringReturnVoidSentinelCandidate => {
+                "generic_string_return_void_sentinel_candidate"
             }
             Self::GenericStringParamAbiNotHandleCompatible => {
                 "generic_string_param_abi_not_handle_compatible"
@@ -597,6 +601,13 @@ fn generic_pure_string_body_reject_reason(
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> Option<GenericPureStringReject> {
     if !generic_pure_string_abi_type_is_handle_compatible(&function.signature.return_type) {
+        if function.signature.return_type == MirType::Void
+            && generic_string_void_sentinel_return_candidate(function, targets)
+        {
+            return Some(GenericPureStringReject::new(
+                GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate,
+            ));
+        }
         return Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringReturnAbiNotHandleCompatible,
         ));
@@ -696,6 +707,213 @@ fn generic_pure_string_abi_type_is_handle_compatible(ty: &MirType) -> bool {
         MirType::Integer | MirType::String | MirType::Unknown => true,
         MirType::Box(name) => name == "StringBox",
         _ => false,
+    }
+}
+
+// Return-profile evidence only: this must not make the target lowerable.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GenericStringReturnValueClass {
+    Unknown,
+    Void,
+    String,
+    Other,
+}
+
+fn generic_string_void_sentinel_return_candidate(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    let mut values = BTreeMap::<ValueId, GenericStringReturnValueClass>::new();
+    for param in &function.params {
+        values.insert(*param, GenericStringReturnValueClass::String);
+    }
+
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                refine_generic_string_return_value_class(
+                    instruction,
+                    targets,
+                    &mut values,
+                    &mut changed,
+                );
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    let mut saw_string = false;
+    let mut saw_void = false;
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            match instruction {
+                MirInstruction::Return { value: Some(value) } => {
+                    match generic_string_return_value_class(&values, *value) {
+                        GenericStringReturnValueClass::String => saw_string = true,
+                        GenericStringReturnValueClass::Void => saw_void = true,
+                        GenericStringReturnValueClass::Unknown
+                        | GenericStringReturnValueClass::Other => {
+                            return false;
+                        }
+                    }
+                }
+                MirInstruction::Return { value: None } => saw_void = true,
+                _ => {}
+            }
+        }
+    }
+    saw_string && saw_void
+}
+
+fn refine_generic_string_return_value_class(
+    instruction: &MirInstruction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    values: &mut BTreeMap<ValueId, GenericStringReturnValueClass>,
+    changed: &mut bool,
+) {
+    match instruction {
+        MirInstruction::Const { dst, value } => {
+            let class = match value {
+                ConstValue::String(_) => GenericStringReturnValueClass::String,
+                ConstValue::Null | ConstValue::Void => GenericStringReturnValueClass::Void,
+                ConstValue::Integer(_) | ConstValue::Bool(_) => {
+                    GenericStringReturnValueClass::Other
+                }
+                _ => GenericStringReturnValueClass::Unknown,
+            };
+            set_generic_string_return_value_class(values, *dst, class, changed);
+        }
+        MirInstruction::Copy { dst, src } => {
+            let class = generic_string_return_value_class(values, *src);
+            set_generic_string_return_value_class(values, *dst, class, changed);
+        }
+        MirInstruction::Phi { dst, inputs, .. } => {
+            let mut class = GenericStringReturnValueClass::Unknown;
+            let mut saw_unknown = false;
+            for (_, value) in inputs {
+                let input_class = generic_string_return_value_class(values, *value);
+                if input_class == GenericStringReturnValueClass::Unknown {
+                    saw_unknown = true;
+                    break;
+                }
+                class = merge_generic_string_return_value_class(class, input_class);
+            }
+            if !saw_unknown {
+                set_generic_string_return_value_class(values, *dst, class, changed);
+            }
+        }
+        MirInstruction::BinOp {
+            dst, op, lhs, rhs, ..
+        } => {
+            let lhs_class = generic_string_return_value_class(values, *lhs);
+            let rhs_class = generic_string_return_value_class(values, *rhs);
+            let class = if *op == BinaryOp::Add
+                && (lhs_class == GenericStringReturnValueClass::String
+                    || rhs_class == GenericStringReturnValueClass::String)
+            {
+                GenericStringReturnValueClass::String
+            } else if lhs_class == GenericStringReturnValueClass::Unknown
+                || rhs_class == GenericStringReturnValueClass::Unknown
+            {
+                GenericStringReturnValueClass::Unknown
+            } else {
+                GenericStringReturnValueClass::Other
+            };
+            set_generic_string_return_value_class(values, *dst, class, changed);
+        }
+        MirInstruction::Compare { dst, .. } => {
+            set_generic_string_return_value_class(
+                values,
+                *dst,
+                GenericStringReturnValueClass::Other,
+                changed,
+            );
+        }
+        MirInstruction::Call {
+            dst,
+            callee: Some(Callee::Extern(name)),
+            ..
+        } if name == "env.get/1" => {
+            if let Some(dst) = dst {
+                set_generic_string_return_value_class(
+                    values,
+                    *dst,
+                    GenericStringReturnValueClass::String,
+                    changed,
+                );
+            }
+        }
+        MirInstruction::Call {
+            dst,
+            callee: Some(Callee::Global(name)),
+            ..
+        } => {
+            let class = lookup_global_call_target(name, targets)
+                .map(|target| match target.shape() {
+                    GlobalCallTargetShape::GenericPureStringBody => {
+                        GenericStringReturnValueClass::String
+                    }
+                    GlobalCallTargetShape::NumericI64Leaf => GenericStringReturnValueClass::Other,
+                    GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
+                })
+                .unwrap_or(GenericStringReturnValueClass::Unknown);
+            if let Some(dst) = dst {
+                set_generic_string_return_value_class(values, *dst, class, changed);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn generic_string_return_value_class(
+    values: &BTreeMap<ValueId, GenericStringReturnValueClass>,
+    value: ValueId,
+) -> GenericStringReturnValueClass {
+    values
+        .get(&value)
+        .copied()
+        .unwrap_or(GenericStringReturnValueClass::Unknown)
+}
+
+fn merge_generic_string_return_value_class(
+    lhs: GenericStringReturnValueClass,
+    rhs: GenericStringReturnValueClass,
+) -> GenericStringReturnValueClass {
+    match (lhs, rhs) {
+        (GenericStringReturnValueClass::Unknown, class)
+        | (class, GenericStringReturnValueClass::Unknown) => class,
+        (same_lhs, same_rhs) if same_lhs == same_rhs => same_lhs,
+        _ => GenericStringReturnValueClass::Other,
+    }
+}
+
+fn set_generic_string_return_value_class(
+    values: &mut BTreeMap<ValueId, GenericStringReturnValueClass>,
+    value: ValueId,
+    class: GenericStringReturnValueClass,
+    changed: &mut bool,
+) {
+    if class == GenericStringReturnValueClass::Unknown {
+        return;
+    }
+    match values.get(&value).copied() {
+        Some(existing) if existing == class => {}
+        Some(GenericStringReturnValueClass::Unknown) | None => {
+            values.insert(value, class);
+            *changed = true;
+        }
+        Some(_) => {
+            values.insert(value, GenericStringReturnValueClass::Other);
+            *changed = true;
+        }
     }
 }
 
@@ -1099,6 +1317,73 @@ mod tests {
             route.target_shape_reason(),
             Some("generic_string_no_string_surface")
         );
+        assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_string_or_void_sentinel_candidate() {
+        let mut module = MirModule::new("global_call_void_sentinel_test".to_string());
+        let caller = make_function_with_global_call_args(
+            "Helper.maybe_text/0",
+            Some(ValueId::new(7)),
+            vec![],
+        );
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.maybe_text/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Bool(true),
+        });
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(1),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        let mut text_block = BasicBlock::new(BasicBlockId::new(1));
+        text_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("ok".to_string()),
+        });
+        text_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        let mut void_block = BasicBlock::new(BasicBlockId::new(2));
+        void_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
+        });
+        void_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        callee.blocks.insert(BasicBlockId::new(1), text_block);
+        callee.blocks.insert(BasicBlockId::new(2), void_block);
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Helper.maybe_text/0".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert!(route.target_exists());
+        assert_eq!(route.target_symbol(), Some("Helper.maybe_text/0"));
+        assert_eq!(route.target_return_type(), Some("void".to_string()));
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_return_void_sentinel_candidate")
+        );
+        assert_eq!(route.tier(), "Unsupported");
         assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
     }
 
