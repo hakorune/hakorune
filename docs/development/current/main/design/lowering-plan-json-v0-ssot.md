@@ -161,6 +161,11 @@ contract only until a later card adds a real typed user/global-call emitter.
 The backend may surface this reason, but it must not reclassify raw callee
 names to decide it.
 
+The generic pure program reader must treat `functions[]` as the module owner and
+entry selection as a view. While the emitter is still entry-only, it must keep
+module facts available through the program view so the multi-function emitter
+can be added without inventing a second raw JSON scanner.
+
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
 consumer is proven.

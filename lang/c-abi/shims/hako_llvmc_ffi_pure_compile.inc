@@ -87,7 +87,10 @@ static int hako_llvmc_exact_seed_backend_route_supported(
 
 /* inc-codegen-view-owner: generic_pure_view begin */
 typedef struct hako_llvmc_generic_pure_program_view {
+  yyjson_val* functions;
+  size_t function_count;
   yyjson_val* fn;
+  size_t entry_index;
   yyjson_val* metadata;
   yyjson_val* blocks;
   size_t block_count;
@@ -101,8 +104,20 @@ static int hako_llvmc_read_generic_pure_program_view(
   if (!out) return 0;
   memset(out, 0, sizeof(*out));
   fns = yyjson_obj_get(root, "functions");
+  if (!(fns && yyjson_is_arr(fns))) return 0;
+  out->functions = fns;
+  out->function_count = yyjson_arr_size(fns);
+  if (out->function_count < 1) return 0;
   out->fn = hako_llvmc_find_entry_function(fns);
   if (!(out->fn && yyjson_is_obj(out->fn))) return 0;
+  out->entry_index = out->function_count;
+  for (size_t i = 0; i < out->function_count; i++) {
+    if (yyjson_arr_get(fns, i) == out->fn) {
+      out->entry_index = i;
+      break;
+    }
+  }
+  if (out->entry_index >= out->function_count) return 0;
   out->metadata = yyjson_obj_get(out->fn, "metadata");
   out->blocks = yyjson_obj_get(out->fn, "blocks");
   if (!(out->blocks && yyjson_is_arr(out->blocks))) return 0;

@@ -84,6 +84,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `Stage1ModeContractBox.resolve_mode/0` stop now reports
   `missing_multi_function_emitter`, which means the callee exists and arity
   matches, but generic pure still emits only the selected entry function.
+- P114 makes the C generic pure program view module-shaped (`functions[]`,
+  `function_count`, selected entry, `entry_index`) while preserving entry-only
+  emission. This is the structural landing point for the next multi-function
+  emitter card.
 
 ## Compat Capsule Rules
 

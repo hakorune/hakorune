@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P113-GLOBAL-CALL-TARGET-CONTRACT-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P113-GLOBAL-CALL-TARGET-CONTRACT-INVENTORY.md"
-latest_card_summary = "Enrich global_call_routes with MIR module target facts so user/global-call Unsupported reasons identify missing multi-function emission versus contract errors."
+latest_card = "P114-GENERIC-PURE-MODULE-VIEW-ENTRY-SPLIT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P114-GENERIC-PURE-MODULE-VIEW-ENTRY-SPLIT.md"
+latest_card_summary = "Make ny-llvmc generic pure read a module-shaped functions[] view while preserving entry-only emission before multi-function lowering."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
