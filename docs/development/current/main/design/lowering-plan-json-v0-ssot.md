@@ -274,6 +274,11 @@ the value-class fixpoint is still changing.
 Return-profile blocker propagation is diagnostic-only: missing child targets
 produce `generic_string_global_target_missing`, unknown child targets propagate
 their blocker, and already-direct child targets must not create blockers.
+For return-profile analysis, a direct
+`generic_string_or_void_sentinel_body` child call produces a `StringOrVoid`
+value class. That class may merge string/null evidence and counts as both string
+and void when deciding whether a parent is also a string-or-void sentinel body;
+it must not make arbitrary `void` values string-compatible.
 Within `generic_pure_string_body`, MIR may accept string-class
 `RuntimeDataBox.length()` and `RuntimeDataBox.substring(i64, i64)` only when the
 receiver is already classified as a string value. These methods must also carry

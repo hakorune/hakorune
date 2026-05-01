@@ -1148,6 +1148,7 @@ enum GenericStringReturnValueClass {
     Unknown,
     Void,
     String,
+    StringOrVoid,
     Other,
 }
 
@@ -1232,9 +1233,7 @@ fn generic_string_void_sentinel_return_global_blocker(
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             match instruction {
                 MirInstruction::Return { value: Some(value) } => {
-                    if generic_string_return_value_class(&values, *value)
-                        == GenericStringReturnValueClass::Void
-                    {
+                    if generic_string_return_value_class(&values, *value).is_void_like() {
                         saw_void = true;
                     } else if return_blocker.is_none() {
                         return_blocker = blockers.get(value).cloned();
@@ -1295,6 +1294,10 @@ fn generic_string_void_sentinel_return_candidate(
                 MirInstruction::Return { value: Some(value) } => {
                     match generic_string_return_value_class(&values, *value) {
                         GenericStringReturnValueClass::String => saw_string = true,
+                        GenericStringReturnValueClass::StringOrVoid => {
+                            saw_string = true;
+                            saw_void = true;
+                        }
                         GenericStringReturnValueClass::Void => saw_void = true,
                         GenericStringReturnValueClass::Unknown
                         | GenericStringReturnValueClass::Other => {
@@ -1462,7 +1465,7 @@ fn refine_generic_string_return_value_class(
                         GenericStringReturnValueClass::String
                     }
                     GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
-                        GenericStringReturnValueClass::String
+                        GenericStringReturnValueClass::StringOrVoid
                     }
                     GlobalCallTargetShape::NumericI64Leaf => GenericStringReturnValueClass::Other,
                     GlobalCallTargetShape::GenericI64Body => GenericStringReturnValueClass::Other,
@@ -1600,6 +1603,18 @@ fn merge_generic_string_return_value_class(
         (GenericStringReturnValueClass::Unknown, class)
         | (class, GenericStringReturnValueClass::Unknown) => class,
         (same_lhs, same_rhs) if same_lhs == same_rhs => same_lhs,
+        (
+            GenericStringReturnValueClass::String,
+            GenericStringReturnValueClass::Void | GenericStringReturnValueClass::StringOrVoid,
+        )
+        | (
+            GenericStringReturnValueClass::Void | GenericStringReturnValueClass::StringOrVoid,
+            GenericStringReturnValueClass::String,
+        )
+        | (GenericStringReturnValueClass::Void, GenericStringReturnValueClass::StringOrVoid)
+        | (GenericStringReturnValueClass::StringOrVoid, GenericStringReturnValueClass::Void) => {
+            GenericStringReturnValueClass::StringOrVoid
+        }
         _ => GenericStringReturnValueClass::Other,
     }
 }
@@ -1619,10 +1634,22 @@ fn set_generic_string_return_value_class(
             values.insert(value, class);
             *changed = true;
         }
-        Some(_) => {
-            values.insert(value, GenericStringReturnValueClass::Other);
-            *changed = true;
+        Some(existing) => {
+            let merged = merge_generic_string_return_value_class(existing, class);
+            if merged != existing {
+                values.insert(value, merged);
+                *changed = true;
+            }
         }
+    }
+}
+
+impl GenericStringReturnValueClass {
+    fn is_void_like(self) -> bool {
+        matches!(
+            self,
+            GenericStringReturnValueClass::Void | GenericStringReturnValueClass::StringOrVoid
+        )
     }
 }
 
@@ -2693,6 +2720,138 @@ mod tests {
             generic_string_void_sentinel_return_global_blocker(&function, &targets),
             None
         );
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_accepts_void_typed_direct_sentinel_child_return() {
+        let mut module = MirModule::new("global_call_void_typed_sentinel_child_test".to_string());
+        let caller =
+            make_function_with_global_call_args("Helper.parent/0", Some(ValueId::new(7)), vec![]);
+        let mut child = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.child/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        child
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .unwrap()
+            .instructions
+            .push(MirInstruction::Const {
+                dst: ValueId::new(1),
+                value: ConstValue::Bool(true),
+            });
+        child
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .unwrap()
+            .set_terminator(MirInstruction::Branch {
+                condition: ValueId::new(1),
+                then_bb: BasicBlockId::new(1),
+                else_bb: BasicBlockId::new(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        let mut child_text_block = BasicBlock::new(BasicBlockId::new(1));
+        child_text_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("ok".to_string()),
+        });
+        child_text_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        let mut child_void_block = BasicBlock::new(BasicBlockId::new(2));
+        child_void_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
+        });
+        child_void_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        child.blocks.insert(BasicBlockId::new(1), child_text_block);
+        child.blocks.insert(BasicBlockId::new(2), child_void_block);
+
+        let mut parent = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.parent/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        parent
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .unwrap()
+            .instructions
+            .push(MirInstruction::Const {
+                dst: ValueId::new(1),
+                value: ConstValue::Bool(true),
+            });
+        parent
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .unwrap()
+            .set_terminator(MirInstruction::Branch {
+                condition: ValueId::new(1),
+                then_bb: BasicBlockId::new(1),
+                else_bb: BasicBlockId::new(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        let mut parent_text_block = BasicBlock::new(BasicBlockId::new(1));
+        parent_text_block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.child/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        parent_text_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        let mut parent_void_block = BasicBlock::new(BasicBlockId::new(2));
+        parent_void_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
+        });
+        parent_void_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        parent
+            .blocks
+            .insert(BasicBlockId::new(1), parent_text_block);
+        parent
+            .blocks
+            .insert(BasicBlockId::new(2), parent_void_block);
+        parent
+            .metadata
+            .value_types
+            .insert(ValueId::new(2), MirType::Void);
+        module.functions.insert("main".to_string(), caller);
+        module.functions.insert("Helper.child/0".to_string(), child);
+        module
+            .functions
+            .insert("Helper.parent/0".to_string(), parent);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(
+            route.target_shape(),
+            Some("generic_string_or_void_sentinel_body"),
+            "reason={:?} blocker={:?}/{:?}",
+            route.target_shape_reason(),
+            route.target_shape_blocker_symbol(),
+            route.target_shape_blocker_reason()
+        );
+        assert_eq!(route.target_shape_reason(), None);
+        assert_eq!(route.return_shape(), Some("string_handle_or_null"));
     }
 
     #[test]
