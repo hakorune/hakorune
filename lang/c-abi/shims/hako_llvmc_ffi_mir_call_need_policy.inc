@@ -349,6 +349,15 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_MIR_CALL_NEED_MAP_GET,
           },
+          {
+            "generic_method.push",
+            "ArrayPush",
+            "array_append_any",
+            "nyash.array.slot_append_hh",
+            "push_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH,
+          },
         };
         struct LoweringPlanGenericMethodView view;
         size_t ri = 0;

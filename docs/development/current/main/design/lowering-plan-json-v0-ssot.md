@@ -157,6 +157,7 @@ fields. Do not add one-off `strcmp` ladders for every new proven plan slice.
 | `ArrayLen` | `DirectAbi` | `nyash.array.slot_len_h` | P76 plan-only fixture |
 | `StringLen` | `DirectAbi` | `nyash.string.len_h` | P77 plan-only fixture |
 | `ArrayGet` | `DirectAbi` | `nyash.array.slot_load_hi` | P78 plan-only fixture |
+| `ArrayPush` | `ColdRuntime` | `nyash.array.slot_append_hh` | P83 plan-only fixture |
 
 ## Non-goals
 
