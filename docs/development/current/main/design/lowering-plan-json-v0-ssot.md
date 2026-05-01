@@ -271,6 +271,9 @@ result is string, while scalar substring bounds must still come from typed
 value evidence. Relational i64 comparisons and exact MIR copies may propagate
 scalar evidence inside the analysis; method rejection may only be deferred while
 the value-class fixpoint is still changing.
+Return-profile blocker propagation is diagnostic-only: missing child targets
+produce `generic_string_global_target_missing`, unknown child targets propagate
+their blocker, and already-direct child targets must not create blockers.
 Within `generic_pure_string_body`, MIR may accept string-class
 `RuntimeDataBox.length()` and `RuntimeDataBox.substring(i64, i64)` only when the
 receiver is already classified as a string value. These methods must also carry

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P141-GLOBAL-CALL-SENTINEL-SUBSTRING-RETURN"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P141-GLOBAL-CALL-SENTINEL-SUBSTRING-RETURN.md"
-latest_card_summary = "Seed generic string scans from value types so guarded substring sentinel bodies can mix string and scalar state."
+latest_card = "P142-GLOBAL-CALL-DIRECT-CHILD-BLOCKER-PROPAGATION"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P142-GLOBAL-CALL-DIRECT-CHILD-BLOCKER-PROPAGATION.md"
+latest_card_summary = "Keep return-profile blocker propagation from treating already-direct child targets as missing."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

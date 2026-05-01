@@ -1509,14 +1509,19 @@ fn refine_generic_string_return_blocker(
             callee: Some(Callee::Global(name)),
             ..
         } if !supported_backend_global(name) => {
-            let blocker = lookup_global_call_target(name, targets)
-                .filter(|target| target.shape() == GlobalCallTargetShape::Unknown)
-                .map(|target| propagated_unknown_global_target_blocker(name, target))
-                .unwrap_or_else(|| GlobalCallShapeBlocker {
+            let blocker = match lookup_global_call_target(name, targets) {
+                Some(target) if target.shape() == GlobalCallTargetShape::Unknown => {
+                    Some(propagated_unknown_global_target_blocker(name, target))
+                }
+                Some(_) => None,
+                None => Some(GlobalCallShapeBlocker {
                     symbol: crate::mir::naming::normalize_static_global_name(name),
                     reason: Some(GlobalCallTargetShapeReason::GenericStringGlobalTargetMissing),
-                });
-            set_generic_string_return_blocker(blockers, *dst, blocker, changed);
+                }),
+            };
+            if let Some(blocker) = blocker {
+                set_generic_string_return_blocker(blockers, *dst, blocker, changed);
+            }
         }
         MirInstruction::Copy { dst, src } => {
             if let Some(blocker) = blockers.get(src).cloned() {
@@ -2628,6 +2633,65 @@ mod tests {
         assert_eq!(
             route.target_shape_blocker_reason(),
             Some("generic_string_no_string_surface")
+        );
+    }
+
+    #[test]
+    fn string_return_blocker_ignores_direct_string_child_targets() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.maybe_text/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let entry = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Bool(true),
+        });
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(1),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        let mut text_block = BasicBlock::new(BasicBlockId::new(1));
+        text_block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.text/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        text_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        let mut void_block = BasicBlock::new(BasicBlockId::new(2));
+        void_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
+        });
+        void_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        function.blocks.insert(BasicBlockId::new(1), text_block);
+        function.blocks.insert(BasicBlockId::new(2), void_block);
+        let mut targets = BTreeMap::new();
+        targets.insert(
+            "Helper.text/0".to_string(),
+            GlobalCallTargetFacts::present_with_shape(
+                0,
+                GlobalCallTargetShape::GenericPureStringBody,
+            ),
+        );
+
+        assert_eq!(
+            generic_string_void_sentinel_return_global_blocker(&function, &targets),
+            None
         );
     }
 
