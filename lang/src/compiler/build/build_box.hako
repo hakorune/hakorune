@@ -15,10 +15,24 @@ static box BuildBox {
     // - scan_src keeps the full source for bundle/defs/imports observers
     // - parse_src narrows to Main.main body when available, and only then falls back
     //   to full-source parse for non-box / non-main inputs
+    if opts == null && me._bundle_env_requested() != 1 {
+      return me._emit_program_json_from_scan_src(src)
+    }
     local prepared = me._prepare_scan_src(src, opts)
     if prepared.has("error") == true { return "" + prepared.get("error") }
     local scan_src = prepared.get("scan_src")
     return me._emit_program_json_from_scan_src(scan_src)
+  }
+
+  method _bundle_env_requested() {
+    local table = env.get("HAKO_BUNDLE_ALIAS_TABLE")
+    if table == null || table == "" { table = env.get("NYASH_BUNDLE_ALIAS_TABLE") }
+    if table != null && table != "" { return 1 }
+
+    local requires = env.get("HAKO_REQUIRE_MODS")
+    if requires == null || requires == "" { requires = env.get("NYASH_REQUIRE_MODS") }
+    if requires != null && requires != "" { return 1 }
+    return 0
   }
 
   method _prepare_scan_src(src, opts) {
