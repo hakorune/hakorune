@@ -68,6 +68,42 @@ Related:
 - `vm-hako` remains failure-driven reopen only
 - `rust-vm` remains recovery/compat only
 
+### W3.5. Rust VM source-execution capsule naming lock
+
+This is the first non-delete cleanup for the remaining VM-shaped routes. The accepted reading is:
+
+- `vm-hako` is the reference/conformance capsule and is not a delete target in this wave.
+- MIR interpreter surfaces are diagnostic/test-oracle substrate and are not the same target as source execution.
+- `vm-compat-fallback` is an explicit compat capsule guarded by `NYASH_VM_USE_FALLBACK=1`.
+- The long-term retire target is the `--backend vm` Rust source-execution keep: source prepare / parse / macro expansion / MIR compile / in-crate interpreter execution.
+
+Task order:
+
+1. Behavior-preserving naming lock:
+   - `VmRouteAction::Vm` -> `BootstrapRustVmKeep`
+   - `VM_LANE_RUST_KEEP` -> `LANE_BOOTSTRAP_RUST_VM_KEEP`
+   - `execute_vm_mode` -> `execute_bootstrap_rust_vm_keep`
+   - `execute_vm_fallback_interpreter` -> `execute_compat_vm_fallback_capsule`
+2. Route trace vocabulary update:
+   - `--backend vm` without compat/reference override reports `lane=bootstrap-rust-vm-keep`
+   - selection reason says this is an explicit deprecated/bootstrap keep, not a daily route
+3. Caller inventory:
+   - enumerate active `--backend vm` proof/recovery callers before any behavior gate
+   - keep `vm-hako` reference callers out of this delete-readiness count
+4. Future gated alias:
+   - only after caller inventory, consider requiring an explicit allow env for `--backend vm`
+   - do not gate or rename `--backend vm-hako` as part of this cleanup
+5. Follow-up naming only:
+   - classify `stage_a_compat_bridge.rs` as Program(JSON v0)->MIR compat bridge work, not VM retirement work
+
+Stop-lines:
+
+- no deletion in the naming-lock card
+- no raw CLI backend default flip
+- no `vm-hako` deletion or demotion
+- no widening of source execution fallback
+- no Program(JSON v0) bridge behavior change while renaming VM capsules
+
 ### Future explicit reopen
 
 - any raw CLI backend default flip
@@ -98,8 +134,17 @@ Related:
 - runtime policy docs and gates use the same vocabulary
 - `phase-29y` continues to own runtime reopen criteria
 
+### W3.5
+
+- `route_orchestrator` unit tests use the bootstrap/reference/compat capsule vocabulary
+- `NYASH_VM_ROUTE_TRACE=1 --backend vm ...` without compat/reference override selects `bootstrap-rust-vm-keep`
+- `NYASH_VM_ROUTE_TRACE=1 --backend vm-hako ...` still selects `vm-hako-reference`
+- compat fallback still fails fast unless `NYASH_VM_USE_FALLBACK=1`
+- active proof/recovery callers for `--backend vm` are inventoried before any gate/delete step
+
 ## Non-Goals
 
 - raw CLI default flip in this task pack
 - changing runtime implementation because of the docs lock alone
 - moving Rune lane ownership into general stage/distribution policy
+- deleting `vm-hako` as part of Rust VM source-execution cleanup
