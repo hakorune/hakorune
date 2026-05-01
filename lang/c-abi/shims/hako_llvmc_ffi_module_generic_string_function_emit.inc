@@ -59,6 +59,26 @@
         }
       }
 
+      auto int module_generic_string_method_view_is_direct_string_len(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "generic_method.len") &&
+               view->core_op &&
+               !strcmp(view->core_op, "StringLen") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "string_len") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.string.len_h") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "len_surface_policy") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "scalar_i64") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }
+
       auto int module_generic_string_record_phi(yyjson_val* ins, long long bid) {
         struct BlockPhi* pb = ensure_phi_block(bid);
         struct PhiRec pr;
@@ -201,10 +221,14 @@
               }
             } else if (!strcmp(op, "mir_call")) {
               yyjson_val* entry = find_lowering_plan_entry_for_site(block.id, ii);
+              struct LoweringPlanGenericMethodView method_view;
               struct LoweringPlanExternCallView extern_view;
               struct LoweringPlanGlobalCallView global_view;
               long long dst = read_int(ins, "dst");
-              if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
+              if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                  module_generic_string_method_view_is_direct_string_len(&method_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
                   lowering_plan_env_get_view_is_valid(&extern_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
@@ -346,6 +370,32 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_method_len_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        char ab[256];
+        (void)f;
+        ab[0] = '\0';
+        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
+              module_generic_string_method_view_is_direct_string_len(&method_view))) {
+          return 0;
+        }
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"nyash.string.len_h\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+          remember_string_length_call(dst, recv);
+        } else {
+          EMIT("  call i64 @\"nyash.string.len_h\"(%s)\n", ab);
+        }
+        return 1;
+      }
+
       auto int module_generic_string_emit_mir_call(
           FILE* f,
           long long bid,
@@ -361,6 +411,9 @@
           rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
         } else if (ctype && !strcmp(ctype, "Global")) {
           rc = emit_global_call_lowering_plan_mir_call(f, bid, ii, dst, args);
+        } else if (ctype && !strcmp(ctype, "Method")) {
+          long long recv = read_int(cal, "receiver");
+          rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);
         } else {
           return 0;
         }

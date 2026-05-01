@@ -1047,6 +1047,7 @@ fn match_generic_len_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| generic_pure_string_global_call_origin_box_name(function, def_map, *receiver))
         .or_else(|| len_surface_origin_box_name(box_name).map(str::to_string));
     let (route_kind, core_op) =
         match len_surface_origin_box_name(box_name).or(receiver_origin_box.as_deref()) {
@@ -1302,6 +1303,26 @@ fn len_surface_origin_box_name(box_name: &str) -> Option<&'static str> {
         "StringBox" => Some("StringBox"),
         _ => None,
     }
+}
+
+fn generic_pure_string_global_call_origin_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+) -> Option<String> {
+    let origin = resolve_value_origin(function, def_map, receiver);
+    let (block, instruction_index) = def_map.get(&origin).copied()?;
+    function
+        .metadata
+        .global_call_routes
+        .iter()
+        .any(|route| {
+            route.block() == block
+                && route.instruction_index() == instruction_index
+                && route.result_value() == Some(origin)
+                && route.target_shape() == Some("generic_pure_string_body")
+        })
+        .then(|| "StringBox".to_string())
 }
 
 fn map_has_route_kind_for_key(key_route: GenericMethodKeyRoute) -> GenericMethodRouteKind {
@@ -1571,6 +1592,9 @@ fn same_value_origin(
 mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::global_call_route_plan::{
+        GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
+    };
     use crate::mir::{BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirType};
 
     fn method_call(
@@ -2099,6 +2123,60 @@ mod tests {
         assert_eq!(route.key_route(), None);
         assert_eq!(route.key_value(), None);
         assert_eq!(route.arity(), 0);
+    }
+
+    #[test]
+    fn records_runtime_data_string_len_from_generic_global_call_origin() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+            args: vec![ValueId::new(0)],
+            effects: EffectMask::PURE,
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(method_call(Some(3), "RuntimeDataBox", "length", 2, vec![]));
+        function
+            .metadata
+            .global_call_routes
+            .push(GlobalCallRoute::new(
+                GlobalCallRouteSite::new(BasicBlockId::new(0), 0),
+                "Helper.coerce/1",
+                1,
+                Some(ValueId::new(1)),
+                GlobalCallTargetFacts::present_with_shape(
+                    1,
+                    GlobalCallTargetShape::GenericPureStringBody,
+                ),
+            ));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "length");
+        assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::StringLen);
+        let core_method = route.core_method().expect("StringLen carrier");
+        assert_eq!(core_method.op, CoreMethodOp::StringLen);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(
+            route.return_shape(),
+            Some(GenericMethodReturnShape::ScalarI64)
+        );
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
     }
 
     #[test]

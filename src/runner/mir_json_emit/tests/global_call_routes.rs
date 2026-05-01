@@ -526,7 +526,7 @@ fn build_mir_json_root_emits_method_blocker_after_null_guard() {
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
             box_name: "RuntimeDataBox".to_string(),
-            method: "length".to_string(),
+            method: "debugPreview".to_string(),
             receiver: Some(ValueId::new(1)),
             certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
             box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,

@@ -107,6 +107,12 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_semantic_metadata(function, &module_metadata);
     }
     refresh_module_global_call_routes(module);
+    for function in module.functions.values_mut() {
+        // Some generic method routes depend on global-call target shapes
+        // discovered only at module scope.
+        refresh_function_generic_method_routes(function);
+        refresh_function_map_lookup_fusion_routes(function);
+    }
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
 }
@@ -116,7 +122,8 @@ mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::{
-        BasicBlockId, Callee, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId,
+        BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature, MirInstruction,
+        MirType, ValueId,
     };
 
     #[test]
@@ -167,5 +174,102 @@ mod tests {
             .metadata
             .value_storage_classes
             .contains_key(&ValueId::new(1)));
+    }
+
+    #[test]
+    fn refresh_module_semantic_metadata_replays_generic_methods_after_global_shapes() {
+        let mut module = MirModule::new("semantic_refresh_global_method_test".to_string());
+        let mut coerce = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.coerce/1".to_string(),
+                params: vec![MirType::Integer],
+                return_type: MirType::String,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        coerce.params = vec![ValueId::new(1)];
+        let coerce_entry = coerce
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("coerce entry");
+        coerce_entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String(String::new()),
+        });
+        coerce_entry.add_instruction(MirInstruction::BinOp {
+            dst: ValueId::new(3),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(1),
+        });
+        coerce_entry.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+
+        let mut debug_len = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.debug_len/1".to_string(),
+                params: vec![MirType::String],
+                return_type: MirType::String,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        debug_len.params = vec![ValueId::new(1)];
+        let debug_entry = debug_len
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("debug entry");
+        debug_entry.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::PURE,
+        });
+        debug_entry.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(3)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "length".to_string(),
+                receiver: Some(ValueId::new(2)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        debug_entry.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(4)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+            args: vec![ValueId::new(3)],
+            effects: EffectMask::PURE,
+        });
+        debug_entry.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(4)),
+        });
+
+        module.add_function(coerce);
+        module.add_function(debug_len);
+
+        refresh_module_semantic_metadata(&mut module);
+
+        let debug_len = module
+            .get_function("Helper.debug_len/1")
+            .expect("debug_len");
+        assert_eq!(debug_len.metadata.generic_method_routes.len(), 1);
+        let route = &debug_len.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), "generic_method.len");
+        assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+        assert_eq!(route.route_kind_tag(), "string_len");
+        assert_eq!(
+            route.return_shape().map(|shape| shape.to_string()),
+            Some("scalar_i64".to_string())
+        );
+        assert_eq!(
+            debug_len.metadata.global_call_routes[0].target_shape(),
+            Some("generic_pure_string_body")
+        );
     }
 }

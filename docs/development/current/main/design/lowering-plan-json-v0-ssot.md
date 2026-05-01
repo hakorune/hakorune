@@ -242,6 +242,12 @@ The first lowerable same-module user/global-call target shape is
 subset. The third lowerable shape is `generic_i64_body` for narrow i64 helpers
 that use the same generic function emitter contract but return `ScalarI64`.
 MIR owns these classifications and records them as `target_shape`.
+Within `generic_pure_string_body`, MIR may accept `RuntimeDataBox.length()` only
+when the receiver is already classified as a string value. That method produces
+an i64 and must also carry a `generic_method.len` / `StringLen` LoweringPlan
+entry before ny-llvmc emits `nyash.string.len_h`; backend shims must not infer
+this from the raw method name alone. This does not accept `substring` or other
+string methods.
 The lowerable v0 rows are:
 
 | route | target_shape | tier | emit_kind | proof |
