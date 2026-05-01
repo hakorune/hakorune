@@ -55,6 +55,17 @@ Current reading:
 
 This folder is an archive bucket, not a permanent keeper list.
 
+New archive entries should record these fields in the card that moves them, and
+may mirror them here when the entry needs a long-lived restore note:
+
+- `original_path`
+- `archived_on`
+- `archived_by_card`
+- `last_known_owner`
+- `delete_after`
+- `restore_command`
+- `delete_blocker`
+
 An archived smoke becomes a delete candidate after 30-60 days or two cleanup
 batches when all of these remain true:
 

@@ -6,6 +6,7 @@ Scope: root tool entrypoint protection, archive, and delete lifecycle.
 Related:
   - docs/development/current/main/phases/phase-29cv/README.md
   - docs/development/current/main/phases/phase-29cv/P52-ROOT-HELPER-PROTECTED-CATEGORY-POLICY.md
+  - tools/ROOT_SURFACE.md
   - tools/archive/manual-smokes/README.md
   - tools/archive/manual-tools/README.md
 ---
@@ -19,6 +20,8 @@ platform, build, CI, or compatibility entrypoints by accident.
 
 This policy is for shell/PowerShell/Python helper entrypoints. It does not
 change compiler behavior.
+
+The current root helper inventory lives in `tools/ROOT_SURFACE.md`.
 
 ## Archive/Delete Rule
 
