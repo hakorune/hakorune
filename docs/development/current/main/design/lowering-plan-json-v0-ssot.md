@@ -150,6 +150,7 @@ field parsing.
 | `MapHas` | `DirectAbi` | `nyash.map.probe_hi` | P72 plan-only fixture |
 | `MapLen` | `DirectAbi` | `nyash.map.entry_count_i64` | P75 plan-only fixture |
 | `ArrayLen` | `DirectAbi` | `nyash.array.slot_len_h` | P76 plan-only fixture |
+| `StringLen` | `DirectAbi` | `nyash.string.len_h` | P77 plan-only fixture |
 
 ## Non-goals
 
