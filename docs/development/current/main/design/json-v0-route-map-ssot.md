@@ -70,7 +70,7 @@ Current capsule classes:
 | Capsule | Entrypoints | Boundary | Reading |
 | --- | --- | --- | --- |
 | Stage-B artifact diagnostic | `tools/dev/program_json_v0/stageb_artifact_probe.sh`, `tools/lib/program_json_v0_compat.sh` | source `.hako` -> Program(JSON v0) file | explicit artifact capture only |
-| Program(JSON)->MIR bridge | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`), `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Program(JSON v0) -> MIR(JSON) -> optional ny-llvmc proof | compat conversion capsule, not primary proof |
+| Program(JSON)->MIR bridge | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`), `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Program(JSON v0) -> MIR(JSON) -> optional ny-llvmc proof | compat conversion capsule, not primary proof |
 | Stage1 contract | `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost/compat/run_stage1_cli.sh` | Stage1 CLI env contract -> Program/MIR compatibility payloads | explicit contract pin |
 | Fixture contract | `tools/smokes/v2/lib/stageb_helpers.sh`, phase29bq JoinIR/MirBuilder pins, Stage-B/Core fixture smokes | Program(JSON v0) fixture -> smoke contract assertions | fixture-only compatibility |
 
@@ -100,7 +100,6 @@ Current capsule classes:
      - `tools/lib/program_json_v0_compat.sh`
      - `tools/selfhost/lib/program_json_mir_bridge.sh`
      - `tools/selfhost_exe_stageb.sh` (`stageb-delegate` bridge capsule)
-     - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
      - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
      - `tools/selfhost/lib/stage1_contract.sh`
      - `tools/selfhost/compat/run_stage1_cli.sh`
@@ -119,8 +118,7 @@ below still need explicit Program(JSON v0) -> MIR(JSON) conversion.
 | Caller | Ownership | Delete posture |
 | --- | --- | --- |
 | `tools/selfhost_exe_stageb.sh` default or `HAKORUNE_STAGE1_EMIT_ROUTE=direct` | MIR-first route | not a Program(JSON v0) bridge blocker |
-| `tools/selfhost_exe_stageb.sh` with explicit `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` | bridge compat capsule | P103 normalizes console print at the bridge backend boundary; keep until bridge replacement/archive coverage is complete |
-| `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh` | standalone bridge-to-EXE proof | hold until a replacement proof is green; P63 showed `selfhost_exe_stageb.sh stageb-delegate` is not a replacement yet |
+| `tools/selfhost_exe_stageb.sh` with explicit `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` | bridge compat capsule | P104 replacement proof for standalone bridge-to-EXE probe; keep explicit until bridge archive coverage is complete |
 | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Stage2 bootstrap PHI/LLVM verification proof | keep until the Stage2 verification proof no longer requires Program(JSON v0) input |
 
 Indirect callers of `tools/selfhost_exe_stageb.sh` are owned by the selected

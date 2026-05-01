@@ -40,7 +40,6 @@ explicit keepers in the right order.
 2. Explicit Program(JSON)->MIR bridge keepers
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh`
-   - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
    - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
 3. Stage1 contract keepers
    - `tools/selfhost/lib/stage1_contract.sh`

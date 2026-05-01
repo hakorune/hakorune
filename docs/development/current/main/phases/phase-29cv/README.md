@@ -46,6 +46,8 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `nyash.console.log` / `env.console.log` print calls to `mir_call Global print`
   in the shared Program(JSON)->MIR bridge output before ny-llvmc sees the MIR
   JSON.
+- P104 archived the old standalone bridge-to-EXE dev probe after explicit
+  `tools/selfhost_exe_stageb.sh` `stageb-delegate` replacement proof went green.
 
 ## Compat Capsule Rules
 
@@ -71,11 +73,12 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh` only when explicitly run with
      `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`
-   - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
    - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
    - Kept for explicit compat conversion work only.
    - `tools/selfhost_exe_stageb.sh` defaults to `direct`; explicit
      `stageb-delegate` is a bridge capsule.
+   - The old standalone bridge-to-EXE dev probe is archived at
+     `tools/archive/legacy-selfhost/engineering/phase29ci_selfhost_build_exe_consumer_probe.sh`.
    - This capsule is not a primary proof route and is not part of
      `selfhost_build.sh` mainline routing.
 3. Stage1 contract keepers

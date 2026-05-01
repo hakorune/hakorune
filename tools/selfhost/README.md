@@ -15,7 +15,6 @@ Purpose
     `tools/selfhost/lib/program_json_mir_bridge.sh`,
     `tools/selfhost_exe_stageb.sh` with explicit
     `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`,
-    `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, and
     `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`.
 - file-level responsibility inventory:
   - `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
@@ -137,7 +136,9 @@ Examples
 bash tools/dev/program_json_v0/stageb_artifact_probe.sh --in apps/tests/phase122_if_only_normalized_emit_min.hako --out /tmp/phase122.program.json
 
 # Explicit Program(JSON)->MIR bridge compat capsule
-bash tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh
+HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate \
+  bash tools/selfhost_exe_stageb.sh apps/tests/hello_simple_llvm.hako \
+  -o /tmp/hakorune-stageb-bridge.exe
 
 # Day-to-day selfhost entrypoint
 tools/selfhost/run.sh --runtime --input apps/examples/string_p0.hako
