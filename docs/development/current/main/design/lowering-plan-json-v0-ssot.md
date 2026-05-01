@@ -134,6 +134,13 @@ New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
 consumer is proven.
 
+## Proven v0 Slices
+
+| slice | tier | symbol | proof |
+| --- | --- | --- | --- |
+| `MapGet` | `ColdRuntime` | `nyash.runtime_data.get_hh` | P70 plan-only fixture |
+| `MapHas` | `DirectAbi` | `nyash.map.probe_hi` | next slice locked by P71 |
+
 ## Non-goals
 
 - no broad `CoreOp` expansion in this card
