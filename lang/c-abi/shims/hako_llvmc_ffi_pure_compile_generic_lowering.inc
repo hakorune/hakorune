@@ -478,6 +478,11 @@
       if (needs.printf)    fprintf(f, "declare i32 @printf(ptr, ...)\n");
       if (needs.string_substring_len) fprintf(f, "declare i64 @\"nyash.string.substring_len_hii\"(i64, i64, i64)\n");
       fprintf(f, "\n");
+      if (emit_module_function_leaf_definitions(f) < 0) {
+        fclose(f);
+        yyjson_doc_free(d);
+        goto GEN_ABORT;
+      }
       // Unboxer (declare opportunistically; low cost)
       hako_llvmc_emit_entry_header(f, &selection);
       // Emit blocks

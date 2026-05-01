@@ -47,6 +47,8 @@
         const char* proof;
         const char* route_proof;
         const char* reason;
+        const char* target_shape;
+        const char* return_shape;
         const char* value_demand;
         long long arity;
         long long target_arity;
@@ -148,6 +150,18 @@
         return proof && !strcmp(proof, "typed_global_call_contract_missing");
       }
 
+      auto int lowering_plan_entry_is_typed_global_call_leaf_numeric_i64(
+          yyjson_val* entry) {
+        const char* proof = read_str(entry, "proof");
+        return proof && !strcmp(proof, "typed_global_call_leaf_numeric_i64");
+      }
+
+      auto int lowering_plan_entry_is_typed_global_call_contract(
+          yyjson_val* entry) {
+        return lowering_plan_entry_is_typed_global_call_contract_missing(entry) ||
+               lowering_plan_entry_is_typed_global_call_leaf_numeric_i64(entry);
+      }
+
       auto int read_lowering_plan_generic_method_view(
           yyjson_val* entry,
           struct LoweringPlanGenericMethodView* out) {
@@ -231,7 +245,7 @@
         if (out) memset(out, 0, sizeof(*out));
         if (!(source && !strcmp(source, "global_call_routes")) ||
             invalid ||
-            !lowering_plan_entry_is_typed_global_call_contract_missing(entry)) {
+            !lowering_plan_entry_is_typed_global_call_contract(entry)) {
           return 0;
         }
         if (out) {
@@ -245,6 +259,8 @@
           out->proof = read_str(entry, "proof");
           out->route_proof = read_str(entry, "route_proof");
           out->reason = read_str(entry, "reason");
+          out->target_shape = read_str(entry, "target_shape");
+          out->return_shape = read_str(entry, "return_shape");
           out->value_demand = read_str(entry, "value_demand");
           lowering_plan_read_i64_field(entry, "arity", &out->arity);
           if (lowering_plan_read_i64_field(entry, "target_arity", &target_arity)) {
@@ -285,13 +301,32 @@
                view->route_kind &&
                !strcmp(view->route_kind, "global.user_call") &&
                view->proof &&
-               !strcmp(view->proof, "typed_global_call_contract_missing") &&
+               (!strcmp(view->proof, "typed_global_call_contract_missing") ||
+                !strcmp(view->proof, "typed_global_call_leaf_numeric_i64")) &&
                view->target_exists &&
                view->has_target_arity &&
                view->has_arity_matches &&
                view->arity_matches &&
                view->target_arity == view->arity &&
                llvm_quoted_symbol_name_is_safe(view->target_symbol);
+      }
+
+      auto int lowering_plan_global_call_view_is_direct_leaf_i64(
+          const struct LoweringPlanGlobalCallView* view) {
+        return lowering_plan_global_call_view_has_direct_target(view) &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "direct_function_call") &&
+               view->proof &&
+               !strcmp(view->proof, "typed_global_call_leaf_numeric_i64") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "typed_global_call_leaf_numeric_i64") &&
+               view->target_shape &&
+               !strcmp(view->target_shape, "numeric_i64_leaf") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "ScalarI64") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64");
       }
 
       auto void trace_lowering_plan_entry_hit(

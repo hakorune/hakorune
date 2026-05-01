@@ -104,6 +104,41 @@
         }
         return 1;
       }
+      auto int emit_global_call_lowering_plan_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          yyjson_val* args) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        struct LoweringPlanGlobalCallView view;
+        size_t argc = 0;
+        char ab[2048];
+        if (!entry) return 0;
+        if (!(source && !strcmp(source, "global_call_routes"))) return 0;
+        if (!read_lowering_plan_global_call_view(entry, &view)) return -1;
+        if (!lowering_plan_global_call_view_is_direct_leaf_i64(&view)) return -1;
+        if (!module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
+        if (!view.has_result_value || !dst || view.result_value != dst) return -1;
+        if (!(args && yyjson_is_arr(args))) return -1;
+        argc = yyjson_arr_size(args);
+        if ((long long)argc != view.arity || argc > 64) return -1;
+        ab[0] = '\0';
+        for (size_t ai = 0; ai < argc; ai++) {
+          yyjson_val* arg = yyjson_arr_get(args, ai);
+          if (!(arg && yyjson_is_num(arg))) return -1;
+          append_i64_arg_ref(
+              ab,
+              sizeof(ab),
+              (long long)yyjson_get_sint(arg),
+              ai == 0);
+        }
+        fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view.target_symbol, ab);
+        set_type(dst, T_I64);
+        trace_lowering_plan_entry_hit(entry, "mir_call_global_leaf_emit");
+        return 1;
+      }
       auto int lowering_plan_env_get_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
         return view &&

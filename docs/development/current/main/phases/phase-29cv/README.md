@@ -99,6 +99,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P117 adds the C direct-target validator for plan-backed same-module global
   calls and traces `global_call_direct_target_pending` when a site is ready but
   still blocked on function-body emission.
+- P118 adds the first narrow same-module global-call lowering slice:
+  `numeric_i64_leaf` target functions are emitted as LLVM definitions and only
+  then become `DirectAbi` `UserGlobalCall` targets. Non-leaf targets, including
+  `Stage1ModeContractBox.resolve_mode/0`, remain on the
+  `missing_multi_function_emitter` stop-line.
 
 ## Compat Capsule Rules
 

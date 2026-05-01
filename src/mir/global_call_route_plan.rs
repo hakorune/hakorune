@@ -6,7 +6,10 @@
  * instead of rediscovering unsupported `Global(...)` names from raw MIR.
  */
 
-use super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, ValueId};
+use super::{
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType,
+    ValueId,
+};
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -33,10 +36,27 @@ pub struct GlobalCallRoute {
     target: GlobalCallTargetFacts,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum GlobalCallTargetShape {
+    #[default]
+    Unknown,
+    NumericI64Leaf,
+}
+
+impl GlobalCallTargetShape {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Unknown => "unknown",
+            Self::NumericI64Leaf => "numeric_i64_leaf",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct GlobalCallTargetFacts {
     exists: bool,
     arity: Option<usize>,
+    shape: GlobalCallTargetShape,
 }
 
 impl GlobalCallTargetFacts {
@@ -48,6 +68,15 @@ impl GlobalCallTargetFacts {
         Self {
             exists: true,
             arity: Some(arity),
+            shape: GlobalCallTargetShape::Unknown,
+        }
+    }
+
+    pub fn present_with_shape(arity: usize, shape: GlobalCallTargetShape) -> Self {
+        Self {
+            exists: true,
+            arity: Some(arity),
+            shape,
         }
     }
 
@@ -57,6 +86,10 @@ impl GlobalCallTargetFacts {
 
     pub fn arity(&self) -> Option<usize> {
         self.arity
+    }
+
+    pub fn shape(&self) -> GlobalCallTargetShape {
+        self.shape
     }
 }
 
@@ -94,15 +127,27 @@ impl GlobalCallRoute {
     }
 
     pub fn tier(&self) -> &'static str {
-        "Unsupported"
+        if self.is_numeric_i64_leaf_direct_target() {
+            "DirectAbi"
+        } else {
+            "Unsupported"
+        }
     }
 
     pub fn emit_kind(&self) -> &'static str {
-        "unsupported"
+        if self.is_numeric_i64_leaf_direct_target() {
+            "direct_function_call"
+        } else {
+            "unsupported"
+        }
     }
 
     pub fn proof(&self) -> &'static str {
-        "typed_global_call_contract_missing"
+        if self.is_numeric_i64_leaf_direct_target() {
+            "typed_global_call_leaf_numeric_i64"
+        } else {
+            "typed_global_call_contract_missing"
+        }
     }
 
     pub fn route_kind(&self) -> &'static str {
@@ -133,25 +178,49 @@ impl GlobalCallRoute {
         self.target.arity()
     }
 
+    pub fn target_shape(&self) -> Option<&'static str> {
+        self.target_exists()
+            .then_some(self.target.shape().as_str())
+            .filter(|shape| *shape != "unknown")
+    }
+
     pub fn arity_matches(&self) -> Option<bool> {
         self.target_arity()
             .map(|target_arity| target_arity == self.arity)
     }
 
     pub fn value_demand(&self) -> &'static str {
-        "typed_global_call_contract_missing"
+        if self.is_numeric_i64_leaf_direct_target() {
+            "scalar_i64"
+        } else {
+            "typed_global_call_contract_missing"
+        }
     }
 
-    pub fn reason(&self) -> &'static str {
+    pub fn return_shape(&self) -> Option<&'static str> {
+        self.is_numeric_i64_leaf_direct_target()
+            .then_some("ScalarI64")
+    }
+
+    pub fn reason(&self) -> Option<&'static str> {
+        if self.is_numeric_i64_leaf_direct_target() {
+            return None;
+        }
         match self.arity_matches() {
-            Some(true) => "missing_multi_function_emitter",
-            Some(false) => "global_call_arity_mismatch",
-            None => "unknown_global_callee",
+            Some(true) => Some("missing_multi_function_emitter"),
+            Some(false) => Some("global_call_arity_mismatch"),
+            None => Some("unknown_global_callee"),
         }
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
         &["call.global"]
+    }
+
+    fn is_numeric_i64_leaf_direct_target(&self) -> bool {
+        self.target_exists()
+            && self.arity_matches() == Some(true)
+            && self.target.shape() == GlobalCallTargetShape::NumericI64Leaf
     }
 }
 
@@ -180,9 +249,66 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             } else {
                 function.params.len()
             };
-            (name.clone(), GlobalCallTargetFacts::present(arity))
+            (
+                name.clone(),
+                GlobalCallTargetFacts::present_with_shape(
+                    arity,
+                    classify_global_call_target_shape(function),
+                ),
+            )
         })
         .collect()
+}
+
+fn classify_global_call_target_shape(function: &MirFunction) -> GlobalCallTargetShape {
+    if !function
+        .signature
+        .params
+        .iter()
+        .all(|ty| *ty == MirType::Integer)
+        || function.signature.return_type != MirType::Integer
+    {
+        return GlobalCallTargetShape::Unknown;
+    }
+    if function.params.len() != function.signature.params.len() {
+        return GlobalCallTargetShape::Unknown;
+    }
+    if function.blocks.len() != 1 {
+        return GlobalCallTargetShape::Unknown;
+    }
+    let Some(block) = function.blocks.get(&function.entry_block) else {
+        return GlobalCallTargetShape::Unknown;
+    };
+    if !matches!(
+        block.terminator,
+        Some(MirInstruction::Return { value: Some(_) })
+    ) {
+        return GlobalCallTargetShape::Unknown;
+    }
+    if block
+        .instructions
+        .iter()
+        .all(is_numeric_i64_leaf_instruction)
+    {
+        GlobalCallTargetShape::NumericI64Leaf
+    } else {
+        GlobalCallTargetShape::Unknown
+    }
+}
+
+fn is_numeric_i64_leaf_instruction(instruction: &MirInstruction) -> bool {
+    match instruction {
+        MirInstruction::Const {
+            value: ConstValue::Integer(_),
+            ..
+        } => true,
+        MirInstruction::Copy { .. } => true,
+        MirInstruction::BinOp { op, .. } => matches!(
+            op,
+            BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
+        ),
+        _ => false,
+    }
 }
 
 fn refresh_function_global_call_routes_with_targets(
@@ -273,7 +399,8 @@ mod tests {
         assert_eq!(route.tier(), "Unsupported");
         assert!(!route.target_exists());
         assert_eq!(route.target_arity(), None);
-        assert_eq!(route.reason(), "unknown_global_callee");
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(route.reason(), Some("unknown_global_callee"));
     }
 
     #[test]
@@ -314,6 +441,50 @@ mod tests {
         );
         assert_eq!(route.target_arity(), Some(2));
         assert_eq!(route.arity_matches(), Some(true));
-        assert_eq!(route.reason(), "missing_multi_function_emitter");
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_numeric_i64_leaf_direct_target() {
+        let mut module = MirModule::new("global_call_leaf_test".to_string());
+        let caller = make_function_with_global_call("Helper.add/2", Some(ValueId::new(7)));
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.add/2".to_string(),
+                params: vec![MirType::Integer, MirType::Integer],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        callee.params = vec![ValueId::new(1), ValueId::new(2)];
+        let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId::new(3),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(2),
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        module.functions.insert("main".to_string(), caller);
+        module.functions.insert("Helper.add/2".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert!(route.target_exists());
+        assert_eq!(route.target_symbol(), Some("Helper.add/2"));
+        assert_eq!(route.target_shape(), Some("numeric_i64_leaf"));
+        assert_eq!(route.target_arity(), Some(2));
+        assert_eq!(route.arity_matches(), Some(true));
+        assert_eq!(route.tier(), "DirectAbi");
+        assert_eq!(route.emit_kind(), "direct_function_call");
+        assert_eq!(route.proof(), "typed_global_call_leaf_numeric_i64");
+        assert_eq!(route.return_shape(), Some("ScalarI64"));
+        assert_eq!(route.value_demand(), "scalar_i64");
+        assert_eq!(route.reason(), None);
     }
 }

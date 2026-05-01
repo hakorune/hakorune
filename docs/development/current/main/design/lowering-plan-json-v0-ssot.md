@@ -182,6 +182,19 @@ direct target through `LoweringPlanGlobalCallView`: route id, `UserGlobalCall`,
 site that passes this validator but still has `tier=Unsupported` is a
 `missing_multi_function_emitter` stop, not a permission to externalize the call.
 
+The first lowerable same-module user/global-call target shape is
+`numeric_i64_leaf`. MIR owns this classification and records it as
+`target_shape`. The only lowerable v0 row is:
+
+| route | target_shape | tier | emit_kind | proof |
+| --- | --- | --- | --- | --- |
+| `global.user_call` | `numeric_i64_leaf` | `DirectAbi` | `direct_function_call` | `typed_global_call_leaf_numeric_i64` |
+
+ny-llvmc may emit a direct call only after it has emitted the target function as
+a definition in the same LLVM module. Calling a same-module `target_symbol`
+that only has a declaration is forbidden because it externalizes the MIR
+function and hides the missing multi-function emitter.
+
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
 consumer is proven.

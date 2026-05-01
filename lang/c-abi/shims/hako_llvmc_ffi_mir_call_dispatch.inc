@@ -109,6 +109,11 @@
         }
 
         if (ctype && !strcmp(ctype, "Global")) {
+          int plan_global_rc =
+              emit_global_call_lowering_plan_mir_call(f, bid, ii, dst, args);
+          if (plan_global_rc != 0) {
+            return plan_global_rc;
+          }
           enum MirCallGlobalSurfaceKind kind =
               classify_mir_call_global_surface(mname);
           return emit_global_mir_call(f, kind, a0);

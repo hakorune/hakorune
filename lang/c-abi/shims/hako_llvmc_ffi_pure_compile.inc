@@ -514,6 +514,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
         return (params && yyjson_is_arr(params)) ? yyjson_arr_size(params) : 0;
       }
+      #include "hako_llvmc_ffi_module_leaf_function_emit.inc"
       auto void emit_i64_function_declaration(FILE* f, const char* name, size_t argc) {
         if (!llvm_quoted_symbol_name_is_safe(name)) return;
         fprintf(f, "declare i64 @\"%s\"(", name);
@@ -527,6 +528,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           yyjson_val* fn = yyjson_arr_get(program.functions, i);
           const char* name = fn ? read_str(fn, "name") : NULL;
           if (!name || fn == fn0) continue;
+          if (module_function_is_numeric_i64_leaf(fn)) continue;
           emit_i64_function_declaration(f, name, generic_pure_function_param_count(fn));
         }
       }

@@ -928,7 +928,11 @@ fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde_json::Valu
             "core_op": route.core_op(),
             "tier": route.tier(),
             "emit_kind": route.emit_kind(),
-            "symbol": serde_json::Value::Null,
+            "symbol": if route.tier() == "DirectAbi" {
+                route.target_symbol().map(serde_json::Value::from).unwrap_or(serde_json::Value::Null)
+            } else {
+                serde_json::Value::Null
+            },
             "proof": route.proof(),
             "route_proof": route.proof(),
             "route_kind": route.route_kind(),
@@ -936,9 +940,10 @@ fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde_json::Valu
             "arity": route.arity(),
             "target_exists": route.target_exists(),
             "target_arity": route.target_arity(),
+            "target_shape": route.target_shape(),
             "arity_matches": route.arity_matches(),
             "result_value": route.result_value().map(|value| value.as_u32()),
-            "return_shape": serde_json::Value::Null,
+            "return_shape": route.return_shape(),
             "value_demand": route.value_demand(),
             "publication_policy": serde_json::Value::Null,
             "reason": route.reason(),
@@ -987,8 +992,10 @@ fn build_global_call_route_json(
         "arity": route.arity(),
         "target_exists": route.target_exists(),
         "target_arity": route.target_arity(),
+        "target_shape": route.target_shape(),
         "arity_matches": route.arity_matches(),
         "result_value": route.result_value().map(|value| value.as_u32()),
+        "return_shape": route.return_shape(),
         "value_demand": route.value_demand(),
         "reason": route.reason(),
         "effects": route.effect_tags(),
