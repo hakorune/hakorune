@@ -59,7 +59,13 @@ enum GlobalCallTargetShapeReason {
     ParamBindingMismatch,
     GenericStringReturnAbiNotHandleCompatible,
     GenericStringParamAbiNotHandleCompatible,
-    GenericStringUnsupportedInstructionOrCall,
+    GenericStringUnsupportedInstruction,
+    GenericStringUnsupportedCall,
+    GenericStringUnsupportedMethodCall,
+    GenericStringUnsupportedExternCall,
+    GenericStringUnsupportedBackendGlobalCall,
+    GenericStringGlobalTargetMissing,
+    GenericStringGlobalTargetShapeUnknown,
     GenericStringNoStringSurface,
     GenericStringReturnNotString,
 }
@@ -74,8 +80,16 @@ impl GlobalCallTargetShapeReason {
             Self::GenericStringParamAbiNotHandleCompatible => {
                 "generic_string_param_abi_not_handle_compatible"
             }
-            Self::GenericStringUnsupportedInstructionOrCall => {
-                "generic_string_unsupported_instruction_or_call"
+            Self::GenericStringUnsupportedInstruction => "generic_string_unsupported_instruction",
+            Self::GenericStringUnsupportedCall => "generic_string_unsupported_call",
+            Self::GenericStringUnsupportedMethodCall => "generic_string_unsupported_method_call",
+            Self::GenericStringUnsupportedExternCall => "generic_string_unsupported_extern_call",
+            Self::GenericStringUnsupportedBackendGlobalCall => {
+                "generic_string_unsupported_backend_global_call"
+            }
+            Self::GenericStringGlobalTargetMissing => "generic_string_global_target_missing",
+            Self::GenericStringGlobalTargetShapeUnknown => {
+                "generic_string_global_target_shape_unknown"
             }
             Self::GenericStringNoStringSurface => "generic_string_no_string_surface",
             Self::GenericStringReturnNotString => "generic_string_return_not_string",
@@ -482,29 +496,25 @@ fn generic_pure_string_body_reject_reason(
                 continue;
             };
             for instruction in &block.instructions {
-                if !mark_generic_pure_string_instruction(
+                if let Some(reason) = generic_pure_string_instruction_reject_reason(
                     instruction,
                     targets,
                     &mut values,
                     &mut has_string_surface,
                     &mut changed,
                 ) {
-                    return Some(
-                        GlobalCallTargetShapeReason::GenericStringUnsupportedInstructionOrCall,
-                    );
+                    return Some(reason);
                 }
             }
             if let Some(terminator) = &block.terminator {
-                if !mark_generic_pure_string_instruction(
+                if let Some(reason) = generic_pure_string_instruction_reject_reason(
                     terminator,
                     targets,
                     &mut values,
                     &mut has_string_surface,
                     &mut changed,
                 ) {
-                    return Some(
-                        GlobalCallTargetShapeReason::GenericStringUnsupportedInstructionOrCall,
-                    );
+                    return Some(reason);
                 }
             }
         }
@@ -545,13 +555,13 @@ fn generic_pure_string_abi_type_is_handle_compatible(ty: &MirType) -> bool {
     }
 }
 
-fn mark_generic_pure_string_instruction(
+fn generic_pure_string_instruction_reject_reason(
     instruction: &MirInstruction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
     has_string_surface: &mut bool,
     changed: &mut bool,
-) -> bool {
+) -> Option<GlobalCallTargetShapeReason> {
     match instruction {
         MirInstruction::Const { dst, value } => {
             let class = match value {
@@ -564,14 +574,18 @@ fn mark_generic_pure_string_instruction(
                 _ => GenericPureValueClass::Unknown,
             };
             set_value_class(values, *dst, class, changed);
-            class != GenericPureValueClass::Unknown
+            if class == GenericPureValueClass::Unknown {
+                Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction)
+            } else {
+                None
+            }
         }
         MirInstruction::Copy { dst, src } => {
             let class = value_class(values, *src);
             if class != GenericPureValueClass::Unknown {
                 set_value_class(values, *dst, class, changed);
             }
-            true
+            None
         }
         MirInstruction::BinOp {
             dst, op, lhs, rhs, ..
@@ -582,14 +596,14 @@ fn mark_generic_pure_string_instruction(
                 && *op != BinaryOp::Div
                 && *op != BinaryOp::Mod
             {
-                return false;
+                return Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction);
             }
             let lhs_class = value_class(values, *lhs);
             let rhs_class = value_class(values, *rhs);
             if lhs_class == GenericPureValueClass::Unknown
                 || rhs_class == GenericPureValueClass::Unknown
             {
-                return true;
+                return None;
             }
             let class = if *op == BinaryOp::Add {
                 if lhs_class == GenericPureValueClass::String
@@ -603,12 +617,12 @@ fn mark_generic_pure_string_instruction(
             } else if lhs_class == GenericPureValueClass::String
                 || rhs_class == GenericPureValueClass::String
             {
-                return false;
+                return Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction);
             } else {
                 GenericPureValueClass::I64
             };
             set_value_class(values, *dst, class, changed);
-            true
+            None
         }
         MirInstruction::Compare {
             dst, op, lhs, rhs, ..
@@ -618,18 +632,18 @@ fn mark_generic_pure_string_instruction(
             if lhs_class == GenericPureValueClass::Unknown
                 || rhs_class == GenericPureValueClass::Unknown
             {
-                return true;
+                return None;
             }
             if lhs_class == GenericPureValueClass::String
                 || rhs_class == GenericPureValueClass::String
             {
                 if !matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne) {
-                    return false;
+                    return Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction);
                 }
                 *has_string_surface = true;
             }
             set_value_class(values, *dst, GenericPureValueClass::Bool, changed);
-            true
+            None
         }
         MirInstruction::Phi { dst, inputs, .. } => {
             let mut saw_string = false;
@@ -642,15 +656,15 @@ fn mark_generic_pure_string_instruction(
                 all_string &= class == GenericPureValueClass::String;
             }
             if saw_unknown {
-                return true;
+                return None;
             } else if all_string {
                 set_value_class(values, *dst, GenericPureValueClass::String, changed);
             } else if saw_string {
-                return false;
+                return Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction);
             } else {
                 set_value_class(values, *dst, GenericPureValueClass::I64, changed);
             }
-            true
+            None
         }
         MirInstruction::Call {
             dst,
@@ -661,7 +675,21 @@ fn mark_generic_pure_string_instruction(
                 *has_string_surface = true;
                 set_value_class(values, *dst, GenericPureValueClass::String, changed);
             }
-            true
+            None
+        }
+        MirInstruction::Call {
+            callee: Some(Callee::Extern(_)),
+            ..
+        } => Some(GlobalCallTargetShapeReason::GenericStringUnsupportedExternCall),
+        MirInstruction::Call {
+            callee: Some(Callee::Method { .. }),
+            ..
+        } => Some(GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall),
+        MirInstruction::Call {
+            callee: Some(Callee::Global(name)),
+            ..
+        } if supported_backend_global(name) => {
+            Some(GlobalCallTargetShapeReason::GenericStringUnsupportedBackendGlobalCall)
         }
         MirInstruction::Call {
             dst,
@@ -669,7 +697,7 @@ fn mark_generic_pure_string_instruction(
             ..
         } if !supported_backend_global(name) => {
             let Some(target) = lookup_global_call_target(name, targets) else {
-                return false;
+                return Some(GlobalCallTargetShapeReason::GenericStringGlobalTargetMissing);
             };
             match target.shape() {
                 GlobalCallTargetShape::GenericPureStringBody => {
@@ -677,23 +705,28 @@ fn mark_generic_pure_string_instruction(
                         *has_string_surface = true;
                         set_value_class(values, *dst, GenericPureValueClass::String, changed);
                     }
-                    true
+                    None
                 }
                 GlobalCallTargetShape::NumericI64Leaf => {
                     if let Some(dst) = dst {
                         set_value_class(values, *dst, GenericPureValueClass::I64, changed);
                     }
-                    true
+                    None
                 }
-                GlobalCallTargetShape::Unknown => false,
+                GlobalCallTargetShape::Unknown => {
+                    Some(GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown)
+                }
             }
+        }
+        MirInstruction::Call { .. } => {
+            Some(GlobalCallTargetShapeReason::GenericStringUnsupportedCall)
         }
         MirInstruction::Branch { .. }
         | MirInstruction::Jump { .. }
         | MirInstruction::Return { .. }
         | MirInstruction::KeepAlive { .. }
-        | MirInstruction::ReleaseStrong { .. } => true,
-        _ => false,
+        | MirInstruction::ReleaseStrong { .. } => None,
+        _ => Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction),
     }
 }
 
@@ -783,6 +816,7 @@ fn lookup_global_call_target<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::{BasicBlock, CompareOp, EffectMask, FunctionSignature, MirType};
 
     fn make_function_with_global_call_args(
@@ -883,6 +917,118 @@ mod tests {
             Some("generic_string_no_string_surface")
         );
         assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_method_call_shape_reason() {
+        let mut module = MirModule::new("global_call_method_reason_test".to_string());
+        let caller = make_function_with_global_call_args(
+            "Helper.slice/1",
+            Some(ValueId::new(7)),
+            vec![ValueId::new(1)],
+        );
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.slice/1".to_string(),
+                params: vec![MirType::String],
+                return_type: MirType::String,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        callee.params = vec![ValueId::new(1)];
+        let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(2),
+                value: ConstValue::Integer(0),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(3),
+                value: ConstValue::Integer(1),
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(4)),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Method {
+                    box_name: "RuntimeDataBox".to_string(),
+                    method: "substring".to_string(),
+                    receiver: Some(ValueId::new(1)),
+                    certainty: TypeCertainty::Known,
+                    box_kind: CalleeBoxKind::RuntimeData,
+                }),
+                args: vec![ValueId::new(2), ValueId::new(3)],
+                effects: EffectMask::PURE,
+            },
+        ]);
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(4)),
+        });
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Helper.slice/1".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_unsupported_method_call")
+        );
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_unknown_child_target_shape_reason() {
+        let mut module = MirModule::new("global_call_child_reason_test".to_string());
+        let caller =
+            make_function_with_global_call_args("Helper.wrapper/0", Some(ValueId::new(7)), vec![]);
+        let mut wrapper = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.wrapper/0".to_string(),
+                params: vec![],
+                return_type: MirType::String,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.pending/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        let pending = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.pending/0".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Helper.wrapper/0".to_string(), wrapper);
+        module
+            .functions
+            .insert("Helper.pending/0".to_string(), pending);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_global_target_shape_unknown")
+        );
     }
 
     #[test]

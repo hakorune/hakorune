@@ -183,6 +183,10 @@ must not reinterpret raw callee names or body JSON to decide shape ownership.
 The C `LoweringPlanGlobalCallView` must read this field as metadata and may
 surface it on dev-only unsupported-shape traces; it must not use it as a
 backend-local permission to emit a call.
+Reason strings should be specific enough to preserve ownership boundaries. In
+particular, unsupported local instructions, method calls, unsupported extern or
+backend-global surfaces, missing global targets, and child targets whose own
+shape remains unknown are distinct causes.
 
 If MIR naming normalization rewrites a diagnostic call name to the canonical
 function symbol, `callee_name` must keep the original observed call name and
