@@ -247,73 +247,109 @@
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 
+      struct LoweringPlanNeedRule {
+        const char* route_id;
+        const char* core_op;
+        const char* route_kind;
+        const char* symbol;
+        const char* route_proof;
+        enum LoweringPlanTierMetadata tier;
+        enum MirCallNeedKind need_kind;
+      };
+
+      auto int lowering_plan_need_rule_matches(
+          const struct LoweringPlanGenericMethodView* view,
+          const struct LoweringPlanNeedRule* rule) {
+        if (!(view && rule)) return 0;
+        return view->route_id &&
+               !strcmp(view->route_id, rule->route_id) &&
+               view->core_op &&
+               !strcmp(view->core_op, rule->core_op) &&
+               view->route_kind &&
+               !strcmp(view->route_kind, rule->route_kind) &&
+               view->symbol &&
+               !strcmp(view->symbol, rule->symbol) &&
+               view->route_proof &&
+               !strcmp(view->route_proof, rule->route_proof) &&
+               view->tier == rule->tier;
+      }
+
       auto enum MirCallNeedKind
       mir_call_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
+        static const struct LoweringPlanNeedRule rules[] = {
+          {
+            "generic_method.has",
+            "MapHas",
+            "map_contains_any",
+            "nyash.map.probe_hh",
+            "has_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS,
+          },
+          {
+            "generic_method.has",
+            "MapHas",
+            "map_contains_i64",
+            "nyash.map.probe_hi",
+            "has_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS,
+          },
+          {
+            "generic_method.len",
+            "MapLen",
+            "map_entry_count",
+            "nyash.map.entry_count_i64",
+            "len_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE,
+          },
+          {
+            "generic_method.len",
+            "ArrayLen",
+            "array_slot_len",
+            "nyash.array.slot_len_h",
+            "len_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN,
+          },
+          {
+            "generic_method.len",
+            "StringLen",
+            "string_len",
+            "nyash.string.len_h",
+            "len_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN,
+          },
+          {
+            "generic_method.get",
+            "ArrayGet",
+            "array_slot_load_any",
+            "nyash.array.slot_load_hi",
+            "get_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET,
+          },
+          {
+            "generic_method.get",
+            "MapGet",
+            "map_load_any",
+            "nyash.map.slot_load_hh",
+            "get_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_MAP_GET,
+          },
+        };
         struct LoweringPlanGenericMethodView view;
+        size_t ri = 0;
         if (!read_lowering_plan_generic_method_view(entry, &view)) {
           return HAKO_LLVMC_MIR_CALL_NEED_NONE;
         }
-        if (!strcmp(view.route_id, "generic_method.has") &&
-            !strcmp(view.core_op, "MapHas") &&
-            (!strcmp(view.route_kind, "map_contains_any") ||
-             !strcmp(view.route_kind, "map_contains_i64")) &&
-            view.symbol &&
-            (!strcmp(view.symbol, "nyash.map.probe_hh") ||
-             !strcmp(view.symbol, "nyash.map.probe_hi")) &&
-            view.route_proof &&
-            !strcmp(view.route_proof, "has_surface_policy") &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
-        }
-        if (!strcmp(view.route_id, "generic_method.len") &&
-            !strcmp(view.core_op, "MapLen") &&
-            !strcmp(view.route_kind, "map_entry_count") &&
-            view.symbol &&
-            !strcmp(view.symbol, "nyash.map.entry_count_i64") &&
-            view.route_proof &&
-            !strcmp(view.route_proof, "len_surface_policy") &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE;
-        }
-        if (!strcmp(view.route_id, "generic_method.len") &&
-            !strcmp(view.core_op, "ArrayLen") &&
-            !strcmp(view.route_kind, "array_slot_len") &&
-            view.symbol &&
-            !strcmp(view.symbol, "nyash.array.slot_len_h") &&
-            view.route_proof &&
-            !strcmp(view.route_proof, "len_surface_policy") &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN;
-        }
-        if (!strcmp(view.route_id, "generic_method.len") &&
-            !strcmp(view.core_op, "StringLen") &&
-            !strcmp(view.route_kind, "string_len") &&
-            view.symbol &&
-            !strcmp(view.symbol, "nyash.string.len_h") &&
-            view.route_proof &&
-            !strcmp(view.route_proof, "len_surface_policy") &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN;
-        }
-        if (!strcmp(view.route_id, "generic_method.get") &&
-            !strcmp(view.core_op, "ArrayGet") &&
-            !strcmp(view.route_kind, "array_slot_load_any") &&
-            view.symbol &&
-            !strcmp(view.symbol, "nyash.array.slot_load_hi") &&
-            view.route_proof &&
-            !strcmp(view.route_proof, "get_surface_policy") &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET;
-        }
-        if (!strcmp(view.route_id, "generic_method.get") &&
-            !strcmp(view.core_op, "MapGet") &&
-            !strcmp(view.route_kind, "map_load_any") &&
-            view.symbol &&
-            !strcmp(view.symbol, "nyash.map.slot_load_hh") &&
-            view.route_proof &&
-            !strcmp(view.route_proof, "get_surface_policy") &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          if (lowering_plan_need_rule_matches(&view, &rules[ri])) {
+            return rules[ri].need_kind;
+          }
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }

@@ -142,6 +142,9 @@ Consumers may validate operands, proofs, effects, and helper symbols for their
 own family, but they should not duplicate the generic source/tier/proof/site
 field parsing.
 
+Need-kind declaration rules should be table rows keyed by LoweringPlan view
+fields. Do not add one-off `strcmp` ladders for every new proven plan slice.
+
 ## Proven v0 Slices
 
 | slice | tier | symbol | proof |
