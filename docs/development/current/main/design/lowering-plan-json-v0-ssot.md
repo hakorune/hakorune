@@ -195,6 +195,10 @@ returns are string-or-void sentinel values must use
 `generic_string_return_void_sentinel_candidate`, not the broader
 `generic_string_return_abi_not_handle_compatible`; it is still unsupported
 until a separate shape/proof makes the sentinel ABI lowerable.
+Non-string object returns, such as `box<MapBox>`, must use
+`generic_string_return_object_abi_not_handle_compatible`. This marks an object
+boundary for the next ownership slice instead of hiding it behind the broad
+return ABI reason.
 String-or-void sentinel candidates may run the same MIR-owned body blocker scan
 as generic pure string targets, with `null`/`void` sentinel constants allowed as
 return-profile evidence only. If that scan finds a more specific unsupported

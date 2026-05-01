@@ -474,6 +474,60 @@ fn build_mir_json_root_emits_void_sentinel_const_shape_reason() {
 }
 
 #[test]
+fn build_mir_json_root_emits_object_return_abi_shape_reason() {
+    let mut module =
+        crate::mir::MirModule::new("json_global_call_object_return_reason_test".to_string());
+    let mut caller = make_function("main", true);
+    caller
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Call {
+            dst: Some(ValueId::new(7)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.map/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+    let callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.map/0".to_string(),
+            params: vec![],
+            return_type: MirType::Box("MapBox".to_string()),
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    module.add_function(caller);
+    module.add_function(callee);
+    refresh_module_global_call_routes(&mut module);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
+    assert_eq!(
+        route["target_shape_reason"],
+        "generic_string_return_object_abi_not_handle_compatible"
+    );
+    assert_eq!(
+        route["target_shape_blocker_symbol"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        route["target_shape_blocker_reason"],
+        serde_json::Value::Null
+    );
+
+    let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
+    assert_eq!(
+        plan["target_shape_reason"],
+        "generic_string_return_object_abi_not_handle_compatible"
+    );
+    assert_eq!(plan["target_shape_blocker_symbol"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape_blocker_reason"], serde_json::Value::Null);
+}
+
+#[test]
 fn build_mir_json_root_emits_method_blocker_after_null_guard() {
     let mut module =
         crate::mir::MirModule::new("json_global_call_null_guard_method_test".to_string());

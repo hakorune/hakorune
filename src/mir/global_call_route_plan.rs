@@ -62,6 +62,7 @@ impl GlobalCallTargetShape {
 enum GlobalCallTargetShapeReason {
     ParamBindingMismatch,
     GenericStringReturnAbiNotHandleCompatible,
+    GenericStringReturnObjectAbiNotHandleCompatible,
     GenericStringReturnVoidSentinelCandidate,
     GenericStringParamAbiNotHandleCompatible,
     GenericStringUnsupportedInstruction,
@@ -81,6 +82,9 @@ impl GlobalCallTargetShapeReason {
             Self::ParamBindingMismatch => "param_binding_mismatch",
             Self::GenericStringReturnAbiNotHandleCompatible => {
                 "generic_string_return_abi_not_handle_compatible"
+            }
+            Self::GenericStringReturnObjectAbiNotHandleCompatible => {
+                "generic_string_return_object_abi_not_handle_compatible"
             }
             Self::GenericStringReturnVoidSentinelCandidate => {
                 "generic_string_return_void_sentinel_candidate"
@@ -910,6 +914,11 @@ fn generic_pure_string_body_reject_reason(
             {
                 return Some(reject);
             }
+        }
+        if matches!(&function.signature.return_type, MirType::Box(name) if name != "StringBox") {
+            return Some(GenericPureStringReject::new(
+                GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
+            ));
         }
         return Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringReturnAbiNotHandleCompatible,
@@ -2257,6 +2266,35 @@ mod tests {
         assert_eq!(
             route.target_shape_reason(),
             Some("generic_string_unsupported_void_sentinel_const")
+        );
+        assert_eq!(route.target_shape_blocker_symbol(), None);
+        assert_eq!(route.target_shape_blocker_reason(), None);
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_object_return_abi_reason() {
+        let mut module = MirModule::new("global_call_object_return_reason_test".to_string());
+        let caller =
+            make_function_with_global_call_args("Helper.map/0", Some(ValueId::new(7)), vec![]);
+        let callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.map/0".to_string(),
+                params: vec![],
+                return_type: MirType::Box("MapBox".to_string()),
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        module.functions.insert("main".to_string(), caller);
+        module.functions.insert("Helper.map/0".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_return_object_abi_not_handle_compatible")
         );
         assert_eq!(route.target_shape_blocker_symbol(), None);
         assert_eq!(route.target_shape_blocker_reason(), None);
