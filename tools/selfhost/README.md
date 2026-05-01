@@ -14,7 +14,8 @@ Purpose
   - Bridge capsule:
     `tools/selfhost/lib/program_json_mir_bridge.sh`,
     `tools/selfhost_exe_stageb.sh` with `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`,
-    and `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`.
+    `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, and
+    `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`.
 - file-level responsibility inventory:
   - `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
 - shell split reading:
@@ -174,6 +175,9 @@ Notes
   - `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a Program(JSON v0)
     bridge compat capsule, kept only while bridge replacement/archive coverage
     is incomplete.
+- `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` still calls the
+  Program(JSON)->MIR bridge directly as a Stage2 PHI/LLVM verification proof;
+  keep it in the bridge capsule inventory until that proof has a replacement.
 - raw `selfhost_build.sh --in ...` whole-script output, `--keep-tmp`, and `NYASH_SELFHOST_KEEP_RAW=1` are retired facade routes.
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。

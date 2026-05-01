@@ -70,7 +70,7 @@ Current capsule classes:
 | Capsule | Entrypoints | Boundary | Reading |
 | --- | --- | --- | --- |
 | Stage-B artifact diagnostic | `tools/dev/program_json_v0/stageb_artifact_probe.sh`, `tools/lib/program_json_v0_compat.sh` | source `.hako` -> Program(JSON v0) file | explicit artifact capture only |
-| Program(JSON)->MIR bridge | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`), `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh` | Program(JSON v0) -> MIR(JSON) -> optional ny-llvmc proof | compat conversion capsule, not primary proof |
+| Program(JSON)->MIR bridge | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`), `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Program(JSON v0) -> MIR(JSON) -> optional ny-llvmc proof | compat conversion capsule, not primary proof |
 | Stage1 contract | `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost/compat/run_stage1_cli.sh` | Stage1 CLI env contract -> Program/MIR compatibility payloads | explicit contract pin |
 | Fixture contract | `tools/smokes/v2/lib/stageb_helpers.sh`, phase29bq JoinIR/MirBuilder pins | Program(JSON v0) fixture -> .hako MirBuilder / contract assertions | fixture-only compatibility |
 
@@ -101,6 +101,7 @@ Current capsule classes:
      - `tools/selfhost/lib/program_json_mir_bridge.sh`
      - `tools/selfhost_exe_stageb.sh` (`stageb-delegate` bridge capsule)
      - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+     - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
      - `tools/selfhost/lib/stage1_contract.sh`
      - `tools/selfhost/compat/run_stage1_cli.sh`
      - `tools/smokes/v2/lib/stageb_helpers.sh`
@@ -109,6 +110,22 @@ Current capsule classes:
        `src/runner/stage1_bridge/**`
     - retire `--program-json-to-mir` after caller inventory reaches zero (landed in P16)
     - hard delete only after the compat caller inventory reaches zero
+
+## Bridge Caller Ownership Split
+
+`tools/selfhost/lib/program_json_mir_bridge.sh` remains live while the callers
+below still need explicit Program(JSON v0) -> MIR(JSON) conversion.
+
+| Caller | Ownership | Delete posture |
+| --- | --- | --- |
+| `tools/selfhost_exe_stageb.sh` with `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` | bridge compat capsule | keep until the launcher/stage1 helper has a MIR-first replacement |
+| `tools/selfhost_exe_stageb.sh` with `HAKORUNE_STAGE1_EMIT_ROUTE=direct` | MIR-first probe route | not a Program(JSON v0) bridge blocker |
+| `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh` | standalone bridge-to-EXE proof | archive after another explicit bridge proof or MIR-first replacement is named |
+| `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Stage2 bootstrap PHI/LLVM verification proof | keep until the Stage2 verification proof no longer requires Program(JSON v0) input |
+
+Indirect callers of `tools/selfhost_exe_stageb.sh` are owned by the selected
+emit route. They are not separate bridge-helper callers unless they call
+`program_json_mir_bridge_emit()` directly.
 
 ## Caller Reduction Rule
 

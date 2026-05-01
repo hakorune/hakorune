@@ -9,6 +9,7 @@ Related:
   - tools/selfhost/README.md
   - tools/selfhost_exe_stageb.sh
   - tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh
+  - tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh
 ---
 
 # P37 Program(JSON v0) Compat Capsule SSOT
@@ -36,9 +37,13 @@ Bridge capsule:
 - `tools/selfhost/lib/program_json_mir_bridge.sh`
 - `tools/selfhost_exe_stageb.sh` when using `stageb-delegate`
 - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+- `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
 
 The primary proof stays on MIR-first routes. The bridge capsule pins the
 compat conversion seam only.
+
+`tools/selfhost_exe_stageb.sh` is route-split: `direct` is a MIR-first probe
+route, while `stageb-delegate` is the Program(JSON v0) bridge capsule.
 
 ## Acceptance
 

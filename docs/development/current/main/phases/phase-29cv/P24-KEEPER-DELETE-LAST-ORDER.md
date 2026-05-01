@@ -28,7 +28,7 @@ they were still public or mainline.
 | --- | --- | --- | --- |
 | 1 | retired wrapper-local dead seams | `tools/selfhost/compat/run_stage1_cli.sh`, old root helpers | done through P32 |
 | 2 | Stage-B artifact diagnostic capsule | `tools/dev/program_json_v0/stageb_artifact_probe.sh`, `tools/lib/program_json_v0_compat.sh` | explicit capsule / keep |
-| 3 | Program(JSON)->MIR bridge capsule | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`) | explicit capsule / keep |
+| 3 | Program(JSON)->MIR bridge capsule | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`) | explicit capsule / keep |
 | 4 | Stage1 contract capsule | `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost/compat/run_stage1_cli.sh` | explicit contract / keep |
 | 5 | JoinIR / MirBuilder fixture capsule | `tools/smokes/v2/lib/stageb_helpers.sh`, `phase29bq_hako_program_json_contract_pin_vm.sh`, `phase29bq_hako_mirbuilder_*` | true keeper |
 | 6 | Rust/public compat surface | `src/runtime/deprecations.rs`, `src/stage1/program_json_v0*`, `src/runner/stage1_bridge/**` | final delete-last |

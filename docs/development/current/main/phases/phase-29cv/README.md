@@ -63,6 +63,7 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh`
    - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+   - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
    - Kept for explicit compat conversion work only.
    - `tools/selfhost_exe_stageb.sh` `stageb-delegate` is a bridge capsule;
      `direct` is the MIR-first probe route.
