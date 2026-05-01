@@ -86,6 +86,16 @@ static int hako_llvmc_exact_seed_backend_route_supported(
 }
 
 /* inc-codegen-view-owner: generic_pure_view begin */
+typedef struct hako_llvmc_generic_pure_function_view {
+  yyjson_val* fn;
+  size_t index;
+  yyjson_val* metadata;
+  yyjson_val* blocks;
+  size_t block_count;
+  hako_llvmc_entry_rune_selection selection;
+  int is_entry;
+} hako_llvmc_generic_pure_function_view;
+
 typedef struct hako_llvmc_generic_pure_program_view {
   yyjson_val* functions;
   size_t function_count;
@@ -95,7 +105,32 @@ typedef struct hako_llvmc_generic_pure_program_view {
   yyjson_val* blocks;
   size_t block_count;
   hako_llvmc_entry_rune_selection selection;
+  hako_llvmc_generic_pure_function_view entry;
 } hako_llvmc_generic_pure_program_view;
+
+static int hako_llvmc_read_generic_pure_function_view(
+    yyjson_val* fn,
+    size_t index,
+    int is_entry,
+    hako_llvmc_generic_pure_function_view* out) {
+  yyjson_val* blocks;
+  if (!out) return 0;
+  memset(out, 0, sizeof(*out));
+  if (!(fn && yyjson_is_obj(fn))) return 0;
+  blocks = yyjson_obj_get(fn, "blocks");
+  if (!(blocks && yyjson_is_arr(blocks))) return 0;
+  out->fn = fn;
+  out->index = index;
+  out->metadata = yyjson_obj_get(fn, "metadata");
+  out->blocks = blocks;
+  out->block_count = yyjson_arr_size(blocks);
+  if (out->block_count < 1) return 0;
+  out->is_entry = is_entry ? 1 : 0;
+  if (out->is_entry) {
+    hako_llvmc_select_entry_runes(out->fn, &out->selection);
+  }
+  return 1;
+}
 
 static int hako_llvmc_read_generic_pure_program_view(
     yyjson_val* root,
@@ -118,12 +153,17 @@ static int hako_llvmc_read_generic_pure_program_view(
     }
   }
   if (out->entry_index >= out->function_count) return 0;
-  out->metadata = yyjson_obj_get(out->fn, "metadata");
-  out->blocks = yyjson_obj_get(out->fn, "blocks");
-  if (!(out->blocks && yyjson_is_arr(out->blocks))) return 0;
-  out->block_count = yyjson_arr_size(out->blocks);
-  if (out->block_count < 1) return 0;
-  hako_llvmc_select_entry_runes(out->fn, &out->selection);
+  if (!hako_llvmc_read_generic_pure_function_view(
+          out->fn,
+          out->entry_index,
+          1,
+          &out->entry)) {
+    return 0;
+  }
+  out->metadata = out->entry.metadata;
+  out->blocks = out->entry.blocks;
+  out->block_count = out->entry.block_count;
+  out->selection = out->entry.selection;
   return 1;
 }
 /* inc-codegen-view-owner: generic_pure_view end */
@@ -446,32 +486,92 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       yyjson_val* root = yyjson_doc_get_root(d);
       hako_llvmc_generic_pure_program_view program;
       if (!hako_llvmc_read_generic_pure_program_view(root, &program)) { yyjson_doc_free(d); break; }
-      yyjson_val* fn0 = program.fn;
-      yyjson_val* fn_metadata = program.metadata;
-      yyjson_val* blocks = program.blocks;
-      size_t generic_pure_block_count = program.block_count;
-      hako_llvmc_entry_rune_selection selection = program.selection;
+      hako_llvmc_generic_pure_function_view* active_function = &program.entry;
+      yyjson_val* fn0 = active_function->fn;
+      yyjson_val* fn_metadata = active_function->metadata;
+      yyjson_val* blocks = active_function->blocks;
+      size_t generic_pure_block_count = active_function->block_count;
+      hako_llvmc_entry_rune_selection selection = active_function->selection;
       if (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
           hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0) {
         yyjson_doc_free(d);
         return 0;
       }
       enum { T_NONE=0, T_I64=1, T_I1=2 };
-      struct { long long reg; long long val; } consts[1024]; size_t consts_n = 0;
-      struct { long long reg; const char* val; } str_consts[512]; size_t str_consts_n = 0;
-      struct { long long reg; long long len; } known_string_lens[2048]; size_t known_string_lens_n = 0;
-      char* owned_str_consts[512]; size_t owned_str_consts_n = 0;
-      struct { long long reg; } str_const_box_skip[512]; size_t str_const_box_skip_n = 0;
-      struct { long long reg; } str_const_box_emitted[512]; size_t str_const_box_emitted_n = 0;
-      struct { long long reg; int ty; } types[2048]; size_t types_n = 0;
-      struct { long long reg; long long src; } copy_alias[2048]; size_t copy_alias_n = 0;
-      struct { long long reg; int kind; } scan_origin[2048]; size_t scan_origin_n = 0;
       // Track simple origin kinds for selective unbox at ret
       enum { ORG_NONE=0, ORG_MAP_GET=1, ORG_MAP_BIRTH=2, ORG_ARRAY_BIRTH=3, ORG_STRING=4, ORG_ARRAY_STRING_BIRTH=5 };
-      struct { long long reg; int kind; } origin[2048]; size_t origin_n = 0;
+      struct GenericPureI64Const { long long reg; long long val; };
+      struct GenericPureStringConst { long long reg; const char* val; };
+      struct GenericPureKnownStringLen { long long reg; long long len; };
+      struct GenericPureRegMarker { long long reg; };
+      struct GenericPureTypeBinding { long long reg; int ty; };
+      struct GenericPureCopyAlias { long long reg; long long src; };
+      struct GenericPureOriginBinding { long long reg; int kind; };
       struct Incoming { long long pred; long long val_reg; };
       struct PhiRec { long long dst; struct Incoming in[16]; int in_n; };
-      struct BlockPhi { long long bid; struct PhiRec recs[16]; int rec_n; } phis[512]; int phi_n = 0;
+      struct BlockPhi { long long bid; struct PhiRec recs[16]; int rec_n; };
+      struct GenericPureFunctionLoweringState {
+        struct GenericPureI64Const consts[1024];
+        size_t consts_n;
+        struct GenericPureStringConst str_consts[512];
+        size_t str_consts_n;
+        struct GenericPureKnownStringLen known_string_lens[2048];
+        size_t known_string_lens_n;
+        char* owned_str_consts[512];
+        size_t owned_str_consts_n;
+        struct GenericPureRegMarker str_const_box_skip[512];
+        size_t str_const_box_skip_n;
+        struct GenericPureRegMarker str_const_box_emitted[512];
+        size_t str_const_box_emitted_n;
+        struct GenericPureTypeBinding types[2048];
+        size_t types_n;
+        struct GenericPureCopyAlias copy_alias[2048];
+        size_t copy_alias_n;
+        struct GenericPureOriginBinding scan_origin[2048];
+        size_t scan_origin_n;
+        struct GenericPureOriginBinding origin[2048];
+        size_t origin_n;
+        struct BlockPhi phis[512];
+        int phi_n;
+        int generic_walk_trace_budget;
+        int generic_call_trace_budget;
+        int generic_method_trace_budget;
+      };
+      auto void reset_generic_pure_function_lowering_state(
+          struct GenericPureFunctionLoweringState* state) {
+        if (!state) return;
+        memset(state, 0, sizeof(*state));
+        state->generic_walk_trace_budget = 24;
+        state->generic_call_trace_budget = 24;
+        state->generic_method_trace_budget = 24;
+      }
+      struct GenericPureFunctionLoweringState lowering_state;
+      reset_generic_pure_function_lowering_state(&lowering_state);
+      #define consts lowering_state.consts
+      #define consts_n lowering_state.consts_n
+      #define str_consts lowering_state.str_consts
+      #define str_consts_n lowering_state.str_consts_n
+      #define known_string_lens lowering_state.known_string_lens
+      #define known_string_lens_n lowering_state.known_string_lens_n
+      #define owned_str_consts lowering_state.owned_str_consts
+      #define owned_str_consts_n lowering_state.owned_str_consts_n
+      #define str_const_box_skip lowering_state.str_const_box_skip
+      #define str_const_box_skip_n lowering_state.str_const_box_skip_n
+      #define str_const_box_emitted lowering_state.str_const_box_emitted
+      #define str_const_box_emitted_n lowering_state.str_const_box_emitted_n
+      #define types lowering_state.types
+      #define types_n lowering_state.types_n
+      #define copy_alias lowering_state.copy_alias
+      #define copy_alias_n lowering_state.copy_alias_n
+      #define scan_origin lowering_state.scan_origin
+      #define scan_origin_n lowering_state.scan_origin_n
+      #define origin lowering_state.origin
+      #define origin_n lowering_state.origin_n
+      #define phis lowering_state.phis
+      #define phi_n lowering_state.phi_n
+      #define generic_walk_trace_budget lowering_state.generic_walk_trace_budget
+      #define generic_call_trace_budget lowering_state.generic_call_trace_budget
+      #define generic_method_trace_budget lowering_state.generic_method_trace_budget
 
       // small helpers
       #define ARR_LEN(a) ((int)(sizeof(a)/sizeof((a)[0])))
@@ -559,9 +659,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
         owned_str_consts_n = 0;
       }
-      int generic_walk_trace_budget = 24;
-      int generic_call_trace_budget = 24;
-      int generic_method_trace_budget = 24;
       #include "hako_llvmc_ffi_indexof_observer_state.inc"
       #include "hako_llvmc_ffi_array_string_window_policy.inc"
       #include "hako_llvmc_ffi_array_slot_emit.inc"
@@ -589,6 +686,31 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           long long reg);
 
       #include "hako_llvmc_ffi_pure_compile_generic_lowering.inc"
+      #undef consts
+      #undef consts_n
+      #undef str_consts
+      #undef str_consts_n
+      #undef known_string_lens
+      #undef known_string_lens_n
+      #undef owned_str_consts
+      #undef owned_str_consts_n
+      #undef str_const_box_skip
+      #undef str_const_box_skip_n
+      #undef str_const_box_emitted
+      #undef str_const_box_emitted_n
+      #undef types
+      #undef types_n
+      #undef copy_alias
+      #undef copy_alias_n
+      #undef scan_origin
+      #undef scan_origin_n
+      #undef origin
+      #undef origin_n
+      #undef phis
+      #undef phi_n
+      #undef generic_walk_trace_budget
+      #undef generic_call_trace_budget
+      #undef generic_method_trace_budget
   if (compat_harness_replay_enabled()) {
     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }
