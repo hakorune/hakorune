@@ -10,7 +10,9 @@ The actual coverage lives in semantic homes; this file only points at them.
    - `compat/pure-keep/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh`
    - canonical manifest: `tools/smokes/v2/profiles/integration/compat/pure-keep/pure_keep.txt`
    - dedicated suite manifest: `tools/smokes/v2/suites/integration/compat/pure-keep.txt`
-   - `HAKO_CAPI_PURE=1` 必須
+   - canonical route spelling:
+     `HAKO_BACKEND_COMPILE_RECIPE=pure-first`,
+     `HAKO_BACKEND_COMPAT_REPLAY=none`
    - historical pure-lowering evidence
    - no exact root-first replacement exists yet, so these two remain keep
    - caller path is `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; do not depend on the retired direct `hostbridge.extern_invoke("env.codegen", ...)` lane here

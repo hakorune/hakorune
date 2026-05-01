@@ -10,8 +10,13 @@ phase2120_boundary_pure_prepare() {
 
   export NYASH_LLVM_USE_CAPI="${NYASH_LLVM_USE_CAPI:-1}"
   export HAKO_V1_EXTERN_PROVIDER_C_ABI="${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}"
-  export HAKO_CAPI_PURE="${HAKO_CAPI_PURE:-1}"
-  if [[ "${NYASH_LLVM_USE_CAPI}" != "1" || "${HAKO_V1_EXTERN_PROVIDER_C_ABI}" != "1" || "${HAKO_CAPI_PURE}" != "1" ]]; then
+  export HAKO_BACKEND_COMPILE_RECIPE="${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}"
+  export HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}"
+  unset HAKO_CAPI_PURE
+  if [[ "${NYASH_LLVM_USE_CAPI}" != "1" ||
+        "${HAKO_V1_EXTERN_PROVIDER_C_ABI}" != "1" ||
+        "${HAKO_BACKEND_COMPILE_RECIPE}" != "pure-first" ||
+        "${HAKO_BACKEND_COMPAT_REPLAY}" != "none" ]]; then
     echo "[SKIP] ${script_name} (toggles off)" >&2
     exit 0
   fi
@@ -101,10 +106,14 @@ phase2120_boundary_pure_run() {
 
     printf '%s\n' "$json" > "$tmp_json"
     set +e
-    NYASH_LLVM_USE_CAPI="${NYASH_LLVM_USE_CAPI}" \
-    HAKO_V1_EXTERN_PROVIDER_C_ABI="${HAKO_V1_EXTERN_PROVIDER_C_ABI}" \
-    HAKO_CAPI_PURE="${HAKO_CAPI_PURE}" \
-      "$PHASE2120_BOUNDARY_NY_LLVM_C" --driver boundary --emit exe --in "$tmp_json" --out "$exe" >/dev/null 2>&1
+    (
+      unset HAKO_CAPI_PURE
+      NYASH_LLVM_USE_CAPI="${NYASH_LLVM_USE_CAPI}" \
+      HAKO_V1_EXTERN_PROVIDER_C_ABI="${HAKO_V1_EXTERN_PROVIDER_C_ABI}" \
+      HAKO_BACKEND_COMPILE_RECIPE="${HAKO_BACKEND_COMPILE_RECIPE}" \
+      HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY}" \
+        "$PHASE2120_BOUNDARY_NY_LLVM_C" --driver boundary --emit exe --in "$tmp_json" --out "$exe"
+    ) >/dev/null 2>&1
     build_rc=$?
     set -e
     rm -f "$tmp_json"

@@ -8,7 +8,9 @@ echo "[compat/pure-keep] integration pure-lowering keep canaries"
 
 export NYASH_LLVM_USE_CAPI=1
 export HAKO_V1_EXTERN_PROVIDER_C_ABI=1
-export HAKO_CAPI_PURE=${HAKO_CAPI_PURE:-1}
+export HAKO_BACKEND_COMPILE_RECIPE=${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}
+export HAKO_BACKEND_COMPAT_REPLAY=${HAKO_BACKEND_COMPAT_REPLAY:-none}
+unset HAKO_CAPI_PURE
 
 ffi_candidates=(
   "$ROOT/target/release/libhako_llvmc_ffi.so"
