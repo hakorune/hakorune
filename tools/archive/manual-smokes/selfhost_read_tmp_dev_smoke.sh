@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)
 BIN="$ROOT_DIR/target/release/nyash"
 
 if [[ ! -x "$BIN" ]]; then
@@ -21,4 +21,3 @@ OUT=$(NYASH_USE_NY_COMPILER=1 NYASH_NY_COMPILER_USE_TMP_ONLY=1 NYASH_NY_COMPILER
 echo "$OUT" | rg -q 'Ny compiler MVP \(ny→json_v0\) path ON' \
   && echo "✅ selfhost read-tmp dev smoke PASS" >&2 \
   || { echo "❌ selfhost read-tmp dev smoke (requires plugins)" >&2; echo "$OUT" | sed -n '1,120p' >&2; exit 1; }
-

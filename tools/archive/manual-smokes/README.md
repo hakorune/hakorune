@@ -31,6 +31,7 @@ Archived scripts:
 - `phase24_comprehensive_smoke.sh`
 - `selfhost_json_guard_smoke.sh`
 - `selfhost_parser_json_smoke.sh`
+- `selfhost_read_tmp_dev_smoke.sh`
 - `selfhost_emitter_usings_gate_smoke.sh`
 - `selfhost_progress_guard_smoke.sh`
 - `smoke_aot_vs_vm.sh`

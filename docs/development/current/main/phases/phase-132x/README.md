@@ -32,7 +32,7 @@
   - `tools/using_unresolved_smoke.sh`
   - `tools/using_resolve_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
-  - `tools/selfhost_read_tmp_dev_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_read_tmp_dev_smoke.sh`
   - `tools/archive/legacy-selfhost/engineering/ny_selfhost_inline.sh`
   - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
   - `tools/selfhost/proof/selfhost_vm_smoke.sh`
