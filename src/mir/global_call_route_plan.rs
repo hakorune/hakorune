@@ -888,6 +888,16 @@ impl GenericPureStringReject {
             }),
         }
     }
+
+    fn with_shape_blocker(
+        reason: GlobalCallTargetShapeReason,
+        blocker: GlobalCallShapeBlocker,
+    ) -> Self {
+        Self {
+            reason,
+            blocker: Some(blocker),
+        }
+    }
 }
 
 fn generic_pure_string_body_reject_reason(
@@ -1022,6 +1032,10 @@ fn generic_string_void_sentinel_body_reject_reason(
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> Option<GenericPureStringReject> {
     if !generic_string_void_sentinel_return_candidate(function, targets) {
+        if let Some(reject) = generic_string_void_sentinel_return_global_blocker(function, targets)
+        {
+            return Some(reject);
+        }
         return None;
     }
     if !function
@@ -1092,6 +1106,76 @@ enum GenericStringReturnValueClass {
     Void,
     String,
     Other,
+}
+
+fn generic_string_void_sentinel_return_global_blocker(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> Option<GenericPureStringReject> {
+    let mut values = BTreeMap::<ValueId, GenericStringReturnValueClass>::new();
+    let mut blockers = BTreeMap::<ValueId, GlobalCallShapeBlocker>::new();
+    for param in &function.params {
+        values.insert(*param, GenericStringReturnValueClass::String);
+    }
+
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                refine_generic_string_return_value_class(
+                    instruction,
+                    targets,
+                    &mut values,
+                    &mut changed,
+                );
+                refine_generic_string_return_blocker(
+                    instruction,
+                    targets,
+                    &mut blockers,
+                    &mut changed,
+                );
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    let mut saw_void = false;
+    let mut return_blocker = None;
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            match instruction {
+                MirInstruction::Return { value: Some(value) } => {
+                    if generic_string_return_value_class(&values, *value)
+                        == GenericStringReturnValueClass::Void
+                    {
+                        saw_void = true;
+                    } else if return_blocker.is_none() {
+                        return_blocker = blockers.get(value).cloned();
+                    }
+                }
+                MirInstruction::Return { value: None } => saw_void = true,
+                _ => {}
+            }
+        }
+    }
+
+    if saw_void {
+        return_blocker.map(|blocker| {
+            GenericPureStringReject::with_shape_blocker(
+                GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
+                blocker,
+            )
+        })
+    } else {
+        None
+    }
 }
 
 fn generic_string_void_sentinel_return_candidate(
@@ -1250,6 +1334,86 @@ fn refine_generic_string_return_value_class(
         }
         _ => {}
     }
+}
+
+fn refine_generic_string_return_blocker(
+    instruction: &MirInstruction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    blockers: &mut BTreeMap<ValueId, GlobalCallShapeBlocker>,
+    changed: &mut bool,
+) {
+    match instruction {
+        MirInstruction::Call {
+            dst: Some(dst),
+            callee: Some(Callee::Global(name)),
+            ..
+        } if !supported_backend_global(name) => {
+            let blocker = lookup_global_call_target(name, targets)
+                .filter(|target| target.shape() == GlobalCallTargetShape::Unknown)
+                .map(|target| direct_unknown_global_target_blocker(name, target))
+                .unwrap_or_else(|| GlobalCallShapeBlocker {
+                    symbol: crate::mir::naming::normalize_static_global_name(name),
+                    reason: Some(GlobalCallTargetShapeReason::GenericStringGlobalTargetMissing),
+                });
+            set_generic_string_return_blocker(blockers, *dst, blocker, changed);
+        }
+        MirInstruction::Copy { dst, src } => {
+            if let Some(blocker) = blockers.get(src).cloned() {
+                set_generic_string_return_blocker(blockers, *dst, blocker, changed);
+            }
+        }
+        MirInstruction::Phi { dst, inputs, .. } => {
+            if let Some(blocker) = inputs
+                .iter()
+                .filter_map(|(_, value)| blockers.get(value).cloned())
+                .next()
+            {
+                set_generic_string_return_blocker(blockers, *dst, blocker, changed);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn set_generic_string_return_blocker(
+    blockers: &mut BTreeMap<ValueId, GlobalCallShapeBlocker>,
+    value: ValueId,
+    blocker: GlobalCallShapeBlocker,
+    changed: &mut bool,
+) {
+    match blockers.get(&value) {
+        Some(existing) if *existing == blocker => {}
+        Some(_) => {}
+        None => {
+            blockers.insert(value, blocker);
+            *changed = true;
+        }
+    }
+}
+
+fn direct_unknown_global_target_blocker(
+    name: &str,
+    target: &GlobalCallTargetFacts,
+) -> GlobalCallShapeBlocker {
+    GlobalCallShapeBlocker {
+        symbol: target.symbol().unwrap_or(name).to_string(),
+        reason: target.shape_reason(),
+    }
+}
+
+fn propagated_unknown_global_target_blocker(
+    name: &str,
+    target: &GlobalCallTargetFacts,
+) -> GlobalCallShapeBlocker {
+    if let Some(symbol) = target.shape_blocker_symbol() {
+        return GlobalCallShapeBlocker {
+            symbol: symbol.to_string(),
+            reason: target
+                .shape_blocker_reason()
+                .or_else(|| target.shape_reason()),
+        };
+    }
+    direct_unknown_global_target_blocker(name, target)
 }
 
 fn generic_string_return_value_class(
@@ -1570,11 +1734,12 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::Unknown => Some(GenericPureStringReject::with_blocker(
-                    GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
-                    target.symbol().unwrap_or(name),
-                    target.shape_reason(),
-                )),
+                GlobalCallTargetShape::Unknown => {
+                    Some(GenericPureStringReject::with_shape_blocker(
+                        GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
+                        propagated_unknown_global_target_blocker(name, target),
+                    ))
+                }
             }
         }
         MirInstruction::Call { .. } => Some(GenericPureStringReject::new(
@@ -1966,6 +2131,94 @@ mod tests {
         );
         assert_eq!(route.tier(), "Unsupported");
         assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_void_sentinel_return_child_blocker() {
+        let mut module = MirModule::new("global_call_void_sentinel_return_child_test".to_string());
+        let caller = make_function_with_global_call_args(
+            "Helper.maybe_text/0",
+            Some(ValueId::new(7)),
+            vec![],
+        );
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.maybe_text/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Bool(true),
+        });
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(1),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        let mut text_block = BasicBlock::new(BasicBlockId::new(1));
+        text_block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.pending/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        text_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        let mut void_block = BasicBlock::new(BasicBlockId::new(2));
+        void_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
+        });
+        void_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        let pending = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.pending/0".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        callee.blocks.insert(BasicBlockId::new(1), text_block);
+        callee.blocks.insert(BasicBlockId::new(2), void_block);
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Helper.pending/0".to_string(), pending);
+        module
+            .functions
+            .insert("Helper.maybe_text/0".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert!(route.target_exists());
+        assert_eq!(route.target_symbol(), Some("Helper.maybe_text/0"));
+        assert_eq!(route.target_return_type(), Some("void".to_string()));
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_global_target_shape_unknown")
+        );
+        assert_eq!(
+            route.target_shape_blocker_symbol(),
+            Some("Helper.pending/0")
+        );
+        assert_eq!(
+            route.target_shape_blocker_reason(),
+            Some("generic_string_no_string_surface")
+        );
     }
 
     #[test]

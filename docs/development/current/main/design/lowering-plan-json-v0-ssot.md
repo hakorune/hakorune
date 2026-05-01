@@ -203,6 +203,11 @@ surface that blocker through `target_shape_reason` and
 `target_shape_blocker_*` instead of stopping at the generic sentinel candidate
 reason. This remains diagnostic evidence; it must not make the sentinel target
 lowerable.
+If the sentinel return-profile is almost present but the non-sentinel return is
+an unknown same-module global call, MIR must report that returned child global
+as the blocker instead of collapsing the parent into
+`generic_string_return_abi_not_handle_compatible`. This keeps source-execution
+triage on the next ownership edge and still does not authorize the parent body.
 Outside that sentinel body scan, a `null`/`void` constant observed by the generic
 pure string classifier must reject with
 `generic_string_unsupported_void_sentinel_const` instead of the broad
