@@ -331,6 +331,16 @@
             HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NON_STRING_HANDLE,
             HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY,
           },
+          {
+            "generic_method.set",
+            "ArraySet",
+            "array_store_any",
+            "nyash.array.set_his",
+            "set_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_STRING_HANDLE,
+            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING,
+          },
         };
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView view;
