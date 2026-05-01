@@ -51,7 +51,7 @@ fn maybe_pin_phase0_program_json_builder_env() {
         // Program(JSON) contract pins are compiler/build-bridge checks.
         // Under strict/dev, `backend=vm` normally prefers vm-hako reference,
         // but that lane does not own compiler static-box Global calls yet.
-        // Keep this narrow bridge on rust-vm-keep until vm-hako grows the same surface.
+        // Keep this narrow bridge on bootstrap-rust-vm-keep until vm-hako grows the same surface.
         std::env::set_var("NYASH_VM_HAKO_PREFER_STRICT_DEV", "0");
     }
 }

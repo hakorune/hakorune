@@ -3,8 +3,8 @@ use nyash_rust::{ast::ASTNode, mir::MirCompiler, parser::NyashParser};
 use std::{fs, process};
 
 impl NyashRunner {
-    /// Execute VM proof/oracle keep with plugin initialization and AST prelude merge.
-    pub(crate) fn execute_vm_mode(&self, filename: &str) {
+    /// Execute the deprecated bootstrap Rust VM source-execution keep.
+    pub(crate) fn execute_bootstrap_rust_vm_keep(&self, filename: &str) {
         // Note: hv1 direct route is now handled at main.rs entry point (before plugin initialization).
         // This function is only called after plugin initialization has already occurred.
 

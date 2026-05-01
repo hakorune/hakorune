@@ -2,7 +2,7 @@
 # Phase 29x X27: compat bypass fail-fast engineering guard
 #
 # Engineering guard:
-# 1) Direct callsites of `execute_vm_fallback_interpreter` are owned by route_orchestrator only.
+# 1) Direct callsites of `execute_compat_vm_fallback_capsule` are owned by route_orchestrator only.
 # 2) vm_fallback entry must enforce explicit fallback guard.
 
 set -euo pipefail

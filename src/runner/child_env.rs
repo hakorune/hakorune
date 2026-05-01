@@ -126,7 +126,7 @@ pub fn apply_selfhost_compiler_env(cmd: &mut std::process::Command) {
         // Match the Rust-owned Phase-0 Program(JSON)->MIR contract:
         // compiler static-box calls stay on the non-methodized surface.
         cmd.env("HAKO_MIR_BUILDER_METHODIZE", "0");
-        // Keep compiler/build-bridge pins on rust-vm-keep even under strict/dev.
+        // Keep compiler/build-bridge pins on bootstrap-rust-vm-keep even under strict/dev.
         // vm-hako reference does not own compiler static-box Global calls yet.
         cmd.env("NYASH_VM_HAKO_PREFER_STRICT_DEV", "0");
     }

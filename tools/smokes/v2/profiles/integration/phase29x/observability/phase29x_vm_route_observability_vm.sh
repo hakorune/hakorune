@@ -3,7 +3,7 @@
 #
 # Contract pin:
 # 1) `NYASH_VM_ROUTE_TRACE=1` emits stable `[vm-route/pre-dispatch]` and `[vm-route/select]` tags.
-# 2) `backend=vm` lane=`rust-vm-keep` は `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` 明示時に観測する。
+# 2) `backend=vm` lane=`bootstrap-rust-vm-keep` は `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` 明示時に観測する。
 # 3) `backend=vm` + `NYASH_VM_USE_FALLBACK=1` is `lane=vm-compat-fallback`.
 # 4) `backend=vm-hako` is `lane=vm-hako-reference`.
 # 5) legacy tag form (`[vm-route] pre-dispatch`) is absent.
@@ -47,7 +47,7 @@ if ! echo "$OUT_DEFAULT" | grep -q "^\[vm-route/pre-dispatch\] backend=vm file=.
     test_fail "phase29x_vm_route_observability_vm: missing vm pre-dispatch tag"
     exit 1
 fi
-if ! echo "$OUT_DEFAULT" | grep -q "^\[vm-route/select\] backend=vm lane=rust-vm-keep reason=explicit-keep-override$"; then
+if ! echo "$OUT_DEFAULT" | grep -q "^\[vm-route/select\] backend=vm lane=bootstrap-rust-vm-keep reason=explicit-deprecated-bootstrap-keep-not-daily$"; then
     echo "[INFO] default vm output:"
     echo "$OUT_DEFAULT" | head -n 120 || true
     test_fail "phase29x_vm_route_observability_vm: missing vm default route tag"

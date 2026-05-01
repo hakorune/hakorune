@@ -60,7 +60,7 @@ if [ "$RC_STRICT_RUST_THIN" -ne 0 ]; then
     test_fail "phase29x_derust_strict_default_route_vm: strict explicit rust-thin run failed (rc=$RC_STRICT_RUST_THIN)"
     exit 1
 fi
-if ! echo "$OUT_STRICT_RUST_THIN" | rg -q "^\[derust-route/select\] backend=vm lane=rust-vm-keep source=rust-thin-explicit reason=explicit-keep-override$"; then
+if ! echo "$OUT_STRICT_RUST_THIN" | rg -q "^\[derust-route/select\] backend=vm lane=bootstrap-rust-vm-keep source=rust-thin-explicit reason=explicit-deprecated-bootstrap-keep-not-daily$"; then
     echo "[INFO] strict explicit rust-thin output:"
     echo "$OUT_STRICT_RUST_THIN" | head -n 120 || true
     test_fail "phase29x_derust_strict_default_route_vm: missing explicit rust-thin tag"

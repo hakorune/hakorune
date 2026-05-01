@@ -3,8 +3,8 @@
  *
  * Phase 59x C1:
  * - Centralize explicit keep/reference selection for the `vm` backend family.
- * - Canonical internal lane names are `rust-vm-keep`, `vm-hako-reference`,
- *   and `vm-compat-fallback`.
+ * - Canonical internal lane names are `bootstrap-rust-vm-keep`,
+ *   `vm-hako-reference`, and `vm-compat-fallback`.
  * - `vm-compat-fallback` stays compatibility-only.
  * - `vm` backend family is explicit legacy keep/debug only; it is not a
  *   day-to-day route.
@@ -19,13 +19,13 @@ pub(crate) const VM_ROUTE_TAG_PRE_DISPATCH: &str = "vm-route/pre-dispatch";
 pub(crate) const VM_ROUTE_TAG_SELECT: &str = "vm-route/select";
 pub(crate) const VM_ROUTE_FREEZE_COMPAT_BYPASS: &str = "vm-route/compat-bypass";
 pub(crate) const DERUST_ROUTE_TAG_SELECT: &str = "derust-route/select";
-pub(crate) const VM_LANE_RUST_KEEP: &str = "rust-vm-keep";
+pub(crate) const LANE_BOOTSTRAP_RUST_VM_KEEP: &str = "bootstrap-rust-vm-keep";
 pub(crate) const VM_LANE_HAKO_REFERENCE: &str = "vm-hako-reference";
 pub(crate) const VM_LANE_COMPAT_FALLBACK: &str = "vm-compat-fallback";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum VmRouteAction {
-    Vm,
+    BootstrapRustVmKeep,
     VmHako,
     CompatFallback,
 }
@@ -139,9 +139,9 @@ pub(crate) fn decide_vm_route_plan(
             } else {
                 Some(VmRoutePlan {
                     backend: "vm",
-                    lane: VM_LANE_RUST_KEEP,
-                    reason: "explicit-keep-override",
-                    action: VmRouteAction::Vm,
+                    lane: LANE_BOOTSTRAP_RUST_VM_KEEP,
+                    reason: "explicit-deprecated-bootstrap-keep-not-daily",
+                    action: VmRouteAction::BootstrapRustVmKeep,
                 })
             }
         }
@@ -167,9 +167,9 @@ pub(crate) fn execute_vm_family_route(runner: &NyashRunner, backend: &str, filen
     emit_vm_route_select(&plan);
     emit_derust_route_select(plan.backend, plan.lane, source, plan.reason);
     match plan.action {
-        VmRouteAction::Vm => runner.execute_vm_mode(filename),
+        VmRouteAction::BootstrapRustVmKeep => runner.execute_bootstrap_rust_vm_keep(filename),
         VmRouteAction::VmHako => runner.execute_vm_hako_mode(filename),
-        VmRouteAction::CompatFallback => runner.execute_vm_fallback_interpreter(filename),
+        VmRouteAction::CompatFallback => runner.execute_compat_vm_fallback_capsule(filename),
     }
     true
 }
@@ -213,16 +213,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn decide_vm_route_plan_vm_default() {
+    fn decide_vm_route_plan_vm_default_is_bootstrap_rust_keep() {
         let plan = decide_vm_route_plan("vm", false, false).expect("plan");
         assert_eq!(plan.backend, "vm");
-        assert_eq!(plan.lane, VM_LANE_RUST_KEEP);
-        assert_eq!(plan.reason, "explicit-keep-override");
-        assert_eq!(plan.action, VmRouteAction::Vm);
+        assert_eq!(plan.lane, LANE_BOOTSTRAP_RUST_VM_KEEP);
+        assert_eq!(plan.reason, "explicit-deprecated-bootstrap-keep-not-daily");
+        assert_eq!(plan.action, VmRouteAction::BootstrapRustVmKeep);
     }
 
     #[test]
-    fn decide_vm_route_plan_vm_hako_preferred() {
+    fn decide_vm_route_plan_vm_hako_reference_preferred() {
         let plan = decide_vm_route_plan("vm", false, true).expect("plan");
         assert_eq!(plan.backend, "vm");
         assert_eq!(plan.lane, VM_LANE_HAKO_REFERENCE);
@@ -231,7 +231,7 @@ mod tests {
     }
 
     #[test]
-    fn decide_vm_route_plan_vm_fallback_forced() {
+    fn decide_vm_route_plan_compat_fallback_capsule_forced() {
         let plan = decide_vm_route_plan("vm", true, true).expect("plan");
         assert_eq!(plan.backend, "vm");
         assert_eq!(plan.lane, VM_LANE_COMPAT_FALLBACK);
@@ -240,7 +240,7 @@ mod tests {
     }
 
     #[test]
-    fn decide_vm_route_plan_vm_hako_explicit_backend() {
+    fn decide_vm_route_plan_vm_hako_reference_explicit_backend() {
         let plan = decide_vm_route_plan("vm-hako", false, false).expect("plan");
         assert_eq!(plan.backend, "vm-hako");
         assert_eq!(plan.lane, VM_LANE_HAKO_REFERENCE);
@@ -262,7 +262,21 @@ mod tests {
     }
 
     #[test]
-    fn format_vm_route_select_is_stable() {
+    fn format_vm_route_select_bootstrap_rust_capsule_is_stable() {
+        let plan = VmRoutePlan {
+            backend: "vm",
+            lane: LANE_BOOTSTRAP_RUST_VM_KEEP,
+            reason: "explicit-deprecated-bootstrap-keep-not-daily",
+            action: VmRouteAction::BootstrapRustVmKeep,
+        };
+        assert_eq!(
+            format_vm_route_select(&plan),
+            "[vm-route/select] backend=vm lane=bootstrap-rust-vm-keep reason=explicit-deprecated-bootstrap-keep-not-daily"
+        );
+    }
+
+    #[test]
+    fn format_vm_route_select_compat_capsule_is_stable() {
         let plan = VmRoutePlan {
             backend: "vm",
             lane: VM_LANE_COMPAT_FALLBACK,
@@ -280,6 +294,19 @@ mod tests {
         assert_eq!(
             format_derust_route_select("vm", "vm-hako-reference", "hako-skeleton", "strict-dev-prefer"),
             "[derust-route/select] backend=vm lane=vm-hako-reference source=hako-skeleton reason=strict-dev-prefer"
+        );
+    }
+
+    #[test]
+    fn format_derust_route_select_bootstrap_rust_capsule_is_stable() {
+        assert_eq!(
+            format_derust_route_select(
+                "vm",
+                "bootstrap-rust-vm-keep",
+                "rust-thin-explicit",
+                "explicit-deprecated-bootstrap-keep-not-daily"
+            ),
+            "[derust-route/select] backend=vm lane=bootstrap-rust-vm-keep source=rust-thin-explicit reason=explicit-deprecated-bootstrap-keep-not-daily"
         );
     }
 

@@ -7,7 +7,7 @@ cd "$ROOT_DIR"
 echo "[vm-route-bypass-guard] checking fallback callsite ownership"
 
 if command -v rg >/dev/null 2>&1; then
-  hits="$(rg -n "execute_vm_fallback_interpreter\\(" src/runner -S || true)"
+  hits="$(rg -n "execute_compat_vm_fallback_capsule\\(" src/runner -S || true)"
 else
   echo "[vm-route-bypass-guard] ERROR: rg is required" >&2
   exit 2

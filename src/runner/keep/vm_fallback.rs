@@ -15,7 +15,7 @@ impl NyashRunner {
     /// Keep this path narrow and non-growing.
     /// - Respects using preprocessing done earlier in the pipeline
     /// - Relies on global plugin host initialized by runner
-    pub(crate) fn execute_vm_fallback_interpreter(&self, filename: &str) {
+    pub(crate) fn execute_compat_vm_fallback_capsule(&self, filename: &str) {
         crate::runner::route_orchestrator::enforce_vm_compat_fallback_guard_or_exit("vm-fallback");
         // Note: hv1 direct route is now handled at main.rs entry point (before plugin initialization).
         // This function is only called after plugin initialization has already occurred.
