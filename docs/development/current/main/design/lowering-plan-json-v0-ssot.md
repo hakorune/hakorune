@@ -148,6 +148,7 @@ field parsing.
 | --- | --- | --- | --- |
 | `MapGet` | `ColdRuntime` | `nyash.runtime_data.get_hh` | P70 plan-only fixture |
 | `MapHas` | `DirectAbi` | `nyash.map.probe_hi` | P72 plan-only fixture |
+| `MapLen` | `DirectAbi` | `nyash.map.entry_count_i64` | P75 plan-only fixture |
 
 ## Non-goals
 
