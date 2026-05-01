@@ -54,15 +54,13 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | `tools/crate_exe_smoke.sh` | protected/current-smoke | crate/ny-llvmc EXE proof | keep | keep while EXE route is current |
 | `tools/dev_env.sh` | manual-tool | developer profile source helper | keep | document owner if expanded |
 | `tools/dev_selfhost_loop.sh` | manual-tool | selfhost iteration helper | hold | archive only after selfhost loop owner retires it |
-| `tools/dev_stagea.sh` | compat-capsule | Stage-A Program(JSON v0) dev route | hold | classify with Program(JSON v0) delete-last work |
-| `tools/dev_stageb.sh` | compat-capsule | Stage-B Program(JSON v0) dev route | hold | classify with Program(JSON v0) delete-last work |
 | `tools/exe_first_runner_smoke.sh` | protected/current-smoke | EXE-first runner smoke | keep | keep with EXE-first proof lane |
 | `tools/exe_first_smoke.sh` | protected/current-smoke | EXE-first parser bundle smoke | keep | keep with EXE-first proof lane |
 | `tools/hako_check.sh` | protected/current-smoke | hako-check entrypoint | keep | keep as hako-check facade |
 | `tools/hako_check_loopless_gate.sh` | protected/current-smoke | hako-check gate wrapper | keep | keep with hako-check gate owner |
-| `tools/hakorune_emit_mir.sh` | compat-capsule | Hako-first Program(JSON)->MIR helper | hold | replace or archive via P33 keeper order |
-| `tools/hakorune_emit_mir_compat.sh` | compat-capsule | Program(JSON)->MIR compat preset | hold | replace or archive via P33 keeper order |
-| `tools/hakorune_emit_mir_mainline.sh` | compat-capsule | Program(JSON)->MIR mainline preset | hold | replace or archive via P33 keeper order |
+| `tools/hakorune_emit_mir.sh` | compat-capsule | shared Hako-first MIR emit helper with route/docs owners | keep | keep while selfhost route docs and probes call it |
+| `tools/hakorune_emit_mir_compat.sh` | compat-capsule | thin Program(JSON)->MIR compat preset wrapper | keep | keep with bootstrap route SSOT |
+| `tools/hakorune_emit_mir_mainline.sh` | compat-capsule | thin MIR-first preset wrapper | keep | keep with bootstrap route SSOT |
 | `tools/llvm_smoke.sh` | manual-smoke | llvmlite harness compatibility smoke | hold | move under archive/manual-smokes only after harness owner agrees |
 | `tools/llvmlite_harness.py` | compat-capsule | explicit llvmlite backend keep | keep | keep while `ny_mir_builder.sh` exposes llvmlite |
 | `tools/modules_smoke.sh` | protected/current-smoke | modules JSON VM smoke | hold | route into smoke v2 or archive after owner check |
@@ -74,7 +72,7 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | `tools/opbox-json.sh` | manual-smoke | OperatorBox JSON smoke shortcut | hold | route into smoke v2 or archive after opbox owner check |
 | `tools/opbox-quick.sh` | manual-smoke | OperatorBox quick smoke shortcut | hold | route into smoke v2 or archive after opbox owner check |
 | `tools/run_llvm_harness.sh` | compat-capsule | explicit LLVM harness compat/probe lane | keep | keep with LLVM harness owner |
-| `tools/selfhost_exe_stageb.sh` | compat-capsule | Program(JSON)->MIR bridge capsule plus direct probe | keep | split or strengthen capsule owner before delete-last |
+| `tools/selfhost_exe_stageb.sh` | compat-capsule | Program(JSON)->MIR bridge capsule plus direct probe | keep | keep with selfhost README bridge capsule owner |
 | `tools/selfhost_identity_check.sh` | compat-capsule | Stage1/Stage2 identity comparison | hold | align with Stage1 contract keeper order |
 | `tools/selfhost_read_tmp_dev_smoke.sh` | manual-smoke | retired tmp-only selfhost dev smoke | hold | archive after selfhost tmp owner check |
 | `tools/selfhost_stage2_bridge_smoke.sh` | protected/current-smoke | Stage-2 bridge smoke | keep | keep while bridge proof is current |
@@ -91,9 +89,6 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 
 Do not move these without a focused card:
 
-- Program(JSON v0) capsules: `tools/dev_stagea.sh`, `tools/dev_stageb.sh`,
-  `tools/hakorune_emit_mir.sh`, `tools/hakorune_emit_mir_compat.sh`,
-  `tools/hakorune_emit_mir_mainline.sh`, `tools/selfhost_exe_stageb.sh`
 - smoke shortcuts that need smoke-v2 owner decisions:
   `tools/llvm_smoke.sh`, `tools/modules_smoke.sh`, `tools/opbox-json.sh`,
   `tools/opbox-quick.sh`, `tools/vm_plugin_smoke.sh`

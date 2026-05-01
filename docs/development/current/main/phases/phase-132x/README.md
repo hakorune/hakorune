@@ -40,8 +40,8 @@
   - `tools/selfhost/proof/selfhost_smoke.sh`
   - `tools/plugins/plugin_v2_smoke.sh`
   - `tools/hako_check.sh`
-  - `tools/dev_stagea.sh`
-  - `tools/dev_stageb.sh`
+  - `tools/dev/program_json_v0/dev_stagea.sh`
+  - `tools/dev/program_json_v0/dev_stageb.sh`
   - `tools/dev/hako_debug_run.sh`
   - `tools/debug/phi/phi_trace_bridge_try.sh`
   - `tools/modules_smoke.sh`

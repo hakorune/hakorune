@@ -3,10 +3,10 @@ set -euo pipefail
 
 # dev_stagea.sh — Stage‑A (minimal) Hako → JSON v0 → Gate‑C 実行ヘルパー
 # 使い方:
-#   tools/dev_stagea.sh 'box Main { static method main() { print(1+2); } }'
-#   tools/dev_stagea.sh -f path/to/code.hako
+#   tools/dev/program_json_v0/dev_stagea.sh 'box Main { static method main() { print(1+2); } }'
+#   tools/dev/program_json_v0/dev_stagea.sh -f path/to/code.hako
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 BIN="$ROOT/target/release/nyash"
 
 if [ ! -x "$BIN" ]; then
@@ -46,4 +46,3 @@ NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 NYASH_NYRT_SILENT_RESULT=1 \
 "$BIN" --json-file "$OUT"
 
 exit $?
-
