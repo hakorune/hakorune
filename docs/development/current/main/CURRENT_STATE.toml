@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P94-LOWERING-PLAN-MAPHAS-ANY-DIRECTABI-CONSUME"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P94-LOWERING-PLAN-MAPHAS-ANY-DIRECTABI-CONSUME.md"
-latest_card_summary = "Consume LoweringPlan v0 for MapHas any-key DirectAbi with a plan-only fixture."
+latest_card = "P95-LOWERING-PLAN-GENERIC-EMIT-KIND-TABLE-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P95-LOWERING-PLAN-GENERIC-EMIT-KIND-TABLE-SSOT.md"
+latest_card_summary = "Table LoweringPlan v0 generic-method emit-kind selection."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

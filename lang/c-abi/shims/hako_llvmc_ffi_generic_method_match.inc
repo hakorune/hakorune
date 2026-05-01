@@ -10,58 +10,132 @@
         return 1;
       }
 
+      struct LoweringPlanGenericMethodEmitRule {
+        const char* route_id;
+        const char* core_op;
+        const char* route_kind;
+        enum LoweringPlanTierMetadata tier;
+        enum GenericMethodEmitKind result;
+      };
+
+      auto int lowering_plan_generic_method_emit_rule_matches(
+          const struct LoweringPlanGenericMethodView* view,
+          const struct LoweringPlanGenericMethodEmitRule* rule) {
+        if (!(view && rule)) return 0;
+        return view->route_id &&
+               !strcmp(view->route_id, rule->route_id) &&
+               view->core_op &&
+               !strcmp(view->core_op, rule->core_op) &&
+               view->route_kind &&
+               !strcmp(view->route_kind, rule->route_kind) &&
+               view->tier == rule->tier;
+      }
+
       auto enum GenericMethodEmitKind
       classify_generic_method_emit_kind_from_lowering_plan(yyjson_val* entry) {
+        static const struct LoweringPlanGenericMethodEmitRule rules[] = {
+          {
+            "generic_method.has",
+            "MapHas",
+            "map_contains_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS,
+          },
+          {
+            "generic_method.has",
+            "MapHas",
+            "map_contains_i64",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS,
+          },
+          {
+            "generic_method.has",
+            "ArrayHas",
+            "array_contains_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS,
+          },
+          {
+            "generic_method.get",
+            "MapGet",
+            "runtime_data_load_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_GET,
+          },
+          {
+            "generic_method.get",
+            "MapGet",
+            "map_load_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_GET,
+          },
+          {
+            "generic_method.get",
+            "ArrayGet",
+            "array_slot_load_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_GET,
+          },
+          {
+            "generic_method.len",
+            "ArrayLen",
+            "array_slot_len",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN,
+          },
+          {
+            "generic_method.len",
+            "MapLen",
+            "map_entry_count",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN,
+          },
+          {
+            "generic_method.len",
+            "StringLen",
+            "string_len",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN,
+          },
+          {
+            "generic_method.push",
+            "ArrayPush",
+            "array_append_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_PUSH,
+          },
+          {
+            "generic_method.set",
+            "ArraySet",
+            "array_store_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_SET,
+          },
+          {
+            "generic_method.set",
+            "MapSet",
+            "map_store_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_SET,
+          },
+          {
+            "generic_method.substring",
+            "StringSubstring",
+            "string_substring",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_SUBSTRING,
+          },
+        };
         struct LoweringPlanGenericMethodView view;
+        size_t ri = 0;
         if (!read_lowering_plan_generic_method_view(entry, &view)) {
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
         }
-        if (!strcmp(view.route_id, "generic_method.has") &&
-            (!strcmp(view.core_op, "MapHas") ||
-             !strcmp(view.core_op, "ArrayHas")) &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
-          return HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS;
-        }
-        if (!strcmp(view.route_id, "generic_method.get") &&
-            !strcmp(view.core_op, "MapGet") &&
-            (lowering_plan_tier_is_cold_runtime(view.tier) ||
-             lowering_plan_tier_is_direct_abi(view.tier))) {
-          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
-          return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
-        }
-        if (!strcmp(view.route_id, "generic_method.get") &&
-            !strcmp(view.core_op, "ArrayGet") &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
-          return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
-        }
-        if (!strcmp(view.route_id, "generic_method.len") &&
-            (!strcmp(view.core_op, "ArrayLen") ||
-             !strcmp(view.core_op, "MapLen") ||
-             !strcmp(view.core_op, "StringLen")) &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
-          return HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN;
-        }
-        if (!strcmp(view.route_id, "generic_method.push") &&
-            !strcmp(view.core_op, "ArrayPush") &&
-            lowering_plan_tier_is_cold_runtime(view.tier)) {
-          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
-          return HAKO_LLVMC_GENERIC_METHOD_EMIT_PUSH;
-        }
-        if (!strcmp(view.route_id, "generic_method.set") &&
-            (!strcmp(view.core_op, "ArraySet") ||
-             !strcmp(view.core_op, "MapSet")) &&
-            lowering_plan_tier_is_cold_runtime(view.tier)) {
-          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
-          return HAKO_LLVMC_GENERIC_METHOD_EMIT_SET;
-        }
-        if (!strcmp(view.route_id, "generic_method.substring") &&
-            !strcmp(view.core_op, "StringSubstring") &&
-            lowering_plan_tier_is_direct_abi(view.tier)) {
-          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
-          return HAKO_LLVMC_GENERIC_METHOD_EMIT_SUBSTRING;
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          if (lowering_plan_generic_method_emit_rule_matches(&view, &rules[ri])) {
+            trace_lowering_plan_entry_hit(entry, "generic_method_emit");
+            return rules[ri].result;
+          }
         }
         return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
       }

@@ -147,6 +147,9 @@ fields. Do not add one-off `strcmp` ladders for every new proven plan slice.
 Route-state declaration rules follow the same policy: plan-first route
 selection should be table rows keyed by the shared LoweringPlan view, with
 legacy route metadata retained only as the migration fallback.
+Generic-method emit-kind selection follows the same policy: plan-first
+`generic_method_emit` rows should be table rows keyed by the shared
+LoweringPlan view instead of per-op branch ladders.
 Set-route declaration rules also use table rows. Value-shape-specific set
 variants must be added as rows rather than extending ad hoc branch ladders.
 Rows for concrete set helpers must validate observed value shape before
