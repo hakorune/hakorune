@@ -1,0 +1,94 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "lowering_plan": [
+          {
+            "site": "b0.i2",
+            "block": 0,
+            "instruction_index": 2,
+            "source": "generic_method_routes",
+            "source_route_id": "generic_method.get",
+            "core_op": "ArrayGet",
+            "tier": "DirectAbi",
+            "emit_kind": "direct_abi_call",
+            "symbol": "nyash.array.slot_load_hi",
+            "proof": "core_method_contract_manifest",
+            "route_proof": "get_surface_policy",
+            "route_kind": "array_slot_load_any",
+            "perf_proof": false,
+            "receiver_value": 1,
+            "receiver_origin_box": "ArrayBox",
+            "arity": 1,
+            "key_route": "i64_const",
+            "key_value": 2,
+            "result_value": 3,
+            "return_shape": null,
+            "value_demand": "read_ref",
+            "publication_policy": null,
+            "effects": [
+              "read.key"
+            ]
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "mir_call",
+              "dst": 1,
+              "mir_call": {
+                "callee": {
+                  "type": "Constructor",
+                  "box_name": "ArrayBox"
+                },
+                "args": [],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 3,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "get",
+                  "receiver": 1,
+                  "certainty": "Union"
+                },
+                "args": [
+                  2
+                ],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

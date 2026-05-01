@@ -295,6 +295,16 @@
             lowering_plan_tier_is_direct_abi(view.tier)) {
           return HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN;
         }
+        if (!strcmp(view.route_id, "generic_method.get") &&
+            !strcmp(view.core_op, "ArrayGet") &&
+            !strcmp(view.route_kind, "array_slot_load_any") &&
+            view.symbol &&
+            !strcmp(view.symbol, "nyash.array.slot_load_hi") &&
+            view.route_proof &&
+            !strcmp(view.route_proof, "get_surface_policy") &&
+            lowering_plan_tier_is_direct_abi(view.tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET;
+        }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 
