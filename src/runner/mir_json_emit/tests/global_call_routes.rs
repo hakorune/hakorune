@@ -294,6 +294,113 @@ fn build_mir_json_root_emits_target_reason_for_string_or_void_sentinel_candidate
 }
 
 #[test]
+fn build_mir_json_root_emits_child_blocker_for_string_or_void_sentinel_candidate() {
+    let mut module =
+        crate::mir::MirModule::new("json_global_call_void_sentinel_child_test".to_string());
+    let mut caller = make_function("main", true);
+    caller
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Call {
+            dst: Some(ValueId::new(7)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.maybe_text/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.maybe_text/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::Call {
+        dst: Some(ValueId::new(1)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global("Helper.flag/0".to_string())),
+        args: vec![],
+        effects: EffectMask::PURE,
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(1),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut text_block = BasicBlock::new(BasicBlockId::new(1));
+    text_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::String("ok".to_string()),
+    });
+    text_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+
+    let mut void_block = BasicBlock::new(BasicBlockId::new(2));
+    void_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::Void,
+    });
+    void_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+
+    let flag = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.flag/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+
+    callee.blocks.insert(BasicBlockId::new(1), text_block);
+    callee.blocks.insert(BasicBlockId::new(2), void_block);
+    module.add_function(caller);
+    module.add_function(flag);
+    module.add_function(callee);
+    refresh_module_global_call_routes(&mut module);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
+    assert_eq!(route["target_exists"], true);
+    assert_eq!(route["target_return_type"], "void");
+    assert_eq!(route["target_shape"], serde_json::Value::Null);
+    assert_eq!(
+        route["target_shape_reason"],
+        "generic_string_global_target_shape_unknown"
+    );
+    assert_eq!(route["target_shape_blocker_symbol"], "Helper.flag/0");
+    assert_eq!(
+        route["target_shape_blocker_reason"],
+        "generic_string_no_string_surface"
+    );
+
+    let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
+    assert_eq!(plan["target_exists"], true);
+    assert_eq!(plan["target_return_type"], "void");
+    assert_eq!(plan["target_shape"], serde_json::Value::Null);
+    assert_eq!(
+        plan["target_shape_reason"],
+        "generic_string_global_target_shape_unknown"
+    );
+    assert_eq!(plan["target_shape_blocker_symbol"], "Helper.flag/0");
+    assert_eq!(
+        plan["target_shape_blocker_reason"],
+        "generic_string_no_string_surface"
+    );
+}
+
+#[test]
 fn build_mir_json_root_emits_target_shape_child_blocker_for_unknown_child_target() {
     let mut module = crate::mir::MirModule::new("json_global_call_child_blocker_test".to_string());
     let mut caller = make_function("main", true);

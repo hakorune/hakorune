@@ -567,6 +567,18 @@ enum GenericPureValueClass {
     String,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GenericPureStringScanMode {
+    StrictStringReturn,
+    VoidSentinelBody,
+}
+
+impl GenericPureStringScanMode {
+    fn allows_void_sentinel_const(self) -> bool {
+        matches!(self, Self::VoidSentinelBody)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct GenericPureStringReject {
     reason: GlobalCallTargetShapeReason,
@@ -601,12 +613,11 @@ fn generic_pure_string_body_reject_reason(
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> Option<GenericPureStringReject> {
     if !generic_pure_string_abi_type_is_handle_compatible(&function.signature.return_type) {
-        if function.signature.return_type == MirType::Void
-            && generic_string_void_sentinel_return_candidate(function, targets)
-        {
-            return Some(GenericPureStringReject::new(
-                GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate,
-            ));
+        if function.signature.return_type == MirType::Void {
+            if let Some(reject) = generic_string_void_sentinel_body_reject_reason(function, targets)
+            {
+                return Some(reject);
+            }
         }
         return Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringReturnAbiNotHandleCompatible,
@@ -649,6 +660,7 @@ fn generic_pure_string_body_reject_reason(
                     &mut values,
                     &mut has_string_surface,
                     &mut changed,
+                    GenericPureStringScanMode::StrictStringReturn,
                 ) {
                     return Some(reject);
                 }
@@ -660,6 +672,7 @@ fn generic_pure_string_body_reject_reason(
                     &mut values,
                     &mut has_string_surface,
                     &mut changed,
+                    GenericPureStringScanMode::StrictStringReturn,
                 ) {
                     return Some(reject);
                 }
@@ -708,6 +721,73 @@ fn generic_pure_string_abi_type_is_handle_compatible(ty: &MirType) -> bool {
         MirType::Box(name) => name == "StringBox",
         _ => false,
     }
+}
+
+fn generic_string_void_sentinel_body_reject_reason(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> Option<GenericPureStringReject> {
+    if !generic_string_void_sentinel_return_candidate(function, targets) {
+        return None;
+    }
+    if !function
+        .signature
+        .params
+        .iter()
+        .all(generic_pure_string_abi_type_is_handle_compatible)
+    {
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringParamAbiNotHandleCompatible,
+        ));
+    }
+
+    let mut values = BTreeMap::<ValueId, GenericPureValueClass>::new();
+    let mut has_string_surface = false;
+    for param in &function.params {
+        values.insert(*param, GenericPureValueClass::String);
+    }
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in &block.instructions {
+                if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    instruction,
+                    targets,
+                    &mut values,
+                    &mut has_string_surface,
+                    &mut changed,
+                    GenericPureStringScanMode::VoidSentinelBody,
+                ) {
+                    return Some(reject);
+                }
+            }
+            if let Some(terminator) = &block.terminator {
+                if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    terminator,
+                    targets,
+                    &mut values,
+                    &mut has_string_surface,
+                    &mut changed,
+                    GenericPureStringScanMode::VoidSentinelBody,
+                ) {
+                    return Some(reject);
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    Some(GenericPureStringReject::new(
+        GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate,
+    ))
 }
 
 // Return-profile evidence only: this must not make the target lowerable.
@@ -938,6 +1018,7 @@ fn generic_pure_string_instruction_reject_reason(
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
     has_string_surface: &mut bool,
     changed: &mut bool,
+    mode: GenericPureStringScanMode,
 ) -> Option<GenericPureStringReject> {
     match instruction {
         MirInstruction::Const { dst, value } => {
@@ -948,10 +1029,16 @@ fn generic_pure_string_instruction_reject_reason(
                 }
                 ConstValue::Integer(_) => GenericPureValueClass::I64,
                 ConstValue::Bool(_) => GenericPureValueClass::Bool,
+                ConstValue::Null | ConstValue::Void if mode.allows_void_sentinel_const() => {
+                    GenericPureValueClass::Unknown
+                }
                 _ => GenericPureValueClass::Unknown,
             };
             set_value_class(values, *dst, class, changed);
-            if class == GenericPureValueClass::Unknown {
+            if class == GenericPureValueClass::Unknown
+                && !(mode.allows_void_sentinel_const()
+                    && matches!(value, ConstValue::Null | ConstValue::Void))
+            {
                 Some(GenericPureStringReject::new(
                     GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
                 ))
@@ -1382,6 +1469,91 @@ mod tests {
         assert_eq!(
             route.target_shape_reason(),
             Some("generic_string_return_void_sentinel_candidate")
+        );
+        assert_eq!(route.tier(), "Unsupported");
+        assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_void_sentinel_child_blocker() {
+        let mut module = MirModule::new("global_call_void_sentinel_child_test".to_string());
+        let caller = make_function_with_global_call_args(
+            "Helper.maybe_text/0",
+            Some(ValueId::new(7)),
+            vec![],
+        );
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.maybe_text/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        entry.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.flag/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(1),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        let mut text_block = BasicBlock::new(BasicBlockId::new(1));
+        text_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("ok".to_string()),
+        });
+        text_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        let mut void_block = BasicBlock::new(BasicBlockId::new(2));
+        void_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
+        });
+        void_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        let flag = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.flag/0".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        callee.blocks.insert(BasicBlockId::new(1), text_block);
+        callee.blocks.insert(BasicBlockId::new(2), void_block);
+        module.functions.insert("main".to_string(), caller);
+        module.functions.insert("Helper.flag/0".to_string(), flag);
+        module
+            .functions
+            .insert("Helper.maybe_text/0".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert!(route.target_exists());
+        assert_eq!(route.target_symbol(), Some("Helper.maybe_text/0"));
+        assert_eq!(route.target_return_type(), Some("void".to_string()));
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_global_target_shape_unknown")
+        );
+        assert_eq!(route.target_shape_blocker_symbol(), Some("Helper.flag/0"));
+        assert_eq!(
+            route.target_shape_blocker_reason(),
+            Some("generic_string_no_string_surface")
         );
         assert_eq!(route.tier(), "Unsupported");
         assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
