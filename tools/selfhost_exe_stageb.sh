@@ -172,7 +172,7 @@ emit_mir_direct() {
     echo "[emit] direct route failed (rc=$emit_rc): $INPUT" >&2
     if grep -Fq "[joinir/freeze]" "$tmp_log" || grep -Fq "[plan/freeze:contract]" "$tmp_log"; then
       echo "       hint: direct route currently compiles merged prelude and may hit JoinIR unsupported loops" >&2
-      echo "       hint2: keep stageb-delegate as mainline for launcher path until JoinIR coverage expands" >&2
+      echo "       hint2: use HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate only as an explicit bridge compat capsule" >&2
     fi
     tail -n 80 "$tmp_log" >&2 || true
     return "$emit_rc"

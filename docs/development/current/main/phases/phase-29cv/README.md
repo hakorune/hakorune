@@ -52,6 +52,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   guarded it against the current reduced run-only `stage1-cli` artifact. The
   replacement remains `stage1_contract_exec_mode ... emit-mir` once an
   emit-capable Stage1 env artifact is green.
+- P106 locked why that replacement is not ready: Stage-B mainline-only does
+  not emit the full Stage1 env MIR yet, Rust direct MIR is diagnostic-only,
+  pure-first stops on unplanned `env.get/1`, and the full Stage1 env direct EXE
+  route still fails MIR dominance verification.
 
 ## Compat Capsule Rules
 
@@ -86,6 +90,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` is now guarded so it
      cannot misread the reduced run-only `stage1-cli` artifact as an
      emit-capable Stage1 env artifact.
+   - P106 keeps this caller in the bridge capsule until an emit-capable Stage1
+     env artifact, plan-backed `env.get/1`, and MIR dominance proof are all
+     green on the MIR-first replacement path.
    - This capsule is not a primary proof route and is not part of
      `selfhost_build.sh` mainline routing.
 3. Stage1 contract keepers
