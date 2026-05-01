@@ -13,7 +13,8 @@ Purpose
     `--emit-mir-json`, and `--mir-json-file`.
   - Bridge capsule:
     `tools/selfhost/lib/program_json_mir_bridge.sh`,
-    `tools/selfhost_exe_stageb.sh` with `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`,
+    `tools/selfhost_exe_stageb.sh` with explicit
+    `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`,
     `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, and
     `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`.
 - file-level responsibility inventory:
@@ -171,8 +172,8 @@ bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh
 Notes
 - `selfhost_build.sh` no longer owns Stage-B Program(JSON v0) artifact production; use `tools/dev/program_json_v0/stageb_artifact_probe.sh` for explicit diagnostics.
 - `tools/selfhost_exe_stageb.sh` is route-selectable:
-  - `HAKORUNE_STAGE1_EMIT_ROUTE=direct` is the MIR-first probe route.
-  - `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a Program(JSON v0)
+  - default / `HAKORUNE_STAGE1_EMIT_ROUTE=direct` is the MIR-first route.
+  - explicit `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a Program(JSON v0)
     bridge compat capsule, kept only while bridge replacement/archive coverage
     is incomplete.
 - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` still calls the

@@ -17,7 +17,7 @@ trap cleanup EXIT
 
 helper_src="$tmp_dir/phase29ch_source_route_materialize_probe.hako"
 helper_bin="$tmp_dir/phase29ch_source_route_materialize_probe"
-helper_route="${HAKORUNE_STAGE1_EMIT_ROUTE:-stageb-delegate}"
+helper_route="${HAKORUNE_STAGE1_EMIT_ROUTE:-direct}"
 
 python3 - "$helper_src" <<'PY'
 import json

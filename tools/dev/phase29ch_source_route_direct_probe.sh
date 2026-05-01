@@ -24,7 +24,7 @@ helper_src="$tmp_dir/phase29ch_source_route_probe.hako"
 helper_bin="$tmp_dir/phase29ch_source_route_probe"
 helper_out="$tmp_dir/probe.out"
 helper_json="$tmp_dir/probe.json"
-helper_route="${HAKORUNE_STAGE1_EMIT_ROUTE:-stageb-delegate}"
+helper_route="${HAKORUNE_STAGE1_EMIT_ROUTE:-direct}"
 
 extract_json() {
   local src="$1"

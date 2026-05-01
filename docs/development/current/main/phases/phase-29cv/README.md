@@ -38,10 +38,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   new acceptance-shape expansion.
 - Thin shell/test seam cleanup is effectively exhausted through P32. Remaining
   work is explicit keeper replacement or final delete-last cleanup.
-- P101 refreshed the caller inventory: the next executable slice should choose
-  one capsule owner, starting with `tools/selfhost_exe_stageb.sh`
-  `stageb-delegate` default-retirement feasibility, rather than deleting
-  `Program(JSON v0)` broadly.
+- P101 refreshed the caller inventory.
+- P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
+  route. `stageb-delegate` remains available only as an explicit bridge
+  compat capsule.
 
 ## Compat Capsule Rules
 
@@ -65,12 +65,13 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 2. Program(JSON)->MIR bridge capsule
    - `tools/selfhost/lib/stageb_program_json_capture.sh`
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
-   - `tools/selfhost_exe_stageb.sh`
+   - `tools/selfhost_exe_stageb.sh` only when explicitly run with
+     `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`
    - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
    - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
    - Kept for explicit compat conversion work only.
-   - `tools/selfhost_exe_stageb.sh` `stageb-delegate` is a bridge capsule;
-     `direct` is the MIR-first probe route.
+   - `tools/selfhost_exe_stageb.sh` defaults to `direct`; explicit
+     `stageb-delegate` is a bridge capsule.
    - This capsule is not a primary proof route and is not part of
      `selfhost_build.sh` mainline routing.
 3. Stage1 contract keepers

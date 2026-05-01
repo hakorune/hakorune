@@ -8,7 +8,9 @@ from the source-route behavior being observed.
 `tools/dev/phase29ch_source_route_direct_probe.sh` and
 `tools/dev/phase29ch_source_route_materialize_probe.sh` build a temporary
 helper executable through `tools/selfhost_exe_stageb.sh`. That helper build
-defaults to `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate`.
+defaulted to `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` when this label card
+landed. P102 changed the helper default to `direct`; explicit
+`stageb-delegate` remains a bridge compat capsule.
 
 Their diagnostic labels previously read like the helper artifact itself was the
 direct source route. That is easy to misread while cleaning Program(JSON v0)

@@ -5,10 +5,11 @@
 # Usage: tools/selfhost_exe_stageb.sh <input.hako> [-o <out>] [--run]
 #
 # Emit route (env):
-#   HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate  (default bridge compat capsule)
-#     Stage-B compiler emits Program(JSON v0), then env.mirbuilder.emit bridge.
-#   HAKORUNE_STAGE1_EMIT_ROUTE=direct
-#     Direct --emit-mir-json route (MIR-first probe use).
+#   HAKORUNE_STAGE1_EMIT_ROUTE=direct  (default MIR-first route)
+#     Direct --emit-mir-json route.
+#   HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate
+#     Explicit bridge compat capsule: Stage-B compiler emits Program(JSON v0),
+#     then env.mirbuilder.emit bridge.
 #
 # Prerequisites (one-time setup):
 #   cargo build --release -p nyash-llvm-compiler
@@ -37,7 +38,7 @@ if [[ ! -f "$INPUT" ]]; then
 fi
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-EMIT_ROUTE="${HAKORUNE_STAGE1_EMIT_ROUTE:-stageb-delegate}"
+EMIT_ROUTE="${HAKORUNE_STAGE1_EMIT_ROUTE:-direct}"
 
 # shellcheck source=/dev/null
 source "$ROOT_DIR/tools/selfhost/lib/program_json_mir_bridge.sh"
