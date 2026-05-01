@@ -80,6 +80,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `global_call_routes` / `LoweringPlan tier=Unsupported`. ny-llvmc still
   fail-fasts, but the reason moves from raw `mir_call_no_route` discovery to
   `lowering_plan_unsupported_global_call`.
+- P113 enriches `global_call_routes` with MIR module target facts. The
+  `Stage1ModeContractBox.resolve_mode/0` stop now reports
+  `missing_multi_function_emitter`, which means the callee exists and arity
+  matches, but generic pure still emits only the selected entry function.
 
 ## Compat Capsule Rules
 

@@ -2,6 +2,7 @@ use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::global_call_route_plan::{
     refresh_function_global_call_routes, GlobalCallRoute, GlobalCallRouteSite,
+    GlobalCallTargetFacts,
 };
 use crate::mir::{BasicBlockId, ValueId};
 
@@ -16,6 +17,7 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
             "Stage1ModeContractBox.resolve_mode/0",
             0,
             Some(ValueId::new(45)),
+            GlobalCallTargetFacts::missing(),
         ));
     let mut module = crate::mir::MirModule::new("json_global_call_routes_test".to_string());
     module.add_function(function);
@@ -32,9 +34,12 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(route["proof"], "typed_global_call_contract_missing");
     assert_eq!(route["route_kind"], "global.user_call");
     assert_eq!(route["arity"], 0);
+    assert_eq!(route["target_exists"], false);
+    assert_eq!(route["target_arity"], serde_json::Value::Null);
+    assert_eq!(route["arity_matches"], serde_json::Value::Null);
     assert_eq!(route["result_value"], 45);
     assert_eq!(route["value_demand"], "typed_global_call_contract_missing");
-    assert_eq!(route["reason"], "missing_typed_global_call_lowering");
+    assert_eq!(route["reason"], "unknown_global_callee");
     assert_eq!(route["effects"], serde_json::json!(["call.global"]));
 
     let lowering_plan = root["functions"][0]["metadata"]["lowering_plan"]
@@ -55,11 +60,14 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(plan["route_kind"], "global.user_call");
     assert_eq!(plan["perf_proof"], false);
     assert_eq!(plan["arity"], 0);
+    assert_eq!(plan["target_exists"], false);
+    assert_eq!(plan["target_arity"], serde_json::Value::Null);
+    assert_eq!(plan["arity_matches"], serde_json::Value::Null);
     assert_eq!(plan["result_value"], 45);
     assert_eq!(plan["return_shape"], serde_json::Value::Null);
     assert_eq!(plan["value_demand"], "typed_global_call_contract_missing");
     assert_eq!(plan["publication_policy"], serde_json::Value::Null);
-    assert_eq!(plan["reason"], "missing_typed_global_call_lowering");
+    assert_eq!(plan["reason"], "unknown_global_callee");
     assert_eq!(plan["effects"], serde_json::json!(["call.global"]));
 }
 

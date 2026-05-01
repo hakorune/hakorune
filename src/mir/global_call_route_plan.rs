@@ -7,6 +7,7 @@
  */
 
 use super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, ValueId};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct GlobalCallRouteSite {
@@ -29,6 +30,34 @@ pub struct GlobalCallRoute {
     callee_name: String,
     arity: usize,
     result_value: Option<ValueId>,
+    target: GlobalCallTargetFacts,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct GlobalCallTargetFacts {
+    exists: bool,
+    arity: Option<usize>,
+}
+
+impl GlobalCallTargetFacts {
+    pub fn missing() -> Self {
+        Self::default()
+    }
+
+    pub fn present(arity: usize) -> Self {
+        Self {
+            exists: true,
+            arity: Some(arity),
+        }
+    }
+
+    pub fn exists(&self) -> bool {
+        self.exists
+    }
+
+    pub fn arity(&self) -> Option<usize> {
+        self.arity
+    }
 }
 
 impl GlobalCallRoute {
@@ -37,12 +66,14 @@ impl GlobalCallRoute {
         callee_name: impl Into<String>,
         arity: usize,
         result_value: Option<ValueId>,
+        target: GlobalCallTargetFacts,
     ) -> Self {
         Self {
             site,
             callee_name: callee_name.into(),
             arity,
             result_value,
+            target,
         }
     }
 
@@ -90,12 +121,29 @@ impl GlobalCallRoute {
         self.result_value
     }
 
+    pub fn target_exists(&self) -> bool {
+        self.target.exists()
+    }
+
+    pub fn target_arity(&self) -> Option<usize> {
+        self.target.arity()
+    }
+
+    pub fn arity_matches(&self) -> Option<bool> {
+        self.target_arity()
+            .map(|target_arity| target_arity == self.arity)
+    }
+
     pub fn value_demand(&self) -> &'static str {
         "typed_global_call_contract_missing"
     }
 
     pub fn reason(&self) -> &'static str {
-        "missing_typed_global_call_lowering"
+        match self.arity_matches() {
+            Some(true) => "missing_multi_function_emitter",
+            Some(false) => "global_call_arity_mismatch",
+            None => "unknown_global_callee",
+        }
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
@@ -108,12 +156,35 @@ fn supported_backend_global(name: &str) -> bool {
 }
 
 pub fn refresh_module_global_call_routes(module: &mut MirModule) {
+    let targets = collect_global_call_targets(module);
     for function in module.functions.values_mut() {
-        refresh_function_global_call_routes(function);
+        refresh_function_global_call_routes_with_targets(function, &targets);
     }
 }
 
 pub fn refresh_function_global_call_routes(function: &mut MirFunction) {
+    refresh_function_global_call_routes_with_targets(function, &BTreeMap::new());
+}
+
+fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCallTargetFacts> {
+    module
+        .functions
+        .iter()
+        .map(|(name, function)| {
+            let arity = if function.params.is_empty() {
+                function.signature.params.len()
+            } else {
+                function.params.len()
+            };
+            (name.clone(), GlobalCallTargetFacts::present(arity))
+        })
+        .collect()
+}
+
+fn refresh_function_global_call_routes_with_targets(
+    function: &mut MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) {
     let mut routes = Vec::new();
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
@@ -140,6 +211,10 @@ pub fn refresh_function_global_call_routes(function: &mut MirFunction) {
                 name,
                 args.len(),
                 *dst,
+                targets
+                    .get(name)
+                    .cloned()
+                    .unwrap_or_else(GlobalCallTargetFacts::missing),
             ));
         }
     }
@@ -192,6 +267,9 @@ mod tests {
         assert_eq!(route.arity(), 2);
         assert_eq!(route.result_value(), Some(ValueId::new(7)));
         assert_eq!(route.tier(), "Unsupported");
+        assert!(!route.target_exists());
+        assert_eq!(route.target_arity(), None);
+        assert_eq!(route.reason(), "unknown_global_callee");
     }
 
     #[test]
@@ -199,5 +277,35 @@ mod tests {
         let mut function = make_function_with_global_call("print", None);
         refresh_function_global_call_routes(&mut function);
         assert!(function.metadata.global_call_routes.is_empty());
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_records_target_facts() {
+        let mut module = MirModule::new("global_call_target_test".to_string());
+        let caller = make_function_with_global_call(
+            "Stage1ModeContractBox.resolve_mode/0",
+            Some(ValueId::new(7)),
+        );
+        let callee = MirFunction::new(
+            FunctionSignature {
+                name: "Stage1ModeContractBox.resolve_mode/0".to_string(),
+                params: vec![MirType::Integer, MirType::Integer],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Stage1ModeContractBox.resolve_mode/0".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert!(route.target_exists());
+        assert_eq!(route.target_arity(), Some(2));
+        assert_eq!(route.arity_matches(), Some(true));
+        assert_eq!(route.reason(), "missing_multi_function_emitter");
     }
 }

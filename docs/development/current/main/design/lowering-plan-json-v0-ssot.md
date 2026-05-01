@@ -146,9 +146,20 @@ Global user/static calls are also not a `generic_method_routes` or
 `extern_call_routes` slice. Do not add one-off `.inc` matchers for concrete
 global names such as `BuildBox.emit_program_json_v0/2`. Same-module global user
 calls use the `global_call_routes` plan family. In v0 this family records
-`tier=Unsupported` with call target, arity, result representation, and proof.
-It is a diagnostic contract only until a later card adds a real typed
-user/global-call emitter.
+`tier=Unsupported` with call target, arity, target existence, target arity,
+arity match state, result representation, proof, and reason. It is a diagnostic
+contract only until a later card adds a real typed user/global-call emitter.
+
+`global_call_routes.reason` distinguishes:
+
+| reason | owner |
+| --- | --- |
+| `missing_multi_function_emitter` | ny-llvmc module/function emitter |
+| `global_call_arity_mismatch` | MIR call target contract |
+| `unknown_global_callee` | MIR resolver / module contents |
+
+The backend may surface this reason, but it must not reclassify raw callee
+names to decide it.
 
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
@@ -196,7 +207,7 @@ selecting a helper.
 | `StringSubstring` | `DirectAbi` | `nyash.string.substring_hii` | P92 plan-only fixture |
 | `StringIndexOf` | `DirectAbi` | `nyash.string.indexOf_hh` | P93 plan-only fixture |
 | `EnvGet` | `ColdRuntime` | `nyash.env.get` | P108 plan-only fixture |
-| `UserGlobalCall` | `Unsupported` | `null` | P112 plan-only diagnostic |
+| `UserGlobalCall` | `Unsupported` | `null` | P112/P113 plan-only diagnostic |
 
 ## Non-goals
 

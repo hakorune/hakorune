@@ -977,8 +977,14 @@
                   !strcmp(plan_source, "global_call_routes") &&
                   !invalid_plan_tier &&
                   plan_tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED) {
+                const char* plan_reason = read_str(plan_entry, "reason");
                 note_pure_unsupported_shape(
-                    bid, ii, op, "lowering_plan_unsupported_global_call");
+                    bid,
+                    ii,
+                    op,
+                    (plan_reason && plan_reason[0])
+                        ? plan_reason
+                        : "lowering_plan_unsupported_global_call");
               } else {
                 note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route");
               }

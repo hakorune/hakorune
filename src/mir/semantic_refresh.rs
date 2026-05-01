@@ -26,7 +26,9 @@ use super::{
     extern_call_route_plan::refresh_function_extern_call_routes,
     function::ModuleMetadata,
     generic_method_route_plan::refresh_function_generic_method_routes,
-    global_call_route_plan::refresh_function_global_call_routes,
+    global_call_route_plan::{
+        refresh_function_global_call_routes, refresh_module_global_call_routes,
+    },
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     placement_effect::refresh_function_placement_effect_routes,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
@@ -104,6 +106,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         refresh_function_semantic_metadata(function, &module_metadata);
     }
+    refresh_module_global_call_routes(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
 }
