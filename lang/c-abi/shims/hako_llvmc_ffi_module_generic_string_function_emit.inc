@@ -39,6 +39,13 @@
         return 1;
       }
 
+      auto int module_generic_string_read_void_sentinel_const(yyjson_val* ins) {
+        yyjson_val* value = ins ? yyjson_obj_get(ins, "value") : NULL;
+        yyjson_val* ty = value ? yyjson_obj_get(value, "type") : NULL;
+        const char* ty_s = ty && yyjson_is_str(ty) ? yyjson_get_str(ty) : NULL;
+        return ty_s && (!strcmp(ty_s, "void") || !strcmp(ty_s, "null"));
+      }
+
       auto void module_generic_string_format_i64_ref(
           char* out,
           size_t out_cap,
@@ -156,6 +163,9 @@
               } else if (module_generic_string_read_i64_const(ins, &ival)) {
                 put_const(dst, ival);
                 set_type(dst, T_I64);
+              } else if (module_generic_string_read_void_sentinel_const(ins)) {
+                put_const(dst, 0);
+                set_type(dst, T_I64);
               } else {
                 return 0;
               }
@@ -206,6 +216,9 @@
                 set_scan_origin(dst, ORG_STRING);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_leaf_i64(&global_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
+                         lowering_plan_global_call_view_is_direct_generic_i64(&global_view)) {
                 set_type(dst, T_I64);
               } else {
                 return 0;
@@ -378,6 +391,9 @@
                 if (!module_generic_string_emit_const_box(f, fn_index, dst)) return 0;
               } else if (module_generic_string_read_i64_const(ins, &ival)) {
                 put_const(dst, ival);
+                set_type(dst, T_I64);
+              } else if (module_generic_string_read_void_sentinel_const(ins)) {
+                put_const(dst, 0);
                 set_type(dst, T_I64);
               } else {
                 return 0;

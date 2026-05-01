@@ -75,7 +75,8 @@
           yyjson_val* entry = yyjson_arr_get(entries, pi);
           struct LoweringPlanGlobalCallView view;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
-          if (!lowering_plan_global_call_view_is_direct_generic_string(&view)) continue;
+          if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||
+                lowering_plan_global_call_view_is_direct_generic_i64(&view))) continue;
           if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
           planned++;
         }

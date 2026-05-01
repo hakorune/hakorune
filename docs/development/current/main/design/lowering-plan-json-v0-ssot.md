@@ -234,24 +234,27 @@ site that passes this validator but still has `tier=Unsupported` is a
 The first lowerable same-module user/global-call target shape is
 `numeric_i64_leaf`. The second lowerable shape is
 `generic_pure_string_body` for the narrow generic pure string/env/global-call
-subset. MIR owns these classifications and records them as `target_shape`.
+subset. The third lowerable shape is `generic_i64_body` for narrow i64 helpers
+that use the same generic function emitter contract but return `ScalarI64`.
+MIR owns these classifications and records them as `target_shape`.
 The lowerable v0 rows are:
 
 | route | target_shape | tier | emit_kind | proof |
 | --- | --- | --- | --- | --- |
 | `global.user_call` | `numeric_i64_leaf` | `DirectAbi` | `direct_function_call` | `typed_global_call_leaf_numeric_i64` |
 | `global.user_call` | `generic_pure_string_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_pure_string` |
+| `global.user_call` | `generic_i64_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_i64` |
 
 ny-llvmc may emit a direct call only after it has emitted the target function as
 a definition in the same LLVM module. Calling a same-module `target_symbol`
 that only has a declaration is forbidden because it externalizes the MIR
 function and hides the missing multi-function emitter.
 
-For `generic_pure_string_body`, ny-llvmc must seed definition emission from the
-selected entry function and follow only the transitive closure of direct generic
-string calls. It must not scan the whole module and define every string-looking
-helper, because that widens the active authority surface beyond the current
-entry route.
+For `generic_pure_string_body` and `generic_i64_body`, ny-llvmc must seed
+definition emission from the selected entry function and follow only the
+transitive closure of direct generic calls. It must not scan the whole module
+and define every string-looking or i64-looking helper, because that widens the
+active authority surface beyond the current entry route.
 
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan

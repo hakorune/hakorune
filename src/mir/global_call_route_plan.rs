@@ -42,6 +42,7 @@ pub enum GlobalCallTargetShape {
     Unknown,
     NumericI64Leaf,
     GenericPureStringBody,
+    GenericI64Body,
 }
 
 impl GlobalCallTargetShape {
@@ -50,6 +51,7 @@ impl GlobalCallTargetShape {
             Self::Unknown => "unknown",
             Self::NumericI64Leaf => "numeric_i64_leaf",
             Self::GenericPureStringBody => "generic_pure_string_body",
+            Self::GenericI64Body => "generic_i64_body",
         }
     }
 }
@@ -318,6 +320,7 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::GenericPureStringBody) => {
                 "typed_global_call_generic_pure_string"
             }
+            Some(GlobalCallTargetShape::GenericI64Body) => "typed_global_call_generic_i64",
             _ => "typed_global_call_contract_missing",
         }
     }
@@ -396,7 +399,8 @@ impl GlobalCallRoute {
 
     pub fn value_demand(&self) -> &'static str {
         match self.direct_target_shape() {
-            Some(GlobalCallTargetShape::NumericI64Leaf) => "scalar_i64",
+            Some(GlobalCallTargetShape::NumericI64Leaf)
+            | Some(GlobalCallTargetShape::GenericI64Body) => "scalar_i64",
             Some(GlobalCallTargetShape::GenericPureStringBody) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
         }
@@ -404,7 +408,8 @@ impl GlobalCallRoute {
 
     pub fn return_shape(&self) -> Option<&'static str> {
         match self.direct_target_shape() {
-            Some(GlobalCallTargetShape::NumericI64Leaf) => Some("ScalarI64"),
+            Some(GlobalCallTargetShape::NumericI64Leaf)
+            | Some(GlobalCallTargetShape::GenericI64Body) => Some("ScalarI64"),
             Some(GlobalCallTargetShape::GenericPureStringBody) => Some("string_handle"),
             _ => None,
         }
@@ -435,7 +440,8 @@ impl GlobalCallRoute {
         }
         match self.target.shape() {
             GlobalCallTargetShape::NumericI64Leaf
-            | GlobalCallTargetShape::GenericPureStringBody => Some(self.target.shape()),
+            | GlobalCallTargetShape::GenericPureStringBody
+            | GlobalCallTargetShape::GenericI64Body => Some(self.target.shape()),
             GlobalCallTargetShape::Unknown => None,
         }
     }
@@ -517,6 +523,9 @@ fn classify_global_call_target_shape(
     {
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::NumericI64Leaf);
     }
+    if is_generic_i64_body_function(function, targets) {
+        return GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericI64Body);
+    }
     if let Some(reject) = generic_pure_string_body_reject_reason(function, targets) {
         if let Some(blocker) = reject.blocker {
             GlobalCallTargetClassification::unknown_with_blocker(
@@ -560,6 +569,254 @@ fn is_numeric_i64_leaf_instruction(instruction: &MirInstruction) -> bool {
             BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
         ),
         _ => false,
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GenericI64ValueClass {
+    Unknown,
+    I64,
+    Bool,
+    String,
+    VoidSentinel,
+}
+
+fn is_generic_i64_body_function(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    if function.signature.return_type != MirType::Integer {
+        return false;
+    }
+    if function.params.len() != function.signature.params.len() {
+        return false;
+    }
+    if !function
+        .signature
+        .params
+        .iter()
+        .all(generic_pure_string_abi_type_is_handle_compatible)
+    {
+        return false;
+    }
+
+    let mut values = BTreeMap::<ValueId, GenericI64ValueClass>::new();
+    for param in &function.params {
+        values.insert(*param, GenericI64ValueClass::String);
+    }
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                if !generic_i64_body_refine_instruction(
+                    instruction,
+                    targets,
+                    &mut values,
+                    &mut changed,
+                ) {
+                    return false;
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    let mut saw_return = false;
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            match instruction {
+                MirInstruction::Return { value: Some(value) } => {
+                    saw_return = true;
+                    if generic_i64_value_class(&values, *value) != GenericI64ValueClass::I64 {
+                        return false;
+                    }
+                }
+                MirInstruction::Return { value: None } => return false,
+                _ => {}
+            }
+        }
+    }
+    saw_return
+}
+
+fn generic_i64_body_refine_instruction(
+    instruction: &MirInstruction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    values: &mut BTreeMap<ValueId, GenericI64ValueClass>,
+    changed: &mut bool,
+) -> bool {
+    match instruction {
+        MirInstruction::Const { dst, value } => {
+            let class = match value {
+                ConstValue::Integer(_) => GenericI64ValueClass::I64,
+                ConstValue::Bool(_) => GenericI64ValueClass::Bool,
+                ConstValue::String(_) => GenericI64ValueClass::String,
+                ConstValue::Null | ConstValue::Void => GenericI64ValueClass::VoidSentinel,
+                _ => return false,
+            };
+            set_generic_i64_value_class(values, *dst, class, changed)
+        }
+        MirInstruction::Copy { dst, src } => {
+            let class = generic_i64_value_class(values, *src);
+            if class == GenericI64ValueClass::Unknown {
+                true
+            } else {
+                set_generic_i64_value_class(values, *dst, class, changed)
+            }
+        }
+        MirInstruction::BinOp {
+            dst, op, lhs, rhs, ..
+        } => {
+            if !matches!(
+                op,
+                BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
+            ) {
+                return false;
+            }
+            let lhs_class = generic_i64_value_class(values, *lhs);
+            let rhs_class = generic_i64_value_class(values, *rhs);
+            if lhs_class == GenericI64ValueClass::Unknown
+                || rhs_class == GenericI64ValueClass::Unknown
+            {
+                return true;
+            }
+            if lhs_class == GenericI64ValueClass::I64 && rhs_class == GenericI64ValueClass::I64 {
+                set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)
+            } else {
+                false
+            }
+        }
+        MirInstruction::Compare {
+            dst, op, lhs, rhs, ..
+        } => {
+            let lhs_class = generic_i64_value_class(values, *lhs);
+            let rhs_class = generic_i64_value_class(values, *rhs);
+            if lhs_class == GenericI64ValueClass::Unknown
+                || rhs_class == GenericI64ValueClass::Unknown
+            {
+                return true;
+            }
+            let eq_ne = matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne);
+            let comparable = match (lhs_class, rhs_class) {
+                (GenericI64ValueClass::String, GenericI64ValueClass::String) => eq_ne,
+                (GenericI64ValueClass::String, GenericI64ValueClass::VoidSentinel)
+                | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::String) => eq_ne,
+                (GenericI64ValueClass::I64, GenericI64ValueClass::I64) => true,
+                (GenericI64ValueClass::Bool, GenericI64ValueClass::Bool) => eq_ne,
+                _ => false,
+            };
+            if !comparable {
+                return false;
+            }
+            set_generic_i64_value_class(values, *dst, GenericI64ValueClass::Bool, changed)
+        }
+        MirInstruction::Phi { dst, inputs, .. } => {
+            if inputs.is_empty() {
+                return false;
+            }
+            let mut merged = GenericI64ValueClass::Unknown;
+            for (_, value) in inputs {
+                let class = generic_i64_value_class(values, *value);
+                if class == GenericI64ValueClass::Unknown {
+                    return true;
+                }
+                if merged == GenericI64ValueClass::Unknown {
+                    merged = class;
+                } else if merged != class {
+                    return false;
+                }
+            }
+            set_generic_i64_value_class(values, *dst, merged, changed)
+        }
+        MirInstruction::Call {
+            dst,
+            callee: Some(Callee::Extern(name)),
+            ..
+        } if name == "env.get/1" => {
+            if let Some(dst) = dst {
+                set_generic_i64_value_class(values, *dst, GenericI64ValueClass::String, changed)
+            } else {
+                false
+            }
+        }
+        MirInstruction::Call {
+            callee: Some(Callee::Extern(_)),
+            ..
+        }
+        | MirInstruction::Call {
+            callee: Some(Callee::Method { .. }),
+            ..
+        } => false,
+        MirInstruction::Call {
+            callee: Some(Callee::Global(name)),
+            ..
+        } if supported_backend_global(name) => false,
+        MirInstruction::Call {
+            dst,
+            callee: Some(Callee::Global(name)),
+            ..
+        } => {
+            let Some(target) = lookup_global_call_target(name, targets) else {
+                return false;
+            };
+            let class = match target.shape() {
+                GlobalCallTargetShape::GenericPureStringBody => GenericI64ValueClass::String,
+                GlobalCallTargetShape::NumericI64Leaf | GlobalCallTargetShape::GenericI64Body => {
+                    GenericI64ValueClass::I64
+                }
+                GlobalCallTargetShape::Unknown => return false,
+            };
+            if let Some(dst) = dst {
+                set_generic_i64_value_class(values, *dst, class, changed)
+            } else {
+                false
+            }
+        }
+        MirInstruction::Call { .. } => false,
+        MirInstruction::Branch { .. }
+        | MirInstruction::Jump { .. }
+        | MirInstruction::Return { .. }
+        | MirInstruction::KeepAlive { .. }
+        | MirInstruction::ReleaseStrong { .. } => true,
+        _ => false,
+    }
+}
+
+fn generic_i64_value_class(
+    values: &BTreeMap<ValueId, GenericI64ValueClass>,
+    value: ValueId,
+) -> GenericI64ValueClass {
+    values
+        .get(&value)
+        .copied()
+        .unwrap_or(GenericI64ValueClass::Unknown)
+}
+
+fn set_generic_i64_value_class(
+    values: &mut BTreeMap<ValueId, GenericI64ValueClass>,
+    value: ValueId,
+    class: GenericI64ValueClass,
+    changed: &mut bool,
+) -> bool {
+    if class == GenericI64ValueClass::Unknown {
+        return true;
+    }
+    match values.get(&value).copied() {
+        Some(existing) if existing == class => true,
+        Some(GenericI64ValueClass::Unknown) | None => {
+            values.insert(value, class);
+            *changed = true;
+            true
+        }
+        Some(_) => false,
     }
 }
 
@@ -946,6 +1203,7 @@ fn refine_generic_string_return_value_class(
                         GenericStringReturnValueClass::String
                     }
                     GlobalCallTargetShape::NumericI64Leaf => GenericStringReturnValueClass::Other,
+                    GlobalCallTargetShape::GenericI64Body => GenericStringReturnValueClass::Other,
                     GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
                 })
                 .unwrap_or(GenericStringReturnValueClass::Unknown);
@@ -1199,7 +1457,7 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::NumericI64Leaf => {
+                GlobalCallTargetShape::NumericI64Leaf | GlobalCallTargetShape::GenericI64Body => {
                     if let Some(dst) = dst {
                         set_value_class(values, *dst, GenericPureValueClass::I64, changed);
                     }
@@ -1608,6 +1866,117 @@ mod tests {
         );
         assert_eq!(route.target_shape_blocker_symbol(), None);
         assert_eq!(route.target_shape_blocker_reason(), None);
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target() {
+        let mut module = MirModule::new("global_call_generic_i64_test".to_string());
+        let caller =
+            make_function_with_global_call_args("Helper.debug/0", Some(ValueId::new(7)), vec![]);
+        let mut wrapper = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.debug/0".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let wrapper_block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        wrapper_block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(1),
+                value: ConstValue::String("DEBUG".to_string()),
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(2)),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Global("Helper.flag/1".to_string())),
+                args: vec![ValueId::new(1)],
+                effects: EffectMask::PURE,
+            },
+        ]);
+        wrapper_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+
+        let mut flag = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.flag/1".to_string(),
+                params: vec![MirType::String],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        flag.params = vec![ValueId::new(1)];
+        let entry = flag.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        entry.instructions.extend([
+            MirInstruction::Call {
+                dst: Some(ValueId::new(2)),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Extern("env.get/1".to_string())),
+                args: vec![ValueId::new(1)],
+                effects: EffectMask::PURE,
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(3),
+                value: ConstValue::Void,
+            },
+            MirInstruction::Compare {
+                dst: ValueId::new(4),
+                op: CompareOp::Ne,
+                lhs: ValueId::new(2),
+                rhs: ValueId::new(3),
+            },
+        ]);
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(4),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        let mut yes_block = BasicBlock::new(BasicBlockId::new(1));
+        yes_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(5),
+            value: ConstValue::Integer(1),
+        });
+        yes_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(5)),
+        });
+        let mut no_block = BasicBlock::new(BasicBlockId::new(2));
+        no_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(6),
+            value: ConstValue::Integer(0),
+        });
+        no_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(6)),
+        });
+        flag.blocks.insert(BasicBlockId::new(1), yes_block);
+        flag.blocks.insert(BasicBlockId::new(2), no_block);
+
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Helper.debug/0".to_string(), wrapper);
+        module.functions.insert("Helper.flag/1".to_string(), flag);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(route.target_shape(), Some("generic_i64_body"));
+        assert_eq!(route.target_shape_reason(), None);
+        assert_eq!(route.tier(), "DirectAbi");
+        assert_eq!(route.proof(), "typed_global_call_generic_i64");
+        assert_eq!(route.return_shape(), Some("ScalarI64"));
+        assert_eq!(route.value_demand(), "scalar_i64");
+
+        let wrapper_route = &module.functions["Helper.debug/0"]
+            .metadata
+            .global_call_routes[0];
+        assert_eq!(wrapper_route.target_shape(), Some("generic_i64_body"));
+        assert_eq!(wrapper_route.proof(), "typed_global_call_generic_i64");
     }
 
     #[test]
