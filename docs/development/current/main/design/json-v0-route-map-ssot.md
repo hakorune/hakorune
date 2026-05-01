@@ -127,6 +127,24 @@ Indirect callers of `tools/selfhost_exe_stageb.sh` are owned by the selected
 emit route. They are not separate bridge-helper callers unless they call
 `program_json_mir_bridge_emit()` directly.
 
+## Stage1 Contract Caller Ownership Split
+
+`tools/selfhost/lib/stage1_contract.sh` is a live shell contract owner, not a
+dead Program(JSON v0) helper. It remains a delete-last blocker while the caller
+classes below are active.
+
+| Caller class | Examples | Reading |
+| --- | --- | --- |
+| build/bootstrap | `tools/selfhost/mainline/build_stage1.sh` | capability probes and direct emit checks |
+| identity/proof | `tools/selfhost/lib/identity_routes.sh`, `tools/selfhost_identity_check.sh` | exact route validation |
+| compatibility wrapper | `tools/selfhost/compat/run_stage1_cli.sh`, `tools/selfhost/run_stage1_cli.sh` | wrapper/shim around the Stage1 shell contract |
+| dev/probe | phase29ch/phase29cg probes | diagnostics; still direct contract callers |
+| smoke | `phase29bq_selfhost_stage1_contract_smoke_vm.sh` | contract pin requiring a prebuilt stage1-cli artifact |
+
+`tools/selfhost/run_stage1_cli.sh` is only a top-level shim to the compat
+wrapper. Count it under `tools/selfhost/compat/run_stage1_cli.sh`, not as a
+separate Program(JSON v0) keeper.
+
 ## Caller Reduction Rule
 
 - if a caller already feeds `MIR(JSON)` directly, it should use `--mir-json-file`
