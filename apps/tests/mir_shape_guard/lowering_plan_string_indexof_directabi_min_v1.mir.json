@@ -1,0 +1,110 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "lowering_plan": [
+          {
+            "site": "b0.i4",
+            "block": 0,
+            "instruction_index": 4,
+            "source": "generic_method_routes",
+            "source_route_id": "generic_method.indexOf",
+            "core_op": "StringIndexOf",
+            "tier": "DirectAbi",
+            "emit_kind": "direct_abi_call",
+            "symbol": "nyash.string.indexOf_hh",
+            "proof": "core_method_contract_manifest",
+            "route_proof": "indexof_surface_policy",
+            "route_kind": "string_indexof",
+            "perf_proof": false,
+            "receiver_value": 2,
+            "receiver_origin_box": "StringBox",
+            "arity": 1,
+            "key_route": null,
+            "key_value": null,
+            "result_value": 5,
+            "return_shape": "scalar_i64",
+            "value_demand": "scalar_i64",
+            "publication_policy": "no_publication",
+            "effects": [
+              "observe.indexof"
+            ]
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "abc"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "StringBox",
+              "args": [
+                1
+              ]
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "b"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 4,
+              "type": "StringBox",
+              "args": [
+                3
+              ]
+            },
+            {
+              "op": "mir_call",
+              "dst": 5,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "StringBox",
+                  "method": "indexOf",
+                  "receiver": 2
+                },
+                "args": [
+                  4
+                ],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
