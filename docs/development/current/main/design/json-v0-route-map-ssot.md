@@ -120,7 +120,7 @@ below still need explicit Program(JSON v0) -> MIR(JSON) conversion.
 | --- | --- | --- |
 | `tools/selfhost_exe_stageb.sh` with `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` | bridge compat capsule | keep until the launcher/stage1 helper has a MIR-first replacement |
 | `tools/selfhost_exe_stageb.sh` with `HAKORUNE_STAGE1_EMIT_ROUTE=direct` | MIR-first probe route | not a Program(JSON v0) bridge blocker |
-| `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh` | standalone bridge-to-EXE proof | archive after another explicit bridge proof or MIR-first replacement is named |
+| `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh` | standalone bridge-to-EXE proof | hold until a replacement proof is green; P63 showed `selfhost_exe_stageb.sh stageb-delegate` is not a replacement yet |
 | `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Stage2 bootstrap PHI/LLVM verification proof | keep until the Stage2 verification proof no longer requires Program(JSON v0) input |
 
 Indirect callers of `tools/selfhost_exe_stageb.sh` are owned by the selected
