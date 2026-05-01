@@ -76,6 +76,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `Stage1SourceMirAuthorityBox`; `Main` no longer carries a stale inline
   `BuildBox.emit_program_json_v0/2` call. The next pure-first stop is now the
   typed user/global-call boundary at `Stage1ModeContractBox.resolve_mode/0`.
+- P112 classifies that typed user/global-call boundary as
+  `global_call_routes` / `LoweringPlan tier=Unsupported`. ny-llvmc still
+  fail-fasts, but the reason moves from raw `mir_call_no_route` discovery to
+  `lowering_plan_unsupported_global_call`.
 
 ## Compat Capsule Rules
 

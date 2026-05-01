@@ -40,6 +40,7 @@ pub mod extern_call_route_plan; // MIR-owned extern call route policy plans
 pub mod function;
 pub(crate) mod generic_method_route_facts; // reusable facts for generic-method route planners
 pub mod generic_method_route_plan; // MIR-owned generic method route policy plans
+pub mod global_call_route_plan; // MIR-owned unsupported global user-call route inventory
 pub mod if_in_loop_phi; // Phase 187-2: Minimal if-in-loop PHI emitter (extracted from loop_builder)
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub mod instruction;
@@ -173,6 +174,9 @@ pub use function::{
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
+};
+pub use global_call_route_plan::{
+    refresh_function_global_call_routes, refresh_module_global_call_routes,
 };
 pub use instruction::MirInstruction;
 pub use map_lookup_fusion_plan::{

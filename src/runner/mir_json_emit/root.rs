@@ -745,6 +745,16 @@ pub(super) fn build_mir_json_root(
                 ),
             );
             obj.insert(
+                "global_call_routes".to_string(),
+                serde_json::Value::Array(
+                    f.metadata
+                        .global_call_routes
+                        .iter()
+                        .map(build_global_call_route_json)
+                        .collect(),
+                ),
+            );
+            obj.insert(
                 "array_getset_micro_seed_route".to_string(),
                 f.metadata
                     .array_getset_micro_seed_route
@@ -906,6 +916,32 @@ fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde_json::Valu
         })
     }));
 
+    entries.extend(f.metadata.global_call_routes.iter().map(|route| {
+        json!({
+            "site": format!("b{}.i{}", route.block().as_u32(), route.instruction_index()),
+            "block": route.block().as_u32(),
+            "instruction_index": route.instruction_index(),
+            "source": "global_call_routes",
+            "source_route_id": route.route_id(),
+            "callee_name": route.callee_name(),
+            "core_op": route.core_op(),
+            "tier": route.tier(),
+            "emit_kind": route.emit_kind(),
+            "symbol": serde_json::Value::Null,
+            "proof": route.proof(),
+            "route_proof": route.proof(),
+            "route_kind": route.route_kind(),
+            "perf_proof": false,
+            "arity": route.arity(),
+            "result_value": route.result_value().map(|value| value.as_u32()),
+            "return_shape": serde_json::Value::Null,
+            "value_demand": route.value_demand(),
+            "publication_policy": serde_json::Value::Null,
+            "reason": route.reason(),
+            "effects": route.effect_tags(),
+        })
+    }));
+
     entries
 }
 
@@ -926,6 +962,27 @@ fn build_extern_call_route_json(
         "result_value": route.result_value().as_u32(),
         "return_shape": route.return_shape(),
         "value_demand": route.value_demand(),
+        "effects": route.effect_tags(),
+    })
+}
+
+fn build_global_call_route_json(
+    route: &crate::mir::global_call_route_plan::GlobalCallRoute,
+) -> serde_json::Value {
+    json!({
+        "route_id": route.route_id(),
+        "block": route.block().as_u32(),
+        "instruction_index": route.instruction_index(),
+        "callee_name": route.callee_name(),
+        "core_op": route.core_op(),
+        "tier": route.tier(),
+        "emit_kind": route.emit_kind(),
+        "proof": route.proof(),
+        "route_kind": route.route_kind(),
+        "arity": route.arity(),
+        "result_value": route.result_value().map(|value| value.as_u32()),
+        "value_demand": route.value_demand(),
+        "reason": route.reason(),
         "effects": route.effect_tags(),
     })
 }

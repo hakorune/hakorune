@@ -26,6 +26,7 @@ use super::{
     extern_call_route_plan::refresh_function_extern_call_routes,
     function::ModuleMetadata,
     generic_method_route_plan::refresh_function_generic_method_routes,
+    global_call_route_plan::refresh_function_global_call_routes,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     placement_effect::refresh_function_placement_effect_routes,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
@@ -75,6 +76,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_string_direct_set_window_routes(function);
     refresh_function_generic_method_routes(function);
     refresh_function_extern_call_routes(function);
+    refresh_function_global_call_routes(function);
     refresh_function_map_lookup_fusion_routes(function);
     refresh_function_array_rmw_window_routes(function);
     refresh_function_array_string_len_window_routes(function);

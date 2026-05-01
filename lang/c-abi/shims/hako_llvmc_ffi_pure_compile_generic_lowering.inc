@@ -968,7 +968,20 @@
             if (emit_mir_call_dispatch(
                     f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
                     dst, recv, args, a0, a1, skip_inst) < 0) {
-              note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route");
+              yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
+              const char* plan_source = plan_entry ? read_str(plan_entry, "source") : NULL;
+              int invalid_plan_tier = 0;
+              enum LoweringPlanTierMetadata plan_tier =
+                  read_lowering_plan_tier_metadata(plan_entry, &invalid_plan_tier);
+              if (plan_source &&
+                  !strcmp(plan_source, "global_call_routes") &&
+                  !invalid_plan_tier &&
+                  plan_tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED) {
+                note_pure_unsupported_shape(
+                    bid, ii, op, "lowering_plan_unsupported_global_call");
+              } else {
+                note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route");
+              }
               yyjson_doc_free(d);
               goto GEN_ABORT;
             }

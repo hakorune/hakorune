@@ -144,11 +144,11 @@ Do not force externs into `CoreMethodOp`; use a narrow `core_op` string such as
 
 Global user/static calls are also not a `generic_method_routes` or
 `extern_call_routes` slice. Do not add one-off `.inc` matchers for concrete
-global names such as `BuildBox.emit_program_json_v0/2`. If same-module global
-user calls become a backend contract, they need their own typed plan family with
-owner, call target, arity, value/result representation, and effect proof.
-Until that exists, a global-call stop in the full Stage1 env source is an
-owner/route split issue, not a license to grow backend-local policy.
+global names such as `BuildBox.emit_program_json_v0/2`. Same-module global user
+calls use the `global_call_routes` plan family. In v0 this family records
+`tier=Unsupported` with call target, arity, result representation, and proof.
+It is a diagnostic contract only until a later card adds a real typed
+user/global-call emitter.
 
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
@@ -196,6 +196,7 @@ selecting a helper.
 | `StringSubstring` | `DirectAbi` | `nyash.string.substring_hii` | P92 plan-only fixture |
 | `StringIndexOf` | `DirectAbi` | `nyash.string.indexOf_hh` | P93 plan-only fixture |
 | `EnvGet` | `ColdRuntime` | `nyash.env.get` | P108 plan-only fixture |
+| `UserGlobalCall` | `Unsupported` | `null` | P112 plan-only diagnostic |
 
 ## Non-goals
 

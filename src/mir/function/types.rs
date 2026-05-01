@@ -13,9 +13,10 @@ use crate::mir::{
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     exact_seed_backend_route::ExactSeedBackendRoute, extern_call_route_plan::ExternCallRoute,
-    generic_method_route_plan::GenericMethodRoute, map_lookup_fusion_plan::MapLookupFusionRoute,
-    placement_effect::PlacementEffectRoute, storage_class::StorageClass,
-    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
+    generic_method_route_plan::GenericMethodRoute, global_call_route_plan::GlobalCallRoute,
+    map_lookup_fusion_plan::MapLookupFusionRoute, placement_effect::PlacementEffectRoute,
+    storage_class::StorageClass, string_corridor::StringCorridorFact,
+    string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
@@ -188,6 +189,11 @@ pub struct FunctionMetadata {
     /// shims can emit selected runtime ABI calls without classifying `env.*`
     /// strings locally.
     pub extern_call_routes: Vec<ExternCallRoute>,
+
+    /// Backend-facing unsupported global user-call route plans.
+    /// These do not make global calls lowerable; they move the stop-line into
+    /// LoweringPlan metadata so backend shims can fail from a typed plan.
+    pub global_call_routes: Vec<GlobalCallRoute>,
 
     /// Metadata-only MapGet/MapHas same-key fusion preflight routes.
     /// These are derived from `generic_method_routes` and do not change
