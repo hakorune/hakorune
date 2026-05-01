@@ -494,9 +494,15 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             )
         })
         .collect::<BTreeMap<_, _>>();
+    let mut function_names = module.functions.keys().collect::<Vec<_>>();
+    function_names.sort();
     for _ in 0..module.functions.len() {
         let mut changed = false;
-        for (name, function) in &module.functions {
+        for name in &function_names {
+            let name = *name;
+            let Some(function) = module.functions.get(name) else {
+                continue;
+            };
             let Some(current) = targets.get(name).cloned() else {
                 continue;
             };
@@ -614,6 +620,49 @@ enum GenericI64ValueClass {
     VoidSentinel,
 }
 
+fn seed_generic_i64_values(
+    function: &MirFunction,
+    values: &mut BTreeMap<ValueId, GenericI64ValueClass>,
+) -> bool {
+    let mut changed = false;
+    for (index, param) in function.params.iter().enumerate() {
+        if let Some(class) = function
+            .signature
+            .params
+            .get(index)
+            .and_then(generic_i64_value_class_from_type)
+        {
+            if !set_generic_i64_value_class(values, *param, class, &mut changed) {
+                return false;
+            }
+        }
+    }
+    for (value, ty) in &function.metadata.value_types {
+        if let Some(class) = generic_i64_value_class_from_type(ty) {
+            if !set_generic_i64_value_class(values, *value, class, &mut changed) {
+                return false;
+            }
+        }
+    }
+    true
+}
+
+fn generic_i64_value_class_from_type(ty: &MirType) -> Option<GenericI64ValueClass> {
+    match ty {
+        MirType::Integer => Some(GenericI64ValueClass::I64),
+        MirType::Bool => Some(GenericI64ValueClass::Bool),
+        MirType::String => Some(GenericI64ValueClass::String),
+        MirType::Box(name) => match name.as_str() {
+            "IntegerBox" => Some(GenericI64ValueClass::I64),
+            "BoolBox" => Some(GenericI64ValueClass::Bool),
+            "StringBox" => Some(GenericI64ValueClass::String),
+            _ => None,
+        },
+        MirType::Void => Some(GenericI64ValueClass::VoidSentinel),
+        _ => None,
+    }
+}
+
 fn is_generic_i64_body_function(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
@@ -634,8 +683,8 @@ fn is_generic_i64_body_function(
     }
 
     let mut values = BTreeMap::<ValueId, GenericI64ValueClass>::new();
-    for param in &function.params {
-        values.insert(*param, GenericI64ValueClass::String);
+    if !seed_generic_i64_values(function, &mut values) {
+        return false;
     }
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
@@ -699,10 +748,15 @@ fn generic_i64_body_refine_instruction(
         }
         MirInstruction::Copy { dst, src } => {
             let class = generic_i64_value_class(values, *src);
-            if class == GenericI64ValueClass::Unknown {
-                true
-            } else {
+            if class != GenericI64ValueClass::Unknown {
                 set_generic_i64_value_class(values, *dst, class, changed)
+            } else {
+                let dst_class = generic_i64_value_class(values, *dst);
+                if dst_class != GenericI64ValueClass::Unknown {
+                    set_generic_i64_value_class(values, *src, dst_class, changed)
+                } else {
+                    true
+                }
             }
         }
         MirInstruction::BinOp {
@@ -732,6 +786,50 @@ fn generic_i64_body_refine_instruction(
         } => {
             let lhs_class = generic_i64_value_class(values, *lhs);
             let rhs_class = generic_i64_value_class(values, *rhs);
+            if generic_pure_compare_proves_i64(*op) {
+                if lhs_class == GenericI64ValueClass::Unknown
+                    && rhs_class == GenericI64ValueClass::I64
+                {
+                    return set_generic_i64_value_class(
+                        values,
+                        *lhs,
+                        GenericI64ValueClass::I64,
+                        changed,
+                    );
+                }
+                if rhs_class == GenericI64ValueClass::Unknown
+                    && lhs_class == GenericI64ValueClass::I64
+                {
+                    return set_generic_i64_value_class(
+                        values,
+                        *rhs,
+                        GenericI64ValueClass::I64,
+                        changed,
+                    );
+                }
+            }
+            if matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne) {
+                if lhs_class == GenericI64ValueClass::Unknown
+                    && rhs_class == GenericI64ValueClass::String
+                {
+                    return set_generic_i64_value_class(
+                        values,
+                        *lhs,
+                        GenericI64ValueClass::String,
+                        changed,
+                    );
+                }
+                if rhs_class == GenericI64ValueClass::Unknown
+                    && lhs_class == GenericI64ValueClass::String
+                {
+                    return set_generic_i64_value_class(
+                        values,
+                        *rhs,
+                        GenericI64ValueClass::String,
+                        changed,
+                    );
+                }
+            }
             if lhs_class == GenericI64ValueClass::Unknown
                 || rhs_class == GenericI64ValueClass::Unknown
             {
@@ -755,10 +853,16 @@ fn generic_i64_body_refine_instruction(
             if inputs.is_empty() {
                 return false;
             }
-            let mut merged = GenericI64ValueClass::Unknown;
+            let dst_class = generic_i64_value_class(values, *dst);
+            let mut merged = dst_class;
             for (_, value) in inputs {
                 let class = generic_i64_value_class(values, *value);
                 if class == GenericI64ValueClass::Unknown {
+                    if dst_class != GenericI64ValueClass::Unknown
+                        && !set_generic_i64_value_class(values, *value, dst_class, changed)
+                    {
+                        return false;
+                    }
                     return true;
                 }
                 if merged == GenericI64ValueClass::Unknown {
@@ -785,9 +889,53 @@ fn generic_i64_body_refine_instruction(
             ..
         }
         | MirInstruction::Call {
-            callee: Some(Callee::Method { .. }),
+            callee: Some(Callee::Method { receiver: None, .. }),
             ..
         } => false,
+        MirInstruction::Call {
+            dst,
+            callee:
+                Some(Callee::Method {
+                    box_name,
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            args,
+            ..
+        } => {
+            let receiver_class = generic_i64_value_class(values, *receiver);
+            if receiver_class == GenericI64ValueClass::Unknown {
+                if !set_generic_i64_value_class(
+                    values,
+                    *receiver,
+                    GenericI64ValueClass::String,
+                    changed,
+                ) {
+                    return false;
+                }
+                return true;
+            }
+            if generic_i64_accepts_length_method(box_name, method, args, receiver_class) {
+                if let Some(dst) = dst {
+                    set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)
+                } else {
+                    false
+                }
+            } else if let Some(ready) =
+                generic_i64_substring_args_ready(box_name, method, args, receiver_class, values)
+            {
+                if !ready {
+                    true
+                } else if let Some(dst) = dst {
+                    set_generic_i64_value_class(values, *dst, GenericI64ValueClass::String, changed)
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
@@ -824,6 +972,43 @@ fn generic_i64_body_refine_instruction(
         | MirInstruction::ReleaseStrong { .. } => true,
         _ => false,
     }
+}
+
+fn generic_i64_accepts_length_method(
+    box_name: &str,
+    method: &str,
+    args: &[ValueId],
+    receiver_class: GenericI64ValueClass,
+) -> bool {
+    matches!(box_name, "RuntimeDataBox" | "StringBox")
+        && method == "length"
+        && args.is_empty()
+        && receiver_class == GenericI64ValueClass::String
+}
+
+fn generic_i64_substring_args_ready(
+    box_name: &str,
+    method: &str,
+    args: &[ValueId],
+    receiver_class: GenericI64ValueClass,
+    values: &BTreeMap<ValueId, GenericI64ValueClass>,
+) -> Option<bool> {
+    if !matches!(box_name, "RuntimeDataBox" | "StringBox")
+        || method != "substring"
+        || args.len() != 2
+        || receiver_class != GenericI64ValueClass::String
+    {
+        return None;
+    }
+    let mut ready = true;
+    for arg in args {
+        match generic_i64_value_class(values, *arg) {
+            GenericI64ValueClass::I64 => {}
+            GenericI64ValueClass::Unknown => ready = false,
+            _ => return None,
+        }
+    }
+    Some(ready)
 }
 
 fn generic_i64_value_class(
@@ -3412,7 +3597,14 @@ mod tests {
         refresh_module_global_call_routes(&mut module);
 
         let route = &module.functions["main"].metadata.global_call_routes[0];
-        assert_eq!(route.target_shape(), Some("generic_i64_body"));
+        assert_eq!(
+            route.target_shape(),
+            Some("generic_i64_body"),
+            "reason={:?} blocker={:?}/{:?}",
+            route.target_shape_reason(),
+            route.target_shape_blocker_symbol(),
+            route.target_shape_blocker_reason()
+        );
         assert_eq!(route.target_shape_reason(), None);
         assert_eq!(route.tier(), "DirectAbi");
         assert_eq!(route.proof(), "typed_global_call_generic_i64");
@@ -3424,6 +3616,122 @@ mod tests {
             .global_call_routes[0];
         assert_eq!(wrapper_route.target_shape(), Some("generic_i64_body"));
         assert_eq!(wrapper_route.proof(), "typed_global_call_generic_i64");
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_string_scan_generic_i64_body() {
+        let mut module = MirModule::new("global_call_string_scan_i64_body_test".to_string());
+        let caller = make_function_with_global_call_args(
+            "Helper.find/3",
+            Some(ValueId::new(20)),
+            vec![ValueId::new(1), ValueId::new(2), ValueId::new(3)],
+        );
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.find/3".to_string(),
+                params: vec![MirType::Unknown, MirType::Unknown, MirType::Unknown],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        callee.params = vec![ValueId::new(1), ValueId::new(2), ValueId::new(3)];
+        callee
+            .metadata
+            .value_types
+            .insert(ValueId::new(3), MirType::Integer);
+        let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        entry.instructions.extend([
+            MirInstruction::Call {
+                dst: Some(ValueId::new(4)),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Method {
+                    box_name: "RuntimeDataBox".to_string(),
+                    method: "length".to_string(),
+                    receiver: Some(ValueId::new(1)),
+                    certainty: TypeCertainty::Union,
+                    box_kind: CalleeBoxKind::RuntimeData,
+                }),
+                args: vec![],
+                effects: EffectMask::PURE,
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(5)),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Method {
+                    box_name: "RuntimeDataBox".to_string(),
+                    method: "length".to_string(),
+                    receiver: Some(ValueId::new(2)),
+                    certainty: TypeCertainty::Union,
+                    box_kind: CalleeBoxKind::RuntimeData,
+                }),
+                args: vec![],
+                effects: EffectMask::PURE,
+            },
+            MirInstruction::BinOp {
+                dst: ValueId::new(6),
+                op: BinaryOp::Add,
+                lhs: ValueId::new(3),
+                rhs: ValueId::new(5),
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(7)),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Method {
+                    box_name: "RuntimeDataBox".to_string(),
+                    method: "substring".to_string(),
+                    receiver: Some(ValueId::new(1)),
+                    certainty: TypeCertainty::Union,
+                    box_kind: CalleeBoxKind::RuntimeData,
+                }),
+                args: vec![ValueId::new(3), ValueId::new(6)],
+                effects: EffectMask::PURE,
+            },
+            MirInstruction::Compare {
+                dst: ValueId::new(8),
+                op: CompareOp::Eq,
+                lhs: ValueId::new(7),
+                rhs: ValueId::new(2),
+            },
+        ]);
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(8),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        let mut found_block = BasicBlock::new(BasicBlockId::new(1));
+        found_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        let mut missing_block = BasicBlock::new(BasicBlockId::new(2));
+        missing_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(9),
+            value: ConstValue::Integer(-1),
+        });
+        missing_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(9)),
+        });
+        callee.blocks.insert(BasicBlockId::new(1), found_block);
+        callee.blocks.insert(BasicBlockId::new(2), missing_block);
+        module.functions.insert("main".to_string(), caller);
+        module.functions.insert("Helper.find/3".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(
+            route.target_shape(),
+            Some("generic_i64_body"),
+            "reason={:?} blocker={:?}/{:?}",
+            route.target_shape_reason(),
+            route.target_shape_blocker_symbol(),
+            route.target_shape_blocker_reason()
+        );
+        assert_eq!(route.target_shape_reason(), None);
+        assert_eq!(route.proof(), "typed_global_call_generic_i64");
+        assert_eq!(route.return_shape(), Some("ScalarI64"));
     }
 
     #[test]

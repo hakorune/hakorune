@@ -264,13 +264,22 @@ The string-or-void sentinel return-profile scan may classify
 string return only when the receiver is already known string and both arguments
 are scalar-like values. The body scan and LoweringPlan `generic_method.substring`
 metadata remain the authority for actual emission.
-Generic string scans seed value classes from existing MIR `value_types` and
-declared signatures; unknown parameters must not be treated as string by
-default. A string concat surface such as `"" + value` may prove only the concat
-result is string, while scalar substring bounds must still come from typed
-value evidence. Relational i64 comparisons and exact MIR copies may propagate
-scalar evidence inside the analysis; method rejection may only be deferred while
-the value-class fixpoint is still changing.
+Generic string scans and generic i64 scans seed value classes from existing MIR
+`value_types` and declared signatures; unknown parameters must not be treated
+as string by default. A string concat surface such as `"" + value` may prove
+only the concat result is string, while scalar substring bounds must still come
+from typed value evidence. Relational i64 comparisons, exact MIR copies, and PHI
+destinations with known typed evidence may propagate scalar evidence inside the
+analysis; method rejection may only be deferred while the value-class fixpoint
+is still changing.
+Within `generic_i64_body`, MIR may infer a string receiver for
+`RuntimeDataBox.length()` / `StringBox.length()` and
+`RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)`.
+`length()` produces an i64 value. `substring` produces a string value only after
+both bounds resolve to i64; pending unknown bounds may defer during the
+fixpoint, but non-i64 bounds reject the shape.
+Same-module target classification must iterate in deterministic function-name
+order so the shape fixpoint is stable across equivalent module map orders.
 Return-profile blocker propagation is diagnostic-only: missing child targets
 produce `generic_string_global_target_missing`, unknown child targets propagate
 their blocker, and already-direct child targets must not create blockers.
