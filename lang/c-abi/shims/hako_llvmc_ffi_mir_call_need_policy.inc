@@ -249,33 +249,20 @@
 
       auto enum MirCallNeedKind
       mir_call_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
-        const char* source = entry ? read_str(entry, "source") : NULL;
-        const char* route_id = entry ? read_str(entry, "source_route_id") : NULL;
-        const char* op = entry ? read_str(entry, "core_op") : NULL;
-        const char* route_kind = entry ? read_str(entry, "route_kind") : NULL;
-        const char* helper_symbol = entry ? read_str(entry, "symbol") : NULL;
-        const char* route_proof = entry ? read_str(entry, "route_proof") : NULL;
-        int invalid = 0;
-        enum LoweringPlanTierMetadata tier =
-            read_lowering_plan_tier_metadata(entry, &invalid);
-        if (!(source && !strcmp(source, "generic_method_routes")) ||
-            invalid ||
-            !lowering_plan_entry_is_contract_manifest(entry)) {
+        struct LoweringPlanGenericMethodView view;
+        if (!read_lowering_plan_generic_method_view(entry, &view)) {
           return HAKO_LLVMC_MIR_CALL_NEED_NONE;
         }
-        if (route_id &&
-            !strcmp(route_id, "generic_method.has") &&
-            op &&
-            !strcmp(op, "MapHas") &&
-            route_kind &&
-            (!strcmp(route_kind, "map_contains_any") ||
-             !strcmp(route_kind, "map_contains_i64")) &&
-            helper_symbol &&
-            (!strcmp(helper_symbol, "nyash.map.probe_hh") ||
-             !strcmp(helper_symbol, "nyash.map.probe_hi")) &&
-            route_proof &&
-            !strcmp(route_proof, "has_surface_policy") &&
-            lowering_plan_tier_is_direct_abi(tier)) {
+        if (!strcmp(view.route_id, "generic_method.has") &&
+            !strcmp(view.core_op, "MapHas") &&
+            (!strcmp(view.route_kind, "map_contains_any") ||
+             !strcmp(view.route_kind, "map_contains_i64")) &&
+            view.symbol &&
+            (!strcmp(view.symbol, "nyash.map.probe_hh") ||
+             !strcmp(view.symbol, "nyash.map.probe_hi")) &&
+            view.route_proof &&
+            !strcmp(view.route_proof, "has_surface_policy") &&
+            lowering_plan_tier_is_direct_abi(view.tier)) {
           return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;

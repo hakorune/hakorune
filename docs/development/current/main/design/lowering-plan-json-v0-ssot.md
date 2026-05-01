@@ -134,6 +134,14 @@ New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
 consumer is proven.
 
+## Consumer Rule
+
+`.inc` consumers must read the common generic-method plan fields through the
+shared LoweringPlan metadata view before applying family-specific legality.
+Consumers may validate operands, proofs, effects, and helper symbols for their
+own family, but they should not duplicate the generic source/tier/proof/site
+field parsing.
+
 ## Proven v0 Slices
 
 | slice | tier | symbol | proof |

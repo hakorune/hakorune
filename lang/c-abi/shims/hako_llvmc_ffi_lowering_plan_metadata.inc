@@ -6,6 +6,21 @@
         HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED,
       };
 
+      struct LoweringPlanGenericMethodView {
+        yyjson_val* entry;
+        const char* route_id;
+        const char* core_op;
+        const char* route_kind;
+        const char* symbol;
+        const char* route_proof;
+        const char* receiver_origin_box;
+        const char* key_route;
+        const char* return_shape;
+        const char* value_demand;
+        const char* publication_policy;
+        enum LoweringPlanTierMetadata tier;
+      };
+
       auto int lowering_plan_read_i64_field(
           yyjson_val* obj,
           const char* key,
@@ -72,6 +87,39 @@
       auto int lowering_plan_entry_is_contract_manifest(yyjson_val* entry) {
         const char* proof = read_str(entry, "proof");
         return proof && !strcmp(proof, "core_method_contract_manifest");
+      }
+
+      auto int read_lowering_plan_generic_method_view(
+          yyjson_val* entry,
+          struct LoweringPlanGenericMethodView* out) {
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        if (out) memset(out, 0, sizeof(*out));
+        if (!(source && !strcmp(source, "generic_method_routes")) ||
+            invalid ||
+            !lowering_plan_entry_is_contract_manifest(entry)) {
+          return 0;
+        }
+        if (out) {
+          out->entry = entry;
+          out->route_id = read_str(entry, "source_route_id");
+          out->core_op = read_str(entry, "core_op");
+          out->route_kind = read_str(entry, "route_kind");
+          out->symbol = read_str(entry, "symbol");
+          out->route_proof = read_str(entry, "route_proof");
+          out->receiver_origin_box = read_str(entry, "receiver_origin_box");
+          out->key_route = read_str(entry, "key_route");
+          out->return_shape = read_str(entry, "return_shape");
+          out->value_demand = read_str(entry, "value_demand");
+          out->publication_policy = read_str(entry, "publication_policy");
+          out->tier = tier;
+        }
+        return out &&
+               out->route_id &&
+               out->core_op &&
+               out->route_kind;
       }
 
       auto void trace_lowering_plan_entry_hit(

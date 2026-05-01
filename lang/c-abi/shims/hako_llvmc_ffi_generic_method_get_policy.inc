@@ -169,67 +169,60 @@
           long long a0,
           struct GenericMethodGetRouteMetadata* out) {
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView view;
         if (!entry) return 0;
         (void)bname;
-        const char* source = entry ? read_str(entry, "source") : NULL;
-        const char* route_id = entry ? read_str(entry, "source_route_id") : NULL;
-        const char* op = entry ? read_str(entry, "core_op") : NULL;
-        const char* route_kind_raw = entry ? read_str(entry, "route_kind") : NULL;
-        const char* helper_symbol = entry ? read_str(entry, "symbol") : NULL;
-        const char* proof = entry ? read_str(entry, "route_proof") : NULL;
-        const char* route_box = entry ? read_str(entry, "receiver_origin_box") : NULL;
-        const char* key_route = entry ? read_str(entry, "key_route") : NULL;
-        const char* return_shape = entry ? read_str(entry, "return_shape") : NULL;
-        const char* value_demand = entry ? read_str(entry, "value_demand") : NULL;
-        const char* publication_policy = entry ? read_str(entry, "publication_policy") : NULL;
         long long receiver_reg = 0;
         long long key_reg = 0;
         long long arity = 0;
-        int invalid = 0;
-        enum LoweringPlanTierMetadata tier =
-            read_lowering_plan_tier_metadata(entry, &invalid);
         enum GenericMethodGetRouteKind route =
-            generic_method_get_route_kind_from_metadata(route_kind_raw);
-        if (!(source && !strcmp(source, "generic_method_routes")) ||
-            !(route_id && !strcmp(route_id, "generic_method.get")) ||
-            !(op && (!strcmp(op, "MapGet") || !strcmp(op, "ArrayGet"))) ||
-            invalid ||
-            !lowering_plan_entry_is_contract_manifest(entry) ||
-            !generic_method_get_route_proof_valid(proof) ||
-            !generic_method_get_key_route_valid(key_route) ||
+            HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE;
+        if (!read_lowering_plan_generic_method_view(entry, &view)) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        route = generic_method_get_route_kind_from_metadata(view.route_kind);
+        if (!(view.route_id && !strcmp(view.route_id, "generic_method.get")) ||
+            !(view.core_op &&
+              (!strcmp(view.core_op, "MapGet") ||
+               !strcmp(view.core_op, "ArrayGet"))) ||
+            !generic_method_get_route_proof_valid(view.route_proof) ||
+            !generic_method_get_key_route_valid(view.key_route) ||
             !generic_method_get_contract_shape_valid(
                 route,
-                return_shape,
-                value_demand,
-                publication_policy) ||
+                view.return_shape,
+                view.value_demand,
+                view.publication_policy) ||
             route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE ||
-            !generic_method_get_receiver_origin_valid(route, route_box) ||
+            !generic_method_get_receiver_origin_valid(
+                route,
+                view.receiver_origin_box) ||
             !lowering_plan_read_i64_field(entry, "arity", &arity) ||
             arity != 1 ||
             !lowering_plan_read_i64_field(entry, "receiver_value", &receiver_reg) ||
             !lowering_plan_read_i64_field(entry, "key_value", &key_reg) ||
             receiver_reg != recv ||
             key_reg != a0 ||
-            !helper_symbol ||
-            strcmp(helper_symbol, generic_method_get_helper_symbol(route))) {
+            !view.symbol ||
+            strcmp(view.symbol, generic_method_get_helper_symbol(route))) {
           if (out) out->invalid = 1;
           return 0;
         }
-        if (!strcmp(op, "MapGet") &&
+        if (!strcmp(view.core_op, "MapGet") &&
             route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY &&
-            !lowering_plan_tier_is_cold_runtime(tier)) {
+            !lowering_plan_tier_is_cold_runtime(view.tier)) {
           if (out) out->invalid = 1;
           return 0;
         }
-        if (!strcmp(op, "MapGet") &&
+        if (!strcmp(view.core_op, "MapGet") &&
             route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY &&
-            !lowering_plan_tier_is_direct_abi(tier)) {
+            !lowering_plan_tier_is_direct_abi(view.tier)) {
           if (out) out->invalid = 1;
           return 0;
         }
-        if (!strcmp(op, "ArrayGet") &&
+        if (!strcmp(view.core_op, "ArrayGet") &&
             route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY &&
-            !lowering_plan_tier_is_direct_abi(tier)) {
+            !lowering_plan_tier_is_direct_abi(view.tier)) {
           if (out) out->invalid = 1;
           return 0;
         }
