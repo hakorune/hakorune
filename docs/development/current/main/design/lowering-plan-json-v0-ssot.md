@@ -139,7 +139,7 @@ consumer is proven.
 | slice | tier | symbol | proof |
 | --- | --- | --- | --- |
 | `MapGet` | `ColdRuntime` | `nyash.runtime_data.get_hh` | P70 plan-only fixture |
-| `MapHas` | `DirectAbi` | `nyash.map.probe_hi` | next slice locked by P71 |
+| `MapHas` | `DirectAbi` | `nyash.map.probe_hi` | P72 plan-only fixture |
 
 ## Non-goals
 

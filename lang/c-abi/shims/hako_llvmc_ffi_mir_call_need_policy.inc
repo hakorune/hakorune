@@ -248,12 +248,55 @@
       }
 
       auto enum MirCallNeedKind
+      mir_call_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        const char* route_id = entry ? read_str(entry, "source_route_id") : NULL;
+        const char* op = entry ? read_str(entry, "core_op") : NULL;
+        const char* route_kind = entry ? read_str(entry, "route_kind") : NULL;
+        const char* helper_symbol = entry ? read_str(entry, "symbol") : NULL;
+        const char* route_proof = entry ? read_str(entry, "route_proof") : NULL;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        if (!(source && !strcmp(source, "generic_method_routes")) ||
+            invalid ||
+            !lowering_plan_entry_is_contract_manifest(entry)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        if (route_id &&
+            !strcmp(route_id, "generic_method.has") &&
+            op &&
+            !strcmp(op, "MapHas") &&
+            route_kind &&
+            (!strcmp(route_kind, "map_contains_any") ||
+             !strcmp(route_kind, "map_contains_i64")) &&
+            helper_symbol &&
+            (!strcmp(helper_symbol, "nyash.map.probe_hh") ||
+             !strcmp(helper_symbol, "nyash.map.probe_hi")) &&
+            route_proof &&
+            !strcmp(route_proof, "has_surface_policy") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
+      auto enum MirCallNeedKind
       classify_mir_call_method_need_kind_from_core_method_metadata(
           long long bid,
           size_t ii) {
+        yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
         yyjson_val* routes = NULL;
         size_t ri = 0;
         if (!fn_metadata) return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        if (plan_entry) {
+          enum MirCallNeedKind plan_need =
+              mir_call_need_kind_from_lowering_plan_entry(plan_entry);
+          if (plan_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
+            trace_lowering_plan_entry_hit(plan_entry, "mir_call_need");
+            return plan_need;
+          }
+        }
         routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
         if (!(routes && yyjson_is_arr(routes))) {
           return HAKO_LLVMC_MIR_CALL_NEED_NONE;

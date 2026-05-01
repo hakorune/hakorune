@@ -150,6 +150,64 @@
         return 1;
       }
 
+      auto int match_generic_method_has_lowering_plan(
+          long long bid,
+          size_t ii,
+          const char* bname,
+          long long recv,
+          long long a0,
+          struct GenericMethodHasRouteMetadata* out) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (!entry) return 0;
+        (void)bname;
+        const char* source = read_str(entry, "source");
+        const char* route_id = read_str(entry, "source_route_id");
+        const char* op = read_str(entry, "core_op");
+        const char* route_kind_raw = read_str(entry, "route_kind");
+        const char* helper_symbol = read_str(entry, "symbol");
+        const char* proof = read_str(entry, "route_proof");
+        const char* receiver_origin_box = read_str(entry, "receiver_origin_box");
+        const char* key_route = read_str(entry, "key_route");
+        const char* value_demand = read_str(entry, "value_demand");
+        long long receiver_reg = 0;
+        long long key_reg = 0;
+        long long arity = 0;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        enum GenericMethodHasRouteKind route_kind =
+            generic_method_has_route_kind_from_metadata(route_kind_raw);
+        if (!(source && !strcmp(source, "generic_method_routes")) ||
+            !(route_id && !strcmp(route_id, "generic_method.has")) ||
+            !(op && !strcmp(op, "MapHas")) ||
+            invalid ||
+            !lowering_plan_tier_is_direct_abi(tier) ||
+            !lowering_plan_entry_is_contract_manifest(entry) ||
+            !(proof && !strcmp(proof, "has_surface_policy")) ||
+            !(value_demand && !strcmp(value_demand, "read_ref")) ||
+            route_kind == HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE ||
+            !generic_method_has_route_key_route_valid(route_kind, key_route) ||
+            !generic_method_has_receiver_origin_valid(route_kind, receiver_origin_box) ||
+            !lowering_plan_read_i64_field(entry, "arity", &arity) ||
+            arity != 1 ||
+            !lowering_plan_read_i64_field(entry, "receiver_value", &receiver_reg) ||
+            !lowering_plan_read_i64_field(entry, "key_value", &key_reg) ||
+            receiver_reg != recv ||
+            key_reg != a0 ||
+            !helper_symbol ||
+            strcmp(helper_symbol, generic_method_has_helper_symbol(route_kind)) ||
+            !generic_method_has_route_effects_valid(
+                yyjson_obj_get(entry, "effects"))) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        if (out) {
+          out->route = route_kind;
+        }
+        trace_lowering_plan_entry_hit(entry, "generic_method_has");
+        return 1;
+      }
+
       auto int match_generic_method_has_route_metadata(
           long long bid,
           size_t ii,
@@ -160,6 +218,16 @@
         yyjson_val* routes = NULL;
         size_t ri = 0;
         if (out) memset(out, 0, sizeof(*out));
+        if (match_generic_method_has_lowering_plan(
+                bid,
+                ii,
+                bname,
+                recv,
+                a0,
+                out)) {
+          return 1;
+        }
+        if (out && out->invalid) return 0;
         if (!fn_metadata) return 0;
         routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
         if (!routes) return 0;
