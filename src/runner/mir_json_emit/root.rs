@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::core_method_op::CoreMethodLoweringTier;
 use crate::mir::userbox_known_receiver_method_seed_plan::{
     UserBoxKnownReceiverMethodSeedKind, UserBoxKnownReceiverMethodSeedPayload,
 };
@@ -730,6 +731,10 @@ pub(super) fn build_mir_json_root(
         });
         if let serde_json::Value::Object(obj) = &mut metadata_json {
             obj.insert(
+                "lowering_plan".to_string(),
+                json!(build_lowering_plan_json(f)),
+            );
+            obj.insert(
                 "array_getset_micro_seed_route".to_string(),
                 f.metadata
                     .array_getset_micro_seed_route
@@ -824,6 +829,45 @@ pub(super) fn build_mir_json_root(
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
     Ok(root)
+}
+
+fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde_json::Value> {
+    f.metadata
+        .generic_method_routes
+        .iter()
+        .filter_map(|route| {
+            let carrier = route.core_method()?;
+            let (tier, emit_kind) = match carrier.lowering_tier {
+                CoreMethodLoweringTier::WarmDirectAbi => ("DirectAbi", "direct_abi_call"),
+                CoreMethodLoweringTier::ColdFallback => ("ColdRuntime", "runtime_call"),
+            };
+            Some(json!({
+                "site": format!("b{}.i{}", route.block().as_u32(), route.instruction_index()),
+                "block": route.block().as_u32(),
+                "instruction_index": route.instruction_index(),
+                "source": "generic_method_routes",
+                "source_route_id": route.route_id(),
+                "core_op": carrier.op.to_string(),
+                "tier": tier,
+                "emit_kind": emit_kind,
+                "symbol": route.helper_symbol(),
+                "proof": carrier.proof.to_string(),
+                "route_proof": route.proof_tag(),
+                "route_kind": route.route_kind_tag(),
+                "perf_proof": false,
+                "receiver_value": route.receiver_value().as_u32(),
+                "receiver_origin_box": route.receiver_origin_box(),
+                "arity": route.arity(),
+                "key_route": route.key_route().map(|key_route| key_route.to_string()),
+                "key_value": route.key_value().map(|value| value.as_u32()),
+                "result_value": route.result_value().map(|value| value.as_u32()),
+                "return_shape": route.return_shape().map(|shape| shape.to_string()),
+                "value_demand": route.value_demand().to_string(),
+                "publication_policy": route.publication_policy().map(|policy| policy.to_string()),
+                "effects": route.effect_tags(),
+            }))
+        })
+        .collect()
 }
 
 fn build_array_getset_micro_seed_route_json(

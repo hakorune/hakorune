@@ -530,6 +530,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_string_chain_policy.inc"
       #include "hako_llvmc_ffi_const_string_hoist.inc"
       #include "hako_llvmc_ffi_core_method_metadata.inc"
+      #include "hako_llvmc_ffi_lowering_plan_metadata.inc"
       #include "hako_llvmc_ffi_mir_call_route_policy.inc"
       #include "hako_llvmc_ffi_mir_call_need_policy.inc"
       #include "hako_llvmc_ffi_mir_call_prepass.inc"

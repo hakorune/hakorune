@@ -69,6 +69,9 @@ Optional fields may carry operands and result values:
 | field | meaning |
 | --- | --- |
 | `receiver_value` | receiver value id |
+| `receiver_origin_box` | receiver origin family when known |
+| `arity` | method arity for method-derived plan entries |
+| `key_route` | key/index route, or `null` |
 | `key_value` | first key/index value id, or `null` |
 | `result_value` | result value id, or `null` |
 | `return_shape` | semantic result shape, or `null` |

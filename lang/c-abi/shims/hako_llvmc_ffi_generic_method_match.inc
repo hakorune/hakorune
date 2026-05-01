@@ -11,11 +11,82 @@
       }
 
       auto enum GenericMethodEmitKind
+      classify_generic_method_emit_kind_from_lowering_plan(yyjson_val* entry) {
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        const char* route_id = entry ? read_str(entry, "source_route_id") : NULL;
+        const char* op = entry ? read_str(entry, "core_op") : NULL;
+        const char* route_kind = entry ? read_str(entry, "route_kind") : NULL;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        if (!(source && !strcmp(source, "generic_method_routes")) ||
+            invalid ||
+            !lowering_plan_entry_is_contract_manifest(entry) ||
+            !(route_id && op && route_kind)) {
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
+        }
+        if (!strcmp(route_id, "generic_method.has") &&
+            (!strcmp(op, "MapHas") || !strcmp(op, "ArrayHas")) &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS;
+        }
+        if (!strcmp(route_id, "generic_method.get") &&
+            !strcmp(op, "MapGet") &&
+            (lowering_plan_tier_is_cold_runtime(tier) ||
+             lowering_plan_tier_is_direct_abi(tier))) {
+          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
+        }
+        if (!strcmp(route_id, "generic_method.get") &&
+            !strcmp(op, "ArrayGet") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
+        }
+        if (!strcmp(route_id, "generic_method.len") &&
+            (!strcmp(op, "ArrayLen") ||
+             !strcmp(op, "MapLen") ||
+             !strcmp(op, "StringLen")) &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN;
+        }
+        if (!strcmp(route_id, "generic_method.push") &&
+            !strcmp(op, "ArrayPush") &&
+            lowering_plan_tier_is_cold_runtime(tier)) {
+          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_PUSH;
+        }
+        if (!strcmp(route_id, "generic_method.set") &&
+            (!strcmp(op, "ArraySet") || !strcmp(op, "MapSet")) &&
+            lowering_plan_tier_is_cold_runtime(tier)) {
+          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_SET;
+        }
+        if (!strcmp(route_id, "generic_method.substring") &&
+            !strcmp(op, "StringSubstring") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "generic_method_emit");
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_SUBSTRING;
+        }
+        return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
+      }
+
+      auto enum GenericMethodEmitKind
       classify_generic_method_emit_kind_from_core_method_metadata(
           long long bid,
           size_t ii) {
         yyjson_val* routes = NULL;
         size_t ri = 0;
+        yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (plan_entry) {
+          enum GenericMethodEmitKind plan_kind =
+              classify_generic_method_emit_kind_from_lowering_plan(plan_entry);
+          if (plan_kind != HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE) {
+            return plan_kind;
+          }
+        }
         if (!fn_metadata) return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
         routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
         if (!(routes && yyjson_is_arr(routes))) {

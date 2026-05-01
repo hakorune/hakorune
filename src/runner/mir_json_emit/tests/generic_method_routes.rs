@@ -47,6 +47,35 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(route["publication_policy"], serde_json::Value::Null);
     assert_eq!(route["effects"], serde_json::json!(["probe.key"]));
 
+    let lowering_plan = root["functions"][0]["metadata"]["lowering_plan"]
+        .as_array()
+        .expect("lowering_plan");
+    assert_eq!(lowering_plan.len(), 9);
+    let get_plan = &lowering_plan[1];
+    assert_eq!(get_plan["site"], "b8.i4");
+    assert_eq!(get_plan["block"], 8);
+    assert_eq!(get_plan["instruction_index"], 4);
+    assert_eq!(get_plan["source"], "generic_method_routes");
+    assert_eq!(get_plan["source_route_id"], "generic_method.get");
+    assert_eq!(get_plan["core_op"], "MapGet");
+    assert_eq!(get_plan["tier"], "ColdRuntime");
+    assert_eq!(get_plan["emit_kind"], "runtime_call");
+    assert_eq!(get_plan["symbol"], "nyash.runtime_data.get_hh");
+    assert_eq!(get_plan["proof"], "core_method_contract_manifest");
+    assert_eq!(get_plan["route_proof"], "get_surface_policy");
+    assert_eq!(get_plan["route_kind"], "runtime_data_load_any");
+    assert_eq!(get_plan["perf_proof"], false);
+    assert_eq!(get_plan["receiver_value"], 13);
+    assert_eq!(get_plan["receiver_origin_box"], "MapBox");
+    assert_eq!(get_plan["arity"], 1);
+    assert_eq!(get_plan["key_route"], "i64_const");
+    assert_eq!(get_plan["key_value"], 14);
+    assert_eq!(get_plan["result_value"], 15);
+    assert_eq!(get_plan["return_shape"], "mixed_runtime_i64_or_handle");
+    assert_eq!(get_plan["value_demand"], "runtime_i64_or_handle");
+    assert_eq!(get_plan["publication_policy"], "runtime_data_facade");
+    assert_eq!(get_plan["effects"], serde_json::json!(["read.key"]));
+
     let get_route = &root["functions"][0]["metadata"]["generic_method_routes"][1];
     assert_eq!(get_route["route_id"], "generic_method.get");
     assert_eq!(get_route["block"], 8);

@@ -39,11 +39,110 @@
       }
 
       auto enum MirCallGenericMethodRouteKind
+      classify_mir_call_generic_method_route_kind_from_lowering_plan(
+          yyjson_val* entry) {
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        const char* route_id = entry ? read_str(entry, "source_route_id") : NULL;
+        const char* route_kind = entry ? read_str(entry, "route_kind") : NULL;
+        const char* op = entry ? read_str(entry, "core_op") : NULL;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        if (!(source && !strcmp(source, "generic_method_routes")) ||
+            invalid ||
+            !lowering_plan_entry_is_contract_manifest(entry) ||
+            !(op && route_id && route_kind)) {
+          return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
+        }
+        if (!strcmp(route_id, "generic_method.get") &&
+            !strcmp(op, "MapGet") &&
+            !strcmp(route_kind, "runtime_data_load_any") &&
+            lowering_plan_tier_is_cold_runtime(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
+        }
+        if (!strcmp(route_id, "generic_method.get") &&
+            !strcmp(op, "MapGet") &&
+            !strcmp(route_kind, "map_load_any") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
+        }
+        if (!strcmp(route_id, "generic_method.get") &&
+            !strcmp(op, "ArrayGet") &&
+            !strcmp(route_kind, "array_slot_load_any") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET;
+        }
+        if (!strcmp(route_id, "generic_method.has") &&
+            !strcmp(op, "MapHas") &&
+            (!strcmp(route_kind, "map_contains_any") ||
+             !strcmp(route_kind, "map_contains_i64")) &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS;
+        }
+        if (!strcmp(route_id, "generic_method.len") &&
+            !strcmp(op, "MapLen") &&
+            !strcmp(route_kind, "map_entry_count") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_SIZE;
+        }
+        if (!strcmp(route_id, "generic_method.len") &&
+            !strcmp(op, "ArrayLen") &&
+            !strcmp(route_kind, "array_slot_len") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_LEN;
+        }
+        if (!strcmp(route_id, "generic_method.push") &&
+            !strcmp(op, "ArrayPush") &&
+            !strcmp(route_kind, "array_append_any") &&
+            lowering_plan_tier_is_cold_runtime(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH;
+        }
+        if (!strcmp(route_id, "generic_method.len") &&
+            !strcmp(op, "StringLen") &&
+            !strcmp(route_kind, "string_len") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+        }
+        if (!strcmp(route_id, "generic_method.substring") &&
+            !strcmp(op, "StringSubstring") &&
+            !strcmp(route_kind, "string_substring") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
+        }
+        if (!strcmp(route_id, "generic_method.indexOf") &&
+            !strcmp(op, "StringIndexOf") &&
+            !strcmp(route_kind, "string_indexof") &&
+            lowering_plan_tier_is_direct_abi(tier)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF;
+        }
+        return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
+      }
+
+      auto enum MirCallGenericMethodRouteKind
       classify_mir_call_generic_method_route_kind_from_core_method_metadata(
           long long bid,
           size_t ii) {
         yyjson_val* routes = NULL;
         size_t ri = 0;
+        yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (plan_entry) {
+          enum MirCallGenericMethodRouteKind plan_route =
+              classify_mir_call_generic_method_route_kind_from_lowering_plan(
+                  plan_entry);
+          if (plan_route != HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
+            return plan_route;
+          }
+        }
         if (!fn_metadata) return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
         if (!(routes && yyjson_is_arr(routes))) {

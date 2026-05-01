@@ -161,6 +161,85 @@
         return 0;
       }
 
+      auto int match_generic_method_get_lowering_plan(
+          long long bid,
+          size_t ii,
+          const char* bname,
+          long long recv,
+          long long a0,
+          struct GenericMethodGetRouteMetadata* out) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (!entry) return 0;
+        (void)bname;
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        const char* route_id = entry ? read_str(entry, "source_route_id") : NULL;
+        const char* op = entry ? read_str(entry, "core_op") : NULL;
+        const char* route_kind_raw = entry ? read_str(entry, "route_kind") : NULL;
+        const char* helper_symbol = entry ? read_str(entry, "symbol") : NULL;
+        const char* proof = entry ? read_str(entry, "route_proof") : NULL;
+        const char* route_box = entry ? read_str(entry, "receiver_origin_box") : NULL;
+        const char* key_route = entry ? read_str(entry, "key_route") : NULL;
+        const char* return_shape = entry ? read_str(entry, "return_shape") : NULL;
+        const char* value_demand = entry ? read_str(entry, "value_demand") : NULL;
+        const char* publication_policy = entry ? read_str(entry, "publication_policy") : NULL;
+        long long receiver_reg = 0;
+        long long key_reg = 0;
+        long long arity = 0;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        enum GenericMethodGetRouteKind route =
+            generic_method_get_route_kind_from_metadata(route_kind_raw);
+        if (!(source && !strcmp(source, "generic_method_routes")) ||
+            !(route_id && !strcmp(route_id, "generic_method.get")) ||
+            !(op && (!strcmp(op, "MapGet") || !strcmp(op, "ArrayGet"))) ||
+            invalid ||
+            !lowering_plan_entry_is_contract_manifest(entry) ||
+            !generic_method_get_route_proof_valid(proof) ||
+            !generic_method_get_key_route_valid(key_route) ||
+            !generic_method_get_contract_shape_valid(
+                route,
+                return_shape,
+                value_demand,
+                publication_policy) ||
+            route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE ||
+            !generic_method_get_receiver_origin_valid(route, route_box) ||
+            !lowering_plan_read_i64_field(entry, "arity", &arity) ||
+            arity != 1 ||
+            !lowering_plan_read_i64_field(entry, "receiver_value", &receiver_reg) ||
+            !lowering_plan_read_i64_field(entry, "key_value", &key_reg) ||
+            receiver_reg != recv ||
+            key_reg != a0 ||
+            !helper_symbol ||
+            strcmp(helper_symbol, generic_method_get_helper_symbol(route))) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        if (!strcmp(op, "MapGet") &&
+            route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY &&
+            !lowering_plan_tier_is_cold_runtime(tier)) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        if (!strcmp(op, "MapGet") &&
+            route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY &&
+            !lowering_plan_tier_is_direct_abi(tier)) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        if (!strcmp(op, "ArrayGet") &&
+            route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY &&
+            !lowering_plan_tier_is_direct_abi(tier)) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        if (out) {
+          out->route = route;
+        }
+        trace_lowering_plan_entry_hit(entry, "generic_method_get");
+        return 1;
+      }
+
       auto int match_generic_method_get_route_metadata(
           long long bid,
           size_t ii,
@@ -171,6 +250,16 @@
         yyjson_val* routes = NULL;
         size_t ri = 0;
         if (out) memset(out, 0, sizeof(*out));
+        if (match_generic_method_get_lowering_plan(
+                bid,
+                ii,
+                bname,
+                recv,
+                a0,
+                out)) {
+          return 1;
+        }
+        if (out && out->invalid) return 0;
         if (!fn_metadata) return 0;
         routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
         if (!routes) return 0;
