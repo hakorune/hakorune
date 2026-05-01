@@ -14,7 +14,7 @@ Environment
 
 Repro
 
-1) Run: `NYASH_LLVM_ARRAY_SMOKE=1 ./tools/llvm_smoke.sh release` (or build/link the map smoke similarly)
+1) Run: `NYASH_LLVM_ARRAY_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh release` (or build/link the map smoke similarly)
 2) Observe: `❌ LLVM object emit error: binop type mismatch`
 
 Expected

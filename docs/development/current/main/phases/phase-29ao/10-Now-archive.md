@@ -2254,5 +2254,5 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 代表コマンド（例）
 - ビルド: `cargo build --release`
-- LLVM smoke: `LLVM_SYS_180_PREFIX=$(llvm-config-18 --prefix) NYASH_LLVM_BITOPS_SMOKE=1 ./tools/llvm_smoke.sh release`
-- VInvoke 調査: `NYASH_LLVM_VINVOKE_TRACE=1 NYASH_LLVM_VINVOKE_SMOKE=1 ./tools/llvm_smoke.sh release`
+- LLVM smoke: `LLVM_SYS_180_PREFIX=$(llvm-config-18 --prefix) NYASH_LLVM_BITOPS_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh release`
+- VInvoke 調査: `NYASH_LLVM_VINVOKE_TRACE=1 NYASH_LLVM_VINVOKE_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh release`

@@ -8,4 +8,4 @@ rm -rf ny-vinvoke-llvm-ret/
 rm -rf ny-vinvoke-llvm-ret-size/
 
 これらはすでに apps/tests/ にコピー済みで、
-tools/llvm_smoke.sh も更新済みです。
+tools/archive/manual-smokes/llvm_smoke.sh も更新済みです。

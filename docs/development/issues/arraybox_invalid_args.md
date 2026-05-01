@@ -13,12 +13,12 @@ Environment
 
 - LLVM 18 / inkwell 0.5.0 (llvm18-0)
 - nyash-rust with Phase 11.2 lowering
-- tools/llvm_smoke.sh (Array smoke is gated via NYASH_LLVM_ARRAY_SMOKE=1)
+- tools/archive/manual-smokes/llvm_smoke.sh (Array smoke is gated via NYASH_LLVM_ARRAY_SMOKE=1)
 
 Repro
 
 1) Enable array smoke explicitly:
-   - `NYASH_LLVM_ARRAY_SMOKE=1 ./tools/llvm_smoke.sh release`
+   - `NYASH_LLVM_ARRAY_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh release`
 2) Observe plugin-side errors for ArrayBox.get/set.
 
 Expected

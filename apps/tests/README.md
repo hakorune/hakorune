@@ -20,12 +20,12 @@
 
 ## 実行方法
 
-これらのテストは主に `tools/llvm_smoke.sh` から実行されます：
+これらのテストは主に `tools/archive/manual-smokes/llvm_smoke.sh` から実行されます：
 
 ```bash
 # 環境変数でテストを有効化
-NYASH_LLVM_MAP_SMOKE=1 ./tools/llvm_smoke.sh
-NYASH_LLVM_VINVOKE_RET_SMOKE=1 ./tools/llvm_smoke.sh
+NYASH_LLVM_MAP_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh
+NYASH_LLVM_VINVOKE_RET_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh
 ```
 
 ## 注意事項

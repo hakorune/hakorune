@@ -24,7 +24,7 @@
   - daily EXE helper no longer exports `NYASH_LLVM_USE_HARNESS=1`
 - `tools/build_llvm.sh`
   - explicit `NYASH_LLVM_COMPILER=harness` now routes through `ny-llvmc --driver harness`
-- `tools/llvm_smoke.sh`
+- `tools/archive/manual-smokes/llvm_smoke.sh`
   - historical LLVM smoke is now an explicit llvmlite compat/probe keep script
 - `src/host_providers/llvm_codegen/README.md`
   - mainline object emit owner is documented as `ny-llvmc --emit obj`

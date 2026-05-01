@@ -21,7 +21,7 @@
   - `tools/dev/program_json_v0/dev_stageb.sh`
   - `tools/dev/hako_debug_run.sh`
   - `tools/debug/phi/phi_trace_bridge_try.sh`
-  - `tools/modules_smoke.sh`
+  - `tools/archive/manual-smokes/modules_smoke.sh`
   - `tools/exe_first_smoke.sh`
   - `tools/exe_first_runner_smoke.sh`
   - `tools/selfhost_stage2_bridge_smoke.sh`

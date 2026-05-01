@@ -13,7 +13,9 @@ Archived scripts:
 - `apps_tri_backend_smoke.sh`
 - `cross_backend_smoke.sh`
 - `hako_check_deadcode_smoke.sh`
+- `llvm_smoke.sh`
 - `mir_builder_exe_smoke.sh`
+- `modules_smoke.sh`
 - `ny_me_dummy_smoke.sh`
 - `nyfmt_smoke.sh`
 - `ny_parser_bridge_smoke.ps1`

@@ -5,6 +5,10 @@ set -euo pipefail
 # - historical compat/probe keep for the llvmlite harness lane
 # - not product-mainline evidence for the ny-llvmc daily route
 
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)
+cd "$ROOT_DIR"
+
 MODE=${1:-release}
 BIN=./target/${MODE}/hakorune
 [[ -x "$BIN" ]] || BIN=./target/${MODE}/nyash

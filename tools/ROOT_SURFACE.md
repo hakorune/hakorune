@@ -61,16 +61,14 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | `tools/hakorune_emit_mir.sh` | compat-capsule | shared Hako-first MIR emit helper with route/docs owners | keep | keep while selfhost route docs and probes call it |
 | `tools/hakorune_emit_mir_compat.sh` | compat-capsule | thin Program(JSON)->MIR compat preset wrapper | keep | keep with bootstrap route SSOT |
 | `tools/hakorune_emit_mir_mainline.sh` | compat-capsule | thin MIR-first preset wrapper | keep | keep with bootstrap route SSOT |
-| `tools/llvm_smoke.sh` | manual-smoke | llvmlite harness compatibility smoke | hold | move under archive/manual-smokes only after harness owner agrees |
 | `tools/llvmlite_harness.py` | compat-capsule | explicit llvmlite backend keep | keep | keep while `ny_mir_builder.sh` exposes llvmlite |
-| `tools/modules_smoke.sh` | protected/current-smoke | modules JSON VM smoke | hold | route into smoke v2 or archive after owner check |
 | `tools/ny_mir_builder.sh` | protected/build | MIR JSON to obj/exe wrapper | keep | keep as ny-llvmc route facade |
 | `tools/ny_parser_bridge_smoke.sh` | protected/current-smoke | current parser bridge smoke | keep | keep current |
 | `tools/ny_parser_mvp.py` | compat-capsule | Python MVP parser used by bridge smokes | keep | keep while Stage-2 bridge smokes use it |
 | `tools/ny_roundtrip_smoke.sh` | protected/current-smoke | current Ny roundtrip smoke | keep | keep current |
 | `tools/ny_stage2_shortcircuit_smoke.sh` | protected/current-smoke | current Stage-2 parser smoke | keep | keep current |
-| `tools/opbox-json.sh` | manual-smoke | OperatorBox JSON smoke shortcut | hold | route into smoke v2 or archive after opbox owner check |
-| `tools/opbox-quick.sh` | manual-smoke | OperatorBox quick smoke shortcut | hold | route into smoke v2 or archive after opbox owner check |
+| `tools/opbox-json.sh` | manual-smoke | documented OperatorBox JSON smoke shortcut | keep | keep while README and operator-box guide advertise it |
+| `tools/opbox-quick.sh` | manual-smoke | documented OperatorBox quick smoke shortcut | keep | keep while README and operator-box guide advertise it |
 | `tools/run_llvm_harness.sh` | compat-capsule | explicit LLVM harness compat/probe lane | keep | keep with LLVM harness owner |
 | `tools/selfhost_exe_stageb.sh` | compat-capsule | Program(JSON)->MIR bridge capsule plus direct probe | keep | keep with selfhost README bridge capsule owner |
 | `tools/selfhost_identity_check.sh` | compat-capsule | Stage1/Stage2 identity comparison | hold | align with Stage1 contract keeper order |
@@ -83,12 +81,11 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | `tools/using_strict_path_fail_smoke.sh` | protected/current-smoke | using strict failure smoke | keep | keep while using gate is current |
 | `tools/using_unresolved_smoke.sh` | protected/current-smoke | using unresolved smoke | keep | keep while using gate is current |
 | `tools/validate_mir_json.py` | protected/build | MIR JSON schema validator | keep | keep with JSON schema docs |
-| `tools/vm_plugin_smoke.sh` | manual-smoke | plugin smoke wrapper over archived smoke profiles | hold | route into smoke v2 or archive after plugin owner check |
+| `tools/vm_plugin_smoke.sh` | protected/current-smoke | called by `tools/checks/dev_gate.sh` and plugin guard checks | keep | keep as plugin pilot gate wrapper |
 
 ## Current Hold Queue
 
 Do not move these without a focused card:
 
-- smoke shortcuts that need smoke-v2 owner decisions:
-  `tools/llvm_smoke.sh`, `tools/modules_smoke.sh`, `tools/opbox-json.sh`,
-  `tools/opbox-quick.sh`, `tools/vm_plugin_smoke.sh`
+- phase-29cv focused hold queue is closed; unrelated manual-tool holds remain
+  listed in the inventory rows above

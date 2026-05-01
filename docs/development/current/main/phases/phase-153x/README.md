@@ -15,5 +15,5 @@
   - unknown `NYASH_LLVM_BACKEND` values no longer fall through to llvmlite keep
 - `tools/build_llvm.sh`
   - daily mainline no longer auto-falls back to `harness`; missing `ny-llvmc` is now a fail-fast mainline error
-- `tools/llvm_smoke.sh`
+- `tools/archive/manual-smokes/llvm_smoke.sh`
   - daily object emit examples no longer set `NYASH_LLVM_USE_HARNESS=1`

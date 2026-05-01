@@ -28,7 +28,7 @@ tools/archive/manual-tools/build_python_aot.sh
 ### 2. ビルド行のみコメントアウト（VM/LLVM部分は有効）
 ```bash
 tools/smoke_plugins.sh
-tools/modules_smoke.sh
+tools/archive/manual-smokes/modules_smoke.sh
 tools/archive/manual-smokes/apps_tri_backend_smoke.sh
 ```
 

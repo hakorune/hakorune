@@ -12,6 +12,6 @@
    - `NYASH_LLVM_VINVOKE_RET_SMOKE=1` → `Result: 42`
 
 代表コマンド
-- `LLVM_SYS_180_PREFIX=$(llvm-config-18 --prefix) NYASH_LLVM_BITOPS_SMOKE=1 ./tools/llvm_smoke.sh release`
-- `NYASH_LLVM_VINVOKE_TRACE=1 NYASH_LLVM_VINVOKE_SMOKE=1 ./tools/llvm_smoke.sh release`
+- `LLVM_SYS_180_PREFIX=$(llvm-config-18 --prefix) NYASH_LLVM_BITOPS_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh release`
+- `NYASH_LLVM_VINVOKE_TRACE=1 NYASH_LLVM_VINVOKE_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh release`
 

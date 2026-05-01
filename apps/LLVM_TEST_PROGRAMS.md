@@ -40,7 +40,7 @@
 
 ## CIスモークテストでの使用
 
-`tools/llvm_smoke.sh`で以下の環境変数により制御：
+`tools/archive/manual-smokes/llvm_smoke.sh`で以下の環境変数により制御：
 
 ```bash
 # 基本テスト（問題があるためデフォルトOFF）
