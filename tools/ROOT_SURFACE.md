@@ -71,7 +71,7 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | `tools/opbox-quick.sh` | manual-smoke | documented OperatorBox quick smoke shortcut | keep | keep while README and operator-box guide advertise it |
 | `tools/run_llvm_harness.sh` | compat-capsule | explicit LLVM harness compat/probe lane | keep | keep with LLVM harness owner |
 | `tools/selfhost_exe_stageb.sh` | compat-capsule | Program(JSON)->MIR bridge capsule plus direct probe | keep | keep with selfhost README bridge capsule owner |
-| `tools/selfhost_identity_check.sh` | compat-capsule | Stage1/Stage2 identity comparison | hold | align with Stage1 contract keeper order |
+| `tools/selfhost_identity_check.sh` | protected/current-smoke | bootstrap route SSOT G1 identity contract | keep | keep as Stage1/Stage2 identity gate |
 | `tools/selfhost_stage2_bridge_smoke.sh` | protected/current-smoke | Stage-2 bridge smoke | keep | keep while bridge proof is current |
 | `tools/smoke_plugins.sh` | protected/current-smoke | plugin smoke wrapper | keep | keep or route into smoke v2 index |
 | `tools/snapshot_mir.sh` | protected/ci | called by `tools/compare_mir.sh` | keep | keep with golden MIR chain |
