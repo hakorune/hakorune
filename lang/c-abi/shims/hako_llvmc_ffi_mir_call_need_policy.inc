@@ -394,6 +394,15 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET,
           },
+          {
+            "generic_method.substring",
+            "StringSubstring",
+            "string_substring",
+            "nyash.string.substring_hii",
+            "substring_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING,
+          },
         };
         struct LoweringPlanGenericMethodView view;
         size_t ri = 0;

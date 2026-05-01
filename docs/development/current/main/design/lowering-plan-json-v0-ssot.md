@@ -169,6 +169,7 @@ selecting a helper.
 | `ArraySet` i64 | `ColdRuntime` | `nyash.array.slot_store_hii` | P88 plan-only fixture |
 | `ArraySet` handle | `ColdRuntime` | `nyash.array.slot_store_hih` | P89 plan-only fixture |
 | `ArraySet` string | `ColdRuntime` | `nyash.array.set_his` | P91 plan-only fixture |
+| `StringSubstring` | `DirectAbi` | `nyash.string.substring_hii` | P92 plan-only fixture |
 
 ## Non-goals
 
