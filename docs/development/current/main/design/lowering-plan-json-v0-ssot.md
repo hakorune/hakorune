@@ -192,6 +192,13 @@ particular, unsupported local instructions, method calls, unsupported extern or
 backend-global surfaces, missing global targets, and child targets whose own
 shape remains unknown are distinct causes.
 
+Same-module global user-call target evidence must also include
+`target_return_type` when `target_exists=true`. This is the compact MIR
+signature return label (`i64`, `str`, `void`, `box<Name>`, etc.) for diagnostics
+and next-slice selection only. It is not a backend-local permission bit:
+`target_shape`, `tier`, proof, arity, and same-module definition availability
+remain the legality contract.
+
 If MIR naming normalization rewrites a diagnostic call name to the canonical
 function symbol, `callee_name` must keep the original observed call name and
 `target_symbol` must carry the canonical MIR function name. Example:

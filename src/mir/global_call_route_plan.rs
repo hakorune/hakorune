@@ -148,6 +148,7 @@ pub struct GlobalCallTargetFacts {
     exists: bool,
     symbol: Option<String>,
     arity: Option<usize>,
+    return_type: Option<MirType>,
     shape: GlobalCallTargetShape,
     shape_reason: Option<GlobalCallTargetShapeReason>,
     shape_blocker: Option<GlobalCallShapeBlocker>,
@@ -163,6 +164,7 @@ impl GlobalCallTargetFacts {
             exists: true,
             symbol: None,
             arity: Some(arity),
+            return_type: None,
             shape: GlobalCallTargetShape::Unknown,
             shape_reason: None,
             shape_blocker: None,
@@ -174,6 +176,23 @@ impl GlobalCallTargetFacts {
             exists: true,
             symbol: Some(symbol.into()),
             arity: Some(arity),
+            return_type: None,
+            shape: GlobalCallTargetShape::Unknown,
+            shape_reason: None,
+            shape_blocker: None,
+        }
+    }
+
+    pub fn present_with_symbol_and_return_type(
+        symbol: impl Into<String>,
+        arity: usize,
+        return_type: MirType,
+    ) -> Self {
+        Self {
+            exists: true,
+            symbol: Some(symbol.into()),
+            arity: Some(arity),
+            return_type: Some(return_type),
             shape: GlobalCallTargetShape::Unknown,
             shape_reason: None,
             shape_blocker: None,
@@ -185,6 +204,7 @@ impl GlobalCallTargetFacts {
             exists: true,
             symbol: None,
             arity: Some(arity),
+            return_type: None,
             shape,
             shape_reason: None,
             shape_blocker: None,
@@ -201,6 +221,10 @@ impl GlobalCallTargetFacts {
 
     pub fn symbol(&self) -> Option<&str> {
         self.symbol.as_deref()
+    }
+
+    pub fn return_type(&self) -> Option<&MirType> {
+        self.return_type.as_ref()
     }
 
     pub fn shape(&self) -> GlobalCallTargetShape {
@@ -321,6 +345,13 @@ impl GlobalCallRoute {
         self.target.arity()
     }
 
+    pub fn target_return_type(&self) -> Option<String> {
+        if !self.target_exists() {
+            return None;
+        }
+        self.target.return_type().map(format_mir_type_label)
+    }
+
     pub fn target_shape(&self) -> Option<&'static str> {
         self.target_exists()
             .then_some(self.target.shape().as_str())
@@ -429,7 +460,11 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             };
             (
                 name.clone(),
-                GlobalCallTargetFacts::present_with_symbol(name.clone(), arity),
+                GlobalCallTargetFacts::present_with_symbol_and_return_type(
+                    name.clone(),
+                    arity,
+                    function.signature.return_type.clone(),
+                ),
             )
         })
         .collect::<BTreeMap<_, _>>();
@@ -661,6 +696,21 @@ fn generic_pure_string_abi_type_is_handle_compatible(ty: &MirType) -> bool {
         MirType::Integer | MirType::String | MirType::Unknown => true,
         MirType::Box(name) => name == "StringBox",
         _ => false,
+    }
+}
+
+fn format_mir_type_label(ty: &MirType) -> String {
+    match ty {
+        MirType::Integer => "i64".to_string(),
+        MirType::Float => "f64".to_string(),
+        MirType::Bool => "i1".to_string(),
+        MirType::String => "str".to_string(),
+        MirType::Box(name) => format!("box<{}>", name),
+        MirType::Array(inner) => format!("[{}]", format_mir_type_label(inner)),
+        MirType::Future(inner) => format!("future<{}>", format_mir_type_label(inner)),
+        MirType::WeakRef => "weakref".to_string(),
+        MirType::Void => "void".to_string(),
+        MirType::Unknown => "?".to_string(),
     }
 }
 
@@ -1000,6 +1050,7 @@ mod tests {
         assert_eq!(route.tier(), "Unsupported");
         assert!(!route.target_exists());
         assert_eq!(route.target_arity(), None);
+        assert_eq!(route.target_return_type(), None);
         assert_eq!(route.target_shape(), None);
         assert_eq!(route.reason(), Some("unknown_global_callee"));
     }
@@ -1041,6 +1092,7 @@ mod tests {
             Some("Stage1ModeContractBox.resolve_mode/0")
         );
         assert_eq!(route.target_arity(), Some(2));
+        assert_eq!(route.target_return_type(), Some("i64".to_string()));
         assert_eq!(route.arity_matches(), Some(true));
         assert_eq!(route.target_shape(), None);
         assert_eq!(
@@ -1204,6 +1256,7 @@ mod tests {
         let route = &module.functions["main"].metadata.global_call_routes[0];
         assert!(route.target_exists());
         assert_eq!(route.target_symbol(), Some("Helper.add/2"));
+        assert_eq!(route.target_return_type(), Some("i64".to_string()));
         assert_eq!(route.target_shape(), Some("numeric_i64_leaf"));
         assert_eq!(route.target_shape_reason(), None);
         assert_eq!(route.target_arity(), Some(2));
@@ -1250,6 +1303,7 @@ mod tests {
         assert!(route.target_exists());
         assert_eq!(route.target_symbol(), Some("Main._helper/0"));
         assert_eq!(route.target_arity(), Some(0));
+        assert_eq!(route.target_return_type(), Some("i64".to_string()));
         assert_eq!(route.arity_matches(), Some(true));
         assert_eq!(route.target_shape(), Some("numeric_i64_leaf"));
         assert_eq!(route.target_shape_reason(), None);
@@ -1338,6 +1392,7 @@ mod tests {
         let route = &module.functions["main"].metadata.global_call_routes[0];
         assert!(route.target_exists());
         assert_eq!(route.target_symbol(), Some("Helper.normalize/2"));
+        assert_eq!(route.target_return_type(), Some("str".to_string()));
         assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
         assert_eq!(route.target_shape_reason(), None);
         assert_eq!(route.target_arity(), Some(2));
