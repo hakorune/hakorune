@@ -501,6 +501,35 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<512){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
       auto const char* read_str(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? yyjson_get_str(v) : NULL; }
+      auto int llvm_quoted_symbol_name_is_safe(const char* name) {
+        const unsigned char* p = (const unsigned char*)name;
+        if (!name || !name[0]) return 0;
+        while (*p) {
+          if (*p < 0x20 || *p == '"' || *p == '\\') return 0;
+          p++;
+        }
+        return 1;
+      }
+      auto size_t generic_pure_function_param_count(yyjson_val* fn) {
+        yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
+        return (params && yyjson_is_arr(params)) ? yyjson_arr_size(params) : 0;
+      }
+      auto void emit_i64_function_declaration(FILE* f, const char* name, size_t argc) {
+        if (!llvm_quoted_symbol_name_is_safe(name)) return;
+        fprintf(f, "declare i64 @\"%s\"(", name);
+        for (size_t i = 0; i < argc; i++) {
+          fprintf(f, "%si64", i ? ", " : "");
+        }
+        fprintf(f, ")\n");
+      }
+      auto void emit_module_function_declarations(FILE* f) {
+        for (size_t i = 0; i < program.function_count; i++) {
+          yyjson_val* fn = yyjson_arr_get(program.functions, i);
+          const char* name = fn ? read_str(fn, "name") : NULL;
+          if (!name || fn == fn0) continue;
+          emit_i64_function_declaration(f, name, generic_pure_function_param_count(fn));
+        }
+      }
       auto char* concat_owned_string_consts(const char* lhs, const char* rhs) {
         size_t lhs_len = lhs ? strlen(lhs) : 0;
         size_t rhs_len = rhs ? strlen(rhs) : 0;

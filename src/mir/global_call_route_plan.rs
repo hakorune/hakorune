@@ -113,6 +113,10 @@ impl GlobalCallRoute {
         &self.callee_name
     }
 
+    pub fn target_symbol(&self) -> Option<&str> {
+        self.target_exists().then_some(self.callee_name())
+    }
+
     pub fn arity(&self) -> usize {
         self.arity
     }
@@ -304,6 +308,10 @@ mod tests {
 
         let route = &module.functions["main"].metadata.global_call_routes[0];
         assert!(route.target_exists());
+        assert_eq!(
+            route.target_symbol(),
+            Some("Stage1ModeContractBox.resolve_mode/0")
+        );
         assert_eq!(route.target_arity(), Some(2));
         assert_eq!(route.arity_matches(), Some(true));
         assert_eq!(route.reason(), "missing_multi_function_emitter");

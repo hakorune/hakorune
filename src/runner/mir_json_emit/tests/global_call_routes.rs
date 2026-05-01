@@ -28,6 +28,7 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(route["block"], 0);
     assert_eq!(route["instruction_index"], 0);
     assert_eq!(route["callee_name"], "Stage1ModeContractBox.resolve_mode/0");
+    assert_eq!(route["target_symbol"], serde_json::Value::Null);
     assert_eq!(route["core_op"], "UserGlobalCall");
     assert_eq!(route["tier"], "Unsupported");
     assert_eq!(route["emit_kind"], "unsupported");
@@ -51,6 +52,7 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(plan["source"], "global_call_routes");
     assert_eq!(plan["source_route_id"], "global.user_call");
     assert_eq!(plan["callee_name"], "Stage1ModeContractBox.resolve_mode/0");
+    assert_eq!(plan["target_symbol"], serde_json::Value::Null);
     assert_eq!(plan["core_op"], "UserGlobalCall");
     assert_eq!(plan["tier"], "Unsupported");
     assert_eq!(plan["emit_kind"], "unsupported");

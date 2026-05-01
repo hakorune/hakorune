@@ -171,6 +171,11 @@ C consumers must read `global_call_routes` through a dedicated
 typed views. The failure path may report `view.reason`; it must not hand-parse
 `source/tier/reason` at the callsite.
 
+Same-module global user calls must carry `target_symbol` when
+`target_exists=true`. The v0 symbol is the quoted LLVM function symbol for the
+target MIR function. Call emitters must use `target_symbol`; `callee_name`
+remains diagnostic identity and resolver evidence.
+
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
 consumer is proven.

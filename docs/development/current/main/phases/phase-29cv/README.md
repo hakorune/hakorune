@@ -92,6 +92,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   user/global-call diagnostic through that typed view. The stop-line remains
   `missing_multi_function_emitter`, but the backend failure site no longer
   hand-parses the global-call plan fields.
+- P116 adds `target_symbol` for same-module `global_call_routes` and emits
+  module function declarations in generic pure before the entry definition.
+  `UserGlobalCall` is still unsupported; this only gives the next call-emitter
+  card a typed symbol/declaration contract.
 
 ## Compat Capsule Rules
 

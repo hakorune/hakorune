@@ -40,6 +40,7 @@
         yyjson_val* entry;
         const char* route_id;
         const char* callee_name;
+        const char* target_symbol;
         const char* core_op;
         const char* route_kind;
         const char* emit_kind;
@@ -237,6 +238,7 @@
           out->entry = entry;
           out->route_id = read_str(entry, "source_route_id");
           out->callee_name = read_str(entry, "callee_name");
+          out->target_symbol = read_str(entry, "target_symbol");
           out->core_op = read_str(entry, "core_op");
           out->route_kind = read_str(entry, "route_kind");
           out->emit_kind = read_str(entry, "emit_kind");
