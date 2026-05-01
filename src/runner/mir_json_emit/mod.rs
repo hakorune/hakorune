@@ -10,6 +10,7 @@ mod order;
 mod placement_effect;
 mod plans;
 mod root;
+mod route_json;
 #[cfg(test)]
 mod tests;
 
