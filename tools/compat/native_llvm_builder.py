@@ -12,7 +12,7 @@ Supported (MVP):
 - ret(value)
 
 Usage:
-  python3 tools/native_llvm_builder.py --in in.json --emit obj --out out.o
+  python3 tools/compat/native_llvm_builder.py --in in.json --emit obj --out out.o
 
 Notes:
 - No external Python packages required. Assumes `llc` is in PATH.

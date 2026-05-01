@@ -179,7 +179,7 @@ case "$EMIT" in
         # Optional verify: dump IR first and reject if PHI appears (simple guard)
         if [[ "${NYASH_LLVM_VERIFY_IR:-0}" == "1" ]]; then
           _TMP_LL=$(mktemp)
-          if ! run_backend_quietly python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit ll --out "$_TMP_LL"; then
+          if ! run_backend_quietly python3 "$PWD/tools/compat/native_llvm_builder.py" --in "$IN_FILE" --emit ll --out "$_TMP_LL"; then
             echo "error: native builder failed (ll)" >&2; rm -f "$_TMP_LL"; exit 4
           fi
           if grep -qE "[^a-zA-Z]phi[^a-zA-Z]" "$_TMP_LL"; then
@@ -187,7 +187,7 @@ case "$EMIT" in
           fi
           rm -f "$_TMP_LL"
         fi
-        if ! run_backend_quietly python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit obj --out "$OUT"; then
+        if ! run_backend_quietly python3 "$PWD/tools/compat/native_llvm_builder.py" --in "$IN_FILE" --emit obj --out "$OUT"; then
           echo "error: native builder failed" >&2; exit 4
         fi
         ;;
@@ -235,7 +235,7 @@ case "$EMIT" in
         fi
         if [[ "${NYASH_LLVM_VERIFY_IR:-0}" == "1" ]]; then
           _TMP_LL=$(mktemp)
-          if ! run_backend_quietly python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit ll --out "$_TMP_LL"; then
+          if ! run_backend_quietly python3 "$PWD/tools/compat/native_llvm_builder.py" --in "$IN_FILE" --emit ll --out "$_TMP_LL"; then
             echo "error: native builder failed (ll)" >&2; rm -f "$_TMP_LL"; exit 4
           fi
           if grep -qE "[^a-zA-Z]phi[^a-zA-Z]" "$_TMP_LL"; then
@@ -243,7 +243,7 @@ case "$EMIT" in
           fi
           rm -f "$_TMP_LL"
         fi
-        if ! run_backend_quietly python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit obj --out "$OBJ"; then
+        if ! run_backend_quietly python3 "$PWD/tools/compat/native_llvm_builder.py" --in "$IN_FILE" --emit obj --out "$OBJ"; then
           echo "error: native builder failed to produce object $OBJ" >&2; exit 4
         fi
         if [[ ! -f "$OBJ" ]]; then echo "error: failed to produce object $OBJ" >&2; exit 4; fi

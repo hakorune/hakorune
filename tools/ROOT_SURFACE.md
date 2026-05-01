@@ -66,7 +66,6 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | `tools/llvm_smoke.sh` | manual-smoke | llvmlite harness compatibility smoke | hold | move under archive/manual-smokes only after harness owner agrees |
 | `tools/llvmlite_harness.py` | compat-capsule | explicit llvmlite backend keep | keep | keep while `ny_mir_builder.sh` exposes llvmlite |
 | `tools/modules_smoke.sh` | protected/current-smoke | modules JSON VM smoke | hold | route into smoke v2 or archive after owner check |
-| `tools/native_llvm_builder.py` | compat-capsule | `ny_mir_builder.sh` native backend canary | hold | capsule-classify before any move |
 | `tools/ny_mir_builder.sh` | protected/build | MIR JSON to obj/exe wrapper | keep | keep as ny-llvmc route facade |
 | `tools/ny_parser_bridge_smoke.sh` | protected/current-smoke | current parser bridge smoke | keep | keep current |
 | `tools/ny_parser_mvp.py` | compat-capsule | Python MVP parser used by bridge smokes | keep | keep while Stage-2 bridge smokes use it |
@@ -95,7 +94,6 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 
 Do not move these without a focused card:
 
-- backend canary: `tools/native_llvm_builder.py`
 - PHI probes: `tools/phi_trace_bridge_try.sh`, `tools/phi_trace_run.sh`
 - Program(JSON v0) capsules: `tools/dev_stagea.sh`, `tools/dev_stageb.sh`,
   `tools/hakorune_emit_mir.sh`, `tools/hakorune_emit_mir_compat.sh`,
