@@ -50,3 +50,19 @@ Current reading:
 - keep `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh` as an explicit
   test-local manual parity harness
 - `smoke_aot_vs_vm.sh` was archived in `phase-30x / 30xG3`
+
+## Delete Policy
+
+This folder is an archive bucket, not a permanent keeper list.
+
+An archived smoke becomes a delete candidate after 30-60 days or two cleanup
+batches when all of these remain true:
+
+- no active refs from current docs, tools, src, lang, Makefile, or root README
+- no current PASS gate owns it
+- no compat capsule README owns it with a reproduction command
+- `docs/development/current/main/design/tool-entrypoint-lifecycle-ssot.md`
+  still classifies it as unprotected
+
+If a script needs to be restored, move it back to its original path from git
+history and add an owner pointer before using it as a current gate again.
