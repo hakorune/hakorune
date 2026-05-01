@@ -122,6 +122,9 @@ Related:
 - Daily `.hako` callers should first ask `BackendRecipeBox.compile_route_profile(...)` for the mainline route profile.
 - Root-first daily callers may ask `BackendRecipeBox.compile_root_profile(...)` when they already hold a hydrated MIR root.
 - Explicit compat keep callers should ask `BackendRecipeBox.compile_keep_profile(..., "harness")`.
+- `HAKO_BACKEND_COMPILE_RECIPE=pure-first` is the canonical transport hint for
+  pure-first. `HAKO_CAPI_PURE=1` remains a live historical alias only for
+  compat/pure-keep callers while P96-P99 retires that spelling.
 - `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then:
   - compile `hako_ll_emitter` daily profiles through `root -> facts -> ll text -> env.codegen.compile_ll_text(...)`
   - keep explicit legacy/compat callers on explicit compat surfaces only; the old helper module is deleted and remaining acceptance uses the shared no-helper text primitive
@@ -135,6 +138,10 @@ Related:
 - Broader seed classification belongs here, not in the C shim, when a new exact fixture proves that the route profile needs another evidence bucket.
 - current state is close-synced: the route profile is no longer an active widening front.
 - until a fresh exact blocker appears, profile growth stays frozen at the current grouped evidence rows and the next backend-zero front moves to boundary fallback reliance reduction.
+- Legacy alias retirement is not route-profile growth. It must proceed as
+  spelling cleanup: inventory first, then active caller replacement, then
+  warning/fail-fast policy. Do not widen backend acceptance while retiring
+  `HAKO_CAPI_PURE`.
 
 ## Final Shape
 
