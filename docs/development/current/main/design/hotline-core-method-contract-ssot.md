@@ -6,6 +6,7 @@ Related:
   - AGENTS.md
   - CURRENT_TASK.md
   - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/design/lowering-plan-json-v0-ssot.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
   - docs/development/current/main/phases/phase-291x/291x-131-hotline-core-method-contract-task-plan.md
   - lang/src/runtime/meta/README.md
@@ -30,6 +31,7 @@ method surface
   -> compiler contract
   -> decided semantic op
   -> proof / lowering tier
+  -> LoweringPlan entry
   -> backend emit
   -> Rust only for cold / slow / storage substrate
 ```
@@ -165,6 +167,7 @@ MethodCall(ArrayBox, "length", [])
   -> CoreMethodOp(ArrayLen)
   -> proof / effect / residence metadata
   -> LoweringTier selection
+  -> LoweringPlan JSON v0
   -> .inc consumes op/tier and emits code
   -> Rust only for cold fallback or storage slow path
 ```
