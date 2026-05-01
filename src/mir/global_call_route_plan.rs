@@ -57,6 +57,7 @@ impl GlobalCallTargetShape {
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct GlobalCallTargetFacts {
     exists: bool,
+    symbol: Option<String>,
     arity: Option<usize>,
     shape: GlobalCallTargetShape,
 }
@@ -69,6 +70,16 @@ impl GlobalCallTargetFacts {
     pub fn present(arity: usize) -> Self {
         Self {
             exists: true,
+            symbol: None,
+            arity: Some(arity),
+            shape: GlobalCallTargetShape::Unknown,
+        }
+    }
+
+    pub fn present_with_symbol(symbol: impl Into<String>, arity: usize) -> Self {
+        Self {
+            exists: true,
+            symbol: Some(symbol.into()),
             arity: Some(arity),
             shape: GlobalCallTargetShape::Unknown,
         }
@@ -77,6 +88,7 @@ impl GlobalCallTargetFacts {
     pub fn present_with_shape(arity: usize, shape: GlobalCallTargetShape) -> Self {
         Self {
             exists: true,
+            symbol: None,
             arity: Some(arity),
             shape,
         }
@@ -90,8 +102,17 @@ impl GlobalCallTargetFacts {
         self.arity
     }
 
+    pub fn symbol(&self) -> Option<&str> {
+        self.symbol.as_deref()
+    }
+
     pub fn shape(&self) -> GlobalCallTargetShape {
         self.shape
+    }
+
+    fn with_shape(mut self, shape: GlobalCallTargetShape) -> Self {
+        self.shape = shape;
+        self
     }
 }
 
@@ -163,7 +184,10 @@ impl GlobalCallRoute {
     }
 
     pub fn target_symbol(&self) -> Option<&str> {
-        self.target_exists().then_some(self.callee_name())
+        if !self.target_exists() {
+            return None;
+        }
+        self.target.symbol().or(Some(self.callee_name()))
     }
 
     pub fn arity(&self) -> usize {
@@ -265,7 +289,10 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             } else {
                 function.params.len()
             };
-            (name.clone(), GlobalCallTargetFacts::present(arity))
+            (
+                name.clone(),
+                GlobalCallTargetFacts::present_with_symbol(name.clone(), arity),
+            )
         })
         .collect::<BTreeMap<_, _>>();
     for _ in 0..module.functions.len() {
@@ -276,10 +303,7 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             };
             let shape = classify_global_call_target_shape(function, &targets);
             if current.shape() != shape {
-                targets.insert(
-                    name.clone(),
-                    GlobalCallTargetFacts::present_with_shape(current.arity().unwrap_or(0), shape),
-                );
+                targets.insert(name.clone(), current.with_shape(shape));
                 changed = true;
             }
         }
@@ -564,7 +588,7 @@ fn mark_generic_pure_string_instruction(
             callee: Some(Callee::Global(name)),
             ..
         } if !supported_backend_global(name) => {
-            let Some(target) = targets.get(name) else {
+            let Some(target) = lookup_global_call_target(name, targets) else {
                 return false;
             };
             match target.shape() {
@@ -652,8 +676,7 @@ fn refresh_function_global_call_routes_with_targets(
                 name,
                 args.len(),
                 *dst,
-                targets
-                    .get(name)
+                lookup_global_call_target(name, targets)
                     .cloned()
                     .unwrap_or_else(GlobalCallTargetFacts::missing),
             ));
@@ -663,12 +686,30 @@ fn refresh_function_global_call_routes_with_targets(
     function.metadata.global_call_routes = routes;
 }
 
+fn lookup_global_call_target<'a>(
+    name: &str,
+    targets: &'a BTreeMap<String, GlobalCallTargetFacts>,
+) -> Option<&'a GlobalCallTargetFacts> {
+    if let Some(target) = targets.get(name) {
+        return Some(target);
+    }
+    let canonical = crate::mir::naming::normalize_static_global_name(name);
+    if canonical == name {
+        return None;
+    }
+    targets.get(&canonical)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::mir::{BasicBlock, CompareOp, EffectMask, FunctionSignature, MirType};
 
-    fn make_function_with_global_call(name: &str, dst: Option<ValueId>) -> MirFunction {
+    fn make_function_with_global_call_args(
+        name: &str,
+        dst: Option<ValueId>,
+        args: Vec<ValueId>,
+    ) -> MirFunction {
         let mut function = MirFunction::new(
             FunctionSignature {
                 name: "main".to_string(),
@@ -686,10 +727,14 @@ mod tests {
             dst,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(name.to_string())),
-            args: vec![ValueId::new(1), ValueId::new(2)],
+            args,
             effects: EffectMask::PURE,
         });
         function
+    }
+
+    fn make_function_with_global_call(name: &str, dst: Option<ValueId>) -> MirFunction {
+        make_function_with_global_call_args(name, dst, vec![ValueId::new(1), ValueId::new(2)])
     }
 
     #[test]
@@ -796,6 +841,46 @@ mod tests {
         assert_eq!(route.proof(), "typed_global_call_leaf_numeric_i64");
         assert_eq!(route.return_shape(), Some("ScalarI64"));
         assert_eq!(route.value_demand(), "scalar_i64");
+        assert_eq!(route.reason(), None);
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_resolves_static_entry_alias_to_target_symbol() {
+        let mut module = MirModule::new("global_call_static_entry_alias_test".to_string());
+        let caller =
+            make_function_with_global_call_args("main._helper/0", Some(ValueId::new(7)), vec![]);
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Main._helper/0".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(42),
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        module.functions.insert("main".to_string(), caller);
+        module
+            .functions
+            .insert("Main._helper/0".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(route.callee_name(), "main._helper/0");
+        assert!(route.target_exists());
+        assert_eq!(route.target_symbol(), Some("Main._helper/0"));
+        assert_eq!(route.target_arity(), Some(0));
+        assert_eq!(route.arity_matches(), Some(true));
+        assert_eq!(route.target_shape(), Some("numeric_i64_leaf"));
+        assert_eq!(route.tier(), "DirectAbi");
         assert_eq!(route.reason(), None);
     }
 

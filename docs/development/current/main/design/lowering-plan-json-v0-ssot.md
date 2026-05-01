@@ -176,6 +176,12 @@ Same-module global user calls must carry `target_symbol` when
 target MIR function. Call emitters must use `target_symbol`; `callee_name`
 remains diagnostic identity and resolver evidence.
 
+If MIR naming normalization rewrites a diagnostic call name to the canonical
+function symbol, `callee_name` must keep the original observed call name and
+`target_symbol` must carry the canonical MIR function name. Example:
+`callee_name="main._helper/0"` may resolve to
+`target_symbol="Main._helper/0"` through the MIR NamingBox policy.
+
 Before any `UserGlobalCall` emitter is enabled, ny-llvmc must validate the
 direct target through `LoweringPlanGlobalCallView`: route id, `UserGlobalCall`,
 `target_symbol`, target existence, arity match, and quoted-symbol safety. A
