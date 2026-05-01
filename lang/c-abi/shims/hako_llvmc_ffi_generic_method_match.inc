@@ -231,27 +231,64 @@
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
       }
 
+      struct LoweringPlanSetRouteRule {
+        const char* route_id;
+        const char* core_op;
+        const char* route_kind;
+        const char* symbol;
+        const char* route_proof;
+        enum LoweringPlanTierMetadata tier;
+        enum GenericMethodSetRouteKind result;
+      };
+
+      auto enum GenericMethodSetRouteKind
+      lowering_plan_set_route_rule_matches(
+          const struct LoweringPlanGenericMethodView* view,
+          const struct LoweringPlanSetRouteRule* rule) {
+        if (!(view && rule)) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+        if (view->route_id &&
+            !strcmp(view->route_id, rule->route_id) &&
+            view->core_op &&
+            !strcmp(view->core_op, rule->core_op) &&
+            view->route_kind &&
+            !strcmp(view->route_kind, rule->route_kind) &&
+            view->symbol &&
+            !strcmp(view->symbol, rule->symbol) &&
+            view->route_proof &&
+            !strcmp(view->route_proof, rule->route_proof) &&
+            view->tier == rule->tier) {
+          return rule->result;
+        }
+        return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+      }
+
       auto enum GenericMethodSetRouteKind
       classify_generic_method_set_route_from_lowering_plan(
           long long bid,
           size_t ii) {
+        static const struct LoweringPlanSetRouteRule rules[] = {
+          {
+            "generic_method.set",
+            "MapSet",
+            "map_store_any",
+            "nyash.map.slot_store_hhh",
+            "set_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY,
+          },
+        };
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView view;
+        size_t ri = 0;
         if (!entry || !read_lowering_plan_generic_method_view(entry, &view)) {
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
         }
-        if (view.route_id &&
-            !strcmp(view.route_id, "generic_method.set") &&
-            view.core_op &&
-            !strcmp(view.core_op, "MapSet") &&
-            view.route_kind &&
-            !strcmp(view.route_kind, "map_store_any") &&
-            view.symbol &&
-            !strcmp(view.symbol, "nyash.map.slot_store_hhh") &&
-            view.route_proof &&
-            !strcmp(view.route_proof, "set_surface_policy") &&
-            view.tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME) {
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          enum GenericMethodSetRouteKind route =
+              lowering_plan_set_route_rule_matches(&view, &rules[ri]);
+          if (route != HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
+            return route;
+          }
         }
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
       }

@@ -147,6 +147,8 @@ fields. Do not add one-off `strcmp` ladders for every new proven plan slice.
 Route-state declaration rules follow the same policy: plan-first route
 selection should be table rows keyed by the shared LoweringPlan view, with
 legacy route metadata retained only as the migration fallback.
+Set-route declaration rules also use table rows. Value-shape-specific set
+variants must be added as rows rather than extending ad hoc branch ladders.
 
 ## Proven v0 Slices
 
