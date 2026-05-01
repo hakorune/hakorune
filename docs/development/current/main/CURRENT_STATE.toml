@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-01"
+date = "2026-05-02"
 
 active_lane = "phase-29cv Program(JSON v0) keeper closeout"
 active_lane_status = "Post-P53 cleanup: normal selfhost --exe is direct source MIR, active roundtrip smoke uses the current exit-code contract, stale root manual wrappers are archived, and root helper protected-category/delete lifecycle policy plus ROOT_SURFACE manifest are documented."
@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P131-GLOBAL-CALL-GENERIC-I64-BODY"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P131-GLOBAL-CALL-GENERIC-I64-BODY.md"
-latest_card_summary = "Add the generic_i64_body same-module target shape for env-flag style i64 helpers and wire ny-llvmc to emit it from LoweringPlan."
+latest_card = "P132-GLOBAL-CALL-NULL-GUARD-STRING-BLOCKER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P132-GLOBAL-CALL-NULL-GUARD-STRING-BLOCKER.md"
+latest_card_summary = "Allow comparison-only null/void sentinels in generic string classification so debug helpers expose their method-call blocker."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

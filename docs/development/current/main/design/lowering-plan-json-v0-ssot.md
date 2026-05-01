@@ -209,6 +209,11 @@ pure string classifier must reject with
 `generic_string_unsupported_instruction`. This marks presence-probe helpers such
 as env flag checks as a distinct next-slice blocker without accepting them as a
 string body.
+The generic pure string classifier may treat `null`/`void` constants as
+comparison-only sentinels for `==`/`!=` against string values. Such sentinels do
+not count as string returns and cannot flow through PHI, arithmetic, or returns.
+This allows null-guarded string helpers to expose their real body blocker, such
+as an unsupported method call, without hiding behind the null check.
 
 Same-module global user-call target evidence must also include
 `target_return_type` when `target_exists=true`. This is the compact MIR
