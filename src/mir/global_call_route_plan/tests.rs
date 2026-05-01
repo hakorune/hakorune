@@ -1,6 +1,6 @@
 use super::*;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-use crate::mir::{BasicBlock, CompareOp, EffectMask, FunctionSignature, MirType};
+use crate::mir::{BasicBlock, BasicBlockId, CompareOp, EffectMask, FunctionSignature, MirType};
 
 fn make_function_with_global_call_args(
     name: &str,
