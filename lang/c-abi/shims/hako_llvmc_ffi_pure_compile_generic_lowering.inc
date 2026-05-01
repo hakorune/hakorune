@@ -1006,14 +1006,16 @@
                 if (lowering_plan_global_call_view_has_direct_target(&global_view)) {
                   trace_lowering_plan_entry_hit(plan_entry, "global_call_direct_target_pending");
                 }
-                note_pure_unsupported_shape(
+                note_pure_unsupported_shape_detail(
                     bid,
                     ii,
                     op,
                     (global_view.reason && global_view.reason[0])
                         ? global_view.reason
                         : "lowering_plan_unsupported_global_call",
-                    global_view.target_shape_reason);
+                    global_view.target_shape_reason,
+                    global_view.target_shape_blocker_symbol,
+                    global_view.target_shape_blocker_reason);
               } else {
                 note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route", NULL);
               }

@@ -258,6 +258,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   char unsupported_shape_first_op[64] = "";
   char unsupported_shape_reason[64] = "";
   char unsupported_shape_target_shape_reason[128] = "";
+  char unsupported_shape_blocker_symbol[256] = "";
+  char unsupported_shape_blocker_reason[128] = "";
   long long unsupported_shape_first_block = -1;
   long long unsupported_shape_first_inst = -1;
 
@@ -286,12 +288,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     return "unknown";
   }
 
-  auto void note_pure_unsupported_shape(
+  auto void note_pure_unsupported_shape_detail(
       long long block_id,
       size_t inst_idx,
       const char* op,
       const char* reason,
-      const char* target_shape_reason) {
+      const char* target_shape_reason,
+      const char* target_shape_blocker_symbol,
+      const char* target_shape_blocker_reason) {
     if (unsupported_shape_first_op[0]) return;
     snprintf(
         unsupported_shape_first_op,
@@ -308,8 +312,38 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         sizeof(unsupported_shape_target_shape_reason),
         "%s",
         (target_shape_reason && target_shape_reason[0]) ? target_shape_reason : "-");
+    snprintf(
+        unsupported_shape_blocker_symbol,
+        sizeof(unsupported_shape_blocker_symbol),
+        "%s",
+        (target_shape_blocker_symbol && target_shape_blocker_symbol[0])
+            ? target_shape_blocker_symbol
+            : "-");
+    snprintf(
+        unsupported_shape_blocker_reason,
+        sizeof(unsupported_shape_blocker_reason),
+        "%s",
+        (target_shape_blocker_reason && target_shape_blocker_reason[0])
+            ? target_shape_blocker_reason
+            : "-");
     unsupported_shape_first_block = block_id;
     unsupported_shape_first_inst = (long long)inst_idx;
+  }
+
+  auto void note_pure_unsupported_shape(
+      long long block_id,
+      size_t inst_idx,
+      const char* op,
+      const char* reason,
+      const char* target_shape_reason) {
+    note_pure_unsupported_shape_detail(
+        block_id,
+        inst_idx,
+        op,
+        reason,
+        target_shape_reason,
+        NULL,
+        NULL);
   }
 
   auto void emit_pure_unsupported_shape_inventory(void) {
@@ -330,7 +364,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     }
     fprintf(
         stderr,
-        "[llvm-pure/unsupported-shape] recipe=pure-first first_block=%s first_inst=%s first_op=%s owner_hint=%s reason=%s target_shape_reason=%s\n",
+        "[llvm-pure/unsupported-shape] recipe=pure-first first_block=%s first_inst=%s first_op=%s owner_hint=%s reason=%s target_shape_reason=%s target_shape_blocker_symbol=%s target_shape_blocker_reason=%s\n",
         block_buf,
         inst_buf,
         op,
@@ -338,6 +372,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         reason,
         unsupported_shape_target_shape_reason[0]
             ? unsupported_shape_target_shape_reason
+            : "-",
+        unsupported_shape_blocker_symbol[0]
+            ? unsupported_shape_blocker_symbol
+            : "-",
+        unsupported_shape_blocker_reason[0]
+            ? unsupported_shape_blocker_reason
             : "-");
   }
 

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P124-GLOBAL-CALL-TARGET-SHAPE-REASON-SPLIT"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P124-GLOBAL-CALL-TARGET-SHAPE-REASON-SPLIT.md"
-latest_card_summary = "Split MIR generic string target-shape rejection evidence so unknown child targets, method calls, unsupported extern/global calls, and local unsupported instructions are no longer conflated."
+latest_card = "P125-GLOBAL-CALL-TARGET-SHAPE-BLOCKER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P125-GLOBAL-CALL-TARGET-SHAPE-BLOCKER.md"
+latest_card_summary = "Carry MIR child blocker symbol and blocker reason for global-call targets rejected because a same-module child target shape remains unknown, and surface it in ny-llvmc diagnostics without changing lowering legality."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

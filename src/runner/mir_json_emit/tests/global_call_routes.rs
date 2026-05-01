@@ -42,6 +42,14 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(route["target_arity"], serde_json::Value::Null);
     assert_eq!(route["target_shape"], serde_json::Value::Null);
     assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
+    assert_eq!(
+        route["target_shape_blocker_symbol"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        route["target_shape_blocker_reason"],
+        serde_json::Value::Null
+    );
     assert_eq!(route["arity_matches"], serde_json::Value::Null);
     assert_eq!(route["result_value"], 45);
     assert_eq!(route["return_shape"], serde_json::Value::Null);
@@ -72,6 +80,8 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(plan["target_arity"], serde_json::Value::Null);
     assert_eq!(plan["target_shape"], serde_json::Value::Null);
     assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape_blocker_symbol"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape_blocker_reason"], serde_json::Value::Null);
     assert_eq!(plan["arity_matches"], serde_json::Value::Null);
     assert_eq!(plan["result_value"], 45);
     assert_eq!(plan["return_shape"], serde_json::Value::Null);
@@ -125,6 +135,14 @@ fn build_mir_json_root_emits_target_shape_reason_for_existing_unsupported_target
         route["target_shape_reason"],
         "generic_string_no_string_surface"
     );
+    assert_eq!(
+        route["target_shape_blocker_symbol"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        route["target_shape_blocker_reason"],
+        serde_json::Value::Null
+    );
     assert_eq!(route["reason"], "missing_multi_function_emitter");
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
@@ -134,7 +152,91 @@ fn build_mir_json_root_emits_target_shape_reason_for_existing_unsupported_target
         plan["target_shape_reason"],
         "generic_string_no_string_surface"
     );
+    assert_eq!(plan["target_shape_blocker_symbol"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape_blocker_reason"], serde_json::Value::Null);
     assert_eq!(plan["reason"], "missing_multi_function_emitter");
+}
+
+#[test]
+fn build_mir_json_root_emits_target_shape_child_blocker_for_unknown_child_target() {
+    let mut module = crate::mir::MirModule::new("json_global_call_child_blocker_test".to_string());
+    let mut caller = make_function("main", true);
+    caller
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Call {
+            dst: Some(ValueId::new(7)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.wrapper/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+    let mut wrapper = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.wrapper/0".to_string(),
+            params: vec![],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    wrapper
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Call {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.pending/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+    wrapper
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+    let pending = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.pending/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    module.add_function(caller);
+    module.add_function(wrapper);
+    module.add_function(pending);
+    refresh_module_global_call_routes(&mut module);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
+    assert_eq!(
+        route["target_shape_reason"],
+        "generic_string_global_target_shape_unknown"
+    );
+    assert_eq!(route["target_shape_blocker_symbol"], "Helper.pending/0");
+    assert_eq!(
+        route["target_shape_blocker_reason"],
+        "generic_string_no_string_surface"
+    );
+
+    let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
+    assert_eq!(
+        plan["target_shape_reason"],
+        "generic_string_global_target_shape_unknown"
+    );
+    assert_eq!(plan["target_shape_blocker_symbol"], "Helper.pending/0");
+    assert_eq!(
+        plan["target_shape_blocker_reason"],
+        "generic_string_no_string_surface"
+    );
 }
 
 #[test]
@@ -182,6 +284,14 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     assert_eq!(route["target_symbol"], "Helper.add/2");
     assert_eq!(route["target_shape"], "numeric_i64_leaf");
     assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
+    assert_eq!(
+        route["target_shape_blocker_symbol"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        route["target_shape_blocker_reason"],
+        serde_json::Value::Null
+    );
     assert_eq!(route["tier"], "DirectAbi");
     assert_eq!(route["emit_kind"], "direct_function_call");
     assert_eq!(route["proof"], "typed_global_call_leaf_numeric_i64");
@@ -196,6 +306,8 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     assert_eq!(plan["target_symbol"], "Helper.add/2");
     assert_eq!(plan["target_shape"], "numeric_i64_leaf");
     assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape_blocker_symbol"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape_blocker_reason"], serde_json::Value::Null);
     assert_eq!(plan["tier"], "DirectAbi");
     assert_eq!(plan["emit_kind"], "direct_function_call");
     assert_eq!(plan["symbol"], "Helper.add/2");

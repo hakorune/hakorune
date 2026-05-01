@@ -183,6 +183,10 @@ must not reinterpret raw callee names or body JSON to decide shape ownership.
 The C `LoweringPlanGlobalCallView` must read this field as metadata and may
 surface it on dev-only unsupported-shape traces; it must not use it as a
 backend-local permission to emit a call.
+When the reason is caused by a child same-module target, MIR should also carry
+`target_shape_blocker_symbol` and `target_shape_blocker_reason` so the next
+acceptance slice can be chosen without scanning raw target bodies in the
+backend.
 Reason strings should be specific enough to preserve ownership boundaries. In
 particular, unsupported local instructions, method calls, unsupported extern or
 backend-global surfaces, missing global targets, and child targets whose own

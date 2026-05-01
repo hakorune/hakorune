@@ -97,9 +97,16 @@ impl GlobalCallTargetShapeReason {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct GlobalCallTargetClassification {
     shape: GlobalCallTargetShape,
+    reason: Option<GlobalCallTargetShapeReason>,
+    blocker: Option<GlobalCallShapeBlocker>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct GlobalCallShapeBlocker {
+    symbol: String,
     reason: Option<GlobalCallTargetShapeReason>,
 }
 
@@ -108,6 +115,7 @@ impl GlobalCallTargetClassification {
         Self {
             shape,
             reason: None,
+            blocker: None,
         }
     }
 
@@ -115,6 +123,22 @@ impl GlobalCallTargetClassification {
         Self {
             shape: GlobalCallTargetShape::Unknown,
             reason: Some(reason),
+            blocker: None,
+        }
+    }
+
+    fn unknown_with_blocker(
+        reason: GlobalCallTargetShapeReason,
+        symbol: impl Into<String>,
+        blocker_reason: Option<GlobalCallTargetShapeReason>,
+    ) -> Self {
+        Self {
+            shape: GlobalCallTargetShape::Unknown,
+            reason: Some(reason),
+            blocker: Some(GlobalCallShapeBlocker {
+                symbol: symbol.into(),
+                reason: blocker_reason,
+            }),
         }
     }
 }
@@ -126,6 +150,7 @@ pub struct GlobalCallTargetFacts {
     arity: Option<usize>,
     shape: GlobalCallTargetShape,
     shape_reason: Option<GlobalCallTargetShapeReason>,
+    shape_blocker: Option<GlobalCallShapeBlocker>,
 }
 
 impl GlobalCallTargetFacts {
@@ -140,6 +165,7 @@ impl GlobalCallTargetFacts {
             arity: Some(arity),
             shape: GlobalCallTargetShape::Unknown,
             shape_reason: None,
+            shape_blocker: None,
         }
     }
 
@@ -150,6 +176,7 @@ impl GlobalCallTargetFacts {
             arity: Some(arity),
             shape: GlobalCallTargetShape::Unknown,
             shape_reason: None,
+            shape_blocker: None,
         }
     }
 
@@ -160,6 +187,7 @@ impl GlobalCallTargetFacts {
             arity: Some(arity),
             shape,
             shape_reason: None,
+            shape_blocker: None,
         }
     }
 
@@ -183,9 +211,22 @@ impl GlobalCallTargetFacts {
         self.shape_reason
     }
 
+    fn shape_blocker_symbol(&self) -> Option<&str> {
+        self.shape_blocker
+            .as_ref()
+            .map(|blocker| blocker.symbol.as_str())
+    }
+
+    fn shape_blocker_reason(&self) -> Option<GlobalCallTargetShapeReason> {
+        self.shape_blocker
+            .as_ref()
+            .and_then(|blocker| blocker.reason)
+    }
+
     fn with_classification(mut self, classification: GlobalCallTargetClassification) -> Self {
         self.shape = classification.shape;
         self.shape_reason = classification.reason;
+        self.shape_blocker = classification.blocker;
         self
     }
 }
@@ -293,6 +334,22 @@ impl GlobalCallRoute {
         self.target.shape_reason().map(|reason| reason.as_str())
     }
 
+    pub fn target_shape_blocker_symbol(&self) -> Option<&str> {
+        if !self.target_exists() || self.target_shape().is_some() {
+            return None;
+        }
+        self.target.shape_blocker_symbol()
+    }
+
+    pub fn target_shape_blocker_reason(&self) -> Option<&'static str> {
+        if !self.target_exists() || self.target_shape().is_some() {
+            return None;
+        }
+        self.target
+            .shape_blocker_reason()
+            .map(|reason| reason.as_str())
+    }
+
     pub fn arity_matches(&self) -> Option<bool> {
         self.target_arity()
             .map(|target_arity| target_arity == self.arity)
@@ -385,6 +442,7 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             let classification = classify_global_call_target_shape(function, &targets);
             if current.shape() != classification.shape
                 || current.shape_reason() != classification.reason
+                || current.shape_blocker != classification.blocker
             {
                 targets.insert(name.clone(), current.with_classification(classification));
                 changed = true;
@@ -416,8 +474,16 @@ fn classify_global_call_target_shape(
     {
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::NumericI64Leaf);
     }
-    if let Some(reason) = generic_pure_string_body_reject_reason(function, targets) {
-        GlobalCallTargetClassification::unknown(reason)
+    if let Some(reject) = generic_pure_string_body_reject_reason(function, targets) {
+        if let Some(blocker) = reject.blocker {
+            GlobalCallTargetClassification::unknown_with_blocker(
+                reject.reason,
+                blocker.symbol,
+                blocker.reason,
+            )
+        } else {
+            GlobalCallTargetClassification::unknown(reject.reason)
+        }
     } else {
         GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericPureStringBody)
     }
@@ -462,12 +528,43 @@ enum GenericPureValueClass {
     String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct GenericPureStringReject {
+    reason: GlobalCallTargetShapeReason,
+    blocker: Option<GlobalCallShapeBlocker>,
+}
+
+impl GenericPureStringReject {
+    fn new(reason: GlobalCallTargetShapeReason) -> Self {
+        Self {
+            reason,
+            blocker: None,
+        }
+    }
+
+    fn with_blocker(
+        reason: GlobalCallTargetShapeReason,
+        symbol: impl Into<String>,
+        blocker_reason: Option<GlobalCallTargetShapeReason>,
+    ) -> Self {
+        Self {
+            reason,
+            blocker: Some(GlobalCallShapeBlocker {
+                symbol: symbol.into(),
+                reason: blocker_reason,
+            }),
+        }
+    }
+}
+
 fn generic_pure_string_body_reject_reason(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
-) -> Option<GlobalCallTargetShapeReason> {
+) -> Option<GenericPureStringReject> {
     if !generic_pure_string_abi_type_is_handle_compatible(&function.signature.return_type) {
-        return Some(GlobalCallTargetShapeReason::GenericStringReturnAbiNotHandleCompatible);
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringReturnAbiNotHandleCompatible,
+        ));
     }
     if !function
         .signature
@@ -475,10 +572,14 @@ fn generic_pure_string_body_reject_reason(
         .iter()
         .all(generic_pure_string_abi_type_is_handle_compatible)
     {
-        return Some(GlobalCallTargetShapeReason::GenericStringParamAbiNotHandleCompatible);
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringParamAbiNotHandleCompatible,
+        ));
     }
     if function.params.len() != function.signature.params.len() {
-        return Some(GlobalCallTargetShapeReason::ParamBindingMismatch);
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::ParamBindingMismatch,
+        ));
     }
 
     let mut values = BTreeMap::<ValueId, GenericPureValueClass>::new();
@@ -496,25 +597,25 @@ fn generic_pure_string_body_reject_reason(
                 continue;
             };
             for instruction in &block.instructions {
-                if let Some(reason) = generic_pure_string_instruction_reject_reason(
+                if let Some(reject) = generic_pure_string_instruction_reject_reason(
                     instruction,
                     targets,
                     &mut values,
                     &mut has_string_surface,
                     &mut changed,
                 ) {
-                    return Some(reason);
+                    return Some(reject);
                 }
             }
             if let Some(terminator) = &block.terminator {
-                if let Some(reason) = generic_pure_string_instruction_reject_reason(
+                if let Some(reject) = generic_pure_string_instruction_reject_reason(
                     terminator,
                     targets,
                     &mut values,
                     &mut has_string_surface,
                     &mut changed,
                 ) {
-                    return Some(reason);
+                    return Some(reject);
                 }
             }
         }
@@ -524,7 +625,9 @@ fn generic_pure_string_body_reject_reason(
     }
 
     if !has_string_surface {
-        return Some(GlobalCallTargetShapeReason::GenericStringNoStringSurface);
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringNoStringSurface,
+        ));
     }
 
     let mut saw_return = false;
@@ -533,17 +636,23 @@ fn generic_pure_string_body_reject_reason(
             if let MirInstruction::Return { value: Some(value) } = instruction {
                 saw_return = true;
                 if value_class(&values, *value) != GenericPureValueClass::String {
-                    return Some(GlobalCallTargetShapeReason::GenericStringReturnNotString);
+                    return Some(GenericPureStringReject::new(
+                        GlobalCallTargetShapeReason::GenericStringReturnNotString,
+                    ));
                 }
             } else if matches!(instruction, MirInstruction::Return { value: None }) {
-                return Some(GlobalCallTargetShapeReason::GenericStringReturnNotString);
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringReturnNotString,
+                ));
             }
         }
     }
     if saw_return {
         None
     } else {
-        Some(GlobalCallTargetShapeReason::GenericStringReturnNotString)
+        Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringReturnNotString,
+        ))
     }
 }
 
@@ -561,7 +670,7 @@ fn generic_pure_string_instruction_reject_reason(
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
     has_string_surface: &mut bool,
     changed: &mut bool,
-) -> Option<GlobalCallTargetShapeReason> {
+) -> Option<GenericPureStringReject> {
     match instruction {
         MirInstruction::Const { dst, value } => {
             let class = match value {
@@ -575,7 +684,9 @@ fn generic_pure_string_instruction_reject_reason(
             };
             set_value_class(values, *dst, class, changed);
             if class == GenericPureValueClass::Unknown {
-                Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction)
+                Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ))
             } else {
                 None
             }
@@ -596,7 +707,9 @@ fn generic_pure_string_instruction_reject_reason(
                 && *op != BinaryOp::Div
                 && *op != BinaryOp::Mod
             {
-                return Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction);
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
             }
             let lhs_class = value_class(values, *lhs);
             let rhs_class = value_class(values, *rhs);
@@ -617,7 +730,9 @@ fn generic_pure_string_instruction_reject_reason(
             } else if lhs_class == GenericPureValueClass::String
                 || rhs_class == GenericPureValueClass::String
             {
-                return Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction);
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
             } else {
                 GenericPureValueClass::I64
             };
@@ -638,7 +753,9 @@ fn generic_pure_string_instruction_reject_reason(
                 || rhs_class == GenericPureValueClass::String
             {
                 if !matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne) {
-                    return Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction);
+                    return Some(GenericPureStringReject::new(
+                        GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                    ));
                 }
                 *has_string_surface = true;
             }
@@ -660,7 +777,9 @@ fn generic_pure_string_instruction_reject_reason(
             } else if all_string {
                 set_value_class(values, *dst, GenericPureValueClass::String, changed);
             } else if saw_string {
-                return Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction);
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
             } else {
                 set_value_class(values, *dst, GenericPureValueClass::I64, changed);
             }
@@ -680,24 +799,32 @@ fn generic_pure_string_instruction_reject_reason(
         MirInstruction::Call {
             callee: Some(Callee::Extern(_)),
             ..
-        } => Some(GlobalCallTargetShapeReason::GenericStringUnsupportedExternCall),
+        } => Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringUnsupportedExternCall,
+        )),
         MirInstruction::Call {
             callee: Some(Callee::Method { .. }),
             ..
-        } => Some(GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall),
+        } => Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
+        )),
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
-        } if supported_backend_global(name) => {
-            Some(GlobalCallTargetShapeReason::GenericStringUnsupportedBackendGlobalCall)
-        }
+        } if supported_backend_global(name) => Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringUnsupportedBackendGlobalCall,
+        )),
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
             ..
         } if !supported_backend_global(name) => {
             let Some(target) = lookup_global_call_target(name, targets) else {
-                return Some(GlobalCallTargetShapeReason::GenericStringGlobalTargetMissing);
+                return Some(GenericPureStringReject::with_blocker(
+                    GlobalCallTargetShapeReason::GenericStringGlobalTargetMissing,
+                    crate::mir::naming::normalize_static_global_name(name),
+                    None,
+                ));
             };
             match target.shape() {
                 GlobalCallTargetShape::GenericPureStringBody => {
@@ -713,20 +840,24 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::Unknown => {
-                    Some(GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown)
-                }
+                GlobalCallTargetShape::Unknown => Some(GenericPureStringReject::with_blocker(
+                    GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
+                    target.symbol().unwrap_or(name),
+                    target.shape_reason(),
+                )),
             }
         }
-        MirInstruction::Call { .. } => {
-            Some(GlobalCallTargetShapeReason::GenericStringUnsupportedCall)
-        }
+        MirInstruction::Call { .. } => Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringUnsupportedCall,
+        )),
         MirInstruction::Branch { .. }
         | MirInstruction::Jump { .. }
         | MirInstruction::Return { .. }
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::ReleaseStrong { .. } => None,
-        _ => Some(GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction),
+        _ => Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+        )),
     }
 }
 
@@ -977,6 +1108,8 @@ mod tests {
             route.target_shape_reason(),
             Some("generic_string_unsupported_method_call")
         );
+        assert_eq!(route.target_shape_blocker_symbol(), None);
+        assert_eq!(route.target_shape_blocker_reason(), None);
     }
 
     #[test]
@@ -1028,6 +1161,14 @@ mod tests {
         assert_eq!(
             route.target_shape_reason(),
             Some("generic_string_global_target_shape_unknown")
+        );
+        assert_eq!(
+            route.target_shape_blocker_symbol(),
+            Some("Helper.pending/0")
+        );
+        assert_eq!(
+            route.target_shape_blocker_reason(),
+            Some("generic_string_no_string_surface")
         );
     }
 

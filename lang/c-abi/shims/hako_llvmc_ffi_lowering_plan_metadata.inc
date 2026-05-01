@@ -49,6 +49,8 @@
         const char* reason;
         const char* target_shape;
         const char* target_shape_reason;
+        const char* target_shape_blocker_symbol;
+        const char* target_shape_blocker_reason;
         const char* return_shape;
         const char* value_demand;
         long long arity;
@@ -269,6 +271,8 @@
           out->reason = read_str(entry, "reason");
           out->target_shape = read_str(entry, "target_shape");
           out->target_shape_reason = read_str(entry, "target_shape_reason");
+          out->target_shape_blocker_symbol = read_str(entry, "target_shape_blocker_symbol");
+          out->target_shape_blocker_reason = read_str(entry, "target_shape_blocker_reason");
           out->return_shape = read_str(entry, "return_shape");
           out->value_demand = read_str(entry, "value_demand");
           lowering_plan_read_i64_field(entry, "arity", &out->arity);
