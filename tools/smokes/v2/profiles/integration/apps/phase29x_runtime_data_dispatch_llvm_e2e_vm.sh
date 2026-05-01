@@ -68,7 +68,7 @@ check_route_any "push" "nyash.runtime_data.push_hh" "nyash.array.slot_append_hh"
 check_route_any "get" "nyash.runtime_data.get_hh" "nyash.array.slot_load_hi"
 check_route_any "has-array-fallback" "nyash.runtime_data.has_hh"
 check_route_any "has-map-core" "nyash.map.probe_hi"
-check_route_any "set" "nyash.runtime_data.set_hhh" "nyash.array.slot_store_hih" "nyash.array.slot_store_hii"
+check_route_any "set" "nyash.runtime_data.set_hhh" "nyash.array.slot_store_hih" "nyash.array.slot_store_hii" "nyash.map.slot_store_hhh"
 
 set +e
 "$TMP_EXE" >/dev/null 2>>"$TMP_LOG"
