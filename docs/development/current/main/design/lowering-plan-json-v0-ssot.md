@@ -278,6 +278,11 @@ Within `generic_i64_body`, MIR may infer a string receiver for
 `length()` produces an i64 value. `substring` produces a string value only after
 both bounds resolve to i64; pending unknown bounds may defer during the
 fixpoint, but non-i64 bounds reject the shape.
+Within generic string scans, direct child route facts are stronger than stale
+`void` value metadata for the call result. Exact copies and all-string/all-i64
+PHI destinations may carry that proven class through stale `void` destinations.
+This override is limited to proven direct-route or exact-flow evidence and must
+not infer unrelated unknown parameters as string.
 Same-module target classification must iterate in deterministic function-name
 order so the shape fixpoint is stable across equivalent module map orders.
 Return-profile blocker propagation is diagnostic-only: missing child targets

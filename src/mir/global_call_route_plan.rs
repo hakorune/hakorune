@@ -1887,7 +1887,7 @@ fn generic_pure_string_instruction_reject_reason(
         MirInstruction::Copy { dst, src } => {
             let class = value_class(values, *src);
             if class != GenericPureValueClass::Unknown {
-                set_value_class(values, *dst, class, changed);
+                set_proven_flow_value_class(values, *dst, class, changed);
             } else {
                 let dst_class = value_class(values, *dst);
                 if dst_class != GenericPureValueClass::Unknown {
@@ -2026,13 +2026,13 @@ fn generic_pure_string_instruction_reject_reason(
             if saw_unknown {
                 return None;
             } else if all_string {
-                set_value_class(values, *dst, GenericPureValueClass::String, changed);
+                set_proven_flow_value_class(values, *dst, GenericPureValueClass::String, changed);
             } else if saw_string {
                 return Some(GenericPureStringReject::new(
                     GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
                 ));
             } else {
-                set_value_class(values, *dst, GenericPureValueClass::I64, changed);
+                set_proven_flow_value_class(values, *dst, GenericPureValueClass::I64, changed);
             }
             None
         }
@@ -2134,13 +2134,23 @@ fn generic_pure_string_instruction_reject_reason(
                 | GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                     if let Some(dst) = dst {
                         *has_string_surface = true;
-                        set_value_class(values, *dst, GenericPureValueClass::String, changed);
+                        set_proven_flow_value_class(
+                            values,
+                            *dst,
+                            GenericPureValueClass::String,
+                            changed,
+                        );
                     }
                     None
                 }
                 GlobalCallTargetShape::NumericI64Leaf | GlobalCallTargetShape::GenericI64Body => {
                     if let Some(dst) = dst {
-                        set_value_class(values, *dst, GenericPureValueClass::I64, changed);
+                        set_proven_flow_value_class(
+                            values,
+                            *dst,
+                            GenericPureValueClass::I64,
+                            changed,
+                        );
                     }
                     None
                 }
@@ -2220,6 +2230,25 @@ fn set_value_class(
     match values.get(&value).copied() {
         Some(existing) if existing == class => {}
         Some(GenericPureValueClass::Unknown) | None => {
+            values.insert(value, class);
+            *changed = true;
+        }
+        Some(_) => {}
+    }
+}
+
+fn set_proven_flow_value_class(
+    values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    value: ValueId,
+    class: GenericPureValueClass,
+    changed: &mut bool,
+) {
+    if class == GenericPureValueClass::Unknown {
+        return;
+    }
+    match values.get(&value).copied() {
+        Some(existing) if existing == class => {}
+        Some(GenericPureValueClass::Unknown | GenericPureValueClass::VoidSentinel) | None => {
             values.insert(value, class);
             *changed = true;
         }
@@ -3037,6 +3066,140 @@ mod tests {
         );
         assert_eq!(route.target_shape_reason(), None);
         assert_eq!(route.return_shape(), Some("string_handle_or_null"));
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_uses_direct_child_route_over_void_metadata() {
+        let mut module =
+            MirModule::new("global_call_direct_child_route_over_void_metadata_test".to_string());
+        let caller = make_function_with_global_call_args(
+            "Helper.resolve/1",
+            Some(ValueId::new(30)),
+            vec![ValueId::new(1)],
+        );
+
+        let mut child = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.child/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let child_entry = child.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        child_entry.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Bool(true),
+        });
+        child_entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(1),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        let mut child_text_block = BasicBlock::new(BasicBlockId::new(1));
+        child_text_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("body".to_string()),
+        });
+        child_text_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        let mut child_void_block = BasicBlock::new(BasicBlockId::new(2));
+        child_void_block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
+        });
+        child_void_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        child.blocks.insert(BasicBlockId::new(1), child_text_block);
+        child.blocks.insert(BasicBlockId::new(2), child_void_block);
+
+        let mut parent = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.resolve/1".to_string(),
+                params: vec![MirType::Unknown],
+                return_type: MirType::Unknown,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        parent.params = vec![ValueId::new(10)];
+        let parent_entry = parent.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        parent_entry.instructions.extend([
+            MirInstruction::Call {
+                dst: Some(ValueId::new(11)),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Global("Helper.child/0".to_string())),
+                args: vec![],
+                effects: EffectMask::PURE,
+            },
+            MirInstruction::Copy {
+                dst: ValueId::new(12),
+                src: ValueId::new(11),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(13),
+                value: ConstValue::Void,
+            },
+            MirInstruction::Compare {
+                dst: ValueId::new(14),
+                op: CompareOp::Ne,
+                lhs: ValueId::new(12),
+                rhs: ValueId::new(13),
+            },
+        ]);
+        parent_entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(14),
+            then_bb: BasicBlockId::new(1),
+            else_bb: BasicBlockId::new(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+        let mut parent_child_block = BasicBlock::new(BasicBlockId::new(1));
+        parent_child_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(12)),
+        });
+        let mut parent_fallback_block = BasicBlock::new(BasicBlockId::new(2));
+        parent_fallback_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(10)),
+        });
+        parent
+            .blocks
+            .insert(BasicBlockId::new(1), parent_child_block);
+        parent
+            .blocks
+            .insert(BasicBlockId::new(2), parent_fallback_block);
+        parent
+            .metadata
+            .value_types
+            .insert(ValueId::new(11), MirType::Void);
+        parent
+            .metadata
+            .value_types
+            .insert(ValueId::new(12), MirType::Void);
+
+        module.functions.insert("main".to_string(), caller);
+        module.functions.insert("Helper.child/0".to_string(), child);
+        module
+            .functions
+            .insert("Helper.resolve/1".to_string(), parent);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_return_not_string"),
+            "reason={:?} blocker={:?}/{:?}",
+            route.target_shape_reason(),
+            route.target_shape_blocker_symbol(),
+            route.target_shape_blocker_reason()
+        );
     }
 
     #[test]
