@@ -12,61 +12,54 @@
 
       auto enum GenericMethodEmitKind
       classify_generic_method_emit_kind_from_lowering_plan(yyjson_val* entry) {
-        const char* source = entry ? read_str(entry, "source") : NULL;
-        const char* route_id = entry ? read_str(entry, "source_route_id") : NULL;
-        const char* op = entry ? read_str(entry, "core_op") : NULL;
-        const char* route_kind = entry ? read_str(entry, "route_kind") : NULL;
-        int invalid = 0;
-        enum LoweringPlanTierMetadata tier =
-            read_lowering_plan_tier_metadata(entry, &invalid);
-        if (!(source && !strcmp(source, "generic_method_routes")) ||
-            invalid ||
-            !lowering_plan_entry_is_contract_manifest(entry) ||
-            !(route_id && op && route_kind)) {
+        struct LoweringPlanGenericMethodView view;
+        if (!read_lowering_plan_generic_method_view(entry, &view)) {
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
         }
-        if (!strcmp(route_id, "generic_method.has") &&
-            (!strcmp(op, "MapHas") || !strcmp(op, "ArrayHas")) &&
-            lowering_plan_tier_is_direct_abi(tier)) {
+        if (!strcmp(view.route_id, "generic_method.has") &&
+            (!strcmp(view.core_op, "MapHas") ||
+             !strcmp(view.core_op, "ArrayHas")) &&
+            lowering_plan_tier_is_direct_abi(view.tier)) {
           trace_lowering_plan_entry_hit(entry, "generic_method_emit");
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS;
         }
-        if (!strcmp(route_id, "generic_method.get") &&
-            !strcmp(op, "MapGet") &&
-            (lowering_plan_tier_is_cold_runtime(tier) ||
-             lowering_plan_tier_is_direct_abi(tier))) {
+        if (!strcmp(view.route_id, "generic_method.get") &&
+            !strcmp(view.core_op, "MapGet") &&
+            (lowering_plan_tier_is_cold_runtime(view.tier) ||
+             lowering_plan_tier_is_direct_abi(view.tier))) {
           trace_lowering_plan_entry_hit(entry, "generic_method_emit");
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
         }
-        if (!strcmp(route_id, "generic_method.get") &&
-            !strcmp(op, "ArrayGet") &&
-            lowering_plan_tier_is_direct_abi(tier)) {
+        if (!strcmp(view.route_id, "generic_method.get") &&
+            !strcmp(view.core_op, "ArrayGet") &&
+            lowering_plan_tier_is_direct_abi(view.tier)) {
           trace_lowering_plan_entry_hit(entry, "generic_method_emit");
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_GET;
         }
-        if (!strcmp(route_id, "generic_method.len") &&
-            (!strcmp(op, "ArrayLen") ||
-             !strcmp(op, "MapLen") ||
-             !strcmp(op, "StringLen")) &&
-            lowering_plan_tier_is_direct_abi(tier)) {
+        if (!strcmp(view.route_id, "generic_method.len") &&
+            (!strcmp(view.core_op, "ArrayLen") ||
+             !strcmp(view.core_op, "MapLen") ||
+             !strcmp(view.core_op, "StringLen")) &&
+            lowering_plan_tier_is_direct_abi(view.tier)) {
           trace_lowering_plan_entry_hit(entry, "generic_method_emit");
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN;
         }
-        if (!strcmp(route_id, "generic_method.push") &&
-            !strcmp(op, "ArrayPush") &&
-            lowering_plan_tier_is_cold_runtime(tier)) {
+        if (!strcmp(view.route_id, "generic_method.push") &&
+            !strcmp(view.core_op, "ArrayPush") &&
+            lowering_plan_tier_is_cold_runtime(view.tier)) {
           trace_lowering_plan_entry_hit(entry, "generic_method_emit");
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_PUSH;
         }
-        if (!strcmp(route_id, "generic_method.set") &&
-            (!strcmp(op, "ArraySet") || !strcmp(op, "MapSet")) &&
-            lowering_plan_tier_is_cold_runtime(tier)) {
+        if (!strcmp(view.route_id, "generic_method.set") &&
+            (!strcmp(view.core_op, "ArraySet") ||
+             !strcmp(view.core_op, "MapSet")) &&
+            lowering_plan_tier_is_cold_runtime(view.tier)) {
           trace_lowering_plan_entry_hit(entry, "generic_method_emit");
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_SET;
         }
-        if (!strcmp(route_id, "generic_method.substring") &&
-            !strcmp(op, "StringSubstring") &&
-            lowering_plan_tier_is_direct_abi(tier)) {
+        if (!strcmp(view.route_id, "generic_method.substring") &&
+            !strcmp(view.core_op, "StringSubstring") &&
+            lowering_plan_tier_is_direct_abi(view.tier)) {
           trace_lowering_plan_entry_hit(entry, "generic_method_emit");
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_SUBSTRING;
         }
