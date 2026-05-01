@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Purpose: the single active behavior probe for the historical
+# `HAKO_CAPI_PURE=1` alias. Daily/active pure-keep callers must use
+# `HAKO_BACKEND_COMPILE_RECIPE=pure-first` instead.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

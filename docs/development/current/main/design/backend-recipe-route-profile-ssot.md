@@ -123,8 +123,9 @@ Related:
 - Root-first daily callers may ask `BackendRecipeBox.compile_root_profile(...)` when they already hold a hydrated MIR root.
 - Explicit compat keep callers should ask `BackendRecipeBox.compile_keep_profile(..., "harness")`.
 - `HAKO_BACKEND_COMPILE_RECIPE=pure-first` is the canonical transport hint for
-  pure-first. `HAKO_CAPI_PURE=1` remains a live historical alias only for
-  compat/pure-keep callers while P96-P99 retires that spelling.
+  pure-first. Active pure-keep callers use that spelling after P97.
+  `HAKO_CAPI_PURE=1` remains live only as a historical alias behavior probe
+  and archive/historical evidence while P98-P100 retires that spelling.
 - `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then:
   - compile `hako_ll_emitter` daily profiles through `root -> facts -> ll text -> env.codegen.compile_ll_text(...)`
   - keep explicit legacy/compat callers on explicit compat surfaces only; the old helper module is deleted and remaining acceptance uses the shared no-helper text primitive

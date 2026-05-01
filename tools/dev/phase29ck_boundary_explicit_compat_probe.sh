@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Purpose: canonical non-alias compat replay probe. This intentionally clears
+# `HAKO_CAPI_PURE` and uses the pure-first export plus explicit
+# `HAKO_BACKEND_COMPAT_REPLAY=harness`.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
