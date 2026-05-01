@@ -1013,6 +1013,7 @@
                     (global_view.reason && global_view.reason[0])
                         ? global_view.reason
                         : "lowering_plan_unsupported_global_call",
+                    global_view.target_return_type,
                     global_view.target_shape_reason,
                     global_view.target_shape_blocker_symbol,
                     global_view.target_shape_blocker_reason);

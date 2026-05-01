@@ -198,6 +198,8 @@ signature return label (`i64`, `str`, `void`, `box<Name>`, etc.) for diagnostics
 and next-slice selection only. It is not a backend-local permission bit:
 `target_shape`, `tier`, proof, arity, and same-module definition availability
 remain the legality contract.
+C consumers must read this through `LoweringPlanGlobalCallView`; callsites and
+diagnostics must not fetch it by hand from raw JSON.
 
 If MIR naming normalization rewrites a diagnostic call name to the canonical
 function symbol, `callee_name` must keep the original observed call name and

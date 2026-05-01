@@ -257,6 +257,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   char* verr = NULL;
   char unsupported_shape_first_op[64] = "";
   char unsupported_shape_reason[64] = "";
+  char unsupported_shape_target_return_type[64] = "";
   char unsupported_shape_target_shape_reason[128] = "";
   char unsupported_shape_blocker_symbol[256] = "";
   char unsupported_shape_blocker_reason[128] = "";
@@ -293,6 +294,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       size_t inst_idx,
       const char* op,
       const char* reason,
+      const char* target_return_type,
       const char* target_shape_reason,
       const char* target_shape_blocker_symbol,
       const char* target_shape_blocker_reason) {
@@ -307,6 +309,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         sizeof(unsupported_shape_reason),
         "%s",
         (reason && reason[0]) ? reason : "no_lowering_variant");
+    snprintf(
+        unsupported_shape_target_return_type,
+        sizeof(unsupported_shape_target_return_type),
+        "%s",
+        (target_return_type && target_return_type[0]) ? target_return_type : "-");
     snprintf(
         unsupported_shape_target_shape_reason,
         sizeof(unsupported_shape_target_shape_reason),
@@ -341,6 +348,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         inst_idx,
         op,
         reason,
+        NULL,
         target_shape_reason,
         NULL,
         NULL);
@@ -364,12 +372,15 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     }
     fprintf(
         stderr,
-        "[llvm-pure/unsupported-shape] recipe=pure-first first_block=%s first_inst=%s first_op=%s owner_hint=%s reason=%s target_shape_reason=%s target_shape_blocker_symbol=%s target_shape_blocker_reason=%s\n",
+        "[llvm-pure/unsupported-shape] recipe=pure-first first_block=%s first_inst=%s first_op=%s owner_hint=%s reason=%s target_return_type=%s target_shape_reason=%s target_shape_blocker_symbol=%s target_shape_blocker_reason=%s\n",
         block_buf,
         inst_buf,
         op,
         pure_unsupported_owner_hint(op),
         reason,
+        unsupported_shape_target_return_type[0]
+            ? unsupported_shape_target_return_type
+            : "-",
         unsupported_shape_target_shape_reason[0]
             ? unsupported_shape_target_shape_reason
             : "-",
