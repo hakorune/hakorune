@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P121-GLOBAL-CALL-CANONICAL-TARGET-SYMBOL"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P121-GLOBAL-CALL-CANONICAL-TARGET-SYMBOL.md"
-latest_card_summary = "Resolve same-module global call target_symbol through MIR NamingBox normalization while preserving callee_name diagnostics, moving main._... stops from unknown_global_callee to missing_multi_function_emitter."
+latest_card = "P122-GLOBAL-CALL-TARGET-SHAPE-REASON"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P122-GLOBAL-CALL-TARGET-SHAPE-REASON.md"
+latest_card_summary = "Expose MIR-owned target_shape_reason for existing same-module global targets that remain shape-unknown, so the next multi-function emitter slice can be chosen without backend raw-body reclassification."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

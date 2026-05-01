@@ -54,12 +54,64 @@ impl GlobalCallTargetShape {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GlobalCallTargetShapeReason {
+    ParamBindingMismatch,
+    GenericStringReturnAbiNotHandleCompatible,
+    GenericStringParamAbiNotHandleCompatible,
+    GenericStringUnsupportedInstructionOrCall,
+    GenericStringNoStringSurface,
+    GenericStringReturnNotString,
+}
+
+impl GlobalCallTargetShapeReason {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::ParamBindingMismatch => "param_binding_mismatch",
+            Self::GenericStringReturnAbiNotHandleCompatible => {
+                "generic_string_return_abi_not_handle_compatible"
+            }
+            Self::GenericStringParamAbiNotHandleCompatible => {
+                "generic_string_param_abi_not_handle_compatible"
+            }
+            Self::GenericStringUnsupportedInstructionOrCall => {
+                "generic_string_unsupported_instruction_or_call"
+            }
+            Self::GenericStringNoStringSurface => "generic_string_no_string_surface",
+            Self::GenericStringReturnNotString => "generic_string_return_not_string",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct GlobalCallTargetClassification {
+    shape: GlobalCallTargetShape,
+    reason: Option<GlobalCallTargetShapeReason>,
+}
+
+impl GlobalCallTargetClassification {
+    fn direct(shape: GlobalCallTargetShape) -> Self {
+        Self {
+            shape,
+            reason: None,
+        }
+    }
+
+    fn unknown(reason: GlobalCallTargetShapeReason) -> Self {
+        Self {
+            shape: GlobalCallTargetShape::Unknown,
+            reason: Some(reason),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct GlobalCallTargetFacts {
     exists: bool,
     symbol: Option<String>,
     arity: Option<usize>,
     shape: GlobalCallTargetShape,
+    shape_reason: Option<GlobalCallTargetShapeReason>,
 }
 
 impl GlobalCallTargetFacts {
@@ -73,6 +125,7 @@ impl GlobalCallTargetFacts {
             symbol: None,
             arity: Some(arity),
             shape: GlobalCallTargetShape::Unknown,
+            shape_reason: None,
         }
     }
 
@@ -82,6 +135,7 @@ impl GlobalCallTargetFacts {
             symbol: Some(symbol.into()),
             arity: Some(arity),
             shape: GlobalCallTargetShape::Unknown,
+            shape_reason: None,
         }
     }
 
@@ -91,6 +145,7 @@ impl GlobalCallTargetFacts {
             symbol: None,
             arity: Some(arity),
             shape,
+            shape_reason: None,
         }
     }
 
@@ -110,8 +165,13 @@ impl GlobalCallTargetFacts {
         self.shape
     }
 
-    fn with_shape(mut self, shape: GlobalCallTargetShape) -> Self {
-        self.shape = shape;
+    fn shape_reason(&self) -> Option<GlobalCallTargetShapeReason> {
+        self.shape_reason
+    }
+
+    fn with_classification(mut self, classification: GlobalCallTargetClassification) -> Self {
+        self.shape = classification.shape;
+        self.shape_reason = classification.reason;
         self
     }
 }
@@ -212,6 +272,13 @@ impl GlobalCallRoute {
             .filter(|shape| *shape != "unknown")
     }
 
+    pub fn target_shape_reason(&self) -> Option<&'static str> {
+        if !self.target_exists() || self.target_shape().is_some() {
+            return None;
+        }
+        self.target.shape_reason().map(|reason| reason.as_str())
+    }
+
     pub fn arity_matches(&self) -> Option<bool> {
         self.target_arity()
             .map(|target_arity| target_arity == self.arity)
@@ -301,9 +368,11 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             let Some(current) = targets.get(name).cloned() else {
                 continue;
             };
-            let shape = classify_global_call_target_shape(function, &targets);
-            if current.shape() != shape {
-                targets.insert(name.clone(), current.with_shape(shape));
+            let classification = classify_global_call_target_shape(function, &targets);
+            if current.shape() != classification.shape
+                || current.shape_reason() != classification.reason
+            {
+                targets.insert(name.clone(), current.with_classification(classification));
                 changed = true;
             }
         }
@@ -317,9 +386,11 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
 fn classify_global_call_target_shape(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
-) -> GlobalCallTargetShape {
+) -> GlobalCallTargetClassification {
     if function.params.len() != function.signature.params.len() {
-        return GlobalCallTargetShape::Unknown;
+        return GlobalCallTargetClassification::unknown(
+            GlobalCallTargetShapeReason::ParamBindingMismatch,
+        );
     }
     if function
         .signature
@@ -329,11 +400,12 @@ fn classify_global_call_target_shape(
         && function.signature.return_type == MirType::Integer
         && is_numeric_i64_leaf_function(function)
     {
-        GlobalCallTargetShape::NumericI64Leaf
-    } else if is_generic_pure_string_body(function, targets) {
-        GlobalCallTargetShape::GenericPureStringBody
+        return GlobalCallTargetClassification::direct(GlobalCallTargetShape::NumericI64Leaf);
+    }
+    if let Some(reason) = generic_pure_string_body_reject_reason(function, targets) {
+        GlobalCallTargetClassification::unknown(reason)
     } else {
-        GlobalCallTargetShape::Unknown
+        GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericPureStringBody)
     }
 }
 
@@ -376,12 +448,12 @@ enum GenericPureValueClass {
     String,
 }
 
-fn is_generic_pure_string_body(
+fn generic_pure_string_body_reject_reason(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
-) -> bool {
+) -> Option<GlobalCallTargetShapeReason> {
     if !generic_pure_string_abi_type_is_handle_compatible(&function.signature.return_type) {
-        return false;
+        return Some(GlobalCallTargetShapeReason::GenericStringReturnAbiNotHandleCompatible);
     }
     if !function
         .signature
@@ -389,10 +461,10 @@ fn is_generic_pure_string_body(
         .iter()
         .all(generic_pure_string_abi_type_is_handle_compatible)
     {
-        return false;
+        return Some(GlobalCallTargetShapeReason::GenericStringParamAbiNotHandleCompatible);
     }
     if function.params.len() != function.signature.params.len() {
-        return false;
+        return Some(GlobalCallTargetShapeReason::ParamBindingMismatch);
     }
 
     let mut values = BTreeMap::<ValueId, GenericPureValueClass>::new();
@@ -417,7 +489,9 @@ fn is_generic_pure_string_body(
                     &mut has_string_surface,
                     &mut changed,
                 ) {
-                    return false;
+                    return Some(
+                        GlobalCallTargetShapeReason::GenericStringUnsupportedInstructionOrCall,
+                    );
                 }
             }
             if let Some(terminator) = &block.terminator {
@@ -428,7 +502,9 @@ fn is_generic_pure_string_body(
                     &mut has_string_surface,
                     &mut changed,
                 ) {
-                    return false;
+                    return Some(
+                        GlobalCallTargetShapeReason::GenericStringUnsupportedInstructionOrCall,
+                    );
                 }
             }
         }
@@ -438,7 +514,7 @@ fn is_generic_pure_string_body(
     }
 
     if !has_string_surface {
-        return false;
+        return Some(GlobalCallTargetShapeReason::GenericStringNoStringSurface);
     }
 
     let mut saw_return = false;
@@ -447,14 +523,18 @@ fn is_generic_pure_string_body(
             if let MirInstruction::Return { value: Some(value) } = instruction {
                 saw_return = true;
                 if value_class(&values, *value) != GenericPureValueClass::String {
-                    return false;
+                    return Some(GlobalCallTargetShapeReason::GenericStringReturnNotString);
                 }
             } else if matches!(instruction, MirInstruction::Return { value: None }) {
-                return false;
+                return Some(GlobalCallTargetShapeReason::GenericStringReturnNotString);
             }
         }
     }
-    saw_return
+    if saw_return {
+        None
+    } else {
+        Some(GlobalCallTargetShapeReason::GenericStringReturnNotString)
+    }
 }
 
 fn generic_pure_string_abi_type_is_handle_compatible(ty: &MirType) -> bool {
@@ -798,6 +878,10 @@ mod tests {
         assert_eq!(route.target_arity(), Some(2));
         assert_eq!(route.arity_matches(), Some(true));
         assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_no_string_surface")
+        );
         assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
     }
 
@@ -834,6 +918,7 @@ mod tests {
         assert!(route.target_exists());
         assert_eq!(route.target_symbol(), Some("Helper.add/2"));
         assert_eq!(route.target_shape(), Some("numeric_i64_leaf"));
+        assert_eq!(route.target_shape_reason(), None);
         assert_eq!(route.target_arity(), Some(2));
         assert_eq!(route.arity_matches(), Some(true));
         assert_eq!(route.tier(), "DirectAbi");
@@ -880,6 +965,7 @@ mod tests {
         assert_eq!(route.target_arity(), Some(0));
         assert_eq!(route.arity_matches(), Some(true));
         assert_eq!(route.target_shape(), Some("numeric_i64_leaf"));
+        assert_eq!(route.target_shape_reason(), None);
         assert_eq!(route.tier(), "DirectAbi");
         assert_eq!(route.reason(), None);
     }
@@ -966,6 +1052,7 @@ mod tests {
         assert!(route.target_exists());
         assert_eq!(route.target_symbol(), Some("Helper.normalize/2"));
         assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+        assert_eq!(route.target_shape_reason(), None);
         assert_eq!(route.target_arity(), Some(2));
         assert_eq!(route.arity_matches(), Some(true));
         assert_eq!(route.tier(), "DirectAbi");

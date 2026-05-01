@@ -176,6 +176,11 @@ Same-module global user calls must carry `target_symbol` when
 target MIR function. Call emitters must use `target_symbol`; `callee_name`
 remains diagnostic identity and resolver evidence.
 
+When `target_exists=true` but `target_shape=null`, MIR must also carry
+`target_shape_reason` when it can explain why the target did not match a
+lowerable shape. This is classifier evidence only; ny-llvmc may report it, but
+must not reinterpret raw callee names or body JSON to decide shape ownership.
+
 If MIR naming normalization rewrites a diagnostic call name to the canonical
 function symbol, `callee_name` must keep the original observed call name and
 `target_symbol` must carry the canonical MIR function name. Example:

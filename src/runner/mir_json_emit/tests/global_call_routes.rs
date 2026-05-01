@@ -41,6 +41,7 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(route["target_exists"], false);
     assert_eq!(route["target_arity"], serde_json::Value::Null);
     assert_eq!(route["target_shape"], serde_json::Value::Null);
+    assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(route["arity_matches"], serde_json::Value::Null);
     assert_eq!(route["result_value"], 45);
     assert_eq!(route["return_shape"], serde_json::Value::Null);
@@ -70,6 +71,7 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(plan["target_exists"], false);
     assert_eq!(plan["target_arity"], serde_json::Value::Null);
     assert_eq!(plan["target_shape"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(plan["arity_matches"], serde_json::Value::Null);
     assert_eq!(plan["result_value"], 45);
     assert_eq!(plan["return_shape"], serde_json::Value::Null);
@@ -84,6 +86,55 @@ fn refresh_function_global_call_routes_is_available_to_json_emit_tests() {
     let mut function = make_function("main", true);
     refresh_function_global_call_routes(&mut function);
     assert!(function.metadata.global_call_routes.is_empty());
+}
+
+#[test]
+fn build_mir_json_root_emits_target_shape_reason_for_existing_unsupported_target() {
+    let mut module = crate::mir::MirModule::new("json_global_call_target_reason_test".to_string());
+    let mut caller = make_function("main", true);
+    caller
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Call {
+            dst: Some(ValueId::new(7)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.pending/0".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+    let callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.pending/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    module.add_function(caller);
+    module.add_function(callee);
+    refresh_module_global_call_routes(&mut module);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
+    assert_eq!(route["target_exists"], true);
+    assert_eq!(route["target_shape"], serde_json::Value::Null);
+    assert_eq!(
+        route["target_shape_reason"],
+        "generic_string_no_string_surface"
+    );
+    assert_eq!(route["reason"], "missing_multi_function_emitter");
+
+    let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
+    assert_eq!(plan["target_exists"], true);
+    assert_eq!(plan["target_shape"], serde_json::Value::Null);
+    assert_eq!(
+        plan["target_shape_reason"],
+        "generic_string_no_string_surface"
+    );
+    assert_eq!(plan["reason"], "missing_multi_function_emitter");
 }
 
 #[test]
@@ -130,6 +181,7 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
     assert_eq!(route["target_symbol"], "Helper.add/2");
     assert_eq!(route["target_shape"], "numeric_i64_leaf");
+    assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(route["tier"], "DirectAbi");
     assert_eq!(route["emit_kind"], "direct_function_call");
     assert_eq!(route["proof"], "typed_global_call_leaf_numeric_i64");
@@ -143,6 +195,7 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     assert_eq!(plan["core_op"], "UserGlobalCall");
     assert_eq!(plan["target_symbol"], "Helper.add/2");
     assert_eq!(plan["target_shape"], "numeric_i64_leaf");
+    assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(plan["tier"], "DirectAbi");
     assert_eq!(plan["emit_kind"], "direct_function_call");
     assert_eq!(plan["symbol"], "Helper.add/2");
@@ -196,6 +249,7 @@ fn build_mir_json_root_keeps_callee_name_and_emits_canonical_target_symbol() {
     assert_eq!(route["callee_name"], "main._helper/0");
     assert_eq!(route["target_symbol"], "Main._helper/0");
     assert_eq!(route["target_shape"], "numeric_i64_leaf");
+    assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(route["reason"], serde_json::Value::Null);
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
@@ -203,6 +257,7 @@ fn build_mir_json_root_keeps_callee_name_and_emits_canonical_target_symbol() {
     assert_eq!(plan["target_symbol"], "Main._helper/0");
     assert_eq!(plan["symbol"], "Main._helper/0");
     assert_eq!(plan["target_shape"], "numeric_i64_leaf");
+    assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(plan["reason"], serde_json::Value::Null);
 }
 
@@ -297,6 +352,7 @@ fn build_mir_json_root_emits_direct_plan_for_generic_pure_string_global_call() {
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
     assert_eq!(route["target_symbol"], "Helper.normalize/2");
     assert_eq!(route["target_shape"], "generic_pure_string_body");
+    assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(route["tier"], "DirectAbi");
     assert_eq!(route["emit_kind"], "direct_function_call");
     assert_eq!(route["proof"], "typed_global_call_generic_pure_string");
@@ -310,6 +366,7 @@ fn build_mir_json_root_emits_direct_plan_for_generic_pure_string_global_call() {
     assert_eq!(plan["core_op"], "UserGlobalCall");
     assert_eq!(plan["target_symbol"], "Helper.normalize/2");
     assert_eq!(plan["target_shape"], "generic_pure_string_body");
+    assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(plan["tier"], "DirectAbi");
     assert_eq!(plan["emit_kind"], "direct_function_call");
     assert_eq!(plan["symbol"], "Helper.normalize/2");
