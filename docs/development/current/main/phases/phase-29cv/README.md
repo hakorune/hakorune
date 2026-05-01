@@ -70,6 +70,12 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `entry/stage1_cli_env_entry.hako` remains a green run-only bootstrap entry;
   the full `stage1_cli_env.hako` remains the emit-capable authority cluster and
   must not be made green by adding a raw ny-llvmc `BuildBox` matcher.
+- P111 restores full `stage1_cli_env.hako` `Main.main()` to the thin dispatcher
+  shape described by the Stage1 env boxes. The source-to-Program authority stays
+  in `Stage1SourceProgramAuthorityBox`, and the source-to-MIR authority stays in
+  `Stage1SourceMirAuthorityBox`; `Main` no longer carries a stale inline
+  `BuildBox.emit_program_json_v0/2` call. The next pure-first stop is now the
+  typed user/global-call boundary at `Stage1ModeContractBox.resolve_mode/0`.
 
 ## Compat Capsule Rules
 
