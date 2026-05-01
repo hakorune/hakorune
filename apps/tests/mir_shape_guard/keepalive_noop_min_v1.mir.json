@@ -1,0 +1,38 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": "i64",
+                "value": 7
+              }
+            },
+            {
+              "op": "keepalive",
+              "values": [
+                1
+              ]
+            },
+            {
+              "op": "ret",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

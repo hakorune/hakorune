@@ -61,6 +61,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P108 consumes that `EnvGet` plan in ny-llvmc pure-first without adding a raw
   backend `env.get` matcher. Remaining replacement blockers are the
   emit-capable Stage1 env artifact and the direct EXE MIR dominance failure.
+- P109 consumes canonical MIR `keepalive` as a pure-first no-op after P108
+  moved the Stage1 env direct MIR stop-line from `env.get/1` to lifecycle
+  intent. The next observed pure-first stop is
+  `mir_call Global BuildBox.emit_program_json_v0/2`.
 
 ## Compat Capsule Rules
 

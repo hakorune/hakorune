@@ -735,6 +735,9 @@
             if (emit_string_const_box_result(f, dst)) continue;
             continue;
           }
+          if (strcmp(op, "keepalive")==0) {
+            continue;
+          }
           if (strcmp(op, "release_strong")==0) {
             continue;
           }
