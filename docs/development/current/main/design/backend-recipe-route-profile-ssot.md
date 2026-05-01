@@ -110,6 +110,9 @@ Related:
 ## Stop Line
 
 - Do not move unsupported-shape classification back into the C shim.
+- C may emit a dev-only unsupported-shape inventory trace at the final
+  pure-first stop line, but the trace is not route policy and must not widen
+  acceptance.
 - Do not let `hako_llvmc_ffi.c` become a policy owner for daily route decisions.
 - Do not add a new canonical ABI surface for backend-zero.
 - Do not promote `native_driver.rs` or `llvmlite` to daily owner through the route profile.
