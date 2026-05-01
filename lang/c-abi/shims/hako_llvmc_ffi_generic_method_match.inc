@@ -276,6 +276,15 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY,
           },
+          {
+            "generic_method.set",
+            "ArraySet",
+            "array_store_any",
+            "nyash.array.slot_store_hii",
+            "set_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64,
+          },
         };
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView view;
