@@ -1,3 +1,4 @@
+mod backend_shape;
 mod decls;
 mod handoff;
 mod lowering;
@@ -81,6 +82,12 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
     Stage1ProgramJsonModuleHandoff::parse(program_json)?.emit_guarded_mir_json()
+}
+
+pub(crate) fn normalize_program_json_bridge_backend_shape(
+    mir_json: &str,
+) -> Result<String, String> {
+    backend_shape::normalize_program_json_bridge_backend_shape(mir_json).map_err(failfast_error)
 }
 
 /// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)

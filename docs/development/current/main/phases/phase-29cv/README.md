@@ -42,6 +42,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
   compat capsule.
+- P103 keeps that explicit bridge capsule backend-clean by normalizing
+  `nyash.console.log` / `env.console.log` print calls to `mir_call Global print`
+  in the shared Program(JSON)->MIR bridge output before ny-llvmc sees the MIR
+  JSON.
 
 ## Compat Capsule Rules
 

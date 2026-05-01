@@ -94,7 +94,8 @@ impl Stage1FinalizedMirModule {
     }
 
     pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
-        with_phase0_mir_json_env(|| self.emit_mir_json())
+        let mir_json = with_phase0_mir_json_env(|| self.emit_mir_json())?;
+        super::normalize_program_json_bridge_backend_shape(&mir_json)
     }
 }
 

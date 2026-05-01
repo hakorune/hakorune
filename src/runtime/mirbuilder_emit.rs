@@ -30,7 +30,8 @@ pub fn emit_program_json_to_mir_json_with_env_imports(
 ) -> Result<String, String> {
     let _env_guard = crate::host_providers::mir_builder::Phase0MirJsonEnvGuard::new();
     let module = lower_input_json_to_module(program_json, imports_from_env())?;
-    crate::host_providers::mir_builder::module_to_mir_json(&module)
+    let mir_json = crate::host_providers::mir_builder::module_to_mir_json(&module)?;
+    crate::host_providers::mir_builder::normalize_program_json_bridge_backend_shape(&mir_json)
 }
 
 fn lower_input_json_to_module(
@@ -89,6 +90,49 @@ static box Main {
 
         assert!(mir_json.contains("\"functions\""));
         assert!(!mir_json.is_empty());
+    }
+
+    #[test]
+    fn env_mirbuilder_emit_normalizes_console_print_for_backend_boundary() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "body": [
+                {
+                    "type": "Extern",
+                    "iface": "env.console",
+                    "method": "log",
+                    "args": [{ "type": "Int", "value": 42 }]
+                },
+                { "type": "Return", "expr": { "type": "Int", "value": 0 } }
+            ]
+        }"#;
+
+        let mir_json =
+            emit_program_json_to_mir_json_with_env_imports(program_json).expect("mir json");
+        let parsed: serde_json::Value = serde_json::from_str(&mir_json).expect("mir json parses");
+        let instructions = parsed["functions"][0]["blocks"][0]["instructions"]
+            .as_array()
+            .expect("instructions array");
+
+        let console_externcalls = instructions
+            .iter()
+            .filter(|inst| {
+                inst["op"] == "externcall" && inst["func"].as_str() == Some("nyash.console.log")
+            })
+            .count();
+        assert_eq!(console_externcalls, 0);
+
+        let print_calls = instructions
+            .iter()
+            .filter(|inst| {
+                inst["op"] == "mir_call"
+                    && inst["mir_call"]["callee"]
+                        == serde_json::json!({"type": "Global", "name": "print"})
+            })
+            .count();
+        assert_eq!(print_calls, 1);
     }
 
     #[test]
