@@ -296,6 +296,15 @@
             HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS,
           },
           {
+            "generic_method.has",
+            "ArrayHas",
+            "array_contains_any",
+            "nyash.array.has_hh",
+            "has_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS,
+          },
+          {
             "generic_method.len",
             "MapLen",
             "map_entry_count",

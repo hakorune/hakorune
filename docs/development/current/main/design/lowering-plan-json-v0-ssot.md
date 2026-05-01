@@ -152,6 +152,7 @@ fields. Do not add one-off `strcmp` ladders for every new proven plan slice.
 | `MapGet` | `ColdRuntime` | `nyash.runtime_data.get_hh` | P70 plan-only fixture |
 | `MapGet` | `DirectAbi` | `nyash.map.slot_load_hh` | P80 plan-only fixture |
 | `MapHas` | `DirectAbi` | `nyash.map.probe_hi` | P72 plan-only fixture |
+| `ArrayHas` | `DirectAbi` | `nyash.array.has_hh` | P82 plan-only fixture |
 | `MapLen` | `DirectAbi` | `nyash.map.entry_count_i64` | P75 plan-only fixture |
 | `ArrayLen` | `DirectAbi` | `nyash.array.slot_len_h` | P76 plan-only fixture |
 | `StringLen` | `DirectAbi` | `nyash.string.len_h` | P77 plan-only fixture |

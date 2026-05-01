@@ -172,7 +172,9 @@
         }
         route_kind = generic_method_has_route_kind_from_metadata(view.route_kind);
         if (!(view.route_id && !strcmp(view.route_id, "generic_method.has")) ||
-            !(view.core_op && !strcmp(view.core_op, "MapHas")) ||
+            !(view.core_op &&
+              (!strcmp(view.core_op, "MapHas") ||
+               !strcmp(view.core_op, "ArrayHas"))) ||
             !lowering_plan_tier_is_direct_abi(view.tier) ||
             !(view.route_proof && !strcmp(view.route_proof, "has_surface_policy")) ||
             !(view.value_demand && !strcmp(view.value_demand, "read_ref")) ||
