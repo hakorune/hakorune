@@ -144,6 +144,9 @@ field parsing.
 
 Need-kind declaration rules should be table rows keyed by LoweringPlan view
 fields. Do not add one-off `strcmp` ladders for every new proven plan slice.
+Route-state declaration rules follow the same policy: plan-first route
+selection should be table rows keyed by the shared LoweringPlan view, with
+legacy route metadata retained only as the migration fallback.
 
 ## Proven v0 Slices
 
