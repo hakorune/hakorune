@@ -729,7 +729,7 @@
           yyjson_val* ins = yyjson_arr_get(insts, ii);
           const char* op = read_str(ins, "op");
           if (!op) {
-            note_pure_unsupported_shape(bid, ii, "unknown", "missing_op");
+            note_pure_unsupported_shape(bid, ii, "unknown", "missing_op", NULL);
             yyjson_doc_free(d);
             goto GEN_ABORT;
           }
@@ -798,7 +798,8 @@
                       bid,
                       ii,
                       op,
-                      "string_const_materialization_failed");
+                      "string_const_materialization_failed",
+                      NULL);
                   yyjson_doc_free(d);
                   goto GEN_ABORT;
                 }
@@ -809,7 +810,7 @@
                 continue;
               }
             }
-            note_pure_unsupported_shape(bid, ii, op, "unsupported_newbox_type");
+            note_pure_unsupported_shape(bid, ii, op, "unsupported_newbox_type", NULL);
             yyjson_doc_free(d); goto GEN_ABORT;
           }
           if (strcmp(op, "copy")==0) {
@@ -836,11 +837,21 @@
             const char* pred = read_str(ins, "cmp"); if (!pred) pred = read_str(ins, "operation");
             const char* p2 = NULL; if (pred){ if (!strcmp(pred,"Lt")||!strcmp(pred,"lt")||!strcmp(pred,"<")) p2="slt"; else if (!strcmp(pred,"Le")||!strcmp(pred,"le")||!strcmp(pred,"<=")) p2="sle"; else if (!strcmp(pred,"Eq")||!strcmp(pred,"eq")||!strcmp(pred,"==")) p2="eq"; else if (!strcmp(pred,"Ne")||!strcmp(pred,"ne")||!strcmp(pred,"!=")) p2="ne"; else if (!strcmp(pred,"Ge")||!strcmp(pred,"ge")||!strcmp(pred,">=")) p2="sge"; else if (!strcmp(pred,"Gt")||!strcmp(pred,"gt")||!strcmp(pred,">")) p2="sgt"; }
             if (!p2) {
-              note_pure_unsupported_shape(bid, ii, op, "unsupported_compare_predicate");
+              note_pure_unsupported_shape(
+                  bid,
+                  ii,
+                  op,
+                  "unsupported_compare_predicate",
+                  NULL);
               yyjson_doc_free(d); goto GEN_ABORT;
             }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); if (!lhs) lhs=read_int(ins, "left"); long long rhs = read_int(ins, "rhs"); if (!rhs) rhs=read_int(ins, "right"); if (!lhs && !rhs){
-              note_pure_unsupported_shape(bid, ii, op, "malformed_compare_operands");
+              note_pure_unsupported_shape(
+                  bid,
+                  ii,
+                  op,
+                  "malformed_compare_operands",
+                  NULL);
               yyjson_doc_free(d); goto GEN_ABORT;
             }
             if ((strcmp(p2, "eq") == 0 || strcmp(p2, "ne") == 0) &&
@@ -950,7 +961,7 @@
               else if (!strcmp(k, "Mod") || !strcmp(k, "%")) irop = "srem";
             }
             if (!irop) {
-              note_pure_unsupported_shape(bid, ii, op, "unsupported_binop_kind");
+              note_pure_unsupported_shape(bid, ii, op, "unsupported_binop_kind", NULL);
               yyjson_doc_free(d); goto GEN_ABORT;
             }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); long long rhs = read_int(ins, "rhs");
@@ -1001,9 +1012,10 @@
                     op,
                     (global_view.reason && global_view.reason[0])
                         ? global_view.reason
-                        : "lowering_plan_unsupported_global_call");
+                        : "lowering_plan_unsupported_global_call",
+                    global_view.target_shape_reason);
               } else {
-                note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route");
+                note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route", NULL);
               }
               yyjson_doc_free(d);
               goto GEN_ABORT;
@@ -1011,7 +1023,7 @@
             continue;
           }
           // any other op unsupported
-          note_pure_unsupported_shape(bid, ii, op, "unknown_op");
+          note_pure_unsupported_shape(bid, ii, op, "unknown_op", NULL);
           yyjson_doc_free(d); goto GEN_ABORT;
         }
       }

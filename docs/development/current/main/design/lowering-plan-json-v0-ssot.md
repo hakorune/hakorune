@@ -180,6 +180,9 @@ When `target_exists=true` but `target_shape=null`, MIR must also carry
 `target_shape_reason` when it can explain why the target did not match a
 lowerable shape. This is classifier evidence only; ny-llvmc may report it, but
 must not reinterpret raw callee names or body JSON to decide shape ownership.
+The C `LoweringPlanGlobalCallView` must read this field as metadata and may
+surface it on dev-only unsupported-shape traces; it must not use it as a
+backend-local permission to emit a call.
 
 If MIR naming normalization rewrites a diagnostic call name to the canonical
 function symbol, `callee_name` must keep the original observed call name and

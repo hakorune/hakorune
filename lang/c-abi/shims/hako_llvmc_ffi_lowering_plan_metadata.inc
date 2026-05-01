@@ -48,6 +48,7 @@
         const char* route_proof;
         const char* reason;
         const char* target_shape;
+        const char* target_shape_reason;
         const char* return_shape;
         const char* value_demand;
         long long arity;
@@ -267,6 +268,7 @@
           out->route_proof = read_str(entry, "route_proof");
           out->reason = read_str(entry, "reason");
           out->target_shape = read_str(entry, "target_shape");
+          out->target_shape_reason = read_str(entry, "target_shape_reason");
           out->return_shape = read_str(entry, "return_shape");
           out->value_demand = read_str(entry, "value_demand");
           lowering_plan_read_i64_field(entry, "arity", &out->arity);
