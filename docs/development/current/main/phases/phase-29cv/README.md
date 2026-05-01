@@ -38,6 +38,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   new acceptance-shape expansion.
 - Thin shell/test seam cleanup is effectively exhausted through P32. Remaining
   work is explicit keeper replacement or final delete-last cleanup.
+- P101 refreshed the caller inventory: the next executable slice should choose
+  one capsule owner, starting with `tools/selfhost_exe_stageb.sh`
+  `stageb-delegate` default-retirement feasibility, rather than deleting
+  `Program(JSON v0)` broadly.
 
 ## Compat Capsule Rules
 
