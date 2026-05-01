@@ -212,6 +212,10 @@ an unknown same-module global call, MIR must report that returned child global
 as the blocker instead of collapsing the parent into
 `generic_string_return_abi_not_handle_compatible`. This keeps source-execution
 triage on the next ownership edge and still does not authorize the parent body.
+When that returned child global already carries its own blocker evidence, MIR
+must propagate the deepest known blocker instead of stopping at the intermediate
+wrapper. This keeps fail-fast traces aligned with the next concrete ownership
+edge while preserving the unsupported parent route.
 Outside that sentinel body scan, a `null`/`void` constant observed by the generic
 pure string classifier must reject with
 `generic_string_unsupported_void_sentinel_const` instead of the broad
