@@ -33,5 +33,5 @@ for f in "${SAMPLES[@]}"; do
 done
 
 echo "[phi-trace] checking trace ..." >&2
-python3 "$ROOT/tools/phi_trace_check.py" --file "$NYASH_LLVM_TRACE_OUT" --summary
+python3 "$ROOT/tools/debug/phi/phi_trace_check.py" --file "$NYASH_LLVM_TRACE_OUT" --summary
 echo "[phi-trace] OK" >&2

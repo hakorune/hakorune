@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 # Bridge → MIR(JSON) → ny-llvmc (llvmlite harness) with PHI trace
-# Usage: tools/phi_trace_bridge_try.sh <json_v0_file>
+# Usage: tools/debug/phi/phi_trace_bridge_try.sh <json_v0_file>
 
 if [[ $# -lt 1 ]]; then
   echo "usage: $0 <tests/json_v0_stage3/*.json>" >&2
   exit 2
 fi
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 BIN="$ROOT/target/release/hakorune"
 NYLL="$ROOT/target/release/ny-llvmc"
 
@@ -43,5 +43,5 @@ if [[ ! -s "$TRACE_OUT" ]]; then
 fi
 
 echo "[bridge-phi] checking PHI trace consistency" >&2
-python3 "$ROOT/tools/phi_trace_check.py" --file "$TRACE_OUT" --summary
+python3 "$ROOT/tools/debug/phi/phi_trace_check.py" --file "$TRACE_OUT" --summary
 echo "[bridge-phi] OK" >&2

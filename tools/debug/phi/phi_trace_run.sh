@@ -3,7 +3,7 @@ set -euo pipefail
 
 # One-shot: run a .hako with LLVM harness, emit PHI JSONL trace, and check consistency.
 # Usage:
-#   tools/phi_trace_run.sh <app.hako> [app2.hako ...] [--strict-zero]
+#   tools/debug/phi/phi_trace_run.sh <app.hako> [app2.hako ...] [--strict-zero]
 # Env (optional):
 #   NYASH_LLVM_TRACE_OUT=tmp/phi.jsonl (default under repo tmp/)
 
@@ -26,7 +26,7 @@ if [[ ${#APPS[@]} -eq 0 ]]; then
   exit 2
 fi
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 cd "$ROOT"
 
 export NYASH_LLVM_USE_HARNESS=1
@@ -62,8 +62,8 @@ fi
 
 echo "[phi-trace] checking trace: $NYASH_LLVM_TRACE_OUT" >&2
 if [[ $STRICT -eq 1 ]]; then
-  python3 "$ROOT/tools/phi_trace_check.py" --file "$NYASH_LLVM_TRACE_OUT" --summary --strict-zero
+  python3 "$ROOT/tools/debug/phi/phi_trace_check.py" --file "$NYASH_LLVM_TRACE_OUT" --summary --strict-zero
 else
-  python3 "$ROOT/tools/phi_trace_check.py" --file "$NYASH_LLVM_TRACE_OUT" --summary
+  python3 "$ROOT/tools/debug/phi/phi_trace_check.py" --file "$NYASH_LLVM_TRACE_OUT" --summary
 fi
 echo "[phi-trace] OK" >&2

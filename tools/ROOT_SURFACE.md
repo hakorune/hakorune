@@ -73,9 +73,6 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | `tools/ny_stage2_shortcircuit_smoke.sh` | protected/current-smoke | current Stage-2 parser smoke | keep | keep current |
 | `tools/opbox-json.sh` | manual-smoke | OperatorBox JSON smoke shortcut | hold | route into smoke v2 or archive after opbox owner check |
 | `tools/opbox-quick.sh` | manual-smoke | OperatorBox quick smoke shortcut | hold | route into smoke v2 or archive after opbox owner check |
-| `tools/phi_trace_bridge_try.sh` | debug-probe | PHI trace bridge experiment | hold | move to debug/archive with PHI owner decision |
-| `tools/phi_trace_check.py` | debug-probe | PHI trace validator used by PHI probes | keep | keep while PHI probes exist |
-| `tools/phi_trace_run.sh` | debug-probe | PHI troubleshooting guide | hold | move to debug/archive with PHI owner decision |
 | `tools/run_llvm_harness.sh` | compat-capsule | explicit LLVM harness compat/probe lane | keep | keep with LLVM harness owner |
 | `tools/selfhost_exe_stageb.sh` | compat-capsule | Program(JSON)->MIR bridge capsule plus direct probe | keep | split or strengthen capsule owner before delete-last |
 | `tools/selfhost_identity_check.sh` | compat-capsule | Stage1/Stage2 identity comparison | hold | align with Stage1 contract keeper order |
@@ -94,7 +91,6 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 
 Do not move these without a focused card:
 
-- PHI probes: `tools/phi_trace_bridge_try.sh`, `tools/phi_trace_run.sh`
 - Program(JSON v0) capsules: `tools/dev_stagea.sh`, `tools/dev_stageb.sh`,
   `tools/hakorune_emit_mir.sh`, `tools/hakorune_emit_mir_compat.sh`,
   `tools/hakorune_emit_mir_mainline.sh`, `tools/selfhost_exe_stageb.sh`

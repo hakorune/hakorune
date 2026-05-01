@@ -43,7 +43,7 @@
   - `tools/dev_stagea.sh`
   - `tools/dev_stageb.sh`
   - `tools/dev/hako_debug_run.sh`
-  - `tools/phi_trace_bridge_try.sh`
+  - `tools/debug/phi/phi_trace_bridge_try.sh`
   - `tools/modules_smoke.sh`
   - `tools/exe_first_smoke.sh`
   - `tools/exe_first_runner_smoke.sh`

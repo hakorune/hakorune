@@ -3,7 +3,7 @@
 phi_trace_check.py — Validate LLVM PHI wiring trace (JSONL)
 
 Usage:
-  python3 tools/phi_trace_check.py --file tmp/phi_trace.jsonl [--strict-zero] [--summary]
+  python3 tools/debug/phi/phi_trace_check.py --file tmp/phi_trace.jsonl [--strict-zero] [--summary]
 
 Checks:
   - For each dst in finalize_dst events, ensure the set of preds from

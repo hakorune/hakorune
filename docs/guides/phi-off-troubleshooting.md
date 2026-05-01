@@ -13,7 +13,7 @@ Symptoms and Hints
 
 - Missing predecessor copy into merged destination
   - Symptom: Edge-copy strict reports missing pred; phi-trace checker shows `missing=[...]`.
-  - Check: `tools/phi_trace_check.py --file <trace.jsonl> --summary` (or drop `--summary` to see diffs on error).
+  - Check: `tools/debug/phi/phi_trace_check.py --file <trace.jsonl> --summary` (or drop `--summary` to see diffs on error).
   - Fix: Builder/Bridge must insert `Copy{dst=merged}` at that predecessor end.
 
 - Synthesized zero in PHI wiring
@@ -23,5 +23,5 @@ Symptoms and Hints
 
 Tools
 - JSON trace: set `NYASH_LLVM_TRACE_PHI=1` and `NYASH_LLVM_TRACE_OUT=<path>`
-- One-shot: `tools/phi_trace_run.sh <app.hako> [--strict-zero]`
+- One-shot: `tools/debug/phi/phi_trace_run.sh <app.hako> [--strict-zero]`
 - Strict verifier (PHI-off): `NYASH_VERIFY_EDGE_COPY_STRICT=1 cargo test --lib`
