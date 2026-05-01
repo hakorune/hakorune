@@ -231,6 +231,13 @@
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
       }
 
+      enum LoweringPlanSetValueShape {
+        HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY = 0,
+        HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_I64,
+        HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NON_STRING_HANDLE,
+        HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_STRING_HANDLE,
+      };
+
       struct LoweringPlanSetRouteRule {
         const char* route_id;
         const char* core_op;
@@ -238,13 +245,34 @@
         const char* symbol;
         const char* route_proof;
         enum LoweringPlanTierMetadata tier;
+        enum LoweringPlanSetValueShape value_shape;
         enum GenericMethodSetRouteKind result;
       };
+
+      auto int lowering_plan_set_value_shape_matches(
+          enum LoweringPlanSetValueShape shape,
+          int value_is_i64,
+          int value_is_string_handle) {
+        switch (shape) {
+          case HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY:
+            return 1;
+          case HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_I64:
+            return value_is_i64;
+          case HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NON_STRING_HANDLE:
+            return !value_is_i64 && !value_is_string_handle;
+          case HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_STRING_HANDLE:
+            return value_is_string_handle;
+          default:
+            return 0;
+        }
+      }
 
       auto enum GenericMethodSetRouteKind
       lowering_plan_set_route_rule_matches(
           const struct LoweringPlanGenericMethodView* view,
-          const struct LoweringPlanSetRouteRule* rule) {
+          const struct LoweringPlanSetRouteRule* rule,
+          int value_is_i64,
+          int value_is_string_handle) {
         if (!(view && rule)) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
         if (view->route_id &&
             !strcmp(view->route_id, rule->route_id) &&
@@ -256,7 +284,11 @@
             !strcmp(view->symbol, rule->symbol) &&
             view->route_proof &&
             !strcmp(view->route_proof, rule->route_proof) &&
-            view->tier == rule->tier) {
+            view->tier == rule->tier &&
+            lowering_plan_set_value_shape_matches(
+                rule->value_shape,
+                value_is_i64,
+                value_is_string_handle)) {
           return rule->result;
         }
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
@@ -265,7 +297,9 @@
       auto enum GenericMethodSetRouteKind
       classify_generic_method_set_route_from_lowering_plan(
           long long bid,
-          size_t ii) {
+          size_t ii,
+          int value_is_i64,
+          int value_is_string_handle) {
         static const struct LoweringPlanSetRouteRule rules[] = {
           {
             "generic_method.set",
@@ -274,6 +308,7 @@
             "nyash.map.slot_store_hhh",
             "set_surface_policy",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY,
             HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY,
           },
           {
@@ -283,6 +318,7 @@
             "nyash.array.slot_store_hii",
             "set_surface_policy",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_I64,
             HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64,
           },
           {
@@ -292,6 +328,7 @@
             "nyash.array.slot_store_hih",
             "set_surface_policy",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NON_STRING_HANDLE,
             HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY,
           },
         };
@@ -303,7 +340,11 @@
         }
         for (ri = 0; ri < ARR_LEN(rules); ri++) {
           enum GenericMethodSetRouteKind route =
-              lowering_plan_set_route_rule_matches(&view, &rules[ri]);
+              lowering_plan_set_route_rule_matches(
+                  &view,
+                  &rules[ri],
+                  value_is_i64,
+                  value_is_string_handle);
           if (route != HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
             return route;
           }
@@ -320,7 +361,11 @@
         yyjson_val* routes = NULL;
         size_t ri = 0;
         enum GenericMethodSetRouteKind plan_route =
-            classify_generic_method_set_route_from_lowering_plan(bid, ii);
+            classify_generic_method_set_route_from_lowering_plan(
+                bid,
+                ii,
+                value_is_i64,
+                value_is_string_handle);
         if (plan_route != HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
           return plan_route;
         }

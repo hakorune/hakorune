@@ -149,6 +149,8 @@ selection should be table rows keyed by the shared LoweringPlan view, with
 legacy route metadata retained only as the migration fallback.
 Set-route declaration rules also use table rows. Value-shape-specific set
 variants must be added as rows rather than extending ad hoc branch ladders.
+Rows for concrete set helpers must validate observed value shape before
+selecting a helper.
 
 ## Proven v0 Slices
 
