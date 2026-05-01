@@ -160,30 +160,6 @@ impl GlobalCallTargetFacts {
         Self::default()
     }
 
-    pub fn present(arity: usize) -> Self {
-        Self {
-            exists: true,
-            symbol: None,
-            arity: Some(arity),
-            return_type: None,
-            shape: GlobalCallTargetShape::Unknown,
-            shape_reason: None,
-            shape_blocker: None,
-        }
-    }
-
-    pub fn present_with_symbol(symbol: impl Into<String>, arity: usize) -> Self {
-        Self {
-            exists: true,
-            symbol: Some(symbol.into()),
-            arity: Some(arity),
-            return_type: None,
-            shape: GlobalCallTargetShape::Unknown,
-            shape_reason: None,
-            shape_blocker: None,
-        }
-    }
-
     pub fn present_with_symbol_and_return_type(
         symbol: impl Into<String>,
         arity: usize,
@@ -200,6 +176,7 @@ impl GlobalCallTargetFacts {
         }
     }
 
+    #[cfg(test)]
     pub fn present_with_shape(arity: usize, shape: GlobalCallTargetShape) -> Self {
         Self {
             exists: true,
