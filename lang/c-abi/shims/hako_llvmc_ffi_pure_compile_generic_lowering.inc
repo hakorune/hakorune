@@ -973,6 +973,9 @@
               struct LoweringPlanGlobalCallView global_view;
               if (read_lowering_plan_global_call_view(plan_entry, &global_view) &&
                   global_view.tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED) {
+                if (lowering_plan_global_call_view_has_direct_target(&global_view)) {
+                  trace_lowering_plan_entry_hit(plan_entry, "global_call_direct_target_pending");
+                }
                 note_pure_unsupported_shape(
                     bid,
                     ii,

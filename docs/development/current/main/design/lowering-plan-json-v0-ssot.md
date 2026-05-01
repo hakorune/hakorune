@@ -176,6 +176,12 @@ Same-module global user calls must carry `target_symbol` when
 target MIR function. Call emitters must use `target_symbol`; `callee_name`
 remains diagnostic identity and resolver evidence.
 
+Before any `UserGlobalCall` emitter is enabled, ny-llvmc must validate the
+direct target through `LoweringPlanGlobalCallView`: route id, `UserGlobalCall`,
+`target_symbol`, target existence, arity match, and quoted-symbol safety. A
+site that passes this validator but still has `tier=Unsupported` is a
+`missing_multi_function_emitter` stop, not a permission to externalize the call.
+
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
 consumer is proven.

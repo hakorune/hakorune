@@ -96,6 +96,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   module function declarations in generic pure before the entry definition.
   `UserGlobalCall` is still unsupported; this only gives the next call-emitter
   card a typed symbol/declaration contract.
+- P117 adds the C direct-target validator for plan-backed same-module global
+  calls and traces `global_call_direct_target_pending` when a site is ready but
+  still blocked on function-body emission.
 
 ## Compat Capsule Rules
 

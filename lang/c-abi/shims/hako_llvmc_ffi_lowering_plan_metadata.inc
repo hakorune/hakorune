@@ -273,6 +273,27 @@
                out->proof;
       }
 
+      auto int lowering_plan_global_call_view_has_direct_target(
+          const struct LoweringPlanGlobalCallView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "global.user_call") &&
+               view->callee_name &&
+               view->target_symbol &&
+               view->core_op &&
+               !strcmp(view->core_op, "UserGlobalCall") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "global.user_call") &&
+               view->proof &&
+               !strcmp(view->proof, "typed_global_call_contract_missing") &&
+               view->target_exists &&
+               view->has_target_arity &&
+               view->has_arity_matches &&
+               view->arity_matches &&
+               view->target_arity == view->arity &&
+               llvm_quoted_symbol_name_is_safe(view->target_symbol);
+      }
+
       auto void trace_lowering_plan_entry_hit(
           yyjson_val* entry,
           const char* consumer) {
