@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../../.." && pwd)}"
 BIN="${NYASH_BIN:-$ROOT/target/release/hakorune}"
 IN=""
 OUT=""
 
 usage() {
   cat >&2 <<'USAGE'
-Usage: tools/dev/phase29cv_stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]
+Usage: tools/dev/program_json_v0/stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]
 
 Explicit Program(JSON v0) diagnostic probe. This replaces
 selfhost_build.sh --keep-tmp / NYASH_SELFHOST_KEEP_RAW=1.

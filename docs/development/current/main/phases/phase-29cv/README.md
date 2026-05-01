@@ -54,7 +54,7 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 ## Compat Capsule Buckets
 
 1. Explicit Stage-B artifact diagnostic probe
-   - `tools/dev/phase29cv_stageb_artifact_probe.sh`
+   - `tools/dev/program_json_v0/stageb_artifact_probe.sh`
    - `tools/lib/program_json_v0_compat.sh`
    - Kept for deliberate Program(JSON v0) artifact capture only.
      `selfhost_build.sh` must not own or source this route.
@@ -116,7 +116,7 @@ mainline artifact family.
   artifact diagnostics.
 - Do not reintroduce `selfhost_build.sh --keep-tmp` or
   `NYASH_SELFHOST_KEEP_RAW=1` as facade artifact routes. Use
-  `tools/dev/phase29cv_stageb_artifact_probe.sh` for explicit diagnostics.
+  `tools/dev/program_json_v0/stageb_artifact_probe.sh` for explicit diagnostics.
 - Do not expand ny-llvmc pure-first acceptance shapes here.
 - Do not revive `--hako-emit-program-json` or other retired public aliases.
 - Do not treat fixture-only Program(JSON) producers as day-to-day bootstrap

@@ -6,7 +6,7 @@ Scope: delete the unused --raw-log option from the explicit Stage-B Program(JSON
 Related:
   - docs/development/current/main/phases/phase-29cv/README.md
   - docs/development/current/main/phases/phase-29cv/P24-KEEPER-DELETE-LAST-ORDER.md
-  - tools/dev/phase29cv_stageb_artifact_probe.sh
+  - tools/dev/program_json_v0/stageb_artifact_probe.sh
   - tools/lib/program_json_v0_compat.sh
 ---
 
@@ -16,7 +16,7 @@ Related:
 
 Keep the explicit Stage-B artifact probe thin without changing its proof role.
 
-`tools/dev/phase29cv_stageb_artifact_probe.sh` owned an optional `--raw-log`
+`tools/dev/program_json_v0/stageb_artifact_probe.sh` owned an optional `--raw-log`
 argument, but the repo no longer calls that option and no phase docs advertise
 it. The probe's keeper purpose is explicit Program(JSON v0) artifact capture,
 not exposing an extra log-copy surface.
@@ -38,8 +38,8 @@ not exposing an extra log-copy surface.
 ## Acceptance
 
 ```bash
-bash -n tools/dev/phase29cv_stageb_artifact_probe.sh
-bash tools/dev/phase29cv_stageb_artifact_probe.sh --in apps/tests/phase122_if_only_normalized_emit_min.hako
+bash -n tools/dev/program_json_v0/stageb_artifact_probe.sh
+bash tools/dev/program_json_v0/stageb_artifact_probe.sh --in apps/tests/phase122_if_only_normalized_emit_min.hako
 bash tools/checks/current_state_pointer_guard.sh
 SMOKES_ENABLE_SELFHOST=1 bash tools/smokes/v2/profiles/quick/selfhost/selfhost_build_exe_return.sh
 git diff --check

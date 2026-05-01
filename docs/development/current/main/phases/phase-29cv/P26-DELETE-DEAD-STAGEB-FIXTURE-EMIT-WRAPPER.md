@@ -46,7 +46,7 @@ compat owner remained `tools/lib/program_json_v0_compat.sh`.
 
 ```bash
 bash -n tools/smokes/v2/lib/stageb_helpers.sh \
-  tools/dev/phase29cv_stageb_artifact_probe.sh \
+  tools/dev/program_json_v0/stageb_artifact_probe.sh \
   tools/selfhost/lib/stage1_contract.sh
 rg -n 'stageb_emit_program_json_v0_fixture\(|program_json_v0_compat_emit_to_file\(' tools docs
 bash tools/checks/current_state_pointer_guard.sh

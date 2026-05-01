@@ -15,7 +15,7 @@
 #     --run         Run via direct MIR(JSON) after compilation
 #     --mir FILE    Emit MIR(JSON) to FILE; MIR-only requests use the direct route
 #     --exe FILE    Build native EXE via ny-llvmc
-#     --keep-tmp    Retired; use tools/dev/phase29cv_stageb_artifact_probe.sh
+#     --keep-tmp    Retired; use tools/dev/program_json_v0/stageb_artifact_probe.sh
 #     --core        Deprecated (JoinIR Core は常時 ON のため無視・警告のみ)
 #     --strict      Phase 81: Enable Strict mode (fail-fast, no fallback)
 #   Env:
