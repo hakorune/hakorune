@@ -27,7 +27,7 @@
    - `[aot/numeric_core]` ログが NYASH_AOT_NUMERIC_CORE_TRACE=1 で正しく表示
 
 5. **✅ 開発ワークフロー確立**:
-   - `tools/dev_numeric_core_prep.sh` で環境変数自動設定
+   - archived manual helper `dev_numeric_core_prep.sh` で環境変数自動設定
    - 推奨開発フロー確立・ドキュメント化完了
 
 ### 変換例

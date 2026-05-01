@@ -12,11 +12,14 @@ Archived helpers:
 - `compare_harness_on_off.sh`
 - `codex-keep-two.sh`
 - `dep_tree.sh`
+- `dev_numeric_core_prep.sh`
+- `egui_win_smoke.ps1`
 - `joinir_ab_test.sh`
 - `llvmlite_check_deny_direct.sh`
 - `parallel-refactor-nyash.sh`
 - `python_unit.sh`
 - `trace_last_fn_from_log.sh`
+- `using_combine.py`
 - `vm_stats_diff.sh`
 
 Current reading:

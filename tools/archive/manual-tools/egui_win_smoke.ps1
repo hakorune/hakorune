@@ -1,6 +1,6 @@
 # Egui (Windows) JIT smoke: build nyash + egui plugin and run demo
 # Usage (PowerShell):
-#   pwsh -File tools/egui_win_smoke.ps1  # or .\tools\egui_win_smoke.ps1
+#   pwsh -File .\egui_win_smoke.ps1
 
 param(
   [switch]$DebugBuild
@@ -73,4 +73,3 @@ if ($code -ne 0) {
 }
 
 Info "Done."
-

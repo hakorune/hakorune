@@ -2,7 +2,7 @@
 # dev_numeric_core_prep.sh — numeric_core + AotPrep 付きで MIR(JSON) を吐く開発用ヘルパー
 #
 # Usage:
-#   tools/dev_numeric_core_prep.sh <input.hako> <out.json>
+#   ./dev_numeric_core_prep.sh <input.hako> <out.json>
 # Notes:
 #   - HAKO_APPLY_AOT_PREP=1 と NYASH_AOT_NUMERIC_CORE=1 を必ず立てて、
 #     emit_mir_route.sh (--route hako-helper) を呼び出す。
@@ -19,7 +19,7 @@ IN="$1"
 OUT="$2"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 if [ ! -f "$IN" ]; then
   echo "[FAIL] input not found: $IN" >&2
