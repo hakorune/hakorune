@@ -26,13 +26,30 @@ static const char* hako_llvmc_backend_compat_replay(void) {
   return getenv("HAKO_BACKEND_COMPAT_REPLAY");
 }
 
+static int hako_llvmc_legacy_capi_pure_alias_enabled(void) {
+  const char* v = getenv("HAKO_CAPI_PURE");
+  return (v && v[0] == '1');
+}
+
+static void hako_llvmc_warn_legacy_capi_pure_alias_once(void) {
+  static int warned = 0;
+  if (warned) return;
+  warned = 1;
+  fprintf(stderr,
+          "[deprecate/env] 'HAKO_CAPI_PURE' is deprecated; use "
+          "'HAKO_BACKEND_COMPILE_RECIPE=pure-first'\n");
+}
+
 static int capi_pure_enabled(void) {
+  int legacy_capi_pure = hako_llvmc_legacy_capi_pure_alias_enabled();
+  if (legacy_capi_pure) {
+    hako_llvmc_warn_legacy_capi_pure_alias_once();
+  }
   const char* recipe = hako_llvmc_backend_compile_recipe();
   if (recipe && recipe[0]) {
     return strcmp(recipe, "pure-first") == 0;
   }
-  const char* v = getenv("HAKO_CAPI_PURE");
-  return (v && v[0] == '1');
+  return legacy_capi_pure;
 }
 
 static int compat_harness_replay_enabled(void) {

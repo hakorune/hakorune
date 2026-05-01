@@ -5,6 +5,7 @@ use std::path::Path;
 use anyhow::{bail, Context, Result};
 use libloading::Library;
 use std::os::raw::{c_char, c_int, c_void};
+use std::sync::OnceLock;
 
 extern "C" {
     fn free(ptr: *mut c_void);
@@ -43,6 +44,9 @@ where
     let recipe_env = std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok();
     let replay_env = std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok();
     let legacy_capi_pure = std::env::var("HAKO_CAPI_PURE").ok();
+    if legacy_capi_pure_alias_enabled(legacy_capi_pure.as_deref()) {
+        warn_legacy_capi_pure_alias_once();
+    }
     let (compile_recipe, compat_replay) =
         super::boundary_driver_defaults::boundary_codegen_request_defaults(
             recipe_env.as_deref(),
@@ -201,6 +205,19 @@ fn llvm_route_trace_enabled() -> bool {
         std::env::var("NYASH_LLVM_ROUTE_TRACE").ok().as_deref(),
         Some("1" | "on" | "true" | "yes")
     )
+}
+
+fn legacy_capi_pure_alias_enabled(value: Option<&str>) -> bool {
+    matches!(value, Some("1" | "on" | "true" | "yes"))
+}
+
+fn warn_legacy_capi_pure_alias_once() {
+    static WARNED: OnceLock<()> = OnceLock::new();
+    if WARNED.set(()).is_ok() {
+        eprintln!(
+            "[deprecate/env] 'HAKO_CAPI_PURE' is deprecated; use 'HAKO_BACKEND_COMPILE_RECIPE=pure-first'"
+        );
+    }
 }
 
 fn emit_compile_route_trace(

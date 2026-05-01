@@ -141,8 +141,10 @@ Related:
 - until a fresh exact blocker appears, profile growth stays frozen at the current grouped evidence rows and the next backend-zero front moves to boundary fallback reliance reduction.
 - Legacy alias retirement is not route-profile growth. It must proceed as
   spelling cleanup: inventory first, then active caller replacement, then
-  warning/fail-fast policy. Do not widen backend acceptance while retiring
-  `HAKO_CAPI_PURE`.
+  warning/fail-fast policy. P99 warning uses the stable
+  `[deprecate/env] 'HAKO_CAPI_PURE' is deprecated; use 'HAKO_BACKEND_COMPILE_RECIPE=pure-first'`
+  signal without changing route selection. Do not widen backend acceptance
+  while retiring `HAKO_CAPI_PURE`.
 
 ## Final Shape
 

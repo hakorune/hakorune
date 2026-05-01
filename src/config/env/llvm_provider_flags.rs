@@ -1,6 +1,6 @@
 //! LLVM provider / AOT emission environment flags (SSOT)
 
-use crate::config::env::env_bool;
+use super::{env_bool, warn_alias_once};
 
 /// Path to ny-llvmc compiler (NYASH_NY_LLVM_COMPILER).
 pub fn ny_llvm_compiler_path() -> Option<String> {
@@ -98,7 +98,11 @@ pub fn backend_codegen_request_defaults(
 /// Pure-first compile request for the current backend recipe.
 /// Recipe-aware callers may bind an explicit pure-first FFI export from this.
 pub fn backend_recipe_requests_pure_first() -> bool {
-    matches!(backend_compile_recipe().as_deref(), Some("pure-first")) || env_bool("HAKO_CAPI_PURE")
+    let legacy_capi_pure = env_bool("HAKO_CAPI_PURE");
+    if legacy_capi_pure {
+        warn_alias_once("HAKO_CAPI_PURE", "HAKO_BACKEND_COMPILE_RECIPE=pure-first");
+    }
+    matches!(backend_compile_recipe().as_deref(), Some("pure-first")) || legacy_capi_pure
 }
 
 /// AOT ldflags override (HAKO_AOT_LDFLAGS).
@@ -133,6 +137,7 @@ mod tests {
         acceptance_case: Option<OsString>,
         transport_owner: Option<OsString>,
         legacy_daily_allowed: Option<OsString>,
+        legacy_capi_pure: Option<OsString>,
     }
 
     impl Drop for EnvRestore {
@@ -157,6 +162,10 @@ mod tests {
                 Some(v) => std::env::set_var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED", v),
                 None => std::env::remove_var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
             }
+            match self.legacy_capi_pure.take() {
+                Some(v) => std::env::set_var("HAKO_CAPI_PURE", v),
+                None => std::env::remove_var("HAKO_CAPI_PURE"),
+            }
         }
     }
 
@@ -180,6 +189,7 @@ mod tests {
             acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
             transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
             legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+            legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
         };
         std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", "pure-first");
         std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", "harness");
@@ -198,6 +208,7 @@ mod tests {
             acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
             transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
             legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+            legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
         };
 
         std::env::set_var(
@@ -222,5 +233,22 @@ mod tests {
         assert_eq!(super::backend_acceptance_case(), None);
         assert_eq!(super::backend_transport_owner(), None);
         assert_eq!(super::backend_legacy_daily_allowed(), None);
+    }
+
+    #[test]
+    fn backend_recipe_requests_pure_first_accepts_legacy_alias() {
+        let _guard = env_lock();
+        let _restore = EnvRestore {
+            compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
+            compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+            acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
+            legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+            legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
+        };
+        std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
+        std::env::set_var("HAKO_CAPI_PURE", "1");
+
+        assert!(super::backend_recipe_requests_pure_first());
     }
 }

@@ -89,6 +89,11 @@ PY
       echo "[FAIL] phase29ck_boundary_historical_alias_probe: object missing on historical alias path: $out_obj" >&2
       exit 1
     fi
+    if ! grep -Fq "[deprecate/env] 'HAKO_CAPI_PURE' is deprecated; use 'HAKO_BACKEND_COMPILE_RECIPE=pure-first'" "$log_path"; then
+      echo "[FAIL] phase29ck_boundary_historical_alias_probe: missing historical alias deprecation warning in $log_path" >&2
+      cat "$log_path" >&2
+      exit 1
+    fi
     return
   fi
 
