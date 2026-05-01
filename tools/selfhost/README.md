@@ -179,7 +179,9 @@ Notes
     is incomplete.
 - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` still calls the
   Program(JSON)->MIR bridge directly as a Stage2 PHI/LLVM verification proof;
-  keep it in the bridge capsule inventory until that proof has a replacement.
+  it is guarded against the reduced run-only `stage1-cli` artifact. Keep it in
+  the bridge capsule inventory until an emit-capable Stage1 env artifact makes
+  the MIR-first `stage1_contract_exec_mode ... emit-mir` replacement green.
 - raw `selfhost_build.sh --in ...` whole-script output, `--keep-tmp`, and `NYASH_SELFHOST_KEEP_RAW=1` are retired facade routes.
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。

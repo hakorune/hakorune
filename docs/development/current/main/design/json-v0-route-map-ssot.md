@@ -119,7 +119,7 @@ below still need explicit Program(JSON v0) -> MIR(JSON) conversion.
 | --- | --- | --- |
 | `tools/selfhost_exe_stageb.sh` default or `HAKORUNE_STAGE1_EMIT_ROUTE=direct` | MIR-first route | not a Program(JSON v0) bridge blocker |
 | `tools/selfhost_exe_stageb.sh` with explicit `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` | bridge compat capsule | P104 replacement proof for standalone bridge-to-EXE probe; keep explicit until bridge archive coverage is complete |
-| `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Stage2 bootstrap PHI/LLVM verification proof | keep until the Stage2 verification proof no longer requires Program(JSON v0) input |
+| `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Stage2 bootstrap PHI/LLVM verification proof | P105 guards against the reduced run-only `stage1-cli` artifact; keep until an emit-capable Stage1 env artifact makes `stage1_contract_exec_mode ... emit-mir` green |
 
 Indirect callers of `tools/selfhost_exe_stageb.sh` are owned by the selected
 emit route. They are not separate bridge-helper callers unless they call

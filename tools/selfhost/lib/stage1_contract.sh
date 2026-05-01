@@ -47,6 +47,30 @@ stage1_contract_artifact_kind() {
   printf '%s' "$kind"
 }
 
+stage1_contract_artifact_entry() {
+  local bin="$1"
+  local meta="${bin}.artifact_kind"
+  if [[ ! -f "$meta" ]]; then
+    printf '%s' 'unknown'
+    return 0
+  fi
+  local entry
+  entry="$(awk -F= '$1=="entry"{print substr($0, index($0, "=")+1); exit}' "$meta" 2>/dev/null || true)"
+  if [[ -z "$entry" ]]; then
+    printf '%s' 'unknown'
+    return 0
+  fi
+  printf '%s' "$entry"
+}
+
+stage1_contract_artifact_is_reduced_stage1_cli() {
+  local bin="$1"
+  local kind entry
+  kind="$(stage1_contract_artifact_kind "$bin")"
+  entry="$(stage1_contract_artifact_entry "$bin")"
+  [[ "$kind" == "stage1-cli" && "$entry" == */lang/src/runner/entry/stage1_cli_env_entry.hako ]]
+}
+
 # Shared mode decode for both live env wrappers and low-level compat probes.
 # Keep mode -> emit-flag truth single-sourced here.
 stage1_contract_emit_flags_for_mode() {

@@ -48,6 +48,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   JSON.
 - P104 archived the old standalone bridge-to-EXE dev probe after explicit
   `tools/selfhost_exe_stageb.sh` `stageb-delegate` replacement proof went green.
+- P105 kept `phase29cg_stage2_bootstrap_phi_verify.sh` as a bridge keep but
+  guarded it against the current reduced run-only `stage1-cli` artifact. The
+  replacement remains `stage1_contract_exec_mode ... emit-mir` once an
+  emit-capable Stage1 env artifact is green.
 
 ## Compat Capsule Rules
 
@@ -79,6 +83,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
      `stageb-delegate` is a bridge capsule.
    - The old standalone bridge-to-EXE dev probe is archived at
      `tools/archive/legacy-selfhost/engineering/phase29ci_selfhost_build_exe_consumer_probe.sh`.
+   - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` is now guarded so it
+     cannot misread the reduced run-only `stage1-cli` artifact as an
+     emit-capable Stage1 env artifact.
    - This capsule is not a primary proof route and is not part of
      `selfhost_build.sh` mainline routing.
 3. Stage1 contract keepers

@@ -2,6 +2,11 @@
 # phase29cg_stage2_bootstrap_phi_verify.sh
 # Reproduce the current Stage2 bootstrap dominance/PHI blocker through the
 # stage1-cli -> Program(JSON v0) -> MIR(JSON v0) -> ny_mir_builder pipeline.
+#
+# This probe requires an emit-capable Stage1 env artifact. The current reduced
+# `stage1-cli` artifact is a run-only bootstrap output built from the thin
+# entry stub, so fail before taking the stale Program(JSON) bridge path when
+# that artifact is selected.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -38,6 +43,13 @@ if [[ ! -x "$STAGE1_BIN" ]]; then
 fi
 if [[ ! -f "$ENTRY" ]]; then
   echo "[FAIL] phase29cg_stage2_bootstrap_phi_verify: missing entry: $ENTRY" >&2
+  exit 1
+fi
+if stage1_contract_artifact_is_reduced_stage1_cli "$STAGE1_BIN"; then
+  echo "[FAIL] phase29cg_stage2_bootstrap_phi_verify: reduced run-only stage1-cli artifact cannot emit Program/MIR payloads: $STAGE1_BIN" >&2
+  echo "       artifact_entry=$(stage1_contract_artifact_entry "$STAGE1_BIN")" >&2
+  echo "       required: emit-capable Stage1 env artifact for $ENTRY" >&2
+  echo "       next: keep this bridge proof until stage1_contract_exec_mode emit-mir is green for the Stage1 artifact" >&2
   exit 1
 fi
 if ! command -v opt >/dev/null 2>&1; then
