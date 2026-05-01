@@ -79,6 +79,40 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
 
+      auto int module_generic_string_method_view_is_direct_string_substring(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "generic_method.substring") &&
+               view->core_op &&
+               !strcmp(view->core_op, "StringSubstring") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "string_substring") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.string.substring_hii") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "substring_surface_policy") &&
+               view->receiver_origin_box &&
+               !strcmp(view->receiver_origin_box, "StringBox") &&
+               !view->return_shape &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "read_ref") &&
+               !view->publication_policy &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }
+
+      auto int module_generic_string_read_arg_reg(
+          yyjson_val* args,
+          size_t index,
+          long long* out) {
+        yyjson_val* val = args && yyjson_is_arr(args) && yyjson_arr_size(args) > index
+                            ? yyjson_arr_get(args, index)
+                            : NULL;
+        if (!(val && yyjson_is_num(val))) return 0;
+        if (out) *out = (long long)yyjson_get_sint(val);
+        return 1;
+      }
+
       auto int module_generic_string_record_phi(yyjson_val* ins, long long bid) {
         struct BlockPhi* pb = ensure_phi_block(bid);
         struct PhiRec pr;
@@ -228,6 +262,11 @@
               if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                   module_generic_string_method_view_is_direct_string_len(&method_view)) {
                 set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_string_substring(&method_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_STRING);
+                set_scan_origin(dst, ORG_STRING);
               } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
                   lowering_plan_env_get_view_is_valid(&extern_view)) {
                 set_type(dst, T_I64);
@@ -396,6 +435,42 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_method_substring_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        char ab[256];
+        long long start = 0;
+        long long end = 0;
+        (void)f;
+        ab[0] = '\0';
+        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
+              module_generic_string_method_view_is_direct_string_substring(&method_view))) {
+          return 0;
+        }
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2)) return 0;
+        if (!module_generic_string_read_arg_reg(args, 0, &start)) return 0;
+        if (!module_generic_string_read_arg_reg(args, 1, &end)) return 0;
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        append_i64_arg_ref(ab, sizeof(ab), start, 0);
+        append_i64_arg_ref(ab, sizeof(ab), end, 0);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"nyash.string.substring_hii\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          remember_string_substring_call(dst, recv, start, end);
+        } else {
+          EMIT("  call i64 @\"nyash.string.substring_hii\"(%s)\n", ab);
+        }
+        return 1;
+      }
+
       auto int module_generic_string_emit_mir_call(
           FILE* f,
           long long bid,
@@ -414,6 +489,15 @@
         } else if (ctype && !strcmp(ctype, "Method")) {
           long long recv = read_int(cal, "receiver");
           rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);
+          if (rc != 1) {
+            rc = module_generic_string_emit_method_substring_mir_call(
+                f,
+                bid,
+                ii,
+                dst,
+                recv,
+                args);
+          }
         } else {
           return 0;
         }

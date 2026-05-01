@@ -12,8 +12,9 @@ use super::generic_method_route_facts::{
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
-use super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, ValueId};
+use super::{BasicBlockId, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId};
 use crate::mir::verification::utils::compute_dominators;
+use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericMethodRouteKind {
@@ -1047,7 +1048,7 @@ fn match_generic_len_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
-        .or_else(|| generic_pure_string_global_call_origin_box_name(function, def_map, *receiver))
+        .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
         .or_else(|| len_surface_origin_box_name(box_name).map(str::to_string));
     let (route_kind, core_op) =
         match len_surface_origin_box_name(box_name).or(receiver_origin_box.as_deref()) {
@@ -1103,6 +1104,7 @@ fn match_generic_substring_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
         .or_else(|| (box_name == "StringBox").then(|| "StringBox".to_string()));
     if box_name != "StringBox"
         && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))
@@ -1323,6 +1325,95 @@ fn generic_pure_string_global_call_origin_box_name(
                 && route.target_shape() == Some("generic_pure_string_body")
         })
         .then(|| "StringBox".to_string())
+}
+
+fn generic_pure_string_value_origin_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+) -> Option<String> {
+    generic_pure_string_global_call_origin_box_name(function, def_map, receiver)
+        .or_else(|| generic_pure_string_flow_origin_box_name(function, receiver))
+}
+
+fn generic_pure_string_flow_origin_box_name(
+    function: &MirFunction,
+    receiver: ValueId,
+) -> Option<String> {
+    let mut string_values = BTreeSet::<ValueId>::new();
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for (instruction_index, inst) in block.instructions.iter().enumerate() {
+                if generic_pure_string_flow_marks_instruction(
+                    function,
+                    &mut string_values,
+                    *block_id,
+                    instruction_index,
+                    inst,
+                ) {
+                    changed = true;
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    string_values
+        .contains(&receiver)
+        .then(|| "StringBox".to_string())
+}
+
+fn generic_pure_string_flow_marks_instruction(
+    function: &MirFunction,
+    string_values: &mut BTreeSet<ValueId>,
+    block_id: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> bool {
+    let mark = |string_values: &mut BTreeSet<ValueId>, value| string_values.insert(value);
+    match inst {
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::String(_),
+        } => mark(string_values, *dst),
+        MirInstruction::NewBox { dst, box_type, .. } if box_type == "StringBox" => {
+            mark(string_values, *dst)
+        }
+        MirInstruction::Copy { dst, src } if string_values.contains(src) => {
+            mark(string_values, *dst)
+        }
+        MirInstruction::Phi { dst, inputs, .. }
+            if !inputs.is_empty()
+                && inputs
+                    .iter()
+                    .all(|(_, value)| string_values.contains(value)) =>
+        {
+            mark(string_values, *dst)
+        }
+        MirInstruction::Call {
+            dst: Some(dst),
+            callee: Some(Callee::Global(_)),
+            ..
+        } if function.metadata.global_call_routes.iter().any(|route| {
+            route.block() == block_id
+                && route.instruction_index() == instruction_index
+                && route.result_value() == Some(*dst)
+                && route.target_shape() == Some("generic_pure_string_body")
+        }) =>
+        {
+            mark(string_values, *dst)
+        }
+        _ => false,
+    }
 }
 
 fn map_has_route_kind_for_key(key_route: GenericMethodKeyRoute) -> GenericMethodRouteKind {
@@ -2177,6 +2268,84 @@ mod tests {
             Some(GenericMethodReturnShape::ScalarI64)
         );
         assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+    }
+
+    #[test]
+    fn records_runtime_data_substring_from_generic_global_call_phi_origin() {
+        let mut function = make_function();
+        let entry = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        entry.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+            args: vec![ValueId::new(0)],
+            effects: EffectMask::PURE,
+        });
+        entry.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId::new(1),
+            edge_args: None,
+        });
+        let mut merge = BasicBlock::new(BasicBlockId::new(1));
+        merge.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(2),
+            inputs: vec![(BasicBlockId::new(0), ValueId::new(1))],
+            type_hint: None,
+        });
+        merge.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(2),
+        });
+        merge.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::Integer(0),
+        });
+        merge.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(5),
+            value: ConstValue::Integer(64),
+        });
+        merge.add_instruction(method_call(
+            Some(6),
+            "RuntimeDataBox",
+            "substring",
+            3,
+            vec![4, 5],
+        ));
+        function.add_block(merge);
+        function
+            .metadata
+            .global_call_routes
+            .push(GlobalCallRoute::new(
+                GlobalCallRouteSite::new(BasicBlockId::new(0), 0),
+                "Helper.coerce/1",
+                1,
+                Some(ValueId::new(1)),
+                GlobalCallTargetFacts::present_with_shape(
+                    1,
+                    GlobalCallTargetShape::GenericPureStringBody,
+                ),
+            ));
+
+        refresh_function_generic_method_routes(&mut function);
+
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), "substring");
+        assert_eq!(route.arity(), 2);
+        assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+        assert_eq!(route.route_kind(), GenericMethodRouteKind::StringSubstring);
+        let core_method = route
+            .core_method()
+            .expect("RuntimeData StringSubstring carrier");
+        assert_eq!(core_method.op, CoreMethodOp::StringSubstring);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
     }
 
     #[test]
