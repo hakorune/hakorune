@@ -2,12 +2,14 @@
 # Phase 33-8: A/B test automation for JoinIR lowering
 #
 # Usage:
-#   tools/joinir_ab_test.sh <test_file.hako>
+#   ./joinir_ab_test.sh <test_file.hako>
 #
 # Example:
-#   tools/joinir_ab_test.sh apps/tests/joinir_if_merge_simple.hako
+#   ./joinir_ab_test.sh apps/tests/joinir_if_merge_simple.hako
 
 set -euo pipefail
+
+cd "$(dirname "$0")/../../.."
 
 test_case=$1  # e.g., "apps/tests/joinir_if_merge_simple.hako"
 

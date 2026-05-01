@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
+ROOT_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
 APP=${1:-lang/src/compiler/entry/compiler_stageb.hako}
 OUTDIR=${OUTDIR:-$ROOT_DIR/tmp}
 mkdir -p "$OUTDIR"
