@@ -4,7 +4,7 @@ set -euo pipefail
 if [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]]; then set -x; fi
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: tools/build_python_aot.sh <input.hako> [-o <output>]" >&2
+  echo "Usage: tools/archive/manual-tools/build_python_aot.sh <input.hako> [-o <output>]" >&2
   exit 1
 fi
 
@@ -33,4 +33,3 @@ bash tools/build_aot.sh "$INPUT" -o "$OUT"
 
 echo "✅ Done: $OUT"
 echo "Hint: set NYASH_PY_AUTODECODE=1 at runtime for primitive returns"
-

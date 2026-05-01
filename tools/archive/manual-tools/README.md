@@ -8,6 +8,7 @@ active product, build, smoke, or compat-capsule entrypoints.
 Archived helpers:
 
 - `archive_rust_llvm.sh`
+- `build_python_aot.sh`
 - `clean_root_artifacts.sh`
 - `compare_harness_on_off.sh`
 - `codex-keep-two.sh`

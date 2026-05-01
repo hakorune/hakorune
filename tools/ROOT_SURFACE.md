@@ -39,14 +39,13 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | --- | --- | --- | --- | --- |
 | `tools/abi_manifest_codegen.py` | protected/generator | ABI manifest SSOT and generated Hako defaults | keep | maintain with ABI manifest |
 | `tools/backend_runtime_decl_manifest_codegen.py` | protected/generator | runtime-decl manifest SSOT and generated Hako defaults | keep | maintain with runtime-decl manifest |
-| `tools/build_aot.ps1` | protected/platform | README and Cranelift AOT guide refs | hold | classify old AOT route before archive |
-| `tools/build_aot.sh` | protected/build | Linux Cranelift/JIT AOT builder | hold | classify with AOT route owner |
+| `tools/build_aot.ps1` | protected/platform | current README and Cranelift AOT guide refs | keep | keep with Windows AOT docs owner |
+| `tools/build_aot.sh` | protected/build | current README and Cranelift AOT guide refs | keep | keep with current AOT docs owner |
 | `tools/build_compiler_exe.sh` | protected/build | EXE-first parser bundle builder | keep | keep while EXE-first smokes call it |
 | `tools/build_hako_llvmc_ffi.sh` | protected/build | LLVM harness FFI build helper | keep | keep with LLVM harness owner |
 | `tools/build_llvm.ps1` | protected/platform | Windows LLVM wrappers | keep | retire only with Windows LLVM owner |
 | `tools/build_llvm.sh` | protected/build | LLVM native executable builder | keep | keep with ny-llvmc route |
 | `tools/build_plugins_all.sh` | protected/build | plugin workspace build helper, P51 non-goal | keep | keep until plugin-build owner retires it |
-| `tools/build_python_aot.sh` | protected/build | Python plugin AOT example and migration-plan refs | hold | classify with old AOT route |
 | `tools/ci_check_golden.sh` | protected/ci | called by `tools/core_ci.sh` | keep | keep with golden MIR chain |
 | `tools/codex-async-notify.sh` | manual-tool | manual AI/tmux helper | hold | archive only after workflow owner says unused |
 | `tools/compare_mir.sh` | protected/ci | called by `tools/ci_check_golden.sh` | keep | keep with golden MIR chain |
@@ -96,8 +95,6 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 
 Do not move these without a focused card:
 
-- AOT leftovers: `tools/build_aot.ps1`, `tools/build_aot.sh`,
-  `tools/build_python_aot.sh`
 - backend canary: `tools/native_llvm_builder.py`
 - PHI probes: `tools/phi_trace_bridge_try.sh`, `tools/phi_trace_run.sh`
 - Program(JSON v0) capsules: `tools/dev_stagea.sh`, `tools/dev_stageb.sh`,
