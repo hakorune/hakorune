@@ -203,6 +203,12 @@ surface that blocker through `target_shape_reason` and
 `target_shape_blocker_*` instead of stopping at the generic sentinel candidate
 reason. This remains diagnostic evidence; it must not make the sentinel target
 lowerable.
+Outside that sentinel body scan, a `null`/`void` constant observed by the generic
+pure string classifier must reject with
+`generic_string_unsupported_void_sentinel_const` instead of the broad
+`generic_string_unsupported_instruction`. This marks presence-probe helpers such
+as env flag checks as a distinct next-slice blocker without accepting them as a
+string body.
 
 Same-module global user-call target evidence must also include
 `target_return_type` when `target_exists=true`. This is the compact MIR

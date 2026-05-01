@@ -401,6 +401,71 @@ fn build_mir_json_root_emits_child_blocker_for_string_or_void_sentinel_candidate
 }
 
 #[test]
+fn build_mir_json_root_emits_void_sentinel_const_shape_reason() {
+    let mut module =
+        crate::mir::MirModule::new("json_global_call_void_const_reason_test".to_string());
+    let mut caller = make_function("main", true);
+    caller
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Call {
+            dst: Some(ValueId::new(7)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.flag/1".to_string())),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::PURE,
+        });
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.flag/1".to_string(),
+            params: vec![MirType::String],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Void,
+    });
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+    module.add_function(caller);
+    module.add_function(callee);
+    refresh_module_global_call_routes(&mut module);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
+    assert_eq!(route["target_shape"], serde_json::Value::Null);
+    assert_eq!(
+        route["target_shape_reason"],
+        "generic_string_unsupported_void_sentinel_const"
+    );
+    assert_eq!(
+        route["target_shape_blocker_symbol"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        route["target_shape_blocker_reason"],
+        serde_json::Value::Null
+    );
+
+    let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
+    assert_eq!(plan["target_shape"], serde_json::Value::Null);
+    assert_eq!(
+        plan["target_shape_reason"],
+        "generic_string_unsupported_void_sentinel_const"
+    );
+    assert_eq!(plan["target_shape_blocker_symbol"], serde_json::Value::Null);
+    assert_eq!(plan["target_shape_blocker_reason"], serde_json::Value::Null);
+}
+
+#[test]
 fn build_mir_json_root_emits_target_shape_child_blocker_for_unknown_child_target() {
     let mut module = crate::mir::MirModule::new("json_global_call_child_blocker_test".to_string());
     let mut caller = make_function("main", true);

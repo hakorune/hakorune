@@ -61,6 +61,7 @@ enum GlobalCallTargetShapeReason {
     GenericStringReturnVoidSentinelCandidate,
     GenericStringParamAbiNotHandleCompatible,
     GenericStringUnsupportedInstruction,
+    GenericStringUnsupportedVoidSentinelConst,
     GenericStringUnsupportedCall,
     GenericStringUnsupportedMethodCall,
     GenericStringUnsupportedExternCall,
@@ -85,6 +86,9 @@ impl GlobalCallTargetShapeReason {
                 "generic_string_param_abi_not_handle_compatible"
             }
             Self::GenericStringUnsupportedInstruction => "generic_string_unsupported_instruction",
+            Self::GenericStringUnsupportedVoidSentinelConst => {
+                "generic_string_unsupported_void_sentinel_const"
+            }
             Self::GenericStringUnsupportedCall => "generic_string_unsupported_call",
             Self::GenericStringUnsupportedMethodCall => "generic_string_unsupported_method_call",
             Self::GenericStringUnsupportedExternCall => "generic_string_unsupported_extern_call",
@@ -1035,15 +1039,21 @@ fn generic_pure_string_instruction_reject_reason(
                 _ => GenericPureValueClass::Unknown,
             };
             set_value_class(values, *dst, class, changed);
-            if class == GenericPureValueClass::Unknown
-                && !(mode.allows_void_sentinel_const()
-                    && matches!(value, ConstValue::Null | ConstValue::Void))
-            {
+            if class != GenericPureValueClass::Unknown {
+                return None;
+            }
+            if matches!(value, ConstValue::Null | ConstValue::Void) {
+                if mode.allows_void_sentinel_const() {
+                    None
+                } else {
+                    Some(GenericPureStringReject::new(
+                        GlobalCallTargetShapeReason::GenericStringUnsupportedVoidSentinelConst,
+                    ))
+                }
+            } else {
                 Some(GenericPureStringReject::new(
                     GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
                 ))
-            } else {
-                None
             }
         }
         MirInstruction::Copy { dst, src } => {
@@ -1557,6 +1567,47 @@ mod tests {
         );
         assert_eq!(route.tier(), "Unsupported");
         assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
+    }
+
+    #[test]
+    fn refresh_module_global_call_routes_marks_void_sentinel_const_reason() {
+        let mut module = MirModule::new("global_call_void_const_reason_test".to_string());
+        let caller = make_function_with_global_call_args(
+            "Helper.flag/1",
+            Some(ValueId::new(7)),
+            vec![ValueId::new(1)],
+        );
+        let mut callee = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.flag/1".to_string(),
+                params: vec![MirType::String],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        callee.params = vec![ValueId::new(1)];
+        let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Void,
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        module.functions.insert("main".to_string(), caller);
+        module.functions.insert("Helper.flag/1".to_string(), callee);
+
+        refresh_module_global_call_routes(&mut module);
+
+        let route = &module.functions["main"].metadata.global_call_routes[0];
+        assert_eq!(route.target_shape(), None);
+        assert_eq!(
+            route.target_shape_reason(),
+            Some("generic_string_unsupported_void_sentinel_const")
+        );
+        assert_eq!(route.target_shape_blocker_symbol(), None);
+        assert_eq!(route.target_shape_blocker_reason(), None);
     }
 
     #[test]
