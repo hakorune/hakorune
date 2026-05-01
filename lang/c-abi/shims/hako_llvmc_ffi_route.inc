@@ -317,6 +317,12 @@ static int compile_json_with_selected_route(
 // Signature must match: int (*)(const char*, const char*, char**)
 __attribute__((visibility("default")))
 int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err_out) {
+  if (hako_llvmc_legacy_capi_pure_alias_enabled()) {
+    hako_llvmc_warn_legacy_capi_pure_alias_once();
+    return set_err_owned(
+        err_out,
+        "[freeze:contract][env/hako_capi_pure_retired] HAKO_CAPI_PURE is retired; use HAKO_BACKEND_COMPILE_RECIPE=pure-first");
+  }
   return compile_json_with_selected_route(json_in, obj_out, err_out, capi_pure_enabled());
 }
 
@@ -326,4 +332,3 @@ __attribute__((visibility("default")))
 int hako_llvmc_compile_json_pure_first(const char* json_in, const char* obj_out, char** err_out) {
   return compile_json_with_selected_route(json_in, obj_out, err_out, 1);
 }
-

@@ -143,8 +143,11 @@ Related:
   spelling cleanup: inventory first, then active caller replacement, then
   warning/fail-fast policy. P99 warning uses the stable
   `[deprecate/env] 'HAKO_CAPI_PURE' is deprecated; use 'HAKO_BACKEND_COMPILE_RECIPE=pure-first'`
-  signal without changing route selection. Do not widen backend acceptance
-  while retiring `HAKO_CAPI_PURE`.
+  signal without changing route selection. P100 removes alias route selection:
+  C generic FFI and `ny-llvmc` boundary driver callers fail-fast with
+  `[freeze:contract][env/hako_capi_pure_retired]`, while Rust env helper no
+  longer treats the alias as pure-first. Do not widen backend acceptance while
+  retiring `HAKO_CAPI_PURE`.
 
 ## Final Shape
 

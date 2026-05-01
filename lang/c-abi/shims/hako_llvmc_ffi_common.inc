@@ -41,15 +41,11 @@ static void hako_llvmc_warn_legacy_capi_pure_alias_once(void) {
 }
 
 static int capi_pure_enabled(void) {
-  int legacy_capi_pure = hako_llvmc_legacy_capi_pure_alias_enabled();
-  if (legacy_capi_pure) {
-    hako_llvmc_warn_legacy_capi_pure_alias_once();
-  }
   const char* recipe = hako_llvmc_backend_compile_recipe();
   if (recipe && recipe[0]) {
     return strcmp(recipe, "pure-first") == 0;
   }
-  return legacy_capi_pure;
+  return 0;
 }
 
 static int compat_harness_replay_enabled(void) {

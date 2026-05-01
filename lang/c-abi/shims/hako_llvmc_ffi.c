@@ -2,8 +2,9 @@
 // Exports functions that hako_aot.c dlopens when HAKO_AOT_USE_FFI=1.
 // Phase 21.2 introduced a guarded "pure C-API" toggle (HAKO_CAPI_PURE=1).
 // Phase 29ck now names the current compile policy through
-// HAKO_BACKEND_COMPILE_RECIPE / HAKO_BACKEND_COMPAT_REPLAY, while keeping
-// HAKO_CAPI_PURE as a legacy compat alias for historical pure packs.
+// HAKO_BACKEND_COMPILE_RECIPE / HAKO_BACKEND_COMPAT_REPLAY. The old
+// HAKO_CAPI_PURE alias is retired and fails fast when used as a route
+// selector.
 // Supported seeds still try the pure-first boundary subset here, and
 // unsupported shapes in that lane replay the explicit `--driver harness`
 // keep lane directly from this shim.

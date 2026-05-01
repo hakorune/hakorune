@@ -46,6 +46,9 @@ where
     let legacy_capi_pure = std::env::var("HAKO_CAPI_PURE").ok();
     if legacy_capi_pure_alias_enabled(legacy_capi_pure.as_deref()) {
         warn_legacy_capi_pure_alias_once();
+        bail!(
+            "[freeze:contract][env/hako_capi_pure_retired] HAKO_CAPI_PURE is retired; use HAKO_BACKEND_COMPILE_RECIPE=pure-first"
+        );
     }
     let (compile_recipe, compat_replay) =
         super::boundary_driver_defaults::boundary_codegen_request_defaults(

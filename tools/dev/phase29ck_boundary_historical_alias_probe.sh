@@ -79,14 +79,14 @@ PY
   rc=$?
   set -e
 
-  if [ "$expected_mode" = "pass" ]; then
-    if [ "$rc" -ne 0 ]; then
-      echo "[FAIL] phase29ck_boundary_historical_alias_probe: historical alias did not keep generic export green (rc=$rc)" >&2
+  if [ "$expected_mode" = "fail_retired" ]; then
+    if [ "$rc" -eq 0 ]; then
+      echo "[FAIL] phase29ck_boundary_historical_alias_probe: retired alias unexpectedly succeeded" >&2
       cat "$log_path" >&2
       exit 1
     fi
-    if [ ! -f "$out_obj" ]; then
-      echo "[FAIL] phase29ck_boundary_historical_alias_probe: object missing on historical alias path: $out_obj" >&2
+    if [ -f "$out_obj" ]; then
+      echo "[FAIL] phase29ck_boundary_historical_alias_probe: unexpected object on retired alias path: $out_obj" >&2
       exit 1
     fi
     if ! grep -Fq "[deprecate/env] 'HAKO_CAPI_PURE' is deprecated; use 'HAKO_BACKEND_COMPILE_RECIPE=pure-first'" "$log_path"; then
@@ -94,21 +94,19 @@ PY
       cat "$log_path" >&2
       exit 1
     fi
+    if ! grep -Fq "[freeze:contract][env/hako_capi_pure_retired] HAKO_CAPI_PURE is retired; use HAKO_BACKEND_COMPILE_RECIPE=pure-first" "$log_path"; then
+      echo "[FAIL] phase29ck_boundary_historical_alias_probe: missing retired alias fail-fast in $log_path" >&2
+      cat "$log_path" >&2
+      exit 1
+    fi
     return
   fi
 
-  if [ "$rc" -eq 0 ]; then
-    echo "[FAIL] phase29ck_boundary_historical_alias_probe: historical alias overrode explicit harness recipe" >&2
-    cat "$log_path" >&2
-    exit 1
-  fi
-  if [ -f "$out_obj" ]; then
-    echo "[FAIL] phase29ck_boundary_historical_alias_probe: unexpected object when harness recipe should win: $out_obj" >&2
-    exit 1
-  fi
+  echo "[FAIL] phase29ck_boundary_historical_alias_probe: unknown expected mode: $expected_mode" >&2
+  exit 1
 }
 
-run_probe_case "" "1" "$OUT_ALIAS" "$LOG_ALIAS" pass
-run_probe_case "harness" "1" "$OUT_RECIPE" "$LOG_RECIPE" fail
+run_probe_case "" "1" "$OUT_ALIAS" "$LOG_ALIAS" fail_retired
+run_probe_case "harness" "1" "$OUT_RECIPE" "$LOG_RECIPE" fail_retired
 
 echo "[PASS] phase29ck_boundary_historical_alias_probe"

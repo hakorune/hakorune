@@ -102,7 +102,7 @@ pub fn backend_recipe_requests_pure_first() -> bool {
     if legacy_capi_pure {
         warn_alias_once("HAKO_CAPI_PURE", "HAKO_BACKEND_COMPILE_RECIPE=pure-first");
     }
-    matches!(backend_compile_recipe().as_deref(), Some("pure-first")) || legacy_capi_pure
+    matches!(backend_compile_recipe().as_deref(), Some("pure-first"))
 }
 
 /// AOT ldflags override (HAKO_AOT_LDFLAGS).
@@ -236,7 +236,7 @@ mod tests {
     }
 
     #[test]
-    fn backend_recipe_requests_pure_first_accepts_legacy_alias() {
+    fn backend_recipe_requests_pure_first_ignores_legacy_alias() {
         let _guard = env_lock();
         let _restore = EnvRestore {
             compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
@@ -249,6 +249,6 @@ mod tests {
         std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
         std::env::set_var("HAKO_CAPI_PURE", "1");
 
-        assert!(super::backend_recipe_requests_pure_first());
+        assert!(!super::backend_recipe_requests_pure_first());
     }
 }
