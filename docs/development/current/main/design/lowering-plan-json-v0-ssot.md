@@ -166,6 +166,11 @@ entry selection as a view. While the emitter is still entry-only, it must keep
 module facts available through the program view so the multi-function emitter
 can be added without inventing a second raw JSON scanner.
 
+C consumers must read `global_call_routes` through a dedicated
+`LoweringPlanGlobalCallView`, the same way generic method and extern plans have
+typed views. The failure path may report `view.reason`; it must not hand-parse
+`source/tier/reason` at the callsite.
+
 New backend work should add a `LoweringPlan` entry before adding a new raw
 `.inc` matcher. Existing route metadata may stay until the matching plan
 consumer is proven.

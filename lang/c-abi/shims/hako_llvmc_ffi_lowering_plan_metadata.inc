@@ -36,6 +36,28 @@
         enum LoweringPlanTierMetadata tier;
       };
 
+      struct LoweringPlanGlobalCallView {
+        yyjson_val* entry;
+        const char* route_id;
+        const char* callee_name;
+        const char* core_op;
+        const char* route_kind;
+        const char* emit_kind;
+        const char* proof;
+        const char* route_proof;
+        const char* reason;
+        const char* value_demand;
+        long long arity;
+        long long target_arity;
+        long long result_value;
+        int has_target_arity;
+        int has_result_value;
+        int target_exists;
+        int has_arity_matches;
+        int arity_matches;
+        enum LoweringPlanTierMetadata tier;
+      };
+
       auto int lowering_plan_read_i64_field(
           yyjson_val* obj,
           const char* key,
@@ -43,6 +65,16 @@
         yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
         if (!(val && yyjson_is_num(val))) return 0;
         if (out) *out = (long long)yyjson_get_sint(val);
+        return 1;
+      }
+
+      auto int lowering_plan_read_bool_field(
+          yyjson_val* obj,
+          const char* key,
+          int* out) {
+        yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
+        if (!(val && yyjson_is_bool(val))) return 0;
+        if (out) *out = yyjson_get_bool(val) ? 1 : 0;
         return 1;
       }
 
@@ -107,6 +139,12 @@
       auto int lowering_plan_entry_is_extern_registry(yyjson_val* entry) {
         const char* proof = read_str(entry, "proof");
         return proof && !strcmp(proof, "extern_registry");
+      }
+
+      auto int lowering_plan_entry_is_typed_global_call_contract_missing(
+          yyjson_val* entry) {
+        const char* proof = read_str(entry, "proof");
+        return proof && !strcmp(proof, "typed_global_call_contract_missing");
       }
 
       auto int read_lowering_plan_generic_method_view(
@@ -175,6 +213,61 @@
                out->route_kind &&
                out->emit_kind &&
                out->symbol &&
+               out->proof;
+      }
+
+      auto int read_lowering_plan_global_call_view(
+          yyjson_val* entry,
+          struct LoweringPlanGlobalCallView* out) {
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        long long target_arity = 0;
+        long long result_value = 0;
+        int target_exists = 0;
+        int arity_matches = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!(source && !strcmp(source, "global_call_routes")) ||
+            invalid ||
+            !lowering_plan_entry_is_typed_global_call_contract_missing(entry)) {
+          return 0;
+        }
+        if (out) {
+          out->entry = entry;
+          out->route_id = read_str(entry, "source_route_id");
+          out->callee_name = read_str(entry, "callee_name");
+          out->core_op = read_str(entry, "core_op");
+          out->route_kind = read_str(entry, "route_kind");
+          out->emit_kind = read_str(entry, "emit_kind");
+          out->proof = read_str(entry, "proof");
+          out->route_proof = read_str(entry, "route_proof");
+          out->reason = read_str(entry, "reason");
+          out->value_demand = read_str(entry, "value_demand");
+          lowering_plan_read_i64_field(entry, "arity", &out->arity);
+          if (lowering_plan_read_i64_field(entry, "target_arity", &target_arity)) {
+            out->target_arity = target_arity;
+            out->has_target_arity = 1;
+          }
+          if (lowering_plan_read_i64_field(entry, "result_value", &result_value)) {
+            out->result_value = result_value;
+            out->has_result_value = 1;
+          }
+          if (lowering_plan_read_bool_field(entry, "target_exists", &target_exists)) {
+            out->target_exists = target_exists;
+          }
+          if (lowering_plan_read_bool_field(entry, "arity_matches", &arity_matches)) {
+            out->arity_matches = arity_matches;
+            out->has_arity_matches = 1;
+          }
+          out->tier = tier;
+        }
+        return out &&
+               out->route_id &&
+               out->callee_name &&
+               out->core_op &&
+               out->route_kind &&
+               out->emit_kind &&
                out->proof;
       }
 

@@ -88,6 +88,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `function_count`, selected entry, `entry_index`) while preserving entry-only
   emission. This is the structural landing point for the next multi-function
   emitter card.
+- P115 adds a C `LoweringPlanGlobalCallView` and routes the unsupported
+  user/global-call diagnostic through that typed view. The stop-line remains
+  `missing_multi_function_emitter`, but the backend failure site no longer
+  hand-parses the global-call plan fields.
 
 ## Compat Capsule Rules
 

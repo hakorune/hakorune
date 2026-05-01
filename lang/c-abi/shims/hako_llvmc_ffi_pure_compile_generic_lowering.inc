@@ -969,21 +969,15 @@
                     f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
                     dst, recv, args, a0, a1, skip_inst) < 0) {
               yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
-              const char* plan_source = plan_entry ? read_str(plan_entry, "source") : NULL;
-              int invalid_plan_tier = 0;
-              enum LoweringPlanTierMetadata plan_tier =
-                  read_lowering_plan_tier_metadata(plan_entry, &invalid_plan_tier);
-              if (plan_source &&
-                  !strcmp(plan_source, "global_call_routes") &&
-                  !invalid_plan_tier &&
-                  plan_tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED) {
-                const char* plan_reason = read_str(plan_entry, "reason");
+              struct LoweringPlanGlobalCallView global_view;
+              if (read_lowering_plan_global_call_view(plan_entry, &global_view) &&
+                  global_view.tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED) {
                 note_pure_unsupported_shape(
                     bid,
                     ii,
                     op,
-                    (plan_reason && plan_reason[0])
-                        ? plan_reason
+                    (global_view.reason && global_view.reason[0])
+                        ? global_view.reason
                         : "lowering_plan_unsupported_global_call");
               } else {
                 note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route");
