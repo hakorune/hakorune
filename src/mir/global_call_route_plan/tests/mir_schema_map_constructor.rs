@@ -310,6 +310,86 @@ fn mir_schema_ret_block_wrapper_function(name: &str) -> MirFunction {
     function
 }
 
+fn mir_schema_module_root_function(name: &str, child_name: &str) -> MirFunction {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: name.to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    function.params = vec![ValueId::new(1)];
+    let block = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::NewBox {
+            dst: ValueId::new(2),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Integer(0),
+        },
+        global_call(ValueId::new(4), child_name, vec![ValueId::new(3)]),
+        MirInstruction::Const {
+            dst: ValueId::new(5),
+            value: ConstValue::String("version".to_string()),
+        },
+        method_call(
+            Some(ValueId::new(6)),
+            "MapBox",
+            "set",
+            ValueId::new(2),
+            vec![ValueId::new(5), ValueId::new(4)],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(7),
+            value: ConstValue::String("kind".to_string()),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(8),
+            value: ConstValue::String("MIR".to_string()),
+        },
+        method_call(
+            Some(ValueId::new(9)),
+            "MapBox",
+            "set",
+            ValueId::new(2),
+            vec![ValueId::new(7), ValueId::new(8)],
+        ),
+        MirInstruction::NewBox {
+            dst: ValueId::new(10),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        },
+        method_call(None, "ArrayBox", "birth", ValueId::new(10), vec![]),
+        method_call(
+            None,
+            "ArrayBox",
+            "push",
+            ValueId::new(10),
+            vec![ValueId::new(1)],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(11),
+            value: ConstValue::String("functions".to_string()),
+        },
+        method_call(
+            Some(ValueId::new(12)),
+            "MapBox",
+            "set",
+            ValueId::new(2),
+            vec![ValueId::new(11), ValueId::new(10)],
+        ),
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+    function
+}
+
 #[test]
 fn refresh_module_global_call_routes_marks_mir_schema_map_constructor_body() {
     let mut module = MirModule::new("global_call_mir_schema_map_constructor_test".to_string());
@@ -387,6 +467,44 @@ fn refresh_module_global_call_routes_accepts_mir_schema_map_wrapper_unknown_retu
         "typed_global_call_mir_schema_map_constructor"
     );
     assert_eq!(route.return_shape(), Some("map_handle"));
+    assert_eq!(route.target_return_type(), Some("?".to_string()));
+}
+
+#[test]
+fn refresh_module_global_call_routes_accepts_mir_schema_module_root_unknown_return() {
+    let mut module = MirModule::new("global_call_mir_schema_module_root_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "MirSchemaBox.module/1",
+        Some(ValueId::new(30)),
+        vec![ValueId::new(20)],
+    );
+    module.functions.insert("main".to_string(), caller);
+    module.functions.insert(
+        "MirSchemaBox.i/1".to_string(),
+        mir_schema_i_function("MirSchemaBox.i/1"),
+    );
+    module.functions.insert(
+        "MirSchemaBox.module/1".to_string(),
+        mir_schema_module_root_function("MirSchemaBox.module/1", "MirSchemaBox.i/1"),
+    );
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("mir_schema_map_constructor_body"),
+        "reason={:?} blocker={:?}/{:?}",
+        route.target_shape_reason(),
+        route.target_shape_blocker_symbol(),
+        route.target_shape_blocker_reason()
+    );
+    assert_eq!(
+        route.proof(),
+        "typed_global_call_mir_schema_map_constructor"
+    );
+    assert_eq!(route.return_shape(), Some("map_handle"));
+    assert_eq!(route.value_demand(), "runtime_i64_or_handle");
     assert_eq!(route.target_return_type(), Some("?".to_string()));
 }
 

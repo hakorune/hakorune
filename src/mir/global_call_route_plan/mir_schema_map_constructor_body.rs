@@ -114,10 +114,19 @@ pub(super) fn is_mir_schema_map_constructor_body_candidate(
 #[derive(Default)]
 struct MirSchemaMapWrapperCandidateFacts {
     arrays: BTreeSet<ValueId>,
+    maps: BTreeSet<ValueId>,
     map_values: BTreeSet<ValueId>,
     array_wrapped_map_values: BTreeSet<ValueId>,
     saw_array_birth: bool,
+    saw_map_birth: bool,
     saw_array_push: bool,
+    saw_array_push_map: bool,
+    saw_map_set: bool,
+    saw_version_key: bool,
+    saw_kind_key: bool,
+    saw_mir_kind: bool,
+    saw_functions_key: bool,
+    returned_map: bool,
     returned_array_wrapped_map: bool,
 }
 
@@ -129,6 +138,15 @@ impl MirSchemaMapWrapperCandidateFacts {
         changed: &mut bool,
     ) {
         match instruction {
+            MirInstruction::Const {
+                value: ConstValue::String(text),
+                ..
+            } => {
+                self.saw_version_key |= text == "version";
+                self.saw_kind_key |= text == "kind";
+                self.saw_mir_kind |= text == "MIR";
+                self.saw_functions_key |= text == "functions";
+            }
             MirInstruction::NewBox {
                 dst,
                 box_type,
@@ -137,9 +155,20 @@ impl MirSchemaMapWrapperCandidateFacts {
                 self.saw_array_birth = true;
                 self.insert_array(*dst, changed);
             }
+            MirInstruction::NewBox {
+                dst,
+                box_type,
+                args,
+            } if args.is_empty() && box_type == "MapBox" => {
+                self.saw_map_birth = true;
+                self.insert_local_map(*dst, changed);
+            }
             MirInstruction::Copy { dst, src } => {
                 if self.arrays.contains(src) {
                     self.insert_array(*dst, changed);
+                }
+                if self.maps.contains(src) {
+                    self.insert_local_map(*dst, changed);
                 }
                 if self.map_values.contains(src) {
                     self.insert_map(*dst, changed);
@@ -160,10 +189,27 @@ impl MirSchemaMapWrapperCandidateFacts {
                 ..
             } if matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox")
                 && method == "push"
-                && self.arrays.contains(receiver)
-                && self.array_pushes_map(args) =>
+                && self.arrays.contains(receiver) =>
             {
                 self.saw_array_push = true;
+                if self.array_pushes_map(args) {
+                    self.saw_array_push_map = true;
+                }
+            }
+            MirInstruction::Call {
+                callee:
+                    Some(Callee::Method {
+                        box_name,
+                        method,
+                        receiver: Some(receiver),
+                        ..
+                    }),
+                ..
+            } if matches!(box_name.as_str(), "MapBox" | "RuntimeDataBox")
+                && method == "set"
+                && self.maps.contains(receiver) =>
+            {
+                self.saw_map_set = true;
             }
             MirInstruction::Call {
                 dst: Some(dst),
@@ -177,6 +223,9 @@ impl MirSchemaMapWrapperCandidateFacts {
                 }
             }
             MirInstruction::Return { value: Some(value) } => {
+                if self.maps.contains(value) {
+                    self.returned_map = true;
+                }
                 if self.array_wrapped_map_values.contains(value) {
                     self.returned_array_wrapped_map = true;
                 }
@@ -186,7 +235,19 @@ impl MirSchemaMapWrapperCandidateFacts {
     }
 
     fn accepts(&self) -> bool {
-        self.saw_array_birth && self.saw_array_push && self.returned_array_wrapped_map
+        let array_wrapped_map =
+            self.saw_array_birth && self.saw_array_push_map && self.returned_array_wrapped_map;
+        let module_root_map = self.module_root_surface()
+            && self.saw_map_birth
+            && self.saw_map_set
+            && self.saw_array_birth
+            && self.saw_array_push
+            && self.returned_map;
+        array_wrapped_map || module_root_map
+    }
+
+    fn module_root_surface(&self) -> bool {
+        self.saw_version_key && self.saw_kind_key && self.saw_mir_kind && self.saw_functions_key
     }
 
     fn array_pushes_map(&self, args: &[ValueId]) -> bool {
@@ -201,6 +262,12 @@ impl MirSchemaMapWrapperCandidateFacts {
 
     fn insert_array(&mut self, value: ValueId, changed: &mut bool) {
         if self.arrays.insert(value) {
+            *changed = true;
+        }
+    }
+
+    fn insert_local_map(&mut self, value: ValueId, changed: &mut bool) {
+        if self.maps.insert(value) {
             *changed = true;
         }
     }
@@ -237,6 +304,10 @@ struct MirSchemaMapConstructorFacts {
     saw_map_birth: bool,
     saw_map_set: bool,
     saw_array_push: bool,
+    saw_version_key: bool,
+    saw_kind_key: bool,
+    saw_mir_kind: bool,
+    saw_functions_key: bool,
     returned_map: bool,
     returned_array_wrapped_map: bool,
 }
@@ -251,7 +322,13 @@ impl MirSchemaMapConstructorFacts {
         match instruction {
             MirInstruction::Const { dst, value } => {
                 let class = match value {
-                    ConstValue::String(_) => MirSchemaValueClass::String,
+                    ConstValue::String(text) => {
+                        self.saw_version_key |= text == "version";
+                        self.saw_kind_key |= text == "kind";
+                        self.saw_mir_kind |= text == "MIR";
+                        self.saw_functions_key |= text == "functions";
+                        MirSchemaValueClass::String
+                    }
                     ConstValue::Integer(_)
                     | ConstValue::Bool(_)
                     | ConstValue::Null
@@ -478,13 +555,21 @@ impl MirSchemaMapConstructorFacts {
 
     fn accepts_array_push_args(&self, args: &[ValueId]) -> bool {
         match args {
-            [value] => self.values.get(value) == Some(&MirSchemaValueClass::Map),
+            [value] => {
+                self.values.get(value) == Some(&MirSchemaValueClass::Map)
+                    || (self.module_root_surface() && !self.values.contains_key(value))
+            }
             [receiver_arg, value] => {
                 self.values.get(receiver_arg) == Some(&MirSchemaValueClass::Array)
-                    && self.values.get(value) == Some(&MirSchemaValueClass::Map)
+                    && (self.values.get(value) == Some(&MirSchemaValueClass::Map)
+                        || (self.module_root_surface() && !self.values.contains_key(value)))
             }
             _ => false,
         }
+    }
+
+    fn module_root_surface(&self) -> bool {
+        self.saw_version_key && self.saw_kind_key && self.saw_mir_kind && self.saw_functions_key
     }
 
     fn global_call_value_class(
