@@ -104,6 +104,20 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   then become `DirectAbi` `UserGlobalCall` targets. Non-leaf targets, including
   `Stage1ModeContractBox.resolve_mode/0`, remain on the
   `missing_multi_function_emitter` stop-line.
+- P119 separates generic pure lowering into an explicit per-function state
+  seam. P120 uses that seam for same-module `generic_pure_string_body`
+  definitions, so `Stage1ModeContractBox.resolve_mode/0` no longer requires a
+  raw backend matcher.
+- P147-P148 tighten MIR-owned global-call classification for unknown-return
+  string/void sentinel bodies and exact string return parameter passthrough.
+  This keeps parameter inference narrow while advancing the source-execution
+  route through the mode contract.
+- P149 makes void-typed return-profile diagnostics propagate nested global-call
+  blockers instead of hiding them behind sentinel metadata.
+- P150 makes `BuildBox._resolve_parse_src/1` materialize fallback source text
+  through an owner-local helper. The current pure-first stop is now the parser
+  authority boundary:
+  `BuildBox._parse_program_json/1 -> generic_string_unsupported_instruction`.
 
 ## Compat Capsule Rules
 

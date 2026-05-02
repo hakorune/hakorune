@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Decision: accepted
 Date: 2026-05-01
 Scope: phase-29cv P120, ny-llvmc same-module generic pure string function emitter
@@ -109,3 +109,18 @@ mname=main._run_emit_program_mode/0
 - full `stage1_cli_env.hako` no longer stops at
   `Stage1ModeContractBox.resolve_mode/0`; it stops later at the next
   unsupported authority call.
+
+## Follow-up
+
+P147-P150 advanced the full `stage1_cli_env.hako` pure-first trace through the
+later source-to-Program handoff helpers. The current blocker is no longer
+`Stage1ModeContractBox.resolve_mode/0`; it is:
+
+```text
+target_shape_blocker_symbol=BuildBox._parse_program_json/1
+target_shape_blocker_reason=generic_string_unsupported_instruction
+```
+
+That boundary is intentionally tracked separately because it involves
+`ParserBox` construction and known-receiver method calls, not another raw
+same-module global string helper.

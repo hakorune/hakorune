@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Decision: accepted
 Date: 2026-05-01
 Scope: phase-29cv P119, ny-llvmc generic pure per-function lowering state seam
@@ -86,3 +86,10 @@ module-wide declaration/need scan
 - Full `lang/src/runner/stage1_cli_env.hako` still stops at
   `missing_multi_function_emitter` until the real multi-function body emitter
   lands.
+
+## Follow-up
+
+P120 used this seam to emit same-module generic pure string definitions before
+allowing direct calls. Later P147-P150 cleanup moved the active source-execution
+stop past `Stage1ModeContractBox.resolve_mode/0` and BuildBox parse-source
+narrowing; the current stop is the parser authority boundary recorded in P151.
