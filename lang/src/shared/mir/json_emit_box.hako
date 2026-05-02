@@ -17,7 +17,7 @@ static box MirJsonEmitBox {
     if me._is_map_missing_sentinel(direct) == 0 { return direct }
     local keys = obj.keys()
     if keys == null || !BoxHelpers.is_array(keys) { return direct }
-    local n = BoxHelpers.array_len(keys)
+    local n = keys.length()
     return me._map_get_soft_rec(obj, keys, key, 0, n, direct)
   }
   _map_get_soft_rec(obj, keys, key, idx, len, fallback) {
@@ -65,7 +65,7 @@ static box MirJsonEmitBox {
 
   _emit_vid_array(arr) {
     if arr == null { return "[]" }
-    local n = BoxHelpers.array_len(arr)
+    local n = arr.length()
     return "[" + me._emit_vid_array_rec(arr, 0, n) + "]"
   }
   _emit_vid_array_rec(arr, idx, len) {
@@ -78,7 +78,7 @@ static box MirJsonEmitBox {
 
   _emit_effects(effects) {
     if effects == null { return "[]" }
-    local n = BoxHelpers.array_len(effects)
+    local n = effects.length()
     return "[" + me._emit_effects_rec(effects, 0, n) + "]"
   }
   _emit_effects_rec(effects, idx, len) {
@@ -151,14 +151,14 @@ static box MirJsonEmitBox {
 
   _emit_phi_values(values) {
     if values == null { return "[]" }
-    local n = BoxHelpers.array_len(values)
+    local n = values.length()
     return "[" + me._emit_phi_rec(values, 0, n) + "]"
   }
   _emit_phi_incoming(values) {
     if values == null { return "[]" }
     if me._is_map_missing_sentinel(values) == 1 { return "[]" }
     if !BoxHelpers.is_array(values) { return "[]" }
-    local n = BoxHelpers.array_len(values)
+    local n = values.length()
     return "[" + me._emit_phi_incoming_rec(values, 0, n) + "]"
   }
   _emit_phi_incoming_rec(values, idx, len) {
@@ -290,7 +290,7 @@ static box MirJsonEmitBox {
     if insts == null {
       return "{\"id\":" + me._int_str(block.get("id")) + ",\"instructions\":[]}"
     }
-    local n = BoxHelpers.array_len(insts)
+    local n = insts.length()
     local body = me._emit_block_rec(insts, 0, n)
     return "{\"id\":" + me._int_str(block.get("id")) + ",\"instructions\":[" + body + "]}"
   }
@@ -324,7 +324,7 @@ static box MirJsonEmitBox {
       }
       return "{\"name\":" + me._quote(name) + ",\"blocks\":[]}"
     }
-    local n = BoxHelpers.array_len(blocks)
+    local n = blocks.length()
     local body = me._emit_function_rec(blocks, 0, n)
     local head2 = "{\"name\":" + me._quote(name)
     if params != null { head2 = head2 + ",\"params\":" + me._emit_params(params) }
@@ -343,7 +343,7 @@ static box MirJsonEmitBox {
     if params == null { return "[]" }
     if me._is_map_missing_sentinel(params) == 1 { return "[]" }
     if !BoxHelpers.is_array(params) { return "[]" }
-    local n = BoxHelpers.array_len(params)
+    local n = params.length()
     if n == 0 { return "[]" }
     return "[" + me._emit_params_rec(params, 0, n) + "]"
   }
@@ -362,7 +362,7 @@ static box MirJsonEmitBox {
     if !BoxHelpers.is_map(flags) { return "null" }
     local keys = flags.keys()
     if keys == null { return "{}" }
-    local n = BoxHelpers.array_len(keys)
+    local n = keys.length()
     if n == 0 { return "{}" }
     local body = me._emit_flags_rec(flags, keys, 0, n)
     return "{" + body + "}"
@@ -381,7 +381,7 @@ static box MirJsonEmitBox {
     if module == null { return "" }
     local funcs = module.get("functions")
     if funcs != null && BoxHelpers.is_array(funcs) {
-      local n = BoxHelpers.array_len(funcs)
+      local n = funcs.length()
       local body = me._emit_module_rec(funcs, 0, n)
       if body != "" {
         return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[" + body + "]}"

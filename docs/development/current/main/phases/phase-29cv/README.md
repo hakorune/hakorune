@@ -171,6 +171,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   advances to `BoxHelpers.array_len/1` inside the MIR JSON emitter path; a
   narrower `_resolve_side/3` ABI residual remains route-visible but is no
   longer the first blocker.
+- P207i keeps the `BoxHelpers.array_len/1` blocker as a MIR emitter source
+  contract issue: schema-owned MIR arrays in `MirJsonEmitBox` now use direct
+  `.length()` reads instead of routing through the broad common helper. The
+  source-exe first blocker advances to `BoxHelpers.value_i64/1`; Stage0 still
+  does not learn unknown-receiver `.length()` semantics.
 
 ## Compat Capsule Rules
 
