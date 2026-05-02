@@ -101,6 +101,30 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
 
+      auto int module_generic_string_method_view_is_direct_string_indexof(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "generic_method.indexOf") &&
+               view->core_op &&
+               !strcmp(view->core_op, "StringIndexOf") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "string_indexof") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.string.indexOf_hh") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "indexof_surface_policy") &&
+               view->receiver_origin_box &&
+               !strcmp(view->receiver_origin_box, "StringBox") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "scalar_i64") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64") &&
+               view->publication_policy &&
+               !strcmp(view->publication_policy, "no_publication") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }
+
       auto int module_generic_string_read_arg_reg(
           yyjson_val* args,
           size_t index,
@@ -272,6 +296,9 @@
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_string_indexof(&method_view)) {
+                set_type(dst, T_I64);
               } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
                   lowering_plan_env_get_view_is_valid(&extern_view)) {
                 set_type(dst, T_I64);
@@ -494,6 +521,36 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_method_indexof_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        char ab[256];
+        long long needle = 0;
+        (void)f;
+        ab[0] = '\0';
+        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
+              module_generic_string_method_view_is_direct_string_indexof(&method_view))) {
+          return 0;
+        }
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
+        if (!module_generic_string_read_arg_reg(args, 0, &needle)) return 0;
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        append_i64_arg_ref(ab, sizeof(ab), needle, 0);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+        } else {
+          EMIT("  call i64 @\"nyash.string.indexOf_hh\"(%s)\n", ab);
+        }
+        return 1;
+      }
+
       auto int module_generic_string_emit_mir_call(
           FILE* f,
           long long bid,
@@ -523,6 +580,15 @@
           rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);
           if (rc != 1) {
             rc = module_generic_string_emit_method_substring_mir_call(
+                f,
+                bid,
+                ii,
+                dst,
+                recv,
+                args);
+          }
+          if (rc != 1) {
+            rc = module_generic_string_emit_method_indexof_mir_call(
                 f,
                 bid,
                 ii,

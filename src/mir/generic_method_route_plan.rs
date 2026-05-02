@@ -475,6 +475,7 @@ fn match_generic_indexof_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
         .or_else(|| (box_name == "StringBox").then(|| "StringBox".to_string()));
     if box_name != "StringBox"
         && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))

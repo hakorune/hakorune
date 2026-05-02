@@ -464,3 +464,73 @@ fn records_runtime_data_indexof_from_string_origin() {
         .expect("RuntimeData StringIndexOf carrier");
     assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
 }
+
+#[test]
+fn records_runtime_data_indexof_from_generic_global_call_phi_origin() {
+    let mut function = make_function();
+    let entry = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    entry.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(1)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+        args: vec![ValueId::new(0)],
+        effects: EffectMask::PURE,
+    });
+    entry.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(1),
+        edge_args: None,
+    });
+    let mut merge = BasicBlock::new(BasicBlockId::new(1));
+    merge.add_instruction(MirInstruction::Phi {
+        dst: ValueId::new(2),
+        inputs: vec![(BasicBlockId::new(0), ValueId::new(1))],
+        type_hint: None,
+    });
+    merge.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(3),
+        src: ValueId::new(2),
+    });
+    merge.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: ConstValue::String("\"kind\":\"Program\"".to_string()),
+    });
+    merge.add_instruction(method_call(
+        Some(5),
+        "RuntimeDataBox",
+        "indexOf",
+        3,
+        vec![4],
+    ));
+    function.add_block(merge);
+    function
+        .metadata
+        .global_call_routes
+        .push(GlobalCallRoute::new(
+            GlobalCallRouteSite::new(BasicBlockId::new(0), 0),
+            "Helper.coerce/1",
+            1,
+            Some(ValueId::new(1)),
+            GlobalCallTargetFacts::present_with_shape(
+                1,
+                GlobalCallTargetShape::GenericPureStringBody,
+            ),
+        ));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.indexOf");
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.method(), "indexOf");
+    assert_eq!(route.arity(), 1);
+    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::StringIndexOf);
+    let core_method = route
+        .core_method()
+        .expect("RuntimeData StringIndexOf carrier");
+    assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
+}

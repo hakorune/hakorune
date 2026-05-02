@@ -331,6 +331,16 @@ fn generic_i64_body_refine_instruction(
                     false
                 }
             } else if let Some(ready) =
+                generic_i64_indexof_args_ready(box_name, method, args, receiver_class, values)
+            {
+                if !ready {
+                    true
+                } else if let Some(dst) = dst {
+                    set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)
+                } else {
+                    false
+                }
+            } else if let Some(ready) =
                 generic_i64_substring_args_ready(box_name, method, args, receiver_class, values)
             {
                 if !ready {
@@ -421,6 +431,27 @@ fn generic_i64_substring_args_ready(
         }
     }
     Some(ready)
+}
+
+fn generic_i64_indexof_args_ready(
+    box_name: &str,
+    method: &str,
+    args: &[ValueId],
+    receiver_class: GenericI64ValueClass,
+    values: &BTreeMap<ValueId, GenericI64ValueClass>,
+) -> Option<bool> {
+    if !matches!(box_name, "RuntimeDataBox" | "StringBox")
+        || method != "indexOf"
+        || args.len() != 1
+        || receiver_class != GenericI64ValueClass::String
+    {
+        return None;
+    }
+    match generic_i64_value_class(values, args[0]) {
+        GenericI64ValueClass::String => Some(true),
+        GenericI64ValueClass::Unknown => Some(false),
+        _ => None,
+    }
 }
 
 fn generic_i64_value_class(
