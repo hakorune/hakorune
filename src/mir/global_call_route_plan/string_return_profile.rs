@@ -220,13 +220,17 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
     let passthrough = unknown_param_passthrough_values(function);
 
     let mut saw_string = false;
+    let mut saw_concrete_string = false;
     let mut saw_void = false;
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             match instruction {
                 MirInstruction::Return { value: Some(value) } => {
                     match generic_string_return_value_class(&values, *value) {
-                        GenericStringReturnValueClass::String => saw_string = true,
+                        GenericStringReturnValueClass::String => {
+                            saw_string = true;
+                            saw_concrete_string = true;
+                        }
                         GenericStringReturnValueClass::StringOrVoid => {
                             saw_string = true;
                             saw_void = true;
@@ -247,12 +251,17 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
             }
         }
     }
-    saw_string && saw_void
+    saw_string
+        && saw_void
+        && (function.signature.return_type != MirType::Unknown || saw_concrete_string)
 }
 
 fn unknown_param_passthrough_values(function: &MirFunction) -> BTreeSet<ValueId> {
     let mut values = BTreeSet::<ValueId>::new();
-    if function.signature.return_type != MirType::Void {
+    if !matches!(
+        function.signature.return_type,
+        MirType::Void | MirType::Unknown
+    ) {
         return values;
     }
     for (index, param) in function.params.iter().enumerate() {
