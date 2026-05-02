@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P209C-MIR-JSON-STATIC-FIELD-READ-INLINE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P209C-MIR-JSON-STATIC-FIELD-READ-INLINE.md"
-latest_card_summary = "Inline MirJsonEmitBox static schema field reads so const-key route facts stay visible."
+latest_card = "P210A-IF-MERGE-BOUNDS-SCALAR-SPLIT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P210A-IF-MERGE-BOUNDS-SCALAR-SPLIT.md"
+latest_card_summary = "Split LowerIfMergeLocalReturnVar bounds parsing into scalar locals instead of object-return helper shape."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -173,4 +173,5 @@ landed_tail = [
   "29cv-P209a MIR JSON map assert split landed",
   "29cv-P209b MIR JSON soft map scan prune landed",
   "29cv-P209c MIR JSON static field read inline landed",
+  "29cv-P210a If-merge bounds scalar split landed",
 ]
