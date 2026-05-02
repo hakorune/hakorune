@@ -1,14 +1,24 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::{Callee, CompareOp, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BasicBlockId, Callee, CompareOp, ConstValue, MirFunction, MirInstruction, MirType, ValueId,
+};
 
 pub(super) fn is_program_json_emit_body_function(function: &MirFunction) -> bool {
+    is_buildbox_program_json_emit_body_function(function)
+        || is_stage1_raw_program_json_emit_body_function(function)
+}
+
+fn program_json_emit_function_signature_is_compatible(function: &MirFunction) -> bool {
     if function.params.len() != 1 || function.signature.params.len() != 1 {
         return false;
     }
-    if !program_json_emit_source_type_is_handle_compatible(&function.signature.params[0])
-        || !program_json_emit_return_type_is_handle_compatible(&function.signature.return_type)
-    {
+    program_json_emit_source_type_is_handle_compatible(&function.signature.params[0])
+        && program_json_emit_return_type_is_handle_compatible(&function.signature.return_type)
+}
+
+fn is_buildbox_program_json_emit_body_function(function: &MirFunction) -> bool {
+    if !program_json_emit_function_signature_is_compatible(function) {
         return false;
     }
 
@@ -23,6 +33,22 @@ pub(super) fn is_program_json_emit_body_function(function: &MirFunction) -> bool
             if !state.observe(instruction) {
                 return false;
             }
+        }
+    }
+    state.is_complete()
+}
+
+fn is_stage1_raw_program_json_emit_body_function(function: &MirFunction) -> bool {
+    if !program_json_emit_function_signature_is_compatible(function) || function.blocks.len() != 1 {
+        return false;
+    }
+    let Some(block) = function.blocks.get(&function.entry_block) else {
+        return false;
+    };
+    let mut state = Stage1RawProgramJsonEmitBodyState::new(function.params[0]);
+    for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+        if !state.observe(instruction) {
+            return false;
         }
     }
     state.is_complete()
@@ -111,11 +137,7 @@ impl ProgramJsonEmitBodyState {
         }
     }
 
-    fn observe_phi(
-        &mut self,
-        dst: ValueId,
-        inputs: &[(crate::mir::BasicBlockId, ValueId)],
-    ) -> bool {
+    fn observe_phi(&mut self, dst: ValueId, inputs: &[(BasicBlockId, ValueId)]) -> bool {
         let Some((_, first)) = inputs.first() else {
             return false;
         };
@@ -226,6 +248,94 @@ impl ProgramJsonEmitBodyState {
             && self.saw_freeze_branch
             && self.saw_freeze_return
             && self.saw_enrich_return
+    }
+
+    fn resolve(&self, mut value: ValueId) -> ValueId {
+        for _ in 0..32 {
+            let Some(next) = self.aliases.get(&value).copied() else {
+                break;
+            };
+            if next == value {
+                break;
+            }
+            value = next;
+        }
+        value
+    }
+}
+
+#[derive(Debug)]
+struct Stage1RawProgramJsonEmitBodyState {
+    source_param: ValueId,
+    aliases: BTreeMap<ValueId, ValueId>,
+    null_sentinels: BTreeSet<ValueId>,
+    emit_result: Option<ValueId>,
+    saw_return: bool,
+}
+
+impl Stage1RawProgramJsonEmitBodyState {
+    fn new(source_param: ValueId) -> Self {
+        Self {
+            source_param,
+            aliases: BTreeMap::new(),
+            null_sentinels: BTreeSet::new(),
+            emit_result: None,
+            saw_return: false,
+        }
+    }
+
+    fn observe(&mut self, instruction: &MirInstruction) -> bool {
+        match instruction {
+            MirInstruction::Copy { dst, src } => {
+                let resolved = self.resolve(*src);
+                self.aliases.insert(*dst, resolved);
+                if self.null_sentinels.contains(&resolved) {
+                    self.null_sentinels.insert(*dst);
+                }
+                true
+            }
+            MirInstruction::Const {
+                dst,
+                value: ConstValue::Null | ConstValue::Void,
+            } => {
+                self.null_sentinels.insert(*dst);
+                true
+            }
+            MirInstruction::Call {
+                dst,
+                callee: Some(Callee::Global(name)),
+                args,
+                ..
+            } if name == "BuildBox.emit_program_json_v0/2" => {
+                if self.emit_result.is_some()
+                    || args.len() != 2
+                    || self.resolve(args[0]) != self.source_param
+                    || !self.null_sentinels.contains(&self.resolve(args[1]))
+                {
+                    return false;
+                }
+                let Some(dst) = dst else {
+                    return false;
+                };
+                self.emit_result = Some(*dst);
+                true
+            }
+            MirInstruction::Return { value } => {
+                let Some(value) = value else {
+                    return false;
+                };
+                if Some(self.resolve(*value)) != self.emit_result {
+                    return false;
+                }
+                self.saw_return = true;
+                true
+            }
+            _ => false,
+        }
+    }
+
+    fn is_complete(&self) -> bool {
+        self.emit_result.is_some() && self.saw_return
     }
 
     fn resolve(&self, mut value: ValueId) -> ValueId {

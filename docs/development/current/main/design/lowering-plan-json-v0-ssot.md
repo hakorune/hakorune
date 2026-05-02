@@ -258,10 +258,13 @@ The fourth lowerable shape is `generic_string_or_void_sentinel_body` for the
 same string body subset when canonical returns are string handles or a void/null
 sentinel. It uses the generic string function emitter and reports
 `return_shape=string_handle_or_null`.
-The fifth lowerable shape is `program_json_emit_body` for the exact
-`BuildBox._emit_program_json_from_scan_src/1` wrapper. It uses the same
-Stage1 Program(JSON v0) handle export as `parser_program_json_body`, but the
-MIR proof must come from the wrapper shape, not from backend by-name matching.
+The fifth lowerable shape is `program_json_emit_body` for exact Program(JSON v0)
+emit wrappers. It accepts `BuildBox._emit_program_json_from_scan_src/1` and the
+Stage1 raw wrapper that calls `BuildBox.emit_program_json_v0(source, null)`.
+It does not accept general `BuildBox.emit_program_json_v0/2` calls, MapBox
+options, or bundle paths. It uses the same Stage1 Program(JSON v0) handle
+export as `parser_program_json_body`, but the MIR proof must come from the
+wrapper shape, not from backend by-name matching.
 MIR owns these classifications and records them as `target_shape`.
 The string-or-void sentinel return-profile scan may classify
 `RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)` as a
@@ -317,6 +320,7 @@ The lowerable v0 rows are:
 | `global.user_call` | `generic_pure_string_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_pure_string` |
 | `global.user_call` | `generic_string_or_void_sentinel_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_string_or_void_sentinel` |
 | `global.user_call` | `generic_i64_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_i64` |
+| `global.user_call` | `program_json_emit_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_program_json_emit` |
 
 ny-llvmc may emit a direct call only after it has emitted the target function as
 a definition in the same LLVM module. Calling a same-module `target_symbol`

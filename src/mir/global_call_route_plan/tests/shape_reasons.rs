@@ -368,6 +368,64 @@ fn refresh_module_global_call_routes_marks_program_json_emit_body_direct_target(
 }
 
 #[test]
+fn refresh_module_global_call_routes_marks_stage1_raw_program_json_wrapper_direct_target() {
+    let mut module = MirModule::new("global_call_stage1_raw_program_json_emit_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1",
+        Some(ValueId::new(20)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1"
+                .to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(4)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global(
+                "BuildBox.emit_program_json_v0/2".to_string(),
+            )),
+            args: vec![ValueId::new(2), ValueId::new(3)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module.functions.insert(
+        "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1".to_string(),
+        callee,
+    );
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("program_json_emit_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_program_json_emit");
+    assert_eq!(route.return_shape(), Some("string_handle"));
+    assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+}
+
+#[test]
 fn refresh_module_global_call_routes_marks_unknown_child_target_shape_reason() {
     let mut module = MirModule::new("global_call_child_reason_test".to_string());
     let caller =
