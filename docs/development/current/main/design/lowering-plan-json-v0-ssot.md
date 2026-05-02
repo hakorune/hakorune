@@ -279,6 +279,12 @@ from typed value evidence. Relational i64 comparisons, exact MIR copies, and PHI
 destinations with known typed evidence may propagate scalar evidence inside the
 analysis; method rejection may only be deferred while the value-class fixpoint
 is still changing.
+String return-profile scans are weaker than body acceptance scans and exist to
+surface the next owner boundary. They must not treat raw scalar `value_types`
+metadata as semantic non-string proof for string handles. A string concat
+surface proves its result is a string handle, and loop-carried PHIs may carry
+that return-profile string class when they have observed string evidence and no
+observed non-string evidence.
 Within `generic_i64_body`, MIR may infer a string receiver for
 `RuntimeDataBox.length()` / `StringBox.length()` and
 `RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)`.

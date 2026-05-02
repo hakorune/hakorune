@@ -33,7 +33,7 @@ fn seed_generic_string_return_values(
         }
     }
     for (value, ty) in &function.metadata.value_types {
-        if let Some(class) = generic_string_return_value_class_from_type(ty) {
+        if let Some(class) = generic_string_return_metadata_value_class_from_type(ty) {
             set_generic_string_return_value_class(values, *value, class, &mut changed);
         }
     }
@@ -48,6 +48,20 @@ fn generic_string_return_value_class_from_type(
         MirType::Integer | MirType::Bool | MirType::Float => {
             Some(GenericStringReturnValueClass::Other)
         }
+        MirType::Box(name) if matches!(name.as_str(), "IntegerBox" | "BoolBox" | "FloatBox") => {
+            Some(GenericStringReturnValueClass::Other)
+        }
+        MirType::Void => Some(GenericStringReturnValueClass::Void),
+        _ => None,
+    }
+}
+
+fn generic_string_return_metadata_value_class_from_type(
+    ty: &MirType,
+) -> Option<GenericStringReturnValueClass> {
+    match ty {
+        MirType::String => Some(GenericStringReturnValueClass::String),
+        MirType::Box(name) if name == "StringBox" => Some(GenericStringReturnValueClass::String),
         MirType::Box(name) if matches!(name.as_str(), "IntegerBox" | "BoolBox" | "FloatBox") => {
             Some(GenericStringReturnValueClass::Other)
         }
@@ -214,15 +228,36 @@ fn refine_generic_string_return_value_class(
         MirInstruction::Phi { dst, inputs, .. } => {
             let mut class = GenericStringReturnValueClass::Unknown;
             let mut saw_unknown = false;
+            let mut saw_string_like = false;
+            let mut saw_non_string = false;
             for (_, value) in inputs {
                 let input_class = generic_string_return_value_class(values, *value);
                 if input_class == GenericStringReturnValueClass::Unknown {
                     saw_unknown = true;
-                    break;
+                    continue;
                 }
+                saw_string_like |= matches!(
+                    input_class,
+                    GenericStringReturnValueClass::String
+                        | GenericStringReturnValueClass::StringOrVoid
+                );
+                saw_non_string |= matches!(
+                    input_class,
+                    GenericStringReturnValueClass::Void | GenericStringReturnValueClass::Other
+                );
                 class = merge_generic_string_return_value_class(class, input_class);
             }
-            if !saw_unknown {
+            if saw_unknown && saw_string_like && !saw_non_string {
+                // Loop-carried string builders often carry raw i64 metadata for
+                // handle values. Preserve the observed string base instead of
+                // collapsing the return profile to an ABI-only blocker.
+                set_generic_string_return_value_class(
+                    values,
+                    *dst,
+                    GenericStringReturnValueClass::String,
+                    changed,
+                );
+            } else if !saw_unknown {
                 set_generic_string_return_value_class(values, *dst, class, changed);
             }
         }
@@ -243,7 +278,11 @@ fn refine_generic_string_return_value_class(
             } else {
                 GenericStringReturnValueClass::Other
             };
-            set_generic_string_return_value_class(values, *dst, class, changed);
+            if class == GenericStringReturnValueClass::String {
+                set_generic_string_return_string_handle_value_class(values, *dst, changed);
+            } else {
+                set_generic_string_return_value_class(values, *dst, class, changed);
+            }
         }
         MirInstruction::Compare {
             dst, op, lhs, rhs, ..
@@ -486,6 +525,31 @@ fn set_generic_string_return_value_class(
         }
         Some(existing) => {
             let merged = merge_generic_string_return_value_class(existing, class);
+            if merged != existing {
+                values.insert(value, merged);
+                *changed = true;
+            }
+        }
+    }
+}
+
+fn set_generic_string_return_string_handle_value_class(
+    values: &mut BTreeMap<ValueId, GenericStringReturnValueClass>,
+    value: ValueId,
+    changed: &mut bool,
+) {
+    match values.get(&value).copied() {
+        Some(GenericStringReturnValueClass::String) => {}
+        Some(GenericStringReturnValueClass::Unknown | GenericStringReturnValueClass::Other)
+        | None => {
+            values.insert(value, GenericStringReturnValueClass::String);
+            *changed = true;
+        }
+        Some(existing) => {
+            let merged = merge_generic_string_return_value_class(
+                existing,
+                GenericStringReturnValueClass::String,
+            );
             if merged != existing {
                 values.insert(value, merged);
                 *changed = true;
