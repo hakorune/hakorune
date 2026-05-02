@@ -2,12 +2,12 @@
 // Shared MIR(JSON) emit helpers for if-family lowers.
 
 using selfhost.shared.mir.schema as MirSchemaBox
-using selfhost.shared.mir.json_emit as JsonEmitBox
+using selfhost.shared.mir.json_emit as MirJsonEmitBox
 
 static box IfMirEmitBox {
   _module_json(blocks) {
     local module = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
-    return JsonEmitBox.to_json(module)
+    return MirJsonEmitBox.to_json(module)
   }
 
   _ret_block(id, dst, value) {

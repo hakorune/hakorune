@@ -1,4 +1,4 @@
-using selfhost.shared.mir.json_emit as JsonEmitBox
+using selfhost.shared.mir.json_emit as MirJsonEmitBox
 // Shared MIR helpers (P1/P2)
 using selfhost.shared.mir.schema as MirSchema
 using selfhost.shared.mir.builder as BlockBuilder
@@ -10,7 +10,7 @@ flow EmitMirFlow {
 
   emit_return_int(v) {
     local mod_full = BlockBuilder.const_ret(v)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 
   _map_binop(opk) {
@@ -25,7 +25,7 @@ flow EmitMirFlow {
   emit_binop(lhs, rhs, opk) {
     local kind = EmitMirFlow._map_binop(opk)
     local mod_full = BlockBuilder.binop(lhs, rhs, kind)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 
   emit_compare_cfg(lhs, rhs, cmp) {
@@ -48,7 +48,7 @@ flow EmitMirFlow {
         }
       }
     }
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 
   // emit_loop_counter: while (i < limit) { i = i + 1 } ; return i
@@ -60,7 +60,7 @@ flow EmitMirFlow {
   //   3: ret r1
   emit_loop_counter(limit) {
     local mod_full = BlockBuilder.loop_counter(limit)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 
   // P4: emit extern call for op_eq via shared BlockBuilder (immediate values)
@@ -70,35 +70,35 @@ flow EmitMirFlow {
     vals.push(lhs)
     vals.push(rhs)
     local mod_full = BlockBuilder.extern_call_ival_ret("nyrt.ops.op_eq", vals, "nyrt.ops.op_eq")
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 
   // P4: generic extern/global/method/constructor emitters (immediate values)
   emit_extern_call(name, arg_vals) {
     local mod_full = BlockBuilder.extern_call_ival_ret(name, arg_vals, name)
     LocalSSABox.ensure_materialize_last_ret(mod_full)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
   emit_global_call(name, arg_vals) {
     local mod_full = BlockBuilder.global_call_ival_ret(name, arg_vals, name)
     LocalSSABox.ensure_materialize_last_ret(mod_full)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
   emit_method_call(method, recv_val, arg_vals) {
     local mod_full = BlockBuilder.method_call_ival_ret(method, recv_val, arg_vals, method)
     LocalSSABox.ensure_materialize_last_ret(mod_full)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
   emit_constructor(box_type, arg_vals) {
     local mod_full = BlockBuilder.constructor_call_ival_ret(box_type, arg_vals, box_type)
     LocalSSABox.ensure_materialize_last_ret(mod_full)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 
   // P5: ctor(ArrayBox)→size()→ret via shared builder
   emit_array_ctor_then_size() {
     local mod_full = BlockBuilder.ctor_then_size_ret()
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 
 

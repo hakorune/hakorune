@@ -4,7 +4,7 @@
 using selfhost.shared.json.mir_builder_min as MirJsonBuilderMin
 using lang.compiler.pipeline_v2.regex_flow as RegexFlow
 using lang.compiler.pipeline_v2.stage1_args_parser_box as Stage1ArgsParserBox
-using selfhost.shared.mir.json_emit as JsonEmitBox
+using selfhost.shared.mir.json_emit as MirJsonEmitBox
 using selfhost.shared.mir.builder as BlockBuilder
 using lang.compiler.pipeline_v2.localvar_ssa_box as LocalSSABox
 
@@ -17,7 +17,7 @@ static box EmitNewBoxBox {
     if vals == null { return null }
     local mod_full = BlockBuilder.constructor_call_ival_ret(class_name, vals, class_name)
     LocalSSABox.ensure_materialize_last_ret(mod_full)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 
   // JSON v1 (MirCall) emission — experimental, shape-only
@@ -29,7 +29,7 @@ static box EmitNewBoxBox {
     if vals == null { return null }
     local mod_full = BlockBuilder.constructor_call_ival_ret(class_name, vals, class_name)
     LocalSSABox.ensure_materialize_last_ret(mod_full)
-    return JsonEmitBox.to_json(mod_full)
+    return MirJsonEmitBox.to_json(mod_full)
   }
 }
 

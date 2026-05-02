@@ -1,7 +1,7 @@
 // compat_mir_emit_box.hako — small-step legacy/compat MIR(JSON v0) emit helpers
 // Scope: keep fallback/registry owners free of giant string-concat bodies.
 
-using lang.compiler.emit.common.json_emit as JsonEmitBox
+using selfhost.shared.mir.json_emit as MirJsonEmitBox
 using lang.compiler.emit.common.mir_emit as MirEmitBox
 using lang.compiler.emit.common.call_emit as CallEmitBox
 
@@ -12,7 +12,7 @@ static box CompatMirEmitBox {
 
   method _module_with_blocks(blocks) {
     local main = %{"name"=> "main", "params"=> [], "locals"=> [], "blocks"=> blocks}
-    return JsonEmitBox.to_json(%{"functions"=> [main]})
+    return MirJsonEmitBox.to_json(%{"functions"=> [main]})
   }
 
   method _module_with_block(insts) {

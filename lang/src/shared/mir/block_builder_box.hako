@@ -4,6 +4,7 @@
 using selfhost.shared.mir.schema as MirSchemaBox
 using selfhost.shared.mir.loopform as LoopFormBox
 using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.mir.json_emit as MirJsonEmitBox
 
 static box BlockBuilderBox {
 
@@ -199,14 +200,14 @@ static box BlockBuilderBox {
 
   loop_counter_loopform_json(limit, skip_value, break_value) {
     local module = me.loop_counter_loopform(limit, skip_value, break_value)
-    return JsonEmitBox.to_json(module)
+    return MirJsonEmitBox.to_json(module)
   }
 
   to_gate_c_json(module) {
     if module == null { return "" }
     // NOTE: Caller (e.g. extern_call_ival_ret) already calls _ensure_terminators
     // Double-call causes corruption. Skip normalization here.
-    return JsonEmitBox.to_json(module)
+    return MirJsonEmitBox.to_json(module)
   }
 
   compare_branch_ops(lhs, rhs, cmp) {

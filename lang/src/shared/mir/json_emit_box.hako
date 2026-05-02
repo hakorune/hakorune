@@ -1,10 +1,10 @@
 // selfhost/shared/mir/json_emit_box.hako
-// JsonEmitBox — Gate C JSON emitter (schema_version 1.0, numbers unwrapped)
+// MirJsonEmitBox — Gate C MIR(JSON) emitter (schema_version 1.0, numbers unwrapped)
 
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 
-static box JsonEmitBox {
+static box MirJsonEmitBox {
   _is_map_missing_sentinel(val) {
     if val == null { return 0 }
     local s = "" + val

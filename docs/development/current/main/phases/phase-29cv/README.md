@@ -155,6 +155,15 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `DirectAbi generic_i64_body`; the source-exe probe still reports a
   transitive `BoxTypeInspectorBox.is_map/1` blocker in the deeper MIR/JSON
   emit path.
+- P207g identifies that blocker as a MIR emitter ownership problem, not an
+  `is_map` predicate problem: the MIR schema emitter and the generic
+  `JSON.stringify` facade both define `JsonEmitBox`, so MIR module emit routes
+  can be pulled into recursive generic stringify. The cleanup splits the MIR
+  emitter owner to `MirJsonEmitBox` and keeps Stage0 from learning arbitrary
+  MapBox/ArrayBox JSON semantics. The old transitive
+  `BoxTypeInspectorBox.is_map/1` blocker is gone; the source-exe probe now
+  stops later at `LowerIfCompareFoldVarIntBox._resolve_side/3` with
+  `generic_string_return_not_string`.
 
 ## Compat Capsule Rules
 

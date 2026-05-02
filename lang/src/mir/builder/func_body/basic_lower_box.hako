@@ -5,7 +5,7 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.mir.schema as MirSchemaBox
-using selfhost.shared.mir.json_emit as JsonEmitBox
+using selfhost.shared.mir.json_emit as MirJsonEmitBox
 using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
 using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
 using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
@@ -147,7 +147,7 @@ static box FuncBodyBasicLowerBox {
   method _emit_single_block_function_json(insts) {
     local blocks = new ArrayBox()
     blocks.push(MirSchemaBox.block(0, insts))
-    local module_json = JsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
+    local module_json = MirJsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
     return me._extract_first_function_fragment(module_json)
   }
 

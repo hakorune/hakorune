@@ -6,7 +6,7 @@ using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 using selfhost.shared.mir.schema as MirSchemaBox
-using selfhost.shared.mir.json_emit as JsonEmitBox
+using selfhost.shared.mir.json_emit as MirJsonEmitBox
 
 static box LoopOptsBox {
   new_map() {
@@ -43,7 +43,7 @@ static box LoopOptsBox {
     blocks.push(MirSchemaBox.block(1, b1))
     blocks.push(MirSchemaBox.block(2, b2))
     blocks.push(MirSchemaBox.block(3, b3))
-    return JsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
+    return MirJsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
   }
   _emit_minimal_loop_compare_json(limit) {
     local b0 = new ArrayBox()
@@ -62,7 +62,7 @@ static box LoopOptsBox {
     blocks.push(MirSchemaBox.block(0, b0))
     blocks.push(MirSchemaBox.block(1, b1))
     blocks.push(MirSchemaBox.block(2, b2))
-    return JsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
+    return MirJsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
   }
   // build2: envでJsonFrag直組立を選択（既定は LoopFormBox.build2 に委譲）
   build2(opts) {
@@ -105,7 +105,7 @@ static box LoopOptsBox {
     // Default: delegate to LoopForm and emit canonical JSON via shared JsonEmitBox
     local module = LoopFormBox.build2(opts)
     if module == null { return null }
-    local json = JsonEmitBox.to_json(module)
+    local json = MirJsonEmitBox.to_json(module)
     if BuilderConfigBox.jsonfrag_normalize_on() == 1 { json = JsonFragNormalizerBox.normalize_all(json) }
     local mode2 = BuilderConfigBox.loop_adapter_return_mode()
     if mode2 == "map" {

@@ -6,7 +6,7 @@ using lang.compiler.pipeline_v2.regex_flow as RegexFlow
 using lang.compiler.emit.common.mir_emit as MirEmitBox
 using lang.compiler.emit.common.call_emit as CallEmitBox
 using lang.compiler.emit.common.header_emit as HeaderEmitBox
-using selfhost.shared.mir.json_emit as JsonEmitBox
+using selfhost.shared.mir.json_emit as MirJsonEmitBox
 
 static box MirCallBox {
   // Global(name, args:int[])
@@ -31,7 +31,7 @@ static box MirCallBox {
     insts.push(MirEmitBox.make_ret(dst))
     local blocks = [HeaderEmitBox.make_block(0, insts)]
     local fns = [HeaderEmitBox.make_function_main(blocks)]
-    return JsonEmitBox.to_json(HeaderEmitBox.make_module_with_functions(fns))
+    return MirJsonEmitBox.to_json(HeaderEmitBox.make_module_with_functions(fns))
   }
 
   // Method(method, recv:int, args:int[])
@@ -58,7 +58,7 @@ static box MirCallBox {
     insts.push(MirEmitBox.make_ret(dst))
     local blocks = [HeaderEmitBox.make_block(0, insts)]
     local fns = [HeaderEmitBox.make_function_main(blocks)]
-    return JsonEmitBox.to_json(HeaderEmitBox.make_module_with_functions(fns))
+    return MirJsonEmitBox.to_json(HeaderEmitBox.make_module_with_functions(fns))
   }
 
   // Constructor(class, args:int[])
@@ -84,7 +84,7 @@ static box MirCallBox {
     insts.push(MirEmitBox.make_ret(dst))
     local blocks = [HeaderEmitBox.make_block(0, insts)]
     local fns = [HeaderEmitBox.make_function_main(blocks)]
-    return JsonEmitBox.to_json(HeaderEmitBox.make_module_with_functions(fns))
+    return MirJsonEmitBox.to_json(HeaderEmitBox.make_module_with_functions(fns))
   }
 }
 
