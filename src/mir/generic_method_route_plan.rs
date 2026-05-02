@@ -8,7 +8,7 @@
 
 use super::core_method_op::{CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier};
 use super::generic_method_route_facts::{
-    classify_key_route, receiver_origin_box_name, GenericMethodKeyRoute,
+    classify_key_route, const_string_value, receiver_origin_box_name, GenericMethodKeyRoute,
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
 use super::string_corridor::StringCorridorOp;
@@ -248,6 +248,21 @@ fn match_generic_get_route(
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
         .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
     let key_route = classify_key_route(function, def_map, args[0]);
+    if let Some(result) = *dst {
+        if let Some(route) = match_mir_json_numeric_value_field_get_route(
+            function,
+            def_map,
+            block,
+            instruction_index,
+            box_name,
+            method,
+            *receiver,
+            args[0],
+            result,
+        ) {
+            return Some(route);
+        }
+    }
 
     if box_name == "ArrayBox" && receiver_origin_box.as_deref() == Some("ArrayBox") {
         return Some(GenericMethodRoute::new(
@@ -355,6 +370,114 @@ fn match_generic_get_route(
             publication_policy,
         ),
     ))
+}
+
+fn match_mir_json_numeric_value_field_get_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    box_name: &str,
+    method: &str,
+    receiver: ValueId,
+    key: ValueId,
+    result: ValueId,
+) -> Option<GenericMethodRoute> {
+    if function.signature.name != "MirJsonEmitBox._expect_i64/2" {
+        return None;
+    }
+    if box_name != "RuntimeDataBox" || method != "get" {
+        return None;
+    }
+    let key_text = const_string_value(function, def_map, key)?;
+    if key_text != "value" {
+        return None;
+    }
+    if !value_reaches_stringhelpers_to_i64(function, def_map, result) {
+        return None;
+    }
+
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.to_string(), method.to_string(), 1),
+        GenericMethodRouteEvidence::new(None, Some(GenericMethodKeyRoute::UnknownAny))
+            .with_key_const_text(key_text),
+        GenericMethodRouteOperands::new(receiver, Some(key), Some(result)),
+        GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::RuntimeDataLoadAny,
+            GenericMethodRouteProof::MirJsonNumericValueField,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapGet,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+            GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    ))
+}
+
+fn value_reaches_stringhelpers_to_i64(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    source: ValueId,
+) -> bool {
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            let MirInstruction::Call {
+                callee: Some(Callee::Global(name)),
+                args,
+                ..
+            } = instruction
+            else {
+                continue;
+            };
+            if name == "StringHelpers.to_i64/1"
+                && args.len() == 1
+                && value_depends_on(function, def_map, args[0], source)
+            {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+fn value_depends_on(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    source: ValueId,
+) -> bool {
+    fn visit(
+        function: &MirFunction,
+        def_map: &ValueDefMap,
+        value: ValueId,
+        source: ValueId,
+        seen: &mut BTreeSet<ValueId>,
+    ) -> bool {
+        if value == source {
+            return true;
+        }
+        if !seen.insert(value) {
+            return false;
+        }
+        let Some((block_id, instruction_index)) = def_map.get(&value).copied() else {
+            return false;
+        };
+        let Some(block) = function.blocks.get(&block_id) else {
+            return false;
+        };
+        match block.instructions.get(instruction_index) {
+            Some(MirInstruction::Copy { src, .. }) => visit(function, def_map, *src, source, seen),
+            Some(MirInstruction::Phi { inputs, .. }) => inputs
+                .iter()
+                .any(|(_, input)| visit(function, def_map, *input, source, seen)),
+            _ => false,
+        }
+    }
+
+    visit(function, def_map, value, source, &mut BTreeSet::new())
 }
 
 fn match_generic_len_route(

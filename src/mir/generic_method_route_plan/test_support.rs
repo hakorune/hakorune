@@ -160,6 +160,30 @@ pub(crate) fn runtime_data_map_get_scalar_i64_same_key(
     })
 }
 
+pub(crate) fn mir_json_numeric_value_field_get(
+    block: u32,
+    instruction_index: usize,
+    receiver: u32,
+    key: u32,
+    result: u32,
+) -> GenericMethodRoute {
+    GenericMethodRoute::new(
+        site(block, instruction_index),
+        GenericMethodRouteSurface::new("RuntimeDataBox", "get", 1),
+        evidence(None, Some(GenericMethodKeyRoute::UnknownAny)).with_key_const_text("value"),
+        operands(receiver, Some(key), result),
+        decision(
+            GenericMethodRouteKind::RuntimeDataLoadAny,
+            GenericMethodRouteProof::MirJsonNumericValueField,
+            CoreMethodOp::MapGet,
+            CoreMethodLoweringTier::ColdFallback,
+            Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+            GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    )
+}
+
 pub(crate) fn string_substring(
     block: u32,
     instruction_index: usize,

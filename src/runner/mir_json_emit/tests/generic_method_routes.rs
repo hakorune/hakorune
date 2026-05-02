@@ -15,6 +15,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         generic_route_fixture::map_set_i64_key(13, 9, 28, 29, 31),
         generic_route_fixture::map_get_unknown_key(14, 10, 32, 33, 34),
         generic_route_fixture::array_get_i64_key(15, 11, 35, 36, 37),
+        generic_route_fixture::mir_json_numeric_value_field_get(16, 12, 38, 39, 40),
     ]);
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
@@ -50,7 +51,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     let lowering_plan = root["functions"][0]["metadata"]["lowering_plan"]
         .as_array()
         .expect("lowering_plan");
-    assert_eq!(lowering_plan.len(), 9);
+    assert_eq!(lowering_plan.len(), 10);
     let get_plan = &lowering_plan[1];
     assert_eq!(get_plan["site"], "b8.i4");
     assert_eq!(get_plan["block"], 8);
@@ -312,4 +313,50 @@ fn build_mir_json_root_emits_generic_method_routes() {
         direct_array_get_route["effects"],
         serde_json::json!(["read.key"])
     );
+
+    let mir_schema_get_route = &root["functions"][0]["metadata"]["generic_method_routes"][9];
+    assert_eq!(mir_schema_get_route["route_id"], "generic_method.get");
+    assert_eq!(mir_schema_get_route["block"], 16);
+    assert_eq!(mir_schema_get_route["instruction_index"], 12);
+    assert_eq!(mir_schema_get_route["box_name"], "RuntimeDataBox");
+    assert_eq!(mir_schema_get_route["method"], "get");
+    assert_eq!(
+        mir_schema_get_route["receiver_origin_box"],
+        serde_json::Value::Null
+    );
+    assert_eq!(mir_schema_get_route["key_route"], "unknown_any");
+    assert_eq!(mir_schema_get_route["key_const_text"], "value");
+    assert_eq!(mir_schema_get_route["receiver_value"], 38);
+    assert_eq!(mir_schema_get_route["key_value"], 39);
+    assert_eq!(mir_schema_get_route["result_value"], 40);
+    assert_eq!(mir_schema_get_route["route_kind"], "runtime_data_load_any");
+    assert_eq!(
+        mir_schema_get_route["proof"],
+        "mir_json_numeric_value_field"
+    );
+    assert_eq!(
+        mir_schema_get_route["return_shape"],
+        "scalar_i64_or_missing_zero"
+    );
+    assert_eq!(mir_schema_get_route["value_demand"], "scalar_i64");
+    assert_eq!(mir_schema_get_route["publication_policy"], "no_publication");
+
+    let mir_schema_get_plan = &lowering_plan[9];
+    assert_eq!(mir_schema_get_plan["site"], "b16.i12");
+    assert_eq!(mir_schema_get_plan["source"], "generic_method_routes");
+    assert_eq!(mir_schema_get_plan["source_route_id"], "generic_method.get");
+    assert_eq!(mir_schema_get_plan["core_op"], "MapGet");
+    assert_eq!(mir_schema_get_plan["tier"], "ColdRuntime");
+    assert_eq!(mir_schema_get_plan["emit_kind"], "runtime_call");
+    assert_eq!(mir_schema_get_plan["route_kind"], "runtime_data_load_any");
+    assert_eq!(
+        mir_schema_get_plan["route_proof"],
+        "mir_json_numeric_value_field"
+    );
+    assert_eq!(mir_schema_get_plan["key_const_text"], "value");
+    assert_eq!(
+        mir_schema_get_plan["return_shape"],
+        "scalar_i64_or_missing_zero"
+    );
+    assert_eq!(mir_schema_get_plan["value_demand"], "scalar_i64");
 }

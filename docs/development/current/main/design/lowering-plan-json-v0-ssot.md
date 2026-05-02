@@ -72,6 +72,7 @@ Optional fields may carry operands and result values:
 | `receiver_origin_box` | receiver origin family when known |
 | `arity` | method arity for method-derived plan entries |
 | `key_route` | key/index route, or `null` |
+| `key_const_text` | static string key text when a route proof owns the exact literal, or `null` |
 | `key_value` | first key/index value id, or `null` |
 | `value_value` | second extern/store value id, or `null` |
 | `result_value` | result value id, or `null` |

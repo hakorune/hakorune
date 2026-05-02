@@ -144,6 +144,7 @@ pub(crate) enum GenericMethodRouteProof {
     ContainsSurfacePolicy,
     MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
+    MirJsonNumericValueField,
 }
 
 impl std::fmt::Display for GenericMethodRouteProof {
@@ -166,6 +167,7 @@ impl GenericMethodRouteProof {
             Self::ContainsSurfacePolicy => "contains_surface_policy",
             Self::MapSetScalarI64DominatesNoEscape => "map_set_scalar_i64_dominates_no_escape",
             Self::MapSetScalarI64SameKeyNoEscape => "map_set_scalar_i64_same_key_no_escape",
+            Self::MirJsonNumericValueField => "mir_json_numeric_value_field",
         }
     }
 }
@@ -210,6 +212,7 @@ impl GenericMethodRouteSite {
 pub(crate) struct GenericMethodRouteEvidence {
     receiver_origin_box: Option<String>,
     key_route: Option<GenericMethodKeyRoute>,
+    key_const_text: Option<String>,
 }
 
 impl GenericMethodRouteEvidence {
@@ -220,7 +223,13 @@ impl GenericMethodRouteEvidence {
         Self {
             receiver_origin_box,
             key_route,
+            key_const_text: None,
         }
+    }
+
+    pub(crate) fn with_key_const_text(mut self, text: impl Into<String>) -> Self {
+        self.key_const_text = Some(text.into());
+        self
     }
 }
 
@@ -359,6 +368,10 @@ impl GenericMethodRoute {
 
     pub fn key_route(&self) -> Option<GenericMethodKeyRoute> {
         self.evidence.key_route
+    }
+
+    pub fn key_const_text(&self) -> Option<&str> {
+        self.evidence.key_const_text.as_deref()
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {

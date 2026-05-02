@@ -164,6 +164,23 @@ pub(crate) fn const_i64_value(
     }
 }
 
+pub(crate) fn const_string_value(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<String> {
+    let origin = resolve_value_origin(function, def_map, value);
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    match block.instructions.get(instruction_index) {
+        Some(MirInstruction::Const {
+            value: ConstValue::String(value),
+            ..
+        }) => Some(value.clone()),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
