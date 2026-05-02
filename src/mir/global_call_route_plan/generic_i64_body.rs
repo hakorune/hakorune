@@ -384,9 +384,14 @@ fn generic_i64_body_refine_instruction(
                 } else {
                     false
                 }
-            } else if let Some(ready) =
-                generic_i64_indexof_args_ready(box_name, method, args, receiver_class, values)
-            {
+            } else if let Some(ready) = generic_i64_indexof_args_ready(
+                box_name,
+                method,
+                args,
+                receiver_class,
+                values,
+                changed,
+            ) {
                 if !ready {
                     true
                 } else if let Some(dst) = dst {
@@ -511,30 +516,46 @@ fn generic_i64_indexof_args_ready(
     method: &str,
     args: &[ValueId],
     receiver_class: GenericI64ValueClass,
-    values: &BTreeMap<ValueId, GenericI64ValueClass>,
+    values: &mut BTreeMap<ValueId, GenericI64ValueClass>,
+    changed: &mut bool,
 ) -> Option<bool> {
+    let supports_args = match method {
+        "indexOf" => matches!(args.len(), 1 | 2),
+        "lastIndexOf" => args.len() == 1,
+        _ => false,
+    };
     if !matches!(box_name, "RuntimeDataBox" | "StringBox")
-        || method != "indexOf"
-        || !matches!(args.len(), 1 | 2)
+        || !supports_args
         || receiver_class != GenericI64ValueClass::String
     {
         return None;
     }
-    let needle_ready = match generic_i64_value_class(values, args[0]) {
-        GenericI64ValueClass::String => true,
-        GenericI64ValueClass::Unknown => false,
+    let mut ready = true;
+    match generic_i64_value_class(values, args[0]) {
+        GenericI64ValueClass::String => {}
+        GenericI64ValueClass::Unknown => {
+            if !set_generic_i64_value_class(values, args[0], GenericI64ValueClass::String, changed)
+            {
+                return None;
+            }
+            ready = false;
+        }
         _ => return None,
-    };
-    let start_ready = if args.len() == 2 {
+    }
+    if args.len() == 2 {
         match generic_i64_value_class(values, args[1]) {
-            GenericI64ValueClass::I64 => true,
-            GenericI64ValueClass::Unknown => false,
+            GenericI64ValueClass::I64 => {}
+            GenericI64ValueClass::Unknown => {
+                if !set_generic_i64_value_class(values, args[1], GenericI64ValueClass::I64, changed)
+                {
+                    return None;
+                }
+                ready = false;
+            }
             _ => return None,
         }
-    } else {
-        true
-    };
-    Some(needle_ready && start_ready)
+    }
+    Some(ready)
 }
 
 fn generic_i64_value_class(

@@ -67,7 +67,10 @@ impl JsonFragNormalizerFacts {
                 ("ArrayBox" | "RuntimeDataBox", "push") => self.array_pushes += 1,
                 ("MapBox" | "RuntimeDataBox", "get") => self.map_reads += 1,
                 ("MapBox" | "RuntimeDataBox", "set") => self.map_writes += 1,
-                ("StringBox" | "RuntimeDataBox", "length" | "substring" | "indexOf") => {
+                (
+                    "StringBox" | "RuntimeDataBox",
+                    "length" | "substring" | "indexOf" | "lastIndexOf",
+                ) => {
                     self.string_surface = true;
                 }
                 _ => {}

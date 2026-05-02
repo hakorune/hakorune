@@ -20,6 +20,7 @@ pub enum CoreMethodOp {
     StringLen,
     StringSubstring,
     StringIndexOf,
+    StringLastIndexOf,
 }
 
 impl CoreMethodOp {
@@ -36,6 +37,7 @@ impl CoreMethodOp {
         Self::StringLen,
         Self::StringSubstring,
         Self::StringIndexOf,
+        Self::StringLastIndexOf,
     ];
 
     pub fn as_manifest_name(self) -> &'static str {
@@ -52,6 +54,7 @@ impl CoreMethodOp {
             Self::StringLen => "StringLen",
             Self::StringSubstring => "StringSubstring",
             Self::StringIndexOf => "StringIndexOf",
+            Self::StringLastIndexOf => "StringLastIndexOf",
         }
     }
 

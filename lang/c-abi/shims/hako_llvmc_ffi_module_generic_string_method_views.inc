@@ -184,3 +184,27 @@
                !strcmp(view->publication_policy, "no_publication") &&
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
+
+      auto int module_generic_string_method_view_is_direct_string_lastindexof(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "generic_method.lastIndexOf") &&
+               view->core_op &&
+               !strcmp(view->core_op, "StringLastIndexOf") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "string_last_indexof") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.string.lastIndexOf_hh") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "lastindexof_surface_policy") &&
+               view->receiver_origin_box &&
+               !strcmp(view->receiver_origin_box, "StringBox") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "scalar_i64") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64") &&
+               view->publication_policy &&
+               !strcmp(view->publication_policy, "no_publication") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }

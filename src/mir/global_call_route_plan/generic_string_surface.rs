@@ -61,6 +61,20 @@ pub(super) fn generic_pure_string_accepts_indexof_method(
         && (args.len() == 1 || value_class(values, args[1]) == GenericPureValueClass::I64)
 }
 
+pub(super) fn generic_pure_string_accepts_lastindexof_method(
+    box_name: &str,
+    method: &str,
+    args: &[ValueId],
+    receiver_class: GenericPureValueClass,
+    values: &BTreeMap<ValueId, GenericPureValueClass>,
+) -> bool {
+    matches!(box_name, "RuntimeDataBox" | "StringBox")
+        && method == "lastIndexOf"
+        && args.len() == 1
+        && receiver_class == GenericPureValueClass::String
+        && value_class(values, args[0]) == GenericPureValueClass::String
+}
+
 pub(super) fn generic_pure_string_accepts_env_set(
     name: &str,
     args: &[ValueId],

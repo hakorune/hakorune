@@ -20,6 +20,7 @@ pub(crate) enum GenericMethodRouteKind {
     StringLen,
     StringSubstring,
     StringIndexOf,
+    StringLastIndexOf,
     MapContainsAny,
     MapContainsI64,
 }
@@ -39,6 +40,7 @@ impl GenericMethodRouteKind {
             Self::ArrayStoreAny | Self::MapStoreAny => "generic_method.set",
             Self::StringSubstring => "generic_method.substring",
             Self::StringIndexOf => "generic_method.indexOf",
+            Self::StringLastIndexOf => "generic_method.lastIndexOf",
         }
     }
 
@@ -54,6 +56,7 @@ impl GenericMethodRouteKind {
             Self::ArrayStoreAny | Self::MapStoreAny => "set",
             Self::StringSubstring => "substring",
             Self::StringIndexOf => "indexOf",
+            Self::StringLastIndexOf => "lastIndexOf",
         }
     }
 
@@ -72,6 +75,7 @@ impl GenericMethodRouteKind {
             Self::StringLen => "nyash.string.len_h",
             Self::StringSubstring => "nyash.string.substring_hii",
             Self::StringIndexOf => "nyash.string.indexOf_hh",
+            Self::StringLastIndexOf => "nyash.string.lastIndexOf_hh",
             Self::MapContainsAny => "nyash.map.probe_hh",
             Self::MapContainsI64 => "nyash.map.probe_hi",
         }
@@ -89,6 +93,7 @@ impl GenericMethodRouteKind {
             Self::ArrayStoreAny | Self::MapStoreAny => &["mutate.slot"],
             Self::StringSubstring => &["observe.substring"],
             Self::StringIndexOf => &["observe.indexof"],
+            Self::StringLastIndexOf => &["observe.last_indexof"],
         }
     }
 
@@ -107,6 +112,7 @@ impl GenericMethodRouteKind {
             Self::StringLen => "string_len",
             Self::StringSubstring => "string_substring",
             Self::StringIndexOf => "string_indexof",
+            Self::StringLastIndexOf => "string_last_indexof",
             Self::MapContainsAny => "map_contains_any",
             Self::MapContainsI64 => "map_contains_i64",
         }
@@ -128,6 +134,7 @@ pub(crate) enum GenericMethodRouteProof {
     SetSurfacePolicy,
     SubstringSurfacePolicy,
     IndexOfSurfacePolicy,
+    LastIndexOfSurfacePolicy,
     MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
 }
@@ -148,6 +155,7 @@ impl GenericMethodRouteProof {
             Self::SetSurfacePolicy => "set_surface_policy",
             Self::SubstringSurfacePolicy => "substring_surface_policy",
             Self::IndexOfSurfacePolicy => "indexof_surface_policy",
+            Self::LastIndexOfSurfacePolicy => "lastindexof_surface_policy",
             Self::MapSetScalarI64DominatesNoEscape => "map_set_scalar_i64_dominates_no_escape",
             Self::MapSetScalarI64SameKeyNoEscape => "map_set_scalar_i64_same_key_no_escape",
         }

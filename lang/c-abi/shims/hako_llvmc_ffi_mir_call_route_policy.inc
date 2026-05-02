@@ -9,6 +9,7 @@
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_STRING,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF,
+        HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF,
       };
 
       struct GenericMethodRouteState {
@@ -18,6 +19,7 @@
         int runtime_array_push;
         int runtime_string;
         int runtime_string_indexof;
+        int runtime_string_lastindexof;
         int runtime_array_string;
         int array_store_string_source_preserve;
         int array_store_string_identity_demand_stable_object;
@@ -139,6 +141,13 @@
             "string_indexof",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF,
+          },
+          {
+            "generic_method.lastIndexOf",
+            "StringLastIndexOf",
+            "string_last_indexof",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF,
           },
         };
         struct LoweringPlanGenericMethodView view;
@@ -270,6 +279,12 @@
               core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF;
           }
+          if (!strcmp(route_id, "generic_method.lastIndexOf") &&
+              !strcmp(op, "StringLastIndexOf") &&
+              !strcmp(route_kind, "string_last_indexof") &&
+              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF;
+          }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
         return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
@@ -310,6 +325,10 @@
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF:
             route->runtime_string = 1;
             route->runtime_string_indexof = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF:
+            route->runtime_string = 1;
+            route->runtime_string_lastindexof = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK:
           default:

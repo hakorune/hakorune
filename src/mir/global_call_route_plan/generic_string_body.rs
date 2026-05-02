@@ -20,9 +20,10 @@ use super::generic_string_reject::GenericPureStringReject;
 use super::generic_string_surface::{
     generic_pure_compare_proves_i64, generic_pure_string_accepts_array_len_method,
     generic_pure_string_accepts_array_push_method, generic_pure_string_accepts_env_set,
-    generic_pure_string_accepts_indexof_method, generic_pure_string_accepts_length_method,
-    generic_pure_string_accepts_string_compare, generic_pure_string_accepts_substring_method,
-    generic_pure_string_compare_can_infer_string, generic_pure_string_global_name_is_self,
+    generic_pure_string_accepts_indexof_method, generic_pure_string_accepts_lastindexof_method,
+    generic_pure_string_accepts_length_method, generic_pure_string_accepts_string_compare,
+    generic_pure_string_accepts_substring_method, generic_pure_string_compare_can_infer_string,
+    generic_pure_string_global_name_is_self,
 };
 use super::model::{GlobalCallTargetFacts, GlobalCallTargetShape, GlobalCallTargetShapeReason};
 use super::shape_blocker::propagated_unknown_global_target_blocker;
@@ -875,6 +876,21 @@ fn generic_pure_string_instruction_reject_reason(
                 return None;
             }
             if generic_pure_string_accepts_indexof_method(
+                box_name,
+                method,
+                args,
+                receiver_class,
+                values,
+            ) {
+                let Some(dst) = dst else {
+                    return Some(GenericPureStringReject::new(
+                        GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
+                    ));
+                };
+                set_value_class(values, *dst, GenericPureValueClass::I64, changed);
+                return None;
+            }
+            if generic_pure_string_accepts_lastindexof_method(
                 box_name,
                 method,
                 args,

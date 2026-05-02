@@ -511,6 +511,49 @@ fn records_direct_indexof_core_method_route() {
 }
 
 #[test]
+fn records_direct_lastindexof_core_method_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(5), "StringBox", "lastIndexOf", 1, vec![2]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.lastIndexOf");
+    assert_eq!(route.box_name(), "StringBox");
+    assert_eq!(route.method(), "lastIndexOf");
+    assert_eq!(route.arity(), 1);
+    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(
+        route.route_kind(),
+        GenericMethodRouteKind::StringLastIndexOf
+    );
+    assert_eq!(
+        route.proof(),
+        GenericMethodRouteProof::LastIndexOfSurfacePolicy
+    );
+    let core_method = route.core_method().expect("StringLastIndexOf carrier");
+    assert_eq!(core_method.op, CoreMethodOp::StringLastIndexOf);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::ScalarI64)
+    );
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+    assert_eq!(
+        route.publication_policy(),
+        Some(GenericMethodPublicationPolicy::NoPublication)
+    );
+}
+
+#[test]
 fn records_runtime_data_indexof_from_string_origin() {
     let mut function = make_function();
     let block = function
@@ -548,6 +591,104 @@ fn records_runtime_data_indexof_from_string_origin() {
         .core_method()
         .expect("RuntimeData StringIndexOf carrier");
     assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
+}
+
+#[test]
+fn records_runtime_data_lastindexof_from_string_origin() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "StringBox".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(2),
+        src: ValueId::new(1),
+    });
+    block.add_instruction(method_call(
+        Some(5),
+        "RuntimeDataBox",
+        "lastIndexOf",
+        2,
+        vec![3],
+    ));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.lastIndexOf");
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.method(), "lastIndexOf");
+    assert_eq!(route.arity(), 1);
+    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(
+        route.route_kind(),
+        GenericMethodRouteKind::StringLastIndexOf
+    );
+    let core_method = route
+        .core_method()
+        .expect("RuntimeData StringLastIndexOf carrier");
+    assert_eq!(core_method.op, CoreMethodOp::StringLastIndexOf);
+}
+
+#[test]
+fn records_runtime_data_lastindexof_from_string_corridor_slice_origin() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "StringBox".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Integer(0),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::Integer(4),
+    });
+    block.add_instruction(method_call(
+        Some(4),
+        "RuntimeDataBox",
+        "substring",
+        1,
+        vec![2, 3],
+    ));
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(5),
+        src: ValueId::new(4),
+    });
+    block.add_instruction(method_call(
+        Some(7),
+        "RuntimeDataBox",
+        "lastIndexOf",
+        5,
+        vec![6],
+    ));
+
+    crate::mir::refresh_function_string_corridor_facts(&mut function);
+    refresh_function_generic_method_routes(&mut function);
+
+    let route = route_for(&function, "RuntimeDataBox", "lastIndexOf", Some(7));
+    assert_eq!(route.route_id(), "generic_method.lastIndexOf");
+    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(
+        route.route_kind(),
+        GenericMethodRouteKind::StringLastIndexOf
+    );
+    let core_method = route
+        .core_method()
+        .expect("RuntimeData StringLastIndexOf corridor carrier");
+    assert_eq!(core_method.op, CoreMethodOp::StringLastIndexOf);
 }
 
 #[test]

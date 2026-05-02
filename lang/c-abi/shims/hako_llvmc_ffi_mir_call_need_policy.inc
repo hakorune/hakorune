@@ -254,6 +254,12 @@
             core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
           return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
         }
+        if (!strcmp(route_id, "generic_method.lastIndexOf") &&
+            !strcmp(op, "StringLastIndexOf") &&
+            !strcmp(route_kind, "string_last_indexof") &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
+        }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 
@@ -419,6 +425,15 @@
             "string_indexof",
             "nyash.string.indexOf_hh",
             "indexof_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
+          },
+          {
+            "generic_method.lastIndexOf",
+            "StringLastIndexOf",
+            "string_last_indexof",
+            "nyash.string.lastIndexOf_hh",
+            "lastindexof_surface_policy",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
           },

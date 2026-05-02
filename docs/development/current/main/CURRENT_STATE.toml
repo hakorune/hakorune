@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P184-JSONFRAG-NORMALIZER-DIRECT-SHAPE-EMIT-WIRING"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P184-JSONFRAG-NORMALIZER-DIRECT-SHAPE-EMIT-WIRING.md"
-latest_card_summary = "Promote JsonFrag normalizer shape to DirectAbi and wire module emit through LoweringPlan."
+latest_card = "P185-STRING-LASTINDEXOF-DIRECTABI-CONSUME"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P185-STRING-LASTINDEXOF-DIRECTABI-CONSUME.md"
+latest_card_summary = "Route String lastIndexOf through MIR-owned DirectAbi facts and consume it in the C shim."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -135,4 +135,5 @@ landed_tail = [
   "29cv-P182c JsonFrag normalizer collection route facts landed",
   "29cv-P183 generic i64 scalar/null sentinel flow landed",
   "29cv-P184 JsonFrag normalizer DirectAbi emit wiring landed",
+  "29cv-P185 String lastIndexOf DirectAbi consume landed",
 ]
