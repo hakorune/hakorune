@@ -121,6 +121,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P151 keeps that boundary non-lowerable but improves the MIR-owned diagnostic:
   the stop now propagates to
   `ParserBox.parse_program2 -> generic_string_unsupported_known_receiver_method`.
+- P207a locks the Stage0 size guard for the remaining source-execution work:
+  Stage0 may own generic MIR(JSON)->object/exe bootstrap and recovery plumbing,
+  but it must not clone Stage1/selfhost parser, mirbuilder, normalizer, route,
+  or canonical policy semantics. New blockers should prefer explicit MIR facts
+  and a uniform MIR function emitter over new body-shape/C-shim semantics.
 
 ## Compat Capsule Rules
 

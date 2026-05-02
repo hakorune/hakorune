@@ -105,6 +105,19 @@ Stage1 owner-reduction rule:
 - parser meaning / mirbuilder meaning / canonical MIR policy / route policy must not remain broad Rust owners merely because the bridge artifact is already runnable
 - if a stage1 route still needs broad Rust compiler meaning, read it as temporary bootstrap debt rather than as stage2-mainline readiness
 
+Stage0 size guard:
+
+- stage0 may own generic MIR(JSON)->object/exe bootstrap, recovery, linking,
+  diagnostics, and explicit runtime helper plumbing
+- stage0 must not clone Stage1/selfhost parser, mirbuilder, normalizer, route,
+  or canonical policy semantics
+- source-execution unblock work should prefer MIR-owned facts, uniform ABI, and
+  shared MIR function emission over new body-shape classifiers or C-side
+  rediscovery of `.hako` compiler body meaning
+- if a new Stage0/body classifier is unavoidable, the card must document why it
+  is a temporary validator capsule and what condition lets it collapse into the
+  uniform MIR function emitter
+
 SSOT:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
 
