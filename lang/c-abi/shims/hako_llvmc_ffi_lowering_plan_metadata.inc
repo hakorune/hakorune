@@ -208,6 +208,12 @@
         return proof && !strcmp(proof, "typed_global_call_static_string_array");
       }
 
+      auto int lowering_plan_entry_is_typed_global_call_mir_schema_map_constructor(
+          yyjson_val* entry) {
+        const char* proof = read_str(entry, "proof");
+        return proof && !strcmp(proof, "typed_global_call_mir_schema_map_constructor");
+      }
+
       auto int lowering_plan_entry_is_typed_global_call_contract(
           yyjson_val* entry) {
         return lowering_plan_entry_is_typed_global_call_contract_missing(entry) ||
@@ -219,7 +225,8 @@
                lowering_plan_entry_is_typed_global_call_parser_program_json(entry) ||
                lowering_plan_entry_is_typed_global_call_program_json_emit(entry) ||
                lowering_plan_entry_is_typed_global_call_jsonfrag_instruction_array_normalizer(entry) ||
-               lowering_plan_entry_is_typed_global_call_static_string_array(entry);
+               lowering_plan_entry_is_typed_global_call_static_string_array(entry) ||
+               lowering_plan_entry_is_typed_global_call_mir_schema_map_constructor(entry);
       }
 
       auto int read_lowering_plan_generic_method_view(
@@ -374,6 +381,7 @@
                 !strcmp(view->proof, "typed_global_call_program_json_emit") ||
                 !strcmp(view->proof, "typed_global_call_jsonfrag_instruction_array_normalizer") ||
                 !strcmp(view->proof, "typed_global_call_static_string_array") ||
+                !strcmp(view->proof, "typed_global_call_mir_schema_map_constructor") ||
                 !strcmp(view->proof, "typed_global_call_generic_i64")) &&
                view->target_exists &&
                view->has_target_arity &&
@@ -534,6 +542,24 @@
                !strcmp(view->target_shape, "static_string_array_body") &&
                view->return_shape &&
                !strcmp(view->return_shape, "array_handle") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "runtime_i64_or_handle");
+      }
+
+      auto int lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(
+          const struct LoweringPlanGlobalCallView* view) {
+        return lowering_plan_global_call_view_has_direct_target(view) &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "direct_function_call") &&
+               view->proof &&
+               !strcmp(view->proof, "typed_global_call_mir_schema_map_constructor") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "typed_global_call_mir_schema_map_constructor") &&
+               view->target_shape &&
+               !strcmp(view->target_shape, "mir_schema_map_constructor_body") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "map_handle") &&
                view->value_demand &&
                !strcmp(view->value_demand, "runtime_i64_or_handle");
       }

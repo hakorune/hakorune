@@ -19,6 +19,7 @@ mod generic_string_guards;
 mod generic_string_reject;
 mod generic_string_surface;
 mod jsonfrag_normalizer_body;
+mod mir_schema_map_constructor_body;
 mod model;
 mod parser_program_json_body;
 mod program_json_emit_body;
@@ -36,6 +37,7 @@ use generic_string_body::{
     generic_string_void_sentinel_body_reject_reason,
 };
 use jsonfrag_normalizer_body::is_jsonfrag_instruction_array_normalizer_body_function;
+use mir_schema_map_constructor_body::mir_schema_map_constructor_body_reject_reason;
 pub use model::{
     GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
 };
@@ -152,6 +154,24 @@ fn classify_global_call_target_shape(
     if is_static_string_array_body_function(function) {
         return GlobalCallTargetClassification::direct(
             GlobalCallTargetShape::StaticStringArrayBody,
+        );
+    }
+    if matches!(&function.signature.return_type, MirType::Box(name) if name == "MapBox") {
+        if let Some(reject) = mir_schema_map_constructor_body_reject_reason(function, targets) {
+            return if let Some(blocker) = reject.blocker {
+                GlobalCallTargetClassification::unknown_with_blocker(
+                    reject.reason,
+                    blocker.symbol,
+                    blocker.reason,
+                )
+            } else {
+                GlobalCallTargetClassification::unknown(
+                    GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
+                )
+            };
+        }
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::MirSchemaMapConstructorBody,
         );
     }
     if is_builder_registry_dispatch_body_candidate(function) {

@@ -39,6 +39,7 @@ pub enum GlobalCallTargetShape {
     JsonFragInstructionArrayNormalizerBody,
     StaticStringArrayBody,
     BuilderRegistryDispatchBody,
+    MirSchemaMapConstructorBody,
 }
 
 impl GlobalCallTargetShape {
@@ -57,6 +58,7 @@ impl GlobalCallTargetShape {
             }
             Self::StaticStringArrayBody => "static_string_array_body",
             Self::BuilderRegistryDispatchBody => "builder_registry_dispatch_body",
+            Self::MirSchemaMapConstructorBody => "mir_schema_map_constructor_body",
         }
     }
 }
@@ -331,6 +333,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::BuilderRegistryDispatchBody) => {
                 "typed_global_call_builder_registry_dispatch"
             }
+            Some(GlobalCallTargetShape::MirSchemaMapConstructorBody) => {
+                "typed_global_call_mir_schema_map_constructor"
+            }
             _ => "typed_global_call_contract_missing",
         }
     }
@@ -419,6 +424,7 @@ impl GlobalCallRoute {
                 | GlobalCallTargetShape::ProgramJsonEmitBody
                 | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
                 | GlobalCallTargetShape::StaticStringArrayBody
+                | GlobalCallTargetShape::MirSchemaMapConstructorBody
                 | GlobalCallTargetShape::BuilderRegistryDispatchBody,
             ) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
@@ -445,6 +451,7 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::BuilderRegistryDispatchBody) => {
                 Some("string_handle_or_null")
             }
+            Some(GlobalCallTargetShape::MirSchemaMapConstructorBody) => Some("map_handle"),
             _ => None,
         }
     }
@@ -482,6 +489,7 @@ impl GlobalCallRoute {
             | GlobalCallTargetShape::ProgramJsonEmitBody
             | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
             | GlobalCallTargetShape::StaticStringArrayBody
+            | GlobalCallTargetShape::MirSchemaMapConstructorBody
             | GlobalCallTargetShape::BuilderRegistryDispatchBody => Some(self.target.shape()),
             GlobalCallTargetShape::Unknown => None,
         }

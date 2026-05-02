@@ -44,6 +44,7 @@ mod core;
 mod generic_i64;
 mod hostbridge;
 mod jsonfrag_normalizer;
+mod mir_schema_map_constructor;
 mod runtime_methods;
 mod shape_reasons;
 mod static_string_array;

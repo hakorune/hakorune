@@ -593,6 +593,9 @@ fn refine_generic_string_return_value_class(
                         GlobalCallTargetShape::StaticStringArrayBody => {
                             GenericStringReturnValueClass::Object
                         }
+                        GlobalCallTargetShape::MirSchemaMapConstructorBody => {
+                            GenericStringReturnValueClass::Object
+                        }
                         GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                             GenericStringReturnValueClass::StringOrVoid
                         }

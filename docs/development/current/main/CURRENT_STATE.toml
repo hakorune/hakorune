@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P195-GENERIC-STRING-BOOL-NOT-FLOW"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P195-GENERIC-STRING-BOOL-NOT-FLOW.md"
-latest_card_summary = "Accept Bool UnaryOp::Not as scalar flow inside generic string-or-void bodies."
+latest_card = "P196-MIR-SCHEMA-MAP-CONSTRUCTOR-BODY"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P196-MIR-SCHEMA-MAP-CONSTRUCTOR-BODY.md"
+latest_card_summary = "Split MIR schema MapBox constructors into a dedicated map-handle DirectAbi route shape."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -146,4 +146,5 @@ landed_tail = [
   "29cv-P193 string-typed string-or-void passthrough landed",
   "29cv-P194 builder registry dispatch body shape landed",
   "29cv-P195 generic string Bool Not flow landed",
+  "29cv-P196 MIR schema map constructor body landed",
 ]
