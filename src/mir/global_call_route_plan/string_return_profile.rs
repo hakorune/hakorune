@@ -98,10 +98,14 @@ pub(super) fn generic_string_void_sentinel_return_global_blocker(
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             match instruction {
                 MirInstruction::Return { value: Some(value) } => {
-                    if generic_string_return_value_class(&values, *value).is_void_like() {
+                    let class = generic_string_return_value_class(&values, *value);
+                    if let Some(blocker) = blockers.get(value).cloned() {
+                        if return_blocker.is_none() {
+                            return_blocker = Some(blocker);
+                        }
+                    }
+                    if class.is_void_like() {
                         saw_void = true;
-                    } else if return_blocker.is_none() {
-                        return_blocker = blockers.get(value).cloned();
                     }
                 }
                 MirInstruction::Return { value: None } => saw_void = true,

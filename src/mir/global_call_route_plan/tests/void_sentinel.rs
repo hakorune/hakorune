@@ -559,6 +559,92 @@ fn refresh_module_global_call_routes_marks_void_sentinel_return_child_blocker() 
 }
 
 #[test]
+fn refresh_module_global_call_routes_marks_void_typed_call_result_child_blocker() {
+    let mut module = MirModule::new("global_call_void_typed_call_child_blocker_test".to_string());
+    let caller =
+        make_function_with_global_call_args("Helper.maybe_text/0", Some(ValueId::new(7)), vec![]);
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.maybe_text/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(1),
+        value: ConstValue::Bool(true),
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(1),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut child_block = BasicBlock::new(BasicBlockId::new(1));
+    child_block.instructions.push(MirInstruction::Call {
+        dst: Some(ValueId::new(2)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global("Helper.pending/0".to_string())),
+        args: vec![],
+        effects: EffectMask::PURE,
+    });
+    child_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+    let mut void_block = BasicBlock::new(BasicBlockId::new(2));
+    void_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::Void,
+    });
+    void_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+    callee
+        .metadata
+        .value_types
+        .insert(ValueId::new(2), MirType::Void);
+    let pending = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.pending/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.blocks.insert(BasicBlockId::new(1), child_block);
+    callee.blocks.insert(BasicBlockId::new(2), void_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.pending/0".to_string(), pending);
+    module
+        .functions
+        .insert("Helper.maybe_text/0".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), None);
+    assert_eq!(
+        route.target_shape_reason(),
+        Some("generic_string_global_target_shape_unknown")
+    );
+    assert_eq!(
+        route.target_shape_blocker_symbol(),
+        Some("Helper.pending/0")
+    );
+    assert_eq!(
+        route.target_shape_blocker_reason(),
+        Some("generic_string_no_string_surface")
+    );
+}
+
+#[test]
 fn string_return_blocker_ignores_direct_string_child_targets() {
     let mut function = MirFunction::new(
         FunctionSignature {
