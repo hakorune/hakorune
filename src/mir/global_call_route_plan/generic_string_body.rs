@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 
@@ -43,6 +43,20 @@ fn seed_generic_pure_values(
     }
 }
 
+fn seed_generic_pure_string_return_param_values(
+    function: &MirFunction,
+    values: &mut BTreeSet<ValueId>,
+) {
+    for (index, param) in function.params.iter().enumerate() {
+        let Some(ty) = function.signature.params.get(index) else {
+            continue;
+        };
+        if generic_pure_string_return_param_passthrough_type_is_candidate(ty) {
+            values.insert(*param);
+        }
+    }
+}
+
 fn generic_pure_value_class_from_type(ty: &MirType) -> Option<GenericPureValueClass> {
     match ty {
         MirType::Integer => Some(GenericPureValueClass::I64),
@@ -57,6 +71,11 @@ fn generic_pure_value_class_from_type(ty: &MirType) -> Option<GenericPureValueCl
         MirType::Void => Some(GenericPureValueClass::VoidSentinel),
         _ => None,
     }
+}
+
+fn generic_pure_string_return_param_passthrough_type_is_candidate(ty: &MirType) -> bool {
+    matches!(ty, MirType::String | MirType::Unknown)
+        || matches!(ty, MirType::Box(name) if name == "StringBox")
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -135,9 +154,11 @@ pub(super) fn generic_pure_string_body_reject_reason(
     }
 
     let mut values = BTreeMap::<ValueId, GenericPureValueClass>::new();
+    let mut return_param_values = BTreeSet::<ValueId>::new();
     let mut has_string_surface = false;
     let mut has_void_sentinel_const = false;
     seed_generic_pure_values(function, &mut values);
+    seed_generic_pure_string_return_param_values(function, &mut return_param_values);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
@@ -152,6 +173,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
                     instruction,
                     targets,
                     &mut values,
+                    &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
                     &mut changed,
@@ -164,6 +186,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
                     terminator,
                     targets,
                     &mut values,
+                    &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
                     &mut changed,
@@ -199,7 +222,13 @@ pub(super) fn generic_pure_string_body_reject_reason(
                         GlobalCallTargetShapeReason::GenericStringUnsupportedVoidSentinelConst,
                     ));
                 }
-                if class != GenericPureValueClass::String {
+                if class != GenericPureValueClass::String
+                    && !generic_pure_string_return_allows_param_passthrough(
+                        function,
+                        *value,
+                        &return_param_values,
+                    )
+                {
                     return Some(GenericPureStringReject::new(
                         GlobalCallTargetShapeReason::GenericStringReturnNotString,
                     ));
@@ -218,6 +247,19 @@ pub(super) fn generic_pure_string_body_reject_reason(
             GlobalCallTargetShapeReason::GenericStringReturnNotString,
         ))
     }
+}
+
+fn generic_pure_string_return_allows_param_passthrough(
+    function: &MirFunction,
+    value: ValueId,
+    return_param_values: &BTreeSet<ValueId>,
+) -> bool {
+    generic_pure_string_return_type_accepts_param_passthrough(&function.signature.return_type)
+        && return_param_values.contains(&value)
+}
+
+fn generic_pure_string_return_type_accepts_param_passthrough(ty: &MirType) -> bool {
+    matches!(ty, MirType::String) || matches!(ty, MirType::Box(name) if name == "StringBox")
 }
 
 pub(super) fn generic_pure_string_abi_type_is_handle_compatible(ty: &MirType) -> bool {
@@ -251,6 +293,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
     }
 
     let mut values = BTreeMap::<ValueId, GenericPureValueClass>::new();
+    let mut return_param_values = BTreeSet::<ValueId>::new();
     let mut has_string_surface = false;
     let mut has_void_sentinel_const = false;
     seed_generic_pure_values(function, &mut values);
@@ -268,6 +311,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
                     instruction,
                     targets,
                     &mut values,
+                    &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
                     &mut changed,
@@ -280,6 +324,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
                     terminator,
                     targets,
                     &mut values,
+                    &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
                     &mut changed,
@@ -317,10 +362,12 @@ fn generic_pure_string_instruction_reject_reason(
     instruction: &MirInstruction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    return_param_values: &mut BTreeSet<ValueId>,
     has_string_surface: &mut bool,
     has_void_sentinel_const: &mut bool,
     changed: &mut bool,
 ) -> Option<GenericPureStringReject> {
+    update_generic_pure_string_return_param_values(instruction, return_param_values, changed);
     match instruction {
         MirInstruction::Const { dst, value } => {
             let class = match value {
@@ -666,6 +713,28 @@ fn generic_pure_string_accepts_substring_method(
         && args
             .iter()
             .all(|arg| value_class(values, *arg) == GenericPureValueClass::I64)
+}
+
+fn update_generic_pure_string_return_param_values(
+    instruction: &MirInstruction,
+    values: &mut BTreeSet<ValueId>,
+    changed: &mut bool,
+) {
+    match instruction {
+        MirInstruction::Copy { dst, src } if values.contains(src) => {
+            if values.insert(*dst) {
+                *changed = true;
+            }
+        }
+        MirInstruction::Phi { dst, inputs, .. }
+            if !inputs.is_empty() && inputs.iter().all(|(_, value)| values.contains(value)) =>
+        {
+            if values.insert(*dst) {
+                *changed = true;
+            }
+        }
+        _ => {}
+    }
 }
 
 fn value_class(
