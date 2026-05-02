@@ -21,6 +21,7 @@ pub(super) fn box_type_inspector_describe_body_reject_reason(
     }
 
     let mut facts = BoxTypeInspectorDescribeFacts::default();
+    facts.seed_value_types(&function.metadata.value_types);
     for param in &function.params {
         facts.set_value(*param, InspectorValueClass::UnknownHandle, &mut false);
     }
@@ -167,6 +168,14 @@ impl BoxTypeInspectorDescribeMarkers {
 }
 
 impl BoxTypeInspectorDescribeFacts {
+    fn seed_value_types(&mut self, value_types: &BTreeMap<ValueId, MirType>) {
+        for (value, ty) in value_types {
+            if let Some(class) = inspector_value_class_from_type_hint(ty) {
+                self.values.insert(*value, class);
+            }
+        }
+    }
+
     fn observe(
         &mut self,
         instruction: &MirInstruction,
@@ -205,7 +214,18 @@ impl BoxTypeInspectorDescribeFacts {
                 }
                 None
             }
-            MirInstruction::Phi { dst, inputs, .. } => {
+            MirInstruction::Phi {
+                dst,
+                inputs,
+                type_hint,
+            } => {
+                if let Some(class) = type_hint
+                    .as_ref()
+                    .and_then(inspector_value_class_from_type_hint)
+                {
+                    self.set_value(*dst, class, changed);
+                    return None;
+                }
                 let mut class = None;
                 let mut saw_unknown = false;
                 for (_, value) in inputs {
@@ -453,5 +473,17 @@ fn merge_inspector_value_class(
         | (InspectorValueClass::Scalar, InspectorValueClass::Bool) => InspectorValueClass::Scalar,
         (left, right) if left == right => left,
         _ => InspectorValueClass::UnknownHandle,
+    }
+}
+
+fn inspector_value_class_from_type_hint(ty: &MirType) -> Option<InspectorValueClass> {
+    match ty {
+        MirType::Integer => Some(InspectorValueClass::Scalar),
+        MirType::Bool => Some(InspectorValueClass::Bool),
+        MirType::String => Some(InspectorValueClass::String),
+        MirType::Void => Some(InspectorValueClass::Void),
+        MirType::Box(name) if name == "MapBox" => Some(InspectorValueClass::Map),
+        MirType::Box(name) if name == "StringBox" => Some(InspectorValueClass::String),
+        _ => None,
     }
 }
