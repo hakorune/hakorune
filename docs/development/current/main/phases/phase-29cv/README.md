@@ -164,6 +164,13 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `BoxTypeInspectorBox.is_map/1` blocker is gone; the source-exe probe now
   stops later at `LowerIfCompareFoldVarIntBox._resolve_side/3` with
   `generic_string_return_not_string`.
+- P207h keeps that next blocker on the source-flow path by making
+  `LowerIfCompareFoldVarIntBox._resolve_side/3` an explicit i64/null numeric
+  resolver. It coerces JsonFrag numeric-token strings at the resolver boundary
+  instead of adding a new Stage0 body shape. The source-exe first blocker now
+  advances to `BoxHelpers.array_len/1` inside the MIR JSON emitter path; a
+  narrower `_resolve_side/3` ABI residual remains route-visible but is no
+  longer the first blocker.
 
 ## Compat Capsule Rules
 
