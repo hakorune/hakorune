@@ -39,11 +39,37 @@ pub(super) fn generic_pure_string_accepts_array_push_method(
     receiver_class: GenericPureValueClass,
     values: &BTreeMap<ValueId, GenericPureValueClass>,
 ) -> bool {
-    matches!(box_name, "RuntimeDataBox" | "ArrayBox")
-        && method == "push"
-        && args.len() == 1
-        && receiver_class == GenericPureValueClass::Array
-        && value_class(values, args[0]) == GenericPureValueClass::String
+    if !matches!(box_name, "RuntimeDataBox" | "ArrayBox")
+        || method != "push"
+        || receiver_class != GenericPureValueClass::Array
+    {
+        return false;
+    }
+    let payload = match args {
+        [value] => *value,
+        [receiver_arg, value]
+            if value_class(values, *receiver_arg) == GenericPureValueClass::Array =>
+        {
+            *value
+        }
+        _ => return false,
+    };
+    generic_pure_string_accepts_array_push_payload(value_class(values, payload))
+}
+
+fn generic_pure_string_accepts_array_push_payload(class: GenericPureValueClass) -> bool {
+    matches!(
+        class,
+        GenericPureValueClass::Unknown
+            | GenericPureValueClass::I64
+            | GenericPureValueClass::Bool
+            | GenericPureValueClass::ScalarOrVoid
+            | GenericPureValueClass::String
+            | GenericPureValueClass::Array
+            | GenericPureValueClass::Map
+            | GenericPureValueClass::StringOrVoid
+            | GenericPureValueClass::VoidSentinel
+    )
 }
 
 pub(super) fn generic_pure_string_accepts_indexof_method(

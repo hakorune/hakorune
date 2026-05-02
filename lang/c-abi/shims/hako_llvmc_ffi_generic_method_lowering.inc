@@ -654,7 +654,7 @@
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_PUSH:
             if (!emit_generic_method_push_by_policy(
-                    f, bname, dst, recv, a0, &plan, ab, ab_cap)) {
+                    f, bname, dst, recv, a0, a1, &plan, ab, ab_cap)) {
               return -1;
             }
             return 1;

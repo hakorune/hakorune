@@ -955,6 +955,18 @@ fn generic_pure_string_instruction_reject_reason(
             ..
         } => {
             let receiver_class = value_class(values, *receiver);
+            if generic_pure_string_accepts_array_push_method(
+                box_name,
+                method,
+                args,
+                receiver_class,
+                values,
+            ) {
+                if let Some(dst) = dst {
+                    set_value_class(values, *dst, GenericPureValueClass::I64, changed);
+                }
+                return None;
+            }
             if receiver_class == GenericPureValueClass::Unknown
                 || args
                     .iter()
@@ -990,18 +1002,6 @@ fn generic_pure_string_instruction_reject_reason(
                     ));
                 };
                 set_value_class(values, *dst, GenericPureValueClass::I64, changed);
-                return None;
-            }
-            if generic_pure_string_accepts_array_push_method(
-                box_name,
-                method,
-                args,
-                receiver_class,
-                values,
-            ) {
-                if let Some(dst) = dst {
-                    set_value_class(values, *dst, GenericPureValueClass::I64, changed);
-                }
                 return None;
             }
             if generic_pure_string_accepts_indexof_method(

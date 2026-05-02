@@ -268,10 +268,20 @@
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_array_push(&method_view)) {
                 long long recv = cal ? read_int(cal, "receiver") : 0;
-                long long a0 = 0;
+                long long value = 0;
+                size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
                 if (dst) set_type(dst, T_I64);
-                if (module_generic_string_read_arg_reg(args, 0, &a0) &&
-                    module_generic_string_value_is_string(a0)) {
+                if (argc == 1) {
+                  if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
+                } else if (argc == 2) {
+                  long long recv_arg = 0;
+                  if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
+                  if (!module_generic_string_value_is_array(recv_arg)) return 0;
+                  if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
+                } else {
+                  return 0;
+                }
+                if (module_generic_string_value_is_string(value)) {
                   promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
                   promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
                   if (recv) {
@@ -741,8 +751,17 @@
               module_generic_string_method_view_is_direct_array_push(&method_view))) {
           return 0;
         }
-        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
-        if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
+        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
+        if (argc == 1) {
+          if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
+        } else if (argc == 2) {
+          long long recv_arg = 0;
+          if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
+          if (!module_generic_string_value_is_array(recv_arg)) return 0;
+          if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
+        } else {
+          return 0;
+        }
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), value, 0);
         if (dst) {

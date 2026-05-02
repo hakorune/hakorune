@@ -26,10 +26,13 @@
           long long dst,
           long long recv,
           long long a0,
+          long long a1,
           const struct GenericMethodEmitPlan* plan,
           char* ab,
           size_t ab_cap) {
-        if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
+        long long value = a1 ? a1 : a0;
+        if (recv) append_i64_arg_ref(ab, ab_cap, recv, ab[0]=='\0');
+        if (value) append_i64_arg_ref(ab, ab_cap, value, ab[0]=='\0');
         enum GenericMethodPushRouteKind route = classify_generic_method_push_route(bname, plan);
         switch (route) {
           case HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_ARRAY_APPEND_ANY:
@@ -40,7 +43,7 @@
               fprintf(f, "  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
             }
             if (should_promote_array_string_birth_after_push(
-                    plan, a0 && get_origin(a0) == ORG_STRING)) {
+                    plan, value && get_origin(value) == ORG_STRING)) {
               promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
               promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
               if (recv) {

@@ -699,7 +699,7 @@ fn match_generic_push_route(
     else {
         return None;
     };
-    if method != "push" || args.len() != 1 {
+    if method != "push" || !matches!(args.len(), 1 | 2) {
         return None;
     }
 
@@ -711,10 +711,20 @@ fn match_generic_push_route(
     {
         return None;
     }
+    if args.len() == 2 {
+        let receiver_arg_origin_box = receiver_origin_box_name(function, def_map, args[0])
+            .or_else(|| generic_array_flow_origin_box_name(function, args[0]));
+        if receiver_arg_origin_box.as_deref() != Some("ArrayBox")
+            || resolve_value_origin(function, def_map, args[0])
+                != resolve_value_origin(function, def_map, *receiver)
+        {
+            return None;
+        }
+    }
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
-        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
+        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
         GenericMethodRouteDecision::new(
