@@ -535,6 +535,116 @@ fn refresh_module_semantic_metadata_accepts_array_size_in_generic_pure_string_bo
 }
 
 #[test]
+fn refresh_module_semantic_metadata_accepts_array_string_push_in_generic_pure_string_body() {
+    let mut module = MirModule::new("global_call_string_array_push_test".to_string());
+    let caller =
+        make_function_with_global_call_args("Helper.collect/0", Some(ValueId::new(7)), vec![]);
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.collect/0".to_string(),
+            params: vec![],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.extend([
+        MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Bool(true),
+        },
+    ]);
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(2),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut then_block = BasicBlock::new(BasicBlockId::new(1));
+    then_block.instructions.push(MirInstruction::Copy {
+        dst: ValueId::new(3),
+        src: ValueId::new(1),
+    });
+    then_block.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(3),
+        edge_args: None,
+    });
+
+    let mut else_block = BasicBlock::new(BasicBlockId::new(2));
+    else_block.instructions.push(MirInstruction::Copy {
+        dst: ValueId::new(4),
+        src: ValueId::new(1),
+    });
+    else_block.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(3),
+        edge_args: None,
+    });
+
+    let mut merge_block = BasicBlock::new(BasicBlockId::new(3));
+    merge_block.instructions.extend([
+        MirInstruction::Phi {
+            dst: ValueId::new(5),
+            inputs: vec![
+                (BasicBlockId::new(1), ValueId::new(3)),
+                (BasicBlockId::new(2), ValueId::new(4)),
+            ],
+            type_hint: Some(MirType::Box("ArrayBox".to_string())),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(6),
+            value: ConstValue::String("obj".to_string()),
+        },
+        MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "push".to_string(),
+                receiver: Some(ValueId::new(5)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(6)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    merge_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(6)),
+    });
+
+    callee.blocks.insert(BasicBlockId::new(1), then_block);
+    callee.blocks.insert(BasicBlockId::new(2), else_block);
+    callee.blocks.insert(BasicBlockId::new(3), merge_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.collect/0".to_string(), callee);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    let callee = &module.functions["Helper.collect/0"];
+    assert!(callee.metadata.generic_method_routes.iter().any(|route| {
+        route.route_id() == "generic_method.push"
+            && route.method() == "push"
+            && route.receiver_origin_box() == Some("ArrayBox")
+            && route.route_kind_tag() == "array_append_any"
+            && route.helper_symbol() == "nyash.array.slot_append_hh"
+            && route.value_demand().as_metadata_name() == "write_any"
+    }));
+}
+
+#[test]
 fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_string_body() {
     let mut module = MirModule::new("global_call_string_indexof_test".to_string());
     let caller = make_function_with_global_call_args(

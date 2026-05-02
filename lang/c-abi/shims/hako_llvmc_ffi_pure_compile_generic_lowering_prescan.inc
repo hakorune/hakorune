@@ -407,7 +407,8 @@
       fprintf(f, "declare void @llvm.stackrestore(ptr)\n");
       if (needs.arr_birth || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
-      if (needs.arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
+      if (needs.arr_push || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
       if (needs.arr_len || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);

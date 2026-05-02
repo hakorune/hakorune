@@ -103,6 +103,30 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
 
+      auto int module_generic_string_method_view_is_direct_array_push(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "generic_method.push") &&
+               view->core_op &&
+               !strcmp(view->core_op, "ArrayPush") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "array_append_any") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.array.slot_append_hh") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "push_surface_policy") &&
+               view->receiver_origin_box &&
+               !strcmp(view->receiver_origin_box, "ArrayBox") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "scalar_i64") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "write_any") &&
+               view->publication_policy &&
+               !strcmp(view->publication_policy, "no_publication") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+      }
+
       auto int module_generic_string_method_view_is_direct_string_substring(
           const struct LoweringPlanGenericMethodView* view) {
         return view &&
@@ -332,6 +356,20 @@
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_array_len(&method_view)) {
                 set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_array_push(&method_view)) {
+                long long recv = cal ? read_int(cal, "receiver") : 0;
+                long long a0 = 0;
+                if (dst) set_type(dst, T_I64);
+                if (module_generic_string_read_arg_reg(args, 0, &a0) &&
+                    module_generic_string_value_is_string(a0)) {
+                  promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+                  promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+                  if (recv) {
+                    set_origin(recv, ORG_ARRAY_STRING_BIRTH);
+                    set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
+                  }
+                }
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_string_substring(&method_view)) {
                 set_type(dst, T_I64);
@@ -604,6 +642,44 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_method_push_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        char ab[256];
+        long long value = 0;
+        (void)f;
+        ab[0] = '\0';
+        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
+              module_generic_string_method_view_is_direct_array_push(&method_view))) {
+          return 0;
+        }
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
+        if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        append_i64_arg_ref(ab, sizeof(ab), value, 0);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+        } else {
+          EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
+        }
+        if (module_generic_string_value_is_string(value)) {
+          promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+          promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+          if (recv) {
+            set_origin(recv, ORG_ARRAY_STRING_BIRTH);
+            set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
+          }
+        }
+        return 1;
+      }
+
       auto int module_generic_string_emit_method_indexof_mir_call(
           FILE* f,
           long long bid,
@@ -661,6 +737,15 @@
         } else if (ctype && !strcmp(ctype, "Method")) {
           long long recv = read_int(cal, "receiver");
           rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);
+          if (rc != 1) {
+            rc = module_generic_string_emit_method_push_mir_call(
+                f,
+                bid,
+                ii,
+                dst,
+                recv,
+                args);
+          }
           if (rc != 1) {
             rc = module_generic_string_emit_method_substring_mir_call(
                 f,

@@ -552,6 +552,7 @@ fn match_generic_push_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| generic_array_flow_origin_box_name(function, *receiver))
         .or_else(|| (box_name == "ArrayBox").then(|| "ArrayBox".to_string()));
     if receiver_origin_box.as_deref() != Some("ArrayBox")
         || !matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox")

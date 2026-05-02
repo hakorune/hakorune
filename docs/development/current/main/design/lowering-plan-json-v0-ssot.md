@@ -354,8 +354,16 @@ After collection births, `generic_pure_string_body` may accept
 is proven to be an `ArrayBox` through MIR-owned `NewBox`/copy/all-array-PHI
 flow evidence and the matching `generic_method.len` / `ArrayLen`
 LoweringPlan entry is present. ny-llvmc must lower that method through
-`nyash.array.slot_len_h`. This does not accept array `get`, `push`, `set`, map
-methods, or mixed collection PHIs.
+`nyash.array.slot_len_h`. This does not accept array `get`, `set`, map methods,
+or mixed collection PHIs.
+`generic_pure_string_body` may also accept `ArrayBox.push(string)` only when the
+receiver is proven to be an `ArrayBox` through the same MIR-owned flow evidence
+and the pushed value is already proven string. The matching
+`generic_method.push` / `ArrayPush` LoweringPlan entry must be present, with
+`route_kind=array_append_any`, `value_demand=write_any`, and
+`publication_policy=no_publication`; ny-llvmc lowers this through
+`nyash.array.slot_append_hh`. This does not accept non-string pushes, array
+`get`, array `set`, map methods, or mixed collection PHIs.
 `generic_pure_string_body` may also accept string `indexOf` observation only
 when the receiver and needle are both proven string values and the matching
 `generic_method.indexOf` / `StringIndexOf` LoweringPlan entry is present.
