@@ -37,7 +37,7 @@ fn seed_generic_pure_values(
         }
     }
     for (value, ty) in &function.metadata.value_types {
-        if let Some(class) = generic_pure_value_class_from_type(ty) {
+        if let Some(class) = generic_pure_metadata_value_class_from_type(ty) {
             set_value_class(values, *value, class, &mut changed);
         }
     }
@@ -61,6 +61,20 @@ fn generic_pure_value_class_from_type(ty: &MirType) -> Option<GenericPureValueCl
     match ty {
         MirType::Integer => Some(GenericPureValueClass::I64),
         MirType::Bool => Some(GenericPureValueClass::Bool),
+        MirType::String => Some(GenericPureValueClass::String),
+        MirType::Box(name) => match name.as_str() {
+            "IntegerBox" => Some(GenericPureValueClass::I64),
+            "BoolBox" => Some(GenericPureValueClass::Bool),
+            "StringBox" => Some(GenericPureValueClass::String),
+            _ => None,
+        },
+        MirType::Void => Some(GenericPureValueClass::VoidSentinel),
+        _ => None,
+    }
+}
+
+fn generic_pure_metadata_value_class_from_type(ty: &MirType) -> Option<GenericPureValueClass> {
+    match ty {
         MirType::String => Some(GenericPureValueClass::String),
         MirType::Box(name) => match name.as_str() {
             "IntegerBox" => Some(GenericPureValueClass::I64),
@@ -525,7 +539,7 @@ fn generic_pure_string_instruction_reject_reason(
                     || rhs_class == GenericPureValueClass::String)
             {
                 *has_string_surface = true;
-                set_value_class(values, *dst, GenericPureValueClass::String, changed);
+                set_string_handle_value_class(values, *dst, changed);
                 return None;
             }
             if lhs_class == GenericPureValueClass::Unknown
@@ -652,7 +666,18 @@ fn generic_pure_string_instruction_reject_reason(
         } if name == "env.get/1" => {
             if let Some(dst) = dst {
                 *has_string_surface = true;
-                set_value_class(values, *dst, GenericPureValueClass::String, changed);
+                set_string_handle_value_class(values, *dst, changed);
+            }
+            None
+        }
+        MirInstruction::Call {
+            dst,
+            callee: Some(Callee::Extern(name)),
+            args,
+            ..
+        } if generic_pure_string_accepts_env_set(name, args, values) => {
+            if let Some(dst) = dst {
+                set_value_class(values, *dst, GenericPureValueClass::I64, changed);
             }
             None
         }
@@ -799,6 +824,20 @@ fn generic_pure_string_accepts_length_method(
         && receiver_class == GenericPureValueClass::String
 }
 
+fn generic_pure_string_accepts_env_set(
+    name: &str,
+    args: &[ValueId],
+    values: &BTreeMap<ValueId, GenericPureValueClass>,
+) -> bool {
+    matches!(
+        name,
+        "env.set/2" | "env.set" | "nyash.env.set/2" | "nyash.env.set"
+    ) && args.len() == 2
+        && args
+            .iter()
+            .all(|arg| value_class(values, *arg) == GenericPureValueClass::String)
+}
+
 pub(super) fn generic_pure_compare_proves_i64(op: crate::mir::CompareOp) -> bool {
     !matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)
 }
@@ -870,6 +909,24 @@ fn set_value_class(
     }
 }
 
+fn set_string_handle_value_class(
+    values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    value: ValueId,
+    changed: &mut bool,
+) {
+    match values.get(&value).copied() {
+        Some(GenericPureValueClass::String) => {}
+        Some(GenericPureValueClass::Unknown)
+        | Some(GenericPureValueClass::I64)
+        | Some(GenericPureValueClass::VoidSentinel)
+        | None => {
+            values.insert(value, GenericPureValueClass::String);
+            *changed = true;
+        }
+        Some(_) => {}
+    }
+}
+
 fn set_proven_flow_value_class(
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
     value: ValueId,
@@ -882,6 +939,10 @@ fn set_proven_flow_value_class(
     match values.get(&value).copied() {
         Some(existing) if existing == class => {}
         Some(GenericPureValueClass::Unknown | GenericPureValueClass::VoidSentinel) | None => {
+            values.insert(value, class);
+            *changed = true;
+        }
+        Some(GenericPureValueClass::I64) if class == GenericPureValueClass::String => {
             values.insert(value, class);
             *changed = true;
         }

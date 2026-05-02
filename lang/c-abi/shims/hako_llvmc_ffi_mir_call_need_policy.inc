@@ -22,6 +22,7 @@
         int string_indexof;
         int string_concat;
         int env_get;
+        int env_set;
         int printf;
       };
 
@@ -46,6 +47,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
+        HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
         HAKO_LLVMC_MIR_CALL_NEED_PRINTF,
       };
 
@@ -111,6 +113,9 @@
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_ENV_GET:
             needs->env_get = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_ENV_SET:
+            needs->env_set = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_PRINTF:
             needs->printf = 1;
@@ -576,6 +581,16 @@
             "extern_registry",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
+          },
+          {
+            "extern.env.set",
+            "EnvSet",
+            "extern.env.set",
+            "runtime_call",
+            "nyash.env.set",
+            "extern_registry",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
           },
         };
         struct LoweringPlanExternCallView view;

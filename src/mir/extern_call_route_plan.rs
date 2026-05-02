@@ -11,60 +11,70 @@ use super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, ValueI
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExternCallRouteKind {
     EnvGet,
+    EnvSet,
 }
 
 impl ExternCallRouteKind {
     pub fn route_id(self) -> &'static str {
         match self {
             Self::EnvGet => "extern.env.get",
+            Self::EnvSet => "extern.env.set",
         }
     }
 
     pub fn core_op(self) -> &'static str {
         match self {
             Self::EnvGet => "EnvGet",
+            Self::EnvSet => "EnvSet",
         }
     }
 
     pub fn symbol(self) -> &'static str {
         match self {
             Self::EnvGet => "nyash.env.get",
+            Self::EnvSet => "nyash.env.set",
         }
     }
 
     pub fn tier(self) -> &'static str {
         match self {
             Self::EnvGet => "ColdRuntime",
+            Self::EnvSet => "ColdRuntime",
         }
     }
 
     pub fn emit_kind(self) -> &'static str {
         match self {
             Self::EnvGet => "runtime_call",
+            Self::EnvSet => "runtime_call",
         }
     }
 
     pub fn proof(self) -> &'static str {
         match self {
             Self::EnvGet => "extern_registry",
+            Self::EnvSet => "extern_registry",
         }
     }
 
     pub fn return_shape(self) -> &'static str {
         match self {
             Self::EnvGet => "string_handle_or_null",
+            Self::EnvSet => "scalar_i64",
         }
     }
 
     pub fn value_demand(self) -> &'static str {
         match self {
             Self::EnvGet => "runtime_i64_or_handle",
+            Self::EnvSet => "runtime_i64",
         }
     }
 
     pub fn effect_tags(self) -> &'static [&'static str] {
         match self {
             Self::EnvGet => &["read.env"],
+            Self::EnvSet => &["write.env"],
         }
     }
 }
@@ -90,6 +100,7 @@ pub struct ExternCallRoute {
     kind: ExternCallRouteKind,
     source_symbol: String,
     key_value: ValueId,
+    value_value: Option<ValueId>,
     result_value: ValueId,
 }
 
@@ -99,6 +110,7 @@ impl ExternCallRoute {
         kind: ExternCallRouteKind,
         source_symbol: impl Into<String>,
         key_value: ValueId,
+        value_value: Option<ValueId>,
         result_value: ValueId,
     ) -> Self {
         Self {
@@ -106,6 +118,7 @@ impl ExternCallRoute {
             kind,
             source_symbol: source_symbol.into(),
             key_value,
+            value_value,
             result_value,
         }
     }
@@ -150,8 +163,19 @@ impl ExternCallRoute {
         self.key_value
     }
 
+    pub fn value_value(&self) -> Option<ValueId> {
+        self.value_value
+    }
+
     pub fn result_value(&self) -> ValueId {
         self.result_value
+    }
+
+    pub fn arity(&self) -> usize {
+        match self.kind {
+            ExternCallRouteKind::EnvGet => 1,
+            ExternCallRouteKind::EnvSet => 2,
+        }
     }
 
     pub fn return_shape(&self) -> &'static str {
@@ -168,12 +192,15 @@ impl ExternCallRoute {
 }
 
 fn normalize_extern_symbol(name: &str) -> &str {
-    name.strip_suffix("/1").unwrap_or(name)
+    name.strip_suffix("/1")
+        .or_else(|| name.strip_suffix("/2"))
+        .unwrap_or(name)
 }
 
 fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallRouteKind> {
     match (normalize_extern_symbol(name), argc) {
         ("env.get", 1) | ("nyash.env.get", 1) => Some(ExternCallRouteKind::EnvGet),
+        ("env.set", 2) | ("nyash.env.set", 2) => Some(ExternCallRouteKind::EnvSet),
         _ => None,
     }
 }
@@ -209,11 +236,16 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
             let Some(key_value) = args.first().copied() else {
                 continue;
             };
+            let value_value = match kind {
+                ExternCallRouteKind::EnvGet => None,
+                ExternCallRouteKind::EnvSet => args.get(1).copied(),
+            };
             routes.push(ExternCallRoute::new(
                 ExternCallRouteSite::new(block_id, instruction_index),
                 kind,
                 name,
                 key_value,
+                value_value,
                 *dst,
             ));
         }
@@ -274,14 +306,44 @@ mod tests {
         assert_eq!(route.proof(), "extern_registry");
         assert_eq!(route.source_symbol(), "env.get/1");
         assert_eq!(route.key_value(), ValueId::new(1));
+        assert_eq!(route.value_value(), None);
         assert_eq!(route.result_value(), ValueId::new(2));
+        assert_eq!(route.arity(), 1);
         assert_eq!(route.return_shape(), "string_handle_or_null");
         assert_eq!(route.value_demand(), "runtime_i64_or_handle");
         assert_eq!(route.effect_tags(), &["read.env"]);
     }
 
     #[test]
-    fn refresh_function_extern_call_routes_requires_dst_and_one_arg() {
+    fn refresh_function_extern_call_routes_records_env_set_plan_source() {
+        let mut function = make_function_with_call(
+            "env.set/2",
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(ValueId::new(3)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.route_id(), "extern.env.set");
+        assert_eq!(route.core_op(), "EnvSet");
+        assert_eq!(route.symbol(), "nyash.env.set");
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(route.source_symbol(), "env.set/2");
+        assert_eq!(route.key_value(), ValueId::new(1));
+        assert_eq!(route.value_value(), Some(ValueId::new(2)));
+        assert_eq!(route.result_value(), ValueId::new(3));
+        assert_eq!(route.arity(), 2);
+        assert_eq!(route.return_shape(), "scalar_i64");
+        assert_eq!(route.value_demand(), "runtime_i64");
+        assert_eq!(route.effect_tags(), &["write.env"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_requires_dst_and_matching_arity() {
         let mut missing_dst = make_function_with_call("env.get/1", vec![ValueId::new(1)], None);
         refresh_function_extern_call_routes(&mut missing_dst);
         assert!(missing_dst.metadata.extern_call_routes.is_empty());
@@ -289,5 +351,10 @@ mod tests {
         let mut missing_arg = make_function_with_call("env.get/1", vec![], Some(ValueId::new(2)));
         refresh_function_extern_call_routes(&mut missing_arg);
         assert!(missing_arg.metadata.extern_call_routes.is_empty());
+
+        let mut missing_value =
+            make_function_with_call("env.set/2", vec![ValueId::new(1)], Some(ValueId::new(2)));
+        refresh_function_extern_call_routes(&mut missing_value);
+        assert!(missing_value.metadata.extern_call_routes.is_empty());
     }
 }

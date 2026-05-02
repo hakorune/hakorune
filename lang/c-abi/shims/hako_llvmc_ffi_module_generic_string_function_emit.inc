@@ -277,6 +277,9 @@
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
+              } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
+                         lowering_plan_env_set_view_is_valid(&extern_view)) {
+                set_type(dst, T_I64);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_generic_string(&global_view)) {
                 set_type(dst, T_I64);

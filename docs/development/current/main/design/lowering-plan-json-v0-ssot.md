@@ -73,6 +73,7 @@ Optional fields may carry operands and result values:
 | `arity` | method arity for method-derived plan entries |
 | `key_route` | key/index route, or `null` |
 | `key_value` | first key/index value id, or `null` |
+| `value_value` | second extern/store value id, or `null` |
 | `result_value` | result value id, or `null` |
 | `return_shape` | semantic result shape, or `null` |
 | `value_demand` | value demand expected by emitter/runtime |
@@ -140,7 +141,7 @@ extern_call_routes
 ```
 
 Do not force externs into `CoreMethodOp`; use a narrow `core_op` string such as
-`EnvGet` plus `proof=extern_registry`.
+`EnvGet` / `EnvSet` plus `proof=extern_registry`.
 
 Global user/static calls are also not a `generic_method_routes` or
 `extern_call_routes` slice. Do not add one-off `.inc` matchers for concrete
@@ -385,6 +386,7 @@ selecting a helper.
 | `StringSubstring` | `DirectAbi` | `nyash.string.substring_hii` | P92 plan-only fixture |
 | `StringIndexOf` | `DirectAbi` | `nyash.string.indexOf_hh` | P93 plan-only fixture |
 | `EnvGet` | `ColdRuntime` | `nyash.env.get` | P108 plan-only fixture |
+| `EnvSet` | `ColdRuntime` | `nyash.env.set` | P157 Stage1 using-resolver guard |
 | `UserGlobalCall` | `Unsupported` | `null` | P112/P113 plan-only diagnostic |
 
 ## Non-goals

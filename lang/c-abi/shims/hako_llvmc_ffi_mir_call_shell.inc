@@ -189,6 +189,29 @@
                !strcmp(view->value_demand, "runtime_i64_or_handle") &&
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
       }
+      auto int lowering_plan_env_set_view_is_valid(
+          const struct LoweringPlanExternCallView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "extern.env.set") &&
+               view->core_op &&
+               !strcmp(view->core_op, "EnvSet") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "extern.env.set") &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "runtime_call") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.env.set") &&
+               view->proof &&
+               !strcmp(view->proof, "extern_registry") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "extern_registry") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "scalar_i64") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "runtime_i64") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+      }
       auto int emit_extern_call_lowering_plan_mir_call(
           FILE* f,
           long long bid,
@@ -200,17 +223,15 @@
         struct LoweringPlanExternCallView view;
         long long arity = 0;
         long long key_value = 0;
+        long long value_value = 0;
         long long result_value = 0;
         long long actual_key = 0;
-        char ab[96];
+        long long actual_value = 0;
+        char ab[160];
 
         if (!entry) return 0;
         if (!(source && !strcmp(source, "extern_call_routes"))) return 0;
         if (!read_lowering_plan_extern_call_view(entry, &view)) return -1;
-        if (!lowering_plan_env_get_view_is_valid(&view)) return -1;
-        if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 1) {
-          return -1;
-        }
         if (!lowering_plan_read_i64_field(entry, "key_value", &key_value) || !key_value) {
           return -1;
         }
@@ -219,20 +240,51 @@
             result_value != dst) {
           return -1;
         }
-        if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 1) {
-          return -1;
-        }
-        actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-        if (actual_key != key_value) {
-          return -1;
-        }
+        if (lowering_plan_env_get_view_is_valid(&view)) {
+          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 1) {
+            return -1;
+          }
+          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 1) {
+            return -1;
+          }
+          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+          if (actual_key != key_value) {
+            return -1;
+          }
 
-        ab[0] = '\0';
-        append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
-        fprintf(f, "  %%r%lld = call i64 @\"nyash.env.get\"(%s)\n", dst, ab);
-        set_type(dst, T_I64);
-        set_origin(dst, ORG_STRING);
-        set_scan_origin(dst, ORG_STRING);
-        trace_lowering_plan_entry_hit(entry, "mir_call_extern_emit");
-        return 1;
+          ab[0] = '\0';
+          append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
+          fprintf(f, "  %%r%lld = call i64 @\"nyash.env.get\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          trace_lowering_plan_entry_hit(entry, "mir_call_extern_emit");
+          return 1;
+        }
+        if (lowering_plan_env_set_view_is_valid(&view)) {
+          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 2) {
+            return -1;
+          }
+          if (!lowering_plan_read_i64_field(entry, "value_value", &value_value) ||
+              !value_value) {
+            return -1;
+          }
+          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 2) {
+            return -1;
+          }
+          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+          actual_value = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
+          if (actual_key != key_value || actual_value != value_value) {
+            return -1;
+          }
+
+          ab[0] = '\0';
+          append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
+          append_i64_arg_ref(ab, sizeof(ab), value_value, 0);
+          fprintf(f, "  %%r%lld = call i64 @\"nyash.env.set\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+          trace_lowering_plan_entry_hit(entry, "mir_call_extern_emit");
+          return 1;
+        }
+        return -1;
       }

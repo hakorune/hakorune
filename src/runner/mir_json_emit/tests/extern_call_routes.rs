@@ -16,6 +16,7 @@ fn build_mir_json_root_emits_extern_call_routes_and_lowering_plan() {
             ExternCallRouteKind::EnvGet,
             "env.get/1",
             ValueId::new(49),
+            None,
             ValueId::new(48),
         ));
     let mut module = crate::mir::MirModule::new("json_extern_call_routes_test".to_string());
