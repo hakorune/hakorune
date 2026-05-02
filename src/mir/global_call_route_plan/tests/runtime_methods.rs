@@ -457,3 +457,63 @@ fn refresh_module_semantic_metadata_accepts_array_size_in_generic_pure_string_bo
             && route.route_kind_tag() == "array_slot_len"
     }));
 }
+
+#[test]
+fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_string_body() {
+    let mut module = MirModule::new("global_call_string_indexof_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.has_token/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.has_token/1".to_string(),
+            params: vec![MirType::String],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("\"token\"".to_string()),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(3)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "indexOf".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(2)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.has_token/1".to_string(), callee);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    let callee = &module.functions["Helper.has_token/1"];
+    assert!(callee.metadata.generic_method_routes.iter().any(|route| {
+        route.route_id() == "generic_method.indexOf"
+            && route.method() == "indexOf"
+            && route.receiver_origin_box() == Some("StringBox")
+            && route.route_kind_tag() == "string_indexof"
+    }));
+}

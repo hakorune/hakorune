@@ -861,6 +861,21 @@ fn generic_pure_string_instruction_reject_reason(
                 set_value_class(values, *dst, GenericPureValueClass::I64, changed);
                 return None;
             }
+            if generic_pure_string_accepts_indexof_method(
+                box_name,
+                method,
+                args,
+                receiver_class,
+                values,
+            ) {
+                let Some(dst) = dst else {
+                    return Some(GenericPureStringReject::new(
+                        GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
+                    ));
+                };
+                set_value_class(values, *dst, GenericPureValueClass::I64, changed);
+                return None;
+            }
             if generic_pure_string_accepts_substring_method(
                 box_name,
                 method,
@@ -974,6 +989,22 @@ fn generic_pure_string_accepts_array_len_method(
         && matches!(method, "len" | "length" | "size")
         && args.is_empty()
         && receiver_class == GenericPureValueClass::Array
+}
+
+fn generic_pure_string_accepts_indexof_method(
+    box_name: &str,
+    method: &str,
+    args: &[ValueId],
+    receiver_class: GenericPureValueClass,
+    values: &BTreeMap<ValueId, GenericPureValueClass>,
+) -> bool {
+    matches!(box_name, "RuntimeDataBox" | "StringBox")
+        && method == "indexOf"
+        && args.len() == 1
+        && receiver_class == GenericPureValueClass::String
+        && args
+            .iter()
+            .all(|arg| value_class(values, *arg) == GenericPureValueClass::String)
 }
 
 fn generic_pure_string_accepts_env_set(

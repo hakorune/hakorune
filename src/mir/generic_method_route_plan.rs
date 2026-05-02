@@ -671,8 +671,27 @@ fn generic_pure_string_value_origin_box_name(
     def_map: &ValueDefMap,
     receiver: ValueId,
 ) -> Option<String> {
-    generic_pure_string_global_call_origin_box_name(function, def_map, receiver)
+    generic_pure_string_signature_param_origin_box_name(function, def_map, receiver)
+        .or_else(|| generic_pure_string_global_call_origin_box_name(function, def_map, receiver))
         .or_else(|| generic_pure_string_flow_origin_box_name(function, receiver))
+}
+
+fn generic_pure_string_signature_param_origin_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+) -> Option<String> {
+    let origin = resolve_value_origin(function, def_map, receiver);
+    function
+        .params
+        .iter()
+        .position(|param| *param == origin)
+        .and_then(|index| function.signature.params.get(index))
+        .and_then(|ty| match ty {
+            super::MirType::String => Some("StringBox".to_string()),
+            super::MirType::Box(name) if name == "StringBox" => Some("StringBox".to_string()),
+            _ => None,
+        })
 }
 
 fn generic_array_flow_origin_box_name(function: &MirFunction, receiver: ValueId) -> Option<String> {

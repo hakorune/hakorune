@@ -346,6 +346,11 @@ flow evidence and the matching `generic_method.len` / `ArrayLen`
 LoweringPlan entry is present. ny-llvmc must lower that method through
 `nyash.array.slot_len_h`. This does not accept array `get`, `push`, `set`, map
 methods, or mixed collection PHIs.
+`generic_pure_string_body` may also accept string `indexOf` observation only
+when the receiver and needle are both proven string values and the matching
+`generic_method.indexOf` / `StringIndexOf` LoweringPlan entry is present.
+ny-llvmc must lower it through `nyash.string.indexOf_hh`. This does not accept
+general RuntimeData methods or non-string needles.
 `generic_pure_string_body` may also contain the existing supported backend
 global `print` as a no-result debug side-effect. That surface is not a
 same-module user/global call and must not create a `global.user_call`
