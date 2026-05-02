@@ -190,10 +190,10 @@ static box MirJsonEmitBox {
   }
 
   _emit_inst(inst) {
-    if inst == null { return "{}" }
+    if me._is_present_compat(inst) == 0 { return "{}" }
     me._assert_map(inst, "instruction")
     local op = inst.get("op")
-    if op == null { op = "" }
+    if me._is_present_compat(op) == 0 { op = "" }
     if op == "const" {
       return "{\"op\":\"const\",\"dst\":" + me._int_str(inst.get("dst")) +
              ",\"value\":" + me._emit_box_value(inst.get("value")) + "}"
@@ -203,10 +203,10 @@ static box MirJsonEmitBox {
     }
     if op == "binop" {
       local kind = inst.get("operation")
-      if me._is_map_missing_sentinel(kind) == 1 || kind == null {
+      if me._is_map_missing_sentinel(kind) == 1 || me._is_present_compat(kind) == 0 {
         kind = inst.get("op_kind")
       }
-      if kind == null { kind = "" }
+      if me._is_present_compat(kind) == 0 { kind = "" }
       if me._is_map_missing_sentinel(kind) == 1 { kind = "" }
       return "{\"op\":\"binop\",\"operation\":" + me._quote(kind) + ",\"lhs\":" +
              me._int_str(inst.get("lhs")) + ",\"rhs\":" + me._int_str(inst.get("rhs")) +
@@ -214,13 +214,13 @@ static box MirJsonEmitBox {
     }
     if op == "compare" {
       local cmp = inst.get("cmp")
-      if me._is_map_missing_sentinel(cmp) == 1 || cmp == null {
+      if me._is_map_missing_sentinel(cmp) == 1 || me._is_present_compat(cmp) == 0 {
         cmp = inst.get("operation")
       }
-      if me._is_map_missing_sentinel(cmp) == 1 || cmp == null {
+      if me._is_map_missing_sentinel(cmp) == 1 || me._is_present_compat(cmp) == 0 {
         cmp = inst.get("op_kind")
       }
-      if cmp == null || me._is_map_missing_sentinel(cmp) == 1 { cmp = "" }
+      if me._is_present_compat(cmp) == 0 || me._is_map_missing_sentinel(cmp) == 1 { cmp = "" }
       return "{\"op\":\"compare\",\"operation\":" + me._quote(cmp) + ",\"lhs\":" +
              me._int_str(inst.get("lhs")) + ",\"rhs\":" + me._int_str(inst.get("rhs")) +
              ",\"dst\":" + me._int_str(inst.get("dst")) + "}"
@@ -235,7 +235,7 @@ static box MirJsonEmitBox {
     }
     if op == "phi" {
       local incoming = inst.get("incoming")
-      if me._is_map_missing_sentinel(incoming) == 1 || incoming == null {
+      if me._is_map_missing_sentinel(incoming) == 1 || me._is_present_compat(incoming) == 0 {
         incoming = inst.get("values")
       }
       return "{\"op\":\"phi\",\"dst\":" + me._int_str(inst.get("dst")) +
@@ -244,7 +244,7 @@ static box MirJsonEmitBox {
     if op == "mir_call" {
       // SSOT: payload("mir_call") のみを受理。トップレベルの互換フィールドは読まない。
       local payload = inst.get("mir_call")
-      if payload == null { return "{\"op\":\"mir_call\"}" }
+      if me._is_present_compat(payload) == 0 { return "{\"op\":\"mir_call\"}" }
       me._assert_map(payload, "mir_call payload")
       local dst_json = me._emit_vid_or_null(inst.get("dst"))
       local callee_json = me._emit_callee(payload.get("callee"))
@@ -261,12 +261,11 @@ static box MirJsonEmitBox {
     }
     if op == "call" {
       local func_id = inst.get("func")
-      if me._is_map_missing_sentinel(func_id) == 1 { func_id = null }
-      if func_id == null {
+      if me._is_map_missing_sentinel(func_id) == 1 || me._is_present_compat(func_id) == 0 {
         func_id = inst.get("name")
       }
       local args_box2 = inst.get("args")
-      if args_box2 == null || me._is_map_missing_sentinel(args_box2) == 1 || !BoxHelpers.is_array(args_box2) {
+      if me._is_present_compat(args_box2) == 0 || me._is_map_missing_sentinel(args_box2) == 1 || !BoxHelpers.is_array(args_box2) {
         args_box2 = []
       }
       local dst2 = inst.get("dst")
