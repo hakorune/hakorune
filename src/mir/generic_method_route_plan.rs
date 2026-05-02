@@ -341,6 +341,19 @@ fn match_generic_get_route(
         ) {
             return Some(route);
         }
+        if let Some(route) = match_mir_json_function_block_array_item_get_route(
+            function,
+            def_map,
+            block,
+            instruction_index,
+            box_name,
+            method,
+            *receiver,
+            args[0],
+            result,
+        ) {
+            return Some(route);
+        }
         if let Some(route) = match_mir_json_block_field_get_route(
             function,
             def_map,
@@ -761,6 +774,43 @@ fn match_mir_json_block_inst_array_item_get_route(
         GenericMethodRouteDecision::new(
             GenericMethodRouteKind::ArraySlotLoadAny,
             GenericMethodRouteProof::MirJsonBlockInstArrayItem,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::ArrayGet,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+            GenericMethodValueDemand::RuntimeI64OrHandle,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    ))
+}
+
+fn match_mir_json_function_block_array_item_get_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    box_name: &str,
+    method: &str,
+    receiver: ValueId,
+    key: ValueId,
+    result: ValueId,
+) -> Option<GenericMethodRoute> {
+    if function.signature.name != "MirJsonEmitBox._emit_function_rec/3" {
+        return None;
+    }
+    if box_name != "RuntimeDataBox" || method != "get" {
+        return None;
+    }
+
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.to_string(), method.to_string(), 1),
+        GenericMethodRouteEvidence::new(None, Some(classify_key_route(function, def_map, key))),
+        GenericMethodRouteOperands::new(receiver, Some(key), Some(result)),
+        GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::ArraySlotLoadAny,
+            GenericMethodRouteProof::MirJsonFunctionBlockArrayItem,
             Some(CoreMethodOpCarrier::manifest(
                 CoreMethodOp::ArrayGet,
                 CoreMethodLoweringTier::WarmDirectAbi,
