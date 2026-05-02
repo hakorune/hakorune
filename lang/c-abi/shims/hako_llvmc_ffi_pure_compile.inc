@@ -274,7 +274,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         strcmp(op, "phi") == 0) {
       return "mir_normalizer";
     }
-    if (strcmp(op, "mir_call") == 0) {
+    if (strcmp(op, "mir_call") == 0 ||
+        strcmp(op, "module_function") == 0) {
       return "backend_lowering";
     }
     if (strcmp(op, "const") == 0 ||

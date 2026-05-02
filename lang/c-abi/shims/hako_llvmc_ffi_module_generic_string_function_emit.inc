@@ -746,7 +746,18 @@
         generic_pure_block_count = local_function.block_count;
         reset_generic_pure_function_lowering_state(&lowering_state);
 
-        if (!module_generic_string_prepass_active_function()) goto MODULE_GENERIC_STRING_RESTORE;
+        if (!module_generic_string_prepass_active_function()) {
+          note_pure_unsupported_shape_detail(
+              -1,
+              0,
+              "module_function",
+              "module_generic_prepass_failed",
+              NULL,
+              NULL,
+              name,
+              NULL);
+          goto MODULE_GENERIC_STRING_RESTORE;
+        }
         module_generic_string_emit_const_globals(f, fn_index);
         fprintf(f, "define i64 @\"%s\"(", name);
         {
@@ -760,6 +771,15 @@
         }
         fprintf(f, ") {\n");
         if (!module_generic_string_emit_active_body(f, fn_index)) {
+          note_pure_unsupported_shape_detail(
+              -1,
+              0,
+              "module_function",
+              "module_generic_body_emit_failed",
+              NULL,
+              NULL,
+              name,
+              NULL);
           fprintf(f, "  unreachable\n");
           fprintf(f, "}\n\n");
           goto MODULE_GENERIC_STRING_RESTORE;
