@@ -18,6 +18,7 @@ enum GenericPureValueClass {
     I64,
     Bool,
     String,
+    StringOrVoid,
     VoidSentinel,
 }
 
@@ -592,24 +593,12 @@ fn generic_pure_string_instruction_reject_reason(
             {
                 return None;
             }
-            let has_void_sentinel = lhs_class == GenericPureValueClass::VoidSentinel
-                || rhs_class == GenericPureValueClass::VoidSentinel;
+            let has_void_sentinel = generic_pure_value_class_is_void_like(lhs_class)
+                || generic_pure_value_class_is_void_like(rhs_class);
             if has_void_sentinel {
                 let comparable =
                     matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)
-                        && matches!(
-                            (lhs_class, rhs_class),
-                            (
-                                GenericPureValueClass::String,
-                                GenericPureValueClass::VoidSentinel
-                            ) | (
-                                GenericPureValueClass::VoidSentinel,
-                                GenericPureValueClass::String
-                            ) | (
-                                GenericPureValueClass::VoidSentinel,
-                                GenericPureValueClass::VoidSentinel
-                            )
-                        );
+                        && generic_pure_void_sentinel_compare_is_supported(lhs_class, rhs_class);
                 if !comparable {
                     return Some(GenericPureStringReject::new(
                         GlobalCallTargetShapeReason::GenericStringUnsupportedVoidSentinelConst,
@@ -633,26 +622,49 @@ fn generic_pure_string_instruction_reject_reason(
         }
         MirInstruction::Phi { dst, inputs, .. } => {
             let mut saw_string = false;
+            let mut saw_string_or_void = false;
+            let mut saw_void_sentinel = false;
+            let mut saw_scalar = false;
             let mut all_string = !inputs.is_empty();
             let mut saw_unknown = false;
             for (_, value) in inputs {
                 let class = value_class(values, *value);
                 saw_unknown |= class == GenericPureValueClass::Unknown;
                 saw_string |= class == GenericPureValueClass::String;
+                saw_string_or_void |= class == GenericPureValueClass::StringOrVoid;
+                saw_void_sentinel |= class == GenericPureValueClass::VoidSentinel;
+                saw_scalar |= matches!(
+                    class,
+                    GenericPureValueClass::I64 | GenericPureValueClass::Bool
+                );
                 all_string &= class == GenericPureValueClass::String;
-                if class == GenericPureValueClass::VoidSentinel {
-                    return Some(GenericPureStringReject::new(
-                        GlobalCallTargetShapeReason::GenericStringUnsupportedVoidSentinelConst,
-                    ));
-                }
             }
             if saw_unknown {
                 return None;
             } else if all_string {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::String, changed);
+            } else if saw_void_sentinel && !saw_scalar && (saw_string || saw_string_or_void) {
+                *has_string_surface = true;
+                set_proven_flow_value_class(
+                    values,
+                    *dst,
+                    GenericPureValueClass::StringOrVoid,
+                    changed,
+                );
+            } else if saw_void_sentinel && !saw_scalar {
+                set_proven_flow_value_class(
+                    values,
+                    *dst,
+                    GenericPureValueClass::VoidSentinel,
+                    changed,
+                );
             } else if saw_string {
                 return Some(GenericPureStringReject::new(
                     GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
+            } else if saw_string_or_void {
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedVoidSentinelConst,
                 ));
             } else {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::I64, changed);
@@ -890,6 +902,38 @@ fn value_class(
         .unwrap_or(GenericPureValueClass::Unknown)
 }
 
+fn generic_pure_value_class_is_void_like(class: GenericPureValueClass) -> bool {
+    matches!(
+        class,
+        GenericPureValueClass::StringOrVoid | GenericPureValueClass::VoidSentinel
+    )
+}
+
+fn generic_pure_void_sentinel_compare_is_supported(
+    lhs_class: GenericPureValueClass,
+    rhs_class: GenericPureValueClass,
+) -> bool {
+    matches!(
+        (lhs_class, rhs_class),
+        (
+            GenericPureValueClass::String,
+            GenericPureValueClass::VoidSentinel
+        ) | (
+            GenericPureValueClass::VoidSentinel,
+            GenericPureValueClass::String
+        ) | (
+            GenericPureValueClass::StringOrVoid,
+            GenericPureValueClass::VoidSentinel
+        ) | (
+            GenericPureValueClass::VoidSentinel,
+            GenericPureValueClass::StringOrVoid
+        ) | (
+            GenericPureValueClass::VoidSentinel,
+            GenericPureValueClass::VoidSentinel
+        )
+    )
+}
+
 fn set_value_class(
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
     value: ValueId,
@@ -918,6 +962,7 @@ fn set_string_handle_value_class(
         Some(GenericPureValueClass::String) => {}
         Some(GenericPureValueClass::Unknown)
         | Some(GenericPureValueClass::I64)
+        | Some(GenericPureValueClass::StringOrVoid)
         | Some(GenericPureValueClass::VoidSentinel)
         | None => {
             values.insert(value, GenericPureValueClass::String);
@@ -938,11 +983,39 @@ fn set_proven_flow_value_class(
     }
     match values.get(&value).copied() {
         Some(existing) if existing == class => {}
-        Some(GenericPureValueClass::Unknown | GenericPureValueClass::VoidSentinel) | None => {
+        Some(GenericPureValueClass::Unknown) | None => {
             values.insert(value, class);
             *changed = true;
         }
-        Some(GenericPureValueClass::I64) if class == GenericPureValueClass::String => {
+        Some(GenericPureValueClass::VoidSentinel)
+            if matches!(
+                class,
+                GenericPureValueClass::String | GenericPureValueClass::StringOrVoid
+            ) =>
+        {
+            values.insert(value, GenericPureValueClass::StringOrVoid);
+            *changed = true;
+        }
+        Some(GenericPureValueClass::String)
+            if matches!(
+                class,
+                GenericPureValueClass::StringOrVoid | GenericPureValueClass::VoidSentinel
+            ) =>
+        {
+            values.insert(value, GenericPureValueClass::StringOrVoid);
+            *changed = true;
+        }
+        Some(GenericPureValueClass::StringOrVoid) if class == GenericPureValueClass::String => {}
+        Some(GenericPureValueClass::StringOrVoid)
+            if class == GenericPureValueClass::VoidSentinel => {}
+        Some(GenericPureValueClass::I64)
+            if matches!(
+                class,
+                GenericPureValueClass::String
+                    | GenericPureValueClass::StringOrVoid
+                    | GenericPureValueClass::VoidSentinel
+            ) =>
+        {
             values.insert(value, class);
             *changed = true;
         }
