@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P145-GLOBAL-CALL-DIRECT-ROUTE-VALUE-FLOW"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P145-GLOBAL-CALL-DIRECT-ROUTE-VALUE-FLOW.md"
-latest_card_summary = "Let direct route value evidence flow through stale void metadata in generic string scans."
+latest_card = "P146-C-ABI-GENERIC-PURE-VIEW-BOUNDARY-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P146-C-ABI-GENERIC-PURE-VIEW-BOUNDARY-CLEANUP.md"
+latest_card_summary = "Route C-ABI module function emitters through generic pure views and prune unnecessary MIR-root global-call refresh exports."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -94,4 +94,5 @@ landed_tail = [
   "29ci-P14 selfhost EXE raw bridge retirement landed",
   "29ci-P15 phase29cg raw bridge retirement landed",
   "29ci-P16 raw Program(JSON)->MIR CLI deletion landed",
+  "29cv-P146 C-ABI generic pure view boundary cleanup landed",
 ]
