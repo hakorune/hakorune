@@ -283,6 +283,11 @@
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
+                         lowering_plan_global_call_view_is_direct_parser_program_json(&global_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_STRING);
+                set_scan_origin(dst, ORG_STRING);
+              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_leaf_i64(&global_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
@@ -605,6 +610,29 @@
         return 1;
       }
 
+      auto int emit_parser_program_json_function_definition(
+          FILE* f,
+          yyjson_val* fn,
+          const char* name) {
+        yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
+        yyjson_val* param = NULL;
+        long long source_reg = 0;
+        if (!(name && fn && params && yyjson_is_arr(params) && yyjson_arr_size(params) == 1)) {
+          return -1;
+        }
+        param = yyjson_arr_get(params, 0);
+        if (!(param && yyjson_is_num(param))) return -1;
+        source_reg = (long long)yyjson_get_sint(param);
+        fprintf(f, "define i64 @\"%s\"(i64 %%r%lld) {\n", name, source_reg);
+        fprintf(
+            f,
+            "  %%program_json = call i64 @\"nyash.stage1.emit_program_json_v0_h\"(i64 %%r%lld)\n",
+            source_reg);
+        fprintf(f, "  ret i64 %%program_json\n");
+        fprintf(f, "}\n\n");
+        return remember_emitted_module_generic_string_symbol(name) ? 1 : -1;
+      }
+
       auto int emit_generic_pure_string_function_definition(
           FILE* f,
           yyjson_val* fn,
@@ -624,6 +652,9 @@
             !module_generic_symbol_will_be_defined(name) ||
             module_generic_symbol_was_emitted(name)) {
           return 0;
+        }
+        if (module_parser_program_json_symbol_will_be_defined(name)) {
+          return emit_parser_program_json_function_definition(f, fn, name);
         }
         if (!hako_llvmc_read_generic_pure_function_view(
                 fn,

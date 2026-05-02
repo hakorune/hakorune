@@ -33,6 +33,7 @@ pub enum GlobalCallTargetShape {
     GenericPureStringBody,
     GenericStringOrVoidSentinelBody,
     GenericI64Body,
+    ParserProgramJsonBody,
 }
 
 impl GlobalCallTargetShape {
@@ -43,6 +44,7 @@ impl GlobalCallTargetShape {
             Self::GenericPureStringBody => "generic_pure_string_body",
             Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
             Self::GenericI64Body => "generic_i64_body",
+            Self::ParserProgramJsonBody => "parser_program_json_body",
         }
     }
 }
@@ -299,6 +301,9 @@ impl GlobalCallRoute {
                 "typed_global_call_generic_string_or_void_sentinel"
             }
             Some(GlobalCallTargetShape::GenericI64Body) => "typed_global_call_generic_i64",
+            Some(GlobalCallTargetShape::ParserProgramJsonBody) => {
+                "typed_global_call_parser_program_json"
+            }
             _ => "typed_global_call_contract_missing",
         }
     }
@@ -381,7 +386,8 @@ impl GlobalCallRoute {
             | Some(GlobalCallTargetShape::GenericI64Body) => "scalar_i64",
             Some(
                 GlobalCallTargetShape::GenericPureStringBody
-                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody,
+                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
+                | GlobalCallTargetShape::ParserProgramJsonBody,
             ) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
         }
@@ -395,6 +401,7 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::GenericStringOrVoidSentinelBody) => {
                 Some("string_handle_or_null")
             }
+            Some(GlobalCallTargetShape::ParserProgramJsonBody) => Some("string_handle"),
             _ => None,
         }
     }
@@ -426,7 +433,8 @@ impl GlobalCallRoute {
             GlobalCallTargetShape::NumericI64Leaf
             | GlobalCallTargetShape::GenericPureStringBody
             | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-            | GlobalCallTargetShape::GenericI64Body => Some(self.target.shape()),
+            | GlobalCallTargetShape::GenericI64Body
+            | GlobalCallTargetShape::ParserProgramJsonBody => Some(self.target.shape()),
             GlobalCallTargetShape::Unknown => None,
         }
     }

@@ -12,5 +12,6 @@ use crate::mir::{
 mod blockers;
 mod core;
 mod generic_i64;
+mod parser_program_json;
 mod tail;
 mod void_sentinel;

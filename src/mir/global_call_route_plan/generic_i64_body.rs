@@ -347,9 +347,8 @@ fn generic_i64_body_refine_instruction(
             };
             let class = match target.shape() {
                 GlobalCallTargetShape::GenericPureStringBody
-                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
-                    GenericI64ValueClass::String
-                }
+                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
+                | GlobalCallTargetShape::ParserProgramJsonBody => GenericI64ValueClass::String,
                 GlobalCallTargetShape::NumericI64Leaf | GlobalCallTargetShape::GenericI64Body => {
                     GenericI64ValueClass::I64
                 }

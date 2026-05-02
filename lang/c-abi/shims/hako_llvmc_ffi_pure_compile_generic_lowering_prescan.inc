@@ -465,6 +465,8 @@
       if (needs.string_indexof || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
       if (needs.env_get || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.env.get\"(i64)\n");
+      if (module_has_planned_parser_program_json_definition())
+        fprintf(f, "declare i64 @\"nyash.stage1.emit_program_json_v0_h\"(i64)\n");
       if (needs.string_concat || needs.string_substring || needs.arr_get ||
           needs.arr_string_indexof || module_has_planned_generic_string_definition()) {
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");

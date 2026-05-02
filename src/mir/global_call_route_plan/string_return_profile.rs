@@ -333,6 +333,9 @@ fn refine_generic_string_return_value_class(
                     GlobalCallTargetShape::GenericPureStringBody => {
                         GenericStringReturnValueClass::String
                     }
+                    GlobalCallTargetShape::ParserProgramJsonBody => {
+                        GenericStringReturnValueClass::String
+                    }
                     GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                         GenericStringReturnValueClass::StringOrVoid
                     }

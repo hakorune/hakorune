@@ -12,6 +12,7 @@ use std::collections::BTreeMap;
 mod generic_i64_body;
 mod generic_string_body;
 mod model;
+mod parser_program_json_body;
 mod shape_blocker;
 mod string_return_profile;
 
@@ -23,6 +24,7 @@ pub use model::{
     GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
 };
 use model::{GlobalCallShapeBlocker, GlobalCallTargetClassification, GlobalCallTargetShapeReason};
+use parser_program_json_body::is_parser_program_json_body_function;
 
 fn supported_backend_global(name: &str) -> bool {
     matches!(name, "print")
@@ -108,6 +110,11 @@ fn classify_global_call_target_shape(
     }
     if is_generic_i64_body_function(function, targets) {
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericI64Body);
+    }
+    if is_parser_program_json_body_function(function) {
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::ParserProgramJsonBody,
+        );
     }
     if matches!(
         function.signature.return_type,
