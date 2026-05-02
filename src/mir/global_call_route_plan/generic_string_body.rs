@@ -964,7 +964,13 @@ fn generic_pure_string_instruction_reject_reason(
                     GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
                 ));
             }
-            if generic_pure_string_accepts_length_method(box_name, method, args, receiver_class) {
+            if generic_pure_string_accepts_length_method(
+                box_name,
+                method,
+                args,
+                receiver_class,
+                values,
+            ) {
                 let Some(dst) = dst else {
                     return Some(GenericPureStringReject::new(
                         GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
@@ -1096,11 +1102,15 @@ fn generic_pure_string_accepts_length_method(
     method: &str,
     args: &[ValueId],
     receiver_class: GenericPureValueClass,
+    values: &BTreeMap<ValueId, GenericPureValueClass>,
 ) -> bool {
     matches!(box_name, "RuntimeDataBox" | "StringBox")
         && method == "length"
-        && args.is_empty()
         && receiver_class == GenericPureValueClass::String
+        && (args.is_empty()
+            || (box_name == "StringBox"
+                && args.len() == 1
+                && value_class(values, args[0]) == GenericPureValueClass::String))
 }
 
 fn generic_pure_string_accepts_array_len_method(

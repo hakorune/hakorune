@@ -361,7 +361,10 @@ fn match_generic_len_route(
     else {
         return None;
     };
-    if !is_len_method(method) || !args.is_empty() {
+    if !is_len_method(method)
+        || !(args.is_empty()
+            || generic_string_len_self_arg_is_supported(function, def_map, box_name, args))
+    {
         return None;
     }
 
@@ -382,7 +385,7 @@ fn match_generic_len_route(
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
-        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 0),
+        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
         GenericMethodRouteDecision::new(
@@ -397,6 +400,18 @@ fn match_generic_len_route(
             Some(GenericMethodPublicationPolicy::NoPublication),
         ),
     ))
+}
+
+fn generic_string_len_self_arg_is_supported(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    box_name: &str,
+    args: &[ValueId],
+) -> bool {
+    box_name == "StringBox"
+        && args.len() == 1
+        && generic_pure_string_value_origin_box_name(function, def_map, args[0]).as_deref()
+            == Some("StringBox")
 }
 
 fn match_generic_substring_route(

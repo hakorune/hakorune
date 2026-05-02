@@ -357,6 +357,12 @@ when the receiver and needle are both proven string values and the matching
 `generic_method.indexOf` / `StringIndexOf` LoweringPlan entry is present.
 ny-llvmc must lower it through `nyash.string.indexOf_hh`. This does not accept
 general RuntimeData methods or non-string needles.
+`generic_pure_string_body` may accept Known `StringBox.length(self)` when the
+single self argument is proven to be a string flow value and the matching
+`generic_method.len` / `StringLen` LoweringPlan entry is present. The route
+keeps `arity=1` as emitted by MIR but lowers with the same `nyash.string.len_h`
+helper as zero-arg string length. This does not accept arbitrary one-arg
+length methods or RuntimeData one-arg length calls.
 `generic_pure_string_body` may also contain the existing supported backend
 global `print` as a no-result debug side-effect. That surface is not a
 same-module user/global call and must not create a `global.user_call`

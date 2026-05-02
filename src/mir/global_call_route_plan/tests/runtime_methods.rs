@@ -96,6 +96,82 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method()
 }
 
 #[test]
+fn refresh_module_semantic_metadata_accepts_stringbox_length_self_arg_in_generic_pure_string_body()
+{
+    let mut module = MirModule::new("global_call_stringbox_len_self_arg_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.debug_len/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.debug_len/1".to_string(),
+            params: vec![MirType::String],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        },
+        MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(2),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(4)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "StringBox".to_string(),
+                method: "length".to_string(),
+                receiver: Some(ValueId::new(3)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(2)],
+            effects: EffectMask::PURE,
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(5),
+            value: ConstValue::String(String::new()),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(6),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(5),
+            rhs: ValueId::new(1),
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(6)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.debug_len/1".to_string(), callee);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    let callee = &module.functions["Helper.debug_len/1"];
+    assert!(callee.metadata.generic_method_routes.iter().any(|route| {
+        route.route_id() == "generic_method.len"
+            && route.method() == "length"
+            && route.arity() == 1
+            && route.receiver_origin_box() == Some("StringBox")
+            && route.route_kind_tag() == "string_len"
+    }));
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_runtime_data_string_substring_method() {
     let mut module = MirModule::new("global_call_string_substring_method_test".to_string());
     let caller = make_function_with_global_call_args(
