@@ -45,7 +45,7 @@ fn supported_backend_global(name: &str) -> bool {
 fn string_or_void_sentinel_return_type_candidate(return_type: &MirType) -> bool {
     matches!(
         return_type,
-        MirType::Void | MirType::Unknown | MirType::String
+        MirType::Integer | MirType::Void | MirType::Unknown | MirType::String
     ) || matches!(return_type, MirType::Box(name) if name == "StringBox")
 }
 

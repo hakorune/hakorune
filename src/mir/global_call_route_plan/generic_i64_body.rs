@@ -109,11 +109,26 @@ pub(super) fn is_generic_i64_body_function(
     }
 
     let mut saw_return = false;
+    let mut saw_scalar_return = false;
+    let mut saw_void_sentinel_return = false;
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             match instruction {
                 MirInstruction::Return { value: Some(value) } => {
                     saw_return = true;
+                    match generic_i64_value_class(&values, *value) {
+                        GenericI64ValueClass::I64 | GenericI64ValueClass::Bool => {
+                            saw_scalar_return = true;
+                        }
+                        GenericI64ValueClass::VoidSentinel => saw_void_sentinel_return = true,
+                        _ => return false,
+                    }
+                    if saw_void_sentinel_return && !saw_scalar_return {
+                        // A function that only returns null/void is not a scalar
+                        // body. Mixed scalar/null bodies use null as the ABI zero
+                        // sentinel.
+                        continue;
+                    }
                     if !generic_i64_return_value_class_is_scalar(generic_i64_value_class(
                         &values, *value,
                     )) {
@@ -125,17 +140,20 @@ pub(super) fn is_generic_i64_body_function(
             }
         }
     }
-    saw_return
+    saw_return && (!saw_void_sentinel_return || saw_scalar_return)
 }
 
 fn generic_i64_return_type_is_scalar(ty: &MirType) -> bool {
-    matches!(ty, MirType::Integer | MirType::Bool | MirType::Unknown)
+    matches!(
+        ty,
+        MirType::Integer | MirType::Bool | MirType::Unknown | MirType::Void
+    )
 }
 
 fn generic_i64_return_value_class_is_scalar(class: GenericI64ValueClass) -> bool {
     matches!(
         class,
-        GenericI64ValueClass::I64 | GenericI64ValueClass::Bool
+        GenericI64ValueClass::I64 | GenericI64ValueClass::Bool | GenericI64ValueClass::VoidSentinel
     )
 }
 
