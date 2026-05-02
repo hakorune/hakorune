@@ -1322,6 +1322,17 @@ fn generic_pure_string_route_value_class(
         "mir_json_effects_array_item" if route.route_kind_tag() == "array_slot_load_any" => {
             Some(GenericPureValueClass::StringOrVoid)
         }
+        "mir_json_inst_field" if route.route_kind_tag() == "runtime_data_load_any" => {
+            match route.key_const_text()? {
+                "op" | "operation" | "op_kind" | "cmp" => Some(GenericPureValueClass::StringOrVoid),
+                "args" | "effects" => Some(GenericPureValueClass::Array),
+                "dst" | "value" | "lhs" | "rhs" | "cond" | "then" | "else" | "target"
+                | "incoming" | "values" | "mir_call" | "callee" | "func" | "name" => {
+                    Some(GenericPureValueClass::ScalarOrVoid)
+                }
+                _ => None,
+            }
+        }
         _ => None,
     }
 }
