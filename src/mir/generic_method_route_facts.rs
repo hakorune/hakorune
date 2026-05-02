@@ -6,7 +6,7 @@
  */
 
 use super::value_origin::{resolve_value_origin, ValueDefMap};
-use super::{ConstValue, MirFunction, MirInstruction, ValueId};
+use super::{ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodKeyRoute {
@@ -108,6 +108,30 @@ pub(crate) fn receiver_origin_box_name(
     let block = function.blocks.get(&block_id)?;
     match block.instructions.get(instruction_index)? {
         MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+        MirInstruction::Phi { type_hint, .. } => type_hint
+            .as_ref()
+            .and_then(box_name_from_mir_type)
+            .map(str::to_string)
+            .or_else(|| {
+                function
+                    .metadata
+                    .value_types
+                    .get(&origin)
+                    .and_then(box_name_from_mir_type)
+                    .map(str::to_string)
+            }),
+        _ => function
+            .metadata
+            .value_types
+            .get(&origin)
+            .and_then(box_name_from_mir_type)
+            .map(str::to_string),
+    }
+}
+
+fn box_name_from_mir_type(ty: &MirType) -> Option<&str> {
+    match ty {
+        MirType::Box(name) => Some(name.as_str()),
         _ => None,
     }
 }

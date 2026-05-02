@@ -236,7 +236,7 @@ fn records_direct_array_and_map_set_core_method_routes() {
 }
 
 #[test]
-fn leaves_runtime_data_set_metadata_absent_for_fallback() {
+fn records_runtime_data_mapbox_set_through_typed_phi_as_cold_core_method_route() {
     let mut function = make_function();
     let block = function
         .blocks
@@ -247,15 +247,119 @@ fn leaves_runtime_data_set_metadata_absent_for_fallback() {
         box_type: "MapBox".to_string(),
         args: vec![],
     });
-    block.add_instruction(MirInstruction::Copy {
+    block.add_instruction(MirInstruction::Phi {
         dst: ValueId::new(2),
-        src: ValueId::new(1),
+        inputs: vec![(BasicBlockId::new(0), ValueId::new(1))],
+        type_hint: Some(MirType::Box("MapBox".to_string())),
     });
     block.add_instruction(method_call(Some(5), "RuntimeDataBox", "set", 2, vec![3, 4]));
 
     refresh_function_generic_method_routes(&mut function);
 
-    assert!(function.metadata.generic_method_routes.is_empty());
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.set");
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.method(), "set");
+    assert_eq!(route.receiver_origin_box(), Some("MapBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapStoreAny);
+    assert_eq!(route.proof(), GenericMethodRouteProof::SetSurfacePolicy);
+    let core_method = route
+        .core_method()
+        .expect("RuntimeDataBox Map-origin set core method op");
+    assert_eq!(core_method.op, CoreMethodOp::MapSet);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::ColdFallback
+    );
+    assert_eq!(route.return_shape(), None);
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
+    assert_eq!(route.publication_policy(), None);
+}
+
+#[test]
+fn records_runtime_data_arraybox_get_through_typed_phi_origin() {
+    let mut function = make_function();
+    let entry = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    entry.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "ArrayBox".to_string(),
+        args: vec![],
+    });
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(9),
+        value: crate::mir::ConstValue::Bool(true),
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(9),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut then_block = BasicBlock::new(BasicBlockId::new(1));
+    then_block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(2),
+        src: ValueId::new(1),
+    });
+    then_block.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(3),
+        edge_args: None,
+    });
+
+    let mut else_block = BasicBlock::new(BasicBlockId::new(2));
+    else_block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(3),
+        src: ValueId::new(1),
+    });
+    else_block.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(3),
+        edge_args: None,
+    });
+
+    let mut merge_block = BasicBlock::new(BasicBlockId::new(3));
+    merge_block.add_instruction(MirInstruction::Phi {
+        dst: ValueId::new(4),
+        inputs: vec![
+            (BasicBlockId::new(1), ValueId::new(2)),
+            (BasicBlockId::new(2), ValueId::new(3)),
+        ],
+        type_hint: Some(MirType::Box("ArrayBox".to_string())),
+    });
+    merge_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(5),
+        value: crate::mir::ConstValue::Integer(0),
+    });
+    merge_block.add_instruction(method_call(Some(6), "RuntimeDataBox", "get", 4, vec![5]));
+    function.blocks.insert(BasicBlockId::new(1), then_block);
+    function.blocks.insert(BasicBlockId::new(2), else_block);
+    function.blocks.insert(BasicBlockId::new(3), merge_block);
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.get");
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.method(), "get");
+    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLoadAny);
+    assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
+    let core_method = route
+        .core_method()
+        .expect("RuntimeDataBox Array-origin get core method op");
+    assert_eq!(core_method.op, CoreMethodOp::ArrayGet);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
+    assert_eq!(route.return_shape(), None);
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+    assert_eq!(route.publication_policy(), None);
 }
 
 #[test]

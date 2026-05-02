@@ -605,16 +605,18 @@ fn match_generic_set_route(
         return None;
     }
 
-    let (route_kind, core_op) = match box_name.as_str() {
-        "ArrayBox" => (
+    let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
+    let (route_kind, core_op) = match (box_name.as_str(), receiver_origin_box.as_deref()) {
+        ("ArrayBox", _) | ("RuntimeDataBox", Some("ArrayBox")) => (
             GenericMethodRouteKind::ArrayStoreAny,
             CoreMethodOp::ArraySet,
         ),
-        "MapBox" => (GenericMethodRouteKind::MapStoreAny, CoreMethodOp::MapSet),
+        ("MapBox", _) | ("RuntimeDataBox", Some("MapBox")) => {
+            (GenericMethodRouteKind::MapStoreAny, CoreMethodOp::MapSet)
+        }
         _ => return None,
     };
-    let receiver_origin_box =
-        receiver_origin_box_name(function, def_map, *receiver).or_else(|| Some(box_name.clone()));
     let key_route = classify_key_route(function, def_map, args[0]);
 
     Some(GenericMethodRoute::new(
