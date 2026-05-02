@@ -1307,6 +1307,15 @@ fn generic_pure_string_route_value_class(
         "mir_json_phi_incoming_pair_scalar" if route.route_kind_tag() == "array_slot_load_any" => {
             Some(GenericPureValueClass::I64)
         }
+        "mir_json_callee_field" if route.route_kind_tag() == "runtime_data_load_any" => {
+            match route.key_const_text()? {
+                "receiver" => Some(GenericPureValueClass::ScalarOrVoid),
+                "type" | "name" | "box_name" | "method" | "box_type" => {
+                    Some(GenericPureValueClass::StringOrVoid)
+                }
+                _ => None,
+            }
+        }
         _ => None,
     }
 }
