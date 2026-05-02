@@ -1,4 +1,4 @@
-use super::format_mir_type_label;
+use super::generic_string_body::format_mir_type_label;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

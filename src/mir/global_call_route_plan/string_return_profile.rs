@@ -1,8 +1,8 @@
+use super::generic_string_body::GenericPureStringReject;
 use super::shape_blocker::propagated_unknown_global_target_blocker;
 use super::{
-    lookup_global_call_target, supported_backend_global, GenericPureStringReject,
-    GlobalCallShapeBlocker, GlobalCallTargetFacts, GlobalCallTargetShape,
-    GlobalCallTargetShapeReason,
+    lookup_global_call_target, supported_backend_global, GlobalCallShapeBlocker,
+    GlobalCallTargetFacts, GlobalCallTargetShape, GlobalCallTargetShapeReason,
 };
 use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 use std::collections::BTreeMap;

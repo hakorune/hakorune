@@ -1,5 +1,7 @@
-use super::{
+use super::generic_string_body::{
     generic_pure_compare_proves_i64, generic_pure_string_abi_type_is_handle_compatible,
+};
+use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallTargetFacts,
     GlobalCallTargetShape,
 };

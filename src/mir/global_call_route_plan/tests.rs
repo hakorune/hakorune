@@ -1,6 +1,10 @@
 use super::*;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-use crate::mir::{BasicBlock, BasicBlockId, CompareOp, EffectMask, FunctionSignature, MirType};
+use crate::mir::{
+    BasicBlock, BasicBlockId, CompareOp, EffectMask, FunctionSignature, MirType, ValueId,
+};
+
+use super::string_return_profile::generic_string_void_sentinel_return_global_blocker;
 
 fn make_function_with_global_call_args(
     name: &str,
