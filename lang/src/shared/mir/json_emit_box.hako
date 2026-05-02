@@ -11,12 +11,6 @@ static box MirJsonEmitBox {
     if s.indexOf("[map/missing]") == 0 { return 1 }
     return 0
   }
-  _map_get_soft(obj, key) {
-    if obj == null { return null }
-    // Missing-key sentinel stays visible; callers own schema fallback/default policy.
-    return obj.get(key)
-  }
-
   _expect_map(val, context) {
     if BoxHelpers.is_map(val) { return val }
     print("[JsonEmitBox] dev assert failed: expected MapBox for " + context)
@@ -193,7 +187,7 @@ static box MirJsonEmitBox {
   _emit_inst(inst) {
     if inst == null { return "{}" }
     me._assert_map(inst, "instruction")
-    local op = me._map_get_soft(inst, "op")
+    local op = inst.get("op")
     if op == null { op = "" }
     if op == "const" {
       return "{\"op\":\"const\",\"dst\":" + me._int_str(inst.get("dst")) +
@@ -203,9 +197,9 @@ static box MirJsonEmitBox {
       return "{\"op\":\"ret\",\"value\":" + me._int_str(inst.get("value")) + "}"
     }
     if op == "binop" {
-      local kind = me._map_get_soft(inst, "operation")
+      local kind = inst.get("operation")
       if me._is_map_missing_sentinel(kind) == 1 || kind == null {
-        kind = me._map_get_soft(inst, "op_kind")
+        kind = inst.get("op_kind")
       }
       if kind == null { kind = "" }
       if me._is_map_missing_sentinel(kind) == 1 { kind = "" }
@@ -214,12 +208,12 @@ static box MirJsonEmitBox {
              ",\"dst\":" + me._int_str(inst.get("dst")) + "}"
     }
     if op == "compare" {
-      local cmp = me._map_get_soft(inst, "cmp")
+      local cmp = inst.get("cmp")
       if me._is_map_missing_sentinel(cmp) == 1 || cmp == null {
-        cmp = me._map_get_soft(inst, "operation")
+        cmp = inst.get("operation")
       }
       if me._is_map_missing_sentinel(cmp) == 1 || cmp == null {
-        cmp = me._map_get_soft(inst, "op_kind")
+        cmp = inst.get("op_kind")
       }
       if cmp == null || me._is_map_missing_sentinel(cmp) == 1 { cmp = "" }
       return "{\"op\":\"compare\",\"operation\":" + me._quote(cmp) + ",\"lhs\":" +
@@ -235,9 +229,9 @@ static box MirJsonEmitBox {
       return "{\"op\":\"jump\",\"target\":" + me._int_str(inst.get("target")) + "}"
     }
     if op == "phi" {
-      local incoming = me._map_get_soft(inst, "incoming")
+      local incoming = inst.get("incoming")
       if me._is_map_missing_sentinel(incoming) == 1 || incoming == null {
-        incoming = me._map_get_soft(inst, "values")
+        incoming = inst.get("values")
       }
       return "{\"op\":\"phi\",\"dst\":" + me._int_str(inst.get("dst")) +
              ",\"incoming\":" + me._emit_phi_incoming(incoming) + "}"
@@ -261,16 +255,16 @@ static box MirJsonEmitBox {
              ",\"effects\":" + effects_json + "}}"
     }
     if op == "call" {
-      local func_id = me._map_get_soft(inst, "func")
+      local func_id = inst.get("func")
       if me._is_map_missing_sentinel(func_id) == 1 { func_id = null }
       if func_id == null {
-        func_id = me._map_get_soft(inst, "name")
+        func_id = inst.get("name")
       }
-      local args_box2 = me._map_get_soft(inst, "args")
+      local args_box2 = inst.get("args")
       if args_box2 == null || me._is_map_missing_sentinel(args_box2) == 1 || !BoxHelpers.is_array(args_box2) {
         args_box2 = []
       }
-      local dst2 = me._map_get_soft(inst, "dst")
+      local dst2 = inst.get("dst")
       return "{\"op\":\"call\",\"func\":" + me._emit_vid_or_null(func_id) +
              ",\"args\":" + me._emit_vid_array(args_box2) +
              ",\"dst\":" + me._emit_vid_or_null(dst2) + "}"
