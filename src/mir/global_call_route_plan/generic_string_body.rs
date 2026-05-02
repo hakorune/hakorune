@@ -19,6 +19,8 @@ enum GenericPureValueClass {
     I64,
     Bool,
     String,
+    Array,
+    Map,
     StringOrVoid,
     VoidSentinel,
 }
@@ -598,6 +600,28 @@ fn generic_pure_string_instruction_reject_reason(
             }
             None
         }
+        MirInstruction::NewBox {
+            dst,
+            box_type,
+            args,
+        } => {
+            if !args.is_empty() {
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
+            }
+            let class = match box_type.as_str() {
+                "ArrayBox" => GenericPureValueClass::Array,
+                "MapBox" => GenericPureValueClass::Map,
+                _ => {
+                    return Some(GenericPureStringReject::new(
+                        GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                    ));
+                }
+            };
+            set_value_class(values, *dst, class, changed);
+            None
+        }
         MirInstruction::BinOp {
             dst, op, lhs, rhs, ..
         } => {
@@ -703,7 +727,11 @@ fn generic_pure_string_instruction_reject_reason(
             let mut saw_string_or_void = false;
             let mut saw_void_sentinel = false;
             let mut saw_scalar = false;
+            let mut saw_array = false;
+            let mut saw_map = false;
             let mut all_string = !inputs.is_empty();
+            let mut all_array = !inputs.is_empty();
+            let mut all_map = !inputs.is_empty();
             let mut saw_unknown = false;
             for (_, value) in inputs {
                 let class = value_class(values, *value);
@@ -711,16 +739,24 @@ fn generic_pure_string_instruction_reject_reason(
                 saw_string |= class == GenericPureValueClass::String;
                 saw_string_or_void |= class == GenericPureValueClass::StringOrVoid;
                 saw_void_sentinel |= class == GenericPureValueClass::VoidSentinel;
+                saw_array |= class == GenericPureValueClass::Array;
+                saw_map |= class == GenericPureValueClass::Map;
                 saw_scalar |= matches!(
                     class,
                     GenericPureValueClass::I64 | GenericPureValueClass::Bool
                 );
                 all_string &= class == GenericPureValueClass::String;
+                all_array &= class == GenericPureValueClass::Array;
+                all_map &= class == GenericPureValueClass::Map;
             }
             if saw_unknown {
                 return None;
             } else if all_string {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::String, changed);
+            } else if all_array {
+                set_proven_flow_value_class(values, *dst, GenericPureValueClass::Array, changed);
+            } else if all_map {
+                set_proven_flow_value_class(values, *dst, GenericPureValueClass::Map, changed);
             } else if saw_string_or_void && !saw_scalar {
                 *has_string_surface = true;
                 set_proven_flow_value_class(
@@ -744,7 +780,7 @@ fn generic_pure_string_instruction_reject_reason(
                     GenericPureValueClass::VoidSentinel,
                     changed,
                 );
-            } else if saw_string {
+            } else if saw_string || saw_array || saw_map {
                 return Some(GenericPureStringReject::new(
                     GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
                 ));

@@ -257,6 +257,20 @@
               if (src_ty != T_NONE) set_type(dst, src_ty);
               if (src_org != ORG_NONE) set_origin(dst, src_org);
               if (src_scan != ORG_NONE) set_scan_origin(dst, src_scan);
+            } else if (!strcmp(op, "newbox")) {
+              long long dst = read_int(ins, "dst");
+              const char* tname = read_str(ins, "type");
+              if (tname && !strcmp(tname, "ArrayBox")) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_ARRAY_BIRTH);
+                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+              } else if (tname && !strcmp(tname, "MapBox")) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_MAP_BIRTH);
+                set_scan_origin(dst, ORG_MAP_BIRTH);
+              } else {
+                return 0;
+              }
             } else if (!strcmp(op, "compare")) {
               set_type(read_int(ins, "dst"), T_I1);
             } else if (!strcmp(op, "phi")) {
@@ -394,6 +408,34 @@
         if (src_org != ORG_NONE) set_origin(dst, src_org);
         if (src_scan != ORG_NONE) set_scan_origin(dst, src_scan);
         return 1;
+      }
+
+      auto int module_generic_string_emit_newbox(yyjson_val* ins) {
+        long long dst = read_int(ins, "dst");
+        const char* tname = read_str(ins, "type");
+        if (tname && !strcmp(tname, "ArrayBox")) {
+          if (dst) {
+            EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst);
+            set_type(dst, T_I64);
+            set_origin(dst, ORG_ARRAY_BIRTH);
+            set_scan_origin(dst, ORG_ARRAY_BIRTH);
+          } else {
+            EMIT("  call i64 @\"nyash.array.birth_h\"()\n");
+          }
+          return 1;
+        }
+        if (tname && !strcmp(tname, "MapBox")) {
+          if (dst) {
+            EMIT("  %%r%lld = call i64 @\"nyash.map.birth_h\"()\n", dst);
+            set_type(dst, T_I64);
+            set_origin(dst, ORG_MAP_BIRTH);
+            set_scan_origin(dst, ORG_MAP_BIRTH);
+          } else {
+            EMIT("  call i64 @\"nyash.map.birth_h\"()\n");
+          }
+          return 1;
+        }
+        return 0;
       }
 
       auto int module_generic_string_emit_binop(yyjson_val* ins) {
@@ -640,6 +682,10 @@
                       read_int(ins, "src"))) {
                 return 0;
               }
+              continue;
+            }
+            if (!strcmp(op, "newbox")) {
+              if (!module_generic_string_emit_newbox(ins)) return 0;
               continue;
             }
             if (!strcmp(op, "compare")) {

@@ -295,3 +295,53 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_pure_string_body()
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
 }
+
+#[test]
+fn refresh_module_global_call_routes_accepts_collection_births_in_generic_pure_string_body() {
+    let mut module = MirModule::new("global_call_string_collection_birth_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.with_collections/0",
+        Some(ValueId::new(7)),
+        vec![],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.with_collections/0".to_string(),
+            params: vec![],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        },
+        MirInstruction::NewBox {
+            dst: ValueId::new(2),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::String("ok".to_string()),
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.with_collections/0".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}

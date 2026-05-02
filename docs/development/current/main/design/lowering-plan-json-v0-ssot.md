@@ -333,6 +333,12 @@ carry the matching `generic_method.len` / `StringLen` or
 ny-llvmc emits `nyash.string.len_h` or `nyash.string.substring_hii`; backend
 shims must not infer this from the raw method name alone. This does not accept
 other string methods.
+`generic_pure_string_body` may accept no-argument `new ArrayBox()` and
+`new MapBox()` births as collection-builder carriers when the surrounding body
+still returns a string handle. The module generic string emitter must lower
+those births with `nyash.array.birth_h` / `nyash.map.birth_h`. This does not
+accept collection methods such as `push`, `get`, `set`, or `size`, and does not
+make arrays or maps return-handle-compatible for generic string bodies.
 `generic_pure_string_body` may also contain the existing supported backend
 global `print` as a no-result debug side-effect. That surface is not a
 same-module user/global call and must not create a `global.user_call`
