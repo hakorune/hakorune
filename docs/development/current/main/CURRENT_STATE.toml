@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P223A-MIR-JSON-FUNCTION-BLOCK-ARRAY-PROOF"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P223A-MIR-JSON-FUNCTION-BLOCK-ARRAY-PROOF.md"
-latest_card_summary = "Prove MirJsonEmitBox function block array item reads without generic RuntimeDataBox get widening."
+latest_card = "P224A-MIR-JSON-PARAMS-ARRAY-PROOF"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P224A-MIR-JSON-PARAMS-ARRAY-PROOF.md"
+latest_card_summary = "Prove MirJsonEmitBox params array item reads without generic RuntimeDataBox get widening."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -188,4 +188,5 @@ landed_tail = [
   "29cv-P221a MIR JSON block instruction array proof landed",
   "29cv-P222a MIR JSON block field proof landed",
   "29cv-P223a MIR JSON function block array proof landed",
+  "29cv-P224a MIR JSON params array proof landed",
 ]
