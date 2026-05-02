@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P216A-MIR-JSON-ARRAY-ASSERT-SPLIT"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P216A-MIR-JSON-ARRAY-ASSERT-SPLIT.md"
-latest_card_summary = "Split MirJsonEmitBox ignored array assertions away from object-return helper."
+latest_card = "P217A-MIR-JSON-VID-ARRAY-ITEM-PROOF"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P217A-MIR-JSON-VID-ARRAY-ITEM-PROOF.md"
+latest_card_summary = "Prove MirJsonEmitBox value-id array item reads without generic array-get support."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -180,4 +180,5 @@ landed_tail = [
   "29cv-P214a MIR JSON PHI incoming array proof landed",
   "29cv-P215a MIR JSON callee field proof landed",
   "29cv-P216a MIR JSON array assert split landed",
+  "29cv-P217a MIR JSON value-id array item proof landed",
 ]

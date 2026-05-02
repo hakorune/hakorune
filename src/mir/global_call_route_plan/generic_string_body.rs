@@ -1316,6 +1316,9 @@ fn generic_pure_string_route_value_class(
                 _ => None,
             }
         }
+        "mir_json_vid_array_item" if route.route_kind_tag() == "array_slot_load_any" => {
+            Some(GenericPureValueClass::I64)
+        }
         _ => None,
     }
 }
