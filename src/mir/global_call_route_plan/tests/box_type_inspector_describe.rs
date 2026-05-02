@@ -22,12 +22,15 @@ fn method_call(
     }
 }
 
-fn box_type_inspector_describe_function(name: &str) -> MirFunction {
+fn box_type_inspector_describe_function_with_return_type(
+    name: &str,
+    return_type: MirType,
+) -> MirFunction {
     let mut function = MirFunction::new(
         FunctionSignature {
             name: name.to_string(),
             params: vec![MirType::Unknown],
-            return_type: MirType::Unknown,
+            return_type,
             effects: EffectMask::PURE,
         },
         BasicBlockId::new(0),
@@ -109,6 +112,10 @@ fn box_type_inspector_describe_function(name: &str) -> MirFunction {
     function
 }
 
+fn box_type_inspector_describe_function(name: &str) -> MirFunction {
+    box_type_inspector_describe_function_with_return_type(name, MirType::Unknown)
+}
+
 fn arbitrary_map_return_function(name: &str) -> MirFunction {
     let mut function = MirFunction::new(
         FunctionSignature {
@@ -163,6 +170,42 @@ fn refresh_module_global_call_routes_accepts_box_type_inspector_describe_body() 
     );
     assert_eq!(route.return_shape(), Some("map_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+}
+
+#[test]
+fn refresh_module_global_call_routes_prioritizes_box_type_inspector_over_broad_map_schema() {
+    let mut module =
+        MirModule::new("global_call_box_type_inspector_describe_box_return_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "BoxTypeInspectorBox._describe/1",
+        Some(ValueId::new(30)),
+        vec![ValueId::new(20)],
+    );
+    module.functions.insert("main".to_string(), caller);
+    module.functions.insert(
+        "BoxTypeInspectorBox._describe/1".to_string(),
+        box_type_inspector_describe_function_with_return_type(
+            "BoxTypeInspectorBox._describe/1",
+            MirType::Box("MapBox".to_string()),
+        ),
+    );
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("box_type_inspector_describe_body"),
+        "reason={:?} blocker={:?}/{:?}",
+        route.target_shape_reason(),
+        route.target_shape_blocker_symbol(),
+        route.target_shape_blocker_reason()
+    );
+    assert_eq!(
+        route.proof(),
+        "typed_global_call_box_type_inspector_describe"
+    );
+    assert_eq!(route.return_shape(), Some("map_handle"));
 }
 
 #[test]

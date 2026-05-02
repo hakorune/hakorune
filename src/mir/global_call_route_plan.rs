@@ -169,6 +169,14 @@ fn classify_global_call_target_shape(
             GlobalCallTargetShape::StaticStringArrayBody,
         );
     }
+    if is_box_type_inspector_describe_body_candidate(function) {
+        if let Some(reject) = box_type_inspector_describe_body_reject_reason(function) {
+            return GlobalCallTargetClassification::unknown(reject.reason);
+        }
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::BoxTypeInspectorDescribeBody,
+        );
+    }
     if is_mir_schema_map_constructor_body_candidate(function, targets) {
         if let Some(reject) = mir_schema_map_constructor_body_reject_reason(function, targets) {
             return if let Some(blocker) = reject.blocker {
@@ -185,14 +193,6 @@ fn classify_global_call_target_shape(
         }
         return GlobalCallTargetClassification::direct(
             GlobalCallTargetShape::MirSchemaMapConstructorBody,
-        );
-    }
-    if is_box_type_inspector_describe_body_candidate(function) {
-        if let Some(reject) = box_type_inspector_describe_body_reject_reason(function) {
-            return GlobalCallTargetClassification::unknown(reject.reason);
-        }
-        return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::BoxTypeInspectorDescribeBody,
         );
     }
     if is_builder_registry_dispatch_body_candidate(function) {
