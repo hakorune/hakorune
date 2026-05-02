@@ -18,16 +18,12 @@ static box LowerIfCompareFoldBinIntsBox {
     local kri = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", kli + 1); if kri < 0 { return null }
     local kv2 = JsonFragBox.index_of_from(s, "\"value\":", kri); if kv2 < 0 { return null }
     local r = JsonFragBox.read_int_after(s, kv2 + 8); if r == null { return null }
-    // compute
-    local li = 0; local ri = 0; // string to int by simple parse (assume i64 fits)
-    // naive parse via accumulate; rely on compat coercion helper
-    li = me._coerce_i64_compat(l); ri = me._coerce_i64_compat(r)
-    local res = 0
-    if op == "+" { res = li + ri }
-    else if op == "-" { res = li - ri }
-    else if op == "*" { res = li * ri }
-    else { res = li / ri }
-    return me._coerce_text_compat(res)
+    local li = me._coerce_i64_compat(l)
+    local ri = me._coerce_i64_compat(r)
+    if op == "+" { return me._coerce_text_compat(li + ri) }
+    if op == "-" { return me._coerce_text_compat(li - ri) }
+    if op == "*" { return me._coerce_text_compat(li * ri) }
+    return me._coerce_text_compat(li / ri)
   }
   _resolve_side_int(s, node_pos, if_pos) {
     // node may be Int, Binary(Int,Int), or Var with Local Int before if_pos
@@ -88,6 +84,6 @@ static box LowerIfCompareFoldBinIntsBox {
     return "" + value
   }
   _coerce_i64_compat(value) {
-    return 0 + me._coerce_text_compat(value)
+    return JsonFragBox._str_to_int(me._coerce_text_compat(value))
   }
 }
