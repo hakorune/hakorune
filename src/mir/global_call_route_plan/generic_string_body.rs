@@ -785,6 +785,66 @@ fn generic_pure_string_instruction_reject_reason(
             }
             None
         }
+        MirInstruction::Select {
+            dst,
+            cond,
+            then_val,
+            else_val,
+        } => {
+            let cond_class = value_class(values, *cond);
+            if cond_class == GenericPureValueClass::Unknown {
+                if *changed {
+                    return None;
+                }
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
+            }
+            if !matches!(
+                cond_class,
+                GenericPureValueClass::Bool | GenericPureValueClass::I64
+            ) {
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
+            }
+
+            let then_class = value_class(values, *then_val);
+            let else_class = value_class(values, *else_val);
+            if then_class == GenericPureValueClass::Unknown
+                && else_class == GenericPureValueClass::Unknown
+            {
+                if *changed {
+                    return None;
+                }
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
+            }
+            if then_class == GenericPureValueClass::Unknown {
+                set_proven_flow_value_class(values, *then_val, else_class, changed);
+                return None;
+            }
+            if else_class == GenericPureValueClass::Unknown {
+                set_proven_flow_value_class(values, *else_val, then_class, changed);
+                return None;
+            }
+
+            let Some(selected_class) = generic_pure_select_value_class(then_class, else_class)
+            else {
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
+            };
+            if matches!(
+                selected_class,
+                GenericPureValueClass::String | GenericPureValueClass::StringOrVoid
+            ) {
+                *has_string_surface = true;
+            }
+            set_proven_flow_value_class(values, *dst, selected_class, changed);
+            None
+        }
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Extern(name)),
@@ -1008,5 +1068,25 @@ fn generic_pure_string_instruction_reject_reason(
         _ => Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
         )),
+    }
+}
+
+fn generic_pure_select_value_class(
+    then_class: GenericPureValueClass,
+    else_class: GenericPureValueClass,
+) -> Option<GenericPureValueClass> {
+    if then_class == else_class {
+        return Some(then_class);
+    }
+    match (then_class, else_class) {
+        (GenericPureValueClass::String, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::String)
+        | (GenericPureValueClass::StringOrVoid, GenericPureValueClass::String)
+        | (GenericPureValueClass::String, GenericPureValueClass::StringOrVoid)
+        | (GenericPureValueClass::StringOrVoid, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::StringOrVoid) => {
+            Some(GenericPureValueClass::StringOrVoid)
+        }
+        _ => None,
     }
 }
