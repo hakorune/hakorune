@@ -1,4 +1,4 @@
-use super::generic_string_body::format_mir_type_label;
+use super::type_label::format_mir_type_label;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -36,6 +36,7 @@ pub enum GlobalCallTargetShape {
     GenericI64Body,
     ParserProgramJsonBody,
     ProgramJsonEmitBody,
+    JsonFragInstructionArrayNormalizerBody,
 }
 
 impl GlobalCallTargetShape {
@@ -49,6 +50,9 @@ impl GlobalCallTargetShape {
             Self::GenericI64Body => "generic_i64_body",
             Self::ParserProgramJsonBody => "parser_program_json_body",
             Self::ProgramJsonEmitBody => "program_json_emit_body",
+            Self::JsonFragInstructionArrayNormalizerBody => {
+                "jsonfrag_instruction_array_normalizer_body"
+            }
         }
     }
 }
@@ -453,7 +457,8 @@ impl GlobalCallRoute {
             | GlobalCallTargetShape::GenericI64Body
             | GlobalCallTargetShape::ParserProgramJsonBody
             | GlobalCallTargetShape::ProgramJsonEmitBody => Some(self.target.shape()),
-            GlobalCallTargetShape::Unknown => None,
+            GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
+            | GlobalCallTargetShape::Unknown => None,
         }
     }
 }

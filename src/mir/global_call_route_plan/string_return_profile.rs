@@ -1,4 +1,4 @@
-use super::generic_string_body::GenericPureStringReject;
+use super::generic_string_reject::GenericPureStringReject;
 use super::shape_blocker::propagated_unknown_global_target_blocker;
 use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallShapeBlocker,
@@ -506,7 +506,8 @@ fn refine_generic_string_return_value_class(
                         GenericStringReturnValueClass::Other
                     }
                     GlobalCallTargetShape::GenericI64Body => GenericStringReturnValueClass::Other,
-                    GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
+                    GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
+                    | GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
                 })
                 .unwrap_or(GenericStringReturnValueClass::Unknown);
             if let Some(dst) = dst {

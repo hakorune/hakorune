@@ -1,6 +1,5 @@
-use super::generic_string_body::{
-    generic_pure_compare_proves_i64, generic_pure_string_abi_type_is_handle_compatible,
-};
+use super::generic_string_abi::generic_pure_string_abi_type_is_handle_compatible;
+use super::generic_string_surface::generic_pure_compare_proves_i64;
 use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallTargetFacts,
     GlobalCallTargetShape,
@@ -417,7 +416,8 @@ fn generic_i64_body_refine_instruction(
                 GlobalCallTargetShape::GenericI64Body => {
                     generic_i64_global_call_result_class(values, dst)
                 }
-                GlobalCallTargetShape::Unknown => return false,
+                GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
+                | GlobalCallTargetShape::Unknown => return false,
             };
             if let Some(dst) = dst {
                 set_generic_i64_value_class(values, *dst, class, changed)

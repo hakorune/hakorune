@@ -10,18 +10,27 @@ use super::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule
 use std::collections::BTreeMap;
 
 mod generic_i64_body;
+mod generic_string_abi;
 mod generic_string_body;
+mod generic_string_corridor;
+mod generic_string_facts;
+mod generic_string_guards;
+mod generic_string_reject;
+mod generic_string_surface;
+mod jsonfrag_normalizer_body;
 mod model;
 mod parser_program_json_body;
 mod program_json_emit_body;
 mod shape_blocker;
 mod string_return_profile;
+mod type_label;
 
 use generic_i64_body::is_generic_i64_body_function;
 use generic_string_body::{
     generic_pure_string_body_reject_reason, generic_string_void_logging_body_reject_reason,
     generic_string_void_sentinel_body_reject_reason,
 };
+use jsonfrag_normalizer_body::is_jsonfrag_instruction_array_normalizer_body_function;
 pub use model::{
     GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
 };
@@ -128,6 +137,11 @@ fn classify_global_call_target_shape(
     }
     if is_program_json_emit_body_function(function) {
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::ProgramJsonEmitBody);
+    }
+    if is_jsonfrag_instruction_array_normalizer_body_function(function) {
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody,
+        );
     }
     if string_or_void_sentinel_return_type_candidate(&function.signature.return_type) {
         if let Some(reject) = generic_string_void_sentinel_body_reject_reason(function, targets) {
