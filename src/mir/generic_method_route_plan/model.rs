@@ -152,6 +152,7 @@ pub(crate) enum GenericMethodRouteProof {
     MirJsonVidArrayItem,
     MirJsonEffectsArrayItem,
     MirJsonInstField,
+    MirJsonBlockInstArrayItem,
 }
 
 impl std::fmt::Display for GenericMethodRouteProof {
@@ -182,6 +183,7 @@ impl GenericMethodRouteProof {
             Self::MirJsonVidArrayItem => "mir_json_vid_array_item",
             Self::MirJsonEffectsArrayItem => "mir_json_effects_array_item",
             Self::MirJsonInstField => "mir_json_inst_field",
+            Self::MirJsonBlockInstArrayItem => "mir_json_block_inst_array_item",
         }
     }
 }
