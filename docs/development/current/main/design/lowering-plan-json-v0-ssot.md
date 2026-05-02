@@ -363,6 +363,12 @@ single self argument is proven to be a string flow value and the matching
 keeps `arity=1` as emitted by MIR but lowers with the same `nyash.string.len_h`
 helper as zero-arg string length. This does not accept arbitrary one-arg
 length methods or RuntimeData one-arg length calls.
+`generic_pure_string_body` may accept ordered string comparisons
+(`Lt` / `Le` / `Gt` / `Ge`) when both operands are already proven string flow
+values. These compares are not method routes; ny-llvmc lowers them inside the
+generic string function emitter with the existing `nyash.string.lt_hh` /
+`nyash.string.eq_hh` comparison helpers. This does not infer string-ness from
+unknown operands and does not accept mixed string/scalar ordered comparisons.
 `generic_pure_string_body` may also contain the existing supported backend
 global `print` as a no-result debug side-effect. That surface is not a
 same-module user/global call and must not create a `global.user_call`

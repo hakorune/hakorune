@@ -593,3 +593,68 @@ fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_strin
             && route.route_kind_tag() == "string_indexof"
     }));
 }
+
+#[test]
+fn refresh_module_semantic_metadata_accepts_ordered_string_compare_in_generic_pure_string_body() {
+    let mut module = MirModule::new("global_call_ordered_string_compare_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.guard_digit/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.guard_digit/1".to_string(),
+            params: vec![MirType::String],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("0".to_string()),
+        },
+        MirInstruction::Compare {
+            dst: ValueId::new(3),
+            op: CompareOp::Ge,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(2),
+        },
+    ]);
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(3),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut then_block = BasicBlock::new(BasicBlockId::new(1));
+    then_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    let mut else_block = BasicBlock::new(BasicBlockId::new(2));
+    else_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: ConstValue::String("not_digit".to_string()),
+    });
+    else_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    callee.blocks.insert(BasicBlockId::new(1), then_block);
+    callee.blocks.insert(BasicBlockId::new(2), else_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.guard_digit/1".to_string(), callee);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}

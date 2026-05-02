@@ -834,7 +834,7 @@ fn generic_pure_string_instruction_reject_reason(
             if lhs_class == GenericPureValueClass::String
                 || rhs_class == GenericPureValueClass::String
             {
-                if !matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne) {
+                if !generic_pure_string_accepts_string_compare(*op, lhs_class, rhs_class) {
                     return Some(GenericPureStringReject::new(
                         GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
                     ));
@@ -1157,6 +1157,22 @@ fn generic_pure_string_accepts_env_set(
 
 pub(super) fn generic_pure_compare_proves_i64(op: crate::mir::CompareOp) -> bool {
     !matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)
+}
+
+fn generic_pure_string_accepts_string_compare(
+    op: crate::mir::CompareOp,
+    lhs_class: GenericPureValueClass,
+    rhs_class: GenericPureValueClass,
+) -> bool {
+    match op {
+        crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne => true,
+        crate::mir::CompareOp::Lt
+        | crate::mir::CompareOp::Le
+        | crate::mir::CompareOp::Gt
+        | crate::mir::CompareOp::Ge => {
+            lhs_class == GenericPureValueClass::String && rhs_class == GenericPureValueClass::String
+        }
+    }
 }
 
 fn generic_pure_string_accepts_substring_method(
