@@ -147,6 +147,14 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   source-exe probe now reports a transitive
   `BoxTypeInspectorBox.is_map/1` target-shape blocker in a deeper MIR/JSON
   emit path.
+- P207f applies the same direct scalar cleanup to
+  `BoxTypeInspectorBox.is_array/1`, removing the sibling `_describe/1` plus
+  `MapBox.get` wrapper from the JSON emit chain without adding Stage0
+  map-read semantics. Route inventory now classifies
+  `BoxHelpers.is_array/1 -> BoxTypeInspectorBox.is_array/1` as
+  `DirectAbi generic_i64_body`; the source-exe probe still reports a
+  transitive `BoxTypeInspectorBox.is_map/1` blocker in the deeper MIR/JSON
+  emit path.
 
 ## Compat Capsule Rules
 
