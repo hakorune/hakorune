@@ -87,6 +87,6 @@ static box LowerIfCompareFoldVarIntBox {
     return "" + value
   }
   _coerce_i64_compat(value) {
-    return 0 + me._coerce_text_compat(value)
+    return JsonFragBox._str_to_int(me._coerce_text_compat(value))
   }
 }
