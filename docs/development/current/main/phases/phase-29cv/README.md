@@ -176,6 +176,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `.length()` reads instead of routing through the broad common helper. The
   source-exe first blocker advances to `BoxHelpers.value_i64/1`; Stage0 still
   does not learn unknown-receiver `.length()` semantics.
+- P207j keeps the `BoxHelpers.value_i64/1` blocker inside the same MIR emitter
+  owner: `_expect_i64/2` now unwraps MIR numeric fields locally instead of
+  routing through the broad common helper. Backend wrapper semantics stay
+  unchanged. The source-exe first blocker advances to owner-local
+  `MirJsonEmitBox._expect_i64/2`.
 
 ## Compat Capsule Rules
 

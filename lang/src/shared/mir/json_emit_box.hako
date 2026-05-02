@@ -45,11 +45,13 @@ static box MirJsonEmitBox {
       return 0
     }
     if BoxHelpers.is_map(val) {
-      // MapBox-wrapped integer (possibly nested); delegate unwrapping.
-      return BoxHelpers.value_i64(val)
+      // MIR numeric fields may be boxed as {type, value}; keep unwrap local to this emitter.
+      local inner = val.get("value")
+      if inner != null { return StringHelpers.to_i64(inner) }
+      print("[JsonEmitBox] dev assert failed: missing value in " + context)
+      return 0
     }
-    // Non-MapBox: treat as numeric immediate and normalize via helper.
-    return BoxHelpers.value_i64(val)
+    return StringHelpers.to_i64(val)
   }
 
   // ---- helpers ------------------------------------------------------------

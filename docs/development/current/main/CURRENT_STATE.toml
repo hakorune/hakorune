@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P207I-MIR-JSON-EMITTER-DIRECT-ARRAY-LEN"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P207I-MIR-JSON-EMITTER-DIRECT-ARRAY-LEN.md"
-latest_card_summary = "Use direct array length reads inside MirJsonEmitBox instead of the broad BoxHelpers array_len wrapper."
+latest_card = "P207J-MIR-JSON-EMITTER-LOCAL-I64-UNWRAP"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P207J-MIR-JSON-EMITTER-LOCAL-I64-UNWRAP.md"
+latest_card_summary = "Unwrap MIR JSON numeric fields locally in MirJsonEmitBox instead of calling BoxHelpers value_i64."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -166,4 +166,5 @@ landed_tail = [
   "29cv-P207g MIR JSON emitter name split landed",
   "29cv-P207h LowerIfCompareFoldVarInt resolve side i64 landed",
   "29cv-P207i MIR JSON emitter direct array length landed",
+  "29cv-P207j MIR JSON emitter local i64 unwrap landed",
 ]
