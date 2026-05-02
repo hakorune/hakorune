@@ -4,7 +4,9 @@ use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallTargetFacts,
     GlobalCallTargetShape,
 };
-use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId,
+};
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -92,9 +94,25 @@ pub(super) fn is_generic_i64_body_function(
             let Some(block) = function.blocks.get(block_id) else {
                 continue;
             };
-            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            for (instruction_index, instruction) in block.instructions.iter().enumerate() {
                 if !generic_i64_body_refine_instruction(
+                    function,
+                    *block_id,
+                    instruction_index,
                     instruction,
+                    targets,
+                    &mut values,
+                    &mut changed,
+                ) {
+                    return false;
+                }
+            }
+            if let Some(terminator) = block.terminator.as_ref() {
+                if !generic_i64_body_refine_instruction(
+                    function,
+                    *block_id,
+                    block.instructions.len(),
+                    terminator,
                     targets,
                     &mut values,
                     &mut changed,
@@ -158,6 +176,9 @@ fn generic_i64_return_value_class_is_scalar(class: GenericI64ValueClass) -> bool
 }
 
 fn generic_i64_body_refine_instruction(
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
     instruction: &MirInstruction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
     values: &mut BTreeMap<ValueId, GenericI64ValueClass>,
@@ -402,6 +423,13 @@ fn generic_i64_body_refine_instruction(
             args,
             ..
         } => {
+            if let Some(class) = generic_i64_route_value_class(function, block, instruction_index) {
+                return if let Some(dst) = dst {
+                    set_generic_i64_value_class(values, *dst, class, changed)
+                } else {
+                    false
+                };
+            }
             let receiver_class = generic_i64_value_class(values, *receiver);
             if receiver_class == GenericI64ValueClass::Unknown {
                 if !set_generic_i64_value_class(
@@ -516,6 +544,26 @@ fn generic_i64_body_refine_instruction(
         | MirInstruction::ReleaseStrong { .. } => true,
         _ => false,
     }
+}
+
+fn generic_i64_route_value_class(
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+) -> Option<GenericI64ValueClass> {
+    function
+        .metadata
+        .generic_method_routes
+        .iter()
+        .find(|route| {
+            route.block() == block
+                && route.instruction_index() == instruction_index
+                && route.proof_tag() == "mir_json_numeric_value_field"
+                && route.route_id() == "generic_method.get"
+                && route.route_kind_tag() == "runtime_data_load_any"
+                && route.key_const_text() == Some("value")
+        })
+        .map(|_| GenericI64ValueClass::StringOrVoid)
 }
 
 fn generic_i64_global_call_result_class(
