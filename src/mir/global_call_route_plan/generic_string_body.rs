@@ -612,7 +612,7 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
         }
     }
 
-    if !has_string_surface || !generic_string_void_logging_has_print_call(function) {
+    if !has_string_surface || !generic_string_void_logging_has_logging_call(function, targets) {
         return Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringNoStringSurface,
         ));
@@ -644,7 +644,10 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
     }
 }
 
-fn generic_string_void_logging_has_print_call(function: &MirFunction) -> bool {
+fn generic_string_void_logging_has_logging_call(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
     function.blocks.values().any(|block| {
         block
             .instructions
@@ -657,6 +660,14 @@ fn generic_string_void_logging_has_print_call(function: &MirFunction) -> bool {
                         callee: Some(Callee::Global(name)),
                         ..
                     } if name == "print"
+                ) || matches!(
+                    instruction,
+                    MirInstruction::Call {
+                        callee: Some(Callee::Global(name)),
+                        ..
+                    } if super::lookup_global_call_target(name, targets)
+                        .map(|target| target.shape() == GlobalCallTargetShape::GenericStringVoidLoggingBody)
+                        .unwrap_or(false)
                 )
             })
     })
