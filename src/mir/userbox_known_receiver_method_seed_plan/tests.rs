@@ -1,9 +1,11 @@
 use super::*;
 use crate::mir::{
     definitions::call_unified::{CalleeBoxKind, TypeCertainty},
-    thin_entry::{ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryValueClass},
-    thin_entry_selection::ThinEntrySelectionState,
-    EffectMask, FunctionSignature,
+    thin_entry::{
+        ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntryValueClass,
+    },
+    thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState},
+    EffectMask, FunctionSignature, MirType,
 };
 
 fn make_function(name: &str) -> MirFunction {
