@@ -13,20 +13,8 @@ static box MirJsonEmitBox {
   }
   _map_get_soft(obj, key) {
     if obj == null { return null }
-    local direct = obj.get(key)
-    if me._is_map_missing_sentinel(direct) == 0 { return direct }
-    local keys = obj.keys()
-    if keys == null || !BoxHelpers.is_array(keys) { return direct }
-    local n = keys.length()
-    return me._map_get_soft_rec(obj, keys, key, 0, n, direct)
-  }
-  _map_get_soft_rec(obj, keys, key, idx, len, fallback) {
-    if idx >= len { return fallback }
-    local k = keys.get(idx)
-    if k != null && ("" + k) == key {
-      return obj.get(k)
-    }
-    return me._map_get_soft_rec(obj, keys, key, idx + 1, len, fallback)
+    // Missing-key sentinel stays visible; callers own schema fallback/default policy.
+    return obj.get(key)
   }
 
   _expect_map(val, context) {
