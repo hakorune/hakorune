@@ -319,12 +319,16 @@ and void when deciding whether a parent is also a string-or-void sentinel body;
 it must not make arbitrary `void` values string-compatible.
 Within `generic_pure_string_body`, MIR may accept string-class
 `RuntimeDataBox.length()` and `RuntimeDataBox.substring(i64, i64)` only when the
-receiver is already classified as a string value. These methods must also carry
-the matching `generic_method.len` / `StringLen` or `generic_method.substring` /
-`StringSubstring` LoweringPlan entry before ny-llvmc emits
-`nyash.string.len_h` or `nyash.string.substring_hii`; backend shims must not
-infer this from the raw method name alone. This does not accept other string
-methods.
+receiver is already classified as a string value, or when an existing string
+corridor fact for the same method-call result proves `str.len` / `str.slice`.
+That corridor proof may seed the exact receiver as `StringBox` for unknown
+receiver values such as `StringScanBox.read_char/2`; it must not classify
+unrelated unknown parameters as string by default. These methods must also
+carry the matching `generic_method.len` / `StringLen` or
+`generic_method.substring` / `StringSubstring` LoweringPlan entry before
+ny-llvmc emits `nyash.string.len_h` or `nyash.string.substring_hii`; backend
+shims must not infer this from the raw method name alone. This does not accept
+other string methods.
 `generic_pure_string_body` may also contain the existing supported backend
 global `print` as a no-result debug side-effect. That surface is not a
 same-module user/global call and must not create a `global.user_call`

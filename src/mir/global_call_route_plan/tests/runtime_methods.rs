@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::semantic_refresh::refresh_module_semantic_metadata;
 
 #[test]
 fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method() {
@@ -150,6 +151,95 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_substring_metho
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
+
+#[test]
+fn refresh_module_semantic_metadata_accepts_read_char_unknown_receiver_from_string_corridor() {
+    let mut module = MirModule::new("global_call_string_read_char_method_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "StringScanBox.read_char/2",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1), ValueId::new(2)],
+    );
+    let mut read_char = MirFunction::new(
+        FunctionSignature {
+            name: "StringScanBox.read_char/2".to_string(),
+            params: vec![MirType::Unknown, MirType::Integer],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    read_char.params = vec![ValueId::new(0), ValueId::new(1)];
+    let block = read_char.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "length".to_string(),
+                receiver: Some(ValueId::new(0)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Integer(1),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(4),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(3),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(5)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "substring".to_string(),
+                receiver: Some(ValueId::new(0)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(1), ValueId::new(4)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(5)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("StringScanBox.read_char/2".to_string(), read_char);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+
+    let read_char = &module.functions["StringScanBox.read_char/2"];
+    assert!(read_char
+        .metadata
+        .generic_method_routes
+        .iter()
+        .any(|route| route.route_id() == "generic_method.len"
+            && route.receiver_origin_box() == Some("StringBox")
+            && route.route_kind_tag() == "string_len"));
+    assert!(read_char
+        .metadata
+        .generic_method_routes
+        .iter()
+        .any(|route| route.route_id() == "generic_method.substring"
+            && route.receiver_origin_box() == Some("StringBox")
+            && route.route_kind_tag() == "string_substring"));
 }
 
 #[test]

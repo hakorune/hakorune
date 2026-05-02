@@ -11,6 +11,7 @@ use super::generic_method_route_facts::{
     classify_key_route, receiver_origin_box_name, GenericMethodKeyRoute,
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
+use super::string_corridor::StringCorridorOp;
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
     BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
@@ -366,6 +367,9 @@ fn match_generic_len_route(
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
         .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
+        .or_else(|| {
+            string_corridor_method_origin_box_name(function, *dst, StringCorridorOp::StrLen)
+        })
         .or_else(|| len_surface_origin_box_name(box_name).map(str::to_string));
     let (route_kind, core_op) =
         match len_surface_origin_box_name(box_name).or(receiver_origin_box.as_deref()) {
@@ -422,6 +426,9 @@ fn match_generic_substring_route(
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
         .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
+        .or_else(|| {
+            string_corridor_method_origin_box_name(function, *dst, StringCorridorOp::StrSlice)
+        })
         .or_else(|| (box_name == "StringBox").then(|| "StringBox".to_string()));
     if box_name != "StringBox"
         && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))
@@ -623,6 +630,16 @@ fn len_surface_origin_box_name(box_name: &str) -> Option<&'static str> {
         "StringBox" => Some("StringBox"),
         _ => None,
     }
+}
+
+fn string_corridor_method_origin_box_name(
+    function: &MirFunction,
+    dst: Option<ValueId>,
+    op: StringCorridorOp,
+) -> Option<String> {
+    let dst = dst?;
+    let fact = function.metadata.string_corridor_facts.get(&dst)?;
+    (fact.op == op).then(|| "StringBox".to_string())
 }
 
 fn generic_pure_string_global_call_origin_box_name(
