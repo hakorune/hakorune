@@ -33,6 +33,13 @@ fn supported_backend_global(name: &str) -> bool {
     matches!(name, "print")
 }
 
+fn string_or_void_sentinel_return_type_candidate(return_type: &MirType) -> bool {
+    matches!(
+        return_type,
+        MirType::Void | MirType::Unknown | MirType::String
+    ) || matches!(return_type, MirType::Box(name) if name == "StringBox")
+}
+
 pub fn refresh_module_global_call_routes(module: &mut MirModule) {
     let targets = collect_global_call_targets(module);
     for function in module.functions.values_mut() {
@@ -122,10 +129,7 @@ fn classify_global_call_target_shape(
     if is_program_json_emit_body_function(function) {
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::ProgramJsonEmitBody);
     }
-    if matches!(
-        function.signature.return_type,
-        MirType::Void | MirType::Unknown
-    ) {
+    if string_or_void_sentinel_return_type_candidate(&function.signature.return_type) {
         if let Some(reject) = generic_string_void_sentinel_body_reject_reason(function, targets) {
             if reject.reason
                 == GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate

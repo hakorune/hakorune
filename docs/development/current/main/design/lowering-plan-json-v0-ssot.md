@@ -191,11 +191,12 @@ backend.
 Reason strings should be specific enough to preserve ownership boundaries. In
 particular, unsupported local instructions, method calls, unsupported extern or
 backend-global surfaces, missing global targets, and child targets whose own
-shape remains unknown are distinct causes. A `void` signature whose observed
-returns are string-or-void sentinel values must use
+shape remains unknown are distinct causes. A `void`, `unknown`, or string-handle
+signature whose observed returns are string-or-void sentinel values must use
 `generic_string_return_void_sentinel_candidate`, not the broader
-`generic_string_return_abi_not_handle_compatible`; it is still unsupported
-until a separate shape/proof makes the sentinel ABI lowerable.
+`generic_string_return_abi_not_handle_compatible` while the body scan is still
+finding the concrete blocker. The backend may emit only when MIR publishes the
+dedicated `generic_string_or_void_sentinel_body` shape/proof.
 Non-string object returns, such as `box<MapBox>`, must use
 `generic_string_return_object_abi_not_handle_compatible`. This marks an object
 boundary for the next ownership slice instead of hiding it behind the broad
@@ -208,12 +209,14 @@ must continue to propagate through `target_shape_blocker_*` instead of being
 collapsed into the parent.
 String-or-void sentinel candidates may run the same MIR-owned body blocker scan
 as generic pure string targets, with `null`/`void` sentinel constants allowed as
-return-profile evidence only. If that scan finds a more specific unsupported
-child target, method call, extern call, backend global, or instruction, MIR must
+return-profile evidence only. Once the dedicated
+`generic_string_or_void_sentinel_body` shape/proof accepts the body, this scan
+also applies to string-handle signatures that can return `null` as the same
+runtime handle ABI (`0`). If that scan finds a more specific unsupported child
+target, method call, extern call, backend global, or instruction, MIR must
 surface that blocker through `target_shape_reason` and
 `target_shape_blocker_*` instead of stopping at the generic sentinel candidate
-reason. This remains diagnostic evidence; it must not make the sentinel target
-lowerable.
+reason.
 If the sentinel return-profile is almost present but the non-sentinel return is
 an unknown same-module global call, MIR must report that returned child global
 as the blocker instead of collapsing the parent into
