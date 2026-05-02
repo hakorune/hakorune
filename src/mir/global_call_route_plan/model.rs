@@ -32,6 +32,7 @@ pub enum GlobalCallTargetShape {
     NumericI64Leaf,
     GenericPureStringBody,
     GenericStringOrVoidSentinelBody,
+    GenericStringVoidLoggingBody,
     GenericI64Body,
     ParserProgramJsonBody,
     ProgramJsonEmitBody,
@@ -44,6 +45,7 @@ impl GlobalCallTargetShape {
             Self::NumericI64Leaf => "numeric_i64_leaf",
             Self::GenericPureStringBody => "generic_pure_string_body",
             Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
+            Self::GenericStringVoidLoggingBody => "generic_string_void_logging_body",
             Self::GenericI64Body => "generic_i64_body",
             Self::ParserProgramJsonBody => "parser_program_json_body",
             Self::ProgramJsonEmitBody => "program_json_emit_body",
@@ -302,6 +304,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::GenericStringOrVoidSentinelBody) => {
                 "typed_global_call_generic_string_or_void_sentinel"
             }
+            Some(GlobalCallTargetShape::GenericStringVoidLoggingBody) => {
+                "typed_global_call_generic_string_void_logging"
+            }
             Some(GlobalCallTargetShape::GenericI64Body) => "typed_global_call_generic_i64",
             Some(GlobalCallTargetShape::ParserProgramJsonBody) => {
                 "typed_global_call_parser_program_json"
@@ -388,6 +393,7 @@ impl GlobalCallRoute {
     pub fn value_demand(&self) -> &'static str {
         match self.direct_target_shape() {
             Some(GlobalCallTargetShape::NumericI64Leaf)
+            | Some(GlobalCallTargetShape::GenericStringVoidLoggingBody)
             | Some(GlobalCallTargetShape::GenericI64Body) => "scalar_i64",
             Some(
                 GlobalCallTargetShape::GenericPureStringBody
@@ -406,6 +412,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::GenericPureStringBody) => Some("string_handle"),
             Some(GlobalCallTargetShape::GenericStringOrVoidSentinelBody) => {
                 Some("string_handle_or_null")
+            }
+            Some(GlobalCallTargetShape::GenericStringVoidLoggingBody) => {
+                Some("void_sentinel_i64_zero")
             }
             Some(GlobalCallTargetShape::ParserProgramJsonBody) => Some("string_handle"),
             Some(GlobalCallTargetShape::ProgramJsonEmitBody) => Some("string_handle"),
@@ -440,6 +449,7 @@ impl GlobalCallRoute {
             GlobalCallTargetShape::NumericI64Leaf
             | GlobalCallTargetShape::GenericPureStringBody
             | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
+            | GlobalCallTargetShape::GenericStringVoidLoggingBody
             | GlobalCallTargetShape::GenericI64Body
             | GlobalCallTargetShape::ParserProgramJsonBody
             | GlobalCallTargetShape::ProgramJsonEmitBody => Some(self.target.shape()),

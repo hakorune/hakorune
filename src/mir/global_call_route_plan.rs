@@ -19,7 +19,8 @@ mod string_return_profile;
 
 use generic_i64_body::is_generic_i64_body_function;
 use generic_string_body::{
-    generic_pure_string_body_reject_reason, generic_string_void_sentinel_body_reject_reason,
+    generic_pure_string_body_reject_reason, generic_string_void_logging_body_reject_reason,
+    generic_string_void_sentinel_body_reject_reason,
 };
 pub use model::{
     GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
@@ -144,6 +145,13 @@ fn classify_global_call_target_shape(
                 GlobalCallTargetClassification::unknown(reject.reason)
             };
         }
+    }
+    if function.signature.return_type == MirType::Void
+        && generic_string_void_logging_body_reject_reason(function, targets).is_none()
+    {
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::GenericStringVoidLoggingBody,
+        );
     }
     if let Some(reject) = generic_pure_string_body_reject_reason(function, targets) {
         if let Some(blocker) = reject.blocker {

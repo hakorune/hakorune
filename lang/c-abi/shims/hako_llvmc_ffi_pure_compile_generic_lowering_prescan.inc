@@ -483,7 +483,8 @@
         fprintf(f, "declare i64 @\"nyash.string.insert_hsi\"(i64, ptr, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat3_hhh\"(i64, i64, i64)\n");
       }
-      if (needs.printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
+      if (needs.printf || module_has_planned_generic_string_definition())
+        fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
       for (size_t sci=0; sci<str_consts_n; sci++) {
         size_t slen = strlen(str_consts[sci].val);
         fprintf(f, "@.str_reg_%lld = private unnamed_addr constant [%zu x i8] c\"", str_consts[sci].reg, slen + 1);
@@ -492,7 +493,8 @@
       }
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
-      if (needs.printf)    fprintf(f, "declare i32 @printf(ptr, ...)\n");
+      if (needs.printf || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i32 @printf(ptr, ...)\n");
       if (needs.string_substring_len) fprintf(f, "declare i64 @\"nyash.string.substring_len_hii\"(i64, i64, i64)\n");
       fprintf(f, "\n");
       if (emit_module_function_leaf_definitions(f) < 0) {

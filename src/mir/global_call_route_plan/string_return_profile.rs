@@ -416,7 +416,10 @@ fn refine_generic_string_return_value_class(
                     GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                         GenericStringReturnValueClass::StringOrVoid
                     }
-                    GlobalCallTargetShape::NumericI64Leaf => GenericStringReturnValueClass::Other,
+                    GlobalCallTargetShape::NumericI64Leaf
+                    | GlobalCallTargetShape::GenericStringVoidLoggingBody => {
+                        GenericStringReturnValueClass::Other
+                    }
                     GlobalCallTargetShape::GenericI64Body => GenericStringReturnValueClass::Other,
                     GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
                 })

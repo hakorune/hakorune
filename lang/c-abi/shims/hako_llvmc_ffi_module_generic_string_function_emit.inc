@@ -354,6 +354,9 @@
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
+                         lowering_plan_global_call_view_is_direct_generic_string_void_logging(&global_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_parser_program_json(&global_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);

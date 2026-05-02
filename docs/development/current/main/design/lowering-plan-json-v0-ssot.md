@@ -265,7 +265,13 @@ The fourth lowerable shape is `generic_string_or_void_sentinel_body` for the
 same string body subset when canonical returns are string handles or a void/null
 sentinel. It uses the generic string function emitter and reports
 `return_shape=string_handle_or_null`.
-The fifth lowerable shape is `program_json_emit_body` for exact Program(JSON v0)
+The fifth lowerable shape is `generic_string_void_logging_body` for void-return
+logging helpers that build string messages, call the supported backend global
+`print`, may read `env.get/1`, and return only the void/null sentinel. It uses
+the generic string function emitter, returns ABI i64 zero, and reports
+`return_shape=void_sentinel_i64_zero`. This shape is not a string-or-void
+return union and must not accept general void helpers without print evidence.
+The sixth lowerable shape is `program_json_emit_body` for exact Program(JSON v0)
 emit wrappers. It accepts `BuildBox._emit_program_json_from_scan_src/1` and the
 Stage1 raw wrapper that calls `BuildBox.emit_program_json_v0(source, null)`.
 It does not accept general `BuildBox.emit_program_json_v0/2` calls, MapBox
@@ -362,6 +368,7 @@ The lowerable v0 rows are:
 | `global.user_call` | `numeric_i64_leaf` | `DirectAbi` | `direct_function_call` | `typed_global_call_leaf_numeric_i64` |
 | `global.user_call` | `generic_pure_string_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_pure_string` |
 | `global.user_call` | `generic_string_or_void_sentinel_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_string_or_void_sentinel` |
+| `global.user_call` | `generic_string_void_logging_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_string_void_logging` |
 | `global.user_call` | `generic_i64_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_i64` |
 | `global.user_call` | `program_json_emit_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_program_json_emit` |
 

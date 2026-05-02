@@ -110,6 +110,7 @@
           is_program_json_emit =
               lowering_plan_global_call_view_is_direct_program_json_emit(&view);
           if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||
+                lowering_plan_global_call_view_is_direct_generic_string_void_logging(&view) ||
                 lowering_plan_global_call_view_is_direct_generic_i64(&view) ||
                 is_parser_program_json ||
                 is_program_json_emit)) continue;

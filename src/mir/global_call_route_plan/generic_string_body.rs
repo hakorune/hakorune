@@ -540,6 +540,128 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
     ))
 }
 
+pub(super) fn generic_string_void_logging_body_reject_reason(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> Option<GenericPureStringReject> {
+    if function.signature.return_type != MirType::Void {
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringReturnAbiNotHandleCompatible,
+        ));
+    }
+    if !function
+        .signature
+        .params
+        .iter()
+        .all(generic_pure_string_abi_type_is_handle_compatible)
+    {
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringParamAbiNotHandleCompatible,
+        ));
+    }
+    if function.params.len() != function.signature.params.len() {
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::ParamBindingMismatch,
+        ));
+    }
+
+    let mut values = BTreeMap::<ValueId, GenericPureValueClass>::new();
+    let mut return_param_values = BTreeSet::<ValueId>::new();
+    let mut has_string_surface = false;
+    let mut has_void_sentinel_const = false;
+    seed_generic_pure_values(function, &mut values);
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+
+    let max_iterations = generic_pure_string_known_receiver_blocker_iteration_limit(function);
+    for _ in 0..max_iterations {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in &block.instructions {
+                if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    instruction,
+                    targets,
+                    &mut values,
+                    &mut return_param_values,
+                    &mut has_string_surface,
+                    &mut has_void_sentinel_const,
+                    &mut changed,
+                ) {
+                    return Some(reject);
+                }
+            }
+            if let Some(terminator) = &block.terminator {
+                if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    terminator,
+                    targets,
+                    &mut values,
+                    &mut return_param_values,
+                    &mut has_string_surface,
+                    &mut has_void_sentinel_const,
+                    &mut changed,
+                ) {
+                    return Some(reject);
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    if !has_string_surface || !generic_string_void_logging_has_print_call(function) {
+        return Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringNoStringSurface,
+        ));
+    }
+
+    let mut saw_return = false;
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            match instruction {
+                MirInstruction::Return { value: Some(value) } => {
+                    saw_return = true;
+                    if value_class(&values, *value) != GenericPureValueClass::VoidSentinel {
+                        return Some(GenericPureStringReject::new(
+                            GlobalCallTargetShapeReason::GenericStringReturnNotString,
+                        ));
+                    }
+                }
+                MirInstruction::Return { value: None } => saw_return = true,
+                _ => {}
+            }
+        }
+    }
+    if saw_return {
+        None
+    } else {
+        Some(GenericPureStringReject::new(
+            GlobalCallTargetShapeReason::GenericStringReturnNotString,
+        ))
+    }
+}
+
+fn generic_string_void_logging_has_print_call(function: &MirFunction) -> bool {
+    function.blocks.values().any(|block| {
+        block
+            .instructions
+            .iter()
+            .chain(block.terminator.iter())
+            .any(|instruction| {
+                matches!(
+                    instruction,
+                    MirInstruction::Call {
+                        callee: Some(Callee::Global(name)),
+                        ..
+                    } if name == "print"
+                )
+            })
+    })
+}
+
 pub(super) fn format_mir_type_label(ty: &MirType) -> String {
     match ty {
         MirType::Integer => "i64".to_string(),
@@ -934,7 +1056,9 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::NumericI64Leaf | GlobalCallTargetShape::GenericI64Body => {
+                GlobalCallTargetShape::NumericI64Leaf
+                | GlobalCallTargetShape::GenericStringVoidLoggingBody
+                | GlobalCallTargetShape::GenericI64Body => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,

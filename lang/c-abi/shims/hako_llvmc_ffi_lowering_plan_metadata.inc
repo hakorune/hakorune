@@ -172,6 +172,12 @@
         return proof && !strcmp(proof, "typed_global_call_generic_string_or_void_sentinel");
       }
 
+      auto int lowering_plan_entry_is_typed_global_call_generic_string_void_logging(
+          yyjson_val* entry) {
+        const char* proof = read_str(entry, "proof");
+        return proof && !strcmp(proof, "typed_global_call_generic_string_void_logging");
+      }
+
       auto int lowering_plan_entry_is_typed_global_call_generic_i64(
           yyjson_val* entry) {
         const char* proof = read_str(entry, "proof");
@@ -196,6 +202,7 @@
                lowering_plan_entry_is_typed_global_call_leaf_numeric_i64(entry) ||
                lowering_plan_entry_is_typed_global_call_generic_pure_string(entry) ||
                lowering_plan_entry_is_typed_global_call_generic_string_or_void_sentinel(entry) ||
+               lowering_plan_entry_is_typed_global_call_generic_string_void_logging(entry) ||
                lowering_plan_entry_is_typed_global_call_generic_i64(entry) ||
                lowering_plan_entry_is_typed_global_call_parser_program_json(entry) ||
                lowering_plan_entry_is_typed_global_call_program_json_emit(entry);
@@ -348,6 +355,7 @@
                 !strcmp(view->proof, "typed_global_call_leaf_numeric_i64") ||
                 !strcmp(view->proof, "typed_global_call_generic_pure_string") ||
                 !strcmp(view->proof, "typed_global_call_generic_string_or_void_sentinel") ||
+                !strcmp(view->proof, "typed_global_call_generic_string_void_logging") ||
                 !strcmp(view->proof, "typed_global_call_parser_program_json") ||
                 !strcmp(view->proof, "typed_global_call_program_json_emit") ||
                 !strcmp(view->proof, "typed_global_call_generic_i64")) &&
@@ -404,6 +412,24 @@
           return 1;
         }
         return 0;
+      }
+
+      auto int lowering_plan_global_call_view_is_direct_generic_string_void_logging(
+          const struct LoweringPlanGlobalCallView* view) {
+        return lowering_plan_global_call_view_has_direct_target(view) &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "direct_function_call") &&
+               view->proof &&
+               !strcmp(view->proof, "typed_global_call_generic_string_void_logging") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "typed_global_call_generic_string_void_logging") &&
+               view->target_shape &&
+               !strcmp(view->target_shape, "generic_string_void_logging_body") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "void_sentinel_i64_zero") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64");
       }
 
       auto int lowering_plan_global_call_view_is_direct_generic_i64(

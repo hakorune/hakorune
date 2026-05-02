@@ -43,4 +43,5 @@ mod core;
 mod generic_i64;
 mod runtime_methods;
 mod shape_reasons;
+mod void_logging;
 mod void_sentinel;

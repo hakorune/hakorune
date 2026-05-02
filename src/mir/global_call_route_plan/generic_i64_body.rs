@@ -382,9 +382,9 @@ fn generic_i64_body_refine_instruction(
                 GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                     GenericI64ValueClass::StringOrVoid
                 }
-                GlobalCallTargetShape::NumericI64Leaf | GlobalCallTargetShape::GenericI64Body => {
-                    GenericI64ValueClass::I64
-                }
+                GlobalCallTargetShape::NumericI64Leaf
+                | GlobalCallTargetShape::GenericStringVoidLoggingBody
+                | GlobalCallTargetShape::GenericI64Body => GenericI64ValueClass::I64,
                 GlobalCallTargetShape::Unknown => return false,
             };
             if let Some(dst) = dst {
