@@ -39,6 +39,7 @@ fn make_function_with_global_call(name: &str, dst: Option<ValueId>) -> MirFuncti
 }
 
 mod blockers;
+mod builder_registry_dispatch;
 mod core;
 mod generic_i64;
 mod hostbridge;

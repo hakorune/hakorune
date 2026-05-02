@@ -1097,6 +1097,18 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
+                GlobalCallTargetShape::BuilderRegistryDispatchBody => {
+                    if let Some(dst) = dst {
+                        *has_string_surface = true;
+                        set_proven_flow_value_class(
+                            values,
+                            *dst,
+                            GenericPureValueClass::StringOrVoid,
+                            changed,
+                        );
+                    }
+                    None
+                }
                 GlobalCallTargetShape::NumericI64Leaf
                 | GlobalCallTargetShape::GenericStringVoidLoggingBody
                 | GlobalCallTargetShape::GenericI64Body => {

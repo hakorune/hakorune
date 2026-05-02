@@ -9,6 +9,7 @@
 use super::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType};
 use std::collections::BTreeMap;
 
+mod builder_registry_dispatch_body;
 mod generic_i64_body;
 mod generic_string_abi;
 mod generic_string_body;
@@ -26,6 +27,9 @@ mod static_string_array_body;
 mod string_return_profile;
 mod type_label;
 
+use builder_registry_dispatch_body::{
+    builder_registry_dispatch_body_reject_reason, is_builder_registry_dispatch_body_candidate,
+};
 use generic_i64_body::is_generic_i64_body_function;
 use generic_string_body::{
     generic_pure_string_body_reject_reason, generic_string_void_logging_body_reject_reason,
@@ -148,6 +152,22 @@ fn classify_global_call_target_shape(
     if is_static_string_array_body_function(function) {
         return GlobalCallTargetClassification::direct(
             GlobalCallTargetShape::StaticStringArrayBody,
+        );
+    }
+    if is_builder_registry_dispatch_body_candidate(function) {
+        if let Some(reject) = builder_registry_dispatch_body_reject_reason(function, targets) {
+            return if let Some(blocker) = reject.blocker {
+                GlobalCallTargetClassification::unknown_with_blocker(
+                    reject.reason,
+                    blocker.symbol,
+                    blocker.reason,
+                )
+            } else {
+                GlobalCallTargetClassification::unknown(reject.reason)
+            };
+        }
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::BuilderRegistryDispatchBody,
         );
     }
     if string_or_void_sentinel_return_type_candidate(&function.signature.return_type) {

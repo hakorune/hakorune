@@ -596,6 +596,9 @@ fn refine_generic_string_return_value_class(
                         GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                             GenericStringReturnValueClass::StringOrVoid
                         }
+                        GlobalCallTargetShape::BuilderRegistryDispatchBody => {
+                            GenericStringReturnValueClass::StringOrVoid
+                        }
                         GlobalCallTargetShape::NumericI64Leaf
                         | GlobalCallTargetShape::GenericStringVoidLoggingBody => {
                             GenericStringReturnValueClass::Other

@@ -486,7 +486,8 @@ fn generic_i64_body_refine_instruction(
                     GenericI64ValueClass::String
                 }
                 GlobalCallTargetShape::StaticStringArrayBody => GenericI64ValueClass::Unknown,
-                GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
+                GlobalCallTargetShape::GenericStringOrVoidSentinelBody
+                | GlobalCallTargetShape::BuilderRegistryDispatchBody => {
                     GenericI64ValueClass::StringOrVoid
                 }
                 GlobalCallTargetShape::NumericI64Leaf
