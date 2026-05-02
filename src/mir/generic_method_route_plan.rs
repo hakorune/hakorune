@@ -16,7 +16,7 @@ use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap
 use super::{
     BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 mod map_set_scalar_proof;
 mod model;
@@ -366,6 +366,7 @@ fn match_generic_len_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| generic_array_flow_origin_box_name(function, *receiver))
         .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
         .or_else(|| {
             string_corridor_method_origin_box_name(function, *dst, StringCorridorOp::StrLen)
@@ -672,6 +673,68 @@ fn generic_pure_string_value_origin_box_name(
 ) -> Option<String> {
     generic_pure_string_global_call_origin_box_name(function, def_map, receiver)
         .or_else(|| generic_pure_string_flow_origin_box_name(function, receiver))
+}
+
+fn generic_array_flow_origin_box_name(function: &MirFunction, receiver: ValueId) -> Option<String> {
+    let mut array_values = BTreeMap::<ValueId, &'static str>::new();
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for inst in &block.instructions {
+                match inst {
+                    MirInstruction::NewBox { dst, box_type, .. } if box_type == "ArrayBox" => {
+                        if array_values.insert(*dst, "ArrayBox") != Some("ArrayBox") {
+                            changed = true;
+                        }
+                    }
+                    MirInstruction::Copy { dst, src } => {
+                        if let Some(origin) = array_values.get(src).copied() {
+                            if array_values.insert(*dst, origin) != Some(origin) {
+                                changed = true;
+                            }
+                        }
+                    }
+                    MirInstruction::Phi { dst, inputs, .. } if !inputs.is_empty() => {
+                        let mut origin = None;
+                        let mut all_same = true;
+                        for (_, value) in inputs {
+                            let Some(input_origin) = array_values.get(value).copied() else {
+                                all_same = false;
+                                break;
+                            };
+                            if let Some(existing) = origin {
+                                if existing != input_origin {
+                                    all_same = false;
+                                    break;
+                                }
+                            } else {
+                                origin = Some(input_origin);
+                            }
+                        }
+                        if all_same {
+                            if let Some(origin) = origin {
+                                if array_values.insert(*dst, origin) != Some(origin) {
+                                    changed = true;
+                                }
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    array_values.get(&receiver).map(|name| (*name).to_string())
 }
 
 fn generic_pure_string_flow_origin_box_name(

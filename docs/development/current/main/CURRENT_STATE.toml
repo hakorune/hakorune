@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P167-GENERIC-STRING-NEWBOX-COLLECTION-BIRTH"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P167-GENERIC-STRING-NEWBOX-COLLECTION-BIRTH.md"
-latest_card_summary = "Accept no-arg ArrayBox/MapBox births inside generic string bodies with module emitter support."
+latest_card = "P168-GENERIC-STRING-ARRAY-LEN-FLOW"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P168-GENERIC-STRING-ARRAY-LEN-FLOW.md"
+latest_card_summary = "Accept ArrayBox len/length/size observation through copy/all-array-PHI flow in generic string bodies."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -116,4 +116,5 @@ landed_tail = [
   "29cv-P165 generic string corridor method receiver landed",
   "29cv-P166 generic i64 unknown-return wrapper landed",
   "29cv-P167 generic string collection birth landed",
+  "29cv-P168 generic string ArrayBox length flow landed",
 ]

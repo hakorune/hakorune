@@ -79,6 +79,30 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
 
+      auto int module_generic_string_method_view_is_direct_array_len(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "generic_method.len") &&
+               view->core_op &&
+               !strcmp(view->core_op, "ArrayLen") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "array_slot_len") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.array.slot_len_h") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "len_surface_policy") &&
+               view->receiver_origin_box &&
+               !strcmp(view->receiver_origin_box, "ArrayBox") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "scalar_i64") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64") &&
+               view->publication_policy &&
+               !strcmp(view->publication_policy, "no_publication") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }
+
       auto int module_generic_string_method_view_is_direct_string_substring(
           const struct LoweringPlanGenericMethodView* view) {
         return view &&
@@ -306,6 +330,9 @@
                   module_generic_string_method_view_is_direct_string_len(&method_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_array_len(&method_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_string_substring(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
@@ -509,19 +536,31 @@
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView method_view;
         char ab[256];
+        int is_string_len = 0;
+        int is_array_len = 0;
         (void)f;
         ab[0] = '\0';
-        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
-              module_generic_string_method_view_is_direct_string_len(&method_view))) {
+        if (read_lowering_plan_generic_method_view(entry, &method_view)) {
+          is_string_len = module_generic_string_method_view_is_direct_string_len(&method_view);
+          is_array_len = module_generic_string_method_view_is_direct_array_len(&method_view);
+        }
+        if (!(is_string_len || is_array_len)) {
           return 0;
         }
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.string.len_h\"(%s)\n", dst, ab);
+          EMIT(
+              "  %%r%lld = call i64 @\"%s\"(%s)\n",
+              dst,
+              is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_h",
+              ab);
           set_type(dst, T_I64);
-          remember_string_length_call(dst, recv);
+          if (is_string_len) remember_string_length_call(dst, recv);
         } else {
-          EMIT("  call i64 @\"nyash.string.len_h\"(%s)\n", ab);
+          EMIT(
+              "  call i64 @\"%s\"(%s)\n",
+              is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_h",
+              ab);
         }
         return 1;
       }

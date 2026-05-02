@@ -339,6 +339,13 @@ still returns a string handle. The module generic string emitter must lower
 those births with `nyash.array.birth_h` / `nyash.map.birth_h`. This does not
 accept collection methods such as `push`, `get`, `set`, or `size`, and does not
 make arrays or maps return-handle-compatible for generic string bodies.
+After collection births, `generic_pure_string_body` may accept
+`ArrayBox` length observation (`len` / `length` / `size`) only when the receiver
+is proven to be an `ArrayBox` through MIR-owned `NewBox`/copy/all-array-PHI
+flow evidence and the matching `generic_method.len` / `ArrayLen`
+LoweringPlan entry is present. ny-llvmc must lower that method through
+`nyash.array.slot_len_h`. This does not accept array `get`, `push`, `set`, map
+methods, or mixed collection PHIs.
 `generic_pure_string_body` may also contain the existing supported backend
 global `print` as a no-result debug side-effect. That surface is not a
 same-module user/global call and must not create a `global.user_call`

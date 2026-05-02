@@ -126,6 +126,57 @@ fn records_runtime_data_len_from_receiver_origin() {
 }
 
 #[test]
+fn records_runtime_data_array_len_from_phi_origin() {
+    let mut function = make_function();
+    let entry = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    entry.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "ArrayBox".to_string(),
+        args: vec![],
+    });
+    entry.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(2),
+        src: ValueId::new(1),
+    });
+    entry.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(1),
+        edge_args: None,
+    });
+
+    let mut merge = BasicBlock::new(BasicBlockId::new(1));
+    merge.add_instruction(MirInstruction::Phi {
+        dst: ValueId::new(3),
+        inputs: vec![(BasicBlockId::new(0), ValueId::new(2))],
+        type_hint: Some(MirType::Box("ArrayBox".to_string())),
+    });
+    merge.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(4),
+        src: ValueId::new(3),
+    });
+    merge.add_instruction(method_call(Some(5), "RuntimeDataBox", "size", 4, vec![]));
+    function.add_block(merge);
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.method(), "size");
+    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLen);
+    let core_method = route.core_method().expect("RuntimeData ArrayLen carrier");
+    assert_eq!(core_method.op, CoreMethodOp::ArrayLen);
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::ScalarI64)
+    );
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+}
+
+#[test]
 fn records_runtime_data_string_len_from_generic_global_call_origin() {
     let mut function = make_function();
     let block = function

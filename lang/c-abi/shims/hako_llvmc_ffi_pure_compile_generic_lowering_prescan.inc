@@ -392,7 +392,8 @@
       fprintf(f, "; nyash pure IR (generic)\n");
       fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
       emit_module_function_declarations(f);
-      if (needs.map_birth) fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
+      if (needs.map_birth || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
       if (needs.map_set)   fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
       if (needs.map_get)   fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
@@ -404,9 +405,11 @@
       fprintf(f, "declare i64 @\"nyash.runtime_data.push_hh\"(i64, i64)\n");
       fprintf(f, "declare ptr @llvm.stacksave()\n");
       fprintf(f, "declare void @llvm.stackrestore(ptr)\n");
-      if (needs.arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
+      if (needs.arr_birth || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
       if (needs.arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
-      if (needs.arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.arr_len || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hih\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
