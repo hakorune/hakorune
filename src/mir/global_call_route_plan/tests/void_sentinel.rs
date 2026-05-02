@@ -1129,6 +1129,83 @@ fn refresh_module_global_call_routes_rejects_string_typed_unknown_param_or_void_
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_bool_not_in_string_or_void_body() {
+    let mut module = MirModule::new("global_call_bool_not_string_or_void_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.not_or_text/1",
+        Some(ValueId::new(20)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.not_or_text/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Bool(true),
+        },
+        MirInstruction::UnaryOp {
+            dst: ValueId::new(3),
+            op: UnaryOp::Not,
+            operand: ValueId::new(2),
+        },
+    ]);
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(3),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut void_block = BasicBlock::new(BasicBlockId::new(1));
+    void_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: ConstValue::Void,
+    });
+    void_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    let mut text_block = BasicBlock::new(BasicBlockId::new(2));
+    text_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(5),
+        value: ConstValue::String("ok".to_string()),
+    });
+    text_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(5)),
+    });
+    callee.blocks.insert(BasicBlockId::new(1), void_block);
+    callee.blocks.insert(BasicBlockId::new(2), text_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.not_or_text/1".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("generic_string_or_void_sentinel_body"),
+        "reason={:?} blocker={:?}/{:?}",
+        route.target_shape_reason(),
+        route.target_shape_blocker_symbol(),
+        route.target_shape_blocker_reason()
+    );
+    assert_eq!(
+        route.proof(),
+        "typed_global_call_generic_string_or_void_sentinel"
+    );
+}
+
+#[test]
 fn refresh_module_global_call_routes_rejects_unknown_return_param_or_void_without_string_evidence()
 {
     let mut module =

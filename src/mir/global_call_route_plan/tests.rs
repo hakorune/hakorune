@@ -1,7 +1,7 @@
 use super::*;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::{
-    BasicBlock, BasicBlockId, CompareOp, EffectMask, FunctionSignature, MirType, ValueId,
+    BasicBlock, BasicBlockId, CompareOp, EffectMask, FunctionSignature, MirType, UnaryOp, ValueId,
 };
 
 use super::string_return_profile::generic_string_void_sentinel_return_global_blocker;

@@ -3,7 +3,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::extern_call_route_plan::{
     classify_extern_call_route, is_hostbridge_extern_invoke_symbol, ExternCallRouteKind,
 };
-use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, UnaryOp, ValueId,
+};
 
 use super::generic_string_abi::{
     generic_pure_string_abi_type_is_handle_compatible,
@@ -678,6 +680,26 @@ fn generic_pure_string_instruction_reject_reason(
                     ));
                 }
                 *has_string_surface = true;
+            }
+            set_value_class(values, *dst, GenericPureValueClass::Bool, changed);
+            None
+        }
+        MirInstruction::UnaryOp {
+            dst,
+            op: UnaryOp::Not,
+            operand,
+        } => {
+            let operand_class = value_class(values, *operand);
+            if operand_class == GenericPureValueClass::Unknown {
+                return None;
+            }
+            if !matches!(
+                operand_class,
+                GenericPureValueClass::Bool | GenericPureValueClass::I64
+            ) {
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
             }
             set_value_class(values, *dst, GenericPureValueClass::Bool, changed);
             None
