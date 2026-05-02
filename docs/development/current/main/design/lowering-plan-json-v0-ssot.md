@@ -200,6 +200,12 @@ Non-string object returns, such as `box<MapBox>`, must use
 `generic_string_return_object_abi_not_handle_compatible`. This marks an object
 boundary for the next ownership slice instead of hiding it behind the broad
 return ABI reason.
+The same object reason applies when a `void` or `unknown` signature has observed
+local return-profile evidence for a non-`StringBox` object, for example
+`void|null` plus a returned `ArrayBox`. This remains diagnostic evidence only:
+MIR must not make the parent target lowerable, and child-global object blockers
+must continue to propagate through `target_shape_blocker_*` instead of being
+collapsed into the parent.
 String-or-void sentinel candidates may run the same MIR-owned body blocker scan
 as generic pure string targets, with `null`/`void` sentinel constants allowed as
 return-profile evidence only. If that scan finds a more specific unsupported

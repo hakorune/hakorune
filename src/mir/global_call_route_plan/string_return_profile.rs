@@ -14,6 +14,7 @@ enum GenericStringReturnValueClass {
     Void,
     String,
     StringOrVoid,
+    Object,
     Other,
 }
 
@@ -45,10 +46,8 @@ fn generic_string_return_value_class_from_type(
     match ty {
         MirType::String => Some(GenericStringReturnValueClass::String),
         MirType::Box(name) if name == "StringBox" => Some(GenericStringReturnValueClass::String),
+        MirType::Box(_) => Some(GenericStringReturnValueClass::Object),
         MirType::Integer | MirType::Bool | MirType::Float => {
-            Some(GenericStringReturnValueClass::Other)
-        }
-        MirType::Box(name) if matches!(name.as_str(), "IntegerBox" | "BoolBox" | "FloatBox") => {
             Some(GenericStringReturnValueClass::Other)
         }
         MirType::Void => Some(GenericStringReturnValueClass::Void),
@@ -62,9 +61,7 @@ fn generic_string_return_metadata_value_class_from_type(
     match ty {
         MirType::String => Some(GenericStringReturnValueClass::String),
         MirType::Box(name) if name == "StringBox" => Some(GenericStringReturnValueClass::String),
-        MirType::Box(name) if matches!(name.as_str(), "IntegerBox" | "BoolBox" | "FloatBox") => {
-            Some(GenericStringReturnValueClass::Other)
-        }
+        MirType::Box(_) => Some(GenericStringReturnValueClass::Object),
         MirType::Void => Some(GenericStringReturnValueClass::Void),
         _ => None,
     }
@@ -140,10 +137,65 @@ pub(super) fn generic_string_void_sentinel_return_global_blocker(
     }
 }
 
+pub(super) fn generic_string_return_object_boundary_candidate(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    let values = refined_generic_string_return_values(function, targets);
+    function.blocks.values().any(|block| {
+        block
+            .instructions
+            .iter()
+            .chain(block.terminator.iter())
+            .any(|instruction| {
+                matches!(
+                    instruction,
+                    MirInstruction::Return { value: Some(value) }
+                        if generic_string_return_value_class(&values, *value)
+                            == GenericStringReturnValueClass::Object
+                )
+            })
+    })
+}
+
 pub(super) fn generic_string_void_sentinel_return_candidate(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> bool {
+    let values = refined_generic_string_return_values(function, targets);
+
+    let mut saw_string = false;
+    let mut saw_void = false;
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            match instruction {
+                MirInstruction::Return { value: Some(value) } => {
+                    match generic_string_return_value_class(&values, *value) {
+                        GenericStringReturnValueClass::String => saw_string = true,
+                        GenericStringReturnValueClass::StringOrVoid => {
+                            saw_string = true;
+                            saw_void = true;
+                        }
+                        GenericStringReturnValueClass::Void => saw_void = true,
+                        GenericStringReturnValueClass::Unknown
+                        | GenericStringReturnValueClass::Object
+                        | GenericStringReturnValueClass::Other => {
+                            return false;
+                        }
+                    }
+                }
+                MirInstruction::Return { value: None } => saw_void = true,
+                _ => {}
+            }
+        }
+    }
+    saw_string && saw_void
+}
+
+fn refined_generic_string_return_values(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> BTreeMap<ValueId, GenericStringReturnValueClass> {
     let mut values = BTreeMap::<ValueId, GenericStringReturnValueClass>::new();
     seed_generic_string_return_values(function, &mut values);
 
@@ -168,32 +220,7 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
             break;
         }
     }
-
-    let mut saw_string = false;
-    let mut saw_void = false;
-    for block in function.blocks.values() {
-        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-            match instruction {
-                MirInstruction::Return { value: Some(value) } => {
-                    match generic_string_return_value_class(&values, *value) {
-                        GenericStringReturnValueClass::String => saw_string = true,
-                        GenericStringReturnValueClass::StringOrVoid => {
-                            saw_string = true;
-                            saw_void = true;
-                        }
-                        GenericStringReturnValueClass::Void => saw_void = true,
-                        GenericStringReturnValueClass::Unknown
-                        | GenericStringReturnValueClass::Other => {
-                            return false;
-                        }
-                    }
-                }
-                MirInstruction::Return { value: None } => saw_void = true,
-                _ => {}
-            }
-        }
-    }
-    saw_string && saw_void
+    values
 }
 
 fn refine_generic_string_return_value_class(
@@ -211,6 +238,14 @@ fn refine_generic_string_return_value_class(
                     GenericStringReturnValueClass::Other
                 }
                 _ => GenericStringReturnValueClass::Unknown,
+            };
+            set_generic_string_return_value_class(values, *dst, class, changed);
+        }
+        MirInstruction::NewBox { dst, box_type, .. } => {
+            let class = if box_type == "StringBox" {
+                GenericStringReturnValueClass::String
+            } else {
+                GenericStringReturnValueClass::Object
             };
             set_generic_string_return_value_class(values, *dst, class, changed);
         }
@@ -492,6 +527,9 @@ fn merge_generic_string_return_value_class(
         (GenericStringReturnValueClass::Unknown, class)
         | (class, GenericStringReturnValueClass::Unknown) => class,
         (same_lhs, same_rhs) if same_lhs == same_rhs => same_lhs,
+        (GenericStringReturnValueClass::Object, _) | (_, GenericStringReturnValueClass::Object) => {
+            GenericStringReturnValueClass::Object
+        }
         (
             GenericStringReturnValueClass::String,
             GenericStringReturnValueClass::Void | GenericStringReturnValueClass::StringOrVoid,

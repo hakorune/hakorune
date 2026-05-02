@@ -8,7 +8,7 @@ use super::model::{
 };
 use super::shape_blocker::propagated_unknown_global_target_blocker;
 use super::string_return_profile::{
-    generic_string_void_sentinel_return_candidate,
+    generic_string_return_object_boundary_candidate, generic_string_void_sentinel_return_candidate,
     generic_string_void_sentinel_return_global_blocker,
 };
 
@@ -141,6 +141,11 @@ pub(super) fn generic_pure_string_body_reject_reason(
             if let Some(reject) = generic_string_void_sentinel_body_reject_reason(function, targets)
             {
                 return Some(reject);
+            }
+            if generic_string_return_object_boundary_candidate(function, targets) {
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
+                ));
             }
         }
         if matches!(&function.signature.return_type, MirType::Box(name) if name != "StringBox") {
@@ -395,6 +400,11 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
         if let Some(reject) = generic_string_void_sentinel_return_global_blocker(function, targets)
         {
             return Some(reject);
+        }
+        if generic_string_return_object_boundary_candidate(function, targets) {
+            return Some(GenericPureStringReject::new(
+                GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
+            ));
         }
         return None;
     }

@@ -169,6 +169,74 @@ fn refresh_module_global_call_routes_marks_object_return_abi_reason() {
 }
 
 #[test]
+fn refresh_module_global_call_routes_marks_void_signature_object_or_void_return_reason() {
+    let mut module =
+        MirModule::new("global_call_void_signature_object_return_reason_test".to_string());
+    let caller =
+        make_function_with_global_call_args("Helper.entries/0", Some(ValueId::new(7)), vec![]);
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.entries/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(1),
+        value: ConstValue::Bool(true),
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(1),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut void_block = BasicBlock::new(BasicBlockId::new(1));
+    void_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Void,
+    });
+    void_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+    let mut object_block = BasicBlock::new(BasicBlockId::new(2));
+    object_block.instructions.push(MirInstruction::NewBox {
+        dst: ValueId::new(3),
+        box_type: "ArrayBox".to_string(),
+        args: vec![],
+    });
+    object_block.instructions.push(MirInstruction::Copy {
+        dst: ValueId::new(4),
+        src: ValueId::new(3),
+    });
+    object_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    callee.blocks.insert(BasicBlockId::new(1), void_block);
+    callee.blocks.insert(BasicBlockId::new(2), object_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.entries/0".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_return_type(), Some("void".to_string()));
+    assert_eq!(route.target_shape(), None);
+    assert_eq!(
+        route.target_shape_reason(),
+        Some("generic_string_return_object_abi_not_handle_compatible")
+    );
+    assert_eq!(route.target_shape_blocker_symbol(), None);
+    assert_eq!(route.target_shape_blocker_reason(), None);
+}
+
+#[test]
 fn refresh_module_global_call_routes_allows_null_guard_before_method_blocker() {
     let mut module = MirModule::new("global_call_null_guard_method_test".to_string());
     let caller = make_function_with_global_call_args(
