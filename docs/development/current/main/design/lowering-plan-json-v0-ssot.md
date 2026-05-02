@@ -294,10 +294,14 @@ that return-profile string class when they have observed string evidence and no
 observed non-string evidence.
 Within `generic_i64_body`, MIR may infer a string receiver for
 `RuntimeDataBox.length()` / `StringBox.length()` and
-`RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)`.
+`RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)`, and
+may accept string `Lt` / `Gt` comparisons that produce a boolean for
+digit-range scanners such as `StringHelpers.to_i64/1`.
 `length()` produces an i64 value. `substring` produces a string value only after
 both bounds resolve to i64; pending unknown bounds may defer during the
-fixpoint, but non-i64 bounds reject the shape.
+fixpoint, but non-i64 bounds reject the shape. Ordered string compares are
+lowered through the existing `nyash.string.lt_hh` helper and must not become a
+backend-local by-name route for specific helpers.
 Within generic string scans, direct child route facts are stronger than stale
 `void` value metadata for the call result. Exact copies and all-string/all-i64
 PHI destinations may carry that proven class through stale `void` destinations.

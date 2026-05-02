@@ -212,7 +212,10 @@ fn generic_i64_body_refine_instruction(
                     );
                 }
             }
-            if matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne) {
+            let eq_ne = matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne);
+            let string_ordered =
+                matches!(op, crate::mir::CompareOp::Lt | crate::mir::CompareOp::Gt);
+            if eq_ne || string_ordered {
                 if lhs_class == GenericI64ValueClass::Unknown
                     && rhs_class == GenericI64ValueClass::String
                 {
@@ -239,9 +242,10 @@ fn generic_i64_body_refine_instruction(
             {
                 return true;
             }
-            let eq_ne = matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne);
             let comparable = match (lhs_class, rhs_class) {
-                (GenericI64ValueClass::String, GenericI64ValueClass::String) => eq_ne,
+                (GenericI64ValueClass::String, GenericI64ValueClass::String) => {
+                    eq_ne || string_ordered
+                }
                 (GenericI64ValueClass::String, GenericI64ValueClass::VoidSentinel)
                 | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::String)
                 | (GenericI64ValueClass::StringOrVoid, GenericI64ValueClass::VoidSentinel)

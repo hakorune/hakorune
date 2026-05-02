@@ -450,8 +450,7 @@
           else if (!strcmp(pred, "Gt") || !strcmp(pred, "gt") || !strcmp(pred, ">")) p2 = "sgt";
         }
         if (!p2) return 0;
-        if ((!strcmp(p2, "eq") || !strcmp(p2, "ne")) &&
-            should_emit_string_compare(ins, lhs, rhs)) {
+        if (should_emit_string_compare(ins, lhs, rhs)) {
           emit_string_compare(dst, p2, lhs, rhs);
         } else {
           emit_icmp(dst, p2, lhs, rhs);

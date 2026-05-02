@@ -110,11 +110,26 @@
       auto void emit_string_compare(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){
         long long lhs_base = resolve_copy_source_reg(lhs_reg);
         long long rhs_base = resolve_copy_source_reg(rhs_reg);
-        EMIT("  %%str_eq_%lld = call i64 @\"nyash.string.eq_hh\"(i64 %%r%lld, i64 %%r%lld)\n", dst, lhs_base, rhs_base);
         if (strcmp(pred, "eq") == 0) {
+          EMIT("  %%str_eq_%lld = call i64 @\"nyash.string.eq_hh\"(i64 %%r%lld, i64 %%r%lld)\n", dst, lhs_base, rhs_base);
           EMIT("  %%r%lld = icmp ne i64 %%str_eq_%lld, 0\n", dst, dst);
-        } else {
+        } else if (strcmp(pred, "ne") == 0) {
+          EMIT("  %%str_eq_%lld = call i64 @\"nyash.string.eq_hh\"(i64 %%r%lld, i64 %%r%lld)\n", dst, lhs_base, rhs_base);
           EMIT("  %%r%lld = icmp eq i64 %%str_eq_%lld, 0\n", dst, dst);
+        } else if (strcmp(pred, "slt") == 0) {
+          EMIT("  %%str_lt_%lld = call i64 @\"nyash.string.lt_hh\"(i64 %%r%lld, i64 %%r%lld)\n", dst, lhs_base, rhs_base);
+          EMIT("  %%r%lld = icmp ne i64 %%str_lt_%lld, 0\n", dst, dst);
+        } else if (strcmp(pred, "sgt") == 0) {
+          EMIT("  %%str_gt_%lld = call i64 @\"nyash.string.lt_hh\"(i64 %%r%lld, i64 %%r%lld)\n", dst, rhs_base, lhs_base);
+          EMIT("  %%r%lld = icmp ne i64 %%str_gt_%lld, 0\n", dst, dst);
+        } else if (strcmp(pred, "sle") == 0) {
+          EMIT("  %%str_gt_%lld = call i64 @\"nyash.string.lt_hh\"(i64 %%r%lld, i64 %%r%lld)\n", dst, rhs_base, lhs_base);
+          EMIT("  %%r%lld = icmp eq i64 %%str_gt_%lld, 0\n", dst, dst);
+        } else if (strcmp(pred, "sge") == 0) {
+          EMIT("  %%str_lt_%lld = call i64 @\"nyash.string.lt_hh\"(i64 %%r%lld, i64 %%r%lld)\n", dst, lhs_base, rhs_base);
+          EMIT("  %%r%lld = icmp eq i64 %%str_lt_%lld, 0\n", dst, dst);
+        } else {
+          EMIT("  %%r%lld = icmp eq i64 0, 1\n", dst);
         }
         set_type(dst, T_I1);
       }
@@ -360,8 +375,7 @@
                   NULL);
               yyjson_doc_free(d); goto GEN_ABORT;
             }
-            if ((strcmp(p2, "eq") == 0 || strcmp(p2, "ne") == 0) &&
-                should_emit_string_compare(ins, lhs, rhs)) {
+            if (should_emit_string_compare(ins, lhs, rhs)) {
               emit_string_compare(dst, p2, lhs, rhs);
               continue;
             }
