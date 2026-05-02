@@ -1331,6 +1331,11 @@ fn generic_pure_string_route_value_class(
         "mir_json_params_array_item" if route.route_kind_tag() == "array_slot_load_any" => {
             Some(GenericPureValueClass::I64)
         }
+        "mir_json_flags_rec_access" => match route.route_kind_tag() {
+            "array_slot_load_any" => Some(GenericPureValueClass::String),
+            "runtime_data_load_any" => Some(GenericPureValueClass::StringOrVoid),
+            _ => None,
+        },
         "mir_json_block_field" if route.route_kind_tag() == "runtime_data_load_any" => {
             match route.key_const_text()? {
                 "instructions" => Some(GenericPureValueClass::Array),
