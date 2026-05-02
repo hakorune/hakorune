@@ -105,13 +105,17 @@ static box BuildBox {
   method _resolve_parse_src(scan_src) {
     local body_src = BodyExtractionBox.extract_main_body(scan_src)
     if body_src != null && body_src != "" { return body_src }
-    return scan_src
+    return me._coerce_text_compat(scan_src)
   }
 
   method verify_program_json_v0(json) {
     if json == null { return false }
     // Minimal header check
     return json.indexOf("\"version\":0") >= 0 && json.indexOf("\"kind\":\"Program\"") >= 0
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 
   method plan() {

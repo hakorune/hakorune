@@ -45,5 +45,6 @@ Notes
     - `_parse_program_json(...)`: parser entry only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
     - `_parse_program_json_from_scan_src(...)`: parse-source narrowing handoff plus parser call only
-    - `_resolve_parse_src(...)`: `BodyExtractionBox` parse-source narrowing handoff only
+    - `_resolve_parse_src(...)`: `BodyExtractionBox` parse-source narrowing handoff plus source-text fallback only
+    - `_coerce_text_compat(...)`: fallback source-text materialization only
     - `BuildProgramFragmentBox.enrich(...)`: defs/imports enrichment handoff only
