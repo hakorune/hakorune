@@ -202,6 +202,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
             };
             for instruction in &block.instructions {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    &function.signature.name,
                     instruction,
                     targets,
                     &mut values,
@@ -216,6 +217,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
             }
             if let Some(terminator) = &block.terminator {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    &function.signature.name,
                     terminator,
                     targets,
                     &mut values,
@@ -513,6 +515,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
             };
             for instruction in &block.instructions {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    &function.signature.name,
                     instruction,
                     targets,
                     &mut values,
@@ -527,6 +530,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
             }
             if let Some(terminator) = &block.terminator {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    &function.signature.name,
                     terminator,
                     targets,
                     &mut values,
@@ -593,6 +597,7 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
             };
             for instruction in &block.instructions {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    &function.signature.name,
                     instruction,
                     targets,
                     &mut values,
@@ -607,6 +612,7 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
             }
             if let Some(terminator) = &block.terminator {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
+                    &function.signature.name,
                     terminator,
                     targets,
                     &mut values,
@@ -852,6 +858,7 @@ fn generic_pure_string_resolve_alias(
 }
 
 fn generic_pure_string_instruction_reject_reason(
+    current_function_name: &str,
     instruction: &MirInstruction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
@@ -939,6 +946,12 @@ fn generic_pure_string_instruction_reject_reason(
                     || rhs_class == GenericPureValueClass::String)
             {
                 *has_string_surface = true;
+                if lhs_class == GenericPureValueClass::Unknown {
+                    set_string_handle_value_class(values, *lhs, changed);
+                }
+                if rhs_class == GenericPureValueClass::Unknown {
+                    set_string_handle_value_class(values, *rhs, changed);
+                }
                 set_string_handle_value_class(values, *dst, changed);
                 return None;
             }
@@ -987,6 +1000,20 @@ fn generic_pure_string_instruction_reject_reason(
                     return None;
                 }
             }
+            if generic_pure_string_compare_can_infer_string(*op) {
+                if lhs_class == GenericPureValueClass::Unknown
+                    && rhs_class == GenericPureValueClass::String
+                {
+                    set_string_handle_value_class(values, *lhs, changed);
+                    return None;
+                }
+                if rhs_class == GenericPureValueClass::Unknown
+                    && lhs_class == GenericPureValueClass::String
+                {
+                    set_string_handle_value_class(values, *rhs, changed);
+                    return None;
+                }
+            }
             if lhs_class == GenericPureValueClass::Unknown
                 || rhs_class == GenericPureValueClass::Unknown
             {
@@ -1024,6 +1051,7 @@ fn generic_pure_string_instruction_reject_reason(
             inputs,
             type_hint,
         } => {
+            let dst_class = value_class(values, *dst);
             let mut saw_string = false;
             let mut saw_string_or_void = false;
             let mut saw_void_sentinel = false;
@@ -1054,6 +1082,18 @@ fn generic_pure_string_instruction_reject_reason(
                 .as_ref()
                 .and_then(generic_pure_value_class_from_type);
             if saw_unknown {
+                if dst_class != GenericPureValueClass::Unknown
+                    && inputs.iter().all(|(_, value)| {
+                        let class = value_class(values, *value);
+                        class == GenericPureValueClass::Unknown || class == dst_class
+                    })
+                {
+                    for (_, value) in inputs {
+                        if value_class(values, *value) == GenericPureValueClass::Unknown {
+                            set_proven_flow_value_class(values, *value, dst_class, changed);
+                        }
+                    }
+                }
                 if matches!(
                     type_hint_class,
                     Some(GenericPureValueClass::I64 | GenericPureValueClass::Bool)
@@ -1252,6 +1292,18 @@ fn generic_pure_string_instruction_reject_reason(
             callee: Some(Callee::Global(name)),
             ..
         } if !super::supported_backend_global(name) => {
+            if generic_pure_string_global_name_is_self(name, current_function_name) {
+                if let Some(dst) = dst {
+                    *has_string_surface = true;
+                    set_proven_flow_value_class(
+                        values,
+                        *dst,
+                        GenericPureValueClass::String,
+                        changed,
+                    );
+                }
+                return None;
+            }
             let Some(target) = super::lookup_global_call_target(name, targets) else {
                 return Some(GenericPureStringReject::with_blocker(
                     GlobalCallTargetShapeReason::GenericStringGlobalTargetMissing,
@@ -1308,6 +1360,11 @@ fn generic_pure_string_instruction_reject_reason(
             GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
         )),
     }
+}
+
+fn generic_pure_string_global_name_is_self(name: &str, current_function_name: &str) -> bool {
+    name == current_function_name
+        || crate::mir::naming::normalize_static_global_name(name) == current_function_name
 }
 
 fn generic_pure_string_accepts_length_method(
@@ -1400,6 +1457,18 @@ fn generic_pure_string_accepts_string_compare(
             lhs_class == GenericPureValueClass::String && rhs_class == GenericPureValueClass::String
         }
     }
+}
+
+fn generic_pure_string_compare_can_infer_string(op: crate::mir::CompareOp) -> bool {
+    matches!(
+        op,
+        crate::mir::CompareOp::Eq
+            | crate::mir::CompareOp::Ne
+            | crate::mir::CompareOp::Lt
+            | crate::mir::CompareOp::Le
+            | crate::mir::CompareOp::Gt
+            | crate::mir::CompareOp::Ge
+    )
 }
 
 fn generic_pure_string_accepts_substring_method(

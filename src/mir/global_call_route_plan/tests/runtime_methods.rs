@@ -1096,3 +1096,205 @@ fn refresh_module_semantic_metadata_accepts_ordered_string_compare_in_generic_pu
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
 }
+
+#[test]
+fn refresh_module_global_call_routes_infers_unknown_lhs_from_string_compare() {
+    let mut module = MirModule::new("global_call_unknown_lhs_string_compare_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.guard_unknown_digit/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.guard_unknown_digit/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("0".to_string()),
+        },
+        MirInstruction::Compare {
+            dst: ValueId::new(3),
+            op: CompareOp::Ge,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(2),
+        },
+    ]);
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(3),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut then_block = BasicBlock::new(BasicBlockId::new(1));
+    then_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    let mut else_block = BasicBlock::new(BasicBlockId::new(2));
+    else_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: ConstValue::String("x".to_string()),
+    });
+    else_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    callee.blocks.insert(BasicBlockId::new(1), then_block);
+    callee.blocks.insert(BasicBlockId::new(2), else_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.guard_unknown_digit/1".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("generic_pure_string_body"),
+        "reason={:?}",
+        route.target_shape_reason()
+    );
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
+
+#[test]
+fn refresh_module_global_call_routes_accepts_self_recursive_generic_pure_string_body() {
+    let mut module = MirModule::new("global_call_recursive_string_body_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.rec_digits/4",
+        Some(ValueId::new(20)),
+        vec![
+            ValueId::new(10),
+            ValueId::new(11),
+            ValueId::new(12),
+            ValueId::new(13),
+        ],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.rec_digits/4".to_string(),
+            params: vec![
+                MirType::String,
+                MirType::Integer,
+                MirType::Unknown,
+                MirType::Integer,
+            ],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![
+        ValueId::new(1),
+        ValueId::new(2),
+        ValueId::new(3),
+        ValueId::new(4),
+    ];
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::Compare {
+        dst: ValueId::new(5),
+        op: CompareOp::Ge,
+        lhs: ValueId::new(2),
+        rhs: ValueId::new(4),
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(5),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut done_block = BasicBlock::new(BasicBlockId::new(1));
+    done_block.instructions.push(MirInstruction::Phi {
+        dst: ValueId::new(11),
+        inputs: vec![(BasicBlockId::new(0), ValueId::new(3))],
+        type_hint: None,
+    });
+    done_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(11)),
+    });
+
+    let mut step_block = BasicBlock::new(BasicBlockId::new(2));
+    step_block.instructions.extend([
+        MirInstruction::Phi {
+            dst: ValueId::new(12),
+            inputs: vec![(BasicBlockId::new(0), ValueId::new(3))],
+            type_hint: None,
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(6),
+            value: ConstValue::Integer(1),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(7),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(6),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(8)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "substring".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(2), ValueId::new(7)],
+            effects: EffectMask::PURE,
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(9),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(12),
+            rhs: ValueId::new(8),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(10)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.rec_digits/4".to_string())),
+            args: vec![
+                ValueId::new(1),
+                ValueId::new(7),
+                ValueId::new(9),
+                ValueId::new(4),
+            ],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    step_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(10)),
+    });
+    callee.blocks.insert(BasicBlockId::new(1), done_block);
+    callee.blocks.insert(BasicBlockId::new(2), step_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.rec_digits/4".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("generic_pure_string_body"),
+        "reason={:?} blocker={:?}/{:?}",
+        route.target_shape_reason(),
+        route.target_shape_blocker_symbol(),
+        route.target_shape_blocker_reason()
+    );
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
