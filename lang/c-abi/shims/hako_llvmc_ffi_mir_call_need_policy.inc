@@ -24,6 +24,7 @@
         int string_concat;
         int env_get;
         int env_set;
+        int hostbridge_extern_invoke_trap;
         int printf;
       };
 
@@ -50,6 +51,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
+        HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP,
         HAKO_LLVMC_MIR_CALL_NEED_PRINTF,
       };
 
@@ -121,6 +123,9 @@
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_ENV_SET:
             needs->env_set = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP:
+            needs->hostbridge_extern_invoke_trap = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_PRINTF:
             needs->printf = 1;
@@ -626,6 +631,16 @@
             "extern_registry",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
+          },
+          {
+            "extern.hostbridge.extern_invoke",
+            "HostBridgeExternInvoke",
+            "extern.hostbridge.extern_invoke",
+            "runtime_call",
+            "nyash.hostbridge.extern_invoke",
+            "extern_registry",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP,
           },
         };
         struct LoweringPlanExternCallView view;

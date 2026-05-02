@@ -41,6 +41,7 @@ fn make_function_with_global_call(name: &str, dst: Option<ValueId>) -> MirFuncti
 mod blockers;
 mod core;
 mod generic_i64;
+mod hostbridge;
 mod jsonfrag_normalizer;
 mod runtime_methods;
 mod shape_reasons;

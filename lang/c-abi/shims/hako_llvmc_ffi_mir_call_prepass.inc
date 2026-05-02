@@ -49,6 +49,19 @@
         const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
 
         if (!needs) return;
+        {
+          enum MirCallNeedKind plan_extern_need =
+              classify_mir_call_extern_need_kind_from_lowering_plan(bid, ii);
+          if (plan_extern_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
+            apply_mir_call_need_kind(needs, plan_extern_need);
+            if ((plan_extern_need == HAKO_LLVMC_MIR_CALL_NEED_ENV_GET ||
+                 plan_extern_need == HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP) &&
+                read_int(ins, "dst")) {
+              set_scan_origin(read_int(ins, "dst"), ORG_STRING);
+            }
+            return;
+          }
+        }
         if (ctype && !strcmp(ctype, "Constructor")) {
           long long dst = read_int(ins, "dst");
           enum MirCallNeedKind need_kind =

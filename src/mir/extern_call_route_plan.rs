@@ -12,6 +12,7 @@ use super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, ValueI
 pub enum ExternCallRouteKind {
     EnvGet,
     EnvSet,
+    HostBridgeExternInvoke,
 }
 
 impl ExternCallRouteKind {
@@ -19,6 +20,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "extern.env.get",
             Self::EnvSet => "extern.env.set",
+            Self::HostBridgeExternInvoke => "extern.hostbridge.extern_invoke",
         }
     }
 
@@ -26,6 +28,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "EnvGet",
             Self::EnvSet => "EnvSet",
+            Self::HostBridgeExternInvoke => "HostBridgeExternInvoke",
         }
     }
 
@@ -33,6 +36,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "nyash.env.get",
             Self::EnvSet => "nyash.env.set",
+            Self::HostBridgeExternInvoke => "nyash.hostbridge.extern_invoke",
         }
     }
 
@@ -40,6 +44,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "ColdRuntime",
             Self::EnvSet => "ColdRuntime",
+            Self::HostBridgeExternInvoke => "ColdRuntime",
         }
     }
 
@@ -47,6 +52,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "runtime_call",
             Self::EnvSet => "runtime_call",
+            Self::HostBridgeExternInvoke => "runtime_call",
         }
     }
 
@@ -54,6 +60,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "extern_registry",
             Self::EnvSet => "extern_registry",
+            Self::HostBridgeExternInvoke => "extern_registry",
         }
     }
 
@@ -61,6 +68,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "string_handle_or_null",
             Self::EnvSet => "scalar_i64",
+            Self::HostBridgeExternInvoke => "string_handle_or_null",
         }
     }
 
@@ -68,6 +76,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "runtime_i64_or_handle",
             Self::EnvSet => "runtime_i64",
+            Self::HostBridgeExternInvoke => "runtime_i64_or_handle",
         }
     }
 
@@ -75,6 +84,7 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => &["read.env"],
             Self::EnvSet => &["write.env"],
+            Self::HostBridgeExternInvoke => &["hostbridge.extern"],
         }
     }
 }
@@ -175,6 +185,7 @@ impl ExternCallRoute {
         match self.kind {
             ExternCallRouteKind::EnvGet => 1,
             ExternCallRouteKind::EnvSet => 2,
+            ExternCallRouteKind::HostBridgeExternInvoke => 3,
         }
     }
 
@@ -191,18 +202,24 @@ impl ExternCallRoute {
     }
 }
 
-fn normalize_extern_symbol(name: &str) -> &str {
+pub fn normalize_extern_symbol(name: &str) -> &str {
     name.strip_suffix("/1")
         .or_else(|| name.strip_suffix("/2"))
+        .or_else(|| name.strip_suffix("/3"))
         .unwrap_or(name)
 }
 
-fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallRouteKind> {
+pub fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallRouteKind> {
     match (normalize_extern_symbol(name), argc) {
         ("env.get", 1) | ("nyash.env.get", 1) => Some(ExternCallRouteKind::EnvGet),
         ("env.set", 2) | ("nyash.env.set", 2) => Some(ExternCallRouteKind::EnvSet),
+        ("hostbridge.extern_invoke", 3) => Some(ExternCallRouteKind::HostBridgeExternInvoke),
         _ => None,
     }
+}
+
+pub fn is_hostbridge_extern_invoke_symbol(name: &str, argc: usize) -> bool {
+    classify_extern_call_route(name, argc) == Some(ExternCallRouteKind::HostBridgeExternInvoke)
 }
 
 pub fn refresh_module_extern_call_routes(module: &mut MirModule) {
@@ -223,12 +240,19 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
         for (instruction_index, instruction) in block.instructions.iter().enumerate() {
             let MirInstruction::Call {
                 dst: Some(dst),
-                callee: Some(Callee::Extern(name)),
+                callee: Some(callee),
                 args,
                 ..
             } = instruction
             else {
                 continue;
+            };
+            let name = match callee {
+                Callee::Extern(name) => name,
+                Callee::Global(name) if is_hostbridge_extern_invoke_symbol(name, args.len()) => {
+                    name
+                }
+                _ => continue,
             };
             let Some(kind) = classify_extern_call_route(name, args.len()) else {
                 continue;
@@ -239,6 +263,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
             let value_value = match kind {
                 ExternCallRouteKind::EnvGet => None,
                 ExternCallRouteKind::EnvSet => args.get(1).copied(),
+                ExternCallRouteKind::HostBridgeExternInvoke => args.get(2).copied(),
             };
             routes.push(ExternCallRoute::new(
                 ExternCallRouteSite::new(block_id, instruction_index),
@@ -340,6 +365,47 @@ mod tests {
         assert_eq!(route.return_shape(), "scalar_i64");
         assert_eq!(route.value_demand(), "runtime_i64");
         assert_eq!(route.effect_tags(), &["write.env"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_records_hostbridge_extern_invoke_global_source() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Unknown,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId::new(10)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("hostbridge.extern_invoke/3".to_string())),
+            args: vec![ValueId::new(1), ValueId::new(2), ValueId::new(3)],
+            effects: EffectMask::IO,
+        });
+        function.blocks.insert(BasicBlockId::new(0), block);
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.route_id(), "extern.hostbridge.extern_invoke");
+        assert_eq!(route.core_op(), "HostBridgeExternInvoke");
+        assert_eq!(route.symbol(), "nyash.hostbridge.extern_invoke");
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(route.source_symbol(), "hostbridge.extern_invoke/3");
+        assert_eq!(route.key_value(), ValueId::new(1));
+        assert_eq!(route.value_value(), Some(ValueId::new(3)));
+        assert_eq!(route.result_value(), ValueId::new(10));
+        assert_eq!(route.arity(), 3);
+        assert_eq!(route.return_shape(), "string_handle_or_null");
+        assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+        assert_eq!(route.effect_tags(), &["hostbridge.extern"]);
     }
 
     #[test]

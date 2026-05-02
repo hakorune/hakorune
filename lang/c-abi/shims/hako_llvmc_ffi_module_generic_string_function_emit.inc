@@ -334,6 +334,11 @@
               } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
                          lowering_plan_env_set_view_is_valid(&extern_view)) {
                 set_type(dst, T_I64);
+              } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
+                         lowering_plan_hostbridge_extern_invoke_view_is_valid(&extern_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_STRING);
+                set_scan_origin(dst, ORG_STRING);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_generic_string(&global_view)) {
                 set_type(dst, T_I64);
@@ -1015,8 +1020,12 @@
         const char* ctype = cal ? read_str(cal, "type") : NULL;
         long long dst = read_int(ins, "dst");
         int rc = 0;
+        rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
+        if (rc != 0) {
+          return rc;
+        }
         if (ctype && !strcmp(ctype, "Extern")) {
-          rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
+          rc = 0;
         } else if (ctype && !strcmp(ctype, "Global")) {
           rc = emit_global_call_lowering_plan_mir_call(f, bid, ii, dst, args);
           if (rc != 1) {

@@ -4,6 +4,9 @@ use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallShapeBlocker,
     GlobalCallTargetFacts, GlobalCallTargetShape, GlobalCallTargetShapeReason,
 };
+use crate::mir::extern_call_route_plan::{
+    classify_extern_call_route, is_hostbridge_extern_invoke_symbol, ExternCallRouteKind,
+};
 use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
@@ -506,6 +509,23 @@ fn refine_generic_string_return_value_class(
         }
         MirInstruction::Call {
             dst,
+            callee: Some(Callee::Extern(name)),
+            args,
+            ..
+        } if classify_extern_call_route(name, args.len())
+            == Some(ExternCallRouteKind::HostBridgeExternInvoke) =>
+        {
+            if let Some(dst) = dst {
+                set_generic_string_return_value_class(
+                    values,
+                    *dst,
+                    GenericStringReturnValueClass::String,
+                    changed,
+                );
+            }
+        }
+        MirInstruction::Call {
+            dst,
             callee:
                 Some(Callee::Method {
                     box_name,
@@ -537,36 +557,43 @@ fn refine_generic_string_return_value_class(
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
+            args,
             ..
         } => {
-            let class = lookup_global_call_target(name, targets)
-                .map(|target| match target.shape() {
-                    GlobalCallTargetShape::GenericPureStringBody => {
-                        GenericStringReturnValueClass::String
-                    }
-                    GlobalCallTargetShape::ParserProgramJsonBody => {
-                        GenericStringReturnValueClass::String
-                    }
-                    GlobalCallTargetShape::ProgramJsonEmitBody => {
-                        GenericStringReturnValueClass::String
-                    }
-                    GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
-                        GenericStringReturnValueClass::String
-                    }
-                    GlobalCallTargetShape::StaticStringArrayBody => {
-                        GenericStringReturnValueClass::Object
-                    }
-                    GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
-                        GenericStringReturnValueClass::StringOrVoid
-                    }
-                    GlobalCallTargetShape::NumericI64Leaf
-                    | GlobalCallTargetShape::GenericStringVoidLoggingBody => {
-                        GenericStringReturnValueClass::Other
-                    }
-                    GlobalCallTargetShape::GenericI64Body => GenericStringReturnValueClass::Other,
-                    GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
-                })
-                .unwrap_or(GenericStringReturnValueClass::Unknown);
+            let class = if is_hostbridge_extern_invoke_symbol(name, args.len()) {
+                GenericStringReturnValueClass::String
+            } else {
+                lookup_global_call_target(name, targets)
+                    .map(|target| match target.shape() {
+                        GlobalCallTargetShape::GenericPureStringBody => {
+                            GenericStringReturnValueClass::String
+                        }
+                        GlobalCallTargetShape::ParserProgramJsonBody => {
+                            GenericStringReturnValueClass::String
+                        }
+                        GlobalCallTargetShape::ProgramJsonEmitBody => {
+                            GenericStringReturnValueClass::String
+                        }
+                        GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
+                            GenericStringReturnValueClass::String
+                        }
+                        GlobalCallTargetShape::StaticStringArrayBody => {
+                            GenericStringReturnValueClass::Object
+                        }
+                        GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
+                            GenericStringReturnValueClass::StringOrVoid
+                        }
+                        GlobalCallTargetShape::NumericI64Leaf
+                        | GlobalCallTargetShape::GenericStringVoidLoggingBody => {
+                            GenericStringReturnValueClass::Other
+                        }
+                        GlobalCallTargetShape::GenericI64Body => {
+                            GenericStringReturnValueClass::Other
+                        }
+                        GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
+                    })
+                    .unwrap_or(GenericStringReturnValueClass::Unknown)
+            };
             if let Some(dst) = dst {
                 set_generic_string_return_value_class(values, *dst, class, changed);
             }

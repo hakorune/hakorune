@@ -507,6 +507,8 @@
       }
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
+      if (needs.hostbridge_extern_invoke_trap)
+        fprintf(f, "declare void @llvm.trap()\n");
       if (needs.printf || module_has_planned_generic_string_definition())
         fprintf(f, "declare i32 @printf(ptr, ...)\n");
       if (needs.string_substring_len) fprintf(f, "declare i64 @\"nyash.string.substring_len_hii\"(i64, i64, i64)\n");

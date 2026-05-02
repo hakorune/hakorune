@@ -29,6 +29,14 @@
           generic_call_trace_budget--;
         }
 
+        {
+          int plan_extern_rc =
+              emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
+          if (plan_extern_rc != 0) {
+            return plan_extern_rc;
+          }
+        }
+
         if (ctype && !strcmp(ctype, "Constructor")) {
           enum MirCallConstructorSurfaceKind kind =
               classify_mir_call_constructor_surface(bname);
@@ -117,11 +125,6 @@
         }
 
         if (ctype && !strcmp(ctype, "Extern")) {
-          int plan_extern_rc =
-              emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
-          if (plan_extern_rc != 0) {
-            return plan_extern_rc;
-          }
           enum MirCallStringExternSurfaceKind kind =
               classify_mir_call_string_extern_surface(mname);
           return emit_supported_string_extern_mir_call(

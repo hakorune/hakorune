@@ -1,5 +1,8 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::mir::extern_call_route_plan::{
+    classify_extern_call_route, is_hostbridge_extern_invoke_symbol, ExternCallRouteKind,
+};
 use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 
 use super::generic_string_abi::{
@@ -868,6 +871,25 @@ fn generic_pure_string_instruction_reject_reason(
             None
         }
         MirInstruction::Call {
+            dst,
+            callee: Some(Callee::Extern(name)),
+            args,
+            ..
+        } if classify_extern_call_route(name, args.len())
+            == Some(ExternCallRouteKind::HostBridgeExternInvoke) =>
+        {
+            if let Some(dst) = dst {
+                *has_string_surface = true;
+                set_proven_flow_value_class(
+                    values,
+                    *dst,
+                    GenericPureValueClass::StringOrVoid,
+                    changed,
+                );
+            }
+            None
+        }
+        MirInstruction::Call {
             callee: Some(Callee::Extern(_)),
             ..
         } => Some(GenericPureStringReject::new(
@@ -1013,8 +1035,21 @@ fn generic_pure_string_instruction_reject_reason(
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
+            args,
             ..
         } if !super::supported_backend_global(name) => {
+            if is_hostbridge_extern_invoke_symbol(name, args.len()) {
+                if let Some(dst) = dst {
+                    *has_string_surface = true;
+                    set_proven_flow_value_class(
+                        values,
+                        *dst,
+                        GenericPureValueClass::StringOrVoid,
+                        changed,
+                    );
+                }
+                return None;
+            }
             if generic_pure_string_global_name_is_self(name, current_function_name) {
                 if let Some(dst) = dst {
                     *has_string_surface = true;
