@@ -262,6 +262,19 @@ fn match_generic_get_route(
         ) {
             return Some(route);
         }
+        if let Some(route) = match_mir_json_const_value_field_get_route(
+            function,
+            def_map,
+            block,
+            instruction_index,
+            box_name,
+            method,
+            *receiver,
+            args[0],
+            result,
+        ) {
+            return Some(route);
+        }
     }
 
     if box_name == "ArrayBox" && receiver_origin_box.as_deref() == Some("ArrayBox") {
@@ -412,6 +425,48 @@ fn match_mir_json_numeric_value_field_get_route(
             )),
             Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
             GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    ))
+}
+
+fn match_mir_json_const_value_field_get_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    box_name: &str,
+    method: &str,
+    receiver: ValueId,
+    key: ValueId,
+    result: ValueId,
+) -> Option<GenericMethodRoute> {
+    if function.signature.name != "MirJsonEmitBox._emit_box_value/1" {
+        return None;
+    }
+    if box_name != "RuntimeDataBox" || method != "get" {
+        return None;
+    }
+    let key_text = const_string_value(function, def_map, key)?;
+    if !matches!(key_text.as_str(), "type" | "value") {
+        return None;
+    }
+
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.to_string(), method.to_string(), 1),
+        GenericMethodRouteEvidence::new(None, Some(GenericMethodKeyRoute::UnknownAny))
+            .with_key_const_text(key_text),
+        GenericMethodRouteOperands::new(receiver, Some(key), Some(result)),
+        GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::RuntimeDataLoadAny,
+            GenericMethodRouteProof::MirJsonConstValueField,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapGet,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+            GenericMethodValueDemand::RuntimeI64OrHandle,
             Some(GenericMethodPublicationPolicy::NoPublication),
         ),
     ))

@@ -24,6 +24,117 @@ fn method_call(
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_mir_json_emit_box_value_field_reads() {
+    let mut module = MirModule::new("global_call_mir_json_emit_box_value_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "MirJsonEmitBox._emit_box_value/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut emit_box_value = MirFunction::new(
+        FunctionSignature {
+            name: "MirJsonEmitBox._emit_box_value/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    emit_box_value.params = vec![ValueId::new(1)];
+    let block = emit_box_value
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("type".to_string()),
+        },
+        method_call(
+            Some(ValueId::new(3)),
+            "RuntimeDataBox",
+            "get",
+            ValueId::new(1),
+            vec![ValueId::new(2)],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::String(String::new()),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(5),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(4),
+            rhs: ValueId::new(3),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(6),
+            value: ConstValue::String("value".to_string()),
+        },
+        method_call(
+            Some(ValueId::new(7)),
+            "RuntimeDataBox",
+            "get",
+            ValueId::new(1),
+            vec![ValueId::new(6)],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(8),
+            value: ConstValue::String("{\"type\":".to_string()),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(9),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(8),
+            rhs: ValueId::new(5),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::String(",\"value\":".to_string()),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(11),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(9),
+            rhs: ValueId::new(10),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(12),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(11),
+            rhs: ValueId::new(7),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(13),
+            value: ConstValue::String("}".to_string()),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(14),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(12),
+            rhs: ValueId::new(13),
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(14)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module.functions.insert(
+        "MirJsonEmitBox._emit_box_value/1".to_string(),
+        emit_box_value,
+    );
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let helper = &module.functions["MirJsonEmitBox._emit_box_value/1"];
+    assert_eq!(helper.metadata.generic_method_routes.len(), 2);
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method() {
     let mut module = MirModule::new("global_call_string_len_method_test".to_string());
     let caller = make_function_with_global_call_args(

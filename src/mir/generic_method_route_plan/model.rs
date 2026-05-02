@@ -145,6 +145,7 @@ pub(crate) enum GenericMethodRouteProof {
     MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
     MirJsonNumericValueField,
+    MirJsonConstValueField,
 }
 
 impl std::fmt::Display for GenericMethodRouteProof {
@@ -168,6 +169,7 @@ impl GenericMethodRouteProof {
             Self::MapSetScalarI64DominatesNoEscape => "map_set_scalar_i64_dominates_no_escape",
             Self::MapSetScalarI64SameKeyNoEscape => "map_set_scalar_i64_same_key_no_escape",
             Self::MirJsonNumericValueField => "mir_json_numeric_value_field",
+            Self::MirJsonConstValueField => "mir_json_const_value_field",
         }
     }
 }

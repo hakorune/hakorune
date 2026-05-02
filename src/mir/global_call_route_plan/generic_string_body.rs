@@ -4,7 +4,8 @@ use crate::mir::extern_call_route_plan::{
     classify_extern_call_route, is_hostbridge_extern_invoke_symbol, ExternCallRouteKind,
 };
 use crate::mir::{
-    BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, UnaryOp, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, UnaryOp,
+    ValueId,
 };
 
 use super::generic_string_abi::{
@@ -101,9 +102,11 @@ pub(super) fn generic_pure_string_body_reject_reason(
             let Some(block) = function.blocks.get(block_id) else {
                 continue;
             };
-            for instruction in &block.instructions {
+            for (instruction_index, instruction) in block.instructions.iter().enumerate() {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
-                    &function.signature.name,
+                    function,
+                    *block_id,
+                    instruction_index,
                     instruction,
                     targets,
                     &mut values,
@@ -118,7 +121,9 @@ pub(super) fn generic_pure_string_body_reject_reason(
             }
             if let Some(terminator) = &block.terminator {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
-                    &function.signature.name,
+                    function,
+                    *block_id,
+                    block.instructions.len(),
                     terminator,
                     targets,
                     &mut values,
@@ -318,9 +323,11 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
             let Some(block) = function.blocks.get(block_id) else {
                 continue;
             };
-            for instruction in &block.instructions {
+            for (instruction_index, instruction) in block.instructions.iter().enumerate() {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
-                    &function.signature.name,
+                    function,
+                    *block_id,
+                    instruction_index,
                     instruction,
                     targets,
                     &mut values,
@@ -335,7 +342,9 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
             }
             if let Some(terminator) = &block.terminator {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
-                    &function.signature.name,
+                    function,
+                    *block_id,
+                    block.instructions.len(),
                     terminator,
                     targets,
                     &mut values,
@@ -400,9 +409,11 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
             let Some(block) = function.blocks.get(block_id) else {
                 continue;
             };
-            for instruction in &block.instructions {
+            for (instruction_index, instruction) in block.instructions.iter().enumerate() {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
-                    &function.signature.name,
+                    function,
+                    *block_id,
+                    instruction_index,
                     instruction,
                     targets,
                     &mut values,
@@ -417,7 +428,9 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
             }
             if let Some(terminator) = &block.terminator {
                 if let Some(reject) = generic_pure_string_instruction_reject_reason(
-                    &function.signature.name,
+                    function,
+                    *block_id,
+                    block.instructions.len(),
                     terminator,
                     targets,
                     &mut values,
@@ -498,7 +511,9 @@ fn generic_string_void_logging_has_logging_call(
 }
 
 fn generic_pure_string_instruction_reject_reason(
-    current_function_name: &str,
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
     instruction: &MirInstruction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
@@ -508,6 +523,7 @@ fn generic_pure_string_instruction_reject_reason(
     non_void_string_values: &BTreeSet<ValueId>,
     changed: &mut bool,
 ) -> Option<GenericPureStringReject> {
+    let current_function_name = function.signature.name.as_str();
     update_generic_pure_string_return_param_values(instruction, return_param_values, changed);
     match instruction {
         MirInstruction::Const { dst, value } => {
@@ -956,6 +972,20 @@ fn generic_pure_string_instruction_reject_reason(
             args,
             ..
         } => {
+            if let Some(class) =
+                generic_pure_string_route_value_class(function, block, instruction_index)
+            {
+                if matches!(
+                    class,
+                    GenericPureValueClass::String | GenericPureValueClass::StringOrVoid
+                ) {
+                    *has_string_surface = true;
+                }
+                if let Some(dst) = dst {
+                    set_proven_flow_value_class(values, *dst, class, changed);
+                }
+                return None;
+            }
             let receiver_class = value_class(values, *receiver);
             if generic_pure_string_accepts_collection_birth_method(
                 box_name,
@@ -1246,6 +1276,29 @@ fn generic_pure_string_instruction_reject_reason(
         _ => Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
         )),
+    }
+}
+
+fn generic_pure_string_route_value_class(
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+) -> Option<GenericPureValueClass> {
+    let route = function
+        .metadata
+        .generic_method_routes
+        .iter()
+        .find(|route| {
+            route.block() == block
+                && route.instruction_index() == instruction_index
+                && route.proof_tag() == "mir_json_const_value_field"
+                && route.route_id() == "generic_method.get"
+                && route.route_kind_tag() == "runtime_data_load_any"
+        })?;
+    match route.key_const_text()? {
+        "type" => Some(GenericPureValueClass::StringOrVoid),
+        "value" => Some(GenericPureValueClass::I64),
+        _ => None,
     }
 }
 

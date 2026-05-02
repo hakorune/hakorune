@@ -624,3 +624,52 @@ fn rejects_mir_json_numeric_value_field_get_outside_owner() {
 
     assert!(function.metadata.generic_method_routes.is_empty());
 }
+
+#[test]
+fn proves_mir_json_const_value_field_runtime_data_get() {
+    let mut function = make_function();
+    function.signature.name = "MirJsonEmitBox._emit_box_value/1".to_string();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: crate::mir::ConstValue::String("type".to_string()),
+    });
+    block.add_instruction(method_call(Some(3), "RuntimeDataBox", "get", 1, vec![2]));
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: crate::mir::ConstValue::String("value".to_string()),
+    });
+    block.add_instruction(method_call(Some(5), "RuntimeDataBox", "get", 1, vec![4]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 2);
+    let type_route = route_for(&function, "RuntimeDataBox", "get", Some(3));
+    assert_eq!(type_route.key_const_text(), Some("type"));
+    assert_eq!(
+        type_route.proof(),
+        GenericMethodRouteProof::MirJsonConstValueField
+    );
+    assert_eq!(
+        type_route.return_shape(),
+        Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+    );
+    assert_eq!(
+        type_route.value_demand(),
+        GenericMethodValueDemand::RuntimeI64OrHandle
+    );
+    assert_eq!(
+        type_route.publication_policy(),
+        Some(GenericMethodPublicationPolicy::NoPublication)
+    );
+
+    let value_route = route_for(&function, "RuntimeDataBox", "get", Some(5));
+    assert_eq!(value_route.key_const_text(), Some("value"));
+    assert_eq!(
+        value_route.proof(),
+        GenericMethodRouteProof::MirJsonConstValueField
+    );
+}
