@@ -302,6 +302,10 @@ metadata as semantic non-string proof for string handles. A string concat
 surface proves its result is a string handle, and loop-carried PHIs may carry
 that return-profile string class when they have observed string evidence and no
 observed non-string evidence.
+Loop-carried scalar PHIs may carry return-profile scalar/other class when MIR
+type hints or observed scalar evidence prove the PHI is used as a substring
+bound; this is return-profile evidence only and must not make a helper
+lowerable without the normal body scan and LoweringPlan validation.
 Within `generic_i64_body`, MIR may infer a string receiver for
 `RuntimeDataBox.length()` / `StringBox.length()` and
 `RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)`, and

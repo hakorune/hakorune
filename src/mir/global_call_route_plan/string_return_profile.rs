@@ -260,11 +260,20 @@ fn refine_generic_string_return_value_class(
                 }
             }
         }
-        MirInstruction::Phi { dst, inputs, .. } => {
+        MirInstruction::Phi {
+            dst,
+            inputs,
+            type_hint,
+        } => {
             let mut class = GenericStringReturnValueClass::Unknown;
             let mut saw_unknown = false;
             let mut saw_string_like = false;
+            let mut saw_other = false;
+            let mut saw_void = false;
             let mut saw_non_string = false;
+            let type_hint_class = type_hint
+                .as_ref()
+                .and_then(generic_string_return_value_class_from_type);
             for (_, value) in inputs {
                 let input_class = generic_string_return_value_class(values, *value);
                 if input_class == GenericStringReturnValueClass::Unknown {
@@ -280,6 +289,8 @@ fn refine_generic_string_return_value_class(
                     input_class,
                     GenericStringReturnValueClass::Void | GenericStringReturnValueClass::Other
                 );
+                saw_other |= input_class == GenericStringReturnValueClass::Other;
+                saw_void |= input_class == GenericStringReturnValueClass::Void;
                 class = merge_generic_string_return_value_class(class, input_class);
             }
             if saw_unknown && saw_string_like && !saw_non_string {
@@ -290,6 +301,26 @@ fn refine_generic_string_return_value_class(
                     values,
                     *dst,
                     GenericStringReturnValueClass::String,
+                    changed,
+                );
+            } else if type_hint_class == Some(GenericStringReturnValueClass::Other)
+                && !saw_string_like
+                && !saw_void
+            {
+                set_generic_string_return_value_class(
+                    values,
+                    *dst,
+                    GenericStringReturnValueClass::Other,
+                    changed,
+                );
+            } else if saw_unknown && saw_other && !saw_string_like && !saw_void {
+                // Loop-carried scalar indices commonly feed substring bounds in
+                // string-or-void scanners. Keep them scalar in the return profile
+                // instead of blocking the string return candidate.
+                set_generic_string_return_value_class(
+                    values,
+                    *dst,
+                    GenericStringReturnValueClass::Other,
                     changed,
                 );
             } else if !saw_unknown {
