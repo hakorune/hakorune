@@ -32,6 +32,7 @@ static box CoreMethodContractBox {
   op_string_len() { return "StringLen" }
   op_string_substring() { return "StringSubstring" }
   op_string_indexof() { return "StringIndexOf" }
+  op_string_lastindexof() { return "StringLastIndexOf" }
 
   schema_fields() {
     local out = new ArrayBox()
@@ -258,6 +259,20 @@ static box CoreMethodContractBox {
     )
   }
 
+  _string_lastindexof_row() {
+    return me._row(
+      "StringBox",
+      "lastIndexOf",
+      me._aliases0(),
+      "1",
+      me.effect_pure_read(),
+      me.op_string_lastindexof(),
+      me.tier_warm_direct_abi(),
+      "nyash.string.lastIndexOf_hh",
+      me._runtime_owner_string()
+    )
+  }
+
   rows() {
     local out = new ArrayBox()
     out.push(me._array_len_row())
@@ -272,6 +287,7 @@ static box CoreMethodContractBox {
     out.push(me._string_len_row())
     out.push(me._string_substring_row())
     out.push(me._string_indexof_row())
+    out.push(me._string_lastindexof_row())
     return out
   }
 
