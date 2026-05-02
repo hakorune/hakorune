@@ -34,6 +34,11 @@ static box MirJsonEmitBox {
     print("[JsonEmitBox] dev assert failed: expected MapBox for " + context)
     return val
   }
+  _assert_map(val, context) {
+    if BoxHelpers.is_map(val) { return 0 }
+    print("[JsonEmitBox] dev assert failed: expected MapBox for " + context)
+    return 0
+  }
   _expect_array(val, context) {
     if BoxHelpers.is_array(val) { return val }
     print("[JsonEmitBox] dev assert failed: expected ArrayBox for " + context)
@@ -93,7 +98,7 @@ static box MirJsonEmitBox {
 
   _emit_callee(callee) {
     if callee == null { return "{\"type\":\"Extern\",\"name\":\"\"}" }
-    me._expect_map(callee, "mir_call.callee")
+    me._assert_map(callee, "mir_call.callee")
     local ty_box = callee.get("type")
     local ty = ""
     if ty_box != null { ty = "" + ty_box }
@@ -199,7 +204,7 @@ static box MirJsonEmitBox {
 
   _emit_inst(inst) {
     if inst == null { return "{}" }
-    me._expect_map(inst, "instruction")
+    me._assert_map(inst, "instruction")
     local op = me._map_get_soft(inst, "op")
     if op == null { op = "" }
     if op == "const" {
@@ -253,7 +258,7 @@ static box MirJsonEmitBox {
       // SSOT: payload("mir_call") のみを受理。トップレベルの互換フィールドは読まない。
       local payload = inst.get("mir_call")
       if payload == null { return "{\"op\":\"mir_call\"}" }
-      me._expect_map(payload, "mir_call payload")
+      me._assert_map(payload, "mir_call payload")
       local dst_json = me._emit_vid_or_null(inst.get("dst"))
       local callee_json = me._emit_callee(payload.get("callee"))
       local args_box = payload.get("args")
