@@ -136,6 +136,7 @@
           int is_static_string_array = 0;
           int is_mir_schema_map_constructor = 0;
           int is_box_type_inspector_describe = 0;
+          int is_pattern_util_local_value_probe = 0;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
           is_parser_program_json =
               lowering_plan_global_call_view_is_direct_parser_program_json(&view);
@@ -149,6 +150,8 @@
               lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view);
           is_box_type_inspector_describe =
               lowering_plan_global_call_view_is_direct_box_type_inspector_describe(&view);
+          is_pattern_util_local_value_probe =
+              lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&view);
           if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||
                 lowering_plan_global_call_view_is_direct_generic_string_void_logging(&view) ||
                 lowering_plan_global_call_view_is_direct_generic_i64(&view) ||
@@ -157,7 +160,8 @@
                 is_jsonfrag_normalizer ||
                 is_static_string_array ||
                 is_mir_schema_map_constructor ||
-                is_box_type_inspector_describe)) continue;
+                is_box_type_inspector_describe ||
+                is_pattern_util_local_value_probe)) continue;
           if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
           if ((is_parser_program_json || is_program_json_emit) &&
               !remember_planned_module_parser_program_json_symbol(view.target_symbol)) {

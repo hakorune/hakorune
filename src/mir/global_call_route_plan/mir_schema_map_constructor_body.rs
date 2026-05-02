@@ -506,7 +506,10 @@ impl MirSchemaMapConstructorFacts {
             }
             GlobalCallTargetShape::NumericI64Leaf
             | GlobalCallTargetShape::GenericStringVoidLoggingBody
-            | GlobalCallTargetShape::GenericI64Body => Some(MirSchemaValueClass::Scalar),
+            | GlobalCallTargetShape::GenericI64Body
+            | GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
+                Some(MirSchemaValueClass::Scalar)
+            }
             GlobalCallTargetShape::Unknown | GlobalCallTargetShape::BuilderRegistryDispatchBody => {
                 None
             }

@@ -393,6 +393,9 @@
                 set_origin(dst, ORG_MAP_BIRTH);
                 set_scan_origin(dst, ORG_MAP_BIRTH);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
+                         lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&global_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_leaf_i64(&global_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&

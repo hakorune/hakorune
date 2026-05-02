@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P201-BOX-TYPE-INSPECTOR-DESCRIBE-BODY"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P201-BOX-TYPE-INSPECTOR-DESCRIBE-BODY.md"
-latest_card_summary = "Accept Box type inspector metadata-map bodies as a dedicated map-handle DirectAbi shape."
+latest_card = "P202-PATTERN-UTIL-LOCAL-VALUE-PROBE-BODY"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P202-PATTERN-UTIL-LOCAL-VALUE-PROBE-BODY.md"
+latest_card_summary = "Accept PatternUtil local numeric/bool probes as dedicated mixed runtime-value DirectAbi bodies."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -152,4 +152,5 @@ landed_tail = [
   "29cv-P199 generic string collection builder surfaces landed",
   "29cv-P200 MIR schema map wrapper body landed",
   "29cv-P201 Box type inspector describe body landed",
+  "29cv-P202 PatternUtil local value probe body landed",
 ]

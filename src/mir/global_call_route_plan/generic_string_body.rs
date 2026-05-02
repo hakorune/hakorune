@@ -1193,6 +1193,17 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
+                GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
+                    if let Some(dst) = dst {
+                        set_proven_flow_value_class(
+                            values,
+                            *dst,
+                            GenericPureValueClass::ScalarOrVoid,
+                            changed,
+                        );
+                    }
+                    None
+                }
                 GlobalCallTargetShape::NumericI64Leaf
                 | GlobalCallTargetShape::GenericStringVoidLoggingBody => {
                     if let Some(dst) = dst {

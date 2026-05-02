@@ -41,6 +41,7 @@ pub enum GlobalCallTargetShape {
     BuilderRegistryDispatchBody,
     MirSchemaMapConstructorBody,
     BoxTypeInspectorDescribeBody,
+    PatternUtilLocalValueProbeBody,
 }
 
 impl GlobalCallTargetShape {
@@ -61,6 +62,7 @@ impl GlobalCallTargetShape {
             Self::BuilderRegistryDispatchBody => "builder_registry_dispatch_body",
             Self::MirSchemaMapConstructorBody => "mir_schema_map_constructor_body",
             Self::BoxTypeInspectorDescribeBody => "box_type_inspector_describe_body",
+            Self::PatternUtilLocalValueProbeBody => "pattern_util_local_value_probe_body",
         }
     }
 }
@@ -341,6 +343,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::BoxTypeInspectorDescribeBody) => {
                 "typed_global_call_box_type_inspector_describe"
             }
+            Some(GlobalCallTargetShape::PatternUtilLocalValueProbeBody) => {
+                "typed_global_call_pattern_util_local_value_probe"
+            }
             _ => "typed_global_call_contract_missing",
         }
     }
@@ -431,6 +436,7 @@ impl GlobalCallRoute {
                 | GlobalCallTargetShape::StaticStringArrayBody
                 | GlobalCallTargetShape::MirSchemaMapConstructorBody
                 | GlobalCallTargetShape::BoxTypeInspectorDescribeBody
+                | GlobalCallTargetShape::PatternUtilLocalValueProbeBody
                 | GlobalCallTargetShape::BuilderRegistryDispatchBody,
             ) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
@@ -459,6 +465,9 @@ impl GlobalCallRoute {
             }
             Some(GlobalCallTargetShape::MirSchemaMapConstructorBody) => Some("map_handle"),
             Some(GlobalCallTargetShape::BoxTypeInspectorDescribeBody) => Some("map_handle"),
+            Some(GlobalCallTargetShape::PatternUtilLocalValueProbeBody) => {
+                Some("mixed_runtime_i64_or_handle")
+            }
             _ => None,
         }
     }
@@ -498,6 +507,7 @@ impl GlobalCallRoute {
             | GlobalCallTargetShape::StaticStringArrayBody
             | GlobalCallTargetShape::MirSchemaMapConstructorBody
             | GlobalCallTargetShape::BoxTypeInspectorDescribeBody
+            | GlobalCallTargetShape::PatternUtilLocalValueProbeBody
             | GlobalCallTargetShape::BuilderRegistryDispatchBody => Some(self.target.shape()),
             GlobalCallTargetShape::Unknown => None,
         }

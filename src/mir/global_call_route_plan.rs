@@ -23,6 +23,7 @@ mod jsonfrag_normalizer_body;
 mod mir_schema_map_constructor_body;
 mod model;
 mod parser_program_json_body;
+mod pattern_util_local_value_probe_body;
 mod program_json_emit_body;
 mod shape_blocker;
 mod static_string_array_body;
@@ -49,6 +50,7 @@ pub use model::{
 };
 use model::{GlobalCallShapeBlocker, GlobalCallTargetClassification, GlobalCallTargetShapeReason};
 use parser_program_json_body::is_parser_program_json_body_function;
+use pattern_util_local_value_probe_body::is_pattern_util_local_value_probe_body_function;
 use program_json_emit_body::is_program_json_emit_body_function;
 use static_string_array_body::is_static_string_array_body_function;
 
@@ -143,6 +145,11 @@ fn classify_global_call_target_shape(
     }
     if is_generic_i64_body_function(function, targets) {
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericI64Body);
+    }
+    if is_pattern_util_local_value_probe_body_function(function, targets) {
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::PatternUtilLocalValueProbeBody,
+        );
     }
     if is_parser_program_json_body_function(function) {
         return GlobalCallTargetClassification::direct(

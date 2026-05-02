@@ -612,6 +612,9 @@ fn refine_generic_string_return_value_class(
                         GlobalCallTargetShape::GenericI64Body => {
                             GenericStringReturnValueClass::Other
                         }
+                        GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
+                            GenericStringReturnValueClass::Other
+                        }
                         GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
                     })
                     .unwrap_or(GenericStringReturnValueClass::Unknown)
