@@ -112,20 +112,20 @@ static box MirJsonEmitBox {
   }
 
   _emit_box_value(val) {
-    if val == null { return "{\"type\":\"i64\",\"value\":0}" }
+    if me._is_present_compat(val) == 0 { return "{\"type\":\"i64\",\"value\":0}" }
   	local ty = "i64"
   	local inner = val
   	if BoxHelpers.is_map(val) {
       local ty_box = val.get("type")
-      if ty_box != null { ty = "" + ty_box }
+      if me._is_present_compat(ty_box) == 1 { ty = "" + ty_box }
       local inner_box = val.get("value")
-      if inner_box != null { inner = inner_box }
+      if me._is_present_compat(inner_box) == 1 { inner = inner_box }
     }
     if ty == "string" {
       return "{\"type\":\"string\",\"value\":" + me._quote(inner) + "}"
     }
     if ty == "bool" {
-      if inner == true || ("" + inner) == "true" {
+      if me._is_true_compat(inner) == 1 {
         return "{\"type\":\"bool\",\"value\":true}"
       }
       return "{\"type\":\"bool\",\"value\":false}"
@@ -136,6 +136,16 @@ static box MirJsonEmitBox {
   _quote(s) {
     if s == null { return "\"\"" }
     return StringHelpers.json_quote("" + s)
+  }
+
+  _is_present_compat(value) {
+    if value == null { return 0 }
+    return 1
+  }
+  _is_true_compat(value) {
+    if value == true { return 1 }
+    if ("" + value) == "true" { return 1 }
+    return 0
   }
 
   _emit_phi_values(values) {
