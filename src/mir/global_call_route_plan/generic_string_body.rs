@@ -1169,7 +1169,8 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::MirSchemaMapConstructorBody => {
+                GlobalCallTargetShape::MirSchemaMapConstructorBody
+                | GlobalCallTargetShape::BoxTypeInspectorDescribeBody => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,

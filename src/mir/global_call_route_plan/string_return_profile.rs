@@ -596,6 +596,9 @@ fn refine_generic_string_return_value_class(
                         GlobalCallTargetShape::MirSchemaMapConstructorBody => {
                             GenericStringReturnValueClass::Object
                         }
+                        GlobalCallTargetShape::BoxTypeInspectorDescribeBody => {
+                            GenericStringReturnValueClass::Object
+                        }
                         GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                             GenericStringReturnValueClass::StringOrVoid
                         }

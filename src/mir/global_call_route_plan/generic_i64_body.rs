@@ -486,7 +486,8 @@ fn generic_i64_body_refine_instruction(
                     GenericI64ValueClass::String
                 }
                 GlobalCallTargetShape::StaticStringArrayBody
-                | GlobalCallTargetShape::MirSchemaMapConstructorBody => {
+                | GlobalCallTargetShape::MirSchemaMapConstructorBody
+                | GlobalCallTargetShape::BoxTypeInspectorDescribeBody => {
                     GenericI64ValueClass::Unknown
                 }
                 GlobalCallTargetShape::GenericStringOrVoidSentinelBody

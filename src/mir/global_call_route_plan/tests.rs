@@ -39,6 +39,7 @@ fn make_function_with_global_call(name: &str, dst: Option<ValueId>) -> MirFuncti
 }
 
 mod blockers;
+mod box_type_inspector_describe;
 mod builder_registry_dispatch;
 mod core;
 mod generic_i64;

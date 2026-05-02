@@ -9,6 +9,7 @@
 use super::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType};
 use std::collections::BTreeMap;
 
+mod box_type_inspector_describe_body;
 mod builder_registry_dispatch_body;
 mod generic_i64_body;
 mod generic_string_abi;
@@ -28,6 +29,9 @@ mod static_string_array_body;
 mod string_return_profile;
 mod type_label;
 
+use box_type_inspector_describe_body::{
+    box_type_inspector_describe_body_reject_reason, is_box_type_inspector_describe_body_candidate,
+};
 use builder_registry_dispatch_body::{
     builder_registry_dispatch_body_reject_reason, is_builder_registry_dispatch_body_candidate,
 };
@@ -174,6 +178,14 @@ fn classify_global_call_target_shape(
         }
         return GlobalCallTargetClassification::direct(
             GlobalCallTargetShape::MirSchemaMapConstructorBody,
+        );
+    }
+    if is_box_type_inspector_describe_body_candidate(function) {
+        if let Some(reject) = box_type_inspector_describe_body_reject_reason(function) {
+            return GlobalCallTargetClassification::unknown(reject.reason);
+        }
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::BoxTypeInspectorDescribeBody,
         );
     }
     if is_builder_registry_dispatch_body_candidate(function) {

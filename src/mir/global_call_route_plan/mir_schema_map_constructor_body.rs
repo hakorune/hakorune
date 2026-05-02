@@ -494,7 +494,8 @@ impl MirSchemaMapConstructorFacts {
     ) -> Option<MirSchemaValueClass> {
         let target = super::lookup_global_call_target(name, targets)?;
         match target.shape() {
-            GlobalCallTargetShape::MirSchemaMapConstructorBody => Some(MirSchemaValueClass::Map),
+            GlobalCallTargetShape::MirSchemaMapConstructorBody
+            | GlobalCallTargetShape::BoxTypeInspectorDescribeBody => Some(MirSchemaValueClass::Map),
             GlobalCallTargetShape::StaticStringArrayBody => Some(MirSchemaValueClass::Array),
             GlobalCallTargetShape::GenericPureStringBody
             | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
