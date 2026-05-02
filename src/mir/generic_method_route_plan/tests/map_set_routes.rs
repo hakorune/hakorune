@@ -814,3 +814,36 @@ fn proves_mir_json_vid_array_item_runtime_data_get() {
         Some(GenericMethodPublicationPolicy::NoPublication)
     );
 }
+
+#[test]
+fn proves_mir_json_effects_array_item_runtime_data_get() {
+    let mut function = make_function();
+    function.signature.name = "MirJsonEmitBox._emit_effects_rec/3".to_string();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(3), "RuntimeDataBox", "get", 1, vec![2]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = route_for(&function, "RuntimeDataBox", "get", Some(3));
+    assert_eq!(
+        route.proof(),
+        GenericMethodRouteProof::MirJsonEffectsArrayItem
+    );
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLoadAny);
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+    );
+    assert_eq!(
+        route.value_demand(),
+        GenericMethodValueDemand::RuntimeI64OrHandle
+    );
+    assert_eq!(
+        route.publication_policy(),
+        Some(GenericMethodPublicationPolicy::NoPublication)
+    );
+}

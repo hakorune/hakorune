@@ -315,6 +315,19 @@ fn match_generic_get_route(
         ) {
             return Some(route);
         }
+        if let Some(route) = match_mir_json_effects_array_item_get_route(
+            function,
+            def_map,
+            block,
+            instruction_index,
+            box_name,
+            method,
+            *receiver,
+            args[0],
+            result,
+        ) {
+            return Some(route);
+        }
     }
 
     if box_name == "ArrayBox" && receiver_origin_box.as_deref() == Some("ArrayBox") {
@@ -641,6 +654,43 @@ fn match_mir_json_vid_array_item_get_route(
             )),
             Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
             GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    ))
+}
+
+fn match_mir_json_effects_array_item_get_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    box_name: &str,
+    method: &str,
+    receiver: ValueId,
+    key: ValueId,
+    result: ValueId,
+) -> Option<GenericMethodRoute> {
+    if function.signature.name != "MirJsonEmitBox._emit_effects_rec/3" {
+        return None;
+    }
+    if box_name != "RuntimeDataBox" || method != "get" {
+        return None;
+    }
+
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.to_string(), method.to_string(), 1),
+        GenericMethodRouteEvidence::new(None, Some(classify_key_route(function, def_map, key))),
+        GenericMethodRouteOperands::new(receiver, Some(key), Some(result)),
+        GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::ArraySlotLoadAny,
+            GenericMethodRouteProof::MirJsonEffectsArrayItem,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::ArrayGet,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+            GenericMethodValueDemand::RuntimeI64OrHandle,
             Some(GenericMethodPublicationPolicy::NoPublication),
         ),
     ))

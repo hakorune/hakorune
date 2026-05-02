@@ -150,6 +150,7 @@ pub(crate) enum GenericMethodRouteProof {
     MirJsonPhiIncomingPairScalar,
     MirJsonCalleeField,
     MirJsonVidArrayItem,
+    MirJsonEffectsArrayItem,
 }
 
 impl std::fmt::Display for GenericMethodRouteProof {
@@ -178,6 +179,7 @@ impl GenericMethodRouteProof {
             Self::MirJsonPhiIncomingPairScalar => "mir_json_phi_incoming_pair_scalar",
             Self::MirJsonCalleeField => "mir_json_callee_field",
             Self::MirJsonVidArrayItem => "mir_json_vid_array_item",
+            Self::MirJsonEffectsArrayItem => "mir_json_effects_array_item",
         }
     }
 }
