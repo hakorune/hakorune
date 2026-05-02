@@ -258,6 +258,10 @@ The fourth lowerable shape is `generic_string_or_void_sentinel_body` for the
 same string body subset when canonical returns are string handles or a void/null
 sentinel. It uses the generic string function emitter and reports
 `return_shape=string_handle_or_null`.
+The fifth lowerable shape is `program_json_emit_body` for the exact
+`BuildBox._emit_program_json_from_scan_src/1` wrapper. It uses the same
+Stage1 Program(JSON v0) handle export as `parser_program_json_body`, but the
+MIR proof must come from the wrapper shape, not from backend by-name matching.
 MIR owns these classifications and records them as `target_shape`.
 The string-or-void sentinel return-profile scan may classify
 `RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)` as a

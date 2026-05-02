@@ -13,6 +13,7 @@ mod generic_i64_body;
 mod generic_string_body;
 mod model;
 mod parser_program_json_body;
+mod program_json_emit_body;
 mod shape_blocker;
 mod string_return_profile;
 
@@ -25,6 +26,7 @@ pub use model::{
 };
 use model::{GlobalCallShapeBlocker, GlobalCallTargetClassification, GlobalCallTargetShapeReason};
 use parser_program_json_body::is_parser_program_json_body_function;
+use program_json_emit_body::is_program_json_emit_body_function;
 
 fn supported_backend_global(name: &str) -> bool {
     matches!(name, "print")
@@ -115,6 +117,9 @@ fn classify_global_call_target_shape(
         return GlobalCallTargetClassification::direct(
             GlobalCallTargetShape::ParserProgramJsonBody,
         );
+    }
+    if is_program_json_emit_body_function(function) {
+        return GlobalCallTargetClassification::direct(GlobalCallTargetShape::ProgramJsonEmitBody);
     }
     if matches!(
         function.signature.return_type,

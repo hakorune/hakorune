@@ -103,14 +103,18 @@
           yyjson_val* entry = yyjson_arr_get(entries, pi);
           struct LoweringPlanGlobalCallView view;
           int is_parser_program_json = 0;
+          int is_program_json_emit = 0;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
           is_parser_program_json =
               lowering_plan_global_call_view_is_direct_parser_program_json(&view);
+          is_program_json_emit =
+              lowering_plan_global_call_view_is_direct_program_json_emit(&view);
           if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||
                 lowering_plan_global_call_view_is_direct_generic_i64(&view) ||
-                is_parser_program_json)) continue;
+                is_parser_program_json ||
+                is_program_json_emit)) continue;
           if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
-          if (is_parser_program_json &&
+          if ((is_parser_program_json || is_program_json_emit) &&
               !remember_planned_module_parser_program_json_symbol(view.target_symbol)) {
             return -1;
           }

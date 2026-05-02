@@ -741,7 +741,8 @@ fn generic_pure_string_instruction_reject_reason(
             match target.shape() {
                 GlobalCallTargetShape::GenericPureStringBody
                 | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-                | GlobalCallTargetShape::ParserProgramJsonBody => {
+                | GlobalCallTargetShape::ParserProgramJsonBody
+                | GlobalCallTargetShape::ProgramJsonEmitBody => {
                     if let Some(dst) = dst {
                         *has_string_surface = true;
                         set_proven_flow_value_class(

@@ -34,6 +34,7 @@ pub enum GlobalCallTargetShape {
     GenericStringOrVoidSentinelBody,
     GenericI64Body,
     ParserProgramJsonBody,
+    ProgramJsonEmitBody,
 }
 
 impl GlobalCallTargetShape {
@@ -45,6 +46,7 @@ impl GlobalCallTargetShape {
             Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
             Self::GenericI64Body => "generic_i64_body",
             Self::ParserProgramJsonBody => "parser_program_json_body",
+            Self::ProgramJsonEmitBody => "program_json_emit_body",
         }
     }
 }
@@ -304,6 +306,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::ParserProgramJsonBody) => {
                 "typed_global_call_parser_program_json"
             }
+            Some(GlobalCallTargetShape::ProgramJsonEmitBody) => {
+                "typed_global_call_program_json_emit"
+            }
             _ => "typed_global_call_contract_missing",
         }
     }
@@ -387,7 +392,8 @@ impl GlobalCallRoute {
             Some(
                 GlobalCallTargetShape::GenericPureStringBody
                 | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-                | GlobalCallTargetShape::ParserProgramJsonBody,
+                | GlobalCallTargetShape::ParserProgramJsonBody
+                | GlobalCallTargetShape::ProgramJsonEmitBody,
             ) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
         }
@@ -402,6 +408,7 @@ impl GlobalCallRoute {
                 Some("string_handle_or_null")
             }
             Some(GlobalCallTargetShape::ParserProgramJsonBody) => Some("string_handle"),
+            Some(GlobalCallTargetShape::ProgramJsonEmitBody) => Some("string_handle"),
             _ => None,
         }
     }
@@ -434,7 +441,8 @@ impl GlobalCallRoute {
             | GlobalCallTargetShape::GenericPureStringBody
             | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
             | GlobalCallTargetShape::GenericI64Body
-            | GlobalCallTargetShape::ParserProgramJsonBody => Some(self.target.shape()),
+            | GlobalCallTargetShape::ParserProgramJsonBody
+            | GlobalCallTargetShape::ProgramJsonEmitBody => Some(self.target.shape()),
             GlobalCallTargetShape::Unknown => None,
         }
     }

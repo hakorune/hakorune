@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P153-GENERIC-I64-DEBUG-STRING-SURFACE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P153-GENERIC-I64-DEBUG-STRING-SURFACE.md"
-latest_card_summary = "Close the StringHelpers.starts_with generic-i64 route by accepting its debug string surface without by-name lowering."
+latest_card = "P154-PROGRAM-JSON-EMIT-BODY-RECIPE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P154-PROGRAM-JSON-EMIT-BODY-RECIPE.md"
+latest_card_summary = "Lower the exact BuildBox Program(JSON v0) emit wrapper through a MIR-owned direct recipe."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -102,4 +102,5 @@ landed_tail = [
   "29cv-P151 ParserBox known-receiver boundary diagnostics landed",
   "29cv-P152 Parser Program(JSON v0) body recipe landed",
   "29cv-P153 StringHelpers starts_with generic-i64 debug surface landed",
+  "29cv-P154 Program(JSON v0) emit wrapper recipe landed",
 ]
