@@ -109,7 +109,10 @@ fn classify_global_call_target_shape(
     if is_generic_i64_body_function(function, targets) {
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericI64Body);
     }
-    if function.signature.return_type == MirType::Void {
+    if matches!(
+        function.signature.return_type,
+        MirType::Void | MirType::Unknown
+    ) {
         if let Some(reject) = generic_string_void_sentinel_body_reject_reason(function, targets) {
             if reject.reason
                 == GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate
