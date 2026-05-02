@@ -119,6 +119,79 @@ fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target() {
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_unknown_return_generic_i64_wrapper() {
+    let mut module = MirModule::new("global_call_generic_i64_unknown_return_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.find_quote/2",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1), ValueId::new(2)],
+    );
+
+    let mut child = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.find_unescaped/3".to_string(),
+            params: vec![MirType::Unknown, MirType::String, MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    child.params = vec![ValueId::new(0), ValueId::new(1), ValueId::new(2)];
+    let child_entry = child.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    child_entry.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+
+    let mut wrapper = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.find_quote/2".to_string(),
+            params: vec![MirType::Unknown, MirType::Integer],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    wrapper.params = vec![ValueId::new(0), ValueId::new(1)];
+    let wrapper_entry = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    wrapper_entry.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("\"".to_string()),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(3)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.find_unescaped/3".to_string())),
+            args: vec![ValueId::new(0), ValueId::new(2), ValueId::new(1)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    wrapper_entry.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.find_quote/2".to_string(), wrapper);
+    module
+        .functions
+        .insert("Helper.find_unescaped/3".to_string(), child);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_i64_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_i64");
+    assert_eq!(route.return_shape(), Some("ScalarI64"));
+    let wrapper_route = &module.functions["Helper.find_quote/2"]
+        .metadata
+        .global_call_routes[0];
+    assert_eq!(wrapper_route.target_shape(), Some("generic_i64_body"));
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_string_or_void_child_null_guard_in_generic_i64_body() {
     let mut module =
         MirModule::new("global_call_generic_i64_string_or_void_guard_test".to_string());

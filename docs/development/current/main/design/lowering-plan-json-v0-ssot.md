@@ -302,6 +302,10 @@ both bounds resolve to i64; pending unknown bounds may defer during the
 fixpoint, but non-i64 bounds reject the shape. Ordered string compares are
 lowered through the existing `nyash.string.lt_hh` helper and must not become a
 backend-local by-name route for specific helpers.
+`generic_i64_body` may also accept a `?` return signature when every canonical
+return value is proven i64 by the body scan. This supports thin i64 wrappers
+such as `StringScanBox.find_quote/2` without treating unknown return signatures
+as scalar by default.
 Within generic string scans, direct child route facts are stronger than stale
 `void` value metadata for the call result. Exact copies and all-string/all-i64
 PHI destinations may carry that proven class through stale `void` destinations.

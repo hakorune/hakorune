@@ -65,7 +65,10 @@ pub(super) fn is_generic_i64_body_function(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> bool {
-    if function.signature.return_type != MirType::Integer {
+    if !matches!(
+        function.signature.return_type,
+        MirType::Integer | MirType::Unknown
+    ) {
         return false;
     }
     if function.params.len() != function.signature.params.len() {
