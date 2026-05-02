@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P207B-LOOPSCAN-FIND-VAR-NAME-EARLY-RETURN"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P207B-LOOPSCAN-FIND-VAR-NAME-EARLY-RETURN.md"
-latest_card_summary = "Remove LoopScan find_loop_var_name mutable string/null PHI without adding Stage0 body semantics."
+latest_card = "P207C-BOX-TYPE-INSPECTOR-IS-MAP-DIRECT-SCALAR"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P207C-BOX-TYPE-INSPECTOR-IS-MAP-DIRECT-SCALAR.md"
+latest_card_summary = "Make BoxTypeInspector is_map a direct scalar predicate instead of a MapBox metadata-read wrapper."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -159,4 +159,5 @@ landed_tail = [
   "29cv-P206 BoxTypeInspector typed value facts landed",
   "29cv-P207a Stage0 size guard landed",
   "29cv-P207b LoopScan find var name early return landed",
+  "29cv-P207c BoxTypeInspector is_map direct scalar landed",
 ]

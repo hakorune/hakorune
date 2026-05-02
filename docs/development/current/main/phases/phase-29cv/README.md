@@ -131,6 +131,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   cleanup that removes a mutable string/null PHI, not by expanding
   `generic_string_body` or ny-llvmc body-specific semantics. The source-exe
   probe now advances to `BoxTypeInspectorBox.is_map/1`.
+- P207c applies the same guard to `BoxTypeInspectorBox.is_map/1`: the bool
+  predicate no longer routes through `_describe/1` plus `MapBox.get`, so
+  Stage0 does not need generic-i64 MapBox metadata-read semantics for that
+  wrapper. The source-exe probe now advances to
+  `LowerLoopLocalReturnVarBox.try_lower/1`.
 
 ## Compat Capsule Rules
 
