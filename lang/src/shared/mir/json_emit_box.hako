@@ -21,10 +21,10 @@ static box MirJsonEmitBox {
     print("[JsonEmitBox] dev assert failed: expected MapBox for " + context)
     return 0
   }
-  _expect_array(val, context) {
-    if BoxHelpers.is_array(val) { return val }
+  _assert_array(val, context) {
+    if BoxHelpers.is_array(val) { return 0 }
     print("[JsonEmitBox] dev assert failed: expected ArrayBox for " + context)
-    return val
+    return 0
   }
   _expect_i64(val, context) {
     if val == null {
@@ -249,9 +249,9 @@ static box MirJsonEmitBox {
       local dst_json = me._emit_vid_or_null(inst.get("dst"))
       local callee_json = me._emit_callee(payload.get("callee"))
       local args_box = payload.get("args")
-      me._expect_array(args_box, "mir_call.args")
+      me._assert_array(args_box, "mir_call.args")
       local effects_box = payload.get("effects")
-      me._expect_array(effects_box, "mir_call.effects")
+      me._assert_array(effects_box, "mir_call.effects")
       local args_json = me._emit_vid_array(args_box)
       local effects_json = me._emit_effects(effects_box)
       return "{\"op\":\"mir_call\",\"dst\":" + dst_json +
