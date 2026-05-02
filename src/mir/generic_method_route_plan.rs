@@ -493,7 +493,7 @@ fn match_generic_indexof_route(
     else {
         return None;
     };
-    if method != "indexOf" || args.len() != 1 {
+    if method != "indexOf" || !matches!(args.len(), 1 | 2) {
         return None;
     }
 

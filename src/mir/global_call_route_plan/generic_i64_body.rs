@@ -425,7 +425,10 @@ fn generic_i64_body_refine_instruction(
             let class = match target.shape() {
                 GlobalCallTargetShape::GenericPureStringBody
                 | GlobalCallTargetShape::ParserProgramJsonBody
-                | GlobalCallTargetShape::ProgramJsonEmitBody => GenericI64ValueClass::String,
+                | GlobalCallTargetShape::ProgramJsonEmitBody
+                | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
+                    GenericI64ValueClass::String
+                }
                 GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                     GenericI64ValueClass::StringOrVoid
                 }
@@ -434,8 +437,7 @@ fn generic_i64_body_refine_instruction(
                 GlobalCallTargetShape::GenericI64Body => {
                     generic_i64_global_call_result_class(values, dst)
                 }
-                GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
-                | GlobalCallTargetShape::Unknown => return false,
+                GlobalCallTargetShape::Unknown => return false,
             };
             if let Some(dst) = dst {
                 set_generic_i64_value_class(values, *dst, class, changed)
@@ -513,16 +515,26 @@ fn generic_i64_indexof_args_ready(
 ) -> Option<bool> {
     if !matches!(box_name, "RuntimeDataBox" | "StringBox")
         || method != "indexOf"
-        || args.len() != 1
+        || !matches!(args.len(), 1 | 2)
         || receiver_class != GenericI64ValueClass::String
     {
         return None;
     }
-    match generic_i64_value_class(values, args[0]) {
-        GenericI64ValueClass::String => Some(true),
-        GenericI64ValueClass::Unknown => Some(false),
-        _ => None,
-    }
+    let needle_ready = match generic_i64_value_class(values, args[0]) {
+        GenericI64ValueClass::String => true,
+        GenericI64ValueClass::Unknown => false,
+        _ => return None,
+    };
+    let start_ready = if args.len() == 2 {
+        match generic_i64_value_class(values, args[1]) {
+            GenericI64ValueClass::I64 => true,
+            GenericI64ValueClass::Unknown => false,
+            _ => return None,
+        }
+    } else {
+        true
+    };
+    Some(needle_ready && start_ready)
 }
 
 fn generic_i64_value_class(

@@ -55,11 +55,10 @@ pub(super) fn generic_pure_string_accepts_indexof_method(
 ) -> bool {
     matches!(box_name, "RuntimeDataBox" | "StringBox")
         && method == "indexOf"
-        && args.len() == 1
+        && matches!(args.len(), 1 | 2)
         && receiver_class == GenericPureValueClass::String
-        && args
-            .iter()
-            .all(|arg| value_class(values, *arg) == GenericPureValueClass::String)
+        && value_class(values, args[0]) == GenericPureValueClass::String
+        && (args.len() == 1 || value_class(values, args[1]) == GenericPureValueClass::I64)
 }
 
 pub(super) fn generic_pure_string_accepts_env_set(

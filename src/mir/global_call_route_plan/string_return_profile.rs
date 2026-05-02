@@ -6,7 +6,7 @@ use super::{
 };
 use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 // Return-profile evidence only: this must not make the target lowerable.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -217,6 +217,7 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> bool {
     let values = refined_generic_string_return_values(function, targets);
+    let passthrough = unknown_param_passthrough_values(function);
 
     let mut saw_string = false;
     let mut saw_void = false;
@@ -231,6 +232,9 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
                             saw_void = true;
                         }
                         GenericStringReturnValueClass::Void => saw_void = true,
+                        GenericStringReturnValueClass::Unknown if passthrough.contains(value) => {
+                            saw_string = true;
+                        }
                         GenericStringReturnValueClass::Unknown
                         | GenericStringReturnValueClass::Object
                         | GenericStringReturnValueClass::Other => {
@@ -244,6 +248,45 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
         }
     }
     saw_string && saw_void
+}
+
+fn unknown_param_passthrough_values(function: &MirFunction) -> BTreeSet<ValueId> {
+    let mut values = BTreeSet::<ValueId>::new();
+    if function.signature.return_type != MirType::Void {
+        return values;
+    }
+    for (index, param) in function.params.iter().enumerate() {
+        if function.signature.params.get(index) == Some(&MirType::Unknown) {
+            values.insert(*param);
+        }
+    }
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                match instruction {
+                    MirInstruction::Copy { dst, src } if values.contains(src) => {
+                        changed |= values.insert(*dst);
+                    }
+                    MirInstruction::Phi { dst, inputs, .. }
+                        if inputs.iter().any(|(_, value)| values.contains(value)) =>
+                    {
+                        changed |= values.insert(*dst);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    values
 }
 
 fn refined_generic_string_return_values(
@@ -498,6 +541,9 @@ fn refine_generic_string_return_value_class(
                     GlobalCallTargetShape::ProgramJsonEmitBody => {
                         GenericStringReturnValueClass::String
                     }
+                    GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
+                        GenericStringReturnValueClass::String
+                    }
                     GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                         GenericStringReturnValueClass::StringOrVoid
                     }
@@ -506,8 +552,7 @@ fn refine_generic_string_return_value_class(
                         GenericStringReturnValueClass::Other
                     }
                     GlobalCallTargetShape::GenericI64Body => GenericStringReturnValueClass::Other,
-                    GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
-                    | GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
+                    GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
                 })
                 .unwrap_or(GenericStringReturnValueClass::Unknown);
             if let Some(dst) = dst {

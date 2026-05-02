@@ -399,8 +399,10 @@
       emit_module_function_declarations(f);
       if (needs.map_birth || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
-      if (needs.map_set)   fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
-      if (needs.map_get)   fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.map_set || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
+      if (needs.map_get || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_i64\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
@@ -454,13 +456,15 @@
       if (needs.arr_get || needs.arr_string_indexof || needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_string_indexof_const_utf8) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hisi\"(i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.arr_slot_load) fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.arr_slot_load || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_const_box || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
-      if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
+      if (needs.string_len || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.string.eq_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       fprintf(f, "declare i64 @\"nyash.string.lt_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
+      if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
       if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_concat_hhii\"(i64, i64, i64, i64)\n");
       if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_concat3_hhhii\"(i64, i64, i64, i64, i64)\n");

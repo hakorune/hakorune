@@ -318,6 +318,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::ProgramJsonEmitBody) => {
                 "typed_global_call_program_json_emit"
             }
+            Some(GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody) => {
+                "typed_global_call_jsonfrag_instruction_array_normalizer"
+            }
             _ => "typed_global_call_contract_missing",
         }
     }
@@ -403,7 +406,8 @@ impl GlobalCallRoute {
                 GlobalCallTargetShape::GenericPureStringBody
                 | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
                 | GlobalCallTargetShape::ParserProgramJsonBody
-                | GlobalCallTargetShape::ProgramJsonEmitBody,
+                | GlobalCallTargetShape::ProgramJsonEmitBody
+                | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody,
             ) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
         }
@@ -422,6 +426,9 @@ impl GlobalCallRoute {
             }
             Some(GlobalCallTargetShape::ParserProgramJsonBody) => Some("string_handle"),
             Some(GlobalCallTargetShape::ProgramJsonEmitBody) => Some("string_handle"),
+            Some(GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody) => {
+                Some("string_handle")
+            }
             _ => None,
         }
     }
@@ -456,9 +463,11 @@ impl GlobalCallRoute {
             | GlobalCallTargetShape::GenericStringVoidLoggingBody
             | GlobalCallTargetShape::GenericI64Body
             | GlobalCallTargetShape::ParserProgramJsonBody
-            | GlobalCallTargetShape::ProgramJsonEmitBody => Some(self.target.shape()),
-            GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
-            | GlobalCallTargetShape::Unknown => None,
+            | GlobalCallTargetShape::ProgramJsonEmitBody
+            | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
+                Some(self.target.shape())
+            }
+            GlobalCallTargetShape::Unknown => None,
         }
     }
 }

@@ -947,7 +947,8 @@ fn generic_pure_string_instruction_reject_reason(
                 GlobalCallTargetShape::GenericPureStringBody
                 | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
                 | GlobalCallTargetShape::ParserProgramJsonBody
-                | GlobalCallTargetShape::ProgramJsonEmitBody => {
+                | GlobalCallTargetShape::ProgramJsonEmitBody
+                | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
                     if let Some(dst) = dst {
                         *has_string_surface = true;
                         set_proven_flow_value_class(
@@ -972,8 +973,7 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
-                | GlobalCallTargetShape::Unknown => {
+                GlobalCallTargetShape::Unknown => {
                     Some(GenericPureStringReject::with_shape_blocker(
                         GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
                         propagated_unknown_global_target_blocker(name, target),

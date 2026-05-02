@@ -996,6 +996,10 @@ fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_strin
             dst: ValueId::new(2),
             value: ConstValue::String("\"token\"".to_string()),
         },
+        MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::Integer(1),
+        },
         MirInstruction::Call {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
@@ -1006,7 +1010,7 @@ fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_strin
                 certainty: TypeCertainty::Union,
                 box_kind: CalleeBoxKind::RuntimeData,
             }),
-            args: vec![ValueId::new(2)],
+            args: vec![ValueId::new(2), ValueId::new(4)],
             effects: EffectMask::PURE,
         },
     ]);

@@ -108,7 +108,12 @@ fn refresh_module_global_call_routes_marks_jsonfrag_instruction_array_normalizer
         route.target_shape(),
         Some("jsonfrag_instruction_array_normalizer_body")
     );
-    assert_eq!(route.tier(), "Unsupported");
-    assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
-    assert_eq!(route.return_shape(), None);
+    assert_eq!(route.tier(), "DirectAbi");
+    assert_eq!(route.reason(), None);
+    assert_eq!(
+        route.proof(),
+        "typed_global_call_jsonfrag_instruction_array_normalizer"
+    );
+    assert_eq!(route.return_shape(), Some("string_handle"));
+    assert_eq!(route.value_demand(), "runtime_i64_or_handle");
 }

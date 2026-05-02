@@ -259,6 +259,16 @@
                   }
                 }
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_array_get(&method_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_map_get(&method_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_MAP_GET);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_map_set(&method_view)) {
+                if (dst) set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_string_substring(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
@@ -293,6 +303,11 @@
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
+                         lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(&global_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_STRING);
+                set_scan_origin(dst, ORG_STRING);
+              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_leaf_i64(&global_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
@@ -309,8 +324,33 @@
             } else if (!strcmp(op, "branch") ||
                        !strcmp(op, "jump") ||
                        !strcmp(op, "ret") ||
+                       !strcmp(op, "select") ||
                        !strcmp(op, "keepalive") ||
                        !strcmp(op, "release_strong")) {
+              if (!strcmp(op, "select")) {
+                long long dst = read_int(ins, "dst");
+                long long then_val = read_int(ins, "then_val");
+                long long else_val = read_int(ins, "else_val");
+                int then_ty = get_type(then_val);
+                int else_ty = get_type(else_val);
+                int then_org = get_origin(then_val);
+                int else_org = get_origin(else_val);
+                int then_scan = get_scan_origin(then_val);
+                int else_scan = get_scan_origin(else_val);
+                if (then_ty == T_I1 && else_ty == T_I1) {
+                  set_type(dst, T_I1);
+                } else if (then_ty != T_NONE && then_ty == else_ty) {
+                  set_type(dst, then_ty);
+                } else if (then_ty != T_NONE && else_ty == T_NONE) {
+                  set_type(dst, then_ty);
+                } else if (else_ty != T_NONE && then_ty == T_NONE) {
+                  set_type(dst, else_ty);
+                } else {
+                  set_type(dst, T_I64);
+                }
+                if (then_org != ORG_NONE && then_org == else_org) set_origin(dst, then_org);
+                if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
+              }
               continue;
             } else {
               return 0;
@@ -456,6 +496,77 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_select(yyjson_val* ins) {
+        long long dst = read_int(ins, "dst");
+        long long cond = read_int(ins, "cond");
+        long long then_val = read_int(ins, "then_val");
+        long long else_val = read_int(ins, "else_val");
+        long long cond_cv = 0;
+        long long then_cv = 0;
+        long long else_cv = 0;
+        int cond_ty = get_type(cond);
+        int then_ty = get_type(then_val);
+        int else_ty = get_type(else_val);
+        int val_ty = T_I64;
+        long long cond_base = resolve_copy_source_reg(cond);
+        long long then_base = resolve_copy_source_reg(then_val);
+        long long else_base = resolve_copy_source_reg(else_val);
+        int cond_const = has_const(cond_base, &cond_cv);
+        int then_const = has_const(then_base, &then_cv);
+        int else_const = has_const(else_base, &else_cv);
+        int then_org = get_origin(then_val);
+        int else_org = get_origin(else_val);
+        int then_scan = get_scan_origin(then_val);
+        int else_scan = get_scan_origin(else_val);
+        char cond_ref[64];
+        char then_ref[64];
+        char else_ref[64];
+
+        if (!(dst && cond && then_val && else_val)) return 0;
+        if (then_ty == T_I1 && else_ty == T_I1) val_ty = T_I1;
+        else if (then_ty != T_NONE && then_ty == else_ty) val_ty = then_ty;
+        else if (then_ty != T_NONE && else_ty == T_NONE) val_ty = then_ty;
+        else if (else_ty != T_NONE && then_ty == T_NONE) val_ty = else_ty;
+
+        if (cond_ty == T_I1) {
+          if (cond_const) snprintf(cond_ref, sizeof(cond_ref), "%s", cond_cv ? "true" : "false");
+          else snprintf(cond_ref, sizeof(cond_ref), "%%r%lld", cond_base);
+        } else if (cond_const) {
+          EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", dst, cond_cv);
+          snprintf(cond_ref, sizeof(cond_ref), "%%t%lld", dst);
+        } else {
+          EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", dst, cond_base);
+          snprintf(cond_ref, sizeof(cond_ref), "%%t%lld", dst);
+        }
+
+        if (val_ty == T_I1) {
+          if (then_const) snprintf(then_ref, sizeof(then_ref), "%s", then_cv ? "true" : "false");
+          else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_base);
+          if (else_const) snprintf(else_ref, sizeof(else_ref), "%s", else_cv ? "true" : "false");
+          else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_base);
+          EMIT("  %%r%lld = select i1 %s, i1 %s, i1 %s\n",
+               dst,
+               cond_ref,
+               then_ref,
+               else_ref);
+          set_type(dst, T_I1);
+        } else {
+          if (then_const) snprintf(then_ref, sizeof(then_ref), "%lld", then_cv);
+          else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_base);
+          if (else_const) snprintf(else_ref, sizeof(else_ref), "%lld", else_cv);
+          else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_base);
+          EMIT("  %%r%lld = select i1 %s, i64 %s, i64 %s\n",
+               dst,
+               cond_ref,
+               then_ref,
+               else_ref);
+          set_type(dst, T_I64);
+        }
+        if (then_org != ORG_NONE && then_org == else_org) set_origin(dst, then_org);
+        if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
+        return 1;
+      }
+
       auto int module_generic_string_emit_method_len_mir_call(
           FILE* f,
           long long bid,
@@ -586,6 +697,78 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_method_get_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        char ab[256];
+        long long key = 0;
+        int is_array_get = 0;
+        int is_map_get = 0;
+        (void)f;
+        ab[0] = '\0';
+        if (read_lowering_plan_generic_method_view(entry, &method_view)) {
+          is_array_get = module_generic_string_method_view_is_direct_array_get(&method_view);
+          is_map_get = module_generic_string_method_view_is_direct_map_get(&method_view);
+        }
+        if (!(is_array_get || is_map_get)) return 0;
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
+        if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        append_i64_arg_ref(ab, sizeof(ab), key, 0);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n",
+               dst,
+               is_array_get ? "nyash.array.slot_load_hi" : "nyash.runtime_data.get_hh",
+               ab);
+          set_type(dst, T_I64);
+          if (is_map_get) set_origin(dst, ORG_MAP_GET);
+        } else {
+          EMIT("  call i64 @\"%s\"(%s)\n",
+               is_array_get ? "nyash.array.slot_load_hi" : "nyash.runtime_data.get_hh",
+               ab);
+        }
+        return 1;
+      }
+
+      auto int module_generic_string_emit_method_set_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        char ab[256];
+        long long key = 0;
+        long long value = 0;
+        (void)f;
+        ab[0] = '\0';
+        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
+              module_generic_string_method_view_is_direct_map_set(&method_view))) {
+          return 0;
+        }
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2)) return 0;
+        if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
+        if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        append_i64_arg_ref(ab, sizeof(ab), key, 0);
+        append_i64_arg_ref(ab, sizeof(ab), value, 0);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+        } else {
+          EMIT("  call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab);
+        }
+        return 1;
+      }
+
       auto int module_generic_string_emit_method_indexof_mir_call(
           FILE* f,
           long long bid,
@@ -597,16 +780,67 @@
         struct LoweringPlanGenericMethodView method_view;
         char ab[256];
         long long needle = 0;
+        long long start = 0;
+        size_t arg_count = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         (void)f;
         ab[0] = '\0';
         if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
               module_generic_string_method_view_is_direct_string_indexof(&method_view))) {
           return 0;
         }
-        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
+        if (!(arg_count == 1 || arg_count == 2)) return 0;
         if (!module_generic_string_read_arg_reg(args, 0, &needle)) return 0;
+        if (arg_count == 2 && !module_generic_string_read_arg_reg(args, 1, &start)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), needle, 0);
+        if (arg_count == 2) {
+          char recv_ab[128];
+          char sub_ab[256];
+          char rel_ref[64];
+          char start_ref[64];
+          recv_ab[0] = '\0';
+          sub_ab[0] = '\0';
+          append_i64_arg_ref(recv_ab, sizeof(recv_ab), recv, 1);
+          append_i64_arg_ref(sub_ab, sizeof(sub_ab), recv, 1);
+          append_i64_arg_ref(sub_ab, sizeof(sub_ab), start, 0);
+          EMIT("  %%indexof_len_%lld_%zu = call i64 @\"nyash.string.len_h\"(%s)\n",
+               bid,
+               ii,
+               recv_ab);
+          {
+            size_t used = strlen(sub_ab);
+            if (used >= sizeof(sub_ab)) return 0;
+            snprintf(
+                sub_ab + used,
+                sizeof(sub_ab) - used,
+                ", i64 %%indexof_len_%lld_%zu",
+                bid,
+                ii);
+          }
+          EMIT("  %%indexof_tail_%lld_%zu = call i64 @\"nyash.string.substring_hii\"(%s)\n",
+               bid,
+               ii,
+               sub_ab);
+          module_generic_string_format_i64_ref(start_ref, sizeof(start_ref), start);
+          snprintf(rel_ref, sizeof(rel_ref), "%%indexof_rel_%lld_%zu", bid, ii);
+          EMIT("  %s = call i64 @\"nyash.string.indexOf_hh\"(i64 %%indexof_tail_%lld_%zu, i64 %%r%lld)\n",
+               rel_ref,
+               bid,
+               ii,
+               resolve_copy_source_reg(needle));
+          if (dst) {
+            EMIT("  %%indexof_miss_%lld_%zu = icmp slt i64 %s, 0\n", bid, ii, rel_ref);
+            EMIT("  %%indexof_abs_%lld_%zu = add i64 %s, %s\n", bid, ii, rel_ref, start_ref);
+            EMIT("  %%r%lld = select i1 %%indexof_miss_%lld_%zu, i64 -1, i64 %%indexof_abs_%lld_%zu\n",
+                 dst,
+                 bid,
+                 ii,
+                 bid,
+                 ii);
+            set_type(dst, T_I64);
+          }
+          return 1;
+        }
         if (dst) {
           EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
           set_type(dst, T_I64);
@@ -645,6 +879,24 @@
           rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);
           if (rc != 1) {
             rc = module_generic_string_emit_method_push_mir_call(
+                f,
+                bid,
+                ii,
+                dst,
+                recv,
+                args);
+          }
+          if (rc != 1) {
+            rc = module_generic_string_emit_method_get_mir_call(
+                f,
+                bid,
+                ii,
+                dst,
+                recv,
+                args);
+          }
+          if (rc != 1) {
+            rc = module_generic_string_emit_method_set_mir_call(
                 f,
                 bid,
                 ii,
@@ -723,6 +975,10 @@
             }
             if (!strcmp(op, "compare")) {
               if (!module_generic_string_emit_compare(ins)) return 0;
+              continue;
+            }
+            if (!strcmp(op, "select")) {
+              if (!module_generic_string_emit_select(ins)) return 0;
               continue;
             }
             if (!strcmp(op, "binop")) {
