@@ -37,7 +37,9 @@ use generic_string_body::{
     generic_string_void_sentinel_body_reject_reason,
 };
 use jsonfrag_normalizer_body::is_jsonfrag_instruction_array_normalizer_body_function;
-use mir_schema_map_constructor_body::mir_schema_map_constructor_body_reject_reason;
+use mir_schema_map_constructor_body::{
+    is_mir_schema_map_constructor_body_candidate, mir_schema_map_constructor_body_reject_reason,
+};
 pub use model::{
     GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
 };
@@ -156,7 +158,7 @@ fn classify_global_call_target_shape(
             GlobalCallTargetShape::StaticStringArrayBody,
         );
     }
-    if matches!(&function.signature.return_type, MirType::Box(name) if name == "MapBox") {
+    if is_mir_schema_map_constructor_body_candidate(function, targets) {
         if let Some(reject) = mir_schema_map_constructor_body_reject_reason(function, targets) {
             return if let Some(blocker) = reject.blocker {
                 GlobalCallTargetClassification::unknown_with_blocker(

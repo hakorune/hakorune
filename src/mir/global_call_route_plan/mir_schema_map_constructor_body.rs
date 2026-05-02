@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::{Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 
@@ -60,7 +60,7 @@ pub(super) fn mir_schema_map_constructor_body_reject_reason(
 }
 
 fn mir_schema_map_constructor_return_type_candidate(ty: &MirType) -> bool {
-    matches!(ty, MirType::Box(name) if name == "MapBox")
+    matches!(ty, MirType::Unknown) || matches!(ty, MirType::Box(name) if name == "MapBox")
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -71,12 +71,174 @@ enum MirSchemaValueClass {
     String,
 }
 
+pub(super) fn is_mir_schema_map_constructor_body_candidate(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    if function.params.len() != function.signature.params.len() {
+        return false;
+    }
+    if matches!(&function.signature.return_type, MirType::Box(name) if name == "MapBox") {
+        return true;
+    }
+    if function.signature.return_type != MirType::Unknown {
+        return false;
+    }
+
+    let mut facts = MirSchemaMapWrapperCandidateFacts::default();
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+    for _ in 0..function
+        .blocks
+        .values()
+        .map(|block| block.instructions.len() + usize::from(block.terminator.is_some()))
+        .sum::<usize>()
+        .saturating_add(1)
+    {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                facts.observe(instruction, targets, &mut changed);
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    facts.accepts()
+}
+
+#[derive(Default)]
+struct MirSchemaMapWrapperCandidateFacts {
+    arrays: BTreeSet<ValueId>,
+    map_values: BTreeSet<ValueId>,
+    array_wrapped_map_values: BTreeSet<ValueId>,
+    saw_array_birth: bool,
+    saw_array_push: bool,
+    returned_array_wrapped_map: bool,
+}
+
+impl MirSchemaMapWrapperCandidateFacts {
+    fn observe(
+        &mut self,
+        instruction: &MirInstruction,
+        targets: &BTreeMap<String, GlobalCallTargetFacts>,
+        changed: &mut bool,
+    ) {
+        match instruction {
+            MirInstruction::NewBox {
+                dst,
+                box_type,
+                args,
+            } if args.is_empty() && box_type == "ArrayBox" => {
+                self.saw_array_birth = true;
+                self.insert_array(*dst, changed);
+            }
+            MirInstruction::Copy { dst, src } => {
+                if self.arrays.contains(src) {
+                    self.insert_array(*dst, changed);
+                }
+                if self.map_values.contains(src) {
+                    self.insert_map(*dst, changed);
+                }
+                if self.array_wrapped_map_values.contains(src) {
+                    self.insert_array_wrapped_map(*dst, changed);
+                }
+            }
+            MirInstruction::Call {
+                callee:
+                    Some(Callee::Method {
+                        box_name,
+                        method,
+                        receiver: Some(receiver),
+                        ..
+                    }),
+                args,
+                ..
+            } if matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox")
+                && method == "push"
+                && self.arrays.contains(receiver)
+                && self.array_pushes_map(args) =>
+            {
+                self.saw_array_push = true;
+            }
+            MirInstruction::Call {
+                dst: Some(dst),
+                callee: Some(Callee::Global(name)),
+                args,
+                ..
+            } if target_may_return_mir_schema_map(name, targets) => {
+                self.insert_map(*dst, changed);
+                if args.iter().any(|arg| self.arrays.contains(arg)) {
+                    self.insert_array_wrapped_map(*dst, changed);
+                }
+            }
+            MirInstruction::Return { value: Some(value) } => {
+                if self.array_wrapped_map_values.contains(value) {
+                    self.returned_array_wrapped_map = true;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn accepts(&self) -> bool {
+        self.saw_array_birth && self.saw_array_push && self.returned_array_wrapped_map
+    }
+
+    fn array_pushes_map(&self, args: &[ValueId]) -> bool {
+        match args {
+            [value] => self.map_values.contains(value),
+            [receiver_arg, value] => {
+                self.arrays.contains(receiver_arg) && self.map_values.contains(value)
+            }
+            _ => false,
+        }
+    }
+
+    fn insert_array(&mut self, value: ValueId, changed: &mut bool) {
+        if self.arrays.insert(value) {
+            *changed = true;
+        }
+    }
+
+    fn insert_map(&mut self, value: ValueId, changed: &mut bool) {
+        if self.map_values.insert(value) {
+            *changed = true;
+        }
+    }
+
+    fn insert_array_wrapped_map(&mut self, value: ValueId, changed: &mut bool) {
+        if self.array_wrapped_map_values.insert(value) {
+            *changed = true;
+        }
+    }
+}
+
+fn target_may_return_mir_schema_map(
+    name: &str,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    let Some(target) = super::lookup_global_call_target(name, targets) else {
+        return false;
+    };
+    target.shape() == GlobalCallTargetShape::MirSchemaMapConstructorBody
+        || matches!(target.return_type(), Some(MirType::Box(box_name)) if box_name == "MapBox")
+}
+
 #[derive(Default)]
 struct MirSchemaMapConstructorFacts {
     values: BTreeMap<ValueId, MirSchemaValueClass>,
+    array_wrapped_map_values: BTreeSet<ValueId>,
+    saw_array_birth: bool,
     saw_map_birth: bool,
     saw_map_set: bool,
+    saw_array_push: bool,
     returned_map: bool,
+    returned_array_wrapped_map: bool,
 }
 
 impl MirSchemaMapConstructorFacts {
@@ -109,7 +271,10 @@ impl MirSchemaMapConstructorFacts {
                 args,
             } if args.is_empty() => {
                 let class = match box_type.as_str() {
-                    "ArrayBox" => MirSchemaValueClass::Array,
+                    "ArrayBox" => {
+                        self.saw_array_birth = true;
+                        MirSchemaValueClass::Array
+                    }
                     "MapBox" => {
                         self.saw_map_birth = true;
                         MirSchemaValueClass::Map
@@ -126,6 +291,9 @@ impl MirSchemaMapConstructorFacts {
             MirInstruction::Copy { dst, src } => {
                 if let Some(class) = self.values.get(src).copied() {
                     self.set_value(*dst, class, changed);
+                }
+                if self.array_wrapped_map_values.contains(src) {
+                    self.set_array_wrapped_map(*dst, changed);
                 }
                 None
             }
@@ -202,6 +370,7 @@ impl MirSchemaMapConstructorFacts {
                     if let Some(dst) = dst {
                         self.set_value(*dst, MirSchemaValueClass::Scalar, changed);
                     }
+                    self.saw_array_push = true;
                     return None;
                 }
                 Some(GenericPureStringReject::new(
@@ -211,6 +380,7 @@ impl MirSchemaMapConstructorFacts {
             MirInstruction::Call {
                 dst,
                 callee: Some(Callee::Global(name)),
+                args,
                 ..
             } => {
                 let Some(class) = self.global_call_value_class(name, targets) else {
@@ -222,12 +392,22 @@ impl MirSchemaMapConstructorFacts {
                 };
                 if let Some(dst) = dst {
                     self.set_value(*dst, class, changed);
+                    if class == MirSchemaValueClass::Map
+                        && args
+                            .iter()
+                            .any(|arg| self.values.get(arg) == Some(&MirSchemaValueClass::Array))
+                    {
+                        self.set_array_wrapped_map(*dst, changed);
+                    }
                 }
                 None
             }
             MirInstruction::Return { value: Some(value) } => {
                 if self.values.get(value) == Some(&MirSchemaValueClass::Map) {
                     self.returned_map = true;
+                    if self.array_wrapped_map_values.contains(value) {
+                        self.returned_array_wrapped_map = true;
+                    }
                     None
                 } else if *changed {
                     None
@@ -263,6 +443,12 @@ impl MirSchemaMapConstructorFacts {
                     if let Some(class) = class {
                         self.set_value(*dst, class, changed);
                     }
+                    if inputs
+                        .iter()
+                        .any(|(_, value)| self.array_wrapped_map_values.contains(value))
+                    {
+                        self.set_array_wrapped_map(*dst, changed);
+                    }
                 }
                 None
             }
@@ -273,7 +459,10 @@ impl MirSchemaMapConstructorFacts {
     }
 
     fn accepts(&self) -> bool {
-        self.saw_map_birth && self.saw_map_set && self.returned_map
+        let local_map_constructor = self.saw_map_birth && self.saw_map_set && self.returned_map;
+        let array_wrapped_map_constructor =
+            self.saw_array_birth && self.saw_array_push && self.returned_array_wrapped_map;
+        local_map_constructor || array_wrapped_map_constructor
     }
 
     fn accepts_map_set_args(&self, args: &[ValueId]) -> bool {
@@ -289,9 +478,10 @@ impl MirSchemaMapConstructorFacts {
 
     fn accepts_array_push_args(&self, args: &[ValueId]) -> bool {
         match args {
-            [_value] => true,
-            [receiver_arg, _value] => {
+            [value] => self.values.get(value) == Some(&MirSchemaValueClass::Map),
+            [receiver_arg, value] => {
                 self.values.get(receiver_arg) == Some(&MirSchemaValueClass::Array)
+                    && self.values.get(value) == Some(&MirSchemaValueClass::Map)
             }
             _ => false,
         }
@@ -350,6 +540,12 @@ impl MirSchemaMapConstructorFacts {
                 self.values.insert(value, class);
                 *changed = true;
             }
+        }
+    }
+
+    fn set_array_wrapped_map(&mut self, value: ValueId, changed: &mut bool) {
+        if self.array_wrapped_map_values.insert(value) {
+            *changed = true;
         }
     }
 }
