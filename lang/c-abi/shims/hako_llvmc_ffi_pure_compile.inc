@@ -657,6 +657,21 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         out->id = read_int(b, "id");
         return 1;
       }
+      auto int read_generic_pure_function_block_view(
+          const hako_llvmc_generic_pure_function_view* fn_view,
+          size_t bi,
+          struct GenericPureBlockView* out) {
+        yyjson_val* saved_blocks = blocks;
+        size_t saved_generic_pure_block_count = generic_pure_block_count;
+        int ok = 0;
+        if (!fn_view) return 0;
+        blocks = fn_view->blocks;
+        generic_pure_block_count = fn_view->block_count;
+        ok = read_generic_pure_block_view(bi, out);
+        blocks = saved_blocks;
+        generic_pure_block_count = saved_generic_pure_block_count;
+        return ok;
+      }
       /* inc-codegen-view-owner: generic_pure_view end */
       #include "hako_llvmc_ffi_compiler_state.inc"
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<512){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } return NULL; }

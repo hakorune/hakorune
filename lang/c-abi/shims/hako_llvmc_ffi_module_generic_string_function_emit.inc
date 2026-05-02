@@ -625,17 +625,12 @@
             module_generic_symbol_was_emitted(name)) {
           return 0;
         }
-        memset(&local_function, 0, sizeof(local_function));
-        local_function.fn = fn;
-        local_function.metadata = yyjson_obj_get(fn, "metadata");
-        local_function.blocks = yyjson_obj_get(fn, "blocks");
-        local_function.block_count =
-            (local_function.blocks && yyjson_is_arr(local_function.blocks))
-                ? yyjson_arr_size(local_function.blocks)
-                : 0;
-        if (!(local_function.metadata &&
-              local_function.blocks &&
-              yyjson_is_arr(local_function.blocks))) {
+        if (!hako_llvmc_read_generic_pure_function_view(
+                fn,
+                fn_index,
+                0,
+                &local_function) ||
+            !local_function.metadata) {
           return -1;
         }
 

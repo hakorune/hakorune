@@ -175,9 +175,6 @@ pub use function::{
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
 };
-pub use global_call_route_plan::{
-    refresh_function_global_call_routes, refresh_module_global_call_routes,
-};
 pub use instruction::MirInstruction;
 pub use map_lookup_fusion_plan::{
     refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes,

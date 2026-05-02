@@ -40,9 +40,9 @@
                 !strcmp(op, "Mod"));
       }
       auto int module_function_is_numeric_i64_leaf(yyjson_val* fn) {
+        hako_llvmc_generic_pure_function_view fn_view;
+        struct GenericPureBlockView block_view;
         yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
-        yyjson_val* blocks_v = fn ? yyjson_obj_get(fn, "blocks") : NULL;
-        yyjson_val* block = NULL;
         yyjson_val* insts = NULL;
         size_t inst_count = 0;
         const char* name = fn ? read_str(fn, "name") : NULL;
@@ -52,13 +52,13 @@
           yyjson_val* param = yyjson_arr_get(params, pi);
           if (!(param && yyjson_is_num(param))) return 0;
         }
-        if (!(blocks_v && yyjson_is_arr(blocks_v) && yyjson_arr_size(blocks_v) == 1)) {
+        if (!hako_llvmc_read_generic_pure_function_view(fn, 0, 0, &fn_view) ||
+            fn_view.block_count != 1 ||
+            !read_generic_pure_function_block_view(&fn_view, 0, &block_view)) {
           return 0;
         }
-        block = yyjson_arr_get(blocks_v, 0);
-        insts = block ? yyjson_obj_get(block, "instructions") : NULL;
-        if (!(insts && yyjson_is_arr(insts))) return 0;
-        inst_count = yyjson_arr_size(insts);
+        insts = block_view.instructions;
+        inst_count = block_view.instruction_count;
         if (inst_count < 1 || inst_count > 1024) return 0;
         for (size_t ii = 0; ii < inst_count; ii++) {
           yyjson_val* ins = yyjson_arr_get(insts, ii);
@@ -202,19 +202,26 @@
         }
       }
       auto int emit_numeric_i64_leaf_function_definition(FILE* f, yyjson_val* fn) {
+        hako_llvmc_generic_pure_function_view fn_view;
+        struct GenericPureBlockView block_view;
         struct ModuleFunctionLeafConst leaf_consts[1024];
         struct ModuleFunctionLeafCopy aliases[1024];
         size_t leaf_consts_n = 0;
         size_t aliases_n = 0;
         yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
-        yyjson_val* blocks_v = fn ? yyjson_obj_get(fn, "blocks") : NULL;
-        yyjson_val* block = blocks_v ? yyjson_arr_get(blocks_v, 0) : NULL;
-        yyjson_val* insts = block ? yyjson_obj_get(block, "instructions") : NULL;
+        yyjson_val* insts = NULL;
         const char* name = fn ? read_str(fn, "name") : NULL;
         size_t argc = generic_pure_function_param_count(fn);
-        size_t inst_count = insts && yyjson_is_arr(insts) ? yyjson_arr_size(insts) : 0;
+        size_t inst_count = 0;
         int emitted_ret = 0;
         if (!module_function_is_numeric_i64_leaf(fn)) return 0;
+        if (!hako_llvmc_read_generic_pure_function_view(fn, 0, 0, &fn_view) ||
+            fn_view.block_count != 1 ||
+            !read_generic_pure_function_block_view(&fn_view, 0, &block_view)) {
+          return -1;
+        }
+        insts = block_view.instructions;
+        inst_count = block_view.instruction_count;
         fprintf(f, "define i64 @\"%s\"(", name);
         for (size_t i = 0; i < argc; i++) {
           long long param = (long long)yyjson_get_sint(yyjson_arr_get(params, i));
