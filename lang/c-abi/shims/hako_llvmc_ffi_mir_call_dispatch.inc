@@ -103,6 +103,16 @@
             }
             return 1;
           }
+          if (route.runtime_string_contains) {
+            if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0] == '\0');
+            if (dst) {
+              EMIT("  %%r%lld = call i64 @\"nyash.string.contains_hh\"(%s)\n", dst, ab);
+              set_type(dst, T_I64);
+            } else {
+              EMIT("  call i64 @\"nyash.string.contains_hh\"(%s)\n", ab);
+            }
+            return 1;
+          }
           return -1;
         }
 

@@ -554,6 +554,43 @@ fn records_direct_lastindexof_core_method_route() {
 }
 
 #[test]
+fn records_direct_contains_core_method_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(5), "StringBox", "contains", 1, vec![2]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.contains");
+    assert_eq!(route.box_name(), "StringBox");
+    assert_eq!(route.method(), "contains");
+    assert_eq!(route.arity(), 1);
+    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(route.key_value(), Some(ValueId::new(2)));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::StringContains);
+    assert_eq!(
+        route.proof(),
+        GenericMethodRouteProof::ContainsSurfacePolicy
+    );
+    let core_method = route.core_method().expect("StringContains carrier");
+    assert_eq!(core_method.op, CoreMethodOp::StringContains);
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::ScalarI64)
+    );
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+    assert_eq!(
+        route.publication_policy(),
+        Some(GenericMethodPublicationPolicy::NoPublication)
+    );
+}
+
+#[test]
 fn records_runtime_data_indexof_from_string_origin() {
     let mut function = make_function();
     let block = function

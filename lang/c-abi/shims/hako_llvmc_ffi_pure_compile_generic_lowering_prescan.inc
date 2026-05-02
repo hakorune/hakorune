@@ -480,6 +480,8 @@
         fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
       if (needs.string_indexof || needs.arr_string_indexof || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.string.lastIndexOf_hh\"(i64, i64)\n");
+      if (needs.string_contains || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.string.contains_hh\"(i64, i64)\n");
       if (needs.env_get || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.env.get\"(i64)\n");
       if (needs.env_set || module_has_planned_generic_string_definition())

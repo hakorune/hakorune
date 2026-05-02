@@ -20,6 +20,7 @@
         int string_substring;
         int string_substring_len;
         int string_indexof;
+        int string_contains;
         int string_concat;
         int env_get;
         int env_set;
@@ -45,6 +46,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
+        HAKO_LLVMC_MIR_CALL_NEED_STRING_CONTAINS,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
@@ -107,6 +109,9 @@
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF:
             needs->string_indexof = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_STRING_CONTAINS:
+            needs->string_contains = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT:
             needs->string_concat = 1;
@@ -259,6 +264,12 @@
             !strcmp(route_kind, "string_last_indexof") &&
             core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
           return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
+        }
+        if (!strcmp(route_id, "generic_method.contains") &&
+            !strcmp(op, "StringContains") &&
+            !strcmp(route_kind, "string_contains") &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_STRING_CONTAINS;
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
@@ -436,6 +447,15 @@
             "lastindexof_surface_policy",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
+          },
+          {
+            "generic_method.contains",
+            "StringContains",
+            "string_contains",
+            "nyash.string.contains_hh",
+            "contains_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_CONTAINS,
           },
         };
         struct LoweringPlanGenericMethodView view;

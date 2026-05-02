@@ -210,6 +210,20 @@
       "status": "seed",
       "guards": [],
       "id": "StringBox.lastIndexOf/1"
+    },
+    {
+      "box": "StringBox",
+      "canonical": "contains",
+      "aliases": [],
+      "arity": "1",
+      "effect": "pure_read",
+      "core_op": "StringContains",
+      "lowering_tier": "warm_direct_abi",
+      "cold_lowering": "nyash.string.contains_hh",
+      "runtime_owner": ".hako StringBox contract / Rust string substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "StringBox.contains/1"
     }
   ]
 }

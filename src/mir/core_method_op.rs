@@ -21,6 +21,7 @@ pub enum CoreMethodOp {
     StringSubstring,
     StringIndexOf,
     StringLastIndexOf,
+    StringContains,
 }
 
 impl CoreMethodOp {
@@ -38,6 +39,7 @@ impl CoreMethodOp {
         Self::StringSubstring,
         Self::StringIndexOf,
         Self::StringLastIndexOf,
+        Self::StringContains,
     ];
 
     pub fn as_manifest_name(self) -> &'static str {
@@ -55,6 +57,7 @@ impl CoreMethodOp {
             Self::StringSubstring => "StringSubstring",
             Self::StringIndexOf => "StringIndexOf",
             Self::StringLastIndexOf => "StringLastIndexOf",
+            Self::StringContains => "StringContains",
         }
     }
 

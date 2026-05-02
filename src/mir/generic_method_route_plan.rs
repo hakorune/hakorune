@@ -100,6 +100,15 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                         )
                     })
                     .or_else(|| {
+                        match_generic_contains_route(
+                            function,
+                            &def_map,
+                            block_id,
+                            instruction_index,
+                            inst,
+                        )
+                    })
+                    .or_else(|| {
                         match_generic_push_route(
                             function,
                             &def_map,
@@ -577,6 +586,58 @@ fn match_generic_lastindexof_route(
             GenericMethodRouteProof::LastIndexOfSurfacePolicy,
             Some(CoreMethodOpCarrier::manifest(
                 CoreMethodOp::StringLastIndexOf,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            Some(GenericMethodReturnShape::ScalarI64),
+            GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    ))
+}
+
+fn match_generic_contains_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> Option<GenericMethodRoute> {
+    let MirInstruction::Call {
+        dst,
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if method != "contains" || args.len() != 1 {
+        return None;
+    }
+
+    let receiver_origin_box =
+        generic_string_receiver_origin_box_name(function, def_map, *receiver, box_name);
+    if box_name != "StringBox"
+        && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))
+    {
+        return None;
+    }
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
+        GenericMethodRouteEvidence::new(receiver_origin_box, None),
+        GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
+        GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::StringContains,
+            GenericMethodRouteProof::ContainsSurfacePolicy,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::StringContains,
                 CoreMethodLoweringTier::WarmDirectAbi,
             )),
             Some(GenericMethodReturnShape::ScalarI64),

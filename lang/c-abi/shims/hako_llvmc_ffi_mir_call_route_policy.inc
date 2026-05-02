@@ -10,6 +10,7 @@
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF,
+        HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS,
       };
 
       struct GenericMethodRouteState {
@@ -20,6 +21,7 @@
         int runtime_string;
         int runtime_string_indexof;
         int runtime_string_lastindexof;
+        int runtime_string_contains;
         int runtime_array_string;
         int array_store_string_source_preserve;
         int array_store_string_identity_demand_stable_object;
@@ -148,6 +150,13 @@
             "string_last_indexof",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF,
+          },
+          {
+            "generic_method.contains",
+            "StringContains",
+            "string_contains",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS,
           },
         };
         struct LoweringPlanGenericMethodView view;
@@ -285,6 +294,12 @@
               core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF;
           }
+          if (!strcmp(route_id, "generic_method.contains") &&
+              !strcmp(op, "StringContains") &&
+              !strcmp(route_kind, "string_contains") &&
+              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS;
+          }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
         return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
@@ -329,6 +344,10 @@
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF:
             route->runtime_string = 1;
             route->runtime_string_lastindexof = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS:
+            route->runtime_string = 1;
+            route->runtime_string_contains = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK:
           default:

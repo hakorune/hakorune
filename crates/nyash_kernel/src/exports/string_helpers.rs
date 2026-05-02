@@ -631,6 +631,14 @@ pub(super) fn string_lastindexof_hh_export_impl(h: i64, n: i64) -> i64 {
     search_string_pair_hh(h, n, empty_needle_lastindexof, rfind_substr_byte_index)
 }
 
+pub(super) fn string_contains_hh_export_impl(h: i64, n: i64) -> i64 {
+    if string_indexof_hh_export_impl(h, n) >= 0 {
+        1
+    } else {
+        0
+    }
+}
+
 pub(super) fn string_lt_hh_export_impl(a_h: i64, b_h: i64) -> i64 {
     if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::LT_HH, a_h, b_h, 0) {
         return v;

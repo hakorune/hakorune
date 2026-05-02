@@ -257,6 +257,12 @@ pub extern "C" fn nyash_string_lastindexof_hh_export(h: i64, n: i64) -> i64 {
     string_lastindexof_hh_export_impl(h, n)
 }
 
+// String.contains_hh(haystack_h, needle_h) -> i64 (0/1)
+#[export_name = "nyash.string.contains_hh"]
+pub extern "C" fn nyash_string_contains_hh_export(h: i64, n: i64) -> i64 {
+    string_contains_hh_export_impl(h, n)
+}
+
 // String.lt_hh(lhs_h, rhs_h) -> i64 (0/1)
 #[export_name = "nyash.string.lt_hh"]
 pub extern "C" fn nyash_string_lt_hh_export(a_h: i64, b_h: i64) -> i64 {
