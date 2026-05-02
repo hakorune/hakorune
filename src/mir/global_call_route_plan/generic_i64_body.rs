@@ -65,10 +65,7 @@ pub(super) fn is_generic_i64_body_function(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> bool {
-    if !matches!(
-        function.signature.return_type,
-        MirType::Integer | MirType::Unknown
-    ) {
+    if !generic_i64_return_type_is_scalar(&function.signature.return_type) {
         return false;
     }
     if function.params.len() != function.signature.params.len() {
@@ -118,7 +115,9 @@ pub(super) fn is_generic_i64_body_function(
             match instruction {
                 MirInstruction::Return { value: Some(value) } => {
                     saw_return = true;
-                    if generic_i64_value_class(&values, *value) != GenericI64ValueClass::I64 {
+                    if !generic_i64_return_value_class_is_scalar(generic_i64_value_class(
+                        &values, *value,
+                    )) {
                         return false;
                     }
                 }
@@ -128,6 +127,17 @@ pub(super) fn is_generic_i64_body_function(
         }
     }
     saw_return
+}
+
+fn generic_i64_return_type_is_scalar(ty: &MirType) -> bool {
+    matches!(ty, MirType::Integer | MirType::Bool | MirType::Unknown)
+}
+
+fn generic_i64_return_value_class_is_scalar(class: GenericI64ValueClass) -> bool {
+    matches!(
+        class,
+        GenericI64ValueClass::I64 | GenericI64ValueClass::Bool
+    )
 }
 
 fn generic_i64_body_refine_instruction(
@@ -262,15 +272,35 @@ fn generic_i64_body_refine_instruction(
             }
             set_generic_i64_value_class(values, *dst, GenericI64ValueClass::Bool, changed)
         }
-        MirInstruction::Phi { dst, inputs, .. } => {
+        MirInstruction::Phi {
+            dst,
+            inputs,
+            type_hint,
+        } => {
             if inputs.is_empty() {
                 return false;
             }
+            let type_hint_class = type_hint
+                .as_ref()
+                .and_then(generic_i64_value_class_from_type);
             let dst_class = generic_i64_value_class(values, *dst);
             let mut merged = dst_class;
             for (_, value) in inputs {
                 let class = generic_i64_value_class(values, *value);
                 if class == GenericI64ValueClass::Unknown {
+                    if dst_class == GenericI64ValueClass::Unknown
+                        && matches!(
+                            type_hint_class,
+                            Some(GenericI64ValueClass::I64 | GenericI64ValueClass::Bool)
+                        )
+                    {
+                        return set_generic_i64_value_class(
+                            values,
+                            *dst,
+                            type_hint_class.unwrap(),
+                            changed,
+                        );
+                    }
                     if dst_class != GenericI64ValueClass::Unknown
                         && !set_generic_i64_value_class(values, *value, dst_class, changed)
                     {
@@ -383,8 +413,10 @@ fn generic_i64_body_refine_instruction(
                     GenericI64ValueClass::StringOrVoid
                 }
                 GlobalCallTargetShape::NumericI64Leaf
-                | GlobalCallTargetShape::GenericStringVoidLoggingBody
-                | GlobalCallTargetShape::GenericI64Body => GenericI64ValueClass::I64,
+                | GlobalCallTargetShape::GenericStringVoidLoggingBody => GenericI64ValueClass::I64,
+                GlobalCallTargetShape::GenericI64Body => {
+                    generic_i64_global_call_result_class(values, dst)
+                }
                 GlobalCallTargetShape::Unknown => return false,
             };
             if let Some(dst) = dst {
@@ -400,6 +432,20 @@ fn generic_i64_body_refine_instruction(
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::ReleaseStrong { .. } => true,
         _ => false,
+    }
+}
+
+fn generic_i64_global_call_result_class(
+    values: &BTreeMap<ValueId, GenericI64ValueClass>,
+    dst: &Option<ValueId>,
+) -> GenericI64ValueClass {
+    if dst
+        .map(|dst| generic_i64_value_class(values, dst) == GenericI64ValueClass::Bool)
+        .unwrap_or(false)
+    {
+        GenericI64ValueClass::Bool
+    } else {
+        GenericI64ValueClass::I64
     }
 }
 
