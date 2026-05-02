@@ -14,6 +14,11 @@ pub extern "C" fn nyash_map_cap_h(handle: i64) -> i64 {
     super::map_substrate::map_capacity_raw(handle)
 }
 
+#[export_name = "nyash.map.keys_h"]
+pub extern "C" fn nyash_map_keys_h(handle: i64) -> i64 {
+    super::map_substrate::map_keys_handle(handle)
+}
+
 #[export_name = "nyash.map.clear_h"]
 pub extern "C" fn nyash_map_clear_h(handle: i64) -> i64 {
     map_slot_clear(handle)

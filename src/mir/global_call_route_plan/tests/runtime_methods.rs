@@ -135,6 +135,63 @@ fn refresh_module_global_call_routes_accepts_mir_json_emit_box_value_field_reads
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_mir_json_flags_keys_route() {
+    let mut module = MirModule::new("global_call_mir_json_flags_keys_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "MirJsonEmitBox._emit_flags/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut emit_flags = MirFunction::new(
+        FunctionSignature {
+            name: "MirJsonEmitBox._emit_flags/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    emit_flags.params = vec![ValueId::new(1)];
+    let block = emit_flags
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.instructions.extend([
+        method_call(
+            Some(ValueId::new(2)),
+            "RuntimeDataBox",
+            "keys",
+            ValueId::new(1),
+            vec![],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::String("{}".to_string()),
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("MirJsonEmitBox._emit_flags/1".to_string(), emit_flags);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let helper = &module.functions["MirJsonEmitBox._emit_flags/1"];
+    assert!(helper.metadata.generic_method_routes.iter().any(|route| {
+        route.route_id() == "generic_method.keys"
+            && route.proof_tag() == "mir_json_flags_keys"
+            && route.route_kind_tag() == "map_keys_array"
+    }));
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method() {
     let mut module = MirModule::new("global_call_string_len_method_test".to_string());
     let caller = make_function_with_global_call_args(

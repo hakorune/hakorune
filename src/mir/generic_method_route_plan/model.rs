@@ -11,6 +11,7 @@ pub(crate) enum GenericMethodRouteKind {
     RuntimeDataContainsAny,
     MapLoadAny,
     MapEntryCount,
+    MapKeysArray,
     ArraySlotLoadAny,
     ArrayContainsAny,
     ArraySlotLen,
@@ -37,6 +38,7 @@ impl GenericMethodRouteKind {
             | Self::MapContainsAny
             | Self::MapContainsI64 => "generic_method.has",
             Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => "generic_method.len",
+            Self::MapKeysArray => "generic_method.keys",
             Self::ArrayAppendAny => "generic_method.push",
             Self::ArrayStoreAny | Self::MapStoreAny => "generic_method.set",
             Self::StringSubstring => "generic_method.substring",
@@ -54,6 +56,7 @@ impl GenericMethodRouteKind {
             | Self::MapContainsAny
             | Self::MapContainsI64 => "has",
             Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => "len",
+            Self::MapKeysArray => "keys",
             Self::ArrayAppendAny => "push",
             Self::ArrayStoreAny | Self::MapStoreAny => "set",
             Self::StringSubstring => "substring",
@@ -69,6 +72,7 @@ impl GenericMethodRouteKind {
             Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
             Self::MapLoadAny => "nyash.map.slot_load_hh",
             Self::MapEntryCount => "nyash.map.entry_count_i64",
+            Self::MapKeysArray => "nyash.map.keys_h",
             Self::ArraySlotLoadAny => "nyash.array.slot_load_hi",
             Self::ArrayContainsAny => "nyash.array.has_hh",
             Self::ArraySlotLen => "nyash.array.slot_len_h",
@@ -93,6 +97,7 @@ impl GenericMethodRouteKind {
             | Self::MapContainsAny
             | Self::MapContainsI64 => &["probe.key"],
             Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => &["observe.len"],
+            Self::MapKeysArray => &["observe.keys"],
             Self::ArrayAppendAny => &["mutate.shape"],
             Self::ArrayStoreAny | Self::MapStoreAny => &["mutate.slot"],
             Self::StringSubstring => &["observe.substring"],
@@ -108,6 +113,7 @@ impl GenericMethodRouteKind {
             Self::RuntimeDataContainsAny => "runtime_data_contains_any",
             Self::MapLoadAny => "map_load_any",
             Self::MapEntryCount => "map_entry_count",
+            Self::MapKeysArray => "map_keys_array",
             Self::ArraySlotLoadAny => "array_slot_load_any",
             Self::ArrayContainsAny => "array_contains_any",
             Self::ArraySlotLen => "array_slot_len",
@@ -157,6 +163,7 @@ pub(crate) enum GenericMethodRouteProof {
     MirJsonFunctionBlockArrayItem,
     MirJsonParamsArrayItem,
     MirJsonFlagsRecAccess,
+    MirJsonFlagsKeys,
 }
 
 impl std::fmt::Display for GenericMethodRouteProof {
@@ -192,6 +199,7 @@ impl GenericMethodRouteProof {
             Self::MirJsonFunctionBlockArrayItem => "mir_json_function_block_array_item",
             Self::MirJsonParamsArrayItem => "mir_json_params_array_item",
             Self::MirJsonFlagsRecAccess => "mir_json_flags_rec_access",
+            Self::MirJsonFlagsKeys => "mir_json_flags_keys",
         }
     }
 }

@@ -4,6 +4,7 @@
         int map_size;
         int map_get;
         int map_has;
+        int map_keys;
         int runtime_data_has;
         int arr_birth;
         int arr_push;
@@ -35,6 +36,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE,
         HAKO_LLVMC_MIR_CALL_NEED_MAP_GET,
         HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS,
+        HAKO_LLVMC_MIR_CALL_NEED_MAP_KEYS,
         HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH,
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH,
@@ -74,6 +76,9 @@
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS:
             needs->map_has = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_MAP_KEYS:
+            needs->map_keys = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS:
             needs->runtime_data_has = 1;
@@ -172,6 +177,16 @@
             proof &&
             !strcmp(proof, "has_surface_policy")) {
           return HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS;
+        }
+        if (route_id &&
+            !strcmp(route_id, "generic_method.keys") &&
+            route_kind &&
+            !strcmp(route_kind, "map_keys_array") &&
+            helper_symbol &&
+            !strcmp(helper_symbol, "nyash.map.keys_h") &&
+            proof &&
+            !strcmp(proof, "mir_json_flags_keys")) {
+          return HAKO_LLVMC_MIR_CALL_NEED_MAP_KEYS;
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }

@@ -74,6 +74,15 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                         )
                     })
                     .or_else(|| {
+                        match_generic_keys_route(
+                            function,
+                            &def_map,
+                            block_id,
+                            instruction_index,
+                            inst,
+                        )
+                    })
+                    .or_else(|| {
                         match_generic_substring_route(
                             function,
                             &def_map,
@@ -1184,6 +1193,51 @@ fn match_generic_len_route(
             )),
             Some(GenericMethodReturnShape::ScalarI64),
             GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    ))
+}
+
+fn match_generic_keys_route(
+    function: &MirFunction,
+    _def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> Option<GenericMethodRoute> {
+    let MirInstruction::Call {
+        dst,
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if method != "keys" || !args.is_empty() {
+        return None;
+    }
+    if function.signature.name != "MirJsonEmitBox._emit_flags/1" || box_name != "RuntimeDataBox" {
+        return None;
+    }
+
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 0),
+        GenericMethodRouteEvidence::new(None, None),
+        GenericMethodRouteOperands::new(*receiver, None, *dst),
+        GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::MapKeysArray,
+            GenericMethodRouteProof::MirJsonFlagsKeys,
+            None,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+            GenericMethodValueDemand::RuntimeI64OrHandle,
             Some(GenericMethodPublicationPolicy::NoPublication),
         ),
     ))

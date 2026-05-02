@@ -1291,7 +1291,10 @@ fn generic_pure_string_route_value_class(
         .find(|route| {
             route.block() == block
                 && route.instruction_index() == instruction_index
-                && route.route_id() == "generic_method.get"
+                && matches!(
+                    route.route_id(),
+                    "generic_method.get" | "generic_method.keys"
+                )
         })?;
     match route.proof_tag() {
         "mir_json_const_value_field" if route.route_kind_tag() == "runtime_data_load_any" => {
@@ -1336,6 +1339,9 @@ fn generic_pure_string_route_value_class(
             "runtime_data_load_any" => Some(GenericPureValueClass::StringOrVoid),
             _ => None,
         },
+        "mir_json_flags_keys" if route.route_kind_tag() == "map_keys_array" => {
+            Some(GenericPureValueClass::Array)
+        }
         "mir_json_block_field" if route.route_kind_tag() == "runtime_data_load_any" => {
             match route.key_const_text()? {
                 "instructions" => Some(GenericPureValueClass::Array),

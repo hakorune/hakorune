@@ -189,8 +189,19 @@
                  !strcmp(route_id, "generic_method.len") ||
                  !strcmp(route_id, "generic_method.push") ||
                  !strcmp(route_id, "generic_method.set") ||
+                 !strcmp(route_id, "generic_method.keys") ||
                  !strcmp(route_id, "generic_method.substring")))) {
             continue;
+          }
+          if (route_id &&
+              !strcmp(route_id, "generic_method.keys") &&
+              route_kind &&
+              !strcmp(route_kind, "map_keys_array") &&
+              helper_symbol &&
+              !strcmp(helper_symbol, "nyash.map.keys_h") &&
+              proof_raw &&
+              !strcmp(proof_raw, "mir_json_flags_keys")) {
+            return HAKO_LLVMC_GENERIC_METHOD_EMIT_KEYS;
           }
           if (route_id &&
               !strcmp(route_id, "generic_method.has") &&

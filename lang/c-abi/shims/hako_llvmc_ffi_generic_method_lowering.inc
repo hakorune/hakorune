@@ -685,6 +685,22 @@
             return 1;
           }
 
+          case HAKO_LLVMC_GENERIC_METHOD_EMIT_KEYS:
+          {
+            char keys_ab[128];
+            keys_ab[0] = '\0';
+            append_i64_arg_ref(keys_ab, sizeof(keys_ab), recv, 1);
+            if (dst) {
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.map.keys_h\"(%s)\n", dst, keys_ab);
+              set_type(dst, T_I64);
+              set_origin(dst, ORG_ARRAY_BIRTH);
+              set_scan_origin(dst, ORG_ARRAY_BIRTH);
+            } else {
+              fprintf(f, "  call i64 @\"nyash.map.keys_h\"(%s)\n", keys_ab);
+            }
+            return 1;
+          }
+
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE:
           default:
             return 0;
