@@ -335,6 +335,42 @@ fn generic_i64_body_refine_instruction(
             }
             set_generic_i64_value_class(values, *dst, merged, changed)
         }
+        MirInstruction::Select {
+            dst,
+            cond,
+            then_val,
+            else_val,
+        } => {
+            let cond_class = generic_i64_value_class(values, *cond);
+            if cond_class == GenericI64ValueClass::Unknown {
+                return *changed;
+            }
+            if !matches!(
+                cond_class,
+                GenericI64ValueClass::Bool | GenericI64ValueClass::I64
+            ) {
+                return false;
+            }
+
+            let then_class = generic_i64_value_class(values, *then_val);
+            let else_class = generic_i64_value_class(values, *else_val);
+            if then_class == GenericI64ValueClass::Unknown
+                && else_class == GenericI64ValueClass::Unknown
+            {
+                return *changed;
+            }
+            if then_class == GenericI64ValueClass::Unknown {
+                return set_generic_i64_value_class(values, *then_val, else_class, changed);
+            }
+            if else_class == GenericI64ValueClass::Unknown {
+                return set_generic_i64_value_class(values, *else_val, then_class, changed);
+            }
+            let Some(selected_class) = generic_i64_select_value_class(then_class, else_class)
+            else {
+                return false;
+            };
+            set_generic_i64_value_class(values, *dst, selected_class, changed)
+        }
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Extern(name)),
@@ -471,6 +507,17 @@ fn generic_i64_global_call_result_class(
         GenericI64ValueClass::Bool
     } else {
         GenericI64ValueClass::I64
+    }
+}
+
+fn generic_i64_select_value_class(
+    then_class: GenericI64ValueClass,
+    else_class: GenericI64ValueClass,
+) -> Option<GenericI64ValueClass> {
+    if then_class == else_class {
+        Some(then_class)
+    } else {
+        None
     }
 }
 
