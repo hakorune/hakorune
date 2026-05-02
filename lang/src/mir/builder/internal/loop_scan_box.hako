@@ -5,18 +5,17 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 static box LoopScanBox {
   // 抽出: cond Compare から Var 名（lhs/rhs いずれか）を取得
   find_loop_var_name(s, k_cmp) {
-    local varname = null
     local kl = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp)
     local kr = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp)
     if kl >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kl) >= 0 {
       local kn = JsonFragBox.index_of_from(s, "\"name\":\"", kl)
-      if kn >= 0 { varname = JsonFragBox.read_string_after(s, kn + 7) }
+      if kn >= 0 { return JsonFragBox.read_string_after(s, kn + 7) }
     }
-    if varname == null && kr >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kr) >= 0 {
+    if kr >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kr) >= 0 {
       local kn2 = JsonFragBox.index_of_from(s, "\"name\":\"", kr)
-      if kn2 >= 0 { varname = JsonFragBox.read_string_after(s, kn2 + 7) }
+      if kn2 >= 0 { return JsonFragBox.read_string_after(s, kn2 + 7) }
     }
-    return varname
+    return null
   }
 
   // '!=' + else [Break/Continue] パターンからX値を抽出（最小サブセット）

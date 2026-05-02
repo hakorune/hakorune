@@ -126,6 +126,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   but it must not clone Stage1/selfhost parser, mirbuilder, normalizer, route,
   or canonical policy semantics. New blockers should prefer explicit MIR facts
   and a uniform MIR function emitter over new body-shape/C-shim semantics.
+- P207b keeps that guard active for
+  `LoopScanBox.find_loop_var_name/2`: the blocker is handled by source-flow
+  cleanup that removes a mutable string/null PHI, not by expanding
+  `generic_string_body` or ny-llvmc body-specific semantics. The source-exe
+  probe now advances to `BoxTypeInspectorBox.is_map/1`.
 
 ## Compat Capsule Rules
 
