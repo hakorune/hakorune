@@ -136,6 +136,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   Stage0 does not need generic-i64 MapBox metadata-read semantics for that
   wrapper. The source-exe probe now advances to
   `LowerLoopLocalReturnVarBox.try_lower/1`.
+- P207d keeps `LowerLoopLocalReturnVarBox.try_lower/1` on the source-cleanup
+  path by splitting the combined null/empty varname guard. The goal is to keep
+  void-sentinel control flow out of later string PHIs without adding
+  `generic_string_body` semantics. The source-exe probe now advances to
+  `JsonFragBox.read_bool_from/2`.
 
 ## Compat Capsule Rules
 
