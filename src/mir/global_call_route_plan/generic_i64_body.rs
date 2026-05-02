@@ -14,6 +14,7 @@ enum GenericI64ValueClass {
     I64,
     Bool,
     String,
+    StringOrVoid,
     VoidSentinel,
 }
 
@@ -242,7 +243,9 @@ fn generic_i64_body_refine_instruction(
             let comparable = match (lhs_class, rhs_class) {
                 (GenericI64ValueClass::String, GenericI64ValueClass::String) => eq_ne,
                 (GenericI64ValueClass::String, GenericI64ValueClass::VoidSentinel)
-                | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::String) => eq_ne,
+                | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::String)
+                | (GenericI64ValueClass::StringOrVoid, GenericI64ValueClass::VoidSentinel)
+                | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::StringOrVoid) => eq_ne,
                 (GenericI64ValueClass::I64, GenericI64ValueClass::I64) => true,
                 (GenericI64ValueClass::Bool, GenericI64ValueClass::Bool) => eq_ne,
                 _ => false,
@@ -357,9 +360,11 @@ fn generic_i64_body_refine_instruction(
             };
             let class = match target.shape() {
                 GlobalCallTargetShape::GenericPureStringBody
-                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
                 | GlobalCallTargetShape::ParserProgramJsonBody
                 | GlobalCallTargetShape::ProgramJsonEmitBody => GenericI64ValueClass::String,
+                GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
+                    GenericI64ValueClass::StringOrVoid
+                }
                 GlobalCallTargetShape::NumericI64Leaf | GlobalCallTargetShape::GenericI64Body => {
                     GenericI64ValueClass::I64
                 }
@@ -444,6 +449,41 @@ fn set_generic_i64_value_class(
             *changed = true;
             true
         }
+        Some(GenericI64ValueClass::VoidSentinel)
+            if matches!(
+                class,
+                GenericI64ValueClass::String | GenericI64ValueClass::StringOrVoid
+            ) =>
+        {
+            values.insert(value, class);
+            *changed = true;
+            true
+        }
+        Some(GenericI64ValueClass::String) if class == GenericI64ValueClass::StringOrVoid => {
+            values.insert(value, GenericI64ValueClass::StringOrVoid);
+            *changed = true;
+            true
+        }
+        Some(GenericI64ValueClass::StringOrVoid)
+            if matches!(
+                class,
+                GenericI64ValueClass::String | GenericI64ValueClass::VoidSentinel
+            ) =>
+        {
+            true
+        }
+        Some(GenericI64ValueClass::I64)
+            if matches!(
+                class,
+                GenericI64ValueClass::String
+                    | GenericI64ValueClass::StringOrVoid
+                    | GenericI64ValueClass::VoidSentinel
+            ) =>
+        {
+            values.insert(value, class);
+            *changed = true;
+            true
+        }
         Some(_) => false,
     }
 }
@@ -455,6 +495,11 @@ fn set_generic_i64_string_handle_value_class(
 ) -> bool {
     match values.get(&value).copied() {
         Some(GenericI64ValueClass::String) => true,
+        Some(GenericI64ValueClass::StringOrVoid) => {
+            values.insert(value, GenericI64ValueClass::String);
+            *changed = true;
+            true
+        }
         Some(GenericI64ValueClass::Unknown) | None => {
             values.insert(value, GenericI64ValueClass::String);
             *changed = true;

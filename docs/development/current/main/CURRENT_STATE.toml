@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P158-STRING-OR-VOID-PHI-SENTINEL"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P158-STRING-OR-VOID-PHI-SENTINEL.md"
-latest_card_summary = "Accept narrow string-or-void sentinel PHI state in generic string bodies and move the using-resolver blocker to its child route."
+latest_card = "P159-I64-STRING-OR-VOID-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P159-I64-STRING-OR-VOID-GUARD.md"
+latest_card_summary = "Accept narrow i64 wrapper guards for string-or-void child results and expose the collect-using object return boundary."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -107,4 +107,5 @@ landed_tail = [
   "29cv-P156 string return-profile concat ABI evidence landed",
   "29cv-P157 EnvSet extern route landed",
   "29cv-P158 string-or-void PHI sentinel state landed",
+  "29cv-P159 i64 string-or-void guard state landed",
 ]

@@ -643,6 +643,14 @@ fn generic_pure_string_instruction_reject_reason(
                 return None;
             } else if all_string {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::String, changed);
+            } else if saw_string_or_void && !saw_scalar {
+                *has_string_surface = true;
+                set_proven_flow_value_class(
+                    values,
+                    *dst,
+                    GenericPureValueClass::StringOrVoid,
+                    changed,
+                );
             } else if saw_void_sentinel && !saw_scalar && (saw_string || saw_string_or_void) {
                 *has_string_surface = true;
                 set_proven_flow_value_class(
@@ -661,10 +669,6 @@ fn generic_pure_string_instruction_reject_reason(
             } else if saw_string {
                 return Some(GenericPureStringReject::new(
                     GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
-                ));
-            } else if saw_string_or_void {
-                return Some(GenericPureStringReject::new(
-                    GlobalCallTargetShapeReason::GenericStringUnsupportedVoidSentinelConst,
                 ));
             } else {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::I64, changed);
