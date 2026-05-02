@@ -7,6 +7,7 @@ pub(super) enum GenericPureValueClass {
     Unknown,
     I64,
     Bool,
+    ScalarOrVoid,
     String,
     Array,
     Map,
@@ -129,7 +130,9 @@ pub(super) fn value_class(
 pub(super) fn generic_pure_value_class_is_void_like(class: GenericPureValueClass) -> bool {
     matches!(
         class,
-        GenericPureValueClass::StringOrVoid | GenericPureValueClass::VoidSentinel
+        GenericPureValueClass::ScalarOrVoid
+            | GenericPureValueClass::StringOrVoid
+            | GenericPureValueClass::VoidSentinel
     )
 }
 
@@ -140,6 +143,12 @@ pub(super) fn generic_pure_void_sentinel_compare_is_supported(
     matches!(
         (lhs_class, rhs_class),
         (
+            GenericPureValueClass::ScalarOrVoid,
+            GenericPureValueClass::VoidSentinel
+        ) | (
+            GenericPureValueClass::VoidSentinel,
+            GenericPureValueClass::ScalarOrVoid
+        ) | (
             GenericPureValueClass::String,
             GenericPureValueClass::VoidSentinel
         ) | (
@@ -205,6 +214,21 @@ pub(super) fn set_guarded_non_void_string_value_class(
         Some(GenericPureValueClass::String) => {}
         Some(GenericPureValueClass::StringOrVoid) | Some(GenericPureValueClass::Unknown) | None => {
             values.insert(value, GenericPureValueClass::String);
+            *changed = true;
+        }
+        Some(_) => {}
+    }
+}
+
+pub(super) fn set_guarded_non_void_scalar_value_class(
+    values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    value: ValueId,
+    changed: &mut bool,
+) {
+    match values.get(&value).copied() {
+        Some(GenericPureValueClass::I64) => {}
+        Some(GenericPureValueClass::ScalarOrVoid) | Some(GenericPureValueClass::Unknown) | None => {
+            values.insert(value, GenericPureValueClass::I64);
             *changed = true;
         }
         Some(_) => {}

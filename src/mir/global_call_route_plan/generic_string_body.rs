@@ -16,9 +16,9 @@ use super::generic_string_facts::{
     generic_pure_string_iteration_limit, generic_pure_value_class_from_type,
     generic_pure_value_class_is_void_like, generic_pure_void_sentinel_compare_is_supported,
     seed_generic_pure_string_return_param_values, seed_generic_pure_values,
-    set_guarded_non_void_string_value_class, set_proven_flow_value_class,
-    set_string_handle_value_class, set_value_class, update_generic_pure_string_return_param_values,
-    value_class, GenericPureValueClass,
+    set_guarded_non_void_scalar_value_class, set_guarded_non_void_string_value_class,
+    set_proven_flow_value_class, set_string_handle_value_class, set_value_class,
+    update_generic_pure_string_return_param_values, value_class, GenericPureValueClass,
 };
 use super::generic_string_guards::generic_pure_string_non_void_guard_phi_values;
 use super::generic_string_reject::GenericPureStringReject;
@@ -710,6 +710,7 @@ fn generic_pure_string_instruction_reject_reason(
             type_hint,
         } => {
             let dst_class = value_class(values, *dst);
+            let mut saw_scalar_or_void = false;
             let mut saw_string = false;
             let mut saw_string_or_void = false;
             let mut saw_void_sentinel = false;
@@ -723,6 +724,7 @@ fn generic_pure_string_instruction_reject_reason(
             for (_, value) in inputs {
                 let class = value_class(values, *value);
                 saw_unknown |= class == GenericPureValueClass::Unknown;
+                saw_scalar_or_void |= class == GenericPureValueClass::ScalarOrVoid;
                 saw_string |= class == GenericPureValueClass::String;
                 saw_string_or_void |= class == GenericPureValueClass::StringOrVoid;
                 saw_void_sentinel |= class == GenericPureValueClass::VoidSentinel;
@@ -756,6 +758,7 @@ fn generic_pure_string_instruction_reject_reason(
                     type_hint_class,
                     Some(GenericPureValueClass::I64 | GenericPureValueClass::Bool)
                 ) && !saw_string
+                    && !saw_scalar_or_void
                     && !saw_string_or_void
                     && !saw_void_sentinel
                     && !saw_array
@@ -765,8 +768,18 @@ fn generic_pure_string_instruction_reject_reason(
                 }
                 return None;
             } else if non_void_string_values.contains(dst)
+                && saw_scalar_or_void
+                && !saw_string
+                && !saw_string_or_void
+                && !saw_void_sentinel
+                && !saw_array
+                && !saw_map
+            {
+                set_guarded_non_void_scalar_value_class(values, *dst, changed);
+            } else if non_void_string_values.contains(dst)
                 && saw_string_or_void
                 && !saw_scalar
+                && !saw_scalar_or_void
                 && !saw_array
                 && !saw_map
             {
@@ -792,6 +805,18 @@ fn generic_pure_string_instruction_reject_reason(
                     values,
                     *dst,
                     GenericPureValueClass::StringOrVoid,
+                    changed,
+                );
+            } else if (saw_scalar_or_void || (saw_void_sentinel && saw_scalar))
+                && !saw_string
+                && !saw_string_or_void
+                && !saw_array
+                && !saw_map
+            {
+                set_proven_flow_value_class(
+                    values,
+                    *dst,
+                    GenericPureValueClass::ScalarOrVoid,
                     changed,
                 );
             } else if saw_void_sentinel && !saw_scalar {
@@ -1143,13 +1168,23 @@ fn generic_pure_string_instruction_reject_reason(
                     None
                 }
                 GlobalCallTargetShape::NumericI64Leaf
-                | GlobalCallTargetShape::GenericStringVoidLoggingBody
-                | GlobalCallTargetShape::GenericI64Body => {
+                | GlobalCallTargetShape::GenericStringVoidLoggingBody => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,
                             *dst,
                             GenericPureValueClass::I64,
+                            changed,
+                        );
+                    }
+                    None
+                }
+                GlobalCallTargetShape::GenericI64Body => {
+                    if let Some(dst) = dst {
+                        set_proven_flow_value_class(
+                            values,
+                            *dst,
+                            generic_pure_string_generic_i64_target_value_class(target),
                             changed,
                         );
                     }
@@ -1177,6 +1212,16 @@ fn generic_pure_string_instruction_reject_reason(
     }
 }
 
+fn generic_pure_string_generic_i64_target_value_class(
+    target: &GlobalCallTargetFacts,
+) -> GenericPureValueClass {
+    match target.return_type() {
+        Some(MirType::Bool) => GenericPureValueClass::Bool,
+        Some(MirType::Unknown | MirType::Void) => GenericPureValueClass::ScalarOrVoid,
+        _ => GenericPureValueClass::I64,
+    }
+}
+
 fn generic_pure_select_value_class(
     then_class: GenericPureValueClass,
     else_class: GenericPureValueClass,
@@ -1192,6 +1237,18 @@ fn generic_pure_select_value_class(
         | (GenericPureValueClass::StringOrVoid, GenericPureValueClass::VoidSentinel)
         | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::StringOrVoid) => {
             Some(GenericPureValueClass::StringOrVoid)
+        }
+        (GenericPureValueClass::I64, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::I64)
+        | (GenericPureValueClass::Bool, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::Bool)
+        | (GenericPureValueClass::ScalarOrVoid, GenericPureValueClass::I64)
+        | (GenericPureValueClass::I64, GenericPureValueClass::ScalarOrVoid)
+        | (GenericPureValueClass::ScalarOrVoid, GenericPureValueClass::Bool)
+        | (GenericPureValueClass::Bool, GenericPureValueClass::ScalarOrVoid)
+        | (GenericPureValueClass::ScalarOrVoid, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::ScalarOrVoid) => {
+            Some(GenericPureValueClass::ScalarOrVoid)
         }
         _ => None,
     }
