@@ -4,6 +4,7 @@ use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallShapeBlocker,
     GlobalCallTargetFacts, GlobalCallTargetShape, GlobalCallTargetShapeReason,
 };
+use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 use std::collections::BTreeMap;
 
@@ -36,6 +37,59 @@ fn seed_generic_string_return_values(
     for (value, ty) in &function.metadata.value_types {
         if let Some(class) = generic_string_return_metadata_value_class_from_type(ty) {
             set_generic_string_return_value_class(values, *value, class, &mut changed);
+        }
+    }
+    seed_generic_string_return_corridor_values(function, values, &mut changed);
+}
+
+fn seed_generic_string_return_corridor_values(
+    function: &MirFunction,
+    values: &mut BTreeMap<ValueId, GenericStringReturnValueClass>,
+    changed: &mut bool,
+) {
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            let MirInstruction::Call {
+                dst: Some(dst),
+                callee:
+                    Some(Callee::Method {
+                        receiver: Some(receiver),
+                        ..
+                    }),
+                args,
+                ..
+            } = instruction
+            else {
+                continue;
+            };
+            let Some(fact) = function.metadata.string_corridor_facts.get(dst) else {
+                continue;
+            };
+            match fact.op {
+                StringCorridorOp::StrLen if args.is_empty() => {
+                    set_generic_string_return_string_handle_value_class(values, *receiver, changed);
+                    set_generic_string_return_value_class(
+                        values,
+                        *dst,
+                        GenericStringReturnValueClass::Other,
+                        changed,
+                    );
+                }
+                StringCorridorOp::StrSlice if args.len() == 2 => {
+                    set_generic_string_return_string_handle_value_class(values, *receiver, changed);
+                    for arg in args {
+                        set_generic_string_return_value_class(
+                            values,
+                            *arg,
+                            GenericStringReturnValueClass::Other,
+                            changed,
+                        );
+                    }
+                    set_generic_string_return_string_handle_value_class(values, *dst, changed);
+                }
+                StringCorridorOp::FreezeStr => {}
+                _ => {}
+            }
         }
     }
 }

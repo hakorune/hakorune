@@ -494,6 +494,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
     let mut has_string_surface = false;
     let mut has_void_sentinel_const = false;
     seed_generic_pure_values(function, &mut values);
+    seed_generic_pure_string_corridor_method_values(function, &mut values, &mut has_string_surface);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
