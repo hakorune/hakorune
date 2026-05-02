@@ -141,6 +141,12 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   void-sentinel control flow out of later string PHIs without adding
   `generic_string_body` semantics. The source-exe probe now advances to
   `JsonFragBox.read_bool_from/2`.
+- P207e keeps `JsonFragBox.read_bool_from/2` on the existing scalar lane by
+  inlining the final `t/f/null` return split. This avoids a void-typed
+  `_to_bool10/1` call result without adding a JsonFrag bool-reader shape. The
+  source-exe probe now reports a transitive
+  `BoxTypeInspectorBox.is_map/1` target-shape blocker in a deeper MIR/JSON
+  emit path.
 
 ## Compat Capsule Rules
 
