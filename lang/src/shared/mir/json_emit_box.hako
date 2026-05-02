@@ -163,16 +163,11 @@ static box MirJsonEmitBox {
   _emit_phi_incoming_rec(values, idx, len) {
     if idx >= len { return "" }
     local item = values.get(idx)
-    local block_id = null
-    local value_id = null
-    if item != null {
-      if BoxHelpers.is_array(item) {
-        value_id = item.get(0)
-        block_id = item.get(1)
-      } else {
-        block_id = item.get("block")
-        value_id = item.get("value")
-      }
+    local value_id = 0
+    local block_id = 0
+    if me._is_present_compat(item) == 1 {
+      value_id = item.get(0)
+      block_id = item.get(1)
     }
     local head = "[" + me._int_str(value_id) + "," + me._int_str(block_id) + "]"
     local tail = me._emit_phi_incoming_rec(values, idx + 1, len)

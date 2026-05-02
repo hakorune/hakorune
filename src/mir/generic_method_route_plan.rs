@@ -8,8 +8,9 @@
 
 use super::core_method_op::{CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier};
 use super::generic_method_route_facts::{
-    classify_key_route, const_string_value, receiver_origin_box_name, GenericMethodKeyRoute,
-    GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
+    classify_key_route, const_i64_value, const_string_value, receiver_origin_box_name,
+    GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
+    GenericMethodValueDemand,
 };
 use super::string_corridor::StringCorridorOp;
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
@@ -275,6 +276,19 @@ fn match_generic_get_route(
         ) {
             return Some(route);
         }
+        if let Some(route) = match_mir_json_phi_incoming_get_route(
+            function,
+            def_map,
+            block,
+            instruction_index,
+            box_name,
+            method,
+            *receiver,
+            args[0],
+            result,
+        ) {
+            return Some(route);
+        }
     }
 
     if box_name == "ArrayBox" && receiver_origin_box.as_deref() == Some("ArrayBox") {
@@ -467,6 +481,58 @@ fn match_mir_json_const_value_field_get_route(
             )),
             Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
             GenericMethodValueDemand::RuntimeI64OrHandle,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    ))
+}
+
+fn match_mir_json_phi_incoming_get_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    box_name: &str,
+    method: &str,
+    receiver: ValueId,
+    key: ValueId,
+    result: ValueId,
+) -> Option<GenericMethodRoute> {
+    if function.signature.name != "MirJsonEmitBox._emit_phi_incoming_rec/3" {
+        return None;
+    }
+    if box_name != "RuntimeDataBox" || method != "get" {
+        return None;
+    }
+
+    let key_i64 = const_i64_value(function, def_map, key);
+    let (proof, return_shape, value_demand) = if matches!(key_i64, Some(0 | 1)) {
+        (
+            GenericMethodRouteProof::MirJsonPhiIncomingPairScalar,
+            Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+            GenericMethodValueDemand::ScalarI64,
+        )
+    } else {
+        (
+            GenericMethodRouteProof::MirJsonPhiIncomingArrayItem,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+            GenericMethodValueDemand::RuntimeI64OrHandle,
+        )
+    };
+
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.to_string(), method.to_string(), 1),
+        GenericMethodRouteEvidence::new(None, Some(classify_key_route(function, def_map, key))),
+        GenericMethodRouteOperands::new(receiver, Some(key), Some(result)),
+        GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::ArraySlotLoadAny,
+            proof,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::ArrayGet,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+            return_shape,
+            value_demand,
             Some(GenericMethodPublicationPolicy::NoPublication),
         ),
     ))

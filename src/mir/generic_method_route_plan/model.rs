@@ -146,6 +146,8 @@ pub(crate) enum GenericMethodRouteProof {
     MapSetScalarI64SameKeyNoEscape,
     MirJsonNumericValueField,
     MirJsonConstValueField,
+    MirJsonPhiIncomingArrayItem,
+    MirJsonPhiIncomingPairScalar,
 }
 
 impl std::fmt::Display for GenericMethodRouteProof {
@@ -170,6 +172,8 @@ impl GenericMethodRouteProof {
             Self::MapSetScalarI64SameKeyNoEscape => "map_set_scalar_i64_same_key_no_escape",
             Self::MirJsonNumericValueField => "mir_json_numeric_value_field",
             Self::MirJsonConstValueField => "mir_json_const_value_field",
+            Self::MirJsonPhiIncomingArrayItem => "mir_json_phi_incoming_array_item",
+            Self::MirJsonPhiIncomingPairScalar => "mir_json_phi_incoming_pair_scalar",
         }
     }
 }

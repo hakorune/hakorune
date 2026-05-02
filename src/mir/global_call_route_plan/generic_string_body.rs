@@ -1291,13 +1291,22 @@ fn generic_pure_string_route_value_class(
         .find(|route| {
             route.block() == block
                 && route.instruction_index() == instruction_index
-                && route.proof_tag() == "mir_json_const_value_field"
                 && route.route_id() == "generic_method.get"
-                && route.route_kind_tag() == "runtime_data_load_any"
         })?;
-    match route.key_const_text()? {
-        "type" => Some(GenericPureValueClass::StringOrVoid),
-        "value" => Some(GenericPureValueClass::I64),
+    match route.proof_tag() {
+        "mir_json_const_value_field" if route.route_kind_tag() == "runtime_data_load_any" => {
+            match route.key_const_text()? {
+                "type" => Some(GenericPureValueClass::StringOrVoid),
+                "value" => Some(GenericPureValueClass::I64),
+                _ => None,
+            }
+        }
+        "mir_json_phi_incoming_array_item" if route.route_kind_tag() == "array_slot_load_any" => {
+            Some(GenericPureValueClass::Array)
+        }
+        "mir_json_phi_incoming_pair_scalar" if route.route_kind_tag() == "array_slot_load_any" => {
+            Some(GenericPureValueClass::I64)
+        }
         _ => None,
     }
 }
