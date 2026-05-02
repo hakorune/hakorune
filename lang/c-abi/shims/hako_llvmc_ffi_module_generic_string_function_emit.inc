@@ -616,26 +616,44 @@
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView method_view;
         char ab[256];
+        char recv_ab[128];
         long long start = 0;
         long long end = 0;
+        long long recorded_end = 0;
+        size_t arg_count = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         (void)f;
         ab[0] = '\0';
+        recv_ab[0] = '\0';
         if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
               module_generic_string_method_view_is_direct_string_substring(&method_view))) {
           return 0;
         }
-        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2)) return 0;
+        if (!(arg_count == 1 || arg_count == 2)) return 0;
         if (!module_generic_string_read_arg_reg(args, 0, &start)) return 0;
-        if (!module_generic_string_read_arg_reg(args, 1, &end)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), start, 0);
-        append_i64_arg_ref(ab, sizeof(ab), end, 0);
+        if (arg_count == 2) {
+          if (!module_generic_string_read_arg_reg(args, 1, &end)) return 0;
+          append_i64_arg_ref(ab, sizeof(ab), end, 0);
+          recorded_end = end;
+        } else {
+          size_t used = strlen(ab);
+          append_i64_arg_ref(recv_ab, sizeof(recv_ab), recv, 1);
+          EMIT("  %%substr_end_%lld_%zu = call i64 @\"nyash.string.len_h\"(%s)\n", bid, ii, recv_ab);
+          if (used >= sizeof(ab)) return 0;
+          snprintf(
+              ab + used,
+              sizeof(ab) - used,
+              ", i64 %%substr_end_%lld_%zu",
+              bid,
+              ii);
+        }
         if (dst) {
           EMIT("  %%r%lld = call i64 @\"nyash.string.substring_hii\"(%s)\n", dst, ab);
           set_type(dst, T_I64);
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
-          remember_string_substring_call(dst, recv, start, end);
+          remember_string_substring_call(dst, recv, start, recorded_end);
         } else {
           EMIT("  call i64 @\"nyash.string.substring_hii\"(%s)\n", ab);
         }

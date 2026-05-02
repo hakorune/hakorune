@@ -75,7 +75,7 @@ fn seed_generic_string_return_corridor_values(
                         changed,
                     );
                 }
-                StringCorridorOp::StrSlice if args.len() == 2 => {
+                StringCorridorOp::StrSlice if matches!(args.len(), 1 | 2) => {
                     set_generic_string_return_string_handle_value_class(values, *receiver, changed);
                     for arg in args {
                         set_generic_string_return_value_class(
@@ -526,7 +526,7 @@ fn generic_string_return_accepts_substring_method(
 ) -> bool {
     matches!(box_name, "RuntimeDataBox" | "StringBox")
         && method == "substring"
-        && args.len() == 2
+        && matches!(args.len(), 1 | 2)
         && receiver_class == GenericStringReturnValueClass::String
         && args.iter().all(|arg| {
             generic_string_return_value_class(values, *arg) == GenericStringReturnValueClass::Other

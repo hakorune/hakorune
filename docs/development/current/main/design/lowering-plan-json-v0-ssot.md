@@ -284,9 +284,10 @@ export as `parser_program_json_body`, but the MIR proof must come from the
 wrapper shape, not from backend by-name matching.
 MIR owns these classifications and records them as `target_shape`.
 The string-or-void sentinel return-profile scan may classify
-`RuntimeDataBox.substring(i64, i64)` / `StringBox.substring(i64, i64)` as a
-string return only when the receiver is already known string and both arguments
-are scalar-like values. The body scan and LoweringPlan `generic_method.substring`
+`RuntimeDataBox.substring(i64)` / `RuntimeDataBox.substring(i64, i64)` /
+`StringBox.substring(i64)` / `StringBox.substring(i64, i64)` as a string return
+only when the receiver is already known string and all explicit arguments are
+scalar-like values. The body scan and LoweringPlan `generic_method.substring`
 metadata remain the authority for actual emission.
 Generic string scans and generic i64 scans seed value classes from existing MIR
 `value_types` and declared signatures; unknown parameters must not be treated
@@ -336,17 +337,20 @@ value class. That class may merge string/null evidence and counts as both string
 and void when deciding whether a parent is also a string-or-void sentinel body;
 it must not make arbitrary `void` values string-compatible.
 Within `generic_pure_string_body`, MIR may accept string-class
-`RuntimeDataBox.length()` and `RuntimeDataBox.substring(i64, i64)` only when the
-receiver is already classified as a string value, or when an existing string
-corridor fact for the same method-call result proves `str.len` / `str.slice`.
+`RuntimeDataBox.length()`, `RuntimeDataBox.substring(i64)`, and
+`RuntimeDataBox.substring(i64, i64)` only when the receiver is already
+classified as a string value, or when an existing string corridor fact for the
+same method-call result proves `str.len` / `str.slice`.
 That corridor proof may seed the exact receiver as `StringBox` for unknown
 receiver values such as `StringScanBox.read_char/2`; it must not classify
 unrelated unknown parameters as string by default. These methods must also
 carry the matching `generic_method.len` / `StringLen` or
 `generic_method.substring` / `StringSubstring` LoweringPlan entry before
 ny-llvmc emits `nyash.string.len_h` or `nyash.string.substring_hii`; backend
-shims must not infer this from the raw method name alone. This does not accept
-other string methods.
+shims must not infer this from the raw method name alone. One-argument
+`substring(start)` lowers as `substring(start, length(receiver))` inside the
+module generic string emitter, with the implicit length helper declared by the
+prescan. This does not accept other string methods.
 `generic_pure_string_body` may accept no-argument `new ArrayBox()` and
 `new MapBox()` births as collection-builder carriers when the surrounding body
 still returns a string handle. The module generic string emitter must lower

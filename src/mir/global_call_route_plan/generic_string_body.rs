@@ -457,7 +457,7 @@ fn generic_pure_string_corridor_method_op(
     }
     match method {
         "length" if args.is_empty() => Some(StringCorridorOp::StrLen),
-        "substring" if args.len() == 2 => Some(StringCorridorOp::StrSlice),
+        "substring" if matches!(args.len(), 1 | 2) => Some(StringCorridorOp::StrSlice),
         _ => None,
     }
 }
@@ -1222,7 +1222,7 @@ fn generic_pure_string_accepts_substring_method(
 ) -> bool {
     matches!(box_name, "RuntimeDataBox" | "StringBox")
         && method == "substring"
-        && args.len() == 2
+        && matches!(args.len(), 1 | 2)
         && receiver_class == GenericPureValueClass::String
         && args
             .iter()

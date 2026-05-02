@@ -226,6 +226,11 @@
                 insts,
                 ins,
                 &needs);
+            if (ctype && !strcmp(ctype, "Method") &&
+                mname && !strcmp(mname, "substring") &&
+                args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1) {
+              needs.string_len = 1;
+            }
           } else if (strcmp(op, "binop")==0) {
             const char* bop = read_str(ins, "operation");
             if (!bop) bop = read_str(ins, "op_kind");
