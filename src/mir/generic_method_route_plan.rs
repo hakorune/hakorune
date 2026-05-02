@@ -875,7 +875,7 @@ fn generic_array_flow_origin_box_name(function: &MirFunction, receiver: ValueId)
             let Some(block) = function.blocks.get(block_id) else {
                 continue;
             };
-            for inst in &block.instructions {
+            for (instruction_index, inst) in block.instructions.iter().enumerate() {
                 match inst {
                     MirInstruction::NewBox { dst, box_type, .. } if box_type == "ArrayBox" => {
                         if array_values.insert(*dst, "ArrayBox") != Some("ArrayBox") {
@@ -912,6 +912,24 @@ fn generic_array_flow_origin_box_name(function: &MirFunction, receiver: ValueId)
                                     changed = true;
                                 }
                             }
+                        }
+                    }
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee: Some(Callee::Global(_)),
+                        ..
+                    } => {
+                        let is_static_array =
+                            function.metadata.global_call_routes.iter().any(|route| {
+                                route.block() == *block_id
+                                    && route.instruction_index() == instruction_index
+                                    && route.result_value() == Some(*dst)
+                                    && route.target_shape() == Some("static_string_array_body")
+                            });
+                        if is_static_array
+                            && array_values.insert(*dst, "ArrayBox") != Some("ArrayBox")
+                        {
+                            changed = true;
                         }
                     }
                     _ => {}

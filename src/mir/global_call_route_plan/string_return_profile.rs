@@ -544,6 +544,9 @@ fn refine_generic_string_return_value_class(
                     GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
                         GenericStringReturnValueClass::String
                     }
+                    GlobalCallTargetShape::StaticStringArrayBody => {
+                        GenericStringReturnValueClass::Object
+                    }
                     GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                         GenericStringReturnValueClass::StringOrVoid
                     }

@@ -9,6 +9,8 @@
       size_t planned_module_generic_string_symbols_n = 0;
       const char* planned_module_parser_program_json_symbols[64];
       size_t planned_module_parser_program_json_symbols_n = 0;
+      const char* planned_module_static_string_array_symbols[64];
+      size_t planned_module_static_string_array_symbols_n = 0;
       const char* emitted_module_generic_string_symbols[256];
       size_t emitted_module_generic_string_symbols_n = 0;
 
@@ -55,6 +57,28 @@
         return 0;
       }
 
+      auto int remember_planned_module_static_string_array_symbol(const char* name) {
+        if (!name) return 0;
+        for (size_t i = 0; i < planned_module_static_string_array_symbols_n; i++) {
+          if (!strcmp(planned_module_static_string_array_symbols[i], name)) return 1;
+        }
+        if (planned_module_static_string_array_symbols_n >=
+            ARR_LEN(planned_module_static_string_array_symbols)) {
+          return 0;
+        }
+        planned_module_static_string_array_symbols[planned_module_static_string_array_symbols_n++] =
+            name;
+        return 1;
+      }
+
+      auto int module_static_string_array_symbol_will_be_defined(const char* name) {
+        if (!name) return 0;
+        for (size_t i = 0; i < planned_module_static_string_array_symbols_n; i++) {
+          if (!strcmp(planned_module_static_string_array_symbols[i], name)) return 1;
+        }
+        return 0;
+      }
+
       auto int remember_emitted_module_generic_string_symbol(const char* name) {
         if (!name) return 0;
         for (size_t i = 0; i < emitted_module_generic_string_symbols_n; i++) {
@@ -84,6 +108,10 @@
         return planned_module_parser_program_json_symbols_n > 0;
       }
 
+      auto int module_has_planned_static_string_array_definition(void) {
+        return planned_module_static_string_array_symbols_n > 0;
+      }
+
       auto yyjson_val* module_generic_string_find_function(const char* name) {
         if (!name) return NULL;
         for (size_t fi = 0; fi < program.function_count; fi++) {
@@ -105,6 +133,7 @@
           int is_parser_program_json = 0;
           int is_program_json_emit = 0;
           int is_jsonfrag_normalizer = 0;
+          int is_static_string_array = 0;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
           is_parser_program_json =
               lowering_plan_global_call_view_is_direct_parser_program_json(&view);
@@ -112,15 +141,22 @@
               lowering_plan_global_call_view_is_direct_program_json_emit(&view);
           is_jsonfrag_normalizer =
               lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(&view);
+          is_static_string_array =
+              lowering_plan_global_call_view_is_direct_static_string_array(&view);
           if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||
                 lowering_plan_global_call_view_is_direct_generic_string_void_logging(&view) ||
                 lowering_plan_global_call_view_is_direct_generic_i64(&view) ||
                 is_parser_program_json ||
                 is_program_json_emit ||
-                is_jsonfrag_normalizer)) continue;
+                is_jsonfrag_normalizer ||
+                is_static_string_array)) continue;
           if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
           if ((is_parser_program_json || is_program_json_emit) &&
               !remember_planned_module_parser_program_json_symbol(view.target_symbol)) {
+            return -1;
+          }
+          if (is_static_string_array &&
+              !remember_planned_module_static_string_array_symbol(view.target_symbol)) {
             return -1;
           }
           planned++;

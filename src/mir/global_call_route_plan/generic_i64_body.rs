@@ -485,6 +485,7 @@ fn generic_i64_body_refine_instruction(
                 | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
                     GenericI64ValueClass::String
                 }
+                GlobalCallTargetShape::StaticStringArrayBody => GenericI64ValueClass::Unknown,
                 GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                     GenericI64ValueClass::StringOrVoid
                 }

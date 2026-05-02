@@ -13,5 +13,6 @@ mod blockers;
 mod core;
 mod generic_i64;
 mod parser_program_json;
+mod static_string_array;
 mod tail;
 mod void_sentinel;

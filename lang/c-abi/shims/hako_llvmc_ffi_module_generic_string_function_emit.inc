@@ -13,6 +13,27 @@
                get_scan_origin(base) == ORG_STRING;
       }
 
+      auto int module_generic_string_value_is_array(long long reg) {
+        long long base = resolve_copy_source_reg(reg);
+        int origin_kind = get_origin(reg);
+        int scan = get_scan_origin(reg);
+        int base_origin = get_origin(base);
+        int base_scan = get_scan_origin(base);
+        return origin_kind == ORG_ARRAY_BIRTH ||
+               origin_kind == ORG_ARRAY_STRING_BIRTH ||
+               scan == ORG_ARRAY_BIRTH ||
+               scan == ORG_ARRAY_STRING_BIRTH ||
+               base_origin == ORG_ARRAY_BIRTH ||
+               base_origin == ORG_ARRAY_STRING_BIRTH ||
+               base_scan == ORG_ARRAY_BIRTH ||
+               base_scan == ORG_ARRAY_STRING_BIRTH;
+      }
+
+      auto int module_generic_string_active_function_is_static_string_array(void) {
+        const char* name = fn0 ? read_str(fn0, "name") : NULL;
+        return module_static_string_array_symbol_will_be_defined(name);
+      }
+
       auto int module_generic_string_read_string_const(
           yyjson_val* ins,
           const char** out) {
@@ -258,6 +279,29 @@
                     set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
                   }
                 }
+              } else if (module_generic_string_active_function_is_static_string_array() &&
+                         ctype && !strcmp(ctype, "Method") &&
+                         mname && !strcmp(mname, "push")) {
+                long long recv = cal ? read_int(cal, "receiver") : 0;
+                long long value = 0;
+                size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
+                if (argc == 1) {
+                  if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
+                } else if (argc == 2) {
+                  long long recv_arg = 0;
+                  if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
+                  if (!module_generic_string_value_is_array(recv_arg)) return 0;
+                  if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
+                } else {
+                  return 0;
+                }
+                if (!module_generic_string_value_is_array(recv) ||
+                    !module_generic_string_value_is_string(value)) return 0;
+                if (dst) set_type(dst, T_I64);
+                promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+                promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+                set_origin(recv, ORG_ARRAY_STRING_BIRTH);
+                set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_array_get(&method_view)) {
                 set_type(dst, T_I64);
@@ -313,6 +357,11 @@
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
+              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
+                         lowering_plan_global_call_view_is_direct_static_string_array(&global_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_ARRAY_STRING_BIRTH);
+                set_scan_origin(dst, ORG_ARRAY_STRING_BIRTH);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_leaf_i64(&global_view)) {
                 set_type(dst, T_I64);
@@ -703,6 +752,43 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_static_array_push_mir_call(
+          FILE* f,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        char ab[256];
+        long long value = 0;
+        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
+        if (!module_generic_string_active_function_is_static_string_array()) return 0;
+        if (argc == 1) {
+          if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
+        } else if (argc == 2) {
+          long long recv_arg = 0;
+          if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
+          if (!module_generic_string_value_is_array(recv_arg)) return 0;
+          if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
+        } else {
+          return 0;
+        }
+        if (!module_generic_string_value_is_array(recv) ||
+            !module_generic_string_value_is_string(value)) return 0;
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        append_i64_arg_ref(ab, sizeof(ab), value, 0);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+        } else {
+          EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
+        }
+        promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+        promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+        set_origin(recv, ORG_ARRAY_STRING_BIRTH);
+        set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
+        return 1;
+      }
+
       auto int module_generic_string_emit_method_get_mir_call(
           FILE* f,
           long long bid,
@@ -944,6 +1030,7 @@
           }
         } else if (ctype && !strcmp(ctype, "Method")) {
           long long recv = read_int(cal, "receiver");
+          const char* mname = cal ? read_str(cal, "name") : NULL;
           rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);
           if (rc != 1) {
             rc = module_generic_string_emit_method_push_mir_call(
@@ -953,6 +1040,9 @@
                 dst,
                 recv,
                 args);
+          }
+          if (rc != 1 && mname && !strcmp(mname, "push")) {
+            rc = module_generic_string_emit_static_array_push_mir_call(f, dst, recv, args);
           }
           if (rc != 1) {
             rc = module_generic_string_emit_method_get_mir_call(

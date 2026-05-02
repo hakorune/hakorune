@@ -138,6 +138,8 @@
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
+        } else if (lowering_plan_global_call_view_is_direct_static_string_array(&view)) {
+          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else {
           return -1;
         }
@@ -171,6 +173,10 @@
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
           trace_lowering_plan_entry_hit(entry, "mir_call_global_jsonfrag_instruction_array_normalizer_emit");
+        } else if (lowering_plan_global_call_view_is_direct_static_string_array(&view)) {
+          set_origin(dst, ORG_ARRAY_STRING_BIRTH);
+          set_scan_origin(dst, ORG_ARRAY_STRING_BIRTH);
+          trace_lowering_plan_entry_hit(entry, "mir_call_global_static_string_array_emit");
         } else if (lowering_plan_global_call_view_is_direct_generic_i64(&view)) {
           trace_lowering_plan_entry_hit(entry, "mir_call_global_generic_i64_emit");
         } else {

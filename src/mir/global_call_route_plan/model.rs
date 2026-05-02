@@ -37,6 +37,7 @@ pub enum GlobalCallTargetShape {
     ParserProgramJsonBody,
     ProgramJsonEmitBody,
     JsonFragInstructionArrayNormalizerBody,
+    StaticStringArrayBody,
 }
 
 impl GlobalCallTargetShape {
@@ -53,6 +54,7 @@ impl GlobalCallTargetShape {
             Self::JsonFragInstructionArrayNormalizerBody => {
                 "jsonfrag_instruction_array_normalizer_body"
             }
+            Self::StaticStringArrayBody => "static_string_array_body",
         }
     }
 }
@@ -321,6 +323,9 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody) => {
                 "typed_global_call_jsonfrag_instruction_array_normalizer"
             }
+            Some(GlobalCallTargetShape::StaticStringArrayBody) => {
+                "typed_global_call_static_string_array"
+            }
             _ => "typed_global_call_contract_missing",
         }
     }
@@ -407,7 +412,8 @@ impl GlobalCallRoute {
                 | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
                 | GlobalCallTargetShape::ParserProgramJsonBody
                 | GlobalCallTargetShape::ProgramJsonEmitBody
-                | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody,
+                | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
+                | GlobalCallTargetShape::StaticStringArrayBody,
             ) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
         }
@@ -429,6 +435,7 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody) => {
                 Some("string_handle")
             }
+            Some(GlobalCallTargetShape::StaticStringArrayBody) => Some("array_handle"),
             _ => None,
         }
     }
@@ -464,9 +471,8 @@ impl GlobalCallRoute {
             | GlobalCallTargetShape::GenericI64Body
             | GlobalCallTargetShape::ParserProgramJsonBody
             | GlobalCallTargetShape::ProgramJsonEmitBody
-            | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
-                Some(self.target.shape())
-            }
+            | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
+            | GlobalCallTargetShape::StaticStringArrayBody => Some(self.target.shape()),
             GlobalCallTargetShape::Unknown => None,
         }
     }

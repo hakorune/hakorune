@@ -44,5 +44,6 @@ mod generic_i64;
 mod jsonfrag_normalizer;
 mod runtime_methods;
 mod shape_reasons;
+mod static_string_array;
 mod void_logging;
 mod void_sentinel;

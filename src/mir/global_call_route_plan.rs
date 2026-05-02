@@ -22,6 +22,7 @@ mod model;
 mod parser_program_json_body;
 mod program_json_emit_body;
 mod shape_blocker;
+mod static_string_array_body;
 mod string_return_profile;
 mod type_label;
 
@@ -37,6 +38,7 @@ pub use model::{
 use model::{GlobalCallShapeBlocker, GlobalCallTargetClassification, GlobalCallTargetShapeReason};
 use parser_program_json_body::is_parser_program_json_body_function;
 use program_json_emit_body::is_program_json_emit_body_function;
+use static_string_array_body::is_static_string_array_body_function;
 
 fn supported_backend_global(name: &str) -> bool {
     matches!(name, "print")
@@ -141,6 +143,11 @@ fn classify_global_call_target_shape(
     if is_jsonfrag_instruction_array_normalizer_body_function(function) {
         return GlobalCallTargetClassification::direct(
             GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody,
+        );
+    }
+    if is_static_string_array_body_function(function) {
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::StaticStringArrayBody,
         );
     }
     if string_or_void_sentinel_return_type_candidate(&function.signature.return_type) {
