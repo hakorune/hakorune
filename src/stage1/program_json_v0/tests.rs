@@ -331,10 +331,6 @@ fn source_to_program_json_v0_accepts_stage1_cli_env_source() {
     assert_eq!(value["kind"], "Program");
     assert_eq!(value["version"], 0);
     assert_eq!(
-        value["imports"]["Stage1UsingResolverBox"],
-        "lang.compiler.entry.using_resolver_box"
-    );
-    assert_eq!(
         value["imports"]["BuildBox"],
         "lang.compiler.build.build_box"
     );
@@ -794,10 +790,6 @@ fn emit_program_json_v0_for_current_stage1_build_box_mode_emits_stage1_cli_env_p
 
     assert_eq!(value["kind"], "Program");
     assert_eq!(value["version"], 0);
-    assert_eq!(
-        value["imports"]["Stage1UsingResolverBox"],
-        "lang.compiler.entry.using_resolver_box"
-    );
     assert_eq!(
         value["imports"]["BuildBox"],
         "lang.compiler.build.build_box"

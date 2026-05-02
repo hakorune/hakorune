@@ -2,7 +2,6 @@
 //
 // Thin emit pipeline helper for the stage1 env authority cluster.
 
-using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
 using lang.compiler.build.build_box as BuildBox
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
 using lang.runner.stage1_cli_env.input_contract as Stage1InputContractBox
@@ -84,14 +83,7 @@ static box Stage1SourceProgramAuthorityBox {
       return null
     }
     local source = me._coerce_text_compat(source_text)
-    local merged = me._merge_using_prefix(source)
-    return me._emit_program_json_from_source_checked(tag, merged)
-  }
-
-  method _merge_using_prefix(source_text) {
-    local prefix = Stage1UsingResolverBox.resolve_for_source(source_text)
-    if prefix == null { prefix = "" }
-    return prefix + source_text
+    return me._emit_program_json_from_source_checked(tag, source)
   }
 
   method _emit_program_json_from_source_checked(tag, merged_source_text) {
