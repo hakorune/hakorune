@@ -952,6 +952,183 @@ fn refresh_module_global_call_routes_accepts_unknown_return_string_or_void_wrapp
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_string_typed_string_or_void_passthrough_wrapper() {
+    let mut module =
+        MirModule::new("global_call_string_typed_string_or_void_wrapper_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.methodize/1",
+        Some(ValueId::new(20)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.methodize/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Bool(true),
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(2),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut pass_block = BasicBlock::new(BasicBlockId::new(1));
+    pass_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    let mut child_or_null = BasicBlock::new(BasicBlockId::new(2));
+    child_or_null.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Bool(true),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(4)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.child/1".to_string())),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    child_or_null.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(3),
+        then_bb: BasicBlockId::new(3),
+        else_bb: BasicBlockId::new(4),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut child_return = BasicBlock::new(BasicBlockId::new(3));
+    child_return.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    let mut void_return = BasicBlock::new(BasicBlockId::new(4));
+    void_return.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(5),
+        value: ConstValue::Void,
+    });
+    void_return.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(5)),
+    });
+    callee.blocks.insert(BasicBlockId::new(1), pass_block);
+    callee.blocks.insert(BasicBlockId::new(2), child_or_null);
+    callee.blocks.insert(BasicBlockId::new(3), child_return);
+    callee.blocks.insert(BasicBlockId::new(4), void_return);
+
+    let mut child = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.child/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    child.params = vec![ValueId::new(1)];
+    let child_block = child.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    child_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::String("ok".to_string()),
+    });
+    child_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.methodize/1".to_string(), callee);
+    module.functions.insert("Helper.child/1".to_string(), child);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("generic_string_or_void_sentinel_body"),
+        "reason={:?} blocker={:?}/{:?}",
+        route.target_shape_reason(),
+        route.target_shape_blocker_symbol(),
+        route.target_shape_blocker_reason()
+    );
+    assert_eq!(
+        route.proof(),
+        "typed_global_call_generic_string_or_void_sentinel"
+    );
+    assert_eq!(route.return_shape(), Some("string_handle_or_null"));
+}
+
+#[test]
+fn refresh_module_global_call_routes_rejects_string_typed_unknown_param_or_void_without_string_evidence(
+) {
+    let mut module =
+        MirModule::new("global_call_string_typed_param_or_void_reject_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.pass_or_null/1",
+        Some(ValueId::new(20)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.pass_or_null/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Bool(true),
+    });
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(2),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut pass_block = BasicBlock::new(BasicBlockId::new(1));
+    pass_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    let mut void_block = BasicBlock::new(BasicBlockId::new(2));
+    void_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::Void,
+    });
+    void_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+    callee.blocks.insert(BasicBlockId::new(1), pass_block);
+    callee.blocks.insert(BasicBlockId::new(2), void_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.pass_or_null/1".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), None);
+    assert_eq!(
+        route.target_shape_reason(),
+        Some("generic_string_unsupported_void_sentinel_const")
+    );
+}
+
+#[test]
 fn refresh_module_global_call_routes_rejects_unknown_return_param_or_void_without_string_evidence()
 {
     let mut module =

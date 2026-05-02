@@ -224,6 +224,7 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
 
     let mut saw_string = false;
     let mut saw_concrete_string = false;
+    let mut saw_unknown_param_passthrough = false;
     let mut saw_void = false;
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
@@ -241,6 +242,7 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
                         GenericStringReturnValueClass::Void => saw_void = true,
                         GenericStringReturnValueClass::Unknown if passthrough.contains(value) => {
                             saw_string = true;
+                            saw_unknown_param_passthrough = true;
                         }
                         GenericStringReturnValueClass::Unknown
                         | GenericStringReturnValueClass::Object
@@ -254,17 +256,18 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
             }
         }
     }
-    saw_string
-        && saw_void
-        && (function.signature.return_type != MirType::Unknown || saw_concrete_string)
+    let requires_concrete_string = function.signature.return_type == MirType::Unknown
+        || (saw_unknown_param_passthrough
+            && generic_string_return_type_requires_concrete_unknown_passthrough(
+                &function.signature.return_type,
+            ));
+    saw_string && saw_void && (!requires_concrete_string || saw_concrete_string)
 }
 
 fn unknown_param_passthrough_values(function: &MirFunction) -> BTreeSet<ValueId> {
     let mut values = BTreeSet::<ValueId>::new();
-    if !matches!(
-        function.signature.return_type,
-        MirType::Void | MirType::Unknown
-    ) {
+    if !generic_string_return_type_allows_unknown_param_passthrough(&function.signature.return_type)
+    {
         return values;
     }
     for (index, param) in function.params.iter().enumerate() {
@@ -299,6 +302,16 @@ fn unknown_param_passthrough_values(function: &MirFunction) -> BTreeSet<ValueId>
         }
     }
     values
+}
+
+fn generic_string_return_type_allows_unknown_param_passthrough(ty: &MirType) -> bool {
+    matches!(ty, MirType::Void | MirType::Unknown | MirType::String)
+        || matches!(ty, MirType::Box(name) if name == "StringBox")
+}
+
+fn generic_string_return_type_requires_concrete_unknown_passthrough(ty: &MirType) -> bool {
+    matches!(ty, MirType::Unknown | MirType::String)
+        || matches!(ty, MirType::Box(name) if name == "StringBox")
 }
 
 fn refined_generic_string_return_values(
