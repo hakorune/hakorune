@@ -1,7 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::string_corridor::StringCorridorOp;
-use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BasicBlockId, BinaryOp, Callee, CompareOp, ConstValue, MirFunction, MirInstruction, MirType,
+    ValueId,
+};
 
 use super::model::{
     GlobalCallShapeBlocker, GlobalCallTargetFacts, GlobalCallTargetShape,
@@ -186,6 +189,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
     seed_generic_pure_values(function, &mut values);
     seed_generic_pure_string_return_param_values(function, &mut return_param_values);
     seed_generic_pure_string_corridor_method_values(function, &mut values, &mut has_string_surface);
+    let non_void_string_values = generic_pure_string_non_void_guard_phi_values(function);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
@@ -204,6 +208,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
                     &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
+                    &non_void_string_values,
                     &mut changed,
                 ) {
                     return Some(reject);
@@ -217,6 +222,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
                     &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
+                    &non_void_string_values,
                     &mut changed,
                 ) {
                     return Some(reject);
@@ -495,6 +501,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
     let mut has_void_sentinel_const = false;
     seed_generic_pure_values(function, &mut values);
     seed_generic_pure_string_corridor_method_values(function, &mut values, &mut has_string_surface);
+    let non_void_string_values = generic_pure_string_non_void_guard_phi_values(function);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
@@ -512,6 +519,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
                     &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
+                    &non_void_string_values,
                     &mut changed,
                 ) {
                     return Some(reject);
@@ -525,6 +533,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
                     &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
+                    &non_void_string_values,
                     &mut changed,
                 ) {
                     return Some(reject);
@@ -571,6 +580,7 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
     let mut has_string_surface = false;
     let mut has_void_sentinel_const = false;
     seed_generic_pure_values(function, &mut values);
+    let non_void_string_values = generic_pure_string_non_void_guard_phi_values(function);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
@@ -589,6 +599,7 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
                     &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
+                    &non_void_string_values,
                     &mut changed,
                 ) {
                     return Some(reject);
@@ -602,6 +613,7 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
                     &mut return_param_values,
                     &mut has_string_surface,
                     &mut has_void_sentinel_const,
+                    &non_void_string_values,
                     &mut changed,
                 ) {
                     return Some(reject);
@@ -689,6 +701,156 @@ pub(super) fn format_mir_type_label(ty: &MirType) -> String {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+struct NonVoidStringGuard {
+    predecessor: BasicBlockId,
+    successor: BasicBlockId,
+    value_root: ValueId,
+}
+
+fn generic_pure_string_non_void_guard_phi_values(function: &MirFunction) -> BTreeSet<ValueId> {
+    let aliases = generic_pure_string_copy_aliases(function);
+    let void_roots = generic_pure_string_void_const_roots(function, &aliases);
+    let compare_guards =
+        generic_pure_string_non_void_compare_guards(function, &aliases, &void_roots);
+    let branch_guards =
+        generic_pure_string_non_void_branch_guards(function, &aliases, &compare_guards);
+    let mut guarded_values = BTreeSet::new();
+
+    for guard in branch_guards {
+        let Some(block) = function.blocks.get(&guard.successor) else {
+            continue;
+        };
+        for instruction in &block.instructions {
+            let MirInstruction::Phi { dst, inputs, .. } = instruction else {
+                continue;
+            };
+            if inputs.iter().any(|(pred, value)| {
+                *pred == guard.predecessor
+                    && generic_pure_string_resolve_alias(&aliases, *value) == guard.value_root
+            }) {
+                guarded_values.insert(*dst);
+            }
+        }
+    }
+
+    guarded_values
+}
+
+fn generic_pure_string_copy_aliases(function: &MirFunction) -> BTreeMap<ValueId, ValueId> {
+    let mut aliases = BTreeMap::new();
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            if let MirInstruction::Copy { dst, src } = instruction {
+                aliases.insert(*dst, *src);
+            }
+        }
+    }
+    aliases
+}
+
+fn generic_pure_string_void_const_roots(
+    function: &MirFunction,
+    aliases: &BTreeMap<ValueId, ValueId>,
+) -> BTreeSet<ValueId> {
+    let mut void_roots = BTreeSet::new();
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            if let MirInstruction::Const {
+                dst,
+                value: ConstValue::Null | ConstValue::Void,
+            } = instruction
+            {
+                void_roots.insert(generic_pure_string_resolve_alias(aliases, *dst));
+            }
+        }
+    }
+    void_roots
+}
+
+fn generic_pure_string_non_void_compare_guards(
+    function: &MirFunction,
+    aliases: &BTreeMap<ValueId, ValueId>,
+    void_roots: &BTreeSet<ValueId>,
+) -> BTreeMap<ValueId, (CompareOp, ValueId)> {
+    let mut guards = BTreeMap::new();
+    for block in function.blocks.values() {
+        for instruction in &block.instructions {
+            let MirInstruction::Compare { dst, op, lhs, rhs } = instruction else {
+                continue;
+            };
+            if !matches!(op, CompareOp::Eq | CompareOp::Ne) {
+                continue;
+            }
+            let lhs_root = generic_pure_string_resolve_alias(aliases, *lhs);
+            let rhs_root = generic_pure_string_resolve_alias(aliases, *rhs);
+            let value_root = if void_roots.contains(&lhs_root) && !void_roots.contains(&rhs_root) {
+                rhs_root
+            } else if void_roots.contains(&rhs_root) && !void_roots.contains(&lhs_root) {
+                lhs_root
+            } else {
+                continue;
+            };
+            guards.insert(
+                generic_pure_string_resolve_alias(aliases, *dst),
+                (*op, value_root),
+            );
+        }
+    }
+    guards
+}
+
+fn generic_pure_string_non_void_branch_guards(
+    function: &MirFunction,
+    aliases: &BTreeMap<ValueId, ValueId>,
+    compare_guards: &BTreeMap<ValueId, (CompareOp, ValueId)>,
+) -> Vec<NonVoidStringGuard> {
+    let mut guards = Vec::new();
+    for (block_id, block) in &function.blocks {
+        let Some(MirInstruction::Branch {
+            condition,
+            then_bb,
+            else_bb,
+            ..
+        }) = &block.terminator
+        else {
+            continue;
+        };
+        let condition_root = generic_pure_string_resolve_alias(aliases, *condition);
+        let Some((op, value_root)) = compare_guards.get(&condition_root).copied() else {
+            continue;
+        };
+        let successor = match op {
+            CompareOp::Ne => *then_bb,
+            CompareOp::Eq => *else_bb,
+            _ => continue,
+        };
+        guards.push(NonVoidStringGuard {
+            predecessor: *block_id,
+            successor,
+            value_root,
+        });
+    }
+    guards
+}
+
+fn generic_pure_string_resolve_alias(
+    aliases: &BTreeMap<ValueId, ValueId>,
+    value: ValueId,
+) -> ValueId {
+    let mut current = value;
+    for _ in 0..=aliases.len() {
+        let Some(next) = aliases.get(&current).copied() else {
+            break;
+        };
+        if next == current {
+            break;
+        }
+        current = next;
+    }
+    current
+}
+
 fn generic_pure_string_instruction_reject_reason(
     instruction: &MirInstruction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
@@ -696,6 +858,7 @@ fn generic_pure_string_instruction_reject_reason(
     return_param_values: &mut BTreeSet<ValueId>,
     has_string_surface: &mut bool,
     has_void_sentinel_const: &mut bool,
+    non_void_string_values: &BTreeSet<ValueId>,
     changed: &mut bool,
 ) -> Option<GenericPureStringReject> {
     update_generic_pure_string_return_param_values(instruction, return_param_values, changed);
@@ -856,7 +1019,11 @@ fn generic_pure_string_instruction_reject_reason(
             set_value_class(values, *dst, GenericPureValueClass::Bool, changed);
             None
         }
-        MirInstruction::Phi { dst, inputs, .. } => {
+        MirInstruction::Phi {
+            dst,
+            inputs,
+            type_hint,
+        } => {
             let mut saw_string = false;
             let mut saw_string_or_void = false;
             let mut saw_void_sentinel = false;
@@ -883,8 +1050,30 @@ fn generic_pure_string_instruction_reject_reason(
                 all_array &= class == GenericPureValueClass::Array;
                 all_map &= class == GenericPureValueClass::Map;
             }
+            let type_hint_class = type_hint
+                .as_ref()
+                .and_then(generic_pure_value_class_from_type);
             if saw_unknown {
+                if matches!(
+                    type_hint_class,
+                    Some(GenericPureValueClass::I64 | GenericPureValueClass::Bool)
+                ) && !saw_string
+                    && !saw_string_or_void
+                    && !saw_void_sentinel
+                    && !saw_array
+                    && !saw_map
+                {
+                    set_proven_flow_value_class(values, *dst, type_hint_class.unwrap(), changed);
+                }
                 return None;
+            } else if non_void_string_values.contains(dst)
+                && saw_string_or_void
+                && !saw_scalar
+                && !saw_array
+                && !saw_map
+            {
+                *has_string_surface = true;
+                set_guarded_non_void_string_value_class(values, *dst, changed);
             } else if all_string {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::String, changed);
             } else if all_array {
@@ -1324,6 +1513,21 @@ fn set_string_handle_value_class(
         | Some(GenericPureValueClass::StringOrVoid)
         | Some(GenericPureValueClass::VoidSentinel)
         | None => {
+            values.insert(value, GenericPureValueClass::String);
+            *changed = true;
+        }
+        Some(_) => {}
+    }
+}
+
+fn set_guarded_non_void_string_value_class(
+    values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    value: ValueId,
+    changed: &mut bool,
+) {
+    match values.get(&value).copied() {
+        Some(GenericPureValueClass::String) => {}
+        Some(GenericPureValueClass::StringOrVoid) | Some(GenericPureValueClass::Unknown) | None => {
             values.insert(value, GenericPureValueClass::String);
             *changed = true;
         }
