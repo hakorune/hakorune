@@ -1,6 +1,28 @@
 use super::*;
 use crate::mir::semantic_refresh::refresh_module_semantic_metadata;
 
+fn method_call(
+    dst: Option<ValueId>,
+    box_name: &str,
+    method: &str,
+    receiver: ValueId,
+    args: Vec<ValueId>,
+) -> MirInstruction {
+    MirInstruction::Call {
+        dst,
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: box_name.to_string(),
+            method: method.to_string(),
+            receiver: Some(receiver),
+            certainty: TypeCertainty::Known,
+            box_kind: CalleeBoxKind::RuntimeData,
+        }),
+        args,
+        effects: EffectMask::PURE,
+    }
+}
+
 #[test]
 fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method() {
     let mut module = MirModule::new("global_call_string_len_method_test".to_string());
@@ -748,6 +770,78 @@ fn refresh_module_global_call_routes_accepts_collection_births_in_generic_pure_s
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
+
+#[test]
+fn refresh_module_semantic_metadata_accepts_collection_builder_surface_in_generic_pure_string_body()
+{
+    let mut module = MirModule::new("global_call_string_collection_builder_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.with_collection_builder/0",
+        Some(ValueId::new(7)),
+        vec![],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.with_collection_builder/0".to_string(),
+            params: vec![],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        },
+        method_call(None, "ArrayBox", "birth", ValueId::new(1), vec![]),
+        MirInstruction::NewBox {
+            dst: ValueId::new(2),
+            box_type: "MapBox".to_string(),
+            args: vec![],
+        },
+        method_call(None, "MapBox", "birth", ValueId::new(2), vec![]),
+        MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::String("items".to_string()),
+        },
+        method_call(
+            None,
+            "MapBox",
+            "set",
+            ValueId::new(2),
+            vec![ValueId::new(3), ValueId::new(1)],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::String("ok".to_string()),
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.with_collection_builder/0".to_string(), callee);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    let callee = &module.functions["Helper.with_collection_builder/0"];
+    assert!(callee.metadata.generic_method_routes.iter().any(|route| {
+        route.route_id() == "generic_method.set"
+            && route.method() == "set"
+            && route.receiver_origin_box() == Some("MapBox")
+            && route.route_kind_tag() == "map_store_any"
+            && route.helper_symbol() == "nyash.map.slot_store_hhh"
+            && route.value_demand().as_metadata_name() == "write_any"
+    }));
 }
 
 #[test]

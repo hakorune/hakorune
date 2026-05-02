@@ -32,6 +32,21 @@ pub(super) fn generic_pure_string_accepts_array_len_method(
         && receiver_class == GenericPureValueClass::Array
 }
 
+pub(super) fn generic_pure_string_accepts_collection_birth_method(
+    box_name: &str,
+    method: &str,
+    args: &[ValueId],
+    receiver_class: GenericPureValueClass,
+) -> bool {
+    args.is_empty()
+        && method == "birth"
+        && matches!(
+            (box_name, receiver_class),
+            ("ArrayBox" | "RuntimeDataBox", GenericPureValueClass::Array)
+                | ("MapBox" | "RuntimeDataBox", GenericPureValueClass::Map)
+        )
+}
+
 pub(super) fn generic_pure_string_accepts_array_push_method(
     box_name: &str,
     method: &str,
@@ -54,10 +69,10 @@ pub(super) fn generic_pure_string_accepts_array_push_method(
         }
         _ => return false,
     };
-    generic_pure_string_accepts_array_push_payload(value_class(values, payload))
+    generic_pure_string_accepts_write_any_payload(value_class(values, payload))
 }
 
-fn generic_pure_string_accepts_array_push_payload(class: GenericPureValueClass) -> bool {
+fn generic_pure_string_accepts_write_any_payload(class: GenericPureValueClass) -> bool {
     matches!(
         class,
         GenericPureValueClass::Unknown
@@ -70,6 +85,32 @@ fn generic_pure_string_accepts_array_push_payload(class: GenericPureValueClass) 
             | GenericPureValueClass::StringOrVoid
             | GenericPureValueClass::VoidSentinel
     )
+}
+
+pub(super) fn generic_pure_string_accepts_map_set_method(
+    box_name: &str,
+    method: &str,
+    args: &[ValueId],
+    receiver_class: GenericPureValueClass,
+    values: &BTreeMap<ValueId, GenericPureValueClass>,
+) -> bool {
+    if !matches!(box_name, "RuntimeDataBox" | "MapBox")
+        || method != "set"
+        || receiver_class != GenericPureValueClass::Map
+    {
+        return false;
+    }
+    let (key, value) = match args {
+        [key, value] => (*key, *value),
+        [receiver_arg, key, value]
+            if value_class(values, *receiver_arg) == GenericPureValueClass::Map =>
+        {
+            (*key, *value)
+        }
+        _ => return false,
+    };
+    value_class(values, key) == GenericPureValueClass::String
+        && generic_pure_string_accepts_write_any_payload(value_class(values, value))
 }
 
 pub(super) fn generic_pure_string_accepts_indexof_method(

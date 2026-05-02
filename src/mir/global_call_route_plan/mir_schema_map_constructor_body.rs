@@ -141,6 +141,34 @@ impl MirSchemaMapConstructorFacts {
                 args,
                 ..
             } => {
+                if method == "birth" && args.is_empty() {
+                    let expected = match box_name.as_str() {
+                        "ArrayBox" | "RuntimeDataBox"
+                            if self.values.get(receiver) == Some(&MirSchemaValueClass::Array) =>
+                        {
+                            Some(MirSchemaValueClass::Scalar)
+                        }
+                        "MapBox" | "RuntimeDataBox"
+                            if self.values.get(receiver) == Some(&MirSchemaValueClass::Map) =>
+                        {
+                            Some(MirSchemaValueClass::Scalar)
+                        }
+                        _ => None,
+                    };
+                    let Some(class) = expected else {
+                        return if *changed {
+                            None
+                        } else {
+                            Some(GenericPureStringReject::new(
+                                GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
+                            ))
+                        };
+                    };
+                    if let Some(dst) = dst {
+                        self.set_value(*dst, class, changed);
+                    }
+                    return None;
+                }
                 if matches!(box_name.as_str(), "MapBox" | "RuntimeDataBox") && method == "set" {
                     if self.values.get(receiver) != Some(&MirSchemaValueClass::Map)
                         || !self.accepts_map_set_args(args)

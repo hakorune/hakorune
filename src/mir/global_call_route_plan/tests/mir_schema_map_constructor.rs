@@ -83,6 +83,16 @@ fn mir_schema_i_function(name: &str) -> MirFunction {
     function
 }
 
+fn mir_schema_i_with_birth_function(name: &str) -> MirFunction {
+    let mut function = mir_schema_i_function(name);
+    let block = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.insert(
+        1,
+        method_call(None, "MapBox", "birth", ValueId::new(2), vec![]),
+    );
+    function
+}
+
 fn mir_schema_inst_const_function(name: &str, child_name: &str) -> MirFunction {
     let mut function = MirFunction::new(
         FunctionSignature {
@@ -176,6 +186,37 @@ fn refresh_module_global_call_routes_marks_mir_schema_map_constructor_body() {
     );
     assert_eq!(route.return_shape(), Some("map_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+}
+
+#[test]
+fn refresh_module_global_call_routes_accepts_mir_schema_map_constructor_birth_method() {
+    let mut module = MirModule::new("global_call_mir_schema_map_birth_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "MirSchemaBox.i/1",
+        Some(ValueId::new(20)),
+        vec![ValueId::new(1)],
+    );
+    module.functions.insert("main".to_string(), caller);
+    module.functions.insert(
+        "MirSchemaBox.i/1".to_string(),
+        mir_schema_i_with_birth_function("MirSchemaBox.i/1"),
+    );
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("mir_schema_map_constructor_body"),
+        "reason={:?} blocker={:?}/{:?}",
+        route.target_shape_reason(),
+        route.target_shape_blocker_symbol(),
+        route.target_shape_blocker_reason()
+    );
+    assert_eq!(
+        route.proof(),
+        "typed_global_call_mir_schema_map_constructor"
+    );
 }
 
 #[test]

@@ -258,8 +258,13 @@
               struct LoweringPlanGlobalCallView global_view;
               const char* ctype = cal ? read_str(cal, "type") : NULL;
               const char* mname = cal ? read_str(cal, "name") : NULL;
+              const char* bname = cal ? read_str(cal, "box_name") : NULL;
               long long dst = read_int(ins, "dst");
-              if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              if (ctype && !strcmp(ctype, "Method") &&
+                  mname && !strcmp(mname, "birth") &&
+                  bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
+                if (dst) set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                   module_generic_string_method_view_is_direct_string_len(&method_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
@@ -1064,6 +1069,15 @@
         } else if (ctype && !strcmp(ctype, "Method")) {
           long long recv = read_int(cal, "receiver");
           const char* mname = cal ? read_str(cal, "name") : NULL;
+          const char* bname = cal ? read_str(cal, "box_name") : NULL;
+          if (mname && !strcmp(mname, "birth") &&
+              bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
+            if (dst) {
+              put_const(dst, 0);
+              set_type(dst, T_I64);
+            }
+            return 1;
+          }
           rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);
           if (rc != 1) {
             rc = module_generic_string_emit_method_push_mir_call(
