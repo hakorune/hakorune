@@ -58,6 +58,7 @@ pub(super) enum GlobalCallTargetShapeReason {
     GenericStringUnsupportedVoidSentinelConst,
     GenericStringUnsupportedCall,
     GenericStringUnsupportedMethodCall,
+    GenericStringUnsupportedKnownReceiverMethod,
     GenericStringUnsupportedExternCall,
     GenericStringGlobalTargetMissing,
     GenericStringGlobalTargetShapeUnknown,
@@ -87,6 +88,9 @@ impl GlobalCallTargetShapeReason {
             }
             Self::GenericStringUnsupportedCall => "generic_string_unsupported_call",
             Self::GenericStringUnsupportedMethodCall => "generic_string_unsupported_method_call",
+            Self::GenericStringUnsupportedKnownReceiverMethod => {
+                "generic_string_unsupported_known_receiver_method"
+            }
             Self::GenericStringUnsupportedExternCall => "generic_string_unsupported_extern_call",
             Self::GenericStringGlobalTargetMissing => "generic_string_global_target_missing",
             Self::GenericStringGlobalTargetShapeUnknown => {

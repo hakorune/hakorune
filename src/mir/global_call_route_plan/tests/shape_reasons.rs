@@ -63,6 +63,88 @@ fn refresh_module_global_call_routes_marks_method_call_shape_reason() {
 }
 
 #[test]
+fn refresh_module_global_call_routes_marks_parser_known_receiver_method_blocker() {
+    let mut module = MirModule::new("global_call_parser_known_receiver_boundary_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.parse/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.parse/1".to_string(),
+            params: vec![MirType::String],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(1)];
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::NewBox {
+            dst: ValueId::new(2),
+            box_type: "ParserBox".to_string(),
+            args: vec![],
+        },
+        MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(2),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(4)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "ParserBox".to_string(),
+                method: "birth".to_string(),
+                receiver: Some(ValueId::new(3)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(5)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "ParserBox".to_string(),
+                method: "parse_program2".to_string(),
+                receiver: Some(ValueId::new(3)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            }),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(5)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.parse/1".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), None);
+    assert_eq!(
+        route.target_shape_reason(),
+        Some("generic_string_unsupported_known_receiver_method")
+    );
+    assert_eq!(
+        route.target_shape_blocker_symbol(),
+        Some("ParserBox.parse_program2")
+    );
+    assert_eq!(
+        route.target_shape_blocker_reason(),
+        Some("generic_string_unsupported_known_receiver_method")
+    );
+}
+
+#[test]
 fn refresh_module_global_call_routes_marks_unknown_child_target_shape_reason() {
     let mut module = MirModule::new("global_call_child_reason_test".to_string());
     let caller =

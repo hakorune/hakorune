@@ -118,6 +118,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   through an owner-local helper. The current pure-first stop is now the parser
   authority boundary:
   `BuildBox._parse_program_json/1 -> generic_string_unsupported_instruction`.
+- P151 keeps that boundary non-lowerable but improves the MIR-owned diagnostic:
+  the stop now propagates to
+  `ParserBox.parse_program2 -> generic_string_unsupported_known_receiver_method`.
 
 ## Compat Capsule Rules
 

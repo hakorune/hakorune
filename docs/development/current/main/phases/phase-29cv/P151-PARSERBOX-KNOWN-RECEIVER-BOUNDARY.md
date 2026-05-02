@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Decision: accepted
 Date: 2026-05-02
 Scope: phase-29cv P151, ParserBox known-receiver boundary triage
@@ -60,7 +60,32 @@ itself.
 ## Acceptance
 
 ```bash
+cargo test -q refresh_module_global_call_routes_marks_parser_known_receiver_method_blocker
 cargo test -q global_call_routes
+cargo fmt --check
+cargo build --release --bin hakorune
 target/release/hakorune --emit-mir-json /tmp/hakorune_p151_parser_boundary.mir.json lang/src/runner/stage1_cli_env.hako
 NYASH_LLVM_ROUTE_TRACE=1 target/release/hakorune --emit-exe /tmp/hakorune_p151_stage1_cli_env.exe lang/src/runner/stage1_cli_env.hako
 ```
+
+## Evidence
+
+`BuildBox._parse_program_json_from_scan_src/1` now reports the parser method
+boundary directly:
+
+```text
+BuildBox._parse_program_json/1
+  target_shape_reason=generic_string_unsupported_known_receiver_method
+  target_shape_blocker_symbol=ParserBox.parse_program2
+  target_shape_blocker_reason=generic_string_unsupported_known_receiver_method
+```
+
+The full pure-first trace propagates the same blocker to the top source
+execution stop:
+
+```text
+target_shape_blocker_symbol=ParserBox.parse_program2
+target_shape_blocker_reason=generic_string_unsupported_known_receiver_method
+```
+
+No `ParserBox` method was made lowerable in this card.
