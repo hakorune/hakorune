@@ -286,9 +286,9 @@ static box MirJsonEmitBox {
   }
 
   _emit_block(block) {
-    if block == null { return "{\"id\":0,\"instructions\":[]}" }
+    if me._is_present_compat(block) == 0 { return "{\"id\":0,\"instructions\":[]}" }
     local insts = block.get("instructions")
-    if insts == null {
+    if me._is_present_compat(insts) == 0 {
       return "{\"id\":" + me._int_str(block.get("id")) + ",\"instructions\":[]}"
     }
     local n = insts.length()
