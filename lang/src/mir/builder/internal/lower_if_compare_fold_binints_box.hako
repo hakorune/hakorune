@@ -31,7 +31,8 @@ static box LowerIfCompareFoldBinIntsBox {
     // Int
     if JsonFragBox.index_of_from(s, "\"type\":\"Int\"", node_pos) == node_pos { // best-effort
       local kv = JsonFragBox.index_of_from(s, "\"value\":", node_pos); if kv < 0 { return null }
-      return JsonFragBox.read_int_after(s, kv + 8)
+      local iv = JsonFragBox.read_int_after(s, kv + 8); if iv == null { return null }
+      return me._coerce_text_compat(iv)
     }
     // Binary
     if JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", node_pos) == node_pos {
@@ -42,7 +43,8 @@ static box LowerIfCompareFoldBinIntsBox {
       local kn = JsonFragBox.index_of_from(s, "\"name\":\"", node_pos); if kn < 0 { return null }
       local name = JsonFragBox.read_string_after(s, kn + 5); if name == null { return null }
       // find last matching Local Int before if_pos via util
-      return PatternUtilBox.find_local_int_before(s, name, if_pos)
+      local found = PatternUtilBox.find_local_int_before(s, name, if_pos); if found == null { return null }
+      return me._coerce_text_compat(found)
     }
     return null
   }

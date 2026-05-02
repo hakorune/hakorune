@@ -138,6 +138,10 @@ static box MirJsonEmitBox {
     return StringHelpers.json_quote("" + s)
   }
 
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+
   _is_present_compat(value) {
     if value == null { return 0 }
     return 1
@@ -193,7 +197,11 @@ static box MirJsonEmitBox {
     if me._is_present_compat(inst) == 0 { return "{}" }
     me._assert_map(inst, "instruction")
     local op = inst.get("op")
-    if me._is_present_compat(op) == 0 { op = "" }
+    if me._is_present_compat(op) == 0 {
+      op = ""
+    } else {
+      op = me._coerce_text_compat(op)
+    }
     if op == "const" {
       return "{\"op\":\"const\",\"dst\":" + me._int_str(inst.get("dst")) +
              ",\"value\":" + me._emit_box_value(inst.get("value")) + "}"
