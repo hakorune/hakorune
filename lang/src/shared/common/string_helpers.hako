@@ -124,7 +124,7 @@ static box StringHelpers {
     {
       // Dev-only trace for Stage‑B / parser調査用
       local dbg = env.get("HAKO_STAGEB_DEBUG")
-      if dbg == 1 || dbg == "1" {
+      if dbg == "1" {
         print("[string_helpers/starts_with] src=\"" + src + "\"")
         print("[string_helpers/starts_with] i=" + ("" + i) + " m=" + ("" + m) + " n=" + ("" + n))
       }
@@ -142,7 +142,7 @@ static box StringHelpers {
   starts_with_kw(src, i, kw) {
     {
       local dbg = env.get("HAKO_STAGEB_DEBUG")
-      if dbg == 1 || dbg == "1" {
+      if dbg == "1" {
         print("[string_helpers/starts_with_kw] src=\"" + src + "\" i=" + ("" + i) + " kw=\"" + kw + "\"")
       }
     }

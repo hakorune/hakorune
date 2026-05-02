@@ -167,6 +167,12 @@ fn generic_i64_body_refine_instruction(
             }
             let lhs_class = generic_i64_value_class(values, *lhs);
             let rhs_class = generic_i64_value_class(values, *rhs);
+            if *op == BinaryOp::Add
+                && (lhs_class == GenericI64ValueClass::String
+                    || rhs_class == GenericI64ValueClass::String)
+            {
+                return set_generic_i64_string_handle_value_class(values, *dst, changed);
+            }
             if lhs_class == GenericI64ValueClass::Unknown
                 || rhs_class == GenericI64ValueClass::Unknown
             {
@@ -264,7 +270,9 @@ fn generic_i64_body_refine_instruction(
                 }
                 if merged == GenericI64ValueClass::Unknown {
                     merged = class;
-                } else if merged != class {
+                } else if merged != class
+                    && !(merged == GenericI64ValueClass::Bool && class == GenericI64ValueClass::I64)
+                {
                     return false;
                 }
             }
@@ -334,9 +342,11 @@ fn generic_i64_body_refine_instruction(
             }
         }
         MirInstruction::Call {
+            dst,
             callee: Some(Callee::Global(name)),
+            args,
             ..
-        } if supported_backend_global(name) => false,
+        } if supported_backend_global(name) => dst.is_none() && args.len() == 1,
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
@@ -430,6 +440,29 @@ fn set_generic_i64_value_class(
         Some(existing) if existing == class => true,
         Some(GenericI64ValueClass::Unknown) | None => {
             values.insert(value, class);
+            *changed = true;
+            true
+        }
+        Some(_) => false,
+    }
+}
+
+fn set_generic_i64_string_handle_value_class(
+    values: &mut BTreeMap<ValueId, GenericI64ValueClass>,
+    value: ValueId,
+    changed: &mut bool,
+) -> bool {
+    match values.get(&value).copied() {
+        Some(GenericI64ValueClass::String) => true,
+        Some(GenericI64ValueClass::Unknown) | None => {
+            values.insert(value, GenericI64ValueClass::String);
+            *changed = true;
+            true
+        }
+        // String handles are raw i64 at the ABI layer. For `String + ...`, the
+        // operation itself is the semantic proof that this value is a string.
+        Some(GenericI64ValueClass::I64) => {
+            values.insert(value, GenericI64ValueClass::String);
             *changed = true;
             true
         }
