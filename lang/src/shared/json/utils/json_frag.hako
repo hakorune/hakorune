@@ -39,7 +39,7 @@ static box JsonFragBox {
       p = p + 1
     }
     local s1 = tmp
-    local n = s1.length()
+    local n = ("" + s1).length()
     if n == 0 { return s1 }
     local out = ""
     local i = 0
