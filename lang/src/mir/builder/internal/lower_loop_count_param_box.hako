@@ -31,17 +31,19 @@ static box LowerLoopCountParamBox {
     local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp); if k_op < 0 { return "" }
     local op = me._read_string_after_text(s, k_op + 5)
     if op == "" { return "" }
-    local has_lhs_i = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
-    local has_rhs_i = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
-    if !has_lhs_i {
-      if !has_rhs_i { return "" }
+    local has_lhs_i = 0
+    if JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0 { has_lhs_i = 1 }
+    local has_rhs_i = 0
+    if JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0 { has_rhs_i = 1 }
+    if has_lhs_i != 1 {
+      if has_rhs_i != 1 { return "" }
     }
     local cmp = ""
     local limit = ""
     // Keep lookups inside this Compare object to avoid matching body Binary rhs.
     local k_cmp_obj = JsonFragBox.last_index_of_from(s, "{", k_cmp); if k_cmp_obj < 0 { return "" }
     local k_cmp_end = me._seek_object_end(s, k_cmp_obj); if k_cmp_end < 0 { return "" }
-    if has_lhs_i {
+    if has_lhs_i == 1 {
       // rhs Int/Var → resolve limit
       local k_rhs_int = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_cmp)
       if k_rhs_int >= 0 {
@@ -107,10 +109,12 @@ static box LowerLoopCountParamBox {
     local k_bop = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_body_i)
     if k_bop < 0 { return "" }
     // Body increment: Local i = Binary(op '+' or '-', Var i, (Int step | Var stepName))
-    local bop_plus = (JsonFragBox.index_of_from(s, "\"op\":\"+\"", k_bop) >= 0)
-    local bop_minus = (JsonFragBox.index_of_from(s, "\"op\":\"-\"", k_bop) >= 0)
-    if !bop_plus {
-      if !bop_minus { return "" }
+    local bop_plus = 0
+    if JsonFragBox.index_of_from(s, "\"op\":\"+\"", k_bop) >= 0 { bop_plus = 1 }
+    local bop_minus = 0
+    if JsonFragBox.index_of_from(s, "\"op\":\"-\"", k_bop) >= 0 { bop_minus = 1 }
+    if bop_plus != 1 {
+      if bop_minus != 1 { return "" }
     }
     if JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_bop) < 0 { return "" }
 
@@ -137,13 +141,17 @@ static box LowerLoopCountParamBox {
       step = me._local_int_text_before(s, vname, k_bop)
     }
     if step == "" { return "" }
-    if bop_minus {
+    if bop_minus == 1 {
       // Encode subtraction as Add with negative step
       local si = JsonFragBox._str_to_int(step)
       step = StringHelpers.int_to_str(0 - si)
     }
     // limit normalized above
 
+    return me._emit_count_param_json(start_text, limit, step, cmp)
+  }
+
+  _emit_count_param_json(start_text, limit, step, cmp) {
     return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[" +
       "{\"id\":0,\"instructions\":[" +
         "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + start_text + "}}," +
