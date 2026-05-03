@@ -16,9 +16,10 @@ Rules
 - Semantics are identical to `local` (scope/cleanup unchanged). Zero runtime cost.
 
 Enablement
-- Use the provided pre-expander script for dev: `tools/dev/at_local_preexpand.sh`.
+- Use the provided pre-expander script for dev:
+  `bash tools/dev/at_local_preexpand.sh`.
 - Example:
-  - `tools/dev/at_local_preexpand.sh apps/tests/dev_sugar/at_local_basic.hako > /tmp/out.hako`
+  - `bash tools/dev/at_local_preexpand.sh apps/tests/dev_sugar/at_local_basic.hako > /tmp/out.hako`
   - `./target/release/hakorune --backend vm /tmp/out.hako`
   - Historical parity route: `bash tools/historical/pyvm/pyvm_vs_llvmlite.sh /tmp/out.hako`
 

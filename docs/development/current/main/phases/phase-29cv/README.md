@@ -95,6 +95,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P358A archives old phase216/217 normalization bring-up canaries from active
   `tools/dev`; the current phase2160 dehang proof remains active and is guarded
   by `tools/checks/phase216217_normalization_canary_surface_guard.sh`.
+- P359A repairs the invocation contract for active dev sugar pre-expand helpers
+  after inventory found the documented direct helper path and composed sugar
+  helper relied on executable file-mode bits that this repo does not track.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

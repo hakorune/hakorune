@@ -8,8 +8,8 @@ set -euo pipefail
 #  - a += b (and -=, *=, /=) as statements
 #  - i++ / i-- as statements (not expressions)
 # Usage:
-#   tools/dev/dev_sugar_preexpand.sh < input.hako > output.hako
-#   or tools/dev/dev_sugar_preexpand.sh input.hako > output.hako
+#   bash tools/dev/dev_sugar_preexpand.sh < input.hako > output.hako
+#   or bash tools/dev/dev_sugar_preexpand.sh input.hako > output.hako
 
 in="${1:-}"
 if [ -n "$in" ]; then
@@ -17,7 +17,7 @@ if [ -n "$in" ]; then
 fi
 
 # 1) @ local alias
-"$(dirname "$0")/at_local_preexpand.sh" | \
+bash "$(dirname "$0")/at_local_preexpand.sh" | \
 
 # 2) compound assignments (+=, -=, *=, /=), statements only; skip comment lines
 sed -E \

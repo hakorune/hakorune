@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P358A-PHASE216217-NORMALIZATION-CANARY-ARCHIVE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P358A-PHASE216217-NORMALIZATION-CANARY-ARCHIVE.md"
-latest_card_summary = "Archive old phase216/217 normalization bring-up canaries from tools/dev while keeping the phase2160 dehang proof active."
+latest_card = "P359A-DEV-SUGAR-PREEXPAND-INVOKE-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P359A-DEV-SUGAR-PREEXPAND-INVOKE-CONTRACT.md"
+latest_card_summary = "Repair bash invocation contract for active dev sugar pre-expand helpers discovered during tools/dev inventory."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

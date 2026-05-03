@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Pre-expand dev sugar: line-head "@name[: Type] = expr" -> "local name[: Type] = expr"
 # Usage:
-#   tools/dev/at_local_preexpand.sh < input.hako > output.hako
-#   or tools/dev/at_local_preexpand.sh input.hako > output.hako
+#   bash tools/dev/at_local_preexpand.sh < input.hako > output.hako
+#   or bash tools/dev/at_local_preexpand.sh input.hako > output.hako
 
 in="${1:-}"
 if [ -n "$in" ]; then
