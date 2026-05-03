@@ -413,6 +413,17 @@
                   set_scan_origin(dst, ORG_MAP_BIRTH);
                 }
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_mir_json_module_field_get(&method_view)) {
+                const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
+                set_type(dst, T_I64);
+                if (key && !strcmp(key, "functions")) {
+                  set_origin(dst, ORG_ARRAY_BIRTH);
+                  set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                } else if (key && !strcmp(key, "functions_0")) {
+                  set_origin(dst, ORG_MAP_BIRTH);
+                  set_scan_origin(dst, ORG_MAP_BIRTH);
+                }
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
@@ -986,6 +997,7 @@
         int is_mir_json_callee_field_get = 0;
         int is_mir_json_inst_field_get = 0;
         int is_mir_json_function_field_get = 0;
+        int is_mir_json_module_field_get = 0;
         int is_mir_json_flags_rec_map_get = 0;
         (void)f;
         ab[0] = '\0';
@@ -1022,6 +1034,8 @@
               module_generic_string_method_view_is_direct_mir_json_inst_field_get(&method_view);
           is_mir_json_function_field_get =
               module_generic_string_method_view_is_direct_mir_json_function_field_get(&method_view);
+          is_mir_json_module_field_get =
+              module_generic_string_method_view_is_direct_mir_json_module_field_get(&method_view);
           is_mir_json_flags_rec_map_get =
               module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(&method_view);
         }
@@ -1042,6 +1056,7 @@
               is_mir_json_callee_field_get ||
               is_mir_json_inst_field_get ||
               is_mir_json_function_field_get ||
+              is_mir_json_module_field_get ||
               is_mir_json_flags_rec_map_get)) return 0;
         if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
         if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
@@ -1079,6 +1094,7 @@
               is_mir_json_callee_field_get ||
               is_mir_json_inst_field_get ||
               is_mir_json_function_field_get ||
+              is_mir_json_module_field_get ||
               is_mir_json_flags_rec_map_get) {
             set_origin(dst, ORG_MAP_GET);
           }
@@ -1106,6 +1122,16 @@
               set_origin(dst, ORG_ARRAY_BIRTH);
               set_scan_origin(dst, ORG_ARRAY_BIRTH);
             } else if (key && !strcmp(key, "flags")) {
+              set_origin(dst, ORG_MAP_BIRTH);
+              set_scan_origin(dst, ORG_MAP_BIRTH);
+            }
+          }
+          if (is_mir_json_module_field_get) {
+            const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
+            if (key && !strcmp(key, "functions")) {
+              set_origin(dst, ORG_ARRAY_BIRTH);
+              set_scan_origin(dst, ORG_ARRAY_BIRTH);
+            } else if (key && !strcmp(key, "functions_0")) {
               set_origin(dst, ORG_MAP_BIRTH);
               set_scan_origin(dst, ORG_MAP_BIRTH);
             }
