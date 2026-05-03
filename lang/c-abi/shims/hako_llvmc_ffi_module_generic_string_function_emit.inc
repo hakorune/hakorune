@@ -326,6 +326,9 @@
                          module_generic_string_method_view_is_direct_array_get(&method_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(&method_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_map_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
@@ -887,17 +890,23 @@
         char ab[256];
         long long key = 0;
         int is_array_get = 0;
+        int is_mir_json_block_inst_array_item_get = 0;
         int is_map_get = 0;
         int is_mir_json_block_field_get = 0;
         (void)f;
         ab[0] = '\0';
         if (read_lowering_plan_generic_method_view(entry, &method_view)) {
           is_array_get = module_generic_string_method_view_is_direct_array_get(&method_view);
+          is_mir_json_block_inst_array_item_get =
+              module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(&method_view);
           is_map_get = module_generic_string_method_view_is_direct_map_get(&method_view);
           is_mir_json_block_field_get =
               module_generic_string_method_view_is_direct_mir_json_block_field_get(&method_view);
         }
-        if (!(is_array_get || is_map_get || is_mir_json_block_field_get)) return 0;
+        if (!(is_array_get ||
+              is_mir_json_block_inst_array_item_get ||
+              is_map_get ||
+              is_mir_json_block_field_get)) return 0;
         if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
         if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
@@ -905,13 +914,17 @@
         if (dst) {
           EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n",
                dst,
-               is_array_get ? "nyash.array.slot_load_hi" : "nyash.runtime_data.get_hh",
+               (is_array_get || is_mir_json_block_inst_array_item_get)
+                   ? "nyash.array.slot_load_hi"
+                   : "nyash.runtime_data.get_hh",
                ab);
           set_type(dst, T_I64);
           if (is_map_get || is_mir_json_block_field_get) set_origin(dst, ORG_MAP_GET);
         } else {
           EMIT("  call i64 @\"%s\"(%s)\n",
-               is_array_get ? "nyash.array.slot_load_hi" : "nyash.runtime_data.get_hh",
+               (is_array_get || is_mir_json_block_inst_array_item_get)
+                   ? "nyash.array.slot_load_hi"
+                   : "nyash.runtime_data.get_hh",
                ab);
         }
         return 1;
