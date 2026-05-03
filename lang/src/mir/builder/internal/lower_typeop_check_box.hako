@@ -1,14 +1,16 @@
 // lower_typeop_check_box.hako — Minimal structural MIR for typeop(Check)
 
+using selfhost.shared.common.string_helpers as StringHelpers
+
 static box LowerTypeOpCheckBox {
   _accept_shape(s) {
-    if s.indexOf("\"type\":\"Return\"") < 0 { return 0 }
+    if StringHelpers.index_of(s, 0, "\"type\":\"Return\"") < 0 { return 0 }
     // Keep control-flow shapes on dedicated lowers.
-    if s.indexOf("\"type\":\"If\"") >= 0 { return 0 }
-    if s.indexOf("\"type\":\"Loop\"") >= 0 { return 0 }
-    if s.indexOf("\"type\":\"Method\"") < 0 { return 0 }
-    if s.indexOf("\"method\":\"is\"") < 0 && s.indexOf("\"method\":\"check\"") < 0 { return 0 }
-    if s.indexOf("\"type\":\"String\"") < 0 { return 0 }
+    if StringHelpers.index_of(s, 0, "\"type\":\"If\"") >= 0 { return 0 }
+    if StringHelpers.index_of(s, 0, "\"type\":\"Loop\"") >= 0 { return 0 }
+    if StringHelpers.index_of(s, 0, "\"type\":\"Method\"") < 0 { return 0 }
+    if StringHelpers.index_of(s, 0, "\"method\":\"is\"") < 0 && StringHelpers.index_of(s, 0, "\"method\":\"check\"") < 0 { return 0 }
+    if StringHelpers.index_of(s, 0, "\"type\":\"String\"") < 0 { return 0 }
     return 1
   }
 
