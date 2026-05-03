@@ -63,6 +63,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   probe. The live explicit supplied-Program(JSON) proof remains
   `tools/dev/phase29ch_program_json_compat_route_probe.sh`, which already
   exercises the `stage1_contract_exec_program_json_compat()` text transport.
+- P349A archives the phase29ch raw direct `stage1-cli` absence probe. That
+  `rc=97` raw-direct evidence is historical diagnostics, not a live
+  Program(JSON v0) keeper.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

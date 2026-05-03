@@ -26,5 +26,6 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `phase29ch_program_json_explicit_mode_gate_probe.sh`
 - `phase29ch_program_json_helper_exec_probe.sh`
 - `phase29ch_program_json_text_only_probe.sh`
+- `phase29ch_raw_direct_stage1_cli_probe.sh`
 
 Read this directory as the archived engineering helper bucket.

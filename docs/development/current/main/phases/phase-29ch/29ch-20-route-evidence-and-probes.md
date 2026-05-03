@@ -70,7 +70,9 @@ Related:
 - archived evidence:
   `bash tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`
   - diagnostics-only: proves that raw `stage1-cli` artifacts still return `rc=97` when asked to execute a helper source that would print `MirBuilderBox.emit_from_program_json_v0(...)`
-- `bash tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh`
+- raw direct `stage1-cli` absence probe:
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_raw_direct_stage1_cli_probe.sh`
   - diagnostics-only: proves that the generic raw direct `stage1-cli` lane is absent on green artifacts (`<bin> <source>` / `emit program-json` / `emit mir-json` all return `rc=97`)
 - impossible-gate probe:
   - `bash tools/dev/phase29ch_impossible_gate_probe.sh [entry]`
@@ -159,7 +161,8 @@ Related:
   - `stage1.raw_exec_rc=97`
   - `stage2.raw_exec_rc=97`
   - therefore raw helper execution is not yet available as a shell-side replacement for the Stage1-side explicit compat dispatch
-- `bash tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh` is green:
+- `tools/archive/legacy-selfhost/engineering/phase29ch_raw_direct_stage1_cli_probe.sh`
+  was green before archive:
   - `hakorune.stage1_cli.raw_source.rc=97`
   - `hakorune.stage1_cli.raw_emit_program.rc=97`
   - `hakorune.stage1_cli.raw_emit_mir.rc=97`
