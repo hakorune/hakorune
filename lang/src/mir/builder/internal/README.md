@@ -33,3 +33,45 @@ Notes
 - If the shared outer finalize chain needs to grow, extend `finalize_chain_box.hako` before widening the outer box again.
 - If the promoted MIR contract needs to grow, extend `finalize_chain_box.hako` before widening the outer box again.
 - If the func-def pre-lowering gate needs to grow, extend `func_defs_gate_box.hako` before widening the outer box again.
+
+Source-Execution Owner Matrix
+
+Purpose: keep source-execution cleanup from widening the wrong owner when a
+small return shape blocks generated `stage1_cli_env.hako` EXE probes.
+
+- `MirBuilderMinBox.hako`
+  - Owner role: minimal opt-in bring-up entry for small scalar/text shapes.
+  - May dispatch: proven lightweight owners already needed by source-execution
+    minimal mode, such as `return.int`, `return.bool`, `return.string`,
+    local-var returns, and scalar binop/compare lowers.
+  - Must not dispatch: richer registry patterns just because a source probe
+    blocks. In particular, do not add `return.method.string.length` here.
+  - Growth rule: if the shape needs method ownership, registry ordering, or
+    function-set widening, keep it out of MinBox.
+
+- `registry_authority_box.hako`
+  - Owner role: normal registry-first `Program(JSON v0) -> MIR(JSON)` authority.
+  - May dispatch: registered pattern owners in `PatternRegistryBox` order.
+  - Must keep: `return.method.string.length` before `return.string`, so nested
+    string receiver method returns do not get mistaken for direct string
+    literals.
+
+- `lower_return_string_box.hako`
+  - Owner role: direct `Return(Str|String literal)` only.
+  - Must reject: `Return(Method(...))`, including
+    `return "x".length()` and `return "x".size()`.
+
+- `lower_return_method_string_length_box.hako`
+  - Owner role: `Return(Method(recv=Str|String literal, method=length|size,
+    args=[]))`.
+  - Must emit: canonical call MIR with `callee.type=Method`,
+    `box_name=StringBox`, and `method=length|size`.
+  - Must reject: non-empty args, non-string literal receivers, and methods other
+    than `length` / `size`.
+
+- `func_lowering/call_methodize_box.hako`
+  - Owner role: legacy call methodization only.
+  - Must rewrite: legacy call objects with `"op":"call"` plus a `"func":`
+    register backed by a prior string const function name.
+  - Must preserve: already-canonical call MIR with no `"func":` field. This is
+    an identity path, including when `HAKO_MIR_BUILDER_METHODIZE=1`.

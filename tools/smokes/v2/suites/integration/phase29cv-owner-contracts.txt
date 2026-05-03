@@ -1,0 +1,4 @@
+# Integration phase29cv owner contract canaries
+# These are boundary guards, not broad selfhost regression packs.
+core/phase2034/mirbuilder_call_methodize_canonical_identity_canary_vm.sh
+core/phase2034/mirbuilder_return_string_owner_boundary_canary_vm.sh
