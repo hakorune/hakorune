@@ -50,6 +50,7 @@ explicit keepers in the right order.
    - `tools/selfhost/compat/run_stage1_cli.sh`
    - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
    - archived diagnostics-only probes:
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_cold_compat_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`

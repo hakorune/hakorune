@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../../../.." && pwd)}"
 source "${ROOT}/tools/selfhost/lib/identity_routes.sh"
 source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 
@@ -10,7 +10,7 @@ ENTRY="${ROOT}/apps/tests/hello_simple_llvm.hako"
 
 usage() {
   cat <<'USAGE' >&2
-Usage: tools/dev/phase29ch_program_json_cold_compat_probe.sh [--bin <path>] [entry.hako]
+Usage: tools/archive/legacy-selfhost/engineering/phase29ch_program_json_cold_compat_probe.sh [--bin <path>] [entry.hako]
 
 Reports how non-authority supplied-Program(JSON) caller shapes behave on a
 compiled stage1-compatible artifact. This is diagnostics only; current live

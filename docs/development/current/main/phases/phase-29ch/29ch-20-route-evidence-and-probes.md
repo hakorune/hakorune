@@ -56,7 +56,8 @@ Related:
   - diagnostics-only: reports which explicit supplied-Program compat route is actually used on a compiled artifact
   - current owner: the probe itself + `stage1_contract_exec_program_json_text()`; no shared compat helper remains in `identity_routes.sh`
 - explicit Program(JSON) cold compat probe:
-  - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin <stage1-cli>`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_program_json_cold_compat_probe.sh --bin <stage1-cli>`
   - diagnostics-only: reports whether legacy/subcmd cold compat routes are still accepted on a compiled artifact
 - explicit Program(JSON) text-only probe:
   - archived evidence:
@@ -137,13 +138,14 @@ Related:
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
   both report `compat_route=stage1-env-mir-program`.
 - That explicit compat route uses text transport through `stage1_contract_exec_program_json_compat()` and the current live text SSOT is `STAGE1_SOURCE_TEXT`.
-- `STAGE1_PROGRAM_JSON_TEXT` is now retained only for fail-fast diagnostics and cold compat observation; the explicit mode gate probe and cold compat probe inject it directly, while live shell helpers do not.
+- `STAGE1_PROGRAM_JSON_TEXT` is now retained only for fail-fast diagnostics and archived cold compat observation; the archived explicit mode gate probe and archived cold compat probe inject it directly, while live shell helpers do not.
 - retired path transport has been removed from `stage1_contract_exec_mode()` / `stage1_contract_run_bin_with_env()`;
   live shell compat now enters through `stage1_contract_exec_program_json_compat()` only.
 - Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` is retired from the live wrapper surface.
 - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) are now centralized in `tools/selfhost/lib/stage1_contract.sh`.
 - No separate cold supplied-Program compat lane remains on green artifacts.
-- The remaining diagnostics owner is `tools/dev/phase29ch_program_json_cold_compat_probe.sh`, not `identity_routes.sh` / `stage1_contract.sh`.
+- The cold supplied-Program diagnostics owner is now archived evidence, not
+  `identity_routes.sh` / `stage1_contract.sh`.
 - `bash tools/dev/phase29ch_selfhost_program_json_helper_probe.sh` is green:
   - `stage1_stage2_mir=exact-match`
   - runtime flags: `MIR_NONNULL`, `MIR_NONEMPTY`, `TEXT_NONEMPTY`, `LEN_POS`, `HEAD_OK`, `IDX_OK`
@@ -170,9 +172,9 @@ Related:
   - `hakorune.stage1_cli.stage2.raw_emit_program.rc=97`
   - `hakorune.stage1_cli.stage2.raw_emit_mir.rc=97`
   - therefore raw helper execution is one instance of a broader non-authority raw direct lane absence
-- `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin target/selfhost/hakorune.stage1_cli`
-  and `--bin target/selfhost/hakorune.stage1_cli.stage2`
-  currently both report:
+- `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_cold_compat_probe.sh`
+  was green before archive on `target/selfhost/hakorune.stage1_cli` and
+  `target/selfhost/hakorune.stage1_cli.stage2`:
   - `legacy_env_program_json=none`
   - `raw_wrapper_program_json=none`
   - `explicit_helper_program_json=stage1-env-mir-program`

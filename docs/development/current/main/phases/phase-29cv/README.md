@@ -66,6 +66,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P349A archives the phase29ch raw direct `stage1-cli` absence probe. That
   `rc=97` raw-direct evidence is historical diagnostics, not a live
   Program(JSON v0) keeper.
+- P350A archives the phase29ch Program(JSON) cold compat diagnostics probe.
+  Live canonical proof now uses the explicit compat route probe and the exact
+  Stage1 CLI emit contract smoke instead of a diagnostics-only cold-lane probe.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
@@ -259,6 +262,7 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/selfhost/compat/run_stage1_cli.sh`
    - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
    - archived diagnostics-only probes:
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_cold_compat_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`

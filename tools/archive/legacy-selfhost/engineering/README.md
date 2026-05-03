@@ -23,6 +23,7 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `program_json_v0_stageb_artifact_probe.sh`
 - `program_json_v0_dev_stagea.sh`
 - `program_json_v0_dev_stageb.sh`
+- `phase29ch_program_json_cold_compat_probe.sh`
 - `phase29ch_program_json_explicit_mode_gate_probe.sh`
 - `phase29ch_program_json_helper_exec_probe.sh`
 - `phase29ch_program_json_text_only_probe.sh`

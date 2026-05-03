@@ -77,7 +77,7 @@ Primary proofs:
 - `cargo test mir_builder -- --nocapture`
 - `cargo test user_box_decls -- --nocapture`
 - `cargo test program_json_to_mir_file -- --nocapture`
-- `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh`
+- `bash tools/dev/phase29ch_program_json_compat_route_probe.sh`
 
 See also:
 - [frontend-owner-proof-index.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/frontend-owner-proof-index.md)

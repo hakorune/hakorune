@@ -30,7 +30,7 @@ Canonical proofs:
 - `cargo test mir_builder -- --nocapture`
 - `cargo test user_box_decls -- --nocapture`
 - `cargo test program_json_to_mir_file -- --nocapture`
-- `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh`
+- `bash tools/dev/phase29ch_program_json_compat_route_probe.sh`
 
 ## 2. Runner Authority Owner
 
@@ -46,7 +46,7 @@ Responsibilities:
 - launcher raw/subcmd dispatch
 
 Canonical proofs:
-- `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh`
+- `bash tools/dev/phase29ch_program_json_compat_route_probe.sh`
 - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
 - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/compat/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
 - `bash tools/hakorune_emit_mir.sh lang/src/runner/launcher_native_entry.hako /tmp/launcher_probe.mir.json`
@@ -66,7 +66,7 @@ Responsibilities:
 
 Canonical proofs:
 - `bash -n tools/selfhost/lib/stage1_contract.sh tools/selfhost/lib/identity_routes.sh tools/selfhost/mainline/build_stage1.sh`
-- `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh`
+- `bash tools/smokes/v2/profiles/integration/selfhost/phase29ci_stage1_cli_exact_emit_contract_vm.sh`
 - `bash tools/selfhost/run_lane_a_daily.sh`
 
 ## 4. Backend Boundary Owner
