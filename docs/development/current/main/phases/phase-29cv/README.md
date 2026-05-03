@@ -55,6 +55,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `GlobalCallTargetShape` now has a status/removal reading, and
   `missing_multi_function_emitter` is locked as a uniform MIR function emitter
   target rather than permission to add body-specific shapes.
+- P346A makes that inventory executable with
+  `tools/checks/stage0_shape_inventory_guard.sh`, so undocumented
+  `GlobalCallTargetShape` growth fails before Stage0 silently learns another
+  source-helper body shape.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

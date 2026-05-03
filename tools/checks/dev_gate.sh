@@ -34,6 +34,7 @@ list_profiles() {
 [dev-gate] profiles:
   quick:
     - tools/checks/current_state_pointer_guard.sh
+    - tools/checks/stage0_shape_inventory_guard.sh
     - tools/checks/inc_codegen_thin_shim_guard.sh
     - tools/checks/generic_method_set_policy_mirror_guard.sh
     - tools/checks/core_method_contract_manifest_guard.sh
@@ -195,6 +196,9 @@ run_step() {
 run_quick() {
   run_step "current-state pointer guard" \
     bash tools/checks/current_state_pointer_guard.sh
+
+  run_step "Stage0 shape inventory guard" \
+    bash tools/checks/stage0_shape_inventory_guard.sh
 
   run_step ".inc codegen thin-shim guard" \
     bash tools/checks/inc_codegen_thin_shim_guard.sh
