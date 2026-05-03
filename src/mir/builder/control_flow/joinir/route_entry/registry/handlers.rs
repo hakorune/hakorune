@@ -53,7 +53,10 @@ fn route_standard(
         .facts
         .as_ref()
         .expect("facts present for route_standard");
-    let core_plan = (entry.compose)(builder, facts, ctx).map_err(|freeze| freeze.to_string())?;
+    let core_plan = with_standard_compose_binding_boundary(builder, |builder| {
+        (entry.compose)(builder, facts, ctx)
+    })
+    .map_err(|freeze| freeze.to_string())?;
     let via = if env.strict_or_dev {
         entry.flowbox_via_strict
     } else {
@@ -67,6 +70,16 @@ fn route_standard(
         core_plan,
         via,
     )
+}
+
+fn with_standard_compose_binding_boundary<T, E, F>(builder: &mut MirBuilder, f: F) -> Result<T, E>
+where
+    F: FnOnce(&mut MirBuilder) -> Result<T, E>,
+{
+    let saved = builder.variable_ctx.variable_map.clone();
+    let result = f(builder);
+    builder.variable_ctx.variable_map = saved;
+    result
 }
 
 fn release_skips_nested_loop(ctx: &LoopRouteContext, env: &RouterEnv) -> bool {
@@ -106,4 +119,42 @@ fn release_allows_loop_cond_break_continue(
     // Release route allows nested-loop shapes only when loop_cond_break_continue
     // found an explicit exit-driven form. Keep passive cluster forms blocked.
     facts.release_allowed()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::with_standard_compose_binding_boundary;
+    use crate::mir::builder::MirBuilder;
+    use crate::mir::ValueId;
+
+    #[test]
+    fn standard_route_compose_restores_variable_map_before_lower() {
+        let mut builder = MirBuilder::new();
+        let outer = ValueId(10);
+        let scratch = ValueId(20);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("outer".to_string(), outer);
+
+        let result: Result<(), ()> =
+            with_standard_compose_binding_boundary(&mut builder, |builder| {
+                builder
+                    .variable_ctx
+                    .variable_map
+                    .insert("scratch".to_string(), scratch);
+                builder
+                    .variable_ctx
+                    .variable_map
+                    .insert("outer".to_string(), scratch);
+                Ok(())
+            });
+
+        assert!(result.is_ok());
+        assert_eq!(builder.variable_ctx.variable_map.get("outer"), Some(&outer));
+        assert!(
+            !builder.variable_ctx.variable_map.contains_key("scratch"),
+            "compose scratch binding must not be visible to PlanLowerer pre-loop snapshots"
+        );
+    }
 }
