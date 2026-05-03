@@ -97,7 +97,7 @@ if [[ "$1" == "emit" ]]; then
         case "$1" in
           --from-program-json)
             echo "[run-stage1] emit mir-json: --from-program-json is retired from this wrapper" >&2
-            echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh or stage1_contract_exec_program_json_compat" >&2
+            echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit Program(JSON) compat proof" >&2
             exit 2
             ;;
           *)

@@ -31,6 +31,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/program_json_v0_compat_caller_guard.sh` | raw `Program(JSON v0)` compat emit helper の active shell caller を `stage1_contract.sh` / `stageb_helpers.sh` に限定する。 |
 | `tools/checks/program_json_mir_bridge_caller_guard.sh` | `Program(JSON)->MIR` bridge helper の active shell caller を `selfhost_exe_stageb.sh` / phase29cg proof に限定する。 |
 | `tools/checks/stageb_program_json_capture_caller_guard.sh` | Stage-B Program(JSON) stdout capture helper の active shell caller を MIR emit / Stage-B helper surfaces に限定する。 |
+| `tools/checks/stage1_program_json_compat_caller_guard.sh` | Stage1 Program(JSON) compat execution helper の active shell caller を phase29ch explicit probe に限定する。 |
 | `tools/checks/phase29ch_route_probe_surface_guard.sh` | archived phase29ch route diagnostics probes が active `tools/dev` surface に戻らず、live compat keeper だけが残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_preperf_probe_surface_guard.sh` | archived phase29ck pre-perf diagnostics probes が active `tools/dev` surface に戻らず、live compat/dialect keepers が残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_small_entry_probe_surface_guard.sh` | archived phase29ck small-entry perf diagnostics probes が active `tools/dev` surface に戻らず、runtime-proof smoke anchor が残ることを fail-fast で検出する。 |
