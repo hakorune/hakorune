@@ -589,23 +589,25 @@ static box FuncBodyBasicLowerBox {
   }
 
   method _try_lower_loop(func_name, box_name, params_arr, body_json) {
+    local body_str = "" + body_json
+
     // 1) LoopForm の Loop を持つ Program(JSON) であることを軽く確認
-    if !(body_json.contains("\"type\":\"Loop\"")) { return null }
+    if JsonFragBox.index_of_from(body_str, "\"type\":\"Loop\"", 0) < 0 { return null }
 
     // 2) まず sum_bc 用の lower を試す（break/continue付き）
-    { local out = LowerLoopSumBcBox.try_lower(body_json)
+    { local out = LowerLoopSumBcBox.try_lower(body_str)
       if out != null { return me._rebind(out, func_name, box_name, params_arr, "[funcs/basic:loop.sum_bc]") } }
 
     // 3) 次に multi_carrier 用 lower を試す（fibonacci風）
-    { local out_mc = LowerLoopMultiCarrierBox.try_lower(body_json, params_arr)
+    { local out_mc = LowerLoopMultiCarrierBox.try_lower(body_str, params_arr)
       if out_mc != null { return me._rebind(out_mc, func_name, box_name, params_arr, "[funcs/basic:loop.multi_carrier]") } }
 
     // 4) まず count_param loop 用 lower を試す（limit/step/cmp 付き）
-    { local out_cp = LowerLoopCountParamBox.try_lower_text(body_json)
+    { local out_cp = LowerLoopCountParamBox.try_lower_text(body_str)
       if out_cp != null && out_cp != "" { return me._rebind(out_cp, func_name, box_name, params_arr, "[funcs/basic:loop.count_param]") } }
 
     // 5) 次に simple loop 用 lower を試す（単純カウンタ）
-    { local out2 = LowerLoopSimpleBox.try_lower(body_json)
+    { local out2 = LowerLoopSimpleBox.try_lower(body_str)
       if out2 != null { return me._rebind(out2, func_name, box_name, params_arr, "[funcs/basic:loop.simple]") } }
 
     // 6) ここまででダメなら selfhost 側では未対応
