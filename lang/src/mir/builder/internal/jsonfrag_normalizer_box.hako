@@ -126,8 +126,8 @@ static box JsonFragNormalizerBox {
 
   // Build a canonical value signature for a const instruction object text
   _const_value_sig(obj_text) {
-    if obj_text == null { return "?" }
-    local s = me._coerce_text_compat(obj_text)
+    local s = me._text_or_empty(obj_text)
+    if s == "" { return "?" }
     // locate '"value":'
     local k = s.indexOf(me._dq()+"value"+me._dq()+":")
     if k < 0 { return "?" }
@@ -143,16 +143,20 @@ static box JsonFragNormalizerBox {
       // typed numeric
       local t = JsonFragBox.get_str(inner, "type")
       if t == "i64" {
-        local vi = JsonFragBox.get_int(inner, "value")
-        if vi != null { return "i64:" + StringHelpers.int_to_str(vi) }
+        local keyv_i = me._dq()+"value"+me._dq()+":"
+        local kv_i = inner.indexOf(keyv_i)
+        if kv_i >= 0 {
+          local vi = me._text_or_empty(JsonFragBox.read_int_after(inner, kv_i + keyv_i.length()))
+          if vi != "" { return "i64:" + vi }
+        }
         return "i64:?"
       }
       if t == "f64" {
         local keyv = me._dq()+"value"+me._dq()+":"
         local kv = inner.indexOf(keyv)
         if kv >= 0 {
-          local vs = JsonFragBox.read_float_after(inner, kv + keyv.length())
-          if vs != null { return "f64:" + vs }
+          local vs = me._text_or_empty(JsonFragBox.read_float_after(inner, kv + keyv.length()))
+          if vs != "" { return "f64:" + vs }
         }
         return "f64:?"
       }
@@ -163,10 +167,10 @@ static box JsonFragNormalizerBox {
       return "raw:" + inner
     }
     // primitive value (number literal) — try float then int
-    local vs2 = JsonFragBox.read_float_after(s, p)
-    if vs2 != null { return "num:" + vs2 }
-    local vi2 = JsonFragBox.read_int_after(s, p)
-    if vi2 != null { return "int:" + vi2 }
+    local vs2 = me._text_or_empty(JsonFragBox.read_float_after(s, p))
+    if vs2 != "" { return "num:" + vs2 }
+    local vi2 = me._text_or_empty(JsonFragBox.read_int_after(s, p))
+    if vi2 != "" { return "int:" + vi2 }
     return "?"
   }
 
@@ -390,6 +394,10 @@ static box JsonFragNormalizerBox {
     return s3
   }
   _coerce_text_compat(value) {
+    return "" + value
+  }
+  _text_or_empty(value) {
+    if value == null { return "" }
     return "" + value
   }
   _env_flag_is_one(name) {
