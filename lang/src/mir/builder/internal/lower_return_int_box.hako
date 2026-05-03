@@ -1,5 +1,6 @@
 // lower_return_int_box.hako — Return(Int) → const+ret
 
+using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerReturnIntBox {
@@ -7,8 +8,9 @@ static box LowerReturnIntBox {
     local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
     if k_ret < 0 { return null }
-    // Find expr object
-    local k_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_ret)
+    // Find expr object within the same Return object. Program(JSON) writers may
+    // emit either type-before-expr or expr-before-type field order.
+    local k_expr = me._find_return_expr_start(s, k_ret)
     if k_expr < 0 { return null }
     // Check that expr.type is directly Int (not Binary, Logical, Var, etc)
     // Tolerant: type must be near expr start
@@ -18,19 +20,34 @@ static box LowerReturnIntBox {
     local k_int = kt
     local kv = JsonFragBox.index_of_from(s, "\"value\":", k_int); if kv < 0 { return null }
     local val = JsonFragBox.read_int_after(s, kv + 8)
-    if val == null { return null }
+    local val_text = StringHelpers.int_to_str(val)
     local debug_on = 0
     if env.get("HAKO_MIR_BUILDER_DEBUG") == "1" || env.get("NYASH_CLI_VERBOSE") == "1" {
       debug_on = 1
-      print("[mirbuilder/registry:return.int val=" + val + "]")
+      print("[mirbuilder/registry:return.int val=" + val_text + "]")
     }
     // Emit minimal MIR JSON v0 (functions as array; blocks use id field)
     // Shape expected by src/runner/mir_json_v0.rs::parse_mir_v0_to_module
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + val + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + val_text + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
     return mir
   }
 
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _find_return_expr_start(s, k_ret) {
+    local k_forward = JsonFragBox.index_of_from(s, "\"expr\":{", k_ret)
+    if k_forward >= 0 && k_forward < k_ret + 128 {
+      local boundary_forward = JsonFragBox.index_of_from(s, "},{", k_ret)
+      if boundary_forward < 0 || boundary_forward > k_forward { return k_forward }
+    }
+
+    local k_before = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Int\"", 0)
+    if k_before >= 0 && k_ret - k_before < 128 {
+      local boundary_back = JsonFragBox.index_of_from(s, "},{", k_before)
+      if boundary_back < 0 || boundary_back > k_ret { return k_before }
+    }
+    return -1
   }
 }

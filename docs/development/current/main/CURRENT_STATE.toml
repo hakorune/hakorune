@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P326A-GLOBAL-PRINT-STRING-HANDLE-MARSHAL"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P326A-GLOBAL-PRINT-STRING-HANDLE-MARSHAL.md"
-latest_card_summary = "Marshal string-origin Global print arguments through NyRT console handle logging instead of integer printf."
+latest_card = "P327A-RETURN-INT-FIELD-ORDER-TOLERANCE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P327A-RETURN-INT-FIELD-ORDER-TOLERANCE.md"
+latest_card_summary = "Make the existing Return(Int) MirBuilder lowerer tolerate Program(JSON) expr-before-type field order and preserve literal zero on DirectAbi."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
