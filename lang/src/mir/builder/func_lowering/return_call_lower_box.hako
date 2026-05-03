@@ -18,31 +18,7 @@ static box ReturnCallLowerBox {
   // Lower Return(Call(name, args)).
   method lower(func_name, box_name, params_arr, body_str, call_idx, func_map_text) {
     // Extract call function name.
-    local func_idx = JsonFragBox.index_of_from(body_str, "\"func\":\"", call_idx)
-    local call_name = null
-    if func_idx >= 0 {
-      call_name = JsonFragBox.read_string_after(body_str, func_idx + 8)
-    } else {
-      local name_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", call_idx)
-      if name_idx >= 0 {
-        call_name = JsonFragBox.read_string_after(body_str, name_idx + 8)
-      } else {
-        local scan_pos = 0
-        local last_name_idx = -1
-        loop(scan_pos < call_idx) {
-          local next_name_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", scan_pos)
-          if next_name_idx < 0 || next_name_idx >= call_idx {
-            scan_pos = call_idx
-          } else {
-            last_name_idx = next_name_idx
-            scan_pos = next_name_idx + 1
-          }
-        }
-        if last_name_idx >= 0 {
-          call_name = JsonFragBox.read_string_after(body_str, last_name_idx + 8)
-        }
-      }
-    }
+    local call_name = me._extract_call_name(body_str, call_idx)
     if call_name == null { return null }
 
     local resolved_name = me.resolve_call_target(call_name, func_map_text)
@@ -82,10 +58,9 @@ static box ReturnCallLowerBox {
           if val_idx >= 0 {
             local val = JsonFragBox.read_int_after(body_str, val_idx + 8)
             if val != null {
-              if insts != "" { insts = insts + "," }
-              insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + val + "}}"
-              if args_list != "" { args_list = args_list + "," }
-              args_list = args_list + ("" + next_reg)
+              local const_inst = "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + val + "}}"
+              insts = me._append_csv(insts, const_inst)
+              args_list = me._append_csv(args_list, "" + next_reg)
               call_arity = call_arity + 1
               next_reg = next_reg + 1
             }
@@ -97,8 +72,7 @@ static box ReturnCallLowerBox {
             if var_name != null {
               local preg = me._param_reg(params_arr, "" + var_name)
               if preg > 0 {
-                if args_list != "" { args_list = args_list + "," }
-                args_list = args_list + ("" + preg)
+                args_list = me._append_csv(args_list, "" + preg)
                 call_arity = call_arity + 1
               }
             }
@@ -112,21 +86,59 @@ static box ReturnCallLowerBox {
     // of the Stage0 pure-text mainline contract.
     local result_reg = next_reg
     local resolved_with_arity = resolved_name + "/" + call_arity
-    if insts != "" { insts = insts + "," }
-    insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + result_reg + ",\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"" + resolved_with_arity + "\\\"}}"
+    local func_const_inst = "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + result_reg + ",\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"" + resolved_with_arity + "\\\"}}"
+    insts = me._append_csv(insts, func_const_inst)
     local func_reg = result_reg
     result_reg = result_reg + 1
-    if insts != "" { insts = insts + "," }
-    insts = insts + "{\\\"op\\\":\\\"call\\\",\\\"func\\\":" + func_reg + ",\\\"args\\\":[" + args_list + "],\\\"dst\\\":" + result_reg + "}"
+    local call_inst = "{\\\"op\\\":\\\"call\\\",\\\"func\\\":" + func_reg + ",\\\"args\\\":[" + args_list + "],\\\"dst\\\":" + result_reg + "}"
+    insts = me._append_csv(insts, call_inst)
     next_reg = result_reg + 1
 
-    if insts != "" { insts = insts + "," }
-    insts = insts + "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
+    local ret_inst = "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
+    insts = me._append_csv(insts, ret_inst)
 
     local params_json = ParamListBox.as_json(params_arr)
     local arity = ParamListBox.arity(params_arr)
     local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[" + insts + "]}]}"
     return mir
+  }
+
+  method _extract_call_name(body_str, call_idx) {
+    local func_idx = JsonFragBox.index_of_from(body_str, "\"func\":\"", call_idx)
+    if func_idx >= 0 {
+      return JsonFragBox.read_string_after(body_str, func_idx + 8)
+    }
+
+    local name_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", call_idx)
+    if name_idx >= 0 {
+      return JsonFragBox.read_string_after(body_str, name_idx + 8)
+    }
+
+    local scan_pos = 0
+    local last_name_idx = -1
+    local scan_done = 0
+    loop(scan_done == 0) {
+      local next_name_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", scan_pos)
+      if next_name_idx < 0 {
+        scan_done = 1
+      } else {
+        if next_name_idx >= call_idx {
+          scan_done = 1
+        } else {
+          last_name_idx = next_name_idx
+          scan_pos = next_name_idx + 1
+        }
+      }
+    }
+    if last_name_idx < 0 { return null }
+    return JsonFragBox.read_string_after(body_str, last_name_idx + 8)
+  }
+
+  method _append_csv(text, item) {
+    local prefix = "" + text
+    local value = "" + item
+    if prefix == "" { return value }
+    return prefix + "," + value
   }
 
   // Resolve call target using the owner-local function text table.
