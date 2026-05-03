@@ -2,7 +2,13 @@
 # stageb_helpers.sh — Helpers to compile Hako(Stage‑B) source to Program(JSON v0)
 
 _STAGEB_HELPERS_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-source "${_STAGEB_HELPERS_TOOLS_DIR}/selfhost/lib/stageb_program_json_capture.sh"
+
+stageb_source_program_json_capture() {
+  if declare -F stageb_program_json_extract_from_stdin >/dev/null; then
+    return 0
+  fi
+  source "${_STAGEB_HELPERS_TOOLS_DIR}/selfhost/lib/stageb_program_json_capture.sh"
+}
 
 stageb_source_program_json_v0_compat() {
   if declare -F program_json_v0_compat_emit_to_file >/dev/null; then
@@ -54,6 +60,7 @@ stageb_compile_to_json_with_args() {
         "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- \
         "$@" --source "$(cat "$hako_tmp")"
   ) > "$raw" 2>&1 || true
+  stageb_source_program_json_capture
   if stageb_program_json_extract_from_stdin < "$raw" > "$json_out"; then
     rm -f "$raw" "$hako_tmp"
     echo "$json_out"
