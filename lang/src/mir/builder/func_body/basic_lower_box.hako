@@ -293,13 +293,13 @@ static box FuncBodyBasicLowerBox {
     local op = me._text_or_empty(me._extract_compare_op(body_json, cond_idx))
     if op == "" { return "" }
 
-    local lhs_kind = me._extract_operand_kind(body_json, "\"lhs\":{", cond_idx)
+    local lhs_kind = me._text_or_empty(me._extract_operand_kind(body_json, "\"lhs\":{", cond_idx))
     if lhs_kind != "var" { return "" }
     local lhs_name = me._text_or_empty(me._extract_operand_name(body_json, "\"lhs\":{", cond_idx))
     if lhs_name == "" { return "" }
     if lhs_name != local_name { return "" }
 
-    local rhs_kind = me._extract_operand_kind(body_json, "\"rhs\":{", cond_idx)
+    local rhs_kind = me._text_or_empty(me._extract_operand_kind(body_json, "\"rhs\":{", cond_idx))
     if rhs_kind != "int" { return "" }
     local rhs_val = me._text_or_empty(me._extract_operand_value(body_json, "\"rhs\":{", cond_idx))
     if rhs_val == "" { return "" }
