@@ -341,6 +341,10 @@
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_mir_json_callee_field_get(&method_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_MAP_GET);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_map_set(&method_view)) {
                 if (dst) set_type(dst, T_I64);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
@@ -898,6 +902,7 @@
         int is_map_get = 0;
         int is_mir_json_block_field_get = 0;
         int is_mir_json_const_value_field_get = 0;
+        int is_mir_json_callee_field_get = 0;
         (void)f;
         ab[0] = '\0';
         if (read_lowering_plan_generic_method_view(entry, &method_view)) {
@@ -909,12 +914,15 @@
               module_generic_string_method_view_is_direct_mir_json_block_field_get(&method_view);
           is_mir_json_const_value_field_get =
               module_generic_string_method_view_is_direct_mir_json_const_value_field_get(&method_view);
+          is_mir_json_callee_field_get =
+              module_generic_string_method_view_is_direct_mir_json_callee_field_get(&method_view);
         }
         if (!(is_array_get ||
               is_mir_json_block_inst_array_item_get ||
               is_map_get ||
               is_mir_json_block_field_get ||
-              is_mir_json_const_value_field_get)) return 0;
+              is_mir_json_const_value_field_get ||
+              is_mir_json_callee_field_get)) return 0;
         if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
         if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
@@ -929,7 +937,8 @@
           set_type(dst, T_I64);
           if (is_map_get ||
               is_mir_json_block_field_get ||
-              is_mir_json_const_value_field_get) {
+              is_mir_json_const_value_field_get ||
+              is_mir_json_callee_field_get) {
             set_origin(dst, ORG_MAP_GET);
           }
         } else {
