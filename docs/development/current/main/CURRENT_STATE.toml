@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P252A-FUNC-LOWERING-DIRECT-DEFS-ACCUMULATOR"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P252A-FUNC-LOWERING-DIRECT-DEFS-ACCUMULATOR.md"
-latest_card_summary = "Accumulate lowered function JSON directly as text instead of an active ArrayBox."
+latest_card = "P253A-COUNT-PARAM-TEXT-SENTINEL-WRAPPERS"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P253A-COUNT-PARAM-TEXT-SENTINEL-WRAPPERS.md"
+latest_card_summary = "Convert nullable count-param loop helper results to text sentinels before the active emitter consumes them."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -217,4 +217,5 @@ landed_tail = [
   "29cv-P250a multi-carrier limit scalar facts landed",
   "29cv-P251a multi-carrier direct text emit landed",
   "29cv-P252a func lowering direct defs accumulator landed",
+  "29cv-P253a count-param text sentinel wrappers landed",
 ]
