@@ -6,6 +6,7 @@ TAG="legacy-dev-utility-surface-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 ARCHIVED_ACTIVE_PATHS=(
+  "tools/dev/enable_mirbuilder_dev_env.sh"
   "tools/dev/enable_phase216_env.sh"
   "tools/dev/rename_nyash_to_hako.sh"
 )
@@ -17,6 +18,7 @@ for rel in "${ARCHIVED_ACTIVE_PATHS[@]}"; do
 done
 
 guard_require_files "$TAG" \
+  "$ROOT_DIR/tools/archive/legacy-selfhost/engineering/enable_mirbuilder_dev_env.sh" \
   "$ROOT_DIR/tools/archive/legacy-selfhost/engineering/enable_phase216_env.sh" \
   "$ROOT_DIR/tools/archive/legacy-selfhost/engineering/rename_nyash_to_hako.sh"
 

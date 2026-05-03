@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# enable_mirbuilder_dev_env.sh — Dev profile for Hakorune MirBuilder (selfhost-first)
-# Usage: source tools/dev/enable_mirbuilder_dev_env.sh [quiet]
+# Archived shell dev profile for Hakorune MirBuilder (historical evidence only).
+# The active smoke helper is enable_mirbuilder_dev_env() in tools/smokes/v2/lib/test_runner.sh.
 #
 # Exports a recommended set of env toggles to develop via Hakorune scripts
 # without rebuilding Rust frequently. Defaults keep logs quiet.

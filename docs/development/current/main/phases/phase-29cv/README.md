@@ -104,6 +104,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P361A promotes the `lang/src` include-ban check from `tools/dev` to
   `tools/checks/lang_include_surface_guard.sh`, so quick gate owns the contract
   and the old dev path cannot quietly return.
+- P362A archives the unused `tools/dev/enable_mirbuilder_dev_env.sh` shell
+  helper. The active MirBuilder dev profile owner remains the
+  `enable_mirbuilder_dev_env()` function in `tools/smokes/v2/lib/test_runner.sh`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
