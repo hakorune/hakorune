@@ -88,7 +88,9 @@ Confirmed.
 ```
 
 The contract helper emitted MIR JSON for `return 1 + 2`, and the current
-mainline smoke passed:
+mainline smoke passed. P380J clarifies that `stage1_mainline_smoke.sh` is the
+compat direct-emit smoke; the selected `--bin` is not itself treated as the
+payload emitter by that wrapper.
 
 ```text
 [stage1-mainline-smoke] PASS (p380g_build_stage1_cli_env.exe)

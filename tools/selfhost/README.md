@@ -317,6 +317,9 @@ Helper — Stage1 CLI Runner
     - `NYASH_NYRT_SILENT_RESULT=1`（Result 行を抑止して JSON stdout を維持）
     - `NYASH_DISABLE_PLUGINS=1`, `NYASH_FILEBOX_MODE=core-ro`（FileBox などのコア実装を強制）
   - For `emit mir-json`, translate the raw CLI surface into the compatibility env contract (`stage1_contract_exec_mode`); this is a compatibility wrapper, not the bootstrap proof route.
+    The current compatibility emit path uses the direct stage0 MIR emitter; do
+    not read `--bin <stage1-cli>` here as proof that a reduced artifact emits
+    payloads itself.
   - `emit program-json` is retired from the wrapper surface. Use the explicit compat probe instead.
   - Non-`emit` arguments are passed verbatim to the Stage1 binary:
     ```bash
@@ -329,4 +332,7 @@ Helper — Stage1 CLI Runner
     tools/selfhost/mainline/stage1_mainline_smoke.sh
     tools/selfhost/mainline/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako
     ```
+    This is the compat direct-emit smoke. Full Stage1 artifact payload proof
+    needs a full `stage1_cli_env.hako` artifact plus
+    `stage1_contract_exec_mode` or `stage3_same_result_check.sh --seed-bin`.
   - legacy embedded bridge smoke moved to `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh` and is not the daily/mainline proof route.

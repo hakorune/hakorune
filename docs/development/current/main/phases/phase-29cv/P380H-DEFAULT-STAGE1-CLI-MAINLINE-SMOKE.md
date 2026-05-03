@@ -64,3 +64,6 @@ Confirmed.
 [stage1] metadata: /home/tomoaki/git/hakorune-selfhost/target/selfhost/hakorune.stage1_cli.artifact_kind
 [stage1-mainline-smoke] PASS (hakorune.stage1_cli)
 ```
+
+P380J clarifies this smoke as the compat direct-emit smoke. It should not be
+read as proof that the reduced default artifact emits MIR payloads itself.

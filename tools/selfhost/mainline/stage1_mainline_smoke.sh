@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# stage1_mainline_smoke.sh — current Stage1 mainline emit smoke
+# stage1_mainline_smoke.sh — current Stage1 shell compat direct-emit smoke
 #
 # Purpose:
 #   - Exercise the current Stage1 shell contract via `compat/run_stage1_cli.sh`.
-#   - Verify `emit mir-json` on a stage1-cli artifact without touching the
-#     legacy embedded bridge smoke.
+#   - Keep the historical daily smoke green without touching the legacy
+#     embedded bridge smoke.
+#   - This smoke checks the selected Stage1 artifact as a label/liveness input;
+#     the current compat emit path delegates payload emission to the direct
+#     stage0 MIR emitter. Full artifact payload proof belongs to
+#     `stage1_contract_exec_mode` with a full `stage1_cli_env.hako` artifact.
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 RUN_STAGE1="$ROOT_DIR/tools/selfhost/compat/run_stage1_cli.sh"
@@ -17,13 +21,17 @@ Usage: tools/selfhost/mainline/stage1_mainline_smoke.sh [--bin <path>] [<source.
 
 Defaults:
   --bin      : prefer target/selfhost/hakorune.stage1_cli.stage2, then target/selfhost/hakorune.stage1_cli
+               The binary is checked as the Stage1 artifact label/liveness input.
   <source>   : apps/tests/hello_simple_llvm.hako
 
 Behavior:
   - runs `tools/selfhost/compat/run_stage1_cli.sh --bin <bin> emit mir-json <source>`
+  - current compat wrapper emits via the direct stage0 MIR route
   - requires MIR(JSON) output to contain `"functions"`
 
-This is the current mainline Stage1 smoke.
+This is the current mainline Stage1 shell compat smoke, not reduced-artifact
+payload proof. For full payload proof, use a full `stage1_cli_env.hako`
+artifact with `stage1_contract_exec_mode` or `stage3_same_result_check.sh`.
 For the archived legacy embedded bridge smoke, use `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`.
 USAGE
 }
@@ -99,7 +107,7 @@ OUT="$(mktemp --suffix .stage1_mainline_mir.json)"
 ERR="$(mktemp --suffix .stage1_mainline_mir.err)"
 trap 'rm -f "$OUT" "$ERR"' EXIT
 
-echo "[stage1-mainline-smoke] emit mir-json: $ENTRY" >&2
+echo "[stage1-mainline-smoke] emit mir-json route=compat-direct-emit entry=$ENTRY" >&2
 if ! bash "$RUN_STAGE1" --bin "$BIN" emit mir-json "$ENTRY" >"$OUT" 2>"$ERR"; then
   echo "[stage1-mainline-smoke] emit mir-json failed" >&2
   sed -n '1,80p' "$ERR" >&2 || true
@@ -113,4 +121,4 @@ if ! rg -q '"functions"' "$OUT"; then
   exit 1
 fi
 
-echo "[stage1-mainline-smoke] PASS ($(basename "$BIN"))" >&2
+echo "[stage1-mainline-smoke] PASS ($(basename "$BIN") route=compat-direct-emit)" >&2
