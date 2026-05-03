@@ -40,6 +40,22 @@ fail() {
   exit 2
 }
 
+fail_payload_seed() {
+  local seed_bin="$1"
+  local payload_kind="$2"
+  local rc_label="$3"
+
+  echo "[Stage3:FAIL] failed to materialize ${payload_kind} via stage1 env route: ${seed_bin}" >&2
+  if stage1_contract_artifact_is_reduced_stage1_cli "$seed_bin"; then
+    echo "              seed-boundary: reduced stage1-cli artifacts are runnable bootstrap outputs, not payload emit seeds" >&2
+    echo "              hint: build a full stage1_cli_env.hako artifact and pass it with --seed-bin" >&2
+  else
+    echo "              artifact_kind=$(stage1_contract_artifact_kind "$seed_bin")" >&2
+    echo "              artifact_entry=$(stage1_contract_artifact_entry "$seed_bin")" >&2
+  fi
+  exit "$rc_label"
+}
+
 compare_exact_files() {
   local label="$1"
   local lhs="$2"
@@ -70,10 +86,10 @@ emit_seed_payloads() {
   local mir_out="$4"
 
   if ! run_stage1_env_route "$seed_bin" "program-json" "$entry" "$prog_out"; then
-    fail "failed to materialize Program(JSON) via stage1 env route: $seed_bin"
+    fail_payload_seed "$seed_bin" "Program(JSON)" 2
   fi
   if ! run_stage1_env_route "$seed_bin" "mir-json" "$entry" "$mir_out"; then
-    fail "failed to materialize MIR(JSON) via stage1 env route: $seed_bin"
+    fail_payload_seed "$seed_bin" "MIR(JSON)" 2
   fi
 }
 
