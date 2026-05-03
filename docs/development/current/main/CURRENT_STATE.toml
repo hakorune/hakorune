@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P318A-STAGE1-MIR-PAYLOAD-TEXT-CONTRACT"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P318A-STAGE1-MIR-PAYLOAD-TEXT-CONTRACT.md"
-latest_card_summary = "Make Stage1 MIR payload functions predicate text coercion owner-local before indexOf."
+latest_card = "P319A-STAGE1-MIR-DEBUG-STATE-SHRINK"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P319A-STAGE1-MIR-DEBUG-STATE-SHRINK.md"
+latest_card_summary = "Shrink Stage1 MIR debug state output to one gated line so Stage0 does not classify debug-only branch trees."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
