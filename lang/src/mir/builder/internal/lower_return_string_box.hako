@@ -39,10 +39,8 @@ static box LowerReturnStringBox {
     if last_expr >= 0 && k_ret - last_expr < 128 {
       local boundary_back = JsonFragBox.index_of_from(s, "},{", last_expr)
       if boundary_back < 0 || boundary_back > k_ret {
-        local k_str = JsonFragBox.index_of_from(s, "\"type\":\"Str\"", last_expr)
-        if k_str >= 0 && k_str < k_ret { return last_expr }
-        local k_string = JsonFragBox.index_of_from(s, "\"type\":\"String\"", last_expr)
-        if k_string >= 0 && k_string < k_ret { return last_expr }
+        if last_expr + 20 <= s.length() && s.substring(last_expr, last_expr + 20) == "\"expr\":{\"type\":\"Str\"" { return last_expr }
+        if last_expr + 23 <= s.length() && s.substring(last_expr, last_expr + 23) == "\"expr\":{\"type\":\"String\"" { return last_expr }
       }
     }
     return -1
