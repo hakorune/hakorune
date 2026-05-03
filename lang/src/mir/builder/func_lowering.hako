@@ -13,6 +13,7 @@ using lang.mir.builder.func_body.cli_run_lower_box as CliRunLowerBox
 using lang.mir.builder.func_lowering.defs_scanner_box as DefsScannerBox
 using lang.mir.builder.func_lowering.call_methodize_box as CallMethodizeBox
 using lang.mir.builder.func_lowering.param_list_box as ParamListBox
+using lang.mir.builder.func_lowering.return_call_lower_box as ReturnCallLowerBox
 
 static box FuncLoweringBox {
   // Lower function definitions to MIR
@@ -70,7 +71,7 @@ static box FuncLoweringBox {
       }
 
       // Register function in the text table for Call resolution.
-      func_map_text = func_map_text + "|" + func_name + "=" + box_name + "." + func_name + ";"
+      func_map_text = ReturnCallLowerBox.add_target(func_map_text, func_name, box_name + "." + func_name)
 
       // Keep params as a JSON string view on the active Stage0 path.
       local params_arr = DefsScannerBox.extract_params_json(defs_str, name_end)
@@ -146,7 +147,7 @@ static box FuncLoweringBox {
     }
     if call_idx >= 0 {
       // Return(Call(name, args))
-      return me._lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map_text)
+      return ReturnCallLowerBox.lower(func_name, box_name, params_arr, body_str, call_idx, func_map_text)
     }
 
     // Check for Binary in Return
@@ -297,163 +298,6 @@ static box FuncLoweringBox {
     local value = JsonFragBox.read_int_after(text, pos)
     if value == null { return "" }
     return "" + value
-  }
-
-  // Lower Return(Call(name, args))
-  method _lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map_text) {
-    local ret_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Return\"", 0)
-    if ret_idx < 0 { ret_idx = 0 }
-
-    // Extract call function name
-    local func_idx = JsonFragBox.index_of_from(body_str, "\"func\":\"", call_idx)
-    local call_name = null
-    if func_idx >= 0 {
-      call_name = JsonFragBox.read_string_after(body_str, func_idx + 8)
-    } else {
-      local name_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", call_idx)
-      if name_idx >= 0 {
-        call_name = JsonFragBox.read_string_after(body_str, name_idx + 8)
-      } else {
-        local scan_pos = 0
-        local last_name_idx = -1
-        loop(scan_pos < call_idx) {
-          local next_name_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", scan_pos)
-          if next_name_idx < 0 || next_name_idx >= call_idx { break }
-          last_name_idx = next_name_idx
-          scan_pos = next_name_idx + 1
-        }
-        if last_name_idx >= 0 {
-          call_name = JsonFragBox.read_string_after(body_str, last_name_idx + 8)
-        }
-      }
-    }
-    if call_name == null { return null }
-
-    // Resolve call target
-    local resolved_name = me.resolve_call_target(call_name, func_map_text)
-
-    // Build MIR for Call while parsing args directly.
-    local insts = ""
-    local next_reg = ParamListBox.count(params_arr) + 1
-    local args_list = ""
-    local call_arity = 0
-
-    // Extract args (minimal: Int or Var) and materialize registers.
-    local args_idx = JsonFragBox.index_of_from(body_str, "\"args\":[", 0)
-    if args_idx >= 0 {
-      local args_pos = args_idx + 8
-      loop(args_pos < body_str.length()) {
-        local arg_type_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"", args_pos)
-        if arg_type_idx < 0 { break }
-        if arg_type_idx > call_idx + 200 { break }  // Limit search scope
-
-        local arg_type = JsonFragBox.read_string_after(body_str, arg_type_idx + 7)
-        if arg_type == "Int" {
-          local val_idx = JsonFragBox.index_of_from(body_str, "\"value\":", arg_type_idx)
-          if val_idx >= 0 {
-            local val = JsonFragBox.read_int_after(body_str, val_idx + 8)
-            if val != null {
-              if insts != "" { insts = insts + "," }
-              insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + val + "}}"
-              if args_list != "" { args_list = args_list + "," }
-              args_list = args_list + ("" + next_reg)
-              call_arity = call_arity + 1
-              next_reg = next_reg + 1
-            }
-          }
-        } else if arg_type == "Var" {
-          local var_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", arg_type_idx)
-          if var_idx >= 0 {
-            local var_name = JsonFragBox.read_string_after(body_str, var_idx + 8)
-            if var_name != null {
-              local preg = me._param_reg(params_arr, "" + var_name)
-              if preg > 0 {
-                if args_list != "" { args_list = args_list + "," }
-                args_list = args_list + ("" + preg)
-                call_arity = call_arity + 1
-              }
-            }
-          }
-        }
-        args_pos = arg_type_idx + 20
-      }
-    }
-
-    // Decide emission form: Global call (legacy) or unified Method (dev: methodize)
-    local result_reg = next_reg
-    {
-      local dm = env.get("HAKO_MIR_BUILDER_METHODIZE")
-      local do_methodize = 0
-      if dm != null && ("" + dm) == "1" { do_methodize = 1 }
-      local dot_pos = -1
-      if do_methodize == 1 { dot_pos = JsonFragBox.index_of_from(resolved_name, ".", 0) }
-      if do_methodize == 1 && dot_pos >= 0 {
-        // Methodize PoC: rewrite Global("Box.method") -> mir_call Method(box_name, method, receiver: omitted)
-        // Note: receiver is omitted here; VM will materialize a static singleton when callee.type==Method
-        //       LLVM path may treat args[0] as receiver; PoC canary targets VM backend.
-        local slash_pos = JsonFragBox.index_of_from(resolved_name, "/", 0)
-        local box_part = resolved_name.substring(0, dot_pos)
-        local meth_part = resolved_name.substring(dot_pos + 1, (slash_pos >= 0 ? slash_pos : resolved_name.length()))
-        if insts != "" { insts = insts + "," }
-        insts = insts + (
-          "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":" + result_reg + ",\\\"mir_call\\\":{" +
-            "\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"box_name\\\":\\\"" + box_part + "\\\",\\\"method\\\":\\\"" + meth_part + "\\\"}," +
-            "\\\"args\\\":[" + args_list + "],\\\"effects\\\":[]}}"
-        )
-        next_reg = next_reg + 1
-      } else if do_methodize == 1 {
-        do_methodize = 0
-      }
-      if do_methodize != 1 {
-        // Legacy: const func name with arity and call
-        local resolved_with_arity = resolved_name + "/" + call_arity
-        if insts != "" { insts = insts + "," }
-        insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + result_reg + ",\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"" + resolved_with_arity + "\\\"}}"
-        local func_reg = result_reg
-        result_reg = result_reg + 1
-        next_reg = result_reg + 0
-        if insts != "" { insts = insts + "," }
-        insts = insts + "{\\\"op\\\":\\\"call\\\",\\\"func\\\":" + func_reg + ",\\\"args\\\":[" + args_list + "],\\\"dst\\\":" + result_reg + "}"
-        next_reg = next_reg + 1
-      }
-    }
-
-    // ret
-    if insts != "" { insts = insts + "," }
-    insts = insts + "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
-
-    // Build params JSON array
-    local params_json = me._build_params_json(params_arr)
-    local arity = ParamListBox.arity(params_arr)
-    local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[" + insts + "]}]}"
-
-    // Debug log
-    if env.get("HAKO_MIR_BUILDER_DEBUG") == "1" {
-      print("[mirbuilder/call:lowered] " + func_name + " -> call(" + resolved_name + ")")
-    }
-
-    return mir
-  }
-
-  // Resolve call target using the owner-local function text table.
-  // Toggle: HAKO_MIR_BUILDER_CALL_RESOLVE=1
-  method resolve_call_target(call_name, func_map_text) {
-    if env.get("HAKO_MIR_BUILDER_CALL_RESOLVE") != "1" { return call_name }
-
-    local needle = "|" + call_name + "="
-    local hit = JsonFragBox.index_of_from(func_map_text, needle, 0)
-    if hit >= 0 {
-      local start = hit + needle.length()
-      local end = JsonFragBox.index_of_from(func_map_text, ";", start)
-      if end < 0 { return call_name }
-      local resolved = func_map_text.substring(start, end)
-      if resolved == "" { return call_name }
-      if env.get("HAKO_MIR_BUILDER_DEBUG") == "1" {
-        print("[mirbuilder/call:resolve] " + call_name + " => " + resolved)
-      }
-      return resolved
-    }
-    return call_name
   }
 
   // Helper: build params JSON array
