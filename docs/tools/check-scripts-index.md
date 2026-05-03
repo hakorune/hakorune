@@ -34,6 +34,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/phase29ci_verify_probe_surface_guard.sh` | archived phase29ci W17 verify proof が active `tools/dev` surface に戻らないことを fail-fast で検出する。 |
 | `tools/checks/phase216217_normalization_canary_surface_guard.sh` | archived phase216/217 normalization bring-up canaries が active `tools/dev` surface に戻らず、current phase2160 dehang proof が残ることを fail-fast で検出する。 |
 | `tools/checks/legacy_dev_utility_surface_guard.sh` | archived one-shot / old-phase dev utilities が active `tools/dev` surface に戻らないことを fail-fast で検出する。 |
+| `tools/checks/lang_include_surface_guard.sh` | `lang/src` の `include "..."` 再導入と旧 `tools/dev` guard path の復活を fail-fast で検出する。 |
 | `tools/checks/module_registry_hygiene_guard.sh` | `hako.toml` / `nyash.toml` の module registry 境界検証。 |
 | `tools/checks/phase29cl_by_name_mainline_guard.sh` | `nyash.plugin.invoke_by_name_i64` の owner 集合を allowlist で固定し、新しい mainline caller を fail-fast で防ぐ。 |
 | `tools/checks/ring1_core_scope_guard.sh` | ring1 provider の受理ドメイン境界検証。 |

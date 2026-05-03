@@ -101,6 +101,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P360A archives old one-shot/dev-env utilities from active `tools/dev`;
   `enable_phase216_env.sh` and `rename_nyash_to_hako.sh` are now historical
   engineering evidence guarded by `tools/checks/legacy_dev_utility_surface_guard.sh`.
+- P361A promotes the `lang/src` include-ban check from `tools/dev` to
+  `tools/checks/lang_include_surface_guard.sh`, so quick gate owns the contract
+  and the old dev path cannot quietly return.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
