@@ -38,6 +38,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/tools_dev_surface_inventory_guard.sh` | `tools/dev` の active file set が `tools/dev/README.md` の棚卸しから drift しないことを fail-fast で検出する。 |
 | `tools/checks/mir_builder_layer_dependency_guard.sh` | MIR builder layer の `origin -> observe -> rewrite` dependency direction を fail-fast で検出する。 |
 | `tools/checks/loop_pattern_context_zero_guard.sh` | Rust source に `LoopPatternContext` が再導入されないことを fail-fast で検出する。 |
+| `tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` | phase29ca direct route の dominance/Phi blocker と loop progression 回帰を release binary で監視する。 |
 | `tools/checks/module_registry_hygiene_guard.sh` | `hako.toml` / `nyash.toml` の module registry 境界検証。 |
 | `tools/checks/phase29cl_by_name_mainline_guard.sh` | `nyash.plugin.invoke_by_name_i64` の owner 集合を allowlist で固定し、新しい mainline caller を fail-fast で防ぐ。 |
 | `tools/checks/ring1_core_scope_guard.sh` | ring1 provider の受理ドメイン境界検証。 |

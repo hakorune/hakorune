@@ -33,7 +33,6 @@ those under `tools/archive/legacy-selfhost/engineering/`.
 | `hako_debug_run.sh` | active debug helper | Debug runner used by trace canaries and phase132x docs. |
 | `hako_preinclude.sh` | active smoke helper | Preinclude helper used by `tools/smokes/v2/lib/test_runner.sh`. |
 | `phase2160_mirbuilder_module_load_probe.sh` | explicit proof keeper | Current phase2160 dehang proof; guarded by `phase216217_normalization_canary_surface_guard.sh`. |
-| `phase29ca_direct_verify_dominance_block_canary.sh` | explicit monitor | Direct verify / dominance block canary documented in `docs/tools/README.md`. |
 | `phase29cg_stage2_bootstrap_phi_verify.sh` | explicit compat keeper | Program(JSON)->MIR bridge capsule proof; keep until MIR-first replacement is green. |
 | `phase29ch_program_json_compat_route_probe.sh` | explicit compat keeper | Supplied Program(JSON) compat proof called by Stage1 exact emit contract smoke. |
 | `phase29ck_boundary_explicit_compat_probe.sh` | explicit compat keeper | Canonical explicit compat replay proof for HAKO_CAPI_PURE boundary. |
@@ -46,6 +45,7 @@ These used to live under `tools/dev`, but checks own them now:
 
 - `tools/checks/mir_builder_layer_dependency_guard.sh`
 - `tools/checks/loop_pattern_context_zero_guard.sh`
+- `tools/checks/phase29ca_direct_verify_dominance_block_canary.sh`
 
 ## Update Rule
 

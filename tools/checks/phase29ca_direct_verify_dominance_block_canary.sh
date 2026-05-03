@@ -2,6 +2,7 @@
 # phase29ca_direct_verify_dominance_block_canary.sh
 # Legacy name retained.
 # Guard that the former direct-verify dominance/Phi blocker stays resolved.
+# This requires a built release binary and is not wired into quick gate.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

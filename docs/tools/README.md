@@ -282,7 +282,7 @@ tools/checks/route_env_probe.sh --route direct --require-no-fallback
 tools/checks/route_no_fallback_guard.sh
 tools/dev/direct_loop_progression_sweep.sh --profile default
 tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe
-tools/dev/phase29ca_direct_verify_dominance_block_canary.sh
+tools/checks/phase29ca_direct_verify_dominance_block_canary.sh
 ```
 
 `route_env_probe` は、`emit_mir_route.sh` 実行前の

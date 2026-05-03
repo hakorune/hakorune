@@ -156,7 +156,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - direct-verify head `%290` blocker fixed:
     - fixture: `phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_cleanup_min.hako`
     - `--emit-mir-json` now `emit-ok` (previously `Undefined value %290 used in block bb55`)
-  - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
+  - canary: `bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
 - update (2026-03-03, third pass / idx19+idx28 fixed):
   - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
   - result: `emit_fail=8`, `run_nonzero=12`, `run_ok=98`, `route_blocker=0`（total=118）
@@ -164,7 +164,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - resolved fixtures:
     - `phase29bq_selfhost_blocker_scan_methods_nested_loop_idx19_min.hako` (`emit=0, run=0`)
     - `phase29bq_selfhost_blocker_scan_methods_nested_loop_idx28_min.hako` (`emit=0, run=0`)
-  - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
+  - canary: `bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
 - update (2026-03-03, fourth pass / box_member direct-verify cleared):
   - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
   - result: `emit_fail=4`, `run_nonzero=16`, `run_ok=98`, `route_blocker=0`（total=118）
@@ -176,7 +176,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_method_chain_tail_side_effect_tail_nested_join_tail_dual_tail_sync_guard_sync_tail_mirror_sync_tail_cleanup_min.hako`
   - fix note:
     - `CoreEffectPlan::Select` emission で 2-pred merge のとき、incoming の定義ブロックが pred 対応する形を検出できれば `MirInstruction::Phi` に置換するように変更（`effect_emission.rs`）。
-  - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
+  - canary: `bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
 - update (2026-03-03, fifth pass / loop_cond emit-other collapse):
   - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
   - result: `emit_fail=1`, `run_nonzero=18`, `run_ok=99`, `route_blocker=0`（total=118）
@@ -185,7 +185,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `unsupported stmt Call` を `loop_cond` stmt lowering に受理追加（`ASTNode::Call`）。
     - generic loop step で BinOp 専用前提を除去し、非算術 step は value lowering + copy にフォールバック。
     - `ContinueWithPhiArgs` の incoming を常時 `ssa::local::try_ensure(..., LocalKind::Arg)` で predecessor 局所化し、dominance を固定。
-  - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
+  - canary: `bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
 - update (2026-03-03, sixth pass / direct emit blockers cleared):
   - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
   - result: `emit_fail=0`, `run_nonzero=18`, `run_ok=100`, `route_blocker=0`（total=118）
@@ -193,7 +193,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - fix note:
     - `loop_cond_return_in_body_facts` に `if-else-if(return)` 受理形を追加し、`generic_loop_v1` への誤フォールスルー（`no_valid_loop_var_candidates`）を解消。
     - fixture `phase29bq_selfhost_blocker_parse_program2_loop_if_else_if_return_min.hako` が `emit=0/run=0` に遷移。
-  - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
+  - canary: `bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
 - update (2026-03-04, blocker-triage follow-up / bq green):
   - command: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
   - result: `PASS (mode=bq)`
@@ -431,7 +431,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - blocker未解消のまま Pattern/Domain 削除を混ぜると、BoxCount と BoxShape が競合して原因切り分けが崩れるため。
 - Phase D entry condition:
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` の残件を current blocker 許容範囲まで縮小。
-  - `tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` を green 維持。
+  - `tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` を green 維持。
 - Phase D execution order (after blocker stabilization):
   1. D1: `PlanRuleId` / entry 名の Pattern 数値語彙を意味語彙へ置換（互換 alias を先に置く）。
   2. D2: `DomainPlan` の残存責務を label-only へ縮退し、router の依存を除去する。
@@ -452,7 +452,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - acceptance:
     - `cargo build --release --bin hakorune`
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
-    - `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh`
+    - `bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh`
     - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` で `emit_fail=0` / `route_blocker=0` 維持。
 - Phase D progress (2026-03-03):
   - D1 started: `single_planner/rule_order.rs` で `rule_name()` を semantic label SSOT に切替。
@@ -470,7 +470,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - D3 follow-up2 (2026-03-04): `Pattern2BreakPlan` / `Pattern2PromotionHint`（domain 側の legacy payload）を `#[cfg(test)]` 化し、本番 build から Pattern2 domain payload 型を除外。
   - D3 follow-up3 (2026-03-04): `Pattern2BreakPlan` を `normalizer/pattern2_break.rs` の module-local test-only 型へ移設し、`domain.rs` / `plan/mod.rs` から Pattern2 legacy payload 定義・re-export を撤去。
   - verification: `cargo test -q rule_name_uses_semantic_label --lib` / `cargo test -q legacy_rule_name_alias_is_preserved --lib` / `cargo test -q legacy_rule_aliases_map_to_semantic_priority --lib` / `cargo test -q domain_plan_kind_and_label_match --lib` / `phase29bq_fast_gate_vm --only loop_cond_continue_with_return_min` / `phase29bq_fast_gate_vm --only loop_header_shortcircuit_continue_with_return_min` / `phase29x-probe emit_fail=0`。
-  - verification2 (2026-03-04): `cargo build --release --bin hakorune` / `bash tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` / `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` が green。
+  - verification2 (2026-03-04): `cargo build --release --bin hakorune` / `bash tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` / `bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` が green。
   - verification3 (2026-03-04): `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` は継続して `emit_fail=0 / run_nonzero=18 / run_ok=100 / route_blocker=0` を維持。
   - verification4 (2026-03-04, L1 isolate):
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` => PASS（既存 Pattern2 tag 互換維持）。
@@ -496,7 +496,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bh_planner_first_single_case_vm.sh` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_step_then_tail_break_planner_required_vm.sh` => PASS
-    - `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => PASS
+    - `bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` => PASS
     - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=100`
 
 - direct route debug status (2026-03-03, active):
@@ -511,7 +511,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - latest: `emit_fail=0`, `run_nonzero=18`, `run_ok=100`, `route_blocker(step-budget/Invalid value)=0`。
     - class: `emit_fail class=0`, `run:vm-error=3`（`emit:direct-verify=0`, `emit:other=0`）。
   - direct-verify / dominance guard:
-    - canary: `tools/dev/phase29ca_direct_verify_dominance_block_canary.sh`（expected: `emit_rc=0` + `run_rc=4`）。
+    - canary: `tools/checks/phase29ca_direct_verify_dominance_block_canary.sh`（expected: `emit_rc=0` + `run_rc=4`）。
     - current residual: `emit:direct-verify=0`（clear）。
   - current blocker class（head order）:
     - emit blocker は 0 件（`emit_fail=0`）。

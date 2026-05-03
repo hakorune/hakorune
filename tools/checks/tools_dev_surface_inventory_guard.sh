@@ -19,7 +19,6 @@ EXPECTED_FILES=(
   "hako_debug_run.sh"
   "hako_preinclude.sh"
   "phase2160_mirbuilder_module_load_probe.sh"
-  "phase29ca_direct_verify_dominance_block_canary.sh"
   "phase29cg_stage2_bootstrap_phi_verify.sh"
   "phase29ch_program_json_compat_route_probe.sh"
   "phase29ck_boundary_explicit_compat_probe.sh"

@@ -92,7 +92,7 @@ bash tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe
 ## Guard Canary
 
 ```bash
-bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh
+bash tools/checks/phase29ca_direct_verify_dominance_block_canary.sh
 ```
 
 Expected: `emit_rc=0` and `run_rc=4`
