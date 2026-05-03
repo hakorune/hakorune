@@ -46,7 +46,7 @@ static box FuncBodyBasicLowerBox {
 
     // 3) Non-Loop processing: Local/If/Return パターンのみ
     local lowered = me._try_lower_local_if_return(func_name, box_name, params_arr, s)
-    if lowered != null { return lowered }
+    if lowered != null && lowered != "" { return lowered }
 
     s = me._inline_local_ints(s)
 
@@ -245,37 +245,37 @@ static box FuncBodyBasicLowerBox {
 
   method _try_lower_local_if_return(func_name, box_name, params_arr, body_json) {
     local local_name = me._extract_first_local_name(body_json)
-    if local_name == null { return null }
+    if local_name == null { return "" }
     local local_val = me._extract_first_local_value(body_json)
-    if local_val == null { return null }
+    if local_val == null { return "" }
 
     local if_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"If\"", 0)
-    if if_idx < 0 { return null }
+    if if_idx < 0 { return "" }
 
     local cond_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Compare\"", if_idx)
-    if cond_idx < 0 { return null }
+    if cond_idx < 0 { return "" }
     local op = me._extract_compare_op(body_json, cond_idx)
-    if op == null { return null }
+    if op == null { return "" }
 
     local lhs_kind = me._extract_operand_kind(body_json, "\"lhs\":{", cond_idx)
-    if lhs_kind != "var" { return null }
+    if lhs_kind != "var" { return "" }
     local lhs_name = me._extract_operand_name(body_json, "\"lhs\":{", cond_idx)
-    if lhs_name == null || lhs_name != local_name { return null }
+    if lhs_name == null || lhs_name != local_name { return "" }
 
     local rhs_kind = me._extract_operand_kind(body_json, "\"rhs\":{", cond_idx)
-    if rhs_kind != "int" { return null }
+    if rhs_kind != "int" { return "" }
     local rhs_val = me._extract_operand_value(body_json, "\"rhs\":{", cond_idx)
-    if rhs_val == null { return null }
+    if rhs_val == null { return "" }
 
     local then_ret_idx = me._find_then_return_idx(body_json, if_idx)
-    if then_ret_idx < 0 { return null }
+    if then_ret_idx < 0 { return "" }
     local then_value = me._coerce_return_expr_value(body_json, then_ret_idx, local_name, local_val)
-    if then_value == null { return null }
+    if then_value == null { return "" }
 
     local tail_ret_idx = me._find_tail_return_idx(body_json, if_idx)
-    if tail_ret_idx < 0 { return null }
+    if tail_ret_idx < 0 { return "" }
     local else_value = me._coerce_return_expr_value(body_json, tail_ret_idx, local_name, local_val)
-    if else_value == null { return null }
+    if else_value == null { return "" }
 
     return me._emit_local_if(func_name, box_name, params_arr, local_val, rhs_val, op, then_value, else_value)
   }

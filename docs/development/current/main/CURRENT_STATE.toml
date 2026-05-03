@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P265A-RETURN-CALL-LOWERER-PURE-TEXT-MAINLINE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P265A-RETURN-CALL-LOWERER-PURE-TEXT-MAINLINE.md"
-latest_card_summary = "Remove ReturnCallLowerBox debug/methodize side effects and keep the default Global call text emit path pure."
+latest_card = "P266A-BASIC-LOCAL-IF-TEXT-FAIL-SENTINEL"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P266A-BASIC-LOCAL-IF-TEXT-FAIL-SENTINEL.md"
+latest_card_summary = "Use empty-string failure sentinel for FuncBodyBasicLowerBox local-if text lowerer."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
