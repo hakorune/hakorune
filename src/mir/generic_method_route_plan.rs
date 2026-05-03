@@ -1681,9 +1681,51 @@ fn string_corridor_value_origin_box_name(
     value: ValueId,
     op: StringCorridorOp,
 ) -> Option<String> {
+    let mut visited = BTreeSet::new();
+    string_corridor_value_has_op_flow(function, def_map, value, op, &mut visited)
+        .then(|| "StringBox".to_string())
+}
+
+fn string_corridor_value_has_op_flow(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    op: StringCorridorOp,
+    visited: &mut BTreeSet<ValueId>,
+) -> bool {
     let origin = resolve_value_origin(function, def_map, value);
-    let fact = function.metadata.string_corridor_facts.get(&origin)?;
-    (fact.op == op).then(|| "StringBox".to_string())
+    if !visited.insert(origin) {
+        return false;
+    }
+    if function
+        .metadata
+        .string_corridor_facts
+        .get(&origin)
+        .is_some_and(|fact| fact.op == op)
+    {
+        return true;
+    }
+    let Some((block_id, instruction_index)) = def_map.get(&origin).copied() else {
+        return false;
+    };
+    let Some(block) = function.blocks.get(&block_id) else {
+        return false;
+    };
+    match block.instructions.get(instruction_index) {
+        Some(MirInstruction::Phi { inputs, .. }) if !inputs.is_empty() => {
+            inputs.iter().all(|(_, input)| {
+                let mut branch_visited = visited.clone();
+                string_corridor_value_has_op_flow(
+                    function,
+                    def_map,
+                    *input,
+                    op,
+                    &mut branch_visited,
+                )
+            })
+        }
+        _ => false,
+    }
 }
 
 fn match_generic_push_route(

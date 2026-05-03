@@ -800,6 +800,74 @@ fn records_runtime_data_lastindexof_from_string_corridor_slice_origin() {
 }
 
 #[test]
+fn records_runtime_data_indexof_from_string_corridor_slice_phi_origin() {
+    let mut function = make_function();
+    let entry = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    entry.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "StringBox".to_string(),
+        args: vec![],
+    });
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Integer(0),
+    });
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::Integer(4),
+    });
+    entry.add_instruction(method_call(
+        Some(4),
+        "RuntimeDataBox",
+        "substring",
+        1,
+        vec![2, 3],
+    ));
+    entry.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(1),
+        edge_args: None,
+    });
+
+    let mut merge = BasicBlock::new(BasicBlockId::new(1));
+    merge.add_instruction(MirInstruction::Phi {
+        dst: ValueId::new(5),
+        inputs: vec![(BasicBlockId::new(0), ValueId::new(4))],
+        type_hint: None,
+    });
+    merge.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(6),
+        src: ValueId::new(5),
+    });
+    merge.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(7),
+        value: ConstValue::String("\"name\":\"".to_string()),
+    });
+    merge.add_instruction(method_call(
+        Some(8),
+        "RuntimeDataBox",
+        "indexOf",
+        6,
+        vec![7],
+    ));
+    function.add_block(merge);
+
+    crate::mir::refresh_function_string_corridor_facts(&mut function);
+    refresh_function_generic_method_routes(&mut function);
+
+    let route = route_for(&function, "RuntimeDataBox", "indexOf", Some(8));
+    assert_eq!(route.route_id(), "generic_method.indexOf");
+    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::StringIndexOf);
+    let core_method = route
+        .core_method()
+        .expect("RuntimeData StringIndexOf corridor PHI carrier");
+    assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
+}
+
+#[test]
 fn records_runtime_data_indexof_from_generic_global_call_phi_origin() {
     let mut function = make_function();
     let entry = function
