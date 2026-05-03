@@ -17,7 +17,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, RecipeBlock
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, ValueId};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 fn tail_is_exit(body: &[ASTNode]) -> bool {
     matches!(
@@ -88,6 +88,96 @@ fn lower_if_join_non_exit_shape(
     )
 }
 
+fn lower_scopebox_return_prelude_stmt(
+    builder: &mut MirBuilder,
+    branch_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: Option<&BTreeMap<String, crate::mir::ValueId>>,
+    body: &[ASTNode],
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let pre_builder_map = builder.variable_ctx.variable_map.clone();
+    let pre_bindings = branch_bindings.clone();
+    let scope_locals = collect_scope_local_vars(body);
+
+    let mut scoped_bindings = branch_bindings.clone();
+    let mut plans = Vec::new();
+    for stmt in body {
+        let mut stmt_plans = lower_return_prelude_stmt(
+            builder,
+            &mut scoped_bindings,
+            carrier_step_phis,
+            break_phi_dsts,
+            stmt,
+            error_prefix,
+        )?;
+        plans.append(&mut stmt_plans);
+        if super::dispatch::plans_exit_on_all_paths(&plans) {
+            break;
+        }
+    }
+
+    builder.variable_ctx.variable_map = pre_builder_map.clone();
+    *branch_bindings = pre_bindings.clone();
+    for (name, value_id) in scoped_bindings {
+        if scope_locals.contains(&name) {
+            continue;
+        }
+        if pre_bindings.contains_key(&name) || pre_builder_map.contains_key(&name) {
+            branch_bindings.insert(name.clone(), value_id);
+            builder.variable_ctx.variable_map.insert(name, value_id);
+        }
+    }
+
+    Ok(plans)
+}
+
+fn collect_scope_local_vars(body: &[ASTNode]) -> BTreeSet<String> {
+    let mut locals = BTreeSet::new();
+    for stmt in body {
+        collect_scope_local_vars_from_stmt(stmt, &mut locals);
+    }
+    locals
+}
+
+fn collect_scope_local_vars_from_stmt(stmt: &ASTNode, locals: &mut BTreeSet<String>) {
+    match stmt {
+        ASTNode::Local { variables, .. } => {
+            for name in variables {
+                locals.insert(name.clone());
+            }
+        }
+        ASTNode::If {
+            then_body,
+            else_body,
+            ..
+        } => {
+            for stmt in then_body {
+                collect_scope_local_vars_from_stmt(stmt, locals);
+            }
+            if let Some(else_body) = else_body {
+                for stmt in else_body {
+                    collect_scope_local_vars_from_stmt(stmt, locals);
+                }
+            }
+        }
+        ASTNode::Loop { body, .. }
+        | ASTNode::While { body, .. }
+        | ASTNode::ForRange { body, .. }
+        | ASTNode::ScopeBox { body, .. } => {
+            for stmt in body {
+                collect_scope_local_vars_from_stmt(stmt, locals);
+            }
+        }
+        ASTNode::Program { statements, .. } => {
+            for stmt in statements {
+                collect_scope_local_vars_from_stmt(stmt, locals);
+            }
+        }
+        _ => {}
+    }
+}
+
 pub(in crate::mir::builder) fn lower_return_prelude_stmt(
     builder: &mut MirBuilder,
     branch_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
@@ -127,6 +217,17 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
             }
         }
         false
+    }
+
+    if let ASTNode::ScopeBox { body, .. } = stmt {
+        return lower_scopebox_return_prelude_stmt(
+            builder,
+            branch_bindings,
+            carrier_step_phis,
+            break_phi_dsts,
+            body,
+            error_prefix,
+        );
     }
 
     if let Some(recipe) = try_build_return_prelude_container_recipe(stmt, true) {
@@ -575,4 +676,88 @@ fn debug_log_stmt_binop_lit3(builder: &MirBuilder, effects: &[CoreEffectPlan], k
         lhs.0,
         rhs.0
     ));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::builder::stmts::variable_stmt::build_local_statement;
+    use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
+    use std::collections::BTreeMap;
+
+    fn span() -> Span {
+        Span::unknown()
+    }
+
+    fn lit_int(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: span(),
+        }
+    }
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: span(),
+        }
+    }
+
+    #[test]
+    fn return_prelude_scopebox_keeps_locals_scoped_and_outer_assignments_visible() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("return_prelude_scopebox_scope".to_string());
+        let _scope = LexicalScopeGuard::new(&mut builder);
+        build_local_statement(
+            &mut builder,
+            vec!["outer".to_string()],
+            vec![Some(Box::new(lit_int(0)))],
+        )
+        .expect("declare outer");
+
+        let mut bindings: BTreeMap<String, crate::mir::ValueId> =
+            builder.variable_ctx.variable_map.clone();
+        let stmt = ASTNode::ScopeBox {
+            body: vec![
+                ASTNode::Local {
+                    variables: vec!["tmp".to_string()],
+                    initial_values: vec![Some(Box::new(lit_int(1)))],
+                    span: span(),
+                },
+                ASTNode::Assignment {
+                    target: Box::new(var("outer")),
+                    value: Box::new(lit_int(2)),
+                    span: span(),
+                },
+            ],
+            span: span(),
+        };
+
+        let plans = lower_return_prelude_stmt(
+            &mut builder,
+            &mut bindings,
+            &BTreeMap::new(),
+            None,
+            &stmt,
+            "test_scopebox",
+        )
+        .expect("lower scopebox");
+
+        assert!(!plans.is_empty());
+        assert!(
+            !bindings.contains_key("tmp"),
+            "ScopeBox local must not leak into branch bindings"
+        );
+        assert!(
+            !builder.variable_ctx.variable_map.contains_key("tmp"),
+            "ScopeBox local must not leak into builder variable_map"
+        );
+        assert!(
+            bindings.contains_key("outer"),
+            "assignment to preexisting outer binding must remain visible"
+        );
+
+        builder.exit_function_for_test();
+    }
 }
