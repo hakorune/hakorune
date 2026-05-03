@@ -174,6 +174,9 @@ Notes
 - `selfhost_build.sh` no longer owns Stage-B Program(JSON v0) artifact production; the old explicit diagnostic probe is archived under `tools/archive/legacy-selfhost/engineering/`.
 - `tools/selfhost_exe_stageb.sh` is route-selectable:
   - default / `HAKORUNE_STAGE1_EMIT_ROUTE=direct` is the MIR-first route.
+    This route pins canonical MIR/user-call/macro env needed by the EXE build,
+    but `HAKO_JOINIR_STRICT` and `HAKO_JOINIR_PLANNER_REQUIRED` stay caller
+    opt-in so the helper does not turn a normal build into a strict/dev gate.
   - explicit `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a Program(JSON v0)
     bridge compat capsule, kept only while bridge replacement/archive coverage
     is incomplete.

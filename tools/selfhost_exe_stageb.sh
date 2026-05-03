@@ -137,34 +137,33 @@ emit_mir_direct() {
   tmp_log="$(mktemp)"
   TMP_FILES+=("$tmp_log")
   timeout_secs="${HAKORUNE_STAGE1_DIRECT_TIMEOUT_SECS:-120}"
+  local -a direct_env=(
+    "NYASH_JSON_SCHEMA_V1=${NYASH_JSON_SCHEMA_V1:-1}"
+    "NYASH_MIR_UNIFIED_CALL=${NYASH_MIR_UNIFIED_CALL:-1}"
+    "NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1}"
+    "HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1}"
+    "NYASH_MACRO_DISABLE=${NYASH_MACRO_DISABLE:-1}"
+    "HAKO_MACRO_DISABLE=${HAKO_MACRO_DISABLE:-1}"
+  )
+  local opt_key
+  for opt_key in \
+    HAKO_JOINIR_STRICT \
+    HAKO_JOINIR_PLANNER_REQUIRED \
+    HAKO_STAGEB_FUNC_SCAN \
+    HAKO_MIR_BUILDER_FUNCS \
+    HAKO_MIR_BUILDER_CALL_RESOLVE
+  do
+    if [[ "${!opt_key+x}" == "x" ]]; then
+      direct_env+=("${opt_key}=${!opt_key}")
+    fi
+  done
 
   set +e
   if [[ "$timeout_secs" =~ ^[0-9]+$ ]] && [[ "$timeout_secs" -gt 0 ]]; then
-    timeout --preserve-status "${timeout_secs}s" env \
-      HAKO_JOINIR_STRICT="${HAKO_JOINIR_STRICT:-1}" \
-      HAKO_JOINIR_PLANNER_REQUIRED="${HAKO_JOINIR_PLANNER_REQUIRED:-1}" \
-      HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
-      HAKO_MIR_BUILDER_FUNCS="${HAKO_MIR_BUILDER_FUNCS:-}" \
-      HAKO_MIR_BUILDER_CALL_RESOLVE="${HAKO_MIR_BUILDER_CALL_RESOLVE:-}" \
-      NYASH_JSON_SCHEMA_V1="${NYASH_JSON_SCHEMA_V1:-1}" \
-      NYASH_MIR_UNIFIED_CALL="${NYASH_MIR_UNIFIED_CALL:-1}" \
-      NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}" \
-      HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}" \
-      NYASH_MACRO_DISABLE="${NYASH_MACRO_DISABLE:-1}" \
-      HAKO_MACRO_DISABLE="${HAKO_MACRO_DISABLE:-1}" \
+    timeout --preserve-status "${timeout_secs}s" env "${direct_env[@]}" \
       "$NYASH_BIN" --emit-mir-json "$TMP_JSON" "$INPUT" >"$tmp_log" 2>&1
   else
-    HAKO_JOINIR_STRICT="${HAKO_JOINIR_STRICT:-1}" \
-    HAKO_JOINIR_PLANNER_REQUIRED="${HAKO_JOINIR_PLANNER_REQUIRED:-1}" \
-    HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
-    HAKO_MIR_BUILDER_FUNCS="${HAKO_MIR_BUILDER_FUNCS:-}" \
-    HAKO_MIR_BUILDER_CALL_RESOLVE="${HAKO_MIR_BUILDER_CALL_RESOLVE:-}" \
-    NYASH_JSON_SCHEMA_V1="${NYASH_JSON_SCHEMA_V1:-1}" \
-    NYASH_MIR_UNIFIED_CALL="${NYASH_MIR_UNIFIED_CALL:-1}" \
-    NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}" \
-    HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}" \
-    NYASH_MACRO_DISABLE="${NYASH_MACRO_DISABLE:-1}" \
-    HAKO_MACRO_DISABLE="${HAKO_MACRO_DISABLE:-1}" \
+    env "${direct_env[@]}" \
       "$NYASH_BIN" --emit-mir-json "$TMP_JSON" "$INPUT" >"$tmp_log" 2>&1
   fi
   local emit_rc=$?
