@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P227A-MIR-JSON-FLAGS-KEYS-VOID-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P227A-MIR-JSON-FLAGS-KEYS-VOID-GUARD.md"
-latest_card_summary = "Allow handle null-guard comparison for MirJsonEmitBox flags keys without adding collection normalizer semantics."
+latest_card = "P228A-MIR-JSON-FUNCTION-FIELD-PROOF"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P228A-MIR-JSON-FUNCTION-FIELD-PROOF.md"
+latest_card_summary = "Prove MirJsonEmitBox function schema fields through exact RuntimeData get routes without new helpers or body shapes."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -192,4 +192,5 @@ landed_tail = [
   "29cv-P225a MIR JSON flags recursion access proof landed",
   "29cv-P226a MIR JSON flags keys route landed",
   "29cv-P227a MIR JSON flags keys void guard landed",
+  "29cv-P228a MIR JSON function field proof landed",
 ]

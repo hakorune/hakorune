@@ -1349,6 +1349,14 @@ fn generic_pure_string_route_value_class(
                 _ => None,
             }
         }
+        "mir_json_function_field" if route.route_kind_tag() == "runtime_data_load_any" => {
+            match route.key_const_text()? {
+                "name" => Some(GenericPureValueClass::StringOrVoid),
+                "params" | "blocks" => Some(GenericPureValueClass::Array),
+                "flags" => Some(GenericPureValueClass::Map),
+                _ => None,
+            }
+        }
         "mir_json_inst_field" if route.route_kind_tag() == "runtime_data_load_any" => {
             match route.key_const_text()? {
                 "op" | "operation" | "op_kind" | "cmp" | "value" => {

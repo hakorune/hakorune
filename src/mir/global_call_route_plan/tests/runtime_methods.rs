@@ -135,6 +135,73 @@ fn refresh_module_global_call_routes_accepts_mir_json_emit_box_value_field_reads
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_mir_json_function_field_reads() {
+    let mut module = MirModule::new("global_call_mir_json_function_field_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "MirJsonEmitBox._emit_function/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut emit_function = MirFunction::new(
+        FunctionSignature {
+            name: "MirJsonEmitBox._emit_function/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    emit_function.params = vec![ValueId::new(1)];
+    let block = emit_function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("name".to_string()),
+        },
+        method_call(
+            Some(ValueId::new(3)),
+            "RuntimeDataBox",
+            "get",
+            ValueId::new(1),
+            vec![ValueId::new(2)],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::String(String::new()),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(5),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(4),
+            rhs: ValueId::new(3),
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(5)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("MirJsonEmitBox._emit_function/1".to_string(), emit_function);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let helper = &module.functions["MirJsonEmitBox._emit_function/1"];
+    assert!(helper.metadata.generic_method_routes.iter().any(|route| {
+        route.route_id() == "generic_method.get"
+            && route.proof_tag() == "mir_json_function_field"
+            && route.key_const_text() == Some("name")
+    }));
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_mir_json_flags_keys_route() {
     let mut module = MirModule::new("global_call_mir_json_flags_keys_test".to_string());
     let caller = make_function_with_global_call_args(
