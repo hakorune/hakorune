@@ -236,6 +236,96 @@ fn records_direct_array_and_map_set_core_method_routes() {
 }
 
 #[test]
+fn records_mapbox_set_with_redundant_receiver_arg_as_core_method_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "MapBox".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(2),
+        src: ValueId::new(1),
+    });
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(3),
+        src: ValueId::new(2),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: crate::mir::ConstValue::String("id".to_string()),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(5),
+        value: crate::mir::ConstValue::Integer(7),
+    });
+    block.add_instruction(method_call(Some(6), "MapBox", "set", 3, vec![2, 4, 5]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.set");
+    assert_eq!(route.box_name(), "MapBox");
+    assert_eq!(route.method(), "set");
+    assert_eq!(route.arity(), 2);
+    assert_eq!(route.receiver_origin_box(), Some("MapBox"));
+    assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::UnknownAny));
+    assert_eq!(route.key_value(), Some(ValueId::new(4)));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapStoreAny);
+    assert_eq!(route.proof(), GenericMethodRouteProof::SetSurfacePolicy);
+    let core_method = route.core_method().expect("MapSet carrier");
+    assert_eq!(core_method.op, CoreMethodOp::MapSet);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::ColdFallback
+    );
+    assert_eq!(route.return_shape(), None);
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
+    assert_eq!(route.publication_policy(), None);
+}
+
+#[test]
+fn rejects_mapbox_set_with_non_alias_redundant_receiver_arg() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "MapBox".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(2),
+        box_type: "MapBox".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(3),
+        src: ValueId::new(1),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: crate::mir::ConstValue::String("id".to_string()),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(5),
+        value: crate::mir::ConstValue::Integer(7),
+    });
+    block.add_instruction(method_call(Some(6), "MapBox", "set", 3, vec![2, 4, 5]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert!(function.metadata.generic_method_routes.is_empty());
+}
+
+#[test]
 fn records_runtime_data_mapbox_set_through_typed_phi_as_cold_core_method_route() {
     let mut function = make_function();
     let block = function

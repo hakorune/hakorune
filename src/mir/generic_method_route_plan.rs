@@ -1814,9 +1814,10 @@ fn match_generic_set_route(
     else {
         return None;
     };
-    if method != "set" || args.len() != 2 {
+    if method != "set" {
         return None;
     }
+    let args = method_args_without_redundant_receiver(function, def_map, *receiver, args, 2)?;
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
         .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
@@ -1849,6 +1850,24 @@ fn match_generic_set_route(
             None,
         ),
     ))
+}
+
+fn method_args_without_redundant_receiver<'a>(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+    args: &'a [ValueId],
+    semantic_arity: usize,
+) -> Option<&'a [ValueId]> {
+    if args.len() == semantic_arity {
+        return Some(args);
+    }
+    if args.len() != semantic_arity + 1 {
+        return None;
+    }
+    let receiver_origin = resolve_value_origin(function, def_map, receiver);
+    let arg_receiver_origin = resolve_value_origin(function, def_map, args[0]);
+    (receiver_origin == arg_receiver_origin).then_some(&args[1..])
 }
 
 fn is_len_method(method: &str) -> bool {

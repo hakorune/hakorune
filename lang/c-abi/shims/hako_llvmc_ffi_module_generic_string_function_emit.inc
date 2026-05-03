@@ -1196,15 +1196,25 @@
         char ab[256];
         long long key = 0;
         long long value = 0;
+        size_t argc = 0;
+        size_t key_index = 0;
+        size_t value_index = 1;
         (void)f;
         ab[0] = '\0';
         if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
               module_generic_string_method_view_is_direct_map_set(&method_view))) {
           return 0;
         }
-        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2)) return 0;
-        if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
-        if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
+        if (!(args && yyjson_is_arr(args))) return 0;
+        argc = yyjson_arr_size(args);
+        if (argc == 3) {
+          key_index = 1;
+          value_index = 2;
+        } else if (argc != 2) {
+          return 0;
+        }
+        if (!module_generic_string_read_arg_reg(args, key_index, &key)) return 0;
+        if (!module_generic_string_read_arg_reg(args, value_index, &value)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
         append_i64_arg_ref(ab, sizeof(ab), value, 0);
