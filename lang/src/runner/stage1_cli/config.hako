@@ -13,7 +13,6 @@ static box Stage1CliConfigBox {
 
     // Dev flags
     cfg.set("debug", env.get("STAGE1_CLI_DEBUG"))
-    cfg.set("to_i64_force_zero", env.get("NYASH_TO_I64_FORCE_ZERO"))
 
     return cfg
   }

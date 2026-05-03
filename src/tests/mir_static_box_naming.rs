@@ -65,9 +65,6 @@ fn mir_static_main_box_executes_void_path_with_guard() {
     std::env::set_var("NYASH_ENABLE_USING", "1");
     std::env::set_var("HAKO_ENABLE_USING", "1");
 
-    // Accept Void inputs as 0 for this execution path.
-    std::env::set_var("NYASH_TO_I64_FORCE_ZERO", "1");
-
     let src = load_fixture_with_string_helpers();
     let ast: ASTNode = NyashParser::parse_from_string(&src).expect("parse");
 
