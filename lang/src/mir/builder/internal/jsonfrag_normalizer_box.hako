@@ -176,10 +176,10 @@ static box JsonFragNormalizerBox {
 
   // Canonicalize const object textual representation for known patterns (f64 formatting)
   _const_canonicalize(obj_text) {
-    if obj_text == null { return null }
-    local s = me._coerce_text_compat(obj_text)
+    local s = me._text_or_empty(obj_text)
+    if s == "" { return "" }
     // narrow to object; if malformed, return as-is
-    local t = JsonFragBox.get_str(s, "type")
+    local t = me._text_or_empty(JsonFragBox.get_str(s, "type"))
     if t == "f64" {
       // find value position inside object and normalize numeric literal
       local keyv = me._dq()+"value"+me._dq()+":"
@@ -190,9 +190,9 @@ static box JsonFragNormalizerBox {
         // skip spaces
         loop(p < s.length()) { if s.substring(p,p+1) == " " { p = p + 1 } else { break } }
         // prefer tolerant numeric token reader (supports exponent), fallback to float reader
-        local vs = JsonNumberCanonicalBox.read_num_token(s, p)
-        if vs == null { vs = JsonFragBox.read_float_after(s, p) }
-        if vs != null {
+        local vs = me._text_or_empty(JsonNumberCanonicalBox.read_num_token(s, p))
+        if vs == "" { vs = me._text_or_empty(JsonFragBox.read_float_after(s, p)) }
+        if vs != "" {
           local canon = JsonNumberCanonicalBox.canonicalize_f64(vs)
           // replace substring from p of length vs.length with canon
           local out = s.substring(0, p) + canon + s.substring(p + vs.length(), s.length())
