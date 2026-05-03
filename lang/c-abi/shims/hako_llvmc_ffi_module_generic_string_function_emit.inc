@@ -1648,6 +1648,9 @@
             module_generic_symbol_was_emitted(name)) {
           return 0;
         }
+        if (module_function_is_numeric_i64_leaf(fn)) {
+          return 0;
+        }
         if (module_parser_program_json_symbol_will_be_defined(name)) {
           return emit_parser_program_json_function_definition(f, fn, name);
         }
