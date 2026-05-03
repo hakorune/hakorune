@@ -343,6 +343,14 @@
                          module_generic_string_method_view_is_direct_mir_json_params_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(&method_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_ARRAY_BIRTH);
+                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(&method_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(&method_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
@@ -961,6 +969,8 @@
         int is_mir_json_function_block_array_item_get = 0;
         int is_mir_json_module_function_array_item_get = 0;
         int is_mir_json_params_array_item_get = 0;
+        int is_mir_json_phi_incoming_array_item_get = 0;
+        int is_mir_json_phi_incoming_pair_scalar_get = 0;
         int is_mir_json_flags_rec_array_get = 0;
         int is_map_get = 0;
         int is_mir_json_block_field_get = 0;
@@ -983,6 +993,10 @@
               module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(&method_view);
           is_mir_json_params_array_item_get =
               module_generic_string_method_view_is_direct_mir_json_params_array_item_get(&method_view);
+          is_mir_json_phi_incoming_array_item_get =
+              module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(&method_view);
+          is_mir_json_phi_incoming_pair_scalar_get =
+              module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(&method_view);
           is_mir_json_flags_rec_array_get =
               module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(&method_view);
           is_map_get = module_generic_string_method_view_is_direct_map_get(&method_view);
@@ -1005,6 +1019,8 @@
               is_mir_json_function_block_array_item_get ||
               is_mir_json_module_function_array_item_get ||
               is_mir_json_params_array_item_get ||
+              is_mir_json_phi_incoming_array_item_get ||
+              is_mir_json_phi_incoming_pair_scalar_get ||
               is_mir_json_flags_rec_array_get ||
               is_map_get ||
               is_mir_json_block_field_get ||
@@ -1026,6 +1042,8 @@
                 is_mir_json_function_block_array_item_get ||
                 is_mir_json_module_function_array_item_get ||
                 is_mir_json_params_array_item_get ||
+                is_mir_json_phi_incoming_array_item_get ||
+                is_mir_json_phi_incoming_pair_scalar_get ||
                 is_mir_json_flags_rec_array_get)
                    ? "nyash.array.slot_load_hi"
                    : "nyash.runtime_data.get_hh",
@@ -1034,6 +1052,10 @@
           if (is_mir_json_module_function_array_item_get) {
             set_origin(dst, ORG_MAP_BIRTH);
             set_scan_origin(dst, ORG_MAP_BIRTH);
+          }
+          if (is_mir_json_phi_incoming_array_item_get) {
+            set_origin(dst, ORG_ARRAY_BIRTH);
+            set_scan_origin(dst, ORG_ARRAY_BIRTH);
           }
           if (is_map_get ||
               is_mir_json_block_field_get ||
@@ -1080,6 +1102,8 @@
                is_mir_json_function_block_array_item_get ||
                is_mir_json_module_function_array_item_get ||
                is_mir_json_params_array_item_get ||
+               is_mir_json_phi_incoming_array_item_get ||
+               is_mir_json_phi_incoming_pair_scalar_get ||
                is_mir_json_flags_rec_array_get)
                    ? "nyash.array.slot_load_hi"
                    : "nyash.runtime_data.get_hh",
