@@ -34,7 +34,6 @@ using "hako.mir.builder.internal.lower_method_array_push" as LowerMethodArrayPus
 using "hako.mir.builder.internal.lower_method_array_get_set" as LowerMethodArrayGetSetBox
 using "hako.mir.builder.internal.lower_method_map_size" as LowerMethodMapSizeBox
 using "hako.mir.builder.internal.lower_method_map_get_set" as LowerMethodMapGetSetBox
-using "hako.mir.builder.internal.lower_load_store_local" as LowerLoadStoreLocalBox
 using "hako.mir.builder.internal.lower_typeop_check" as LowerTypeOpCheckBox
 using "hako.mir.builder.internal.lower_typeop_cast" as LowerTypeOpCastBox
 using "hako.mir.builder.internal.lower_loop_count_param" as LowerLoopCountParamBox
@@ -77,7 +76,6 @@ static box BuilderFallbackAuthorityBox {
     }
     { local out_toc = LowerTypeOpCheckBox.try_lower(s); if out_toc != null { return out_toc } }
     { local out_tca = LowerTypeOpCastBox.try_lower(s); if out_tca != null { return out_tca } }
-    { local out_ls = LowerLoadStoreLocalBox.try_lower(s); if out_ls != null { return out_ls } }
     { local out_var = LowerReturnVarLocalBox.try_lower(s); if out_var != null { return out_var } }
     { local out_str = LowerReturnStringBox.try_lower(s); if out_str != null { return out_str } }
     { local out_f = LowerReturnFloatBox.try_lower(s); if out_f != null { return out_f } }

@@ -8,7 +8,6 @@ using "hako.mir.builder.internal.lower_method_array_size" as LowerMethodArraySiz
 using "hako.mir.builder.internal.lower_method_array_get_set" as LowerMethodArrayGetSetBox
 using "hako.mir.builder.internal.lower_method_map_size" as LowerMethodMapSizeBox
 using "hako.mir.builder.internal.lower_method_map_get_set" as LowerMethodMapGetSetBox
-using "hako.mir.builder.internal.lower_load_store_local" as LowerLoadStoreLocalBox
 using "hako.mir.builder.internal.lower_typeop_check" as LowerTypeOpCheckBox
 using "hako.mir.builder.internal.lower_typeop_cast" as LowerTypeOpCastBox
 using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
@@ -40,7 +39,6 @@ static box BuilderRunnerMinBox {
       }
     }
     if skip_methods == 0 {
-      { local o = LowerLoadStoreLocalBox.try_lower(s); if o != null { return o } }
       { local o = LowerTypeOpCheckBox.try_lower(s); if o != null { return o } }
       { local o = LowerTypeOpCastBox.try_lower(s); if o != null { return o } }
     }

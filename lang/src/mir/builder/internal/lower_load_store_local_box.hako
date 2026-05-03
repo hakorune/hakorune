@@ -1,5 +1,6 @@
 // lower_load_store_local_box.hako — Minimal Local(Int/Assign) -> store/load lowering
 using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerLoadStoreLocalBox {
   _find_from(s, pat, start_pos) {
@@ -56,44 +57,23 @@ static box LowerLoadStoreLocalBox {
     return StringHelpers.to_i64(trimmed)
   }
 
+  _json_string_or_empty(s, pos) {
+    local value = JsonFragBox.read_string_after(s, pos)
+    if value == null { return "" }
+    return value
+  }
+
+  _json_int_text_or_empty(s, pos) {
+    local value = JsonFragBox.read_int_after(s, pos)
+    if value == null { return "" }
+    return "" + value
+  }
+
   _next_local_or_end(s, k_local) {
     local n = s.length()
     local k_next = me._find_from(s, "\"type\":\"Local\"", k_local + 1)
     if k_next < 0 { return n }
     return k_next
-  }
-
-  _read_local_name(s, k_local) {
-    local k_name = me._find_from(s, "\"name\":", k_local)
-    if k_name < 0 { return null }
-    return me._read_quoted_after(s, k_name + 7)
-  }
-
-  _read_local_int_expr_in_range(s, k_local, rb) {
-    local k_int = me._find_from(s, "\"expr\":{\"type\":\"Int\"", k_local)
-    if k_int < 0 || k_int >= rb { return null }
-    local k_val = me._find_from(s, "\"value\":", k_int)
-    if k_val < 0 || k_val >= rb { return null }
-    return me._read_int_after(s, k_val + 8)
-  }
-
-  _read_return_var_name_at(s, k_ret) {
-    local k_var = me._find_from(s, "\"expr\":{\"type\":\"Var\"", k_ret)
-    if k_var < 0 { return null }
-    local k_name = me._find_from(s, "\"name\":", k_var)
-    if k_name < 0 { return null }
-    return me._read_quoted_after(s, k_name + 7)
-  }
-
-  _read_assignment_int_before(s, target_name, before_pos) {
-    local pat = "\"type\":\"Assignment\",\"name\":\"" + target_name + "\""
-    local k_asn = s.lastIndexOf(pat)
-    if k_asn < 0 || k_asn >= before_pos { return null }
-    local k_int = me._find_from(s, "\"expr\":{\"type\":\"Int\"", k_asn)
-    if k_int < 0 || k_int >= before_pos { return null }
-    local k_val = me._find_from(s, "\"value\":", k_int)
-    if k_val < 0 || k_val >= before_pos { return null }
-    return me._read_int_after(s, k_val + 8)
   }
 
   _is_local_alias_to_var_in_range(s, k_local, base_name, rb) {
@@ -124,42 +104,71 @@ static box LowerLoadStoreLocalBox {
   }
 
   try_lower(program_json) {
-    if program_json == null { return null }
     local s = me._coerce_text_compat(program_json)
-    if me._accept_shape(s) != 1 { return null }
+    if me._accept_shape(s) != 1 { return "" }
 
     local k_local0 = me._find_from(s, "\"type\":\"Local\"", 0)
-    if k_local0 < 0 { return null }
+    if k_local0 < 0 { return "" }
     local rb0 = me._next_local_or_end(s, k_local0)
-    local base_name = me._read_local_name(s, k_local0)
-    if base_name == null || base_name == "" { return null }
-    local init_val = me._read_local_int_expr_in_range(s, k_local0, rb0)
-    if init_val == null { return null }
+    local k_base_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_local0)
+    if k_base_name < 0 { return "" }
+    if k_base_name >= rb0 { return "" }
+    local base_name = me._json_string_or_empty(s, k_base_name + 7)
+    if base_name == "" { return "" }
+    local k_init_int = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Int\"", k_local0)
+    if k_init_int < 0 { return "" }
+    if k_init_int >= rb0 { return "" }
+    local k_init_value = JsonFragBox.index_of_from(s, "\"value\":", k_init_int)
+    if k_init_value < 0 { return "" }
+    if k_init_value >= rb0 { return "" }
+    local init_val = me._json_int_text_or_empty(s, k_init_value + 8)
+    if init_val == "" { return "" }
 
     local k_ret = me._find_from(s, "\"type\":\"Return\"", k_local0 + 1)
-    if k_ret < 0 { return null }
-    local ret_name = me._read_return_var_name_at(s, k_ret)
-    if ret_name == null || ret_name == "" { return null }
+    if k_ret < 0 { return "" }
+    local k_ret_var = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Var\"", k_ret)
+    if k_ret_var < 0 { return "" }
+    local k_ret_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_ret_var)
+    if k_ret_name < 0 { return "" }
+    local ret_name = me._json_string_or_empty(s, k_ret_name + 7)
+    if ret_name == "" { return "" }
 
-    local assigned_val = me._read_assignment_int_before(s, base_name, k_ret)
+    local assigned_val = ""
+    local pat_asn = "\"type\":\"Assignment\",\"name\":\"" + base_name + "\""
+    local k_asn = JsonFragBox.last_index_of_from(s, pat_asn, k_ret)
+    if k_asn >= 0 {
+      if k_asn < k_ret {
+        local k_asn_int = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Int\"", k_asn)
+        if k_asn_int >= 0 {
+          if k_asn_int < k_ret {
+            local k_asn_value = JsonFragBox.index_of_from(s, "\"value\":", k_asn_int)
+            if k_asn_value >= 0 {
+              if k_asn_value < k_ret {
+                assigned_val = me._json_int_text_or_empty(s, k_asn_value + 8)
+              }
+            }
+          }
+        }
+      }
+    }
     local final_val = init_val
-    if assigned_val != null { final_val = assigned_val }
+    if assigned_val != "" { final_val = assigned_val }
 
     if ret_name != base_name {
       local pat_alias = "\"type\":\"Local\",\"name\":\"" + ret_name + "\""
       local k_alias = me._find_from(s, pat_alias, k_local0 + 1)
-      if k_alias < 0 || k_alias >= k_ret { return null }
+      if k_alias < 0 { return "" }
+      if k_alias >= k_ret { return "" }
       local rb_alias = me._next_local_or_end(s, k_alias)
       if rb_alias > k_ret { rb_alias = k_ret }
-      if me._is_local_alias_to_var_in_range(s, k_alias, base_name, rb_alias) != 1 { return null }
+      if me._is_local_alias_to_var_in_range(s, k_alias, base_name, rb_alias) != 1 { return "" }
     }
 
-    local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
-               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + final_val + "}}," +
-               "{\"op\":\"store\",\"value\":1,\"ptr\":10}," +
-               "{\"op\":\"load\",\"dst\":2,\"ptr\":10}," +
-               "{\"op\":\"ret\",\"value\":2}]}]}]}"
-    return json
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
+           "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + final_val + "}}," +
+           "{\"op\":\"store\",\"value\":1,\"ptr\":10}," +
+           "{\"op\":\"load\",\"dst\":2,\"ptr\":10}," +
+           "{\"op\":\"ret\",\"value\":2}]}]}]}"
   }
 
   _coerce_text_compat(value) {
