@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Enable recommended dev env for Phase 21.6 solidification (Hakorune-only chain)
+# Archived Phase 21.6 dev env helper (historical evidence only).
 set -euo pipefail
 
 export HAKO_SELFHOST_BUILDER_FIRST=1

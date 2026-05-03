@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# rename_nyash_to_hako.sh — 拡張子/参照の一括変換（安全志向）
+# rename_nyash_to_hako.sh — archived one-shot extension/reference migration helper
 #
 # 目的:
 #  1) 拡張子 .nyash → .hako にファイルをリネーム（git mv）
@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # 既定は DRY-RUN（変更無し）。
 # 実行例:
-#  DRY_RUN=0 RENAME_EXT=1 REWRITE_TEXT=1 ./tools/dev/rename_nyash_to_hako.sh
+#  DRY_RUN=0 RENAME_EXT=1 REWRITE_TEXT=1 bash tools/archive/legacy-selfhost/engineering/rename_nyash_to_hako.sh
 #
 # 環境変数:
 #  - DRY_RUN=1: 乾行（既定1）
@@ -21,7 +21,7 @@ DRY_RUN="${DRY_RUN:-1}"
 RENAME_EXT="${RENAME_EXT:-0}"
 REWRITE_TEXT="${REWRITE_TEXT:-0}"
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
 cd "$ROOT"
 
 log() { echo "[rename] $*" >&2; }
@@ -80,4 +80,3 @@ fi
 
 log "Done (DRY_RUN=$DRY_RUN RENAME_EXT=$RENAME_EXT REWRITE_TEXT=$REWRITE_TEXT)"
 exit 0
-

@@ -98,6 +98,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P359A repairs the invocation contract for active dev sugar pre-expand helpers
   after inventory found the documented direct helper path and composed sugar
   helper relied on executable file-mode bits that this repo does not track.
+- P360A archives old one-shot/dev-env utilities from active `tools/dev`;
+  `enable_phase216_env.sh` and `rename_nyash_to_hako.sh` are now historical
+  engineering evidence guarded by `tools/checks/legacy_dev_utility_surface_guard.sh`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

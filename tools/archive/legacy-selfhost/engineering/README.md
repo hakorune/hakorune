@@ -57,5 +57,7 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `phase29ck_boundary_fallback_inventory_probe.sh`
 - `phase29ck_small_entry_gc_sections_experiment.sh`
 - `phase29ck_small_entry_startup_probe.sh`
+- `enable_phase216_env.sh`
+- `rename_nyash_to_hako.sh`
 
 Read this directory as the archived engineering helper bucket.
