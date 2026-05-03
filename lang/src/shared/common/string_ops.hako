@@ -8,11 +8,13 @@ static box StringOps {
   index_of_from(text, needle, pos) {
     if text == null { return -1 }
     if needle == null { return -1 }
+    local s = "" + text
+    local p = "" + needle
     if pos < 0 { pos = 0 }
-    local n = text.length()
+    local n = s.length()
     if pos >= n { return -1 }
-    local m = needle.length()
+    local m = p.length()
     if m <= 0 { return pos }
-    return text.indexOf(needle, pos)
+    return s.indexOf(p, pos)
   }
 }
