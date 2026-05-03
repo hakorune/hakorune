@@ -40,15 +40,22 @@ fi
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 EMIT_ROUTE="${HAKORUNE_STAGE1_EMIT_ROUTE:-direct}"
 
-# shellcheck source=/dev/null
-source "$ROOT_DIR/tools/selfhost/lib/program_json_mir_bridge.sh"
-# shellcheck source=/dev/null
-source "$ROOT_DIR/tools/selfhost/lib/stageb_program_json_capture.sh"
-
 TMP_JSON="$(mktemp --suffix .json)"
 TMP_FILES=("$TMP_JSON")
 cleanup_tmp() { rm -f "${TMP_FILES[@]}" 2>/dev/null || true; }
 trap cleanup_tmp EXIT
+
+STAGEB_DELEGATE_HELPERS_LOADED=0
+load_stageb_delegate_helpers() {
+  if [[ "$STAGEB_DELEGATE_HELPERS_LOADED" = "1" ]]; then
+    return 0
+  fi
+  # shellcheck source=/dev/null
+  source "$ROOT_DIR/tools/selfhost/lib/program_json_mir_bridge.sh"
+  # shellcheck source=/dev/null
+  source "$ROOT_DIR/tools/selfhost/lib/stageb_program_json_capture.sh"
+  STAGEB_DELEGATE_HELPERS_LOADED=1
+}
 
 resolve_nyash_bin() {
   if [[ -z "${NYASH_BIN:-}" ]]; then
@@ -190,6 +197,7 @@ emit_mir_direct() {
 
 emit_mir_stageb_delegate() {
   local tmp_log tmp_prog_raw tmp_prog_merged code prog_json_out
+  load_stageb_delegate_helpers
   tmp_log="$(mktemp)"
   tmp_prog_raw="$(mktemp --suffix .program.json)"
   tmp_prog_merged="$(mktemp --suffix .program.merged.json)"
