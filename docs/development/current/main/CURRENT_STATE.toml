@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P328A-METHODIZE-NO-CALL-IDENTITY"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P328A-METHODIZE-NO-CALL-IDENTITY.md"
-latest_card_summary = "Keep CallMethodizeBox as identity for MIR text with no call instructions on the methodize-on DirectAbi route."
+latest_card = "P329A-CORE-METHOD-CONTRACT-MANIFEST-SYNC"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P329A-CORE-METHOD-CONTRACT-MANIFEST-SYNC.md"
+latest_card_summary = "Refresh the generated CoreMethodContract manifest so dev-gate quick returns to green."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
