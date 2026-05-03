@@ -513,6 +513,8 @@
         fprintf(f, "declare void @llvm.trap()\n");
       if (needs.printf || module_has_planned_generic_string_definition())
         fprintf(f, "declare i32 @printf(ptr, ...)\n");
+      if (needs.printf || module_has_planned_generic_string_definition())
+        fprintf(f, "declare i64 @\"nyash.console.log_handle\"(i64)\n");
       if (needs.string_substring_len) fprintf(f, "declare i64 @\"nyash.string.substring_len_hii\"(i64, i64, i64)\n");
       fprintf(f, "\n");
       if (emit_module_function_leaf_definitions(f) < 0) {

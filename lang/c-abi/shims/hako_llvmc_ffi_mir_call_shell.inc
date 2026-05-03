@@ -95,9 +95,17 @@
           long long a0) {
         long long a0_base = resolve_copy_source_reg(a0);
         long long cv = 0;
+        int a0_is_string =
+            get_origin(a0_base) == ORG_STRING ||
+            get_scan_origin(a0_base) == ORG_STRING ||
+            get_origin(a0) == ORG_STRING ||
+            get_scan_origin(a0) == ORG_STRING;
         if (kind != HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT) return -1;
         if (!a0) return -1;
-        if (has_const(a0_base, &cv)) {
+        if (a0_is_string) {
+          fprintf(f, "  %%print_call_%lld = call i64 @\"nyash.console.log_handle\"(i64 %%r%lld)\n",
+                  a0, a0_base ? a0_base : a0);
+        } else if (has_const(a0_base, &cv)) {
           fprintf(f, "  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %lld)\n",
                   a0, cv);
         } else {
