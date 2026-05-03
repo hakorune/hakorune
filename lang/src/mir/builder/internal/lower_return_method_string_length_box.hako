@@ -10,14 +10,24 @@ static box LowerReturnMethodStringLengthBox {
     local s = me._coerce_text_compat(program_json)
     // Find Return with expr.type == Method
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
-    local k_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_ret); if k_expr < 0 { return null }
-    local k_m = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", k_expr); if k_m < 0 { return null }
+    local k_m = me._find_return_method_start(s, k_ret); if k_m < 0 { return null }
     // method name
     local k_name = JsonFragBox.index_of_from(s, "\"method\":\"", k_m); if k_name < 0 { return null }
     local mname = JsonFragBox.read_string_after(s, k_name + 9); if mname == null { return null }
     if !(mname == "length" || mname == "size") { return null }
-    // receiver: New(StringBox, <String>)
+    // receiver: current parser emits direct Str/String; older routes may emit New(StringBox,...).
     local k_recv = JsonFragBox.index_of_from(s, "\"recv\":{", k_m); if k_recv < 0 { return null }
+    local k_recv_str = -1
+    if k_recv + 20 <= s.length() && s.substring(k_recv, k_recv + 20) == "\"recv\":{\"type\":\"Str\"" { k_recv_str = k_recv }
+    if k_recv_str < 0 && k_recv + 23 <= s.length() && s.substring(k_recv, k_recv + 23) == "\"recv\":{\"type\":\"String\"" { k_recv_str = k_recv }
+    if k_recv_str >= 0 {
+      local k_val_direct = JsonFragBox.index_of_from(s, "\"value\":", k_recv_str); if k_val_direct < 0 { return null }
+      local raw = me._read_string_literal_json_text_after(s, k_val_direct + 8); if raw == "" { return null }
+      if mname == "length" { return me._emit_length_mir(raw) }
+      if mname == "size" { return me._emit_size_mir(raw) }
+      return null
+    }
+
     local k_new = JsonFragBox.index_of_from(s, "\"type\":\"New\"", k_recv); if k_new < 0 { return null }
     if JsonFragBox.index_of_from(s, "\"class\":\"StringBox\"", k_new) < 0 { return null }
     // find first String literal value under args
@@ -27,14 +37,71 @@ static box LowerReturnMethodStringLengthBox {
     local sval = JsonFragBox.read_string_after(s, k_val + 8); if sval == null { return null }
     // Emit minimal MIR v1: const string + call(callee=Method) → i64 → ret
     // Note: const string is compatible with ny-llvmc const lowering (marks string_ptrs)
-    local mir = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
-               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"" + sval + "\"}}," +
-               "{\"op\":\"call\",\"dst\":2,\"callee\":{\"type\":\"Method\",\"box_name\":\"StringBox\",\"method\":\"" + mname + "\",\"receiver\":1},\"args\":[]}," +
-               "{\"op\":\"ret\",\"value\":2}]}]}]}"
-    return mir
+    if mname == "length" { return me._emit_length_mir("\"" + sval + "\"") }
+    if mname == "size" { return me._emit_size_mir("\"" + sval + "\"") }
+    return null
   }
 
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _find_return_method_start(s, k_ret) {
+    local k_forward = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Method\"", k_ret)
+    if k_forward >= 0 && k_forward < k_ret + 256 { return k_forward }
+
+    local scan = 0
+    local last_expr = -1
+    loop(scan < k_ret) {
+      local next_expr = JsonFragBox.index_of_from(s, "\"expr\":{", scan)
+      if next_expr < 0 || next_expr >= k_ret { break }
+      last_expr = next_expr
+      scan = next_expr + 1
+    }
+    if last_expr >= 0 && k_ret - last_expr < 256 {
+      local boundary_back = JsonFragBox.index_of_from(s, "},{", last_expr)
+      if boundary_back < 0 || boundary_back > k_ret {
+        local k_method = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", last_expr)
+        if k_method >= 0 && k_method < k_ret { return last_expr }
+      }
+    }
+    return -1
+  }
+
+  _read_string_literal_json_text_after(s, pos) {
+    local start = me._skip_ws(s, pos)
+    if start >= s.length() || s.substring(start, start + 1) != "\"" { return "" }
+    local i = start + 1
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == "\\" {
+        i = i + 2
+        continue
+      }
+      if ch == "\"" { return s.substring(start, i + 1) }
+      i = i + 1
+    }
+    return ""
+  }
+
+  _skip_ws(s, pos) {
+    local i = pos
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
+  }
+
+  _emit_length_mir(raw) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":" + raw + "}},{\"op\":\"call\",\"dst\":2,\"callee\":{\"type\":\"Method\",\"box_name\":\"StringBox\",\"method\":\"length\",\"receiver\":1},\"args\":[]},{\"op\":\"ret\",\"value\":2}]}]}]}"
+  }
+
+  _emit_size_mir(raw) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":" + raw + "}},{\"op\":\"call\",\"dst\":2,\"callee\":{\"type\":\"Method\",\"box_name\":\"StringBox\",\"method\":\"size\",\"receiver\":1},\"args\":[]},{\"op\":\"ret\",\"value\":2}]}]}]}"
   }
 }
