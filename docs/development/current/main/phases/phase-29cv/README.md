@@ -82,6 +82,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   from active `tools/dev`. `phase29ch_program_json_compat_route_probe.sh`
   remains the only live phase29ch dev keeper, guarded by
   `tools/checks/phase29ch_route_probe_surface_guard.sh`.
+- P355A archives two completed phase29ck pre-perf diagnostics probes from
+  active `tools/dev`. Live phase29ck compat/dialect keepers remain active and
+  are guarded by `tools/checks/phase29ck_preperf_probe_surface_guard.sh`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

@@ -64,7 +64,8 @@ Related:
   - no C export/default change
   - no `llvmlite` keep-lane edit
 - acceptance:
-  - `tools/dev/phase29ck_backend_recipe_profile_probe.sh`
+  - archived evidence:
+    `tools/archive/legacy-selfhost/engineering/phase29ck_backend_recipe_profile_probe.sh`
   - `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_boundary_compat_keep_min.sh`
   - `tools/smokes/v2/profiles/integration/archive/phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh`
 
@@ -90,7 +91,8 @@ Related:
   - no perf retune
   - no Python builder work
 - acceptance:
-  - `tools/dev/phase29ck_boundary_fallback_inventory_probe.sh`
+  - archived evidence:
+    `tools/archive/legacy-selfhost/engineering/phase29ck_boundary_fallback_inventory_probe.sh`
   - `tools/dev/phase29ck_boundary_explicit_compat_probe.sh`
   - `tools/dev/phase29ck_boundary_historical_alias_probe.sh`
   - `phase29ck_boundary_*` default/compat keep smokes

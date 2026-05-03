@@ -41,5 +41,7 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `phase29ch_source_route_direct_probe.sh`
 - `phase29ch_source_route_materialize_probe.sh`
 - `phase29ch_transient_boundary_probe.sh`
+- `phase29ck_backend_recipe_profile_probe.sh`
+- `phase29ck_boundary_fallback_inventory_probe.sh`
 
 Read this directory as the archived engineering helper bucket.
