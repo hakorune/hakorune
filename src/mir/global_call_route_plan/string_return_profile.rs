@@ -224,6 +224,7 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
 
     let mut saw_string = false;
     let mut saw_concrete_string = false;
+    let mut saw_string_or_void_child = false;
     let mut saw_unknown_param_passthrough = false;
     let mut saw_void = false;
     for block in function.blocks.values() {
@@ -237,6 +238,7 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
                         }
                         GenericStringReturnValueClass::StringOrVoid => {
                             saw_string = true;
+                            saw_string_or_void_child = true;
                             saw_void = true;
                         }
                         GenericStringReturnValueClass::Void => saw_void = true,
@@ -261,7 +263,11 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
             && generic_string_return_type_requires_concrete_unknown_passthrough(
                 &function.signature.return_type,
             ));
-    saw_string && saw_void && (!requires_concrete_string || saw_concrete_string)
+    saw_string
+        && saw_void
+        && (!requires_concrete_string
+            || saw_concrete_string
+            || (saw_string_or_void_child && !saw_unknown_param_passthrough))
 }
 
 fn unknown_param_passthrough_values(function: &MirFunction) -> BTreeSet<ValueId> {
