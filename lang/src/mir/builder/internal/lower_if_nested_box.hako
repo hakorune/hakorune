@@ -22,17 +22,30 @@ static box LowerIfNestedBox {
     local p_int = "\"" + side + "\":{\"type\":\"Int\""
     local k_var = JsonFragBox.index_of_from(s, p_var, k_cmp)
     local k_int = JsonFragBox.index_of_from(s, p_int, k_cmp)
-    if k_var >= 0 && (k_int < 0 || k_var < k_int) {
+    local use_var = 0
+    if k_var >= 0 {
+      if k_int < 0 {
+        use_var = 1
+      } else {
+        if k_var < k_int { use_var = 1 }
+      }
+    }
+    if use_var == 1 {
       local k_name = JsonFragBox.index_of_from(s, "\"name\":", k_var)
       if k_name < 0 { return null }
       local var_name = JsonFragBox.read_string_after(s, k_name + 7)
-      if var_name == null || var_name == "" { return null }
-      return PatternUtilBox.find_local_int_before(s, var_name, before_pos)
+      if var_name == null { return null }
+      if var_name == "" { return null }
+      local found = PatternUtilBox.find_local_int_before(s, var_name, before_pos)
+      if found == null { return null }
+      return me._coerce_text_compat(found)
     }
     if k_int >= 0 {
       local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_int)
       if k_val < 0 { return null }
-      return JsonFragBox.read_int_after(s, k_val + 8)
+      local value = JsonFragBox.read_int_after(s, k_val + 8)
+      if value == null { return null }
+      return me._coerce_text_compat(value)
     }
     return null
   }
