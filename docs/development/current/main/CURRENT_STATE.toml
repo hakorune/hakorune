@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P282A-FALLBACK-AUTHORITY-OP-GUARD-NOT-FREE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P282A-FALLBACK-AUTHORITY-OP-GUARD-NOT-FREE.md"
-latest_card_summary = "Rewrite BuilderFallbackAuthorityBox operator guards without unary not and raise generic prepass PHI record capacity."
+latest_card = "P283A-MODULE-GENERIC-UNARY-NOT-CONSUME"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P283A-MODULE-GENERIC-UNARY-NOT-CONSUME.md"
+latest_card_summary = "Close the module generic header-present route gap by consuming unary-not and publishing param-text StringContains plans."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

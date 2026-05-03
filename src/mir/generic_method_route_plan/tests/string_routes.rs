@@ -591,6 +591,77 @@ fn records_direct_contains_core_method_route() {
 }
 
 #[test]
+fn records_runtime_data_contains_from_param_text_copy_phi_flow() {
+    let mut function = make_function();
+    function.signature.params = vec![MirType::Unknown];
+    function.params = vec![ValueId::new(0)];
+    let entry = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    entry.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(3),
+        src: ValueId::new(0),
+    });
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: ConstValue::String("\"version\"".to_string()),
+    });
+    entry.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(5),
+        src: ValueId::new(3),
+    });
+    entry.add_instruction(method_call(
+        Some(2),
+        "RuntimeDataBox",
+        "contains",
+        5,
+        vec![4],
+    ));
+    entry.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(1),
+        edge_args: None,
+    });
+
+    let mut second = BasicBlock::new(BasicBlockId::new(1));
+    second.add_instruction(MirInstruction::Phi {
+        dst: ValueId::new(11),
+        inputs: vec![(BasicBlockId::new(0), ValueId::new(0))],
+        type_hint: None,
+    });
+    second.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(17),
+        src: ValueId::new(11),
+    });
+    second.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(18),
+        value: ConstValue::String("\"kind\"".to_string()),
+    });
+    second.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(19),
+        src: ValueId::new(17),
+    });
+    second.add_instruction(method_call(
+        Some(16),
+        "RuntimeDataBox",
+        "contains",
+        19,
+        vec![18],
+    ));
+    function.add_block(second);
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 2);
+    let first = route_for(&function, "RuntimeDataBox", "contains", Some(2));
+    assert_eq!(first.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(first.route_kind(), GenericMethodRouteKind::StringContains);
+    let second = route_for(&function, "RuntimeDataBox", "contains", Some(16));
+    assert_eq!(second.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(second.route_kind(), GenericMethodRouteKind::StringContains);
+}
+
+#[test]
 fn records_runtime_data_indexof_from_string_origin() {
     let mut function = make_function();
     let block = function

@@ -230,6 +230,11 @@
               }
             } else if (!strcmp(op, "compare")) {
               set_type(read_int(ins, "dst"), T_I1);
+            } else if (!strcmp(op, "unop")) {
+              const char* kind = read_str(ins, "op_kind");
+              if (!kind) kind = read_str(ins, "operation");
+              if (!(kind && (!strcmp(kind, "not") || !strcmp(kind, "Not")))) return 0;
+              set_type(read_int(ins, "dst"), T_I1);
             } else if (!strcmp(op, "phi")) {
               if (!module_generic_string_record_phi(ins, block.id)) return 0;
             } else if (!strcmp(op, "binop")) {
@@ -520,6 +525,36 @@
           return 1;
         }
         return 0;
+      }
+
+      auto int module_generic_string_emit_unop(yyjson_val* ins) {
+        const char* kind = read_str(ins, "op_kind");
+        long long dst = read_int(ins, "dst");
+        long long src = read_int(ins, "src");
+        long long base = 0;
+        long long cv = 0;
+        int has_cv = 0;
+        int src_ty = T_NONE;
+        if (!kind) kind = read_str(ins, "operation");
+        if (!src) src = read_int(ins, "operand");
+        if (!(kind && (!strcmp(kind, "not") || !strcmp(kind, "Not")))) return 0;
+        if (!(dst && src)) return 0;
+        base = resolve_copy_source_reg(src);
+        has_cv = has_const(base, &cv);
+        src_ty = get_type(base);
+        if (src_ty == T_I1) {
+          if (has_cv) {
+            EMIT("  %%r%lld = xor i1 %s, true\n", dst, cv ? "true" : "false");
+          } else {
+            EMIT("  %%r%lld = xor i1 %%r%lld, true\n", dst, base);
+          }
+        } else if (has_cv) {
+          EMIT("  %%r%lld = icmp eq i64 %lld, 0\n", dst, cv);
+        } else {
+          EMIT("  %%r%lld = icmp eq i64 %%r%lld, 0\n", dst, base);
+        }
+        set_type(dst, T_I1);
+        return 1;
       }
 
       auto int module_generic_string_emit_binop(yyjson_val* ins) {
@@ -1206,6 +1241,10 @@
             }
             if (!strcmp(op, "compare")) {
               if (!module_generic_string_emit_compare(ins)) return 0;
+              continue;
+            }
+            if (!strcmp(op, "unop")) {
+              if (!module_generic_string_emit_unop(ins)) return 0;
               continue;
             }
             if (!strcmp(op, "select")) {

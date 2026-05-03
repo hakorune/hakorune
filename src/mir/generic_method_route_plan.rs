@@ -1604,8 +1604,14 @@ fn match_generic_contains_route(
         return None;
     }
 
-    let receiver_origin_box =
-        generic_string_receiver_origin_box_name(function, def_map, *receiver, box_name);
+    let receiver_origin_box = generic_string_receiver_origin_box_name(
+        function, def_map, *receiver, box_name,
+    )
+    .or_else(|| {
+        generic_runtime_data_contains_param_text_origin_box_name(
+            function, def_map, box_name, *receiver, args[0],
+        )
+    });
     if box_name != "StringBox"
         && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))
     {
@@ -1628,6 +1634,26 @@ fn match_generic_contains_route(
             Some(GenericMethodPublicationPolicy::NoPublication),
         ),
     ))
+}
+
+fn generic_runtime_data_contains_param_text_origin_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    box_name: &str,
+    receiver: ValueId,
+    needle: ValueId,
+) -> Option<String> {
+    if box_name != "RuntimeDataBox" {
+        return None;
+    }
+    if generic_pure_string_value_origin_box_name(function, def_map, needle).as_deref()
+        != Some("StringBox")
+    {
+        return None;
+    }
+    let mut visited = BTreeSet::new();
+    generic_value_flows_from_text_param(function, def_map, receiver, &mut visited)
+        .then(|| "StringBox".to_string())
 }
 
 fn generic_string_receiver_origin_box_name(
@@ -1855,6 +1881,50 @@ fn generic_pure_string_signature_param_origin_box_name(
             super::MirType::Box(name) if name == "StringBox" => Some("StringBox".to_string()),
             _ => None,
         })
+}
+
+fn generic_value_flows_from_text_param(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    visited: &mut BTreeSet<ValueId>,
+) -> bool {
+    let origin = resolve_value_origin(function, def_map, value);
+    if !visited.insert(origin) {
+        return false;
+    }
+    if generic_value_is_text_param(function, origin) {
+        return true;
+    }
+    let Some((block_id, instruction_index)) = def_map.get(&origin).copied() else {
+        return false;
+    };
+    let Some(block) = function.blocks.get(&block_id) else {
+        return false;
+    };
+    match block.instructions.get(instruction_index) {
+        Some(MirInstruction::Phi { inputs, .. }) if !inputs.is_empty() => {
+            inputs.iter().all(|(_, input)| {
+                let mut branch_visited = visited.clone();
+                generic_value_flows_from_text_param(function, def_map, *input, &mut branch_visited)
+            })
+        }
+        _ => false,
+    }
+}
+
+fn generic_value_is_text_param(function: &MirFunction, value: ValueId) -> bool {
+    function
+        .params
+        .iter()
+        .position(|param| *param == value)
+        .and_then(|index| function.signature.params.get(index))
+        .is_some_and(generic_param_type_can_flow_as_text)
+}
+
+fn generic_param_type_can_flow_as_text(ty: &super::MirType) -> bool {
+    matches!(ty, super::MirType::Unknown | super::MirType::String)
+        || matches!(ty, super::MirType::Box(name) if name == "StringBox")
 }
 
 fn generic_array_flow_origin_box_name(function: &MirFunction, receiver: ValueId) -> Option<String> {
