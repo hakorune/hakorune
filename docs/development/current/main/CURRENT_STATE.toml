@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P306A-MIR-JSON-FUNCTION-FIELD-CONSUME"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P306A-MIR-JSON-FUNCTION-FIELD-CONSUME.md"
-latest_card_summary = "Consume exact MIR JSON function field facts and keep params/blocks as Array origins."
+latest_card = "P307A-MIR-JSON-FUNCTION-BLOCK-ARRAY-GET-CONSUME"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P307A-MIR-JSON-FUNCTION-BLOCK-ARRAY-GET-CONSUME.md"
+latest_card_summary = "Consume exact MIR JSON function block array item get facts without widening ArrayBox.get."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
