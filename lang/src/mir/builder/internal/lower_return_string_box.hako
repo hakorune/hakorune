@@ -7,22 +7,73 @@ static box LowerReturnStringBox {
     local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
     if k_ret < 0 { return null }
-    local k_str = JsonFragBox.index_of_from(s, "\"type\":\"String\"", k_ret)
+    local k_str = me._find_return_string_start(s, k_ret)
     if k_str < 0 { return null }
     local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_str)
     if k_val < 0 { return null }
-    local sval = JsonFragBox.read_string_after(s, k_val+8)
-    if sval == null { return null }
-    // Emit MIR(JSON v0) as string: const(string)+ret
-    // sval は既に JSON から読み出した素の文字列なので、JSON 内にエスケープして埋め込む
-    // 簡易エスケープ（" と \ のみ）
-    local esc = ""; { local i=0; local n = sval.length(); loop(i < n) { local ch = sval.substring(i,i+1); if ch == "\\" { esc = esc + "\\\\" } else { if ch == "\"" { esc = esc + "\\\"" } else { esc = esc + ch } } i = i + 1 } }
-    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
-           "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"" + esc + "\"}}," +
-           "{\"op\":\"ret\",\"value\":1}]}]}]}"
+    local raw = me._read_string_literal_json_text_after(s, k_val + 8)
+    if raw == "" { return null }
+    // Preserve the already-escaped JSON string literal from Program(JSON).
+    local json = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":" + raw + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+    return json
   }
 
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _find_return_string_start(s, k_ret) {
+    local k_forward = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Str\"", k_ret)
+    if k_forward >= 0 && k_forward < k_ret + 128 { return k_forward }
+    local k_forward_string = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"String\"", k_ret)
+    if k_forward_string >= 0 && k_forward_string < k_ret + 128 { return k_forward_string }
+
+    local scan = 0
+    local last_expr = -1
+    loop(scan < k_ret) {
+      local next_expr = JsonFragBox.index_of_from(s, "\"expr\":{", scan)
+      if next_expr < 0 || next_expr >= k_ret { break }
+      last_expr = next_expr
+      scan = next_expr + 1
+    }
+    if last_expr >= 0 && k_ret - last_expr < 128 {
+      local boundary_back = JsonFragBox.index_of_from(s, "},{", last_expr)
+      if boundary_back < 0 || boundary_back > k_ret {
+        local k_str = JsonFragBox.index_of_from(s, "\"type\":\"Str\"", last_expr)
+        if k_str >= 0 && k_str < k_ret { return last_expr }
+        local k_string = JsonFragBox.index_of_from(s, "\"type\":\"String\"", last_expr)
+        if k_string >= 0 && k_string < k_ret { return last_expr }
+      }
+    }
+    return -1
+  }
+
+  _read_string_literal_json_text_after(s, pos) {
+    local start = me._skip_ws(s, pos)
+    if start >= s.length() || s.substring(start, start + 1) != "\"" { return "" }
+    local i = start + 1
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == "\\" {
+        i = i + 2
+        continue
+      }
+      if ch == "\"" { return s.substring(start, i + 1) }
+      i = i + 1
+    }
+    return ""
+  }
+
+  _skip_ws(s, pos) {
+    local i = pos
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
   }
 }
