@@ -21,11 +21,6 @@ static box StringHelpers {
 
   // Parse integer from number or numeric-like string (leading '-' allowed; stops at first non-digit).
   to_i64(x) {
-    // Optional debug hook: observe incoming values/boxes.
-    // Enable with NYASH_TO_I64_DEBUG=1 when diagnosing numeric coercions.
-    if env.get("NYASH_TO_I64_DEBUG") == "1" {
-      __mir__.log("[string_helpers/to_i64] x", x)
-    }
     // Fail-close for unexpected boxes (e.g., Void) when explicitly requested.
     // This avoids String + Void type errors during Stage-1 CLI bring-up.
     if env.get("NYASH_TO_I64_FORCE_ZERO") == "1" { return 0 }
