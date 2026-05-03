@@ -60,6 +60,11 @@
         return 1;
       }
 
+      auto int module_generic_string_binop_declares_i64(yyjson_val* ins) {
+        const char* dst_type = read_str(ins, "dst_type");
+        return dst_type && !strcmp(dst_type, "i64");
+      }
+
       auto int module_generic_string_read_void_sentinel_const(yyjson_val* ins) {
         yyjson_val* value = ins ? yyjson_obj_get(ins, "value") : NULL;
         yyjson_val* ty = value ? yyjson_obj_get(value, "type") : NULL;
@@ -243,7 +248,8 @@
               long long rhs = read_int(ins, "rhs");
               const char* kind = read_str(ins, "op_kind");
               if (!kind) kind = read_str(ins, "operation");
-              if (kind &&
+              if (!module_generic_string_binop_declares_i64(ins) &&
+                  kind &&
                   (!strcmp(kind, "+") || !strcmp(kind, "Add")) &&
                   (module_generic_string_value_is_string(lhs) ||
                    module_generic_string_value_is_string(rhs))) {
@@ -669,7 +675,8 @@
         char lhs_ref[64];
         char rhs_ref[64];
         if (!kind) kind = read_str(ins, "operation");
-        if (kind && (!strcmp(kind, "+") || !strcmp(kind, "Add")) &&
+        if (!module_generic_string_binop_declares_i64(ins) &&
+            kind && (!strcmp(kind, "+") || !strcmp(kind, "Add")) &&
             (module_generic_string_value_is_string(lhs) ||
              module_generic_string_value_is_string(rhs))) {
           EMIT("  %%r%lld = call i64 @\"nyash.string.concat_hh\"(i64 %%r%lld, i64 %%r%lld)\n",
