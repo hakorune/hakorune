@@ -23,11 +23,6 @@ static box FuncLoweringBox {
 
     local s = "" + program_json
     local func_defs_mir = ""
-    local trace_funcs = 0
-    {
-      local trace_env = env.get("HAKO_SELFHOST_TRACE")
-      if trace_env != null && ("" + trace_env) == "1" { trace_funcs = 1 }
-    }
 
     // Optional: detect Stage1 CLI entry (Main.main → HakoCli.run) for observability.
     // Observes ring1 構造のみで、MIR 生成や ring0 への影響は与えない。
@@ -83,8 +78,6 @@ static box FuncLoweringBox {
         local mir_func = me._lower_func_body(func_name, box_name, params_arr, body_json, func_map_text)
         if mir_func != null && mir_func != "" {
           func_defs_mir = func_defs_mir + "," + mir_func
-        } else if trace_funcs == 1 {
-          print("[builder/funcs:skip] " + box_name + "." + func_name + " body unsupported")
         }
       }
       pos = name_end
