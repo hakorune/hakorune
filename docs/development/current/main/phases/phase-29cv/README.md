@@ -78,6 +78,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P353A adds `tools/checks/program_json_dev_surface_guard.sh` and wires it into
   quick gate, so archived Program(JSON) diagnostics probes and the empty dev
   capsule directory cannot quietly return to active `tools/dev`.
+- P354A archives the remaining historical phase29ch route diagnostics probes
+  from active `tools/dev`. `phase29ch_program_json_compat_route_probe.sh`
+  remains the only live phase29ch dev keeper, guarded by
+  `tools/checks/phase29ch_route_probe_surface_guard.sh`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

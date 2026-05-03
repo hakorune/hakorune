@@ -39,6 +39,9 @@ Guard:
 - `tools/checks/program_json_dev_surface_guard.sh` prevents archived
   Program(JSON) diagnostics probes and `tools/dev/program_json_v0/` from
   returning to active `tools/dev` without a keeper card.
+- `tools/checks/phase29ch_route_probe_surface_guard.sh` prevents archived
+  phase29ch route diagnostics probes from returning to active `tools/dev`; the
+  explicit Program(JSON) compat route probe is the only live phase29ch keeper.
 
 1. Explicit Stage-B artifact diagnostic keeper
    - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`

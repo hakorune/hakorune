@@ -5,8 +5,10 @@ from the source-route behavior being observed.
 
 ## Why
 
-`tools/dev/phase29ch_source_route_direct_probe.sh` and
-`tools/dev/phase29ch_source_route_materialize_probe.sh` build a temporary
+`tools/archive/legacy-selfhost/engineering/phase29ch_source_route_direct_probe.sh`
+and
+`tools/archive/legacy-selfhost/engineering/phase29ch_source_route_materialize_probe.sh`
+build a temporary
 helper executable through `tools/selfhost_exe_stageb.sh`. That helper build
 defaulted to `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` when this label card
 landed. P102 changed the helper default to `direct`; explicit
@@ -29,8 +31,8 @@ probe acceptance.
 ## Acceptance
 
 ```bash
-bash -n tools/dev/phase29ch_source_route_direct_probe.sh \
-  tools/dev/phase29ch_source_route_materialize_probe.sh
+bash -n tools/archive/legacy-selfhost/engineering/phase29ch_source_route_direct_probe.sh \
+  tools/archive/legacy-selfhost/engineering/phase29ch_source_route_materialize_probe.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

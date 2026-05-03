@@ -8,8 +8,8 @@ Related:
   - docs/development/current/main/design/json-v0-route-map-ssot.md
   - tools/selfhost_exe_stageb.sh
   - tools/selfhost/README.md
-  - tools/dev/phase29ch_source_route_direct_probe.sh
-  - tools/dev/phase29ch_source_route_materialize_probe.sh
+  - tools/archive/legacy-selfhost/engineering/phase29ch_source_route_direct_probe.sh
+  - tools/archive/legacy-selfhost/engineering/phase29ch_source_route_materialize_probe.sh
 ---
 
 # P102 selfhost_exe_stageb Direct Default
@@ -68,8 +68,8 @@ This means the bridge capsule should stay explicit, not default.
 
 ```bash
 bash -n tools/selfhost_exe_stageb.sh \
-  tools/dev/phase29ch_source_route_direct_probe.sh \
-  tools/dev/phase29ch_source_route_materialize_probe.sh
+  tools/archive/legacy-selfhost/engineering/phase29ch_source_route_direct_probe.sh \
+  tools/archive/legacy-selfhost/engineering/phase29ch_source_route_materialize_probe.sh
 timeout --preserve-status 180s bash tools/selfhost_exe_stageb.sh \
   apps/tests/hello_simple_llvm.hako -o /tmp/p102_direct_default.exe
 NYASH_NYRT_SILENT_RESULT=1 /tmp/p102_direct_default.exe

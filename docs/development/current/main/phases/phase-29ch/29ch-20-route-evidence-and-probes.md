@@ -36,18 +36,24 @@ Related:
 ## Diagnostics Probe Registry
 
 - exact raw diff probe:
-  - `bash tools/dev/phase29ch_raw_mir_diff_probe.sh [entry]`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_raw_mir_diff_probe.sh [entry]`
   - default entry: `lang/src/compiler/entry/compiler_stageb.hako`
 - route-mode branchpoint probe:
-  - `bash tools/dev/phase29ch_route_mode_matrix.sh [entry]`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_route_mode_matrix.sh [entry]`
 - same-route repeatability probe:
-  - `bash tools/dev/phase29ch_same_route_repeat_probe.sh [entry]`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_same_route_repeat_probe.sh [entry]`
 - fixed-Program repeatability probe:
-  - `bash tools/dev/phase29ch_fixed_program_mir_repeat_probe.sh [entry]`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_fixed_program_mir_repeat_probe.sh [entry]`
 - transient-boundary probe:
-  - `bash tools/dev/phase29ch_transient_boundary_probe.sh [entry]`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_transient_boundary_probe.sh [entry]`
 - source-route direct probe:
-  - `bash tools/dev/phase29ch_source_route_direct_probe.sh [entry]`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_source_route_direct_probe.sh [entry]`
   - diagnostics-only: builds a temporary helper artifact and calls `MirBuilderBox.emit_from_source_v0(...)` directly on a compiled artifact
 - stage1 env file-context probe:
   - diagnostics-only: emits/runs temporary `stage1_cli_env`-shaped clones through Stage1/Stage2 and narrows where source-route promotion first turns red
@@ -76,15 +82,20 @@ Related:
     `bash tools/archive/legacy-selfhost/engineering/phase29ch_raw_direct_stage1_cli_probe.sh`
   - diagnostics-only: proves that the generic raw direct `stage1-cli` lane is absent on green artifacts (`<bin> <source>` / `emit program-json` / `emit mir-json` all return `rc=97`)
 - impossible-gate probe:
-  - `bash tools/dev/phase29ch_impossible_gate_probe.sh [entry]`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_impossible_gate_probe.sh [entry]`
 - bridge-bypass probe:
-  - `bash tools/dev/phase29ch_bridge_bypass_probe.sh [entry]`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_bridge_bypass_probe.sh [entry]`
 - source-route materialization probe:
-  - `bash tools/dev/phase29ch_source_route_materialize_probe.sh`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_source_route_materialize_probe.sh`
 - selfhost source-route helper probe:
-  - `bash tools/dev/phase29ch_selfhost_source_route_helper_probe.sh`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_source_route_helper_probe.sh`
 - selfhost source-route bisect probe:
-  - `bash tools/dev/phase29ch_selfhost_source_route_bisect_probe.sh`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_source_route_bisect_probe.sh`
 - selfhost Program(JSON) helper probe:
   - archived evidence:
     `bash tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_program_json_helper_probe.sh`
@@ -116,8 +127,8 @@ Related:
   - `src/runner/json_v0_bridge/lowering/try_catch.rs`
 - merge-variable name collection now uses `BTreeSet<String>` instead of `HashSet<String>`, stabilizing the copy/materialization order that had been drifting first at `StageBArgsBox.resolve_src/1` block 8.
 - closure evidence:
-  1. `bash tools/dev/phase29ch_fixed_program_mir_repeat_probe.sh` is quiet/raw-exact for `lang/src/compiler/entry/compiler_stageb.hako`
-  2. `bash tools/dev/phase29ch_route_mode_matrix.sh` is quiet for the same source
+  1. `bash tools/archive/legacy-selfhost/engineering/phase29ch_fixed_program_mir_repeat_probe.sh` was quiet/raw-exact for `lang/src/compiler/entry/compiler_stageb.hako`
+  2. `bash tools/archive/legacy-selfhost/engineering/phase29ch_route_mode_matrix.sh` was quiet for the same source
   3. fresh `G1 full` is raw-exact green for both `Program JSON v0` and `MIR JSON v0`
 
 ### source-route promotion
@@ -128,10 +139,10 @@ Related:
   - `src/runner/json_v0_bridge/lowering/merge.rs`
 - The focused case now emits `block 9: phi dst=31 incoming=[[11,8],[19,15]]` before `emit_from_source_v0(selected_input, null)`.
 - The previous `[freeze:contract][stage1_mir_builder] source decode failed` path is gone on fresh Stage1/Stage2 artifacts.
-- the following probes stay green:
-  - `bash tools/dev/phase29ch_source_route_materialize_probe.sh`
-  - `bash tools/dev/phase29ch_selfhost_source_route_helper_probe.sh`
-  - `bash tools/dev/phase29ch_selfhost_source_route_bisect_probe.sh`
+- the following archived probes were green when this slice closed:
+  - `bash tools/archive/legacy-selfhost/engineering/phase29ch_source_route_materialize_probe.sh`
+  - `bash tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_source_route_helper_probe.sh`
+  - `bash tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_source_route_bisect_probe.sh`
 
 ### compat-surface thinning
 

@@ -30,5 +30,16 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `phase29ch_program_json_text_only_probe.sh`
 - `phase29ch_raw_direct_stage1_cli_probe.sh`
 - `phase29ch_selfhost_program_json_helper_probe.sh`
+- `phase29ch_bridge_bypass_probe.sh`
+- `phase29ch_fixed_program_mir_repeat_probe.sh`
+- `phase29ch_impossible_gate_probe.sh`
+- `phase29ch_raw_mir_diff_probe.sh`
+- `phase29ch_route_mode_matrix.sh`
+- `phase29ch_same_route_repeat_probe.sh`
+- `phase29ch_selfhost_source_route_bisect_probe.sh`
+- `phase29ch_selfhost_source_route_helper_probe.sh`
+- `phase29ch_source_route_direct_probe.sh`
+- `phase29ch_source_route_materialize_probe.sh`
+- `phase29ch_transient_boundary_probe.sh`
 
 Read this directory as the archived engineering helper bucket.
