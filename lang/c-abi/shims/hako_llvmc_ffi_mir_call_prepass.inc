@@ -34,6 +34,39 @@
         if (dst) set_scan_origin(dst, ORG_STRING);
       }
 
+      auto void mark_global_call_result_origin_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          long long dst) {
+        yyjson_val* entry = NULL;
+        const char* source = NULL;
+        struct LoweringPlanGlobalCallView view;
+        if (!dst) return;
+        entry = find_lowering_plan_entry_for_site(bid, ii);
+        source = entry ? read_str(entry, "source") : NULL;
+        if (!(source && !strcmp(source, "global_call_routes"))) return;
+        if (!read_lowering_plan_global_call_view(entry, &view)) return;
+        if (lowering_plan_global_call_view_is_direct_generic_string(&view) ||
+            lowering_plan_global_call_view_is_direct_builder_registry_dispatch(&view) ||
+            lowering_plan_global_call_view_is_direct_parser_program_json(&view) ||
+            lowering_plan_global_call_view_is_direct_program_json_emit(&view) ||
+            lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(&view)) {
+          set_scan_origin(dst, ORG_STRING);
+          set_origin(dst, ORG_STRING);
+          return;
+        }
+        if (lowering_plan_global_call_view_is_direct_static_string_array(&view)) {
+          set_scan_origin(dst, ORG_ARRAY_STRING_BIRTH);
+          set_origin(dst, ORG_ARRAY_STRING_BIRTH);
+          return;
+        }
+        if (lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view) ||
+            lowering_plan_global_call_view_is_direct_box_type_inspector_describe(&view)) {
+          set_scan_origin(dst, ORG_MAP_BIRTH);
+          set_origin(dst, ORG_MAP_BIRTH);
+        }
+      }
+
       auto void scan_mir_call_need_flags(
           yyjson_val* blocks,
           long long bid,
@@ -124,6 +157,8 @@
         }
 
         if (ctype && !strcmp(ctype, "Global")) {
+          mark_global_call_result_origin_from_lowering_plan(
+              bid, ii, read_int(ins, "dst"));
           apply_mir_call_need_kind(needs, classify_mir_call_global_need_kind(mname));
           return;
         }
