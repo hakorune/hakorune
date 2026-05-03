@@ -152,6 +152,7 @@
           int is_program_json_emit = 0;
           int is_jsonfrag_normalizer = 0;
           int is_static_string_array = 0;
+          int is_builder_registry_dispatch = 0;
           int is_mir_schema_map_constructor = 0;
           int is_box_type_inspector_describe = 0;
           int is_pattern_util_local_value_probe = 0;
@@ -164,6 +165,8 @@
               lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(&view);
           is_static_string_array =
               lowering_plan_global_call_view_is_direct_static_string_array(&view);
+          is_builder_registry_dispatch =
+              lowering_plan_global_call_view_is_direct_builder_registry_dispatch(&view);
           is_mir_schema_map_constructor =
               lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view);
           is_box_type_inspector_describe =
@@ -177,6 +180,7 @@
                 is_program_json_emit ||
                 is_jsonfrag_normalizer ||
                 is_static_string_array ||
+                is_builder_registry_dispatch ||
                 is_mir_schema_map_constructor ||
                 is_box_type_inspector_describe ||
                 is_pattern_util_local_value_probe)) continue;

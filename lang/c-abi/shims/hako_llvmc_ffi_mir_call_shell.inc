@@ -128,6 +128,8 @@
           if (!module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_generic_string(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
+        } else if (lowering_plan_global_call_view_is_direct_builder_registry_dispatch(&view)) {
+          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_generic_string_void_logging(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_parser_program_json(&view)) {
@@ -165,6 +167,10 @@
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
           trace_lowering_plan_entry_hit(entry, "mir_call_global_generic_string_emit");
+        } else if (lowering_plan_global_call_view_is_direct_builder_registry_dispatch(&view)) {
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          trace_lowering_plan_entry_hit(entry, "mir_call_global_builder_registry_dispatch_emit");
         } else if (lowering_plan_global_call_view_is_direct_generic_string_void_logging(&view)) {
           trace_lowering_plan_entry_hit(entry, "mir_call_global_generic_string_void_logging_emit");
         } else if (lowering_plan_global_call_view_is_direct_parser_program_json(&view)) {
