@@ -51,6 +51,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P344A applies the same load-time narrowing to `stageb_helpers.sh`; fixture
   callers still use `stageb_emit_program_json_v0_fixture()`, but raw emit helper
   source happens only inside that function.
+- P345A adds the Stage0 LLVM line shape inventory SSOT. Every
+  `GlobalCallTargetShape` now has a status/removal reading, and
+  `missing_multi_function_emitter` is locked as a uniform MIR function emitter
+  target rather than permission to add body-specific shapes.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

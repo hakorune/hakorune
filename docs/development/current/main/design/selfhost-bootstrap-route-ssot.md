@@ -117,6 +117,8 @@ Stage0 size guard:
 - if a new Stage0/body classifier is unavoidable, the card must document why it
   is a temporary validator capsule and what condition lets it collapse into the
   uniform MIR function emitter
+- detailed shape status/removal table:
+  `docs/development/current/main/design/stage0-llvm-line-shape-inventory-ssot.md`
 
 SSOT:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`

@@ -25,6 +25,9 @@ pub struct GlobalCallRoute {
     target: GlobalCallTargetFacts,
 }
 
+// Shape status/removal policy lives in:
+// docs/development/current/main/design/stage0-llvm-line-shape-inventory-ssot.md
+// Do not add variants without updating that inventory and its removal path.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum GlobalCallTargetShape {
     #[default]
