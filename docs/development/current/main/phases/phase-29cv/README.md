@@ -120,6 +120,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P366A archives the docs/manual-only `bug_origin_triage.sh` helper from active
   `tools/dev`; historical route-triage evidence remains under
   `tools/archive/legacy-selfhost/engineering/`.
+- P367A promotes the EXDEV-safe `cargo_check_safe.sh` wrapper and its paired
+  C preload helper to `tools/checks`, leaving `tools/dev` for active
+  source/probe helpers only.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

@@ -161,7 +161,7 @@ Done: `src/mir/instruction.rs`, `src/mir/contracts/backend_core_ops.rs`, `src/mi
 - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 - LLVM代表ケース1件以上（harness有効構成）
 - WSL/環境依存で `Invalid cross-device link (os error 18)` が発生する場合は
-  `tools/dev/cargo_check_safe.sh -q --bin hakorune` を代替入口として使用する（`tools/dev/exdev_rename_copy_fallback.c` が `rename*` の `EXDEV` を `copy+unlink` へフォールバック）。
+  `tools/checks/cargo_check_safe.sh -q --bin hakorune` を代替入口として使用する（`tools/checks/exdev_rename_copy_fallback.c` が `rename*` の `EXDEV` を `copy+unlink` へフォールバック）。
 - `rg -n "MirInstruction::TypeCheck|MirInstruction::Cast|MirInstruction::PluginInvoke|MirInstruction::WeakNew|MirInstruction::WeakLoad|MirInstruction::BarrierRead|MirInstruction::BarrierWrite|MirInstruction::Print|\\bTypeCheck\\s*\\{|\\bCast\\s*\\{|\\bPluginInvoke\\s*\\{|\\bWeakNew\\s*\\{|\\bWeakLoad\\s*\\{|\\bBarrierRead\\s*\\{|\\bBarrierWrite\\s*\\{" src/mir` が 0 件
 
 ## Commit Slicing (1目的1コミット)
@@ -231,7 +231,7 @@ Done: `src/mir/instruction.rs`, `src/mir/contracts/backend_core_ops.rs`, `src/mi
 
 ## Validation Snapshot (2026-02-10)
 
-- `tools/dev/cargo_check_safe.sh -q --bin hakorune` : PASS（EXDEV環境向け代替入口）
+- `tools/checks/cargo_check_safe.sh -q --bin hakorune` : PASS（EXDEV環境向け代替入口）
 - `LD_PRELOAD=$PWD/tools/tmp/exdev/librename_copy_fallback.so cargo test -q backend_core_ops::tests::` : PASS（13 tests）
 - `python3 -m unittest src/llvm_py/tests/test_mir_call_compat.py` : PASS（8 tests）
 - `LD_PRELOAD=$PWD/tools/tmp/exdev/librename_copy_fallback.so bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` : PASS
@@ -251,5 +251,5 @@ git diff --check
 EXDEV mitigation (optional):
 
 ```bash
-tools/dev/cargo_check_safe.sh -q --bin hakorune
+tools/checks/cargo_check_safe.sh -q --bin hakorune
 ```

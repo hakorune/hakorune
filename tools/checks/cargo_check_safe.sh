@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-SRC="${ROOT_DIR}/tools/dev/exdev_rename_copy_fallback.c"
+SRC="${ROOT_DIR}/tools/checks/exdev_rename_copy_fallback.c"
 BUILD_DIR="${ROOT_DIR}/tools/tmp/exdev"
 LIB="${BUILD_DIR}/librename_copy_fallback.so"
 
