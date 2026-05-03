@@ -81,25 +81,10 @@ static box ExternCallLowerBox {
       if arg_name == null { return null }
     }
 
-    // Map params to registers
-    local param_map = new MapBox()
-    local next_reg = 1
-    {
-      local pi = 0
-      local pn = ParamListBox.count(params_arr)
-      loop(pi < pn) {
-        param_map.set("" + ParamListBox.get(params_arr, pi), "" + next_reg)
-        next_reg = next_reg + 1
-        pi = pi + 1
-      }
-    }
+    local arg_reg_i = me._param_reg(params_arr, arg_name)
+    if arg_reg_i <= 0 { return null }
 
-    local arg_reg = param_map.get(arg_name)
-    if arg_reg == null { return null }
-    local arg_reg_i = JsonFragBox._str_to_int("" + arg_reg)
-
-    local result_reg = next_reg
-    next_reg = next_reg + 1
+    local result_reg = ParamListBox.count(params_arr) + 1
 
     // Build call(callee=Extern) + ret
     local func_full = "env.codegen." + method
@@ -127,5 +112,18 @@ static box ExternCallLowerBox {
 
   method _build_params_json(params_arr) {
     return ParamListBox.as_json(params_arr)
+  }
+
+  method _param_reg(params_arr, arg_name) {
+    if arg_name == null { return 0 }
+    local pi = 0
+    local reg = 1
+    local pn = ParamListBox.count(params_arr)
+    loop(pi < pn) {
+      if ("" + ParamListBox.get(params_arr, pi)) == arg_name { return reg }
+      pi = pi + 1
+      reg = reg + 1
+    }
+    return 0
   }
 }
