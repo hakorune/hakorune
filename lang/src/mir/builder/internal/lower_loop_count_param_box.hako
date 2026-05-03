@@ -102,24 +102,22 @@ static box LowerLoopCountParamBox {
   }
 
   _finish_count_param_text(s, k_loop, varname, start_text, norm) {
-    local cmp = "" + me._norm_cmp_op_text(norm)
+    local cpos = StringOps.index_of_from(norm, ":", 0)
+    if cpos < 0 { return "" }
+    local cmp = "" + me._norm_cmp_op_text(norm, cpos)
     if cmp == "" { return "" }
-    local limit = "" + me._norm_limit_text(norm)
+    local limit = "" + me._norm_limit_text(norm, cpos)
     if limit == "" { return "" }
     local step = "" + me._loop_increment_step_text(s, k_loop, varname)
     if step == "" { return "" }
     return me._emit_count_param_json(start_text, limit, step, cmp)
   }
 
-  _norm_cmp_op_text(norm) {
-    local cpos = StringOps.index_of_from(norm, ":", 0)
-    if cpos < 0 { return "" }
+  _norm_cmp_op_text(norm, cpos) {
     return norm.substring(0, cpos)
   }
 
-  _norm_limit_text(norm) {
-    local cpos = StringOps.index_of_from(norm, ":", 0)
-    if cpos < 0 { return "" }
+  _norm_limit_text(norm, cpos) {
     return norm.substring(cpos+1, norm.length())
   }
 
