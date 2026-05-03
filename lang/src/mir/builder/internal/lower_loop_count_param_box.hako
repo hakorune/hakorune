@@ -6,24 +6,6 @@ using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 using "hako.mir.builder.internal.loop_scan" as LoopScanBox
 
 static box LowerLoopCountParamBox {
-  _emit_count_param_json(start_value, limit, step, cmp) {
-    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[" +
-      "{\"id\":0,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + start_value + "}}," +
-        "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit + "}}," +
-        "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + step + "}}," +
-        "{\"op\":\"jump\",\"target\":1}]}," +
-      "{\"id\":1,\"instructions\":[" +
-        "{\"op\":\"phi\",\"dst\":10,\"incoming\":[[1,0],[12,3]]}," +
-        "{\"op\":\"compare\",\"operation\":\"" + cmp + "\",\"lhs\":10,\"rhs\":2,\"dst\":11}," +
-        "{\"op\":\"branch\",\"cond\":11,\"then\":2,\"else\":4}]}," +
-      "{\"id\":2,\"instructions\":[" +
-        "{\"op\":\"binop\",\"operation\":\"Add\",\"lhs\":10,\"rhs\":3,\"dst\":12}," +
-        "{\"op\":\"jump\",\"target\":3}]}," +
-      "{\"id\":3,\"instructions\":[{\"op\":\"jump\",\"target\":1}]}," +
-      "{\"id\":4,\"instructions\":[{\"op\":\"ret\",\"value\":10}]}]}]}"
-  }
-
   try_lower(program_json) {
     local s = me._coerce_text_compat(program_json)
     // Discover loop variable name from Compare first
@@ -171,7 +153,21 @@ static box LowerLoopCountParamBox {
     }
     // limit normalized above
 
-    return me._emit_count_param_json(start_text, limit, step, cmp)
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + start_text + "}}," +
+        "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit + "}}," +
+        "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + step + "}}," +
+        "{\"op\":\"jump\",\"target\":1}]}," +
+      "{\"id\":1,\"instructions\":[" +
+        "{\"op\":\"phi\",\"dst\":10,\"incoming\":[[1,0],[12,3]]}," +
+        "{\"op\":\"compare\",\"operation\":\"" + cmp + "\",\"lhs\":10,\"rhs\":2,\"dst\":11}," +
+        "{\"op\":\"branch\",\"cond\":11,\"then\":2,\"else\":4}]}," +
+      "{\"id\":2,\"instructions\":[" +
+        "{\"op\":\"binop\",\"operation\":\"Add\",\"lhs\":10,\"rhs\":3,\"dst\":12}," +
+        "{\"op\":\"jump\",\"target\":3}]}," +
+      "{\"id\":3,\"instructions\":[{\"op\":\"jump\",\"target\":1}]}," +
+      "{\"id\":4,\"instructions\":[{\"op\":\"ret\",\"value\":10}]}]}]}"
   }
 
   // Seek matching object end index '}' for object starting at lbrace_pos.
