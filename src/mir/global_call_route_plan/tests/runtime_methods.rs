@@ -202,6 +202,157 @@ fn refresh_module_global_call_routes_accepts_mir_json_function_field_reads() {
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_collection_or_void_phi_for_mir_json_function_blocks() {
+    let mut module = MirModule::new("global_call_collection_or_void_phi_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "MirJsonEmitBox._emit_function/1",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1)],
+    );
+    let mut emit_function = MirFunction::new(
+        FunctionSignature {
+            name: "MirJsonEmitBox._emit_function/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    emit_function.params = vec![ValueId::new(1)];
+
+    let entry = emit_function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    entry.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("blocks".to_string()),
+        },
+        method_call(
+            Some(ValueId::new(3)),
+            "RuntimeDataBox",
+            "get",
+            ValueId::new(1),
+            vec![ValueId::new(2)],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::Bool(false),
+        },
+    ]);
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(4),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut null_assign = BasicBlock::new(BasicBlockId::new(1));
+    null_assign.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(5),
+        value: ConstValue::Void,
+    });
+    null_assign.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(3),
+        edge_args: None,
+    });
+
+    let mut present_assign = BasicBlock::new(BasicBlockId::new(2));
+    present_assign.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(3),
+        edge_args: None,
+    });
+
+    let mut merge = BasicBlock::new(BasicBlockId::new(3));
+    merge.instructions.extend([
+        MirInstruction::Phi {
+            dst: ValueId::new(6),
+            inputs: vec![
+                (BasicBlockId::new(1), ValueId::new(5)),
+                (BasicBlockId::new(2), ValueId::new(3)),
+            ],
+            type_hint: None,
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(7),
+            value: ConstValue::Void,
+        },
+        MirInstruction::Compare {
+            dst: ValueId::new(8),
+            op: CompareOp::Eq,
+            lhs: ValueId::new(6),
+            rhs: ValueId::new(7),
+        },
+    ]);
+    merge.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(8),
+        then_bb: BasicBlockId::new(4),
+        else_bb: BasicBlockId::new(5),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut null_return = BasicBlock::new(BasicBlockId::new(4));
+    null_return.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(9),
+        value: ConstValue::String("[]".to_string()),
+    });
+    null_return.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(9)),
+    });
+
+    let mut present_return = BasicBlock::new(BasicBlockId::new(5));
+    present_return.instructions.extend([
+        MirInstruction::Phi {
+            dst: ValueId::new(10),
+            inputs: vec![(BasicBlockId::new(3), ValueId::new(6))],
+            type_hint: None,
+        },
+        method_call(
+            Some(ValueId::new(11)),
+            "RuntimeDataBox",
+            "length",
+            ValueId::new(10),
+            vec![],
+        ),
+        MirInstruction::Const {
+            dst: ValueId::new(12),
+            value: ConstValue::String("[]".to_string()),
+        },
+    ]);
+    present_return.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(12)),
+    });
+
+    emit_function
+        .blocks
+        .insert(BasicBlockId::new(1), null_assign);
+    emit_function
+        .blocks
+        .insert(BasicBlockId::new(2), present_assign);
+    emit_function.blocks.insert(BasicBlockId::new(3), merge);
+    emit_function
+        .blocks
+        .insert(BasicBlockId::new(4), null_return);
+    emit_function
+        .blocks
+        .insert(BasicBlockId::new(5), present_return);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("MirJsonEmitBox._emit_function/1".to_string(), emit_function);
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_mir_json_flags_keys_route() {
     let mut module = MirModule::new("global_call_mir_json_flags_keys_test".to_string());
     let caller = make_function_with_global_call_args(

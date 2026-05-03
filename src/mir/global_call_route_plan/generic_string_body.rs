@@ -17,6 +17,7 @@ use super::generic_string_facts::{
     generic_pure_string_iteration_limit, generic_pure_value_class_from_type,
     generic_pure_value_class_is_void_like, generic_pure_void_sentinel_compare_is_supported,
     seed_generic_pure_string_return_param_values, seed_generic_pure_values,
+    set_guarded_non_void_array_value_class, set_guarded_non_void_map_value_class,
     set_guarded_non_void_scalar_value_class, set_guarded_non_void_string_value_class,
     set_proven_flow_value_class, set_string_handle_value_class, set_value_class,
     update_generic_pure_string_return_param_values, value_class, GenericPureValueClass,
@@ -735,6 +736,8 @@ fn generic_pure_string_instruction_reject_reason(
             let mut saw_scalar = false;
             let mut saw_array = false;
             let mut saw_map = false;
+            let mut saw_array_or_void = false;
+            let mut saw_map_or_void = false;
             let mut all_string = !inputs.is_empty();
             let mut all_array = !inputs.is_empty();
             let mut all_map = !inputs.is_empty();
@@ -748,6 +751,8 @@ fn generic_pure_string_instruction_reject_reason(
                 saw_void_sentinel |= class == GenericPureValueClass::VoidSentinel;
                 saw_array |= class == GenericPureValueClass::Array;
                 saw_map |= class == GenericPureValueClass::Map;
+                saw_array_or_void |= class == GenericPureValueClass::ArrayOrVoid;
+                saw_map_or_void |= class == GenericPureValueClass::MapOrVoid;
                 saw_scalar |= matches!(
                     class,
                     GenericPureValueClass::I64 | GenericPureValueClass::Bool
@@ -781,6 +786,8 @@ fn generic_pure_string_instruction_reject_reason(
                     && !saw_void_sentinel
                     && !saw_array
                     && !saw_map
+                    && !saw_array_or_void
+                    && !saw_map_or_void
                 {
                     set_proven_flow_value_class(values, *dst, type_hint_class.unwrap(), changed);
                 }
@@ -792,6 +799,8 @@ fn generic_pure_string_instruction_reject_reason(
                 && !saw_void_sentinel
                 && !saw_array
                 && !saw_map
+                && !saw_array_or_void
+                && !saw_map_or_void
             {
                 set_guarded_non_void_scalar_value_class(values, *dst, changed);
             } else if non_void_string_values.contains(dst)
@@ -800,15 +809,65 @@ fn generic_pure_string_instruction_reject_reason(
                 && !saw_scalar_or_void
                 && !saw_array
                 && !saw_map
+                && !saw_array_or_void
+                && !saw_map_or_void
             {
                 *has_string_surface = true;
                 set_guarded_non_void_string_value_class(values, *dst, changed);
+            } else if non_void_string_values.contains(dst)
+                && saw_array_or_void
+                && !saw_scalar
+                && !saw_scalar_or_void
+                && !saw_string
+                && !saw_string_or_void
+                && !saw_map
+                && !saw_map_or_void
+            {
+                set_guarded_non_void_array_value_class(values, *dst, changed);
+            } else if non_void_string_values.contains(dst)
+                && saw_map_or_void
+                && !saw_scalar
+                && !saw_scalar_or_void
+                && !saw_string
+                && !saw_string_or_void
+                && !saw_array
+                && !saw_array_or_void
+            {
+                set_guarded_non_void_map_value_class(values, *dst, changed);
             } else if all_string {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::String, changed);
             } else if all_array {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::Array, changed);
             } else if all_map {
                 set_proven_flow_value_class(values, *dst, GenericPureValueClass::Map, changed);
+            } else if (saw_array_or_void || (saw_void_sentinel && saw_array))
+                && !saw_scalar
+                && !saw_scalar_or_void
+                && !saw_string
+                && !saw_string_or_void
+                && !saw_map
+                && !saw_map_or_void
+            {
+                set_proven_flow_value_class(
+                    values,
+                    *dst,
+                    GenericPureValueClass::ArrayOrVoid,
+                    changed,
+                );
+            } else if (saw_map_or_void || (saw_void_sentinel && saw_map))
+                && !saw_scalar
+                && !saw_scalar_or_void
+                && !saw_string
+                && !saw_string_or_void
+                && !saw_array
+                && !saw_array_or_void
+            {
+                set_proven_flow_value_class(
+                    values,
+                    *dst,
+                    GenericPureValueClass::MapOrVoid,
+                    changed,
+                );
             } else if saw_string_or_void && !saw_scalar {
                 *has_string_surface = true;
                 set_proven_flow_value_class(
@@ -830,6 +889,8 @@ fn generic_pure_string_instruction_reject_reason(
                 && !saw_string_or_void
                 && !saw_array
                 && !saw_map
+                && !saw_array_or_void
+                && !saw_map_or_void
             {
                 set_proven_flow_value_class(
                     values,
@@ -844,7 +905,7 @@ fn generic_pure_string_instruction_reject_reason(
                     GenericPureValueClass::VoidSentinel,
                     changed,
                 );
-            } else if saw_string || saw_array || saw_map {
+            } else if saw_string || saw_array || saw_map || saw_array_or_void || saw_map_or_void {
                 return Some(GenericPureStringReject::new(
                     GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
                 ));
@@ -1399,6 +1460,22 @@ fn generic_pure_select_value_class(
         | (GenericPureValueClass::StringOrVoid, GenericPureValueClass::VoidSentinel)
         | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::StringOrVoid) => {
             Some(GenericPureValueClass::StringOrVoid)
+        }
+        (GenericPureValueClass::Array, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::Array)
+        | (GenericPureValueClass::ArrayOrVoid, GenericPureValueClass::Array)
+        | (GenericPureValueClass::Array, GenericPureValueClass::ArrayOrVoid)
+        | (GenericPureValueClass::ArrayOrVoid, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::ArrayOrVoid) => {
+            Some(GenericPureValueClass::ArrayOrVoid)
+        }
+        (GenericPureValueClass::Map, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::Map)
+        | (GenericPureValueClass::MapOrVoid, GenericPureValueClass::Map)
+        | (GenericPureValueClass::Map, GenericPureValueClass::MapOrVoid)
+        | (GenericPureValueClass::MapOrVoid, GenericPureValueClass::VoidSentinel)
+        | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::MapOrVoid) => {
+            Some(GenericPureValueClass::MapOrVoid)
         }
         (GenericPureValueClass::I64, GenericPureValueClass::VoidSentinel)
         | (GenericPureValueClass::VoidSentinel, GenericPureValueClass::I64)

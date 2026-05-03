@@ -11,6 +11,8 @@ pub(super) enum GenericPureValueClass {
     String,
     Array,
     Map,
+    ArrayOrVoid,
+    MapOrVoid,
     StringOrVoid,
     VoidSentinel,
 }
@@ -131,6 +133,8 @@ pub(super) fn generic_pure_value_class_is_void_like(class: GenericPureValueClass
     matches!(
         class,
         GenericPureValueClass::ScalarOrVoid
+            | GenericPureValueClass::ArrayOrVoid
+            | GenericPureValueClass::MapOrVoid
             | GenericPureValueClass::StringOrVoid
             | GenericPureValueClass::VoidSentinel
     )
@@ -170,11 +174,23 @@ pub(super) fn generic_pure_void_sentinel_compare_is_supported(
             GenericPureValueClass::VoidSentinel,
             GenericPureValueClass::Array
         ) | (
+            GenericPureValueClass::ArrayOrVoid,
+            GenericPureValueClass::VoidSentinel
+        ) | (
+            GenericPureValueClass::VoidSentinel,
+            GenericPureValueClass::ArrayOrVoid
+        ) | (
             GenericPureValueClass::Map,
             GenericPureValueClass::VoidSentinel
         ) | (
             GenericPureValueClass::VoidSentinel,
             GenericPureValueClass::Map
+        ) | (
+            GenericPureValueClass::MapOrVoid,
+            GenericPureValueClass::VoidSentinel
+        ) | (
+            GenericPureValueClass::VoidSentinel,
+            GenericPureValueClass::MapOrVoid
         )
     )
 }
@@ -247,6 +263,36 @@ pub(super) fn set_guarded_non_void_scalar_value_class(
     }
 }
 
+pub(super) fn set_guarded_non_void_array_value_class(
+    values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    value: ValueId,
+    changed: &mut bool,
+) {
+    match values.get(&value).copied() {
+        Some(GenericPureValueClass::Array) => {}
+        Some(GenericPureValueClass::ArrayOrVoid) | Some(GenericPureValueClass::Unknown) | None => {
+            values.insert(value, GenericPureValueClass::Array);
+            *changed = true;
+        }
+        Some(_) => {}
+    }
+}
+
+pub(super) fn set_guarded_non_void_map_value_class(
+    values: &mut BTreeMap<ValueId, GenericPureValueClass>,
+    value: ValueId,
+    changed: &mut bool,
+) {
+    match values.get(&value).copied() {
+        Some(GenericPureValueClass::Map) => {}
+        Some(GenericPureValueClass::MapOrVoid) | Some(GenericPureValueClass::Unknown) | None => {
+            values.insert(value, GenericPureValueClass::Map);
+            *changed = true;
+        }
+        Some(_) => {}
+    }
+}
+
 pub(super) fn set_proven_flow_value_class(
     values: &mut BTreeMap<ValueId, GenericPureValueClass>,
     value: ValueId,
@@ -271,6 +317,24 @@ pub(super) fn set_proven_flow_value_class(
             values.insert(value, GenericPureValueClass::StringOrVoid);
             *changed = true;
         }
+        Some(GenericPureValueClass::VoidSentinel)
+            if matches!(
+                class,
+                GenericPureValueClass::Array | GenericPureValueClass::ArrayOrVoid
+            ) =>
+        {
+            values.insert(value, GenericPureValueClass::ArrayOrVoid);
+            *changed = true;
+        }
+        Some(GenericPureValueClass::VoidSentinel)
+            if matches!(
+                class,
+                GenericPureValueClass::Map | GenericPureValueClass::MapOrVoid
+            ) =>
+        {
+            values.insert(value, GenericPureValueClass::MapOrVoid);
+            *changed = true;
+        }
         Some(GenericPureValueClass::String)
             if matches!(
                 class,
@@ -283,6 +347,34 @@ pub(super) fn set_proven_flow_value_class(
         Some(GenericPureValueClass::StringOrVoid) if class == GenericPureValueClass::String => {}
         Some(GenericPureValueClass::StringOrVoid)
             if class == GenericPureValueClass::VoidSentinel => {}
+        Some(GenericPureValueClass::Array)
+            if matches!(
+                class,
+                GenericPureValueClass::ArrayOrVoid | GenericPureValueClass::VoidSentinel
+            ) =>
+        {
+            values.insert(value, GenericPureValueClass::ArrayOrVoid);
+            *changed = true;
+        }
+        Some(GenericPureValueClass::ArrayOrVoid)
+            if matches!(
+                class,
+                GenericPureValueClass::Array | GenericPureValueClass::VoidSentinel
+            ) => {}
+        Some(GenericPureValueClass::Map)
+            if matches!(
+                class,
+                GenericPureValueClass::MapOrVoid | GenericPureValueClass::VoidSentinel
+            ) =>
+        {
+            values.insert(value, GenericPureValueClass::MapOrVoid);
+            *changed = true;
+        }
+        Some(GenericPureValueClass::MapOrVoid)
+            if matches!(
+                class,
+                GenericPureValueClass::Map | GenericPureValueClass::VoidSentinel
+            ) => {}
         Some(GenericPureValueClass::I64)
             if matches!(
                 class,
