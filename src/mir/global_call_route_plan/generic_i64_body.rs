@@ -5,7 +5,8 @@ use super::{
     GlobalCallTargetShape,
 };
 use crate::mir::{
-    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, UnaryOp,
+    ValueId,
 };
 use std::collections::BTreeMap;
 
@@ -306,6 +307,23 @@ fn generic_i64_body_refine_instruction(
                 _ => false,
             };
             if !comparable {
+                return false;
+            }
+            set_generic_i64_value_class(values, *dst, GenericI64ValueClass::Bool, changed)
+        }
+        MirInstruction::UnaryOp {
+            dst,
+            op: UnaryOp::Not,
+            operand,
+        } => {
+            let operand_class = generic_i64_value_class(values, *operand);
+            if operand_class == GenericI64ValueClass::Unknown {
+                return true;
+            }
+            if !matches!(
+                operand_class,
+                GenericI64ValueClass::Bool | GenericI64ValueClass::I64
+            ) {
                 return false;
             }
             set_generic_i64_value_class(values, *dst, GenericI64ValueClass::Bool, changed)
