@@ -5,13 +5,13 @@
        * This registry only records same-module functions that must be emitted
        * as LLVM definitions so direct calls cannot silently externalize them.
        */
-      const char* planned_module_generic_string_symbols[256];
+      const char* planned_module_generic_string_symbols[1024];
       size_t planned_module_generic_string_symbols_n = 0;
       const char* planned_module_parser_program_json_symbols[64];
       size_t planned_module_parser_program_json_symbols_n = 0;
       const char* planned_module_static_string_array_symbols[64];
       size_t planned_module_static_string_array_symbols_n = 0;
-      const char* emitted_module_generic_string_symbols[256];
+      const char* emitted_module_generic_string_symbols[1024];
       size_t emitted_module_generic_string_symbols_n = 0;
 
       auto int remember_planned_module_generic_string_symbol(const char* name) {
@@ -21,6 +21,15 @@
         }
         if (planned_module_generic_string_symbols_n >=
             ARR_LEN(planned_module_generic_string_symbols)) {
+          note_pure_unsupported_shape_detail(
+              -1,
+              0,
+              "module_function",
+              "module_generic_registry_full",
+              NULL,
+              NULL,
+              name,
+              NULL);
           return 0;
         }
         planned_module_generic_string_symbols[planned_module_generic_string_symbols_n++] = name;
@@ -86,6 +95,15 @@
         }
         if (emitted_module_generic_string_symbols_n >=
             ARR_LEN(emitted_module_generic_string_symbols)) {
+          note_pure_unsupported_shape_detail(
+              -1,
+              0,
+              "module_function",
+              "module_generic_registry_full",
+              NULL,
+              NULL,
+              name,
+              NULL);
           return 0;
         }
         emitted_module_generic_string_symbols[emitted_module_generic_string_symbols_n++] = name;
