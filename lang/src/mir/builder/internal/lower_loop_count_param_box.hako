@@ -102,30 +102,60 @@ static box LowerLoopCountParamBox {
   }
 
   _finish_count_param_text(s, k_loop, varname, start_text, norm) {
-    local cpos = StringOps.index_of_from(norm, ":", 0); if cpos < 0 { return "" }
-    local cmp = norm.substring(0, cpos)
-    local limit = norm.substring(cpos+1, norm.length())
-    // Body increment: Local i = Binary('+', Var i, Int step)
-    local k_body_i = JsonFragBox.index_of_from(s, "\"name\":\"" + varname + "\"", k_loop)
-    if k_body_i < 0 { return "" }
-    local k_bop = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_body_i)
-    if k_bop < 0 { return "" }
-    // Body increment: Local i = Binary(op '+' or '-', Var i, (Int step | Var stepName))
-    local bop_plus = 0
-    if JsonFragBox.index_of_from(s, "\"op\":\"+\"", k_bop) >= 0 { bop_plus = 1 }
-    local bop_minus = 0
-    if JsonFragBox.index_of_from(s, "\"op\":\"-\"", k_bop) >= 0 { bop_minus = 1 }
-    if bop_plus != 1 {
-      if bop_minus != 1 { return "" }
-    }
-    if JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_bop) < 0 { return "" }
-
-    // Prefer rhs Int if present; otherwise try rhs Var and reverse-lookup its Local Int
-    local k_bop_obj = JsonFragBox.last_index_of_from(s, "{", k_bop); if k_bop_obj < 0 { return "" }
-    local k_bop_end = me._seek_object_end(s, k_bop_obj); if k_bop_end < 0 { return "" }
-    local step = "" + me._step_text(s, k_bop, k_bop_end, bop_minus)
+    local cmp = "" + me._norm_cmp_op_text(norm)
+    if cmp == "" { return "" }
+    local limit = "" + me._norm_limit_text(norm)
+    if limit == "" { return "" }
+    local step = "" + me._loop_increment_step_text(s, k_loop, varname)
     if step == "" { return "" }
     return me._emit_count_param_json(start_text, limit, step, cmp)
+  }
+
+  _norm_cmp_op_text(norm) {
+    local cpos = StringOps.index_of_from(norm, ":", 0)
+    if cpos < 0 { return "" }
+    return norm.substring(0, cpos)
+  }
+
+  _norm_limit_text(norm) {
+    local cpos = StringOps.index_of_from(norm, ":", 0)
+    if cpos < 0 { return "" }
+    return norm.substring(cpos+1, norm.length())
+  }
+
+  _loop_increment_step_text(s, k_loop, varname) {
+    local k_bop = me._loop_increment_binary_pos(s, k_loop, varname)
+    if k_bop < 0 { return "" }
+    local k_bop_obj = JsonFragBox.last_index_of_from(s, "{", k_bop)
+    if k_bop_obj < 0 { return "" }
+    local k_bop_end = me._seek_object_end(s, k_bop_obj)
+    if k_bop_end < 0 { return "" }
+    local op = "" + me._body_increment_op_text(s, k_bop, k_bop_end)
+    if op == "" { return "" }
+    if op == "-" { return me._step_text(s, k_bop, k_bop_end, 1) }
+    return me._step_text(s, k_bop, k_bop_end, 0)
+  }
+
+  _loop_increment_binary_pos(s, k_loop, varname) {
+    // Body increment: Local i = Binary(op '+' or '-', Var i, (Int step | Var stepName))
+    local k_body_i = JsonFragBox.index_of_from(s, "\"name\":\"" + varname + "\"", k_loop)
+    if k_body_i < 0 { return -1 }
+    local k_bop = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_body_i)
+    if k_bop < 0 { return -1 }
+    if JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_bop) < 0 { return -1 }
+    return k_bop
+  }
+
+  _body_increment_op_text(s, k_bop, k_bop_end) {
+    local plus_pos = JsonFragBox.index_of_from(s, "\"op\":\"+\"", k_bop)
+    if plus_pos >= 0 {
+      if plus_pos < k_bop_end { return "+" }
+    }
+    local minus_pos = JsonFragBox.index_of_from(s, "\"op\":\"-\"", k_bop)
+    if minus_pos >= 0 {
+      if minus_pos < k_bop_end { return "-" }
+    }
+    return ""
   }
 
   _step_text(s, k_bop, k_bop_end, bop_minus) {
