@@ -52,6 +52,7 @@ pub(in crate::mir::builder) fn build_logical_shortcircuit(
     // Evaluate LHS only once and pin to a slot so it can be reused safely across blocks
     let lhs_val0 = builder.build_expression(left)?;
     let lhs_val = builder.pin_to_slot(lhs_val0, "@sc_lhs")?;
+    let lhs_pin_slot = builder.pin_slot_names.get(&lhs_val).cloned();
 
     // Prepare blocks: eval_rhs_block (evaluates RHS), skip_block (skips RHS), merge_block
     let eval_rhs_block = builder.next_block_id();
@@ -77,6 +78,13 @@ pub(in crate::mir::builder) fn build_logical_shortcircuit(
         else_target,
     )?;
     let pre_branch_bb = builder.current_block()?;
+
+    // The LHS pin is an expression-local branch condition, not an outer local.
+    // Keep the SSA value for the already-emitted branch, but do not let the
+    // synthetic slot participate in branch-entry materialization or PHI merge.
+    if let Some(slot) = lhs_pin_slot.as_ref() {
+        builder.variable_ctx.variable_map.remove(slot);
+    }
 
     // Snapshot variables before entering branches
     let pre_if_var_map = builder.variable_ctx.variable_map.clone();
@@ -163,7 +171,47 @@ pub(in crate::mir::builder) fn build_logical_shortcircuit(
     exits.insert(rhs_true_exit, rhs_true_var_map);
     exits.insert(rhs_false_exit, rhs_false_var_map);
     builder.merge_modified_vars_multi(exits, &pre_if_var_map, None)?;
+    if let Some(slot) = lhs_pin_slot.as_ref() {
+        builder.variable_ctx.variable_map.remove(slot);
+    }
 
     builder.pop_if_merge();
     Ok(result_val)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::MirBuilder;
+
+    fn bool_lit(value: bool) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Bool(value),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn shortcircuit_lhs_pin_does_not_escape_variable_map() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("shortcircuit_lhs_pin_lifetime".to_string());
+
+        build_logical_shortcircuit(
+            &mut builder,
+            bool_lit(false),
+            BinaryOperator::And,
+            bool_lit(true),
+        )
+        .expect("short-circuit lower");
+
+        assert!(
+            !builder
+                .variable_ctx
+                .variable_map
+                .keys()
+                .any(|name| name.contains("@sc_lhs")),
+            "short-circuit LHS pin must remain expression-local"
+        );
+    }
 }
