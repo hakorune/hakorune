@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P317A-MIR-SCHEMA-MAP-SET-REDUNDANT-RECEIVER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P317A-MIR-SCHEMA-MAP-SET-REDUNDANT-RECEIVER.md"
-latest_card_summary = "Normalize redundant MapBox.set receiver operands while consuming exact SetSurfacePolicy facts."
+latest_card = "P318A-STAGE1-MIR-PAYLOAD-TEXT-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P318A-STAGE1-MIR-PAYLOAD-TEXT-CONTRACT.md"
+latest_card_summary = "Make Stage1 MIR payload functions predicate text coercion owner-local before indexOf."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

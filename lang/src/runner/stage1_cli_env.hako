@@ -350,7 +350,8 @@ static box Stage1MirPayloadContractBox {
   }
 
   method _mir_text_has_functions(mir_text) {
-    local has_functions = mir_text.indexOf("functions")
+    local text = "" + mir_text
+    local has_functions = text.indexOf("functions")
     if has_functions >= 0 { return 1 }
     return 0
   }
