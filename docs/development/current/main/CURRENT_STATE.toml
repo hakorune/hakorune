@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P296A-VOID-LOGGING-GLOBAL-CALL-NO-DST"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P296A-VOID-LOGGING-GLOBAL-CALL-NO-DST.md"
-latest_card_summary = "Allow existing void logging DirectAbi global calls to emit without a result register."
+latest_card = "P297A-JSONFRAG-CONST-VALUE-SIG-TEXT-SENTINEL"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P297A-JSONFRAG-CONST-VALUE-SIG-TEXT-SENTINEL.md"
+latest_card_summary = "Keep JsonFrag const value signature reads on owner-local text sentinel boundaries."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

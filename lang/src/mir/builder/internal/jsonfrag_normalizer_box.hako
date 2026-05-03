@@ -141,7 +141,7 @@ static box JsonFragNormalizerBox {
       if obj_end < 0 { return "raw:?" }
       local inner = s.substring(obj_start, obj_end+1)
       // typed numeric
-      local t = JsonFragBox.get_str(inner, "type")
+      local t = me._text_or_empty(JsonFragBox.get_str(inner, "type"))
       if t == "i64" {
         local keyv_i = me._dq()+"value"+me._dq()+":"
         local kv_i = inner.indexOf(keyv_i)
@@ -161,7 +161,7 @@ static box JsonFragNormalizerBox {
         return "f64:?"
       }
       // string form: {"String":"..."}
-      local sv = JsonFragBox.get_str(inner, "String")
+      local sv = me._text_or_empty(JsonFragBox.get_str(inner, "String"))
       if sv != "" { return "S:" + sv }
       // fallback: raw object
       return "raw:" + inner
