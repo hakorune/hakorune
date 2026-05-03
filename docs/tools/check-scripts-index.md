@@ -28,6 +28,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/array_string_push_get_metadata_fixture_guard.sh` | array-string boundary fixtures の `RuntimeDataBox.push/get(ArrayBox)` が MIR-owned CoreMethod metadata を持ち、pure-first route state に消費されることを fail-fast で検出する。 |
 | `tools/checks/stage0_shape_inventory_guard.sh` | `GlobalCallTargetShape` variants が Stage0 LLVM line shape inventory SSOT に全て棚卸しされていることを fail-fast で検出する。 |
 | `tools/checks/program_json_dev_surface_guard.sh` | archived Program(JSON) diagnostics probes / empty dev capsule directory が active `tools/dev` surface に戻らないことを fail-fast で検出する。 |
+| `tools/checks/program_json_v0_compat_caller_guard.sh` | raw `Program(JSON v0)` compat emit helper の active shell caller を `stage1_contract.sh` / `stageb_helpers.sh` に限定する。 |
 | `tools/checks/phase29ch_route_probe_surface_guard.sh` | archived phase29ch route diagnostics probes が active `tools/dev` surface に戻らず、live compat keeper だけが残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_preperf_probe_surface_guard.sh` | archived phase29ck pre-perf diagnostics probes が active `tools/dev` surface に戻らず、live compat/dialect keepers が残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_small_entry_probe_surface_guard.sh` | archived phase29ck small-entry perf diagnostics probes が active `tools/dev` surface に戻らず、runtime-proof smoke anchor が残ることを fail-fast で検出する。 |
