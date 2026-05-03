@@ -32,18 +32,23 @@ static box LowerLoopMultiCarrierBox {
     local varname = LoopScanBox.find_loop_var_name(s, k_cmp)
     if varname == null { return null }
 
-    // 3) Extract limit information (accept Int literal or param Var)
-    local limit_info = me._extract_limit_info(s, k_cmp, varname, params_arr)
-    if limit_info == null {
+    // 3) Extract limit facts (accept Int literal or param Var) without a MapBox payload.
+    local limit_kind = me._extract_limit_kind(s, k_cmp, varname, params_arr)
+    if limit_kind == "" {
       if BuilderConfigBox.trace_enabled() == 1 {
         print("[mirbuilder/internal/loop:multi_carrier:limit:unsupported]")
       }
       return null
     }
-    local limit_kind = me._coerce_text_compat(limit_info.get("kind"))
-    local limit_value = limit_info.get("value")
-    local limit_param_reg = me._coerce_i64_compat(limit_info.get("param_reg"))
     if limit_kind != "const" && limit_kind != "param" { return null }
+    local limit_value = "0"
+    local limit_param_reg = 0
+    if limit_kind == "const" {
+      limit_value = me._extract_limit_value_text(s, k_cmp, varname)
+    } else {
+      limit_param_reg = me._coerce_i64_compat(me._extract_limit_param_reg_text(s, k_cmp, varname, params_arr))
+      if limit_param_reg <= 0 { return null }
+    }
 
     // 4) Collect initial carrier values (Local Int assignments before the Loop)
     local carrier_vals = me._collect_carrier_initials(s, k_loop, varname)
@@ -115,7 +120,7 @@ static box LowerLoopMultiCarrierBox {
     return vals
   }
 
-  method _extract_limit_info(body_json, cmp_idx, loop_var, params_arr) {
+  method _extract_limit_kind(body_json, cmp_idx, loop_var, params_arr) {
     local s = me._coerce_text_compat(body_json)
     local has_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + loop_var + "\"}", cmp_idx) >= 0
     local has_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + loop_var + "\"}", cmp_idx) >= 0
@@ -124,7 +129,7 @@ static box LowerLoopMultiCarrierBox {
       if trace_on == 1 {
         print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-loop-var var=" + loop_var)
       }
-      return null
+      return ""
     }
     local target_idx = -1
     if has_lhs {
@@ -136,46 +141,43 @@ static box LowerLoopMultiCarrierBox {
       if trace_on == 1 {
         print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-target")
       }
-      return null
+      return ""
     }
     local type_idx = JsonFragBox.index_of_from(s, "\"type\":\"", target_idx)
     if type_idx < 0 {
       if trace_on == 1 {
         print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-type")
       }
-      return null
+      return ""
     }
     local typ = JsonFragBox.read_string_after(s, type_idx + 7)
     if typ == null {
       if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=type-null") }
-      return null
+      return ""
     }
     if typ == "Int" {
       local val_idx = JsonFragBox.index_of_from(s, "\"value\":", type_idx)
       if val_idx < 0 {
         if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-int-value") }
-        return null
+        return ""
       }
       local val = JsonFragBox.read_int_after(s, val_idx + 8)
       if val == null {
         if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=int-parse") }
-        return null
+        return ""
       }
-      local info = new MapBox()
-      info.set("kind", "const")
-      info.set("value", me._coerce_i64_compat(val))
-      return info
+      return "const"
     }
     if typ == "Var" {
       local name_idx = JsonFragBox.index_of_from(s, "\"name\":\"", type_idx)
       if name_idx < 0 {
         if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-var-name") }
-        return null
+        return ""
       }
       local name = JsonFragBox.read_string_after(s, name_idx + 7)
       if name == null {
         if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=var-name-null") }
-        return null
+        return ""
       }
       local param_reg = me._resolve_param_reg(params_arr, name)
       if trace_on == 1 {
@@ -185,17 +187,68 @@ static box LowerLoopMultiCarrierBox {
         if trace_on == 1 {
           print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=param-unresolved")
         }
-        return null
+        return ""
       }
-      local info2 = new MapBox()
-      info2.set("kind", "param")
-      info2.set("param_reg", param_reg)
-      return info2
+      return "param"
     }
     if trace_on == 1 {
       print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=type-unsupported typ=" + typ)
     }
-    return null
+    return ""
+  }
+
+  method _extract_limit_value_text(body_json, cmp_idx, loop_var) {
+    local s = me._coerce_text_compat(body_json)
+    local type_idx = me._limit_target_type_idx(s, cmp_idx, loop_var)
+    if type_idx < 0 { return "" }
+    local typ = JsonFragBox.read_string_after(s, type_idx + 7)
+    if typ != "Int" { return "" }
+    local val_idx = JsonFragBox.index_of_from(s, "\"value\":", type_idx)
+    if val_idx < 0 { return "" }
+    local val = JsonFragBox.read_int_after(s, val_idx + 8)
+    if val == null { return "" }
+    return me._coerce_text_compat(val)
+  }
+
+  method _extract_limit_param_reg_text(body_json, cmp_idx, loop_var, params_arr) {
+    local s = me._coerce_text_compat(body_json)
+    local type_idx = me._limit_target_type_idx(s, cmp_idx, loop_var)
+    if type_idx < 0 { return "" }
+    local typ = JsonFragBox.read_string_after(s, type_idx + 7)
+    if typ != "Var" { return "" }
+    local name_idx = JsonFragBox.index_of_from(s, "\"name\":\"", type_idx)
+    if name_idx < 0 { return "" }
+    local name = JsonFragBox.read_string_after(s, name_idx + 7)
+    if name == null { return "" }
+    return me._coerce_text_compat(me._resolve_param_reg(params_arr, name))
+  }
+
+  method _limit_target_type_idx(body_json, cmp_idx, loop_var) {
+    local s = me._coerce_text_compat(body_json)
+    local has_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + loop_var + "\"}", cmp_idx) >= 0
+    local has_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + loop_var + "\"}", cmp_idx) >= 0
+    if !has_lhs && !has_rhs { return -1 }
+    local target_idx = -1
+    if has_lhs {
+      target_idx = JsonFragBox.index_of_from(s, "\"rhs\":{", cmp_idx)
+    } else {
+      target_idx = JsonFragBox.index_of_from(s, "\"lhs\":{", cmp_idx)
+    }
+    if target_idx < 0 { return -1 }
+    return JsonFragBox.index_of_from(s, "\"type\":\"", target_idx)
+  }
+
+  method _extract_limit_info(body_json, cmp_idx, loop_var, params_arr) {
+    local kind = me._extract_limit_kind(body_json, cmp_idx, loop_var, params_arr)
+    if kind == "" { return null }
+    local info = new MapBox()
+    info.set("kind", kind)
+    if kind == "const" {
+      info.set("value", me._coerce_i64_compat(me._extract_limit_value_text(body_json, cmp_idx, loop_var)))
+    } else {
+      info.set("param_reg", me._coerce_i64_compat(me._extract_limit_param_reg_text(body_json, cmp_idx, loop_var, params_arr)))
+    }
+    return info
   }
 
   method _resolve_param_reg(params_arr, name) {
