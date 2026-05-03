@@ -14,8 +14,6 @@ cd "$ROOT"
 
 # shellcheck source=/dev/null
 source "$ROOT/tools/selfhost/lib/stage1_contract.sh"
-# shellcheck source=/dev/null
-source "$ROOT/tools/selfhost/lib/program_json_mir_bridge.sh"
 
 STAGE1_BIN="${STAGE1_BIN:-$ROOT/target/selfhost/hakorune.stage1_cli}"
 ENTRY="${ENTRY:-$ROOT/lang/src/runner/stage1_cli_env.hako}"
@@ -72,6 +70,12 @@ if ! [[ -s "$TMP_PROG" ]]; then
   echo "[FAIL] phase29cg_stage2_bootstrap_phi_verify: program json is empty" >&2
   exit 1
 fi
+
+# Keep the Program(JSON)->MIR bridge out of the reduced-artifact fail-fast path.
+# It is still the explicit compatibility bridge until the emit-mir replacement
+# proof from P106 is green.
+# shellcheck source=/dev/null
+source "$ROOT/tools/selfhost/lib/program_json_mir_bridge.sh"
 
 set +e
 program_json_mir_bridge_emit "$ROOT/target/release/hakorune" "$TMP_PROG" "$TMP_MIR" "[phase29cg]" >/dev/null 2>"$TMP_EMIT_ERR"
