@@ -986,6 +986,62 @@ fn proves_mir_json_function_field_runtime_data_get() {
 }
 
 #[test]
+fn proves_mir_json_function_blocks_field_length_routes_as_array_len() {
+    let mut function = make_function();
+    function.signature.name = "MirJsonEmitBox._emit_function/1".to_string();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(10),
+        value: crate::mir::ConstValue::String("blocks".to_string()),
+    });
+    block.add_instruction(method_call(
+        Some(11),
+        "RuntimeDataBox",
+        "get",
+        1,
+        vec![10],
+    ));
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(12),
+        src: ValueId::new(11),
+    });
+    block.add_instruction(method_call(
+        Some(13),
+        "RuntimeDataBox",
+        "length",
+        12,
+        vec![],
+    ));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 2);
+    let field_route = &function.metadata.generic_method_routes[0];
+    assert_eq!(field_route.route_id(), "generic_method.get");
+    assert_eq!(field_route.key_const_text(), Some("blocks"));
+    assert_eq!(
+        field_route.proof(),
+        GenericMethodRouteProof::MirJsonFunctionField
+    );
+
+    let len_route = &function.metadata.generic_method_routes[1];
+    assert_eq!(len_route.route_id(), "generic_method.len");
+    assert_eq!(len_route.route_kind(), GenericMethodRouteKind::ArraySlotLen);
+    assert_eq!(len_route.receiver_origin_box(), Some("ArrayBox"));
+    let core_method = len_route
+        .core_method()
+        .expect("function blocks length ArrayLen carrier");
+    assert_eq!(core_method.op, CoreMethodOp::ArrayLen);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
+}
+
+#[test]
 fn proves_mir_json_module_field_runtime_data_get() {
     let mut function = make_function();
     function.signature.name = "MirJsonEmitBox.to_json/1".to_string();

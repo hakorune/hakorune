@@ -1325,7 +1325,7 @@ fn match_generic_len_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
-        .or_else(|| generic_array_flow_origin_box_name(function, *receiver))
+        .or_else(|| generic_array_flow_origin_box_name(function, def_map, *receiver))
         .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
         .or_else(|| {
             string_corridor_method_origin_box_name(function, *dst, StringCorridorOp::StrLen)
@@ -1755,7 +1755,7 @@ fn match_generic_push_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
-        .or_else(|| generic_array_flow_origin_box_name(function, *receiver))
+        .or_else(|| generic_array_flow_origin_box_name(function, def_map, *receiver))
         .or_else(|| (box_name == "ArrayBox").then(|| "ArrayBox".to_string()));
     if receiver_origin_box.as_deref() != Some("ArrayBox")
         || !matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox")
@@ -1764,7 +1764,7 @@ fn match_generic_push_route(
     }
     if args.len() == 2 {
         let receiver_arg_origin_box = receiver_origin_box_name(function, def_map, args[0])
-            .or_else(|| generic_array_flow_origin_box_name(function, args[0]));
+            .or_else(|| generic_array_flow_origin_box_name(function, def_map, args[0]));
         if receiver_arg_origin_box.as_deref() != Some("ArrayBox")
             || resolve_value_origin(function, def_map, args[0])
                 != resolve_value_origin(function, def_map, *receiver)
@@ -1969,7 +1969,11 @@ fn generic_param_type_can_flow_as_text(ty: &super::MirType) -> bool {
         || matches!(ty, super::MirType::Box(name) if name == "StringBox")
 }
 
-fn generic_array_flow_origin_box_name(function: &MirFunction, receiver: ValueId) -> Option<String> {
+fn generic_array_flow_origin_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+) -> Option<String> {
     let mut array_values = BTreeMap::<ValueId, &'static str>::new();
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
     block_ids.sort();
@@ -2031,6 +2035,25 @@ fn generic_array_flow_origin_box_name(function: &MirFunction, receiver: ValueId)
                         && box_name == "RuntimeDataBox"
                         && method == "keys"
                         && args.is_empty() =>
+                    {
+                        if array_values.insert(*dst, "ArrayBox") != Some("ArrayBox") {
+                            changed = true;
+                        }
+                    }
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee:
+                            Some(Callee::Method {
+                                box_name, method, ..
+                            }),
+                        args,
+                        ..
+                    } if function.signature.name == "MirJsonEmitBox._emit_function/1"
+                        && box_name == "RuntimeDataBox"
+                        && method == "get"
+                        && args.len() == 1
+                        && const_string_value(function, def_map, args[0])
+                            .is_some_and(|key| key == "params" || key == "blocks") =>
                     {
                         if array_values.insert(*dst, "ArrayBox") != Some("ArrayBox") {
                             changed = true;
