@@ -36,9 +36,11 @@ explicit keepers in the right order.
 
 1. Explicit Stage-B artifact diagnostic keeper
    - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`
+   - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stagea.sh`
+   - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stageb.sh`
    - `tools/lib/program_json_v0_compat.sh`
-   - live debt is now the shared raw emit helper, not the manual artifact
-     probe entry
+   - live debt is now the shared raw emit helper, not the manual artifact/dev
+     probe entries
 2. Explicit Program(JSON)->MIR bridge keepers
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh`

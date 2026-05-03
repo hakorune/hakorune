@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# dev_stageb.sh — Stage‑B (ParserBox→FlowEntry) Hako → JSON v0 → Gate‑C 実行ヘルパー
-# 使い方:
-#   tools/dev/program_json_v0/dev_stageb.sh 'box Main { static method main() { print(1+2); } }'
-#   tools/dev/program_json_v0/dev_stageb.sh -f path/to/code.hako
+# program_json_v0_dev_stageb.sh — archived Stage-B Hako -> JSON v0 -> Gate-C helper
+# Usage:
+#   tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stageb.sh 'box Main { static method main() { print(1+2); } }'
+#   tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stageb.sh -f path/to/code.hako
 
-ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../../../.." && pwd)}"
 BIN="$ROOT/target/release/nyash"
-STAGEA="$ROOT/tools/dev/program_json_v0/dev_stagea.sh"
+STAGEA="$ROOT/tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stagea.sh"
 
 if [ ! -x "$BIN" ]; then
   echo "[info] building nyash (release) ..." >&2

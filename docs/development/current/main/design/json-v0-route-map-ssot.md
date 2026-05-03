@@ -69,7 +69,7 @@ Current capsule classes:
 
 | Capsule | Entrypoints | Boundary | Reading |
 | --- | --- | --- | --- |
-| Stage-B artifact diagnostic | `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`, `tools/lib/program_json_v0_compat.sh` | source `.hako` -> Program(JSON v0) file | archived explicit artifact capture only |
+| Stage-B artifact diagnostic | `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`, `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stagea.sh`, `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stageb.sh`, `tools/lib/program_json_v0_compat.sh` | source `.hako` -> Program(JSON v0) file | archived explicit artifact/dev capture only |
 | Program(JSON)->MIR bridge | `tools/selfhost/lib/program_json_mir_bridge.sh`, `tools/selfhost_exe_stageb.sh` (`stageb-delegate`), `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` | Program(JSON v0) -> MIR(JSON) -> optional ny-llvmc proof | compat conversion capsule, not primary proof |
 | Stage1 contract | `tools/selfhost/lib/stage1_contract.sh`, `tools/selfhost/compat/run_stage1_cli.sh` | Stage1 CLI env contract -> Program/MIR compatibility payloads | explicit contract pin |
 | Fixture contract | `tools/smokes/v2/lib/stageb_helpers.sh`, phase29bq JoinIR/MirBuilder pins, Stage-B/Core fixture smokes | Program(JSON v0) fixture -> smoke contract assertions | fixture-only compatibility |
@@ -97,6 +97,8 @@ Current capsule classes:
    - demote `--json-file` / `--emit-program-json-v0` to explicit compat guidance
    - current explicit keepers that still block hard delete are:
      - `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`
+     - `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stagea.sh`
+     - `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stageb.sh`
      - `tools/lib/program_json_v0_compat.sh`
      - `tools/selfhost/lib/program_json_mir_bridge.sh`
      - `tools/selfhost_exe_stageb.sh` (`stageb-delegate` bridge capsule)

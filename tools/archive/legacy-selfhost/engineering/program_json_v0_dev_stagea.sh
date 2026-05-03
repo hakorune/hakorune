@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# dev_stagea.sh — Stage‑A (minimal) Hako → JSON v0 → Gate‑C 実行ヘルパー
-# 使い方:
-#   tools/dev/program_json_v0/dev_stagea.sh 'box Main { static method main() { print(1+2); } }'
-#   tools/dev/program_json_v0/dev_stagea.sh -f path/to/code.hako
+# program_json_v0_dev_stagea.sh — archived Stage-A Hako -> JSON v0 -> Gate-C helper
+# Usage:
+#   tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stagea.sh 'box Main { static method main() { print(1+2); } }'
+#   tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stagea.sh -f path/to/code.hako
 
-ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../../../.." && pwd)}"
 BIN="$ROOT/target/release/nyash"
 
 if [ ! -x "$BIN" ]; then

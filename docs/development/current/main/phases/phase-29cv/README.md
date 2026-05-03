@@ -29,8 +29,8 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - Normal `selfhost_build.sh --mir`, `--run`, and `--exe` are now direct
   MIR(JSON) routes.
 - `selfhost_build.sh --keep-tmp` and `NYASH_SELFHOST_KEEP_RAW=1` are retired
-  from the facade; explicit Program(JSON v0) artifact capture now lives in the
-  dev probe.
+  from the facade; the old explicit Program(JSON v0) artifact capture and
+  manual Stage-A/Stage-B dev runners are archived engineering evidence.
 - `Program(JSON v0)` remains as internal/compat/debug infrastructure only.
 - Remaining live Program(JSON v0) surfaces are compat capsules: explicit,
   bounded owners that pin compatibility seams without becoming mainline proof.
@@ -38,6 +38,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   new acceptance-shape expansion.
 - Thin shell/test seam cleanup is effectively exhausted through P32. Remaining
   work is explicit keeper replacement or final delete-last cleanup.
+- P341A archives the unused manual Stage-A/Stage-B Program(JSON v0) dev
+  runners from active `tools/dev/program_json_v0/`; the live diagnostic debt is
+  still the shared raw emit helper while Stage1/fixture keepers source it.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
@@ -198,9 +201,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 
 1. Explicit Stage-B artifact diagnostic probe
    - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`
+   - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stagea.sh`
+   - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stageb.sh`
    - `tools/lib/program_json_v0_compat.sh`
-   - The manual artifact probe is archived. The shared raw emit helper remains
-     live while Stage1/fixture keepers source it.
+   - The manual artifact/dev probes are archived. The shared raw emit helper
+     remains live while Stage1/fixture keepers source it.
      `selfhost_build.sh` must not own or source this route.
 2. Program(JSON)->MIR bridge capsule
    - `tools/selfhost/lib/stageb_program_json_capture.sh`
