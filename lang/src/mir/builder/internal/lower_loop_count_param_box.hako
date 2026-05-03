@@ -141,14 +141,18 @@ static box LowerLoopCountParamBox {
       step = me._local_int_text_before(s, vname, k_bop)
     }
     if step == "" { return "" }
-    if bop_minus == 1 {
-      // Encode subtraction as Add with negative step
-      local si = JsonFragBox._str_to_int(step)
-      step = StringHelpers.int_to_str(0 - si)
-    }
+    step = me._normalize_step_text(step, bop_minus)
     // limit normalized above
 
     return me._emit_count_param_json(start_text, limit, step, cmp)
+  }
+
+  _normalize_step_text(step, bop_minus) {
+    if step == null { return "" }
+    if bop_minus != 1 { return "" + step }
+    // Encode subtraction as Add with negative step.
+    local si = JsonFragBox._str_to_int(step)
+    return StringHelpers.int_to_str(0 - si)
   }
 
   _emit_count_param_json(start_text, limit, step, cmp) {
