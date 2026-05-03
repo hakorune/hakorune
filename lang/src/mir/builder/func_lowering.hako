@@ -223,27 +223,15 @@ static box FuncLoweringBox {
 
     // Build MIR function with params
     local insts = ""
-    local next_reg = 1
-
-    // Map params to registers (params start at r1, r2, ...)
-    local param_map = new MapBox()
-    {
-      local pi = 0
-      local pn = ParamListBox.count(params_arr)
-      loop(pi < pn) {
-        param_map.set("" + ParamListBox.get(params_arr, pi), "" + next_reg)
-        next_reg = next_reg + 1
-        pi = pi + 1
-      }
-    }
+    local next_reg = ParamListBox.count(params_arr) + 1
 
     // Load lhs
     local lhs_reg = next_reg
     if lhs_type == "Var" {
       // Use param register
-      local preg = param_map.get("" + lhs_val)
-      if preg == null { return null }
-      lhs_reg = JsonFragBox._str_to_int("" + preg)
+      local preg = me._param_reg(params_arr, "" + lhs_val)
+      if preg <= 0 { return null }
+      lhs_reg = preg
     } else if lhs_type == "Int" {
       insts = "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + lhs_val + "}}"
       lhs_reg = next_reg
@@ -254,9 +242,9 @@ static box FuncLoweringBox {
     local rhs_reg = next_reg
     if rhs_type == "Var" {
       // Use param register
-      local preg = param_map.get("" + rhs_val)
-      if preg == null { return null }
-      rhs_reg = JsonFragBox._str_to_int("" + preg)
+      local preg = me._param_reg(params_arr, "" + rhs_val)
+      if preg <= 0 { return null }
+      rhs_reg = preg
     } else if rhs_type == "Int" {
       if insts != "" { insts = insts + "," }
       insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + rhs_val + "}}"
@@ -278,6 +266,16 @@ static box FuncLoweringBox {
     local arity = ParamListBox.arity(params_arr)
     local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[" + insts + "]}]}"
     return mir
+  }
+
+  method _param_reg(params_arr, param_name) {
+    local pi = 0
+    local pn = ParamListBox.count(params_arr)
+    loop(pi < pn) {
+      if ("" + ParamListBox.get(params_arr, pi)) == param_name { return pi + 1 }
+      pi = pi + 1
+    }
+    return 0
   }
 
   // Lower Return(Call(name, args))

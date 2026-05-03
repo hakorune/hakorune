@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P256A-BASIC-LOOP-ENTRY-STRING-SCAN"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P256A-BASIC-LOOP-ENTRY-STRING-SCAN.md"
-latest_card_summary = "Scan FuncBodyBasic loop-entry markers with JsonFragBox instead of String.contains."
+latest_card = "P257A-RETURN-BINARY-PARAM-REG-SCAN"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P257A-RETURN-BINARY-PARAM-REG-SCAN.md"
+latest_card_summary = "Resolve Return(Binary) parameter registers with an owner-local scalar scan instead of a temporary MapBox."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
