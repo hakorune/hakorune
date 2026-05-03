@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P236A-LOWER-IF-NESTED-CMP-SIDE-TEXT-ABI"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P236A-LOWER-IF-NESTED-CMP-SIDE-TEXT-ABI.md"
-latest_card_summary = "Align LowerIfNested compare-side helper to numeric text-or-null ABI for generic string callers."
+latest_card = "P237A-LOWER-IF-NESTED-INT-OR-VAR-TEXT-ABI"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P237A-LOWER-IF-NESTED-INT-OR-VAR-TEXT-ABI.md"
+latest_card_summary = "Align LowerIfNested int-or-var node helper to numeric text-or-null ABI for generic string callers."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -201,4 +201,5 @@ landed_tail = [
   "29cv-P234a lower loop sum_bc direct JSON landed",
   "29cv-P235a compat MIR externcall direct JSON landed",
   "29cv-P236a lower if nested compare-side text ABI landed",
+  "29cv-P237a lower if nested int-or-var text ABI landed",
 ]
