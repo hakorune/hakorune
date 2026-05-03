@@ -1,6 +1,5 @@
 // lower_return_int_box.hako — Return(Int) → const+ret
 
-using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerReturnIntBox {
@@ -19,8 +18,22 @@ static box LowerReturnIntBox {
     // Now extract the value
     local k_int = kt
     local kv = JsonFragBox.index_of_from(s, "\"value\":", k_int); if kv < 0 { return null }
-    local val = JsonFragBox.read_int_after(s, kv + 8)
-    local val_text = StringHelpers.int_to_str(val)
+    local val_pos = me._skip_ws(s, kv + 8)
+    local val_end = val_pos
+    if val_end < s.length() {
+      local val_sign = s.substring(val_end, val_end + 1)
+      if val_sign == "-" { val_end = val_end + 1 }
+    }
+    local val_digits = val_end
+    local ch = ""
+    loop(val_end < s.length()) {
+      ch = s.substring(val_end, val_end + 1)
+      if ch < "0" || ch > "9" { break }
+      val_end = val_end + 1
+    }
+    if val_end <= val_digits { return null }
+    local val_text = s.substring(val_pos, val_end)
+    if val_text == "" { return null }
     local debug_on = 0
     if env.get("HAKO_MIR_BUILDER_DEBUG") == "1" || env.get("NYASH_CLI_VERBOSE") == "1" {
       debug_on = 1
@@ -34,6 +47,19 @@ static box LowerReturnIntBox {
 
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _skip_ws(s, pos) {
+    local i = pos
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
   }
 
   _find_return_expr_start(s, k_ret) {
