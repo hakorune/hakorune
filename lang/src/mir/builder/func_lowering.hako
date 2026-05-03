@@ -43,7 +43,8 @@ static box FuncLoweringBox {
 
     // Parse each def object in defs array
     local defs_str = s.substring(defs_start, defs_end)
-    local func_map = new MapBox()  // For Call resolution: name -> "Box.method"
+    // For Call resolution: owner-local text table, "|name=Box.method;".
+    local func_map_text = ""
 
     // Scan for {"name": pattern
     local pos = 0
@@ -68,8 +69,8 @@ static box FuncLoweringBox {
         continue
       }
 
-      // Register function in map for Call resolution
-      func_map.set(func_name, box_name + "." + func_name)
+      // Register function in the text table for Call resolution.
+      func_map_text = func_map_text + "|" + func_name + "=" + box_name + "." + func_name + ";"
 
       // Keep params as a JSON string view on the active Stage0 path.
       local params_arr = DefsScannerBox.extract_params_json(defs_str, name_end)
@@ -78,7 +79,7 @@ static box FuncLoweringBox {
       local body_json = DefsScannerBox.extract_body(defs_str, name_end)
       if body_json != null {
         // Try to lower body to MIR
-        local mir_func = me._lower_func_body(func_name, box_name, params_arr, body_json, func_map)
+        local mir_func = me._lower_func_body(func_name, box_name, params_arr, body_json, func_map_text)
         if mir_func != null && mir_func != "" {
           func_defs_mir = func_defs_mir + "," + mir_func
         } else if trace_funcs == 1 {
@@ -100,7 +101,7 @@ static box FuncLoweringBox {
 
   // Lower function body to MIR (minimal support)
   // Supports: Return(Int), Return(Binary(+|-|*|/, Int|Var, Int|Var)), Return(Call)
-  method _lower_func_body(func_name, box_name, params_arr, body_json, func_map) {
+  method _lower_func_body(func_name, box_name, params_arr, body_json, func_map_text) {
     local body_str = "" + body_json
 
     // Specialized path (stub) for Stage1 CLI run entry.
@@ -111,7 +112,7 @@ static box FuncLoweringBox {
         if box_name == "HakoCli" && func_name == "run" { is_cli = 1 }
       }
       if is_cli == 1 {
-        local cli_mir = CliRunLowerBox.lower_run(func_name, box_name, params_arr, body_str, func_map)
+        local cli_mir = CliRunLowerBox.lower_run(func_name, box_name, params_arr, body_str, func_map_text)
         if cli_mir != null { return cli_mir }
       }
     }
@@ -145,7 +146,7 @@ static box FuncLoweringBox {
     }
     if call_idx >= 0 {
       // Return(Call(name, args))
-      return me._lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map)
+      return me._lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map_text)
     }
 
     // Check for Binary in Return
@@ -280,7 +281,7 @@ static box FuncLoweringBox {
   }
 
   // Lower Return(Call(name, args))
-  method _lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map) {
+  method _lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map_text) {
     local ret_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Return\"", 0)
     if ret_idx < 0 { ret_idx = 0 }
 
@@ -310,7 +311,7 @@ static box FuncLoweringBox {
     if call_name == null { return null }
 
     // Resolve call target
-    local resolved_name = me.resolve_call_target(call_name, func_map)
+    local resolved_name = me.resolve_call_target(call_name, func_map_text)
 
     // Extract args (minimal: Int or Var)
     local args_arr = new ArrayBox()
@@ -458,17 +459,23 @@ static box FuncLoweringBox {
     return mir
   }
 
-  // Resolve call target using function map
+  // Resolve call target using the owner-local function text table.
   // Toggle: HAKO_MIR_BUILDER_CALL_RESOLVE=1
-  method resolve_call_target(call_name, func_map) {
+  method resolve_call_target(call_name, func_map_text) {
     if env.get("HAKO_MIR_BUILDER_CALL_RESOLVE") != "1" { return call_name }
 
-    local resolved = func_map.get(call_name)
-    if resolved != null {
+    local needle = "|" + call_name + "="
+    local hit = JsonFragBox.index_of_from(func_map_text, needle, 0)
+    if hit >= 0 {
+      local start = hit + needle.length()
+      local end = JsonFragBox.index_of_from(func_map_text, ";", start)
+      if end < 0 { return call_name }
+      local resolved = func_map_text.substring(start, end)
+      if resolved == "" { return call_name }
       if env.get("HAKO_MIR_BUILDER_DEBUG") == "1" {
         print("[mirbuilder/call:resolve] " + call_name + " => " + resolved)
       }
-      return "" + resolved
+      return resolved
     }
     return call_name
   }

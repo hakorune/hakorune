@@ -16,7 +16,7 @@ static box CliRunLowerBox {
   // Step 2.x: shape が既知のパターンと一致する場合に限り、MIR(JSON) 生成を行う。
   // 既定では環境変数 HAKO_MIR_BUILDER_CLI_RUN=1 のときのみ自前の MIR を返し、
   // それ以外は provider/既存 lower にフォールバックする。
-  method lower_run(func_name, box_name, params_arr, body_json, func_map) {
+  method lower_run(func_name, box_name, params_arr, body_json, func_map_text) {
     if box_name == null || func_name == null { return null }
     if box_name != "HakoCli" { return null }
     if func_name != "run" { return null }
