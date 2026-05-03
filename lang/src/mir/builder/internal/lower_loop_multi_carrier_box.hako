@@ -12,6 +12,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.loop_scan" as LoopScanBox
 using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
 using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using lang.mir.builder.func_lowering.param_list_box as ParamListBox
 
 static box LowerLoopMultiCarrierBox {
   // Try to recognize and lower a multi-carrier loop in Program(JSON v0).
@@ -200,9 +201,9 @@ static box LowerLoopMultiCarrierBox {
   method _resolve_param_reg(params_arr, name) {
     if params_arr == null || name == null { return 0 }
     local idx = 0
-    local total = params_arr.length()
+    local total = ParamListBox.count(params_arr)
     loop(idx < total) {
-      local pname = me._coerce_text_compat(params_arr.get(idx))
+      local pname = me._coerce_text_compat(ParamListBox.get(params_arr, idx))
       if pname == name {
         return me._coerce_i64_compat(idx + 1)
       }

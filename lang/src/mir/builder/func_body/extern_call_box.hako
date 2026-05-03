@@ -9,6 +9,7 @@
 //   - More complex shapes (locals/arrays/maps) are left to Rust provider / other lowers.
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using lang.mir.builder.func_lowering.param_list_box as ParamListBox
 
 static box ExternCallLowerBox {
   method lower_hostbridge(func_name, box_name, params_arr, body_json) {
@@ -85,9 +86,9 @@ static box ExternCallLowerBox {
     local next_reg = 1
     {
       local pi = 0
-      local pn = params_arr.length()
+      local pn = ParamListBox.count(params_arr)
       loop(pi < pn) {
-        param_map.set("" + params_arr.get(pi), "" + next_reg)
+        param_map.set("" + ParamListBox.get(params_arr, pi), "" + next_reg)
         next_reg = next_reg + 1
         pi = pi + 1
       }
@@ -119,32 +120,12 @@ static box ExternCallLowerBox {
 
   method _build_func_name(box_name, func_name, params_arr) {
     if box_name == null || func_name == null { return null }
-    local arity = 0
-    if params_arr != null {
-      local n = JsonFragBox._str_to_int("" + params_arr.length())
-      // HakoCli.* など static box メソッドの defs では先頭に暗黙の "me" が入る。
-      // 関数名はユーザー引数の個数で表現したいので、先頭が "me" の場合は 1 引いておく。
-      if n > 0 && ("" + params_arr.get(0)) == "me" {
-        arity = n - 1
-      } else {
-        arity = n
-      }
-      if arity < 0 { arity = 0 }
-    }
+    local arity = ParamListBox.arity(params_arr)
+    if arity < 0 { arity = 0 }
     return ("" + box_name) + "." + ("" + func_name) + "/" + arity
   }
 
   method _build_params_json(params_arr) {
-    if params_arr == null { return "[]" }
-    local params_json = "["
-    local i = 0
-    local n = params_arr.length()
-    loop(i < n) {
-      if i > 0 { params_json = params_json + "," }
-      params_json = params_json + "\\\"" + ("" + params_arr.get(i)) + "\\\""
-      i = i + 1
-    }
-    params_json = params_json + "]"
-    return params_json
+    return ParamListBox.as_json(params_arr)
   }
 }

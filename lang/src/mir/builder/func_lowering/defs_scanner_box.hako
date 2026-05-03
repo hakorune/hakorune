@@ -2,6 +2,7 @@
 // Responsibility: scan defs array, extract name/box/params/body from def objects.
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using lang.mir.builder.func_lowering.param_list_box as ParamListBox
 
 static box DefsScannerBox {
   // Find defs array content start in Program JSON.
@@ -114,13 +115,13 @@ static box DefsScannerBox {
     return box_name
   }
 
-  // Extract params array from def object
-  // Returns: ArrayBox of param names
-  method extract_params(defs_str, name_end) {
-    local params_arr = new ArrayBox()
+  // Extract params array JSON from def object.
+  // Returns "[]" when the params field is missing or malformed.
+  method extract_params_json(defs_str, name_end) {
     local params_idx = JsonFragBox.index_of_from(defs_str, "\"params\":[", name_end)
-    if params_idx < 0 { return params_arr }
+    if params_idx < 0 { return "[]" }
 
+    local params_array_start = params_idx + 9
     local params_start = params_idx + 10
     local params_end = -1
     {
@@ -148,26 +149,21 @@ static box DefsScannerBox {
         j = j + 1
       }
     }
-    if params_end < 0 { return params_arr }
+    if params_end < 0 { return "[]" }
+    return defs_str.substring(params_array_start, params_end + 1)
+  }
 
-    local params_str = defs_str.substring(params_start, params_end)
-    // Extract param names from JSON array
-    local p_pos = 0
-    loop(p_pos < params_str.length()) {
-      local p_idx = JsonFragBox.index_of_from(params_str, "\"", p_pos)
-      if p_idx < 0 { break }
-      local p_start = p_idx + 1
-      local p_end = -1
-      {
-        local j = p_start
-        loop(j < params_str.length()) {
-          if params_str.substring(j, j + 1) == "\"" { p_end = j  break }
-          j = j + 1
-        }
-      }
-      if p_end < 0 { break }
-      params_arr.push(params_str.substring(p_start, p_end))
-      p_pos = p_end + 1
+  // Extract params array from def object
+  // Returns: ArrayBox of param names
+  method extract_params(defs_str, name_end) {
+    local params_json = me.extract_params_json(defs_str, name_end)
+    local params_arr = new ArrayBox()
+    local n = ParamListBox.count(params_json)
+    local i = 0
+    loop(i < n) {
+      local name = ParamListBox.get(params_json, i)
+      if name != null { params_arr.push(name) }
+      i = i + 1
     }
     return params_arr
   }

@@ -12,6 +12,7 @@ using lang.mir.builder.func_body.cli_run_shape_box as CliRunShapeScannerBox
 using lang.mir.builder.func_body.cli_run_lower_box as CliRunLowerBox
 using lang.mir.builder.func_lowering.defs_scanner_box as DefsScannerBox
 using lang.mir.builder.func_lowering.call_methodize_box as CallMethodizeBox
+using lang.mir.builder.func_lowering.param_list_box as ParamListBox
 
 static box FuncLoweringBox {
   // Lower function definitions to MIR
@@ -71,8 +72,8 @@ static box FuncLoweringBox {
       // Register function in map for Call resolution
       func_map.set(func_name, box_name + "." + func_name)
 
-      // Extract params array using helper
-      local params_arr = DefsScannerBox.extract_params(defs_str, name_end)
+      // Keep params as a JSON string view on the active Stage0 path.
+      local params_arr = DefsScannerBox.extract_params_json(defs_str, name_end)
 
       // Extract body JSON using helper
       local body_json = DefsScannerBox.extract_body(defs_str, name_end)
@@ -174,7 +175,7 @@ static box FuncLoweringBox {
         if val != null {
           // Build params JSON array
           local params_json = me._build_params_json(params_arr)
-          local arity = JsonFragBox._str_to_int("" + params_arr.length())
+          local arity = ParamListBox.arity(params_arr)
           local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + val + "}},{\\\"op\\\":\\\"ret\\\",\\\"value\\\":1}]}]}"
           return mir
         }
@@ -238,9 +239,9 @@ static box FuncLoweringBox {
     local param_map = new MapBox()
     {
       local pi = 0
-      local pn = params_arr.length()
+      local pn = ParamListBox.count(params_arr)
       loop(pi < pn) {
-        param_map.set("" + params_arr.get(pi), "" + next_reg)
+        param_map.set("" + ParamListBox.get(params_arr, pi), "" + next_reg)
         next_reg = next_reg + 1
         pi = pi + 1
       }
@@ -284,7 +285,7 @@ static box FuncLoweringBox {
 
     // Build params JSON array
     local params_json = me._build_params_json(params_arr)
-    local arity = JsonFragBox._str_to_int("" + params_arr.length())
+    local arity = ParamListBox.arity(params_arr)
     local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[" + insts + "]}]}"
     return mir
   }
@@ -369,9 +370,9 @@ static box FuncLoweringBox {
     local param_map = new MapBox()
     {
       local pi = 0
-      local pn = params_arr.length()
+      local pn = ParamListBox.count(params_arr)
       loop(pi < pn) {
-        param_map.set("" + params_arr.get(pi), "" + next_reg)
+        param_map.set("" + ParamListBox.get(params_arr, pi), "" + next_reg)
         next_reg = next_reg + 1
         pi = pi + 1
       }
@@ -457,7 +458,7 @@ static box FuncLoweringBox {
 
     // Build params JSON array
     local params_json = me._build_params_json(params_arr)
-    local arity = JsonFragBox._str_to_int("" + params_arr.length())
+    local arity = ParamListBox.arity(params_arr)
     local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[" + insts + "]}]}"
 
     // Debug log
@@ -485,16 +486,7 @@ static box FuncLoweringBox {
 
   // Helper: build params JSON array
   method _build_params_json(params_arr) {
-    local params_json = "["
-    local pi = 0
-    local pn = params_arr.length()
-    loop(pi < pn) {
-      if pi > 0 { params_json = params_json + "," }
-      params_json = params_json + "\\\"" + ("" + params_arr.get(pi)) + "\\\""
-      pi = pi + 1
-    }
-    params_json = params_json + "]"
-    return params_json
+    return ParamListBox.as_json(params_arr)
   }
 
   // Inject function definitions into MIR JSON

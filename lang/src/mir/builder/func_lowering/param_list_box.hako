@@ -1,0 +1,61 @@
+// param_list_box.hako — parameter list JSON string view for func lowering.
+// Responsibility: expose count/get/arity without requiring ArrayBox on Stage0.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box ParamListBox {
+  method as_json(params_json) {
+    if params_json == null || params_json == "" { return "[]" }
+    return "" + params_json
+  }
+
+  method count(params_json) {
+    local s = me.as_json(params_json)
+    local total = 0
+    local pos = 0
+    loop(pos < s.length()) {
+      local q = JsonFragBox.index_of_from(s, "\"", pos)
+      if q < 0 { break }
+      local end = me._find_string_end(s, q + 1)
+      if end < 0 { break }
+      total = total + 1
+      pos = end + 1
+    }
+    return total
+  }
+
+  method get(params_json, index) {
+    local s = me.as_json(params_json)
+    local target = JsonFragBox._str_to_int("" + index)
+    if target < 0 { return null }
+
+    local current = 0
+    local pos = 0
+    loop(pos < s.length()) {
+      local q = JsonFragBox.index_of_from(s, "\"", pos)
+      if q < 0 { break }
+      local start = q + 1
+      local end = me._find_string_end(s, start)
+      if end < 0 { break }
+      if current == target { return s.substring(start, end) }
+      current = current + 1
+      pos = end + 1
+    }
+    return null
+  }
+
+  method arity(params_json) {
+    local n = me.count(params_json)
+    if n > 0 && ("" + me.get(params_json, 0)) == "me" { return n - 1 }
+    return n
+  }
+
+  method _find_string_end(s, start) {
+    local j = start
+    loop(j < s.length()) {
+      if s.substring(j, j + 1) == "\"" { return j }
+      j = j + 1
+    }
+    return -1
+  }
+}
