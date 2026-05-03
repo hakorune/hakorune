@@ -37,6 +37,7 @@ list_profiles() {
     - tools/checks/stage0_shape_inventory_guard.sh
     - tools/checks/program_json_dev_surface_guard.sh
     - tools/checks/program_json_v0_compat_caller_guard.sh
+    - tools/checks/program_json_mir_bridge_caller_guard.sh
     - tools/checks/phase29ch_route_probe_surface_guard.sh
     - tools/checks/phase29ck_preperf_probe_surface_guard.sh
     - tools/checks/phase29ck_small_entry_probe_surface_guard.sh
@@ -218,6 +219,9 @@ run_quick() {
 
   run_step "Program(JSON v0) compat caller guard" \
     bash tools/checks/program_json_v0_compat_caller_guard.sh
+
+  run_step "Program(JSON)->MIR bridge caller guard" \
+    bash tools/checks/program_json_mir_bridge_caller_guard.sh
 
   run_step "phase29ch route probe surface guard" \
     bash tools/checks/phase29ch_route_probe_surface_guard.sh
