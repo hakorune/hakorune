@@ -111,6 +111,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `tools/checks/tools_dev_surface_inventory_guard.sh`, locking the remaining
   active `tools/dev` surface so new helpers/probes cannot appear without
   classification and a removal reading.
+- P364A promotes the remaining guard-candidate dev scripts to `tools/checks`:
+  MIR builder layer dependency and LoopPatternContext zero-residue checks now
+  belong to quick gate instead of the active dev helper surface.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

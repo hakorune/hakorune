@@ -44,6 +44,8 @@ list_profiles() {
     - tools/checks/legacy_dev_utility_surface_guard.sh
     - tools/checks/lang_include_surface_guard.sh
     - tools/checks/tools_dev_surface_inventory_guard.sh
+    - tools/checks/mir_builder_layer_dependency_guard.sh
+    - tools/checks/loop_pattern_context_zero_guard.sh
     - tools/checks/inc_codegen_thin_shim_guard.sh
     - tools/checks/generic_method_set_policy_mirror_guard.sh
     - tools/checks/core_method_contract_manifest_guard.sh
@@ -235,6 +237,12 @@ run_quick() {
 
   run_step "tools/dev surface inventory guard" \
     bash tools/checks/tools_dev_surface_inventory_guard.sh
+
+  run_step "MIR builder layer dependency guard" \
+    bash tools/checks/mir_builder_layer_dependency_guard.sh
+
+  run_step "LoopPatternContext zero guard" \
+    bash tools/checks/loop_pattern_context_zero_guard.sh
 
   run_step ".inc codegen thin-shim guard" \
     bash tools/checks/inc_codegen_thin_shim_guard.sh

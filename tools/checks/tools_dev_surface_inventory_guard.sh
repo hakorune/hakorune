@@ -13,8 +13,6 @@ EXPECTED_FILES=(
   "at_local_preexpand.sh"
   "bug_origin_triage.sh"
   "cargo_check_safe.sh"
-  "check_builder_layers.sh"
-  "check_loop_pattern_context_allowlist.sh"
   "dev_sugar_preexpand.sh"
   "direct_loop_progression_sweep.sh"
   "exdev_rename_copy_fallback.c"

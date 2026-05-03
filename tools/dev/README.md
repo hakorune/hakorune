@@ -27,8 +27,6 @@ those under `tools/archive/legacy-selfhost/engineering/`.
 | `at_local_preexpand.sh` | active dev helper | Local alias pre-expander. Keep with `dev_sugar_preexpand.sh` and `docs/guides/dev-local-alias.md`. |
 | `bug_origin_triage.sh` | active triage helper | Internal bug-origin lane classifier documented in `docs/tools/README.md`. |
 | `cargo_check_safe.sh` | active environment helper | EXDEV-safe cargo wrapper documented in `mir-vm-llvm-instruction-contract-fix-ssot.md`. |
-| `check_builder_layers.sh` | guard candidate | Builder-layer import guard referenced by older roadmap docs. Promote to `tools/checks` before quick-gate ownership. |
-| `check_loop_pattern_context_allowlist.sh` | guard candidate | Current loop-route context allowlist check; name is legacy, contract remains current. |
 | `dev_sugar_preexpand.sh` | active dev helper | Composed dev sugar pre-expander repaired in P359A. |
 | `direct_loop_progression_sweep.sh` | active monitor | Direct-route loop progression monitor documented in `docs/tools/README.md` and current investigations. |
 | `exdev_rename_copy_fallback.c` | paired helper | C preload implementation for `cargo_check_safe.sh`; keep/delete with that wrapper only. |
@@ -41,6 +39,13 @@ those under `tools/archive/legacy-selfhost/engineering/`.
 | `phase29ck_boundary_explicit_compat_probe.sh` | explicit compat keeper | Canonical explicit compat replay proof for HAKO_CAPI_PURE boundary. |
 | `phase29ck_boundary_historical_alias_probe.sh` | explicit compat keeper | Historical alias fail-fast proof; remove only after alias retirement contract changes. |
 | `phase29ck_stage1_mir_dialect_probe.sh` | explicit contract keeper | Stage1 MIR dialect contract probe called by current smoke profiles. |
+
+## Promoted Guards
+
+These used to live under `tools/dev`, but checks own them now:
+
+- `tools/checks/mir_builder_layer_dependency_guard.sh`
+- `tools/checks/loop_pattern_context_zero_guard.sh`
 
 ## Update Rule
 

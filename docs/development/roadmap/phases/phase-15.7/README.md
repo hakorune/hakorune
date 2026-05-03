@@ -75,7 +75,7 @@ Unified Call（開発既定ON）
 - Unified Call は env で即時OFF可能。問題時は `NYASH_MIR_UNIFIED_CALL=0` を宣言してレガシーへ退避し、修正後に既定へ復帰。
 
 補足（レイヤー・ガード）
-- builder 層は origin→observe→rewrite の一方向依存を維持する。違反検出スクリプト: `tools/dev/check_builder_layers.sh`
+- builder 層は origin→observe→rewrite の一方向依存を維持する。違反検出スクリプト: `tools/checks/mir_builder_layer_dependency_guard.sh`
 
 関連（参照）
 - Phase 15（セルフホスティング）: ../phase-15/README.md

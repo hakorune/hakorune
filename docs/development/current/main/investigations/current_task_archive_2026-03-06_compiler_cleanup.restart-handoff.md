@@ -320,16 +320,16 @@
     - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `0738b745b` refactor D5 remove LoopPatternContext alias and enforce zero-usage guard
     - `joinir/patterns/router.rs` の互換 alias `LoopPatternContext` を撤去し、context 名を `LoopRouteContext` に一本化
-    - `tools/dev/check_loop_pattern_context_allowlist.sh` は allowlist 方式を廃止し、`src/**/*.rs` に `LoopPatternContext` が残っていたら即 FAIL する零残存ガードへ更新
+    - `tools/checks/loop_pattern_context_zero_guard.sh` は allowlist 方式を廃止し、`src/**/*.rs` に `LoopPatternContext` が残っていたら即 FAIL する零残存ガードへ更新
     - worker parallel で dirty 同居 4ファイル（`generic_loop_pipeline.rs`, `loop_cond_return_in_body_pipeline.rs`, `generic_loop_body/v1.rs`, `pattern1_coreloop_builder.rs`）の型参照を `LoopRouteContext` へ移行後に alias を撤去
-    - verify: `tools/dev/check_loop_pattern_context_allowlist.sh` PASS、`cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0 / run_ok=101 / run_nonzero=18` 維持）
+    - verify: `tools/checks/loop_pattern_context_zero_guard.sh` PASS、`cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0 / run_ok=101 / run_nonzero=18` 維持）
   - `17feb285e` docs current_task add LoopPatternContext allowlist guard checkpoint
   - `96224dc90` docs current_task sync return_stmt LoopRouteContext checkpoint
   - `345cfe62b` docs current_task sync LoopRouteContext clean-sweep checkpoint
   - `32391a366` tools add LoopPatternContext allowlist guard script
-    - `tools/dev/check_loop_pattern_context_allowlist.sh` を追加し、`LoopPatternContext` 使用箇所を allowlist（`router` alias + dirty同居4ファイル）に固定
+    - `tools/checks/loop_pattern_context_zero_guard.sh` の前身を追加し、`LoopPatternContext` 使用箇所を allowlist（`router` alias + dirty同居4ファイル）に固定
     - allowlist外への再流入を即 FAIL で検出する運用ガードを追加（移行中の accidental regression 抑止）
-    - verify: `tools/dev/check_loop_pattern_context_allowlist.sh` PASS（allowlist 5 files）
+    - verify: `tools/checks/loop_pattern_context_zero_guard.sh` の前身 PASS（allowlist 5 files）
   - `c5ca36791` refactor D5 switch return_stmt context usage to LoopRouteContext
     - `src/mir/builder/stmts/return_stmt.rs` の context 参照を `LoopPatternContext` から `LoopRouteContext` に移行
     - これで `src/**` の `LoopPatternContext` 残存は `router` 互換 alias と dirty 同居の 4ファイルのみ

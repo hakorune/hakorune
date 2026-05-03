@@ -30,7 +30,7 @@
 - probe:
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
 - allowlist guard:
-  - `tools/dev/check_loop_pattern_context_allowlist.sh` (`loop_pattern_context` is a legacy filename token; script contract is still current)
+  - `tools/checks/loop_pattern_context_zero_guard.sh` (`loop_pattern_context` is a legacy filename token; script contract is still current)
 
 ## Next Exact Steps
 

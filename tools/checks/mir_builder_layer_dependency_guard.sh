@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-root_dir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-cd "$root_dir"
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+TAG="mir-builder-layer-dependency-guard"
+cd "$ROOT_DIR"
+source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 viol=0
 
-echo "[guard] Checking builder layer dependencies (origin→observe→rewrite)"
+echo "[$TAG] checking builder layer dependencies (origin -> observe -> rewrite)"
 
 # Rule 1: origin/* must NOT import observe or rewrite
 while IFS= read -r -d '' f; do
@@ -36,9 +38,7 @@ while IFS= read -r -d '' f; do
 done < <(find src/mir/builder/rewrite -type f -name '*.rs' -print0 2>/dev/null || true)
 
 if [[ $viol -gt 0 ]]; then
-  echo "[guard] FAILED: $viol violation(s) detected"
-  exit 1
+  guard_fail "$TAG" "$viol violation(s) detected"
 else
-  echo "[guard] OK: No violations"
+  echo "[$TAG] ok"
 fi
-
