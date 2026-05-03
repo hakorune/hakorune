@@ -104,7 +104,7 @@ Note:
 - explicit Program(JSON)->MIR helper work should use `env.mirbuilder.emit` /
   `tools/selfhost/lib/program_json_mir_bridge.sh` or dedicated compat probes.
 - `--emit-program-json-v0` remains delete-last while explicit keeper/probe
-  routes still exist (for example `tools/dev/program_json_v0/stageb_artifact_probe.sh`
+  routes still exist (for example `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`
   and `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`).
 
 ---

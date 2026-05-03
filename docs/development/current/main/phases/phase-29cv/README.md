@@ -197,9 +197,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 ## Compat Capsule Buckets
 
 1. Explicit Stage-B artifact diagnostic probe
-   - `tools/dev/program_json_v0/stageb_artifact_probe.sh`
+   - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`
    - `tools/lib/program_json_v0_compat.sh`
-   - Kept for deliberate Program(JSON v0) artifact capture only.
+   - The manual artifact probe is archived. The shared raw emit helper remains
+     live while Stage1/fixture keepers source it.
      `selfhost_build.sh` must not own or source this route.
 2. Program(JSON)->MIR bridge capsule
    - `tools/selfhost/lib/stageb_program_json_capture.sh`
@@ -273,8 +274,8 @@ mainline artifact family.
 - Do not reintroduce mixed `--mir` + Stage-B artifact output. Use direct MIR or
   artifact diagnostics.
 - Do not reintroduce `selfhost_build.sh --keep-tmp` or
-  `NYASH_SELFHOST_KEEP_RAW=1` as facade artifact routes. Use
-  `tools/dev/program_json_v0/stageb_artifact_probe.sh` for explicit diagnostics.
+  `NYASH_SELFHOST_KEEP_RAW=1` as facade artifact routes. The old explicit
+  artifact probe is archived under `tools/archive/legacy-selfhost/engineering/`.
 - Do not expand ny-llvmc pure-first acceptance shapes here.
 - Do not revive `--hako-emit-program-json` or other retired public aliases.
 - Do not treat fixture-only Program(JSON) producers as day-to-day bootstrap

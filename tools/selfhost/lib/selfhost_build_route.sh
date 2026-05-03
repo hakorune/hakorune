@@ -15,13 +15,13 @@ exit_program_json_wrapper_retired() {
 exit_bare_stageb_route_retired() {
   echo "[selfhost] bare --in Program(JSON v0) output is retired" >&2
   echo "           use --mir <file>, --exe <file>, or --run" >&2
-  echo "           use tools/dev/program_json_v0/stageb_artifact_probe.sh for Program(JSON v0) diagnostics" >&2
+  echo "           archived Program(JSON v0) artifact diagnostics live under tools/archive/legacy-selfhost/engineering/" >&2
   exit 2
 }
 
 exit_stageb_artifact_route_retired() {
   echo "[selfhost] Stage-B Program(JSON v0) artifact output is retired from selfhost_build.sh" >&2
-  echo "           use tools/dev/program_json_v0/stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]" >&2
+  echo "           archived probe: tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]" >&2
   exit 2
 }
 

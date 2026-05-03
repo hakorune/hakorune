@@ -1,7 +1,7 @@
 # Program(JSON v0) Dev Capsules
 
-This directory owns manual Stage-A/Stage-B Program(JSON v0) dev probes and
-diagnostic artifact capture.
+This directory owns manual Stage-A/Stage-B Program(JSON v0) dev probes that are
+still useful for local compatibility debugging.
 
 Rules:
 
@@ -13,9 +13,11 @@ Rules:
   paths outside these probes.
 - `tools/lib/program_json_v0_compat.sh` remains the shared raw emit spelling
   SSOT while Stage1 and fixture keepers still source it.
+- Stage-B artifact capture through `stageb_artifact_probe.sh` is archived under
+  `tools/archive/legacy-selfhost/engineering/` and must not be reintroduced as
+  an active dev entry without a new keeper card.
 
 Entries:
 
 - `tools/dev/program_json_v0/dev_stagea.sh`
 - `tools/dev/program_json_v0/dev_stageb.sh`
-- `tools/dev/program_json_v0/stageb_artifact_probe.sh`

@@ -20,5 +20,6 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `stageb_loopssa_debug.sh`
 - `stageb_loop_json_canary.sh`
 - `phase29ci_selfhost_build_exe_consumer_probe.sh`
+- `program_json_v0_stageb_artifact_probe.sh`
 
 Read this directory as the archived engineering helper bucket.

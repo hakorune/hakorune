@@ -6,7 +6,7 @@ Scope: record that the remaining Program(JSON v0) cleanup work is now blocked on
 Related:
   - docs/development/current/main/phases/phase-29cv/README.md
   - docs/development/current/main/phases/phase-29cv/P24-KEEPER-DELETE-LAST-ORDER.md
-  - tools/dev/program_json_v0/stageb_artifact_probe.sh
+  - tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh
   - tools/lib/program_json_v0_compat.sh
   - tools/selfhost/lib/program_json_mir_bridge.sh
   - tools/selfhost/lib/stage1_contract.sh
@@ -35,8 +35,10 @@ explicit keepers in the right order.
 ## Active Blockers
 
 1. Explicit Stage-B artifact diagnostic keeper
-   - `tools/dev/program_json_v0/stageb_artifact_probe.sh`
+   - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`
    - `tools/lib/program_json_v0_compat.sh`
+   - live debt is now the shared raw emit helper, not the manual artifact
+     probe entry
 2. Explicit Program(JSON)->MIR bridge keepers
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh`

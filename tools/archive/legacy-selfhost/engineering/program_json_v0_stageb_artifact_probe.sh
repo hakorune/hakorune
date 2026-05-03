@@ -8,10 +8,11 @@ OUT=""
 
 usage() {
   cat >&2 <<'USAGE'
-Usage: tools/dev/program_json_v0/stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]
+Usage: tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]
 
-Explicit Program(JSON v0) diagnostic probe. This replaces
-selfhost_build.sh --keep-tmp / NYASH_SELFHOST_KEEP_RAW=1.
+Archived explicit Program(JSON v0) diagnostic probe. This used to replace
+selfhost_build.sh --keep-tmp / NYASH_SELFHOST_KEEP_RAW=1 while the active
+Stage-B artifact capsule was still live.
 USAGE
 }
 

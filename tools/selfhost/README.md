@@ -65,7 +65,7 @@ Script
   - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); this bypasses Stage-B Program(JSON v0) production and can be combined with `--run` or `--exe`
   - --exe <out>: build native executable via the direct source MIR -> ny-llvmc mainline route
   - --run: run via direct source MIR(JSON) -> `--mir-json-file`. Exit code mirrors program return.
-  - --keep-tmp: retired facade route; use `tools/dev/program_json_v0/stageb_artifact_probe.sh --in <source.hako> [--out <program.json>]`.
+  - --keep-tmp: retired facade route; the old Program(JSON v0) artifact probe is archived at `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`.
   - `NYASH_SELFHOST_KEEP_RAW=1`: retired facade route; use the same explicit dev probe.
   - diagnostic Program(JSON)->MIR probes use `program_json_mir_bridge_emit()` directly; `selfhost_build.sh --exe` no longer produces or consumes Stage-B Program(JSON v0).
   - `--keep-tmp` and `NYASH_SELFHOST_KEEP_RAW=1` now fail fast in all `selfhost_build.sh` routes.
@@ -133,7 +133,7 @@ Script
 Examples
 ```bash
 # Explicit Stage-B Program(JSON v0) artifact capture
-bash tools/dev/program_json_v0/stageb_artifact_probe.sh --in apps/tests/phase122_if_only_normalized_emit_min.hako --out /tmp/phase122.program.json
+bash tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh --in apps/tests/phase122_if_only_normalized_emit_min.hako --out /tmp/phase122.program.json
 
 # Explicit Program(JSON)->MIR bridge compat capsule
 HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate \
@@ -171,7 +171,7 @@ bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh
 - `phase-29x` cleanup bands are mirrored in `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`; the proof/example driver stays archive-later until the compat wrapper gains a root-first equivalent or is retired as a whole.
 
 Notes
-- `selfhost_build.sh` no longer owns Stage-B Program(JSON v0) artifact production; use `tools/dev/program_json_v0/stageb_artifact_probe.sh` for explicit diagnostics.
+- `selfhost_build.sh` no longer owns Stage-B Program(JSON v0) artifact production; the old explicit diagnostic probe is archived under `tools/archive/legacy-selfhost/engineering/`.
 - `tools/selfhost_exe_stageb.sh` is route-selectable:
   - default / `HAKORUNE_STAGE1_EMIT_ROUTE=direct` is the MIR-first route.
   - explicit `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a Program(JSON v0)
@@ -246,7 +246,7 @@ Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
 - `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
-- `selfhost_build.sh` is direct source->MIR(JSON) for `--mir`, `--run`, and `--exe`. Stage-B Program(JSON v0) artifact diagnostics live in `tools/dev/program_json_v0/stageb_artifact_probe.sh`.
+- `selfhost_build.sh` is direct source->MIR(JSON) for `--mir`, `--run`, and `--exe`. The old Stage-B Program(JSON v0) artifact diagnostic probe is archived under `tools/archive/legacy-selfhost/engineering/`.
 - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.
