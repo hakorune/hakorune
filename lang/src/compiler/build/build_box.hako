@@ -3,8 +3,6 @@
 using lang.compiler.parser.parser_box as ParserBox
 using lang.compiler.entry.body_extraction_box as BodyExtractionBox
 using selfhost.shared.common.string_helpers as StringHelpers
-using lang.compiler.build.build_bundle_input_box as BuildBundleInputBox
-using lang.compiler.build.build_bundle_resolver_box as BuildBundleResolverBox
 using lang.compiler.build.build_program_fragment_box as BuildProgramFragmentBox
 
 static box BuildBox {
@@ -15,13 +13,9 @@ static box BuildBox {
     // - scan_src keeps the full source for bundle/defs/imports observers
     // - parse_src narrows to Main.main body when available, and only then falls back
     //   to full-source parse for non-box / non-main inputs
-    if opts == null && me._bundle_env_requested() != 1 {
-      return me._emit_program_json_from_scan_src(src)
-    }
-    local prepared = me._prepare_scan_src(src, opts)
-    if prepared.has("error") == true { return "" + prepared.get("error") }
-    local scan_src = prepared.get("scan_src")
-    return me._emit_program_json_from_scan_src(scan_src)
+    if opts != null { return "[build/opts/source-only] use BuildBundleFacadeBox" }
+    if me._bundle_env_requested() == 1 { return "[build/bundle/source-only] use BuildBundleFacadeBox" }
+    return me._emit_program_json_from_scan_src(src)
   }
 
   method _bundle_env_requested() {
@@ -33,50 +27,6 @@ static box BuildBox {
     if requires == null || requires == "" { requires = env.get("NYASH_REQUIRE_MODS") }
     if requires != null && requires != "" { return 1 }
     return 0
-  }
-
-  method _prepare_scan_src(src, opts) {
-    local result = me._new_prepare_scan_src_result(src)
-    // Optional: env-driven alias/require bundling (lightweight)
-    // HAKO_BUNDLE_ALIAS_TABLE='Name:code|||Name2:code2', HAKO_REQUIRE_MODS='U1,U2'
-    // BuildBundleInputBox collects bundle inputs; BuildBundleResolverBox owns
-    // validation and merged-prefix materialization.
-    local bundle_ctx = BuildBundleInputBox.collect(opts)
-    if bundle_ctx.has("error") == true {
-      return me._fail_prepare_scan_src(result, bundle_ctx.get("error"))
-    }
-    return me._resolve_prepare_scan_src_if_needed(result, src, bundle_ctx)
-  }
-
-  method _new_prepare_scan_src_result(src) {
-    local result = new MapBox()
-    result.set("scan_src", src)
-    return result
-  }
-
-  method _fail_prepare_scan_src(result, error_tag) {
-    result.set("error", error_tag)
-    return result
-  }
-
-  method _apply_prepare_scan_src_result(result, scan_src) {
-    result.set("scan_src", scan_src)
-    return result
-  }
-
-  method _resolve_prepare_scan_src_if_needed(result, src, bundle_ctx) {
-    if BuildBundleInputBox.requested(bundle_ctx) != 1 { return result }
-    local scan_src = me._resolve_scan_src_from_bundle_ctx(src, bundle_ctx)
-    if scan_src == null {
-      return me._fail_prepare_scan_src(result, "[build/resolve/failed]")
-    }
-    return me._apply_prepare_scan_src_result(result, scan_src)
-  }
-
-  method _resolve_scan_src_from_bundle_ctx(src, bundle_ctx) {
-    local merged = BuildBundleResolverBox.resolve(bundle_ctx.get("bundles"), bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), bundle_ctx.get("require_mods"))
-    if merged == null { return null }
-    return merged + src
   }
 
   method _parse_program_json(parse_src) {

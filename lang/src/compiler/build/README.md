@@ -12,9 +12,12 @@ Purpose
 
 Interface (proposal)
 - static box BuildBox {
-  - method emit_program_json_v0(src, opts) -> String
+  - method emit_program_json_v0(src, null) -> String
   - method verify_program_json_v0(json) -> Bool
   - method plan() -> String  // returns a short description of enabled stages
+}
+- static box BuildBundleFacadeBox {
+  - method emit_program_json_v0(src, opts) -> String
 }
 
 Error policy
@@ -24,9 +27,14 @@ Error policy
 Notes
 - Keep the box thin and stable. Heavy lifting (resolver/bridge/ny-llvmc) stays behind
   dedicated boxes to preserve a clean boundary and testability.
-- Live Stage-B entry uses BuildBox as the source-to-Program(JSON v0)
-  authority. `lang/src/compiler/entry/bundle_resolver.hako` is a legacy compat
-  and JoinIR fixture surface, not the live BuildBox dependency.
+- `BuildBox` is the source-only source-to-Program(JSON v0) authority. It does
+  not import bundle collector/resolver boxes, and it fail-fast rejects non-null
+  opts or bundle env inputs instead of silently ignoring them.
+- Live Stage-B bundle entry uses `BuildBundleFacadeBox` as a thin bundle-aware
+  adapter. The facade prepares merged scan source, then delegates to `BuildBox`
+  for Program(JSON v0) emission.
+- `lang/src/compiler/entry/bundle_resolver.hako` is a legacy compat and JoinIR
+  fixture surface, not the live BuildBox dependency.
 - `BuildBundleResolverBox` owns live bundle duplicate/require validation and
   merged-prefix materialization for BuildBox.
 - `BuildBundleInputBox` owns live bundle opts/env input collection, alias-table
@@ -39,9 +47,9 @@ Notes
   - `scan_src`: full merged source, observed by `BuildProgramFragmentBox`
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
   - owner-local helper split:
-    - `_prepare_scan_src(...)`: bundle input collector plus resolver handoff
-    - `_new_prepare_scan_src_result(...)` / `_fail_prepare_scan_src(...)` / `_apply_prepare_scan_src_result(...)` / `_resolve_prepare_scan_src_if_needed(...)`: prepared-scan-src result/error/resolve handoff only
-    - `_resolve_scan_src_from_bundle_ctx(...)`: `BuildBundleResolverBox` call only
+    - `BuildBundleFacadeBox._prepare_scan_src(...)`: bundle input collector plus resolver handoff only
+    - `BuildBundleFacadeBox._new_prepare_scan_src_result(...)` / `BuildBundleFacadeBox._fail_prepare_scan_src(...)` / `BuildBundleFacadeBox._apply_prepare_scan_src_result(...)` / `BuildBundleFacadeBox._resolve_prepare_scan_src_if_needed(...)`: prepared-scan-src result/error/resolve handoff only
+    - `BuildBundleFacadeBox._resolve_scan_src_from_bundle_ctx(...)`: `BuildBundleResolverBox` call only
     - `_parse_program_json(...)`: parser entry only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
     - `_parse_program_json_from_scan_src(...)`: parse-source narrowing handoff plus parser call only
