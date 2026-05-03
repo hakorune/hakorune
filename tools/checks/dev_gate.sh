@@ -43,6 +43,7 @@ list_profiles() {
     - tools/checks/phase216217_normalization_canary_surface_guard.sh
     - tools/checks/legacy_dev_utility_surface_guard.sh
     - tools/checks/lang_include_surface_guard.sh
+    - tools/checks/tools_dev_surface_inventory_guard.sh
     - tools/checks/inc_codegen_thin_shim_guard.sh
     - tools/checks/generic_method_set_policy_mirror_guard.sh
     - tools/checks/core_method_contract_manifest_guard.sh
@@ -231,6 +232,9 @@ run_quick() {
 
   run_step "lang include surface guard" \
     bash tools/checks/lang_include_surface_guard.sh
+
+  run_step "tools/dev surface inventory guard" \
+    bash tools/checks/tools_dev_surface_inventory_guard.sh
 
   run_step ".inc codegen thin-shim guard" \
     bash tools/checks/inc_codegen_thin_shim_guard.sh

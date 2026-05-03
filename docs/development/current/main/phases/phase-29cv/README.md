@@ -107,6 +107,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P362A archives the unused `tools/dev/enable_mirbuilder_dev_env.sh` shell
   helper. The active MirBuilder dev profile owner remains the
   `enable_mirbuilder_dev_env()` function in `tools/smokes/v2/lib/test_runner.sh`.
+- P363A adds `tools/dev/README.md` and
+  `tools/checks/tools_dev_surface_inventory_guard.sh`, locking the remaining
+  active `tools/dev` surface so new helpers/probes cannot appear without
+  classification and a removal reading.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
