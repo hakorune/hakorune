@@ -116,11 +116,18 @@
         const char* source = entry ? read_str(entry, "source") : NULL;
         struct LoweringPlanGlobalCallView view;
         size_t argc = 0;
+        int is_void_logging = 0;
         char ab[2048];
         if (!entry) return 0;
         if (!(source && !strcmp(source, "global_call_routes"))) return 0;
         if (!read_lowering_plan_global_call_view(entry, &view)) return -1;
-        if (!view.has_result_value || !dst || view.result_value != dst) return -1;
+        is_void_logging =
+            lowering_plan_global_call_view_is_direct_generic_string_void_logging(&view);
+        if (is_void_logging && !dst && !view.has_result_value) {
+          /* no result register: consume the void-sentinel return directly */
+        } else if (!view.has_result_value || !dst || view.result_value != dst) {
+          return -1;
+        }
         if (!(args && yyjson_is_arr(args))) return -1;
         argc = yyjson_arr_size(args);
         if ((long long)argc != view.arity || argc > 64) return -1;
@@ -161,8 +168,12 @@
               (long long)yyjson_get_sint(arg),
               ai == 0);
         }
-        fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view.target_symbol, ab);
-        set_type(dst, T_I64);
+        if (dst) {
+          fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view.target_symbol, ab);
+          set_type(dst, T_I64);
+        } else {
+          fprintf(f, "  call i64 @\"%s\"(%s)\n", view.target_symbol, ab);
+        }
         if (lowering_plan_global_call_view_is_direct_generic_string(&view)) {
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
