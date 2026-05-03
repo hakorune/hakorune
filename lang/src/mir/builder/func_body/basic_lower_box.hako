@@ -10,7 +10,6 @@ using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
 using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
 using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
 using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
-using "hako.mir.builder.internal.if_mir_emit" as IfMirEmitBox
 using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
 using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
 using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompareFoldVarIntBox
@@ -172,34 +171,6 @@ static box FuncBodyBasicLowerBox {
     return -1
   }
 
-  method _inst_mir_call_method_box(box_name, method_name, recv_reg, arg_ids, dst) {
-    local callee = new MapBox()
-    callee.set("type", "Method")
-    callee.set("box_name", box_name)
-    callee.set("method", method_name)
-    callee.set("receiver", recv_reg)
-
-    local payload = new MapBox()
-    payload.set("callee", callee)
-    payload.set("args", arg_ids)
-    payload.set("effects", new ArrayBox())
-
-    local inst = new MapBox()
-    inst.set("op", "mir_call")
-    inst.set("dst", dst)
-    inst.set("mir_call", payload)
-    return inst
-  }
-
-  method _coerce_return_value_or_local(ret_info, local_info) {
-    if ret_info == null || local_info == null { return null }
-    if ret_info.get("kind") == "int" { return ret_info.get("value") }
-    if ret_info.get("kind") == "var" && ret_info.get("name") == local_info.get("name") {
-      return local_info.get("value")
-    }
-    return null
-  }
-
   method _find_matching_bracket(text, start_idx) {
     local s = "" + text
     local n = s.length()
@@ -273,31 +244,55 @@ static box FuncBodyBasicLowerBox {
   }
 
   method _try_lower_local_if_return(func_name, box_name, params_arr, body_json) {
-    local local_info = me._extract_first_local(body_json)
-    if local_info == null { return null }
+    local local_name = me._extract_first_local_name(body_json)
+    if local_name == null { return null }
+    local local_val = me._extract_first_local_value(body_json)
+    if local_val == null { return null }
+
     local if_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"If\"", 0)
     if if_idx < 0 { return null }
-    local cond = me._extract_compare(body_json, if_idx)
-    if cond == null { return null }
-    if cond.get("lhs_kind") != "var" || cond.get("lhs_name") != local_info.get("name") { return null }
-    if cond.get("rhs_kind") != "int" { return null }
 
-    local then_ret = me._extract_then_return(body_json, if_idx)
-    if then_ret == null { return null }
+    local cond_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Compare\"", if_idx)
+    if cond_idx < 0 { return null }
+    local op = me._extract_compare_op(body_json, cond_idx)
+    if op == null { return null }
 
-    local tail_ret = me._extract_tail_return(body_json, if_idx)
-    if tail_ret == null { return null }
+    local lhs_kind = me._extract_operand_kind(body_json, "\"lhs\":{", cond_idx)
+    if lhs_kind != "var" { return null }
+    local lhs_name = me._extract_operand_name(body_json, "\"lhs\":{", cond_idx)
+    if lhs_name == null || lhs_name != local_name { return null }
 
-    return me._emit_local_if(func_name, box_name, params_arr, local_info, cond, then_ret, tail_ret)
+    local rhs_kind = me._extract_operand_kind(body_json, "\"rhs\":{", cond_idx)
+    if rhs_kind != "int" { return null }
+    local rhs_val = me._extract_operand_value(body_json, "\"rhs\":{", cond_idx)
+    if rhs_val == null { return null }
+
+    local then_ret_idx = me._find_then_return_idx(body_json, if_idx)
+    if then_ret_idx < 0 { return null }
+    local then_value = me._coerce_return_expr_value(body_json, then_ret_idx, local_name, local_val)
+    if then_value == null { return null }
+
+    local tail_ret_idx = me._find_tail_return_idx(body_json, if_idx)
+    if tail_ret_idx < 0 { return null }
+    local else_value = me._coerce_return_expr_value(body_json, tail_ret_idx, local_name, local_val)
+    if else_value == null { return null }
+
+    return me._emit_local_if(func_name, box_name, params_arr, local_val, rhs_val, op, then_value, else_value)
   }
 
-  method _extract_first_local(body_json) {
+  method _extract_first_local_name(body_json) {
     local idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Local\"", 0)
     if idx < 0 { return null }
     local name_idx = JsonFragBox.index_of_from(body_json, "\"name\":", idx)
     if name_idx < 0 { return null }
     local name = JsonFragBox.read_string_after(body_json, name_idx + 7)
     if name == null || name == "" { return null }
+    return name
+  }
+
+  method _extract_first_local_value(body_json) {
+    local idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Local\"", 0)
+    if idx < 0 { return null }
     local expr_idx = JsonFragBox.index_of_from(body_json, "\"expr\":{", idx)
     if expr_idx < 0 { return null }
     local type_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Int\"", expr_idx)
@@ -306,82 +301,67 @@ static box FuncBodyBasicLowerBox {
     if val_idx < 0 { return null }
     local val = JsonFragBox.read_int_after(body_json, val_idx + 8)
     if val == null { return null }
-    local info = new MapBox()
-    info.set("name", name)
-    info.set("value", JsonFragBox._str_to_int("" + val))
-    return info
+    return "" + val
   }
 
-  method _extract_compare(body_json, if_idx) {
-    local cond_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Compare\"", if_idx)
-    if cond_idx < 0 { return null }
+  method _extract_compare_op(body_json, cond_idx) {
     local op_idx = JsonFragBox.index_of_from(body_json, "\"op\":", cond_idx)
     if op_idx < 0 { return null }
     local op = JsonFragBox.read_string_after(body_json, op_idx + 5)
     if op == null { return null }
     if !(op == "<" || op == ">" || op == "<=" || op == ">=" || op == "==" || op == "!=") { return null }
-    local lhs_info = me._extract_operand(body_json, "\"lhs\":{", cond_idx)
-    local rhs_info = me._extract_operand(body_json, "\"rhs\":{", cond_idx)
-    if lhs_info == null || rhs_info == null { return null }
-    local info = new MapBox()
-    info.set("op", op)
-    info.set("lhs_kind", lhs_info.get("kind"))
-    info.set("lhs_name", lhs_info.get("name"))
-    info.set("lhs_value", lhs_info.get("value"))
-    info.set("rhs_kind", rhs_info.get("kind"))
-    info.set("rhs_name", rhs_info.get("name"))
-    info.set("rhs_value", rhs_info.get("value"))
-    return info
+    return op
   }
 
-  method _extract_operand(body_json, key, cond_idx) {
+  method _extract_operand_kind(body_json, key, cond_idx) {
     local idx = JsonFragBox.index_of_from(body_json, key, cond_idx)
     if idx < 0 { return null }
-    local kind = null
-    local name = null
-    local value = null
     local type_var = JsonFragBox.index_of_from(body_json, "\"type\":\"Var\"", idx)
     local type_int = JsonFragBox.index_of_from(body_json, "\"type\":\"Int\"", idx)
-    if type_var >= 0 && (type_int < 0 || type_var < type_int) {
-      kind = "var"
-      local name_idx = JsonFragBox.index_of_from(body_json, "\"name\":", type_var)
-      if name_idx < 0 { return null }
-      name = JsonFragBox.read_string_after(body_json, name_idx + 7)
-      if name == null { return null }
-    } else if type_int >= 0 {
-      kind = "int"
-      local val_idx = JsonFragBox.index_of_from(body_json, "\"value\":", type_int)
-      if val_idx < 0 { return null }
-      value = JsonFragBox.read_int_after(body_json, val_idx + 8)
-      if value == null { return null }
-      value = JsonFragBox._str_to_int("" + value)
-    } else {
-      return null
-    }
-    local info = new MapBox()
-    info.set("kind", kind)
-    info.set("name", name)
-    info.set("value", value)
-    return info
+    if type_var >= 0 && (type_int < 0 || type_var < type_int) { return "var" }
+    if type_int >= 0 { return "int" }
+    return null
   }
 
-  method _extract_then_return(body_json, if_idx) {
+  method _extract_operand_name(body_json, key, cond_idx) {
+    local idx = JsonFragBox.index_of_from(body_json, key, cond_idx)
+    if idx < 0 { return null }
+    local type_var = JsonFragBox.index_of_from(body_json, "\"type\":\"Var\"", idx)
+    if type_var < 0 { return null }
+    local name_idx = JsonFragBox.index_of_from(body_json, "\"name\":", type_var)
+    if name_idx < 0 { return null }
+    return JsonFragBox.read_string_after(body_json, name_idx + 7)
+  }
+
+  method _extract_operand_value(body_json, key, cond_idx) {
+    local idx = JsonFragBox.index_of_from(body_json, key, cond_idx)
+    if idx < 0 { return null }
+    local type_int = JsonFragBox.index_of_from(body_json, "\"type\":\"Int\"", idx)
+    if type_int < 0 { return null }
+    local val_idx = JsonFragBox.index_of_from(body_json, "\"value\":", type_int)
+    if val_idx < 0 { return null }
+    local value = JsonFragBox.read_int_after(body_json, val_idx + 8)
+    if value == null { return null }
+    return "" + value
+  }
+
+  method _find_then_return_idx(body_json, if_idx) {
     local then_idx = JsonFragBox.index_of_from(body_json, "\"then\":", if_idx)
-    if then_idx < 0 { return null }
+    if then_idx < 0 { return -1 }
     local ret_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Return\"", then_idx)
-    if ret_idx < 0 { return null }
-    return me._extract_return_expr(body_json, ret_idx)
+    if ret_idx < 0 { return -1 }
+    return ret_idx
   }
 
-  method _extract_tail_return(body_json, if_idx) {
+  method _find_tail_return_idx(body_json, if_idx) {
     local ret_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Return\"", if_idx + 1)
-    if ret_idx < 0 { return null }
+    if ret_idx < 0 { return -1 }
     local ret_next = JsonFragBox.index_of_from(body_json, "\"type\":\"Return\"", ret_idx + 1)
     if ret_next >= 0 { ret_idx = ret_next }
-    return me._extract_return_expr(body_json, ret_idx)
+    return ret_idx
   }
 
-  method _extract_return_expr(body_json, ret_idx) {
+  method _coerce_return_expr_value(body_json, ret_idx, local_name, local_val) {
     local var_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Var\"", ret_idx)
     local int_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Int\"", ret_idx)
     if var_idx >= 0 && (int_idx < 0 || var_idx < int_idx) {
@@ -389,35 +369,41 @@ static box FuncBodyBasicLowerBox {
       if name_idx < 0 { return null }
       local name = JsonFragBox.read_string_after(body_json, name_idx + 7)
       if name == null { return null }
-      local info = new MapBox()
-      info.set("kind", "var")
-      info.set("name", name)
-      return info
+      if name == local_name { return local_val }
+      return null
     }
     if int_idx >= 0 {
       local val_idx = JsonFragBox.index_of_from(body_json, "\"value\":", int_idx)
       if val_idx < 0 { return null }
       local val = JsonFragBox.read_int_after(body_json, val_idx + 8)
       if val == null { return null }
-      local info = new MapBox()
-      info.set("kind", "int")
-      info.set("value", JsonFragBox._str_to_int("" + val))
-      return info
+      return "" + val
     }
     return null
   }
 
-  method _emit_local_if(func_name, box_name, params_arr, local_info, cond, then_ret, tail_ret) {
-    local local_val = local_info.get("value")
-    local rhs_val = cond.get("rhs_value")
-    local op = "" + cond.get("op")
-    local then_value = me._coerce_return_value_or_local(then_ret, local_info)
-    if then_value == null { return null }
-    local else_value = me._coerce_return_value_or_local(tail_ret, local_info)
-    if else_value == null { return null }
-
-    local mir = IfMirEmitBox.emit_compare_ret2(local_val, rhs_val, op, then_value, else_value)
-    return me._rebind(mir, func_name, box_name, params_arr, "[funcs/basic:local_if]")
+  method _emit_local_if(func_name, box_name, params_arr, local_val, rhs_val, op, then_value, else_value) {
+    local target_name = me._build_func_name(box_name, func_name, params_arr)
+    if target_name == null { return null }
+    local params_json = me._build_params_json(params_arr)
+    return (
+      "{\\\"name\\\":\\\"" + target_name + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[" +
+        "{\\\"id\\\":0,\\\"instructions\\\":[" +
+          "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + local_val + "}}," +
+          "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":2,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + rhs_val + "}}," +
+          "{\\\"op\\\":\\\"compare\\\",\\\"operation\\\":\\\"" + op + "\\\",\\\"lhs\\\":1,\\\"rhs\\\":2,\\\"dst\\\":3}," +
+          "{\\\"op\\\":\\\"branch\\\",\\\"cond\\\":3,\\\"then\\\":1,\\\"else\\\":2}" +
+        "]}," +
+        "{\\\"id\\\":1,\\\"instructions\\\":[" +
+          "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":4,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + then_value + "}}," +
+          "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":4}" +
+        "]}," +
+        "{\\\"id\\\":2,\\\"instructions\\\":[" +
+          "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":5,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + else_value + "}}," +
+          "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":5}" +
+        "]}" +
+      "]}"
+    )
   }
 
   // Simple Return(Method recv.method(args)) lowering for param-based receivers

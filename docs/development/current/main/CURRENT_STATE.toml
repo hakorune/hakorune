@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P263A-BASIC-RETURN-METHOD-TRACE-SIDE-EFFECT-REMOVAL"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P263A-BASIC-RETURN-METHOD-TRACE-SIDE-EFFECT-REMOVAL.md"
-latest_card_summary = "Remove Return(Method) diagnostic print side effects from FuncBodyBasicLowerBox without widening Stage0 classifiers."
+latest_card = "P264A-BASIC-LOCAL-IF-TEXT-SCALAR-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P264A-BASIC-LOCAL-IF-TEXT-SCALAR-CONTRACT.md"
+latest_card_summary = "Remove local-if MapBox fact shuttles from FuncBodyBasicLowerBox and emit direct MIR text."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
