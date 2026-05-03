@@ -208,6 +208,12 @@
         return proof && !strcmp(proof, "typed_global_call_static_string_array");
       }
 
+      auto int lowering_plan_entry_is_typed_global_call_builder_registry_dispatch(
+          yyjson_val* entry) {
+        const char* proof = read_str(entry, "proof");
+        return proof && !strcmp(proof, "typed_global_call_builder_registry_dispatch");
+      }
+
       auto int lowering_plan_entry_is_typed_global_call_mir_schema_map_constructor(
           yyjson_val* entry) {
         const char* proof = read_str(entry, "proof");
@@ -238,6 +244,7 @@
                lowering_plan_entry_is_typed_global_call_program_json_emit(entry) ||
                lowering_plan_entry_is_typed_global_call_jsonfrag_instruction_array_normalizer(entry) ||
                lowering_plan_entry_is_typed_global_call_static_string_array(entry) ||
+               lowering_plan_entry_is_typed_global_call_builder_registry_dispatch(entry) ||
                lowering_plan_entry_is_typed_global_call_mir_schema_map_constructor(entry) ||
                lowering_plan_entry_is_typed_global_call_box_type_inspector_describe(entry) ||
                lowering_plan_entry_is_typed_global_call_pattern_util_local_value_probe(entry);
