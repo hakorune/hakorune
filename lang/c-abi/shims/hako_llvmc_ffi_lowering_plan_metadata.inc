@@ -143,6 +143,24 @@
         return proof && !strcmp(proof, "core_method_contract_manifest");
       }
 
+      auto int lowering_plan_entry_is_mir_json_flags_keys(yyjson_val* entry) {
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        const char* route_id = entry ? read_str(entry, "source_route_id") : NULL;
+        const char* proof = entry ? read_str(entry, "proof") : NULL;
+        const char* route_proof = entry ? read_str(entry, "route_proof") : NULL;
+        const char* route_kind = entry ? read_str(entry, "route_kind") : NULL;
+        return source &&
+               !strcmp(source, "generic_method_routes") &&
+               route_id &&
+               !strcmp(route_id, "generic_method.keys") &&
+               proof &&
+               !strcmp(proof, "mir_json_flags_keys") &&
+               route_proof &&
+               !strcmp(route_proof, "mir_json_flags_keys") &&
+               route_kind &&
+               !strcmp(route_kind, "map_keys_array");
+      }
+
       auto int lowering_plan_entry_is_extern_registry(yyjson_val* entry) {
         const char* proof = read_str(entry, "proof");
         return proof && !strcmp(proof, "extern_registry");
@@ -260,7 +278,8 @@
         if (out) memset(out, 0, sizeof(*out));
         if (!(source && !strcmp(source, "generic_method_routes")) ||
             invalid ||
-            !lowering_plan_entry_is_contract_manifest(entry)) {
+            !(lowering_plan_entry_is_contract_manifest(entry) ||
+              lowering_plan_entry_is_mir_json_flags_keys(entry))) {
           return 0;
         }
         if (out) {

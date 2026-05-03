@@ -10,10 +10,24 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
         .generic_method_routes
         .iter()
         .filter_map(|route| {
-            let carrier = route.core_method()?;
-            let (tier, emit_kind) = match carrier.lowering_tier {
-                CoreMethodLoweringTier::WarmDirectAbi => ("DirectAbi", "direct_abi_call"),
-                CoreMethodLoweringTier::ColdFallback => ("ColdRuntime", "runtime_call"),
+            let (tier, emit_kind, core_op, proof) = if let Some(carrier) = route.core_method() {
+                let (tier, emit_kind) = match carrier.lowering_tier {
+                    CoreMethodLoweringTier::WarmDirectAbi => ("DirectAbi", "direct_abi_call"),
+                    CoreMethodLoweringTier::ColdFallback => ("ColdRuntime", "runtime_call"),
+                };
+                (tier, emit_kind, carrier.op.to_string(), carrier.proof.to_string())
+            } else if route.route_id() == "generic_method.keys"
+                && route.route_kind_tag() == "map_keys_array"
+                && route.proof_tag() == "mir_json_flags_keys"
+            {
+                (
+                    "DirectAbi",
+                    "direct_abi_call",
+                    "MapKeys".to_string(),
+                    route.proof_tag().to_string(),
+                )
+            } else {
+                return None;
             };
             Some(json!({
                 "site": format!("b{}.i{}", route.block().as_u32(), route.instruction_index()),
@@ -21,11 +35,11 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
                 "instruction_index": route.instruction_index(),
                 "source": "generic_method_routes",
                 "source_route_id": route.route_id(),
-                "core_op": carrier.op.to_string(),
+                "core_op": core_op,
                 "tier": tier,
                 "emit_kind": emit_kind,
                 "symbol": route.helper_symbol(),
-                "proof": carrier.proof.to_string(),
+                "proof": proof,
                 "route_proof": route.proof_tag(),
                 "route_kind": route.route_kind_tag(),
                 "perf_proof": false,

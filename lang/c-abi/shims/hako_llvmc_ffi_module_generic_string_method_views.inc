@@ -139,6 +139,29 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
 
+      auto int module_generic_string_method_view_is_direct_mir_json_flags_keys(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "generic_method.keys") &&
+               view->core_op &&
+               !strcmp(view->core_op, "MapKeys") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "map_keys_array") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.map.keys_h") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "mir_json_flags_keys") &&
+               !view->receiver_origin_box &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
+               view->publication_policy &&
+               !strcmp(view->publication_policy, "no_publication") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }
+
       auto int module_generic_string_method_view_is_direct_map_get(
           const struct LoweringPlanGenericMethodView* view) {
         return view &&

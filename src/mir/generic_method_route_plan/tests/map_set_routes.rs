@@ -1229,6 +1229,49 @@ fn proves_mir_json_flags_keys_runtime_data_keys() {
 }
 
 #[test]
+fn proves_mir_json_flags_keys_length_routes_as_array_len() {
+    let mut function = make_function();
+    function.signature.name = "MirJsonEmitBox._emit_flags/1".to_string();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(3), "RuntimeDataBox", "keys", 1, vec![]));
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(4),
+        src: ValueId::new(3),
+    });
+    block.add_instruction(method_call(
+        Some(5),
+        "RuntimeDataBox",
+        "length",
+        4,
+        vec![],
+    ));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 2);
+    let keys_route = &function.metadata.generic_method_routes[0];
+    assert_eq!(keys_route.route_id(), "generic_method.keys");
+    assert_eq!(keys_route.route_kind(), GenericMethodRouteKind::MapKeysArray);
+    assert_eq!(keys_route.proof(), GenericMethodRouteProof::MirJsonFlagsKeys);
+
+    let len_route = &function.metadata.generic_method_routes[1];
+    assert_eq!(len_route.route_id(), "generic_method.len");
+    assert_eq!(len_route.route_kind(), GenericMethodRouteKind::ArraySlotLen);
+    assert_eq!(len_route.receiver_origin_box(), Some("ArrayBox"));
+    let core_method = len_route
+        .core_method()
+        .expect("flags keys length ArrayLen carrier");
+    assert_eq!(core_method.op, CoreMethodOp::ArrayLen);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
+}
+
+#[test]
 fn proves_mir_json_inst_field_runtime_data_get() {
     let mut function = make_function();
     function.signature.name = "MirJsonEmitBox._emit_inst/1".to_string();

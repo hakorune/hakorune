@@ -2021,6 +2021,23 @@ fn generic_array_flow_origin_box_name(function: &MirFunction, receiver: ValueId)
                     }
                     MirInstruction::Call {
                         dst: Some(dst),
+                        callee:
+                            Some(Callee::Method {
+                                box_name, method, ..
+                            }),
+                        args,
+                        ..
+                    } if function.signature.name == "MirJsonEmitBox._emit_flags/1"
+                        && box_name == "RuntimeDataBox"
+                        && method == "keys"
+                        && args.is_empty() =>
+                    {
+                        if array_values.insert(*dst, "ArrayBox") != Some("ArrayBox") {
+                            changed = true;
+                        }
+                    }
+                    MirInstruction::Call {
+                        dst: Some(dst),
                         callee: Some(Callee::Global(_)),
                         ..
                     } => {

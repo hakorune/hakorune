@@ -332,6 +332,11 @@
                          module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_mir_json_flags_keys(&method_view)) {
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_ARRAY_BIRTH);
+                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_map_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
@@ -962,6 +967,35 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_method_keys_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        char ab[256];
+        (void)f;
+        ab[0] = '\0';
+        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
+              module_generic_string_method_view_is_direct_mir_json_flags_keys(&method_view))) {
+          return 0;
+        }
+        if (args && yyjson_is_arr(args) && yyjson_arr_size(args) != 0) return 0;
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"nyash.map.keys_h\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_ARRAY_BIRTH);
+          set_scan_origin(dst, ORG_ARRAY_BIRTH);
+        } else {
+          EMIT("  call i64 @\"nyash.map.keys_h\"(%s)\n", ab);
+        }
+        return 1;
+      }
+
       auto int module_generic_string_emit_method_set_mir_call(
           FILE* f,
           long long bid,
@@ -1193,6 +1227,15 @@
           }
           if (rc != 1) {
             rc = module_generic_string_emit_method_get_mir_call(
+                f,
+                bid,
+                ii,
+                dst,
+                recv,
+                args);
+          }
+          if (rc != 1) {
+            rc = module_generic_string_emit_method_keys_mir_call(
                 f,
                 bid,
                 ii,

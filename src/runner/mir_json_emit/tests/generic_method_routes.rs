@@ -16,6 +16,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         generic_route_fixture::map_get_unknown_key(14, 10, 32, 33, 34),
         generic_route_fixture::array_get_i64_key(15, 11, 35, 36, 37),
         generic_route_fixture::mir_json_numeric_value_field_get(16, 12, 38, 39, 40),
+        generic_route_fixture::mir_json_flags_keys(17, 13, 41, 42),
     ]);
     let mut module = crate::mir::MirModule::new("json_generic_method_routes_test".to_string());
     module.add_function(function);
@@ -51,7 +52,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     let lowering_plan = root["functions"][0]["metadata"]["lowering_plan"]
         .as_array()
         .expect("lowering_plan");
-    assert_eq!(lowering_plan.len(), 10);
+    assert_eq!(lowering_plan.len(), 11);
     let get_plan = &lowering_plan[1];
     assert_eq!(get_plan["site"], "b8.i4");
     assert_eq!(get_plan["block"], 8);
@@ -359,4 +360,39 @@ fn build_mir_json_root_emits_generic_method_routes() {
         "scalar_i64_or_missing_zero"
     );
     assert_eq!(mir_schema_get_plan["value_demand"], "scalar_i64");
+
+    let flags_keys_route = &root["functions"][0]["metadata"]["generic_method_routes"][10];
+    assert_eq!(flags_keys_route["route_id"], "generic_method.keys");
+    assert_eq!(flags_keys_route["block"], 17);
+    assert_eq!(flags_keys_route["instruction_index"], 13);
+    assert_eq!(flags_keys_route["box_name"], "RuntimeDataBox");
+    assert_eq!(flags_keys_route["method"], "keys");
+    assert_eq!(flags_keys_route["receiver_origin_box"], serde_json::Value::Null);
+    assert_eq!(flags_keys_route["route_kind"], "map_keys_array");
+    assert_eq!(flags_keys_route["helper_symbol"], "nyash.map.keys_h");
+    assert_eq!(flags_keys_route["proof"], "mir_json_flags_keys");
+    assert_eq!(flags_keys_route["core_method"], serde_json::Value::Null);
+    assert_eq!(
+        flags_keys_route["return_shape"],
+        "mixed_runtime_i64_or_handle"
+    );
+    assert_eq!(flags_keys_route["value_demand"], "runtime_i64_or_handle");
+    assert_eq!(flags_keys_route["publication_policy"], "no_publication");
+
+    let flags_keys_plan = &lowering_plan[10];
+    assert_eq!(flags_keys_plan["site"], "b17.i13");
+    assert_eq!(flags_keys_plan["source"], "generic_method_routes");
+    assert_eq!(
+        flags_keys_plan["source_route_id"],
+        "generic_method.keys"
+    );
+    assert_eq!(flags_keys_plan["core_op"], "MapKeys");
+    assert_eq!(flags_keys_plan["tier"], "DirectAbi");
+    assert_eq!(flags_keys_plan["emit_kind"], "direct_abi_call");
+    assert_eq!(flags_keys_plan["symbol"], "nyash.map.keys_h");
+    assert_eq!(flags_keys_plan["proof"], "mir_json_flags_keys");
+    assert_eq!(flags_keys_plan["route_proof"], "mir_json_flags_keys");
+    assert_eq!(flags_keys_plan["route_kind"], "map_keys_array");
+    assert_eq!(flags_keys_plan["return_shape"], "mixed_runtime_i64_or_handle");
+    assert_eq!(flags_keys_plan["value_demand"], "runtime_i64_or_handle");
 }

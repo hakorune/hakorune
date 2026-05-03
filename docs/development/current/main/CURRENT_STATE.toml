@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P303A-MIR-JSON-EFFECTS-ARRAY-GET-CONSUME"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P303A-MIR-JSON-EFFECTS-ARRAY-GET-CONSUME.md"
-latest_card_summary = "Consume exact MIR JSON effects array item get facts without widening generic ArrayBox.get."
+latest_card = "P304A-MIR-JSON-FLAGS-KEYS-LOWERING-PLAN-CONSUME"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P304A-MIR-JSON-FLAGS-KEYS-LOWERING-PLAN-CONSUME.md"
+latest_card_summary = "Materialize and consume exact MIR JSON flags keys facts through LoweringPlan without widening MapBox.keys."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

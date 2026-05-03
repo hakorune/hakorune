@@ -38,6 +38,23 @@ fn decision(
     )
 }
 
+fn decision_without_core(
+    route_kind: GenericMethodRouteKind,
+    proof: GenericMethodRouteProof,
+    return_shape: Option<GenericMethodReturnShape>,
+    value_demand: GenericMethodValueDemand,
+    publication_policy: Option<GenericMethodPublicationPolicy>,
+) -> GenericMethodRouteDecision {
+    GenericMethodRouteDecision::new(
+        route_kind,
+        proof,
+        None,
+        return_shape,
+        value_demand,
+        publication_policy,
+    )
+}
+
 struct FixtureSpec<'a> {
     block: u32,
     instruction_index: usize,
@@ -179,6 +196,27 @@ pub(crate) fn mir_json_numeric_value_field_get(
             CoreMethodLoweringTier::ColdFallback,
             Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
             GenericMethodValueDemand::ScalarI64,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    )
+}
+
+pub(crate) fn mir_json_flags_keys(
+    block: u32,
+    instruction_index: usize,
+    receiver: u32,
+    result: u32,
+) -> GenericMethodRoute {
+    GenericMethodRoute::new(
+        site(block, instruction_index),
+        GenericMethodRouteSurface::new("RuntimeDataBox", "keys", 0),
+        evidence(None, None),
+        operands(receiver, None, result),
+        decision_without_core(
+            GenericMethodRouteKind::MapKeysArray,
+            GenericMethodRouteProof::MirJsonFlagsKeys,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+            GenericMethodValueDemand::RuntimeI64OrHandle,
             Some(GenericMethodPublicationPolicy::NoPublication),
         ),
     )
