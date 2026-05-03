@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P380C-TO-I64-SIGN-GUARD-VOID-PHI-RETIRE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P380C-TO-I64-SIGN-GUARD-VOID-PHI-RETIRE.md"
-latest_card_summary = "Retire the StringHelpers.to_i64 sign-guard hidden void PHI from the source-owner numeric scanner."
+latest_card = "P380D-STAGE1-CLI-ENV-PURE-FIRST-EXE-CONFIRM"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P380D-STAGE1-CLI-ENV-PURE-FIRST-EXE-CONFIRM.md"
+latest_card_summary = "Record the clean rebuild confirmation that Stage1 CLI env pure-first EXE generation now succeeds after P380C."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
