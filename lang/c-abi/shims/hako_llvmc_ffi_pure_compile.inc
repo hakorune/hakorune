@@ -572,32 +572,44 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       struct Incoming { long long pred; long long val_reg; };
       struct PhiRec { long long dst; struct Incoming in[16]; int in_n; };
       struct BlockPhi { long long bid; struct PhiRec recs[24]; int rec_n; };
+      enum {
+        GENERIC_PURE_I64_CONST_CAP = 1024,
+        GENERIC_PURE_STRING_CONST_CAP = 1024,
+        GENERIC_PURE_KNOWN_STRING_LEN_CAP = 4096,
+        GENERIC_PURE_REG_MARKER_CAP = GENERIC_PURE_STRING_CONST_CAP,
+        GENERIC_PURE_TYPE_BINDING_CAP = 2048,
+        GENERIC_PURE_COPY_ALIAS_CAP = 2048,
+        GENERIC_PURE_ORIGIN_BINDING_CAP = 2048,
+        GENERIC_PURE_BLOCK_PHI_CAP = 512
+      };
       struct GenericPureFunctionLoweringState {
-        struct GenericPureI64Const consts[1024];
+        struct GenericPureI64Const consts[GENERIC_PURE_I64_CONST_CAP];
         size_t consts_n;
-        struct GenericPureStringConst str_consts[512];
+        struct GenericPureStringConst str_consts[GENERIC_PURE_STRING_CONST_CAP];
         size_t str_consts_n;
-        struct GenericPureKnownStringLen known_string_lens[2048];
+        struct GenericPureKnownStringLen known_string_lens[GENERIC_PURE_KNOWN_STRING_LEN_CAP];
         size_t known_string_lens_n;
-        char* owned_str_consts[512];
+        char* owned_str_consts[GENERIC_PURE_STRING_CONST_CAP];
         size_t owned_str_consts_n;
-        struct GenericPureRegMarker str_const_box_skip[512];
+        struct GenericPureRegMarker str_const_box_skip[GENERIC_PURE_REG_MARKER_CAP];
         size_t str_const_box_skip_n;
-        struct GenericPureRegMarker str_const_box_emitted[512];
+        struct GenericPureRegMarker str_const_box_emitted[GENERIC_PURE_REG_MARKER_CAP];
         size_t str_const_box_emitted_n;
-        struct GenericPureTypeBinding types[2048];
+        struct GenericPureTypeBinding types[GENERIC_PURE_TYPE_BINDING_CAP];
         size_t types_n;
-        struct GenericPureCopyAlias copy_alias[2048];
+        struct GenericPureCopyAlias copy_alias[GENERIC_PURE_COPY_ALIAS_CAP];
         size_t copy_alias_n;
-        struct GenericPureOriginBinding scan_origin[2048];
+        struct GenericPureOriginBinding scan_origin[GENERIC_PURE_ORIGIN_BINDING_CAP];
         size_t scan_origin_n;
-        struct GenericPureOriginBinding origin[2048];
+        struct GenericPureOriginBinding origin[GENERIC_PURE_ORIGIN_BINDING_CAP];
         size_t origin_n;
-        struct BlockPhi phis[512];
+        struct BlockPhi phis[GENERIC_PURE_BLOCK_PHI_CAP];
         int phi_n;
         int generic_walk_trace_budget;
         int generic_call_trace_budget;
         int generic_method_trace_budget;
+        int generic_capacity_overflow;
+        char generic_capacity_overflow_reason[64];
       };
       auto void reset_generic_pure_function_lowering_state(
           struct GenericPureFunctionLoweringState* state) {
@@ -634,6 +646,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #define generic_walk_trace_budget lowering_state.generic_walk_trace_budget
       #define generic_call_trace_budget lowering_state.generic_call_trace_budget
       #define generic_method_trace_budget lowering_state.generic_method_trace_budget
+      #define generic_capacity_overflow lowering_state.generic_capacity_overflow
+      #define generic_capacity_overflow_reason lowering_state.generic_capacity_overflow_reason
 
       // small helpers
       #define ARR_LEN(a) ((int)(sizeof(a)/sizeof((a)[0])))
@@ -674,8 +688,31 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         return ok;
       }
       /* inc-codegen-view-owner: generic_pure_view end */
+      auto void note_generic_capacity_overflow(const char* reason) {
+        if (generic_capacity_overflow) return;
+        generic_capacity_overflow = 1;
+        snprintf(
+            generic_capacity_overflow_reason,
+            sizeof(generic_capacity_overflow_reason),
+            "%s",
+            (reason && reason[0]) ? reason : "generic_pure_inventory_full");
+      }
+      auto int generic_capacity_ok(void) {
+        const char* name = fn0 ? read_str(fn0, "name") : NULL;
+        if (!generic_capacity_overflow) return 1;
+        note_pure_unsupported_shape_detail(
+            -1,
+            0,
+            "capacity",
+            generic_capacity_overflow_reason,
+            NULL,
+            NULL,
+            name,
+            generic_capacity_overflow_reason);
+        return 0;
+      }
       #include "hako_llvmc_ffi_compiler_state.inc"
-      auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<512){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } return NULL; }
+      auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<ARR_LEN(phis)){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } note_generic_capacity_overflow("generic_phi_block_inventory_full"); return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
       auto const char* read_str(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? yyjson_get_str(v) : NULL; }
       auto int llvm_quoted_symbol_name_is_safe(const char* name) {
@@ -703,11 +740,15 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       auto int put_str_const_owned(long long r, char* v) {
         if (!v) return 0;
-        if (str_consts_n >= ARR_LEN(str_consts) || owned_str_consts_n >= ARR_LEN(owned_str_consts)) {
+        if (owned_str_consts_n >= ARR_LEN(owned_str_consts)) {
+          note_generic_capacity_overflow("generic_owned_string_const_inventory_full");
           free(v);
           return 0;
         }
-        put_str_const(r, v);
+        if (!put_str_const(r, v)) {
+          free(v);
+          return 0;
+        }
         owned_str_consts[owned_str_consts_n++] = v;
         return 1;
       }
@@ -790,6 +831,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #undef generic_walk_trace_budget
       #undef generic_call_trace_budget
       #undef generic_method_trace_budget
+      #undef generic_capacity_overflow
+      #undef generic_capacity_overflow_reason
   if (compat_harness_replay_enabled()) {
     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }

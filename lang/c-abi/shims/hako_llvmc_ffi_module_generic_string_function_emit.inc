@@ -451,7 +451,7 @@
           }
         }
         module_generic_string_refine_phi_types();
-        return 1;
+        return generic_capacity_ok();
       }
 
       auto void module_generic_string_emit_const_globals(FILE* f, size_t fn_index) {
@@ -1215,7 +1215,15 @@
               long long ival = 0;
               long long dst = read_int(ins, "dst");
               if (module_generic_string_read_string_const(ins, &sval)) {
-                if (!module_generic_string_emit_const_box(f, fn_index, dst)) return 0;
+                if (!module_generic_string_emit_const_box(f, fn_index, dst)) {
+                  note_pure_unsupported_shape(
+                      block.id,
+                      ii,
+                      "const",
+                      "module_generic_string_const_missing",
+                      NULL);
+                  return 0;
+                }
               } else if (module_generic_string_read_i64_const(ins, &ival)) {
                 put_const(dst, ival);
                 set_type(dst, T_I64);

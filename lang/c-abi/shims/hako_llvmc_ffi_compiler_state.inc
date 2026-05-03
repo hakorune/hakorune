@@ -1,5 +1,5 @@
       auto long long get_copy_alias_src(long long r){ for(size_t i=0;i<copy_alias_n;i++){ if(copy_alias[i].reg==r) return copy_alias[i].src; } return 0; }
-      auto void set_copy_alias(long long r,long long src){ if(!r || !src) return; for(size_t i=0;i<copy_alias_n;i++){ if(copy_alias[i].reg==r){ copy_alias[i].src=src; return; } } if(copy_alias_n<2048){ copy_alias[copy_alias_n].reg=r; copy_alias[copy_alias_n].src=src; copy_alias_n++; } }
+      auto void set_copy_alias(long long r,long long src){ if(!r || !src) return; for(size_t i=0;i<copy_alias_n;i++){ if(copy_alias[i].reg==r){ copy_alias[i].src=src; return; } } if(copy_alias_n<ARR_LEN(copy_alias)){ copy_alias[copy_alias_n].reg=r; copy_alias[copy_alias_n].src=src; copy_alias_n++; } else { note_generic_capacity_overflow("generic_copy_alias_inventory_full"); } }
       auto long long resolve_copy_source_reg(long long r){
         long long cur = r;
         for(int depth=0; depth<64 && cur; depth++){
@@ -15,7 +15,7 @@
         if(base!=r){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==base) return scan_origin[i].kind; } }
         return ORG_NONE;
       }
-      auto void set_scan_origin(long long r,int k){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r){ scan_origin[i].kind=k; return;} } if(scan_origin_n<2048){ scan_origin[scan_origin_n].reg=r; scan_origin[scan_origin_n].kind=k; scan_origin_n++; } }
+      auto void set_scan_origin(long long r,int k){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r){ scan_origin[i].kind=k; return;} } if(scan_origin_n<ARR_LEN(scan_origin)){ scan_origin[scan_origin_n].reg=r; scan_origin[scan_origin_n].kind=k; scan_origin_n++; } else { note_generic_capacity_overflow("generic_scan_origin_inventory_full"); } }
       auto void promote_scan_origin_kind(int from, int to){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].kind==from) scan_origin[i].kind=to; } }
       auto int get_origin(long long r){
         for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r) return origin[i].kind; }
@@ -23,7 +23,7 @@
         if(base!=r){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==base) return origin[i].kind; } }
         return ORG_NONE;
       }
-      auto void set_origin(long long r,int k){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r){ origin[i].kind=k; return;} } if(origin_n<2048){ origin[origin_n].reg=r; origin[origin_n].kind=k; origin_n++; } }
+      auto void set_origin(long long r,int k){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r){ origin[i].kind=k; return;} } if(origin_n<ARR_LEN(origin)){ origin[origin_n].reg=r; origin[origin_n].kind=k; origin_n++; } else { note_generic_capacity_overflow("generic_origin_inventory_full"); } }
       auto void promote_origin_kind(int from, int to){ for(size_t i=0;i<origin_n;i++){ if(origin[i].kind==from) origin[i].kind=to; } }
       auto int get_type(long long r) {
         for (size_t i=0;i<types_n;i++){ if (types[i].reg==r) return types[i].ty; }
@@ -33,7 +33,7 @@
         }
         return T_NONE;
       }
-      auto void set_type(long long r, int t) { for (size_t i=0;i<types_n;i++){ if (types[i].reg==r){ types[i].ty=t; return; } } if (types_n<2048){ types[types_n].reg=r; types[types_n].ty=t; types_n++; } }
+      auto void set_type(long long r, int t) { for (size_t i=0;i<types_n;i++){ if (types[i].reg==r){ types[i].ty=t; return; } } if (types_n<ARR_LEN(types)){ types[types_n].reg=r; types[types_n].ty=t; types_n++; } else { note_generic_capacity_overflow("generic_type_inventory_full"); } }
       auto int has_const(long long r, long long* out){
         for (size_t i=0;i<consts_n;i++){ if (consts[i].reg==r){ if(out) *out=consts[i].val; return 1; } }
         long long base = resolve_copy_source_reg(r);
@@ -49,7 +49,7 @@
         if (out) *out = cv ? 1 : 0;
         return 1;
       }
-      auto void put_const(long long r, long long v){ if (consts_n<1024){ consts[consts_n].reg=r; consts[consts_n].val=v; consts_n++; } }
+      auto void put_const(long long r, long long v){ if (consts_n<ARR_LEN(consts)){ consts[consts_n].reg=r; consts[consts_n].val=v; consts_n++; } else { note_generic_capacity_overflow("generic_i64_const_inventory_full"); } }
       auto const char* get_str_const(long long r){
         for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==r) return str_consts[i].val; }
         long long base = resolve_copy_source_reg(r);
@@ -58,7 +58,16 @@
         }
         return NULL;
       }
-      auto void put_str_const(long long r, const char* v){ if (str_consts_n<512){ str_consts[str_consts_n].reg=r; str_consts[str_consts_n].val=v; str_consts_n++; } }
+      auto int put_str_const(long long r, const char* v){
+        if (str_consts_n<ARR_LEN(str_consts)){
+          str_consts[str_consts_n].reg=r;
+          str_consts[str_consts_n].val=v;
+          str_consts_n++;
+          return 1;
+        }
+        note_generic_capacity_overflow("generic_string_const_inventory_full");
+        return 0;
+      }
       auto int get_known_string_len(long long r, long long* out){
         for (size_t i=0;i<known_string_lens_n;i++){ if (known_string_lens[i].reg==r){ if(out) *out=known_string_lens[i].len; return 1; } }
         long long base = resolve_copy_source_reg(r);
@@ -75,10 +84,12 @@
             return;
           }
         }
-        if (known_string_lens_n<2048){
+        if (known_string_lens_n<ARR_LEN(known_string_lens)){
           known_string_lens[known_string_lens_n].reg=r;
           known_string_lens[known_string_lens_n].len=len;
           known_string_lens_n++;
+        } else {
+          note_generic_capacity_overflow("generic_string_len_inventory_full");
         }
       }
       auto int known_string_window_len(long long start_reg, long long end_reg, long long* out){
@@ -97,9 +108,11 @@
       }
       auto void mark_hoisted_string_const_box_skip(long long r){
         if (!r || should_skip_hoisted_string_const_box(r)) return;
-        if (str_const_box_skip_n < 512) {
+        if (str_const_box_skip_n < ARR_LEN(str_const_box_skip)) {
           str_const_box_skip[str_const_box_skip_n].reg = r;
           str_const_box_skip_n++;
+        } else {
+          note_generic_capacity_overflow("generic_string_const_skip_inventory_full");
         }
       }
       auto int string_const_box_was_emitted(long long r){
@@ -112,9 +125,11 @@
       auto void mark_string_const_box_emitted(long long r){
         long long base = resolve_copy_source_reg(r);
         if (!base || string_const_box_was_emitted(base)) return;
-        if (str_const_box_emitted_n < 512) {
+        if (str_const_box_emitted_n < ARR_LEN(str_const_box_emitted)) {
           str_const_box_emitted[str_const_box_emitted_n].reg = base;
           str_const_box_emitted_n++;
+        } else {
+          note_generic_capacity_overflow("generic_string_const_emitted_inventory_full");
         }
       }
       auto int is_plain_i64_value(long long r){

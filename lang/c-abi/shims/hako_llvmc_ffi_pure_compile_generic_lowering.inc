@@ -1,4 +1,9 @@
       #include "hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc"
+      if (!generic_capacity_ok()) {
+        fclose(f);
+        yyjson_doc_free(d);
+        goto GEN_ABORT;
+      }
       #include "hako_llvmc_ffi_emit_seam.inc"
       #include "hako_llvmc_ffi_generic_method_lowering.inc"
       #include "hako_llvmc_ffi_mir_call_dispatch.inc"
