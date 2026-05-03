@@ -163,6 +163,18 @@ pub(super) fn generic_pure_void_sentinel_compare_is_supported(
         ) | (
             GenericPureValueClass::VoidSentinel,
             GenericPureValueClass::VoidSentinel
+        ) | (
+            GenericPureValueClass::Array,
+            GenericPureValueClass::VoidSentinel
+        ) | (
+            GenericPureValueClass::VoidSentinel,
+            GenericPureValueClass::Array
+        ) | (
+            GenericPureValueClass::Map,
+            GenericPureValueClass::VoidSentinel
+        ) | (
+            GenericPureValueClass::VoidSentinel,
+            GenericPureValueClass::Map
         )
     )
 }
