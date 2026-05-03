@@ -8,11 +8,11 @@ Acceptance (all must be green on this host)
 
 Canaries to run
 - bash tools/dev/stageb_loop_json_canary.sh
-- bash tools/dev/phase216_chain_canary.sh
-- bash tools/dev/phase216_chain_canary_return.sh
-- bash tools/dev/phase216_chain_canary_binop.sh
+- bash tools/archive/legacy-selfhost/engineering/phase216_chain_canary.sh
+- bash tools/archive/legacy-selfhost/engineering/phase216_chain_canary_return.sh
+- bash tools/archive/legacy-selfhost/engineering/phase216_chain_canary_binop.sh
 - bash tools/dev/phase216_chain_canary_loop.sh
-- bash tools/dev/phase216_chain_canary_call.sh (Phase 21.6 extension)
+- bash tools/archive/legacy-selfhost/engineering/phase216_chain_canary_call.sh (Phase 21.6 extension)
 
 Guardrails
 - No default behavior changes; all aids behind env toggles.
@@ -50,4 +50,3 @@ Rollback
 **撤去条件 (Removal Criteria)**:
 - After Phase 22 introduces proper local function scoping with Callee typed calls
 - Or when unified with broader namespace/using system Phase 15.5+
-

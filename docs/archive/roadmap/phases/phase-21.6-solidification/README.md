@@ -33,8 +33,8 @@ How to run (chain E2E)
    - ./a.out; echo $?
 
 Canaries
-- tools/dev/stageb_loop_json_canary.sh — Program(JSON) shape for loop(i<n){i=i+1}
-- tools/dev/phase216_chain_canary.sh — end‑to‑end EXE rc=10 for minimal loop
+- tools/archive/legacy-selfhost/engineering/stageb_loop_json_canary.sh — Program(JSON) shape for loop(i<n){i=i+1}
+- tools/archive/legacy-selfhost/engineering/phase216_chain_canary.sh — end‑to‑end EXE rc=10 for minimal loop
 
 Provider Path Notes (Dev)
 - Optional normalization for provider output is available via `HAKO_MIR_NORMALIZE_PROVIDER=1`.

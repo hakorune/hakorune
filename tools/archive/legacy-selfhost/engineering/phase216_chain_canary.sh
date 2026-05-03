@@ -2,7 +2,7 @@
 # Phase 21.6 chain canary — Stage‑B → MirBuilder → ny‑llvmc(crate) → EXE
 set -euo pipefail
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../../../.." && pwd)
 cd "$ROOT"
 
 run_case() {

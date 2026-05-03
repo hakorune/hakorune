@@ -3,7 +3,7 @@
 # Guard against loop-step stalling in direct --emit-mir-json payloads.
 set -euo pipefail
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../../../.." && pwd)
 cd "$ROOT"
 
 FIXTURE="$ROOT/apps/tests/phase216_mainline_loop_count_param_nonsym_min.hako"

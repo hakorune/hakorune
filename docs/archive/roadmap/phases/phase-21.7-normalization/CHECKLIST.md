@@ -8,9 +8,9 @@ Targets (must be green)
 - LLVM: mir_call(Method) lowering produces correct IR; rc parity preserved
 
 Canaries
-- tools/dev/phase216_chain_canary_call.sh — remains PASS when OFF, PASS when ON
-- tools/dev/phase217_methodize_canary.sh (dev) — compile-run rc=5（セマンティクス）
-- tools/dev/phase217_methodize_json_canary.sh (dev) — v1 root（schema_version）+ mir_call present（Methodが望ましい、Globalは経過容認）
+- tools/archive/legacy-selfhost/engineering/phase216_chain_canary_call.sh — remains PASS when OFF, PASS when ON
+- tools/archive/legacy-selfhost/engineering/phase217_methodize_canary.sh (dev) — compile-run rc=5（セマンティクス）
+- tools/archive/legacy-selfhost/engineering/phase217_methodize_json_canary.sh (dev) — v1 root（schema_version）+ mir_call present（Methodが望ましい、Globalは経過容認）
 
 Toggles
 - HAKO_MIR_BUILDER_METHODIZE=1 (new)

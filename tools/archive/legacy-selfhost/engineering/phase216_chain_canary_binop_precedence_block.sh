@@ -4,7 +4,7 @@
 # This canary passes while blocked and fails when resolved (to force promotion).
 set -euo pipefail
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../../../.." && pwd)
 cd "$ROOT"
 
 FIXTURE="$ROOT/apps/tests/phase216_mainline_binop_precedence_blocker_min.hako"

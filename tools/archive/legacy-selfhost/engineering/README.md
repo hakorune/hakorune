@@ -17,6 +17,17 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `selfhost_compiler_smoke.sh`
 - `ny_selfhost_using_smoke.sh`
 - `test_stageb_min.sh`
+- `phase216_chain_canary.sh`
+- `phase216_chain_canary_binop.sh`
+- `phase216_chain_canary_binop_precedence_block.sh`
+- `phase216_chain_canary_call.sh`
+- `phase216_chain_canary_loop_undefined_block.sh`
+- `phase216_chain_canary_return.sh`
+- `phase216_direct_loop_progression_canary.sh`
+- `phase217_method_norm_canary.sh`
+- `phase217_methodize_canary.sh`
+- `phase217_methodize_json_canary.sh`
+- `phase217_methodize_json_strict.sh`
 - `stageb_loopssa_debug.sh`
 - `stageb_loop_json_canary.sh`
 - `phase29ci_verify_primary_core_route_probe.sh`

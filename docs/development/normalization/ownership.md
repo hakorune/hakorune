@@ -36,8 +36,8 @@ Rules of Engagement
 - dev の安全弁（未定義受信の構造回復など）は、テストが十分になり次第 OFF/撤去する。
 
 Testing
-- Canary
-  - tools/dev/phase217_methodize_canary.sh（rc=5）
-  - tools/dev/phase217_methodize_json_canary.sh（schema_version + mir_call present、Method優先）
-  - tools/dev/phase216_chain_canary_call.sh（rc=5）
+- Archived canary evidence
+  - tools/archive/legacy-selfhost/engineering/phase217_methodize_canary.sh（rc=5）
+  - tools/archive/legacy-selfhost/engineering/phase217_methodize_json_canary.sh（schema_version + mir_call present、Method優先）
+  - tools/archive/legacy-selfhost/engineering/phase216_chain_canary_call.sh（rc=5）
 - 失敗時は Hako 側（methodize）→ Rust 側（構造） の順で原因を特定する。

@@ -92,6 +92,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P357A archives the landed phase29ci W17 verify proof from active `tools/dev`;
   it remains runnable as engineering evidence and is guarded by
   `tools/checks/phase29ci_verify_probe_surface_guard.sh`.
+- P358A archives old phase216/217 normalization bring-up canaries from active
+  `tools/dev`; the current phase2160 dehang proof remains active and is guarded
+  by `tools/checks/phase216217_normalization_canary_surface_guard.sh`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

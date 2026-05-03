@@ -3,7 +3,7 @@
 # LowerLoopSimpleBox undefined ValueId が再発しないことを確認する。
 set -euo pipefail
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../../../.." && pwd)
 cd "$ROOT"
 
 FIXTURE="$ROOT/apps/tests/phase216_mainline_loop_undefined_value_blocker_min.hako"
