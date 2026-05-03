@@ -123,7 +123,8 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - the W16 first smoke-tail bucket is landed too: uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers instead of repeating env stacks and rc handling inline
   - the special raw verify keep bucket is landed too: `phase2039/parser_embedded_json_canary.sh` now uses the generic rc wrapper directly, and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh` now routes through `run_verify_program_via_internal_builder_no_methods_to_core()`
   - the core-primary built-MIR verify-route fix is landed behind `verify_primary_requests_core_v0()`
-  - exact W17 proof is `tools/dev/phase29ci_verify_primary_core_route_probe.sh`
+  - exact W17 proof is archived evidence:
+    `tools/archive/legacy-selfhost/engineering/phase29ci_verify_primary_core_route_probe.sh`
   - the `phase2170` default MIR-file verify wrapper pack is landed too: repeated hakovm MIR-call env stacks now live behind `apply_verify_mir_route_env()`, `run_verify_mir_rc_with_env()`, and the named `run_verify_mir_via_hakovm_*` helpers in `tools/smokes/v2/lib/test_runner.sh`
   - the default `phase2170` wrappers now collapse onto `run_verify_mir_canary_and_expect_rc()`, while legacy `hv1_mircall_*` wrappers remain explicit keeps
   - there is no remaining exact implementation leaf under the current boundary-retirement scope

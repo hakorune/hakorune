@@ -89,6 +89,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   active `tools/dev`. The live phase-level anchor is the runtime-proof smoke,
   and `tools/checks/phase29ck_small_entry_probe_surface_guard.sh` prevents
   those historical probes from returning quietly.
+- P357A archives the landed phase29ci W17 verify proof from active `tools/dev`;
+  it remains runnable as engineering evidence and is guarded by
+  `tools/checks/phase29ci_verify_probe_surface_guard.sh`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

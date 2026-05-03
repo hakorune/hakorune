@@ -39,6 +39,7 @@ list_profiles() {
     - tools/checks/phase29ch_route_probe_surface_guard.sh
     - tools/checks/phase29ck_preperf_probe_surface_guard.sh
     - tools/checks/phase29ck_small_entry_probe_surface_guard.sh
+    - tools/checks/phase29ci_verify_probe_surface_guard.sh
     - tools/checks/inc_codegen_thin_shim_guard.sh
     - tools/checks/generic_method_set_policy_mirror_guard.sh
     - tools/checks/core_method_contract_manifest_guard.sh
@@ -215,6 +216,9 @@ run_quick() {
 
   run_step "phase29ck small-entry probe surface guard" \
     bash tools/checks/phase29ck_small_entry_probe_surface_guard.sh
+
+  run_step "phase29ci verify probe surface guard" \
+    bash tools/checks/phase29ci_verify_probe_surface_guard.sh
 
   run_step ".inc codegen thin-shim guard" \
     bash tools/checks/inc_codegen_thin_shim_guard.sh

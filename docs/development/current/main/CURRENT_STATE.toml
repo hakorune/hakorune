@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P356A-PHASE29CK-SMALL-ENTRY-PROBE-ARCHIVE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P356A-PHASE29CK-SMALL-ENTRY-PROBE-ARCHIVE.md"
-latest_card_summary = "Archive closed phase29ck small-entry perf diagnostics probes from tools/dev and guard the runtime-proof smoke anchor."
+latest_card = "P357A-PHASE29CI-VERIFY-PROBE-ARCHIVE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P357A-PHASE29CI-VERIFY-PROBE-ARCHIVE.md"
+latest_card_summary = "Archive the landed phase29ci W17 verify proof from tools/dev and guard the old active path."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
