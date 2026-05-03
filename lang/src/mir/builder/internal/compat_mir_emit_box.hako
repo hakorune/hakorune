@@ -3,7 +3,6 @@
 
 using selfhost.shared.mir.json_emit as MirJsonEmitBox
 using lang.compiler.emit.common.mir_emit as MirEmitBox
-using lang.compiler.emit.common.call_emit as CallEmitBox
 
 static box CompatMirEmitBox {
   method _block(id, insts) {
@@ -25,12 +24,6 @@ static box CompatMirEmitBox {
 
   method _inst_binop(operation, lhs, rhs, dst) {
     return %{"op"=> "binop", "operation"=> operation, "lhs"=> lhs, "rhs"=> rhs, "dst"=> dst}
-  }
-
-  method _inst_externcall(func, arg_ids, dst) {
-    local inst = %{"op"=> "externcall", "func"=> func, "args"=> arg_ids}
-    if dst != null { inst.set("dst", dst) }
-    return inst
   }
 
   method _inst_load_name(dst, name) {
@@ -110,13 +103,12 @@ static box CompatMirEmitBox {
   }
 
   method emit_console_log_then_return(call_int, ret_int) {
-    local insts = [
-      MirEmitBox.make_const(1, call_int),
-      me._inst_externcall("env.console.log", [1], null),
-      MirEmitBox.make_const(2, ret_int),
-      MirEmitBox.make_ret(2)
-    ]
-    return me._module_with_block(insts)
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + call_int + "}}," +
+      "{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[1]}," +
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + ret_int + "}}," +
+      "{\"op\":\"ret\",\"value\":2}" +
+      "]}]}]}"
   }
 
   method emit_return_call0(name) {
