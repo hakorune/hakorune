@@ -44,7 +44,8 @@ static box LowerLoopLocalReturnVarBox {
   _read_compare_limit(s, k_cmp, k_loop, varname) {
     local n = s.length()
     local op = me._read_string_field_in_range(s, "\"op\"", k_cmp, n)
-    if op == null || op != "<" { return null }
+    if op == null { return null }
+    if op != "<" { return null }
 
     local k_lhs = me._find_object_after_key(s, "\"lhs\"", k_cmp, n)
     if k_lhs < 0 { return null }
@@ -52,12 +53,15 @@ static box LowerLoopLocalReturnVarBox {
     if k_rhs < 0 || k_rhs >= n { return null }
 
     local lhs_type = me._read_string_field_in_range(s, "\"type\"", k_lhs, k_rhs)
-    if lhs_type == null || lhs_type != "Var" { return null }
+    if lhs_type == null { return null }
+    if lhs_type != "Var" { return null }
     local lhs_name = me._read_string_field_in_range(s, "\"name\"", k_lhs, k_rhs)
-    if lhs_name == null || lhs_name != varname { return null }
+    if lhs_name == null { return null }
+    if lhs_name != varname { return null }
 
     local rhs_type = me._read_string_field_in_range(s, "\"type\"", k_rhs, n)
-    if rhs_type == null || rhs_type != "Int" { return null }
+    if rhs_type == null { return null }
+    if rhs_type != "Int" { return null }
     return me._read_int_field_in_range(s, "\"value\"", k_rhs, n)
   }
 
