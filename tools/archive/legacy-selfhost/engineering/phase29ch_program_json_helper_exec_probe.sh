@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(git rev-parse --show-toplevel)"
+ROOT="${NYASH_ROOT:-$(git rev-parse --show-toplevel)}"
 source "${ROOT}/tools/selfhost/lib/identity_routes.sh"
 source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 STAGE1_BIN="${STAGE1_BIN:-target/selfhost/hakorune.stage1_cli}"

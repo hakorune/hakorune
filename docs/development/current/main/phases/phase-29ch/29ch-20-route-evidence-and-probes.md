@@ -62,10 +62,12 @@ Related:
   - `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin <stage1-cli>`
   - diagnostics-only: proves whether the remaining compat resolver can accept `*_PROGRAM_JSON_TEXT` alone
 - explicit Program(JSON) mode-gate probe:
-  - `bash tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`
   - diagnostics-only: proves that plain `emit-mir` rejects mixed-in Program(JSON) text, exact-only `emit-mir-program` stays green, and legacy alias forms such as `emit_mir_program` are rejected
 - Program(JSON) helper execution probe:
-- `bash tools/dev/phase29ch_program_json_helper_exec_probe.sh`
+- archived evidence:
+  `bash tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`
   - diagnostics-only: proves that raw `stage1-cli` artifacts still return `rc=97` when asked to execute a helper source that would print `MirBuilderBox.emit_from_program_json_v0(...)`
 - `bash tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh`
   - diagnostics-only: proves that the generic raw direct `stage1-cli` lane is absent on green artifacts (`<bin> <source>` / `emit program-json` / `emit mir-json` all return `rc=97`)
@@ -144,13 +146,15 @@ Related:
   - runtime flags: `MIR_NONNULL`, `MIR_NONEMPTY`, `TEXT_NONEMPTY`, `LEN_POS`, `HEAD_OK`, `IDX_OK`
 - therefore the explicit supplied-Program compat lane stays frozen/probe-owned for the current slice; do not reopen `stage1_cli_env.hako` wrapper-level compat branching while the authority path is still shrinking on Rust owner-1 / owner-2.
 - current code-side quarantine owner for that branch is `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (mixed-input fail-fast gate + explicit compat call).
-- `bash tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh` is green:
+- `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`
+  was green before archive:
   - `stage1.plain_rc=96`
   - `stage2.plain_rc=96`
   - `stage1.legacy_alias_rc=97`
   - `stage2.legacy_alias_rc=97`
   - explicit compat mode still emits MIR JSON on both bins
-- `bash tools/dev/phase29ch_program_json_helper_exec_probe.sh` is green:
+- `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`
+  was green before archive:
   - `stage1.raw_exec_rc=97`
   - `stage2.raw_exec_rc=97`
   - therefore raw helper execution is not yet available as a shell-side replacement for the Stage1-side explicit compat dispatch

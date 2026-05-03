@@ -41,6 +41,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P341A archives the unused manual Stage-A/Stage-B Program(JSON v0) dev
   runners from active `tools/dev/program_json_v0/`; the live diagnostic debt is
   still the shared raw emit helper while Stage1/fixture keepers source it.
+- P342A archives two diagnostics-only phase29ch Program(JSON) probes that had
+  no active tool/smoke callers. The live Stage1 contract keepers remain
+  `stage1_contract.sh`, `run_stage1_cli.sh`, and the explicit compat route
+  probe.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
@@ -232,6 +236,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 3. Stage1 contract keepers
    - `tools/selfhost/lib/stage1_contract.sh`
    - `tools/selfhost/compat/run_stage1_cli.sh`
+   - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
+   - archived diagnostics-only probes:
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`
+     and
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`
    - Keep only for explicit contract/probe coverage.
    - Old root helpers `tools/stage1_debug.sh` and `tools/stage1_minimal.sh`
      are archived under `tools/archive/legacy-selfhost/stage1-cli/`.

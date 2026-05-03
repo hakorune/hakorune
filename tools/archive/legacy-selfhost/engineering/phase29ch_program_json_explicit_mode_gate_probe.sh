@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../../../.." && pwd)}"
 source "${ROOT}/tools/selfhost/lib/identity_routes.sh"
 source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 

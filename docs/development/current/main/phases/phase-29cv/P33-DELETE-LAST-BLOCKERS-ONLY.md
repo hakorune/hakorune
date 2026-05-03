@@ -48,6 +48,11 @@ explicit keepers in the right order.
 3. Stage1 contract keepers
    - `tools/selfhost/lib/stage1_contract.sh`
    - `tools/selfhost/compat/run_stage1_cli.sh`
+   - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
+   - archived diagnostics-only probes:
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`
+     and
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`
 4. Fixture contract keepers
    - `tools/smokes/v2/lib/stageb_helpers.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh`
