@@ -11,7 +11,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - lang/c-abi/shims/hako_aot_shared_impl.inc
   - crates/nyash-llvm-compiler/src/link_driver.rs
-  - tools/dev/phase29ck_small_entry_gc_sections_experiment.sh
+  - tools/archive/legacy-selfhost/engineering/phase29ck_small_entry_gc_sections_experiment.sh
 ---
 
 # P12: Small-Entry `gc-sections` Link Trim
@@ -46,7 +46,7 @@ Related:
      - file size `18,000,192`
      - relocation count `181`
    - dynamic dependency set stayed the same (`libm`, `libgcc_s`, `libc`, ELF interpreter)
-   - `tools/dev/phase29ck_small_entry_startup_probe.sh` now rebuilds stale `libhako_llvmc_ffi` artifacts before checking the boundary mainline shape
+   - `tools/archive/legacy-selfhost/engineering/phase29ck_small_entry_startup_probe.sh` now rebuilds stale `libhako_llvmc_ffi` artifacts before checking the boundary mainline shape
 3. current post-trim startup-subtracted evidence stays in the small-entry lane
    - `method_call_only_small`: `c_ms=2`, `ny_aot_ms=1`
    - `box_create_destroy_small`: `c_ms=2`, `ny_aot_ms=0`

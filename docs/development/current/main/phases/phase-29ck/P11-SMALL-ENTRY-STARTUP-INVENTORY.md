@@ -11,7 +11,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - benchmarks/baselines/method_call_only_small.latest.json
   - benchmarks/baselines/box_create_destroy_small.latest.json
-  - tools/dev/phase29ck_small_entry_startup_probe.sh
+  - tools/archive/legacy-selfhost/engineering/phase29ck_small_entry_startup_probe.sh
 ---
 
 # P11: Small-Entry Startup Inventory
@@ -29,7 +29,7 @@ Related:
 2. control
    - `box_create_destroy_small`
 3. evidence probe
-   - `tools/dev/phase29ck_small_entry_startup_probe.sh`
+   - `tools/archive/legacy-selfhost/engineering/phase29ck_small_entry_startup_probe.sh`
 
 ## Current Truth
 

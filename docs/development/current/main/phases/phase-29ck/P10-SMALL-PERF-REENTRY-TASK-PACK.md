@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md
   - docs/development/current/main/phases/phase-29ck/P11-SMALL-ENTRY-STARTUP-INVENTORY.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
-  - tools/dev/phase29ck_small_entry_startup_probe.sh
+  - tools/archive/legacy-selfhost/engineering/phase29ck_small_entry_startup_probe.sh
 ---
 
 # P10: Small Perf Re-entry

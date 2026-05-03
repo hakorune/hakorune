@@ -10,7 +10,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - benchmarks/baselines/method_call_only_small.latest.json
   - benchmarks/baselines/box_create_destroy_small.latest.json
-  - tools/dev/phase29ck_small_entry_startup_probe.sh
+  - tools/archive/legacy-selfhost/engineering/phase29ck_small_entry_startup_probe.sh
   - tools/perf/bench_compare_c_vs_hako.sh
 ---
 
@@ -62,7 +62,7 @@ Related:
 
 ## Acceptance
 
-- `bash tools/dev/phase29ck_small_entry_startup_probe.sh`
+- `bash tools/archive/legacy-selfhost/engineering/phase29ck_small_entry_startup_probe.sh`
 - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_compare_c_vs_hako.sh method_call_only_small 1 1`
 - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_compare_c_vs_hako.sh box_create_destroy_small 1 1`
 - `PERF_SUBTRACT_STARTUP=1 PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_compare_c_vs_hako.sh method_call_only_small 2 5`

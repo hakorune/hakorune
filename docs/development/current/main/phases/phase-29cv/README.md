@@ -85,6 +85,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P355A archives two completed phase29ck pre-perf diagnostics probes from
   active `tools/dev`. Live phase29ck compat/dialect keepers remain active and
   are guarded by `tools/checks/phase29ck_preperf_probe_surface_guard.sh`.
+- P356A archives the closed phase29ck small-entry perf diagnostics probes from
+  active `tools/dev`. The live phase-level anchor is the runtime-proof smoke,
+  and `tools/checks/phase29ck_small_entry_probe_surface_guard.sh` prevents
+  those historical probes from returning quietly.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
