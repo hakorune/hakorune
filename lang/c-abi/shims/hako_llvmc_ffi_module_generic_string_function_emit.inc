@@ -672,20 +672,28 @@
         long long dst = read_int(ins, "dst");
         long long lhs = read_int(ins, "lhs");
         long long rhs = read_int(ins, "rhs");
+        long long lhs_base = resolve_copy_source_reg(lhs);
+        long long rhs_base = resolve_copy_source_reg(rhs);
+        long long chain_a = 0;
+        long long chain_b = 0;
+        long long chain_c = 0;
+        int dst_declares_i64 = module_generic_string_binop_declares_i64(ins);
+        int lhs_is_concat_chain =
+            find_string_concat_pair(lhs_base, &chain_a, &chain_b) ||
+            find_string_concat_triple(lhs_base, &chain_a, &chain_b, &chain_c);
+        int rhs_is_concat_chain =
+            find_string_concat_pair(rhs_base, &chain_a, &chain_b) ||
+            find_string_concat_triple(rhs_base, &chain_a, &chain_b, &chain_c);
         char lhs_ref[64];
         char rhs_ref[64];
         if (!kind) kind = read_str(ins, "operation");
-        if (!module_generic_string_binop_declares_i64(ins) &&
+        if ((!dst_declares_i64 || lhs_is_concat_chain || rhs_is_concat_chain) &&
             kind && (!strcmp(kind, "+") || !strcmp(kind, "Add")) &&
             (module_generic_string_value_is_string(lhs) ||
              module_generic_string_value_is_string(rhs))) {
-          EMIT("  %%r%lld = call i64 @\"nyash.string.concat_hh\"(i64 %%r%lld, i64 %%r%lld)\n",
-               dst,
-               resolve_copy_source_reg(lhs),
-               resolve_copy_source_reg(rhs));
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
+          if (!try_emit_string_concat3_chain_call(f, dst, lhs_base, rhs_base)) {
+            emit_string_concat_hh_call(f, dst, lhs_base, rhs_base);
+          }
           return 1;
         }
         if (kind) {
@@ -1669,6 +1677,7 @@
         blocks = local_function.blocks;
         generic_pure_block_count = local_function.block_count;
         reset_generic_pure_function_lowering_state(&lowering_state);
+        reset_string_concat_tracking_state();
 
         if (!module_generic_string_prepass_active_function()) {
           note_pure_unsupported_shape_detail(
@@ -1713,6 +1722,7 @@
 
       MODULE_GENERIC_STRING_RESTORE:
         free_owned_str_consts();
+        reset_string_concat_tracking_state();
         lowering_state = saved_lowering_state;
         active_function = saved_active_function;
         fn0 = saved_fn0;
@@ -1732,5 +1742,6 @@
           if (rc < 0) return -1;
           if (rc > 0) emitted++;
         }
+        reset_string_concat_tracking_state();
         return emitted;
       }

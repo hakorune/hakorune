@@ -7,7 +7,7 @@ static box LowerReturnBinOpBox {
     local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
     if k_ret < 0 { return null }
-    local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_ret)
+    local k_bin = me._find_return_binary_start(s, k_ret)
     if k_bin < 0 { return null }
     // op
     local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_bin)
@@ -23,24 +23,125 @@ static box LowerReturnBinOpBox {
     if klhs >= krhs { return null }
     local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", klhs)
     if kv_lhs < 0 || kv_lhs >= krhs { return null }
-    local lhs_val = JsonFragBox.read_int_after(s, kv_lhs + 8)
-    if lhs_val == null { return null }
+    local lhs_pos = me._skip_ws(s, kv_lhs + 8)
+    local lhs_end = lhs_pos
+    if lhs_end < s.length() {
+      local lhs_sign = s.substring(lhs_end, lhs_end + 1)
+      if lhs_sign == "-" { lhs_end = lhs_end + 1 }
+    }
+    local lhs_digits = lhs_end
+    local ch_l = ""
+    loop(lhs_end < s.length()) {
+      ch_l = s.substring(lhs_end, lhs_end + 1)
+      if ch_l < "0" || ch_l > "9" { break }
+      lhs_end = lhs_end + 1
+    }
+    if lhs_end <= lhs_digits { return null }
+    local lhs_text = s.substring(lhs_pos, lhs_end)
+    if lhs_text == "" { return null }
     // rhs int (direct child only)
     local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", krhs)
     if kv_rhs < 0 { return null }
-    local rhs_val = JsonFragBox.read_int_after(s, kv_rhs + 8)
-    if rhs_val == null { return null }
+    local rhs_pos = me._skip_ws(s, kv_rhs + 8)
+    local rhs_end = rhs_pos
+    if rhs_end < s.length() {
+      local rhs_sign = s.substring(rhs_end, rhs_end + 1)
+      if rhs_sign == "-" { rhs_end = rhs_end + 1 }
+    }
+    local rhs_digits = rhs_end
+    local ch_r = ""
+    loop(rhs_end < s.length()) {
+      ch_r = s.substring(rhs_end, rhs_end + 1)
+      if ch_r < "0" || ch_r > "9" { break }
+      rhs_end = rhs_end + 1
+    }
+    if rhs_end <= rhs_digits { return null }
+    local rhs_text = s.substring(rhs_pos, rhs_end)
+    if rhs_text == "" { return null }
 
-    // Emit minimal MIR JSON v0 (functions array, name="main", blocks.id)
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
-      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val + "}}," +
-      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val + "}}," +
-      "{\"op\":\"binop\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-      "{\"op\":\"ret\",\"value\":3}]}]}]}"
-    return mir
+    if op == "+" { return me._emit_plus_mir(lhs_text, rhs_text) }
+    if op == "-" { return me._emit_minus_mir(lhs_text, rhs_text) }
+    if op == "*" { return me._emit_mul_mir(lhs_text, rhs_text) }
+    if op == "/" { return me._emit_div_mir(lhs_text, rhs_text) }
+    return null
   }
 
   _coerce_text_compat(value) {
     return "" + value
   }
+
+  _skip_ws(s, pos) {
+    local i = pos
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
+  }
+
+  _find_return_binary_start(s, k_ret) {
+    local k_forward = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_ret)
+    if k_forward >= 0 && k_forward < k_ret + 192 {
+      local boundary_forward = JsonFragBox.index_of_from(s, "},{", k_ret)
+      if boundary_forward < 0 || boundary_forward > k_forward { return k_forward }
+    }
+
+    local scan_pos = 0
+    local last_expr = -1
+    loop(scan_pos < k_ret) {
+      local next_expr = JsonFragBox.index_of_from(s, "\"expr\":{", scan_pos)
+      if next_expr < 0 || next_expr >= k_ret { break }
+      last_expr = next_expr
+      scan_pos = next_expr + 1
+    }
+    if last_expr >= 0 && k_ret - last_expr < 192 {
+      local boundary_back = JsonFragBox.index_of_from(s, "},{", last_expr)
+      if boundary_back < 0 || boundary_back > k_ret {
+        local k_before = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", last_expr)
+        if k_before >= 0 && k_before < k_ret { return last_expr }
+      }
+    }
+    return -1
+  }
+
+  _emit_plus_mir(lhs_text, rhs_text) {
+    local lhs = me._coerce_text_compat(lhs_text)
+    local rhs = me._coerce_text_compat(rhs_text)
+    local head = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":"
+    local mid = "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":"
+    local tail = "}},{\"op\":\"binop\",\"operation\":\"+\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return head + lhs + mid + rhs + tail
+  }
+
+  _emit_minus_mir(lhs_text, rhs_text) {
+    local lhs = me._coerce_text_compat(lhs_text)
+    local rhs = me._coerce_text_compat(rhs_text)
+    local head = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":"
+    local mid = "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":"
+    local tail = "}},{\"op\":\"binop\",\"operation\":\"-\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return head + lhs + mid + rhs + tail
+  }
+
+  _emit_mul_mir(lhs_text, rhs_text) {
+    local lhs = me._coerce_text_compat(lhs_text)
+    local rhs = me._coerce_text_compat(rhs_text)
+    local head = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":"
+    local mid = "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":"
+    local tail = "}},{\"op\":\"binop\",\"operation\":\"*\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return head + lhs + mid + rhs + tail
+  }
+
+  _emit_div_mir(lhs_text, rhs_text) {
+    local lhs = me._coerce_text_compat(lhs_text)
+    local rhs = me._coerce_text_compat(rhs_text)
+    local head = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":"
+    local mid = "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":"
+    local tail = "}},{\"op\":\"binop\",\"operation\":\"/\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return head + lhs + mid + rhs + tail
+  }
+
 }

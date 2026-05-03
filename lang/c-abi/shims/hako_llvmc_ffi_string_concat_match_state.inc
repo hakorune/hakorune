@@ -51,6 +51,16 @@
       struct DeferredConstSuffixKernelSlotRec deferred_const_suffix_kernel_slots[256];
       size_t deferred_const_suffix_kernel_slots_n = 0;
 
+      auto void reset_string_concat_tracking_state(void) {
+        string_concat_pairs_n = 0;
+        string_concat_triples_n = 0;
+        string_len_calls_n = 0;
+        string_substring_calls_n = 0;
+        deferred_piecewise_subranges_n = 0;
+        deferred_insert_mid_kernel_slots_n = 0;
+        deferred_const_suffix_kernel_slots_n = 0;
+      }
+
       auto void remember_string_concat_triple(
           long long dst,
           long long first,
