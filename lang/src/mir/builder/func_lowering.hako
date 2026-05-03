@@ -43,7 +43,6 @@ static box FuncLoweringBox {
 
     // Parse each def object in defs array
     local defs_str = s.substring(defs_start, defs_end)
-    local func_jsons = new ArrayBox()
     local func_map = new MapBox()  // For Call resolution: name -> "Box.method"
 
     // Scan for {"name": pattern
@@ -81,22 +80,12 @@ static box FuncLoweringBox {
         // Try to lower body to MIR
         local mir_func = me._lower_func_body(func_name, box_name, params_arr, body_json, func_map)
         if mir_func != null && mir_func != "" {
-          func_jsons.push(mir_func)
+          func_defs_mir = func_defs_mir + "," + mir_func
         } else if trace_funcs == 1 {
           print("[builder/funcs:skip] " + box_name + "." + func_name + " body unsupported")
         }
       }
       pos = name_end
-    }
-
-    // Build additional functions JSON
-    if func_jsons.length() > 0 {
-      local fi = 0
-      local func_len = func_jsons.length()
-      loop(fi < func_len) {
-        func_defs_mir = func_defs_mir + "," + ("" + func_jsons.get(fi))
-        fi = fi + 1
-      }
     }
 
     return func_defs_mir
