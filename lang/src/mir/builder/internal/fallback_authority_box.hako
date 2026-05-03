@@ -70,7 +70,7 @@ static box BuilderFallbackAuthorityBox {
     {
       if BuilderConfigBox.skip_loops_on() != 1 {
         { local out_loop_min = LowerLoopLocalReturnVarBox.try_lower(s); if out_loop_min != null { return out_loop_min } }
-        { local out_loopp = LowerLoopCountParamBox.try_lower_text(s); if out_loopp != null && out_loopp != "" { return out_loopp } }
+        { local out_loopp = LowerLoopCountParamBox.try_lower_text(s); if out_loopp != "" { return out_loopp } }
         { local out_loop = LowerLoopSimpleBox.try_lower(s); if out_loop != null { return out_loop } }
       }
     }

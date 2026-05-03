@@ -144,8 +144,7 @@ static box LowerLoopCountParamBox {
     step = "" + me._normalize_step_text(step, bop_minus)
     // limit normalized above
 
-    local emitted = "" + me._emit_count_param_json(start_text, limit, step, cmp)
-    return emitted
+    return me._emit_count_param_json(start_text, limit, step, cmp)
   }
 
   _normalize_step_text(step, bop_minus) {
