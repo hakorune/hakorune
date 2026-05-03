@@ -1418,6 +1418,11 @@ fn generic_pure_string_route_value_class(
                 _ => None,
             }
         }
+        "mir_json_module_function_array_item"
+            if route.route_kind_tag() == "array_slot_load_any" =>
+        {
+            Some(GenericPureValueClass::Map)
+        }
         "mir_json_inst_field" if route.route_kind_tag() == "runtime_data_load_any" => {
             match route.key_const_text()? {
                 "op" | "operation" | "op_kind" | "cmp" | "value" => {

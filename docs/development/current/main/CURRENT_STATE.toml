@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P229A-GENERIC-STRING-COLLECTION-OR-VOID-PHI"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P229A-GENERIC-STRING-COLLECTION-OR-VOID-PHI.md"
-latest_card_summary = "Refine Array/Map-or-void PHI facts after explicit null guards so MirJsonEmitBox function fields stay typed."
+latest_card = "P230A-MIR-JSON-MODULE-FUNCTION-ARRAY-PROOF"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P230A-MIR-JSON-MODULE-FUNCTION-ARRAY-PROOF.md"
+latest_card_summary = "Prove MirJsonEmitBox module function array item reads as function maps through exact ArrayGet routes."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -194,4 +194,5 @@ landed_tail = [
   "29cv-P227a MIR JSON flags keys void guard landed",
   "29cv-P228a MIR JSON function field proof landed",
   "29cv-P229a generic string collection-or-void PHI landed",
+  "29cv-P230a MIR JSON module function array proof landed",
 ]
