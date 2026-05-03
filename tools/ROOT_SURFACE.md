@@ -58,7 +58,7 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | `tools/exe_first_smoke.sh` | protected/current-smoke | EXE-first parser bundle smoke | keep | keep with EXE-first proof lane |
 | `tools/hako_check.sh` | protected/current-smoke | hako-check entrypoint | keep | keep as hako-check facade |
 | `tools/hako_check_loopless_gate.sh` | protected/current-smoke | hako-check gate wrapper | keep | keep with hako-check gate owner |
-| `tools/hakorune_emit_mir.sh` | compat-capsule | shared Hako-first MIR emit helper with route/docs owners | keep | keep while selfhost route docs and probes call it |
+| `tools/hakorune_emit_mir.sh` | compat-capsule | internal Hako-first MIR emit helper; direct callers are guarded by `tools/checks/hakorune_emit_mir_direct_caller_guard.sh` | keep | keep while route preset wrappers and selfhost runtime handoff call it |
 | `tools/hakorune_emit_mir_compat.sh` | compat-capsule | thin Program(JSON)->MIR compat preset wrapper | keep | keep with bootstrap route SSOT |
 | `tools/hakorune_emit_mir_mainline.sh` | compat-capsule | thin MIR-first preset wrapper | keep | keep with bootstrap route SSOT |
 | `tools/llvmlite_harness.py` | compat-capsule | explicit llvmlite backend keep | keep | keep while `ny_mir_builder.sh` exposes llvmlite |

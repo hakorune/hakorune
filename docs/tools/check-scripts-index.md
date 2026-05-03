@@ -36,6 +36,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/legacy_dev_utility_surface_guard.sh` | archived one-shot / old-phase / duplicate dev-env utilities が active `tools/dev` surface に戻らないことを fail-fast で検出する。 |
 | `tools/checks/lang_include_surface_guard.sh` | `lang/src` の `include "..."` 再導入と旧 `tools/dev` guard path の復活を fail-fast で検出する。 |
 | `tools/checks/tools_dev_surface_inventory_guard.sh` | `tools/dev` の active file set が `tools/dev/README.md` の棚卸しから drift しないことを fail-fast で検出する。 |
+| `tools/checks/hakorune_emit_mir_direct_caller_guard.sh` | `tools/hakorune_emit_mir.sh` の direct shell caller を thin preset/selfhost runtime owners に限定し、smoke/check/perf/dev からは `emit_mir_route.sh` 経由に固定する。 |
 | `tools/checks/mir_builder_layer_dependency_guard.sh` | MIR builder layer の `origin -> observe -> rewrite` dependency direction を fail-fast で検出する。 |
 | `tools/checks/loop_pattern_context_zero_guard.sh` | Rust source に `LoopPatternContext` が再導入されないことを fail-fast で検出する。 |
 | `tools/checks/phase29ca_direct_verify_dominance_block_canary.sh` | phase29ca direct route の dominance/Phi blocker と loop progression 回帰を release binary で監視する。 |

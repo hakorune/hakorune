@@ -44,6 +44,7 @@ list_profiles() {
     - tools/checks/legacy_dev_utility_surface_guard.sh
     - tools/checks/lang_include_surface_guard.sh
     - tools/checks/tools_dev_surface_inventory_guard.sh
+    - tools/checks/hakorune_emit_mir_direct_caller_guard.sh
     - tools/checks/mir_builder_layer_dependency_guard.sh
     - tools/checks/loop_pattern_context_zero_guard.sh
     - tools/checks/inc_codegen_thin_shim_guard.sh
@@ -237,6 +238,9 @@ run_quick() {
 
   run_step "tools/dev surface inventory guard" \
     bash tools/checks/tools_dev_surface_inventory_guard.sh
+
+  run_step "hakorune emit MIR direct-caller guard" \
+    bash tools/checks/hakorune_emit_mir_direct_caller_guard.sh
 
   run_step "MIR builder layer dependency guard" \
     bash tools/checks/mir_builder_layer_dependency_guard.sh

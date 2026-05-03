@@ -158,11 +158,10 @@ case "$ROUTE" in
     echo "  $NYASH_BIN --emit-mir-json <out> <source>"
     ;;
   hako-mainline)
-    echo "  env HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 HAKO_EMIT_MIR_MAINLINE_ONLY=1 \\"
-    echo "    bash tools/hakorune_emit_mir.sh <source> <out>"
+    echo "  bash tools/smokes/v2/lib/emit_mir_route.sh --route hako-mainline --out <out> --input <source>"
     ;;
   hako-helper)
-    echo "  bash tools/hakorune_emit_mir.sh <source> <out>"
+    echo "  bash tools/smokes/v2/lib/emit_mir_route.sh --route hako-helper --out <out> --input <source>"
     ;;
 esac
 
