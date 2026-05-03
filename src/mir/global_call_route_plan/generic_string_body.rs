@@ -1418,6 +1418,13 @@ fn generic_pure_string_route_value_class(
                 _ => None,
             }
         }
+        "mir_json_module_field" if route.route_kind_tag() == "runtime_data_load_any" => {
+            match route.key_const_text()? {
+                "functions" => Some(GenericPureValueClass::Array),
+                "functions_0" => Some(GenericPureValueClass::Map),
+                _ => None,
+            }
+        }
         "mir_json_module_function_array_item"
             if route.route_kind_tag() == "array_slot_load_any" =>
         {
