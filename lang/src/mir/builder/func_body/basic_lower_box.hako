@@ -202,43 +202,79 @@ static box FuncBodyBasicLowerBox {
 
   method _inline_local_ints(body_json) {
     local s = "" + body_json
-    local locals = new ArrayBox()
+    local pairs = ""
     local search = 0
-    loop(search < s.length()) {
+    local scan_done = 0
+    loop(scan_done == 0) {
       local loc_idx = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", search)
-      if loc_idx < 0 { break }
-      local name_idx = JsonFragBox.index_of_from(s, "\"name\":", loc_idx)
-      if name_idx < 0 { search = loc_idx + 1  continue }
-      local name = JsonFragBox.read_string_after(s, name_idx + 7)
-      if name == null || name == "" { search = loc_idx + 1  continue }
-      local expr_idx = JsonFragBox.index_of_from(s, "\"expr\":{", loc_idx)
-      if expr_idx < 0 { search = loc_idx + 1  continue }
-      local type_idx = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", expr_idx)
-      if type_idx < 0 { search = loc_idx + 1  continue }
-      local val_idx = JsonFragBox.index_of_from(s, "\"value\":", type_idx)
-      if val_idx < 0 { search = loc_idx + 1  continue }
-      local val = JsonFragBox.read_int_after(s, val_idx + 8)
-      if val == null { search = loc_idx + 1  continue }
-      local info = new MapBox()
-      info.set("name", name)
-      info.set("value", JsonFragBox._str_to_int("" + val))
-      locals.push(info)
-      search = loc_idx + 1
-    }
-    local i = 0
-    local n = locals.length()
-    loop(i < n) {
-      local info = locals.get(i)
-      local lname = "" + info.get("name")
-      local lval = "" + info.get("value")
-      local pattern = "{\"type\":\"Var\",\"name\":\"" + lname + "\"}"
-      local replacement = "{\"type\":\"Int\",\"value\":" + lval + "}"
-      loop(true) {
-        local idx = JsonFragBox.index_of_from(s, pattern, 0)
-        if idx < 0 { break }
-        s = s.substring(0, idx) + replacement + s.substring(idx + pattern.length(), s.length())
+      if loc_idx < 0 {
+        scan_done = 1
+      } else {
+        local next_search = loc_idx + 1
+        local name_idx = JsonFragBox.index_of_from(s, "\"name\":", loc_idx)
+        if name_idx >= 0 {
+          local name = JsonFragBox.read_string_after(s, name_idx + 7)
+          if name != null && name != "" {
+            local expr_idx = JsonFragBox.index_of_from(s, "\"expr\":{", loc_idx)
+            if expr_idx >= 0 {
+              local type_idx = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", expr_idx)
+              if type_idx >= 0 {
+                local val_idx = JsonFragBox.index_of_from(s, "\"value\":", type_idx)
+                if val_idx >= 0 {
+                  local val = JsonFragBox.read_int_after(s, val_idx + 8)
+                  if val != null {
+                    pairs = pairs + name + "=" + ("" + val) + ";"
+                  }
+                }
+              }
+            }
+          }
+        }
+        search = next_search
+        if search >= s.length() { scan_done = 1 }
       }
-      i = i + 1
+    }
+
+    local pair_pos = 0
+    local pair_done = 0
+    loop(pair_done == 0) {
+      if pair_pos >= pairs.length() {
+        pair_done = 1
+      } else {
+        local eq = JsonFragBox.index_of_from(pairs, "=", pair_pos)
+        if eq < 0 {
+          pair_done = 1
+        } else {
+          local semi = JsonFragBox.index_of_from(pairs, ";", eq + 1)
+          if semi < 0 {
+            pair_done = 1
+          } else {
+            local lname = pairs.substring(pair_pos, eq)
+            local lval = pairs.substring(eq + 1, semi)
+            local pattern = "{\"type\":\"Var\",\"name\":\"" + lname + "\"}"
+            local replacement = "{\"type\":\"Int\",\"value\":" + lval + "}"
+            s = me._replace_all_text(s, pattern, replacement)
+            pair_pos = semi + 1
+          }
+        }
+      }
+    }
+    return "" + s
+  }
+
+  method _replace_all_text(text, pattern, replacement) {
+    local s = "" + text
+    local cursor = 0
+    local done = 0
+    loop(done == 0) {
+      local idx = JsonFragBox.index_of_from(s, pattern, cursor)
+      if idx < 0 {
+        done = 1
+      } else {
+        s = s.substring(0, idx) + replacement + s.substring(idx + pattern.length(), s.length())
+        cursor = idx + replacement.length()
+        if cursor >= s.length() { done = 1 }
+      }
     }
     return s
   }
