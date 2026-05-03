@@ -601,8 +601,8 @@ static box FuncBodyBasicLowerBox {
       if out_mc != null { return me._rebind(out_mc, func_name, box_name, params_arr, "[funcs/basic:loop.multi_carrier]") } }
 
     // 4) まず count_param loop 用 lower を試す（limit/step/cmp 付き）
-    { local out_cp = LowerLoopCountParamBox.try_lower(body_json)
-      if out_cp != null { return me._rebind(out_cp, func_name, box_name, params_arr, "[funcs/basic:loop.count_param]") } }
+    { local out_cp = LowerLoopCountParamBox.try_lower_text(body_json)
+      if out_cp != null && out_cp != "" { return me._rebind(out_cp, func_name, box_name, params_arr, "[funcs/basic:loop.count_param]") } }
 
     // 5) 次に simple loop 用 lower を試す（単純カウンタ）
     { local out2 = LowerLoopSimpleBox.try_lower(body_json)
