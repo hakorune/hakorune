@@ -41,12 +41,8 @@ static box FuncBodyBasicLowerBox {
 
     // 2) Try simple Return(Method ...) pattern（params ベースの receiver のみ）
     {
-      print("[builder/funcs:return_method] trying func=" + func_name + " box=" + box_name)
       local mret = me._try_lower_return_method(func_name, box_name, params_arr, s)
-      if mret != null {
-        print("[builder/funcs:return_method] SUCCESS via _try_lower_return_method")
-        return mret
-      }
+      if mret != null { return mret }
     }
 
     // 3) Non-Loop processing: Local/If/Return パターンのみ
@@ -453,18 +449,6 @@ static box FuncBodyBasicLowerBox {
     if recv_name == null { return null }
 
     // Restrict to params-based receiver only（ローカル受信は未対応）
-    local is_param_recv = 0
-    {
-      local i = 0
-      local n = ParamListBox.count(params_arr)
-      loop(i < n) {
-        if ("" + ParamListBox.get(params_arr, i)) == recv_name { is_param_recv = 1  break }
-        i = i + 1
-      }
-    }
-    if is_param_recv == 0 { return null }
-
-    // receiver register
     local recv_reg_i = me._param_reg(params_arr, "" + recv_name)
     if recv_reg_i <= 0 { return null }
 
@@ -475,36 +459,29 @@ static box FuncBodyBasicLowerBox {
     local next_reg = ParamListBox.count(params_arr) + 1
     local args_idx = JsonFragBox.index_of_from(s, "\"args\":[", m_idx)
     if args_idx >= 0 {
-      local scan = args_idx + 8
-      loop(scan < s.length()) {
-        local t_idx = JsonFragBox.index_of_from(s, "\"type\":\"", scan)
-        if t_idx < 0 { break }
-        if t_idx > m_idx + 256 { break }
+      // Supported methods here are 0/1-arg shapes, so avoid a generic list scan.
+      local t_idx = JsonFragBox.index_of_from(s, "\"type\":\"", args_idx + 8)
+      if t_idx >= 0 && t_idx <= m_idx + 256 {
         local atype = JsonFragBox.read_string_after(s, t_idx + 7)
-        if atype == null { break }
         if atype == "Int" {
           local v_idx = JsonFragBox.index_of_from(s, "\"value\":", t_idx)
-          if v_idx < 0 { break }
+          if v_idx < 0 { return null }
           local v = JsonFragBox.read_int_after(s, v_idx + 8)
-          if v == null { break }
-          if insts != "" { insts = insts + "," }
+          if v == null { return null }
           insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v + "}}"
-          if arg_ids != "" { arg_ids = arg_ids + "," }
           arg_ids = arg_ids + ("" + next_reg)
-          call_arity = call_arity + 1
+          call_arity = 1
           next_reg = next_reg + 1
         } else if atype == "Var" {
           local n_idx = JsonFragBox.index_of_from(s, "\"name\":", t_idx)
-          if n_idx < 0 { break }
+          if n_idx < 0 { return null }
           local aname = JsonFragBox.read_string_after(s, n_idx + 7)
-          if aname == null { break }
+          if aname == null { return null }
           local preg = me._param_reg(params_arr, "" + aname)
           if preg <= 0 { return null }
-          if arg_ids != "" { arg_ids = arg_ids + "," }
           arg_ids = arg_ids + ("" + preg)
-          call_arity = call_arity + 1
+          call_arity = 1
         }
-        scan = t_idx + 20
       }
     }
 
@@ -533,12 +510,6 @@ static box FuncBodyBasicLowerBox {
         "\\\"args\\\":[" + arg_ids + "],\\\"effects\\\":[]}}"
     )
     insts = insts + ",{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
-
-    if env.get("HAKO_SELFHOST_TRACE") == "1" {
-      local tag = "[funcs/basic:method." + kind + "] "
-      local target = me._build_func_name(box_name, func_name, params_arr)
-      print(tag + target + " method=" + mname)
-    }
 
     local params_json = me._build_params_json(params_arr)
     local target_name = me._build_func_name(box_name, func_name, params_arr)
