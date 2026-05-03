@@ -116,27 +116,25 @@ static box LowerLoopCountParamBox {
 
     local step = ""
     // Prefer rhs Int if present; otherwise try rhs Var and reverse-lookup its Local Int
-    {
-      local k_bop_obj = JsonFragBox.last_index_of_from(s, "{", k_bop); if k_bop_obj < 0 { return "" }
-      local k_bop_end = me._seek_object_end(s, k_bop_obj); if k_bop_end < 0 { return "" }
-      local k_rhs_int_b = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_bop)
-      if k_rhs_int_b >= 0 {
-        if k_rhs_int_b >= k_bop_end { return "" }
-        local kvs = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int_b)
-        if kvs >= 0 {
-          if kvs < k_bop_end {
-            step = me._read_int_after_text(s, kvs + 8)
-          }
+    local k_bop_obj = JsonFragBox.last_index_of_from(s, "{", k_bop); if k_bop_obj < 0 { return "" }
+    local k_bop_end = me._seek_object_end(s, k_bop_obj); if k_bop_end < 0 { return "" }
+    local k_rhs_int_b = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_bop)
+    if k_rhs_int_b >= 0 {
+      if k_rhs_int_b >= k_bop_end { return "" }
+      local kvs = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int_b)
+      if kvs >= 0 {
+        if kvs < k_bop_end {
+          step = me._read_int_after_text(s, kvs + 8)
         }
-      } else {
-        local k_rhs_var_b = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_bop)
-        if k_rhs_var_b < 0 { return "" }
-        if k_rhs_var_b >= k_bop_end { return "" }
-        local kns = JsonFragBox.index_of_from(s, "\"name\":\"", k_rhs_var_b); if kns < 0 { return "" }
-        if kns >= k_bop_end { return "" }
-        local vname = me._read_string_after_text(s, kns + 7); if vname == "" { return "" }
-        step = me._local_int_text_before(s, vname, k_bop)
       }
+    } else {
+      local k_rhs_var_b = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_bop)
+      if k_rhs_var_b < 0 { return "" }
+      if k_rhs_var_b >= k_bop_end { return "" }
+      local kns = JsonFragBox.index_of_from(s, "\"name\":\"", k_rhs_var_b); if kns < 0 { return "" }
+      if kns >= k_bop_end { return "" }
+      local vname = me._read_string_after_text(s, kns + 7); if vname == "" { return "" }
+      step = me._local_int_text_before(s, vname, k_bop)
     }
     if step == "" { return "" }
     if bop_minus {
