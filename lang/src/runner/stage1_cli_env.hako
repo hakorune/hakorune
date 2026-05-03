@@ -454,6 +454,7 @@ static box Stage1MirResultValidationBox {
       print("[stage1-cli/debug] emit-mir current-route materialized empty string; ignoring and using structural JSON validation")
     }
     print("[stage1-cli/debug] emit-mir current-route validating materialized payload")
+    return 0
   }
 
   method _stage1_debug_on() {
