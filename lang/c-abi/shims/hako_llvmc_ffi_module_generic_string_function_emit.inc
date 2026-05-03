@@ -374,6 +374,9 @@
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+                         module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(&method_view)) {
+                set_type(dst, T_I64);
+              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_mir_json_callee_field_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
@@ -979,6 +982,7 @@
         int is_map_get = 0;
         int is_mir_json_block_field_get = 0;
         int is_mir_json_const_value_field_get = 0;
+        int is_mir_json_numeric_value_field_get = 0;
         int is_mir_json_callee_field_get = 0;
         int is_mir_json_inst_field_get = 0;
         int is_mir_json_function_field_get = 0;
@@ -1010,6 +1014,8 @@
               module_generic_string_method_view_is_direct_mir_json_block_field_get(&method_view);
           is_mir_json_const_value_field_get =
               module_generic_string_method_view_is_direct_mir_json_const_value_field_get(&method_view);
+          is_mir_json_numeric_value_field_get =
+              module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(&method_view);
           is_mir_json_callee_field_get =
               module_generic_string_method_view_is_direct_mir_json_callee_field_get(&method_view);
           is_mir_json_inst_field_get =
@@ -1032,6 +1038,7 @@
               is_map_get ||
               is_mir_json_block_field_get ||
               is_mir_json_const_value_field_get ||
+              is_mir_json_numeric_value_field_get ||
               is_mir_json_callee_field_get ||
               is_mir_json_inst_field_get ||
               is_mir_json_function_field_get ||
@@ -1068,6 +1075,7 @@
           if (is_map_get ||
               is_mir_json_block_field_get ||
               is_mir_json_const_value_field_get ||
+              is_mir_json_numeric_value_field_get ||
               is_mir_json_callee_field_get ||
               is_mir_json_inst_field_get ||
               is_mir_json_function_field_get ||
