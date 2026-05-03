@@ -34,7 +34,8 @@ static box BuilderDelegateFinalizeBox {
       local box_name = s.substring(name_start, name_end)
       if box_name != "" {
         local marker = "|" + box_name + "|"
-        if seen.indexOf(marker) < 0 {
+        local seen_text = "" + seen
+        if seen_text.indexOf(marker, 0) < 0 {
           out = out + ",{\"name\":\"" + box_name + "\",\"fields\":[]}"
           seen = seen + box_name + "|"
         }
