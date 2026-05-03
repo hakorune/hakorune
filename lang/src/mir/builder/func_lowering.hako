@@ -311,11 +311,15 @@ static box FuncLoweringBox {
     // Resolve call target
     local resolved_name = me.resolve_call_target(call_name, func_map_text)
 
-    // Extract args (minimal: Int or Var)
-    local args_arr = new ArrayBox()
+    // Build MIR for Call while parsing args directly.
+    local insts = ""
+    local next_reg = ParamListBox.count(params_arr) + 1
+    local args_list = ""
+    local call_arity = 0
+
+    // Extract args (minimal: Int or Var) and materialize registers.
     local args_idx = JsonFragBox.index_of_from(body_str, "\"args\":[", 0)
     if args_idx >= 0 {
-      // Parse args array (simplified)
       local args_pos = args_idx + 8
       loop(args_pos < body_str.length()) {
         local arg_type_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"", args_pos)
@@ -328,10 +332,12 @@ static box FuncLoweringBox {
           if val_idx >= 0 {
             local val = JsonFragBox.read_int_after(body_str, val_idx + 8)
             if val != null {
-              local arg_info = new MapBox()
-              arg_info.set("type", "Int")
-              arg_info.set("value", val)
-              args_arr.push(arg_info)
+              if insts != "" { insts = insts + "," }
+              insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + val + "}}"
+              if args_list != "" { args_list = args_list + "," }
+              args_list = args_list + ("" + next_reg)
+              call_arity = call_arity + 1
+              next_reg = next_reg + 1
             }
           }
         } else if arg_type == "Var" {
@@ -339,66 +345,16 @@ static box FuncLoweringBox {
           if var_idx >= 0 {
             local var_name = JsonFragBox.read_string_after(body_str, var_idx + 8)
             if var_name != null {
-              local arg_info = new MapBox()
-              arg_info.set("type", "Var")
-              arg_info.set("value", var_name)
-              args_arr.push(arg_info)
+              local preg = me._param_reg(params_arr, "" + var_name)
+              if preg > 0 {
+                if args_list != "" { args_list = args_list + "," }
+                args_list = args_list + ("" + preg)
+                call_arity = call_arity + 1
+              }
             }
           }
         }
         args_pos = arg_type_idx + 20
-      }
-    }
-
-    // Build MIR for Call
-    local insts = ""
-    local next_reg = 1
-
-    // Map params to registers
-    local param_map = new MapBox()
-    {
-      local pi = 0
-      local pn = ParamListBox.count(params_arr)
-      loop(pi < pn) {
-        param_map.set("" + ParamListBox.get(params_arr, pi), "" + next_reg)
-        next_reg = next_reg + 1
-        pi = pi + 1
-      }
-    }
-
-    // Build args (materialize immediates/params into registers)
-    local arg_regs = new ArrayBox()
-    {
-      local ai = 0
-      local an = args_arr.length()
-      loop(ai < an) {
-        local arg_info = args_arr.get(ai)
-        local arg_type = "" + arg_info.get("type")
-        if arg_type == "Int" {
-          local val = arg_info.get("value")
-          insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + val + "}}"
-          arg_regs.push(next_reg)
-          next_reg = next_reg + 1
-        } else if arg_type == "Var" {
-          local var_name = "" + arg_info.get("value")
-          local preg = param_map.get(var_name)
-          if preg != null {
-            arg_regs.push(JsonFragBox._str_to_int("" + preg))
-          }
-        }
-        ai = ai + 1
-      }
-    }
-
-    // Build args list
-    local args_list = ""
-    {
-      local ri = 0
-      local rn = arg_regs.length()
-      loop(ri < rn) {
-        if ri > 0 { args_list = args_list + "," }
-        args_list = args_list + ("" + arg_regs.get(ri))
-        ri = ri + 1
       }
     }
 
@@ -408,41 +364,42 @@ static box FuncLoweringBox {
       local dm = env.get("HAKO_MIR_BUILDER_METHODIZE")
       local do_methodize = 0
       if dm != null && ("" + dm) == "1" { do_methodize = 1 }
-      if do_methodize == 1 && resolved_name.contains(".") {
+      local dot_pos = -1
+      if do_methodize == 1 { dot_pos = JsonFragBox.index_of_from(resolved_name, ".", 0) }
+      if do_methodize == 1 && dot_pos >= 0 {
         // Methodize PoC: rewrite Global("Box.method") -> mir_call Method(box_name, method, receiver: omitted)
         // Note: receiver is omitted here; VM will materialize a static singleton when callee.type==Method
         //       LLVM path may treat args[0] as receiver; PoC canary targets VM backend.
-        local dot_pos = JsonFragBox.index_of_from(resolved_name, ".", 0)
         local slash_pos = JsonFragBox.index_of_from(resolved_name, "/", 0)
-        if dot_pos >= 0 {
-          local box_part = resolved_name.substring(0, dot_pos)
-          local meth_part = resolved_name.substring(dot_pos + 1, (slash_pos >= 0 ? slash_pos : resolved_name.length()))
-          insts = insts + "," + (
-            "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":" + result_reg + ",\\\"mir_call\\\":{" +
-              "\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"box_name\\\":\\\"" + box_part + "\\\",\\\"method\\\":\\\"" + meth_part + "\\\"}," +
-              "\\\"args\\\":[" + args_list + "],\\\"effects\\\":[]}}"
-          )
-          next_reg = next_reg + 1
-        } else {
-          // Fallback to legacy call if split failed
-          do_methodize = 0
-        }
+        local box_part = resolved_name.substring(0, dot_pos)
+        local meth_part = resolved_name.substring(dot_pos + 1, (slash_pos >= 0 ? slash_pos : resolved_name.length()))
+        if insts != "" { insts = insts + "," }
+        insts = insts + (
+          "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":" + result_reg + ",\\\"mir_call\\\":{" +
+            "\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"box_name\\\":\\\"" + box_part + "\\\",\\\"method\\\":\\\"" + meth_part + "\\\"}," +
+            "\\\"args\\\":[" + args_list + "],\\\"effects\\\":[]}}"
+        )
+        next_reg = next_reg + 1
+      } else if do_methodize == 1 {
+        do_methodize = 0
       }
       if do_methodize != 1 {
         // Legacy: const func name with arity and call
-        local call_arity = JsonFragBox._str_to_int("" + args_arr.length())
         local resolved_with_arity = resolved_name + "/" + call_arity
-        insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + result_reg + ",\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"" + resolved_with_arity + "\\\"}}"
+        if insts != "" { insts = insts + "," }
+        insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + result_reg + ",\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"" + resolved_with_arity + "\\\"}}"
         local func_reg = result_reg
         result_reg = result_reg + 1
         next_reg = result_reg + 0
-        insts = insts + ",{\\\"op\\\":\\\"call\\\",\\\"func\\\":" + func_reg + ",\\\"args\\\":[" + args_list + "],\\\"dst\\\":" + result_reg + "}"
+        if insts != "" { insts = insts + "," }
+        insts = insts + "{\\\"op\\\":\\\"call\\\",\\\"func\\\":" + func_reg + ",\\\"args\\\":[" + args_list + "],\\\"dst\\\":" + result_reg + "}"
         next_reg = next_reg + 1
       }
     }
 
     // ret
-    insts = insts + ",{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
+    if insts != "" { insts = insts + "," }
+    insts = insts + "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
 
     // Build params JSON array
     local params_json = me._build_params_json(params_arr)
