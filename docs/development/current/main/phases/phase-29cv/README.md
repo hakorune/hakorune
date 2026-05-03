@@ -59,6 +59,10 @@ right owner, and delete dead helper surface when the repo no longer calls it.
   `tools/checks/stage0_shape_inventory_guard.sh`, so undocumented
   `GlobalCallTargetShape` growth fails before Stage0 silently learns another
   source-helper body shape.
+- P347A archives the redundant phase29ch Program(JSON) text-only diagnostics
+  probe. The live explicit supplied-Program(JSON) proof remains
+  `tools/dev/phase29ch_program_json_compat_route_probe.sh`, which already
+  exercises the `stage1_contract_exec_program_json_compat()` text transport.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
@@ -252,9 +256,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
    - `tools/selfhost/compat/run_stage1_cli.sh`
    - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
    - archived diagnostics-only probes:
-     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`
-     and
-     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`,
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`,
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`
    - Keep only for explicit contract/probe coverage.
    - Old root helpers `tools/stage1_debug.sh` and `tools/stage1_minimal.sh`
      are archived under `tools/archive/legacy-selfhost/stage1-cli/`.

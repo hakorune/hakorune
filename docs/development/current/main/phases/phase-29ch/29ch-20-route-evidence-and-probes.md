@@ -59,7 +59,8 @@ Related:
   - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin <stage1-cli>`
   - diagnostics-only: reports whether legacy/subcmd cold compat routes are still accepted on a compiled artifact
 - explicit Program(JSON) text-only probe:
-  - `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin <stage1-cli>`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh --bin <stage1-cli>`
   - diagnostics-only: proves whether the remaining compat resolver can accept `*_PROGRAM_JSON_TEXT` alone
 - explicit Program(JSON) mode-gate probe:
   - archived evidence:
@@ -172,10 +173,12 @@ Related:
   - `legacy_env_program_json=none`
   - `raw_wrapper_program_json=none`
   - `explicit_helper_program_json=stage1-env-mir-program`
-- After the `_resolve_supplied_program_json_text()` cleanup in `lang/src/runner/stage1_cli_env.hako`,
-  `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin target/selfhost/hakorune.stage1_cli`
-  and `--bin target/selfhost/hakorune.stage1_cli.stage2`
-  both return `text_only_rc=0`.
+- `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`
+  was green before archive:
+  - `target/selfhost/hakorune.stage1_cli` returned `text_only_rc=0`
+  - `target/selfhost/hakorune.stage1_cli.stage2` returned `text_only_rc=0`
+  - the live explicit compat route probe now covers this text transport through
+    `stage1_contract_exec_program_json_compat()`
 
 ### owner-local surface thinning
 

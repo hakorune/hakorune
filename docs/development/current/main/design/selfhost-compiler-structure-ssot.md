@@ -337,9 +337,10 @@ Do not leave plugin ownership ambiguous.
   - current callers:
     - `tools/selfhost/lib/stage1_contract.sh::stage1_contract_exec_program_json_compat()`
     - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
-    - `tools/dev/phase29ch_program_json_text_only_probe.sh`
   - note:
     - current caller inventory is probe/helper-owned only; this route is outside reduced authority evidence
+    - the old text-only diagnostics probe is archived at
+      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`; the live compat route probe now covers the same text transport
 - alternate supplied-Program caller shapes
   - diagnostics-only aliases over `stage1-env-mir-program`
 - raw `run_stage1_cli.sh ... --from-program-json`
