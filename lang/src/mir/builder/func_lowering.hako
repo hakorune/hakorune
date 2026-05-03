@@ -35,10 +35,10 @@ static box FuncLoweringBox {
     CliRunShapeScannerBox.scan(s)
 
     // Check for "defs" key and extract bounds using helper
-    local bounds = DefsScannerBox.find_defs_bounds(s)
-    if bounds == null { return "" }
-    local defs_start = bounds.get(0)
-    local defs_end = bounds.get(1)
+    local defs_start = DefsScannerBox.find_defs_start(s)
+    if defs_start < 0 { return "" }
+    local defs_end = DefsScannerBox.find_defs_end_from(s, defs_start)
+    if defs_end < 0 { return "" }
 
     // Parse each def object in defs array
     local defs_str = s.substring(defs_start, defs_end)

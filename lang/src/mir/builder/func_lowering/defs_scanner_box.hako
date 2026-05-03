@@ -4,26 +4,31 @@
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box DefsScannerBox {
-  // Find defs array bounds in Program JSON
-  // Returns ArrayBox: [defs_start, defs_end] or null if not found
-  method find_defs_bounds(program_json) {
+  // Find defs array content start in Program JSON.
+  // Returns index just after '[' or -1 if not found.
+  method find_defs_start(program_json) {
     local s = "" + program_json
     local defs_idx = JsonFragBox.index_of_from(s, "\"defs\":", 0)
-    if defs_idx < 0 { return null }
+    if defs_idx < 0 { return -1 }
 
     local j = defs_idx + 7  // skip "defs":
-    // skip whitespace
     loop(j < s.length()) {
       local ch = s.substring(j, j + 1)
       if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { j = j + 1 } else { break }
     }
-    if j >= s.length() { return null }
-    if s.substring(j, j + 1) != "[" { return null }
+    if j >= s.length() { return -1 }
+    if s.substring(j, j + 1) != "[" { return -1 }
+    return j + 1
+  }
 
-    local defs_start = j + 1
-    // Find matching ]
+  // Find defs array content end from a defs_start returned by find_defs_start.
+  // Returns index of matching ']' or -1 if malformed.
+  method find_defs_end_from(program_json, defs_start) {
+    local s = "" + program_json
+    if defs_start < 1 { return -1 }
+
     local depth = 1
-    local k = j + 1
+    local k = defs_start
     local in_str = 0
     local esc = 0
     loop(k < s.length()) {
@@ -39,18 +44,26 @@ static box DefsScannerBox {
       if ch == "[" { depth = depth + 1  k = k + 1  continue }
       if ch == "]" {
         depth = depth - 1
-        if depth == 0 {
-          local result = new ArrayBox()
-          result.push(defs_start)
-          result.push(k)
-          return result
-        }
+        if depth == 0 { return k }
         k = k + 1
         continue
       }
       k = k + 1
     }
-    return null
+    return -1
+  }
+
+  // Find defs array bounds in Program JSON
+  // Returns ArrayBox: [defs_start, defs_end] or null if not found
+  method find_defs_bounds(program_json) {
+    local defs_start = me.find_defs_start(program_json)
+    if defs_start < 0 { return null }
+    local defs_end = me.find_defs_end_from(program_json, defs_start)
+    if defs_end < 0 { return null }
+    local result = new ArrayBox()
+    result.push(defs_start)
+    result.push(defs_end)
+    return result
   }
 
   // Extract func_name from def object at position

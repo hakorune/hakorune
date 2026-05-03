@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P245A-STRING-OR-VOID-CHILD-RETURN-PROFILE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P245A-STRING-OR-VOID-CHILD-RETURN-PROFILE.md"
-latest_card_summary = "Propagate proven string-or-void child returns as parent return-profile evidence."
+latest_card = "P246A-DEFS-SCANNER-SCALAR-BOUNDS"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P246A-DEFS-SCANNER-SCALAR-BOUNDS.md"
+latest_card_summary = "Route active defs bounds scanning through scalar start/end helpers instead of an ArrayBox return."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -210,4 +210,5 @@ landed_tail = [
   "29cv-P243a lower loop count-param inline emit landed",
   "29cv-P244a cli run shape scanner void landed",
   "29cv-P245a string-or-void child return profile landed",
+  "29cv-P246a defs scanner scalar bounds landed",
 ]
