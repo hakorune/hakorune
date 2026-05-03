@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # bug_origin_triage.sh
 #
-# Internal engineering triage helper to identify likely bug origin across vm-family lanes:
+# Archived internal engineering triage helper to identify likely bug origin across vm-family lanes:
 # - Rust VM route (--backend vm)
 # - Stage1 .hako route (--backend vm --hako-run)
 # - vm-hako route (--backend vm-hako)
@@ -9,15 +9,15 @@
 # This is not a front-door runtime surface. Use it for focused route triage only.
 #
 # Usage:
-#   tools/dev/bug_origin_triage.sh <source.hako> [--expect '<regex>'] [--expect-rc <n>] [--timeout <sec>] [--stage1-entry <path>] [--keep-temp]
+#   bash tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh <source.hako> [--expect '<regex>'] [--expect-rc <n>] [--timeout <sec>] [--stage1-entry <path>] [--keep-temp]
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/../../../.." && pwd)"
 BIN="${NYASH_BIN:-$ROOT_DIR/target/release/hakorune}"
 
 if [ $# -lt 1 ]; then
-  echo "usage: tools/dev/bug_origin_triage.sh <source.hako> [--expect '<regex>'] [--expect-rc <n>] [--timeout <sec>] [--stage1-entry <path>] [--keep-temp]" >&2
+  echo "usage: bash tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh <source.hako> [--expect '<regex>'] [--expect-rc <n>] [--timeout <sec>] [--stage1-entry <path>] [--keep-temp]" >&2
   exit 2
 fi
 

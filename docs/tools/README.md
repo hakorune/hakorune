@@ -25,16 +25,16 @@ git status -sb
 tools/checks/dev_gate.sh quick
 ```
 
-### 1. バグ起点の切り分け（internal engineering triage）
+### 1. バグ起点の切り分け（archived internal engineering triage）
 
 ```bash
-tools/dev/bug_origin_triage.sh <source.hako> --expect '<regex>' --expect-rc <n>
+bash tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh <source.hako> --expect '<regex>' --expect-rc <n>
 ```
 
 例:
 
 ```bash
-tools/dev/bug_origin_triage.sh apps/tests/phase29y_loop_if_assignment_carry_min.hako \
+bash tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh apps/tests/phase29y_loop_if_assignment_carry_min.hako \
   --expect '^FINAL=c$' --expect-rc 0 --timeout 10
 ```
 
@@ -45,7 +45,7 @@ tools/dev/bug_origin_triage.sh apps/tests/phase29y_loop_if_assignment_carry_min.
 - 複数 route 同時 fail: frontend/core 契約（SSOT）側を優先調査
 
 補足:
-- `bug_origin_triage.sh` は internal engineering helper。
+- `bug_origin_triage.sh` は archived internal engineering helper。
 - day-to-day runtime front door ではない。
 
 ## 2. `.hako` ルール検証（hako_check）
@@ -293,6 +293,6 @@ tools/checks/phase29ca_direct_verify_dominance_block_canary.sh
 ## 推奨デバッグ順
 
 1. 失敗 fixture を1つに固定
-2. `bug_origin_triage.sh` で lane 分類
+2. 必要なら archived `bug_origin_triage.sh` で lane 分類
 3. lane に応じて `hako_check` か Rust 側の最小ゲートを回す
 4. 修正後に `tools/smokes/v2/run.sh --profile quick` で再確認

@@ -6,7 +6,7 @@
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `tools/selfhost/proof/*`
   - `tools/smokes/v2/profiles/integration/phase29x/observability/*`
-  - `tools/dev/bug_origin_triage.sh`
+  - `tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh` (archived in P366A)
   - `src/runner/dispatch.rs`
   - `src/runner/route_orchestrator.rs`
 - success:
@@ -25,7 +25,7 @@
   - `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_compat_bypass_guard_vm.sh`
   - `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_pin_guard_vm.sh`
 - candidate-thin
-  - `tools/dev/bug_origin_triage.sh`
+  - `tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh` (archived in P366A)
   - `tools/checks/route_env_probe.sh`
   - `tools/checks/vm_route_bypass_guard.sh`
   - `tools/checks/phase29x_vm_route_pin_guard.sh`
@@ -43,7 +43,7 @@
 ## Retirement order
 
 1. retire-first: docs/manual candidate-thin
-   - `tools/dev/bug_origin_triage.sh`
+   - `tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh` (archived in P366A)
    - `tools/checks/route_env_probe.sh`
    - `docs/tools/README.md`
    - role: internal engineering triage / diagnostics only

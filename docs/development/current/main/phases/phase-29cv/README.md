@@ -117,6 +117,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P365A promotes the phase29ca direct-verify dominance canary from `tools/dev`
   to `tools/checks`; it remains a release-binary guard and is intentionally not
   part of quick gate.
+- P366A archives the docs/manual-only `bug_origin_triage.sh` helper from active
+  `tools/dev`; historical route-triage evidence remains under
+  `tools/archive/legacy-selfhost/engineering/`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

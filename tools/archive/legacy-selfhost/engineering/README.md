@@ -57,6 +57,7 @@ This bucket keeps old readiness gates, parser handoff promotors, and analyzer/mi
 - `phase29ck_boundary_fallback_inventory_probe.sh`
 - `phase29ck_small_entry_gc_sections_experiment.sh`
 - `phase29ck_small_entry_startup_probe.sh`
+- `bug_origin_triage.sh`
 - `enable_mirbuilder_dev_env.sh`
 - `enable_phase216_env.sh`
 - `rename_nyash_to_hako.sh`

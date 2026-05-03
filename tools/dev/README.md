@@ -25,7 +25,6 @@ those under `tools/archive/legacy-selfhost/engineering/`.
 | --- | --- | --- |
 | `README.md` | manifest | Active surface inventory. Keep in sync with `tools_dev_surface_inventory_guard.sh`. |
 | `at_local_preexpand.sh` | active dev helper | Local alias pre-expander. Keep with `dev_sugar_preexpand.sh` and `docs/guides/dev-local-alias.md`. |
-| `bug_origin_triage.sh` | active triage helper | Internal bug-origin lane classifier documented in `docs/tools/README.md`. |
 | `cargo_check_safe.sh` | active environment helper | EXDEV-safe cargo wrapper documented in `mir-vm-llvm-instruction-contract-fix-ssot.md`. |
 | `dev_sugar_preexpand.sh` | active dev helper | Composed dev sugar pre-expander repaired in P359A. |
 | `direct_loop_progression_sweep.sh` | active monitor | Direct-route loop progression monitor documented in `docs/tools/README.md` and current investigations. |
@@ -46,6 +45,10 @@ These used to live under `tools/dev`, but checks own them now:
 - `tools/checks/mir_builder_layer_dependency_guard.sh`
 - `tools/checks/loop_pattern_context_zero_guard.sh`
 - `tools/checks/phase29ca_direct_verify_dominance_block_canary.sh`
+
+## Archived Helpers
+
+- `tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh`
 
 ## Update Rule
 

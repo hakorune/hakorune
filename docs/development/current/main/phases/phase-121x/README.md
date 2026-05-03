@@ -25,7 +25,7 @@
   - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
   - `tools/selfhost/proof/selfhost_vm_smoke.sh`
 - could demote internal-only
-  - `tools/dev/bug_origin_triage.sh`
+  - `tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh` (archived in P366A)
   - `tools/checks/route_env_probe.sh`
   - `docs/tools/README.md`
 - blockers

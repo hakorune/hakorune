@@ -4,7 +4,7 @@
 - 対象:
   - `tools/smokes/v2/profiles/integration/phase29x/observability/*`
   - `tools/smokes/v2/profiles/integration/selfhost/phase29x_vm_route_non_strict_compat_boundary_vm.sh`
-  - `tools/dev/bug_origin_triage.sh`
+  - `tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh` (archived in P366A)
   - current pointer docs
 - success:
   - `route observability keep` / `strict-dev priority keep` / `non-strict compat boundary keep` の3役が current docs で exact に読める
@@ -21,7 +21,7 @@
 - candidate-thin
   - `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_compat_bypass_guard_vm.sh`
   - `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_pin_guard_vm.sh`
-  - `tools/dev/bug_origin_triage.sh`
+  - `tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh` (archived in P366A)
 - reading
   - suite pin lives in `tools/smokes/v2/suites/integration/phase29x-vm-route.txt`
   - keep-now surface is route observability + strict-dev priority + explicit compat boundary + vm-hako strict replay

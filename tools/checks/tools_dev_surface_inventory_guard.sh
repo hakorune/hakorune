@@ -11,7 +11,6 @@ guard_require_files "$TAG" "$README"
 EXPECTED_FILES=(
   "README.md"
   "at_local_preexpand.sh"
-  "bug_origin_triage.sh"
   "cargo_check_safe.sh"
   "dev_sugar_preexpand.sh"
   "direct_loop_progression_sweep.sh"
