@@ -9,15 +9,15 @@ static box LowerReturnVarLocalBox {
     local k_loc = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
     if k_loc < 0 { return null }
     // Extract name
-    local k_name = JsonFragBox.index_of_from(s, "\"name\":", k_loc); if k_name < 0 { return null }
+    local k_name = me._find_field_near_marker(s, "\"name\":", k_loc, 160); if k_name < 0 { return null }
     local name = JsonFragBox.read_string_after(s, k_name + 7)
     if name == null || name == "" { return null }
     // Ensure expr Int after this Local
-    local k_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_loc)
+    local k_int = me._find_field_near_marker(s, "\"type\":\"Int\"", k_loc, 160)
     if k_int < 0 { return null }
     local kv = JsonFragBox.index_of_from(s, "\"value\":", k_int); if kv < 0 { return null }
-    local val = JsonFragBox.read_int_after(s, kv + 8)
-    if val == null { return null }
+    local val_text = me._read_i64_text_after(s, kv + 8)
+    if val_text == "" { return null }
     // Following Return Var(name)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_loc)
     if k_ret < 0 { return null }
@@ -27,19 +27,97 @@ static box LowerReturnVarLocalBox {
     local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", k_loc + 1)
     if k_loop >= 0 && k_loop < k_ret { return null }
     // Verify Var(name)
-    local k_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_ret)
+    local k_var = me._find_return_var_start(s, k_ret)
     if k_var < 0 { return null }
-    local k_vn = JsonFragBox.index_of_from(s, "\"name\":", k_var); if k_vn < 0 { return null }
+    local k_vn = me._find_field_near_marker(s, "\"name\":", k_var, 160); if k_vn < 0 { return null }
     local vname = JsonFragBox.read_string_after(s, k_vn + 7)
     if vname == null || vname != name { return null }
 
     // Emit MIR(JSON v0) as string: const+ret
-    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
-           "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + val + "}}," +
-           "{\"op\":\"ret\",\"value\":1}]}]}]}"
+    local value = me._coerce_text_compat(val_text)
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + value + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+    return mir
   }
 
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _find_field_near_marker(s, needle, marker_pos, max_distance) {
+    local k_forward = JsonFragBox.index_of_from(s, needle, marker_pos)
+    if k_forward >= 0 && k_forward < marker_pos + max_distance {
+      local boundary_forward = JsonFragBox.index_of_from(s, "},{", marker_pos)
+      if boundary_forward < 0 || boundary_forward > k_forward { return k_forward }
+    }
+
+    local scan = 0
+    local last = -1
+    loop(scan < marker_pos) {
+      local next = JsonFragBox.index_of_from(s, needle, scan)
+      if next < 0 || next >= marker_pos { break }
+      last = next
+      scan = next + 1
+    }
+    if last >= 0 && marker_pos - last < max_distance {
+      local boundary_back = JsonFragBox.index_of_from(s, "},{", last)
+      if boundary_back < 0 || boundary_back > marker_pos { return last }
+    }
+    return -1
+  }
+
+  _find_return_var_start(s, k_ret) {
+    local k_forward = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_ret)
+    if k_forward >= 0 && k_forward < k_ret + 128 {
+      local boundary_forward = JsonFragBox.index_of_from(s, "},{", k_ret)
+      if boundary_forward < 0 || boundary_forward > k_forward { return k_forward }
+    }
+
+    local scan = 0
+    local last_expr = -1
+    loop(scan < k_ret) {
+      local next_expr = JsonFragBox.index_of_from(s, "\"expr\":{", scan)
+      if next_expr < 0 || next_expr >= k_ret { break }
+      last_expr = next_expr
+      scan = next_expr + 1
+    }
+    if last_expr >= 0 && k_ret - last_expr < 160 {
+      local boundary_back = JsonFragBox.index_of_from(s, "},{", last_expr)
+      if boundary_back < 0 || boundary_back > k_ret {
+        local k_before = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", last_expr)
+        if k_before >= 0 && k_before < k_ret { return last_expr }
+      }
+    }
+    return -1
+  }
+
+  _read_i64_text_after(s, pos) {
+    local val_pos = me._skip_ws(s, pos)
+    local val_end = val_pos
+    if val_end < s.length() {
+      local val_sign = s.substring(val_end, val_end + 1)
+      if val_sign == "-" { val_end = val_end + 1 }
+    }
+    local val_digits = val_end
+    local ch = ""
+    loop(val_end < s.length()) {
+      ch = s.substring(val_end, val_end + 1)
+      if ch < "0" || ch > "9" { break }
+      val_end = val_end + 1
+    }
+    if val_end <= val_digits { return "" }
+    return s.substring(val_pos, val_end)
+  }
+
+  _skip_ws(s, pos) {
+    local i = pos
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
   }
 }
