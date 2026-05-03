@@ -66,9 +66,9 @@ static box DefsScannerBox {
     return result
   }
 
-  // Extract func_name from def object at position
-  // Returns: MapBox with "name", "name_end" or null
-  method extract_name(defs_str, name_idx) {
+  // Find func_name closing quote from def object at position.
+  // Returns name_end index or -1 when malformed.
+  method find_name_end(defs_str, name_idx) {
     local name_start = name_idx + 8
     local name_end = -1
     {
@@ -78,6 +78,14 @@ static box DefsScannerBox {
         j = j + 1
       }
     }
+    return name_end
+  }
+
+  // Extract func_name from def object at position
+  // Returns: MapBox with "name", "name_end" or null
+  method extract_name(defs_str, name_idx) {
+    local name_start = name_idx + 8
+    local name_end = me.find_name_end(defs_str, name_idx)
     if name_end < 0 { return null }
     local func_name = defs_str.substring(name_start, name_end)
     local result = new MapBox()

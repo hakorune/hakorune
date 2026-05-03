@@ -51,11 +51,11 @@ static box FuncLoweringBox {
       local name_idx = JsonFragBox.index_of_from(defs_str, "\"name\":\"", pos)
       if name_idx < 0 { break }
 
-      // Extract name using helper
-      local name_info = DefsScannerBox.extract_name(defs_str, name_idx)
-      if name_info == null { break }
-      local func_name = name_info.get("name")
-      local name_end = name_info.get("name_end")
+      // Extract name bounds as scalars; the active Stage0 path does not need
+      // the legacy MapBox payload returned by extract_name/2.
+      local name_end = DefsScannerBox.find_name_end(defs_str, name_idx)
+      if name_end < 0 { break }
+      local func_name = defs_str.substring(name_idx + 8, name_end)
 
       // Extract box name using helper
       local box_name = DefsScannerBox.extract_box_name(defs_str, name_end)
