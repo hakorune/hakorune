@@ -34,6 +34,12 @@ explicit keepers in the right order.
 
 ## Active Blockers
 
+Guard:
+
+- `tools/checks/program_json_dev_surface_guard.sh` prevents archived
+  Program(JSON) diagnostics probes and `tools/dev/program_json_v0/` from
+  returning to active `tools/dev` without a keeper card.
+
 1. Explicit Stage-B artifact diagnostic keeper
    - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`
    - archived: `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_stagea.sh`

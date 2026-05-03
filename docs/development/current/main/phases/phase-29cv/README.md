@@ -75,6 +75,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P352A archives the now-empty active `tools/dev/program_json_v0/` capsule
   marker. Active `tools/dev` no longer has a Program(JSON v0) dev-capsule
   directory; remaining Program(JSON v0) surfaces are explicit keepers below.
+- P353A adds `tools/checks/program_json_dev_surface_guard.sh` and wires it into
+  quick gate, so archived Program(JSON) diagnostics probes and the empty dev
+  capsule directory cannot quietly return to active `tools/dev`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
