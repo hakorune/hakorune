@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P277A-COUNT-PARAM-STEP-TEXT-NORMALIZER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P277A-COUNT-PARAM-STEP-TEXT-NORMALIZER.md"
-latest_card_summary = "Split LowerLoopCountParamBox step sign normalization into a text helper."
+latest_card = "P278A-COUNT-PARAM-CALLSITE-TEXT-MATERIALIZATION"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P278A-COUNT-PARAM-CALLSITE-TEXT-MATERIALIZATION.md"
+latest_card_summary = "Materialize LowerLoopCountParamBox helper call results as parent-local text before sentinel comparisons."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

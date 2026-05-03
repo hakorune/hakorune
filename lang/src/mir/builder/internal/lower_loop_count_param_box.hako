@@ -20,16 +20,16 @@ static box LowerLoopCountParamBox {
     if k_loop < 0 { return "" }
     local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_loop)
     if k_cmp < 0 { return "" }
-    local varname = me._loop_var_name_text(s, k_cmp)
+    local varname = "" + me._loop_var_name_text(s, k_cmp)
     if varname == "" { return "" }
 
     // Resolve loop init from the last Local(varname=...) before this Loop.
-    local start_text = me._local_int_text_before(s, varname, k_loop)
+    local start_text = "" + me._local_int_text_before(s, varname, k_loop)
     if start_text == "" { return "" }
     // Loop Compare normalize: accept < / <= / > / >= with Var(varname) on either side
     // op: accept '<'/'<=' with i on lhs; '>'/'>=' with i on lhs (descending); swapped '>'/'>=' with i on rhs (ascending)
     local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp); if k_op < 0 { return "" }
-    local op = me._read_string_after_text(s, k_op + 5)
+    local op = "" + me._read_string_after_text(s, k_op + 5)
     if op == "" { return "" }
     local has_lhs_i = 0
     if JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0 { has_lhs_i = 1 }
@@ -51,7 +51,7 @@ static box LowerLoopCountParamBox {
         local kv = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int)
         if kv >= 0 {
           if kv < k_cmp_end {
-            limit = me._read_int_after_text(s, kv + 8)
+            limit = "" + me._read_int_after_text(s, kv + 8)
           }
         }
       }
@@ -60,12 +60,12 @@ static box LowerLoopCountParamBox {
         if k_rhs_var >= k_cmp_end { return "" }
         local kn = JsonFragBox.index_of_from(s, "\"name\":\"", k_rhs_var); if kn < 0 { return "" }
         if kn >= k_cmp_end { return "" }
-        local lname = me._read_string_after_text(s, kn + 7); if lname == "" { return "" }
-        limit = me._local_int_text_before(s, lname, k_cmp)
+        local lname = "" + me._read_string_after_text(s, kn + 7); if lname == "" { return "" }
+        limit = "" + me._local_int_text_before(s, lname, k_cmp)
       }
       if limit == "" { return "" }
       // Normalize cmp+limit in one step
-      local norm = me._normalize_cmp_limit_text(op, 0, limit)
+      local norm = "" + me._normalize_cmp_limit_text(op, 0, limit)
       if norm == "" { return "" }
       local cpos = StringOps.index_of_from(norm, ":", 0); if cpos < 0 { return "" }
       cmp = norm.substring(0, cpos)
@@ -84,7 +84,7 @@ static box LowerLoopCountParamBox {
         local kv2 = JsonFragBox.index_of_from(s, "\"value\":", k_lhs_int)
         if kv2 >= 0 {
           if kv2 < k_cmp_end {
-            limit = me._read_int_after_text(s, kv2 + 8)
+            limit = "" + me._read_int_after_text(s, kv2 + 8)
           }
         }
       }
@@ -93,11 +93,11 @@ static box LowerLoopCountParamBox {
         if k_lhs_var >= k_cmp_end { return "" }
         local kn3 = JsonFragBox.index_of_from(s, "\"name\":\"", k_lhs_var); if kn3 < 0 { return "" }
         if kn3 >= k_cmp_end { return "" }
-        local lname3 = me._read_string_after_text(s, kn3 + 7); if lname3 == "" { return "" }
-        limit = me._local_int_text_before(s, lname3, k_cmp)
+        local lname3 = "" + me._read_string_after_text(s, kn3 + 7); if lname3 == "" { return "" }
+        limit = "" + me._local_int_text_before(s, lname3, k_cmp)
       }
       if limit == "" { return "" }
-      local norm2 = me._normalize_cmp_limit_text(op, 1, limit)
+      local norm2 = "" + me._normalize_cmp_limit_text(op, 1, limit)
       if norm2 == "" { return "" }
       local cpos2 = StringOps.index_of_from(norm2, ":", 0); if cpos2 < 0 { return "" }
       cmp = norm2.substring(0, cpos2)
@@ -128,7 +128,7 @@ static box LowerLoopCountParamBox {
       local kvs = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int_b)
       if kvs >= 0 {
         if kvs < k_bop_end {
-          step = me._read_int_after_text(s, kvs + 8)
+          step = "" + me._read_int_after_text(s, kvs + 8)
         }
       }
     } else {
@@ -137,11 +137,11 @@ static box LowerLoopCountParamBox {
       if k_rhs_var_b >= k_bop_end { return "" }
       local kns = JsonFragBox.index_of_from(s, "\"name\":\"", k_rhs_var_b); if kns < 0 { return "" }
       if kns >= k_bop_end { return "" }
-      local vname = me._read_string_after_text(s, kns + 7); if vname == "" { return "" }
-      step = me._local_int_text_before(s, vname, k_bop)
+      local vname = "" + me._read_string_after_text(s, kns + 7); if vname == "" { return "" }
+      step = "" + me._local_int_text_before(s, vname, k_bop)
     }
     if step == "" { return "" }
-    step = me._normalize_step_text(step, bop_minus)
+    step = "" + me._normalize_step_text(step, bop_minus)
     // limit normalized above
 
     return me._emit_count_param_json(start_text, limit, step, cmp)
