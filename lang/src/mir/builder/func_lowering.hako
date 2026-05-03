@@ -180,46 +180,55 @@ static box FuncLoweringBox {
     // Extract op
     local op_idx = JsonFragBox.index_of_from(body_str, "\"op\":\"", bin_idx)
     if op_idx < 0 { return null }
-    local op = JsonFragBox.read_string_after(body_str, op_idx + 5)
+    local op = me._read_string_after_text(body_str, op_idx + 5)
+    if op == "" { return null }
     if !(op == "+" || op == "-" || op == "*" || op == "/") { return null }
 
     // Extract lhs (Var or Int)
     local lhs_idx = JsonFragBox.index_of_from(body_str, "\"lhs\":{", bin_idx)
-    local lhs_type = null
-    local lhs_val = null
+    local lhs_type = ""
+    local lhs_val = ""
     if lhs_idx >= 0 {
       local lhs_type_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"", lhs_idx)
       if lhs_type_idx >= 0 {
-        lhs_type = JsonFragBox.read_string_after(body_str, lhs_type_idx + 7)
+        lhs_type = me._read_string_after_text(body_str, lhs_type_idx + 7)
         if lhs_type == "Var" {
           local var_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", lhs_type_idx)
-          if var_idx >= 0 { lhs_val = JsonFragBox.read_string_after(body_str, var_idx + 8) }
+          if var_idx >= 0 {
+            lhs_val = me._read_string_after_text(body_str, var_idx + 8)
+          }
         } else if lhs_type == "Int" {
           local val_idx = JsonFragBox.index_of_from(body_str, "\"value\":", lhs_type_idx)
-          if val_idx >= 0 { lhs_val = JsonFragBox.read_int_after(body_str, val_idx + 8) }
+          if val_idx >= 0 {
+            lhs_val = me._read_int_after_text(body_str, val_idx + 8)
+          }
         }
       }
     }
 
     // Extract rhs (Var or Int)
     local rhs_idx = JsonFragBox.index_of_from(body_str, "\"rhs\":{", bin_idx)
-    local rhs_type = null
-    local rhs_val = null
+    local rhs_type = ""
+    local rhs_val = ""
     if rhs_idx >= 0 {
       local rhs_type_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"", rhs_idx)
       if rhs_type_idx >= 0 {
-        rhs_type = JsonFragBox.read_string_after(body_str, rhs_type_idx + 7)
+        rhs_type = me._read_string_after_text(body_str, rhs_type_idx + 7)
         if rhs_type == "Var" {
           local var_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", rhs_type_idx)
-          if var_idx >= 0 { rhs_val = JsonFragBox.read_string_after(body_str, var_idx + 8) }
+          if var_idx >= 0 {
+            rhs_val = me._read_string_after_text(body_str, var_idx + 8)
+          }
         } else if rhs_type == "Int" {
           local val_idx = JsonFragBox.index_of_from(body_str, "\"value\":", rhs_type_idx)
-          if val_idx >= 0 { rhs_val = JsonFragBox.read_int_after(body_str, val_idx + 8) }
+          if val_idx >= 0 {
+            rhs_val = me._read_int_after_text(body_str, val_idx + 8)
+          }
         }
       }
     }
 
-    if lhs_type == null || rhs_type == null || lhs_val == null || rhs_val == null { return null }
+    if lhs_type == "" || rhs_type == "" || lhs_val == "" || rhs_val == "" { return null }
 
     // Build MIR function with params
     local insts = ""
@@ -276,6 +285,18 @@ static box FuncLoweringBox {
       pi = pi + 1
     }
     return 0
+  }
+
+  method _read_string_after_text(text, pos) {
+    local value = JsonFragBox.read_string_after(text, pos)
+    if value == null { return "" }
+    return "" + value
+  }
+
+  method _read_int_after_text(text, pos) {
+    local value = JsonFragBox.read_int_after(text, pos)
+    if value == null { return "" }
+    return "" + value
   }
 
   // Lower Return(Call(name, args))
