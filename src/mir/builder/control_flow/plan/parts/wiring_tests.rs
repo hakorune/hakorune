@@ -58,6 +58,89 @@ mod tests {
     }
 
     #[test]
+    fn recipe_scopebox_stmt_boundary_keeps_locals_scoped() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("recipe_scopebox_stmt_boundary".to_string());
+        let _scope = LexicalScopeGuard::new(&mut builder);
+        build_local_statement(
+            &mut builder,
+            vec!["outer".to_string()],
+            vec![Some(Box::new(lit_int(0)))],
+        )
+        .expect("declare outer");
+
+        let mut current_bindings: BTreeMap<String, crate::mir::ValueId> =
+            builder.variable_ctx.variable_map.clone();
+        let scope_stmt = ASTNode::ScopeBox {
+            body: vec![
+                ASTNode::Local {
+                    variables: vec!["tmp".to_string()],
+                    initial_values: vec![Some(Box::new(lit_int(1)))],
+                    span: span(),
+                },
+                assign("outer", lit_int(2)),
+            ],
+            span: span(),
+        };
+
+        let mut arena = RecipeBodies::new();
+        let body_id = arena.register(RecipeBody::new(vec![scope_stmt]));
+        let block = RecipeBlock::new(body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
+        let verified = super::super::entry::verify_stmt_only_block_with_pre(
+            &arena,
+            &block,
+            "test_recipe_scopebox_stmt_boundary",
+            Some(&current_bindings),
+        )
+        .expect("verify stmt-only block");
+
+        let mut saw_scopebox_in_lowerer = false;
+        let plans = super::super::entry::lower_stmt_only_block_verified(
+            &mut builder,
+            &mut current_bindings,
+            &BTreeMap::new(),
+            None,
+            verified,
+            "test_recipe_scopebox_stmt_boundary",
+            |builder, bindings, carrier_step_phis, break_phi_dsts, stmt, error_prefix| {
+                if matches!(stmt, ASTNode::ScopeBox { .. }) {
+                    saw_scopebox_in_lowerer = true;
+                    return Err("ScopeBox should be unwrapped by RecipeBlock dispatch".to_string());
+                }
+                super::super::stmt::lower_return_prelude_stmt(
+                    builder,
+                    bindings,
+                    carrier_step_phis,
+                    break_phi_dsts,
+                    stmt,
+                    error_prefix,
+                )
+            },
+        )
+        .expect("lower stmt-only block");
+
+        assert!(!plans.is_empty());
+        assert!(
+            !saw_scopebox_in_lowerer,
+            "RecipeBlock dispatch should unwrap ScopeBox before stmt lowerer"
+        );
+        assert!(
+            !current_bindings.contains_key("tmp"),
+            "ScopeBox local must not leak into current bindings"
+        );
+        assert!(
+            !builder.variable_ctx.variable_map.contains_key("tmp"),
+            "ScopeBox local must not leak into builder variable_map"
+        );
+        assert!(
+            current_bindings.contains_key("outer"),
+            "assignment to preexisting outer binding must remain visible"
+        );
+
+        builder.exit_function_for_test();
+    }
+
+    #[test]
     fn test_joinir_wiring_then_only_loop_uses_join_dst_for_carrier() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("joinir_wiring_loop_if_loop".to_string());

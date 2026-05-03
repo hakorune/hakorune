@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P376A-RETURN-PRELUDE-SCOPEBOX-LOCAL-SCOPE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P376A-RETURN-PRELUDE-SCOPEBOX-LOCAL-SCOPE.md"
-latest_card_summary = "Restore lexical ScopeBox local scope in return-prelude lowering so scoped locals do not leak into later branch-entry PHIs."
+latest_card = "P377A-RECIPE-SCOPEBOX-BOUNDARY-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P377A-RECIPE-SCOPEBOX-BOUNDARY-SSOT.md"
+latest_card_summary = "Centralize RecipeTree/Parts ScopeBox lexical-boundary lowering so scoped locals do not leak into later branch-entry materialization."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

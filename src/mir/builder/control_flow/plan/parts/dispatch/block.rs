@@ -7,8 +7,10 @@
 //! - Block-level lowering entry points (exit-only, exit-allowed, stmt-only, no-exit)
 
 use super::super::stmt as parts_stmt;
+use super::super::var_map_scope::with_scopebox_binding_boundary;
 #[cfg(debug_assertions)]
 use super::super::verify;
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::recipe_tree::VerifiedRecipeBlock;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     IfContractKind, RecipeBlock, RecipeBodies, RecipeItem,
@@ -128,13 +130,14 @@ pub(super) fn lower_block_internal<'a>(
                 let stmt = body.get_ref(*stmt_ref).ok_or_else(|| {
                     format!("{}: missing stmt idx={}", error_prefix, stmt_ref.index())
                 })?;
-                plans.extend(lower_stmt(
+                plans.extend(lower_stmt_dispatch(
                     builder,
                     current_bindings,
                     carrier_step_phis,
                     break_phi_dsts,
                     stmt,
                     error_prefix,
+                    lower_stmt,
                 )?);
                 if plans_exit_on_all_paths(&plans) {
                     break;
@@ -168,13 +171,14 @@ pub(super) fn lower_block_internal<'a>(
                         let stmt = body.get_ref(*stmt_ref).ok_or_else(|| {
                             format!("{}: missing stmt idx={}", error_prefix, stmt_ref.index())
                         })?;
-                        plans.extend(lower_stmt_outer(
+                        plans.extend(lower_stmt_dispatch(
                             builder,
                             current_bindings,
                             carrier_step_phis,
                             break_phi_dsts,
                             stmt,
                             error_prefix,
+                            &mut *lower_stmt_outer,
                         )?);
                     }
                     RecipeItem::IfV2 {
@@ -238,6 +242,50 @@ pub(super) fn lower_block_internal<'a>(
             Ok(plans)
         }
     }
+}
+
+fn lower_stmt_dispatch(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: Option<&BTreeMap<String, crate::mir::ValueId>>,
+    stmt: &ASTNode,
+    error_prefix: &str,
+    lower_stmt: &mut LowerStmtFn<'_>,
+) -> Result<Vec<LoweredRecipe>, String> {
+    if let ASTNode::ScopeBox { body, .. } = stmt {
+        return with_scopebox_binding_boundary(
+            builder,
+            current_bindings,
+            body,
+            |builder, scoped_bindings| {
+                let mut plans = Vec::new();
+                for stmt in body {
+                    plans.extend(lower_stmt(
+                        builder,
+                        scoped_bindings,
+                        carrier_step_phis,
+                        break_phi_dsts,
+                        stmt,
+                        error_prefix,
+                    )?);
+                    if plans_exit_on_all_paths(&plans) {
+                        break;
+                    }
+                }
+                Ok(plans)
+            },
+        );
+    }
+
+    lower_stmt(
+        builder,
+        current_bindings,
+        carrier_step_phis,
+        break_phi_dsts,
+        stmt,
+        error_prefix,
+    )
 }
 
 // ============================================================================
