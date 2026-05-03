@@ -123,7 +123,7 @@
             pr.in_n++;
           }
         }
-        if (pb->rec_n >= 16) return 0;
+        if (pb->rec_n >= 24) return 0;
         pb->recs[pb->rec_n++] = pr;
         return 1;
       }

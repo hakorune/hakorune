@@ -571,7 +571,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       struct GenericPureOriginBinding { long long reg; int kind; };
       struct Incoming { long long pred; long long val_reg; };
       struct PhiRec { long long dst; struct Incoming in[16]; int in_n; };
-      struct BlockPhi { long long bid; struct PhiRec recs[16]; int rec_n; };
+      struct BlockPhi { long long bid; struct PhiRec recs[24]; int rec_n; };
       struct GenericPureFunctionLoweringState {
         struct GenericPureI64Const consts[1024];
         size_t consts_n;

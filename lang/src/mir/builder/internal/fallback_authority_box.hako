@@ -107,7 +107,14 @@ static box BuilderFallbackAuthorityBox {
           local k_op2 = JsonFragBox.index_of_from(s, "\"op\":", k_cmp)
           if k_op2 >= 0 {
             local op2 = JsonFragBox.read_string_after(s, k_op2 + 5)
-            if !(op2 == "<" || op2 == ">" || op2 == "<=" || op2 == ">=" || op2 == "==" || op2 == "!=") {
+            local op2_supported = 0
+            if op2 == "<" { op2_supported = 1 }
+            if op2 == ">" { op2_supported = 1 }
+            if op2 == "<=" { op2_supported = 1 }
+            if op2 == ">=" { op2_supported = 1 }
+            if op2 == "==" { op2_supported = 1 }
+            if op2 == "!=" { op2_supported = 1 }
+            if op2_supported != 1 {
               print("[mirbuilder/internal/unsupported] compare op: " + op2)
               return null
             }
@@ -187,7 +194,12 @@ static box BuilderFallbackAuthorityBox {
         local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_bin)
         if k_op >= 0 {
           local op = JsonFragBox.read_string_after(s, k_op + 5)
-          if !(op == "+" || op == "-" || op == "*" || op == "/") {
+          local op_supported = 0
+          if op == "+" { op_supported = 1 }
+          if op == "-" { op_supported = 1 }
+          if op == "*" { op_supported = 1 }
+          if op == "/" { op_supported = 1 }
+          if op_supported != 1 {
             print("[mirbuilder/internal/unsupported] binary op: " + op)
             return null
           }
