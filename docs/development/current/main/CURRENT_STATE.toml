@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P286A-FALLBACK-COUNT-PARAM-TEXT-SENTINEL-CALLSITE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P286A-FALLBACK-COUNT-PARAM-TEXT-SENTINEL-CALLSITE.md"
-latest_card_summary = "Remove the stale nullable check from the fallback count-param text-sentinel callsite and keep the final count-param emit as a direct string child return."
+latest_card = "P287A-GENERIC-TYPE-INVENTORY-CAPACITY"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P287A-GENERIC-TYPE-INVENTORY-CAPACITY.md"
+latest_card_summary = "Raise the generic pure type-binding inventory capacity for large owner-local dispatch MIR bodies."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
