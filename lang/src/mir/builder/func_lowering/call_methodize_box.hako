@@ -15,6 +15,7 @@ static box CallMethodizeBox {
     if dm != null && ("" + dm) == "0" { return mir_json }
     if mir_json == null { return mir_json }
     local s = "" + mir_json
+    if JsonFragBox.index_of_from(s, "\"op\":\"call\"", 0) < 0 { return s }
     local out = ""
     local pos = 0
     loop(pos < s.length()) {
