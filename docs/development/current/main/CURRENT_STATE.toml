@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P380B-TO-I64-FORCE-ZERO-ENV-RETIRE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P380B-TO-I64-FORCE-ZERO-ENV-RETIRE.md"
-latest_card_summary = "Retire active NYASH_TO_I64_FORCE_ZERO residue from the common numeric scanner path."
+latest_card = "P380C-TO-I64-SIGN-GUARD-VOID-PHI-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P380C-TO-I64-SIGN-GUARD-VOID-PHI-RETIRE.md"
+latest_card_summary = "Retire the StringHelpers.to_i64 sign-guard hidden void PHI from the source-owner numeric scanner."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
