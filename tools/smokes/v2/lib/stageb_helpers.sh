@@ -3,11 +3,18 @@
 
 _STAGEB_HELPERS_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 source "${_STAGEB_HELPERS_TOOLS_DIR}/selfhost/lib/stageb_program_json_capture.sh"
-source "${_STAGEB_HELPERS_TOOLS_DIR}/lib/program_json_v0_compat.sh"
+
+stageb_source_program_json_v0_compat() {
+  if declare -F program_json_v0_compat_emit_to_file >/dev/null; then
+    return 0
+  fi
+  source "${_STAGEB_HELPERS_TOOLS_DIR}/lib/program_json_v0_compat.sh"
+}
 
 stageb_emit_program_json_v0_fixture() {
   local out_path="$1"
   local input_path="$2"
+  stageb_source_program_json_v0_compat
   program_json_v0_compat_emit_to_file "$NYASH_BIN" "$out_path" "$input_path"
 }
 

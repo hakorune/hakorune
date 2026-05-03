@@ -48,6 +48,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P343A keeps `tools/selfhost/lib/stage1_contract.sh` from sourcing the raw
   Program(JSON v0) emit helper at load time. The helper is now loaded only by
   the direct `emit-program` branch.
+- P344A applies the same load-time narrowing to `stageb_helpers.sh`; fixture
+  callers still use `stageb_emit_program_json_v0_fixture()`, but raw emit helper
+  source happens only inside that function.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
