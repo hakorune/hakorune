@@ -69,6 +69,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P350A archives the phase29ch Program(JSON) cold compat diagnostics probe.
   Live canonical proof now uses the explicit compat route probe and the exact
   Stage1 CLI emit contract smoke instead of a diagnostics-only cold-lane probe.
+- P351A archives the phase29ch selfhost Program(JSON) helper parity probe. The
+  Stage1/Stage2 `emit_from_program_json_v0(...)` helper evidence remains
+  runnable under archived engineering evidence, not active `tools/dev/`.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
@@ -265,7 +268,8 @@ right owner, and delete dead helper surface when the repo no longer calls it.
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_cold_compat_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`,
-     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`,
+     `tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_program_json_helper_probe.sh`
    - Keep only for explicit contract/probe coverage.
    - Old root helpers `tools/stage1_debug.sh` and `tools/stage1_minimal.sh`
      are archived under `tools/archive/legacy-selfhost/stage1-cli/`.

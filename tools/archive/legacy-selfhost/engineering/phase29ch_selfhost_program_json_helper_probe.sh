@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(git rev-parse --show-toplevel)"
+ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../../../.." && pwd)}"
 source "$ROOT/tools/selfhost/lib/identity_routes.sh"
-STAGE1_BIN="${STAGE1_BIN:-target/selfhost/hakorune.stage1_cli}"
-STAGE2_BIN="${STAGE2_BIN:-target/selfhost/hakorune.stage1_cli.stage2}"
-ENTRY="${ENTRY:-apps/tests/hello_simple_llvm.hako}"
+STAGE1_BIN="${STAGE1_BIN:-${ROOT}/target/selfhost/hakorune.stage1_cli}"
+STAGE2_BIN="${STAGE2_BIN:-${ROOT}/target/selfhost/hakorune.stage1_cli.stage2}"
+ENTRY="${ENTRY:-${ROOT}/apps/tests/hello_simple_llvm.hako}"
 
 for bin in "$STAGE1_BIN" "$STAGE2_BIN"; do
   if [[ ! -x "$bin" ]]; then

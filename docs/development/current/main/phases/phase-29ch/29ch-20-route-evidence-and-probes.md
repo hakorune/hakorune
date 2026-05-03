@@ -86,7 +86,8 @@ Related:
 - selfhost source-route bisect probe:
   - `bash tools/dev/phase29ch_selfhost_source_route_bisect_probe.sh`
 - selfhost Program(JSON) helper probe:
-  - `bash tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
+  - archived evidence:
+    `bash tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_program_json_helper_probe.sh`
   - diagnostics-only: proves that a minimal selfhost helper calling `MirBuilderBox.emit_from_program_json_v0(...)` stays green on Stage1/Stage2
 
 ## Current Compare Decision
@@ -146,7 +147,8 @@ Related:
 - No separate cold supplied-Program compat lane remains on green artifacts.
 - The cold supplied-Program diagnostics owner is now archived evidence, not
   `identity_routes.sh` / `stage1_contract.sh`.
-- `bash tools/dev/phase29ch_selfhost_program_json_helper_probe.sh` is green:
+- `tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_program_json_helper_probe.sh`
+  was green before archive:
   - `stage1_stage2_mir=exact-match`
   - runtime flags: `MIR_NONNULL`, `MIR_NONEMPTY`, `TEXT_NONEMPTY`, `LEN_POS`, `HEAD_OK`, `IDX_OK`
 - therefore the explicit supplied-Program compat lane stays frozen/probe-owned for the current slice; do not reopen `stage1_cli_env.hako` wrapper-level compat branching while the authority path is still shrinking on Rust owner-1 / owner-2.

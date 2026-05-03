@@ -53,7 +53,8 @@ explicit keepers in the right order.
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_cold_compat_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_explicit_mode_gate_probe.sh`,
      `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_helper_exec_probe.sh`,
-     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`
+     `tools/archive/legacy-selfhost/engineering/phase29ch_program_json_text_only_probe.sh`,
+     `tools/archive/legacy-selfhost/engineering/phase29ch_selfhost_program_json_helper_probe.sh`
 4. Fixture contract keepers
    - `tools/smokes/v2/lib/stageb_helpers.sh`
    - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh`
