@@ -10,7 +10,6 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.loop_scan" as LoopScanBox
-using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
 using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
 using lang.mir.builder.func_lowering.param_list_box as ParamListBox
 
@@ -50,25 +49,13 @@ static box LowerLoopMultiCarrierBox {
       if limit_param_reg <= 0 { return null }
     }
 
-    // 4) Collect initial carrier values (Local Int assignments before the Loop)
-    local carrier_vals = me._collect_carrier_initials(s, k_loop, varname)
-    if carrier_vals == null || carrier_vals.length() < 2 {
-      local count = 0
-      if carrier_vals != null { count = carrier_vals.length() }
+    // 4) Collect carrier facts without materializing an ArrayBox on the active path.
+    local carrier_count = me._carrier_count(s, k_loop, varname)
+    if carrier_count < 2 {
+      local count = carrier_count
       print("[mirbuilder/internal/loop:multi_carrier:insufficient_carriers:count=" + count + "]")
       return null
     }
-
-    // 5) Build opts for multi_count mode with detected carriers
-    local opts = LoopOptsBox.new_map()
-    LoopOptsBox.put(opts, "mode", "multi_count")
-    LoopOptsBox.put(opts, "limit_kind", limit_kind)
-    if limit_kind == "const" {
-      LoopOptsBox.put(opts, "limit", limit_value)
-    } else {
-      LoopOptsBox.put(opts, "limit_param_reg", limit_param_reg)
-    }
-    LoopOptsBox.put(opts, "carriers", carrier_vals)
 
     local tag = "[mirbuilder/internal/loop:multi_carrier:detected:limit_kind=" + limit_kind
     if limit_kind == "const" {
@@ -76,19 +63,21 @@ static box LowerLoopMultiCarrierBox {
     } else {
       tag = tag + ",param_reg=" + limit_param_reg
     }
-    tag = tag + ",carriers=" + carrier_vals.length() + "]"
+    tag = tag + ",carriers=" + carrier_count + "]"
     print(tag)
 
-    // 6) Delegate to LoopFormBox.build2 via LoopOptsBox
-    return LoopOptsBox.build2(opts)
+    // 5) Emit the same multi_count layout directly as MIR JSON text.
+    local emitted = me._emit_multi_count_json(s, k_loop, varname, limit_kind, limit_value, limit_param_reg, carrier_count)
+    if emitted == "" { return null }
+    return emitted
   }
 
-  // Extract initial carrier values (Local Int assignments before Loop body)
-  method _collect_carrier_initials(body_json, loop_idx, loop_var) {
-    local vals = new ArrayBox()
-    if body_json == null { return vals }
+  method _carrier_count(body_json, loop_idx, loop_var) {
+    if body_json == null { return 0 }
+    local count = 0
     local search = 0
-    loop(true) {
+    local n = body_json.length()
+    loop(search < n) {
       local k_local = JsonFragBox.index_of_from(body_json, "\"type\":\"Local\"", search)
       if k_local < 0 || (loop_idx >= 0 && k_local >= loop_idx) { break }
       local name_idx = JsonFragBox.index_of_from(body_json, "\"name\":", k_local)
@@ -112,12 +101,153 @@ static box LowerLoopMultiCarrierBox {
       local val_idx = JsonFragBox.index_of_from(body_json, "\"value\":", int_idx)
       if val_idx < 0 { search = k_local + 1  continue }
       local val = JsonFragBox.read_int_after(body_json, val_idx + 8)
+      if val != null { count = count + 1 }
+      search = k_local + 1
+    }
+    return count
+  }
+
+  method _carrier_value_text(body_json, loop_idx, loop_var, index) {
+    if body_json == null { return "" }
+    local wanted = me._coerce_i64_compat(index)
+    if wanted < 0 { return "" }
+    local current = 0
+    local search = 0
+    local n = body_json.length()
+    loop(search < n) {
+      local k_local = JsonFragBox.index_of_from(body_json, "\"type\":\"Local\"", search)
+      if k_local < 0 || (loop_idx >= 0 && k_local >= loop_idx) { break }
+      local name_idx = JsonFragBox.index_of_from(body_json, "\"name\":", k_local)
+      if name_idx < 0 { break }
+      local name = JsonFragBox.read_string_after(body_json, name_idx + 7)
+      if name == null { break }
+      if loop_var != null && name == loop_var {
+        search = k_local + 1
+        continue
+      }
+      local expr_idx = JsonFragBox.index_of_from(body_json, "\"expr\":{", k_local)
+      if expr_idx < 0 || loop_idx >= 0 && expr_idx >= loop_idx {
+        search = k_local + 1
+        continue
+      }
+      local int_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Int\"", expr_idx)
+      if int_idx < 0 || loop_idx >= 0 && int_idx >= loop_idx {
+        search = k_local + 1
+        continue
+      }
+      local val_idx = JsonFragBox.index_of_from(body_json, "\"value\":", int_idx)
+      if val_idx < 0 { search = k_local + 1  continue }
+      local val = JsonFragBox.read_int_after(body_json, val_idx + 8)
       if val != null {
-        vals.push(me._coerce_i64_compat(val))
+        if current == wanted { return me._coerce_text_compat(val) }
+        current = current + 1
       }
       search = k_local + 1
     }
+    return ""
+  }
+
+  // Extract initial carrier values (Local Int assignments before Loop body)
+  method _collect_carrier_initials(body_json, loop_idx, loop_var) {
+    local vals = new ArrayBox()
+    local count = me._carrier_count(body_json, loop_idx, loop_var)
+    local idx = 0
+    loop(idx < count) {
+      local val = me._carrier_value_text(body_json, loop_idx, loop_var, idx)
+      if val != "" { vals.push(me._coerce_i64_compat(val)) }
+      idx = idx + 1
+    }
     return vals
+  }
+
+  method _emit_multi_count_json(body_json, loop_idx, loop_var, limit_kind, limit_value, limit_param_reg, carrier_count) {
+    local reg_i_init = 1
+    local reg_limit = 2
+    local reg_step = me._reg_add2(3, carrier_count)
+    local reg_i_curr = me._reg_add2(reg_step, 1)
+    local reg_cmp = me._reg_add3(reg_i_curr, carrier_count, 1)
+    local reg_i_next = me._reg_add2(reg_cmp, 1)
+    local reg_carrier_next_base = me._reg_add2(reg_i_next, 1)
+    local next_reg = me._reg_add2(reg_carrier_next_base, carrier_count)
+    local last_carrier_offset = me._reg_sub1(carrier_count)
+    local last_next = me._reg_add2(reg_carrier_next_base, last_carrier_offset)
+
+    local pre = "{\"id\":0,\"instructions\":["
+    pre = pre + "{\"op\":\"const\",\"dst\":" + reg_i_init + ",\"value\":{\"type\":\"i64\",\"value\":0}}"
+    if limit_kind == "const" {
+      pre = pre + ",{\"op\":\"const\",\"dst\":" + reg_limit + ",\"value\":{\"type\":\"i64\",\"value\":" + limit_value + "}}"
+    } else {
+      pre = pre + ",{\"op\":\"copy\",\"src\":" + limit_param_reg + ",\"dst\":" + reg_limit + "}"
+    }
+    local idx = 0
+    loop(idx < carrier_count) {
+      local reg_carrier_init = me._reg_add2(3, idx)
+      local carrier_value = me._carrier_value_text(body_json, loop_idx, loop_var, idx)
+      if carrier_value == "" { return "" }
+      pre = pre + ",{\"op\":\"const\",\"dst\":" + reg_carrier_init + ",\"value\":{\"type\":\"i64\",\"value\":" + carrier_value + "}}"
+      idx = me._reg_add2(idx, 1)
+    }
+    pre = pre + ",{\"op\":\"const\",\"dst\":" + reg_step + ",\"value\":{\"type\":\"i64\",\"value\":1}}"
+    pre = pre + ",{\"op\":\"jump\",\"target\":1}]}"
+
+    local header = "{\"id\":1,\"instructions\":["
+    header = header + "{\"op\":\"phi\",\"dst\":" + reg_i_curr + ",\"incoming\":[[" + reg_i_init + ",0],[" + reg_i_next + ",3]]}"
+    idx = 0
+    loop(idx < carrier_count) {
+      local reg_carrier_init2 = me._reg_add2(3, idx)
+      local reg_carrier_curr = me._reg_add3(reg_i_curr, idx, 1)
+      local reg_carrier_next = me._reg_add2(reg_carrier_next_base, idx)
+      header = header + ",{\"op\":\"phi\",\"dst\":" + reg_carrier_curr + ",\"incoming\":[[" + reg_carrier_init2 + ",0],[" + reg_carrier_next + ",3]]}"
+      idx = me._reg_add2(idx, 1)
+    }
+    header = header + ",{\"op\":\"compare\",\"operation\":\"Lt\",\"lhs\":" + reg_i_curr + ",\"rhs\":" + reg_limit + ",\"dst\":" + reg_cmp + "}"
+    header = header + ",{\"op\":\"branch\",\"cond\":" + reg_cmp + ",\"then\":2,\"else\":4}]}"
+
+    local body = "{\"id\":2,\"instructions\":["
+    local reg_sum = next_reg
+    next_reg = me._reg_add2(next_reg, 1)
+    local first_carrier_curr = me._reg_add2(reg_i_curr, 1)
+    body = body + "{\"op\":\"copy\",\"src\":" + first_carrier_curr + ",\"dst\":" + reg_sum + "}"
+    local current_sum = reg_sum
+    idx = 1
+    loop(idx < carrier_count) {
+      local reg_tmp = next_reg
+      next_reg = me._reg_add2(next_reg, 1)
+      local reg_carrier_curr2 = me._reg_add3(reg_i_curr, idx, 1)
+      body = body + ",{\"op\":\"binop\",\"operation\":\"Add\",\"lhs\":" + current_sum + ",\"rhs\":" + reg_carrier_curr2 + ",\"dst\":" + reg_tmp + "}"
+      current_sum = reg_tmp
+      idx = me._reg_add2(idx, 1)
+    }
+    local reg_new_value = current_sum
+    body = body + ",{\"op\":\"jump\",\"target\":3}]}"
+
+    local latch = "{\"id\":3,\"instructions\":["
+    latch = latch + "{\"op\":\"binop\",\"operation\":\"Add\",\"lhs\":" + reg_i_curr + ",\"rhs\":" + reg_step + ",\"dst\":" + reg_i_next + "}"
+    idx = 0
+    loop(idx < last_carrier_offset) {
+      local src_carrier = me._reg_add3(reg_i_curr, idx, 2)
+      local dst_carrier = me._reg_add2(reg_carrier_next_base, idx)
+      latch = latch + ",{\"op\":\"copy\",\"src\":" + src_carrier + ",\"dst\":" + dst_carrier + "}"
+      idx = me._reg_add2(idx, 1)
+    }
+    latch = latch + ",{\"op\":\"copy\",\"src\":" + reg_new_value + ",\"dst\":" + last_next + "}"
+    latch = latch + ",{\"op\":\"jump\",\"target\":1}]}"
+
+    local last_curr = me._reg_add2(reg_i_curr, carrier_count)
+    local exit_block = "{\"id\":4,\"instructions\":[{\"op\":\"ret\",\"value\":" + last_curr + "}]}"
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[" + pre + "," + header + "," + body + "," + latch + "," + exit_block + "]}]}"
+  }
+
+  method _reg_add2(a, b) {
+    return a + b
+  }
+
+  method _reg_add3(a, b, c) {
+    return a + b + c
+  }
+
+  method _reg_sub1(a) {
+    return a - 1
   }
 
   method _extract_limit_kind(body_json, cmp_idx, loop_var, params_arr) {
