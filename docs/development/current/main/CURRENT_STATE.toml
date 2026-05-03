@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P260A-COUNT-PARAM-TEXT-RESULT-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P260A-COUNT-PARAM-TEXT-RESULT-GUARD.md"
-latest_card_summary = "Align count-param loop caller with the try_lower_text empty-string result contract."
+latest_card = "P261A-BASIC-RETURN-METHOD-DIRECT-TEXT-EMIT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P261A-BASIC-RETURN-METHOD-DIRECT-TEXT-EMIT.md"
+latest_card_summary = "Emit simple Return(Method) MIR directly as text instead of via temporary ArrayBox/MapBox schema state."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

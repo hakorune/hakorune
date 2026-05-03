@@ -464,8 +464,15 @@ static box FuncBodyBasicLowerBox {
     }
     if is_param_recv == 0 { return null }
 
-    // args array（Int or Var のみ許可）
-    local arg_regs = new ArrayBox()
+    // receiver register
+    local recv_reg_i = me._param_reg(params_arr, "" + recv_name)
+    if recv_reg_i <= 0 { return null }
+
+    // args array（Int or Var のみ許可）を直接 MIR text に畳む。
+    local insts = ""
+    local arg_ids = ""
+    local call_arity = 0
+    local next_reg = ParamListBox.count(params_arr) + 1
     local args_idx = JsonFragBox.index_of_from(s, "\"args\":[", m_idx)
     if args_idx >= 0 {
       local scan = args_idx + 8
@@ -480,80 +487,24 @@ static box FuncBodyBasicLowerBox {
           if v_idx < 0 { break }
           local v = JsonFragBox.read_int_after(s, v_idx + 8)
           if v == null { break }
-          local info = new MapBox()
-          info.set("kind", "Int")
-          info.set("value", JsonFragBox._str_to_int("" + v))
-          arg_regs.push(info)
+          if insts != "" { insts = insts + "," }
+          insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v + "}}"
+          if arg_ids != "" { arg_ids = arg_ids + "," }
+          arg_ids = arg_ids + ("" + next_reg)
+          call_arity = call_arity + 1
+          next_reg = next_reg + 1
         } else if atype == "Var" {
           local n_idx = JsonFragBox.index_of_from(s, "\"name\":", t_idx)
           if n_idx < 0 { break }
           local aname = JsonFragBox.read_string_after(s, n_idx + 7)
           if aname == null { break }
-          local info = new MapBox()
-          info.set("kind", "Var")
-          info.set("name", aname)
-          arg_regs.push(info)
+          local preg = me._param_reg(params_arr, "" + aname)
+          if preg <= 0 { return null }
+          if arg_ids != "" { arg_ids = arg_ids + "," }
+          arg_ids = arg_ids + ("" + preg)
+          call_arity = call_arity + 1
         }
         scan = t_idx + 20
-      }
-    }
-
-    // Map params to registers
-    local param_map = new MapBox()
-    local next_reg = 1
-    {
-      local pi = 0
-      local pn = ParamListBox.count(params_arr)
-      loop(pi < pn) {
-        param_map.set("" + ParamListBox.get(params_arr, pi), "" + next_reg)
-        next_reg = next_reg + 1
-        pi = pi + 1
-      }
-    }
-
-    // receiver register
-    local recv_reg = param_map.get(recv_name)
-    if recv_reg == null { return null }
-    local recv_reg_i = JsonFragBox._str_to_int("" + recv_reg)
-
-    // Build arg reg list
-    local arg_ids = new ArrayBox()
-    {
-      local i = 0
-      local n = arg_regs.length()
-      loop(i < n) {
-        local info = arg_regs.get(i)
-        local kind = "" + info.get("kind")
-        if kind == "Int" {
-          local v = info.get("value")
-          local reg = next_reg
-          next_reg = next_reg + 1
-          info.set("reg", reg)
-        } else if kind == "Var" {
-          local aname = "" + info.get("name")
-          local preg = param_map.get(aname)
-          if preg == null { return null }
-          info.set("reg", JsonFragBox._str_to_int("" + preg))
-        }
-        arg_ids.push(info.get("reg"))
-        i = i + 1
-      }
-    }
-
-    // Build instructions: const for Int args, then mir_call + ret
-    local insts = new ArrayBox()
-    {
-      local i = 0
-      local n = arg_regs.length()
-      loop(i < n) {
-        local info = arg_regs.get(i)
-        local kind = "" + info.get("kind")
-        if kind == "Int" {
-          local reg = info.get("reg")
-          local v = info.get("value")
-          insts.push(MirSchemaBox.inst_const(reg, v))
-        }
-        i = i + 1
       }
     }
 
@@ -561,22 +512,27 @@ static box FuncBodyBasicLowerBox {
     next_reg = next_reg + 1
 
     // Box type 判定（現段階では ArrayBox.size/get/push と StringBox.length のみ）
-    local box_type = null
+    local box_type = ""
     local kind = ""
     if mname == "size" || mname == "get" || mname == "push" {
       box_type = "ArrayBox"
       kind = "array"
     } else if mname == "length" {
       // String.length()（len/size エイリアスは別経路で扱う）
-      if arg_ids.length() != 0 { return null }
+      if call_arity != 0 { return null }
       box_type = "StringBox"
       kind = "string"
     } else {
       return null
     }
 
-    insts.push(me._inst_mir_call_method_box(box_type, mname, recv_reg_i, arg_ids, result_reg))
-    insts.push(MirSchemaBox.inst_ret(result_reg))
+    if insts != "" { insts = insts + "," }
+    insts = insts + (
+      "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":" + result_reg + ",\\\"mir_call\\\":{" +
+        "\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"box_name\\\":\\\"" + box_type + "\\\",\\\"method\\\":\\\"" + mname + "\\\",\\\"receiver\\\":" + recv_reg_i + "}," +
+        "\\\"args\\\":[" + arg_ids + "],\\\"effects\\\":[]}}"
+    )
+    insts = insts + ",{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
 
     if env.get("HAKO_SELFHOST_TRACE") == "1" {
       local tag = "[funcs/basic:method." + kind + "] "
@@ -584,8 +540,20 @@ static box FuncBodyBasicLowerBox {
       print(tag + target + " method=" + mname)
     }
 
-    local mir = me._emit_single_block_function_json(insts)
-    return me._rebind(mir, func_name, box_name, params_arr, "[funcs/basic:method." + kind + "]")
+    local params_json = me._build_params_json(params_arr)
+    local target_name = me._build_func_name(box_name, func_name, params_arr)
+    if target_name == null { return null }
+    return "{\\\"name\\\":\\\"" + target_name + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[" + insts + "]}]}"
+  }
+
+  method _param_reg(params_arr, param_name) {
+    local pi = 0
+    local pn = ParamListBox.count(params_arr)
+    loop(pi < pn) {
+      if ("" + ParamListBox.get(params_arr, pi)) == param_name { return pi + 1 }
+      pi = pi + 1
+    }
+    return 0
   }
 
   method _try_lower_loop(func_name, box_name, params_arr, body_json) {
