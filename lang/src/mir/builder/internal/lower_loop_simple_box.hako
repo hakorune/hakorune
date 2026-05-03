@@ -3,9 +3,26 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.loop_scan" as LoopScanBox
-using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
 
 static box LowerLoopSimpleBox {
+  _emit_loop_count_json(limit) {
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+        "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit + "}}," +
+        "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":1}}," +
+        "{\"op\":\"jump\",\"target\":1}]}," +
+      "{\"id\":1,\"instructions\":[" +
+        "{\"op\":\"phi\",\"dst\":10,\"incoming\":[[1,0],[12,3]]}," +
+        "{\"op\":\"compare\",\"operation\":\"Lt\",\"lhs\":10,\"rhs\":2,\"dst\":11}," +
+        "{\"op\":\"branch\",\"cond\":11,\"then\":2,\"else\":4}]}," +
+      "{\"id\":2,\"instructions\":[" +
+        "{\"op\":\"binop\",\"operation\":\"Add\",\"lhs\":10,\"rhs\":3,\"dst\":12}," +
+        "{\"op\":\"jump\",\"target\":3}]}," +
+      "{\"id\":3,\"instructions\":[{\"op\":\"jump\",\"target\":1}]}," +
+      "{\"id\":4,\"instructions\":[{\"op\":\"ret\",\"value\":10}]}]}]}"
+  }
+
   try_lower(program_json) {
     local s = me._coerce_text_compat(program_json)
     local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
@@ -40,10 +57,7 @@ static box LowerLoopSimpleBox {
     local limit = JsonFragBox.read_int_after(s, k_v + 8)
     if limit == null { return null }
 
-    local opts = LoopOptsBox.new_map()
-    LoopOptsBox.put(opts, "mode", "count")
-    LoopOptsBox.put(opts, "limit", limit)
-    return LoopOptsBox.build2(opts)
+    return me._emit_loop_count_json(me._coerce_text_compat(limit))
   }
 
   _coerce_text_compat(value) {
