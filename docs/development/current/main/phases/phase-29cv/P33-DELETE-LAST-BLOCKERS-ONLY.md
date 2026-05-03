@@ -41,6 +41,8 @@ explicit keepers in the right order.
    - `tools/lib/program_json_v0_compat.sh`
    - live debt is now the shared raw emit helper, not the manual artifact/dev
      probe entries
+   - the empty active `tools/dev/program_json_v0/` marker is archived as
+     `tools/archive/legacy-selfhost/engineering/program_json_v0_dev_capsule_README.md`
 2. Explicit Program(JSON)->MIR bridge keepers
    - `tools/selfhost/lib/program_json_mir_bridge.sh`
    - `tools/selfhost_exe_stageb.sh`

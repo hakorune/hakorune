@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P351A-PHASE29CH-SELFHOST-PROGRAM-JSON-HELPER-PROBE-ARCHIVE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P351A-PHASE29CH-SELFHOST-PROGRAM-JSON-HELPER-PROBE-ARCHIVE.md"
-latest_card_summary = "Archive the phase29ch selfhost Program(JSON) helper parity probe as historical engineering evidence."
+latest_card = "P352A-PROGRAM-JSON-V0-DEV-CAPSULE-DIR-ARCHIVE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P352A-PROGRAM-JSON-V0-DEV-CAPSULE-DIR-ARCHIVE.md"
+latest_card_summary = "Archive the empty active tools/dev Program(JSON v0) capsule directory marker."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

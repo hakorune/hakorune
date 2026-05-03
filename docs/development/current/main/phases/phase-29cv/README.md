@@ -72,6 +72,9 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P351A archives the phase29ch selfhost Program(JSON) helper parity probe. The
   Stage1/Stage2 `emit_from_program_json_v0(...)` helper evidence remains
   runnable under archived engineering evidence, not active `tools/dev/`.
+- P352A archives the now-empty active `tools/dev/program_json_v0/` capsule
+  marker. Active `tools/dev` no longer has a Program(JSON v0) dev-capsule
+  directory; remaining Program(JSON v0) surfaces are explicit keepers below.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge
