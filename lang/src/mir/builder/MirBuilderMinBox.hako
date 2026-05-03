@@ -8,6 +8,7 @@ using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
 using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
 using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
 using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
+using "hako.mir.builder.internal.lower_return_bool" as LowerReturnBoolBox
 using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
 using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompareFoldVarIntBox
 using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
@@ -38,6 +39,7 @@ static box MirBuilderBox {
     { local out_ifvv = LowerIfCompareVarVarBox.try_lower(s); if out_ifvv != null { print("[mirbuilder/min:if.compare.varvar]"); return me._norm_json_if_needed(out_ifvv) } }
     { local out_if = LowerIfCompareBox.try_lower(s); if out_if != null { print("[mirbuilder/min:if.compare.intint]"); return me._norm_json_if_needed(out_if) } }
     { local out_rv = LowerReturnVarLocalBox.try_lower(s); if out_rv != null { print("[mirbuilder/min:return.var.local]"); return me._norm_json_if_needed(out_rv) } }
+    { local out_bool = LowerReturnBoolBox.try_lower(s); if out_bool != null { print("[mirbuilder/min:return.bool]"); return me._norm_json_if_needed(out_bool) } }
     { local out2 = LowerReturnIntBox.try_lower(s); if out2 != null { print("[mirbuilder/min:return.int]"); return me._norm_json_if_needed(out2) } }
     print("[mirbuilder/min/unsupported]")
     return null

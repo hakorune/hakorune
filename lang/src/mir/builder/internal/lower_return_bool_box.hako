@@ -9,23 +9,60 @@ static box LowerReturnBoolBox {
     if k_ret < 0 { return null }
     // Strict match: only accept Return(expr=Bool) at expression root.
     // Reject nested Bool under Return(Logical/Compare/...).
-    local k_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_ret)
-    if k_expr < 0 { return null }
-    local k_bool = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Bool\"", k_ret)
-    if k_bool < 0 || k_bool != k_expr { return null }
+    local k_bool = me._find_return_bool_start(s, k_ret)
+    if k_bool < 0 { return null }
     local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_bool)
     if k_val < 0 { return null }
-    local is_true = JsonFragBox.read_bool_after(s, k_val+8)
-    if is_true == null { return null }
-    local v = is_true == 1 ? 1 : 0
+    local lit = me._read_bool_i64_text_after(s, k_val + 8)
+    if lit == "" { return null }
     // Emit MIR v0 as JSON string (functions[]/name="main"/blocks.id)
-    local json = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
-                "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + v + "}}," +
-                "{\"op\":\"ret\",\"value\":1}]}]}]}"
+    local json = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lit + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
     return json
   }
 
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _find_return_bool_start(s, k_ret) {
+    local k_forward = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Bool\"", k_ret)
+    if k_forward >= 0 && k_forward < k_ret + 96 { return k_forward }
+
+    local scan = 0
+    local last_expr = -1
+    loop(scan < k_ret) {
+      local next_expr = JsonFragBox.index_of_from(s, "\"expr\":{", scan)
+      if next_expr < 0 || next_expr >= k_ret { break }
+      last_expr = next_expr
+      scan = next_expr + 1
+    }
+    if last_expr >= 0 && k_ret - last_expr < 96 {
+      local boundary_back = JsonFragBox.index_of_from(s, "},{", last_expr)
+      if boundary_back < 0 || boundary_back > k_ret {
+        local k_before = JsonFragBox.index_of_from(s, "\"type\":\"Bool\"", last_expr)
+        if k_before >= 0 && k_before < k_ret { return last_expr }
+      }
+    }
+    return -1
+  }
+
+  _read_bool_i64_text_after(s, pos) {
+    local p = me._skip_ws(s, pos)
+    if p + 4 <= s.length() && s.substring(p, p + 4) == "true" { return "1" }
+    if p + 5 <= s.length() && s.substring(p, p + 5) == "false" { return "0" }
+    return ""
+  }
+
+  _skip_ws(s, pos) {
+    local i = pos
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
   }
 }
