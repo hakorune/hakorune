@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P240A-LOWER-LOAD-STORE-LOCAL-ROUTE-RETIRE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P240A-LOWER-LOAD-STORE-LOCAL-ROUTE-RETIRE.md"
-latest_card_summary = "Retire LowerLoadStoreLocal from active fallback chains and keep its owner path string-only if re-enabled."
+latest_card = "P241A-VOID-LOGGING-RETURN-PROFILE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P241A-VOID-LOGGING-RETURN-PROFILE.md"
+latest_card_summary = "Classify proven void-logging child returns as void sentinel evidence for string-or-void return profiles."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -205,4 +205,5 @@ landed_tail = [
   "29cv-P238a lower loop count-param direct JSON landed",
   "29cv-P239a lower loop simple direct JSON landed",
   "29cv-P240a lower load-store local route retire landed",
+  "29cv-P241a void logging return profile landed",
 ]

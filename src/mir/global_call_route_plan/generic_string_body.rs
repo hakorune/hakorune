@@ -1295,8 +1295,18 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::NumericI64Leaf
-                | GlobalCallTargetShape::GenericStringVoidLoggingBody => {
+                GlobalCallTargetShape::GenericStringVoidLoggingBody => {
+                    if let Some(dst) = dst {
+                        set_proven_flow_value_class(
+                            values,
+                            *dst,
+                            GenericPureValueClass::VoidSentinel,
+                            changed,
+                        );
+                    }
+                    None
+                }
+                GlobalCallTargetShape::NumericI64Leaf => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,
