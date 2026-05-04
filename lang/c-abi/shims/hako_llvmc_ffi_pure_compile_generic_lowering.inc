@@ -7,6 +7,32 @@
       #include "hako_llvmc_ffi_emit_seam.inc"
       #include "hako_llvmc_ffi_generic_method_lowering.inc"
       #include "hako_llvmc_ffi_mir_call_dispatch.inc"
+      auto int note_global_call_lowering_plan_unsupported_shape(
+          long long bid,
+          size_t ii,
+          const char* op) {
+        yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGlobalCallView global_view;
+        if (read_lowering_plan_global_call_view(plan_entry, &global_view) &&
+            global_view.tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED) {
+          if (lowering_plan_global_call_view_has_direct_target(&global_view)) {
+            trace_lowering_plan_entry_hit(plan_entry, "global_call_direct_target_pending");
+          }
+          note_pure_unsupported_shape_detail(
+              bid,
+              ii,
+              op,
+              (global_view.reason && global_view.reason[0])
+                  ? global_view.reason
+                  : "lowering_plan_unsupported_global_call",
+              global_view.target_return_type,
+              global_view.target_shape_reason,
+              global_view.target_shape_blocker_symbol,
+              global_view.target_shape_blocker_reason);
+          return 1;
+        }
+        return 0;
+      }
       struct ArrayTextResidenceSessionRouteMetadata active_region_executor;
       int active_region_executor_matched = 0;
       struct ArrayTextCombinedRegionRouteMetadata active_combined_region;
@@ -551,15 +577,17 @@
                     f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
                     dst, recv, args, a0, a1, skip_inst) < 0) {
               if (ctype && !strcmp(ctype, "Global")) {
-                note_pure_unsupported_shape_detail(
-                    bid,
-                    ii,
-                    op,
-                    "missing_multi_function_emitter",
-                    "?",
-                    "structured_call_global_user_target",
-                    mname,
-                    "same_module_global_call_requires_uniform_emitter");
+                if (!note_global_call_lowering_plan_unsupported_shape(bid, ii, op)) {
+                  note_pure_unsupported_shape_detail(
+                      bid,
+                      ii,
+                      op,
+                      "missing_multi_function_emitter",
+                      "?",
+                      "structured_call_global_user_target",
+                      mname,
+                      "same_module_global_call_requires_uniform_emitter");
+                }
               } else {
                 note_pure_unsupported_shape_detail(
                     bid,
@@ -593,25 +621,7 @@
             if (emit_mir_call_dispatch(
                     f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
                     dst, recv, args, a0, a1, skip_inst) < 0) {
-              yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
-              struct LoweringPlanGlobalCallView global_view;
-              if (read_lowering_plan_global_call_view(plan_entry, &global_view) &&
-                  global_view.tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED) {
-                if (lowering_plan_global_call_view_has_direct_target(&global_view)) {
-                  trace_lowering_plan_entry_hit(plan_entry, "global_call_direct_target_pending");
-                }
-                note_pure_unsupported_shape_detail(
-                    bid,
-                    ii,
-                    op,
-                    (global_view.reason && global_view.reason[0])
-                        ? global_view.reason
-                        : "lowering_plan_unsupported_global_call",
-                    global_view.target_return_type,
-                    global_view.target_shape_reason,
-                    global_view.target_shape_blocker_symbol,
-                    global_view.target_shape_blocker_reason);
-              } else {
+              if (!note_global_call_lowering_plan_unsupported_shape(bid, ii, op)) {
                 note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route", NULL);
               }
               yyjson_doc_free(d);

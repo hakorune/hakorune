@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P380Q-PROGRAM-JSON-BRIDGE-SEMANTIC-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P380Q-PROGRAM-JSON-BRIDGE-SEMANTIC-REFRESH.md"
-latest_card_summary = "Refresh MIR semantic metadata before Program(JSON) bridge JSON emission."
+latest_card = "P380R-STRUCTURED-CALL-PLAN-DIAGNOSTIC"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P380R-STRUCTURED-CALL-PLAN-DIAGNOSTIC.md"
+latest_card_summary = "Make structured call unsupported diagnostics consume LoweringPlan facts."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
