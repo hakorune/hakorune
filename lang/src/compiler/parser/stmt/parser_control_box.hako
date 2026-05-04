@@ -25,8 +25,28 @@ static box ParserControlBox {
     local paren = 0
     if src.substring(j, j+1) == "(" { paren = 1 j = j + 1 }
 
-    local cond = ctx.parse_expr2(src, j)
-    j = ctx.gpos_get()
+    local cond = null
+    local some_subject_expr = null
+    local some_subject_temp = ""
+    local some_binding_name = ""
+    if ctx.starts_with_kw(src, j, "some") == 1 {
+      j = j + 4
+      j = ctx.skip_ws(src, j)
+      local bindp = ctx.read_ident2(src, j)
+      local at_bind = bindp.lastIndexOf("@")
+      some_binding_name = bindp.substring(0, at_bind)
+      j = ctx.to_int(bindp.substring(at_bind + 1, bindp.length()))
+      j = ctx.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j + 1) == "=" { j = j + 1 }
+      j = ctx.skip_ws(src, j)
+      some_subject_expr = ctx.parse_expr2(src, j)
+      j = ctx.gpos_get()
+      some_subject_temp = "__ny_option_some_subject_" + ctx.i2s(stmt_start)
+      cond = me._option_some_cond_json(some_subject_temp)
+    } else {
+      cond = ctx.parse_expr2(src, j)
+      j = ctx.gpos_get()
+    }
 
     if paren == 1 {
       j = ctx.skip_ws(src, j)
@@ -141,11 +161,35 @@ static box ParserControlBox {
     ctx.gpos_set(j)
 
     env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before))
+    if some_subject_expr != null {
+      local bind_stmt = "{\"type\":\"Local\",\"name\":\"" + some_binding_name + "\",\"expr\":" + me._option_some_bind_json(some_subject_temp, some_binding_name) + "}"
+      then_json = me._prepend_stmt_json(then_json, bind_stmt)
+      local if_json = "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json
+      if else_json != null { if_json = if_json + ",\"else\":" + else_json }
+      if_json = if_json + "}"
+      local temp_stmt = "{\"type\":\"Local\",\"name\":\"" + some_subject_temp + "\",\"expr\":" + some_subject_expr + "}"
+      return temp_stmt + "," + if_json
+    }
     if else_json == null {
       return "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json + "}"
     } else {
       return "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json + ",\"else\":" + else_json + "}"
     }
+  }
+
+  _prepend_stmt_json(array_json, stmt_json) {
+    if array_json == null || array_json.length() == 0 || array_json == "[]" {
+      return "[" + stmt_json + "]"
+    }
+    return "[" + stmt_json + "," + array_json.substring(1, array_json.length())
+  }
+
+  _option_some_cond_json(subject_name) {
+    return "{\"type\":\"EnumMatch\",\"enum\":\"Option\",\"scrutinee\":{\"type\":\"Var\",\"name\":\"" + subject_name + "\"},\"arms\":[{\"variant\":\"Some\",\"expr\":{\"type\":\"Bool\",\"value\":true}},{\"variant\":\"None\",\"expr\":{\"type\":\"Bool\",\"value\":false}}]}"
+  }
+
+  _option_some_bind_json(subject_name, binding_name) {
+    return "{\"type\":\"EnumMatch\",\"enum\":\"Option\",\"scrutinee\":{\"type\":\"Var\",\"name\":\"" + subject_name + "\"},\"arms\":[{\"variant\":\"Some\",\"bind\":\"" + binding_name + "\",\"expr\":{\"type\":\"Var\",\"name\":\"" + binding_name + "\"}},{\"variant\":\"None\",\"expr\":{\"type\":\"Null\"}}]}"
   }
 
   // Parse: loop(cond) { ... }

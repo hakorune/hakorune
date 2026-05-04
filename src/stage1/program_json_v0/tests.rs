@@ -168,12 +168,86 @@ return 0
     assert_eq!(body[0]["expr"]["type"], "EnumCtor");
     assert_eq!(body[0]["expr"]["enum"], "Option");
     assert_eq!(body[0]["expr"]["variant"], "None");
+    assert!(body[0]["expr"]["args"]
+        .as_array()
+        .expect("args array")
+        .is_empty());
+}
+
+#[test]
+fn source_to_program_json_v0_emits_option_sugar_some_and_none() {
+    let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+local empty = none
+local full = some 7
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+
+    assert_eq!(body[0]["expr"]["type"], "EnumCtor");
+    assert_eq!(body[0]["expr"]["enum"], "Option");
+    assert_eq!(body[0]["expr"]["variant"], "None");
+    assert_eq!(body[1]["expr"]["type"], "EnumCtor");
+    assert_eq!(body[1]["expr"]["enum"], "Option");
+    assert_eq!(body[1]["expr"]["variant"], "Some");
+    assert_eq!(body[1]["expr"]["args"][0]["value"], 7);
+}
+
+#[test]
+fn source_to_program_json_v0_rewrites_if_some_sugar_to_local_plus_if() {
+    let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+local value = some 7
+if some v = value {
+  return v
+} else {
+  return 0
+}
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+
+    assert_eq!(body[1]["type"], "Local");
+    let temp_name = body[1]["name"].as_str().expect("temp local name");
     assert!(
-        body[0]["expr"]["args"]
-            .as_array()
-            .expect("args array")
-            .is_empty()
+        temp_name.starts_with("__ny_option_some_subject_"),
+        "expected hidden temp local, got {temp_name}"
     );
+    assert_eq!(body[2]["type"], "If");
+    assert_eq!(body[2]["cond"]["type"], "EnumMatch");
+    assert_eq!(body[2]["cond"]["enum"], "Option");
+    assert_eq!(body[2]["cond"]["arms"][0]["variant"], "Some");
+    assert_eq!(body[2]["cond"]["arms"][0]["expr"]["value"], true);
+    assert_eq!(body[2]["cond"]["arms"][1]["variant"], "None");
+    assert_eq!(body[2]["cond"]["arms"][1]["expr"]["value"], false);
+    assert_eq!(body[2]["then"][0]["type"], "Local");
+    assert_eq!(body[2]["then"][0]["name"], "v");
+    assert_eq!(body[2]["then"][0]["expr"]["type"], "EnumMatch");
+    assert_eq!(body[2]["then"][0]["expr"]["scrutinee"]["name"], temp_name);
+    assert_eq!(body[2]["then"][0]["expr"]["arms"][0]["bind"], "v");
+    assert_eq!(body[2]["then"][1]["type"], "Return");
+    assert_eq!(body[2]["else"][0]["type"], "Return");
 }
 
 #[test]

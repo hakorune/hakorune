@@ -8,7 +8,7 @@
  * - return statements
  */
 
-use crate::ast::{ASTNode, Span};
+use crate::ast::{ASTNode, EnumMatchArm, LiteralValue, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::cursor::TokenCursor;
 use crate::parser::{NyashParser, ParseError};
@@ -49,6 +49,10 @@ impl NyashParser {
         }
         self.advance(); // consume 'if'
 
+        if self.match_token(&TokenType::SOME) {
+            return self.parse_if_some_sugar();
+        }
+
         // Parse condition
         let condition = Box::new(self.parse_expression()?);
 
@@ -75,6 +79,70 @@ impl NyashParser {
             condition,
             then_body,
             else_body,
+            span: Span::unknown(),
+        })
+    }
+
+    fn parse_if_some_sugar(&mut self) -> Result<ASTNode, ParseError> {
+        let some_line = self.current_token().line;
+        let some_column = self.current_token().column;
+        self.advance(); // consume 'some'
+
+        let binding_name = match &self.current_token().token_type {
+            TokenType::IDENTIFIER(name) => {
+                let value = name.clone();
+                self.advance();
+                value
+            }
+            other => {
+                return Err(ParseError::UnexpectedToken {
+                    found: other.clone(),
+                    expected: "binding identifier after `if some`".to_string(),
+                    line: self.current_token().line,
+                });
+            }
+        };
+
+        self.consume(TokenType::ASSIGN)?;
+        let scrutinee = self.parse_expression()?;
+        let then_body = self.parse_block_statements()?;
+
+        let else_body = if self.match_token(&TokenType::ELSE) {
+            self.advance();
+            if self.match_token(&TokenType::IF) {
+                let nested_if = self.parse_if()?;
+                Some(vec![nested_if])
+            } else {
+                Some(self.parse_block_statements()?)
+            }
+        } else {
+            None
+        };
+
+        let temp_name = format!(
+            "__ny_option_some_subject_{}_{}_{}",
+            some_line, some_column, self.current
+        );
+        let condition = option_some_presence_match_expr(&temp_name);
+
+        let mut then_body_with_binding = Vec::with_capacity(then_body.len() + 1);
+        then_body_with_binding.push(option_some_binding_local(&binding_name, &temp_name));
+        then_body_with_binding.extend(then_body);
+
+        Ok(ASTNode::ScopeBox {
+            body: vec![
+                ASTNode::Local {
+                    variables: vec![temp_name.clone()],
+                    initial_values: vec![Some(Box::new(scrutinee))],
+                    span: Span::unknown(),
+                },
+                ASTNode::If {
+                    condition: Box::new(condition),
+                    then_body: then_body_with_binding,
+                    else_body,
+                    span: Span::unknown(),
+                },
+            ],
             span: Span::unknown(),
         })
     }
@@ -232,5 +300,69 @@ impl NyashParser {
             value,
             span: Span::unknown(),
         })
+    }
+}
+
+fn option_some_presence_match_expr(temp_name: &str) -> ASTNode {
+    ASTNode::EnumMatchExpr {
+        enum_name: "Option".to_string(),
+        scrutinee: Box::new(ASTNode::Variable {
+            name: temp_name.to_string(),
+            span: Span::unknown(),
+        }),
+        arms: vec![
+            EnumMatchArm {
+                variant_name: "Some".to_string(),
+                binding_name: None,
+                body: ASTNode::Literal {
+                    value: LiteralValue::Bool(true),
+                    span: Span::unknown(),
+                },
+            },
+            EnumMatchArm {
+                variant_name: "None".to_string(),
+                binding_name: None,
+                body: ASTNode::Literal {
+                    value: LiteralValue::Bool(false),
+                    span: Span::unknown(),
+                },
+            },
+        ],
+        else_expr: None,
+        span: Span::unknown(),
+    }
+}
+
+fn option_some_binding_local(binding_name: &str, temp_name: &str) -> ASTNode {
+    ASTNode::Local {
+        variables: vec![binding_name.to_string()],
+        initial_values: vec![Some(Box::new(ASTNode::EnumMatchExpr {
+            enum_name: "Option".to_string(),
+            scrutinee: Box::new(ASTNode::Variable {
+                name: temp_name.to_string(),
+                span: Span::unknown(),
+            }),
+            arms: vec![
+                EnumMatchArm {
+                    variant_name: "Some".to_string(),
+                    binding_name: Some(binding_name.to_string()),
+                    body: ASTNode::Variable {
+                        name: binding_name.to_string(),
+                        span: Span::unknown(),
+                    },
+                },
+                EnumMatchArm {
+                    variant_name: "None".to_string(),
+                    binding_name: None,
+                    body: ASTNode::Literal {
+                        value: LiteralValue::Null,
+                        span: Span::unknown(),
+                    },
+                },
+            ],
+            else_expr: None,
+            span: Span::unknown(),
+        }))],
+        span: Span::unknown(),
     }
 }

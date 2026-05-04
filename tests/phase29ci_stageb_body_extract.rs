@@ -200,3 +200,75 @@ static box Main {
         json
     );
 }
+
+#[test]
+fn build_box_emit_program_json_v0_preserves_option_sugar_surface() {
+    let bin = env!("CARGO_BIN_EXE_hakorune");
+    let script = r#"
+using lang.compiler.build.build_box as BuildBox
+static box Main {
+  main() {
+    local src = env.get("HAKO_SRC")
+    local json = BuildBox.emit_program_json_v0(src, null)
+    print(json)
+    return 0
+  }
+}
+"#;
+    let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+    local empty = none
+    local value = some 7
+    if some v = value {
+      return v
+    } else {
+      return 0
+    }
+  }
+}
+"#;
+    let script_path = write_temp_hako("phase29cv_buildbox_option_sugar", script);
+    let output = Command::new(bin)
+        .arg("--backend")
+        .arg("vm")
+        .arg(&script_path)
+        .env("HAKO_SRC", source)
+        .output()
+        .expect("failed to run BuildBox option sugar probe");
+    let _ = fs::remove_file(&script_path);
+
+    assert!(
+        output.status.success(),
+        "BuildBox option sugar probe should succeed\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let json_start = stdout
+        .find("{\"version\":0,\"kind\":\"Program\"")
+        .expect("BuildBox option sugar output should contain Program(JSON v0)");
+    let json = &stdout[json_start..];
+
+    assert!(
+        json.contains("\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"None\",\"args\":[]")
+            && json.contains(
+                "\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"Some\",\"args\":[{\"type\":\"Int\",\"value\":7}]"
+            ),
+        "BuildBox route should preserve `none` / `some` sugar on the shared enum lane\njson:\n{}",
+        json
+    );
+    assert!(
+        json.contains("\"name\":\"__ny_option_some_subject_")
+            && json.contains("\"type\":\"If\",\"cond\":{\"type\":\"EnumMatch\",\"enum\":\"Option\"")
+            && json.contains("\"type\":\"Local\",\"name\":\"v\",\"expr\":{\"type\":\"EnumMatch\",\"enum\":\"Option\""),
+        "BuildBox route should rewrite `if some` sugar through hidden temp + EnumMatch\njson:\n{}",
+        json
+    );
+}

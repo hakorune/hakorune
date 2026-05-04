@@ -347,6 +347,25 @@ impl ExprParserWithCursor {
                     span: Span::unknown(),
                 })
             }
+            TokenType::NONE => {
+                cursor.advance();
+                Ok(ASTNode::FromCall {
+                    parent: "Option".to_string(),
+                    method: "None".to_string(),
+                    arguments: Vec::new(),
+                    span: Span::unknown(),
+                })
+            }
+            TokenType::SOME => {
+                cursor.advance();
+                let payload = Self::parse_expression(cursor)?;
+                Ok(ASTNode::FromCall {
+                    parent: "Option".to_string(),
+                    method: "Some".to_string(),
+                    arguments: vec![payload],
+                    span: Span::unknown(),
+                })
+            }
             TokenType::IDENTIFIER(name) => {
                 let name = name.clone();
                 cursor.advance();

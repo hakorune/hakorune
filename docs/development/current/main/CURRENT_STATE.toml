@@ -17,7 +17,7 @@ taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLO
 
 latest_card = "P381AQ-OPTION-NULL-NO-MATCH-TASK-MAP"
 latest_card_path = "docs/development/current/main/phases/phase-29cv/P381AQ-OPTION-NULL-NO-MATCH-TASK-MAP.md"
-latest_card_summary = "AQ-2 inventory is locked, AQ-3 restores dual-front Option enum ctor/match parity, and AQ-4 lands null-free Option::Some guards on the shared Program(JSON v0) lane."
+latest_card_summary = "AQ-2 inventory is locked, AQ-3 restores dual-front Option enum ctor/match parity, AQ-4 lands null-free Option::Some guards, and AQ-5 lands `some`/`none`/`if some` sugar on the shared Program(JSON v0) lane."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -167,6 +167,25 @@ impl NyashParser {
                     span: Span::new(0, 0, line, column),
                 })
             }
+            TokenType::NONE => {
+                self.advance();
+                Ok(ASTNode::FromCall {
+                    parent: "Option".to_string(),
+                    method: "None".to_string(),
+                    arguments: Vec::new(),
+                    span: Span::unknown(),
+                })
+            }
+            TokenType::SOME => {
+                self.advance();
+                let payload = self.parse_expression()?;
+                Ok(ASTNode::FromCall {
+                    parent: "Option".to_string(),
+                    method: "Some".to_string(),
+                    arguments: vec![payload],
+                    span: Span::unknown(),
+                })
+            }
             TokenType::THIS => {
                 let line = self.current_token().line;
                 let column = self.current_token().column;

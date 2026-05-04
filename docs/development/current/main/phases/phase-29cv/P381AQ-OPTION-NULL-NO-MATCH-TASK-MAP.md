@@ -223,16 +223,40 @@ Validation:
 
 Next:
 
-- AQ-5 stays deferred; public `Option` now has the intended AQ-3/AQ-4 baseline on the
-  existing enum lane
+- AQ-6 remains optional; AQ-1 through AQ-5 now land on the shared enum lane
 
-### AQ-5. Optional sugar later
+### AQ-5. Optional sugar on the shared enum lane
 
-Only after AQ-3/AQ-4:
+Implemented:
 
 - `some expr`
 - `none`
 - `if some v = expr { ... } else { ... }`
+
+Result:
+
+- Rust parser and selfhost `.hako` parser now both accept the public sugar surface
+  while reusing the existing `Option` enum lane.
+- `some expr` lowers to `Option::Some(expr)`.
+- `none` lowers to `Option::None`.
+- `if some v = expr { ... } else { ... }` rewrites to:
+  - a hidden subject `Local`
+  - an `If` whose condition is `EnumMatch(Option, ...) -> Bool`
+  - a leading payload-binding `Local` inside the then-body
+- No new Program(JSON v0) node shape or runtime representation was introduced.
+
+Validation:
+
+- Rust parser sugar ctor:
+  `parse_option_sugar_some_becomes_option_ctor`
+- Rust parser `if some` rewrite:
+  `parse_if_some_sugar_rewrites_to_scopebox_over_enum_match_lane`
+- Stage1 sugar ctor lowering:
+  `source_to_program_json_v0_emits_option_sugar_some_and_none`
+- Stage1 `if some` lowering:
+  `source_to_program_json_v0_rewrites_if_some_sugar_to_local_plus_if`
+- Selfhost BuildBox parity:
+  `build_box_emit_program_json_v0_preserves_option_sugar_surface`
 
 Deferred:
 
@@ -262,12 +286,13 @@ Rules:
 
 ## Result
 
-AQ-1 docs policy lock and AQ-2 dual parser inventory are now recorded in this
-card. The inventory shows that Stage1 / Program(JSON v0) already carry
-`EnumCtor` / `EnumMatch`, while the remaining work is front-end acceptance:
-Rust still lacks bare `Option::None`, and the `.hako` parser still lacks
-`enum` / enum ctor / `match` surface.
+AQ-1 through AQ-5 are now recorded in this card:
+
+- AQ-2 locked the dual-parser inventory.
+- AQ-3 restored dual-front enum ctor / match parity on the shared lane.
+- AQ-4 made public `Option::Some(...)` null-free with compile-time and runtime guards.
+- AQ-5 landed `some` / `none` / `if some` sugar without introducing a new IR or runtime path.
 
 Next step:
 
-- AQ-3 public Option owner restore/add on the existing enum lane
+- AQ-6 stays optional and should only land if a compatibility facade is still needed

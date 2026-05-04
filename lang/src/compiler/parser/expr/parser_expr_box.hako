@@ -105,6 +105,16 @@ static box ParserExprBox {
       return "{\"type\":\"Null\"}"
     }
 
+    if ctx.starts_with_kw(src, j, "none") == 1 {
+      ctx.gpos_set(j + 4)
+      return "{\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"None\",\"args\":[]}"
+    }
+
+    if ctx.starts_with_kw(src, j, "some") == 1 {
+      local payload = ParserExprBox.parse_expr2(src, j + 4, ctx)
+      return "{\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"Some\",\"args\":[" + payload + "]}"
+    }
+
     // Peek expression: delegate to ParserPeekBox
     if ctx.starts_with_kw(src, j, "peek") == 1 {
       j = j + 4

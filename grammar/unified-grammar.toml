@@ -70,6 +70,24 @@ example = 'peek status { "ok" => 200, "error" => 500, else => 404 }'
 deprecated_aliases = ["match", "switch", "case"]
 ai_hint = "Use 'peek' for pattern matching, never if-else chains"
 
+[keywords.some]
+token = "SOME"
+category = "option"
+semantic = "option_some_sugar"
+syntax = "some <expr>"
+example = "local value = some 42"
+deprecated_aliases = []
+ai_hint = "Use 'some <expr>' as sugar for Option::Some(<expr>)"
+
+[keywords.none]
+token = "NONE"
+category = "option"
+semantic = "option_none_sugar"
+syntax = "none"
+example = "local value = none"
+deprecated_aliases = []
+ai_hint = "Use 'none' as sugar for Option::None"
+
 # =============================================================================
 # AI Training Section - ChatGPT「恐ろしいコード」防止対策
 # =============================================================================

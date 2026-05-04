@@ -11,6 +11,8 @@ pub enum TokenType {
     FALSE,
     NULL,
     VOID,
+    SOME,
+    NONE,
 
     // キーワード
     BOX,
