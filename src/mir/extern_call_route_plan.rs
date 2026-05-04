@@ -13,6 +13,7 @@ pub enum ExternCallRouteKind {
     EnvGet,
     EnvSet,
     HostBridgeExternInvoke,
+    Stage1EmitProgramJson,
 }
 
 impl ExternCallRouteKind {
@@ -21,6 +22,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => "extern.env.get",
             Self::EnvSet => "extern.env.set",
             Self::HostBridgeExternInvoke => "extern.hostbridge.extern_invoke",
+            Self::Stage1EmitProgramJson => "extern.stage1.emit_program_json_v0",
         }
     }
 
@@ -29,6 +31,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => "EnvGet",
             Self::EnvSet => "EnvSet",
             Self::HostBridgeExternInvoke => "HostBridgeExternInvoke",
+            Self::Stage1EmitProgramJson => "Stage1EmitProgramJson",
         }
     }
 
@@ -37,6 +40,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => "nyash.env.get",
             Self::EnvSet => "nyash.env.set",
             Self::HostBridgeExternInvoke => "nyash.hostbridge.extern_invoke",
+            Self::Stage1EmitProgramJson => "nyash.stage1.emit_program_json_v0_h",
         }
     }
 
@@ -45,6 +49,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => "ColdRuntime",
             Self::EnvSet => "ColdRuntime",
             Self::HostBridgeExternInvoke => "ColdRuntime",
+            Self::Stage1EmitProgramJson => "ColdRuntime",
         }
     }
 
@@ -53,6 +58,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => "runtime_call",
             Self::EnvSet => "runtime_call",
             Self::HostBridgeExternInvoke => "runtime_call",
+            Self::Stage1EmitProgramJson => "runtime_call",
         }
     }
 
@@ -61,6 +67,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => "extern_registry",
             Self::EnvSet => "extern_registry",
             Self::HostBridgeExternInvoke => "extern_registry",
+            Self::Stage1EmitProgramJson => "extern_registry",
         }
     }
 
@@ -69,6 +76,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => "string_handle_or_null",
             Self::EnvSet => "scalar_i64",
             Self::HostBridgeExternInvoke => "string_handle_or_null",
+            Self::Stage1EmitProgramJson => "string_handle",
         }
     }
 
@@ -77,6 +85,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => "runtime_i64_or_handle",
             Self::EnvSet => "runtime_i64",
             Self::HostBridgeExternInvoke => "runtime_i64_or_handle",
+            Self::Stage1EmitProgramJson => "runtime_i64_or_handle",
         }
     }
 
@@ -85,6 +94,7 @@ impl ExternCallRouteKind {
             Self::EnvGet => &["read.env"],
             Self::EnvSet => &["write.env"],
             Self::HostBridgeExternInvoke => &["hostbridge.extern"],
+            Self::Stage1EmitProgramJson => &["stage1.emit_program_json"],
         }
     }
 }
@@ -186,6 +196,7 @@ impl ExternCallRoute {
             ExternCallRouteKind::EnvGet => 1,
             ExternCallRouteKind::EnvSet => 2,
             ExternCallRouteKind::HostBridgeExternInvoke => 3,
+            ExternCallRouteKind::Stage1EmitProgramJson => 1,
         }
     }
 
@@ -214,6 +225,9 @@ pub fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallR
         ("env.get", 1) | ("nyash.env.get", 1) => Some(ExternCallRouteKind::EnvGet),
         ("env.set", 2) | ("nyash.env.set", 2) => Some(ExternCallRouteKind::EnvSet),
         ("hostbridge.extern_invoke", 3) => Some(ExternCallRouteKind::HostBridgeExternInvoke),
+        ("nyash.stage1.emit_program_json_v0_h", 1) => {
+            Some(ExternCallRouteKind::Stage1EmitProgramJson)
+        }
         _ => None,
     }
 }
@@ -264,6 +278,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 ExternCallRouteKind::EnvGet => None,
                 ExternCallRouteKind::EnvSet => args.get(1).copied(),
                 ExternCallRouteKind::HostBridgeExternInvoke => args.get(2).copied(),
+                ExternCallRouteKind::Stage1EmitProgramJson => None,
             };
             routes.push(ExternCallRoute::new(
                 ExternCallRouteSite::new(block_id, instruction_index),
@@ -406,6 +421,34 @@ mod tests {
         assert_eq!(route.return_shape(), "string_handle_or_null");
         assert_eq!(route.value_demand(), "runtime_i64_or_handle");
         assert_eq!(route.effect_tags(), &["hostbridge.extern"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_records_stage1_emit_program_json_extern_route() {
+        let mut function = make_function_with_call(
+            "nyash.stage1.emit_program_json_v0_h",
+            vec![ValueId::new(0)],
+            Some(ValueId::new(2)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.route_id(), "extern.stage1.emit_program_json_v0");
+        assert_eq!(route.core_op(), "Stage1EmitProgramJson");
+        assert_eq!(route.symbol(), "nyash.stage1.emit_program_json_v0_h");
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(route.source_symbol(), "nyash.stage1.emit_program_json_v0_h");
+        assert_eq!(route.key_value(), ValueId::new(0));
+        assert_eq!(route.value_value(), None);
+        assert_eq!(route.result_value(), ValueId::new(2));
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.return_shape(), "string_handle");
+        assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+        assert_eq!(route.effect_tags(), &["stage1.emit_program_json"]);
     }
 
     #[test]

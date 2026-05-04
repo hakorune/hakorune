@@ -12,21 +12,10 @@ pub(super) fn lower_call_expr<S: VarScope>(
     vars: &mut S,
 ) -> Result<(ValueId, BasicBlockId), String> {
     if let Some((recv_alias, method)) = split_imported_alias_call(env, name) {
-        if let Some(canonical_box) =
-            canonical_imported_static_call_box(env, recv_alias, method, args.len())
-        {
-            if let Some(result) = lower_stageb_static_call_for_box(
-                env,
-                f,
-                cur_bb,
-                canonical_box,
-                method,
-                args,
-                vars,
-                true,
-            )? {
-                return Ok(result);
-            }
+        if let Some(result) = lower_canonical_imported_static_extern_call(
+            env, f, cur_bb, recv_alias, method, args, vars,
+        )? {
+            return Ok(result);
         }
         let recv = ExprV0::Var {
             name: recv_alias.to_string(),
@@ -133,20 +122,45 @@ fn split_imported_alias_call<'a>(env: &'a BridgeEnv, name: &'a str) -> Option<(&
     Some((recv_alias, method))
 }
 
-fn canonical_imported_static_call_box(
+fn lower_canonical_imported_static_extern_call<S: VarScope>(
+    env: &BridgeEnv,
+    f: &mut MirFunction,
+    cur_bb: BasicBlockId,
+    recv_alias: &str,
+    method: &str,
+    args: &[ExprV0],
+    vars: &mut S,
+) -> Result<Option<(ValueId, BasicBlockId)>, String> {
+    if !is_stage1_emit_program_json_import_call(env, recv_alias, method, args) {
+        return Ok(None);
+    }
+
+    let (source, cur2) = super::lower_expr_with_scope(env, f, cur_bb, &args[0], vars)?;
+    let dst = f.next_value_id();
+    if let Some(bb) = f.get_block_mut(cur2) {
+        bb.add_instruction(crate::mir::ssot::extern_call::extern_call(
+            Some(dst),
+            "nyash.stage1",
+            "emit_program_json_v0_h",
+            vec![source],
+            EffectMask::READ,
+        ));
+    }
+    Ok(Some((dst, cur2)))
+}
+
+fn is_stage1_emit_program_json_import_call(
     env: &BridgeEnv,
     recv_alias: &str,
     method: &str,
-    arity: usize,
-) -> Option<&'static str> {
-    let mapped = env.imports.get(recv_alias)?;
-    match (mapped.as_str(), method, arity) {
-        // Program(JSON) source owners import the Rust-owned BuildBox by module path,
-        // while route facts and the existing ProgramJsonEmitBody use the stable
-        // BuildBox symbol. Keep this bridge-side canonicalization narrow.
-        ("lang.compiler.build.build_box", "emit_program_json_v0", 2) => Some("BuildBox"),
-        _ => None,
-    }
+    args: &[ExprV0],
+) -> bool {
+    let Some(mapped) = env.imports.get(recv_alias) else {
+        return false;
+    };
+    mapped == "lang.compiler.build.build_box"
+        && method == "emit_program_json_v0"
+        && matches!(args, [_, ExprV0::Null])
 }
 
 pub(super) fn lower_method_expr<S: VarScope>(

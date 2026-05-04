@@ -515,8 +515,13 @@ fn refine_generic_string_return_value_class(
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Extern(name)),
+            args,
             ..
-        } if name == "env.get/1" => {
+        } if matches!(
+            classify_extern_call_route(name, args.len()),
+            Some(ExternCallRouteKind::EnvGet | ExternCallRouteKind::Stage1EmitProgramJson)
+        ) =>
+        {
             if let Some(dst) = dst {
                 set_generic_string_return_value_class(
                     values,

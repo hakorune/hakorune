@@ -273,10 +273,10 @@ mod tests {
         assert!(result.is_ok(), "Failed with error: {:?}", result.err());
 
         let mir_json = result.unwrap();
-        assert!(mir_json.contains("BuildBox.emit_program_json_v0/2"));
+        assert!(mir_json.contains("nyash.stage1.emit_program_json_v0_h"));
         assert!(
             !mir_json.contains("\"op\":\"boxcall\""),
-            "BuildBox emit_program_json_v0 must lower as a canonical static call"
+            "BuildBox emit_program_json_v0 must lower as an explicit extern helper call"
         );
         assert!(
             !mir_json.contains("\"method\":\"emit_program_json_v0\""),

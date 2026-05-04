@@ -979,7 +979,11 @@ fn generic_pure_string_instruction_reject_reason(
             callee: Some(Callee::Extern(name)),
             args,
             ..
-        } if classify_extern_call_route(name, args.len()) == Some(ExternCallRouteKind::EnvGet) => {
+        } if matches!(
+            classify_extern_call_route(name, args.len()),
+            Some(ExternCallRouteKind::EnvGet | ExternCallRouteKind::Stage1EmitProgramJson)
+        ) =>
+        {
             if let Some(dst) = dst {
                 *has_string_surface = true;
                 set_string_handle_value_class(values, *dst, changed);
