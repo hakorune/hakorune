@@ -156,13 +156,9 @@
               int origin_first = ORG_NONE;
               int origin_same = 1;
               for (int i = 0; i < pr.in_n; i++) {
-                int bool_const = 0;
-                int t = pr.in[i].val_reg ? get_type(pr.in[i].val_reg) : T_NONE;
                 int s = pr.in[i].val_reg ? get_scan_origin(pr.in[i].val_reg) : ORG_NONE;
                 int o = pr.in[i].val_reg ? get_origin(pr.in[i].val_reg) : ORG_NONE;
-                if (t == T_I1) {
-                  phi_bool_seen = 1;
-                } else if (pr.in[i].val_reg && has_bool_const(pr.in[i].val_reg, &bool_const)) {
+                if (is_bool_like_phi_input(pr.in[i].val_reg)) {
                   phi_bool_seen = 1;
                 } else {
                   phi_bool_ok = 0;

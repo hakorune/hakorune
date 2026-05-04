@@ -153,11 +153,10 @@
               if (!pr->dst) continue;
               for (int ii = 0; ii < pr->in_n; ii++) {
                 long long in_reg = pr->in[ii].val_reg;
-                int bool_const = 0;
                 int ty = get_type(in_reg);
                 int is_string = module_generic_string_value_is_string(in_reg);
                 all_string = all_string && is_string;
-                all_bool = all_bool && (ty == T_I1 || has_bool_const(in_reg, &bool_const));
+                all_bool = all_bool && is_bool_like_phi_input(in_reg);
                 if (is_string || ty != T_NONE) saw_known = 1;
               }
               if (all_string) {

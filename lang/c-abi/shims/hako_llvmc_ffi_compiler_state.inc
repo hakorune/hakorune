@@ -49,6 +49,11 @@
         if (out) *out = cv ? 1 : 0;
         return 1;
       }
+      auto int is_bool_like_phi_input(long long r){
+        int bool_const = 0;
+        if (!r) return 0;
+        return get_type(r) == T_I1 || has_bool_const(r, &bool_const);
+      }
       auto void put_const(long long r, long long v){ if (consts_n<ARR_LEN(consts)){ consts[consts_n].reg=r; consts[consts_n].val=v; consts_n++; } else { note_generic_capacity_overflow("generic_i64_const_inventory_full"); } }
       auto const char* get_str_const(long long r){
         for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==r) return str_consts[i].val; }

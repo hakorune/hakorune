@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381K-STAGE1-SHORT-CIRCUIT-SOURCE-RESTORE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381K-STAGE1-SHORT-CIRCUIT-SOURCE-RESTORE.md"
-latest_card_summary = "Restore Stage1 env short-circuit source now that boolean PHI lowering is compiler-owned."
+latest_card = "P381L-BOOLEAN-PHI-INPUT-HELPER-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381L-BOOLEAN-PHI-INPUT-HELPER-SSOT.md"
+latest_card_summary = "Centralize bool-like PHI input detection after Stage1 short-circuit source restore."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
