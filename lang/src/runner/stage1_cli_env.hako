@@ -188,7 +188,12 @@ static box Stage1EmitMirDispatchBox {
 
   method run_emit_mir_program_json_compat_mode(tag) {
     local program_json_text = Stage1InputContractBox.resolve_source_text()
-    local mir = Stage1ProgramJsonCompatBox.emit_mir_from_text(tag, program_json_text)
+    if Stage1ProgramJsonTextGuardBox.input_present(program_json_text) != 1 {
+      print(tag + " missing explicit source-text program-json contract")
+      return 96
+    }
+    local prog = Stage1ProgramJsonTextGuardBox._coerce_text_compat(program_json_text)
+    local mir = Stage1ProgramJsonMirCallerBox._emit_mir_from_program_json_text_checked(tag, prog)
     if mir == null {
       return 96
     }
@@ -256,14 +261,6 @@ static box Stage1ProgramResultValidationBox {
 // explicit compat keep can reuse the same fail-fast contract without widening
 // the current stage1 artifact boundary.
 static box Stage1ProgramJsonTextGuardBox {
-  method coerce_text_checked(tag, missing_contract, program_json_text) {
-    if me.input_present(program_json_text) != 1 {
-      print(tag + " " + missing_contract)
-      return null
-    }
-    return me._coerce_text_compat(program_json_text)
-  }
-
   method input_present(program_json_text) {
     if program_json_text != null && program_json_text != "" { return 1 }
     return 0
@@ -278,20 +275,6 @@ static box Stage1ProgramJsonTextGuardBox {
 // explicit compat keep can reuse the same fail-fast contract without widening
 // the current stage1 artifact boundary.
 static box Stage1ProgramJsonMirCallerBox {
-  method emit_mir_from_program_json_checked(tag, program_json_text) {
-    local prog = me._coerce_program_json_text_checked(tag, program_json_text)
-    if prog == null { return null }
-    return me._emit_mir_from_program_json_text_checked(tag, prog)
-  }
-
-  method _coerce_program_json_text_checked(tag, program_json_text) {
-    return Stage1ProgramJsonTextGuardBox.coerce_text_checked(
-      tag,
-      "input missing program-json contract",
-      program_json_text
-    )
-  }
-
   method _emit_mir_from_program_json_text_checked(tag, program_json_text) {
     local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
     if mir == null {
@@ -426,24 +409,6 @@ static box Stage1ProgramJsonCompatBox {
   method fail_fast_mixed_source_mode(tag, supplied_program_json_text) {
     if me._has_explicit_program_json_text(supplied_program_json_text) != 1 { return 0 }
     return me._fail_mixed_source_mode(tag)
-  }
-
-  method emit_mir_from_text(tag, program_json_text) {
-    local prog = me._coerce_program_json_text_checked(tag, program_json_text)
-    if prog == null { return null }
-    return me._emit_mir_from_text_checked(tag, prog)
-  }
-
-  method _coerce_program_json_text_checked(tag, program_json_text) {
-    return Stage1ProgramJsonTextGuardBox.coerce_text_checked(
-      tag,
-      "missing explicit source-text program-json contract",
-      program_json_text
-    )
-  }
-
-  method _emit_mir_from_text_checked(tag, program_json_text) {
-    return Stage1ProgramJsonMirCallerBox.emit_mir_from_program_json_checked(tag, program_json_text)
   }
 
   method _has_explicit_program_json_text(program_json_text) {

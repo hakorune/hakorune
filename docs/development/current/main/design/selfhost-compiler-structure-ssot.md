@@ -134,24 +134,24 @@ Primary owner:
 - `lang/src/runner/stage1_cli_env.hako`
 - `lang/src/runner/stage1_cli_env.hako::Stage1InputContractBox` (`shared input/env contract`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1SourceProgramAuthorityBox` (`exact source-only emit-program authority`, same-file)
-- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` (`checked Program(JSON)->MIR handoff`, same-file)
-- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonTextGuardBox` (`Program(JSON) text guard`, same-file)
+- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` (`checked Program(JSON)->MIR handoff leaf`, same-file)
+- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonTextGuardBox` (`Program(JSON) scalar presence / text coercion guard`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramResultValidationBox` (`Program JSON validation`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1SourceMirAuthorityBox` (`source authority`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1MirResultValidationBox` (`shared MIR validation`, same-file)
-- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (`compat quarantine`, not authority)
+- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (`mixed-input compat guard`, not authority)
 
 Responsibility:
 - reduced bootstrap の current authority entry
 - shared env/source resolution contract を `Stage1InputContractBox` に閉じて authority/compat box から切り離す
 - exact source-only `emit-program` authority input を `Stage1SourceProgramAuthorityBox` に閉じて `Main` から切り離す
-- checked Program(JSON)->MIR handoff を `Stage1ProgramJsonMirCallerBox` に閉じて `Main` から切り離す
-- non-empty Program(JSON) text guard を `Stage1ProgramJsonTextGuardBox` に閉じて、source/compat の両方から共有する
+- checked Program(JSON)->MIR handoff leaf を `Stage1ProgramJsonMirCallerBox` に閉じて `Main` から切り離す
+- non-empty Program(JSON) text predicate/coercion を `Stage1ProgramJsonTextGuardBox` に閉じて、missing-input null return は source/compat caller-local に置く
 - materialized Program(JSON) validation を `Stage1ProgramResultValidationBox` に閉じる
 - source-only `emit-mir` authority input を `Stage1SourceMirAuthorityBox` 経由で `MirBuilderBox.emit_from_source_v0(...)` へ渡す
 - shared MIR materialization / validation / debug surface を `Stage1MirResultValidationBox` に閉じる
 - explicit supplied `Program(JSON)` は compat-only input shape として受ける
-- explicit compat MIR call と mixed-input fail-fast gate は `Stage1ProgramJsonCompatBox` へ隔離する
+- explicit compat MIR call は `Stage1EmitMirDispatchBox.run_emit_mir_program_json_compat_mode/1` の i64 orchestration に置き、mixed-input fail-fast gate は `Stage1ProgramJsonCompatBox` へ隔離する
 - stage1 cleanup should keep pushing Rust residue toward OS/kernel/substrate/bootstrap seams; do not treat a runnable bridge artifact as permission to leave broad compiler meaning on the Rust side
 
 Must not:
