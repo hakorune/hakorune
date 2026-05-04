@@ -75,6 +75,7 @@
 - WASM `.hako`-only output roadmap（WASM出力の Rust->`.hako` 移行順SSOT）: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
 - Planner Entry Guards（Facts の reject_reason/handoff 構造化）: `docs/development/current/main/design/planner-entry-guards-ssot.md`
 - Type System Policy（MirType/RuntimeTypeTag/TypeView の責務分離SSOT）: `docs/development/current/main/design/type-system-policy-ssot.md`
+- Hako Option / Null / No-Match Policy（public `Option<T>` と Stage0 helper no-match carrier の境界SSOT）: `docs/development/current/main/design/hako-option-null-no-match-policy-ssot.md`
 - Campaign: compiler cleanliness（compiler-first / BoxShape-first の運用SSOT）: `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
 - Compiler task map（日々の固定順序 + round pack SSOT）: `docs/development/current/main/design/compiler-task-map-ssot.md`
 - PhiInputStrategy（loop PHI 入力形の設計SSOT）: `docs/development/current/main/design/phi-input-strategy-ssot.md`

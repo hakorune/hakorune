@@ -8,8 +8,10 @@ Related:
   - docs/development/current/main/phases/phase-163x/README.md
   - docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md
   - docs/reference/language/EBNF.md
+  - docs/reference/language/option.md
   - docs/reference/language/types.md
   - docs/reference/language/using.md
+  - docs/development/current/main/design/hako-option-null-no-match-policy-ssot.md
 ---
 
 # Enum / Sum And Generic Surface SSOT
@@ -101,6 +103,10 @@ Rules:
 - construction uses `Type::Variant(...)`
 - match shorthand like `Some(v)` / `None` is allowed only when the scrutinee is a known enum type
 - outside that known-enum context, the language keeps current dynamic `match` behavior
+- public `Option<T>` follows this enum surface, but is null-free:
+  - `Option::None` is not `null`
+  - `Option::Some(null)` / `Option::Some(void)` are forbidden
+  - compiler helper no-match must not use `Option<T>` on Stage0
 
 ### 4. accepted enum surface stays narrow
 

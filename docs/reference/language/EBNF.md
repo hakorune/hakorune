@@ -113,6 +113,7 @@ Notes
 - Pattern matching: `match` replaces legacy `peek`. MVP supports wildcard `_`, literals, simple type patterns, fixed/variadic array heads `[hd, ..tl]`, simple map key extract `{ "k": v, .. }`, OR patterns, and guards `if`.
 - Known-enum shorthand: `Some(v)` / `None` is accepted only when the arm set resolves to a known enum declaration in the current source inventory.
 - Known-enum exhaustiveness: shorthand enum matches must name every variant explicitly; `_` does not satisfy exhaustiveness for that lane.
+- `Option<T>` does not add new grammar in the first cut. It uses the existing enum declaration, qualified constructor, and known-enum match surface. Future `some` / `none` / `if some` sugar is reserved and must be implemented in both Rust and `.hako` parsers together.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 

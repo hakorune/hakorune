@@ -67,6 +67,30 @@ Practical consequence:
 - `x == null` and `x == void` are equivalent checks.
 - `WeakRef.weak_to_strong()` returns `null` on failure (i.e., `void` / none).
 
+### Option<T> (public direction, null-free)
+
+`Option<T>` is the public optional-value direction, built on the first-class
+enum surface:
+
+```hako
+enum Option<T> {
+  None
+  Some(T)
+}
+```
+
+Rules:
+
+- `Option::None` is not `null`.
+- `Option::Some(null)` is forbidden.
+- `Option::Some(void)` is forbidden.
+- `Option<T>` is not the Stage0/selfhost compiler helper no-match carrier.
+
+Design SSOT:
+
+- `docs/reference/language/option.md`
+- `docs/development/current/main/design/hako-option-null-no-match-policy-ssot.md`
+
 ---
 
 ## 2. Variables and Re-assignment
