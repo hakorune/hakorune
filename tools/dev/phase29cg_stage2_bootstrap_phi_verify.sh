@@ -29,31 +29,6 @@ TMP_EMIT_ERR="$OUT_DIR/stage1_cli_env.emit.err"
 TMP_LLVM_ERR="$OUT_DIR/stage1_cli_env.llvm.err"
 TMP_VERIFY_ERR="$OUT_DIR/stage1_cli_env.verify.err"
 
-phase29cg_require_stage1_env_mir_shape() {
-  local mir_json="$1"
-  local missing=0
-  local required_patterns=(
-    '"name"[[:space:]]*:[[:space:]]*"Stage1ModeContractBox\.resolve_mode/0"'
-    '"name"[[:space:]]*:[[:space:]]*"Stage1InputContractBox\.clean_env_value/1"'
-    '"name"[[:space:]]*:[[:space:]]*"Stage1SourceMirAuthorityBox\.emit_mir_from_source/2"'
-  )
-  local pattern
-
-  for pattern in "${required_patterns[@]}"; do
-    if rg -q "$pattern" "$mir_json"; then
-      continue
-    fi
-    echo "[FAIL] phase29cg_stage2_bootstrap_phi_verify: MIR payload missing Stage1 env owner shape: $pattern" >&2
-    missing=1
-  done
-
-  if [[ "$missing" -ne 0 ]]; then
-    echo "       this proof must not accept reduced/stub MIR as the P106 MIR-first replacement" >&2
-    echo "       bridge keeper remains until stage1_contract_exec_mode emit-mir emits full Stage1 env MIR" >&2
-    return 1
-  fi
-}
-
 cleanup() {
   if [[ "$KEEP_OUT_DIR" != "1" ]]; then
     rm -rf "$OUT_DIR" 2>/dev/null || true
@@ -116,7 +91,7 @@ if ! [[ -s "$TMP_MIR" ]]; then
   echo "[FAIL] phase29cg_stage2_bootstrap_phi_verify: mir json is empty" >&2
   exit 1
 fi
-phase29cg_require_stage1_env_mir_shape "$TMP_MIR"
+stage1_contract_require_stage1_env_mir_shape "$TMP_MIR" "phase29cg_stage2_bootstrap_phi_verify"
 
 set +e
 NYASH_LLVM_BACKEND="${NYASH_LLVM_BACKEND:-crate}" \
