@@ -101,7 +101,6 @@
             get_origin(a0) == ORG_STRING ||
             get_scan_origin(a0) == ORG_STRING;
         if (kind != HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT) return -1;
-        if (!a0) return -1;
         if (a0_is_string) {
           fprintf(f, "  %%print_call_%lld = call i64 @\"nyash.console.log_handle\"(i64 %%r%lld)\n",
                   a0, a0_base ? a0_base : a0);
