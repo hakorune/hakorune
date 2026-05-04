@@ -187,12 +187,44 @@
         } else if (op && !strcmp(op, "call")) {
           cal = yyjson_obj_get(ins, "callee");
           args = yyjson_obj_get(ins, "args");
+        } else if (op && !strcmp(op, "boxcall")) {
+          cal = ins;
+          args = yyjson_obj_get(ins, "args");
         } else {
           return 0;
         }
         if (cal_out) *cal_out = cal;
         if (args_out) *args_out = args;
         return cal != NULL;
+      }
+
+      auto const char* module_generic_string_call_type(const char* op, yyjson_val* cal) {
+        if (op && !strcmp(op, "boxcall")) return "Method";
+        return cal ? read_str(cal, "type") : NULL;
+      }
+
+      auto const char* module_generic_string_call_name(const char* op, yyjson_val* cal) {
+        const char* name = NULL;
+        if (!cal) return NULL;
+        if (op && !strcmp(op, "boxcall")) return read_str(cal, "method");
+        name = read_str(cal, "name");
+        if (!name) name = read_str(cal, "method");
+        return name;
+      }
+
+      auto const char* module_generic_string_call_box_name(const char* op, yyjson_val* cal) {
+        const char* name = NULL;
+        if (!cal) return NULL;
+        name = read_str(cal, "box_name");
+        if (!name) name = read_str(cal, "box_type");
+        (void)op;
+        return name;
+      }
+
+      auto long long module_generic_string_call_receiver(const char* op, yyjson_val* cal) {
+        if (!cal) return 0;
+        if (op && !strcmp(op, "boxcall")) return read_int(cal, "box");
+        return read_int(cal, "receiver");
       }
 
       auto int module_generic_string_prepass_externcall(
@@ -308,7 +340,9 @@
               } else {
                 set_type(dst, T_I64);
               }
-            } else if (!strcmp(op, "mir_call") || !strcmp(op, "call")) {
+            } else if (!strcmp(op, "mir_call") ||
+                       !strcmp(op, "call") ||
+                       !strcmp(op, "boxcall")) {
               yyjson_val* cal = NULL;
               yyjson_val* args = NULL;
               yyjson_val* entry = find_lowering_plan_entry_for_site(block.id, ii);
@@ -320,11 +354,9 @@
               const char* bname = NULL;
               long long dst = read_int(ins, "dst");
               if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
-              ctype = read_str(cal, "type");
-              mname = read_str(cal, "name");
-              if (!mname) mname = read_str(cal, "method");
-              bname = read_str(cal, "box_name");
-              if (!bname) bname = read_str(cal, "box_type");
+              ctype = module_generic_string_call_type(op, cal);
+              mname = module_generic_string_call_name(op, cal);
+              bname = module_generic_string_call_box_name(op, cal);
               if (ctype && !strcmp(ctype, "Method") &&
                   mname && !strcmp(mname, "birth") &&
                   bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
@@ -337,7 +369,7 @@
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_array_push(&method_view)) {
-                long long recv = cal ? read_int(cal, "receiver") : 0;
+                long long recv = module_generic_string_call_receiver(op, cal);
                 long long value = 0;
                 size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
                 if (dst) set_type(dst, T_I64);
@@ -362,7 +394,7 @@
               } else if (module_generic_string_active_function_is_static_string_array() &&
                          ctype && !strcmp(ctype, "Method") &&
                          mname && !strcmp(mname, "push")) {
-                long long recv = cal ? read_int(cal, "receiver") : 0;
+                long long recv = module_generic_string_call_receiver(op, cal);
                 long long value = 0;
                 size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
                 if (argc == 1) {
@@ -1448,11 +1480,12 @@
           yyjson_val* ins) {
         yyjson_val* cal = NULL;
         yyjson_val* args = NULL;
+        const char* op = read_str(ins, "op");
         const char* ctype = NULL;
         long long dst = read_int(ins, "dst");
         int rc = 0;
         if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
-        ctype = read_str(cal, "type");
+        ctype = module_generic_string_call_type(op, cal);
         rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
         if (rc != 0) {
           return rc;
@@ -1471,11 +1504,9 @@
             }
           }
         } else if (ctype && !strcmp(ctype, "Method")) {
-          long long recv = read_int(cal, "receiver");
-          const char* mname = read_str(cal, "name");
-          const char* bname = read_str(cal, "box_name");
-          if (!mname) mname = read_str(cal, "method");
-          if (!bname) bname = read_str(cal, "box_type");
+          long long recv = module_generic_string_call_receiver(op, cal);
+          const char* mname = module_generic_string_call_name(op, cal);
+          const char* bname = module_generic_string_call_box_name(op, cal);
           if (mname && !strcmp(mname, "birth") &&
               bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
             if (dst) {
@@ -1659,7 +1690,7 @@
               }
               continue;
             }
-            if (!strcmp(op, "mir_call") || !strcmp(op, "call")) {
+            if (!strcmp(op, "mir_call") || !strcmp(op, "call") || !strcmp(op, "boxcall")) {
               if (!module_generic_string_emit_mir_call(f, block.id, ii, ins)) return 0;
               continue;
             }
