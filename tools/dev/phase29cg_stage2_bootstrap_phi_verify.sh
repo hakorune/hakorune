@@ -19,6 +19,7 @@ STAGE1_BIN="${STAGE1_BIN:-$ROOT/target/selfhost/hakorune.stage1_cli}"
 ENTRY="${ENTRY:-$ROOT/lang/src/runner/stage1_cli_env.hako}"
 OUT_DIR="${OUT_DIR:-$(mktemp -d)}"
 KEEP_OUT_DIR="${KEEP_OUT_DIR:-0}"
+mkdir -p "$OUT_DIR"
 
 TMP_PROG="$OUT_DIR/stage1_cli_env.program.json"
 TMP_MIR="$OUT_DIR/stage1_cli_env.mir.json"
