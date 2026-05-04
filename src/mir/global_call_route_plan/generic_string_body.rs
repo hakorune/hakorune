@@ -977,8 +977,9 @@ fn generic_pure_string_instruction_reject_reason(
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Extern(name)),
+            args,
             ..
-        } if name == "env.get/1" => {
+        } if classify_extern_call_route(name, args.len()) == Some(ExternCallRouteKind::EnvGet) => {
             if let Some(dst) = dst {
                 *has_string_surface = true;
                 set_string_handle_value_class(values, *dst, changed);

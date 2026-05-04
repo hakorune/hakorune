@@ -4,6 +4,7 @@ use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallTargetFacts,
     GlobalCallTargetShape,
 };
+use crate::mir::extern_call_route_plan::{classify_extern_call_route, ExternCallRouteKind};
 use crate::mir::{
     BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, UnaryOp,
     ValueId,
@@ -413,8 +414,9 @@ fn generic_i64_body_refine_instruction(
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Extern(name)),
+            args,
             ..
-        } if name == "env.get/1" => {
+        } if classify_extern_call_route(name, args.len()) == Some(ExternCallRouteKind::EnvGet) => {
             if let Some(dst) = dst {
                 set_generic_i64_value_class(values, *dst, GenericI64ValueClass::String, changed)
             } else {

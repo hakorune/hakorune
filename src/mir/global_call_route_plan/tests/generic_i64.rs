@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target() {
+fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target_with_env_get_canonical_spelling() {
     let mut module = MirModule::new("global_call_generic_i64_test".to_string());
     let caller =
         make_function_with_global_call_args("Helper.debug/0", Some(ValueId::new(7)), vec![]);
@@ -47,7 +47,7 @@ fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target() {
         MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Extern("env.get/1".to_string())),
+            callee: Some(Callee::Extern("env.get".to_string())),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },
