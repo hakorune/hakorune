@@ -11,12 +11,11 @@ static box Stage1EmitPipelineBox {
     if mode == "emit-program" {
       return me._run_emit_program_mode()
     }
-    if mode == "emit-mir" || mode == "run" {
-      local tag = "[freeze:contract][stage1-cli/emit-mir]"
-      if mode == "run" {
-        tag = "[freeze:contract][stage1-cli/run]"
-      }
-      return me._run_emit_mir_mode(tag)
+    if mode == "emit-mir" {
+      return me._run_emit_mir_mode("[freeze:contract][stage1-cli/emit-mir]")
+    }
+    if mode == "run" {
+      return me._run_emit_mir_mode("[freeze:contract][stage1-cli/run]")
     }
     if mode == "emit-mir-program" {
       return me._run_emit_mir_program_json_compat_mode("[freeze:contract][stage1-cli/emit-mir-program]")
@@ -86,7 +85,11 @@ static box Stage1EmitMirDispatchBox {
 // boundary.
 static box Stage1SourceProgramAuthorityBox {
   method emit_program_from_source(tag, source_text) {
-    if source_text == null || source_text == "" {
+    if source_text == null {
+      print(tag + " input missing source/program-json contract")
+      return null
+    }
+    if source_text == "" {
       print(tag + " input missing source/program-json contract")
       return null
     }
@@ -123,7 +126,12 @@ static box Stage1ProgramResultValidationBox {
       print(prog_text)
       return 96
     }
-    if prog_text.indexOf("\"version\":0") < 0 || prog_text.indexOf("\"kind\":\"Program\"") < 0 {
+    if prog_text.indexOf("\"version\":0") < 0 {
+      print("[freeze:contract][stage1-cli/emit-program] output missing Program(JSON v0) markers")
+      print(prog_text)
+      return 96
+    }
+    if prog_text.indexOf("\"kind\":\"Program\"") < 0 {
       print("[freeze:contract][stage1-cli/emit-program] output missing Program(JSON v0) markers")
       print(prog_text)
       return 96
@@ -142,7 +150,9 @@ static box Stage1ProgramResultValidationBox {
 // the current stage1 artifact boundary.
 static box Stage1ProgramJsonTextGuardBox {
   method input_present(program_json_text) {
-    if program_json_text != null && program_json_text != "" { return 1 }
+    if program_json_text != null {
+      if program_json_text != "" { return 1 }
+    }
     return 0
   }
 
@@ -169,7 +179,11 @@ static box Stage1ProgramJsonMirCallerBox {
 // a thin dispatcher without widening the current stage1 artifact boundary.
 static box Stage1SourceMirAuthorityBox {
   method emit_mir_from_source(tag, source_text) {
-    if source_text == null || source_text == "" {
+    if source_text == null {
+      print(tag + " input missing source/program-json contract")
+      return null
+    }
+    if source_text == "" {
       print(tag + " input missing source/program-json contract")
       return null
     }
@@ -261,7 +275,9 @@ static box Stage1MirResultValidationBox {
 
   method _stage1_debug_on() {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
-    if stage1_debug != null && me._coerce_text_compat(stage1_debug) == "1" { return 1 }
+    if stage1_debug != null {
+      if me._coerce_text_compat(stage1_debug) == "1" { return 1 }
+    }
     return 0
   }
 

@@ -9,8 +9,8 @@ static box Stage1InputContractBox {
     if stage1_debug_on {
       print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
     }
-    if stage1_prog_json_text != null && stage1_prog_json_text != "" {
-      return stage1_prog_json_text
+    if stage1_prog_json_text != null {
+      if stage1_prog_json_text != "" { return stage1_prog_json_text }
     }
     return ""
   }
@@ -42,9 +42,10 @@ static box Stage1InputContractBox {
 
   method clean_env_value(v) {
     local s = me._coerce_text_compat(v)
-    if s == "null" || s == "Null" || s == "void" || s == "Void" {
-      return ""
-    }
+    if s == "null" { return "" }
+    if s == "Null" { return "" }
+    if s == "void" { return "" }
+    if s == "Void" { return "" }
     return s
   }
 
@@ -71,7 +72,9 @@ static box Stage1InputContractBox {
 
   method _env_flag_enabled(name) {
     local flag = env.get(name)
-    if flag != null && me._coerce_text_compat(flag) == "1" { return 1 }
+    if flag != null {
+      if me._coerce_text_compat(flag) == "1" { return 1 }
+    }
     return 0
   }
 }
