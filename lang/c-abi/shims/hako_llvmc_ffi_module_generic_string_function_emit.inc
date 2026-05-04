@@ -251,6 +251,12 @@
           set_scan_origin(dst, ORG_STRING);
           return 1;
         }
+        if (lowering_plan_stage1_emit_program_json_view_is_valid(&extern_view)) {
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          return 1;
+        }
         return 0;
       }
 
