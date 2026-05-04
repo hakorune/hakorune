@@ -17,13 +17,13 @@ static box Stage1InputContractBox {
 
   method resolve_emit_program_source_text() {
     local text = me.resolve_source_text()
-    if me._stage1_debug_on() == 1 {
+    if me._stage1_debug_on() {
       print("[stage1-cli/debug] emit-program resolved-text.len=" + me._debug_len_inline(text) +
             " preview=" + me._debug_preview_inline(text))
     }
-    if text == null || text == "" {
+    if text == "" {
       print("[stage1-cli] emit program-json: STAGE1_SOURCE_TEXT is required")
-      return null
+      return ""
     }
     return text
   }

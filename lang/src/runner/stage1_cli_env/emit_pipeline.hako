@@ -27,7 +27,7 @@ static box Stage1EmitPipelineBox {
   method _run_emit_program_mode() {
     local tag = "[freeze:contract][stage1-cli/emit-program]"
     local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
-    if source_text == null {
+    if source_text == "" {
       return 96
     }
     local program_json = Stage1SourceProgramAuthorityBox.emit_program_from_source(tag, source_text)
@@ -56,6 +56,9 @@ static box Stage1EmitMirDispatchBox {
       return 96
     }
     local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
+    if source_text == "" {
+      return 96
+    }
     local mir = Stage1SourceMirAuthorityBox.emit_mir_from_source(tag, source_text)
     if mir == null {
       return 96

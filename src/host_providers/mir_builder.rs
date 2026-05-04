@@ -116,6 +116,7 @@ pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<Strin
 }
 
 pub(crate) fn refresh_bridge_semantic_metadata(module: &mut crate::mir::MirModule) {
+    backend_shape::normalize_program_json_bridge_backend_module_shape(module);
     crate::mir::semantic_refresh::refresh_module_semantic_metadata(module);
 }
 

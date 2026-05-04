@@ -1,4 +1,42 @@
+use crate::mir::{Callee, MirInstruction, MirModule};
 use serde_json::{json, Value};
+
+pub(super) fn normalize_program_json_bridge_backend_module_shape(module: &mut MirModule) -> bool {
+    let mut changed = false;
+    for function in module.functions.values_mut() {
+        for block in function.blocks.values_mut() {
+            for instruction in &mut block.instructions {
+                if normalize_console_print_call_instruction(instruction) {
+                    changed = true;
+                }
+            }
+            if let Some(terminator) = &mut block.terminator {
+                if normalize_console_print_call_instruction(terminator) {
+                    changed = true;
+                }
+            }
+        }
+    }
+    changed
+}
+
+fn normalize_console_print_call_instruction(instruction: &mut MirInstruction) -> bool {
+    let MirInstruction::Call {
+        callee: Some(callee),
+        ..
+    } = instruction
+    else {
+        return false;
+    };
+    let Callee::Extern(name) = callee else {
+        return false;
+    };
+    if name != "nyash.console.log" && name != "env.console.log" {
+        return false;
+    }
+    *callee = Callee::Global("print".to_string());
+    true
+}
 
 pub(super) fn normalize_program_json_bridge_backend_shape(
     mir_json: &str,
