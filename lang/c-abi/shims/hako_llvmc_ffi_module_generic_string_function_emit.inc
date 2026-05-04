@@ -1518,6 +1518,8 @@
               rc = emit_global_mir_call(
                   f,
                   classify_mir_call_global_surface(read_str(cal, "name")),
+                  bid,
+                  ii,
                   a0);
             }
           }

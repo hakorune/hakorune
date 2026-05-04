@@ -139,7 +139,7 @@
           }
           enum MirCallGlobalSurfaceKind kind =
               classify_mir_call_global_surface(mname);
-          return emit_global_mir_call(f, kind, a0);
+          return emit_global_mir_call(f, kind, bid, ii, a0);
         }
 
         return -1;

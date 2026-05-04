@@ -92,6 +92,8 @@
       auto int emit_global_mir_call(
           FILE* f,
           enum MirCallGlobalSurfaceKind kind,
+          long long bid,
+          size_t ii,
           long long a0) {
         long long a0_base = resolve_copy_source_reg(a0);
         long long cv = 0;
@@ -102,14 +104,14 @@
             get_scan_origin(a0) == ORG_STRING;
         if (kind != HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT) return -1;
         if (a0_is_string) {
-          fprintf(f, "  %%print_call_%lld = call i64 @\"nyash.console.log_handle\"(i64 %%r%lld)\n",
-                  a0, a0_base ? a0_base : a0);
+          fprintf(f, "  %%print_call_b%lld_i%zu = call i64 @\"nyash.console.log_handle\"(i64 %%r%lld)\n",
+                  bid, ii, a0_base ? a0_base : a0);
         } else if (has_const(a0_base, &cv)) {
-          fprintf(f, "  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %lld)\n",
-                  a0, cv);
+          fprintf(f, "  %%print_call_b%lld_i%zu = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %lld)\n",
+                  bid, ii, cv);
         } else {
-          fprintf(f, "  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %%r%lld)\n",
-                  a0, a0_base ? a0_base : a0);
+          fprintf(f, "  %%print_call_b%lld_i%zu = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %%r%lld)\n",
+                  bid, ii, a0_base ? a0_base : a0);
         }
         return 1;
       }
