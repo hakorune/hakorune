@@ -367,7 +367,10 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(flags_keys_route["instruction_index"], 13);
     assert_eq!(flags_keys_route["box_name"], "RuntimeDataBox");
     assert_eq!(flags_keys_route["method"], "keys");
-    assert_eq!(flags_keys_route["receiver_origin_box"], serde_json::Value::Null);
+    assert_eq!(
+        flags_keys_route["receiver_origin_box"],
+        serde_json::Value::Null
+    );
     assert_eq!(flags_keys_route["route_kind"], "map_keys_array");
     assert_eq!(flags_keys_route["helper_symbol"], "nyash.map.keys_h");
     assert_eq!(flags_keys_route["proof"], "mir_json_flags_keys");
@@ -382,10 +385,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     let flags_keys_plan = &lowering_plan[10];
     assert_eq!(flags_keys_plan["site"], "b17.i13");
     assert_eq!(flags_keys_plan["source"], "generic_method_routes");
-    assert_eq!(
-        flags_keys_plan["source_route_id"],
-        "generic_method.keys"
-    );
+    assert_eq!(flags_keys_plan["source_route_id"], "generic_method.keys");
     assert_eq!(flags_keys_plan["core_op"], "MapKeys");
     assert_eq!(flags_keys_plan["tier"], "DirectAbi");
     assert_eq!(flags_keys_plan["emit_kind"], "direct_abi_call");
@@ -393,6 +393,9 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(flags_keys_plan["proof"], "mir_json_flags_keys");
     assert_eq!(flags_keys_plan["route_proof"], "mir_json_flags_keys");
     assert_eq!(flags_keys_plan["route_kind"], "map_keys_array");
-    assert_eq!(flags_keys_plan["return_shape"], "mixed_runtime_i64_or_handle");
+    assert_eq!(
+        flags_keys_plan["return_shape"],
+        "mixed_runtime_i64_or_handle"
+    );
     assert_eq!(flags_keys_plan["value_demand"], "runtime_i64_or_handle");
 }

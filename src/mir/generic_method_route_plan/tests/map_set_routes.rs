@@ -1087,13 +1087,7 @@ fn proves_mir_json_function_blocks_field_length_routes_as_array_len() {
         dst: ValueId::new(10),
         value: crate::mir::ConstValue::String("blocks".to_string()),
     });
-    block.add_instruction(method_call(
-        Some(11),
-        "RuntimeDataBox",
-        "get",
-        1,
-        vec![10],
-    ));
+    block.add_instruction(method_call(Some(11), "RuntimeDataBox", "get", 1, vec![10]));
     block.add_instruction(MirInstruction::Copy {
         dst: ValueId::new(12),
         src: ValueId::new(11),
@@ -1387,21 +1381,21 @@ fn proves_mir_json_flags_keys_length_routes_as_array_len() {
         dst: ValueId::new(4),
         src: ValueId::new(3),
     });
-    block.add_instruction(method_call(
-        Some(5),
-        "RuntimeDataBox",
-        "length",
-        4,
-        vec![],
-    ));
+    block.add_instruction(method_call(Some(5), "RuntimeDataBox", "length", 4, vec![]));
 
     refresh_function_generic_method_routes(&mut function);
 
     assert_eq!(function.metadata.generic_method_routes.len(), 2);
     let keys_route = &function.metadata.generic_method_routes[0];
     assert_eq!(keys_route.route_id(), "generic_method.keys");
-    assert_eq!(keys_route.route_kind(), GenericMethodRouteKind::MapKeysArray);
-    assert_eq!(keys_route.proof(), GenericMethodRouteProof::MirJsonFlagsKeys);
+    assert_eq!(
+        keys_route.route_kind(),
+        GenericMethodRouteKind::MapKeysArray
+    );
+    assert_eq!(
+        keys_route.proof(),
+        GenericMethodRouteProof::MirJsonFlagsKeys
+    );
 
     let len_route = &function.metadata.generic_method_routes[1];
     assert_eq!(len_route.route_id(), "generic_method.len");

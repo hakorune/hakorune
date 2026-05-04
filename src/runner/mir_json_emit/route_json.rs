@@ -15,7 +15,12 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
                     CoreMethodLoweringTier::WarmDirectAbi => ("DirectAbi", "direct_abi_call"),
                     CoreMethodLoweringTier::ColdFallback => ("ColdRuntime", "runtime_call"),
                 };
-                (tier, emit_kind, carrier.op.to_string(), carrier.proof.to_string())
+                (
+                    tier,
+                    emit_kind,
+                    carrier.op.to_string(),
+                    carrier.proof.to_string(),
+                )
             } else if route.route_id() == "generic_method.keys"
                 && route.route_kind_tag() == "map_keys_array"
                 && route.proof_tag() == "mir_json_flags_keys"

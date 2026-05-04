@@ -77,11 +77,8 @@ fn refresh_module_global_call_routes_marks_string_or_void_sentinel_body_direct_t
 fn refresh_module_global_call_routes_accepts_direct_child_string_or_void_sentinel_body() {
     let mut module =
         MirModule::new("global_call_direct_child_string_or_void_sentinel_test".to_string());
-    let caller = make_function_with_global_call_args(
-        "Helper.wrapper/0",
-        Some(ValueId::new(20)),
-        vec![],
-    );
+    let caller =
+        make_function_with_global_call_args("Helper.wrapper/0", Some(ValueId::new(20)), vec![]);
     let mut child = MirFunction::new(
         FunctionSignature {
             name: "Helper.child_text/0".to_string(),
@@ -146,7 +143,9 @@ fn refresh_module_global_call_routes_accepts_direct_child_string_or_void_sentine
     wrapper.blocks.insert(BasicBlockId::new(2), void_block);
 
     module.functions.insert("main".to_string(), caller);
-    module.functions.insert("Helper.child_text/0".to_string(), child);
+    module
+        .functions
+        .insert("Helper.child_text/0".to_string(), child);
     module
         .functions
         .insert("Helper.wrapper/0".to_string(), wrapper);
@@ -176,13 +175,9 @@ fn refresh_module_global_call_routes_accepts_direct_child_string_or_void_sentine
 
 #[test]
 fn refresh_module_global_call_routes_accepts_direct_child_string_with_void_compare_guard() {
-    let mut module =
-        MirModule::new("global_call_direct_child_string_void_guard_test".to_string());
-    let caller = make_function_with_global_call_args(
-        "Helper.wrapper/0",
-        Some(ValueId::new(20)),
-        vec![],
-    );
+    let mut module = MirModule::new("global_call_direct_child_string_void_guard_test".to_string());
+    let caller =
+        make_function_with_global_call_args("Helper.wrapper/0", Some(ValueId::new(20)), vec![]);
     let mut child = MirFunction::new(
         FunctionSignature {
             name: "Helper.child_text/0".to_string(),
@@ -253,7 +248,9 @@ fn refresh_module_global_call_routes_accepts_direct_child_string_with_void_compa
     wrapper.blocks.insert(BasicBlockId::new(2), text_block);
 
     module.functions.insert("main".to_string(), caller);
-    module.functions.insert("Helper.child_text/0".to_string(), child);
+    module
+        .functions
+        .insert("Helper.child_text/0".to_string(), child);
     module
         .functions
         .insert("Helper.wrapper/0".to_string(), wrapper);
@@ -275,11 +272,8 @@ fn refresh_module_global_call_routes_accepts_direct_child_string_with_void_compa
 #[test]
 fn refresh_module_global_call_routes_accepts_debug_print_direct_child_string_guard() {
     let mut module = MirModule::new("global_call_debug_print_child_string_guard_test".to_string());
-    let caller = make_function_with_global_call_args(
-        "Helper.wrapper/0",
-        Some(ValueId::new(20)),
-        vec![],
-    );
+    let caller =
+        make_function_with_global_call_args("Helper.wrapper/0", Some(ValueId::new(20)), vec![]);
     let mut child = MirFunction::new(
         FunctionSignature {
             name: "Helper.child_text/0".to_string(),
@@ -453,7 +447,9 @@ fn refresh_module_global_call_routes_accepts_debug_print_direct_child_string_gua
     wrapper.blocks.insert(BasicBlockId::new(5), text_block);
 
     module.functions.insert("main".to_string(), caller);
-    module.functions.insert("Helper.child_text/0".to_string(), child);
+    module
+        .functions
+        .insert("Helper.child_text/0".to_string(), child);
     module.functions.insert("Helper.flag/0".to_string(), flag);
     module
         .functions
