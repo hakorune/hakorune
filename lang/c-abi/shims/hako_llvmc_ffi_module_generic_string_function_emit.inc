@@ -173,6 +173,28 @@
         }
       }
 
+      auto int module_generic_string_read_call_payload(
+          yyjson_val* ins,
+          yyjson_val** cal_out,
+          yyjson_val** args_out) {
+        const char* op = read_str(ins, "op");
+        yyjson_val* cal = NULL;
+        yyjson_val* args = NULL;
+        if (op && !strcmp(op, "mir_call")) {
+          yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
+          cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+          args = mc ? yyjson_obj_get(mc, "args") : NULL;
+        } else if (op && !strcmp(op, "call")) {
+          cal = yyjson_obj_get(ins, "callee");
+          args = yyjson_obj_get(ins, "args");
+        } else {
+          return 0;
+        }
+        if (cal_out) *cal_out = cal;
+        if (args_out) *args_out = args;
+        return cal != NULL;
+      }
+
       auto int module_generic_string_prepass_active_function(void) {
         yyjson_val* params = fn0 ? yyjson_obj_get(fn0, "params") : NULL;
         if (!(params && yyjson_is_arr(params))) return 0;
@@ -259,18 +281,23 @@
               } else {
                 set_type(dst, T_I64);
               }
-            } else if (!strcmp(op, "mir_call")) {
-              yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
-              yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-              yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
+            } else if (!strcmp(op, "mir_call") || !strcmp(op, "call")) {
+              yyjson_val* cal = NULL;
+              yyjson_val* args = NULL;
               yyjson_val* entry = find_lowering_plan_entry_for_site(block.id, ii);
               struct LoweringPlanGenericMethodView method_view;
               struct LoweringPlanExternCallView extern_view;
               struct LoweringPlanGlobalCallView global_view;
-              const char* ctype = cal ? read_str(cal, "type") : NULL;
-              const char* mname = cal ? read_str(cal, "name") : NULL;
-              const char* bname = cal ? read_str(cal, "box_name") : NULL;
+              const char* ctype = NULL;
+              const char* mname = NULL;
+              const char* bname = NULL;
               long long dst = read_int(ins, "dst");
+              if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
+              ctype = read_str(cal, "type");
+              mname = read_str(cal, "name");
+              if (!mname) mname = read_str(cal, "method");
+              bname = read_str(cal, "box_name");
+              if (!bname) bname = read_str(cal, "box_type");
               if (ctype && !strcmp(ctype, "Method") &&
                   mname && !strcmp(mname, "birth") &&
                   bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
@@ -1390,12 +1417,13 @@
           long long bid,
           size_t ii,
           yyjson_val* ins) {
-        yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
-        yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-        yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-        const char* ctype = cal ? read_str(cal, "type") : NULL;
+        yyjson_val* cal = NULL;
+        yyjson_val* args = NULL;
+        const char* ctype = NULL;
         long long dst = read_int(ins, "dst");
         int rc = 0;
+        if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
+        ctype = read_str(cal, "type");
         rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
         if (rc != 0) {
           return rc;
@@ -1415,8 +1443,10 @@
           }
         } else if (ctype && !strcmp(ctype, "Method")) {
           long long recv = read_int(cal, "receiver");
-          const char* mname = cal ? read_str(cal, "name") : NULL;
-          const char* bname = cal ? read_str(cal, "box_name") : NULL;
+          const char* mname = read_str(cal, "name");
+          const char* bname = read_str(cal, "box_name");
+          if (!mname) mname = read_str(cal, "method");
+          if (!bname) bname = read_str(cal, "box_type");
           if (mname && !strcmp(mname, "birth") &&
               bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
             if (dst) {
@@ -1600,7 +1630,7 @@
               }
               continue;
             }
-            if (!strcmp(op, "mir_call")) {
+            if (!strcmp(op, "mir_call") || !strcmp(op, "call")) {
               if (!module_generic_string_emit_mir_call(f, block.id, ii, ins)) return 0;
               continue;
             }
