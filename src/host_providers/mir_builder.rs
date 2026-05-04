@@ -273,8 +273,15 @@ mod tests {
         assert!(result.is_ok(), "Failed with error: {:?}", result.err());
 
         let mir_json = result.unwrap();
-        assert!(mir_json.contains("lang.compiler.build.build_box"));
-        assert!(!mir_json.contains("\"BuildBox.emit_program_json_v0\""));
+        assert!(mir_json.contains("BuildBox.emit_program_json_v0/2"));
+        assert!(
+            !mir_json.contains("\"op\":\"boxcall\""),
+            "BuildBox emit_program_json_v0 must lower as a canonical static call"
+        );
+        assert!(
+            !mir_json.contains("\"method\":\"emit_program_json_v0\""),
+            "BuildBox emit_program_json_v0 must not remain a runtime method call"
+        );
     }
 
     #[test]

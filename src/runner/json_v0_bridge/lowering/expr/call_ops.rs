@@ -12,6 +12,22 @@ pub(super) fn lower_call_expr<S: VarScope>(
     vars: &mut S,
 ) -> Result<(ValueId, BasicBlockId), String> {
     if let Some((recv_alias, method)) = split_imported_alias_call(env, name) {
+        if let Some(canonical_box) =
+            canonical_imported_static_call_box(env, recv_alias, method, args.len())
+        {
+            if let Some(result) = lower_stageb_static_call_for_box(
+                env,
+                f,
+                cur_bb,
+                canonical_box,
+                method,
+                args,
+                vars,
+                true,
+            )? {
+                return Ok(result);
+            }
+        }
         let recv = ExprV0::Var {
             name: recv_alias.to_string(),
         };
@@ -115,6 +131,22 @@ fn split_imported_alias_call<'a>(env: &'a BridgeEnv, name: &'a str) -> Option<(&
         return None;
     }
     Some((recv_alias, method))
+}
+
+fn canonical_imported_static_call_box(
+    env: &BridgeEnv,
+    recv_alias: &str,
+    method: &str,
+    arity: usize,
+) -> Option<&'static str> {
+    let mapped = env.imports.get(recv_alias)?;
+    match (mapped.as_str(), method, arity) {
+        // Program(JSON) source owners import the Rust-owned BuildBox by module path,
+        // while route facts and the existing ProgramJsonEmitBody use the stable
+        // BuildBox symbol. Keep this bridge-side canonicalization narrow.
+        ("lang.compiler.build.build_box", "emit_program_json_v0", 2) => Some("BuildBox"),
+        _ => None,
+    }
 }
 
 pub(super) fn lower_method_expr<S: VarScope>(
