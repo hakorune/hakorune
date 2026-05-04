@@ -13,6 +13,14 @@ Related:
 
 # P381F: Stage1 Short-Circuit Nested Guard
 
+## Follow-up
+
+P381F is a temporary Stage1 source-surface cleanup. It does not revoke language
+support for `&&` / `||`.
+
+Durable compiler-owned handling continues in
+`docs/development/current/main/phases/phase-29cv/P381J-BOOLEAN-SHORT-CIRCUIT-PHI-LOWERING.md`.
+
 ## Problem
 
 P381E removed the `String|Void` shape blockers. The phase29cg replay then reached

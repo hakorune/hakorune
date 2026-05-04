@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381I-STAGE1-EXTERN-DECLARE-FOR-MODULE-GENERIC"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381I-STAGE1-EXTERN-DECLARE-FOR-MODULE-GENERIC.md"
-latest_card_summary = "Declare Stage1 extern helpers when module-generic definitions are planned so emitted helper calls verify."
+latest_card = "P381J-BOOLEAN-SHORT-CIRCUIT-PHI-LOWERING"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381J-BOOLEAN-SHORT-CIRCUIT-PHI-LOWERING.md"
+latest_card_summary = "Lower boolean short-circuit PHIs without source rewrites, new Stage0 body shapes, or C shim source-helper semantics."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
