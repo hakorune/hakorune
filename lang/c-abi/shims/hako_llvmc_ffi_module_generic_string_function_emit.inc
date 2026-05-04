@@ -195,6 +195,33 @@
         return cal != NULL;
       }
 
+      auto int module_generic_string_prepass_externcall(
+          long long bid,
+          size_t ii,
+          yyjson_val* ins) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanExternCallView extern_view;
+        long long dst = read_int(ins, "dst");
+        if (!read_lowering_plan_extern_call_view(entry, &extern_view)) return 0;
+        if (lowering_plan_env_get_view_is_valid(&extern_view)) {
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          return 1;
+        }
+        if (lowering_plan_env_set_view_is_valid(&extern_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (lowering_plan_hostbridge_extern_invoke_view_is_valid(&extern_view)) {
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          return 1;
+        }
+        return 0;
+      }
+
       auto int module_generic_string_prepass_active_function(void) {
         yyjson_val* params = fn0 ? yyjson_obj_get(fn0, "params") : NULL;
         if (!(params && yyjson_is_arr(params))) return 0;
@@ -550,6 +577,8 @@
               } else {
                 return 0;
               }
+            } else if (!strcmp(op, "externcall")) {
+              if (!module_generic_string_prepass_externcall(block.id, ii, ins)) return 0;
             } else if (!strcmp(op, "branch") ||
                        !strcmp(op, "jump") ||
                        !strcmp(op, "ret") ||
@@ -1632,6 +1661,17 @@
             }
             if (!strcmp(op, "mir_call") || !strcmp(op, "call")) {
               if (!module_generic_string_emit_mir_call(f, block.id, ii, ins)) return 0;
+              continue;
+            }
+            if (!strcmp(op, "externcall")) {
+              yyjson_val* args = yyjson_obj_get(ins, "args");
+              int rc = emit_extern_call_lowering_plan_mir_call(
+                  f,
+                  block.id,
+                  ii,
+                  read_int(ins, "dst"),
+                  args);
+              if (rc != 1) return 0;
               continue;
             }
             if (!strcmp(op, "keepalive") || !strcmp(op, "release_strong")) {
