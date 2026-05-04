@@ -96,6 +96,7 @@ set +e
 NYASH_LLVM_BACKEND="${NYASH_LLVM_BACKEND:-crate}" \
 NYASH_LLVM_SKIP_BUILD=1 \
 NYASH_LLVM_DUMP_IR="$TMP_IR" \
+NYASH_LLVM_ROUTE_TRACE="${NYASH_LLVM_ROUTE_TRACE:-1}" \
 bash "$ROOT/tools/ny_mir_builder.sh" --in "$TMP_MIR" --emit obj -o "$TMP_OBJ" --quiet >/dev/null 2>"$TMP_LLVM_ERR"
 llvm_rc=$?
 set -e
@@ -120,5 +121,13 @@ if [[ "$llvm_rc" -eq 0 && "$verify_rc" -eq 0 ]]; then
   exit 0
 fi
 
+if [[ "$llvm_rc" -ne 0 && -s "$TMP_LLVM_ERR" ]]; then
+  echo "[phase29cg] llvm stderr:" >&2
+  sed -n '1,120p' "$TMP_LLVM_ERR" >&2 || true
+fi
+if [[ "$verify_rc" -ne 0 && -s "$TMP_VERIFY_ERR" ]]; then
+  echo "[phase29cg] verify stderr:" >&2
+  sed -n '1,80p' "$TMP_VERIFY_ERR" >&2 || true
+fi
 echo "[FAIL] phase29cg_stage2_bootstrap_phi_verify llvm_rc=$llvm_rc verify_rc=$verify_rc verify_count=$verify_count" >&2
 exit 1
