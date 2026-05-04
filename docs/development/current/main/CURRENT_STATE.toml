@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P380M-PHASE29CG-OUT-DIR-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P380M-PHASE29CG-OUT-DIR-GUARD.md"
-latest_card_summary = "Make phase29cg bridge keeper create caller-provided OUT_DIR before remeasure."
+latest_card = "P380N-PROGRAM-JSON-MIR-BRIDGE-DELEGATE-ENV"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P380N-PROGRAM-JSON-MIR-BRIDGE-DELEGATE-ENV.md"
+latest_card_summary = "Make Program(JSON)->MIR compat bridge own its local delegate env."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

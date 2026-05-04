@@ -80,7 +80,11 @@ program_json_mir_bridge_emit() {
 
   local rc=0
   set +e
+  # This helper is the explicit Program(JSON)->MIR compat capsule. Own the
+  # delegate env locally so mainline no-delegate defaults cannot disable it.
   HAKO_V1_EXTERN_PROVIDER=0 \
+  HAKO_SELFHOST_NO_DELEGATE=0 \
+  HAKO_MIR_BUILDER_DELEGATE=1 \
   NYASH_MIR_UNIFIED_CALL="${NYASH_MIR_UNIFIED_CALL:-1}" \
     "$bin" --mir-json-file "$tmp_wrapper" >"$tmp_stdout" 2>&1
   rc=$?
