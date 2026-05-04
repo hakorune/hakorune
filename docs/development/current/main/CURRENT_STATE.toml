@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-04"
+date = "2026-05-05"
 
 active_lane = "phase-29cv Program(JSON v0) keeper closeout"
 active_lane_status = "Post-P53 cleanup: normal selfhost --exe is direct source MIR, active roundtrip smoke uses the current exit-code contract, stale root manual wrappers are archived, and root helper protected-category/delete lifecycle policy plus ROOT_SURFACE manifest are documented."
@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381AQ-OPTION-NULL-NO-MATCH-TASK-MAP"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381AQ-OPTION-NULL-NO-MATCH-TASK-MAP.md"
-latest_card_summary = "AQ-2 inventory is locked, AQ-3 restores dual-front Option enum ctor/match parity, AQ-4 lands null-free Option::Some guards, and AQ-5 lands `some`/`none`/`if some` sugar on the shared Program(JSON v0) lane."
+latest_card = "P381AP-STRING-HELPERS-TO-I64-BOOL-NEG-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381AP-STRING-HELPERS-TO-I64-BOOL-NEG-GUARD.md"
+latest_card_summary = "P381O-AP closeout is landed: pure mem2reg diagnostics are visible, active fallback/probe blockers are retired, and helper owners now keep bool/text/i64 carriers on the direct Stage1 env EXE route without backend rescue."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
