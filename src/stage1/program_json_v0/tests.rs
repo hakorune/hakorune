@@ -177,6 +177,50 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_option_some_null_payload() {
+    let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+local x = Option::Some(null)
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("Option::Some(null) should fail fast on the shared enum lane");
+    assert!(error.contains("[freeze:contract][option/some_nullish]"));
+    assert!(error.contains("Option::Some payload must not be null or void"));
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_option_some_void_payload() {
+    let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+local x = Option::Some(void)
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("Option::Some(void) should fail fast on the shared enum lane");
+    assert!(error.contains("[freeze:contract][option/some_nullish]"));
+    assert!(error.contains("Option::Some payload must not be null or void"));
+}
+
+#[test]
 fn source_to_program_json_v0_rejects_non_exhaustive_enum_match() {
     let source = r#"
 enum Option<T> {

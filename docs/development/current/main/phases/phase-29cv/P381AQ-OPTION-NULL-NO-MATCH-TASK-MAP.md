@@ -195,6 +195,37 @@ Acceptance:
 - otherwise runtime fail-fast at construction
 - positive non-null payloads continue to pass
 
+### AQ-4 progress snapshot (2026-05-04)
+
+Result:
+
+- The shared enum lane now rejects nullish public `Option::Some(...)` payloads without
+  adding new syntax or backend-specific emitters.
+- Rust Stage1 / Program(JSON v0) lowering now rejects statically known
+  `Option::Some(null)` and `Option::Some(void)`.
+- Program(JSON v0) → MIR lowering now rejects direct JSON `Null` payloads too, so the
+  selfhost `.hako` front inherits the same compile-time contract on the shared lane.
+- VM `VariantMake` now fail-fast rejects runtime-nullish payloads for `Option::Some`,
+  covering cases where compile-time analysis only sees a variable or other non-literal.
+
+Validation:
+
+- Rust Stage1 static reject:
+  `source_to_program_json_v0_rejects_option_some_null_payload`
+- Rust Stage1 static reject for `void`:
+  `source_to_program_json_v0_rejects_option_some_void_payload`
+- Shared Program(JSON v0) compile-time reject:
+  `parse_json_v0_to_module_rejects_option_some_null_payload`
+- Runtime fail-fast on non-literal nullish payload:
+  `vm_fails_fast_when_option_some_payload_evaluates_to_nullish_value`
+- Positive keep-pass:
+  `vm_allows_option_some_non_null_payload`
+
+Next:
+
+- AQ-5 stays deferred; public `Option` now has the intended AQ-3/AQ-4 baseline on the
+  existing enum lane
+
 ### AQ-5. Optional sugar later
 
 Only after AQ-3/AQ-4:

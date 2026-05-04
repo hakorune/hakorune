@@ -2,6 +2,7 @@ use super::sum_bridge;
 use super::*;
 use crate::instance_v2::InstanceBox;
 use crate::mir::{MirEnumVariantDecl, MirType};
+use crate::semantics::option_contract::{nullish_payload_error, requires_non_nullish_payload};
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -50,6 +51,11 @@ impl MirInterpreter {
         let runtime_sum: Arc<dyn crate::box_trait::NyashBox> = Arc::new(instance);
         if let Some(payload_id) = payload {
             let payload_value = self.reg_load(payload_id)?;
+            if requires_non_nullish_payload(enum_name, variant)
+                && vm_value_is_nullish(&payload_value)
+            {
+                return Err(self.err_invalid(nullish_payload_error("vm/sum:make")));
+            }
             sum_bridge::store_sum_payload(self, &runtime_sum, payload_value);
         }
         self.write_reg(dst, VMValue::BoxRef(runtime_sum));
@@ -198,5 +204,19 @@ impl MirInterpreter {
             )));
         }
         Ok(box_ref)
+    }
+}
+
+fn vm_value_is_nullish(value: &VMValue) -> bool {
+    match value {
+        VMValue::Void => true,
+        VMValue::BoxRef(box_ref) => {
+            crate::boxes::null_box::NullBox::check_null(box_ref.as_ref())
+                || box_ref
+                    .as_any()
+                    .downcast_ref::<crate::box_trait::VoidBox>()
+                    .is_some()
+        }
+        _ => false,
     }
 }

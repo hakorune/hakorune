@@ -3,6 +3,7 @@ use super::record_payload::enum_variant_payload_type_name;
 use crate::ast::{
     ASTNode, BinaryOperator, CatchClause, EnumVariantDecl, LiteralValue, UnaryOperator,
 };
+use crate::semantics::option_contract::{nullish_payload_error, requires_non_nullish_payload};
 use std::collections::BTreeMap;
 
 #[cfg(test)]
@@ -382,6 +383,11 @@ fn enum_ctor_to_json_v0(
             arguments.len()
         ));
     }
+    if requires_non_nullish_payload(enum_name, variant_name)
+        && arguments.iter().any(ast_expr_is_statically_nullish)
+    {
+        return Err(nullish_payload_error("stage1/program_json_v0"));
+    }
     let payload_type = enum_variant_payload_type_name(enum_name, variant);
     let lowered_args = if variant.requires_compat_payload_box() {
         let payload_box = payload_type.clone().ok_or_else(|| {
@@ -406,6 +412,17 @@ fn enum_ctor_to_json_v0(
         "payload_type": payload_type,
         "args": lowered_args,
     }))
+}
+
+fn ast_expr_is_statically_nullish(node: &ASTNode) -> bool {
+    match node {
+        ASTNode::Literal {
+            value: LiteralValue::Null | LiteralValue::Void,
+            ..
+        } => true,
+        ASTNode::BlockExpr { tail_expr, .. } => ast_expr_is_statically_nullish(tail_expr),
+        _ => false,
+    }
 }
 
 fn enum_match_expr_to_json_v0(

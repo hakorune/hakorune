@@ -6,6 +6,7 @@ use crate::ast::Span;
 use crate::mir::{
     BasicBlockId, CompareOp, ConstValue, MirFunction, MirInstruction, MirType, ValueId,
 };
+use crate::semantics::option_contract::{nullish_payload_error, requires_non_nullish_payload};
 use std::collections::{BTreeMap, BTreeSet};
 
 struct ResolvedEnumVariant {
@@ -33,6 +34,11 @@ pub(super) fn lower_variant_ctor_expr_with_scope<S: VarScope>(
             expected_arity,
             args.len()
         ));
+    }
+    if requires_non_nullish_payload(enum_name, variant_name)
+        && args.iter().any(expr_is_statically_nullish)
+    {
+        return Err(nullish_payload_error("json_v0/enum_ctor"));
     }
 
     let (arg_ids, cur2) = lower_args_with_scope(env, f, cur_bb, args, vars)?;
@@ -294,4 +300,34 @@ fn looks_like_generic_type_param(raw: &str) -> bool {
         && raw
             .chars()
             .all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit())
+}
+
+fn expr_is_statically_nullish(expr: &ExprV0) -> bool {
+    match expr {
+        ExprV0::Null => true,
+        ExprV0::BlockExpr { tail, .. } => block_expr_tail_is_statically_nullish(tail),
+        _ => false,
+    }
+}
+
+fn block_expr_tail_is_statically_nullish(tail: &serde_json::Value) -> bool {
+    let Some(kind) = tail.get("type").and_then(|value| value.as_str()) else {
+        return false;
+    };
+    if kind == "Null" {
+        return true;
+    }
+    if kind != "Expr" {
+        return false;
+    }
+    tail.get("expr")
+        .map(expr_json_is_statically_nullish)
+        .unwrap_or(false)
+}
+
+fn expr_json_is_statically_nullish(value: &serde_json::Value) -> bool {
+    match serde_json::from_value::<ExprV0>(value.clone()) {
+        Ok(expr) => expr_is_statically_nullish(&expr),
+        Err(_) => false,
+    }
 }
