@@ -15,6 +15,7 @@ pub enum ExternCallRouteKind {
     HostBridgeExternInvoke,
     Stage1EmitProgramJson,
     Stage1EmitMirFromSource,
+    Stage1EmitMirFromProgramJson,
 }
 
 impl ExternCallRouteKind {
@@ -25,6 +26,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => "extern.hostbridge.extern_invoke",
             Self::Stage1EmitProgramJson => "extern.stage1.emit_program_json_v0",
             Self::Stage1EmitMirFromSource => "extern.stage1.emit_mir_from_source_v0",
+            Self::Stage1EmitMirFromProgramJson => "extern.stage1.emit_mir_from_program_json_v0",
         }
     }
 
@@ -35,6 +37,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => "HostBridgeExternInvoke",
             Self::Stage1EmitProgramJson => "Stage1EmitProgramJson",
             Self::Stage1EmitMirFromSource => "Stage1EmitMirFromSource",
+            Self::Stage1EmitMirFromProgramJson => "Stage1EmitMirFromProgramJson",
         }
     }
 
@@ -45,6 +48,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => "nyash.hostbridge.extern_invoke",
             Self::Stage1EmitProgramJson => "nyash.stage1.emit_program_json_v0_h",
             Self::Stage1EmitMirFromSource => "nyash.stage1.emit_mir_from_source_v0_h",
+            Self::Stage1EmitMirFromProgramJson => "nyash.stage1.emit_mir_from_program_json_v0_h",
         }
     }
 
@@ -55,6 +59,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => "ColdRuntime",
             Self::Stage1EmitProgramJson => "ColdRuntime",
             Self::Stage1EmitMirFromSource => "ColdRuntime",
+            Self::Stage1EmitMirFromProgramJson => "ColdRuntime",
         }
     }
 
@@ -65,6 +70,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => "runtime_call",
             Self::Stage1EmitProgramJson => "runtime_call",
             Self::Stage1EmitMirFromSource => "runtime_call",
+            Self::Stage1EmitMirFromProgramJson => "runtime_call",
         }
     }
 
@@ -75,6 +81,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => "extern_registry",
             Self::Stage1EmitProgramJson => "extern_registry",
             Self::Stage1EmitMirFromSource => "extern_registry",
+            Self::Stage1EmitMirFromProgramJson => "extern_registry",
         }
     }
 
@@ -85,6 +92,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => "string_handle_or_null",
             Self::Stage1EmitProgramJson => "string_handle",
             Self::Stage1EmitMirFromSource => "string_handle",
+            Self::Stage1EmitMirFromProgramJson => "string_handle",
         }
     }
 
@@ -95,6 +103,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => "runtime_i64_or_handle",
             Self::Stage1EmitProgramJson => "runtime_i64_or_handle",
             Self::Stage1EmitMirFromSource => "runtime_i64_or_handle",
+            Self::Stage1EmitMirFromProgramJson => "runtime_i64_or_handle",
         }
     }
 
@@ -105,6 +114,7 @@ impl ExternCallRouteKind {
             Self::HostBridgeExternInvoke => &["hostbridge.extern"],
             Self::Stage1EmitProgramJson => &["stage1.emit_program_json"],
             Self::Stage1EmitMirFromSource => &["stage1.emit_mir_from_source"],
+            Self::Stage1EmitMirFromProgramJson => &["stage1.emit_mir_from_program_json"],
         }
     }
 }
@@ -208,6 +218,7 @@ impl ExternCallRoute {
             ExternCallRouteKind::HostBridgeExternInvoke => 3,
             ExternCallRouteKind::Stage1EmitProgramJson => 1,
             ExternCallRouteKind::Stage1EmitMirFromSource => 1,
+            ExternCallRouteKind::Stage1EmitMirFromProgramJson => 1,
         }
     }
 
@@ -241,6 +252,9 @@ pub fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallR
         }
         ("nyash.stage1.emit_mir_from_source_v0_h", 1) => {
             Some(ExternCallRouteKind::Stage1EmitMirFromSource)
+        }
+        ("nyash.stage1.emit_mir_from_program_json_v0_h", 1) => {
+            Some(ExternCallRouteKind::Stage1EmitMirFromProgramJson)
         }
         _ => None,
     }
@@ -294,6 +308,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 ExternCallRouteKind::HostBridgeExternInvoke => args.get(2).copied(),
                 ExternCallRouteKind::Stage1EmitProgramJson => None,
                 ExternCallRouteKind::Stage1EmitMirFromSource => None,
+                ExternCallRouteKind::Stage1EmitMirFromProgramJson => None,
             };
             routes.push(ExternCallRoute::new(
                 ExternCallRouteSite::new(block_id, instruction_index),
@@ -495,6 +510,44 @@ mod tests {
         assert_eq!(route.return_shape(), "string_handle");
         assert_eq!(route.value_demand(), "runtime_i64_or_handle");
         assert_eq!(route.effect_tags(), &["stage1.emit_mir_from_source"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_records_stage1_emit_mir_from_program_json_extern_route()
+    {
+        let mut function = make_function_with_call(
+            "nyash.stage1.emit_mir_from_program_json_v0_h",
+            vec![ValueId::new(0)],
+            Some(ValueId::new(2)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(
+            route.route_id(),
+            "extern.stage1.emit_mir_from_program_json_v0"
+        );
+        assert_eq!(route.core_op(), "Stage1EmitMirFromProgramJson");
+        assert_eq!(
+            route.symbol(),
+            "nyash.stage1.emit_mir_from_program_json_v0_h"
+        );
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(
+            route.source_symbol(),
+            "nyash.stage1.emit_mir_from_program_json_v0_h"
+        );
+        assert_eq!(route.key_value(), ValueId::new(0));
+        assert_eq!(route.value_value(), None);
+        assert_eq!(route.result_value(), ValueId::new(2));
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.return_shape(), "string_handle");
+        assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+        assert_eq!(route.effect_tags(), &["stage1.emit_mir_from_program_json"]);
     }
 
     #[test]

@@ -167,6 +167,9 @@ fn classify_stage1_static_extern_import_call<'a>(
         if mapped == "lang.mir.builder.MirBuilderBox" && method == "emit_from_source_v0" {
             return Some(("nyash.stage1", "emit_mir_from_source_v0_h"));
         }
+        if mapped == "lang.mir.builder.MirBuilderBox" && method == "emit_from_program_json_v0" {
+            return Some(("nyash.stage1", "emit_mir_from_program_json_v0_h"));
+        }
     }
     None
 }

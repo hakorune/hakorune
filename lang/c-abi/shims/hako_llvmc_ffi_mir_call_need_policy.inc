@@ -28,6 +28,7 @@
         int hostbridge_extern_invoke_trap;
         int stage1_emit_program_json;
         int stage1_emit_mir_from_source;
+        int stage1_emit_mir_from_program_json;
         int printf;
       };
 
@@ -58,6 +59,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP,
         HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_PROGRAM_JSON,
         HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_SOURCE,
+        HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_PROGRAM_JSON,
         HAKO_LLVMC_MIR_CALL_NEED_PRINTF,
       };
 
@@ -141,6 +143,9 @@
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_SOURCE:
             needs->stage1_emit_mir_from_source = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_PROGRAM_JSON:
+            needs->stage1_emit_mir_from_program_json = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_PRINTF:
             needs->printf = 1;
@@ -686,6 +691,16 @@
             "extern_registry",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_SOURCE,
+          },
+          {
+            "extern.stage1.emit_mir_from_program_json_v0",
+            "Stage1EmitMirFromProgramJson",
+            "extern.stage1.emit_mir_from_program_json_v0",
+            "runtime_call",
+            "nyash.stage1.emit_mir_from_program_json_v0_h",
+            "extern_registry",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_PROGRAM_JSON,
           },
         };
         struct LoweringPlanExternCallView view;

@@ -985,6 +985,7 @@ fn generic_pure_string_instruction_reject_reason(
                 ExternCallRouteKind::EnvGet
                     | ExternCallRouteKind::Stage1EmitProgramJson
                     | ExternCallRouteKind::Stage1EmitMirFromSource
+                    | ExternCallRouteKind::Stage1EmitMirFromProgramJson
             )
         ) =>
         {

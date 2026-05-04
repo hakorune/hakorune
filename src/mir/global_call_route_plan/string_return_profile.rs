@@ -523,6 +523,7 @@ fn refine_generic_string_return_value_class(
                 ExternCallRouteKind::EnvGet
                     | ExternCallRouteKind::Stage1EmitProgramJson
                     | ExternCallRouteKind::Stage1EmitMirFromSource
+                    | ExternCallRouteKind::Stage1EmitMirFromProgramJson
             )
         ) =>
         {

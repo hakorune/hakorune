@@ -339,6 +339,29 @@
                !strcmp(view->value_demand, "runtime_i64_or_handle") &&
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
       }
+      auto int lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(
+          const struct LoweringPlanExternCallView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "extern.stage1.emit_mir_from_program_json_v0") &&
+               view->core_op &&
+               !strcmp(view->core_op, "Stage1EmitMirFromProgramJson") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "extern.stage1.emit_mir_from_program_json_v0") &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "runtime_call") &&
+               view->symbol &&
+               !strcmp(view->symbol, "nyash.stage1.emit_mir_from_program_json_v0_h") &&
+               view->proof &&
+               !strcmp(view->proof, "extern_registry") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "extern_registry") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "string_handle") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+      }
       auto int emit_extern_call_lowering_plan_mir_call(
           FILE* f,
           long long bid,
@@ -479,6 +502,27 @@
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
           trace_lowering_plan_entry_hit(entry, "mir_call_stage1_emit_mir_from_source_emit");
+          return 1;
+        }
+        if (lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(&view)) {
+          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 1) {
+            return -1;
+          }
+          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 1) {
+            return -1;
+          }
+          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+          if (actual_key != key_value) {
+            return -1;
+          }
+
+          ab[0] = '\0';
+          append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
+          fprintf(f, "  %%r%lld = call i64 @\"nyash.stage1.emit_mir_from_program_json_v0_h\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          trace_lowering_plan_entry_hit(entry, "mir_call_stage1_emit_mir_from_program_json_emit");
           return 1;
         }
         return -1;
