@@ -42,10 +42,7 @@ static box Stage1InputContractBox {
 
   method clean_env_value(v) {
     local s = me._coerce_text_compat(v)
-    if s == "null" { return "" }
-    if s == "Null" { return "" }
-    if s == "void" { return "" }
-    if s == "Void" { return "" }
+    if s == "null" || s == "Null" || s == "void" || s == "Void" { return "" }
     return s
   }
 
@@ -72,9 +69,7 @@ static box Stage1InputContractBox {
 
   method _env_flag_enabled(name) {
     local flag = env.get(name)
-    if flag != null {
-      if me._coerce_text_compat(flag) == "1" { return 1 }
-    }
+    if flag != null && me._coerce_text_compat(flag) == "1" { return 1 }
     return 0
   }
 }
