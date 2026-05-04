@@ -517,7 +517,9 @@ fn generic_i64_body_refine_instruction(
             callee: Some(Callee::Global(name)),
             args,
             ..
-        } if supported_backend_global(name) => dst.is_none() && args.len() == 1,
+        } if supported_backend_global(name) => {
+            generic_i64_accepts_backend_global_call(function, name, dst, args)
+        }
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
@@ -598,6 +600,29 @@ fn generic_i64_global_call_result_class(
     } else {
         GenericI64ValueClass::I64
     }
+}
+
+fn generic_i64_accepts_backend_global_call(
+    function: &MirFunction,
+    name: &str,
+    dst: &Option<ValueId>,
+    args: &[ValueId],
+) -> bool {
+    if !supported_backend_global(name) || args.len() != 1 {
+        return false;
+    }
+    dst.map(|value| !generic_i64_value_is_used(function, value))
+        .unwrap_or(true)
+}
+
+fn generic_i64_value_is_used(function: &MirFunction, value: ValueId) -> bool {
+    function.blocks.values().any(|block| {
+        block
+            .instructions
+            .iter()
+            .chain(block.terminator.iter())
+            .any(|instruction| instruction.used_values().contains(&value))
+    })
 }
 
 fn generic_i64_select_value_class(

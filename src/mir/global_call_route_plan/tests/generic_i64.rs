@@ -1,7 +1,8 @@
 use super::*;
 
 #[test]
-fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target_with_env_get_canonical_spelling() {
+fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target_with_env_get_canonical_spelling(
+) {
     let mut module = MirModule::new("global_call_generic_i64_test".to_string());
     let caller =
         make_function_with_global_call_args("Helper.debug/0", Some(ValueId::new(7)), vec![]);
@@ -1049,6 +1050,94 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.proof(), "typed_global_call_generic_i64");
     assert_eq!(route.return_shape(), Some("ScalarI64"));
+}
+
+#[test]
+fn refresh_module_global_call_routes_accepts_print_dead_dst_in_generic_i64_body() {
+    let mut module = MirModule::new("global_call_generic_i64_print_dead_dst_test".to_string());
+    let caller =
+        make_function_with_global_call_args("Helper.debug_flag/0", Some(ValueId::new(7)), vec![]);
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.debug_flag/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(1),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("print".to_string())),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::IO,
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.debug_flag/0".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), Some("generic_i64_body"));
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_i64");
+    assert_eq!(route.return_shape(), Some("ScalarI64"));
+}
+
+#[test]
+fn refresh_module_global_call_routes_rejects_print_used_dst_in_generic_i64_body() {
+    let mut module = MirModule::new("global_call_generic_i64_print_used_dst_test".to_string());
+    let caller =
+        make_function_with_global_call_args("Helper.debug_flag/0", Some(ValueId::new(7)), vec![]);
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.debug_flag/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(1),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("print".to_string())),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::IO,
+        },
+    ]);
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.debug_flag/0".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.target_shape(), None);
+    assert_ne!(route.proof(), "typed_global_call_generic_i64");
 }
 
 #[test]
