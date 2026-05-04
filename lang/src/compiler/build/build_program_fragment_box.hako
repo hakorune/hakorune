@@ -4,11 +4,14 @@
 
 using "lang.compiler.parser.using.using_collector_box" as UsingCollectorBox
 using lang.compiler.entry.func_scanner as FuncScannerBox
+using lang.compiler.parser.enum.parser_enum_inventory_box as ParserEnumInventoryBox
 using selfhost.shared.common.string_helpers as StringHelpers
 
 static box BuildProgramFragmentBox {
   method enrich(ast_json, scan_src) {
     local enriched = me._inject_defs_json(ast_json, scan_src)
+    if me._is_freeze_tag(enriched) == 1 { return enriched }
+    enriched = me._inject_enum_decls_json(enriched, scan_src)
     if me._is_freeze_tag(enriched) == 1 { return enriched }
     return me._inject_imports_json(enriched, scan_src)
   }
@@ -42,6 +45,12 @@ static box BuildProgramFragmentBox {
   method _inject_imports_json(ast_json, scan_src) {
     local imports_frag = me._build_imports_fragment_json(scan_src)
     return me._inject_imports_fragment_if_present(ast_json, imports_frag)
+  }
+
+  method _inject_enum_decls_json(ast_json, scan_src) {
+    local enum_decls = ParserEnumInventoryBox.collect(scan_src)
+    if enum_decls == null || enum_decls == "" || enum_decls == "[]" { return ast_json }
+    return me.inject_json_fragment(ast_json, ",\"enum_decls\":" + enum_decls)
   }
 
   method _build_defs_json_with_source(methods) {

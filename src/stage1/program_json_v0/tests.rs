@@ -146,6 +146,37 @@ return match value {
 }
 
 #[test]
+fn source_to_program_json_v0_emits_unit_enum_ctor() {
+    let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+local x = Option::None
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+    assert_eq!(body[0]["type"], "Local");
+    assert_eq!(body[0]["expr"]["type"], "EnumCtor");
+    assert_eq!(body[0]["expr"]["enum"], "Option");
+    assert_eq!(body[0]["expr"]["variant"], "None");
+    assert!(
+        body[0]["expr"]["args"]
+            .as_array()
+            .expect("args array")
+            .is_empty()
+    );
+}
+
+#[test]
 fn source_to_program_json_v0_rejects_non_exhaustive_enum_match() {
     let source = r#"
 enum Option<T> {

@@ -279,6 +279,13 @@ impl NyashParser {
                         self.parse_parent_colon_arguments()?
                     } else if self.match_token(&TokenType::LBRACE) {
                         self.parse_known_enum_record_ctor_arguments(&parent, &method)?
+                    } else if self
+                        .known_enums
+                        .get(&parent)
+                        .and_then(|variants| variants.iter().find(|variant| variant.name == method))
+                        .is_some_and(|variant| variant.payload_arity() == 0)
+                    {
+                        Vec::new()
                     } else {
                         let line = self.current_token().line;
                         return Err(ParseError::UnexpectedToken {

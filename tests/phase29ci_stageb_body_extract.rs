@@ -122,3 +122,81 @@ static box Main {
         json
     );
 }
+
+#[test]
+fn build_box_emit_program_json_v0_preserves_enum_ctor_and_enum_match_surface() {
+    let bin = env!("CARGO_BIN_EXE_hakorune");
+    let script = r#"
+using lang.compiler.build.build_box as BuildBox
+static box Main {
+  main() {
+    local src = env.get("HAKO_SRC")
+    local json = BuildBox.emit_program_json_v0(src, null)
+    print(json)
+    return 0
+  }
+}
+"#;
+    let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+    local none_value = Option::None
+    local some_value = Option::Some(1)
+    return match some_value {
+      Some(v) => v
+      None => 0
+    }
+  }
+}
+"#;
+    let script_path = write_temp_hako("phase29cv_buildbox_enum_surface", script);
+    let output = Command::new(bin)
+        .arg("--backend")
+        .arg("vm")
+        .arg(&script_path)
+        .env("HAKO_SRC", source)
+        .output()
+        .expect("failed to run BuildBox enum surface probe");
+    let _ = fs::remove_file(&script_path);
+
+    assert!(
+        output.status.success(),
+        "BuildBox enum surface probe should succeed\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let json_start = stdout
+        .find("{\"version\":0,\"kind\":\"Program\"")
+        .expect("BuildBox enum surface output should contain Program(JSON v0)");
+    let json = &stdout[json_start..];
+
+    assert!(
+        json.contains("\"enum_decls\":[{\"name\":\"Option\"")
+            && json.contains("\"payload_type\":null")
+            && json.contains("\"payload_type\":\"T\""),
+        "BuildBox route should emit Option enum inventory\njson:\n{}",
+        json
+    );
+    assert!(
+        json.contains("\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"None\",\"args\":[]")
+            && json.contains(
+                "\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"Some\",\"args\":[{\"type\":\"Int\",\"value\":1}]"
+            ),
+        "BuildBox route should preserve unit and payload enum constructors\njson:\n{}",
+        json
+    );
+    assert!(
+        json.contains("\"type\":\"EnumMatch\",\"enum\":\"Option\"")
+            && json.contains("\"variant\":\"Some\",\"bind\":\"v\"")
+            && json.contains("\"variant\":\"None\",\"expr\":{\"type\":\"Int\",\"value\":0}"),
+        "BuildBox route should preserve known-enum match arms\njson:\n{}",
+        json
+    );
+}

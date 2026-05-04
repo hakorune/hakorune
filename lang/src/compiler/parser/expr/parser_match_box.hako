@@ -1,0 +1,121 @@
+static box ParserMatchBox {
+  parse(src, i, ctx) {
+    local j = i + 5
+    local n = src.length()
+    j = ctx.skip_ws(src, j)
+
+    local scrutinee = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
+    j = ctx.skip_ws(src, j)
+    if j < n && src.substring(j, j + 1) == "{" { j = j + 1 }
+
+    local arms_json = "["
+    local arm_count = 0
+    local arm_names_json = "["
+    local arm_name_count = 0
+    local else_json = null
+    local guard = 0
+    local max = 200000
+
+    loop(guard < max) {
+      j = ctx.skip_ws(src, j)
+      if j >= n { break }
+      if src.substring(j, j + 1) == "}" { break }
+
+      if src.substring(j, j + 1) == "_" {
+        j = j + 1
+        j = ctx.skip_ws(src, j)
+        if j + 1 < n && src.substring(j, j + 2) == "=>" { j = j + 2 }
+        j = ctx.skip_ws(src, j)
+        local body = me._parse_arm_body(src, j, ctx)
+        local at_else = body.lastIndexOf("@")
+        else_json = body.substring(0, at_else)
+        j = ctx.to_int(body.substring(at_else + 1, body.length()))
+      } else {
+        local head = me._parse_named_head(src, j, ctx)
+        local at1 = head.indexOf("@")
+        local at2 = head.indexOf("@", at1 + 1)
+        local variant = head.substring(0, at1)
+        local binding = head.substring(at1 + 1, at2)
+        j = ctx.to_int(head.substring(at2 + 1, head.length()))
+        j = ctx.skip_ws(src, j)
+        if j + 1 < n && src.substring(j, j + 2) == "=>" { j = j + 2 }
+        j = ctx.skip_ws(src, j)
+        local body = me._parse_arm_body(src, j, ctx)
+        local at_body = body.lastIndexOf("@")
+        local expr_json = body.substring(0, at_body)
+        j = ctx.to_int(body.substring(at_body + 1, body.length()))
+
+        if arm_count > 0 { arms_json = arms_json + "," }
+        arms_json = arms_json + "{\"variant\":\"" + variant + "\""
+        if binding != "" {
+          arms_json = arms_json + ",\"bind\":\"" + binding + "\""
+        }
+        arms_json = arms_json + ",\"expr\":" + expr_json + "}"
+        arm_count = arm_count + 1
+
+        if arm_name_count > 0 { arm_names_json = arm_names_json + "," }
+        arm_names_json = arm_names_json + "\"" + variant + "\""
+        arm_name_count = arm_name_count + 1
+      }
+
+      j = ctx.skip_ws(src, j)
+      if j < n && src.substring(j, j + 1) == "," { j = j + 1 }
+      guard = guard + 1
+    }
+
+    if j < n && src.substring(j, j + 1) == "}" { j = j + 1 }
+    ctx.gpos_set(j)
+
+    arm_names_json = arm_names_json + "]"
+    arms_json = arms_json + "]"
+    local enum_name = ctx.resolve_match_enum(arm_names_json)
+    if enum_name == null || enum_name == "" {
+      return "{\"type\":\"Error\",\"message\":\"unsupported match surface\"}"
+    }
+
+    local out = "{\"type\":\"EnumMatch\",\"enum\":\"" + enum_name + "\",\"scrutinee\":" + scrutinee + ",\"arms\":" + arms_json
+    if else_json != null {
+      out = out + ",\"else\":" + else_json
+    }
+    out = out + "}"
+    return out
+  }
+
+  _parse_named_head(src, i, ctx) {
+    local idp = ctx.read_ident2(src, i)
+    local at = idp.lastIndexOf("@")
+    local variant = idp.substring(0, at)
+    local j = ctx.to_int(idp.substring(at + 1, idp.length()))
+    local binding = ""
+    j = ctx.skip_ws(src, j)
+    if j < src.length() && src.substring(j, j + 1) == "(" {
+      j = j + 1
+      j = ctx.skip_ws(src, j)
+      local bindp = ctx.read_ident2(src, j)
+      local at_bind = bindp.lastIndexOf("@")
+      binding = bindp.substring(0, at_bind)
+      j = ctx.to_int(bindp.substring(at_bind + 1, bindp.length()))
+      j = ctx.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j + 1) == ")" { j = j + 1 }
+    }
+    return variant + "@" + binding + "@" + ctx.i2s(j)
+  }
+
+  _parse_arm_body(src, i, ctx) {
+    local j = ctx.skip_ws(src, i)
+    local expr_json = "{\"type\":\"Int\",\"value\":0}"
+    if j < src.length() && src.substring(j, j + 1) == "{" {
+      j = j + 1
+      j = ctx.skip_ws(src, j)
+      expr_json = ctx.parse_expr2(src, j)
+      j = ctx.gpos_get()
+      j = ctx.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j + 1) == "}" { j = j + 1 }
+    } else {
+      expr_json = ctx.parse_expr2(src, j)
+      j = ctx.gpos_get()
+    }
+    return expr_json + "@" + ctx.i2s(j)
+  }
+}

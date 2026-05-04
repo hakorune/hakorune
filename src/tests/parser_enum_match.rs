@@ -39,6 +39,44 @@ fn find_enum_match(ast: &ASTNode) -> Option<(&str, &Vec<crate::ast::EnumMatchArm
     }
 }
 
+fn find_from_call(ast: &ASTNode) -> Option<(&str, &str, usize)> {
+    match ast {
+        ASTNode::FromCall {
+            parent,
+            method,
+            arguments,
+            ..
+        } => Some((parent.as_str(), method.as_str(), arguments.len())),
+        ASTNode::Program { statements, .. } => statements.iter().find_map(find_from_call),
+        ASTNode::BoxDeclaration {
+            methods,
+            constructors,
+            static_init,
+            ..
+        } => methods
+            .values()
+            .find_map(find_from_call)
+            .or_else(|| constructors.values().find_map(find_from_call))
+            .or_else(|| {
+                static_init
+                    .as_ref()
+                    .and_then(|statements| statements.iter().find_map(find_from_call))
+            }),
+        ASTNode::FunctionDeclaration { body, .. } => body.iter().find_map(find_from_call),
+        ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
+            initial_values
+                .iter()
+                .filter_map(|value| value.as_deref())
+                .find_map(find_from_call)
+        }
+        ASTNode::Assignment { target, value, .. } => {
+            find_from_call(target).or_else(|| find_from_call(value))
+        }
+        ASTNode::Return { value, .. } => value.as_deref().and_then(find_from_call),
+        _ => None,
+    }
+}
+
 #[test]
 fn parse_enum_match_shorthand_keeps_known_enum_shape() {
     let src = r#"
@@ -66,6 +104,32 @@ static box Main {
     assert_eq!(enum_name, "Option");
     assert_eq!(arms.len(), 2);
     assert!(!has_else);
+}
+
+#[test]
+fn parse_unit_enum_ctor_without_parentheses_keeps_enum_ctor_shape() {
+    let src = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+    local value = Option::None
+    return 0
+  }
+}
+"#;
+
+    let ast = NyashParser::parse_from_string(src).expect("parse ok");
+    let Some((parent, method, arity)) = find_from_call(&ast) else {
+        panic!("expected FromCall");
+    };
+
+    assert_eq!(parent, "Option");
+    assert_eq!(method, "None");
+    assert_eq!(arity, 0);
 }
 
 #[test]

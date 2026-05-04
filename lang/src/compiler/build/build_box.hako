@@ -29,9 +29,10 @@ static box BuildBox {
     return 0
   }
 
-  method _parse_program_json(parse_src) {
+  method _parse_program_json(parse_src, scan_src) {
     local p = new ParserBox()
     p.stage3_enable(1)
+    p.set_enum_inventory_from_source(scan_src)
     return p.parse_program2(parse_src)
   }
 
@@ -43,7 +44,7 @@ static box BuildBox {
 
   method _parse_program_json_from_scan_src(scan_src) {
     local parse_src = me._resolve_parse_src(scan_src)
-    return me._parse_program_json(parse_src)
+    return me._parse_program_json(parse_src, scan_src)
   }
 
   method _is_freeze_tag(text) {

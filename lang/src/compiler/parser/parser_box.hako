@@ -9,6 +9,7 @@ using lang.compiler.parser.scan.parser_ident_scan_box
 using lang.compiler.parser.scan.parser_string_scan_box
 using "lang.compiler.parser.using.using_collector_box"
 using lang.compiler.parser.expr.parser_expr_box
+using lang.compiler.parser.enum.parser_enum_inventory_box
 using lang.compiler.parser.stmt.parser_stmt_box
 using lang.compiler.parser.stmt.parser_control_box
 using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
@@ -18,6 +19,7 @@ box ParserBox {
   usings_json
   externs_json
   runes_json
+  enum_inventory_json
   stage3
 
   birth() {
@@ -25,6 +27,7 @@ box ParserBox {
     me.usings_json = "[]"
     me.externs_json = "[]"
     me.runes_json = "[]"
+    me.enum_inventory_json = "[]"
     me.stage3 = 0
     return 0
   }
@@ -339,6 +342,23 @@ box ParserBox {
     if out == null || out.length() == 0 { out = "[]" }
     me.runes_json = "[]"
     return out
+  }
+
+  set_enum_inventory_from_source(src) {
+    me.enum_inventory_json = ParserEnumInventoryBox.collect(src)
+    return 0
+  }
+
+  get_enum_inventory_json() {
+    return me.enum_inventory_json
+  }
+
+  resolve_match_enum(arm_names_json) {
+    return ParserEnumInventoryBox.resolve_match_enum(me.enum_inventory_json, arm_names_json)
+  }
+
+  enum_variant_is_unit(enum_name, variant_name) {
+    return ParserEnumInventoryBox.variant_is_unit(me.enum_inventory_json, enum_name, variant_name)
   }
 
   // === Delegation to ParserExprBox ===
