@@ -115,6 +115,13 @@
         }
         return 1;
       }
+      auto int materialize_direct_global_call_arg_if_needed(FILE* f, long long reg) {
+        long long base = resolve_copy_source_reg(reg);
+        if (!base) return 1;
+        if (!get_str_const(base)) return 1;
+        if (string_const_box_was_emitted(base)) return 1;
+        return emit_materialized_string_const_box_result(f, base);
+      }
       auto int emit_global_call_lowering_plan_mir_call(
           FILE* f,
           long long bid,
@@ -170,11 +177,14 @@
         ab[0] = '\0';
         for (size_t ai = 0; ai < argc; ai++) {
           yyjson_val* arg = yyjson_arr_get(args, ai);
+          long long arg_reg = 0;
           if (!(arg && yyjson_is_num(arg))) return -1;
+          arg_reg = (long long)yyjson_get_sint(arg);
+          if (!materialize_direct_global_call_arg_if_needed(f, arg_reg)) return -1;
           append_i64_arg_ref(
               ab,
               sizeof(ab),
-              (long long)yyjson_get_sint(arg),
+              arg_reg,
               ai == 0);
         }
         if (dst) {

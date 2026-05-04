@@ -693,6 +693,7 @@
              slen + 1,
              fn_index,
              dst);
+        mark_string_const_box_emitted(dst);
         set_type(dst, T_I64);
         set_origin(dst, ORG_STRING);
         set_scan_origin(dst, ORG_STRING);
