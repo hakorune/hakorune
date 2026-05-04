@@ -112,7 +112,7 @@ mod tests {
 
         // Check: no 2-input PHI where both inputs are Bool consts
         // (旧実装の rhs_join PHI はこのパターンに該当して落ちる)
-        for block in main_fn.blocks.iter() {
+        for (_block_id, block) in main_fn.blocks.iter() {
             for inst in &block.instructions {
                 if let MirInstruction::Phi { inputs, .. } = inst {
                     if inputs.len() == 2 {

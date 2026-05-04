@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Decision: accepted
 Date: 2026-05-04
 Scope: phase-29cv P381J, boolean short-circuit PHI lowering
@@ -126,10 +126,19 @@ return 0
 Required checks:
 
 ```bash
-cargo test --release shortcircuit_no_inner_join_phi
+cargo test --release --features legacy-tests shortcircuit_no_inner_join_phi
 cargo test --release shortcircuit_lhs_pin_does_not_escape_variable_map
 cargo build --release --bin hakorune
 bash tools/build_hako_llvmc_ffi.sh
+
+rm -f /tmp/p381j_bool_phi.o /tmp/p381j_bool_phi.ll
+NYASH_LLVM_ROUTE_TRACE=1 \
+NYASH_NY_LLVM_COMPILER=/__missing__/ny-llvmc \
+NYASH_LLVM_DUMP_IR=/tmp/p381j_bool_phi.ll \
+target/release/ny-llvmc \
+  --in apps/tests/mir_shape_guard/bool_phi_const_return_min_v1.mir.json \
+  --out /tmp/p381j_bool_phi.o
+opt -passes=verify /tmp/p381j_bool_phi.ll -disable-output
 
 rm -rf /tmp/p381j_phase29cg
 KEEP_OUT_DIR=1 OUT_DIR=/tmp/p381j_phase29cg \
@@ -149,4 +158,30 @@ Expected:
 
 ## Result
 
-Active.
+Accepted.
+
+Implemented:
+
+- pure-first PHI prescan now consumes explicit `dst_type: "i1"` / `"i64"`
+  before falling back to incoming-value inference
+- pure-first `ret i64` emission now `zext`s `i1` values at the ABI boundary
+- module-generic PHI recording also preserves explicit bool PHI type metadata
+- `apps/tests/mir_shape_guard/bool_phi_const_return_min_v1.mir.json` pins the
+  `compare-or-bool-const -> phi i1 -> ret i64` boundary
+- legacy short-circuit PHI test source now matches the current block iterator
+  shape
+
+Verified:
+
+- `cargo test --release --features legacy-tests shortcircuit_no_inner_join_phi`
+- `cargo test --release shortcircuit_lhs_pin_does_not_escape_variable_map`
+- `cargo build --release --bin hakorune`
+- `bash tools/build_hako_llvmc_ffi.sh`
+- direct bool PHI fixture compile through `target/release/ny-llvmc`
+- `opt -passes=verify /tmp/p381j_bool_phi.ll -disable-output`
+- IR contains `phi i1 [ %r4, %bb1 ], [ false, %bb2 ]`
+- IR contains `zext i1 %r7 to i64`
+- legacy boundary smoke:
+  `bash tools/smokes/v2/profiles/integration/archive/phase29ck_boundary/entry/phase29ck_boundary_pure_bool_phi_branch_min.sh`
+- phase29cg replay:
+  `KEEP_OUT_DIR=1 OUT_DIR=/tmp/p381j_phase29cg STAGE1_BIN=target/selfhost/hakorune.stage1_cli_env_seed NYASH_LLVM_SKIP_BUILD=1 bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`

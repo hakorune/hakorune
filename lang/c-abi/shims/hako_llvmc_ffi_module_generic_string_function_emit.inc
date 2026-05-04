@@ -103,6 +103,7 @@
         struct BlockPhi* pb = ensure_phi_block(bid);
         struct PhiRec pr;
         yyjson_val* vals = ins ? yyjson_obj_get(ins, "values") : NULL;
+        const char* dst_type_s = ins ? read_str(ins, "dst_type") : NULL;
         if (!vals) vals = ins ? yyjson_obj_get(ins, "incoming") : NULL;
         if (!pb) return 0;
         pr.dst = read_int(ins, "dst");
@@ -130,6 +131,13 @@
         }
         if (pb->rec_n >= 24) return 0;
         pb->recs[pb->rec_n++] = pr;
+        if (dst_type_s &&
+            (!strcmp(dst_type_s, "i1") || !strcmp(dst_type_s, "bool") ||
+             !strcmp(dst_type_s, "Bool"))) {
+          set_type(pr.dst, T_I1);
+        } else if (dst_type_s && !strcmp(dst_type_s, "i64")) {
+          set_type(pr.dst, T_I64);
+        }
         return 1;
       }
 

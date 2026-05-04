@@ -116,7 +116,17 @@
           } else if (strcmp(op, "phi")==0) {
             struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { yyjson_doc_free(d); goto GEN_END; }
             struct PhiRec pr; pr.dst = read_int(ins, "dst"); pr.in_n=0;
+            const char* dst_type_s = read_str(ins, "dst_type");
+            int explicit_phi_ty = T_NONE;
             yyjson_val* vals = yyjson_obj_get(ins, "values"); if (!vals) vals = yyjson_obj_get(ins, "incoming");
+            if (dst_type_s) {
+              if (!strcmp(dst_type_s, "i1") || !strcmp(dst_type_s, "bool") ||
+                  !strcmp(dst_type_s, "Bool")) {
+                explicit_phi_ty = T_I1;
+              } else if (!strcmp(dst_type_s, "i64")) {
+                explicit_phi_ty = T_I64;
+              }
+            }
             if (vals && yyjson_is_arr(vals)) {
               size_t vn = yyjson_arr_size(vals);
               for (size_t vi=0; vi<vn && pr.in_n<16; vi++) {
@@ -167,7 +177,11 @@
                 }
               }
               pb->recs[pb->rec_n++] = pr;
-              set_type(pr.dst, (phi_bool_ok && phi_bool_seen) ? T_I1 : T_I64);
+              if (explicit_phi_ty != T_NONE) {
+                set_type(pr.dst, explicit_phi_ty);
+              } else {
+                set_type(pr.dst, (phi_bool_ok && phi_bool_seen) ? T_I1 : T_I64);
+              }
               if (scan_same && scan_first != ORG_NONE) {
                 set_scan_origin(pr.dst, scan_first);
               }

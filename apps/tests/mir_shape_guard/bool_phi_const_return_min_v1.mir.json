@@ -1,0 +1,106 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "op": "compare",
+              "dst": 3,
+              "operation": "<",
+              "lhs": 1,
+              "rhs": 2
+            },
+            {
+              "op": "branch",
+              "cond": 3,
+              "then": 1,
+              "else": 2
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "instructions": [
+            {
+              "op": "phi",
+              "dst": 7,
+              "dst_type": "i1",
+              "incoming": [
+                [
+                  4,
+                  1
+                ],
+                [
+                  5,
+                  2
+                ]
+              ]
+            },
+            {
+              "op": "ret",
+              "value": 7
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "instructions": [
+            {
+              "op": "compare",
+              "dst": 4,
+              "operation": "==",
+              "lhs": 1,
+              "rhs": 1
+            },
+            {
+              "op": "jump",
+              "target": 3
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 5,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "jump",
+              "target": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
