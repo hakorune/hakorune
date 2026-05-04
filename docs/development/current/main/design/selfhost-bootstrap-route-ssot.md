@@ -311,7 +311,7 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
 - **Stage0**: Rust コンパイラ（既存の hakorune）で `.hako` compiler をビルド
 - **Stage1**: Stage0 で生成された `.hako` compiler。proof / handoff artifact として扱う
 - **Stage2**: Stage1 で同一ソースを再ビルドした `.hako` compiler。最初の `0rust` mainline artifact として扱う
-- **Stage3 (optional)**: known-good seed からの payload same-result 確認（`tools/selfhost/stage3_same_result_check.sh`）
+- **Stage3 (optional)**: known-good full seed からの payload same-result 確認（`tools/selfhost/stage3_same_result_check.sh --build-seed`）
 
 Reading note:
 - this section defines proof-stage vocabulary, not script families
@@ -333,7 +333,7 @@ Directory note:
 **Gate (G1)**:
 - `tools/selfhost_identity_check.sh --mode full` — G1 done criteria（compiler_stageb.hako）
 - `tools/selfhost_identity_check.sh --mode smoke` — 動作確認用（hello_simple_llvm.hako）
-- `tools/selfhost/stage3_same_result_check.sh` — Stage3 same-result sanity check（build lane は Program/MIR payload snapshots の再エミット compare + `.artifact_kind` compare / `--skip-build` は explicit prebuilt pair compare）
+- `tools/selfhost/stage3_same_result_check.sh --build-seed` — Stage3 same-result sanity check（build lane は full `stage1_cli_env.hako` payload seed を materialize してから Program/MIR payload snapshots の再エミット compare + `.artifact_kind` compare / `--skip-build` は explicit prebuilt pair compare）
 - 入力 SSOT (full): `lang/src/compiler/entry/compiler_stageb.hako`
 - 入力 SSOT (smoke): `apps/tests/hello_simple_llvm.hako`
 - PASS = 両方一致、FAIL = どちらか不一致
@@ -349,7 +349,7 @@ Directory note:
 - Latest evidence (2026-03-23):
 - `tools/selfhost_identity_check.sh --mode smoke` PASS
 - `tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` PASS (`Program JSON v0` raw match; `MIR JSON v0` raw match)
-- `tools/selfhost/stage3_same_result_check.sh` PASS (payload snapshot same-result sanity check)
+- `tools/selfhost/stage3_same_result_check.sh --build-seed` PASS (payload snapshot same-result sanity check)
 - `tools/selfhost/stage3_same_result_check.sh --skip-build --stage2-bin target/selfhost/hakorune.stage1_cli.stage2 --stage3-bin <explicit-prebuilt-pair>` PASS (explicit pair compare)
 
 Detailed evidence / monitor-only lane packs:

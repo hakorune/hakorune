@@ -59,9 +59,10 @@ Related:
    - umbrella / end-state distribution target
 4. `stage3`
    - same-result sanity check
-   - build lane re-emits Program/MIR payload snapshots from a known-good seed
+   - build lane re-emits Program/MIR payload snapshots from a known-good full
+     `stage1_cli_env.hako` seed
    - identity / reproducibility confidence lane
-   - helper: `tools/selfhost/stage3_same_result_check.sh`
+   - helper: `tools/selfhost/stage3_same_result_check.sh --build-seed`
    - not a dedicated artifact-kind family
 
 ### Artifact axis

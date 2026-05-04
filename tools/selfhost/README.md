@@ -337,5 +337,6 @@ Helper — Stage1 CLI Runner
     ```
     This is the compat direct-emit smoke. Full Stage1 artifact payload proof
     needs a full `stage1_cli_env.hako` artifact plus
-    `stage1_contract_exec_mode` or `stage3_same_result_check.sh --seed-bin`.
+    `stage1_contract_exec_mode` or
+    `stage3_same_result_check.sh --build-seed`.
   - legacy embedded bridge smoke moved to `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh` and is not the daily/mainline proof route.
