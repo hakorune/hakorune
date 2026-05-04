@@ -26,14 +26,38 @@ static box CliRunShapeScannerBox {
 
     // Heuristic branch detection based on string literals used in run body.
     // This is intentionally coarse: it is only used for trace / planning.
-    local branch_count = 0
-    if s.indexOf("\"run\"") >= 0 { branch_count = branch_count + 1 }
-    if s.indexOf("\"build\"") >= 0 { branch_count = branch_count + 1 }
-    if s.indexOf("\"emit\"") >= 0 { branch_count = branch_count + 1 }
-    if s.indexOf("\"check\"") >= 0 { branch_count = branch_count + 1 }
+    local branch_count = "0"
+    if s.indexOf("\"run\"") >= 0 {
+      if branch_count == "0" { branch_count = "1" } else {
+        if branch_count == "1" { branch_count = "2" } else {
+          if branch_count == "2" { branch_count = "3" } else { branch_count = "4" }
+        }
+      }
+    }
+    if s.indexOf("\"build\"") >= 0 {
+      if branch_count == "0" { branch_count = "1" } else {
+        if branch_count == "1" { branch_count = "2" } else {
+          if branch_count == "2" { branch_count = "3" } else { branch_count = "4" }
+        }
+      }
+    }
+    if s.indexOf("\"emit\"") >= 0 {
+      if branch_count == "0" { branch_count = "1" } else {
+        if branch_count == "1" { branch_count = "2" } else {
+          if branch_count == "2" { branch_count = "3" } else { branch_count = "4" }
+        }
+      }
+    }
+    if s.indexOf("\"check\"") >= 0 {
+      if branch_count == "0" { branch_count = "1" } else {
+        if branch_count == "1" { branch_count = "2" } else {
+          if branch_count == "2" { branch_count = "3" } else { branch_count = "4" }
+        }
+      }
+    }
 
     if env.get("HAKO_SELFHOST_TRACE") == "1" {
-      print("[builder/cli:run_shape] has_run=1 branches=" + ("" + branch_count))
+      print("[builder/cli:run_shape] has_run=1 branches=" + branch_count)
     }
 
     return null

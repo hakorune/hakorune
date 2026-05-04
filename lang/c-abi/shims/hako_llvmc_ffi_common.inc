@@ -355,6 +355,7 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
     const char* llpath,
     const char* obj_out) {
   char canon_ll[1024];
+  char opt_err[1024];
   char cmd[2048];
   const char* opt_tool;
   const char* llc_tool;
@@ -377,6 +378,16 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
     hako_llvmc_emit_route_trace("mem2reg", "fail", "tmp-path-too-long", llpath);
     return -1;
   }
+  n = snprintf(
+      opt_err,
+      sizeof(opt_err),
+      "%s/hako_pure_mem2reg_%d.err",
+      hako_llvmc_tmp_dir_fallback(),
+      (int)getpid());
+  if (n <= 0 || (size_t)n >= sizeof(opt_err)) {
+    hako_llvmc_emit_route_trace("mem2reg", "fail", "tmp-path-too-long", llpath);
+    return -1;
+  }
 
   opt_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18");
   llc_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18");
@@ -391,25 +402,42 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
   }
 
   remove(canon_ll);
+  remove(opt_err);
   n = snprintf(
       cmd,
       sizeof(cmd),
-      "%s -passes=mem2reg -S -o \"%s\" \"%s\" 2>/dev/null",
+      "%s -passes=mem2reg -S -o \"%s\" \"%s\" 2>\"%s\"",
       opt_tool,
       canon_ll,
-      llpath);
+      llpath,
+      opt_err);
   if (n <= 0 || (size_t)n >= sizeof(cmd)) {
     remove(canon_ll);
+    remove(opt_err);
     hako_llvmc_emit_route_trace("mem2reg", "fail", "opt-cmd-too-long", llpath);
     return -1;
   }
 
   rc = system(cmd);
   if (rc != 0 || !hako_llvmc_file_exists(canon_ll)) {
+    FILE* ef;
+    char line[512];
     remove(canon_ll);
+    hako_llvmc_maybe_dump_ir_file(llpath);
+    ef = fopen(opt_err, "rb");
+    if (ef) {
+      int lines = 0;
+      while (lines < 12 && fgets(line, sizeof(line), ef)) {
+        fprintf(stderr, "[llvm-mem2reg/error] %s", line);
+        lines++;
+      }
+      fclose(ef);
+    }
+    remove(opt_err);
     hako_llvmc_emit_route_trace("mem2reg", "fail", "opt", llpath);
     return -1;
   }
+  remove(opt_err);
 
   hako_llvmc_maybe_dump_ir_file(canon_ll);
   n = snprintf(

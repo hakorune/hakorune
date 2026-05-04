@@ -44,7 +44,7 @@ static box BuilderFallbackAuthorityBox {
     local s = me._coerce_text_compat(program_json)
     local boxed = me._try_boxed_lowerers(s)
     if boxed != null { return boxed }
-    return me._try_inline_jsonfrag_cases(s)
+    return null
   }
 
   method _try_boxed_lowerers(s) {
@@ -70,7 +70,6 @@ static box BuilderFallbackAuthorityBox {
     {
       if BuilderConfigBox.skip_loops_on() != 1 {
         { local out_loop_min = LowerLoopLocalReturnVarBox.try_lower(s); if out_loop_min != null { return out_loop_min } }
-        { local out_loopp = LowerLoopCountParamBox.try_lower_text(s); if out_loopp != "" { return out_loopp } }
         { local out_loop = LowerLoopSimpleBox.try_lower(s); if out_loop != null { return out_loop } }
       }
     }
@@ -114,7 +113,7 @@ static box BuilderFallbackAuthorityBox {
             if op2 == ">=" { op2_supported = 1 }
             if op2 == "==" { op2_supported = 1 }
             if op2 == "!=" { op2_supported = 1 }
-            if op2_supported != 1 {
+            if !op2_supported {
               print("[mirbuilder/internal/unsupported] compare op: " + op2)
               return null
             }
@@ -199,7 +198,7 @@ static box BuilderFallbackAuthorityBox {
           if op == "-" { op_supported = 1 }
           if op == "*" { op_supported = 1 }
           if op == "/" { op_supported = 1 }
-          if op_supported != 1 {
+          if !op_supported {
             print("[mirbuilder/internal/unsupported] binary op: " + op)
             return null
           }

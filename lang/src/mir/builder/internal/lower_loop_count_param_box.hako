@@ -41,14 +41,23 @@ static box LowerLoopCountParamBox {
     // Keep lookups inside this Compare object to avoid matching body Binary rhs.
     local k_cmp_obj = JsonFragBox.last_index_of_from(s, "{", k_cmp); if k_cmp_obj < 0 { return "" }
     local k_cmp_end = me._seek_object_end(s, k_cmp_obj); if k_cmp_end < 0 { return "" }
+    local norm = ""
     if has_lhs_i == 1 {
-      local norm = "" + me._cmp_limit_lhs_text(s, k_cmp, k_cmp_end, op)
-      if norm == "" { return "" }
-      return me._finish_count_param_text(s, k_loop, varname, start_text, norm)
+      norm = "" + me._cmp_limit_lhs_text(s, k_cmp, k_cmp_end, op)
+    } else {
+      norm = "" + me._cmp_limit_rhs_text(s, k_cmp, k_cmp_end, op)
     }
-    local norm2 = "" + me._cmp_limit_rhs_text(s, k_cmp, k_cmp_end, op)
-    if norm2 == "" { return "" }
-    return me._finish_count_param_text(s, k_loop, varname, start_text, norm2)
+    if norm == "" { return "" }
+
+    local cpos = StringOps.index_of_from(norm, ":", 0)
+    if cpos < 0 { return "" }
+    local cmp = "" + me._norm_cmp_op_text(norm, cpos)
+    if cmp == "" { return "" }
+    local limit = "" + me._norm_limit_text(norm, cpos)
+    if limit == "" { return "" }
+    local step = "" + me._loop_increment_step_text(s, k_loop, varname)
+    if step == "" { return "" }
+    return me._emit_count_param_json(start_text, limit, step, cmp)
   }
 
   _cmp_limit_lhs_text(s, k_cmp, k_cmp_end, op) {

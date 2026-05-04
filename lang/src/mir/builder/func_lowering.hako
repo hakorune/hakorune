@@ -8,7 +8,6 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 using lang.mir.builder.func_body.basic_lower_box as FuncBodyBasicLowerBox
 using lang.mir.builder.func_body.extern_call_box as ExternCallLowerBox
 using lang.mir.builder.func_body.cli_entry_box as CliEntryLowerBox
-using lang.mir.builder.func_body.cli_run_shape_box as CliRunShapeScannerBox
 using lang.mir.builder.func_body.cli_run_lower_box as CliRunLowerBox
 using lang.mir.builder.func_lowering.defs_scanner_box as DefsScannerBox
 using lang.mir.builder.func_lowering.call_methodize_box as CallMethodizeBox
@@ -28,9 +27,8 @@ static box FuncLoweringBox {
     // Optional: detect Stage1 CLI entry (Main.main → HakoCli.run) for observability.
     // Observes ring1 構造のみで、MIR 生成や ring0 への影響は与えない。
     CliEntryLowerBox.scan(s)
-    // Optional: scan HakoCli.run の分岐構造（run/build/emit/check 等）も観測する。
-    // 戻り値は現状未使用だが、タグとメタ情報で形状を把握しておく。
-    CliRunShapeScannerBox.scan(s)
+    // HakoCli.run branch-shape observation is owned by CliRunLowerBox.
+    // Keep this path free of standalone diagnostic scanners.
 
     // Check for "defs" key and extract bounds using helper
     local defs_start = DefsScannerBox.find_defs_start(s)
@@ -124,12 +122,8 @@ static box FuncLoweringBox {
 
     // Specialized path (stub) for Stage1 CLI run entry.
     // 現時点では観測のみで、MIR は生成せず null を返す。
-    {
-      local is_cli = 0
-      if box_name != null && func_name != null {
-        if box_name == "HakoCli" && func_name == "run" { is_cli = 1 }
-      }
-      if is_cli == 1 {
+    if box_name != null && func_name != null {
+      if box_name == "HakoCli" && func_name == "run" {
         local cli_mir = CliRunLowerBox.lower_run(func_name, box_name, params_arr, body_str, func_map_text)
         if cli_mir != null { return cli_mir }
       }

@@ -16,7 +16,6 @@ using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompare
 using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIntBox
 using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
 using "hako.mir.builder.internal.lower_loop_simple_box" as LowerLoopSimpleBox
-using "hako.mir.builder.internal.lower_loop_count_param_box" as LowerLoopCountParamBox
 using "hako.mir.builder.internal.lower_loop_sum_bc_box" as LowerLoopSumBcBox
 using "hako.mir.builder.internal.lower_loop_multi_carrier_box" as LowerLoopMultiCarrierBox
 using lang.mir.builder.func_lowering.param_list_box as ParamListBox
@@ -483,7 +482,6 @@ static box FuncBodyBasicLowerBox {
     // args array（Int or Var のみ許可）を直接 MIR text に畳む。
     local insts = ""
     local arg_ids = ""
-    local call_arity = 0
     local next_reg = ParamListBox.count(params_arr) + 1
     local args_idx = JsonFragBox.index_of_from(s, "\"args\":[", m_idx)
     if args_idx >= 0 {
@@ -498,7 +496,6 @@ static box FuncBodyBasicLowerBox {
           if v == null { return null }
           insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v + "}}"
           arg_ids = arg_ids + ("" + next_reg)
-          call_arity = 1
           next_reg = next_reg + 1
         } else if atype == "Var" {
           local n_idx = JsonFragBox.index_of_from(s, "\"name\":", t_idx)
@@ -508,7 +505,6 @@ static box FuncBodyBasicLowerBox {
           local preg = me._param_reg(params_arr, "" + aname)
           if preg <= 0 { return null }
           arg_ids = arg_ids + ("" + preg)
-          call_arity = 1
         }
       }
     }
@@ -524,7 +520,7 @@ static box FuncBodyBasicLowerBox {
       kind = "array"
     } else if mname == "length" {
       // String.length()（len/size エイリアスは別経路で扱う）
-      if call_arity != 0 { return null }
+      if arg_ids != "" { return null }
       box_type = "StringBox"
       kind = "string"
     } else {
@@ -569,15 +565,11 @@ static box FuncBodyBasicLowerBox {
     { local out_mc = LowerLoopMultiCarrierBox.try_lower(body_str, params_arr)
       if out_mc != null { return me._rebind(out_mc, func_name, box_name, params_arr, "[funcs/basic:loop.multi_carrier]") } }
 
-    // 4) まず count_param loop 用 lower を試す（limit/step/cmp 付き）
-    { local out_cp = LowerLoopCountParamBox.try_lower_text(body_str)
-      if out_cp != "" { return me._rebind(out_cp, func_name, box_name, params_arr, "[funcs/basic:loop.count_param]") } }
-
-    // 5) 次に simple loop 用 lower を試す（単純カウンタ）
+    // 4) 次に simple loop 用 lower を試す（単純カウンタ）
     { local out2 = LowerLoopSimpleBox.try_lower(body_str)
       if out2 != null { return me._rebind(out2, func_name, box_name, params_arr, "[funcs/basic:loop.simple]") } }
 
-    // 6) ここまででダメなら selfhost 側では未対応
+    // 5) ここまででダメなら selfhost 側では未対応
     return null
   }
 }
