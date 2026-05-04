@@ -115,6 +115,10 @@ pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<Strin
         .map_err(failfast_error)
 }
 
+pub(crate) fn refresh_bridge_semantic_metadata(module: &mut crate::mir::MirModule) {
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(module);
+}
+
 fn with_phase0_mir_json_env<T>(
     emit_mir_json: impl FnOnce() -> Result<T, String>,
 ) -> Result<T, String> {
@@ -313,6 +317,62 @@ mod tests {
         assert!(mir_json.contains("user_box_decls"));
         assert!(mir_json.contains("\"name\":\"Main\""));
         assert!(mir_json.contains("\"name\":\"HelperBox\""));
+    }
+
+    #[test]
+    fn test_program_json_bridge_refreshes_global_call_routes() {
+        ensure_test_ring0();
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "defs": [
+                {
+                    "box": "HelperBox",
+                    "name": "label",
+                    "params": [],
+                    "body": {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Str","value":"ok"}}]}
+                }
+            ],
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {"type": "Call", "name": "HelperBox.label", "args": []}
+                }
+            ]
+        }"#;
+
+        let mir_json = program_json_to_mir_json_with_user_box_decls(program_json)
+            .expect("Program(JSON) bridge should emit MIR JSON");
+        let parsed: serde_json::Value =
+            serde_json::from_str(&mir_json).expect("MIR JSON must parse");
+        let main = parsed["functions"]
+            .as_array()
+            .and_then(|functions| {
+                functions
+                    .iter()
+                    .find(|function| function["name"].as_str() == Some("main"))
+            })
+            .expect("main function must exist");
+        let routes = main["metadata"]["global_call_routes"]
+            .as_array()
+            .expect("global_call_routes must be an array");
+        let plans = main["metadata"]["lowering_plan"]
+            .as_array()
+            .expect("lowering_plan must be an array");
+
+        assert_eq!(routes.len(), 1);
+        assert_eq!(plans.len(), 1);
+        assert_eq!(routes[0]["callee_name"].as_str(), Some("HelperBox.label/0"));
+        assert_eq!(routes[0]["target_exists"].as_bool(), Some(true));
+        assert_eq!(
+            routes[0]["target_shape"].as_str(),
+            Some("generic_pure_string_body")
+        );
+        assert_eq!(plans[0]["source"].as_str(), Some("global_call_routes"));
+        assert_eq!(
+            plans[0]["target_symbol"].as_str(),
+            Some("HelperBox.label/0")
+        );
     }
 
     #[test]

@@ -1,5 +1,6 @@
 use super::{
-    failfast_error, module_to_mir_json, with_phase0_mir_json_env, Stage1UserBoxDecls, FAILFAST_TAG,
+    failfast_error, module_to_mir_json, refresh_bridge_semantic_metadata, with_phase0_mir_json_env,
+    Stage1UserBoxDecls, FAILFAST_TAG,
 };
 
 pub(super) struct Stage1ProgramJsonInput<'a> {
@@ -40,6 +41,7 @@ impl Stage1ProgramJsonModuleHandoff {
         let (user_box_decls, user_box_field_decls) = self.user_box_decls.into_metadata_maps();
         module.metadata.user_box_decls = user_box_decls;
         module.metadata.user_box_field_decls = user_box_field_decls;
+        refresh_bridge_semantic_metadata(&mut module);
         Stage1FinalizedMirModule { module }
     }
 }

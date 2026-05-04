@@ -29,7 +29,8 @@ pub fn emit_program_json_to_mir_json_with_env_imports(
     program_json: &str,
 ) -> Result<String, String> {
     let _env_guard = crate::host_providers::mir_builder::Phase0MirJsonEnvGuard::new();
-    let module = lower_input_json_to_module(program_json, imports_from_env())?;
+    let mut module = lower_input_json_to_module(program_json, imports_from_env())?;
+    crate::host_providers::mir_builder::refresh_bridge_semantic_metadata(&mut module);
     let mir_json = crate::host_providers::mir_builder::module_to_mir_json(&module)?;
     crate::host_providers::mir_builder::normalize_program_json_bridge_backend_shape(&mir_json)
 }
@@ -133,6 +134,56 @@ static box Main {
             })
             .count();
         assert_eq!(print_calls, 1);
+    }
+
+    #[test]
+    fn env_mirbuilder_emit_refreshes_global_call_routes() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "defs": [
+                {
+                    "box": "HelperBox",
+                    "name": "label",
+                    "params": [],
+                    "body": {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Str","value":"ok"}}]}
+                }
+            ],
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {"type": "Call", "name": "HelperBox.label", "args": []}
+                }
+            ]
+        }"#;
+
+        let mir_json =
+            emit_program_json_to_mir_json_with_env_imports(program_json).expect("mir json");
+        let parsed: serde_json::Value = serde_json::from_str(&mir_json).expect("mir json parses");
+        let main_fn = parsed["functions"]
+            .as_array()
+            .and_then(|functions| {
+                functions
+                    .iter()
+                    .find(|function| function["name"].as_str() == Some("main"))
+            })
+            .expect("main function");
+        let routes = main_fn["metadata"]["global_call_routes"]
+            .as_array()
+            .expect("global_call_routes array");
+        let plans = main_fn["metadata"]["lowering_plan"]
+            .as_array()
+            .expect("lowering_plan array");
+
+        assert_eq!(routes.len(), 1);
+        assert_eq!(routes[0]["target_exists"].as_bool(), Some(true));
+        assert_eq!(
+            routes[0]["target_shape"].as_str(),
+            Some("generic_pure_string_body")
+        );
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0]["source"].as_str(), Some("global_call_routes"));
     }
 
     #[test]
