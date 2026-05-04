@@ -41,7 +41,7 @@ static box LowerLoopMultiCarrierBox {
     }
     if limit_kind != "const" && limit_kind != "param" { return null }
     local limit_value = "0"
-    local limit_param_reg = 0
+    local limit_param_reg = StringHelpers.to_i64("0")
     if limit_kind == "const" {
       limit_value = me._extract_limit_value_text(s, k_cmp, varname)
     } else {
@@ -161,13 +161,16 @@ static box LowerLoopMultiCarrierBox {
   }
 
   method _emit_multi_count_json(body_json, loop_idx, loop_var, limit_kind, limit_value, limit_param_reg, carrier_count) {
-    local reg_i_init = 1
-    local reg_limit = 2
-    local reg_step = me._reg_add2(3, carrier_count)
-    local reg_i_curr = me._reg_add2(reg_step, 1)
-    local reg_cmp = me._reg_add3(reg_i_curr, carrier_count, 1)
-    local reg_i_next = me._reg_add2(reg_cmp, 1)
-    local reg_carrier_next_base = me._reg_add2(reg_i_next, 1)
+    local one_i64 = StringHelpers.to_i64("1")
+    local two_i64 = StringHelpers.to_i64("2")
+    local three_i64 = StringHelpers.to_i64("3")
+    local reg_i_init = one_i64
+    local reg_limit = two_i64
+    local reg_step = me._reg_add2(three_i64, carrier_count)
+    local reg_i_curr = me._reg_add2(reg_step, one_i64)
+    local reg_cmp = me._reg_add3(reg_i_curr, carrier_count, one_i64)
+    local reg_i_next = me._reg_add2(reg_cmp, one_i64)
+    local reg_carrier_next_base = me._reg_add2(reg_i_next, one_i64)
     local next_reg = me._reg_add2(reg_carrier_next_base, carrier_count)
     local last_carrier_offset = me._reg_sub1(carrier_count)
     local last_next = me._reg_add2(reg_carrier_next_base, last_carrier_offset)

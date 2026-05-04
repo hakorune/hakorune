@@ -74,22 +74,28 @@ static box PatternUtilBox {
       if k_op >= 0 && k_op < next {
         local op = JsonFragBox.read_string_after(s, k_op + 5)
         if op == "+" || op == "-" || op == "*" || op == "/" {
-          local lhs_v = null
-          local rhs_v = null
+          local lhs_v = ""
+          local rhs_v = ""
           local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":", k_bin)
           local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":", k_bin)
           if k_lhs >= 0 && k_lhs < next {
             local k_lhs_i = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhs)
             if k_lhs_i >= 0 && k_lhs_i < next {
               local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", k_lhs_i)
-              if kv_lhs >= 0 && kv_lhs < next { lhs_v = JsonFragBox.read_int_after(s, kv_lhs + 8) }
+              if kv_lhs >= 0 && kv_lhs < next {
+                local lhs_read = JsonFragBox.read_int_after(s, kv_lhs + 8)
+                if lhs_read != null { lhs_v = "" + lhs_read }
+              }
             } else {
               local k_lhs_v = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_lhs)
               if k_lhs_v >= 0 && k_lhs_v < next {
                 local kn_lhs = JsonFragBox.index_of_from(s, "\"name\":", k_lhs_v)
                 if kn_lhs >= 0 && kn_lhs < next {
                   local lhs_name = JsonFragBox.read_string_after(s, kn_lhs + 7)
-                  if lhs_name != null { lhs_v = me.find_local_int_before(s, lhs_name, last) }
+                  if lhs_name != null {
+                    local lhs_found = me.find_local_int_before(s, lhs_name, last)
+                    if lhs_found != null { lhs_v = "" + lhs_found }
+                  }
                 }
               }
             }
@@ -98,19 +104,25 @@ static box PatternUtilBox {
             local k_rhs_i = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs)
             if k_rhs_i >= 0 && k_rhs_i < next {
               local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_i)
-              if kv_rhs >= 0 && kv_rhs < next { rhs_v = JsonFragBox.read_int_after(s, kv_rhs + 8) }
+              if kv_rhs >= 0 && kv_rhs < next {
+                local rhs_read = JsonFragBox.read_int_after(s, kv_rhs + 8)
+                if rhs_read != null { rhs_v = "" + rhs_read }
+              }
             } else {
               local k_rhs_v = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_rhs)
               if k_rhs_v >= 0 && k_rhs_v < next {
                 local kn_rhs = JsonFragBox.index_of_from(s, "\"name\":", k_rhs_v)
                 if kn_rhs >= 0 && kn_rhs < next {
                   local rhs_name = JsonFragBox.read_string_after(s, kn_rhs + 7)
-                  if rhs_name != null { rhs_v = me.find_local_int_before(s, rhs_name, last) }
+                  if rhs_name != null {
+                    local rhs_found = me.find_local_int_before(s, rhs_name, last)
+                    if rhs_found != null { rhs_v = "" + rhs_found }
+                  }
                 }
               }
             }
           }
-          if lhs_v != null && rhs_v != null {
+          if lhs_v != "" && rhs_v != "" {
             local lhs_n = me._coerce_i64_compat(lhs_v)
             local rhs_n = me._coerce_i64_compat(rhs_v)
             if op == "+" { return lhs_n + rhs_n }
@@ -163,21 +175,27 @@ static box PatternUtilBox {
       local kop = JsonFragBox.index_of_from(s, "\"op\":", kc)
       if kop >= 0 && kop < next {
         local op = JsonFragBox.read_string_after(s, kop + 5)
-        local lhs_v = null
-        local rhs_v = null
+        local lhs_v = ""
+        local rhs_v = ""
         // LHS: prefer side-anchored shape to avoid picking RHS Int accidentally.
         local k_lhs_var = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", kc)
         if k_lhs_var >= 0 && k_lhs_var < next {
           local kn_lhs = JsonFragBox.index_of_from(s, "\"name\":", k_lhs_var)
           if kn_lhs >= 0 && kn_lhs < next {
             local lhs_name = JsonFragBox.read_string_after(s, kn_lhs + 7)
-            if lhs_name != null { lhs_v = me.find_local_int_before(s, lhs_name, last) }
+            if lhs_name != null {
+              local lhs_found = me.find_local_int_before(s, lhs_name, last)
+              if lhs_found != null { lhs_v = "" + lhs_found }
+            }
           }
         } else {
           local k_lhs_int = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Int\"", kc)
           if k_lhs_int >= 0 && k_lhs_int < next {
             local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", k_lhs_int)
-            if kv_lhs >= 0 && kv_lhs < next { lhs_v = JsonFragBox.read_int_after(s, kv_lhs + 8) }
+            if kv_lhs >= 0 && kv_lhs < next {
+              local lhs_read = JsonFragBox.read_int_after(s, kv_lhs + 8)
+              if lhs_read != null { lhs_v = "" + lhs_read }
+            }
           }
         }
         // RHS: same side-anchored lookup.
@@ -186,16 +204,22 @@ static box PatternUtilBox {
           local kn_rhs = JsonFragBox.index_of_from(s, "\"name\":", k_rhs_var)
           if kn_rhs >= 0 && kn_rhs < next {
             local rhs_name = JsonFragBox.read_string_after(s, kn_rhs + 7)
-            if rhs_name != null { rhs_v = me.find_local_int_before(s, rhs_name, last) }
+            if rhs_name != null {
+              local rhs_found = me.find_local_int_before(s, rhs_name, last)
+              if rhs_found != null { rhs_v = "" + rhs_found }
+            }
           }
         } else {
           local k_rhs_int = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", kc)
           if k_rhs_int >= 0 && k_rhs_int < next {
             local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int)
-            if kv_rhs >= 0 && kv_rhs < next { rhs_v = JsonFragBox.read_int_after(s, kv_rhs + 8) }
+            if kv_rhs >= 0 && kv_rhs < next {
+              local rhs_read = JsonFragBox.read_int_after(s, kv_rhs + 8)
+              if rhs_read != null { rhs_v = "" + rhs_read }
+            }
           }
         }
-        if lhs_v != null && rhs_v != null {
+        if lhs_v != "" && rhs_v != "" {
           local lhs_n = me._coerce_i64_compat(lhs_v)
           local rhs_n = me._coerce_i64_compat(rhs_v)
           if op == "==" { return (lhs_n == rhs_n) ? 1 : 0 }

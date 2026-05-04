@@ -16,19 +16,23 @@ static box LowerIfCompareVarVarBox {
     local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_if)
     if k_cmp < 0 { return null }
     // LHS/RHS Var names
-    local lhs_name = null
+    local lhs_name = ""
     local klhs = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", k_cmp)
     if klhs >= 0 {
       local k_name_lhs = JsonFragBox.index_of_from(s, "\"name\":", klhs); if k_name_lhs < 0 { return null }
-      lhs_name = JsonFragBox.read_string_after(s, k_name_lhs + 7)
+      local lhs_read = JsonFragBox.read_string_after(s, k_name_lhs + 7)
+      if lhs_read == null { return null }
+      lhs_name = "" + lhs_read
     }
-    local rhs_name = null
+    local rhs_name = ""
     local krhs = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_cmp)
     if krhs >= 0 {
       local k_name_rhs = JsonFragBox.index_of_from(s, "\"name\":", krhs); if k_name_rhs < 0 { return null }
-      rhs_name = JsonFragBox.read_string_after(s, k_name_rhs + 7)
+      local rhs_read = JsonFragBox.read_string_after(s, k_name_rhs + 7)
+      if rhs_read == null { return null }
+      rhs_name = "" + rhs_read
     }
-    if lhs_name == null || rhs_name == null { return null }
+    if lhs_name == "" || rhs_name == "" { return null }
     // Resolve locals
     local aval = PatternUtilBox.find_local_int_before(s, lhs_name, k_if)
     local bval = PatternUtilBox.find_local_int_before(s, rhs_name, k_if)

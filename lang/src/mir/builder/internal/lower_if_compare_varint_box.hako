@@ -17,15 +17,19 @@ static box LowerIfCompareVarIntBox {
     // Var vs Int
     local klhs_var = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", k_cmp)
     local krhs_int = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_cmp)
-    local aval=null; local bval=null
+    local aval = ""; local bval = ""
     if klhs_var >= 0 && krhs_int >= 0 {
       local k_name = JsonFragBox.index_of_from(s, "\"name\":", klhs_var); if k_name < 0 { return null }
       local name = JsonFragBox.read_string_after(s, k_name + 7)
-      aval = PatternUtilBox.find_local_int_before(s, name, k_if)
+      local found = PatternUtilBox.find_local_int_before(s, name, k_if)
+      if found == null { return null }
+      aval = "" + found
       local ki = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs_int)
       if ki >= 0 {
         local kv = JsonFragBox.index_of_from(s, "\"value\":", ki); if kv < 0 { return null }
-        bval = JsonFragBox.read_int_after(s, kv + 8)
+        local bv = JsonFragBox.read_int_after(s, kv + 8)
+        if bv == null { return null }
+        bval = "" + bv
       }
     } else {
       // Int vs Var
@@ -35,14 +39,20 @@ static box LowerIfCompareVarIntBox {
         local ki2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs_int)
         if ki2 >= 0 {
           local kv2 = JsonFragBox.index_of_from(s, "\"value\":", ki2); if kv2 < 0 { return null }
-          aval = JsonFragBox.read_int_after(s, kv2 + 8)
+          local av2 = JsonFragBox.read_int_after(s, kv2 + 8)
+          if av2 == null { return null }
+          aval = "" + av2
         }
         local k_name2 = JsonFragBox.index_of_from(s, "\"name\":", krhs_var); if k_name2 < 0 { return null }
         local name2 = JsonFragBox.read_string_after(s, k_name2 + 7)
-        if name2 != null { bval = PatternUtilBox.find_local_int_before(s, name2, k_if) }
+        if name2 != null {
+          local found2 = PatternUtilBox.find_local_int_before(s, name2, k_if)
+          if found2 == null { return null }
+          bval = "" + found2
+        }
       }
     }
-    if aval == null || bval == null { return null }
+    if aval == "" || bval == "" { return null }
     // then/else Return(Int) — boundary limited
     // then bounds
     local tb = PatternUtilBox.then_array_bounds(s, k_if); if tb == null { return null }

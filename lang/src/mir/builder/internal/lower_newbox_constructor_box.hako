@@ -9,10 +9,10 @@ static box LowerNewboxConstructorBox {
     // Quick pattern check
     if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
     // Find class name (minimal scan)
-    local cls = null
+    local cls = ""
     if JsonFragBox.index_of_from(s, "\"class\":\"ArrayBox\"", 0) >= 0 { cls = "ArrayBox" }
     else { if JsonFragBox.index_of_from(s, "\"class\":\"MapBox\"", 0) >= 0 { cls = "MapBox" } }
-    if cls == null { return null }
+    if cls == "" { return null }
     // Only accept known minimal boxes
     if !(cls == "ArrayBox" || cls == "MapBox") { return null }
 

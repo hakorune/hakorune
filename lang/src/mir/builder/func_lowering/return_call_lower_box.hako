@@ -8,6 +8,7 @@
 //     text/scalar state and owner-local scans only.
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
 using lang.mir.builder.func_lowering.param_list_box as ParamListBox
 
 static box ReturnCallLowerBox {
@@ -27,27 +28,27 @@ static box ReturnCallLowerBox {
     local insts = ""
     local next_reg = ParamListBox.count(params_arr) + 1
     local args_list = ""
-    local call_arity = 0
+    local call_arity = StringHelpers.to_i64("0")
 
     // Extract args (minimal: Int or Var) and materialize registers.
     local args_idx = JsonFragBox.index_of_from(body_str, "\"args\":[", 0)
     if args_idx >= 0 {
       local args_pos = args_idx + 8
       local body_len = body_str.length()
-      local args_active = 1
+      local args_active = true
       loop(args_pos < body_len) {
-        if args_active != 1 {
+        if !args_active {
           args_pos = body_len
           continue
         }
         local arg_type_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"", args_pos)
         if arg_type_idx < 0 {
-          args_active = 0
+          args_active = false
           args_pos = body_len
           continue
         }
         if arg_type_idx > call_idx + 200 {
-          args_active = 0
+          args_active = false
           args_pos = body_len
           continue
         }

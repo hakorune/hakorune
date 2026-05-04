@@ -30,9 +30,13 @@ static box BoxTypeInspectorBox {
     info.set("is_map", is_map)
     info.set("is_array", is_array)
     if env.get("HAKO_BOX_INTROSPECT_TRACE") == "1" {
+      local is_map_text = "0"
+      if is_map { is_map_text = "1" }
+      local is_array_text = "0"
+      if is_array { is_array_text = "1" }
       print("[box_introspect:hako] kind=" + kind +
-            " is_map=" + ("" + is_map) +
-            " is_array=" + ("" + is_array))
+            " is_map=" + is_map_text +
+            " is_array=" + is_array_text)
     }
     return info
   }
@@ -66,9 +70,13 @@ static box BoxTypeInspectorBox {
     }
 
     if env.get("HAKO_BOX_INTROSPECT_TRACE") == "1" {
+      local is_map_text = "0"
+      if is_map { is_map_text = "1" }
+      local is_array_text = "0"
+      if is_array { is_array_text = "1" }
       print("[box_introspect:hako] kind=" + kind +
-            " is_map=" + ("" + is_map) +
-            " is_array=" + ("" + is_array))
+            " is_map=" + is_map_text +
+            " is_array=" + is_array_text)
     }
     return is_map
   }
@@ -95,9 +103,13 @@ static box BoxTypeInspectorBox {
     }
 
     if env.get("HAKO_BOX_INTROSPECT_TRACE") == "1" {
+      local is_map_text = "0"
+      if is_map { is_map_text = "1" }
+      local is_array_text = "0"
+      if is_array { is_array_text = "1" }
       print("[box_introspect:hako] kind=" + kind +
-            " is_map=" + ("" + is_map) +
-            " is_array=" + ("" + is_array))
+            " is_map=" + is_map_text +
+            " is_array=" + is_array_text)
     }
     return is_array
   }

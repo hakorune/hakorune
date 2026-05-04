@@ -64,26 +64,32 @@ static box LowerLoopSumBcBox {
     local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_loop)
     if k_cmp < 0 { return null }
     // discover loop var name from cond (lhs or rhs Var)
-    local varname = null
+    local varname = ""
     {
       local kl = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp)
       local kr = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp)
       if kl >= 0 {
         if JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kl) >= 0 {
           local kn = JsonFragBox.index_of_from(s, "\"name\":\"", kl)
-          if kn >= 0 { varname = JsonFragBox.read_string_after(s, kn) }
+          if kn >= 0 {
+            local lhs_name = JsonFragBox.read_string_after(s, kn)
+            if lhs_name != null { varname = "" + lhs_name }
+          }
         }
       }
-      if varname == null {
+      if varname == "" {
         if kr >= 0 {
           if JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kr) >= 0 {
             local kn2 = JsonFragBox.index_of_from(s, "\"name\":\"", kr)
-            if kn2 >= 0 { varname = JsonFragBox.read_string_after(s, kn2) }
+            if kn2 >= 0 {
+              local rhs_name = JsonFragBox.read_string_after(s, kn2)
+              if rhs_name != null { varname = "" + rhs_name }
+            }
           }
         }
       }
     }
-    if varname == null { return null }
+    if varname == "" { return null }
     if me._flag_is_one(trace) == 1 {
       print("[sum_bc] var=" + varname)
     }
@@ -93,7 +99,7 @@ static box LowerLoopSumBcBox {
     if op == null { return null }
     local has_lhs_i = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
     local has_rhs_i = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
-    local limit = null
+    local limit = ""
     if has_lhs_i {
       if op != "<" {
         if op != "<=" { return null }
@@ -102,7 +108,8 @@ static box LowerLoopSumBcBox {
       local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp); if k_rhs < 0 { return null }
       local k_ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs); if k_ti < 0 { return null }
       local kv = JsonFragBox.index_of_from(s, "\"value\":", k_ti); if kv < 0 { return null }
-      limit = JsonFragBox.read_int_after(s, kv + 8); if limit == null { return null }
+      local limit_read = JsonFragBox.read_int_after(s, kv + 8); if limit_read == null { return null }
+      limit = "" + limit_read
       if op == "<=" { limit = StringHelpers.int_to_str(JsonFragBox._str_to_int(limit) + 1) }
     } else {
       if has_rhs_i {
@@ -113,7 +120,8 @@ static box LowerLoopSumBcBox {
         local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp); if k_lhs < 0 { return null }
         local k_ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhs); if k_ti2 < 0 { return null }
         local kv2 = JsonFragBox.index_of_from(s, "\"value\":", k_ti2); if kv2 < 0 { return null }
-        limit = JsonFragBox.read_int_after(s, kv2 + 8); if limit == null { return null }
+        local limit_read2 = JsonFragBox.read_int_after(s, kv2 + 8); if limit_read2 == null { return null }
+        limit = "" + limit_read2
         if op == ">=" { limit = StringHelpers.int_to_str(JsonFragBox._str_to_int(limit) + 1) }
       } else {
         return null
@@ -124,10 +132,12 @@ static box LowerLoopSumBcBox {
     local break_value = SentinelExtractorBox.extract(s, "Break", k_loop, varname)
     // Continue sentinel: use shared extractor
     local skip_value = SentinelExtractorBox.extract(s, "Continue", k_loop, varname)
+    if skip_value == null { skip_value = "" } else { skip_value = "" + skip_value }
+    if break_value == null { break_value = "" } else { break_value = "" + break_value }
 
     // Defaults when not present (direct JSON expects non-null numeric text)
-    if skip_value == null { skip_value = "2" }
-    if break_value == null { break_value = limit }
+    if skip_value == "" { skip_value = "2" }
+    if break_value == "" { break_value = limit }
 
     // Trace detected values
     if me._flag_is_one(trace) == 1 {

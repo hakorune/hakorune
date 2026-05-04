@@ -167,8 +167,9 @@ static box MirJsonEmitBox {
   _emit_phi_incoming_rec(values, idx, len) {
     if idx >= len { return "" }
     local item = values.get(idx)
-    local value_id = 0
-    local block_id = 0
+    local zero_i64 = StringHelpers.to_i64("0")
+    local value_id = zero_i64
+    local block_id = zero_i64
     if me._is_present_compat(item) == 1 {
       value_id = item.get(0)
       block_id = item.get(1)

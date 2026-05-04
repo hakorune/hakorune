@@ -9,21 +9,24 @@ static box JsonNumberCanonicalBox {
   canonicalize_f64(fs) {
     if fs == null { return "0.0" }
     local s = "" + fs
+    local zero_i64 = StringHelpers.to_i64("0")
+    local one_i64 = StringHelpers.to_i64("1")
+    local neg_one_i64 = StringHelpers.to_i64("-1")
     // Split sign
     local sign = ""
     if s.substring(0,1) == "-" { sign = "-"  s = s.substring(1, s.length()) }
     // Handle exponent forms like d(.d*)?[eE][+-]?d+
-    local exp_pos = -1
+    local exp_pos = neg_one_i64
     local ei = StringHelpers.index_of(s, 0, "e"); if ei < 0 { ei = StringHelpers.index_of(s, 0, "E") }
     if ei >= 0 { exp_pos = ei }
     if exp_pos >= 0 {
       local mant = s.substring(0, exp_pos)
       local exp_str = s.substring(exp_pos+1, s.length())
-      local esign = 1
+      local esign = one_i64
       if exp_str.substring(0,1) == "+" { exp_str = exp_str.substring(1, exp_str.length()) }
-      else { if exp_str.substring(0,1) == "-" { esign = -1  exp_str = exp_str.substring(1, exp_str.length()) } }
+      else { if exp_str.substring(0,1) == "-" { esign = neg_one_i64  exp_str = exp_str.substring(1, exp_str.length()) } }
       local ed = ""
-      local k = 0
+      local k = zero_i64
       loop(k < exp_str.length()) { local ch = exp_str.substring(k,k+1); if ch >= "0" && ch <= "9" { ed = ed + ch  k = k + 1 } else { break } }
       local e = StringHelpers.to_i64(ed)
       local dotm = StringHelpers.index_of(mant, 0, ".")
@@ -32,7 +35,7 @@ static box JsonNumberCanonicalBox {
       if dotm >= 0 { intp = mant.substring(0, dotm); frac = mant.substring(dotm+1, mant.length()) }
       local ms = intp + frac
       // trim leading zeros for stability
-      local a = 0
+      local a = zero_i64
       loop(a < ms.length() && ms.substring(a,a+1) == "0") { a = a + 1 }
       ms = ms.substring(a, ms.length())
       if ms.length() == 0 { return "0.0" }
@@ -62,7 +65,7 @@ static box JsonNumberCanonicalBox {
       right = right.substring(0, j3)
       if right.length() == 0 { right = "0" }
       local out3 = left + "." + right
-      local b = 0
+      local b = zero_i64
       loop(b + 1 < left.length() && left.substring(b,b+1) == "0") { b = b + 1 }
       out3 = left.substring(b, left.length()) + "." + right
       if out3.substring(0,1) == "." { out3 = "0" + out3 }
@@ -85,23 +88,25 @@ static box JsonNumberCanonicalBox {
   read_num_token(text, pos) {
     if text == null { return null }
     local s = "" + text
+    local zero_i64 = StringHelpers.to_i64("0")
+    local one_i64 = StringHelpers.to_i64("1")
     local n = s.length()
     local i = pos
     if i >= n { return null }
     if s.substring(i,i+1) == "+" || s.substring(i,i+1) == "-" { i = i + 1 }
-    local had = 0
-    loop(i < n) { local ch = s.substring(i,i+1); if ch >= "0" && ch <= "9" { had = 1  i = i + 1 } else { break } }
+    local had = zero_i64
+    loop(i < n) { local ch = s.substring(i,i+1); if ch >= "0" && ch <= "9" { had = one_i64  i = i + 1 } else { break } }
     if i < n && s.substring(i,i+1) == "." {
       i = i + 1
-      loop(i < n) { local ch2 = s.substring(i,i+1); if ch2 >= "0" && ch2 <= "9" { had = 1  i = i + 1 } else { break } }
+      loop(i < n) { local ch2 = s.substring(i,i+1); if ch2 >= "0" && ch2 <= "9" { had = one_i64  i = i + 1 } else { break } }
     }
     if i < n {
       local ch3 = s.substring(i,i+1)
       if ch3 == "e" || ch3 == "E" {
         i = i + 1
         if i < n && (s.substring(i,i+1) == "+" || s.substring(i,i+1) == "-") { i = i + 1 }
-        local dig = 0
-        loop(i < n) { local ce = s.substring(i,i+1); if ce >= "0" && ce <= "9" { dig = 1  i = i + 1 } else { break } }
+        local dig = zero_i64
+        loop(i < n) { local ce = s.substring(i,i+1); if ce >= "0" && ce <= "9" { dig = one_i64  i = i + 1 } else { break } }
         if dig == 0 { return null }
       }
     }
