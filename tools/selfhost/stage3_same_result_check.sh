@@ -10,6 +10,7 @@ ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
 source "$ROOT_DIR/tools/selfhost/lib/identity_routes.sh"
 ARTIFACT_KIND="stage1-cli"
 SKIP_BUILD=0
+BUILD_SEED=0
 BOOTSTRAP_BIN=""
 STAGE2_BIN=""
 STAGE3_BIN=""
@@ -17,10 +18,11 @@ ENTRY=""
 
 usage() {
   cat <<'USAGE'
-Usage: tools/selfhost/stage3_same_result_check.sh [--artifact-kind <stage1-cli|launcher-exe>] [--skip-build] [--stage2-bin <path>] [--stage3-bin <path>] [-h|--help]
+Usage: tools/selfhost/stage3_same_result_check.sh [--artifact-kind <stage1-cli|launcher-exe>] [--build-seed] [--skip-build] [--seed-bin <path>] [--stage2-bin <path>] [--stage3-bin <path>] [-h|--help]
 
 Options:
   --artifact-kind <kind>  Bootstrap artifact kind to compare (default: stage1-cli)
+  --build-seed            Build the full stage1_cli_env.hako payload seed before comparing
   --skip-build            Compare an explicit prebuilt Stage2/Stage3 pair only
   --seed-bin <path>       Stage1 bootstrap seed binary (default: derived from artifact kind)
   --stage2-bin <path>     Stage2 output base path (build mode) or binary path (skip-build)
@@ -30,6 +32,7 @@ Options:
 Behavior:
   - build mode: re-emit Program(JSON v0) and MIR(JSON) snapshots twice from a known-good bootstrap seed, then compare the snapshots plus .artifact_kind
   - build mode currently has a stable seed lane for stage1-cli only
+  - --build-seed uses tools/selfhost/mainline/build_stage1.sh to materialize a full stage1_cli_env.hako seed
   - compare mode: compare the provided Stage2/Stage3 pair only
   - `stage2-bin` / `stage3-bin` are compare labels in this helper, not standalone artifact-kind families
 USAGE
@@ -93,11 +96,36 @@ emit_seed_payloads() {
   fi
 }
 
+build_stage1_cli_env_seed() {
+  local seed_bin="$1"
+  local entry="$2"
+
+  if [[ "$ARTIFACT_KIND" != "stage1-cli" ]]; then
+    fail "--build-seed currently supports --artifact-kind stage1-cli only"
+  fi
+
+  echo "[Stage3] Building payload seed artifact: $seed_bin" >&2
+  env \
+    NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
+    HAKO_BACKEND_COMPILE_RECIPE="${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}" \
+    HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}" \
+    "$ROOT_DIR/tools/selfhost/mainline/build_stage1.sh" \
+      --artifact-kind stage1-cli \
+      --entry "$entry" \
+      --out "$seed_bin" \
+      --timeout-secs "${HAKORUNE_STAGE3_SEED_BUILD_TIMEOUT_SECS:-240}" \
+      --force-rebuild
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --artifact-kind)
       ARTIFACT_KIND="$2"
       shift 2
+      ;;
+    --build-seed)
+      BUILD_SEED=1
+      shift
       ;;
     --skip-build)
       SKIP_BUILD=1
@@ -127,7 +155,7 @@ done
 
 case "$ARTIFACT_KIND" in
   stage1-cli)
-    DEFAULT_BOOTSTRAP_BIN="$ROOT_DIR/target/selfhost/hakorune.stage1_cli.stage2"
+    DEFAULT_BOOTSTRAP_BIN="$ROOT_DIR/target/selfhost/hakorune.stage1_cli_env_seed"
     DEFAULT_STAGE2_BIN="$ROOT_DIR/target/selfhost/hakorune.stage1_cli.stage2"
     DEFAULT_STAGE3_BIN="$ROOT_DIR/target/selfhost/hakorune.stage1_cli.stage3"
     DEFAULT_ENTRY="$ROOT_DIR/lang/src/runner/stage1_cli_env.hako"
@@ -162,8 +190,15 @@ STAGE3_META="${STAGE3_BIN}.artifact_kind"
 if [[ "$SKIP_BUILD" -eq 0 ]]; then
   mkdir -p "$(dirname "$STAGE2_BIN")" "$(dirname "$STAGE3_BIN")"
 
+  if [[ "$BUILD_SEED" -eq 1 ]]; then
+    mkdir -p "$(dirname "$BOOTSTRAP_BIN")"
+    build_stage1_cli_env_seed "$BOOTSTRAP_BIN" "$ENTRY"
+  fi
+
   if [[ ! -x "$BOOTSTRAP_BIN" ]]; then
-    fail "Stage1 seed binary not found or not executable: $BOOTSTRAP_BIN"
+    echo "[Stage3:FAIL] Stage1 payload seed binary not found or not executable: $BOOTSTRAP_BIN" >&2
+    echo "              hint: pass --build-seed or provide a full stage1_cli_env.hako artifact with --seed-bin" >&2
+    exit 2
   fi
   if [[ "$ARTIFACT_KIND" != "stage1-cli" ]]; then
     fail "build mode currently only supports the stage1-cli payload seed lane; use --skip-build for launcher-exe compare-only"
