@@ -19,9 +19,19 @@ pub extern "C" fn nyash_stage1_emit_program_json_v0_h(source_h: i64) -> i64 {
     }
 }
 
+#[export_name = "nyash.stage1.emit_mir_from_source_v0_h"]
+pub extern "C" fn nyash_stage1_emit_mir_from_source_v0_h(source_h: i64) -> i64 {
+    let Some(source_text) = owned_string_from_handle(source_h) else {
+        return 0;
+    };
+    match nyash_rust::host_providers::mir_builder::source_to_mir_json(&source_text) {
+        Ok(text) | Err(text) => materialize_owned_string(text),
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::nyash_stage1_emit_program_json_v0_h;
+    use super::{nyash_stage1_emit_mir_from_source_v0_h, nyash_stage1_emit_program_json_v0_h};
     use crate::plugin::{materialize_owned_string, owned_string_from_handle};
 
     #[test]
@@ -39,5 +49,22 @@ mod tests {
     #[test]
     fn stage1_emit_program_json_v0_h_returns_zero_for_invalid_source_handle() {
         assert_eq!(nyash_stage1_emit_program_json_v0_h(0), 0);
+    }
+
+    #[test]
+    fn stage1_emit_mir_from_source_v0_h_round_trips_source_handle_to_json_handle() {
+        let source = "static box Main { main() { print(42) return 0 } }";
+        let source_h = materialize_owned_string(source.to_string());
+
+        let out_h = nyash_stage1_emit_mir_from_source_v0_h(source_h);
+
+        let out = owned_string_from_handle(out_h).expect("mir json handle");
+        assert!(out.contains("\"functions\""));
+        assert!(out.contains("\"user_box_decls\""));
+    }
+
+    #[test]
+    fn stage1_emit_mir_from_source_v0_h_returns_zero_for_invalid_source_handle() {
+        assert_eq!(nyash_stage1_emit_mir_from_source_v0_h(0), 0);
     }
 }

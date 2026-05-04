@@ -981,7 +981,11 @@ fn generic_pure_string_instruction_reject_reason(
             ..
         } if matches!(
             classify_extern_call_route(name, args.len()),
-            Some(ExternCallRouteKind::EnvGet | ExternCallRouteKind::Stage1EmitProgramJson)
+            Some(
+                ExternCallRouteKind::EnvGet
+                    | ExternCallRouteKind::Stage1EmitProgramJson
+                    | ExternCallRouteKind::Stage1EmitMirFromSource
+            )
         ) =>
         {
             if let Some(dst) = dst {

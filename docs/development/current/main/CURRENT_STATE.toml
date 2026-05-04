@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381A-MODULE-GENERIC-STAGE1-EXTERN-PREPASS"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381A-MODULE-GENERIC-STAGE1-EXTERN-PREPASS.md"
-latest_card_summary = "Consume the Stage1EmitProgramJson extern route in module generic prepass."
+latest_card = "P381B-STAGE1-EMIT-MIR-SOURCE-EXTERN-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381B-STAGE1-EMIT-MIR-SOURCE-EXTERN-ROUTE.md"
+latest_card_summary = "Lower the exact source-only MirBuilder emit call to an explicit Stage1 source-to-MIR extern route."
 
 current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

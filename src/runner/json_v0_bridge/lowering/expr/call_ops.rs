@@ -131,17 +131,19 @@ fn lower_canonical_imported_static_extern_call<S: VarScope>(
     args: &[ExprV0],
     vars: &mut S,
 ) -> Result<Option<(ValueId, BasicBlockId)>, String> {
-    if !is_stage1_emit_program_json_import_call(env, recv_alias, method, args) {
+    let Some((extern_module, extern_method)) =
+        classify_stage1_static_extern_import_call(env, recv_alias, method, args)
+    else {
         return Ok(None);
-    }
+    };
 
     let (source, cur2) = super::lower_expr_with_scope(env, f, cur_bb, &args[0], vars)?;
     let dst = f.next_value_id();
     if let Some(bb) = f.get_block_mut(cur2) {
         bb.add_instruction(crate::mir::ssot::extern_call::extern_call(
             Some(dst),
-            "nyash.stage1",
-            "emit_program_json_v0_h",
+            extern_module,
+            extern_method,
             vec![source],
             EffectMask::READ,
         ));
@@ -149,18 +151,24 @@ fn lower_canonical_imported_static_extern_call<S: VarScope>(
     Ok(Some((dst, cur2)))
 }
 
-fn is_stage1_emit_program_json_import_call(
+fn classify_stage1_static_extern_import_call<'a>(
     env: &BridgeEnv,
     recv_alias: &str,
     method: &str,
     args: &[ExprV0],
-) -> bool {
+) -> Option<(&'a str, &'a str)> {
     let Some(mapped) = env.imports.get(recv_alias) else {
-        return false;
+        return None;
     };
-    mapped == "lang.compiler.build.build_box"
-        && method == "emit_program_json_v0"
-        && matches!(args, [_, ExprV0::Null])
+    if matches!(args, [_, ExprV0::Null]) {
+        if mapped == "lang.compiler.build.build_box" && method == "emit_program_json_v0" {
+            return Some(("nyash.stage1", "emit_program_json_v0_h"));
+        }
+        if mapped == "lang.mir.builder.MirBuilderBox" && method == "emit_from_source_v0" {
+            return Some(("nyash.stage1", "emit_mir_from_source_v0_h"));
+        }
+    }
+    None
 }
 
 pub(super) fn lower_method_expr<S: VarScope>(

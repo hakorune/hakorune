@@ -285,6 +285,45 @@ mod tests {
     }
 
     #[test]
+    fn stage1_emit_mir_from_source_extern_route() {
+        ensure_test_ring0();
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "imports": {
+                "MirBuilderBox": "lang.mir.builder.MirBuilderBox"
+            },
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {
+                        "type": "Call",
+                        "name": "MirBuilderBox.emit_from_source_v0",
+                        "args": [
+                            {"type": "Str", "value": "box MainBox { method main() { return 1 } }"},
+                            {"type": "Null"}
+                        ]
+                    }
+                }
+            ]
+        }"#;
+
+        let result = program_json_to_mir_json(program_json);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let mir_json = result.unwrap();
+        assert!(mir_json.contains("nyash.stage1.emit_mir_from_source_v0_h"));
+        assert!(
+            !mir_json.contains("\"op\":\"boxcall\""),
+            "MirBuilderBox emit_from_source_v0 must lower as an explicit extern helper call"
+        );
+        assert!(
+            !mir_json.contains("\"method\":\"emit_from_source_v0\""),
+            "MirBuilderBox emit_from_source_v0 must not remain a runtime method call"
+        );
+    }
+
+    #[test]
     fn test_source_to_mir_json_handles_stage1_cli_env_source() {
         ensure_test_ring0();
         let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");

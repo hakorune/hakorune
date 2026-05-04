@@ -519,7 +519,11 @@ fn refine_generic_string_return_value_class(
             ..
         } if matches!(
             classify_extern_call_route(name, args.len()),
-            Some(ExternCallRouteKind::EnvGet | ExternCallRouteKind::Stage1EmitProgramJson)
+            Some(
+                ExternCallRouteKind::EnvGet
+                    | ExternCallRouteKind::Stage1EmitProgramJson
+                    | ExternCallRouteKind::Stage1EmitMirFromSource
+            )
         ) =>
         {
             if let Some(dst) = dst {
