@@ -338,6 +338,11 @@ Module-generic emit ret helper cleanup landed in
 emit-side `ret` value-reference and zext handling now has one active-body
 helper.
 
+Module-generic emit const helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DK-MODULE-GENERIC-EMIT-CONST-HELPER.md`:
+emit-side `const` classification, publication, and diagnostics now have one
+active-body helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

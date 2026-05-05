@@ -1615,6 +1615,37 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_const_instruction(
+          FILE* f,
+          size_t fn_index,
+          long long bid,
+          size_t ii,
+          yyjson_val* ins) {
+        const char* sval = NULL;
+        long long ival = 0;
+        long long dst = read_int(ins, "dst");
+        if (module_generic_string_read_string_const(ins, &sval)) {
+          if (!module_generic_string_emit_const_box(f, fn_index, dst)) {
+            note_pure_unsupported_shape(
+                bid,
+                ii,
+                "const",
+                "module_generic_string_const_missing",
+                NULL);
+            return 0;
+          }
+        } else if (module_generic_string_read_i64_const(ins, &ival)) {
+          put_const(dst, ival);
+          set_type(dst, T_I64);
+        } else if (module_generic_string_read_void_sentinel_const(ins)) {
+          put_const(dst, 0);
+          set_type(dst, T_I64);
+        } else {
+          return 0;
+        }
+        return 1;
+      }
+
       auto int module_generic_string_emit_active_body(FILE* f, size_t fn_index) {
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
@@ -1632,28 +1663,12 @@
             if (!op) return 0;
             if (!strcmp(op, "phi")) continue;
             if (!strcmp(op, "const")) {
-              const char* sval = NULL;
-              long long ival = 0;
-              long long dst = read_int(ins, "dst");
-              if (module_generic_string_read_string_const(ins, &sval)) {
-                if (!module_generic_string_emit_const_box(f, fn_index, dst)) {
-                  note_pure_unsupported_shape(
+              if (!module_generic_string_emit_const_instruction(
+                      f,
+                      fn_index,
                       block.id,
                       ii,
-                      "const",
-                      "module_generic_string_const_missing",
-                      NULL);
-                  return 0;
-                }
-              } else if (module_generic_string_read_i64_const(ins, &ival)) {
-                put_const(dst, ival);
-                set_type(dst, T_I64);
-              } else if (module_generic_string_read_void_sentinel_const(ins)) {
-                put_const(dst, 0);
-                set_type(dst, T_I64);
-              } else {
-                return 0;
-              }
+                      ins)) return 0;
               continue;
             }
             if (!strcmp(op, "copy")) {

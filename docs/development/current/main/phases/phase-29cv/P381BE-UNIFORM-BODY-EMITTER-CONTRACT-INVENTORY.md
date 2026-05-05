@@ -157,6 +157,8 @@ Completed focused probe:
     behind one active-body helper
   - P381DJ moved module-generic emit-side ret value-reference and zext
     emission behind one active-body helper
+  - P381DK moved module-generic emit-side const classification, publication,
+    and diagnostics behind one active-body helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
