@@ -958,6 +958,7 @@
         char ab[256];
         int is_string_len = 0;
         int is_array_len = 0;
+        const char* helper_symbol = NULL;
         (void)f;
         ab[0] = '\0';
         if (read_lowering_plan_generic_method_view(entry, &method_view)) {
@@ -967,20 +968,14 @@
         if (!(is_string_len || is_array_len)) {
           return 0;
         }
+        helper_symbol = is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_fast_h";
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         if (dst) {
-          EMIT(
-              "  %%r%lld = call i64 @\"%s\"(%s)\n",
-              dst,
-              is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_fast_h",
-              ab);
+          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, helper_symbol, ab);
           set_type(dst, T_I64);
           if (is_string_len) remember_string_length_call(dst, recv);
         } else {
-          EMIT(
-              "  call i64 @\"%s\"(%s)\n",
-              is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_fast_h",
-              ab);
+          EMIT("  call i64 @\"%s\"(%s)\n", helper_symbol, ab);
         }
         return 1;
       }
