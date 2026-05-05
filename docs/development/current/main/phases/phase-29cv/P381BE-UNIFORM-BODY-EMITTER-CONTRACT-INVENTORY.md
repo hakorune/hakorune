@@ -163,6 +163,8 @@ Completed focused probe:
     active-body helper entries
   - P381DM moved module-generic active-body opcode dispatch behind one
     instruction dispatcher entry
+  - P381DN moved module-generic active-function prepass opcode dispatch behind
+    one instruction dispatcher entry
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

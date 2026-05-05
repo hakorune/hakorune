@@ -683,6 +683,137 @@
         return module_generic_string_prepass_extern_call_view(&extern_view, dst);
       }
 
+      auto int module_generic_string_prepass_instruction(
+          long long bid,
+          size_t ii,
+          yyjson_val* ins) {
+        const char* op = read_str(ins, "op");
+        if (!op) return 0;
+        if (!strcmp(op, "const")) {
+          long long dst = read_int(ins, "dst");
+          const char* sval = NULL;
+          long long ival = 0;
+          if (module_generic_string_read_string_const(ins, &sval)) {
+            put_str_const(dst, sval);
+            put_known_string_len(dst, (long long)strlen(sval));
+            module_generic_string_publish_i64_origin(dst, ORG_STRING);
+            return 1;
+          }
+          if (module_generic_string_read_i64_const(ins, &ival)) {
+            put_const(dst, ival);
+            set_type(dst, T_I64);
+            return 1;
+          }
+          if (module_generic_string_read_void_sentinel_const(ins)) {
+            put_const(dst, 0);
+            set_type(dst, T_I64);
+            return 1;
+          }
+          return 0;
+        }
+        if (!strcmp(op, "copy")) {
+          long long dst = read_int(ins, "dst");
+          long long src = read_int(ins, "src");
+          int src_ty = get_type(src);
+          int src_org = get_origin(src);
+          int src_scan = get_scan_origin(src);
+          if (src) set_copy_alias(dst, resolve_copy_source_reg(src));
+          if (src_ty != T_NONE) set_type(dst, src_ty);
+          if (src_org != ORG_NONE) set_origin(dst, src_org);
+          if (src_scan != ORG_NONE) set_scan_origin(dst, src_scan);
+          return 1;
+        }
+        if (!strcmp(op, "newbox")) {
+          long long dst = read_int(ins, "dst");
+          const char* tname = read_str(ins, "type");
+          if (tname && !strcmp(tname, "ArrayBox")) {
+            module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
+            return 1;
+          }
+          if (tname && !strcmp(tname, "MapBox")) {
+            module_generic_string_publish_i64_origin(dst, ORG_MAP_BIRTH);
+            return 1;
+          }
+          return 0;
+        }
+        if (!strcmp(op, "compare")) {
+          set_type(read_int(ins, "dst"), T_I1);
+          return 1;
+        }
+        if (!strcmp(op, "unop")) {
+          const char* kind = read_str(ins, "op_kind");
+          if (!kind) kind = read_str(ins, "operation");
+          if (!(kind && (!strcmp(kind, "not") || !strcmp(kind, "Not")))) return 0;
+          set_type(read_int(ins, "dst"), T_I1);
+          return 1;
+        }
+        if (!strcmp(op, "phi")) {
+          return module_generic_string_record_phi(ins, bid);
+        }
+        if (!strcmp(op, "binop")) {
+          long long dst = read_int(ins, "dst");
+          long long lhs = read_int(ins, "lhs");
+          long long rhs = read_int(ins, "rhs");
+          const char* kind = read_str(ins, "op_kind");
+          if (!kind) kind = read_str(ins, "operation");
+          if (!module_generic_string_binop_declares_i64(ins) &&
+              kind &&
+              (!strcmp(kind, "+") || !strcmp(kind, "Add")) &&
+              (module_generic_string_value_is_string(lhs) ||
+               module_generic_string_value_is_string(rhs))) {
+            module_generic_string_publish_i64_origin(dst, ORG_STRING);
+          } else {
+            set_type(dst, T_I64);
+          }
+          return 1;
+        }
+        if (!strcmp(op, "mir_call") ||
+            !strcmp(op, "call") ||
+            !strcmp(op, "boxcall")) {
+          return module_generic_string_prepass_call_instruction(
+              op,
+              bid,
+              ii,
+              ins);
+        }
+        if (!strcmp(op, "externcall")) {
+          return module_generic_string_prepass_externcall(bid, ii, ins);
+        }
+        if (!strcmp(op, "select")) {
+          long long dst = read_int(ins, "dst");
+          long long then_val = read_int(ins, "then_val");
+          long long else_val = read_int(ins, "else_val");
+          int then_ty = get_type(then_val);
+          int else_ty = get_type(else_val);
+          int then_org = get_origin(then_val);
+          int else_org = get_origin(else_val);
+          int then_scan = get_scan_origin(then_val);
+          int else_scan = get_scan_origin(else_val);
+          if (then_ty == T_I1 && else_ty == T_I1) {
+            set_type(dst, T_I1);
+          } else if (then_ty != T_NONE && then_ty == else_ty) {
+            set_type(dst, then_ty);
+          } else if (then_ty != T_NONE && else_ty == T_NONE) {
+            set_type(dst, then_ty);
+          } else if (else_ty != T_NONE && then_ty == T_NONE) {
+            set_type(dst, else_ty);
+          } else {
+            set_type(dst, T_I64);
+          }
+          if (then_org != ORG_NONE && then_org == else_org) set_origin(dst, then_org);
+          if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
+          return 1;
+        }
+        if (!strcmp(op, "branch") ||
+            !strcmp(op, "jump") ||
+            !strcmp(op, "ret") ||
+            !strcmp(op, "keepalive") ||
+            !strcmp(op, "release_strong")) {
+          return 1;
+        }
+        return 0;
+      }
+
       auto int module_generic_string_prepass_active_function(void) {
         yyjson_val* params = fn0 ? yyjson_obj_get(fn0, "params") : NULL;
         if (!(params && yyjson_is_arr(params))) return 0;
@@ -696,113 +827,7 @@
           if (!read_generic_pure_block_view(bi, &block)) return 0;
           for (size_t ii = 0; ii < block.instruction_count; ii++) {
             yyjson_val* ins = yyjson_arr_get(block.instructions, ii);
-            const char* op = read_str(ins, "op");
-            if (!op) return 0;
-            if (!strcmp(op, "const")) {
-              long long dst = read_int(ins, "dst");
-              const char* sval = NULL;
-              long long ival = 0;
-              if (module_generic_string_read_string_const(ins, &sval)) {
-                put_str_const(dst, sval);
-                put_known_string_len(dst, (long long)strlen(sval));
-                module_generic_string_publish_i64_origin(dst, ORG_STRING);
-              } else if (module_generic_string_read_i64_const(ins, &ival)) {
-                put_const(dst, ival);
-                set_type(dst, T_I64);
-              } else if (module_generic_string_read_void_sentinel_const(ins)) {
-                put_const(dst, 0);
-                set_type(dst, T_I64);
-              } else {
-                return 0;
-              }
-            } else if (!strcmp(op, "copy")) {
-              long long dst = read_int(ins, "dst");
-              long long src = read_int(ins, "src");
-              int src_ty = get_type(src);
-              int src_org = get_origin(src);
-              int src_scan = get_scan_origin(src);
-              if (src) set_copy_alias(dst, resolve_copy_source_reg(src));
-              if (src_ty != T_NONE) set_type(dst, src_ty);
-              if (src_org != ORG_NONE) set_origin(dst, src_org);
-              if (src_scan != ORG_NONE) set_scan_origin(dst, src_scan);
-            } else if (!strcmp(op, "newbox")) {
-              long long dst = read_int(ins, "dst");
-              const char* tname = read_str(ins, "type");
-              if (tname && !strcmp(tname, "ArrayBox")) {
-                module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
-              } else if (tname && !strcmp(tname, "MapBox")) {
-                module_generic_string_publish_i64_origin(dst, ORG_MAP_BIRTH);
-              } else {
-                return 0;
-              }
-            } else if (!strcmp(op, "compare")) {
-              set_type(read_int(ins, "dst"), T_I1);
-            } else if (!strcmp(op, "unop")) {
-              const char* kind = read_str(ins, "op_kind");
-              if (!kind) kind = read_str(ins, "operation");
-              if (!(kind && (!strcmp(kind, "not") || !strcmp(kind, "Not")))) return 0;
-              set_type(read_int(ins, "dst"), T_I1);
-            } else if (!strcmp(op, "phi")) {
-              if (!module_generic_string_record_phi(ins, block.id)) return 0;
-            } else if (!strcmp(op, "binop")) {
-              long long dst = read_int(ins, "dst");
-              long long lhs = read_int(ins, "lhs");
-              long long rhs = read_int(ins, "rhs");
-              const char* kind = read_str(ins, "op_kind");
-              if (!kind) kind = read_str(ins, "operation");
-              if (!module_generic_string_binop_declares_i64(ins) &&
-                  kind &&
-                  (!strcmp(kind, "+") || !strcmp(kind, "Add")) &&
-                  (module_generic_string_value_is_string(lhs) ||
-                   module_generic_string_value_is_string(rhs))) {
-                module_generic_string_publish_i64_origin(dst, ORG_STRING);
-              } else {
-                set_type(dst, T_I64);
-              }
-            } else if (!strcmp(op, "mir_call") ||
-                       !strcmp(op, "call") ||
-                       !strcmp(op, "boxcall")) {
-              if (!module_generic_string_prepass_call_instruction(
-                      op,
-                      block.id,
-                      ii,
-                      ins)) return 0;
-            } else if (!strcmp(op, "externcall")) {
-              if (!module_generic_string_prepass_externcall(block.id, ii, ins)) return 0;
-            } else if (!strcmp(op, "branch") ||
-                       !strcmp(op, "jump") ||
-                       !strcmp(op, "ret") ||
-                       !strcmp(op, "select") ||
-                       !strcmp(op, "keepalive") ||
-                       !strcmp(op, "release_strong")) {
-              if (!strcmp(op, "select")) {
-                long long dst = read_int(ins, "dst");
-                long long then_val = read_int(ins, "then_val");
-                long long else_val = read_int(ins, "else_val");
-                int then_ty = get_type(then_val);
-                int else_ty = get_type(else_val);
-                int then_org = get_origin(then_val);
-                int else_org = get_origin(else_val);
-                int then_scan = get_scan_origin(then_val);
-                int else_scan = get_scan_origin(else_val);
-                if (then_ty == T_I1 && else_ty == T_I1) {
-                  set_type(dst, T_I1);
-                } else if (then_ty != T_NONE && then_ty == else_ty) {
-                  set_type(dst, then_ty);
-                } else if (then_ty != T_NONE && else_ty == T_NONE) {
-                  set_type(dst, then_ty);
-                } else if (else_ty != T_NONE && then_ty == T_NONE) {
-                  set_type(dst, else_ty);
-                } else {
-                  set_type(dst, T_I64);
-                }
-                if (then_org != ORG_NONE && then_org == else_org) set_origin(dst, then_org);
-                if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
-              }
-              continue;
-            } else {
-              return 0;
-            }
+            if (!module_generic_string_prepass_instruction(block.id, ii, ins)) return 0;
           }
         }
         module_generic_string_refine_phi_types();

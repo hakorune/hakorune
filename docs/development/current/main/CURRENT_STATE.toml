@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381DM-MODULE-GENERIC-EMIT-INSTRUCTION-DISPATCH"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381DM-MODULE-GENERIC-EMIT-INSTRUCTION-DISPATCH.md"
-latest_card_summary = "Module-generic active-body emission now delegates per-instruction behavior through one dispatcher."
+latest_card = "P381DN-MODULE-GENERIC-PREPASS-INSTRUCTION-DISPATCH"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381DN-MODULE-GENERIC-PREPASS-INSTRUCTION-DISPATCH.md"
+latest_card_summary = "Module-generic active-function prepass now delegates per-instruction fact collection through one dispatcher."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

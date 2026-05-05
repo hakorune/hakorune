@@ -352,6 +352,11 @@ Module-generic emit instruction dispatcher cleanup landed in
 active-body emission now delegates per-instruction behavior through one
 dispatcher.
 
+Module-generic prepass instruction dispatcher cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DN-MODULE-GENERIC-PREPASS-INSTRUCTION-DISPATCH.md`:
+active-function prepass now delegates per-instruction fact collection through
+one dispatcher.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
