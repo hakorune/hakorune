@@ -600,7 +600,7 @@
           long long dst,
           const struct LoweringPlanGlobalCallView* global_view) {
         if (global_view &&
-            lowering_plan_global_call_view_requires_module_generic_definition(global_view)) {
+            lowering_plan_global_call_view_requires_same_module_function_definition(global_view)) {
           set_type(dst, T_I64);
           mark_global_call_result_origin_from_view(global_view, dst);
           return 1;

@@ -116,7 +116,9 @@
             planned++;
             continue;
           }
-          if (!lowering_plan_global_call_view_requires_module_generic_definition(&view)) continue;
+          if (!lowering_plan_global_call_view_requires_same_module_function_definition(&view)) {
+            continue;
+          }
           if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
           planned++;
         }

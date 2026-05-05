@@ -188,6 +188,9 @@ Completed focused probe:
     the shared Stage0 function emitter
   - P381DX centralized Stage0 typed global-call proof validation behind one
     LoweringPlan metadata helper shared by entry and parsed-view consumers
+  - P381DY renamed the Stage0 global-call definition requirement helper around
+    the actual selected same-module function contract shared by `module_generic`
+    and `uniform_mir` owners
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

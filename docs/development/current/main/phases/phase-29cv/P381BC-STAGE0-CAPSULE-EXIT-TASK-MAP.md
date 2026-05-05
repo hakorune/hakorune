@@ -404,6 +404,11 @@ LoweringPlan global-call proof helper cleanup landed in
 Stage0 C metadata now validates typed global-call proof strings through one
 shared helper for entry and parsed-view consumers.
 
+Same-module definition helper naming cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DY-SAME-MODULE-DEFINITION-HELPER-NAME.md`:
+the Stage0 global-call definition requirement helper now names the selected
+same-module function contract shared by `module_generic` and `uniform_mir`.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

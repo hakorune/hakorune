@@ -408,7 +408,7 @@
                 lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(view));
       }
 
-      auto int lowering_plan_global_call_view_requires_module_generic_definition(
+      auto int lowering_plan_global_call_view_requires_same_module_function_definition(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_uses_module_generic_definition(view) ||
                lowering_plan_global_call_view_is_uniform_mir_function_candidate(view);
