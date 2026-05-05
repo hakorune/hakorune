@@ -141,6 +141,8 @@ Completed focused probe:
     accepted/no-match/malformed outcomes
   - P381DB moved module-generic method emission dispatch behind one helper
     after method birth and LoweringPlan view loading
+  - P381DC centralized module-generic ArrayBox/MapBox method-birth route
+    recognition across prepass and emit handling
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

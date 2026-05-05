@@ -473,6 +473,15 @@
         return name;
       }
 
+      auto int module_generic_string_call_is_array_or_map_birth(
+          const char* ctype,
+          const char* mname,
+          const char* bname) {
+        return ctype && !strcmp(ctype, "Method") &&
+               mname && !strcmp(mname, "birth") &&
+               bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"));
+      }
+
       auto long long module_generic_string_call_receiver(const char* op, yyjson_val* cal) {
         if (!cal) return 0;
         if (op && !strcmp(op, "boxcall")) return read_int(cal, "box");
@@ -695,9 +704,8 @@
               has_method_view = read_lowering_plan_generic_method_view(entry, &method_view);
               has_extern_view = read_lowering_plan_extern_call_view(entry, &extern_view);
               has_global_view = read_lowering_plan_global_call_view(entry, &global_view);
-              if (ctype && !strcmp(ctype, "Method") &&
-                  mname && !strcmp(mname, "birth") &&
-                  bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
+              if (module_generic_string_call_is_array_or_map_birth(
+                      ctype, mname, bname)) {
                 if (dst) set_type(dst, T_I64);
                 continue;
               }
@@ -1482,8 +1490,8 @@
           yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
           struct LoweringPlanGenericMethodView method_view;
           const struct LoweringPlanGenericMethodView* method_view_ptr = NULL;
-          if (mname && !strcmp(mname, "birth") &&
-              bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
+          if (module_generic_string_call_is_array_or_map_birth(
+                  ctype, mname, bname)) {
             if (dst) {
               put_const(dst, 0);
               set_type(dst, T_I64);

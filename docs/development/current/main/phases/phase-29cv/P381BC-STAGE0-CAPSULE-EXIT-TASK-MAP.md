@@ -299,6 +299,11 @@ Module-generic method emit dispatch cleanup landed in
 generic-method emission now goes through one helper after method birth and
 LoweringPlan view loading.
 
+Module-generic method birth helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DC-MODULE-GENERIC-METHOD-BIRTH-HELPER.md`:
+ArrayBox/MapBox method-birth recognition now has one helper shared by prepass
+and emit handling.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
