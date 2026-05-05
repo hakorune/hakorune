@@ -156,7 +156,8 @@
         } else if (lowering_plan_global_call_view_is_direct_parser_program_json(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_generic_i64(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
+          if (!module_generic_symbol_will_be_defined(view.target_symbol) &&
+              !module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_static_string_array(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view)) {

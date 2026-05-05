@@ -1710,7 +1710,8 @@
             module_generic_symbol_was_emitted(name)) {
           return 0;
         }
-        if (module_function_is_numeric_i64_leaf(fn)) {
+        if (module_function_is_numeric_i64_leaf(fn) &&
+            module_leaf_symbol_will_be_defined(name)) {
           return 0;
         }
         if (module_generic_symbol_is_parser_program_json(name)) {
