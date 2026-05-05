@@ -1539,7 +1539,7 @@
             args);
       }
 
-      auto int module_generic_string_emit_mir_call(
+      auto int module_generic_string_emit_call_instruction(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1675,7 +1675,7 @@
               continue;
             }
             if (!strcmp(op, "mir_call") || !strcmp(op, "call") || !strcmp(op, "boxcall")) {
-              if (!module_generic_string_emit_mir_call(f, block.id, ii, ins)) return 0;
+              if (!module_generic_string_emit_call_instruction(f, block.id, ii, ins)) return 0;
               continue;
             }
             if (!strcmp(op, "externcall")) {

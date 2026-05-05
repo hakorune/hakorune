@@ -151,6 +151,8 @@ Completed focused probe:
     after method and extern family checks
   - P381DG moved module-generic call-instruction prepass payload/view routing
     behind one helper
+  - P381DH aligned module-generic emit-side call instruction helper naming
+    with the prepass call-instruction entry
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

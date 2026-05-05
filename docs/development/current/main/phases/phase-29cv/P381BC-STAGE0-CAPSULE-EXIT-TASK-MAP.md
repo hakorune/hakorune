@@ -324,6 +324,11 @@ Module-generic prepass call-instruction helper cleanup landed in
 call-instruction payload/view reads and family helper ordering now have one
 prepass entry.
 
+Module-generic emit call-instruction helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DH-MODULE-GENERIC-EMIT-CALL-INSTRUCTION-HELPER.md`:
+emit-side `mir_call`/`call`/`boxcall` handling now uses the same
+call-instruction helper vocabulary as prepass.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
