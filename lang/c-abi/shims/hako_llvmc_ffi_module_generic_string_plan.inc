@@ -102,7 +102,7 @@
         return 0;
       }
 
-      auto int plan_same_module_function_definition_edges(yyjson_val* fn) {
+      auto int plan_function_global_call_definition_edges(yyjson_val* fn) {
         int planned = 0;
         yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
         yyjson_val* entries = metadata ? yyjson_obj_get(metadata, "lowering_plan") : NULL;
@@ -134,13 +134,13 @@
       }
 
       auto int plan_same_module_function_definitions(void) {
-        int planned = plan_same_module_function_definition_edges(program.entry.fn);
+        int planned = plan_function_global_call_definition_edges(program.entry.fn);
         size_t cursor = 0;
         if (planned < 0) return -1;
         while (cursor < planned_same_module_function_symbols_n) {
           const char* symbol = planned_same_module_function_symbols[cursor++];
           yyjson_val* fn = same_module_function_find(symbol);
-          int rc = plan_same_module_function_definition_edges(fn);
+          int rc = plan_function_global_call_definition_edges(fn);
           if (rc < 0) return -1;
           planned += rc;
         }

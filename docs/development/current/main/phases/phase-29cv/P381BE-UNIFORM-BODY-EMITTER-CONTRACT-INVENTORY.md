@@ -232,6 +232,9 @@ Completed focused probe:
     available
   - P381EP renamed the same-module prepass global-call definition helper to an
     owner-neutral `global_call_definition_prepass_view`
+  - P381EQ renamed the per-function definition-set scan to
+    `plan_function_global_call_definition_edges`, matching its module-generic,
+    uniform-MIR, generic-i64, and leaf planning duties
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

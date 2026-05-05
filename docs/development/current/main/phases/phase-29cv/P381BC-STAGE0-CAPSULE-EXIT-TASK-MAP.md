@@ -493,6 +493,11 @@ Global-call definition prepass naming cleanup landed in
 the same-module emitter prepass helper now uses an owner-neutral name for
 module-generic, uniform-MIR, and leaf definition facts.
 
+Global-call definition edge planner naming cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EQ-GLOBAL-CALL-DEFINITION-EDGE-PLANNER-NAME.md`:
+the transitive definition-set scan now names the per-function walk as
+global-call definition edges, including leaf and same-module destinations.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
