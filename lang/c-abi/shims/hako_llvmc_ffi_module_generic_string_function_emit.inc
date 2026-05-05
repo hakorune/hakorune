@@ -610,6 +610,16 @@
         return 0;
       }
 
+      auto int module_generic_string_prepass_print_global_call_surface(
+          const char* ctype,
+          const char* mname,
+          yyjson_val* args) {
+        return ctype && !strcmp(ctype, "Global") &&
+               classify_mir_call_global_surface(mname) ==
+                   HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT &&
+               args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1;
+      }
+
       auto int module_generic_string_prepass_global_call_view(
           const char* ctype,
           const char* mname,
@@ -619,10 +629,10 @@
         if (same_module_function_prepass_global_call_definition_view(dst, global_view)) {
           return 1;
         }
-        if (ctype && !strcmp(ctype, "Global") &&
-            classify_mir_call_global_surface(mname) ==
-                HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT &&
-            args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1) {
+        if (module_generic_string_prepass_print_global_call_surface(
+                ctype,
+                mname,
+                args)) {
           return 1;
         }
         return 0;

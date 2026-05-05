@@ -218,6 +218,8 @@ Completed focused probe:
     owner families
   - P381EJ renamed the `uniform_mir` metadata helper so it uses the same
     `uses_*_definition` vocabulary as the other owner-family helpers
+  - P381EK split the legacy print fallback behind a local module-generic
+    prepass helper, leaving same-module definition facts separated
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions
