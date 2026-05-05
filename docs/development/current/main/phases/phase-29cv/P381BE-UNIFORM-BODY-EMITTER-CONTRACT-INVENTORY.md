@@ -39,7 +39,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 | `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | selected same-module body uses `definition_owner=uniform_mir`; Stage0 consumes it through the shared function emitter | `global_call_route_plan::tests::void_logging`, runner MIR JSON void-logging tests |
 | `ParserProgramJsonBody` | superseded by P381BN: `typed_global_call_parser_program_json` / `target_shape=null` | `string_handle` / `runtime_i64_or_handle` | `result_origin=string` from P381CG LoweringPlan metadata | parser-only body emitter removed by P381CD; planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
 | `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `result_origin=array_string_birth` from P381CG LoweringPlan metadata | selected-kind registry and push fallback removed by P381CE; planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
-| `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `result_origin=map_birth` from P381CG LoweringPlan metadata | planned as a generic module symbol through the shared P381CF module-generic helper | `global_call_route_plan::tests::mir_schema_map_constructor` |
+| `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `result_origin=map_birth` from P381CG LoweringPlan metadata | selected same-module body uses `definition_owner=uniform_mir`; Stage0 consumes it through the shared function emitter | `global_call_route_plan::tests::mir_schema_map_constructor`, runner MIR JSON mir-schema map tests |
 | `BoxTypeInspectorDescribeBody` | superseded by P381BO: `typed_global_call_box_type_inspector_describe` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `result_origin=map_birth` from P381CG LoweringPlan metadata | active source-owner callers already use scalar predicates; backend body is selected by the same-module function set with `definition_owner=uniform_mir` | `global_call_route_plan::tests::box_type_inspector_describe`, runner MIR JSON box-type-inspector tests |
 | `PatternUtilLocalValueProbeBody` | superseded by P381BP: `typed_global_call_pattern_util_local_value_probe` / `target_shape=null` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | child-probe recognition uses proof/return facts; backend body is selected by the same-module function set with `definition_owner=uniform_mir` | `global_call_route_plan::tests::pattern_util_local_value_probe`, runner MIR JSON pattern-util tests |
 
@@ -205,6 +205,9 @@ Completed focused probe:
     coverage
   - P381EE added runner MIR JSON owner/trace coverage for
     `GenericStringVoidLoggingBody` and updated its stale inventory row to the
+    uniform MIR owner contract
+  - P381EF added runner MIR JSON owner/trace coverage for
+    `MirSchemaMapConstructorBody` and updated its stale inventory row to the
     uniform MIR owner contract
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
