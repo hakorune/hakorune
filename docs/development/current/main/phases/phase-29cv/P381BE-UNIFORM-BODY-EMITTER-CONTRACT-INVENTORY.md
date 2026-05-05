@@ -186,8 +186,11 @@ Completed focused probe:
     `StaticStringArrayBody`, and `MirSchemaMapConstructorBody`) to
     `definition_owner=uniform_mir` while keeping selected body planning through
     the shared Stage0 function emitter
-  - capsule-specific proof readers remain only for route-contract parsing and
-    Rust-owned proof serialization
+  - P381DX centralized Stage0 typed global-call proof validation behind one
+    LoweringPlan metadata helper shared by entry and parsed-view consumers
+  - capsule proof strings remain as MIR-owned route-contract serialization;
+    Stage0 now consumes them through shared metadata validation instead of
+    per-proof reader functions
 
 No target-shape-only capsule remains. Remaining work is body/source-owner
 cleanup and uniform emitter consolidation.

@@ -169,85 +169,26 @@
         return proof && !strcmp(proof, "extern_registry");
       }
 
-      auto int lowering_plan_entry_is_typed_global_call_contract_missing(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_contract_missing");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_leaf_numeric_i64(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_leaf_numeric_i64");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_generic_pure_string(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_generic_pure_string");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_generic_string_or_void_sentinel(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_generic_string_or_void_sentinel");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_generic_string_void_logging(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_generic_string_void_logging");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_generic_i64(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_generic_i64");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_parser_program_json(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_parser_program_json");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_static_string_array(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_static_string_array");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_mir_schema_map_constructor(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_mir_schema_map_constructor");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_box_type_inspector_describe(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_box_type_inspector_describe");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_pattern_util_local_value_probe(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_pattern_util_local_value_probe");
+      auto int lowering_plan_proof_is_typed_global_call_contract(
+          const char* proof) {
+        return proof &&
+               (!strcmp(proof, "typed_global_call_contract_missing") ||
+                !strcmp(proof, "typed_global_call_leaf_numeric_i64") ||
+                !strcmp(proof, "typed_global_call_generic_pure_string") ||
+                !strcmp(proof, "typed_global_call_generic_string_or_void_sentinel") ||
+                !strcmp(proof, "typed_global_call_generic_string_void_logging") ||
+                !strcmp(proof, "typed_global_call_generic_i64") ||
+                !strcmp(proof, "typed_global_call_parser_program_json") ||
+                !strcmp(proof, "typed_global_call_static_string_array") ||
+                !strcmp(proof, "typed_global_call_mir_schema_map_constructor") ||
+                !strcmp(proof, "typed_global_call_box_type_inspector_describe") ||
+                !strcmp(proof, "typed_global_call_pattern_util_local_value_probe"));
       }
 
       auto int lowering_plan_entry_is_typed_global_call_contract(
           yyjson_val* entry) {
-        return lowering_plan_entry_is_typed_global_call_contract_missing(entry) ||
-               lowering_plan_entry_is_typed_global_call_leaf_numeric_i64(entry) ||
-               lowering_plan_entry_is_typed_global_call_generic_pure_string(entry) ||
-               lowering_plan_entry_is_typed_global_call_generic_string_or_void_sentinel(entry) ||
-               lowering_plan_entry_is_typed_global_call_generic_string_void_logging(entry) ||
-               lowering_plan_entry_is_typed_global_call_generic_i64(entry) ||
-               lowering_plan_entry_is_typed_global_call_parser_program_json(entry) ||
-               lowering_plan_entry_is_typed_global_call_static_string_array(entry) ||
-               lowering_plan_entry_is_typed_global_call_mir_schema_map_constructor(entry) ||
-               lowering_plan_entry_is_typed_global_call_box_type_inspector_describe(entry) ||
-               lowering_plan_entry_is_typed_global_call_pattern_util_local_value_probe(entry);
+        return lowering_plan_proof_is_typed_global_call_contract(
+            read_str(entry, "proof"));
       }
 
       auto int read_lowering_plan_generic_method_view(
@@ -412,18 +353,7 @@
                !strcmp(view->core_op, "UserGlobalCall") &&
                view->route_kind &&
                !strcmp(view->route_kind, "global.user_call") &&
-               view->proof &&
-               (!strcmp(view->proof, "typed_global_call_contract_missing") ||
-                !strcmp(view->proof, "typed_global_call_leaf_numeric_i64") ||
-                !strcmp(view->proof, "typed_global_call_generic_pure_string") ||
-                !strcmp(view->proof, "typed_global_call_generic_string_or_void_sentinel") ||
-                 !strcmp(view->proof, "typed_global_call_generic_string_void_logging") ||
-                 !strcmp(view->proof, "typed_global_call_parser_program_json") ||
-                 !strcmp(view->proof, "typed_global_call_static_string_array") ||
-                 !strcmp(view->proof, "typed_global_call_mir_schema_map_constructor") ||
-                 !strcmp(view->proof, "typed_global_call_box_type_inspector_describe") ||
-                 !strcmp(view->proof, "typed_global_call_pattern_util_local_value_probe") ||
-                 !strcmp(view->proof, "typed_global_call_generic_i64")) &&
+               lowering_plan_proof_is_typed_global_call_contract(view->proof) &&
                view->target_exists &&
                view->has_target_arity &&
                view->has_arity_matches &&

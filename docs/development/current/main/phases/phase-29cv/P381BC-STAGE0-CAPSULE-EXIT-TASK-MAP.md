@@ -399,6 +399,11 @@ Phase1 uniform definition-owner cleanup landed in
 the four direct-only retired capsules now serialize `definition_owner=uniform_mir`
 while preserving proof, return, origin, and selected body planning contracts.
 
+LoweringPlan global-call proof helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DX-LOWERING-PLAN-GLOBAL-CALL-PROOF-HELPER.md`:
+Stage0 C metadata now validates typed global-call proof strings through one
+shared helper for entry and parsed-view consumers.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
