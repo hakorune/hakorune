@@ -1106,6 +1106,8 @@
         int is_mir_json_function_field_get = 0;
         int is_mir_json_module_field_get = 0;
         int is_mir_json_flags_rec_map_get = 0;
+        int is_array_load = 0;
+        const char* helper_symbol = NULL;
         (void)f;
         ab[0] = '\0';
         if (read_lowering_plan_generic_method_view(entry, &method_view)) {
@@ -1165,26 +1167,25 @@
               is_mir_json_function_field_get ||
               is_mir_json_module_field_get ||
               is_mir_json_flags_rec_map_get)) return 0;
+        is_array_load = is_array_get ||
+                        is_mir_json_block_inst_array_item_get ||
+                        is_mir_json_effects_array_item_get ||
+                        is_mir_json_function_block_array_item_get ||
+                        is_mir_json_module_function_array_item_get ||
+                        is_mir_json_params_array_item_get ||
+                        is_mir_json_phi_incoming_array_item_get ||
+                        is_mir_json_phi_incoming_pair_scalar_get ||
+                        is_mir_json_vid_array_item_get ||
+                        is_mir_json_flags_rec_array_get;
+        helper_symbol = is_array_load
+                            ? "nyash.array.slot_load_hi"
+                            : "nyash.runtime_data.get_hh";
         if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
         if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
         if (dst) {
-          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n",
-               dst,
-               (is_array_get ||
-                is_mir_json_block_inst_array_item_get ||
-                is_mir_json_effects_array_item_get ||
-                is_mir_json_function_block_array_item_get ||
-                is_mir_json_module_function_array_item_get ||
-                is_mir_json_params_array_item_get ||
-                is_mir_json_phi_incoming_array_item_get ||
-                is_mir_json_phi_incoming_pair_scalar_get ||
-                is_mir_json_vid_array_item_get ||
-                is_mir_json_flags_rec_array_get)
-                   ? "nyash.array.slot_load_hi"
-                   : "nyash.runtime_data.get_hh",
-               ab);
+          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, helper_symbol, ab);
           set_type(dst, T_I64);
           if (is_mir_json_module_function_array_item_get) {
             set_origin(dst, ORG_MAP_BIRTH);
@@ -1244,20 +1245,7 @@
             }
           }
         } else {
-          EMIT("  call i64 @\"%s\"(%s)\n",
-               (is_array_get ||
-                is_mir_json_block_inst_array_item_get ||
-               is_mir_json_effects_array_item_get ||
-               is_mir_json_function_block_array_item_get ||
-               is_mir_json_module_function_array_item_get ||
-               is_mir_json_params_array_item_get ||
-               is_mir_json_phi_incoming_array_item_get ||
-               is_mir_json_phi_incoming_pair_scalar_get ||
-               is_mir_json_vid_array_item_get ||
-               is_mir_json_flags_rec_array_get)
-                   ? "nyash.array.slot_load_hi"
-                   : "nyash.runtime_data.get_hh",
-               ab);
+          EMIT("  call i64 @\"%s\"(%s)\n", helper_symbol, ab);
         }
         return 1;
       }
