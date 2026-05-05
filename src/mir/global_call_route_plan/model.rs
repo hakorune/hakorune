@@ -37,7 +37,6 @@ pub enum GlobalCallTargetShape {
     GenericPureStringBody,
     GenericStringOrVoidSentinelBody,
     GenericI64Body,
-    BoxTypeInspectorDescribeBody,
     PatternUtilLocalValueProbeBody,
 }
 
@@ -95,7 +94,6 @@ impl GlobalCallProof {
                 Self::GenericStringOrVoidSentinel
             }
             GlobalCallTargetShape::GenericI64Body => Self::GenericI64,
-            GlobalCallTargetShape::BoxTypeInspectorDescribeBody => Self::BoxTypeInspectorDescribe,
             GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
                 Self::PatternUtilLocalValueProbe
             }
@@ -146,7 +144,6 @@ impl GlobalCallTargetShape {
             Self::GenericPureStringBody => "generic_pure_string_body",
             Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
             Self::GenericI64Body => "generic_i64_body",
-            Self::BoxTypeInspectorDescribeBody => "box_type_inspector_describe_body",
             Self::PatternUtilLocalValueProbeBody => "pattern_util_local_value_probe_body",
         }
     }
@@ -160,7 +157,6 @@ impl GlobalCallTargetShape {
             Self::GenericStringOrVoidSentinelBody => {
                 Some(GlobalCallReturnContract::StringHandleOrNull)
             }
-            Self::BoxTypeInspectorDescribeBody => Some(GlobalCallReturnContract::MapHandle),
             Self::PatternUtilLocalValueProbeBody => {
                 Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
             }

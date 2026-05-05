@@ -182,8 +182,9 @@ fn classify_global_call_target_shape(
         if let Some(reject) = box_type_inspector_describe_body_reject_reason(function) {
             return GlobalCallTargetClassification::unknown(reject.reason);
         }
-        return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::BoxTypeInspectorDescribeBody,
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::BoxTypeInspectorDescribe,
+            GlobalCallReturnContract::MapHandle,
         );
     }
     if is_mir_schema_map_constructor_body_candidate(function, targets) {

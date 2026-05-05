@@ -34,8 +34,10 @@ Audited results:
 - `MirSchemaMapConstructorBody`: superseded by P381BM
   - `map_handle` + `ORG_MAP_BIRTH` semantics now live in the proof/return
     contract rather than a target-shape variant
-- `BoxTypeInspectorDescribeBody`: blocked
-  - P201 explicitly kept it separate from the schema-map capsule
+- `BoxTypeInspectorDescribeBody`: superseded by P381BO
+  - `map_handle` + `ORG_MAP_BIRTH` semantics now live in the proof/return
+    contract rather than a target-shape variant; active source-owner callers
+    already use scalar predicates
 - `ParserProgramJsonBody`: superseded by P381BN
   - `string_handle` + `ORG_STRING` semantics now live in the proof/return
     contract rather than a target-shape variant; the dedicated body emitter

@@ -70,13 +70,13 @@ Retired capsule contracts:
 | `StaticStringArrayBody` | retired as a shape in P381BL; direct ABI truth now lives in `proof=typed_global_call_static_string_array` plus `return_shape=array_handle` |
 | `MirSchemaMapConstructorBody` | retired as a shape in P381BM; direct ABI truth now lives in `proof=typed_global_call_mir_schema_map_constructor` plus `return_shape=map_handle` |
 | `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; dedicated body emission remains a later cleanup |
+| `BoxTypeInspectorDescribeBody` | retired as a shape in P381BO; direct ABI truth now lives in `proof=typed_global_call_box_type_inspector_describe` plus `return_shape=map_handle`; active source-owner callers already use scalar predicates |
 
 Current temporary capsules from the Stage0 shape inventory:
 
 | Capsule | Reading |
 | --- | --- |
 | `GenericStringOrVoidSentinelBody` | source-owner cleanup first unless uniform body emission can carry the sentinel contract cleanly |
-| `BoxTypeInspectorDescribeBody` | source-owner scalar predicate cleanup first |
 | `PatternUtilLocalValueProbeBody` | source-owner text/scalar cleanup first |
 
 Permanent or permanent-candidate shapes remain:
@@ -158,9 +158,10 @@ Acceptance must include:
 
 ### T3: Origin-Carrying Capsule Retirements
 
-Status: target-shape retirements landed for `MirSchemaMapConstructorBody` and
-`ParserProgramJsonBody`. Parser Program(JSON) still has a dedicated body emitter
-that belongs to T5/uniform-emitter cleanup, not another target-shape variant.
+Status: target-shape retirements landed for `MirSchemaMapConstructorBody`,
+`ParserProgramJsonBody`, and `BoxTypeInspectorDescribeBody`. Parser
+Program(JSON) and BoxTypeInspector describe still have dedicated body emitters
+that belong to T5/uniform-emitter cleanup, not another target-shape variant.
 
 
 Do not remove a shape until the origin/return contract is represented without
@@ -172,8 +173,7 @@ the fact first and keep the deletion in a later card.
 Keep these as source-owner cleanup tasks before uniform emitter deletion:
 
 1. `GenericStringOrVoidSentinelBody`
-2. `BoxTypeInspectorDescribeBody`
-3. `PatternUtilLocalValueProbeBody`
+2. `PatternUtilLocalValueProbeBody`
 
 These are not "shape delete only" tasks. Each must remove or simplify the
 source-owner plumbing that forced Stage0 to carry the temporary capsule.

@@ -545,8 +545,6 @@
                !strcmp(view->proof, "typed_global_call_box_type_inspector_describe") &&
                view->route_proof &&
                !strcmp(view->route_proof, "typed_global_call_box_type_inspector_describe") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "box_type_inspector_describe_body") &&
                view->return_shape &&
                !strcmp(view->return_shape, "map_handle") &&
                view->value_demand &&

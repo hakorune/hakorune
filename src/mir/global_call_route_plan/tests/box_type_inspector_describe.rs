@@ -260,7 +260,7 @@ fn box_type_inspector_describe_typed_phi_function(name: &str) -> MirFunction {
 }
 
 #[test]
-fn refresh_module_global_call_routes_accepts_box_type_inspector_describe_body() {
+fn refresh_module_global_call_routes_accepts_box_type_inspector_describe_contract() {
     let mut module = MirModule::new("global_call_box_type_inspector_describe_test".to_string());
     let caller = make_function_with_global_call_args(
         "BoxTypeInspectorBox._describe/1",
@@ -278,7 +278,7 @@ fn refresh_module_global_call_routes_accepts_box_type_inspector_describe_body() 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("box_type_inspector_describe_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -315,7 +315,7 @@ fn refresh_module_global_call_routes_prioritizes_box_type_inspector_over_broad_m
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("box_type_inspector_describe_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -347,7 +347,7 @@ fn refresh_module_global_call_routes_accepts_box_type_inspector_typed_phi_facts(
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("box_type_inspector_describe_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),

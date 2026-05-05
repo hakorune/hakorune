@@ -57,8 +57,8 @@ Not allowed:
 - add a replacement target-shape variant
 - infer MIR schema map semantics from a source owner name in Stage0
 - weaken `map_handle` / origin propagation checks
-- merge this with `BoxTypeInspectorDescribeBody`, which intentionally remains
-  a separate source-owner capsule
+- merge this with the BoxTypeInspector describe route; P381BO later retired its
+  target-shape variant, but it remains a separate proof/body-emission contract
 
 ## Acceptance
 
