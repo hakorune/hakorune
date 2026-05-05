@@ -375,6 +375,10 @@ Module-generic function emit pipeline cleanup landed in
 function definition emission now delegates active-context prepass and body
 emission through one pipeline helper.
 
+Module-generic function eligibility helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DS-MODULE-GENERIC-FUNCTION-ELIGIBILITY-HELPER.md`:
+function definition entry now delegates eligibility checks through one helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

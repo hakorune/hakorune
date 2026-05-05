@@ -173,6 +173,8 @@ Completed focused probe:
     named transition helper
   - P381DR moved module-generic active-context prepass/body emission behind one
     function pipeline helper
+  - P381DS moved module-generic function definition eligibility checks behind
+    one definition-entry helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

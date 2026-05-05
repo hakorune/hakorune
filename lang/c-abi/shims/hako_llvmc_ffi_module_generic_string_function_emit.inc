@@ -1870,14 +1870,9 @@
         return remember_emitted_module_generic_string_symbol(name) ? 1 : -1;
       }
 
-      auto int emit_generic_pure_string_function_definition(
-          FILE* f,
+      auto int module_generic_string_function_definition_is_eligible(
           yyjson_val* fn,
-          size_t fn_index) {
-        struct ModuleGenericStringFunctionContextSnapshot saved_context;
-        hako_llvmc_generic_pure_function_view local_function;
-        const char* name = fn ? read_str(fn, "name") : NULL;
-        int rc = -1;
+          const char* name) {
         if (!name ||
             !llvm_quoted_symbol_name_is_safe(name) ||
             !module_generic_symbol_will_be_defined(name) ||
@@ -1886,6 +1881,20 @@
         }
         if (module_function_is_numeric_i64_leaf(fn) &&
             module_leaf_symbol_will_be_defined(name)) {
+          return 0;
+        }
+        return 1;
+      }
+
+      auto int emit_generic_pure_string_function_definition(
+          FILE* f,
+          yyjson_val* fn,
+          size_t fn_index) {
+        struct ModuleGenericStringFunctionContextSnapshot saved_context;
+        hako_llvmc_generic_pure_function_view local_function;
+        const char* name = fn ? read_str(fn, "name") : NULL;
+        int rc = -1;
+        if (!module_generic_string_function_definition_is_eligible(fn, name)) {
           return 0;
         }
         if (!hako_llvmc_read_generic_pure_function_view(

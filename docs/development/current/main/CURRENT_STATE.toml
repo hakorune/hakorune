@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381DR-MODULE-GENERIC-FUNCTION-EMIT-PIPELINE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381DR-MODULE-GENERIC-FUNCTION-EMIT-PIPELINE.md"
-latest_card_summary = "Module-generic function definition shell now delegates active-context prepass and body emission through one pipeline helper."
+latest_card = "P381DS-MODULE-GENERIC-FUNCTION-ELIGIBILITY-HELPER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381DS-MODULE-GENERIC-FUNCTION-ELIGIBILITY-HELPER.md"
+latest_card_summary = "Module-generic function definition shell now delegates definition-entry eligibility checks through one helper."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
