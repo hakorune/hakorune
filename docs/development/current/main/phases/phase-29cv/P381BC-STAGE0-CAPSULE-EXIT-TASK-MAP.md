@@ -222,6 +222,12 @@ Len helper-symbol cleanup landed in
 the len emitter now computes the string/array helper symbol once after route
 acceptance and reuses it across the `dst`/non-`dst` emission split.
 
+I64 call emit helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381BY-MODULE-GENERIC-I64-CALL-EMIT-HELPER-CLEANUP.md`:
+array push, string needle calls, len, substring, get, keys, and map set now
+share optional-`dst` i64 call emission while keeping route-specific metadata
+publication in each emitter.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

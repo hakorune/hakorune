@@ -130,6 +130,18 @@
         return 1;
       }
 
+      auto void module_generic_string_emit_i64_call(
+          long long dst,
+          const char* symbol,
+          const char* args) {
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, symbol, args);
+          set_type(dst, T_I64);
+        } else {
+          EMIT("  call i64 @\"%s\"(%s)\n", symbol, args);
+        }
+      }
+
       auto void module_generic_string_emit_array_slot_append_call(
           long long dst,
           long long recv,
@@ -138,12 +150,7 @@
         ab[0] = '\0';
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), value, 0);
-        if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-        } else {
-          EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
-        }
+        module_generic_string_emit_i64_call(dst, "nyash.array.slot_append_hh", ab);
       }
 
       auto int module_generic_string_emit_string_needle_i64_call(
@@ -159,12 +166,7 @@
         ab[0] = '\0';
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), needle, 0);
-        if (dst) {
-          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, symbol, ab);
-          set_type(dst, T_I64);
-        } else {
-          EMIT("  call i64 @\"%s\"(%s)\n", symbol, ab);
-        }
+        module_generic_string_emit_i64_call(dst, symbol, ab);
         return 1;
       }
 
@@ -970,12 +972,9 @@
         }
         helper_symbol = is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_fast_h";
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        module_generic_string_emit_i64_call(dst, helper_symbol, ab);
         if (dst) {
-          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, helper_symbol, ab);
-          set_type(dst, T_I64);
           if (is_string_len) remember_string_length_call(dst, recv);
-        } else {
-          EMIT("  call i64 @\"%s\"(%s)\n", helper_symbol, ab);
         }
         return 1;
       }
@@ -1022,14 +1021,11 @@
               bid,
               ii);
         }
+        module_generic_string_emit_i64_call(dst, "nyash.string.substring_hii", ab);
         if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.string.substring_hii\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
           remember_string_substring_call(dst, recv, start, recorded_end);
-        } else {
-          EMIT("  call i64 @\"nyash.string.substring_hii\"(%s)\n", ab);
         }
         return 1;
       }
@@ -1179,9 +1175,8 @@
         if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
+        module_generic_string_emit_i64_call(dst, helper_symbol, ab);
         if (dst) {
-          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, helper_symbol, ab);
-          set_type(dst, T_I64);
           if (is_mir_json_module_function_array_item_get) {
             set_origin(dst, ORG_MAP_BIRTH);
             set_scan_origin(dst, ORG_MAP_BIRTH);
@@ -1239,8 +1234,6 @@
               set_scan_origin(dst, ORG_MAP_BIRTH);
             }
           }
-        } else {
-          EMIT("  call i64 @\"%s\"(%s)\n", helper_symbol, ab);
         }
         return 1;
       }
@@ -1263,13 +1256,10 @@
         }
         if (args && yyjson_is_arr(args) && yyjson_arr_size(args) != 0) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        module_generic_string_emit_i64_call(dst, "nyash.map.keys_h", ab);
         if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.map.keys_h\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
           set_origin(dst, ORG_ARRAY_BIRTH);
           set_scan_origin(dst, ORG_ARRAY_BIRTH);
-        } else {
-          EMIT("  call i64 @\"nyash.map.keys_h\"(%s)\n", ab);
         }
         return 1;
       }
@@ -1308,12 +1298,7 @@
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
         append_i64_arg_ref(ab, sizeof(ab), value, 0);
-        if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-        } else {
-          EMIT("  call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab);
-        }
+        module_generic_string_emit_i64_call(dst, "nyash.map.slot_store_hhh", ab);
         return 1;
       }
 
