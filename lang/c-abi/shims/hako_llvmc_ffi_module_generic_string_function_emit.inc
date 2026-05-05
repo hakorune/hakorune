@@ -29,6 +29,18 @@
                base_scan == ORG_ARRAY_STRING_BIRTH;
       }
 
+      auto void module_generic_string_promote_array_string_push(
+          long long recv,
+          long long value) {
+        if (!module_generic_string_value_is_string(value)) return;
+        promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+        promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+        if (recv) {
+          set_origin(recv, ORG_ARRAY_STRING_BIRTH);
+          set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
+        }
+      }
+
       auto int module_generic_string_active_function_is_static_string_array(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return module_generic_symbol_is_static_string_array(name);
@@ -96,6 +108,25 @@
                             : NULL;
         if (!(val && yyjson_is_num(val))) return 0;
         if (out) *out = (long long)yyjson_get_sint(val);
+        return 1;
+      }
+
+      auto int module_generic_string_read_array_push_value(
+          yyjson_val* args,
+          long long* out_value) {
+        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
+        long long value = 0;
+        if (argc == 1) {
+          if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
+        } else if (argc == 2) {
+          long long recv_arg = 0;
+          if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
+          if (!module_generic_string_value_is_array(recv_arg)) return 0;
+          if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
+        } else {
+          return 0;
+        }
+        if (out_value) *out_value = value;
         return 1;
       }
 
@@ -397,49 +428,19 @@
                          module_generic_string_method_view_is_direct_array_push(&method_view)) {
                 long long recv = module_generic_string_call_receiver(op, cal);
                 long long value = 0;
-                size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
                 if (dst) set_type(dst, T_I64);
-                if (argc == 1) {
-                  if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
-                } else if (argc == 2) {
-                  long long recv_arg = 0;
-                  if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
-                  if (!module_generic_string_value_is_array(recv_arg)) return 0;
-                  if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
-                } else {
-                  return 0;
-                }
-                if (module_generic_string_value_is_string(value)) {
-                  promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                  promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                  if (recv) {
-                    set_origin(recv, ORG_ARRAY_STRING_BIRTH);
-                    set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
-                  }
-                }
+                if (!module_generic_string_read_array_push_value(args, &value)) return 0;
+                module_generic_string_promote_array_string_push(recv, value);
               } else if (module_generic_string_active_function_is_static_string_array() &&
                          ctype && !strcmp(ctype, "Method") &&
                          mname && !strcmp(mname, "push")) {
                 long long recv = module_generic_string_call_receiver(op, cal);
                 long long value = 0;
-                size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
-                if (argc == 1) {
-                  if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
-                } else if (argc == 2) {
-                  long long recv_arg = 0;
-                  if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
-                  if (!module_generic_string_value_is_array(recv_arg)) return 0;
-                  if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
-                } else {
-                  return 0;
-                }
+                if (!module_generic_string_read_array_push_value(args, &value)) return 0;
                 if (!module_generic_string_value_is_array(recv) ||
                     !module_generic_string_value_is_string(value)) return 0;
                 if (dst) set_type(dst, T_I64);
-                promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                set_origin(recv, ORG_ARRAY_STRING_BIRTH);
-                set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
+                module_generic_string_promote_array_string_push(recv, value);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_array_get(&method_view)) {
                 set_type(dst, T_I64);
@@ -1011,23 +1012,13 @@
         struct LoweringPlanGenericMethodView method_view;
         char ab[256];
         long long value = 0;
-        (void)f;
         ab[0] = '\0';
+        (void)f;
         if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
               module_generic_string_method_view_is_direct_array_push(&method_view))) {
           return 0;
         }
-        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
-        if (argc == 1) {
-          if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
-        } else if (argc == 2) {
-          long long recv_arg = 0;
-          if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
-          if (!module_generic_string_value_is_array(recv_arg)) return 0;
-          if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
-        } else {
-          return 0;
-        }
+        if (!module_generic_string_read_array_push_value(args, &value)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), value, 0);
         if (dst) {
@@ -1036,14 +1027,7 @@
         } else {
           EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
         }
-        if (module_generic_string_value_is_string(value)) {
-          promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-          promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-          if (recv) {
-            set_origin(recv, ORG_ARRAY_STRING_BIRTH);
-            set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
-          }
-        }
+        module_generic_string_promote_array_string_push(recv, value);
         return 1;
       }
 
@@ -1054,18 +1038,8 @@
           yyjson_val* args) {
         char ab[256];
         long long value = 0;
-        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         if (!module_generic_string_active_function_is_static_string_array()) return 0;
-        if (argc == 1) {
-          if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
-        } else if (argc == 2) {
-          long long recv_arg = 0;
-          if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
-          if (!module_generic_string_value_is_array(recv_arg)) return 0;
-          if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
-        } else {
-          return 0;
-        }
+        if (!module_generic_string_read_array_push_value(args, &value)) return 0;
         if (!module_generic_string_value_is_array(recv) ||
             !module_generic_string_value_is_string(value)) return 0;
         ab[0] = '\0';
@@ -1077,10 +1051,7 @@
         } else {
           EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
         }
-        promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-        promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-        set_origin(recv, ORG_ARRAY_STRING_BIRTH);
-        set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
+        module_generic_string_promote_array_string_push(recv, value);
         return 1;
       }
 

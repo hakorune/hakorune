@@ -196,6 +196,11 @@ parser Program(JSON) dedicated body-emitter deletion is blocked by the live
 two-argument `BuildBox._parse_program_json/2` owner body and must wait for
 source-owner cleanup or a matching MIR-owned two-argument body contract.
 
+Array-push body cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381BT-MODULE-GENERIC-ARRAY-PUSH-HELPER-CLEANUP.md`:
+the generic array-push route and static string array body path now share push
+argument decoding and array-string origin promotion helpers.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
