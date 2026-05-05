@@ -165,6 +165,8 @@
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
+        } else if (lowering_plan_global_call_view_is_uniform_mir_function_candidate(&view)) {
+          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else {
           return -1;
         }
@@ -211,6 +213,8 @@
           trace_lowering_plan_entry_hit(entry, "mir_call_global_box_type_inspector_describe_emit");
         } else if (lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&view)) {
           trace_lowering_plan_entry_hit(entry, "mir_call_global_pattern_util_local_value_probe_emit");
+        } else if (lowering_plan_global_call_view_is_uniform_mir_function_candidate(&view)) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_global_uniform_mir_emit");
         } else if (lowering_plan_global_call_view_is_direct_generic_i64(&view)) {
           trace_lowering_plan_entry_hit(entry, "mir_call_global_generic_i64_emit");
         } else {

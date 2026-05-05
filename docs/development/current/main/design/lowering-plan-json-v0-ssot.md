@@ -444,6 +444,16 @@ a definition in the same LLVM module. Calling a same-module `target_symbol`
 that only has a declaration is forbidden because it externalizes the MIR
 function and hides the missing multi-function emitter.
 
+After P381CA, ny-llvmc may treat a `global.user_call` row with
+`tier=Unsupported`, `emit_kind=unsupported`,
+`proof=typed_global_call_contract_missing`, and
+`reason=missing_multi_function_emitter` as a backend-local uniform MIR
+function candidate only when the same typed view also proves
+`target_exists=true`, `arity_matches=true`, and a safe `target_symbol`. This is
+not a new source-owner body shape and must not publish stronger result origins;
+the selected callee still fail-fasts if its MIR body needs unsupported lowering
+facts.
+
 For `generic_pure_string_body` and `generic_i64_body`, ny-llvmc must seed
 definition emission from the selected entry function and follow only the
 transitive closure of direct generic calls. It must not scan the whole module

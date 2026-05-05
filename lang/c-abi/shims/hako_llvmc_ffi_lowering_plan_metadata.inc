@@ -410,6 +410,20 @@
                llvm_quoted_symbol_name_is_safe(view->target_symbol);
       }
 
+      auto int lowering_plan_global_call_view_is_uniform_mir_function_candidate(
+          const struct LoweringPlanGlobalCallView* view) {
+        return lowering_plan_global_call_view_has_direct_target(view) &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "unsupported") &&
+               view->proof &&
+               !strcmp(view->proof, "typed_global_call_contract_missing") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "typed_global_call_contract_missing") &&
+               view->reason &&
+               !strcmp(view->reason, "missing_multi_function_emitter");
+      }
+
       auto int lowering_plan_global_call_view_is_direct_leaf_i64(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
