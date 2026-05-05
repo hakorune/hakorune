@@ -92,8 +92,9 @@ variant. MIR still records them as direct ABI targets with
 `return_shape=map_handle`; `target_shape` is omitted because the proof/return
 contract is now the SSOT for this retired source-owner capsule. The active
 source-owner consumers already use scalar predicates (`is_map` / `is_array`);
-the legacy map-return describe body remains only as a direct ABI body until the
-later uniform multi-function emitter cleanup.
+Stage0 now plans, emits, traces, and propagates the map origin through the
+shared module-generic LoweringPlan helpers instead of a describe-specific
+call-site branch.
 
 PatternUtil local-value probe direct calls are no longer a
 `GlobalCallTargetShape` variant. MIR still records them as direct ABI targets
@@ -101,7 +102,9 @@ with `proof=typed_global_call_pattern_util_local_value_probe` and
 `return_shape=mixed_runtime_i64_or_handle`; `target_shape` is omitted because
 the proof/return contract is now the SSOT for this retired mixed
 scalar/handle capsule. Recursive child-probe recognition also consumes the
-proof/return contract instead of the legacy shape string.
+proof/return contract instead of the legacy shape string. Stage0 plans and
+emits the backend body through the shared module-generic LoweringPlan helpers
+instead of a pattern-probe-specific call-site branch.
 
 Generic string-or-void sentinel direct calls are no longer a
 `GlobalCallTargetShape` variant. MIR still records them as direct ABI targets

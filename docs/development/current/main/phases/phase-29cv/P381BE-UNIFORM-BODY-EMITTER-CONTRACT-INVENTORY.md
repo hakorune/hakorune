@@ -35,26 +35,29 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 
 | Capsule | Proof / target shape | Return / demand | Result origin side effect | Selected-set / body requirement | Current proof surface |
 | --- | --- | --- | --- | --- | --- |
-| `GenericStringOrVoidSentinelBody` | superseded by P381BQ: `typed_global_call_generic_string_or_void_sentinel` / `target_shape=null` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the generic-string direct predicate | planned as a generic module symbol; shares the generic string body path | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
-| `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
-| `ParserProgramJsonBody` | superseded by P381BN: `typed_global_call_parser_program_json` / `target_shape=null` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol; parser-only body emitter removed by P381CD | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
-| `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the static-array contract predicate | planned as a generic module symbol; array append sites use `generic_method.push` route facts after P381CE | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
-| `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` through the MIR-schema map contract predicate | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
-| `BoxTypeInspectorDescribeBody` | superseded by P381BO: `typed_global_call_box_type_inspector_describe` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; active source-owner callers already use scalar predicates; body remains a later uniform-emitter cleanup item | `global_call_route_plan::tests::box_type_inspector_describe` |
-| `PatternUtilLocalValueProbeBody` | superseded by P381BP: `typed_global_call_pattern_util_local_value_probe` / `target_shape=null` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | planned as a generic module symbol; child-probe recognition uses proof/return facts; body remains a later uniform-emitter cleanup item | `global_call_route_plan::tests::pattern_util_local_value_probe` |
+| `GenericStringOrVoidSentinelBody` | superseded by P381BQ: `typed_global_call_generic_string_or_void_sentinel` / `target_shape=null` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the shared P381CF result-origin helper | planned as a generic module symbol through the shared P381CF module-generic helper | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
+| `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol through the shared P381CF module-generic helper | `global_call_route_plan::tests::void_logging` |
+| `ParserProgramJsonBody` | superseded by P381BN: `typed_global_call_parser_program_json` / `target_shape=null` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` through the shared P381CF result-origin helper | parser-only body emitter removed by P381CD; planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
+| `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the shared P381CF result-origin helper | selected-kind registry and push fallback removed by P381CE; planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
+| `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` through the shared P381CF result-origin helper | planned as a generic module symbol through the shared P381CF module-generic helper | `global_call_route_plan::tests::mir_schema_map_constructor` |
+| `BoxTypeInspectorDescribeBody` | superseded by P381BO: `typed_global_call_box_type_inspector_describe` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` through the shared P381CF result-origin helper | active source-owner callers already use scalar predicates; backend body is planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::box_type_inspector_describe` |
+| `PatternUtilLocalValueProbeBody` | superseded by P381BP: `typed_global_call_pattern_util_local_value_probe` / `target_shape=null` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | child-probe recognition uses proof/return facts; backend body is planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::pattern_util_local_value_probe` |
 
 ## Current C-Side Branch Sites
 
-These branches must be checked before deleting any capsule:
+These sites are now centralized by P381CF:
 
 - metadata predicate:
   `hako_llvmc_ffi_lowering_plan_metadata.inc`
 - call emission / origin propagation:
+  shared module-generic and result-origin helpers are consumed by
   `hako_llvmc_ffi_mir_call_shell.inc`
 - selected-set planning:
-  `hako_llvmc_ffi_module_generic_string_plan.inc`
+  `hako_llvmc_ffi_module_generic_string_plan.inc` calls the shared
+  module-generic helper
 - module body prepass and body emission:
-  `hako_llvmc_ffi_module_generic_string_function_emit.inc`
+  `hako_llvmc_ffi_module_generic_string_function_emit.inc` calls the shared
+  module-generic and result-origin helpers
 
 ## Retirement Readiness
 
@@ -91,6 +94,10 @@ Completed focused probe:
     `string_handle_or_null` return-contract facts
   - generic-method string-origin consumers now read proof/return facts instead
     of the legacy shape string
+- C-side call-site consolidation
+  - P381CF moved selected-set planning, result-origin propagation, and global
+    call emission trace selection behind shared LoweringPlan view helpers
+  - capsule-specific proof predicates remain only as metadata readers
 
 No target-shape-only capsule remains. Remaining work is body/source-owner
 cleanup and uniform emitter consolidation.
@@ -106,8 +113,8 @@ Allowed:
 
 Not allowed:
 
-- delete all matching `lowering_plan_global_call_view_is_direct_*` branches at
-  once
+- reintroduce capsule-specific direct-call lists outside the shared P381CF
+  LoweringPlan view helpers
 - remove origin propagation without an equivalent MIR-owned return/origin fact
 - mix source-owner cleanup capsules with the first backend capsule probe
 

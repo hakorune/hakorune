@@ -149,24 +149,10 @@
         if ((long long)argc != view.arity || argc > 64) return -1;
         if (lowering_plan_global_call_view_is_direct_leaf_i64(&view)) {
           if (!module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_direct_generic_string(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_direct_parser_program_json(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_is_direct_generic_i64(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol) &&
               !module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_direct_static_string_array(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_direct_box_type_inspector_describe(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_uniform_mir_function_candidate(&view)) {
+        } else if (lowering_plan_global_call_view_requires_module_generic_definition(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
         } else {
           return -1;
@@ -190,37 +176,10 @@
         } else {
           fprintf(f, "  call i64 @\"%s\"(%s)\n", view.target_symbol, ab);
         }
-        if (lowering_plan_global_call_view_is_direct_generic_string(&view)) {
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_generic_string_emit");
-        } else if (lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(&view)) {
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_generic_string_void_logging_emit");
-        } else if (lowering_plan_global_call_view_is_direct_parser_program_json(&view)) {
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_parser_program_json_emit");
-        } else if (lowering_plan_global_call_view_is_direct_static_string_array(&view)) {
-          set_origin(dst, ORG_ARRAY_STRING_BIRTH);
-          set_scan_origin(dst, ORG_ARRAY_STRING_BIRTH);
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_static_string_array_emit");
-        } else if (lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view)) {
-          set_origin(dst, ORG_MAP_BIRTH);
-          set_scan_origin(dst, ORG_MAP_BIRTH);
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_mir_schema_map_constructor_emit");
-        } else if (lowering_plan_global_call_view_is_direct_box_type_inspector_describe(&view)) {
-          set_origin(dst, ORG_MAP_BIRTH);
-          set_scan_origin(dst, ORG_MAP_BIRTH);
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_box_type_inspector_describe_emit");
-        } else if (lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&view)) {
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_pattern_util_local_value_probe_emit");
-        } else if (lowering_plan_global_call_view_is_uniform_mir_function_candidate(&view)) {
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_uniform_mir_emit");
-        } else if (lowering_plan_global_call_view_is_direct_generic_i64(&view)) {
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_generic_i64_emit");
-        } else {
-          trace_lowering_plan_entry_hit(entry, "mir_call_global_leaf_emit");
-        }
+        mark_global_call_result_origin_from_view(&view, dst);
+        trace_lowering_plan_entry_hit(
+            entry,
+            lowering_plan_global_call_view_emit_trace_consumer(&view));
         return 1;
       }
       auto int lowering_plan_env_get_view_is_valid(

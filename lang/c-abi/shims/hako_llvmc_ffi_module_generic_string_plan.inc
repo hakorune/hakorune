@@ -106,27 +106,9 @@
         for (size_t pi = 0; pi < yyjson_arr_size(entries); pi++) {
           yyjson_val* entry = yyjson_arr_get(entries, pi);
           struct LoweringPlanGlobalCallView view;
-          int is_parser_program_json = 0;
-          int is_static_string_array = 0;
-          int is_mir_schema_map_constructor = 0;
-          int is_box_type_inspector_describe = 0;
-          int is_pattern_util_local_value_probe = 0;
-          int is_uniform_mir_function_candidate = 0;
           yyjson_val* target_fn = NULL;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
           target_fn = module_generic_string_find_function(view.target_symbol);
-          is_parser_program_json =
-              lowering_plan_global_call_view_is_direct_parser_program_json(&view);
-          is_static_string_array =
-              lowering_plan_global_call_view_is_direct_static_string_array(&view);
-          is_mir_schema_map_constructor =
-              lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view);
-          is_box_type_inspector_describe =
-              lowering_plan_global_call_view_is_direct_box_type_inspector_describe(&view);
-          is_pattern_util_local_value_probe =
-              lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&view);
-          is_uniform_mir_function_candidate =
-              lowering_plan_global_call_view_is_uniform_mir_function_candidate(&view);
           if (lowering_plan_global_call_view_is_direct_leaf_i64(&view) ||
               (lowering_plan_global_call_view_is_direct_generic_i64(&view) &&
                module_function_is_numeric_i64_leaf(target_fn))) {
@@ -134,15 +116,7 @@
             planned++;
             continue;
           }
-          if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||
-                 lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(&view) ||
-                 lowering_plan_global_call_view_is_direct_generic_i64(&view) ||
-                 is_parser_program_json ||
-                 is_static_string_array ||
-                 is_mir_schema_map_constructor ||
-                 is_box_type_inspector_describe ||
-                 is_pattern_util_local_value_probe ||
-                 is_uniform_mir_function_candidate)) continue;
+          if (!lowering_plan_global_call_view_requires_module_generic_definition(&view)) continue;
           if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
           planned++;
         }

@@ -580,6 +580,57 @@
                !strcmp(view->value_demand, "runtime_i64_or_handle");
       }
 
+      auto int lowering_plan_global_call_view_uses_module_generic_definition(
+          const struct LoweringPlanGlobalCallView* view) {
+        return lowering_plan_global_call_view_is_direct_generic_string(view) ||
+               lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(view) ||
+               lowering_plan_global_call_view_is_direct_generic_i64(view) ||
+               lowering_plan_global_call_view_is_direct_parser_program_json(view) ||
+               lowering_plan_global_call_view_is_direct_static_string_array(view) ||
+               lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(view) ||
+               lowering_plan_global_call_view_is_direct_box_type_inspector_describe(view) ||
+               lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(view);
+      }
+
+      auto int lowering_plan_global_call_view_requires_module_generic_definition(
+          const struct LoweringPlanGlobalCallView* view) {
+        return lowering_plan_global_call_view_uses_module_generic_definition(view) ||
+               lowering_plan_global_call_view_is_uniform_mir_function_candidate(view);
+      }
+
+      auto int lowering_plan_global_call_view_result_origin_kind(
+          const struct LoweringPlanGlobalCallView* view) {
+        if (lowering_plan_global_call_view_is_direct_generic_string(view) ||
+            lowering_plan_global_call_view_is_direct_parser_program_json(view)) {
+          return ORG_STRING;
+        }
+        if (lowering_plan_global_call_view_is_direct_static_string_array(view)) {
+          return ORG_ARRAY_STRING_BIRTH;
+        }
+        if (lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(view) ||
+            lowering_plan_global_call_view_is_direct_box_type_inspector_describe(view)) {
+          return ORG_MAP_BIRTH;
+        }
+        return ORG_NONE;
+      }
+
+      auto const char* lowering_plan_global_call_view_emit_trace_consumer(
+          const struct LoweringPlanGlobalCallView* view) {
+        if (lowering_plan_global_call_view_is_direct_leaf_i64(view)) {
+          return "mir_call_global_leaf_emit";
+        }
+        if (lowering_plan_global_call_view_is_direct_generic_i64(view)) {
+          return "mir_call_global_generic_i64_emit";
+        }
+        if (lowering_plan_global_call_view_is_uniform_mir_function_candidate(view)) {
+          return "mir_call_global_uniform_mir_emit";
+        }
+        if (lowering_plan_global_call_view_uses_module_generic_definition(view)) {
+          return "mir_call_global_module_generic_emit";
+        }
+        return "mir_call_global_unknown_emit";
+      }
+
       auto void trace_lowering_plan_entry_hit(
           yyjson_val* entry,
           const char* consumer) {

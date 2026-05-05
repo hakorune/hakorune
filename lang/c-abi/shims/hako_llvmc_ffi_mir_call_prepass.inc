@@ -34,6 +34,17 @@
         if (dst) set_scan_origin(dst, ORG_STRING);
       }
 
+      auto void mark_global_call_result_origin_from_view(
+          const struct LoweringPlanGlobalCallView* view,
+          long long dst) {
+        int origin_kind = ORG_NONE;
+        if (!dst || !view) return;
+        origin_kind = lowering_plan_global_call_view_result_origin_kind(view);
+        if (origin_kind == ORG_NONE) return;
+        set_scan_origin(dst, origin_kind);
+        set_origin(dst, origin_kind);
+      }
+
       auto void mark_global_call_result_origin_from_lowering_plan(
           long long bid,
           size_t ii,
@@ -46,22 +57,7 @@
         source = entry ? read_str(entry, "source") : NULL;
         if (!(source && !strcmp(source, "global_call_routes"))) return;
         if (!read_lowering_plan_global_call_view(entry, &view)) return;
-        if (lowering_plan_global_call_view_is_direct_generic_string(&view) ||
-            lowering_plan_global_call_view_is_direct_parser_program_json(&view)) {
-          set_scan_origin(dst, ORG_STRING);
-          set_origin(dst, ORG_STRING);
-          return;
-        }
-        if (lowering_plan_global_call_view_is_direct_static_string_array(&view)) {
-          set_scan_origin(dst, ORG_ARRAY_STRING_BIRTH);
-          set_origin(dst, ORG_ARRAY_STRING_BIRTH);
-          return;
-        }
-        if (lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view) ||
-            lowering_plan_global_call_view_is_direct_box_type_inspector_describe(&view)) {
-          set_scan_origin(dst, ORG_MAP_BIRTH);
-          set_origin(dst, ORG_MAP_BIRTH);
-        }
+        mark_global_call_result_origin_from_view(&view, dst);
       }
 
       auto void scan_mir_call_need_flags(
