@@ -182,144 +182,114 @@
             lowering_plan_global_call_view_emit_trace_consumer(&view));
         return 1;
       }
+      auto int lowering_plan_extern_call_view_is_valid_with(
+          const struct LoweringPlanExternCallView* view,
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          const char* symbol,
+          const char* return_shape,
+          const char* value_demand) {
+        return view &&
+               view->route_id &&
+               route_id &&
+               !strcmp(view->route_id, route_id) &&
+               view->core_op &&
+               core_op &&
+               !strcmp(view->core_op, core_op) &&
+               view->route_kind &&
+               route_kind &&
+               !strcmp(view->route_kind, route_kind) &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "runtime_call") &&
+               view->symbol &&
+               symbol &&
+               !strcmp(view->symbol, symbol) &&
+               view->proof &&
+               !strcmp(view->proof, "extern_registry") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "extern_registry") &&
+               view->return_shape &&
+               return_shape &&
+               !strcmp(view->return_shape, return_shape) &&
+               view->value_demand &&
+               value_demand &&
+               !strcmp(view->value_demand, value_demand) &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+      }
+
       auto int lowering_plan_env_get_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "extern.env.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "EnvGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "extern.env.get") &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.env.get") &&
-               view->proof &&
-               !strcmp(view->proof, "extern_registry") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle_or_null") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return lowering_plan_extern_call_view_is_valid_with(
+            view,
+            "extern.env.get",
+            "EnvGet",
+            "extern.env.get",
+            "nyash.env.get",
+            "string_handle_or_null",
+            "runtime_i64_or_handle");
       }
+
       auto int lowering_plan_env_set_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "extern.env.set") &&
-               view->core_op &&
-               !strcmp(view->core_op, "EnvSet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "extern.env.set") &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.env.set") &&
-               view->proof &&
-               !strcmp(view->proof, "extern_registry") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "scalar_i64") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return lowering_plan_extern_call_view_is_valid_with(
+            view,
+            "extern.env.set",
+            "EnvSet",
+            "extern.env.set",
+            "nyash.env.set",
+            "scalar_i64",
+            "runtime_i64");
       }
+
       auto int lowering_plan_hostbridge_extern_invoke_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "extern.hostbridge.extern_invoke") &&
-               view->core_op &&
-               !strcmp(view->core_op, "HostBridgeExternInvoke") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "extern.hostbridge.extern_invoke") &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.hostbridge.extern_invoke") &&
-               view->proof &&
-               !strcmp(view->proof, "extern_registry") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle_or_null") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return lowering_plan_extern_call_view_is_valid_with(
+            view,
+            "extern.hostbridge.extern_invoke",
+            "HostBridgeExternInvoke",
+            "extern.hostbridge.extern_invoke",
+            "nyash.hostbridge.extern_invoke",
+            "string_handle_or_null",
+            "runtime_i64_or_handle");
       }
+
       auto int lowering_plan_stage1_emit_program_json_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "extern.stage1.emit_program_json_v0") &&
-               view->core_op &&
-               !strcmp(view->core_op, "Stage1EmitProgramJson") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "extern.stage1.emit_program_json_v0") &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.stage1.emit_program_json_v0_h") &&
-               view->proof &&
-               !strcmp(view->proof, "extern_registry") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return lowering_plan_extern_call_view_is_valid_with(
+            view,
+            "extern.stage1.emit_program_json_v0",
+            "Stage1EmitProgramJson",
+            "extern.stage1.emit_program_json_v0",
+            "nyash.stage1.emit_program_json_v0_h",
+            "string_handle",
+            "runtime_i64_or_handle");
       }
+
       auto int lowering_plan_stage1_emit_mir_from_source_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "extern.stage1.emit_mir_from_source_v0") &&
-               view->core_op &&
-               !strcmp(view->core_op, "Stage1EmitMirFromSource") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "extern.stage1.emit_mir_from_source_v0") &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.stage1.emit_mir_from_source_v0_h") &&
-               view->proof &&
-               !strcmp(view->proof, "extern_registry") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return lowering_plan_extern_call_view_is_valid_with(
+            view,
+            "extern.stage1.emit_mir_from_source_v0",
+            "Stage1EmitMirFromSource",
+            "extern.stage1.emit_mir_from_source_v0",
+            "nyash.stage1.emit_mir_from_source_v0_h",
+            "string_handle",
+            "runtime_i64_or_handle");
       }
+
       auto int lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "extern.stage1.emit_mir_from_program_json_v0") &&
-               view->core_op &&
-               !strcmp(view->core_op, "Stage1EmitMirFromProgramJson") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "extern.stage1.emit_mir_from_program_json_v0") &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.stage1.emit_mir_from_program_json_v0_h") &&
-               view->proof &&
-               !strcmp(view->proof, "extern_registry") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return lowering_plan_extern_call_view_is_valid_with(
+            view,
+            "extern.stage1.emit_mir_from_program_json_v0",
+            "Stage1EmitMirFromProgramJson",
+            "extern.stage1.emit_mir_from_program_json_v0",
+            "nyash.stage1.emit_mir_from_program_json_v0_h",
+            "string_handle",
+            "runtime_i64_or_handle");
       }
+
       auto int emit_extern_call_lowering_plan_mir_call(
           FILE* f,
           long long bid,
