@@ -401,7 +401,7 @@
                lowering_plan_global_call_view_definition_owner_is(view, "generic_i64_or_leaf");
       }
 
-      auto int lowering_plan_global_call_view_uses_module_generic_definition(
+      auto int lowering_plan_global_call_view_uses_module_generic_or_i64_definition(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
                (lowering_plan_global_call_view_definition_owner_is(view, "module_generic") ||
@@ -410,7 +410,7 @@
 
       auto int lowering_plan_global_call_view_requires_same_module_function_definition(
           const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_uses_module_generic_definition(view) ||
+        return lowering_plan_global_call_view_uses_module_generic_or_i64_definition(view) ||
                lowering_plan_global_call_view_is_uniform_mir_function_candidate(view);
       }
 

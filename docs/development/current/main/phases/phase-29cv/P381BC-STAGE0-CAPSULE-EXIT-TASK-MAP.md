@@ -454,6 +454,11 @@ Same-module global-call prepass split landed in
 the selected same-module/leaf definition branch now sits behind an
 owner-neutral helper, while the print fallback remains in the old local prepass.
 
+Module-generic/i64 definition helper rename landed in
+`docs/development/current/main/phases/phase-29cv/P381EI-MODULE-GENERIC-I64-HELPER-NAME.md`:
+the metadata helper now says `module_generic_or_i64` instead of implying that
+only `module_generic` owners are accepted.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

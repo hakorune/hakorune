@@ -213,6 +213,9 @@ Completed focused probe:
     view boundary helpers away from stale module-generic string wording
   - P381EH split the same-module global-call definition prepass branch from
     the module-generic string print fallback without changing accepted shapes
+  - P381EI renamed the metadata helper for `module_generic` plus
+    `generic_i64_or_leaf` definition owners so the name matches the accepted
+    owner families
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions
