@@ -443,19 +443,29 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
 
-      auto int module_generic_string_method_view_is_direct_string_indexof(
-          const struct LoweringPlanGenericMethodView* view) {
+      auto int module_generic_string_method_view_is_direct_string_scalar_with(
+          const struct LoweringPlanGenericMethodView* view,
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          const char* symbol,
+          const char* route_proof) {
         return view &&
                view->route_id &&
-               !strcmp(view->route_id, "generic_method.indexOf") &&
+               route_id &&
+               !strcmp(view->route_id, route_id) &&
                view->core_op &&
-               !strcmp(view->core_op, "StringIndexOf") &&
+               core_op &&
+               !strcmp(view->core_op, core_op) &&
                view->route_kind &&
-               !strcmp(view->route_kind, "string_indexof") &&
+               route_kind &&
+               !strcmp(view->route_kind, route_kind) &&
                view->symbol &&
-               !strcmp(view->symbol, "nyash.string.indexOf_hh") &&
+               symbol &&
+               !strcmp(view->symbol, symbol) &&
                view->route_proof &&
-               !strcmp(view->route_proof, "indexof_surface_policy") &&
+               route_proof &&
+               !strcmp(view->route_proof, route_proof) &&
                view->receiver_origin_box &&
                !strcmp(view->receiver_origin_box, "StringBox") &&
                view->return_shape &&
@@ -465,52 +475,37 @@
                view->publication_policy &&
                !strcmp(view->publication_policy, "no_publication") &&
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }
+
+      auto int module_generic_string_method_view_is_direct_string_indexof(
+          const struct LoweringPlanGenericMethodView* view) {
+        return module_generic_string_method_view_is_direct_string_scalar_with(
+            view,
+            "generic_method.indexOf",
+            "StringIndexOf",
+            "string_indexof",
+            "nyash.string.indexOf_hh",
+            "indexof_surface_policy");
       }
 
       auto int module_generic_string_method_view_is_direct_string_lastindexof(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.lastIndexOf") &&
-               view->core_op &&
-               !strcmp(view->core_op, "StringLastIndexOf") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "string_last_indexof") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.string.lastIndexOf_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "lastindexof_surface_policy") &&
-               view->receiver_origin_box &&
-               !strcmp(view->receiver_origin_box, "StringBox") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "scalar_i64") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "scalar_i64") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_string_scalar_with(
+            view,
+            "generic_method.lastIndexOf",
+            "StringLastIndexOf",
+            "string_last_indexof",
+            "nyash.string.lastIndexOf_hh",
+            "lastindexof_surface_policy");
       }
 
       auto int module_generic_string_method_view_is_direct_string_contains(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.contains") &&
-               view->core_op &&
-               !strcmp(view->core_op, "StringContains") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "string_contains") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.string.contains_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "contains_surface_policy") &&
-               view->receiver_origin_box &&
-               !strcmp(view->receiver_origin_box, "StringBox") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "scalar_i64") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "scalar_i64") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_string_scalar_with(
+            view,
+            "generic_method.contains",
+            "StringContains",
+            "string_contains",
+            "nyash.string.contains_hh",
+            "contains_surface_policy");
       }

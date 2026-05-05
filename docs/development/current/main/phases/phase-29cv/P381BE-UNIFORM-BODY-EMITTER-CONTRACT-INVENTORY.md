@@ -111,6 +111,8 @@ Completed focused probe:
     predicates behind a shared module-generic helper
   - P381CM centralized the repeated MIR JSON map-field generic-method view
     predicates behind a shared module-generic helper
+  - P381CN centralized the repeated StringBox scalar generic-method view
+    predicates behind a shared module-generic helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
