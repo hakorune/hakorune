@@ -444,6 +444,11 @@ MirSchema map-constructor runner MIR JSON coverage landed in
 MirSchema map-constructor routes and lowering plans now pin
 `definition_owner=uniform_mir` and `emit_trace_consumer=mir_call_global_uniform_mir_emit`.
 
+Same-module definition boundary rename landed in
+`docs/development/current/main/phases/phase-29cv/P381EG-SAME-MODULE-DEFINITION-BOUNDARY-NAMES.md`:
+the Stage0 definition eligibility and function-view reader helpers now use
+same-module function wording.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

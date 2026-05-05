@@ -209,6 +209,8 @@ Completed focused probe:
   - P381EF added runner MIR JSON owner/trace coverage for
     `MirSchemaMapConstructorBody` and updated its stale inventory row to the
     uniform MIR owner contract
+  - P381EG renamed the Stage0 same-module definition eligibility and function
+    view boundary helpers away from stale module-generic string wording
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions
