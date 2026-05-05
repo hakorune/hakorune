@@ -190,6 +190,12 @@ symbol arrays; their direct-contract identity is a kind on the unified planned
 generic symbol registry. Their specialized body handling still remains for a
 later uniform-emitter cleanup.
 
+Failure-first probe landed in
+`docs/development/current/main/phases/phase-29cv/P381BS-PARSER-PROGRAM-JSON-BODY-EMITTER-BLOCKER.md`:
+parser Program(JSON) dedicated body-emitter deletion is blocked by the live
+two-argument `BuildBox._parse_program_json/2` owner body and must wait for
+source-owner cleanup or a matching MIR-owned two-argument body contract.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381BR-MODULE-GENERIC-SELECTED-KIND-REGISTRY"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BR-MODULE-GENERIC-SELECTED-KIND-REGISTRY.md"
-latest_card_summary = "Stage0 module generic selected-set planning now stores parser Program(JSON) and static string array direct contracts as a kind on the unified planned generic symbol registry, removing the parallel parser/static planned-symbol arrays while preserving specialized body emission as a later cleanup target."
+latest_card = "P381BS-PARSER-PROGRAM-JSON-BODY-EMITTER-BLOCKER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BS-PARSER-PROGRAM-JSON-BODY-EMITTER-BLOCKER.md"
+latest_card_summary = "Failure-first probe locked parser Program(JSON) dedicated body-emitter deletion as blocked by the live two-argument BuildBox._parse_program_json/2 owner, then removed the redundant parser-specific Stage1 extern declaration check because the unified planned generic registry already covers it."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -125,16 +125,6 @@
         return planned_module_generic_string_symbols_n > 0;
       }
 
-      auto int module_has_planned_parser_program_json_definition(void) {
-        for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
-          if (planned_module_generic_string_kinds[i] ==
-              MODULE_GENERIC_STRING_PLANNED_PARSER_PROGRAM_JSON) {
-            return 1;
-          }
-        }
-        return 0;
-      }
-
       auto yyjson_val* module_generic_string_find_function(const char* name) {
         if (!name) return NULL;
         for (size_t fi = 0; fi < program.function_count; fi++) {
