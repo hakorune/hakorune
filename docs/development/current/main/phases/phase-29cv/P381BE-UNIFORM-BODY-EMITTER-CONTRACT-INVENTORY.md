@@ -159,6 +159,8 @@ Completed focused probe:
     emission behind one active-body helper
   - P381DK moved module-generic emit-side const classification, publication,
     and diagnostics behind one active-body helper
+  - P381DL moved module-generic emit-side branch and jump terminators behind
+    active-body helper entries
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

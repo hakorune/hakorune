@@ -343,6 +343,10 @@ Module-generic emit const helper cleanup landed in
 emit-side `const` classification, publication, and diagnostics now have one
 active-body helper.
 
+Module-generic emit control terminator helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DL-MODULE-GENERIC-EMIT-CONTROL-TERMINATOR-HELPERS.md`:
+emit-side `branch` and `jump` terminators now have active-body helper entries.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

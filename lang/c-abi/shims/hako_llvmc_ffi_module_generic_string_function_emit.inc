@@ -1646,6 +1646,19 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_branch_instruction(yyjson_val* ins) {
+        emit_branch(
+            read_int(ins, "cond"),
+            read_int(ins, "then"),
+            read_int(ins, "else"));
+        return 1;
+      }
+
+      auto int module_generic_string_emit_jump_instruction(yyjson_val* ins) {
+        EMIT("  br label %%bb%lld\n", read_int(ins, "target"));
+        return 1;
+      }
+
       auto int module_generic_string_emit_active_body(FILE* f, size_t fn_index) {
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
@@ -1700,11 +1713,11 @@
               continue;
             }
             if (!strcmp(op, "branch")) {
-              emit_branch(read_int(ins, "cond"), read_int(ins, "then"), read_int(ins, "else"));
+              if (!module_generic_string_emit_branch_instruction(ins)) return 0;
               continue;
             }
             if (!strcmp(op, "jump")) {
-              EMIT("  br label %%bb%lld\n", read_int(ins, "target"));
+              if (!module_generic_string_emit_jump_instruction(ins)) return 0;
               continue;
             }
             if (!strcmp(op, "ret")) {
