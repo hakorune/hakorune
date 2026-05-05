@@ -66,7 +66,7 @@ Retired capsule contracts:
 
 | Capsule | Result |
 | --- | --- |
-| `GenericStringVoidLoggingBody` | retired as a shape in P381BJ; direct ABI truth now lives in `proof=typed_global_call_generic_string_void_logging` plus `return_shape=void_sentinel_i64_zero` |
+| `GenericStringVoidLoggingBody` | retired as a shape in P381BJ; direct ABI truth now lives in `proof=typed_global_call_generic_string_void_logging` plus `return_shape=void_sentinel_i64_zero`; definition owner is `uniform_mir` and runner MIR JSON coverage was added in P381EE |
 | `StaticStringArrayBody` | retired as a shape in P381BL; direct ABI truth now lives in `proof=typed_global_call_static_string_array` plus `return_shape=array_handle` |
 | `MirSchemaMapConstructorBody` | retired as a shape in P381BM; direct ABI truth now lives in `proof=typed_global_call_mir_schema_map_constructor` plus `return_shape=map_handle` |
 | `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; dedicated body emission remains a later cleanup |
@@ -433,6 +433,11 @@ PatternUtil probe uniform-owner cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381ED-PATTERN-UTIL-PROBE-UNIFORM-OWNER.md`:
 PatternUtil local-value probe direct-call definitions now serialize
 `definition_owner=uniform_mir` with runner MIR JSON owner/trace coverage.
+
+Void logging runner MIR JSON coverage landed in
+`docs/development/current/main/phases/phase-29cv/P381EE-VOID-LOGGING-JSON-COVERAGE.md`:
+void logging direct-call routes and lowering plans now pin
+`definition_owner=uniform_mir` and `emit_trace_consumer=mir_call_global_uniform_mir_emit`.
 
 Primary targets:
 
