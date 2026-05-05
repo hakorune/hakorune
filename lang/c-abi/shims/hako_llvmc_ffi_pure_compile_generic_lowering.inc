@@ -165,7 +165,7 @@
         set_type(dst, T_I1);
       }
       #include "hako_llvmc_ffi_module_generic_string_function_emit.inc"
-      if (emit_module_function_generic_string_definitions(f) < 0) {
+      if (emit_same_module_function_definitions(f) < 0) {
         fclose(f);
         yyjson_doc_free(d);
         goto GEN_ABORT;

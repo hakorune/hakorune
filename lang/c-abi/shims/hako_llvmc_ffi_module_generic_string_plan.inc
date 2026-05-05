@@ -77,7 +77,7 @@
         return planned_same_module_function_symbols_n > 0;
       }
 
-      auto yyjson_val* module_generic_string_find_function(const char* name) {
+      auto yyjson_val* same_module_function_find(const char* name) {
         if (!name) return NULL;
         for (size_t fi = 0; fi < program.function_count; fi++) {
           yyjson_val* fn = yyjson_arr_get(program.functions, fi);
@@ -87,7 +87,9 @@
         return NULL;
       }
 
-      auto int module_generic_string_find_function_index(const char* name, size_t* out_index) {
+      auto int same_module_function_find_index(
+          const char* name,
+          size_t* out_index) {
         if (!name) return 0;
         for (size_t fi = 0; fi < program.function_count; fi++) {
           yyjson_val* fn = yyjson_arr_get(program.functions, fi);
@@ -100,7 +102,7 @@
         return 0;
       }
 
-      auto int plan_module_generic_string_definition_edges(yyjson_val* fn) {
+      auto int plan_same_module_function_definition_edges(yyjson_val* fn) {
         int planned = 0;
         yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
         yyjson_val* entries = metadata ? yyjson_obj_get(metadata, "lowering_plan") : NULL;
@@ -110,7 +112,7 @@
           struct LoweringPlanGlobalCallView view;
           yyjson_val* target_fn = NULL;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
-          target_fn = module_generic_string_find_function(view.target_symbol);
+          target_fn = same_module_function_find(view.target_symbol);
           if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view) ||
               (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(&view) &&
                module_function_is_numeric_i64_leaf(target_fn))) {
@@ -127,14 +129,14 @@
         return planned;
       }
 
-      auto int plan_module_generic_string_definitions(void) {
-        int planned = plan_module_generic_string_definition_edges(program.entry.fn);
+      auto int plan_same_module_function_definitions(void) {
+        int planned = plan_same_module_function_definition_edges(program.entry.fn);
         size_t cursor = 0;
         if (planned < 0) return -1;
         while (cursor < planned_same_module_function_symbols_n) {
           const char* symbol = planned_same_module_function_symbols[cursor++];
-          yyjson_val* fn = module_generic_string_find_function(symbol);
-          int rc = plan_module_generic_string_definition_edges(fn);
+          yyjson_val* fn = same_module_function_find(symbol);
+          int rc = plan_same_module_function_definition_edges(fn);
           if (rc < 0) return -1;
           planned += rc;
         }

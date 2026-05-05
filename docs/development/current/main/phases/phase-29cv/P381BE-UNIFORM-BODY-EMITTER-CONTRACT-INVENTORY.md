@@ -193,6 +193,9 @@ Completed focused probe:
     and `uniform_mir` owners
   - P381DZ renamed the Stage0 selected-set registry identifiers from
     module-generic string wording to same-module function wording
+  - P381EA renamed the Stage0 selected-set planner and definition driver entry
+    points to same-module function wording while leaving body internals scoped
+    for later cleanup
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

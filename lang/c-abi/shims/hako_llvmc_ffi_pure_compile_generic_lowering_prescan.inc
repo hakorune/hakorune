@@ -396,7 +396,7 @@
         }
       }
 
-      if (plan_module_generic_string_definitions() < 0) {
+      if (plan_same_module_function_definitions() < 0) {
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
