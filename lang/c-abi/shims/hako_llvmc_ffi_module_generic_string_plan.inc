@@ -162,7 +162,9 @@
           int is_box_type_inspector_describe = 0;
           int is_pattern_util_local_value_probe = 0;
           int is_uniform_mir_function_candidate = 0;
+          yyjson_val* target_fn = NULL;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
+          target_fn = module_generic_string_find_function(view.target_symbol);
           is_parser_program_json =
               lowering_plan_global_call_view_is_direct_parser_program_json(&view);
           is_static_string_array =
@@ -175,7 +177,9 @@
               lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&view);
           is_uniform_mir_function_candidate =
               lowering_plan_global_call_view_is_uniform_mir_function_candidate(&view);
-          if (lowering_plan_global_call_view_is_direct_leaf_i64(&view)) {
+          if (lowering_plan_global_call_view_is_direct_leaf_i64(&view) ||
+              (lowering_plan_global_call_view_is_direct_generic_i64(&view) &&
+               module_function_is_numeric_i64_leaf(target_fn))) {
             if (!remember_planned_module_leaf_symbol(view.target_symbol)) return -1;
             planned++;
             continue;

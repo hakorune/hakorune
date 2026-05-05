@@ -2,14 +2,15 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+use crate::mir::extern_call_route_plan::ExternCallRouteKind;
 use crate::mir::function::ClosureBodyId;
 use crate::mir::ssot::closure_call::{classify_closure_call_shape, ClosureCallShape};
 use crate::mir::ssot::method_call::method_call;
 use crate::mir::{Callee, MirInstruction, MirModule, MirType, ValueId};
 
 use super::helpers::{
-    canonicalize_legacy_global_name, collect_const_string_literals, collect_known_user_boxes,
-    known_user_box_name_from_value, parse_user_box_method_global_name,
+    canonicalize_legacy_global_name, collect_const_null_sentinels, collect_const_string_literals,
+    collect_known_user_boxes, known_user_box_name_from_value, parse_user_box_method_global_name,
 };
 
 /// Canonicalize call-site instructions.
@@ -24,6 +25,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
 
     for func in module.functions.values_mut() {
         let const_strings = collect_const_string_literals(func);
+        let const_null_sentinels = collect_const_null_sentinels(func);
         let value_types = func.metadata.value_types.clone();
 
         for block in func.blocks.values_mut() {
@@ -31,6 +33,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
                 rewritten += canonicalize_callsite_instruction(
                     inst,
                     &const_strings,
+                    &const_null_sentinels,
                     &function_names,
                     &value_types,
                     &known_user_boxes,
@@ -42,6 +45,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
                 rewritten += canonicalize_callsite_instruction(
                     term,
                     &const_strings,
+                    &const_null_sentinels,
                     &function_names,
                     &value_types,
                     &known_user_boxes,
@@ -61,6 +65,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
 fn canonicalize_callsite_instruction(
     inst: &mut MirInstruction,
     const_strings: &BTreeMap<ValueId, String>,
+    const_null_sentinels: &BTreeSet<ValueId>,
     function_names: &BTreeSet<String>,
     value_types: &BTreeMap<ValueId, MirType>,
     known_user_boxes: &BTreeSet<String>,
@@ -125,6 +130,30 @@ fn canonicalize_callsite_instruction(
             } else {
                 0
             }
+        }
+        MirInstruction::Call {
+            dst,
+            func: _,
+            callee: Some(Callee::Global(name)),
+            args,
+            effects,
+        } if name == "BuildBox.emit_program_json_v0/2"
+            && args.len() == 2
+            && const_null_sentinels.contains(&args[1]) =>
+        {
+            let rewritten = MirInstruction::Call {
+                dst: *dst,
+                func: ValueId::INVALID,
+                callee: Some(Callee::Extern(
+                    ExternCallRouteKind::Stage1EmitProgramJson
+                        .symbol()
+                        .to_string(),
+                )),
+                args: vec![args[0]],
+                effects: *effects,
+            };
+            *inst = rewritten;
+            1
         }
         MirInstruction::Call {
             dst,

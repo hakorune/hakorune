@@ -317,6 +317,47 @@
         return read_int(cal, "receiver");
       }
 
+      auto int module_generic_string_prepass_extern_call_view(
+          const struct LoweringPlanExternCallView* extern_view,
+          long long dst) {
+        if (!extern_view) return 0;
+        if (lowering_plan_env_get_view_is_valid(extern_view)) {
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          return 1;
+        }
+        if (lowering_plan_env_set_view_is_valid(extern_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (lowering_plan_hostbridge_extern_invoke_view_is_valid(extern_view)) {
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          return 1;
+        }
+        if (lowering_plan_stage1_emit_program_json_view_is_valid(extern_view)) {
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          return 1;
+        }
+        if (lowering_plan_stage1_emit_mir_from_source_view_is_valid(extern_view)) {
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          return 1;
+        }
+        if (lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(extern_view)) {
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          return 1;
+        }
+        return 0;
+      }
+
       auto int module_generic_string_prepass_externcall(
           long long bid,
           size_t ii,
@@ -325,41 +366,7 @@
         struct LoweringPlanExternCallView extern_view;
         long long dst = read_int(ins, "dst");
         if (!read_lowering_plan_extern_call_view(entry, &extern_view)) return 0;
-        if (lowering_plan_env_get_view_is_valid(&extern_view)) {
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          return 1;
-        }
-        if (lowering_plan_env_set_view_is_valid(&extern_view)) {
-          set_type(dst, T_I64);
-          return 1;
-        }
-        if (lowering_plan_hostbridge_extern_invoke_view_is_valid(&extern_view)) {
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          return 1;
-        }
-        if (lowering_plan_stage1_emit_program_json_view_is_valid(&extern_view)) {
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          return 1;
-        }
-        if (lowering_plan_stage1_emit_mir_from_source_view_is_valid(&extern_view)) {
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          return 1;
-        }
-        if (lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(&extern_view)) {
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          return 1;
-        }
-        return 0;
+        return module_generic_string_prepass_extern_call_view(&extern_view, dst);
       }
 
       auto int module_generic_string_prepass_active_function(void) {
@@ -615,18 +622,8 @@
                          module_generic_string_method_view_is_direct_string_contains(&method_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
-                  lowering_plan_env_get_view_is_valid(&extern_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
-              } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
-                         lowering_plan_env_set_view_is_valid(&extern_view)) {
-                set_type(dst, T_I64);
-              } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
-                         lowering_plan_hostbridge_extern_invoke_view_is_valid(&extern_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
+                         module_generic_string_prepass_extern_call_view(&extern_view, dst)) {
+                continue;
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_generic_string(&global_view)) {
                 set_type(dst, T_I64);

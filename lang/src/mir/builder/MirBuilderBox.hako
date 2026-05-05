@@ -33,21 +33,6 @@ using "hako.mir.builder.internal.delegate_finalize" as BuilderDelegateFinalizeBo
 using "hako.mir.builder.internal.finalize_chain" as BuilderFinalizeChainBox
 using selfhost.shared.mir.root_hydrator as MirRootHydratorBox
 
-static box MirBuilderProgramJsonBuildBox {
-  method emit_program_json_v0(tag, source_text, opts) {
-    return me._emit_program_json_v0_raw(tag, source_text, opts)
-  }
-
-  method _emit_program_json_v0_raw(tag, source_text, opts) {
-    local program_json = BuildBox.emit_program_json_v0(source_text, opts)
-    if program_json == null {
-      print(tag + ": BuildBox returned null")
-      return null
-    }
-    return program_json
-  }
-}
-
 static box MirBuilderSourceCompatBox {
   method emit_from_source_v0(source_text, opts) {
     return me._emit_mir_from_source_checked(source_text, opts)
@@ -90,11 +75,11 @@ static box MirBuilderSourceCompatBox {
   }
 
   method _emit_program_json_from_source_raw(source_text, opts) {
-    return MirBuilderProgramJsonBuildBox.emit_program_json_v0(
-      "[mirbuilder/input/source]",
-      source_text,
-      opts
-    )
+    if opts != null {
+      print("[mirbuilder/input/source-only] opts must be null")
+      return null
+    }
+    return BuildBox.emit_program_json_v0(source_text, null)
   }
 }
 

@@ -43,6 +43,22 @@ pub(super) fn collect_const_string_literals(func: &MirFunction) -> BTreeMap<Valu
     out
 }
 
+pub(super) fn collect_const_null_sentinels(func: &MirFunction) -> BTreeSet<ValueId> {
+    let mut out = BTreeSet::new();
+    for block in func.blocks.values() {
+        for inst in &block.instructions {
+            if let crate::mir::MirInstruction::Const {
+                dst,
+                value: ConstValue::Null | ConstValue::Void,
+            } = inst
+            {
+                out.insert(*dst);
+            }
+        }
+    }
+    out
+}
+
 pub(super) fn collect_known_user_boxes(module: &MirModule) -> BTreeSet<String> {
     module
         .metadata

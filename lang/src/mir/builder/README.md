@@ -42,10 +42,11 @@ Interface (stable)
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
   - Source-entry shim only; current stage1 authority no longer depends on this route.
   - source-entry compat now lives in `MirBuilderSourceCompatBox`; `MirBuilderBox` keeps the Program(JSON) route sequencing, while the compat box owns source-entry coercion / source->Program(JSON) check / Program(JSON)->MIR handoff.
-  - direct `BuildBox.emit_program_json_v0(...)` check remains owner-local before delegating through `MirBuilderProgramJsonBuildBox.emit_program_json_v0(...)`, so the source-entry shim now has an explicit raw leaf instead of keeping the BuildBox call inline.
+  - source-entry Program(JSON) generation is source-only: non-null `opts` fail fast locally, and the raw leaf calls `BuildBox.emit_program_json_v0(source, null)` directly so the canonical MIR callsite can bind to the Stage1 Program(JSON) extern route.
 
 Tags (Fail‑Fast, stable)
 - `[mirbuilder/input/null]` — input is null
+- `[mirbuilder/input/source-only]` — source-entry path received non-null opts
 - `[mirbuilder/input/invalid]` — header missing (version/kind)
 - `[mirbuilder/internal/unsupported] ...` — Program(JSON) shape not yet supported by internal lowers
 - `[builder/selfhost-first:unsupported:defs_only]` — only defs を lowering できる状態（main なし）のため中止

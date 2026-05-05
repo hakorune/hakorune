@@ -776,22 +776,13 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_lowering_plan_metadata.inc"
       #include "hako_llvmc_ffi_module_leaf_function_emit.inc"
       #include "hako_llvmc_ffi_module_generic_string_plan.inc"
-      auto void emit_i64_function_declaration(FILE* f, const char* name, size_t argc) {
-        if (!llvm_quoted_symbol_name_is_safe(name)) return;
-        fprintf(f, "declare i64 @\"%s\"(", name);
-        for (size_t i = 0; i < argc; i++) {
-          fprintf(f, "%si64", i ? ", " : "");
-        }
-        fprintf(f, ")\n");
-      }
       auto void emit_module_function_declarations(FILE* f) {
-        for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
-          const char* name = planned_module_generic_string_symbols[i];
-          yyjson_val* fn = module_generic_string_find_function(name);
-          if (!(name && fn) || fn == fn0) continue;
-          if (module_function_is_numeric_i64_leaf(fn)) continue;
-          emit_i64_function_declaration(f, name, generic_pure_function_param_count(fn));
-        }
+        /*
+         * Planned module symbols are emitted as definitions below. LLVM 18 treats
+         * a same-name declare+define pair in textual IR as a redefinition, while
+         * forward calls to later definitions do not require declarations.
+         */
+        (void)f;
       }
       #include "hako_llvmc_ffi_mir_call_route_policy.inc"
       #include "hako_llvmc_ffi_mir_call_need_policy.inc"

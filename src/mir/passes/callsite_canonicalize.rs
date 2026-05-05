@@ -14,6 +14,10 @@
 //!   `Call(callee=Method{certainty=Known, box_kind=UserDefined})` so later
 //!   thin-entry consumers can bind physical entries without backend-local
 //!   receiver guessing.
+//! - Stage1 Program(JSON) source-only BuildBox calls with static `null` opts
+//!   canonicalize to the explicit `nyash.stage1.emit_program_json_v0_h` extern
+//!   route. This mirrors the JSON v0 bridge contract and keeps Stage0 from
+//!   selecting the BuildBox parser body as a same-module helper.
 
 #[path = "callsite_canonicalize/helpers.rs"]
 mod helpers;
