@@ -59,6 +59,8 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     assert_eq!(route["proof"], "typed_global_call_leaf_numeric_i64");
     assert_eq!(route["return_shape"], "ScalarI64");
     assert_eq!(route["value_demand"], "scalar_i64");
+    assert_eq!(route["definition_owner"], "leaf_i64");
+    assert_eq!(route["emit_trace_consumer"], "mir_call_global_leaf_emit");
     assert_eq!(route["reason"], serde_json::Value::Null);
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
@@ -78,6 +80,8 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     assert_eq!(plan["route_proof"], "typed_global_call_leaf_numeric_i64");
     assert_eq!(plan["return_shape"], "ScalarI64");
     assert_eq!(plan["value_demand"], "scalar_i64");
+    assert_eq!(plan["definition_owner"], "leaf_i64");
+    assert_eq!(plan["emit_trace_consumer"], "mir_call_global_leaf_emit");
     assert_eq!(plan["reason"], serde_json::Value::Null);
 }
 
@@ -237,6 +241,11 @@ fn build_mir_json_root_emits_direct_plan_for_generic_pure_string_global_call() {
     assert_eq!(route["return_shape"], "string_handle");
     assert_eq!(route["value_demand"], "runtime_i64_or_handle");
     assert_eq!(route["result_origin"], "string");
+    assert_eq!(route["definition_owner"], "module_generic");
+    assert_eq!(
+        route["emit_trace_consumer"],
+        "mir_call_global_module_generic_emit"
+    );
     assert_eq!(route["reason"], serde_json::Value::Null);
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
@@ -255,5 +264,10 @@ fn build_mir_json_root_emits_direct_plan_for_generic_pure_string_global_call() {
     assert_eq!(plan["return_shape"], "string_handle");
     assert_eq!(plan["value_demand"], "runtime_i64_or_handle");
     assert_eq!(plan["result_origin"], "string");
+    assert_eq!(plan["definition_owner"], "module_generic");
+    assert_eq!(
+        plan["emit_trace_consumer"],
+        "mir_call_global_module_generic_emit"
+    );
     assert_eq!(plan["reason"], serde_json::Value::Null);
 }

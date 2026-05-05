@@ -142,7 +142,9 @@ ABI:
 ```
 
 The backend must emit calls by MIR symbol/route fact. It must not rediscover
-callee meaning from raw `.hako` owner names.
+callee meaning from raw `.hako` owner names or from C-side capsule proof-name
+lists. Global-call result origin, definition ownership, and trace consumer
+selection are MIR-owned LoweringPlan metadata fields.
 
 ## Card Checklist
 

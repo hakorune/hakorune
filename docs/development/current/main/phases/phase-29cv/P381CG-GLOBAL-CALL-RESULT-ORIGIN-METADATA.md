@@ -106,6 +106,5 @@ Result-origin truth now lives in the Rust global-call route plan and is emitted
 as explicit LoweringPlan metadata. Stage0 consumes that metadata as a typed
 view fact instead of keeping proof-name origin branches.
 
-The remaining shared module-generic helper still contains the direct ABI
-definition ownership list. That is the next metadata candidate before deleting
-more body-emitter surface.
+P381CH follows this by moving definition ownership and emit trace consumer
+truth into Rust LoweringPlan metadata as well.

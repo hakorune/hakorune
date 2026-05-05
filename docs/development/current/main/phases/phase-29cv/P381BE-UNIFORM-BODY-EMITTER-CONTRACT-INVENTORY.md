@@ -55,7 +55,7 @@ These sites are now centralized by P381CF:
   P381CG `result_origin` metadata field
 - selected-set planning:
   `hako_llvmc_ffi_module_generic_string_plan.inc` calls the shared
-  module-generic helper
+  module-generic helper, which now reads P381CH `definition_owner` metadata
 - module body prepass and body emission:
   `hako_llvmc_ffi_module_generic_string_function_emit.inc` calls the shared
   module-generic and result-origin helpers
@@ -100,6 +100,8 @@ Completed focused probe:
     call emission trace selection behind shared LoweringPlan view helpers
   - P381CG moved result-origin truth into Rust LoweringPlan metadata, removing
     the C proof-name origin branch
+  - P381CH moved definition ownership and emit trace consumer truth into Rust
+    LoweringPlan metadata, removing the C proof-name selected-set list
   - capsule-specific proof predicates remain only as metadata readers for
     non-origin route facts
 

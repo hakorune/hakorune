@@ -64,6 +64,15 @@ pub(super) enum GlobalCallProof {
     PatternUtilLocalValueProbe,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GlobalCallDefinitionOwner {
+    None,
+    LeafI64,
+    GenericI64OrLeaf,
+    ModuleGeneric,
+    UniformMir,
+}
+
 impl GlobalCallProof {
     pub(super) fn as_json_name(self) -> &'static str {
         match self {
@@ -110,6 +119,22 @@ impl GlobalCallProof {
             | Self::PatternUtilLocalValueProbe => "none",
         }
     }
+
+    fn definition_owner(self) -> GlobalCallDefinitionOwner {
+        match self {
+            Self::ContractMissing => GlobalCallDefinitionOwner::None,
+            Self::LeafNumericI64 => GlobalCallDefinitionOwner::LeafI64,
+            Self::GenericI64 => GlobalCallDefinitionOwner::GenericI64OrLeaf,
+            Self::GenericPureString
+            | Self::GenericStringOrVoidSentinel
+            | Self::GenericStringVoidLogging
+            | Self::ParserProgramJson
+            | Self::StaticStringArray
+            | Self::MirSchemaMapConstructor
+            | Self::BoxTypeInspectorDescribe
+            | Self::PatternUtilLocalValueProbe => GlobalCallDefinitionOwner::ModuleGeneric,
+        }
+    }
 }
 
 impl Default for GlobalCallProof {
@@ -139,6 +164,28 @@ impl GlobalCallReturnContract {
             | Self::ArrayHandle
             | Self::MapHandle
             | Self::MixedRuntimeI64OrHandle => "runtime_i64_or_handle",
+        }
+    }
+}
+
+impl GlobalCallDefinitionOwner {
+    fn as_json_name(self) -> &'static str {
+        match self {
+            Self::None => "none",
+            Self::LeafI64 => "leaf_i64",
+            Self::GenericI64OrLeaf => "generic_i64_or_leaf",
+            Self::ModuleGeneric => "module_generic",
+            Self::UniformMir => "uniform_mir",
+        }
+    }
+
+    fn emit_trace_consumer(self) -> &'static str {
+        match self {
+            Self::LeafI64 => "mir_call_global_leaf_emit",
+            Self::GenericI64OrLeaf => "mir_call_global_generic_i64_emit",
+            Self::ModuleGeneric => "mir_call_global_module_generic_emit",
+            Self::UniformMir => "mir_call_global_uniform_mir_emit",
+            Self::None => "mir_call_global_unknown_emit",
         }
     }
 }
@@ -563,6 +610,24 @@ impl GlobalCallRoute {
         } else {
             "none"
         }
+    }
+
+    fn definition_owner_kind(&self) -> GlobalCallDefinitionOwner {
+        if self.is_direct_abi_target() {
+            return self.target.proof().definition_owner();
+        }
+        if self.reason() == Some("missing_multi_function_emitter") {
+            return GlobalCallDefinitionOwner::UniformMir;
+        }
+        GlobalCallDefinitionOwner::None
+    }
+
+    pub fn definition_owner(&self) -> &'static str {
+        self.definition_owner_kind().as_json_name()
+    }
+
+    pub fn emit_trace_consumer(&self) -> &'static str {
+        self.definition_owner_kind().emit_trace_consumer()
     }
 
     pub fn reason(&self) -> Option<&'static str> {

@@ -55,6 +55,8 @@
         const char* return_shape;
         const char* value_demand;
         const char* result_origin;
+        const char* definition_owner;
+        const char* emit_trace_consumer;
         long long arity;
         long long target_arity;
         long long result_value;
@@ -354,6 +356,8 @@
           out->return_shape = read_str(entry, "return_shape");
           out->value_demand = read_str(entry, "value_demand");
           out->result_origin = read_str(entry, "result_origin");
+          out->definition_owner = read_str(entry, "definition_owner");
+          out->emit_trace_consumer = read_str(entry, "emit_trace_consumer");
           lowering_plan_read_i64_field(entry, "arity", &out->arity);
           if (lowering_plan_read_i64_field(entry, "target_arity", &target_arity)) {
             out->target_arity = target_arity;
@@ -412,18 +416,19 @@
                llvm_quoted_symbol_name_is_safe(view->target_symbol);
       }
 
+      auto int lowering_plan_global_call_view_definition_owner_is(
+          const struct LoweringPlanGlobalCallView* view,
+          const char* owner) {
+        return view &&
+               view->definition_owner &&
+               owner &&
+               !strcmp(view->definition_owner, owner);
+      }
+
       auto int lowering_plan_global_call_view_is_uniform_mir_function_candidate(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "unsupported") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_contract_missing") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_contract_missing") &&
-               view->reason &&
-               !strcmp(view->reason, "missing_multi_function_emitter");
+               lowering_plan_global_call_view_definition_owner_is(view, "uniform_mir");
       }
 
       auto int lowering_plan_global_call_view_is_direct_leaf_i64(
@@ -584,14 +589,9 @@
 
       auto int lowering_plan_global_call_view_uses_module_generic_definition(
           const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_is_direct_generic_string(view) ||
-               lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(view) ||
-               lowering_plan_global_call_view_is_direct_generic_i64(view) ||
-               lowering_plan_global_call_view_is_direct_parser_program_json(view) ||
-               lowering_plan_global_call_view_is_direct_static_string_array(view) ||
-               lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(view) ||
-               lowering_plan_global_call_view_is_direct_box_type_inspector_describe(view) ||
-               lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(view);
+        return lowering_plan_global_call_view_has_direct_target(view) &&
+               (lowering_plan_global_call_view_definition_owner_is(view, "module_generic") ||
+                lowering_plan_global_call_view_definition_owner_is(view, "generic_i64_or_leaf"));
       }
 
       auto int lowering_plan_global_call_view_requires_module_generic_definition(
@@ -618,18 +618,7 @@
 
       auto const char* lowering_plan_global_call_view_emit_trace_consumer(
           const struct LoweringPlanGlobalCallView* view) {
-        if (lowering_plan_global_call_view_is_direct_leaf_i64(view)) {
-          return "mir_call_global_leaf_emit";
-        }
-        if (lowering_plan_global_call_view_is_direct_generic_i64(view)) {
-          return "mir_call_global_generic_i64_emit";
-        }
-        if (lowering_plan_global_call_view_is_uniform_mir_function_candidate(view)) {
-          return "mir_call_global_uniform_mir_emit";
-        }
-        if (lowering_plan_global_call_view_uses_module_generic_definition(view)) {
-          return "mir_call_global_module_generic_emit";
-        }
+        if (view && view->emit_trace_consumer) return view->emit_trace_consumer;
         return "mir_call_global_unknown_emit";
       }
 
