@@ -479,6 +479,80 @@
         return read_int(cal, "receiver");
       }
 
+      auto int module_generic_string_prepass_generic_method_view(
+          const char* op,
+          yyjson_val* cal,
+          yyjson_val* args,
+          long long dst,
+          const struct LoweringPlanGenericMethodView* method_view) {
+        struct ModuleGenericStringGetRouteView get_route;
+        if (!method_view) return 0;
+        if (module_generic_string_method_view_is_direct_string_len(method_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (module_generic_string_method_view_is_direct_array_len(method_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (module_generic_string_method_view_is_direct_array_push(method_view)) {
+          long long recv = module_generic_string_call_receiver(op, cal);
+          long long value = 0;
+          if (dst) set_type(dst, T_I64);
+          if (!module_generic_string_read_array_push_value(args, &value)) return -1;
+          module_generic_string_promote_array_string_push(recv, value);
+          return 1;
+        }
+        if (module_generic_string_method_view_is_direct_mir_json_flags_keys(method_view)) {
+          module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
+          return 1;
+        }
+        if (module_generic_string_read_get_route_view(method_view, &get_route)) {
+          set_type(dst, T_I64);
+          if (get_route.is_module_function_array_item_get) {
+            module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
+          } else if (get_route.is_phi_incoming_array_item_get) {
+            module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+          } else if (get_route.prepass_publishes_map_get_origin) {
+            set_origin(dst, ORG_MAP_GET);
+          }
+          if (get_route.is_inst_field_get) {
+            module_generic_string_publish_inst_field_origin(
+                dst, method_view, 1);
+          }
+          if (get_route.is_function_field_get) {
+            module_generic_string_publish_function_field_origin(
+                dst, method_view);
+          }
+          if (get_route.is_module_field_get) {
+            module_generic_string_publish_module_field_origin(
+                dst, method_view);
+          }
+          return 1;
+        }
+        if (module_generic_string_method_view_is_direct_map_set(method_view)) {
+          if (dst) set_type(dst, T_I64);
+          return 1;
+        }
+        if (module_generic_string_method_view_is_direct_string_substring(method_view)) {
+          module_generic_string_publish_i64_origin(dst, ORG_STRING);
+          return 1;
+        }
+        if (module_generic_string_method_view_is_direct_string_indexof(method_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (module_generic_string_method_view_is_direct_string_lastindexof(method_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (module_generic_string_method_view_is_direct_string_contains(method_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        return 0;
+      }
+
       auto int module_generic_string_prepass_extern_call_view(
           const struct LoweringPlanExternCallView* extern_view,
           long long dst) {
@@ -606,13 +680,13 @@
               struct LoweringPlanGenericMethodView method_view;
               struct LoweringPlanExternCallView extern_view;
               struct LoweringPlanGlobalCallView global_view;
-              struct ModuleGenericStringGetRouteView get_route;
               const char* ctype = NULL;
               const char* mname = NULL;
               const char* bname = NULL;
               int has_method_view = 0;
               int has_extern_view = 0;
               int has_global_view = 0;
+              int method_prepass_rc = 0;
               long long dst = read_int(ins, "dst");
               if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
               ctype = module_generic_string_call_type(op, cal);
@@ -625,61 +699,20 @@
                   mname && !strcmp(mname, "birth") &&
                   bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
                 if (dst) set_type(dst, T_I64);
-              } else if (has_method_view &&
-                  module_generic_string_method_view_is_direct_string_len(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_array_len(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_array_push(&method_view)) {
-                long long recv = module_generic_string_call_receiver(op, cal);
-                long long value = 0;
-                if (dst) set_type(dst, T_I64);
-                if (!module_generic_string_read_array_push_value(args, &value)) return 0;
-                module_generic_string_promote_array_string_push(recv, value);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_flags_keys(&method_view)) {
-                module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
-              } else if (has_method_view &&
-                         module_generic_string_read_get_route_view(&method_view, &get_route)) {
-                set_type(dst, T_I64);
-                if (get_route.is_module_function_array_item_get) {
-                  module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
-                } else if (get_route.is_phi_incoming_array_item_get) {
-                  module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
-                } else if (get_route.prepass_publishes_map_get_origin) {
-                  set_origin(dst, ORG_MAP_GET);
-                }
-                if (get_route.is_inst_field_get) {
-                  module_generic_string_publish_inst_field_origin(
-                      dst, &method_view, 1);
-                }
-                if (get_route.is_function_field_get) {
-                  module_generic_string_publish_function_field_origin(
-                      dst, &method_view);
-                }
-                if (get_route.is_module_field_get) {
-                  module_generic_string_publish_module_field_origin(
-                      dst, &method_view);
-                }
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_map_set(&method_view)) {
-                if (dst) set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_string_substring(&method_view)) {
-                module_generic_string_publish_i64_origin(dst, ORG_STRING);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_string_indexof(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_string_lastindexof(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_string_contains(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_extern_view &&
-                         module_generic_string_prepass_extern_call_view(&extern_view, dst)) {
+                continue;
+              }
+              if (has_method_view) {
+                method_prepass_rc = module_generic_string_prepass_generic_method_view(
+                    op,
+                    cal,
+                    args,
+                    dst,
+                    &method_view);
+                if (method_prepass_rc < 0) return 0;
+                if (method_prepass_rc > 0) continue;
+              }
+              if (has_extern_view &&
+                  module_generic_string_prepass_extern_call_view(&extern_view, dst)) {
                 continue;
               } else if (has_global_view &&
                          lowering_plan_global_call_view_requires_module_generic_definition(&global_view)) {

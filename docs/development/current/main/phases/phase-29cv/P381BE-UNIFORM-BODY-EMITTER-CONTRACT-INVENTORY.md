@@ -137,6 +137,8 @@ Completed focused probe:
     consumed by helper selection and result-origin follow-up
   - P381CZ made the module-generic prepass reuse the same `get` route view
     while keeping its numeric-field origin exception explicit
+  - P381DA moved module-generic method prepass facts behind one helper with
+    accepted/no-match/malformed outcomes
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

@@ -289,6 +289,11 @@ Module-generic prepass get route view cleanup landed in
 the call prepass now reuses the same `get` route view while keeping numeric
 value-field origin behavior explicit.
 
+Module-generic prepass method helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DA-MODULE-GENERIC-PREPASS-METHOD-HELPER.md`:
+generic-method prepass facts now go through one helper with accepted/no-match/
+malformed outcomes.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
