@@ -371,7 +371,7 @@
                !strcmp(view->definition_owner, owner);
       }
 
-      auto int lowering_plan_global_call_view_is_uniform_mir_function_candidate(
+      auto int lowering_plan_global_call_view_uses_uniform_mir_definition(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
                lowering_plan_global_call_view_definition_owner_is(view, "uniform_mir");
@@ -411,7 +411,7 @@
       auto int lowering_plan_global_call_view_requires_same_module_function_definition(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_uses_module_generic_or_i64_definition(view) ||
-               lowering_plan_global_call_view_is_uniform_mir_function_candidate(view);
+               lowering_plan_global_call_view_uses_uniform_mir_definition(view);
       }
 
       auto int lowering_plan_global_call_view_result_origin_kind(

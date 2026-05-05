@@ -216,6 +216,8 @@ Completed focused probe:
   - P381EI renamed the metadata helper for `module_generic` plus
     `generic_i64_or_leaf` definition owners so the name matches the accepted
     owner families
+  - P381EJ renamed the `uniform_mir` metadata helper so it uses the same
+    `uses_*_definition` vocabulary as the other owner-family helpers
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

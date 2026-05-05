@@ -459,6 +459,11 @@ Module-generic/i64 definition helper rename landed in
 the metadata helper now says `module_generic_or_i64` instead of implying that
 only `module_generic` owners are accepted.
 
+Uniform-MIR definition helper rename landed in
+`docs/development/current/main/phases/phase-29cv/P381EJ-UNIFORM-MIR-HELPER-NAME.md`:
+the metadata helper now says `uses_uniform_mir_definition`, matching the
+owner-family helper vocabulary.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
