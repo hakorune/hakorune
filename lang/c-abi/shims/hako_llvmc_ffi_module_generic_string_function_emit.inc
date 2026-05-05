@@ -1451,6 +1451,28 @@
         return rc;
       }
 
+      auto int module_generic_string_emit_global_call_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          yyjson_val* cal,
+          yyjson_val* args,
+          long long dst) {
+        int rc = emit_global_call_lowering_plan_mir_call(f, bid, ii, dst, args);
+        if (rc != 1) {
+          long long a0 = 0;
+          if (module_generic_string_read_arg_reg(args, 0, &a0)) {
+            rc = emit_global_mir_call(
+                f,
+                classify_mir_call_global_surface(read_str(cal, "name")),
+                bid,
+                ii,
+                a0);
+          }
+        }
+        return rc;
+      }
+
       auto int module_generic_string_emit_mir_call(
           FILE* f,
           long long bid,
@@ -1471,18 +1493,13 @@
         if (ctype && !strcmp(ctype, "Extern")) {
           rc = 0;
         } else if (ctype && !strcmp(ctype, "Global")) {
-          rc = emit_global_call_lowering_plan_mir_call(f, bid, ii, dst, args);
-          if (rc != 1) {
-            long long a0 = 0;
-            if (module_generic_string_read_arg_reg(args, 0, &a0)) {
-              rc = emit_global_mir_call(
-                  f,
-                  classify_mir_call_global_surface(read_str(cal, "name")),
-                  bid,
-                  ii,
-                  a0);
-            }
-          }
+          rc = module_generic_string_emit_global_call_mir_call(
+              f,
+              bid,
+              ii,
+              cal,
+              args,
+              dst);
         } else if (ctype && !strcmp(ctype, "Method")) {
           long long recv = module_generic_string_call_receiver(op, cal);
           const char* mname = module_generic_string_call_name(op, cal);

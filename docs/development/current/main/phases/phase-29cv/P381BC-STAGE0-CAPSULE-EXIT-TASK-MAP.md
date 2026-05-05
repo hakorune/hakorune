@@ -304,6 +304,11 @@ Module-generic method birth helper cleanup landed in
 ArrayBox/MapBox method-birth recognition now has one helper shared by prepass
 and emit handling.
 
+Module-generic global emit helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DD-MODULE-GENERIC-GLOBAL-EMIT-HELPER.md`:
+global-call emission now goes through one helper while preserving the
+LoweringPlan-first fallback order.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

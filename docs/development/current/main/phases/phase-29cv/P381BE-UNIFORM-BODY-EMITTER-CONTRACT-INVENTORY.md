@@ -143,6 +143,8 @@ Completed focused probe:
     after method birth and LoweringPlan view loading
   - P381DC centralized module-generic ArrayBox/MapBox method-birth route
     recognition across prepass and emit handling
+  - P381DD moved module-generic global-call emission behind one helper while
+    preserving the LoweringPlan-first fallback order
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
