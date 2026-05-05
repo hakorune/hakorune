@@ -37,8 +37,8 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 | --- | --- | --- | --- | --- | --- |
 | `GenericStringOrVoidSentinelBody` | superseded by P381BQ: `typed_global_call_generic_string_or_void_sentinel` / `target_shape=null` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the generic-string direct predicate | planned as a generic module symbol; shares the generic string body path | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
 | `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
-| `ParserProgramJsonBody` | superseded by P381BN: `typed_global_call_parser_program_json` / `target_shape=null` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol and a parser Program(JSON) symbol; body still has a dedicated `emit_parser_program_json_function_definition` path | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
-| `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the static-array contract predicate | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
+| `ParserProgramJsonBody` | superseded by P381BN: `typed_global_call_parser_program_json` / `target_shape=null` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol; parser-only body emitter removed by P381CD | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
+| `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the static-array contract predicate | planned as a generic module symbol; array append sites use `generic_method.push` route facts after P381CE | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
 | `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` through the MIR-schema map contract predicate | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
 | `BoxTypeInspectorDescribeBody` | superseded by P381BO: `typed_global_call_box_type_inspector_describe` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; active source-owner callers already use scalar predicates; body remains a later uniform-emitter cleanup item | `global_call_route_plan::tests::box_type_inspector_describe` |
 | `PatternUtilLocalValueProbeBody` | superseded by P381BP: `typed_global_call_pattern_util_local_value_probe` / `target_shape=null` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | planned as a generic module symbol; child-probe recognition uses proof/return facts; body remains a later uniform-emitter cleanup item | `global_call_route_plan::tests::pattern_util_local_value_probe` |
@@ -66,13 +66,14 @@ Completed focused probe:
 - `StaticStringArrayBody`
   - retired as a target-shape variant in P381BL
   - direct ABI truth now lives in stored proof and `array_handle` return-contract facts
+  - selected-kind registry and active static-array push fallback removed by P381CE
 - `MirSchemaMapConstructorBody`
   - retired as a target-shape variant in P381BM
   - direct ABI truth now lives in stored proof and `map_handle` return-contract facts
 - `ParserProgramJsonBody`
   - retired as a target-shape variant in P381BN
   - direct ABI truth now lives in stored proof and `string_handle` return-contract facts
-  - the dedicated body emitter remains as a later uniform-emitter cleanup item
+  - the dedicated body emitter was removed by P381CD
 - `BoxTypeInspectorDescribeBody`
   - retired as a target-shape variant in P381BO after active source-owner callers
     moved to scalar predicates

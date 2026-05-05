@@ -68,7 +68,9 @@ Static string array direct calls are no longer a `GlobalCallTargetShape` variant
 MIR still records them as direct ABI targets with
 `proof=typed_global_call_static_string_array` and `return_shape=array_handle`;
 `target_shape` is omitted because the proof/return contract is now the SSOT for
-this retired origin-carrying capsule.
+this retired origin-carrying capsule. Its body is emitted as an ordinary module
+generic MIR function; array append sites inside the body are accepted only
+through `generic_method.push` route facts.
 
 MIR schema map constructor direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with

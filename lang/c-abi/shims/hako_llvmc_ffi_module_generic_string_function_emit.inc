@@ -41,11 +41,6 @@
         }
       }
 
-      auto int module_generic_string_active_function_is_static_string_array(void) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return module_generic_symbol_is_static_string_array(name);
-      }
-
       auto int module_generic_string_read_string_const(
           yyjson_val* ins,
           const char** out) {
@@ -488,16 +483,6 @@
                 long long value = 0;
                 if (dst) set_type(dst, T_I64);
                 if (!module_generic_string_read_array_push_value(args, &value)) return 0;
-                module_generic_string_promote_array_string_push(recv, value);
-              } else if (module_generic_string_active_function_is_static_string_array() &&
-                         ctype && !strcmp(ctype, "Method") &&
-                         mname && !strcmp(mname, "push")) {
-                long long recv = module_generic_string_call_receiver(op, cal);
-                long long value = 0;
-                if (!module_generic_string_read_array_push_value(args, &value)) return 0;
-                if (!module_generic_string_value_is_array(recv) ||
-                    !module_generic_string_value_is_string(value)) return 0;
-                if (dst) set_type(dst, T_I64);
                 module_generic_string_promote_array_string_push(recv, value);
               } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
                          module_generic_string_method_view_is_direct_array_get(&method_view)) {
@@ -1054,22 +1039,6 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_static_array_push_mir_call(
-          FILE* f,
-          long long dst,
-          long long recv,
-          yyjson_val* args) {
-        long long value = 0;
-        if (!module_generic_string_active_function_is_static_string_array()) return 0;
-        if (!module_generic_string_read_array_push_value(args, &value)) return 0;
-        if (!module_generic_string_value_is_array(recv) ||
-            !module_generic_string_value_is_string(value)) return 0;
-        (void)f;
-        module_generic_string_emit_array_slot_append_call(dst, recv, value);
-        module_generic_string_promote_array_string_push(recv, value);
-        return 1;
-      }
-
       auto int module_generic_string_emit_method_get_mir_call(
           FILE* f,
           long long bid,
@@ -1477,9 +1446,6 @@
                 dst,
                 recv,
                 args);
-          }
-          if (rc != 1 && mname && !strcmp(mname, "push")) {
-            rc = module_generic_string_emit_static_array_push_mir_call(f, dst, recv, args);
           }
           if (rc != 1) {
             rc = module_generic_string_emit_method_get_mir_call(

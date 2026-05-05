@@ -5,36 +5,15 @@
        * This registry only records same-module functions that must be emitted
        * as LLVM definitions so direct calls cannot silently externalize them.
        */
-      enum ModuleGenericStringPlannedKind {
-        MODULE_GENERIC_STRING_PLANNED_GENERIC = 0,
-        MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY = 1,
-      };
-
       const char* planned_module_generic_string_symbols[1024];
-      int planned_module_generic_string_kinds[1024];
       size_t planned_module_generic_string_symbols_n = 0;
       const char* emitted_module_generic_string_symbols[1024];
       size_t emitted_module_generic_string_symbols_n = 0;
 
-      auto int module_generic_planned_kind_is_special(int kind) {
-        return kind == MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY;
-      }
-
-      auto int remember_planned_module_generic_string_symbol_kind(
-          const char* name,
-          int kind) {
+      auto int remember_planned_module_generic_string_symbol(const char* name) {
         if (!name) return 0;
         for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
-          if (!strcmp(planned_module_generic_string_symbols[i], name)) {
-            int existing = planned_module_generic_string_kinds[i];
-            if (existing == kind || kind == MODULE_GENERIC_STRING_PLANNED_GENERIC) return 1;
-            if (existing == MODULE_GENERIC_STRING_PLANNED_GENERIC &&
-                module_generic_planned_kind_is_special(kind)) {
-              planned_module_generic_string_kinds[i] = kind;
-              return 1;
-            }
-            return 0;
-          }
+          if (!strcmp(planned_module_generic_string_symbols[i], name)) return 1;
         }
         if (planned_module_generic_string_symbols_n >=
             ARR_LEN(planned_module_generic_string_symbols)) {
@@ -50,15 +29,8 @@
           return 0;
         }
         planned_module_generic_string_symbols[planned_module_generic_string_symbols_n] = name;
-        planned_module_generic_string_kinds[planned_module_generic_string_symbols_n] = kind;
         planned_module_generic_string_symbols_n++;
         return 1;
-      }
-
-      auto int remember_planned_module_generic_string_symbol(const char* name) {
-        return remember_planned_module_generic_string_symbol_kind(
-            name,
-            MODULE_GENERIC_STRING_PLANNED_GENERIC);
       }
 
       auto int module_generic_symbol_will_be_defined(const char* name) {
@@ -67,21 +39,6 @@
           if (!strcmp(planned_module_generic_string_symbols[i], name)) return 1;
         }
         return 0;
-      }
-
-      auto int module_generic_symbol_planned_kind(const char* name) {
-        if (!name) return 0;
-        for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
-          if (!strcmp(planned_module_generic_string_symbols[i], name)) {
-            return planned_module_generic_string_kinds[i];
-          }
-        }
-        return 0;
-      }
-
-      auto int module_generic_symbol_is_static_string_array(const char* name) {
-        return module_generic_symbol_planned_kind(name) ==
-               MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY;
       }
 
       auto int remember_emitted_module_generic_string_symbol(const char* name) {
@@ -177,10 +134,6 @@
             planned++;
             continue;
           }
-          int planned_kind = MODULE_GENERIC_STRING_PLANNED_GENERIC;
-          if (is_static_string_array) {
-            planned_kind = MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY;
-          }
           if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||
                  lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(&view) ||
                  lowering_plan_global_call_view_is_direct_generic_i64(&view) ||
@@ -190,9 +143,7 @@
                  is_box_type_inspector_describe ||
                  is_pattern_util_local_value_probe ||
                  is_uniform_mir_function_candidate)) continue;
-          if (!remember_planned_module_generic_string_symbol_kind(
-                  view.target_symbol,
-                  planned_kind)) return -1;
+          if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
           planned++;
         }
         return planned;
