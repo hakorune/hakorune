@@ -72,7 +72,7 @@ Retired capsule contracts:
 | `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; dedicated body emission remains a later cleanup |
 | `BoxTypeInspectorDescribeBody` | retired as a shape in P381BO; direct ABI truth now lives in `proof=typed_global_call_box_type_inspector_describe` plus `return_shape=map_handle`; active source-owner callers already use scalar predicates; definition owner moved to `uniform_mir` in P381EC |
 | `PatternUtilLocalValueProbeBody` | retired as a shape in P381BP; direct ABI truth now lives in `proof=typed_global_call_pattern_util_local_value_probe` plus `return_shape=mixed_runtime_i64_or_handle`; child-probe recognition uses proof/return facts; definition owner moved to `uniform_mir` in P381ED |
-| `GenericStringOrVoidSentinelBody` | retired as a shape in P381BQ; direct ABI truth now lives in `proof=typed_global_call_generic_string_or_void_sentinel` plus `return_shape=string_handle_or_null`; generic-method string-origin consumers use proof/return facts |
+| `GenericStringOrVoidSentinelBody` | retired as a shape in P381BQ; direct ABI truth now lives in `proof=typed_global_call_generic_string_or_void_sentinel` plus `return_shape=string_handle_or_null`; generic-method string-origin consumers use proof/return facts; definition owner moved to `uniform_mir` in P381EN |
 
 No temporary capsule remains in the Stage0 shape inventory.
 
@@ -477,6 +477,11 @@ Global-call definition readiness cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381EM-GLOBAL-CALL-READINESS-HELPER.md`:
 the direct global-call emitter now checks leaf/same-module readiness through
 one local helper before emitting the call.
+
+String-or-void sentinel uniform-owner cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EN-STRING-OR-VOID-SENTINEL-UNIFORM-OWNER.md`:
+sentinel direct-call routes and lowering plans now serialize
+`definition_owner=uniform_mir` with the uniform MIR trace consumer.
 
 Primary targets:
 

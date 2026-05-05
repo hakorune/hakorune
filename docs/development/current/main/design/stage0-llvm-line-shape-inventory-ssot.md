@@ -120,8 +120,10 @@ Generic string-or-void sentinel direct calls are no longer a
 with `proof=typed_global_call_generic_string_or_void_sentinel` and
 `return_shape=string_handle_or_null`; `target_shape` is omitted because the
 proof/return contract plus `result_origin=string` metadata are now the SSOT for
-this retired sentinel capsule. Generic-method string-origin consumers also read
-the proof/return facts instead of the legacy shape string.
+this retired sentinel capsule. Its definition owner is `uniform_mir`; Stage0
+plans and emits the backend body through the same shared function-emitter path
+as other uniform MIR owner routes. Generic-method string-origin consumers also
+read the proof/return facts instead of the legacy shape string.
 
 ## Missing Multi-Function Emitter Policy
 

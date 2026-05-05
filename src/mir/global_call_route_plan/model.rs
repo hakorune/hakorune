@@ -130,10 +130,9 @@ impl GlobalCallProof {
             | Self::StaticStringArray
             | Self::MirSchemaMapConstructor
             | Self::BoxTypeInspectorDescribe
+            | Self::GenericStringOrVoidSentinel
             | Self::PatternUtilLocalValueProbe => GlobalCallDefinitionOwner::UniformMir,
-            Self::GenericPureString | Self::GenericStringOrVoidSentinel => {
-                GlobalCallDefinitionOwner::ModuleGeneric
-            }
+            Self::GenericPureString => GlobalCallDefinitionOwner::ModuleGeneric,
         }
     }
 }

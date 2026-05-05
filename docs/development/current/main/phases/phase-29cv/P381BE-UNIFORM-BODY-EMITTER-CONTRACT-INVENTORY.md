@@ -35,7 +35,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 
 | Capsule | Proof / target shape | Return / demand | Result origin side effect | Selected-set / body requirement | Current proof surface |
 | --- | --- | --- | --- | --- | --- |
-| `GenericStringOrVoidSentinelBody` | superseded by P381BQ: `typed_global_call_generic_string_or_void_sentinel` / `target_shape=null` | `string_handle_or_null` / `runtime_i64_or_handle` | `result_origin=string` from P381CG LoweringPlan metadata | planned as a generic module symbol through the shared P381CF module-generic helper | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
+| `GenericStringOrVoidSentinelBody` | superseded by P381BQ: `typed_global_call_generic_string_or_void_sentinel` / `target_shape=null` | `string_handle_or_null` / `runtime_i64_or_handle` | `result_origin=string` from P381CG LoweringPlan metadata | selected same-module body uses `definition_owner=uniform_mir`; Stage0 consumes it through the shared function emitter | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
 | `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | selected same-module body uses `definition_owner=uniform_mir`; Stage0 consumes it through the shared function emitter | `global_call_route_plan::tests::void_logging`, runner MIR JSON void-logging tests |
 | `ParserProgramJsonBody` | superseded by P381BN: `typed_global_call_parser_program_json` / `target_shape=null` | `string_handle` / `runtime_i64_or_handle` | `result_origin=string` from P381CG LoweringPlan metadata | parser-only body emitter removed by P381CD; planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
 | `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `result_origin=array_string_birth` from P381CG LoweringPlan metadata | selected-kind registry and push fallback removed by P381CE; planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
@@ -224,6 +224,9 @@ Completed focused probe:
     `generic_i64_or_leaf` leaf-detection branch in same-module planning
   - P381EM centralized direct global-call definition readiness checks in the
     emission shell
+  - P381EN moved `GenericStringOrVoidSentinelBody` to
+    `definition_owner=uniform_mir` after Stage0 readiness/prepass planning was
+    owner-neutralized
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions
