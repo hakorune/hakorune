@@ -110,15 +110,19 @@
         for (size_t pi = 0; pi < yyjson_arr_size(entries); pi++) {
           yyjson_val* entry = yyjson_arr_get(entries, pi);
           struct LoweringPlanGlobalCallView view;
-          yyjson_val* target_fn = NULL;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
-          target_fn = same_module_function_find(view.target_symbol);
-          if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view) ||
-              (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(&view) &&
-               module_function_is_numeric_i64_leaf(target_fn))) {
+          if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view)) {
             if (!remember_planned_module_leaf_symbol(view.target_symbol)) return -1;
             planned++;
             continue;
+          }
+          if (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(&view)) {
+            yyjson_val* target_fn = same_module_function_find(view.target_symbol);
+            if (module_function_is_numeric_i64_leaf(target_fn)) {
+              if (!remember_planned_module_leaf_symbol(view.target_symbol)) return -1;
+              planned++;
+              continue;
+            }
           }
           if (!lowering_plan_global_call_view_requires_same_module_function_definition(&view)) {
             continue;

@@ -468,6 +468,11 @@ Print fallback prepass split landed in
 `docs/development/current/main/phases/phase-29cv/P381EK-PRINT-PREPASS-SPLIT.md`:
 the local module-generic string print fallback now sits behind its own helper.
 
+Same-module planner lookup cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EL-SAME-MODULE-LOOKUP-SCOPE.md`:
+target-function lookup now happens only when the `generic_i64_or_leaf` branch
+needs leaf detection.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
