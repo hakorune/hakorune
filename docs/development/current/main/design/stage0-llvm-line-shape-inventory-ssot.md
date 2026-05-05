@@ -62,23 +62,27 @@ Void/logging direct calls are no longer a `GlobalCallTargetShape` variant. MIR
 still records them as direct ABI targets with
 `proof=typed_global_call_generic_string_void_logging` and
 `return_shape=void_sentinel_i64_zero`; `target_shape` is omitted because the
-proof/return contract is now the SSOT for this retired capsule.
+proof/return contract is now the SSOT for this retired capsule. Its definition
+owner is `uniform_mir`; Stage0 still emits the selected same-module body through
+the shared function emitter.
 
 Static string array direct calls are no longer a `GlobalCallTargetShape` variant.
 MIR still records them as direct ABI targets with
 `proof=typed_global_call_static_string_array` and `return_shape=array_handle`;
 `target_shape` is omitted because the proof/return contract plus
 `result_origin=array_string_birth` metadata are now the SSOT for this retired
-origin-carrying capsule. Its body is emitted as an ordinary module generic MIR
-function; array append sites inside the body are accepted only through
-`generic_method.push` route facts.
+origin-carrying capsule. Its definition owner is `uniform_mir`; Stage0 still
+emits the selected same-module body through the shared function emitter. Array
+append sites inside the body are accepted only through `generic_method.push`
+route facts.
 
 MIR schema map constructor direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with
 `proof=typed_global_call_mir_schema_map_constructor` and
 `return_shape=map_handle`; `target_shape` is omitted because the proof/return
 contract plus `result_origin=map_birth` metadata are now the SSOT for this
-retired origin-carrying capsule.
+retired origin-carrying capsule. Its definition owner is `uniform_mir`; Stage0
+still emits the selected same-module body through the shared function emitter.
 
 Parser Program(JSON) direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with
@@ -86,8 +90,8 @@ variant. MIR still records them as direct ABI targets with
 `return_shape=string_handle`; `target_shape` is omitted because the proof/return
 contract plus `result_origin=string` metadata are now the SSOT for this retired
 source-execution capsule. Its Stage0 body definition is now emitted by the
-module generic MIR function emitter; the old parser-only body clone has been
-removed.
+shared function emitter under `definition_owner=uniform_mir`; the old
+parser-only body clone has been removed.
 
 BoxTypeInspector describe direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with

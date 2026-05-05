@@ -394,6 +394,11 @@ Module-generic planned definition helper cleanup landed in
 planned-symbol driver now delegates per-symbol lookup, skip, emit, and count
 handling through one helper.
 
+Phase1 uniform definition-owner cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DW-PHASE1-UNIFORM-MIR-DEFINITION-OWNER.md`:
+the four direct-only retired capsules now serialize `definition_owner=uniform_mir`
+while preserving proof, return, origin, and selected body planning contracts.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

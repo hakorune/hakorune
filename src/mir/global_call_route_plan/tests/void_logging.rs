@@ -68,6 +68,11 @@ fn refresh_module_global_call_routes_accepts_void_logging_string_body() {
     assert_eq!(route.tier(), "DirectAbi");
     assert_eq!(route.return_shape(), Some("void_sentinel_i64_zero"));
     assert_eq!(route.value_demand(), "scalar_i64");
+    assert_eq!(route.definition_owner(), "uniform_mir");
+    assert_eq!(
+        route.emit_trace_consumer(),
+        "mir_call_global_uniform_mir_emit"
+    );
     assert_eq!(route.reason(), None);
 }
 

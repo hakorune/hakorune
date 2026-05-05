@@ -416,6 +416,11 @@ fn refresh_module_global_call_routes_marks_mir_schema_map_constructor_contract()
     );
     assert_eq!(route.return_shape(), Some("map_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+    assert_eq!(route.definition_owner(), "uniform_mir");
+    assert_eq!(
+        route.emit_trace_consumer(),
+        "mir_call_global_uniform_mir_emit"
+    );
 }
 
 #[test]

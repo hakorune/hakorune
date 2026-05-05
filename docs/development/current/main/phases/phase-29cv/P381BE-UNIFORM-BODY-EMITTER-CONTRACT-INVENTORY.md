@@ -181,6 +181,11 @@ Completed focused probe:
     definition-entry helper
   - P381DV moved module-generic planned-symbol lookup, entry skip, definition
     emission, and count updates behind one driver helper
+  - P381DW moved the Phase 1 direct-only retired capsule proofs
+    (`GenericStringVoidLoggingBody`, `ParserProgramJsonBody`,
+    `StaticStringArrayBody`, and `MirSchemaMapConstructorBody`) to
+    `definition_owner=uniform_mir` while keeping selected body planning through
+    the shared Stage0 function emitter
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

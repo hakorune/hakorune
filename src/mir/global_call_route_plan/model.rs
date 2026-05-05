@@ -125,12 +125,12 @@ impl GlobalCallProof {
             Self::ContractMissing => GlobalCallDefinitionOwner::None,
             Self::LeafNumericI64 => GlobalCallDefinitionOwner::LeafI64,
             Self::GenericI64 => GlobalCallDefinitionOwner::GenericI64OrLeaf,
-            Self::GenericPureString
-            | Self::GenericStringOrVoidSentinel
-            | Self::GenericStringVoidLogging
+            Self::GenericStringVoidLogging
             | Self::ParserProgramJson
             | Self::StaticStringArray
-            | Self::MirSchemaMapConstructor
+            | Self::MirSchemaMapConstructor => GlobalCallDefinitionOwner::UniformMir,
+            Self::GenericPureString
+            | Self::GenericStringOrVoidSentinel
             | Self::BoxTypeInspectorDescribe
             | Self::PatternUtilLocalValueProbe => GlobalCallDefinitionOwner::ModuleGeneric,
         }
