@@ -561,8 +561,6 @@
                !strcmp(view->proof, "typed_global_call_pattern_util_local_value_probe") &&
                view->route_proof &&
                !strcmp(view->route_proof, "typed_global_call_pattern_util_local_value_probe") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "pattern_util_local_value_probe_body") &&
                view->return_shape &&
                !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
                view->value_demand &&

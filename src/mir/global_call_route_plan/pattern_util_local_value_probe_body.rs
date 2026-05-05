@@ -3,7 +3,10 @@ use std::collections::BTreeMap;
 
 use super::generic_string_abi::generic_pure_string_abi_type_is_handle_compatible;
 use super::generic_string_surface::generic_pure_string_global_name_is_self;
-use super::{lookup_global_call_target, GlobalCallTargetFacts, GlobalCallTargetShape};
+use super::{
+    lookup_global_call_target, GlobalCallProof, GlobalCallReturnContract, GlobalCallTargetFacts,
+    GlobalCallTargetShape,
+};
 
 pub(super) fn is_pattern_util_local_value_probe_body_function(
     function: &MirFunction,
@@ -139,7 +142,7 @@ impl PatternUtilLocalValueProbeFacts {
         let Some(target) = lookup_global_call_target(name, targets) else {
             return;
         };
-        if arity == 3 && target.shape() == GlobalCallTargetShape::PatternUtilLocalValueProbeBody {
+        if arity == 3 && target_is_pattern_util_local_value_probe(target) {
             self.child_probe_calls += 1;
         } else if arity == 1 && target.shape() == GlobalCallTargetShape::GenericI64Body {
             self.scalar_coerce_calls += 1;
@@ -174,4 +177,9 @@ impl PatternUtilLocalValueProbeFacts {
             && self.scalar_coerce_calls >= 1
             && self.compare_ops >= 1
     }
+}
+
+fn target_is_pattern_util_local_value_probe(target: &GlobalCallTargetFacts) -> bool {
+    target.proof() == GlobalCallProof::PatternUtilLocalValueProbe
+        && target.return_contract() == Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
 }

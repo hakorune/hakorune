@@ -41,7 +41,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 | `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the static-array contract predicate | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
 | `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` through the MIR-schema map contract predicate | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
 | `BoxTypeInspectorDescribeBody` | superseded by P381BO: `typed_global_call_box_type_inspector_describe` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; active source-owner callers already use scalar predicates; body remains a later uniform-emitter cleanup item | `global_call_route_plan::tests::box_type_inspector_describe` |
-| `PatternUtilLocalValueProbeBody` | `typed_global_call_pattern_util_local_value_probe` / `pattern_util_local_value_probe_body` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | planned as a generic module symbol; body remains mixed scalar/handle source-owner shaped | `global_call_route_plan::tests::pattern_util_local_value_probe` |
+| `PatternUtilLocalValueProbeBody` | superseded by P381BP: `typed_global_call_pattern_util_local_value_probe` / `target_shape=null` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | planned as a generic module symbol; child-probe recognition uses proof/return facts; body remains a later uniform-emitter cleanup item | `global_call_route_plan::tests::pattern_util_local_value_probe` |
 
 ## Current C-Side Branch Sites
 
@@ -78,13 +78,17 @@ Completed focused probe:
     moved to scalar predicates
   - direct ABI truth now lives in stored proof and `map_handle` return-contract facts
   - the dedicated body emitter remains as a later uniform-emitter cleanup item
+- `PatternUtilLocalValueProbeBody`
+  - retired as a target-shape variant in P381BP
+  - direct ABI truth now lives in stored proof and
+    `mixed_runtime_i64_or_handle` return-contract facts
+  - recursive child-probe recognition now reads proof/return facts instead of
+    the legacy shape string
 
 Not ready for shape-delete-only:
 
 - `GenericStringOrVoidSentinelBody`: sentinel plumbing remains source-owner
   shaped
-- `PatternUtilLocalValueProbeBody`: mixed scalar/handle cleanup should happen
-  first
 
 ## Boundary
 
@@ -110,8 +114,9 @@ Done:
 - the first safe implementation probe, `GenericStringVoidLoggingBody`, is now
   retired as a target-shape variant by P381BJ
 - `StaticStringArrayBody`, `MirSchemaMapConstructorBody`, and
-  `ParserProgramJsonBody`, and `BoxTypeInspectorDescribeBody` are also retired
-  as target-shape variants after proof/return contracts became the SSOT
+  `ParserProgramJsonBody`, `BoxTypeInspectorDescribeBody`, and
+  `PatternUtilLocalValueProbeBody` are also retired as target-shape variants
+  after proof/return contracts became the SSOT
 - remaining temporary capsules have explicit blockers before deletion
 
 Next:

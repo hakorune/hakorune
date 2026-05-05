@@ -58,7 +58,6 @@ emission cannot handle the blocker yet.
 | `GenericI64Body` | permanent candidate | scalar/bool/i64 ABI helper classifier | keep narrow to scalar facts; do not add collection or compiler-owner semantics |
 | `GenericPureStringBody` | permanent candidate with shrink target | string-handle ABI helper classifier | keep only string flow; move collection/normalizer/source-owner meaning out |
 | `GenericStringOrVoidSentinelBody` | temporary capsule | string/void sentinel bridge for current source-execution blockers | replace by uniform MIR function emitter or source-owner sentinel cleanup |
-| `PatternUtilLocalValueProbeBody` | temporary capsule | pattern util local-value probe bridge | replace by source-owner text/scalar cleanup or uniform MIR function emitter |
 
 Void/logging direct calls are no longer a `GlobalCallTargetShape` variant. MIR
 still records them as direct ABI targets with
@@ -94,6 +93,14 @@ contract is now the SSOT for this retired source-owner capsule. The active
 source-owner consumers already use scalar predicates (`is_map` / `is_array`);
 the legacy map-return describe body remains only as a direct ABI body until the
 later uniform multi-function emitter cleanup.
+
+PatternUtil local-value probe direct calls are no longer a
+`GlobalCallTargetShape` variant. MIR still records them as direct ABI targets
+with `proof=typed_global_call_pattern_util_local_value_probe` and
+`return_shape=mixed_runtime_i64_or_handle`; `target_shape` is omitted because
+the proof/return contract is now the SSOT for this retired mixed
+scalar/handle capsule. Recursive child-probe recognition also consumes the
+proof/return contract instead of the legacy shape string.
 
 ## Missing Multi-Function Emitter Policy
 

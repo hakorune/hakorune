@@ -46,8 +46,9 @@ Audited results:
   - P381BJ removed the target-shape variant after storing
     `proof=typed_global_call_generic_string_void_logging` and
     `return_shape=void_sentinel_i64_zero` as target facts
-- `PatternUtilLocalValueProbeBody`: already known blocked
-  - it still carries a distinct mixed scalar/handle contract
+- `PatternUtilLocalValueProbeBody`: superseded by P381BP
+  - the mixed scalar/handle contract now lives in proof/return facts rather than
+    a target-shape variant; child-probe recognition also reads those facts
 
 ## Boundary
 

@@ -152,8 +152,9 @@ fn classify_global_call_target_shape(
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericI64Body);
     }
     if is_pattern_util_local_value_probe_body_function(function, targets) {
-        return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::PatternUtilLocalValueProbeBody,
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::PatternUtilLocalValueProbe,
+            GlobalCallReturnContract::MixedRuntimeI64OrHandle,
         );
     }
     if is_parser_program_json_body_function(function) {

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381BO-BOX-TYPE-INSPECTOR-TARGET-SHAPE-RETIRE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BO-BOX-TYPE-INSPECTOR-TARGET-SHAPE-RETIRE.md"
-latest_card_summary = "BoxTypeInspector describe global calls now publish `proof=typed_global_call_box_type_inspector_describe` plus `return_shape=map_handle` with `target_shape=null`, retiring `BoxTypeInspectorDescribeBody` from the Stage0 shape inventory after the active source-owner uses moved to scalar predicates."
+latest_card = "P381BP-PATTERN-UTIL-LOCAL-VALUE-PROBE-TARGET-SHAPE-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BP-PATTERN-UTIL-LOCAL-VALUE-PROBE-TARGET-SHAPE-RETIRE.md"
+latest_card_summary = "PatternUtil local-value probe global calls now publish `proof=typed_global_call_pattern_util_local_value_probe` plus `return_shape=mixed_runtime_i64_or_handle` with `target_shape=null`, retiring `PatternUtilLocalValueProbeBody` from the Stage0 shape inventory while preserving child-probe recognition through proof/return facts."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

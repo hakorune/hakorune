@@ -185,7 +185,7 @@ fn build_local_bool_probe(name: &str, int_probe_name: &str, coerce_name: &str) -
 }
 
 #[test]
-fn refresh_module_global_call_routes_accepts_pattern_util_local_value_probe_body() {
+fn refresh_module_global_call_routes_accepts_pattern_util_local_value_probe_contract() {
     let mut module = MirModule::new("global_call_pattern_util_local_value_probe_test".to_string());
     let caller = make_function_with_global_call_args(
         "Helper.find_local_int_before/3",
@@ -211,7 +211,7 @@ fn refresh_module_global_call_routes_accepts_pattern_util_local_value_probe_body
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("pattern_util_local_value_probe_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -260,7 +260,7 @@ fn refresh_module_global_call_routes_accepts_pattern_util_bool_probe_via_local_v
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("pattern_util_local_value_probe_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -278,6 +278,7 @@ fn refresh_module_global_call_routes_accepts_pattern_util_bool_probe_via_local_v
         .global_call_routes;
     assert!(int_child_routes.iter().any(|route| {
         route.callee_name() == "Helper.find_local_int_before/3"
-            && route.target_shape() == Some("pattern_util_local_value_probe_body")
+            && route.proof() == "typed_global_call_pattern_util_local_value_probe"
+            && route.return_shape() == Some("mixed_runtime_i64_or_handle")
     }));
 }

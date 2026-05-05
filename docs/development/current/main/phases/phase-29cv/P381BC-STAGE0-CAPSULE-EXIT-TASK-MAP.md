@@ -71,13 +71,13 @@ Retired capsule contracts:
 | `MirSchemaMapConstructorBody` | retired as a shape in P381BM; direct ABI truth now lives in `proof=typed_global_call_mir_schema_map_constructor` plus `return_shape=map_handle` |
 | `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; dedicated body emission remains a later cleanup |
 | `BoxTypeInspectorDescribeBody` | retired as a shape in P381BO; direct ABI truth now lives in `proof=typed_global_call_box_type_inspector_describe` plus `return_shape=map_handle`; active source-owner callers already use scalar predicates |
+| `PatternUtilLocalValueProbeBody` | retired as a shape in P381BP; direct ABI truth now lives in `proof=typed_global_call_pattern_util_local_value_probe` plus `return_shape=mixed_runtime_i64_or_handle`; child-probe recognition uses proof/return facts |
 
 Current temporary capsules from the Stage0 shape inventory:
 
 | Capsule | Reading |
 | --- | --- |
 | `GenericStringOrVoidSentinelBody` | source-owner cleanup first unless uniform body emission can carry the sentinel contract cleanly |
-| `PatternUtilLocalValueProbeBody` | source-owner text/scalar cleanup first |
 
 Permanent or permanent-candidate shapes remain:
 
@@ -159,9 +159,10 @@ Acceptance must include:
 ### T3: Origin-Carrying Capsule Retirements
 
 Status: target-shape retirements landed for `MirSchemaMapConstructorBody`,
-`ParserProgramJsonBody`, and `BoxTypeInspectorDescribeBody`. Parser
-Program(JSON) and BoxTypeInspector describe still have dedicated body emitters
-that belong to T5/uniform-emitter cleanup, not another target-shape variant.
+`ParserProgramJsonBody`, `BoxTypeInspectorDescribeBody`, and
+`PatternUtilLocalValueProbeBody`. Parser Program(JSON), BoxTypeInspector
+describe, and PatternUtil local-value probe still have dedicated body handling
+that belongs to T5/uniform-emitter cleanup, not another target-shape variant.
 
 
 Do not remove a shape until the origin/return contract is represented without
