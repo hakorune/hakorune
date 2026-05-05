@@ -130,6 +130,22 @@
         return 1;
       }
 
+      auto void module_generic_string_emit_array_slot_append_call(
+          long long dst,
+          long long recv,
+          long long value) {
+        char ab[256];
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        append_i64_arg_ref(ab, sizeof(ab), value, 0);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);
+          set_type(dst, T_I64);
+        } else {
+          EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
+        }
+      }
+
       auto int module_generic_string_record_phi(yyjson_val* ins, long long bid) {
         struct BlockPhi* pb = ensure_phi_block(bid);
         struct PhiRec pr;
@@ -1010,23 +1026,14 @@
           yyjson_val* args) {
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView method_view;
-        char ab[256];
         long long value = 0;
-        ab[0] = '\0';
         (void)f;
         if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
               module_generic_string_method_view_is_direct_array_push(&method_view))) {
           return 0;
         }
         if (!module_generic_string_read_array_push_value(args, &value)) return 0;
-        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        append_i64_arg_ref(ab, sizeof(ab), value, 0);
-        if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-        } else {
-          EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
-        }
+        module_generic_string_emit_array_slot_append_call(dst, recv, value);
         module_generic_string_promote_array_string_push(recv, value);
         return 1;
       }
@@ -1036,21 +1043,13 @@
           long long dst,
           long long recv,
           yyjson_val* args) {
-        char ab[256];
         long long value = 0;
         if (!module_generic_string_active_function_is_static_string_array()) return 0;
         if (!module_generic_string_read_array_push_value(args, &value)) return 0;
         if (!module_generic_string_value_is_array(recv) ||
             !module_generic_string_value_is_string(value)) return 0;
-        ab[0] = '\0';
-        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        append_i64_arg_ref(ab, sizeof(ab), value, 0);
-        if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-        } else {
-          EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
-        }
+        (void)f;
+        module_generic_string_emit_array_slot_append_call(dst, recv, value);
         module_generic_string_promote_array_string_push(recv, value);
         return 1;
       }

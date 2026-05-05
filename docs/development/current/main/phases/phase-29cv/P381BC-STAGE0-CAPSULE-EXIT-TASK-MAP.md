@@ -201,6 +201,12 @@ Array-push body cleanup landed in
 the generic array-push route and static string array body path now share push
 argument decoding and array-string origin promotion helpers.
 
+Array append emit cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381BU-MODULE-GENERIC-ARRAY-APPEND-EMIT-HELPER-CLEANUP.md`:
+the direct array-push route and static string array body path now share the
+LLVM `nyash.array.slot_append_hh` emission helper while keeping their acceptance
+guards separate.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
