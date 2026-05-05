@@ -314,6 +314,11 @@ Module-generic method emit helper cleanup landed in
 Method branch internals now live behind one helper after the main call-family
 dispatch.
 
+Module-generic prepass global helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DF-MODULE-GENERIC-PREPASS-GLOBAL-HELPER.md`:
+global-call prepass facts now go through one helper after method and extern
+family checks.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

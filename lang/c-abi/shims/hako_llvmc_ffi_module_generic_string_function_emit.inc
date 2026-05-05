@@ -593,6 +593,32 @@
         return 0;
       }
 
+      auto int module_generic_string_prepass_global_call_view(
+          const char* ctype,
+          const char* mname,
+          yyjson_val* args,
+          long long dst,
+          const struct LoweringPlanGlobalCallView* global_view) {
+        if (global_view &&
+            lowering_plan_global_call_view_requires_module_generic_definition(global_view)) {
+          set_type(dst, T_I64);
+          mark_global_call_result_origin_from_view(global_view, dst);
+          return 1;
+        }
+        if (global_view &&
+            lowering_plan_global_call_view_uses_leaf_i64_definition(global_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (ctype && !strcmp(ctype, "Global") &&
+            classify_mir_call_global_surface(mname) ==
+                HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT &&
+            args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1) {
+          return 1;
+        }
+        return 0;
+      }
+
       auto int module_generic_string_prepass_externcall(
           long long bid,
           size_t ii,
@@ -722,21 +748,16 @@
               if (has_extern_view &&
                   module_generic_string_prepass_extern_call_view(&extern_view, dst)) {
                 continue;
-              } else if (has_global_view &&
-                         lowering_plan_global_call_view_requires_module_generic_definition(&global_view)) {
-                set_type(dst, T_I64);
-                mark_global_call_result_origin_from_view(&global_view, dst);
-              } else if (has_global_view &&
-                         lowering_plan_global_call_view_uses_leaf_i64_definition(&global_view)) {
-                set_type(dst, T_I64);
-              } else if (ctype && !strcmp(ctype, "Global") &&
-                         classify_mir_call_global_surface(mname) ==
-                             HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT &&
-                         args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1) {
-                continue;
-              } else {
-                return 0;
               }
+              if (module_generic_string_prepass_global_call_view(
+                      ctype,
+                      mname,
+                      args,
+                      dst,
+                      has_global_view ? &global_view : NULL)) {
+                continue;
+              }
+              return 0;
             } else if (!strcmp(op, "externcall")) {
               if (!module_generic_string_prepass_externcall(block.id, ii, ins)) return 0;
             } else if (!strcmp(op, "branch") ||

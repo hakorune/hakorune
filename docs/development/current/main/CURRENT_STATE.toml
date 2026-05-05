@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381DE-MODULE-GENERIC-METHOD-EMIT-HELPER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381DE-MODULE-GENERIC-METHOD-EMIT-HELPER.md"
-latest_card_summary = "Module-generic Method branch internals now live behind one helper after the main call-family dispatch."
+latest_card = "P381DF-MODULE-GENERIC-PREPASS-GLOBAL-HELPER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381DF-MODULE-GENERIC-PREPASS-GLOBAL-HELPER.md"
+latest_card_summary = "Module-generic global-call prepass facts now go through one helper after method and extern family checks."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

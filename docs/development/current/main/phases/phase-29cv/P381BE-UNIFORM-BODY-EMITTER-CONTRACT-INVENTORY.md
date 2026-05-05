@@ -147,6 +147,8 @@ Completed focused probe:
     preserving the LoweringPlan-first fallback order
   - P381DE moved module-generic Method branch internals behind one helper after
     main call-family dispatch
+  - P381DF moved module-generic global-call prepass facts behind one helper
+    after method and extern family checks
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
