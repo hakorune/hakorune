@@ -259,6 +259,11 @@ Module-generic prepass view reuse landed in
 the call prepass now reads each LoweringPlan view once per call instruction and
 feeds the cached views into the existing predicate chain.
 
+Module-generic method dispatch view reuse landed in
+`docs/development/current/main/phases/phase-29cv/P381CU-MODULE-GENERIC-METHOD-DISPATCH-VIEW-REUSE.md`:
+the body emitter now reads one generic-method LoweringPlan view per method call
+site and passes it through the method-specific emitters.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

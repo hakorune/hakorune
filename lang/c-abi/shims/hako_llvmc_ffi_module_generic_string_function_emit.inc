@@ -914,19 +914,20 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         char ab[256];
         int is_string_len = 0;
         int is_array_len = 0;
         const char* helper_symbol = NULL;
         (void)f;
+        (void)bid;
+        (void)ii;
         ab[0] = '\0';
-        if (read_lowering_plan_generic_method_view(entry, &method_view)) {
-          is_string_len = module_generic_string_method_view_is_direct_string_len(&method_view);
-          is_array_len = module_generic_string_method_view_is_direct_array_len(&method_view);
+        if (method_view) {
+          is_string_len = module_generic_string_method_view_is_direct_string_len(method_view);
+          is_array_len = module_generic_string_method_view_is_direct_array_len(method_view);
         }
         if (!(is_string_len || is_array_len)) {
           return 0;
@@ -944,11 +945,10 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv,
           yyjson_val* args) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         char ab[256];
         char recv_ab[128];
         long long start = 0;
@@ -958,8 +958,8 @@
         (void)f;
         ab[0] = '\0';
         recv_ab[0] = '\0';
-        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
-              module_generic_string_method_view_is_direct_string_substring(&method_view))) {
+        if (!(method_view &&
+              module_generic_string_method_view_is_direct_string_substring(method_view))) {
           return 0;
         }
         if (!(arg_count == 1 || arg_count == 2)) return 0;
@@ -995,15 +995,16 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv,
           yyjson_val* args) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         long long value = 0;
         (void)f;
-        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
-              module_generic_string_method_view_is_direct_array_push(&method_view))) {
+        (void)bid;
+        (void)ii;
+        if (!(method_view &&
+              module_generic_string_method_view_is_direct_array_push(method_view))) {
           return 0;
         }
         if (!module_generic_string_read_array_push_value(args, &value)) return 0;
@@ -1016,11 +1017,10 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv,
           yyjson_val* args) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         char ab[256];
         long long key = 0;
         int is_array_get = 0;
@@ -1045,44 +1045,46 @@
         int is_array_load = 0;
         const char* helper_symbol = NULL;
         (void)f;
+        (void)bid;
+        (void)ii;
         ab[0] = '\0';
-        if (read_lowering_plan_generic_method_view(entry, &method_view)) {
-          is_array_get = module_generic_string_method_view_is_direct_array_get(&method_view);
+        if (method_view) {
+          is_array_get = module_generic_string_method_view_is_direct_array_get(method_view);
           is_mir_json_block_inst_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(method_view);
           is_mir_json_effects_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(method_view);
           is_mir_json_function_block_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(method_view);
           is_mir_json_module_function_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(method_view);
           is_mir_json_params_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_params_array_item_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_params_array_item_get(method_view);
           is_mir_json_phi_incoming_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(method_view);
           is_mir_json_phi_incoming_pair_scalar_get =
-              module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(method_view);
           is_mir_json_vid_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(method_view);
           is_mir_json_flags_rec_array_get =
-              module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(&method_view);
-          is_map_get = module_generic_string_method_view_is_direct_map_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(method_view);
+          is_map_get = module_generic_string_method_view_is_direct_map_get(method_view);
           is_mir_json_block_field_get =
-              module_generic_string_method_view_is_direct_mir_json_block_field_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_block_field_get(method_view);
           is_mir_json_const_value_field_get =
-              module_generic_string_method_view_is_direct_mir_json_const_value_field_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_const_value_field_get(method_view);
           is_mir_json_numeric_value_field_get =
-              module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(method_view);
           is_mir_json_callee_field_get =
-              module_generic_string_method_view_is_direct_mir_json_callee_field_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_callee_field_get(method_view);
           is_mir_json_inst_field_get =
-              module_generic_string_method_view_is_direct_mir_json_inst_field_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_inst_field_get(method_view);
           is_mir_json_function_field_get =
-              module_generic_string_method_view_is_direct_mir_json_function_field_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_function_field_get(method_view);
           is_mir_json_module_field_get =
-              module_generic_string_method_view_is_direct_mir_json_module_field_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_module_field_get(method_view);
           is_mir_json_flags_rec_map_get =
-              module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(&method_view);
+              module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(method_view);
         }
         if (!(is_array_get ||
               is_mir_json_block_inst_array_item_get ||
@@ -1142,7 +1144,7 @@
             set_origin(dst, ORG_MAP_GET);
           }
           if (is_mir_json_inst_field_get) {
-            const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
+            const char* key = method_view && method_view->entry ? read_str(method_view->entry, "key_const_text") : NULL;
             if (key &&
                 (!strcmp(key, "op") ||
                  !strcmp(key, "operation") ||
@@ -1157,7 +1159,7 @@
             }
           }
           if (is_mir_json_function_field_get) {
-            const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
+            const char* key = method_view && method_view->entry ? read_str(method_view->entry, "key_const_text") : NULL;
             if (key && !strcmp(key, "name")) {
               set_origin(dst, ORG_STRING);
               set_scan_origin(dst, ORG_STRING);
@@ -1170,7 +1172,7 @@
             }
           }
           if (is_mir_json_module_field_get) {
-            const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
+            const char* key = method_view && method_view->entry ? read_str(method_view->entry, "key_const_text") : NULL;
             if (key && !strcmp(key, "functions")) {
               set_origin(dst, ORG_ARRAY_BIRTH);
               set_scan_origin(dst, ORG_ARRAY_BIRTH);
@@ -1187,16 +1189,17 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv,
           yyjson_val* args) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         char ab[256];
         (void)f;
+        (void)bid;
+        (void)ii;
         ab[0] = '\0';
-        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
-              module_generic_string_method_view_is_direct_mir_json_flags_keys(&method_view))) {
+        if (!(method_view &&
+              module_generic_string_method_view_is_direct_mir_json_flags_keys(method_view))) {
           return 0;
         }
         if (args && yyjson_is_arr(args) && yyjson_arr_size(args) != 0) return 0;
@@ -1213,11 +1216,10 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv,
           yyjson_val* args) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         char ab[256];
         long long key = 0;
         long long value = 0;
@@ -1225,9 +1227,11 @@
         size_t key_index = 0;
         size_t value_index = 1;
         (void)f;
+        (void)bid;
+        (void)ii;
         ab[0] = '\0';
-        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
-              module_generic_string_method_view_is_direct_map_set(&method_view))) {
+        if (!(method_view &&
+              module_generic_string_method_view_is_direct_map_set(method_view))) {
           return 0;
         }
         if (!(args && yyjson_is_arr(args))) return 0;
@@ -1251,17 +1255,16 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv,
           yyjson_val* args) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         long long needle = 0;
         long long start = 0;
         size_t arg_count = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         (void)f;
-        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
-              module_generic_string_method_view_is_direct_string_indexof(&method_view))) {
+        if (!(method_view &&
+              module_generic_string_method_view_is_direct_string_indexof(method_view))) {
           return 0;
         }
         if (!(arg_count == 1 || arg_count == 2)) return 0;
@@ -1328,14 +1331,15 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv,
           yyjson_val* args) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         (void)f;
-        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
-              module_generic_string_method_view_is_direct_string_lastindexof(&method_view))) {
+        (void)bid;
+        (void)ii;
+        if (!(method_view &&
+              module_generic_string_method_view_is_direct_string_lastindexof(method_view))) {
           return 0;
         }
         return module_generic_string_emit_string_needle_i64_call(
@@ -1349,14 +1353,15 @@
           FILE* f,
           long long bid,
           size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
           long long dst,
           long long recv,
           yyjson_val* args) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView method_view;
         (void)f;
-        if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
-              module_generic_string_method_view_is_direct_string_contains(&method_view))) {
+        (void)bid;
+        (void)ii;
+        if (!(method_view &&
+              module_generic_string_method_view_is_direct_string_contains(method_view))) {
           return 0;
         }
         return module_generic_string_emit_string_needle_i64_call(
@@ -1402,6 +1407,9 @@
           long long recv = module_generic_string_call_receiver(op, cal);
           const char* mname = module_generic_string_call_name(op, cal);
           const char* bname = module_generic_string_call_box_name(op, cal);
+          yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+          struct LoweringPlanGenericMethodView method_view;
+          const struct LoweringPlanGenericMethodView* method_view_ptr = NULL;
           if (mname && !strcmp(mname, "birth") &&
               bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
             if (dst) {
@@ -1410,12 +1418,22 @@
             }
             return 1;
           }
-          rc = module_generic_string_emit_method_len_mir_call(f, bid, ii, dst, recv);
+          if (read_lowering_plan_generic_method_view(entry, &method_view)) {
+            method_view_ptr = &method_view;
+          }
+          rc = module_generic_string_emit_method_len_mir_call(
+              f,
+              bid,
+              ii,
+              method_view_ptr,
+              dst,
+              recv);
           if (rc != 1) {
             rc = module_generic_string_emit_method_push_mir_call(
                 f,
                 bid,
                 ii,
+                method_view_ptr,
                 dst,
                 recv,
                 args);
@@ -1425,6 +1443,7 @@
                 f,
                 bid,
                 ii,
+                method_view_ptr,
                 dst,
                 recv,
                 args);
@@ -1434,6 +1453,7 @@
                 f,
                 bid,
                 ii,
+                method_view_ptr,
                 dst,
                 recv,
                 args);
@@ -1443,6 +1463,7 @@
                 f,
                 bid,
                 ii,
+                method_view_ptr,
                 dst,
                 recv,
                 args);
@@ -1452,6 +1473,7 @@
                 f,
                 bid,
                 ii,
+                method_view_ptr,
                 dst,
                 recv,
                 args);
@@ -1461,6 +1483,7 @@
                 f,
                 bid,
                 ii,
+                method_view_ptr,
                 dst,
                 recv,
                 args);
@@ -1470,6 +1493,7 @@
                 f,
                 bid,
                 ii,
+                method_view_ptr,
                 dst,
                 recv,
                 args);
@@ -1479,6 +1503,7 @@
                 f,
                 bid,
                 ii,
+                method_view_ptr,
                 dst,
                 recv,
                 args);

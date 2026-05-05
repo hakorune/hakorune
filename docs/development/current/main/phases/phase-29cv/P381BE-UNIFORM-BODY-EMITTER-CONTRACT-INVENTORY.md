@@ -125,6 +125,8 @@ Completed focused probe:
     module-generic method view helpers
   - P381CT made the module-generic prepass reuse cached LoweringPlan views
     instead of re-reading the same entry through each predicate branch
+  - P381CU made the module-generic method body dispatch reuse one cached
+    generic-method LoweringPlan view across method-specific emitters
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
