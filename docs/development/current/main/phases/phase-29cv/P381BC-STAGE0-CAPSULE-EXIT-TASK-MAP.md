@@ -488,6 +488,11 @@ Stage0 target-shape read cleanup landed in
 the C global-call view no longer reads the retired `target_shape` field; only
 unsupported-route diagnostic reason fields remain.
 
+Global-call definition prepass naming cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EP-GLOBAL-CALL-DEFINITION-PREPASS-NAME.md`:
+the same-module emitter prepass helper now uses an owner-neutral name for
+module-generic, uniform-MIR, and leaf definition facts.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

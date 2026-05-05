@@ -593,7 +593,7 @@
         return 0;
       }
 
-      auto int same_module_function_prepass_global_call_definition_view(
+      auto int global_call_definition_prepass_view(
           long long dst,
           const struct LoweringPlanGlobalCallView* global_view) {
         if (global_view &&
@@ -626,7 +626,7 @@
           yyjson_val* args,
           long long dst,
           const struct LoweringPlanGlobalCallView* global_view) {
-        if (same_module_function_prepass_global_call_definition_view(dst, global_view)) {
+        if (global_call_definition_prepass_view(dst, global_view)) {
           return 1;
         }
         if (module_generic_string_prepass_print_global_call_surface(
