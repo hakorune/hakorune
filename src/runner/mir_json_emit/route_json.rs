@@ -119,6 +119,7 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
             "result_value": route.result_value().map(|value| value.as_u32()),
             "return_shape": route.return_shape(),
             "value_demand": route.value_demand(),
+            "result_origin": route.result_origin(),
             "publication_policy": serde_json::Value::Null,
             "reason": route.reason(),
             "effects": route.effect_tags(),
@@ -176,6 +177,7 @@ pub(super) fn build_global_call_route_json(
         "result_value": route.result_value().map(|value| value.as_u32()),
         "return_shape": route.return_shape(),
         "value_demand": route.value_demand(),
+        "result_origin": route.result_origin(),
         "reason": route.reason(),
         "effects": route.effect_tags(),
     })

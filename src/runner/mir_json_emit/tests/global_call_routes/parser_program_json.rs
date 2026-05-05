@@ -101,6 +101,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
     assert_eq!(route["proof"], "typed_global_call_parser_program_json");
     assert_eq!(route["return_shape"], "string_handle");
     assert_eq!(route["value_demand"], "runtime_i64_or_handle");
+    assert_eq!(route["result_origin"], "string");
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
     assert_eq!(plan["source"], "global_call_routes");
@@ -112,6 +113,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
     assert_eq!(plan["route_proof"], "typed_global_call_parser_program_json");
     assert_eq!(plan["return_shape"], "string_handle");
     assert_eq!(plan["value_demand"], "runtime_i64_or_handle");
+    assert_eq!(plan["result_origin"], "string");
 }
 
 #[test]

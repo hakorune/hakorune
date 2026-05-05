@@ -74,6 +74,7 @@ fn build_mir_json_root_emits_string_or_void_sentinel_direct_route() {
     );
     assert_eq!(route["tier"], "DirectAbi");
     assert_eq!(route["return_shape"], "string_handle_or_null");
+    assert_eq!(route["result_origin"], "string");
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
     assert_eq!(plan["target_exists"], true);
@@ -85,6 +86,7 @@ fn build_mir_json_root_emits_string_or_void_sentinel_direct_route() {
         "typed_global_call_generic_string_or_void_sentinel"
     );
     assert_eq!(plan["return_shape"], "string_handle_or_null");
+    assert_eq!(plan["result_origin"], "string");
 }
 
 #[test]

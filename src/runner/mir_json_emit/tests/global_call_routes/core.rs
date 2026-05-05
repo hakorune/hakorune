@@ -46,6 +46,7 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(route["result_value"], 45);
     assert_eq!(route["return_shape"], serde_json::Value::Null);
     assert_eq!(route["value_demand"], "typed_global_call_contract_missing");
+    assert_eq!(route["result_origin"], "none");
     assert_eq!(route["reason"], "unknown_global_callee");
     assert_eq!(route["effects"], serde_json::json!(["call.global"]));
 
@@ -79,6 +80,7 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(plan["result_value"], 45);
     assert_eq!(plan["return_shape"], serde_json::Value::Null);
     assert_eq!(plan["value_demand"], "typed_global_call_contract_missing");
+    assert_eq!(plan["result_origin"], "none");
     assert_eq!(plan["publication_policy"], serde_json::Value::Null);
     assert_eq!(plan["reason"], "unknown_global_callee");
     assert_eq!(plan["effects"], serde_json::json!(["call.global"]));

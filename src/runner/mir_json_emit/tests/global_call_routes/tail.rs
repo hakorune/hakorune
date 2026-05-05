@@ -236,6 +236,7 @@ fn build_mir_json_root_emits_direct_plan_for_generic_pure_string_global_call() {
     assert_eq!(route["proof"], "typed_global_call_generic_pure_string");
     assert_eq!(route["return_shape"], "string_handle");
     assert_eq!(route["value_demand"], "runtime_i64_or_handle");
+    assert_eq!(route["result_origin"], "string");
     assert_eq!(route["reason"], serde_json::Value::Null);
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
@@ -253,5 +254,6 @@ fn build_mir_json_root_emits_direct_plan_for_generic_pure_string_global_call() {
     assert_eq!(plan["route_proof"], "typed_global_call_generic_pure_string");
     assert_eq!(plan["return_shape"], "string_handle");
     assert_eq!(plan["value_demand"], "runtime_i64_or_handle");
+    assert_eq!(plan["result_origin"], "string");
     assert_eq!(plan["reason"], serde_json::Value::Null);
 }

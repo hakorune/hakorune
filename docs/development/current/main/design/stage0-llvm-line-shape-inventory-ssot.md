@@ -67,34 +67,37 @@ proof/return contract is now the SSOT for this retired capsule.
 Static string array direct calls are no longer a `GlobalCallTargetShape` variant.
 MIR still records them as direct ABI targets with
 `proof=typed_global_call_static_string_array` and `return_shape=array_handle`;
-`target_shape` is omitted because the proof/return contract is now the SSOT for
-this retired origin-carrying capsule. Its body is emitted as an ordinary module
-generic MIR function; array append sites inside the body are accepted only
-through `generic_method.push` route facts.
+`target_shape` is omitted because the proof/return contract plus
+`result_origin=array_string_birth` metadata are now the SSOT for this retired
+origin-carrying capsule. Its body is emitted as an ordinary module generic MIR
+function; array append sites inside the body are accepted only through
+`generic_method.push` route facts.
 
 MIR schema map constructor direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with
 `proof=typed_global_call_mir_schema_map_constructor` and
 `return_shape=map_handle`; `target_shape` is omitted because the proof/return
-contract is now the SSOT for this retired origin-carrying capsule.
+contract plus `result_origin=map_birth` metadata are now the SSOT for this
+retired origin-carrying capsule.
 
 Parser Program(JSON) direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with
 `proof=typed_global_call_parser_program_json` and
 `return_shape=string_handle`; `target_shape` is omitted because the proof/return
-contract is now the SSOT for this retired source-execution capsule. Its Stage0
-body definition is now emitted by the module generic MIR function emitter; the
-old parser-only body clone has been removed.
+contract plus `result_origin=string` metadata are now the SSOT for this retired
+source-execution capsule. Its Stage0 body definition is now emitted by the
+module generic MIR function emitter; the old parser-only body clone has been
+removed.
 
 BoxTypeInspector describe direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with
 `proof=typed_global_call_box_type_inspector_describe` and
 `return_shape=map_handle`; `target_shape` is omitted because the proof/return
-contract is now the SSOT for this retired source-owner capsule. The active
-source-owner consumers already use scalar predicates (`is_map` / `is_array`);
-Stage0 now plans, emits, traces, and propagates the map origin through the
-shared module-generic LoweringPlan helpers instead of a describe-specific
-call-site branch.
+contract plus `result_origin=map_birth` metadata are now the SSOT for this
+retired source-owner capsule. The active source-owner consumers already use
+scalar predicates (`is_map` / `is_array`); Stage0 now plans, emits, traces, and
+propagates the map origin through LoweringPlan metadata views instead of a
+describe-specific call-site branch.
 
 PatternUtil local-value probe direct calls are no longer a
 `GlobalCallTargetShape` variant. MIR still records them as direct ABI targets
@@ -110,9 +113,9 @@ Generic string-or-void sentinel direct calls are no longer a
 `GlobalCallTargetShape` variant. MIR still records them as direct ABI targets
 with `proof=typed_global_call_generic_string_or_void_sentinel` and
 `return_shape=string_handle_or_null`; `target_shape` is omitted because the
-proof/return contract is now the SSOT for this retired sentinel capsule.
-Generic-method string-origin consumers also read the proof/return facts instead
-of the legacy shape string.
+proof/return contract plus `result_origin=string` metadata are now the SSOT for
+this retired sentinel capsule. Generic-method string-origin consumers also read
+the proof/return facts instead of the legacy shape string.
 
 ## Missing Multi-Function Emitter Policy
 

@@ -54,6 +54,7 @@
         const char* target_shape_blocker_reason;
         const char* return_shape;
         const char* value_demand;
+        const char* result_origin;
         long long arity;
         long long target_arity;
         long long result_value;
@@ -352,6 +353,7 @@
           out->target_shape_blocker_reason = read_str(entry, "target_shape_blocker_reason");
           out->return_shape = read_str(entry, "return_shape");
           out->value_demand = read_str(entry, "value_demand");
+          out->result_origin = read_str(entry, "result_origin");
           lowering_plan_read_i64_field(entry, "arity", &out->arity);
           if (lowering_plan_read_i64_field(entry, "target_arity", &target_arity)) {
             out->target_arity = target_arity;
@@ -600,15 +602,15 @@
 
       auto int lowering_plan_global_call_view_result_origin_kind(
           const struct LoweringPlanGlobalCallView* view) {
-        if (lowering_plan_global_call_view_is_direct_generic_string(view) ||
-            lowering_plan_global_call_view_is_direct_parser_program_json(view)) {
+        if (!(view && view->result_origin)) return ORG_NONE;
+        if (!strcmp(view->result_origin, "none")) return ORG_NONE;
+        if (!strcmp(view->result_origin, "string")) {
           return ORG_STRING;
         }
-        if (lowering_plan_global_call_view_is_direct_static_string_array(view)) {
+        if (!strcmp(view->result_origin, "array_string_birth")) {
           return ORG_ARRAY_STRING_BIRTH;
         }
-        if (lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(view) ||
-            lowering_plan_global_call_view_is_direct_box_type_inspector_describe(view)) {
+        if (!strcmp(view->result_origin, "map_birth")) {
           return ORG_MAP_BIRTH;
         }
         return ORG_NONE;

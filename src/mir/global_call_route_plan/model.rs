@@ -95,6 +95,21 @@ impl GlobalCallProof {
     fn is_direct(self) -> bool {
         self != Self::ContractMissing
     }
+
+    fn result_origin(self) -> &'static str {
+        match self {
+            Self::GenericPureString
+            | Self::GenericStringOrVoidSentinel
+            | Self::ParserProgramJson => "string",
+            Self::StaticStringArray => "array_string_birth",
+            Self::MirSchemaMapConstructor | Self::BoxTypeInspectorDescribe => "map_birth",
+            Self::ContractMissing
+            | Self::LeafNumericI64
+            | Self::GenericStringVoidLogging
+            | Self::GenericI64
+            | Self::PatternUtilLocalValueProbe => "none",
+        }
+    }
 }
 
 impl Default for GlobalCallProof {
@@ -540,6 +555,14 @@ impl GlobalCallRoute {
     pub fn return_shape(&self) -> Option<&'static str> {
         self.direct_return_contract()
             .map(GlobalCallReturnContract::as_json_name)
+    }
+
+    pub fn result_origin(&self) -> &'static str {
+        if self.is_direct_abi_target() {
+            self.target.proof().result_origin()
+        } else {
+            "none"
+        }
     }
 
     pub fn reason(&self) -> Option<&'static str> {
