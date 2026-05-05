@@ -473,6 +473,11 @@ Same-module planner lookup cleanup landed in
 target-function lookup now happens only when the `generic_i64_or_leaf` branch
 needs leaf detection.
 
+Global-call definition readiness cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EM-GLOBAL-CALL-READINESS-HELPER.md`:
+the direct global-call emitter now checks leaf/same-module readiness through
+one local helper before emitting the call.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

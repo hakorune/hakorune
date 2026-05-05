@@ -122,6 +122,21 @@
         if (string_const_box_was_emitted(base)) return 1;
         return emit_materialized_string_const_box_result(f, base);
       }
+      auto int global_call_definition_target_is_ready(
+          const struct LoweringPlanGlobalCallView* view) {
+        if (!view) return 0;
+        if (lowering_plan_global_call_view_uses_leaf_i64_definition(view)) {
+          return module_leaf_symbol_was_emitted(view->target_symbol);
+        }
+        if (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(view)) {
+          return same_module_function_symbol_will_be_defined(view->target_symbol) ||
+                 module_leaf_symbol_was_emitted(view->target_symbol);
+        }
+        if (lowering_plan_global_call_view_requires_same_module_function_definition(view)) {
+          return same_module_function_symbol_will_be_defined(view->target_symbol);
+        }
+        return 0;
+      }
       auto int emit_global_call_lowering_plan_mir_call(
           FILE* f,
           long long bid,
@@ -147,17 +162,7 @@
         if (!(args && yyjson_is_arr(args))) return -1;
         argc = yyjson_arr_size(args);
         if ((long long)argc != view.arity || argc > 64) return -1;
-        if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view)) {
-          if (!module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(&view)) {
-          if (!same_module_function_symbol_will_be_defined(view.target_symbol) &&
-              !module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_requires_same_module_function_definition(
-                       &view)) {
-          if (!same_module_function_symbol_will_be_defined(view.target_symbol)) return -1;
-        } else {
-          return -1;
-        }
+        if (!global_call_definition_target_is_ready(&view)) return -1;
         ab[0] = '\0';
         for (size_t ai = 0; ai < argc; ai++) {
           yyjson_val* arg = yyjson_arr_get(args, ai);

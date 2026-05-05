@@ -222,6 +222,8 @@ Completed focused probe:
     prepass helper, leaving same-module definition facts separated
   - P381EL scoped Stage0 target-function lookup to the
     `generic_i64_or_leaf` leaf-detection branch in same-module planning
+  - P381EM centralized direct global-call definition readiness checks in the
+    emission shell
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions
