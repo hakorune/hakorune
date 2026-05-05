@@ -39,39 +39,15 @@ pub static OPERATORS_DIV_RULES: &[(&str, &str, &str, &str)] = &[
 ];
 pub fn lookup_keyword(word: &str) -> Option<&'static str> {
     for (k, t) in KEYWORDS {
-        if *k == word { return Some(*t); }
+        if *k == word {
+            return Some(*t);
+        }
     }
     None
 }
 
 pub static SYNTAX_ALLOWED_STATEMENTS: &[&str] = &[
-    "box",
-    "global",
-    "function",
-    "static",
-    "if",
-    "loop",
-    "break",
-    "return",
-    "print",
-    "nowait",
-    "include",
-    "local",
-    "outbox",
-    "try",
-    "fini",
-    "throw",
-    "using",
-    "from",
-    "peek",
+    "box", "global", "function", "static", "if", "loop", "break", "return", "print", "nowait",
+    "include", "local", "outbox", "try", "fini", "throw", "using", "from", "peek",
 ];
-pub static SYNTAX_ALLOWED_BINOPS: &[&str] = &[
-    "add",
-    "sub",
-    "mul",
-    "div",
-    "and",
-    "or",
-    "eq",
-    "ne",
-];
+pub static SYNTAX_ALLOWED_BINOPS: &[&str] = &["add", "sub", "mul", "div", "and", "or", "eq", "ne"];
