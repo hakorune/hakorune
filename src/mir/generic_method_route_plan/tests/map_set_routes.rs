@@ -569,8 +569,8 @@ fn proves_same_block_runtime_data_get_scalar_i64_return_shape() {
 
     refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(function.metadata.generic_method_routes.len(), 2);
+    let route = route_for(&function, "RuntimeDataBox", "get", Some(5));
     assert_eq!(route.box_name(), "RuntimeDataBox");
     assert_eq!(route.method(), "get");
     assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::I64Const));
