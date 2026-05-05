@@ -462,87 +462,93 @@
               const char* ctype = NULL;
               const char* mname = NULL;
               const char* bname = NULL;
+              int has_method_view = 0;
+              int has_extern_view = 0;
+              int has_global_view = 0;
               long long dst = read_int(ins, "dst");
               if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
               ctype = module_generic_string_call_type(op, cal);
               mname = module_generic_string_call_name(op, cal);
               bname = module_generic_string_call_box_name(op, cal);
+              has_method_view = read_lowering_plan_generic_method_view(entry, &method_view);
+              has_extern_view = read_lowering_plan_extern_call_view(entry, &extern_view);
+              has_global_view = read_lowering_plan_global_call_view(entry, &global_view);
               if (ctype && !strcmp(ctype, "Method") &&
                   mname && !strcmp(mname, "birth") &&
                   bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"))) {
                 if (dst) set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                   module_generic_string_method_view_is_direct_string_len(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_array_len(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_array_push(&method_view)) {
                 long long recv = module_generic_string_call_receiver(op, cal);
                 long long value = 0;
                 if (dst) set_type(dst, T_I64);
                 if (!module_generic_string_read_array_push_value(args, &value)) return 0;
                 module_generic_string_promote_array_string_push(recv, value);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_array_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_BIRTH);
                 set_scan_origin(dst, ORG_MAP_BIRTH);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_params_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_ARRAY_BIRTH);
                 set_scan_origin(dst, ORG_ARRAY_BIRTH);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_flags_keys(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_ARRAY_BIRTH);
                 set_scan_origin(dst, ORG_ARRAY_BIRTH);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_map_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_block_field_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_const_value_field_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_callee_field_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_inst_field_get(&method_view)) {
                 const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
                 set_type(dst, T_I64);
@@ -560,7 +566,7 @@
                 } else {
                   set_origin(dst, ORG_MAP_GET);
                 }
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_function_field_get(&method_view)) {
                 const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
                 set_type(dst, T_I64);
@@ -574,7 +580,7 @@
                   set_origin(dst, ORG_MAP_BIRTH);
                   set_scan_origin(dst, ORG_MAP_BIRTH);
                 }
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_module_field_get(&method_view)) {
                 const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
                 set_type(dst, T_I64);
@@ -585,35 +591,35 @@
                   set_origin(dst, ORG_MAP_BIRTH);
                   set_scan_origin(dst, ORG_MAP_BIRTH);
                 }
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_MAP_GET);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_map_set(&method_view)) {
                 if (dst) set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_string_substring(&method_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_string_indexof(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_string_lastindexof(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_generic_method_view(entry, &method_view) &&
+              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_string_contains(&method_view)) {
                 set_type(dst, T_I64);
-              } else if (read_lowering_plan_extern_call_view(entry, &extern_view) &&
+              } else if (has_extern_view &&
                          module_generic_string_prepass_extern_call_view(&extern_view, dst)) {
                 continue;
-              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
+              } else if (has_global_view &&
                          lowering_plan_global_call_view_requires_module_generic_definition(&global_view)) {
                 set_type(dst, T_I64);
                 mark_global_call_result_origin_from_view(&global_view, dst);
-              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
+              } else if (has_global_view &&
                          lowering_plan_global_call_view_uses_leaf_i64_definition(&global_view)) {
                 set_type(dst, T_I64);
               } else if (ctype && !strcmp(ctype, "Global") &&

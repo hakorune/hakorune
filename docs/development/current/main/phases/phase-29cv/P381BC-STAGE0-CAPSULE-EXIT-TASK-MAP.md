@@ -254,6 +254,11 @@ Module-generic ownerless view cleanup landed in
 MIR JSON array item, map field, and flags keys method-view predicates now share
 one ownerless-view helper while route-specific proof/key checks stay local.
 
+Module-generic prepass view reuse landed in
+`docs/development/current/main/phases/phase-29cv/P381CT-MODULE-GENERIC-PREPASS-VIEW-REUSE.md`:
+the call prepass now reads each LoweringPlan view once per call instruction and
+feeds the cached views into the existing predicate chain.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

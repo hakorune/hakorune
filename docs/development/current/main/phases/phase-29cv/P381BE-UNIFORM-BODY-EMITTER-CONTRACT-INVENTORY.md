@@ -123,6 +123,8 @@ Completed focused probe:
     LoweringPlan helper shared by route, emit-kind, need, and set-route users
   - P381CS centralized ownerless MIR JSON generic-method view matching in the
     module-generic method view helpers
+  - P381CT made the module-generic prepass reuse cached LoweringPlan views
+    instead of re-reading the same entry through each predicate branch
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
