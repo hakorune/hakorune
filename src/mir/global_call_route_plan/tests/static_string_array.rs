@@ -73,7 +73,7 @@ fn static_string_array_function(name: &str) -> MirFunction {
 }
 
 #[test]
-fn refresh_module_global_call_routes_marks_static_string_array_body_direct_target() {
+fn refresh_module_global_call_routes_marks_static_string_array_contract_direct_target() {
     let mut module = MirModule::new("global_call_static_string_array_shape_test".to_string());
     let caller =
         make_function_with_global_call_args("Helper.candidates/0", Some(ValueId::new(30)), vec![]);
@@ -86,7 +86,7 @@ fn refresh_module_global_call_routes_marks_static_string_array_body_direct_targe
     refresh_module_global_call_routes(&mut module);
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(route.target_shape(), Some("static_string_array_body"));
+    assert_eq!(route.target_shape(), None);
     assert_eq!(route.tier(), "DirectAbi");
     assert_eq!(route.reason(), None);
     assert_eq!(route.proof(), "typed_global_call_static_string_array");

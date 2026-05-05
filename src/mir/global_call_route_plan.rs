@@ -172,8 +172,9 @@ fn classify_global_call_target_shape(
         );
     }
     if is_static_string_array_body_function(function) {
-        return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::StaticStringArrayBody,
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::StaticStringArray,
+            GlobalCallReturnContract::ArrayHandle,
         );
     }
     if is_box_type_inspector_describe_body_candidate(function) {

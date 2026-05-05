@@ -28,9 +28,9 @@ No immediate public-collapse candidates remain in this lane.
 
 Audited results:
 
-- `StaticStringArrayBody`: blocked
-  - still carries public `array_handle` + `ORG_ARRAY_STRING_BIRTH` semantics
-  - no equivalent existing public contract exists
+- `StaticStringArrayBody`: superseded by P381BL
+  - `array_handle` + `ORG_ARRAY_STRING_BIRTH` semantics now live in the
+    proof/return contract rather than a target-shape variant
 - `MirSchemaMapConstructorBody`: blocked
   - collapse would require a new public map-handle contract instead of removing
     one

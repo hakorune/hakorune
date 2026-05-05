@@ -56,6 +56,7 @@ Done:
 
 Next:
 
-1. move C direct predicates for origin-carrying capsules from shape-bearing
-   checks to proof/return contract checks
-2. only then retire `StaticStringArrayBody` as a target-shape variant
+Superseded by
+`docs/development/current/main/phases/phase-29cv/P381BL-STATIC-ARRAY-TARGET-SHAPE-RETIRE.md`,
+which moved the C direct predicate to proof/return checks and retired
+`StaticStringArrayBody` as a target-shape variant.

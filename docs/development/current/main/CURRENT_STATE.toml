@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381BK-STATIC-ARRAY-CONSUMER-CONTRACT-READ"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BK-STATIC-ARRAY-CONSUMER-CONTRACT-READ.md"
-latest_card_summary = "The generic-method route consumer now recognizes static-array global-call results from stored proof and `array_handle` return-contract facts instead of `target_shape=static_string_array_body`, preparing the origin-carrying capsule for later shape retirement."
+latest_card = "P381BL-STATIC-ARRAY-TARGET-SHAPE-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BL-STATIC-ARRAY-TARGET-SHAPE-RETIRE.md"
+latest_card_summary = "Static string array global calls now publish `proof=typed_global_call_static_string_array` plus `return_shape=array_handle` with `target_shape=null`, retiring `StaticStringArrayBody` from the Stage0 shape inventory while preserving array-origin propagation."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

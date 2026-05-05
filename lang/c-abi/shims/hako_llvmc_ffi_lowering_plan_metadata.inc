@@ -515,8 +515,6 @@
                !strcmp(view->proof, "typed_global_call_static_string_array") &&
                view->route_proof &&
                !strcmp(view->route_proof, "typed_global_call_static_string_array") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "static_string_array_body") &&
                view->return_shape &&
                !strcmp(view->return_shape, "array_handle") &&
                view->value_demand &&

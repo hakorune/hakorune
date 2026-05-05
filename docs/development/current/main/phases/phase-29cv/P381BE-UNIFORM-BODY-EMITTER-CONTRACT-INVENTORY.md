@@ -38,7 +38,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 | `GenericStringOrVoidSentinelBody` | `typed_global_call_generic_string_or_void_sentinel` / `generic_string_or_void_sentinel_body` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the generic-string direct predicate | planned as a generic module symbol; shares the generic string body path | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
 | `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
 | `ParserProgramJsonBody` | `typed_global_call_parser_program_json` / `parser_program_json_body` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol and a parser Program(JSON) symbol; body has a dedicated `emit_parser_program_json_function_definition` path | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
-| `StaticStringArrayBody` | `typed_global_call_static_string_array` / `static_string_array_body`; Rust consumer reads proof/return facts after P381BK | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
+| `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the static-array contract predicate | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
 | `MirSchemaMapConstructorBody` | `typed_global_call_mir_schema_map_constructor` / `mir_schema_map_constructor_body` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
 | `BoxTypeInspectorDescribeBody` | `typed_global_call_box_type_inspector_describe` / `box_type_inspector_describe_body` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; body remains source-owner shaped and should shrink through scalar predicates first | `global_call_route_plan::tests::box_type_inspector_describe` |
 | `PatternUtilLocalValueProbeBody` | `typed_global_call_pattern_util_local_value_probe` / `pattern_util_local_value_probe_body` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | planned as a generic module symbol; body remains mixed scalar/handle source-owner shaped | `global_call_route_plan::tests::pattern_util_local_value_probe` |
@@ -63,12 +63,13 @@ Completed focused probe:
 - `GenericStringVoidLoggingBody`
   - retired as a target-shape variant in P381BJ
   - direct ABI truth now lives in stored proof and return-contract facts
+- `StaticStringArrayBody`
+  - retired as a target-shape variant in P381BL
+  - direct ABI truth now lives in stored proof and `array_handle` return-contract facts
 
 Not ready for shape-delete-only:
 
 - `ParserProgramJsonBody`: dedicated parser Program(JSON) body emitter remains
-- `StaticStringArrayBody`: Rust consumer decoupling landed in P381BK; C array
-  origin predicates and static-array body checks remain
 - `MirSchemaMapConstructorBody`: map origin and MIR schema body facts remain
 - `GenericStringOrVoidSentinelBody`: sentinel plumbing remains source-owner
   shaped

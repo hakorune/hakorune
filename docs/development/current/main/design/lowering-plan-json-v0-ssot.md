@@ -211,13 +211,14 @@ Non-string object returns, such as `box<MapBox>`, must use
 boundary for the next ownership slice instead of hiding it behind the broad
 return ABI reason.
 If an object-return helper is intentionally lowerable, it must publish a
-dedicated object-handle target shape rather than being folded into
-`generic_pure_string_body`. The initial allowed object-handle shape is
-`static_string_array_body`, which accepts only a zero-argument factory that
-creates one `ArrayBox`, pushes static string constants, and returns that array
-handle. Its LoweringPlan contract is
+dedicated object-handle contract rather than being folded into
+`generic_pure_string_body`. The initial allowed object-handle contract is the
+static string array factory: a zero-argument factory that creates one
+`ArrayBox`, pushes static string constants, and returns that array handle. Its
+LoweringPlan contract is
 `proof=typed_global_call_static_string_array`,
-`return_shape=array_handle`, and `value_demand=runtime_i64_or_handle`.
+`return_shape=array_handle`, `value_demand=runtime_i64_or_handle`, and
+`target_shape=null`.
 The same object reason applies when a `void` or `unknown` signature has observed
 local return-profile evidence for a non-`StringBox` object, for example
 `void|null` plus a returned `ArrayBox`. This remains diagnostic evidence only:

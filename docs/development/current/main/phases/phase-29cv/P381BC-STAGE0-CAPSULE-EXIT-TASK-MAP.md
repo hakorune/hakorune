@@ -67,13 +67,13 @@ Retired capsule contracts:
 | Capsule | Result |
 | --- | --- |
 | `GenericStringVoidLoggingBody` | retired as a shape in P381BJ; direct ABI truth now lives in `proof=typed_global_call_generic_string_void_logging` plus `return_shape=void_sentinel_i64_zero` |
+| `StaticStringArrayBody` | retired as a shape in P381BL; direct ABI truth now lives in `proof=typed_global_call_static_string_array` plus `return_shape=array_handle` |
 
 Current temporary capsules from the Stage0 shape inventory:
 
 | Capsule | Reading |
 | --- | --- |
 | `ParserProgramJsonBody` | candidate only after dedicated parser Program(JSON) body emission is replaced or made uniform |
-| `StaticStringArrayBody` | Rust generic-method consumer now reads proof/return facts in P381BK; C origin predicates still need shape-independent contract checks before shape retirement |
 | `MirSchemaMapConstructorBody` | candidate only after `map_handle` / MIR schema facts are expressed without a shape branch |
 | `GenericStringOrVoidSentinelBody` | source-owner cleanup first unless uniform body emission can carry the sentinel contract cleanly |
 | `BoxTypeInspectorDescribeBody` | source-owner scalar predicate cleanup first |
@@ -140,7 +140,9 @@ proof storage landed in
 target-shape retirement landed in
 `docs/development/current/main/phases/phase-29cv/P381BJ-VOID-LOGGING-TARGET-SHAPE-RETIRE.md`;
 the first static-array Rust consumer decoupling landed in
-`docs/development/current/main/phases/phase-29cv/P381BK-STATIC-ARRAY-CONSUMER-CONTRACT-READ.md`.
+`docs/development/current/main/phases/phase-29cv/P381BK-STATIC-ARRAY-CONSUMER-CONTRACT-READ.md`;
+static-array target-shape retirement landed in
+`docs/development/current/main/phases/phase-29cv/P381BL-STATIC-ARRAY-TARGET-SHAPE-RETIRE.md`.
 
 Acceptance must include:
 
@@ -154,9 +156,8 @@ Acceptance must include:
 
 Handle origin-carrying capsules one at a time:
 
-1. `StaticStringArrayBody`
-2. `MirSchemaMapConstructorBody`
-3. `ParserProgramJsonBody`
+1. `MirSchemaMapConstructorBody`
+2. `ParserProgramJsonBody`
 
 Do not remove a shape until the origin/return contract is represented without
 teaching Stage0 the source-owner meaning. If that requires a MIR-owned fact, add
