@@ -419,6 +419,11 @@ Same-module function entry naming cleanup landed in
 the Stage0 selected-set planner and definition driver entry points now use
 same-module function wording, leaving body internals for later cleanup.
 
+Same-module registry diagnostic cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EB-SAME-MODULE-REGISTRY-DIAGNOSTIC.md`:
+selected same-module registry overflow now reports
+`same_module_function_registry_full`.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

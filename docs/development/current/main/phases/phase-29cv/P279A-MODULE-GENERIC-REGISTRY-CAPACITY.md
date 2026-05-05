@@ -2,7 +2,7 @@
 Status: Active
 Decision: accepted
 Date: 2026-05-03
-Scope: phase-29cv P279a, module generic definition registry capacity
+Scope: phase-29cv P279a, same-module definition registry capacity
 Related:
   - docs/development/current/main/phases/phase-29cv/P278A-COUNT-PARAM-CALLSITE-TEXT-MATERIALIZATION.md
   - lang/c-abi/shims/hako_llvmc_ffi_module_generic_string_plan.inc
@@ -26,12 +26,12 @@ LowerLoopCountParamBox.try_lower_text/1	generic_pure_string_body	string_handle	D
 
 The next failure happens before a fresh `.ll` is produced. A reachability
 inventory over `tmp/nyash_cli_emit.json` finds 432 DirectAbi module symbols
-reachable from `main`, while the C-side module generic definition registry has
+reachable from `main`, while the C-side same-module definition registry has
 fixed 256-entry storage:
 
 ```text
-planned_module_generic_string_symbols[256]
-emitted_module_generic_string_symbols[256]
+planned_same_module_function_symbols[256]
+emitted_same_module_function_symbols[256]
 ```
 
 That capacity failure currently returns `-1` without recording a precise
@@ -43,7 +43,7 @@ Raise the registry storage to 1024 entries and keep capacity overflow
 fail-fast with an explicit existing-trace diagnostic reason:
 
 ```text
-module_generic_registry_full
+same_module_function_registry_full
 ```
 
 This is a capacity/diagnostic fix only. It does not add any new accepted body
@@ -61,7 +61,7 @@ shape, method semantics, or emitter path.
 - `ny-llvmc --in tmp/nyash_cli_emit.json --emit obj ...` no longer stops before
   `.ll` generation because the module generic registry is full.
 - If the registry ever fills again, `[llvm-pure/unsupported-shape]` reports
-  `module_generic_registry_full` rather than bare `no_lowering_variant`.
+  `same_module_function_registry_full` rather than bare `no_lowering_variant`.
 - `cargo build -q --release --bin hakorune`
 - `bash tools/build_hako_llvmc_ffi.sh`
 - `bash tools/checks/current_state_pointer_guard.sh`

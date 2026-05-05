@@ -196,6 +196,8 @@ Completed focused probe:
   - P381EA renamed the Stage0 selected-set planner and definition driver entry
     points to same-module function wording while leaving body internals scoped
     for later cleanup
+  - P381EB renamed the selected same-module registry overflow diagnostic from
+    old module-generic wording to `same_module_function_registry_full`
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions
