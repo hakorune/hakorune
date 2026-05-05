@@ -366,6 +366,10 @@ Module-generic function context snapshot cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381DP-MODULE-GENERIC-FUNCTION-CONTEXT-SNAPSHOT.md`:
 function context save and restore now use one snapshot contract.
 
+Module-generic function context activation cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DQ-MODULE-GENERIC-FUNCTION-CONTEXT-ACTIVATE.md`:
+function context activation now has one named transition helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

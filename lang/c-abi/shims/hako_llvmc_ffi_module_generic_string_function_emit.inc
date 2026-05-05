@@ -1820,6 +1820,17 @@
         selection = snapshot->selection;
       }
 
+      auto void module_generic_string_activate_function_context(
+          hako_llvmc_generic_pure_function_view* local_function) {
+        active_function = local_function;
+        fn0 = local_function->fn;
+        fn_metadata = local_function->metadata;
+        blocks = local_function->blocks;
+        generic_pure_block_count = local_function->block_count;
+        reset_generic_pure_function_lowering_state(&lowering_state);
+        reset_string_concat_tracking_state();
+      }
+
       auto int emit_generic_pure_string_function_definition(
           FILE* f,
           yyjson_val* fn,
@@ -1848,13 +1859,7 @@
         }
 
         module_generic_string_save_function_context(&saved_context);
-        active_function = &local_function;
-        fn0 = local_function.fn;
-        fn_metadata = local_function.metadata;
-        blocks = local_function.blocks;
-        generic_pure_block_count = local_function.block_count;
-        reset_generic_pure_function_lowering_state(&lowering_state);
-        reset_string_concat_tracking_state();
+        module_generic_string_activate_function_context(&local_function);
 
         if (!module_generic_string_prepass_active_function()) {
           note_pure_unsupported_shape_detail(

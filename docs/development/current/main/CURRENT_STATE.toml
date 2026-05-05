@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381DP-MODULE-GENERIC-FUNCTION-CONTEXT-SNAPSHOT"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381DP-MODULE-GENERIC-FUNCTION-CONTEXT-SNAPSHOT.md"
-latest_card_summary = "Module-generic function context save and restore now use one snapshot contract."
+latest_card = "P381DQ-MODULE-GENERIC-FUNCTION-CONTEXT-ACTIVATE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381DQ-MODULE-GENERIC-FUNCTION-CONTEXT-ACTIVATE.md"
+latest_card_summary = "Module-generic function context activation now has one named transition helper."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

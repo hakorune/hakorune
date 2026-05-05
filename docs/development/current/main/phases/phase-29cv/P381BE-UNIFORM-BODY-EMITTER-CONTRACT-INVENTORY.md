@@ -169,6 +169,8 @@ Completed focused probe:
     function-definition helper
   - P381DP centralized module-generic function context save and restore behind
     one snapshot contract
+  - P381DQ centralized module-generic function context activation behind one
+    named transition helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
