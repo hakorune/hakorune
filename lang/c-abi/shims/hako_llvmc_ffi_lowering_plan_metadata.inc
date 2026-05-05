@@ -449,34 +449,6 @@
                !strcmp(view->value_demand, "scalar_i64");
       }
 
-      auto int lowering_plan_global_call_view_is_direct_generic_string(
-          const struct LoweringPlanGlobalCallView* view) {
-        if (!(lowering_plan_global_call_view_has_direct_target(view) &&
-              view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-              view->emit_kind &&
-              !strcmp(view->emit_kind, "direct_function_call") &&
-              view->proof &&
-              view->route_proof &&
-              view->return_shape &&
-              view->value_demand &&
-              !strcmp(view->value_demand, "runtime_i64_or_handle"))) {
-          return 0;
-        }
-        if (!strcmp(view->proof, "typed_global_call_generic_pure_string") &&
-            !strcmp(view->route_proof, "typed_global_call_generic_pure_string") &&
-            view->target_shape &&
-            !strcmp(view->target_shape, "generic_pure_string_body") &&
-            !strcmp(view->return_shape, "string_handle")) {
-          return 1;
-        }
-        if (!strcmp(view->proof, "typed_global_call_generic_string_or_void_sentinel") &&
-            !strcmp(view->route_proof, "typed_global_call_generic_string_or_void_sentinel") &&
-            !strcmp(view->return_shape, "string_handle_or_null")) {
-          return 1;
-        }
-        return 0;
-      }
-
       auto int lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
@@ -505,86 +477,6 @@
                !strcmp(view->return_shape, "ScalarI64") &&
                view->value_demand &&
                !strcmp(view->value_demand, "scalar_i64");
-      }
-
-      auto int lowering_plan_global_call_view_is_direct_parser_program_json(
-          const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_parser_program_json") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_parser_program_json") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
-      }
-
-      auto int lowering_plan_global_call_view_is_direct_static_string_array(
-          const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_static_string_array") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_static_string_array") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "array_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
-      }
-
-      auto int lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(
-          const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_mir_schema_map_constructor") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_mir_schema_map_constructor") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "map_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
-      }
-
-      auto int lowering_plan_global_call_view_is_direct_box_type_inspector_describe(
-          const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_box_type_inspector_describe") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_box_type_inspector_describe") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "map_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
-      }
-
-      auto int lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(
-          const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_pattern_util_local_value_probe") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_pattern_util_local_value_probe") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
       }
 
       auto int lowering_plan_global_call_view_uses_module_generic_definition(

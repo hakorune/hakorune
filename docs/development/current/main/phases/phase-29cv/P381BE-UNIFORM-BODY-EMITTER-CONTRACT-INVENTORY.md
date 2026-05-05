@@ -102,8 +102,9 @@ Completed focused probe:
     the C proof-name origin branch
   - P381CH moved definition ownership and emit trace consumer truth into Rust
     LoweringPlan metadata, removing the C proof-name selected-set list
-  - capsule-specific proof predicates remain only as metadata readers for
-    non-origin route facts
+  - P381CI deleted the now-unused retired-capsule C direct-view predicates
+  - capsule-specific proof readers remain only for route-contract parsing and
+    Rust-owned proof serialization
 
 No target-shape-only capsule remains. Remaining work is body/source-owner
 cleanup and uniform emitter consolidation.

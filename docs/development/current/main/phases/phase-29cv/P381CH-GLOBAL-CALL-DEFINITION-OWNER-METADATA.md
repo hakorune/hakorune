@@ -111,6 +111,5 @@ definition set or emit trace consumer. The remaining proof predicates in
 `hako_llvmc_ffi_lowering_plan_metadata.inc` are narrow route-contract
 validators, not selected-set ownership truth.
 
-The next cleanup target is the body emitter surface itself: with origin and
-definition ownership both MIR-owned, the module-generic emitter can be audited
-for per-capsule body paths that are now redundant.
+P381CI follows this by deleting the retired-capsule C direct-view predicates
+that became unused after this metadata move.
