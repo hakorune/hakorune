@@ -1473,6 +1473,42 @@
         return rc;
       }
 
+      auto int module_generic_string_emit_method_call_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          const char* op,
+          yyjson_val* cal,
+          yyjson_val* args,
+          long long dst) {
+        long long recv = module_generic_string_call_receiver(op, cal);
+        const char* ctype = module_generic_string_call_type(op, cal);
+        const char* mname = module_generic_string_call_name(op, cal);
+        const char* bname = module_generic_string_call_box_name(op, cal);
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        const struct LoweringPlanGenericMethodView* method_view_ptr = NULL;
+        if (module_generic_string_call_is_array_or_map_birth(
+                ctype, mname, bname)) {
+          if (dst) {
+            put_const(dst, 0);
+            set_type(dst, T_I64);
+          }
+          return 1;
+        }
+        if (read_lowering_plan_generic_method_view(entry, &method_view)) {
+          method_view_ptr = &method_view;
+        }
+        return module_generic_string_emit_generic_method_mir_call(
+            f,
+            bid,
+            ii,
+            method_view_ptr,
+            dst,
+            recv,
+            args);
+      }
+
       auto int module_generic_string_emit_mir_call(
           FILE* f,
           long long bid,
@@ -1501,31 +1537,14 @@
               args,
               dst);
         } else if (ctype && !strcmp(ctype, "Method")) {
-          long long recv = module_generic_string_call_receiver(op, cal);
-          const char* mname = module_generic_string_call_name(op, cal);
-          const char* bname = module_generic_string_call_box_name(op, cal);
-          yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-          struct LoweringPlanGenericMethodView method_view;
-          const struct LoweringPlanGenericMethodView* method_view_ptr = NULL;
-          if (module_generic_string_call_is_array_or_map_birth(
-                  ctype, mname, bname)) {
-            if (dst) {
-              put_const(dst, 0);
-              set_type(dst, T_I64);
-            }
-            return 1;
-          }
-          if (read_lowering_plan_generic_method_view(entry, &method_view)) {
-            method_view_ptr = &method_view;
-          }
-          rc = module_generic_string_emit_generic_method_mir_call(
+          rc = module_generic_string_emit_method_call_mir_call(
               f,
               bid,
               ii,
-              method_view_ptr,
-              dst,
-              recv,
-              args);
+              op,
+              cal,
+              args,
+              dst);
         } else {
           return 0;
         }

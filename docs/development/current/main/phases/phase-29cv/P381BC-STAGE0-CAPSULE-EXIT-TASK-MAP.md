@@ -309,6 +309,11 @@ Module-generic global emit helper cleanup landed in
 global-call emission now goes through one helper while preserving the
 LoweringPlan-first fallback order.
 
+Module-generic method emit helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DE-MODULE-GENERIC-METHOD-EMIT-HELPER.md`:
+Method branch internals now live behind one helper after the main call-family
+dispatch.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
