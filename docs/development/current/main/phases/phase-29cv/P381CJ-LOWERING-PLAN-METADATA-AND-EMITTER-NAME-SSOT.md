@@ -51,7 +51,7 @@ Current line surface before the next implementation slice:
 
 | file | lines | role |
 | --- | ---: | --- |
-| `hako_llvmc_ffi_module_generic_string_function_emit.inc` | 1713 | active module-generic function prepass/body emitter |
+| `hako_llvmc_ffi_same_module_function_emit.inc` | 1979 | active same-module function prepass/body emitter; renamed from the historical `module_generic_string` stem in P381ET |
 | `hako_llvmc_ffi_same_module_method_views.inc` | 500 | direct generic-method LoweringPlan view predicates; renamed from the historical `module_generic_string` stem in P381ES |
 | `hako_llvmc_ffi_same_module_function_plan.inc` | 148 | transitive same-module definition-set planner; renamed from the historical `module_generic_string` stem in P381ER |
 | `hako_llvmc_ffi_mir_call_need_policy.inc` | 733 | call-side need/policy helpers outside this slice |

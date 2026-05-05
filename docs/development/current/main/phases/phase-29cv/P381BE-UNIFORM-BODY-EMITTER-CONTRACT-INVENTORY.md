@@ -12,7 +12,7 @@ Related:
   - lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell.inc
   - lang/c-abi/shims/hako_llvmc_ffi_same_module_function_plan.inc
   - lang/c-abi/shims/hako_llvmc_ffi_same_module_method_views.inc
-  - lang/c-abi/shims/hako_llvmc_ffi_module_generic_string_function_emit.inc
+  - lang/c-abi/shims/hako_llvmc_ffi_same_module_function_emit.inc
 ---
 
 # P381BE: Uniform Body-Emitter Contract Inventory
@@ -58,7 +58,7 @@ These sites are now centralized by P381CF:
   `hako_llvmc_ffi_same_module_function_plan.inc` calls the shared
   module-generic helper, which now reads P381CH `definition_owner` metadata
 - module body prepass and body emission:
-  `hako_llvmc_ffi_module_generic_string_function_emit.inc` calls the shared
+  `hako_llvmc_ffi_same_module_function_emit.inc` calls the shared
   module-generic and result-origin helpers, and consumes generic-method view
   predicates from `hako_llvmc_ffi_same_module_method_views.inc`
 
@@ -242,6 +242,8 @@ Completed focused probe:
     internals under the historical module-generic string file stem
   - P381ES moved generic-method view predicates to
     `hako_llvmc_ffi_same_module_method_views.inc`
+  - P381ET moved the body prepass/emitter include to
+    `hako_llvmc_ffi_same_module_function_emit.inc`
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

@@ -11,7 +11,7 @@ Related:
   - docs/development/current/main/design/stage0-llvm-line-shape-inventory-ssot.md
   - src/mir/global_call_route_plan/model.rs
   - lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell.inc
-  - lang/c-abi/shims/hako_llvmc_ffi_module_generic_string_function_emit.inc
+  - lang/c-abi/shims/hako_llvmc_ffi_same_module_function_emit.inc
 ---
 
 # P381BC: Stage0 Capsule Exit Task Map
@@ -508,9 +508,13 @@ Same-module method-view file cleanup landed in
 generic-method LoweringPlan predicates moved from the historical
 `module_generic_string` file stem to `hako_llvmc_ffi_same_module_method_views.inc`.
 
-Primary targets:
+Same-module function emitter file cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381ET-SAME-MODULE-FUNCTION-EMIT-FILE.md`:
+the selected same-module body prepass/emitter moved from the historical
+`module_generic_string` file stem to `hako_llvmc_ffi_same_module_function_emit.inc`.
 
-- `hako_llvmc_ffi_module_generic_string_function_emit.inc`
+Primary remaining targets:
+
 - `hako_llvmc_ffi_mir_call_need_policy.inc`
 - `hako_llvmc_ffi_mir_call_shell.inc`
 

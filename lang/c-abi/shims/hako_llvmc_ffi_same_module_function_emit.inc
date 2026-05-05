@@ -1,9 +1,10 @@
       /*
-       * Module generic pure string function emitter.
+       * Same-module uniform ABI function emitter.
        *
-       * This is the first non-entry same-module function body emitter for
-       * `generic_pure_string_body`. It intentionally accepts only the small
-       * string/env/global-call subset recorded by MIR LoweringPlan.
+       * This emits selected non-entry same-module function bodies for direct
+       * global-call routes. It intentionally accepts only the small
+       * string/env/generic-method/global-call subset recorded by MIR
+       * LoweringPlan.
        */
       auto int module_generic_string_value_is_string(long long reg) {
         long long base = resolve_copy_source_reg(reg);
