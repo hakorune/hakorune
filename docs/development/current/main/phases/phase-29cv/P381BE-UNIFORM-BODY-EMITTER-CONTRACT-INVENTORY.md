@@ -135,6 +135,8 @@ Completed focused probe:
     module-generic emitter while keeping route acceptance unchanged
   - P381CY centralized module-generic `get` route flags behind one local view
     consumed by helper selection and result-origin follow-up
+  - P381CZ made the module-generic prepass reuse the same `get` route view
+    while keeping its numeric-field origin exception explicit
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

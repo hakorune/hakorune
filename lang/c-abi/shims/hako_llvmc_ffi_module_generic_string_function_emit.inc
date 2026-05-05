@@ -165,6 +165,7 @@
         int is_module_function_array_item_get;
         int is_phi_incoming_array_item_get;
         int publishes_map_get_origin;
+        int prepass_publishes_map_get_origin;
         int is_inst_field_get;
         int is_function_field_get;
         int is_module_field_get;
@@ -192,6 +193,7 @@
         out->is_module_function_array_item_get = 0;
         out->is_phi_incoming_array_item_get = 0;
         out->publishes_map_get_origin = 0;
+        out->prepass_publishes_map_get_origin = 0;
         out->is_inst_field_get = 0;
         out->is_function_field_get = 0;
         out->is_module_field_get = 0;
@@ -251,6 +253,12 @@
             out->is_inst_field_get ||
             out->is_function_field_get ||
             out->is_module_field_get ||
+            is_mir_json_flags_rec_map_get;
+        out->prepass_publishes_map_get_origin =
+            is_map_get ||
+            is_mir_json_block_field_get ||
+            is_mir_json_const_value_field_get ||
+            is_mir_json_callee_field_get ||
             is_mir_json_flags_rec_map_get;
         return out->is_array_load || out->publishes_map_get_origin;
       }
@@ -598,6 +606,7 @@
               struct LoweringPlanGenericMethodView method_view;
               struct LoweringPlanExternCallView extern_view;
               struct LoweringPlanGlobalCallView global_view;
+              struct ModuleGenericStringGetRouteView get_route;
               const char* ctype = NULL;
               const char* mname = NULL;
               const char* bname = NULL;
@@ -630,76 +639,30 @@
                 if (!module_generic_string_read_array_push_value(args, &value)) return 0;
                 module_generic_string_promote_array_string_push(recv, value);
               } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_array_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(&method_view)) {
-                module_generic_string_publish_i64_origin(dst, ORG_MAP_BIRTH);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_params_array_item_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(&method_view)) {
-                module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_flags_keys(&method_view)) {
                 module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
               } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_map_get(&method_view)) {
+                         module_generic_string_read_get_route_view(&method_view, &get_route)) {
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_MAP_GET);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_block_field_get(&method_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_MAP_GET);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_const_value_field_get(&method_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_MAP_GET);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(&method_view)) {
-                set_type(dst, T_I64);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_callee_field_get(&method_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_MAP_GET);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_inst_field_get(&method_view)) {
-                set_type(dst, T_I64);
-                module_generic_string_publish_inst_field_origin(
-                    dst, &method_view, 1);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_function_field_get(&method_view)) {
-                set_type(dst, T_I64);
-                module_generic_string_publish_function_field_origin(
-                    dst, &method_view);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_module_field_get(&method_view)) {
-                set_type(dst, T_I64);
-                module_generic_string_publish_module_field_origin(
-                    dst, &method_view);
-              } else if (has_method_view &&
-                         module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(&method_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_MAP_GET);
+                if (get_route.is_module_function_array_item_get) {
+                  module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
+                } else if (get_route.is_phi_incoming_array_item_get) {
+                  module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+                } else if (get_route.prepass_publishes_map_get_origin) {
+                  set_origin(dst, ORG_MAP_GET);
+                }
+                if (get_route.is_inst_field_get) {
+                  module_generic_string_publish_inst_field_origin(
+                      dst, &method_view, 1);
+                }
+                if (get_route.is_function_field_get) {
+                  module_generic_string_publish_function_field_origin(
+                      dst, &method_view);
+                }
+                if (get_route.is_module_field_get) {
+                  module_generic_string_publish_module_field_origin(
+                      dst, &method_view);
+                }
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_map_set(&method_view)) {
                 if (dst) set_type(dst, T_I64);
