@@ -105,6 +105,8 @@ Completed focused probe:
   - P381CI deleted the now-unused retired-capsule C direct-view predicates
   - P381CJ synced the durable LoweringPlan JSON and Stage0 inventory SSOT docs
     with the MIR-owned global-call metadata fields
+  - P381CK moved active primitive definition ownership checks to
+    `definition_owner`, deleting the leaf/generic-i64 C proof/shape predicates
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

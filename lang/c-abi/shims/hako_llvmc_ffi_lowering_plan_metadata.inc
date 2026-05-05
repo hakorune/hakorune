@@ -431,22 +431,10 @@
                lowering_plan_global_call_view_definition_owner_is(view, "uniform_mir");
       }
 
-      auto int lowering_plan_global_call_view_is_direct_leaf_i64(
+      auto int lowering_plan_global_call_view_uses_leaf_i64_definition(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_leaf_numeric_i64") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_leaf_numeric_i64") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "numeric_i64_leaf") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "ScalarI64") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "scalar_i64");
+               lowering_plan_global_call_view_definition_owner_is(view, "leaf_i64");
       }
 
       auto int lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(
@@ -461,29 +449,17 @@
                !strcmp(view->value_demand, "scalar_i64");
       }
 
-      auto int lowering_plan_global_call_view_is_direct_generic_i64(
+      auto int lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_generic_i64") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_generic_i64") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "generic_i64_body") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "ScalarI64") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "scalar_i64");
+               lowering_plan_global_call_view_definition_owner_is(view, "generic_i64_or_leaf");
       }
 
       auto int lowering_plan_global_call_view_uses_module_generic_definition(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
                (lowering_plan_global_call_view_definition_owner_is(view, "module_generic") ||
-                lowering_plan_global_call_view_definition_owner_is(view, "generic_i64_or_leaf"));
+                lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(view));
       }
 
       auto int lowering_plan_global_call_view_requires_module_generic_definition(

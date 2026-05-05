@@ -614,7 +614,7 @@
                 set_type(dst, T_I64);
                 mark_global_call_result_origin_from_view(&global_view, dst);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
-                         lowering_plan_global_call_view_is_direct_leaf_i64(&global_view)) {
+                         lowering_plan_global_call_view_uses_leaf_i64_definition(&global_view)) {
                 set_type(dst, T_I64);
               } else if (ctype && !strcmp(ctype, "Global") &&
                          classify_mir_call_global_surface(mname) ==

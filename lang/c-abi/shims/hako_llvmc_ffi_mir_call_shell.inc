@@ -147,9 +147,9 @@
         if (!(args && yyjson_is_arr(args))) return -1;
         argc = yyjson_arr_size(args);
         if ((long long)argc != view.arity || argc > 64) return -1;
-        if (lowering_plan_global_call_view_is_direct_leaf_i64(&view)) {
+        if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view)) {
           if (!module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
-        } else if (lowering_plan_global_call_view_is_direct_generic_i64(&view)) {
+        } else if (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(&view)) {
           if (!module_generic_symbol_will_be_defined(view.target_symbol) &&
               !module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_requires_module_generic_definition(&view)) {

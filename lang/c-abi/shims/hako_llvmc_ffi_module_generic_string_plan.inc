@@ -109,8 +109,8 @@
           yyjson_val* target_fn = NULL;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
           target_fn = module_generic_string_find_function(view.target_symbol);
-          if (lowering_plan_global_call_view_is_direct_leaf_i64(&view) ||
-              (lowering_plan_global_call_view_is_direct_generic_i64(&view) &&
+          if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view) ||
+              (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(&view) &&
                module_function_is_numeric_i64_leaf(target_fn))) {
             if (!remember_planned_module_leaf_symbol(view.target_symbol)) return -1;
             planned++;
