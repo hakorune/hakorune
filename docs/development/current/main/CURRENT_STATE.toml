@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381BY-MODULE-GENERIC-I64-CALL-EMIT-HELPER-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BY-MODULE-GENERIC-I64-CALL-EMIT-HELPER-CLEANUP.md"
-latest_card_summary = "Module generic method emitters now share optional-dst i64 call emission while each route keeps its own acceptance, argument construction, and post-call metadata publication."
+latest_card = "P381BZ-MODULE-GENERIC-BIRTH-CALL-EMIT-HELPER-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BZ-MODULE-GENERIC-BIRTH-CALL-EMIT-HELPER-CLEANUP.md"
+latest_card_summary = "Module generic newbox emission now shares ArrayBox/MapBox no-argument i64 birth call emission while keeping type acceptance in newbox handling."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

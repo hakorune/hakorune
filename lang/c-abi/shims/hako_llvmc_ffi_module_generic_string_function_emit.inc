@@ -142,6 +142,17 @@
         }
       }
 
+      auto void module_generic_string_emit_i64_birth_call(
+          long long dst,
+          const char* symbol,
+          int birth_origin) {
+        module_generic_string_emit_i64_call(dst, symbol, "");
+        if (dst) {
+          set_origin(dst, birth_origin);
+          set_scan_origin(dst, birth_origin);
+        }
+      }
+
       auto void module_generic_string_emit_array_slot_append_call(
           long long dst,
           long long recv,
@@ -753,25 +764,17 @@
         long long dst = read_int(ins, "dst");
         const char* tname = read_str(ins, "type");
         if (tname && !strcmp(tname, "ArrayBox")) {
-          if (dst) {
-            EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst);
-            set_type(dst, T_I64);
-            set_origin(dst, ORG_ARRAY_BIRTH);
-            set_scan_origin(dst, ORG_ARRAY_BIRTH);
-          } else {
-            EMIT("  call i64 @\"nyash.array.birth_h\"()\n");
-          }
+          module_generic_string_emit_i64_birth_call(
+              dst,
+              "nyash.array.birth_h",
+              ORG_ARRAY_BIRTH);
           return 1;
         }
         if (tname && !strcmp(tname, "MapBox")) {
-          if (dst) {
-            EMIT("  %%r%lld = call i64 @\"nyash.map.birth_h\"()\n", dst);
-            set_type(dst, T_I64);
-            set_origin(dst, ORG_MAP_BIRTH);
-            set_scan_origin(dst, ORG_MAP_BIRTH);
-          } else {
-            EMIT("  call i64 @\"nyash.map.birth_h\"()\n");
-          }
+          module_generic_string_emit_i64_birth_call(
+              dst,
+              "nyash.map.birth_h",
+              ORG_MAP_BIRTH);
           return 1;
         }
         return 0;

@@ -228,6 +228,11 @@ array push, string needle calls, len, substring, get, keys, and map set now
 share optional-`dst` i64 call emission while keeping route-specific metadata
 publication in each emitter.
 
+Birth call emit helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381BZ-MODULE-GENERIC-BIRTH-CALL-EMIT-HELPER-CLEANUP.md`:
+ArrayBox and MapBox newbox emission now shares the no-argument i64 birth call
+helper while keeping type acceptance in `module_generic_string_emit_newbox`.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
