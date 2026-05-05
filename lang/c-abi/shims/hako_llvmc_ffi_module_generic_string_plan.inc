@@ -1,22 +1,22 @@
       /*
-       * Module generic pure string function plan registry.
+       * Same-module function plan registry.
        *
-       * MIR/LoweringPlan owns the permission (`generic_pure_string_body`).
+       * MIR/LoweringPlan owns the definition owner and direct-call contract.
        * This registry only records same-module functions that must be emitted
        * as LLVM definitions so direct calls cannot silently externalize them.
        */
-      const char* planned_module_generic_string_symbols[1024];
-      size_t planned_module_generic_string_symbols_n = 0;
-      const char* emitted_module_generic_string_symbols[1024];
-      size_t emitted_module_generic_string_symbols_n = 0;
+      const char* planned_same_module_function_symbols[1024];
+      size_t planned_same_module_function_symbols_n = 0;
+      const char* emitted_same_module_function_symbols[1024];
+      size_t emitted_same_module_function_symbols_n = 0;
 
-      auto int remember_planned_module_generic_string_symbol(const char* name) {
+      auto int remember_planned_same_module_function_symbol(const char* name) {
         if (!name) return 0;
-        for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
-          if (!strcmp(planned_module_generic_string_symbols[i], name)) return 1;
+        for (size_t i = 0; i < planned_same_module_function_symbols_n; i++) {
+          if (!strcmp(planned_same_module_function_symbols[i], name)) return 1;
         }
-        if (planned_module_generic_string_symbols_n >=
-            ARR_LEN(planned_module_generic_string_symbols)) {
+        if (planned_same_module_function_symbols_n >=
+            ARR_LEN(planned_same_module_function_symbols)) {
           note_pure_unsupported_shape_detail(
               -1,
               0,
@@ -28,26 +28,27 @@
               NULL);
           return 0;
         }
-        planned_module_generic_string_symbols[planned_module_generic_string_symbols_n] = name;
-        planned_module_generic_string_symbols_n++;
+        planned_same_module_function_symbols[
+            planned_same_module_function_symbols_n] = name;
+        planned_same_module_function_symbols_n++;
         return 1;
       }
 
-      auto int module_generic_symbol_will_be_defined(const char* name) {
+      auto int same_module_function_symbol_will_be_defined(const char* name) {
         if (!name) return 0;
-        for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
-          if (!strcmp(planned_module_generic_string_symbols[i], name)) return 1;
+        for (size_t i = 0; i < planned_same_module_function_symbols_n; i++) {
+          if (!strcmp(planned_same_module_function_symbols[i], name)) return 1;
         }
         return 0;
       }
 
-      auto int remember_emitted_module_generic_string_symbol(const char* name) {
+      auto int remember_emitted_same_module_function_symbol(const char* name) {
         if (!name) return 0;
-        for (size_t i = 0; i < emitted_module_generic_string_symbols_n; i++) {
-          if (!strcmp(emitted_module_generic_string_symbols[i], name)) return 1;
+        for (size_t i = 0; i < emitted_same_module_function_symbols_n; i++) {
+          if (!strcmp(emitted_same_module_function_symbols[i], name)) return 1;
         }
-        if (emitted_module_generic_string_symbols_n >=
-            ARR_LEN(emitted_module_generic_string_symbols)) {
+        if (emitted_same_module_function_symbols_n >=
+            ARR_LEN(emitted_same_module_function_symbols)) {
           note_pure_unsupported_shape_detail(
               -1,
               0,
@@ -59,20 +60,21 @@
               NULL);
           return 0;
         }
-        emitted_module_generic_string_symbols[emitted_module_generic_string_symbols_n++] = name;
+        emitted_same_module_function_symbols[
+            emitted_same_module_function_symbols_n++] = name;
         return 1;
       }
 
-      auto int module_generic_symbol_was_emitted(const char* name) {
+      auto int same_module_function_symbol_was_emitted(const char* name) {
         if (!name) return 0;
-        for (size_t i = 0; i < emitted_module_generic_string_symbols_n; i++) {
-          if (!strcmp(emitted_module_generic_string_symbols[i], name)) return 1;
+        for (size_t i = 0; i < emitted_same_module_function_symbols_n; i++) {
+          if (!strcmp(emitted_same_module_function_symbols[i], name)) return 1;
         }
         return 0;
       }
 
-      auto int module_has_planned_generic_string_definition(void) {
-        return planned_module_generic_string_symbols_n > 0;
+      auto int module_has_planned_same_module_function_definition(void) {
+        return planned_same_module_function_symbols_n > 0;
       }
 
       auto yyjson_val* module_generic_string_find_function(const char* name) {
@@ -119,7 +121,7 @@
           if (!lowering_plan_global_call_view_requires_same_module_function_definition(&view)) {
             continue;
           }
-          if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
+          if (!remember_planned_same_module_function_symbol(view.target_symbol)) return -1;
           planned++;
         }
         return planned;
@@ -129,8 +131,8 @@
         int planned = plan_module_generic_string_definition_edges(program.entry.fn);
         size_t cursor = 0;
         if (planned < 0) return -1;
-        while (cursor < planned_module_generic_string_symbols_n) {
-          const char* symbol = planned_module_generic_string_symbols[cursor++];
+        while (cursor < planned_same_module_function_symbols_n) {
+          const char* symbol = planned_same_module_function_symbols[cursor++];
           yyjson_val* fn = module_generic_string_find_function(symbol);
           int rc = plan_module_generic_string_definition_edges(fn);
           if (rc < 0) return -1;

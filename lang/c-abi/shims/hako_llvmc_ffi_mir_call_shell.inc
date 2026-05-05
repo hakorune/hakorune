@@ -150,11 +150,11 @@
         if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view)) {
           if (!module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(&view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol) &&
+          if (!same_module_function_symbol_will_be_defined(view.target_symbol) &&
               !module_leaf_symbol_was_emitted(view.target_symbol)) return -1;
         } else if (lowering_plan_global_call_view_requires_same_module_function_definition(
                        &view)) {
-          if (!module_generic_symbol_will_be_defined(view.target_symbol)) return -1;
+          if (!same_module_function_symbol_will_be_defined(view.target_symbol)) return -1;
         } else {
           return -1;
         }

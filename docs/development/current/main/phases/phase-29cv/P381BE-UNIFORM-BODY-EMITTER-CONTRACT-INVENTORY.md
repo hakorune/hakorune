@@ -191,6 +191,8 @@ Completed focused probe:
   - P381DY renamed the Stage0 global-call definition requirement helper around
     the actual selected same-module function contract shared by `module_generic`
     and `uniform_mir` owners
+  - P381DZ renamed the Stage0 selected-set registry identifiers from
+    module-generic string wording to same-module function wording
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

@@ -1867,7 +1867,7 @@
           return -1;
         }
         fprintf(f, "}\n\n");
-        return remember_emitted_module_generic_string_symbol(name) ? 1 : -1;
+        return remember_emitted_same_module_function_symbol(name) ? 1 : -1;
       }
 
       auto int module_generic_string_function_definition_is_eligible(
@@ -1875,8 +1875,8 @@
           const char* name) {
         if (!name ||
             !llvm_quoted_symbol_name_is_safe(name) ||
-            !module_generic_symbol_will_be_defined(name) ||
-            module_generic_symbol_was_emitted(name)) {
+            !same_module_function_symbol_will_be_defined(name) ||
+            same_module_function_symbol_was_emitted(name)) {
           return 0;
         }
         if (module_function_is_numeric_i64_leaf(fn) &&
@@ -1947,8 +1947,8 @@
 
       auto int emit_module_function_generic_string_definitions(FILE* f) {
         int emitted = 0;
-        for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
-          const char* name = planned_module_generic_string_symbols[i];
+        for (size_t i = 0; i < planned_same_module_function_symbols_n; i++) {
+          const char* name = planned_same_module_function_symbols[i];
           int rc = module_generic_string_emit_planned_function_definition(
               f,
               name,

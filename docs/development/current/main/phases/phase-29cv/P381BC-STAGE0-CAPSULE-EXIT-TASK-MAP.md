@@ -409,6 +409,11 @@ Same-module definition helper naming cleanup landed in
 the Stage0 global-call definition requirement helper now names the selected
 same-module function contract shared by `module_generic` and `uniform_mir`.
 
+Same-module function registry naming cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DZ-SAME-MODULE-FUNCTION-REGISTRY-NAMES.md`:
+the Stage0 selected-set registry now uses same-module function wording instead
+of module-generic string wording.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
