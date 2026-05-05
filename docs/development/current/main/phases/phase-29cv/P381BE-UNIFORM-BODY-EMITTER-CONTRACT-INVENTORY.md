@@ -129,6 +129,8 @@ Completed focused probe:
     generic-method LoweringPlan view across method-specific emitters
   - P381CV centralized paired origin/scan-origin publication in the
     module-generic emitter while leaving origin-only updates explicit
+  - P381CW centralized paired i64 type plus origin publication in the
+    module-generic emitter while leaving scalar-only cases explicit
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

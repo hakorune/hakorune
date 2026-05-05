@@ -269,6 +269,11 @@ Module-generic origin publish cleanup landed in
 paired origin/scan-origin result publication now goes through one local helper
 while origin-only updates stay explicit.
 
+Module-generic i64 origin publish cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381CW-MODULE-GENERIC-I64-ORIGIN-PUBLISH-HELPER.md`:
+i64 type plus origin publication now has one helper, leaving scalar-only and
+origin-only updates visible.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
