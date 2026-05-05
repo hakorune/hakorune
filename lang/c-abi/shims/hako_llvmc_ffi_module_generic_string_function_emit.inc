@@ -1786,17 +1786,45 @@
         return 1;
       }
 
+      struct ModuleGenericStringFunctionContextSnapshot {
+        hako_llvmc_generic_pure_function_view* active_function;
+        yyjson_val* fn0;
+        yyjson_val* fn_metadata;
+        yyjson_val* blocks;
+        size_t generic_pure_block_count;
+        hako_llvmc_entry_rune_selection selection;
+        struct GenericPureFunctionLoweringState lowering_state;
+      };
+
+      auto void module_generic_string_save_function_context(
+          struct ModuleGenericStringFunctionContextSnapshot* snapshot) {
+        snapshot->active_function = active_function;
+        snapshot->fn0 = fn0;
+        snapshot->fn_metadata = fn_metadata;
+        snapshot->blocks = blocks;
+        snapshot->generic_pure_block_count = generic_pure_block_count;
+        snapshot->selection = selection;
+        snapshot->lowering_state = lowering_state;
+      }
+
+      auto void module_generic_string_restore_function_context(
+          const struct ModuleGenericStringFunctionContextSnapshot* snapshot) {
+        free_owned_str_consts();
+        reset_string_concat_tracking_state();
+        lowering_state = snapshot->lowering_state;
+        active_function = snapshot->active_function;
+        fn0 = snapshot->fn0;
+        fn_metadata = snapshot->fn_metadata;
+        blocks = snapshot->blocks;
+        generic_pure_block_count = snapshot->generic_pure_block_count;
+        selection = snapshot->selection;
+      }
+
       auto int emit_generic_pure_string_function_definition(
           FILE* f,
           yyjson_val* fn,
           size_t fn_index) {
-        hako_llvmc_generic_pure_function_view* saved_active_function = active_function;
-        yyjson_val* saved_fn0 = fn0;
-        yyjson_val* saved_fn_metadata = fn_metadata;
-        yyjson_val* saved_blocks = blocks;
-        size_t saved_generic_pure_block_count = generic_pure_block_count;
-        hako_llvmc_entry_rune_selection saved_selection = selection;
-        struct GenericPureFunctionLoweringState saved_lowering_state = lowering_state;
+        struct ModuleGenericStringFunctionContextSnapshot saved_context;
         hako_llvmc_generic_pure_function_view local_function;
         const char* name = fn ? read_str(fn, "name") : NULL;
         int rc = -1;
@@ -1819,6 +1847,7 @@
           return -1;
         }
 
+        module_generic_string_save_function_context(&saved_context);
         active_function = &local_function;
         fn0 = local_function.fn;
         fn_metadata = local_function.metadata;
@@ -1861,15 +1890,7 @@
         rc = remember_emitted_module_generic_string_symbol(name) ? 1 : -1;
 
       MODULE_GENERIC_STRING_RESTORE:
-        free_owned_str_consts();
-        reset_string_concat_tracking_state();
-        lowering_state = saved_lowering_state;
-        active_function = saved_active_function;
-        fn0 = saved_fn0;
-        fn_metadata = saved_fn_metadata;
-        blocks = saved_blocks;
-        generic_pure_block_count = saved_generic_pure_block_count;
-        selection = saved_selection;
+        module_generic_string_restore_function_context(&saved_context);
         return rc;
       }
 

@@ -167,6 +167,8 @@ Completed focused probe:
     one instruction dispatcher entry
   - P381DO moved module-generic LLVM function signature emission behind one
     function-definition helper
+  - P381DP centralized module-generic function context save and restore behind
+    one snapshot contract
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
