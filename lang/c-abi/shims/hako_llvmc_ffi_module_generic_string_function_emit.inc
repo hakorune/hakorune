@@ -1929,18 +1929,31 @@
         return rc;
       }
 
+      auto int module_generic_string_emit_planned_function_definition(
+          FILE* f,
+          const char* name,
+          int* emitted) {
+        size_t fn_index = 0;
+        yyjson_val* fn = NULL;
+        int rc = 0;
+        if (!module_generic_string_find_function_index(name, &fn_index)) return 1;
+        fn = yyjson_arr_get(program.functions, fn_index);
+        if (!fn || fn == program.entry.fn) return 1;
+        rc = emit_generic_pure_string_function_definition(f, fn, fn_index);
+        if (rc < 0) return -1;
+        if (rc > 0 && emitted) (*emitted)++;
+        return 1;
+      }
+
       auto int emit_module_function_generic_string_definitions(FILE* f) {
         int emitted = 0;
         for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
           const char* name = planned_module_generic_string_symbols[i];
-          size_t fn_index = 0;
-          yyjson_val* fn = NULL;
-          if (!module_generic_string_find_function_index(name, &fn_index)) continue;
-          fn = yyjson_arr_get(program.functions, fn_index);
-          if (!fn || fn == program.entry.fn) continue;
-          int rc = emit_generic_pure_string_function_definition(f, fn, fn_index);
+          int rc = module_generic_string_emit_planned_function_definition(
+              f,
+              name,
+              &emitted);
           if (rc < 0) return -1;
-          if (rc > 0) emitted++;
         }
         reset_string_concat_tracking_state();
         return emitted;

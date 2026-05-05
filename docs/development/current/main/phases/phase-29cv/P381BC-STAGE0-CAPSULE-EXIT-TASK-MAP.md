@@ -389,6 +389,11 @@ Module-generic function view helper cleanup landed in
 function definition entry now delegates generic pure function view parsing
 through one helper.
 
+Module-generic planned definition helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DV-MODULE-GENERIC-PLANNED-DEFINITION-HELPER.md`:
+planned-symbol driver now delegates per-symbol lookup, skip, emit, and count
+handling through one helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

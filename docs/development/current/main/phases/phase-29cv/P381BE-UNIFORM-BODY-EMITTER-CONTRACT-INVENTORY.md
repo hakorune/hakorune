@@ -179,6 +179,8 @@ Completed focused probe:
     pipeline split
   - P381DU moved module-generic generic pure function view parsing behind one
     definition-entry helper
+  - P381DV moved module-generic planned-symbol lookup, entry skip, definition
+    emission, and count updates behind one driver helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
