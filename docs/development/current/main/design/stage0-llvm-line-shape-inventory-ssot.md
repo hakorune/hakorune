@@ -157,13 +157,15 @@ the retired `target_shape` field for direct global-call routes; unsupported
 route diagnostic fields such as `target_shape_reason` remain diagnostic-only
 breadcrumbs.
 
-The current Stage0 C file names under
+The current Stage0 C body-emitter file names under
 `hako_llvmc_ffi_module_generic_string_*` are historical names. Their active
 responsibility is the module-generic same-module MIR function emitter for
-uniform ABI (`i64` handle/scalar) functions. New code and docs should describe
-the responsibility as "module-generic" or "uniform MIR function" and must not
-interpret the file stem as permission to add string-only or source-owner
-semantics.
+uniform ABI (`i64` handle/scalar) functions. The transitive definition planner
+has moved to the owner-neutral
+`hako_llvmc_ffi_same_module_function_plan.inc` name. New code and docs should
+describe the responsibility as "module-generic", "same-module function", or
+"uniform MIR function" and must not interpret historical file stems as
+permission to add string-only or source-owner semantics.
 
 ## Card Checklist
 

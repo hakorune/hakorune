@@ -775,7 +775,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_core_method_metadata.inc"
       #include "hako_llvmc_ffi_lowering_plan_metadata.inc"
       #include "hako_llvmc_ffi_module_leaf_function_emit.inc"
-      #include "hako_llvmc_ffi_module_generic_string_plan.inc"
+      #include "hako_llvmc_ffi_same_module_function_plan.inc"
       auto void emit_module_function_declarations(FILE* f) {
         /*
          * Planned module symbols are emitted as definitions below. LLVM 18 treats

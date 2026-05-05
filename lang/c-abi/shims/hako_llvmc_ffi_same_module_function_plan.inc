@@ -1,5 +1,5 @@
       /*
-       * Same-module function plan registry.
+       * Same-module function definition plan registry.
        *
        * MIR/LoweringPlan owns the definition owner and direct-call contract.
        * This registry only records same-module functions that must be emitted

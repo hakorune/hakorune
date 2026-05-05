@@ -10,7 +10,7 @@ Related:
   - src/mir/global_call_route_plan/model.rs
   - lang/c-abi/shims/hako_llvmc_ffi_lowering_plan_metadata.inc
   - lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell.inc
-  - lang/c-abi/shims/hako_llvmc_ffi_module_generic_string_plan.inc
+  - lang/c-abi/shims/hako_llvmc_ffi_same_module_function_plan.inc
   - lang/c-abi/shims/hako_llvmc_ffi_module_generic_string_function_emit.inc
 ---
 
@@ -54,7 +54,7 @@ These sites are now centralized by P381CF:
   `hako_llvmc_ffi_mir_call_shell.inc`; result-origin propagation consumes the
   P381CG `result_origin` metadata field
 - selected-set planning:
-  `hako_llvmc_ffi_module_generic_string_plan.inc` calls the shared
+  `hako_llvmc_ffi_same_module_function_plan.inc` calls the shared
   module-generic helper, which now reads P381CH `definition_owner` metadata
 - module body prepass and body emission:
   `hako_llvmc_ffi_module_generic_string_function_emit.inc` calls the shared
@@ -235,6 +235,9 @@ Completed focused probe:
   - P381EQ renamed the per-function definition-set scan to
     `plan_function_global_call_definition_edges`, matching its module-generic,
     uniform-MIR, generic-i64, and leaf planning duties
+  - P381ER moved the transitive definition planner to
+    `hako_llvmc_ffi_same_module_function_plan.inc`, leaving only body-emitter
+    internals under the historical module-generic string file stem
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions
