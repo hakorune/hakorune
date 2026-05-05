@@ -113,6 +113,8 @@ Completed focused probe:
     predicates behind a shared module-generic helper
   - P381CN centralized the repeated StringBox scalar generic-method view
     predicates behind a shared module-generic helper
+  - P381CO centralized receiver-origin generic-method view predicates behind a
+    shared module-generic exact-match helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
