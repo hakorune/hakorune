@@ -103,6 +103,8 @@ Completed focused probe:
   - P381CH moved definition ownership and emit trace consumer truth into Rust
     LoweringPlan metadata, removing the C proof-name selected-set list
   - P381CI deleted the now-unused retired-capsule C direct-view predicates
+  - P381CJ synced the durable LoweringPlan JSON and Stage0 inventory SSOT docs
+    with the MIR-owned global-call metadata fields
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

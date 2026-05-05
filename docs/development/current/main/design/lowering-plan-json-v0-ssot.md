@@ -78,6 +78,9 @@ Optional fields may carry operands and result values:
 | `result_value` | result value id, or `null` |
 | `return_shape` | semantic result shape, or `null` |
 | `value_demand` | value demand expected by emitter/runtime |
+| `result_origin` | result-origin side effect for handle births, or `none` |
+| `definition_owner` | same-module definition owner set, or `none` |
+| `emit_trace_consumer` | stable trace consumer tag selected by the plan builder |
 | `publication_policy` | publication/objectization policy, or `null` |
 | `effects` | stable effect tags |
 
@@ -103,6 +106,9 @@ Example:
   "result_value": 3,
   "return_shape": "mixed_runtime_i64_or_handle",
   "value_demand": "runtime_i64_or_handle",
+  "result_origin": "none",
+  "definition_owner": "none",
+  "emit_trace_consumer": "mir_call_global_unknown_emit",
   "publication_policy": "runtime_data_facade",
   "effects": ["read.key"]
 }
@@ -185,6 +191,22 @@ Same-module global user calls must carry `target_symbol` when
 `target_exists=true`. The v0 symbol is the quoted LLVM function symbol for the
 target MIR function. Call emitters must use `target_symbol`; `callee_name`
 remains diagnostic identity and resolver evidence.
+
+Same-module global user calls must also publish the backend ownership facts
+that Stage0 needs to emit by route contract instead of proof-name lists:
+
+| field | vocabulary | meaning |
+| --- | --- | --- |
+| `result_origin` | `none`, `string`, `array_string_birth`, `map_birth` | post-call origin side effect for result registers |
+| `definition_owner` | `none`, `leaf_i64`, `generic_i64_or_leaf`, `module_generic`, `uniform_mir` | selected same-module definition set |
+| `emit_trace_consumer` | stable `[llvm-route/trace]` consumer string | trace identity chosen by MIR route facts |
+
+`result_origin` is the only source for Stage0 origin propagation on
+`global_call_routes`. `definition_owner` is the only source for deciding which
+same-module definition set should contain the target. `emit_trace_consumer` is
+the only source for global-call route trace consumer names. C shims must not
+reconstruct these from `proof`, `route_proof`, `target_shape`, or raw callee
+names.
 
 When `target_exists=true` but `target_shape=null`, MIR must also carry
 `target_shape_reason` when it can explain why the target did not match a

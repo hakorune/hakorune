@@ -146,6 +146,14 @@ callee meaning from raw `.hako` owner names or from C-side capsule proof-name
 lists. Global-call result origin, definition ownership, and trace consumer
 selection are MIR-owned LoweringPlan metadata fields.
 
+The current Stage0 C file names under
+`hako_llvmc_ffi_module_generic_string_*` are historical names. Their active
+responsibility is the module-generic same-module MIR function emitter for
+uniform ABI (`i64` handle/scalar) functions. New code and docs should describe
+the responsibility as "module-generic" or "uniform MIR function" and must not
+interpret the file stem as permission to add string-only or source-owner
+semantics.
+
 ## Card Checklist
 
 Every source-execution cleanup card must answer:
