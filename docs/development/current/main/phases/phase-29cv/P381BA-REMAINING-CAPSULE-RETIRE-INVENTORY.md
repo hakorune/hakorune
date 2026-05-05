@@ -39,9 +39,10 @@ Audited results:
 - `ParserProgramJsonBody`: blocked
   - `GenericPureStringBody` still rejects the required `ParserBox` pattern via
     the known-receiver blocker
-- `GenericStringVoidLoggingBody`: blocked
-  - no existing public contract matches `void_sentinel_i64_zero` + logging
-    semantics
+- `GenericStringVoidLoggingBody`: superseded by P381BJ
+  - P381BJ removed the target-shape variant after storing
+    `proof=typed_global_call_generic_string_void_logging` and
+    `return_shape=void_sentinel_i64_zero` as target facts
 - `PatternUtilLocalValueProbeBody`: already known blocked
   - it still carries a distinct mixed scalar/handle contract
 

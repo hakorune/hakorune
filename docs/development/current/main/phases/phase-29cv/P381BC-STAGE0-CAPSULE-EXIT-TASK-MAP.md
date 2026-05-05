@@ -62,11 +62,16 @@ exact file list.
 
 ## Capsule Reading
 
+Retired capsule contracts:
+
+| Capsule | Result |
+| --- | --- |
+| `GenericStringVoidLoggingBody` | retired as a shape in P381BJ; direct ABI truth now lives in `proof=typed_global_call_generic_string_void_logging` plus `return_shape=void_sentinel_i64_zero` |
+
 Current temporary capsules from the Stage0 shape inventory:
 
 | Capsule | Reading |
 | --- | --- |
-| `GenericStringVoidLoggingBody` | candidate, but still has void-sentinel return-shape handling |
 | `ParserProgramJsonBody` | candidate only after dedicated parser Program(JSON) body emission is replaced or made uniform |
 | `StaticStringArrayBody` | candidate only after `array_handle` / `ORG_ARRAY_STRING_BIRTH` origin is expressed without a shape branch |
 | `MirSchemaMapConstructorBody` | candidate only after `map_handle` / MIR schema facts are expressed without a shape branch |
@@ -120,9 +125,9 @@ Status: landed in
 
 ### T2: First Capsule Retirement Candidate
 
-Pick one candidate capsule and retire only that one. The likely first probe is
-`GenericStringVoidLoggingBody`, because it has no result-origin propagation, but
-the void-sentinel contract still must be proven.
+Pick one candidate capsule and retire only that one. The first retired capsule
+is `GenericStringVoidLoggingBody`: it had no result-origin propagation, and the
+void-sentinel contract is now represented as stored MIR proof/return facts.
 
 Status: first C-side contract shrink landed in
 `docs/development/current/main/phases/phase-29cv/P381BF-VOID-LOGGING-DIRECT-CONTRACT-SHRINK.md`;
@@ -132,7 +137,8 @@ return-contract storage landed in
 `docs/development/current/main/phases/phase-29cv/P381BH-GLOBAL-CALL-RETURN-CONTRACT-STORAGE.md`;
 proof storage landed in
 `docs/development/current/main/phases/phase-29cv/P381BI-GLOBAL-CALL-PROOF-CONTRACT-STORAGE.md`;
-final capsule removal remains separate.
+target-shape retirement landed in
+`docs/development/current/main/phases/phase-29cv/P381BJ-VOID-LOGGING-TARGET-SHAPE-RETIRE.md`.
 
 Acceptance must include:
 

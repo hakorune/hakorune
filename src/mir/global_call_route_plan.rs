@@ -45,10 +45,13 @@ use jsonfrag_normalizer_body::is_jsonfrag_instruction_array_normalizer_body_func
 use mir_schema_map_constructor_body::{
     is_mir_schema_map_constructor_body_candidate, mir_schema_map_constructor_body_reject_reason,
 };
+use model::{
+    GlobalCallProof, GlobalCallReturnContract, GlobalCallShapeBlocker,
+    GlobalCallTargetClassification, GlobalCallTargetShapeReason,
+};
 pub use model::{
     GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
 };
-use model::{GlobalCallShapeBlocker, GlobalCallTargetClassification, GlobalCallTargetShapeReason};
 use parser_program_json_body::is_parser_program_json_body_function;
 use pattern_util_local_value_probe_body::is_pattern_util_local_value_probe_body_function;
 use program_json_emit_body::is_program_json_emit_body_function;
@@ -110,6 +113,8 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             };
             let classification = classify_global_call_target_shape(function, &targets);
             if current.shape() != classification.shape
+                || current.return_contract() != classification.return_contract
+                || current.proof() != classification.proof
                 || current.shape_reason() != classification.reason
                 || current.shape_blocker != classification.blocker
             {
@@ -237,8 +242,9 @@ fn classify_global_call_target_shape(
     if function.signature.return_type == MirType::Void
         && generic_string_void_logging_body_reject_reason(function, targets).is_none()
     {
-        return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::GenericStringVoidLoggingBody,
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::GenericStringVoidLogging,
+            GlobalCallReturnContract::VoidSentinelI64Zero,
         );
     }
     if let Some(reject) = generic_pure_string_body_reject_reason(function, targets) {

@@ -36,7 +36,6 @@ pub enum GlobalCallTargetShape {
     NumericI64Leaf,
     GenericPureStringBody,
     GenericStringOrVoidSentinelBody,
-    GenericStringVoidLoggingBody,
     GenericI64Body,
     ParserProgramJsonBody,
     StaticStringArrayBody,
@@ -98,7 +97,6 @@ impl GlobalCallProof {
             GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
                 Self::GenericStringOrVoidSentinel
             }
-            GlobalCallTargetShape::GenericStringVoidLoggingBody => Self::GenericStringVoidLogging,
             GlobalCallTargetShape::GenericI64Body => Self::GenericI64,
             GlobalCallTargetShape::ParserProgramJsonBody => Self::ParserProgramJson,
             GlobalCallTargetShape::StaticStringArrayBody => Self::StaticStringArray,
@@ -153,7 +151,6 @@ impl GlobalCallTargetShape {
             Self::NumericI64Leaf => "numeric_i64_leaf",
             Self::GenericPureStringBody => "generic_pure_string_body",
             Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
-            Self::GenericStringVoidLoggingBody => "generic_string_void_logging_body",
             Self::GenericI64Body => "generic_i64_body",
             Self::ParserProgramJsonBody => "parser_program_json_body",
             Self::StaticStringArrayBody => "static_string_array_body",
@@ -173,9 +170,6 @@ impl GlobalCallTargetShape {
             }
             Self::GenericStringOrVoidSentinelBody => {
                 Some(GlobalCallReturnContract::StringHandleOrNull)
-            }
-            Self::GenericStringVoidLoggingBody => {
-                Some(GlobalCallReturnContract::VoidSentinelI64Zero)
             }
             Self::StaticStringArrayBody => Some(GlobalCallReturnContract::ArrayHandle),
             Self::MirSchemaMapConstructorBody | Self::BoxTypeInspectorDescribeBody => {
@@ -265,6 +259,19 @@ impl GlobalCallTargetClassification {
             shape,
             return_contract: shape.return_contract(),
             proof: GlobalCallProof::from_shape(shape),
+            reason: None,
+            blocker: None,
+        }
+    }
+
+    pub(super) fn direct_contract(
+        proof: GlobalCallProof,
+        return_contract: GlobalCallReturnContract,
+    ) -> Self {
+        Self {
+            shape: GlobalCallTargetShape::Unknown,
+            return_contract: Some(return_contract),
+            proof,
             reason: None,
             blocker: None,
         }

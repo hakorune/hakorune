@@ -56,7 +56,7 @@ fn refresh_module_global_call_routes_accepts_void_logging_string_body() {
     assert_eq!(route.target_return_type(), Some("void".to_string()));
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_void_logging_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -165,7 +165,7 @@ fn refresh_module_global_call_routes_accepts_void_logging_child_wrapper() {
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_void_logging_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -278,10 +278,12 @@ fn refresh_module_global_call_routes_accepts_string_or_void_wrapper_returning_vo
     let child_route = &module.functions["Helper.maybe_text_or_fail/1"]
         .metadata
         .global_call_routes[0];
+    assert_eq!(child_route.target_shape(), None);
     assert_eq!(
-        child_route.target_shape(),
-        Some("generic_string_void_logging_body")
+        child_route.proof(),
+        "typed_global_call_generic_string_void_logging"
     );
+    assert_eq!(child_route.return_shape(), Some("void_sentinel_i64_zero"));
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(

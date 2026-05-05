@@ -36,7 +36,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 | Capsule | Proof / target shape | Return / demand | Result origin side effect | Selected-set / body requirement | Current proof surface |
 | --- | --- | --- | --- | --- | --- |
 | `GenericStringOrVoidSentinelBody` | `typed_global_call_generic_string_or_void_sentinel` / `generic_string_or_void_sentinel_body` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the generic-string direct predicate | planned as a generic module symbol; shares the generic string body path | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
-| `GenericStringVoidLoggingBody` | `typed_global_call_generic_string_void_logging` / `generic_string_void_logging_body` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
+| `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
 | `ParserProgramJsonBody` | `typed_global_call_parser_program_json` / `parser_program_json_body` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol and a parser Program(JSON) symbol; body has a dedicated `emit_parser_program_json_function_definition` path | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
 | `StaticStringArrayBody` | `typed_global_call_static_string_array` / `static_string_array_body` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
 | `MirSchemaMapConstructorBody` | `typed_global_call_mir_schema_map_constructor` / `mir_schema_map_constructor_body` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
@@ -58,11 +58,11 @@ These branches must be checked before deleting any capsule:
 
 ## Retirement Readiness
 
-Ready for first focused probe:
+Completed focused probe:
 
 - `GenericStringVoidLoggingBody`
-  - smallest result-origin surface
-  - still must prove the void-sentinel result contract and no-result callsite
+  - retired as a target-shape variant in P381BJ
+  - direct ABI truth now lives in stored proof and return-contract facts
 
 Not ready for shape-delete-only:
 
@@ -96,12 +96,13 @@ Not allowed:
 Done:
 
 - T1 inventory is complete
-- the first safe implementation probe is `GenericStringVoidLoggingBody`
+- the first safe implementation probe, `GenericStringVoidLoggingBody`, is now
+  retired as a target-shape variant by P381BJ
 - all other temporary capsules have explicit blockers before deletion
 
 Next:
 
-1. retire or shrink `GenericStringVoidLoggingBody` in one card
+1. choose the next origin-carrying or source-owner cleanup capsule
 2. keep `stage0_shape_inventory_guard.sh` green while doing it
 
 ## Acceptance
