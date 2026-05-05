@@ -4,8 +4,8 @@ use crate::mir::{Callee, ConstValue, MirFunction, MirInstruction, MirType, Value
 
 use super::generic_string_reject::GenericPureStringReject;
 use super::model::{
-    GlobalCallReturnContract, GlobalCallShapeBlocker, GlobalCallTargetFacts, GlobalCallTargetShape,
-    GlobalCallTargetShapeReason,
+    GlobalCallProof, GlobalCallReturnContract, GlobalCallShapeBlocker, GlobalCallTargetFacts,
+    GlobalCallTargetShape, GlobalCallTargetShapeReason,
 };
 use super::shape_blocker::propagated_unknown_global_target_blocker;
 
@@ -292,7 +292,8 @@ fn target_may_return_mir_schema_map(
     let Some(target) = super::lookup_global_call_target(name, targets) else {
         return false;
     };
-    target.shape() == GlobalCallTargetShape::MirSchemaMapConstructorBody
+    (target.proof() == GlobalCallProof::MirSchemaMapConstructor
+        && target.return_contract() == Some(GlobalCallReturnContract::MapHandle))
         || matches!(target.return_type(), Some(MirType::Box(box_name)) if box_name == "MapBox")
 }
 

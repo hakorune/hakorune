@@ -31,9 +31,9 @@ Audited results:
 - `StaticStringArrayBody`: superseded by P381BL
   - `array_handle` + `ORG_ARRAY_STRING_BIRTH` semantics now live in the
     proof/return contract rather than a target-shape variant
-- `MirSchemaMapConstructorBody`: blocked
-  - collapse would require a new public map-handle contract instead of removing
-    one
+- `MirSchemaMapConstructorBody`: superseded by P381BM
+  - `map_handle` + `ORG_MAP_BIRTH` semantics now live in the proof/return
+    contract rather than a target-shape variant
 - `BoxTypeInspectorDescribeBody`: blocked
   - P201 explicitly kept it separate from the schema-map capsule
 - `ParserProgramJsonBody`: blocked

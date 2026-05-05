@@ -199,8 +199,9 @@ fn classify_global_call_target_shape(
                 )
             };
         }
-        return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::MirSchemaMapConstructorBody,
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::MirSchemaMapConstructor,
+            GlobalCallReturnContract::MapHandle,
         );
     }
     if is_builder_registry_dispatch_body_candidate(function) {

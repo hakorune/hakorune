@@ -59,7 +59,6 @@ emission cannot handle the blocker yet.
 | `GenericPureStringBody` | permanent candidate with shrink target | string-handle ABI helper classifier | keep only string flow; move collection/normalizer/source-owner meaning out |
 | `GenericStringOrVoidSentinelBody` | temporary capsule | string/void sentinel bridge for current source-execution blockers | replace by uniform MIR function emitter or source-owner sentinel cleanup |
 | `ParserProgramJsonBody` | temporary capsule | parser Program(JSON v0) route validator | replace by uniform MIR function emitter or parser/source owner cleanup |
-| `MirSchemaMapConstructorBody` | temporary capsule | MIR schema map constructor bridge | replace by uniform MIR function emitter or MIR-owned schema facts |
 | `BoxTypeInspectorDescribeBody` | temporary capsule | box-type inspector map-return bridge | replace by source-owner scalar predicates or uniform MIR function emitter |
 | `PatternUtilLocalValueProbeBody` | temporary capsule | pattern util local-value probe bridge | replace by source-owner text/scalar cleanup or uniform MIR function emitter |
 
@@ -74,6 +73,12 @@ MIR still records them as direct ABI targets with
 `proof=typed_global_call_static_string_array` and `return_shape=array_handle`;
 `target_shape` is omitted because the proof/return contract is now the SSOT for
 this retired origin-carrying capsule.
+
+MIR schema map constructor direct calls are no longer a `GlobalCallTargetShape`
+variant. MIR still records them as direct ABI targets with
+`proof=typed_global_call_mir_schema_map_constructor` and
+`return_shape=map_handle`; `target_shape` is omitted because the proof/return
+contract is now the SSOT for this retired origin-carrying capsule.
 
 ## Missing Multi-Function Emitter Policy
 

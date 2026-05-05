@@ -531,8 +531,6 @@
                !strcmp(view->proof, "typed_global_call_mir_schema_map_constructor") &&
                view->route_proof &&
                !strcmp(view->route_proof, "typed_global_call_mir_schema_map_constructor") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "mir_schema_map_constructor_body") &&
                view->return_shape &&
                !strcmp(view->return_shape, "map_handle") &&
                view->value_demand &&

@@ -391,7 +391,7 @@ fn mir_schema_module_root_function(name: &str, child_name: &str) -> MirFunction 
 }
 
 #[test]
-fn refresh_module_global_call_routes_marks_mir_schema_map_constructor_body() {
+fn refresh_module_global_call_routes_marks_mir_schema_map_constructor_contract() {
     let mut module = MirModule::new("global_call_mir_schema_map_constructor_test".to_string());
     let caller = make_function_with_global_call_args(
         "MirSchemaBox.i/1",
@@ -407,10 +407,7 @@ fn refresh_module_global_call_routes_marks_mir_schema_map_constructor_body() {
     refresh_module_global_call_routes(&mut module);
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(
-        route.target_shape(),
-        Some("mir_schema_map_constructor_body")
-    );
+    assert_eq!(route.target_shape(), None);
     assert_eq!(route.tier(), "DirectAbi");
     assert_eq!(route.reason(), None);
     assert_eq!(
@@ -456,7 +453,7 @@ fn refresh_module_global_call_routes_accepts_mir_schema_map_wrapper_unknown_retu
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("mir_schema_map_constructor_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -493,7 +490,7 @@ fn refresh_module_global_call_routes_accepts_mir_schema_module_root_unknown_retu
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("mir_schema_map_constructor_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -527,7 +524,7 @@ fn refresh_module_global_call_routes_accepts_mir_schema_map_constructor_birth_me
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("mir_schema_map_constructor_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -540,7 +537,7 @@ fn refresh_module_global_call_routes_accepts_mir_schema_map_constructor_birth_me
 }
 
 #[test]
-fn refresh_module_global_call_routes_accepts_nested_mir_schema_map_constructor_body() {
+fn refresh_module_global_call_routes_accepts_nested_mir_schema_map_constructor_contract() {
     let mut module =
         MirModule::new("global_call_nested_mir_schema_map_constructor_test".to_string());
     let caller = make_function_with_global_call_args(
@@ -561,10 +558,7 @@ fn refresh_module_global_call_routes_accepts_nested_mir_schema_map_constructor_b
     refresh_module_global_call_routes(&mut module);
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(
-        route.target_shape(),
-        Some("mir_schema_map_constructor_body")
-    );
+    assert_eq!(route.target_shape(), None);
     assert_eq!(route.tier(), "DirectAbi");
     assert_eq!(
         route.proof(),

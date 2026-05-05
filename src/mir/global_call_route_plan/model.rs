@@ -38,7 +38,6 @@ pub enum GlobalCallTargetShape {
     GenericStringOrVoidSentinelBody,
     GenericI64Body,
     ParserProgramJsonBody,
-    MirSchemaMapConstructorBody,
     BoxTypeInspectorDescribeBody,
     PatternUtilLocalValueProbeBody,
 }
@@ -98,7 +97,6 @@ impl GlobalCallProof {
             }
             GlobalCallTargetShape::GenericI64Body => Self::GenericI64,
             GlobalCallTargetShape::ParserProgramJsonBody => Self::ParserProgramJson,
-            GlobalCallTargetShape::MirSchemaMapConstructorBody => Self::MirSchemaMapConstructor,
             GlobalCallTargetShape::BoxTypeInspectorDescribeBody => Self::BoxTypeInspectorDescribe,
             GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
                 Self::PatternUtilLocalValueProbe
@@ -151,7 +149,6 @@ impl GlobalCallTargetShape {
             Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
             Self::GenericI64Body => "generic_i64_body",
             Self::ParserProgramJsonBody => "parser_program_json_body",
-            Self::MirSchemaMapConstructorBody => "mir_schema_map_constructor_body",
             Self::BoxTypeInspectorDescribeBody => "box_type_inspector_describe_body",
             Self::PatternUtilLocalValueProbeBody => "pattern_util_local_value_probe_body",
         }
@@ -168,9 +165,7 @@ impl GlobalCallTargetShape {
             Self::GenericStringOrVoidSentinelBody => {
                 Some(GlobalCallReturnContract::StringHandleOrNull)
             }
-            Self::MirSchemaMapConstructorBody | Self::BoxTypeInspectorDescribeBody => {
-                Some(GlobalCallReturnContract::MapHandle)
-            }
+            Self::BoxTypeInspectorDescribeBody => Some(GlobalCallReturnContract::MapHandle),
             Self::PatternUtilLocalValueProbeBody => {
                 Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
             }

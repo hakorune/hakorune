@@ -219,6 +219,11 @@ LoweringPlan contract is
 `proof=typed_global_call_static_string_array`,
 `return_shape=array_handle`, `value_demand=runtime_i64_or_handle`, and
 `target_shape=null`.
+MIR schema map constructors are also object-handle direct contracts rather than
+target shapes. Their LoweringPlan contract is
+`proof=typed_global_call_mir_schema_map_constructor`,
+`return_shape=map_handle`, `value_demand=runtime_i64_or_handle`, and
+`target_shape=null`.
 The same object reason applies when a `void` or `unknown` signature has observed
 local return-profile evidence for a non-`StringBox` object, for example
 `void|null` plus a returned `ArrayBox`. This remains diagnostic evidence only:

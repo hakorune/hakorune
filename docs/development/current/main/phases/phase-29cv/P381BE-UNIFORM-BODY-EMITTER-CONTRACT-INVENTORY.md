@@ -39,7 +39,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 | `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
 | `ParserProgramJsonBody` | `typed_global_call_parser_program_json` / `parser_program_json_body` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol and a parser Program(JSON) symbol; body has a dedicated `emit_parser_program_json_function_definition` path | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
 | `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the static-array contract predicate | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
-| `MirSchemaMapConstructorBody` | `typed_global_call_mir_schema_map_constructor` / `mir_schema_map_constructor_body` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
+| `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` through the MIR-schema map contract predicate | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
 | `BoxTypeInspectorDescribeBody` | `typed_global_call_box_type_inspector_describe` / `box_type_inspector_describe_body` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; body remains source-owner shaped and should shrink through scalar predicates first | `global_call_route_plan::tests::box_type_inspector_describe` |
 | `PatternUtilLocalValueProbeBody` | `typed_global_call_pattern_util_local_value_probe` / `pattern_util_local_value_probe_body` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | planned as a generic module symbol; body remains mixed scalar/handle source-owner shaped | `global_call_route_plan::tests::pattern_util_local_value_probe` |
 
@@ -66,11 +66,13 @@ Completed focused probe:
 - `StaticStringArrayBody`
   - retired as a target-shape variant in P381BL
   - direct ABI truth now lives in stored proof and `array_handle` return-contract facts
+- `MirSchemaMapConstructorBody`
+  - retired as a target-shape variant in P381BM
+  - direct ABI truth now lives in stored proof and `map_handle` return-contract facts
 
 Not ready for shape-delete-only:
 
 - `ParserProgramJsonBody`: dedicated parser Program(JSON) body emitter remains
-- `MirSchemaMapConstructorBody`: map origin and MIR schema body facts remain
 - `GenericStringOrVoidSentinelBody`: sentinel plumbing remains source-owner
   shaped
 - `BoxTypeInspectorDescribeBody`: scalar predicate cleanup should happen first
@@ -100,7 +102,9 @@ Done:
 - T1 inventory is complete
 - the first safe implementation probe, `GenericStringVoidLoggingBody`, is now
   retired as a target-shape variant by P381BJ
-- all other temporary capsules have explicit blockers before deletion
+- `StaticStringArrayBody` and `MirSchemaMapConstructorBody` are also retired as
+  target-shape variants after proof/return contracts became the SSOT
+- remaining temporary capsules have explicit blockers before deletion
 
 Next:
 
