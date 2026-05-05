@@ -29,6 +29,13 @@
                base_scan == ORG_ARRAY_STRING_BIRTH;
       }
 
+      auto void module_generic_string_publish_origin(
+          long long reg,
+          int origin_kind) {
+        set_origin(reg, origin_kind);
+        set_scan_origin(reg, origin_kind);
+      }
+
       auto void module_generic_string_promote_array_string_push(
           long long recv,
           long long value) {
@@ -36,8 +43,7 @@
         promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
         promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
         if (recv) {
-          set_origin(recv, ORG_ARRAY_STRING_BIRTH);
-          set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
+          module_generic_string_publish_origin(recv, ORG_ARRAY_STRING_BIRTH);
         }
       }
 
@@ -239,8 +245,7 @@
               if (all_string) {
                 if (get_origin(pr->dst) != ORG_STRING) {
                   set_type(pr->dst, T_I64);
-                  set_origin(pr->dst, ORG_STRING);
-                  set_scan_origin(pr->dst, ORG_STRING);
+                  module_generic_string_publish_origin(pr->dst, ORG_STRING);
                   changed = 1;
                 }
               } else if (all_bool) {
@@ -318,8 +323,7 @@
         if (!extern_view) return 0;
         if (lowering_plan_env_get_view_is_valid(extern_view)) {
           set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
+          module_generic_string_publish_origin(dst, ORG_STRING);
           return 1;
         }
         if (lowering_plan_env_set_view_is_valid(extern_view)) {
@@ -328,26 +332,22 @@
         }
         if (lowering_plan_hostbridge_extern_invoke_view_is_valid(extern_view)) {
           set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
+          module_generic_string_publish_origin(dst, ORG_STRING);
           return 1;
         }
         if (lowering_plan_stage1_emit_program_json_view_is_valid(extern_view)) {
           set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
+          module_generic_string_publish_origin(dst, ORG_STRING);
           return 1;
         }
         if (lowering_plan_stage1_emit_mir_from_source_view_is_valid(extern_view)) {
           set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
+          module_generic_string_publish_origin(dst, ORG_STRING);
           return 1;
         }
         if (lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(extern_view)) {
           set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
+          module_generic_string_publish_origin(dst, ORG_STRING);
           return 1;
         }
         return 0;
@@ -371,8 +371,7 @@
           yyjson_val* param = yyjson_arr_get(params, pi);
           long long reg = param ? (long long)yyjson_get_sint(param) : 0;
           set_type(reg, T_I64);
-          set_origin(reg, ORG_STRING);
-          set_scan_origin(reg, ORG_STRING);
+          module_generic_string_publish_origin(reg, ORG_STRING);
         }
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
@@ -389,8 +388,7 @@
                 put_str_const(dst, sval);
                 put_known_string_len(dst, (long long)strlen(sval));
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
+                module_generic_string_publish_origin(dst, ORG_STRING);
               } else if (module_generic_string_read_i64_const(ins, &ival)) {
                 put_const(dst, ival);
                 set_type(dst, T_I64);
@@ -415,12 +413,10 @@
               const char* tname = read_str(ins, "type");
               if (tname && !strcmp(tname, "ArrayBox")) {
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_ARRAY_BIRTH);
-                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
               } else if (tname && !strcmp(tname, "MapBox")) {
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_MAP_BIRTH);
-                set_scan_origin(dst, ORG_MAP_BIRTH);
+                module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
               } else {
                 return 0;
               }
@@ -445,8 +441,7 @@
                   (module_generic_string_value_is_string(lhs) ||
                    module_generic_string_value_is_string(rhs))) {
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
+                module_generic_string_publish_origin(dst, ORG_STRING);
               } else {
                 set_type(dst, T_I64);
               }
@@ -505,16 +500,14 @@
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_MAP_BIRTH);
-                set_scan_origin(dst, ORG_MAP_BIRTH);
+                module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_params_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(&method_view)) {
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_ARRAY_BIRTH);
-                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(&method_view)) {
                 set_type(dst, T_I64);
@@ -527,8 +520,7 @@
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_flags_keys(&method_view)) {
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_ARRAY_BIRTH);
-                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_map_get(&method_view)) {
                 set_type(dst, T_I64);
@@ -558,11 +550,9 @@
                      !strcmp(key, "op_kind") ||
                      !strcmp(key, "cmp") ||
                      !strcmp(key, "value"))) {
-                  set_origin(dst, ORG_STRING);
-                  set_scan_origin(dst, ORG_STRING);
+                  module_generic_string_publish_origin(dst, ORG_STRING);
                 } else if (key && (!strcmp(key, "args") || !strcmp(key, "effects"))) {
-                  set_origin(dst, ORG_ARRAY_BIRTH);
-                  set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                  module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
                 } else {
                   set_origin(dst, ORG_MAP_GET);
                 }
@@ -571,25 +561,20 @@
                 const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
                 set_type(dst, T_I64);
                 if (key && !strcmp(key, "name")) {
-                  set_origin(dst, ORG_STRING);
-                  set_scan_origin(dst, ORG_STRING);
+                  module_generic_string_publish_origin(dst, ORG_STRING);
                 } else if (key && (!strcmp(key, "params") || !strcmp(key, "blocks"))) {
-                  set_origin(dst, ORG_ARRAY_BIRTH);
-                  set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                  module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
                 } else if (key && !strcmp(key, "flags")) {
-                  set_origin(dst, ORG_MAP_BIRTH);
-                  set_scan_origin(dst, ORG_MAP_BIRTH);
+                  module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
                 }
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_module_field_get(&method_view)) {
                 const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
                 set_type(dst, T_I64);
                 if (key && !strcmp(key, "functions")) {
-                  set_origin(dst, ORG_ARRAY_BIRTH);
-                  set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                  module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
                 } else if (key && !strcmp(key, "functions_0")) {
-                  set_origin(dst, ORG_MAP_BIRTH);
-                  set_scan_origin(dst, ORG_MAP_BIRTH);
+                  module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
                 }
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(&method_view)) {
@@ -601,8 +586,7 @@
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_string_substring(&method_view)) {
                 set_type(dst, T_I64);
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
+                module_generic_string_publish_origin(dst, ORG_STRING);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_string_indexof(&method_view)) {
                 set_type(dst, T_I64);
@@ -698,8 +682,7 @@
              dst);
         mark_string_const_box_emitted(dst);
         set_type(dst, T_I64);
-        set_origin(dst, ORG_STRING);
-        set_scan_origin(dst, ORG_STRING);
+        module_generic_string_publish_origin(dst, ORG_STRING);
         return 1;
       }
 
@@ -984,8 +967,7 @@
         }
         module_generic_string_emit_i64_call(dst, "nyash.string.substring_hii", ab);
         if (dst) {
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
+          module_generic_string_publish_origin(dst, ORG_STRING);
           remember_string_substring_call(dst, recv, start, recorded_end);
         }
         return 1;
@@ -1125,12 +1107,10 @@
         module_generic_string_emit_i64_call(dst, helper_symbol, ab);
         if (dst) {
           if (is_mir_json_module_function_array_item_get) {
-            set_origin(dst, ORG_MAP_BIRTH);
-            set_scan_origin(dst, ORG_MAP_BIRTH);
+            module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
           }
           if (is_mir_json_phi_incoming_array_item_get) {
-            set_origin(dst, ORG_ARRAY_BIRTH);
-            set_scan_origin(dst, ORG_ARRAY_BIRTH);
+            module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
           }
           if (is_map_get ||
               is_mir_json_block_field_get ||
@@ -1151,34 +1131,27 @@
                  !strcmp(key, "op_kind") ||
                  !strcmp(key, "cmp") ||
                  !strcmp(key, "value"))) {
-              set_origin(dst, ORG_STRING);
-              set_scan_origin(dst, ORG_STRING);
+              module_generic_string_publish_origin(dst, ORG_STRING);
             } else if (key && (!strcmp(key, "args") || !strcmp(key, "effects"))) {
-              set_origin(dst, ORG_ARRAY_BIRTH);
-              set_scan_origin(dst, ORG_ARRAY_BIRTH);
+              module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
             }
           }
           if (is_mir_json_function_field_get) {
             const char* key = method_view && method_view->entry ? read_str(method_view->entry, "key_const_text") : NULL;
             if (key && !strcmp(key, "name")) {
-              set_origin(dst, ORG_STRING);
-              set_scan_origin(dst, ORG_STRING);
+              module_generic_string_publish_origin(dst, ORG_STRING);
             } else if (key && (!strcmp(key, "params") || !strcmp(key, "blocks"))) {
-              set_origin(dst, ORG_ARRAY_BIRTH);
-              set_scan_origin(dst, ORG_ARRAY_BIRTH);
+              module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
             } else if (key && !strcmp(key, "flags")) {
-              set_origin(dst, ORG_MAP_BIRTH);
-              set_scan_origin(dst, ORG_MAP_BIRTH);
+              module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
             }
           }
           if (is_mir_json_module_field_get) {
             const char* key = method_view && method_view->entry ? read_str(method_view->entry, "key_const_text") : NULL;
             if (key && !strcmp(key, "functions")) {
-              set_origin(dst, ORG_ARRAY_BIRTH);
-              set_scan_origin(dst, ORG_ARRAY_BIRTH);
+              module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
             } else if (key && !strcmp(key, "functions_0")) {
-              set_origin(dst, ORG_MAP_BIRTH);
-              set_scan_origin(dst, ORG_MAP_BIRTH);
+              module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
             }
           }
         }
@@ -1206,8 +1179,7 @@
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         module_generic_string_emit_i64_call(dst, "nyash.map.keys_h", ab);
         if (dst) {
-          set_origin(dst, ORG_ARRAY_BIRTH);
-          set_scan_origin(dst, ORG_ARRAY_BIRTH);
+          module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
         }
         return 1;
       }

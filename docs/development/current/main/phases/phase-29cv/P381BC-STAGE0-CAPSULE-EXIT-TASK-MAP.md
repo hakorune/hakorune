@@ -264,6 +264,11 @@ Module-generic method dispatch view reuse landed in
 the body emitter now reads one generic-method LoweringPlan view per method call
 site and passes it through the method-specific emitters.
 
+Module-generic origin publish cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381CV-MODULE-GENERIC-ORIGIN-PUBLISH-HELPER.md`:
+paired origin/scan-origin result publication now goes through one local helper
+while origin-only updates stay explicit.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

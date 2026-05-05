@@ -127,6 +127,8 @@ Completed focused probe:
     instead of re-reading the same entry through each predicate branch
   - P381CU made the module-generic method body dispatch reuse one cached
     generic-method LoweringPlan view across method-specific emitters
+  - P381CV centralized paired origin/scan-origin publication in the
+    module-generic emitter while leaving origin-only updates explicit
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
