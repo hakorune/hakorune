@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381BU-MODULE-GENERIC-ARRAY-APPEND-EMIT-HELPER-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BU-MODULE-GENERIC-ARRAY-APPEND-EMIT-HELPER-CLEANUP.md"
-latest_card_summary = "Module generic string body emission now shares the LLVM array append call emission between direct ArrayBox.push routes and the remaining static string array body path while keeping route acceptance separate."
+latest_card = "P381BV-MODULE-GENERIC-STRING-NEEDLE-CALL-HELPER-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BV-MODULE-GENERIC-STRING-NEEDLE-CALL-HELPER-CLEANUP.md"
+latest_card_summary = "Module generic string body emission now shares one-argument string needle call emission across indexOf, lastIndexOf, and contains while keeping each LoweringPlan route predicate separate."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

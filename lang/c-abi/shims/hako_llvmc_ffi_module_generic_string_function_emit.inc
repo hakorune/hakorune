@@ -146,6 +146,28 @@
         }
       }
 
+      auto int module_generic_string_emit_string_needle_i64_call(
+          long long dst,
+          long long recv,
+          yyjson_val* args,
+          const char* symbol) {
+        char ab[256];
+        long long needle = 0;
+        if (!symbol) return 0;
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
+        if (!module_generic_string_read_arg_reg(args, 0, &needle)) return 0;
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        append_i64_arg_ref(ab, sizeof(ab), needle, 0);
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, symbol, ab);
+          set_type(dst, T_I64);
+        } else {
+          EMIT("  call i64 @\"%s\"(%s)\n", symbol, ab);
+        }
+        return 1;
+      }
+
       auto int module_generic_string_record_phi(yyjson_val* ins, long long bid) {
         struct BlockPhi* pb = ensure_phi_block(bid);
         struct PhiRec pr;
@@ -1321,22 +1343,25 @@
           yyjson_val* args) {
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView method_view;
-        char ab[256];
         long long needle = 0;
         long long start = 0;
         size_t arg_count = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         (void)f;
-        ab[0] = '\0';
         if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
               module_generic_string_method_view_is_direct_string_indexof(&method_view))) {
           return 0;
         }
         if (!(arg_count == 1 || arg_count == 2)) return 0;
+        if (arg_count == 1) {
+          return module_generic_string_emit_string_needle_i64_call(
+              dst,
+              recv,
+              args,
+              "nyash.string.indexOf_hh");
+        }
         if (!module_generic_string_read_arg_reg(args, 0, &needle)) return 0;
-        if (arg_count == 2 && !module_generic_string_read_arg_reg(args, 1, &start)) return 0;
-        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        append_i64_arg_ref(ab, sizeof(ab), needle, 0);
-        if (arg_count == 2) {
+        if (!module_generic_string_read_arg_reg(args, 1, &start)) return 0;
+        {
           char recv_ab[128];
           char sub_ab[256];
           char rel_ref[64];
@@ -1382,13 +1407,6 @@
                  ii);
             set_type(dst, T_I64);
           }
-          return 1;
-        }
-        if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-        } else {
-          EMIT("  call i64 @\"nyash.string.indexOf_hh\"(%s)\n", ab);
         }
         return 1;
       }
@@ -1402,26 +1420,16 @@
           yyjson_val* args) {
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView method_view;
-        char ab[256];
-        long long needle = 0;
-        size_t arg_count = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         (void)f;
-        ab[0] = '\0';
         if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
               module_generic_string_method_view_is_direct_string_lastindexof(&method_view))) {
           return 0;
         }
-        if (arg_count != 1) return 0;
-        if (!module_generic_string_read_arg_reg(args, 0, &needle)) return 0;
-        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        append_i64_arg_ref(ab, sizeof(ab), needle, 0);
-        if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.string.lastIndexOf_hh\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-        } else {
-          EMIT("  call i64 @\"nyash.string.lastIndexOf_hh\"(%s)\n", ab);
-        }
-        return 1;
+        return module_generic_string_emit_string_needle_i64_call(
+            dst,
+            recv,
+            args,
+            "nyash.string.lastIndexOf_hh");
       }
 
       auto int module_generic_string_emit_method_contains_mir_call(
@@ -1433,26 +1441,16 @@
           yyjson_val* args) {
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView method_view;
-        char ab[256];
-        long long needle = 0;
-        size_t arg_count = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         (void)f;
-        ab[0] = '\0';
         if (!(read_lowering_plan_generic_method_view(entry, &method_view) &&
               module_generic_string_method_view_is_direct_string_contains(&method_view))) {
           return 0;
         }
-        if (arg_count != 1) return 0;
-        if (!module_generic_string_read_arg_reg(args, 0, &needle)) return 0;
-        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        append_i64_arg_ref(ab, sizeof(ab), needle, 0);
-        if (dst) {
-          EMIT("  %%r%lld = call i64 @\"nyash.string.contains_hh\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-        } else {
-          EMIT("  call i64 @\"nyash.string.contains_hh\"(%s)\n", ab);
-        }
-        return 1;
+        return module_generic_string_emit_string_needle_i64_call(
+            dst,
+            recv,
+            args,
+            "nyash.string.contains_hh");
       }
 
       auto int module_generic_string_emit_mir_call(

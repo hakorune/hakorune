@@ -207,6 +207,11 @@ the direct array-push route and static string array body path now share the
 LLVM `nyash.array.slot_append_hh` emission helper while keeping their acceptance
 guards separate.
 
+String needle call cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381BV-MODULE-GENERIC-STRING-NEEDLE-CALL-HELPER-CLEANUP.md`:
+`indexOf`, `lastIndexOf`, and `contains` now share one-argument string needle
+call emission while each route keeps its own LoweringPlan predicate.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
