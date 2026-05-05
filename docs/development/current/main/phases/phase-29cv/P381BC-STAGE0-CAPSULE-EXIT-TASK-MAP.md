@@ -449,6 +449,11 @@ Same-module definition boundary rename landed in
 the Stage0 definition eligibility and function-view reader helpers now use
 same-module function wording.
 
+Same-module global-call prepass split landed in
+`docs/development/current/main/phases/phase-29cv/P381EH-SAME-MODULE-PREPASS-SPLIT.md`:
+the selected same-module/leaf definition branch now sits behind an
+owner-neutral helper, while the print fallback remains in the old local prepass.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

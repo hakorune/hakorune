@@ -211,6 +211,8 @@ Completed focused probe:
     uniform MIR owner contract
   - P381EG renamed the Stage0 same-module definition eligibility and function
     view boundary helpers away from stale module-generic string wording
+  - P381EH split the same-module global-call definition prepass branch from
+    the module-generic string print fallback without changing accepted shapes
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

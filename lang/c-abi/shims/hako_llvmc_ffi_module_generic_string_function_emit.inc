@@ -593,10 +593,7 @@
         return 0;
       }
 
-      auto int module_generic_string_prepass_global_call_view(
-          const char* ctype,
-          const char* mname,
-          yyjson_val* args,
+      auto int same_module_function_prepass_global_call_definition_view(
           long long dst,
           const struct LoweringPlanGlobalCallView* global_view) {
         if (global_view &&
@@ -608,6 +605,18 @@
         if (global_view &&
             lowering_plan_global_call_view_uses_leaf_i64_definition(global_view)) {
           set_type(dst, T_I64);
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int module_generic_string_prepass_global_call_view(
+          const char* ctype,
+          const char* mname,
+          yyjson_val* args,
+          long long dst,
+          const struct LoweringPlanGlobalCallView* global_view) {
+        if (same_module_function_prepass_global_call_definition_view(dst, global_view)) {
           return 1;
         }
         if (ctype && !strcmp(ctype, "Global") &&
