@@ -657,7 +657,10 @@ fn refine_generic_string_return_blocker(
             ..
         } if !supported_backend_global(name) => {
             let blocker = match lookup_global_call_target(name, targets) {
-                Some(target) if target.shape() == GlobalCallTargetShape::Unknown => {
+                Some(target)
+                    if target.shape() == GlobalCallTargetShape::Unknown
+                        && target.return_contract().is_none() =>
+                {
                     Some(propagated_unknown_global_target_blocker(name, target))
                 }
                 Some(_) => None,

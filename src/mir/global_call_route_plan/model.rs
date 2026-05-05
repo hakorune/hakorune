@@ -35,7 +35,6 @@ pub enum GlobalCallTargetShape {
     Unknown,
     NumericI64Leaf,
     GenericPureStringBody,
-    GenericStringOrVoidSentinelBody,
     GenericI64Body,
 }
 
@@ -89,9 +88,6 @@ impl GlobalCallProof {
             GlobalCallTargetShape::Unknown => Self::ContractMissing,
             GlobalCallTargetShape::NumericI64Leaf => Self::LeafNumericI64,
             GlobalCallTargetShape::GenericPureStringBody => Self::GenericPureString,
-            GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
-                Self::GenericStringOrVoidSentinel
-            }
             GlobalCallTargetShape::GenericI64Body => Self::GenericI64,
         }
     }
@@ -138,7 +134,6 @@ impl GlobalCallTargetShape {
             Self::Unknown => "unknown",
             Self::NumericI64Leaf => "numeric_i64_leaf",
             Self::GenericPureStringBody => "generic_pure_string_body",
-            Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
             Self::GenericI64Body => "generic_i64_body",
         }
     }
@@ -149,9 +144,6 @@ impl GlobalCallTargetShape {
                 Some(GlobalCallReturnContract::ScalarI64)
             }
             Self::GenericPureStringBody => Some(GlobalCallReturnContract::StringHandle),
-            Self::GenericStringOrVoidSentinelBody => {
-                Some(GlobalCallReturnContract::StringHandleOrNull)
-            }
             Self::Unknown => None,
         }
     }

@@ -17,6 +17,7 @@ use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap
 use super::{
     BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
+use crate::mir::global_call_route_plan::GlobalCallRoute;
 use std::collections::{BTreeMap, BTreeSet};
 
 mod map_set_scalar_proof;
@@ -1908,12 +1909,20 @@ fn generic_pure_string_global_call_origin_box_name(
             route.block() == block
                 && route.instruction_index() == instruction_index
                 && route.result_value() == Some(origin)
-                && matches!(
-                    route.target_shape(),
-                    Some("generic_pure_string_body" | "generic_string_or_void_sentinel_body")
-                )
+                && global_call_route_returns_string_like_handle(route)
         })
         .then(|| "StringBox".to_string())
+}
+
+fn global_call_route_returns_string_like_handle(route: &GlobalCallRoute) -> bool {
+    matches!(
+        route.proof(),
+        "typed_global_call_generic_pure_string"
+            | "typed_global_call_generic_string_or_void_sentinel"
+    ) && matches!(
+        route.return_shape(),
+        Some("string_handle" | "string_handle_or_null")
+    )
 }
 
 fn generic_pure_string_value_origin_box_name(
@@ -2189,10 +2198,7 @@ fn generic_pure_string_flow_marks_instruction(
             route.block() == block_id
                 && route.instruction_index() == instruction_index
                 && route.result_value() == Some(*dst)
-                && matches!(
-                    route.target_shape(),
-                    Some("generic_pure_string_body" | "generic_string_or_void_sentinel_body")
-                )
+                && global_call_route_returns_string_like_handle(route)
         }) =>
         {
             mark(string_values, *dst)

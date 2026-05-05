@@ -58,7 +58,7 @@ fn refresh_module_global_call_routes_marks_string_or_void_sentinel_body_direct_t
     assert_eq!(route.target_return_type(), Some("void".to_string()));
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -160,7 +160,7 @@ fn refresh_module_global_call_routes_accepts_direct_child_string_or_void_sentine
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -530,7 +530,7 @@ fn refresh_module_global_call_routes_accepts_string_typed_null_sentinel_body() {
     assert_eq!(route.target_return_type(), Some("str".to_string()));
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -599,7 +599,7 @@ fn refresh_module_global_call_routes_accepts_integer_typed_string_or_void_sentin
     assert_eq!(route.target_return_type(), Some("i64".to_string()));
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -689,7 +689,7 @@ fn refresh_module_global_call_routes_accepts_substring_void_sentinel_body() {
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -776,7 +776,7 @@ fn refresh_module_global_call_routes_accepts_corridor_fact_substring_void_sentin
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -946,7 +946,7 @@ fn refresh_module_global_call_routes_accepts_scalar_void_guard_in_string_or_void
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -1068,7 +1068,7 @@ fn refresh_module_global_call_routes_accepts_mixed_param_substring_void_sentinel
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -1210,7 +1210,7 @@ fn refresh_module_global_call_routes_accepts_loop_scalar_phi_substring_void_sent
     assert_eq!(route.target_return_type(), Some("?".to_string()));
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?}",
         route.target_shape_reason()
     );
@@ -1317,7 +1317,7 @@ fn refresh_module_global_call_routes_accepts_unknown_return_void_sentinel_body()
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -1410,15 +1410,12 @@ fn refresh_module_global_call_routes_accepts_unknown_wrapper_returning_string_or
     let child_route = &module.functions["Helper.wrapper/0"]
         .metadata
         .global_call_routes[0];
-    assert_eq!(
-        child_route.target_shape(),
-        Some("generic_string_or_void_sentinel_body")
-    );
+    assert_eq!(child_route.target_shape(), None);
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -1493,7 +1490,7 @@ fn refresh_module_global_call_routes_accepts_void_typed_unknown_param_or_void_se
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -1608,7 +1605,7 @@ fn refresh_module_global_call_routes_accepts_unknown_return_string_or_void_wrapp
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -1724,7 +1721,7 @@ fn refresh_module_global_call_routes_accepts_string_typed_string_or_void_passthr
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -1863,7 +1860,7 @@ fn refresh_module_global_call_routes_accepts_bool_not_in_string_or_void_body() {
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -2084,10 +2081,7 @@ fn refresh_module_global_call_routes_accepts_string_concat_loop_with_env_set() {
     refresh_module_global_call_routes(&mut module);
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(
-        route.target_shape(),
-        Some("generic_string_or_void_sentinel_body")
-    );
+    assert_eq!(route.target_shape(), None);
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(
         route.proof(),
@@ -2211,7 +2205,7 @@ fn refresh_module_global_call_routes_accepts_string_or_void_phi_guard_body() {
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -2355,7 +2349,7 @@ fn refresh_module_global_call_routes_accepts_string_or_void_child_forward_phi_bo
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
@@ -2800,7 +2794,7 @@ fn refresh_module_global_call_routes_accepts_void_typed_direct_sentinel_child_re
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),

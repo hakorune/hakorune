@@ -72,12 +72,9 @@ Retired capsule contracts:
 | `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; dedicated body emission remains a later cleanup |
 | `BoxTypeInspectorDescribeBody` | retired as a shape in P381BO; direct ABI truth now lives in `proof=typed_global_call_box_type_inspector_describe` plus `return_shape=map_handle`; active source-owner callers already use scalar predicates |
 | `PatternUtilLocalValueProbeBody` | retired as a shape in P381BP; direct ABI truth now lives in `proof=typed_global_call_pattern_util_local_value_probe` plus `return_shape=mixed_runtime_i64_or_handle`; child-probe recognition uses proof/return facts |
+| `GenericStringOrVoidSentinelBody` | retired as a shape in P381BQ; direct ABI truth now lives in `proof=typed_global_call_generic_string_or_void_sentinel` plus `return_shape=string_handle_or_null`; generic-method string-origin consumers use proof/return facts |
 
-Current temporary capsules from the Stage0 shape inventory:
-
-| Capsule | Reading |
-| --- | --- |
-| `GenericStringOrVoidSentinelBody` | source-owner cleanup first unless uniform body emission can carry the sentinel contract cleanly |
+No temporary capsule remains in the Stage0 shape inventory.
 
 Permanent or permanent-candidate shapes remain:
 
@@ -146,7 +143,13 @@ static-array target-shape retirement landed in
 MIR-schema map target-shape retirement landed in
 `docs/development/current/main/phases/phase-29cv/P381BM-MIR-SCHEMA-MAP-TARGET-SHAPE-RETIRE.md`;
 Parser Program(JSON) target-shape retirement landed in
-`docs/development/current/main/phases/phase-29cv/P381BN-PARSER-PROGRAM-JSON-TARGET-SHAPE-RETIRE.md`.
+`docs/development/current/main/phases/phase-29cv/P381BN-PARSER-PROGRAM-JSON-TARGET-SHAPE-RETIRE.md`;
+BoxTypeInspector describe target-shape retirement landed in
+`docs/development/current/main/phases/phase-29cv/P381BO-BOX-TYPE-INSPECTOR-DESCRIBE-TARGET-SHAPE-RETIRE.md`;
+PatternUtil local-value probe target-shape retirement landed in
+`docs/development/current/main/phases/phase-29cv/P381BP-PATTERN-UTIL-LOCAL-VALUE-PROBE-TARGET-SHAPE-RETIRE.md`;
+generic string-or-void sentinel target-shape retirement landed in
+`docs/development/current/main/phases/phase-29cv/P381BQ-GENERIC-STRING-OR-VOID-SENTINEL-TARGET-SHAPE-RETIRE.md`.
 
 Acceptance must include:
 
@@ -169,15 +172,12 @@ Do not remove a shape until the origin/return contract is represented without
 teaching Stage0 the source-owner meaning. If that requires a MIR-owned fact, add
 the fact first and keep the deletion in a later card.
 
-### T4: Source-Owner Cleanup Capsules
+### T4: Source-Owner / Body Cleanup Follow-Ups
 
-Keep these as source-owner cleanup tasks before uniform emitter deletion:
-
-1. `GenericStringOrVoidSentinelBody`
-2. `PatternUtilLocalValueProbeBody`
-
-These are not "shape delete only" tasks. Each must remove or simplify the
-source-owner plumbing that forced Stage0 to carry the temporary capsule.
+No target-shape capsule remains. Remaining cleanup for generic string-or-void
+sentinel plumbing and PatternUtil local-value probe body handling must proceed
+as source-owner/body cleanup or uniform-emitter cleanup, not as another public
+shape.
 
 ### T5: `.inc` Consolidation
 

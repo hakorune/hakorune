@@ -205,7 +205,8 @@ signature whose observed returns are string-or-void sentinel values must use
 `generic_string_return_void_sentinel_candidate`, not the broader
 `generic_string_return_abi_not_handle_compatible` while the body scan is still
 finding the concrete blocker. The backend may emit only when MIR publishes the
-dedicated `generic_string_or_void_sentinel_body` shape/proof.
+dedicated `typed_global_call_generic_string_or_void_sentinel` proof plus
+`return_shape=string_handle_or_null`.
 Non-string object returns, such as `box<MapBox>`, must use
 `generic_string_return_object_abi_not_handle_compatible`. This marks an object
 boundary for the next ownership slice instead of hiding it behind the broad
@@ -233,9 +234,10 @@ collapsed into the parent.
 String-or-void sentinel candidates may run the same MIR-owned body blocker scan
 as generic pure string targets, with `null`/`void` sentinel constants allowed as
 return-profile evidence only. Once the dedicated
-`generic_string_or_void_sentinel_body` shape/proof accepts the body, this scan
-also applies to string-handle signatures that can return `null` as the same
-runtime handle ABI (`0`). If that scan finds a more specific unsupported child
+`typed_global_call_generic_string_or_void_sentinel` proof/return contract
+accepts the body, this scan also applies to string-handle signatures that can
+return `null` as the same runtime handle ABI (`0`). If that scan finds a more
+specific unsupported child
 target, method call, extern call, backend global, or instruction, MIR must
 surface that blocker through `target_shape_reason` and
 `target_shape_blocker_*` instead of stopping at the generic sentinel candidate
@@ -287,10 +289,12 @@ The first lowerable same-module user/global-call target shape is
 `generic_pure_string_body` for the narrow generic pure string/env/global-call
 subset. The third lowerable shape is `generic_i64_body` for narrow i64 helpers
 that use the same generic function emitter contract but return `ScalarI64`.
-The fourth lowerable shape is `generic_string_or_void_sentinel_body` for the
-same string body subset when canonical returns are string handles or a void/null
-sentinel. It uses the generic string function emitter and reports
-`return_shape=string_handle_or_null`.
+Nullable string-or-void sentinel helpers are lowerable through a direct
+contract, not a `target_shape`. They cover the same string body subset when
+canonical returns are string handles or a void/null sentinel. They use the
+generic string function emitter and report
+`proof=typed_global_call_generic_string_or_void_sentinel`,
+`return_shape=string_handle_or_null`, and `target_shape=null`.
 Void-return logging helpers are lowerable through a direct contract, not a
 `target_shape`. The helper must build string messages, call the supported
 backend global `print` or an already-direct void-sentinel child, may read
@@ -362,10 +366,11 @@ Return-profile blocker propagation is diagnostic-only: missing child targets
 produce `generic_string_global_target_missing`, unknown child targets propagate
 their blocker, and already-direct child targets must not create blockers.
 For return-profile analysis, a direct
-`generic_string_or_void_sentinel_body` child call produces a `StringOrVoid`
-value class. That class may merge string/null evidence and counts as both string
-and void when deciding whether a parent is also a string-or-void sentinel body;
-it must not make arbitrary `void` values string-compatible.
+`typed_global_call_generic_string_or_void_sentinel` child route with
+`return_shape=string_handle_or_null` produces a `StringOrVoid` value class. That
+class may merge string/null evidence and counts as both string and void when
+deciding whether a parent is also a string-or-void sentinel body; it must not
+make arbitrary `void` values string-compatible.
 Within `generic_pure_string_body`, MIR may accept string-class
 `RuntimeDataBox.length()`, `RuntimeDataBox.substring(i64)`, and
 `RuntimeDataBox.substring(i64, i64)` only when the receiver is already
@@ -429,7 +434,7 @@ The lowerable v0 rows are:
 | --- | --- | --- | --- | --- |
 | `global.user_call` | `numeric_i64_leaf` | `DirectAbi` | `direct_function_call` | `typed_global_call_leaf_numeric_i64` |
 | `global.user_call` | `generic_pure_string_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_pure_string` |
-| `global.user_call` | `generic_string_or_void_sentinel_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_string_or_void_sentinel` |
+| `global.user_call` | `null` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_string_or_void_sentinel` |
 | `global.user_call` | `null` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_string_void_logging` |
 | `global.user_call` | `generic_i64_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_i64` |
 | `global.user_call` | `program_json_emit_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_program_json_emit` |

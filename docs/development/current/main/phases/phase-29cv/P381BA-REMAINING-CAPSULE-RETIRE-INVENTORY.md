@@ -49,6 +49,10 @@ Audited results:
 - `PatternUtilLocalValueProbeBody`: superseded by P381BP
   - the mixed scalar/handle contract now lives in proof/return facts rather than
     a target-shape variant; child-probe recognition also reads those facts
+- `GenericStringOrVoidSentinelBody`: superseded by P381BQ
+  - the nullable string-handle contract now lives in proof/return facts rather
+    than a target-shape variant; generic-method string-origin consumers also
+    read those facts
 
 ## Boundary
 
@@ -76,11 +80,11 @@ git diff --check
 Done:
 
 - the remaining temporary capsules were re-ranked by viability
-- the current public-collapse pass is now explicitly recorded as exhausted
+- every temporary public target-shape capsule has been retired to proof/return
+  contracts or removed from the public inventory
 
 Next:
 
-1. move to source-owner cleanup where a temporary capsule has an explicit owner
-   removal path
-2. otherwise continue with the uniform multi-function MIR emitter instead of
-   inventing new public route shapes
+1. continue with the uniform multi-function MIR emitter and `.inc` cleanup
+2. keep any remaining source-owner cleanup as body/owner cleanup, not as new
+   public route shapes

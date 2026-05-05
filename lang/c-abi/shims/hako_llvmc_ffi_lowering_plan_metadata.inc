@@ -436,7 +436,6 @@
               !strcmp(view->emit_kind, "direct_function_call") &&
               view->proof &&
               view->route_proof &&
-              view->target_shape &&
               view->return_shape &&
               view->value_demand &&
               !strcmp(view->value_demand, "runtime_i64_or_handle"))) {
@@ -444,13 +443,13 @@
         }
         if (!strcmp(view->proof, "typed_global_call_generic_pure_string") &&
             !strcmp(view->route_proof, "typed_global_call_generic_pure_string") &&
+            view->target_shape &&
             !strcmp(view->target_shape, "generic_pure_string_body") &&
             !strcmp(view->return_shape, "string_handle")) {
           return 1;
         }
         if (!strcmp(view->proof, "typed_global_call_generic_string_or_void_sentinel") &&
             !strcmp(view->route_proof, "typed_global_call_generic_string_or_void_sentinel") &&
-            !strcmp(view->target_shape, "generic_string_or_void_sentinel_body") &&
             !strcmp(view->return_shape, "string_handle_or_null")) {
           return 1;
         }

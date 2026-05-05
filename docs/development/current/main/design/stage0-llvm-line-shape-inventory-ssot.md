@@ -57,7 +57,6 @@ emission cannot handle the blocker yet.
 | `NumericI64Leaf` | permanent ABI primitive | leaf scalar function body for first same-module call emission | keep as scalar ABI bootstrap unless uniform emitter makes the leaf special-case redundant |
 | `GenericI64Body` | permanent candidate | scalar/bool/i64 ABI helper classifier | keep narrow to scalar facts; do not add collection or compiler-owner semantics |
 | `GenericPureStringBody` | permanent candidate with shrink target | string-handle ABI helper classifier | keep only string flow; move collection/normalizer/source-owner meaning out |
-| `GenericStringOrVoidSentinelBody` | temporary capsule | string/void sentinel bridge for current source-execution blockers | replace by uniform MIR function emitter or source-owner sentinel cleanup |
 
 Void/logging direct calls are no longer a `GlobalCallTargetShape` variant. MIR
 still records them as direct ABI targets with
@@ -101,6 +100,14 @@ with `proof=typed_global_call_pattern_util_local_value_probe` and
 the proof/return contract is now the SSOT for this retired mixed
 scalar/handle capsule. Recursive child-probe recognition also consumes the
 proof/return contract instead of the legacy shape string.
+
+Generic string-or-void sentinel direct calls are no longer a
+`GlobalCallTargetShape` variant. MIR still records them as direct ABI targets
+with `proof=typed_global_call_generic_string_or_void_sentinel` and
+`return_shape=string_handle_or_null`; `target_shape` is omitted because the
+proof/return contract is now the SSOT for this retired sentinel capsule.
+Generic-method string-origin consumers also read the proof/return facts instead
+of the legacy shape string.
 
 ## Missing Multi-Function Emitter Policy
 

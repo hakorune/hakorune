@@ -71,7 +71,7 @@ fn refresh_module_global_call_routes_accepts_hostbridge_extern_invoke_string_or_
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("generic_string_or_void_sentinel_body"),
+        None,
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),

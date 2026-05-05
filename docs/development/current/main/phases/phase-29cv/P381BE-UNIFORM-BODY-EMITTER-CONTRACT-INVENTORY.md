@@ -35,7 +35,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 
 | Capsule | Proof / target shape | Return / demand | Result origin side effect | Selected-set / body requirement | Current proof surface |
 | --- | --- | --- | --- | --- | --- |
-| `GenericStringOrVoidSentinelBody` | `typed_global_call_generic_string_or_void_sentinel` / `generic_string_or_void_sentinel_body` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the generic-string direct predicate | planned as a generic module symbol; shares the generic string body path | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
+| `GenericStringOrVoidSentinelBody` | superseded by P381BQ: `typed_global_call_generic_string_or_void_sentinel` / `target_shape=null` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the generic-string direct predicate | planned as a generic module symbol; shares the generic string body path | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
 | `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
 | `ParserProgramJsonBody` | superseded by P381BN: `typed_global_call_parser_program_json` / `target_shape=null` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol and a parser Program(JSON) symbol; body still has a dedicated `emit_parser_program_json_function_definition` path | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
 | `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the static-array contract predicate | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
@@ -84,11 +84,15 @@ Completed focused probe:
     `mixed_runtime_i64_or_handle` return-contract facts
   - recursive child-probe recognition now reads proof/return facts instead of
     the legacy shape string
+- `GenericStringOrVoidSentinelBody`
+  - retired as a target-shape variant in P381BQ
+  - direct ABI truth now lives in stored proof and
+    `string_handle_or_null` return-contract facts
+  - generic-method string-origin consumers now read proof/return facts instead
+    of the legacy shape string
 
-Not ready for shape-delete-only:
-
-- `GenericStringOrVoidSentinelBody`: sentinel plumbing remains source-owner
-  shaped
+No target-shape-only capsule remains. Remaining work is body/source-owner
+cleanup and uniform emitter consolidation.
 
 ## Boundary
 
@@ -115,13 +119,14 @@ Done:
   retired as a target-shape variant by P381BJ
 - `StaticStringArrayBody`, `MirSchemaMapConstructorBody`, and
   `ParserProgramJsonBody`, `BoxTypeInspectorDescribeBody`, and
-  `PatternUtilLocalValueProbeBody` are also retired as target-shape variants
-  after proof/return contracts became the SSOT
-- remaining temporary capsules have explicit blockers before deletion
+  `PatternUtilLocalValueProbeBody`, and `GenericStringOrVoidSentinelBody` are
+  also retired as target-shape variants after proof/return contracts became the
+  SSOT
+- no temporary target-shape capsule remains in the Stage0 inventory
 
 Next:
 
-1. choose the next origin-carrying or source-owner cleanup capsule
+1. continue with uniform multi-function emitter and `.inc` consolidation
 2. keep `stage0_shape_inventory_guard.sh` green while doing it
 
 ## Acceptance

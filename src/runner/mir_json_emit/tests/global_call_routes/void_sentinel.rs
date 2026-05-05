@@ -66,10 +66,7 @@ fn build_mir_json_root_emits_string_or_void_sentinel_direct_route() {
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
     assert_eq!(route["target_exists"], true);
     assert_eq!(route["target_return_type"], "void");
-    assert_eq!(
-        route["target_shape"],
-        "generic_string_or_void_sentinel_body"
-    );
+    assert_eq!(route["target_shape"], serde_json::Value::Null);
     assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(
         route["proof"],
@@ -81,7 +78,7 @@ fn build_mir_json_root_emits_string_or_void_sentinel_direct_route() {
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
     assert_eq!(plan["target_exists"], true);
     assert_eq!(plan["target_return_type"], "void");
-    assert_eq!(plan["target_shape"], "generic_string_or_void_sentinel_body");
+    assert_eq!(plan["target_shape"], serde_json::Value::Null);
     assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(
         plan["route_proof"],
@@ -175,10 +172,7 @@ fn build_mir_json_root_emits_substring_string_or_void_sentinel_direct_route() {
 
     let root = build_mir_json_root(&module).expect("mir json root");
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
-    assert_eq!(
-        route["target_shape"],
-        "generic_string_or_void_sentinel_body"
-    );
+    assert_eq!(route["target_shape"], serde_json::Value::Null);
     assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(
         route["proof"],
@@ -187,7 +181,7 @@ fn build_mir_json_root_emits_substring_string_or_void_sentinel_direct_route() {
     assert_eq!(route["return_shape"], "string_handle_or_null");
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
-    assert_eq!(plan["target_shape"], "generic_string_or_void_sentinel_body");
+    assert_eq!(plan["target_shape"], serde_json::Value::Null);
     assert_eq!(
         plan["route_proof"],
         "typed_global_call_generic_string_or_void_sentinel"

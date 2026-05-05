@@ -219,8 +219,9 @@ fn classify_global_call_target_shape(
                 GlobalCallTargetClassification::unknown(reject.reason)
             };
         }
-        return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::GenericStringOrVoidSentinelBody,
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::GenericStringOrVoidSentinel,
+            GlobalCallReturnContract::StringHandleOrNull,
         );
     }
     if string_or_void_sentinel_return_type_candidate(&function.signature.return_type) {
@@ -229,8 +230,9 @@ fn classify_global_call_target_shape(
                 == GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate
                 && reject.blocker.is_none()
             {
-                return GlobalCallTargetClassification::direct(
-                    GlobalCallTargetShape::GenericStringOrVoidSentinelBody,
+                return GlobalCallTargetClassification::direct_contract(
+                    GlobalCallProof::GenericStringOrVoidSentinel,
+                    GlobalCallReturnContract::StringHandleOrNull,
                 );
             }
             return if let Some(blocker) = reject.blocker {
