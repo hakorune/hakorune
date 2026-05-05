@@ -71,7 +71,7 @@ Retired capsule contracts:
 | `MirSchemaMapConstructorBody` | retired as a shape in P381BM; direct ABI truth now lives in `proof=typed_global_call_mir_schema_map_constructor` plus `return_shape=map_handle` |
 | `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; dedicated body emission remains a later cleanup |
 | `BoxTypeInspectorDescribeBody` | retired as a shape in P381BO; direct ABI truth now lives in `proof=typed_global_call_box_type_inspector_describe` plus `return_shape=map_handle`; active source-owner callers already use scalar predicates; definition owner moved to `uniform_mir` in P381EC |
-| `PatternUtilLocalValueProbeBody` | retired as a shape in P381BP; direct ABI truth now lives in `proof=typed_global_call_pattern_util_local_value_probe` plus `return_shape=mixed_runtime_i64_or_handle`; child-probe recognition uses proof/return facts |
+| `PatternUtilLocalValueProbeBody` | retired as a shape in P381BP; direct ABI truth now lives in `proof=typed_global_call_pattern_util_local_value_probe` plus `return_shape=mixed_runtime_i64_or_handle`; child-probe recognition uses proof/return facts; definition owner moved to `uniform_mir` in P381ED |
 | `GenericStringOrVoidSentinelBody` | retired as a shape in P381BQ; direct ABI truth now lives in `proof=typed_global_call_generic_string_or_void_sentinel` plus `return_shape=string_handle_or_null`; generic-method string-origin consumers use proof/return facts |
 
 No temporary capsule remains in the Stage0 shape inventory.
@@ -427,6 +427,11 @@ selected same-module registry overflow now reports
 BoxTypeInspector uniform-owner cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381EC-BOX-TYPE-INSPECTOR-UNIFORM-OWNER.md`:
 BoxTypeInspector describe direct-call definitions now serialize
+`definition_owner=uniform_mir` with runner MIR JSON owner/trace coverage.
+
+PatternUtil probe uniform-owner cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381ED-PATTERN-UTIL-PROBE-UNIFORM-OWNER.md`:
+PatternUtil local-value probe direct-call definitions now serialize
 `definition_owner=uniform_mir` with runner MIR JSON owner/trace coverage.
 
 Primary targets:

@@ -110,9 +110,10 @@ with `proof=typed_global_call_pattern_util_local_value_probe` and
 `return_shape=mixed_runtime_i64_or_handle`; `target_shape` is omitted because
 the proof/return contract is now the SSOT for this retired mixed
 scalar/handle capsule. Recursive child-probe recognition also consumes the
-proof/return contract instead of the legacy shape string. Stage0 plans and
-emits the backend body through the shared module-generic LoweringPlan helpers
-instead of a pattern-probe-specific call-site branch.
+proof/return contract instead of the legacy shape string. Its definition owner
+is `uniform_mir`; Stage0 plans and emits the backend body through shared
+LoweringPlan metadata helpers instead of a pattern-probe-specific call-site
+branch.
 
 Generic string-or-void sentinel direct calls are no longer a
 `GlobalCallTargetShape` variant. MIR still records them as direct ABI targets

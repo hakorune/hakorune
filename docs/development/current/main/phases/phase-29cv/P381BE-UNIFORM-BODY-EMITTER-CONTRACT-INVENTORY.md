@@ -41,7 +41,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 | `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `result_origin=array_string_birth` from P381CG LoweringPlan metadata | selected-kind registry and push fallback removed by P381CE; planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
 | `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `result_origin=map_birth` from P381CG LoweringPlan metadata | planned as a generic module symbol through the shared P381CF module-generic helper | `global_call_route_plan::tests::mir_schema_map_constructor` |
 | `BoxTypeInspectorDescribeBody` | superseded by P381BO: `typed_global_call_box_type_inspector_describe` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `result_origin=map_birth` from P381CG LoweringPlan metadata | active source-owner callers already use scalar predicates; backend body is selected by the same-module function set with `definition_owner=uniform_mir` | `global_call_route_plan::tests::box_type_inspector_describe`, runner MIR JSON box-type-inspector tests |
-| `PatternUtilLocalValueProbeBody` | superseded by P381BP: `typed_global_call_pattern_util_local_value_probe` / `target_shape=null` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | child-probe recognition uses proof/return facts; backend body is planned through the shared P381CF module-generic helper | `global_call_route_plan::tests::pattern_util_local_value_probe` |
+| `PatternUtilLocalValueProbeBody` | superseded by P381BP: `typed_global_call_pattern_util_local_value_probe` / `target_shape=null` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | child-probe recognition uses proof/return facts; backend body is selected by the same-module function set with `definition_owner=uniform_mir` | `global_call_route_plan::tests::pattern_util_local_value_probe`, runner MIR JSON pattern-util tests |
 
 ## Current C-Side Branch Sites
 
@@ -200,6 +200,9 @@ Completed focused probe:
     old module-generic wording to `same_module_function_registry_full`
   - P381EC moved `BoxTypeInspectorDescribeBody` to `definition_owner=uniform_mir`
     and added runner MIR JSON owner/trace coverage
+  - P381ED moved `PatternUtilLocalValueProbeBody` to
+    `definition_owner=uniform_mir` and added runner MIR JSON owner/trace
+    coverage
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

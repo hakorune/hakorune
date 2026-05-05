@@ -14,6 +14,7 @@ mod box_type_inspector_describe;
 mod core;
 mod generic_i64;
 mod parser_program_json;
+mod pattern_util_local_value_probe;
 mod static_string_array;
 mod tail;
 mod void_sentinel;
