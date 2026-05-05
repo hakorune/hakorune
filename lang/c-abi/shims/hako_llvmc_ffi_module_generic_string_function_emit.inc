@@ -105,7 +105,7 @@
         }
       }
 
-      #include "hako_llvmc_ffi_module_generic_string_method_views.inc"
+      #include "hako_llvmc_ffi_same_module_method_views.inc"
 
       auto const char* module_generic_string_method_view_key_const_text(
           const struct LoweringPlanGenericMethodView* method_view) {

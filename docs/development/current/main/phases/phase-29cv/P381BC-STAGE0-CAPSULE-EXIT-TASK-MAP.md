@@ -503,10 +503,14 @@ Same-module function planner file cleanup landed in
 the transitive definition-set planner moved from the historical
 `module_generic_string` file stem to `hako_llvmc_ffi_same_module_function_plan.inc`.
 
+Same-module method-view file cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381ES-SAME-MODULE-METHOD-VIEWS-FILE.md`:
+generic-method LoweringPlan predicates moved from the historical
+`module_generic_string` file stem to `hako_llvmc_ffi_same_module_method_views.inc`.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
-- `hako_llvmc_ffi_module_generic_string_method_views.inc`
 - `hako_llvmc_ffi_mir_call_need_policy.inc`
 - `hako_llvmc_ffi_mir_call_shell.inc`
 

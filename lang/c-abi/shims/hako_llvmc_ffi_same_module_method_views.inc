@@ -1,5 +1,5 @@
       /*
-       * LoweringPlan generic-method rows accepted by the module generic string
+       * LoweringPlan generic-method rows accepted by the same-module function
        * emitter. Keep this table-like surface out of body emission so route
        * vocabulary does not drift across emit sites.
        */
