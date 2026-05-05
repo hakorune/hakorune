@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381CQ-MIR-CALL-EXTERN-NEED-CONTRACT-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381CQ-MIR-CALL-EXTERN-NEED-CONTRACT-CLEANUP.md"
-latest_card_summary = "Extern-call need-policy rows now share the common runtime-call extern registry contract."
+latest_card = "P381CR-GENERIC-METHOD-ROUTE-TUPLE-HELPER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381CR-GENERIC-METHOD-ROUTE-TUPLE-HELPER.md"
+latest_card_summary = "Generic-method route tuple matching now has one C-side helper shared by route, emit, need, and set-route consumers."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

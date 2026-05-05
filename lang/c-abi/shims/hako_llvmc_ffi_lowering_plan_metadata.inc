@@ -284,6 +284,22 @@
                out->route_kind;
       }
 
+      auto int lowering_plan_generic_method_view_matches_route_tuple(
+          const struct LoweringPlanGenericMethodView* view,
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          enum LoweringPlanTierMetadata tier) {
+        if (!(view && route_id && core_op && route_kind)) return 0;
+        return view->route_id &&
+               !strcmp(view->route_id, route_id) &&
+               view->core_op &&
+               !strcmp(view->core_op, core_op) &&
+               view->route_kind &&
+               !strcmp(view->route_kind, route_kind) &&
+               view->tier == tier;
+      }
+
       auto int read_lowering_plan_extern_call_view(
           yyjson_val* entry,
           struct LoweringPlanExternCallView* out) {

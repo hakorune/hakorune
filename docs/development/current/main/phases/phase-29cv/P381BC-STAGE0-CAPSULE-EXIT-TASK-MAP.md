@@ -244,6 +244,11 @@ MIR call extern-need cleanup landed in
 extern need-policy rows now carry only route-specific mapping facts while the
 shared runtime-call extern registry contract is checked once in the matcher.
 
+Generic-method route tuple cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381CR-GENERIC-METHOD-ROUTE-TUPLE-HELPER.md`:
+route, emit-kind, need, and set-route consumers now share the route/core/kind/tier
+tuple comparison and keep only their extra local checks.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

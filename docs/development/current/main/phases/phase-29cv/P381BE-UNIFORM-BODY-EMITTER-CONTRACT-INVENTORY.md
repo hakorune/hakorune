@@ -119,6 +119,8 @@ Completed focused probe:
     behind a shared exact-match helper
   - P381CQ moved the common extern-call need-policy contract checks into the
     matcher and removed repeated row fields
+  - P381CR centralized generic-method route tuple matching behind one
+    LoweringPlan helper shared by route, emit-kind, need, and set-route users
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
