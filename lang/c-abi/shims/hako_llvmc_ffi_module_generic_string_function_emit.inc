@@ -31,7 +31,7 @@
 
       auto int module_generic_string_active_function_is_static_string_array(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return module_static_string_array_symbol_will_be_defined(name);
+        return module_generic_symbol_is_static_string_array(name);
       }
 
       auto int module_generic_string_read_string_const(
@@ -1774,7 +1774,7 @@
         if (module_function_is_numeric_i64_leaf(fn)) {
           return 0;
         }
-        if (module_parser_program_json_symbol_will_be_defined(name)) {
+        if (module_generic_symbol_is_parser_program_json(name)) {
           return emit_parser_program_json_function_definition(f, fn, name);
         }
         if (!hako_llvmc_read_generic_pure_function_view(

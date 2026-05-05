@@ -183,6 +183,13 @@ shape.
 
 Only after capsule callsites are retired, reduce the large `.inc` surfaces.
 
+Status: first selected-set consolidation landed in
+`docs/development/current/main/phases/phase-29cv/P381BR-MODULE-GENERIC-SELECTED-KIND-REGISTRY.md`.
+Parser Program(JSON) and static string array no longer have parallel planned
+symbol arrays; their direct-contract identity is a kind on the unified planned
+generic symbol registry. Their specialized body handling still remains for a
+later uniform-emitter cleanup.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
