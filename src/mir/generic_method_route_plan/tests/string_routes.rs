@@ -277,6 +277,51 @@ fn records_runtime_data_string_len_from_generic_global_call_origin() {
 }
 
 #[test]
+fn records_runtime_data_array_len_from_static_array_global_contract() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(1)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global(
+            "PatternRegistryBox.candidates/0".to_string(),
+        )),
+        args: vec![],
+        effects: EffectMask::PURE,
+    });
+    block.add_instruction(method_call(Some(2), "RuntimeDataBox", "length", 1, vec![]));
+    function
+        .metadata
+        .global_call_routes
+        .push(GlobalCallRoute::new(
+            GlobalCallRouteSite::new(BasicBlockId::new(0), 0),
+            "PatternRegistryBox.candidates/0",
+            0,
+            Some(ValueId::new(1)),
+            GlobalCallTargetFacts::present_static_string_array_contract(0),
+        ));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.method(), "length");
+    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLen);
+    let core_method = route.core_method().expect("ArrayLen carrier");
+    assert_eq!(core_method.op, CoreMethodOp::ArrayLen);
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::ScalarI64)
+    );
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+}
+
+#[test]
 fn records_runtime_data_substring_from_generic_global_call_phi_origin() {
     let mut function = make_function();
     let entry = function

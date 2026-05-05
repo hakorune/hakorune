@@ -356,6 +356,21 @@ impl GlobalCallTargetFacts {
         }
     }
 
+    #[cfg(test)]
+    pub fn present_static_string_array_contract(arity: usize) -> Self {
+        Self {
+            exists: true,
+            symbol: None,
+            arity: Some(arity),
+            return_type: None,
+            shape: GlobalCallTargetShape::Unknown,
+            return_contract: Some(GlobalCallReturnContract::ArrayHandle),
+            proof: GlobalCallProof::StaticStringArray,
+            shape_reason: None,
+            shape_blocker: None,
+        }
+    }
+
     pub fn exists(&self) -> bool {
         self.exists
     }

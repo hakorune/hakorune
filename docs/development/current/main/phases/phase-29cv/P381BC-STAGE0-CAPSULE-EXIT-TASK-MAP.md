@@ -73,7 +73,7 @@ Current temporary capsules from the Stage0 shape inventory:
 | Capsule | Reading |
 | --- | --- |
 | `ParserProgramJsonBody` | candidate only after dedicated parser Program(JSON) body emission is replaced or made uniform |
-| `StaticStringArrayBody` | candidate only after `array_handle` / `ORG_ARRAY_STRING_BIRTH` origin is expressed without a shape branch |
+| `StaticStringArrayBody` | Rust generic-method consumer now reads proof/return facts in P381BK; C origin predicates still need shape-independent contract checks before shape retirement |
 | `MirSchemaMapConstructorBody` | candidate only after `map_handle` / MIR schema facts are expressed without a shape branch |
 | `GenericStringOrVoidSentinelBody` | source-owner cleanup first unless uniform body emission can carry the sentinel contract cleanly |
 | `BoxTypeInspectorDescribeBody` | source-owner scalar predicate cleanup first |
@@ -138,7 +138,9 @@ return-contract storage landed in
 proof storage landed in
 `docs/development/current/main/phases/phase-29cv/P381BI-GLOBAL-CALL-PROOF-CONTRACT-STORAGE.md`;
 target-shape retirement landed in
-`docs/development/current/main/phases/phase-29cv/P381BJ-VOID-LOGGING-TARGET-SHAPE-RETIRE.md`.
+`docs/development/current/main/phases/phase-29cv/P381BJ-VOID-LOGGING-TARGET-SHAPE-RETIRE.md`;
+the first static-array Rust consumer decoupling landed in
+`docs/development/current/main/phases/phase-29cv/P381BK-STATIC-ARRAY-CONSUMER-CONTRACT-READ.md`.
 
 Acceptance must include:
 
