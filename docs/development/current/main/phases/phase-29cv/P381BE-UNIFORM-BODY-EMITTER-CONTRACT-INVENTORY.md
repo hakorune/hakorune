@@ -171,6 +171,8 @@ Completed focused probe:
     one snapshot contract
   - P381DQ centralized module-generic function context activation behind one
     named transition helper
+  - P381DR moved module-generic active-context prepass/body emission behind one
+    function pipeline helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

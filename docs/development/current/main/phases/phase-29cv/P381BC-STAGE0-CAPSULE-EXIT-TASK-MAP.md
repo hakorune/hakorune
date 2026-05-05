@@ -370,6 +370,11 @@ Module-generic function context activation cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381DQ-MODULE-GENERIC-FUNCTION-CONTEXT-ACTIVATE.md`:
 function context activation now has one named transition helper.
 
+Module-generic function emit pipeline cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DR-MODULE-GENERIC-FUNCTION-EMIT-PIPELINE.md`:
+function definition emission now delegates active-context prepass and body
+emission through one pipeline helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

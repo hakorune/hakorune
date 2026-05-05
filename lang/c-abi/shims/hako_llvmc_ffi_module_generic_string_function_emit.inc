@@ -1831,6 +1831,45 @@
         reset_string_concat_tracking_state();
       }
 
+      auto int module_generic_string_emit_function_pipeline(
+          FILE* f,
+          yyjson_val* fn,
+          size_t fn_index,
+          const char* name) {
+        if (!module_generic_string_prepass_active_function()) {
+          note_pure_unsupported_shape_detail(
+              -1,
+              0,
+              "module_function",
+              "module_generic_prepass_failed",
+              NULL,
+              NULL,
+              name,
+              NULL);
+          return -1;
+        }
+        module_generic_string_emit_const_globals(f, fn_index);
+        if (!module_generic_string_emit_function_signature(f, fn, name)) {
+          return -1;
+        }
+        if (!module_generic_string_emit_active_body(f, fn_index)) {
+          note_pure_unsupported_shape_detail(
+              -1,
+              0,
+              "module_function",
+              "module_generic_body_emit_failed",
+              NULL,
+              NULL,
+              name,
+              NULL);
+          fprintf(f, "  unreachable\n");
+          fprintf(f, "}\n\n");
+          return -1;
+        }
+        fprintf(f, "}\n\n");
+        return remember_emitted_module_generic_string_symbol(name) ? 1 : -1;
+      }
+
       auto int emit_generic_pure_string_function_definition(
           FILE* f,
           yyjson_val* fn,
@@ -1861,38 +1900,11 @@
         module_generic_string_save_function_context(&saved_context);
         module_generic_string_activate_function_context(&local_function);
 
-        if (!module_generic_string_prepass_active_function()) {
-          note_pure_unsupported_shape_detail(
-              -1,
-              0,
-              "module_function",
-              "module_generic_prepass_failed",
-              NULL,
-              NULL,
-              name,
-              NULL);
-          goto MODULE_GENERIC_STRING_RESTORE;
-        }
-        module_generic_string_emit_const_globals(f, fn_index);
-        if (!module_generic_string_emit_function_signature(f, fn, name)) {
-          goto MODULE_GENERIC_STRING_RESTORE;
-        }
-        if (!module_generic_string_emit_active_body(f, fn_index)) {
-          note_pure_unsupported_shape_detail(
-              -1,
-              0,
-              "module_function",
-              "module_generic_body_emit_failed",
-              NULL,
-              NULL,
-              name,
-              NULL);
-          fprintf(f, "  unreachable\n");
-          fprintf(f, "}\n\n");
-          goto MODULE_GENERIC_STRING_RESTORE;
-        }
-        fprintf(f, "}\n\n");
-        rc = remember_emitted_module_generic_string_symbol(name) ? 1 : -1;
+        rc = module_generic_string_emit_function_pipeline(
+            f,
+            fn,
+            fn_index,
+            name);
 
       MODULE_GENERIC_STRING_RESTORE:
         module_generic_string_restore_function_context(&saved_context);
