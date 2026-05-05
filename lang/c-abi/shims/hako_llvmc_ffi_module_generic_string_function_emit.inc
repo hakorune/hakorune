@@ -1915,7 +1915,6 @@
             fn_index,
             name);
 
-      MODULE_GENERIC_STRING_RESTORE:
         module_generic_string_restore_function_context(&saved_context);
         return rc;
       }

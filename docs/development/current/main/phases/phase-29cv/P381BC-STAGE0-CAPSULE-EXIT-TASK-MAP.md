@@ -379,6 +379,11 @@ Module-generic function eligibility helper cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381DS-MODULE-GENERIC-FUNCTION-ELIGIBILITY-HELPER.md`:
 function definition entry now delegates eligibility checks through one helper.
 
+Module-generic restore label prune landed in
+`docs/development/current/main/phases/phase-29cv/P381DT-MODULE-GENERIC-RESTORE-LABEL-PRUNE.md`:
+function definition entry no longer carries the stale restore label after the
+pipeline split.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

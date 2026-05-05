@@ -175,6 +175,8 @@ Completed focused probe:
     function pipeline helper
   - P381DS moved module-generic function definition eligibility checks behind
     one definition-entry helper
+  - P381DT removed the stale module-generic function restore label after the
+    pipeline split
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
