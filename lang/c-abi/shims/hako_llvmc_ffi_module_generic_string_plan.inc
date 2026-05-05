@@ -7,8 +7,7 @@
        */
       enum ModuleGenericStringPlannedKind {
         MODULE_GENERIC_STRING_PLANNED_GENERIC = 0,
-        MODULE_GENERIC_STRING_PLANNED_PARSER_PROGRAM_JSON = 1,
-        MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY = 2,
+        MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY = 1,
       };
 
       const char* planned_module_generic_string_symbols[1024];
@@ -18,8 +17,7 @@
       size_t emitted_module_generic_string_symbols_n = 0;
 
       auto int module_generic_planned_kind_is_special(int kind) {
-        return kind == MODULE_GENERIC_STRING_PLANNED_PARSER_PROGRAM_JSON ||
-               kind == MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY;
+        return kind == MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY;
       }
 
       auto int remember_planned_module_generic_string_symbol_kind(
@@ -79,11 +77,6 @@
           }
         }
         return 0;
-      }
-
-      auto int module_generic_symbol_is_parser_program_json(const char* name) {
-        return module_generic_symbol_planned_kind(name) ==
-               MODULE_GENERIC_STRING_PLANNED_PARSER_PROGRAM_JSON;
       }
 
       auto int module_generic_symbol_is_static_string_array(const char* name) {
@@ -185,9 +178,7 @@
             continue;
           }
           int planned_kind = MODULE_GENERIC_STRING_PLANNED_GENERIC;
-          if (is_parser_program_json) {
-            planned_kind = MODULE_GENERIC_STRING_PLANNED_PARSER_PROGRAM_JSON;
-          } else if (is_static_string_array) {
+          if (is_static_string_array) {
             planned_kind = MODULE_GENERIC_STRING_PLANNED_STATIC_STRING_ARRAY;
           }
           if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||

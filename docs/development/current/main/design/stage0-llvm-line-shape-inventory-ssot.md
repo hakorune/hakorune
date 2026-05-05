@@ -80,9 +80,9 @@ Parser Program(JSON) direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with
 `proof=typed_global_call_parser_program_json` and
 `return_shape=string_handle`; `target_shape` is omitted because the proof/return
-contract is now the SSOT for this retired source-execution capsule. The current
-Stage0 body definition is still a dedicated emitter and must be removed by the
-later uniform multi-function emitter cleanup.
+contract is now the SSOT for this retired source-execution capsule. Its Stage0
+body definition is now emitted by the module generic MIR function emitter; the
+old parser-only body clone has been removed.
 
 BoxTypeInspector describe direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with
