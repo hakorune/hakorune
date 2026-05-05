@@ -1659,6 +1659,68 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_instruction(
+          FILE* f,
+          size_t fn_index,
+          long long bid,
+          size_t ii,
+          yyjson_val* ins) {
+        const char* op = read_str(ins, "op");
+        if (!op) return 0;
+        if (!strcmp(op, "phi")) return 1;
+        if (!strcmp(op, "const")) {
+          return module_generic_string_emit_const_instruction(
+              f,
+              fn_index,
+              bid,
+              ii,
+              ins);
+        }
+        if (!strcmp(op, "copy")) {
+          return module_generic_string_emit_copy(
+              read_int(ins, "dst"),
+              read_int(ins, "src"));
+        }
+        if (!strcmp(op, "newbox")) {
+          return module_generic_string_emit_newbox(ins);
+        }
+        if (!strcmp(op, "compare")) {
+          return module_generic_string_emit_compare(ins);
+        }
+        if (!strcmp(op, "unop")) {
+          return module_generic_string_emit_unop(ins);
+        }
+        if (!strcmp(op, "select")) {
+          return module_generic_string_emit_select(ins);
+        }
+        if (!strcmp(op, "binop")) {
+          return module_generic_string_emit_binop(ins);
+        }
+        if (!strcmp(op, "branch")) {
+          return module_generic_string_emit_branch_instruction(ins);
+        }
+        if (!strcmp(op, "jump")) {
+          return module_generic_string_emit_jump_instruction(ins);
+        }
+        if (!strcmp(op, "ret")) {
+          return module_generic_string_emit_ret_instruction(bid, ins);
+        }
+        if (!strcmp(op, "mir_call") || !strcmp(op, "call") || !strcmp(op, "boxcall")) {
+          return module_generic_string_emit_call_instruction(f, bid, ii, ins);
+        }
+        if (!strcmp(op, "externcall")) {
+          return module_generic_string_emit_externcall_instruction(
+              f,
+              bid,
+              ii,
+              ins);
+        }
+        if (!strcmp(op, "keepalive") || !strcmp(op, "release_strong")) {
+          return 1;
+        }
+        return 0;
+      }
+
       auto int module_generic_string_emit_active_body(FILE* f, size_t fn_index) {
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
@@ -1672,74 +1734,12 @@
           }
           for (size_t ii = 0; ii < block.instruction_count; ii++) {
             yyjson_val* ins = yyjson_arr_get(block.instructions, ii);
-            const char* op = read_str(ins, "op");
-            if (!op) return 0;
-            if (!strcmp(op, "phi")) continue;
-            if (!strcmp(op, "const")) {
-              if (!module_generic_string_emit_const_instruction(
-                      f,
-                      fn_index,
-                      block.id,
-                      ii,
-                      ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "copy")) {
-              if (!module_generic_string_emit_copy(
-                      read_int(ins, "dst"),
-                      read_int(ins, "src"))) {
-                return 0;
-              }
-              continue;
-            }
-            if (!strcmp(op, "newbox")) {
-              if (!module_generic_string_emit_newbox(ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "compare")) {
-              if (!module_generic_string_emit_compare(ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "unop")) {
-              if (!module_generic_string_emit_unop(ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "select")) {
-              if (!module_generic_string_emit_select(ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "binop")) {
-              if (!module_generic_string_emit_binop(ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "branch")) {
-              if (!module_generic_string_emit_branch_instruction(ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "jump")) {
-              if (!module_generic_string_emit_jump_instruction(ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "ret")) {
-              if (!module_generic_string_emit_ret_instruction(block.id, ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "mir_call") || !strcmp(op, "call") || !strcmp(op, "boxcall")) {
-              if (!module_generic_string_emit_call_instruction(f, block.id, ii, ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "externcall")) {
-              if (!module_generic_string_emit_externcall_instruction(
-                      f,
-                      block.id,
-                      ii,
-                      ins)) return 0;
-              continue;
-            }
-            if (!strcmp(op, "keepalive") || !strcmp(op, "release_strong")) {
-              continue;
-            }
-            return 0;
+            if (!module_generic_string_emit_instruction(
+                    f,
+                    fn_index,
+                    block.id,
+                    ii,
+                    ins)) return 0;
           }
         }
         return 1;

@@ -161,6 +161,8 @@ Completed focused probe:
     and diagnostics behind one active-body helper
   - P381DL moved module-generic emit-side branch and jump terminators behind
     active-body helper entries
+  - P381DM moved module-generic active-body opcode dispatch behind one
+    instruction dispatcher entry
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

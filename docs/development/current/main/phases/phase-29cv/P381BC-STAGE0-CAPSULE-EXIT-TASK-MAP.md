@@ -347,6 +347,11 @@ Module-generic emit control terminator helper cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381DL-MODULE-GENERIC-EMIT-CONTROL-TERMINATOR-HELPERS.md`:
 emit-side `branch` and `jump` terminators now have active-body helper entries.
 
+Module-generic emit instruction dispatcher cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DM-MODULE-GENERIC-EMIT-INSTRUCTION-DISPATCH.md`:
+active-body emission now delegates per-instruction behavior through one
+dispatcher.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
