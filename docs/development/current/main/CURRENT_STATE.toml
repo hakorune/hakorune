@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381CK-GLOBAL-CALL-PRIMITIVE-OWNER-METADATA"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381CK-GLOBAL-CALL-PRIMITIVE-OWNER-METADATA.md"
-latest_card_summary = "Active primitive global-call definition ownership now reads Rust LoweringPlan definition_owner metadata instead of C proof/target-shape predicates."
+latest_card = "P381CL-MODULE-GENERIC-MIR-JSON-ARRAY-ITEM-VIEW-HELPER"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381CL-MODULE-GENERIC-MIR-JSON-ARRAY-ITEM-VIEW-HELPER.md"
+latest_card_summary = "Repeated MIR JSON array-item generic-method view predicates in the module-generic Stage0 emitter now share one table-like helper."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -93,8 +93,11 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(
-          const struct LoweringPlanGenericMethodView* view) {
+      auto int module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+          const struct LoweringPlanGenericMethodView* view,
+          const char* route_proof,
+          const char* return_shape,
+          const char* value_demand) {
         return view &&
                view->route_id &&
                !strcmp(view->route_id, "generic_method.get") &&
@@ -105,199 +108,99 @@
                view->symbol &&
                !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
                view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_block_inst_array_item") &&
+               route_proof &&
+               !strcmp(view->route_proof, route_proof) &&
                !view->receiver_origin_box &&
                view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
+               return_shape &&
+               !strcmp(view->return_shape, return_shape) &&
                view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
+               value_demand &&
+               !strcmp(view->value_demand, value_demand) &&
                view->publication_policy &&
                !strcmp(view->publication_policy, "no_publication") &&
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }
+
+      auto int module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(
+          const struct LoweringPlanGenericMethodView* view) {
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_block_inst_array_item",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_effects_array_item") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_effects_array_item",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_function_block_array_item") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_function_block_array_item",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_module_function_array_item") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_module_function_array_item",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_params_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_params_array_item") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_params_array_item",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_phi_incoming_array_item") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_phi_incoming_array_item",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_phi_incoming_pair_scalar") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "scalar_i64_or_missing_zero") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "scalar_i64") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_phi_incoming_pair_scalar",
+            "scalar_i64_or_missing_zero",
+            "scalar_i64");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_vid_array_item") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "scalar_i64_or_missing_zero") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "scalar_i64") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_vid_array_item",
+            "scalar_i64_or_missing_zero",
+            "scalar_i64");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_flags_rec_access") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+            view,
+            "mir_json_flags_rec_access",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_flags_keys(

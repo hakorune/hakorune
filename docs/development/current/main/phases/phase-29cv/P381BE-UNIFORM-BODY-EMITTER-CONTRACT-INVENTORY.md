@@ -107,6 +107,8 @@ Completed focused probe:
     with the MIR-owned global-call metadata fields
   - P381CK moved active primitive definition ownership checks to
     `definition_owner`, deleting the leaf/generic-i64 C proof/shape predicates
+  - P381CL centralized the repeated MIR JSON array-item generic-method view
+    predicates behind a shared module-generic helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
