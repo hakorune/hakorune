@@ -483,6 +483,11 @@ String-or-void sentinel uniform-owner cleanup landed in
 sentinel direct-call routes and lowering plans now serialize
 `definition_owner=uniform_mir` with the uniform MIR trace consumer.
 
+Stage0 target-shape read cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EO-STAGE0-GLOBAL-CALL-TARGET-SHAPE-READ-PRUNE.md`:
+the C global-call view no longer reads the retired `target_shape` field; only
+unsupported-route diagnostic reason fields remain.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

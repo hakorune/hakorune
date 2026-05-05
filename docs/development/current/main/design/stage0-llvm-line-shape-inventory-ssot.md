@@ -152,7 +152,10 @@ ABI:
 The backend must emit calls by MIR symbol/route fact. It must not rediscover
 callee meaning from raw `.hako` owner names or from C-side capsule proof-name
 lists. Global-call result origin, definition ownership, and trace consumer
-selection are MIR-owned LoweringPlan metadata fields.
+selection are MIR-owned LoweringPlan metadata fields. Stage0 no longer reads
+the retired `target_shape` field for direct global-call routes; unsupported
+route diagnostic fields such as `target_shape_reason` remain diagnostic-only
+breadcrumbs.
 
 The current Stage0 C file names under
 `hako_llvmc_ffi_module_generic_string_*` are historical names. Their active

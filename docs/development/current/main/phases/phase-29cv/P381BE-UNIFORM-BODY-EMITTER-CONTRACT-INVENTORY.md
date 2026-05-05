@@ -227,6 +227,9 @@ Completed focused probe:
   - P381EN moved `GenericStringOrVoidSentinelBody` to
     `definition_owner=uniform_mir` after Stage0 readiness/prepass planning was
     owner-neutralized
+  - P381EO removed the unused Stage0 C read of direct global-call
+    `target_shape`; unsupported-route `target_shape_reason` diagnostics remain
+    available
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

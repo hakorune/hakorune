@@ -48,7 +48,6 @@
         const char* proof;
         const char* route_proof;
         const char* reason;
-        const char* target_shape;
         const char* target_shape_reason;
         const char* target_shape_blocker_symbol;
         const char* target_shape_blocker_reason;
@@ -306,7 +305,6 @@
           out->proof = read_str(entry, "proof");
           out->route_proof = read_str(entry, "route_proof");
           out->reason = read_str(entry, "reason");
-          out->target_shape = read_str(entry, "target_shape");
           out->target_shape_reason = read_str(entry, "target_shape_reason");
           out->target_shape_blocker_symbol = read_str(entry, "target_shape_blocker_symbol");
           out->target_shape_blocker_reason = read_str(entry, "target_shape_blocker_reason");
