@@ -149,6 +149,8 @@ Completed focused probe:
     main call-family dispatch
   - P381DF moved module-generic global-call prepass facts behind one helper
     after method and extern family checks
+  - P381DG moved module-generic call-instruction prepass payload/view routing
+    behind one helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

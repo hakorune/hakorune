@@ -319,6 +319,11 @@ Module-generic prepass global helper cleanup landed in
 global-call prepass facts now go through one helper after method and extern
 family checks.
 
+Module-generic prepass call-instruction helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DG-MODULE-GENERIC-PREPASS-CALL-INSTRUCTION-HELPER.md`:
+call-instruction payload/view reads and family helper ordering now have one
+prepass entry.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

@@ -619,6 +619,59 @@
         return 0;
       }
 
+      auto int module_generic_string_prepass_call_instruction(
+          const char* op,
+          long long bid,
+          size_t ii,
+          yyjson_val* ins) {
+        yyjson_val* cal = NULL;
+        yyjson_val* args = NULL;
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView method_view;
+        struct LoweringPlanExternCallView extern_view;
+        struct LoweringPlanGlobalCallView global_view;
+        const char* ctype = NULL;
+        const char* mname = NULL;
+        const char* bname = NULL;
+        int has_method_view = 0;
+        int has_extern_view = 0;
+        int has_global_view = 0;
+        int method_prepass_rc = 0;
+        long long dst = read_int(ins, "dst");
+        if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
+        ctype = module_generic_string_call_type(op, cal);
+        mname = module_generic_string_call_name(op, cal);
+        bname = module_generic_string_call_box_name(op, cal);
+        has_method_view = read_lowering_plan_generic_method_view(entry, &method_view);
+        has_extern_view = read_lowering_plan_extern_call_view(entry, &extern_view);
+        has_global_view = read_lowering_plan_global_call_view(entry, &global_view);
+        if (module_generic_string_call_is_array_or_map_birth(
+                ctype, mname, bname)) {
+          if (dst) set_type(dst, T_I64);
+          return 1;
+        }
+        if (has_method_view) {
+          method_prepass_rc = module_generic_string_prepass_generic_method_view(
+              op,
+              cal,
+              args,
+              dst,
+              &method_view);
+          if (method_prepass_rc < 0) return 0;
+          if (method_prepass_rc > 0) return 1;
+        }
+        if (has_extern_view &&
+            module_generic_string_prepass_extern_call_view(&extern_view, dst)) {
+          return 1;
+        }
+        return module_generic_string_prepass_global_call_view(
+            ctype,
+            mname,
+            args,
+            dst,
+            has_global_view ? &global_view : NULL);
+      }
+
       auto int module_generic_string_prepass_externcall(
           long long bid,
           size_t ii,
@@ -709,55 +762,11 @@
             } else if (!strcmp(op, "mir_call") ||
                        !strcmp(op, "call") ||
                        !strcmp(op, "boxcall")) {
-              yyjson_val* cal = NULL;
-              yyjson_val* args = NULL;
-              yyjson_val* entry = find_lowering_plan_entry_for_site(block.id, ii);
-              struct LoweringPlanGenericMethodView method_view;
-              struct LoweringPlanExternCallView extern_view;
-              struct LoweringPlanGlobalCallView global_view;
-              const char* ctype = NULL;
-              const char* mname = NULL;
-              const char* bname = NULL;
-              int has_method_view = 0;
-              int has_extern_view = 0;
-              int has_global_view = 0;
-              int method_prepass_rc = 0;
-              long long dst = read_int(ins, "dst");
-              if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
-              ctype = module_generic_string_call_type(op, cal);
-              mname = module_generic_string_call_name(op, cal);
-              bname = module_generic_string_call_box_name(op, cal);
-              has_method_view = read_lowering_plan_generic_method_view(entry, &method_view);
-              has_extern_view = read_lowering_plan_extern_call_view(entry, &extern_view);
-              has_global_view = read_lowering_plan_global_call_view(entry, &global_view);
-              if (module_generic_string_call_is_array_or_map_birth(
-                      ctype, mname, bname)) {
-                if (dst) set_type(dst, T_I64);
-                continue;
-              }
-              if (has_method_view) {
-                method_prepass_rc = module_generic_string_prepass_generic_method_view(
-                    op,
-                    cal,
-                    args,
-                    dst,
-                    &method_view);
-                if (method_prepass_rc < 0) return 0;
-                if (method_prepass_rc > 0) continue;
-              }
-              if (has_extern_view &&
-                  module_generic_string_prepass_extern_call_view(&extern_view, dst)) {
-                continue;
-              }
-              if (module_generic_string_prepass_global_call_view(
-                      ctype,
-                      mname,
-                      args,
-                      dst,
-                      has_global_view ? &global_view : NULL)) {
-                continue;
-              }
-              return 0;
+              if (!module_generic_string_prepass_call_instruction(
+                      op,
+                      block.id,
+                      ii,
+                      ins)) return 0;
             } else if (!strcmp(op, "externcall")) {
               if (!module_generic_string_prepass_externcall(block.id, ii, ins)) return 0;
             } else if (!strcmp(op, "branch") ||
