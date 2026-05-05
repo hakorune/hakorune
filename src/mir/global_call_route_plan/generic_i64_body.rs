@@ -1,5 +1,6 @@
 use super::generic_string_abi::generic_pure_string_abi_type_is_handle_compatible;
 use super::generic_string_surface::generic_pure_compare_proves_i64;
+use super::model::GlobalCallReturnContract;
 use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallTargetFacts,
     GlobalCallTargetShape,
@@ -528,24 +529,25 @@ fn generic_i64_body_refine_instruction(
             let Some(target) = lookup_global_call_target(name, targets) else {
                 return false;
             };
-            let class = match target.shape() {
-                GlobalCallTargetShape::GenericPureStringBody
-                | GlobalCallTargetShape::ParserProgramJsonBody => GenericI64ValueClass::String,
-                GlobalCallTargetShape::StaticStringArrayBody
-                | GlobalCallTargetShape::MirSchemaMapConstructorBody
-                | GlobalCallTargetShape::BoxTypeInspectorDescribeBody => {
+            let Some(contract) = target.return_contract() else {
+                return false;
+            };
+            let class = match contract {
+                GlobalCallReturnContract::StringHandle => GenericI64ValueClass::String,
+                GlobalCallReturnContract::ArrayHandle | GlobalCallReturnContract::MapHandle => {
                     GenericI64ValueClass::Unknown
                 }
-                GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-                | GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
+                GlobalCallReturnContract::StringHandleOrNull
+                | GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
                     GenericI64ValueClass::StringOrVoid
                 }
-                GlobalCallTargetShape::NumericI64Leaf
-                | GlobalCallTargetShape::GenericStringVoidLoggingBody => GenericI64ValueClass::I64,
-                GlobalCallTargetShape::GenericI64Body => {
+                GlobalCallReturnContract::ScalarI64
+                    if target.shape() == GlobalCallTargetShape::GenericI64Body =>
+                {
                     generic_i64_global_call_result_class(values, dst)
                 }
-                GlobalCallTargetShape::Unknown => return false,
+                GlobalCallReturnContract::ScalarI64
+                | GlobalCallReturnContract::VoidSentinelI64Zero => GenericI64ValueClass::I64,
             };
             if let Some(dst) = dst {
                 set_generic_i64_value_class(values, *dst, class, changed)

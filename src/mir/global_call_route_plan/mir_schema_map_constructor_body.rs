@@ -4,7 +4,7 @@ use crate::mir::{Callee, ConstValue, MirFunction, MirInstruction, MirType, Value
 
 use super::generic_string_reject::GenericPureStringReject;
 use super::model::{
-    GlobalCallShapeBlocker, GlobalCallTargetFacts, GlobalCallTargetShape,
+    GlobalCallReturnContract, GlobalCallShapeBlocker, GlobalCallTargetFacts, GlobalCallTargetShape,
     GlobalCallTargetShapeReason,
 };
 use super::shape_blocker::propagated_unknown_global_target_blocker;
@@ -578,20 +578,16 @@ impl MirSchemaMapConstructorFacts {
         targets: &BTreeMap<String, GlobalCallTargetFacts>,
     ) -> Option<MirSchemaValueClass> {
         let target = super::lookup_global_call_target(name, targets)?;
-        match target.shape() {
-            GlobalCallTargetShape::MirSchemaMapConstructorBody
-            | GlobalCallTargetShape::BoxTypeInspectorDescribeBody => Some(MirSchemaValueClass::Map),
-            GlobalCallTargetShape::StaticStringArrayBody => Some(MirSchemaValueClass::Array),
-            GlobalCallTargetShape::GenericPureStringBody
-            | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-            | GlobalCallTargetShape::ParserProgramJsonBody => Some(MirSchemaValueClass::String),
-            GlobalCallTargetShape::NumericI64Leaf
-            | GlobalCallTargetShape::GenericStringVoidLoggingBody
-            | GlobalCallTargetShape::GenericI64Body
-            | GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
+        match target.return_contract()? {
+            GlobalCallReturnContract::MapHandle => Some(MirSchemaValueClass::Map),
+            GlobalCallReturnContract::ArrayHandle => Some(MirSchemaValueClass::Array),
+            GlobalCallReturnContract::StringHandle
+            | GlobalCallReturnContract::StringHandleOrNull => Some(MirSchemaValueClass::String),
+            GlobalCallReturnContract::ScalarI64
+            | GlobalCallReturnContract::VoidSentinelI64Zero
+            | GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
                 Some(MirSchemaValueClass::Scalar)
             }
-            GlobalCallTargetShape::Unknown => None,
         }
     }
 

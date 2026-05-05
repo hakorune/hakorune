@@ -34,7 +34,10 @@ use super::generic_string_surface::{
     generic_pure_string_accepts_string_compare, generic_pure_string_accepts_substring_method,
     generic_pure_string_compare_can_infer_string, generic_pure_string_global_name_is_self,
 };
-use super::model::{GlobalCallTargetFacts, GlobalCallTargetShape, GlobalCallTargetShapeReason};
+use super::model::{
+    GlobalCallReturnContract, GlobalCallTargetFacts, GlobalCallTargetShape,
+    GlobalCallTargetShapeReason,
+};
 use super::shape_blocker::propagated_unknown_global_target_blocker;
 use super::string_return_profile::{
     generic_string_return_object_boundary_candidate, generic_string_void_sentinel_return_candidate,
@@ -504,7 +507,10 @@ fn generic_string_void_logging_has_logging_call(
                         callee: Some(Callee::Global(name)),
                         ..
                     } if super::lookup_global_call_target(name, targets)
-                        .map(|target| target.shape() == GlobalCallTargetShape::GenericStringVoidLoggingBody)
+                        .map(|target| {
+                            target.return_contract()
+                                == Some(GlobalCallReturnContract::VoidSentinelI64Zero)
+                        })
                         .unwrap_or(false)
                 )
             })
@@ -1242,10 +1248,15 @@ fn generic_pure_string_instruction_reject_reason(
                     None,
                 ));
             };
-            match target.shape() {
-                GlobalCallTargetShape::GenericPureStringBody
-                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-                | GlobalCallTargetShape::ParserProgramJsonBody => {
+            let Some(contract) = target.return_contract() else {
+                return Some(GenericPureStringReject::with_shape_blocker(
+                    GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
+                    propagated_unknown_global_target_blocker(name, target),
+                ));
+            };
+            match contract {
+                GlobalCallReturnContract::StringHandle
+                | GlobalCallReturnContract::StringHandleOrNull => {
                     if let Some(dst) = dst {
                         *has_string_surface = true;
                         set_proven_flow_value_class(
@@ -1257,7 +1268,7 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::StaticStringArrayBody => {
+                GlobalCallReturnContract::ArrayHandle => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,
@@ -1268,8 +1279,7 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::MirSchemaMapConstructorBody
-                | GlobalCallTargetShape::BoxTypeInspectorDescribeBody => {
+                GlobalCallReturnContract::MapHandle => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,
@@ -1280,7 +1290,7 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
+                GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,
@@ -1291,7 +1301,7 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::GenericStringVoidLoggingBody => {
+                GlobalCallReturnContract::VoidSentinelI64Zero => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,
@@ -1302,18 +1312,9 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::NumericI64Leaf => {
-                    if let Some(dst) = dst {
-                        set_proven_flow_value_class(
-                            values,
-                            *dst,
-                            GenericPureValueClass::I64,
-                            changed,
-                        );
-                    }
-                    None
-                }
-                GlobalCallTargetShape::GenericI64Body => {
+                GlobalCallReturnContract::ScalarI64
+                    if target.shape() == GlobalCallTargetShape::GenericI64Body =>
+                {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(
                             values,
@@ -1324,11 +1325,16 @@ fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
-                GlobalCallTargetShape::Unknown => {
-                    Some(GenericPureStringReject::with_shape_blocker(
-                        GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
-                        propagated_unknown_global_target_blocker(name, target),
-                    ))
+                GlobalCallReturnContract::ScalarI64 => {
+                    if let Some(dst) = dst {
+                        set_proven_flow_value_class(
+                            values,
+                            *dst,
+                            GenericPureValueClass::I64,
+                            changed,
+                        );
+                    }
+                    None
                 }
             }
         }

@@ -126,7 +126,9 @@ the void-sentinel contract still must be proven.
 
 Status: first C-side contract shrink landed in
 `docs/development/current/main/phases/phase-29cv/P381BF-VOID-LOGGING-DIRECT-CONTRACT-SHRINK.md`;
-Rust-side capsule removal remains separate.
+Rust-side downstream return-contract readers landed in
+`docs/development/current/main/phases/phase-29cv/P381BG-GLOBAL-CALL-RETURN-CONTRACT-READERS.md`;
+proof/shape JSON compatibility and final capsule removal remain separate.
 
 Acceptance must include:
 

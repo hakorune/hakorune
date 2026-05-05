@@ -1,4 +1,5 @@
 use super::generic_string_reject::GenericPureStringReject;
+use super::model::GlobalCallReturnContract;
 use super::shape_blocker::propagated_unknown_global_target_blocker;
 use super::{
     lookup_global_call_target, supported_backend_global, GlobalCallShapeBlocker,
@@ -593,38 +594,25 @@ fn refine_generic_string_return_value_class(
                 GenericStringReturnValueClass::String
             } else {
                 lookup_global_call_target(name, targets)
-                    .map(|target| match target.shape() {
-                        GlobalCallTargetShape::GenericPureStringBody => {
+                    .map(|target| match target.return_contract() {
+                        Some(GlobalCallReturnContract::StringHandle) => {
                             GenericStringReturnValueClass::String
                         }
-                        GlobalCallTargetShape::ParserProgramJsonBody => {
-                            GenericStringReturnValueClass::String
-                        }
-                        GlobalCallTargetShape::StaticStringArrayBody => {
-                            GenericStringReturnValueClass::Object
-                        }
-                        GlobalCallTargetShape::MirSchemaMapConstructorBody => {
-                            GenericStringReturnValueClass::Object
-                        }
-                        GlobalCallTargetShape::BoxTypeInspectorDescribeBody => {
-                            GenericStringReturnValueClass::Object
-                        }
-                        GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
+                        Some(
+                            GlobalCallReturnContract::ArrayHandle
+                            | GlobalCallReturnContract::MapHandle,
+                        ) => GenericStringReturnValueClass::Object,
+                        Some(GlobalCallReturnContract::StringHandleOrNull) => {
                             GenericStringReturnValueClass::StringOrVoid
                         }
-                        GlobalCallTargetShape::GenericStringVoidLoggingBody => {
+                        Some(GlobalCallReturnContract::VoidSentinelI64Zero) => {
                             GenericStringReturnValueClass::Void
                         }
-                        GlobalCallTargetShape::NumericI64Leaf => {
-                            GenericStringReturnValueClass::Other
-                        }
-                        GlobalCallTargetShape::GenericI64Body => {
-                            GenericStringReturnValueClass::Other
-                        }
-                        GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
-                            GenericStringReturnValueClass::Other
-                        }
-                        GlobalCallTargetShape::Unknown => GenericStringReturnValueClass::Unknown,
+                        Some(
+                            GlobalCallReturnContract::ScalarI64
+                            | GlobalCallReturnContract::MixedRuntimeI64OrHandle,
+                        ) => GenericStringReturnValueClass::Other,
+                        None => GenericStringReturnValueClass::Unknown,
                     })
                     .unwrap_or(GenericStringReturnValueClass::Unknown)
             };

@@ -45,6 +45,42 @@ pub enum GlobalCallTargetShape {
     PatternUtilLocalValueProbeBody,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum GlobalCallReturnContract {
+    ScalarI64,
+    StringHandle,
+    StringHandleOrNull,
+    VoidSentinelI64Zero,
+    ArrayHandle,
+    MapHandle,
+    MixedRuntimeI64OrHandle,
+}
+
+impl GlobalCallReturnContract {
+    pub(super) fn as_json_name(self) -> &'static str {
+        match self {
+            Self::ScalarI64 => "ScalarI64",
+            Self::StringHandle => "string_handle",
+            Self::StringHandleOrNull => "string_handle_or_null",
+            Self::VoidSentinelI64Zero => "void_sentinel_i64_zero",
+            Self::ArrayHandle => "array_handle",
+            Self::MapHandle => "map_handle",
+            Self::MixedRuntimeI64OrHandle => "mixed_runtime_i64_or_handle",
+        }
+    }
+
+    pub(super) fn value_demand(self) -> &'static str {
+        match self {
+            Self::ScalarI64 | Self::VoidSentinelI64Zero => "scalar_i64",
+            Self::StringHandle
+            | Self::StringHandleOrNull
+            | Self::ArrayHandle
+            | Self::MapHandle
+            | Self::MixedRuntimeI64OrHandle => "runtime_i64_or_handle",
+        }
+    }
+}
+
 impl GlobalCallTargetShape {
     pub fn as_str(self) -> &'static str {
         match self {
@@ -59,6 +95,31 @@ impl GlobalCallTargetShape {
             Self::MirSchemaMapConstructorBody => "mir_schema_map_constructor_body",
             Self::BoxTypeInspectorDescribeBody => "box_type_inspector_describe_body",
             Self::PatternUtilLocalValueProbeBody => "pattern_util_local_value_probe_body",
+        }
+    }
+
+    pub(super) fn return_contract(self) -> Option<GlobalCallReturnContract> {
+        match self {
+            Self::NumericI64Leaf | Self::GenericI64Body => {
+                Some(GlobalCallReturnContract::ScalarI64)
+            }
+            Self::GenericPureStringBody | Self::ParserProgramJsonBody => {
+                Some(GlobalCallReturnContract::StringHandle)
+            }
+            Self::GenericStringOrVoidSentinelBody => {
+                Some(GlobalCallReturnContract::StringHandleOrNull)
+            }
+            Self::GenericStringVoidLoggingBody => {
+                Some(GlobalCallReturnContract::VoidSentinelI64Zero)
+            }
+            Self::StaticStringArrayBody => Some(GlobalCallReturnContract::ArrayHandle),
+            Self::MirSchemaMapConstructorBody | Self::BoxTypeInspectorDescribeBody => {
+                Some(GlobalCallReturnContract::MapHandle)
+            }
+            Self::PatternUtilLocalValueProbeBody => {
+                Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
+            }
+            Self::Unknown => None,
         }
     }
 }
@@ -227,6 +288,10 @@ impl GlobalCallTargetFacts {
 
     pub fn shape(&self) -> GlobalCallTargetShape {
         self.shape
+    }
+
+    pub(super) fn return_contract(&self) -> Option<GlobalCallReturnContract> {
+        self.shape.return_contract()
     }
 
     pub(super) fn shape_reason(&self) -> Option<GlobalCallTargetShapeReason> {
@@ -418,43 +483,16 @@ impl GlobalCallRoute {
     }
 
     pub fn value_demand(&self) -> &'static str {
-        match self.direct_target_shape() {
-            Some(GlobalCallTargetShape::NumericI64Leaf)
-            | Some(GlobalCallTargetShape::GenericStringVoidLoggingBody)
-            | Some(GlobalCallTargetShape::GenericI64Body) => "scalar_i64",
-            Some(
-                GlobalCallTargetShape::GenericPureStringBody
-                | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-                | GlobalCallTargetShape::ParserProgramJsonBody
-                | GlobalCallTargetShape::StaticStringArrayBody
-                | GlobalCallTargetShape::MirSchemaMapConstructorBody
-                | GlobalCallTargetShape::BoxTypeInspectorDescribeBody
-                | GlobalCallTargetShape::PatternUtilLocalValueProbeBody,
-            ) => "runtime_i64_or_handle",
-            _ => "typed_global_call_contract_missing",
-        }
+        self.direct_target_shape()
+            .and_then(GlobalCallTargetShape::return_contract)
+            .map(GlobalCallReturnContract::value_demand)
+            .unwrap_or("typed_global_call_contract_missing")
     }
 
     pub fn return_shape(&self) -> Option<&'static str> {
-        match self.direct_target_shape() {
-            Some(GlobalCallTargetShape::NumericI64Leaf)
-            | Some(GlobalCallTargetShape::GenericI64Body) => Some("ScalarI64"),
-            Some(GlobalCallTargetShape::GenericPureStringBody) => Some("string_handle"),
-            Some(GlobalCallTargetShape::GenericStringOrVoidSentinelBody) => {
-                Some("string_handle_or_null")
-            }
-            Some(GlobalCallTargetShape::GenericStringVoidLoggingBody) => {
-                Some("void_sentinel_i64_zero")
-            }
-            Some(GlobalCallTargetShape::ParserProgramJsonBody) => Some("string_handle"),
-            Some(GlobalCallTargetShape::StaticStringArrayBody) => Some("array_handle"),
-            Some(GlobalCallTargetShape::MirSchemaMapConstructorBody) => Some("map_handle"),
-            Some(GlobalCallTargetShape::BoxTypeInspectorDescribeBody) => Some("map_handle"),
-            Some(GlobalCallTargetShape::PatternUtilLocalValueProbeBody) => {
-                Some("mixed_runtime_i64_or_handle")
-            }
-            _ => None,
-        }
+        self.direct_target_shape()
+            .and_then(GlobalCallTargetShape::return_contract)
+            .map(GlobalCallReturnContract::as_json_name)
     }
 
     pub fn reason(&self) -> Option<&'static str> {
