@@ -99,9 +99,10 @@ variant. MIR still records them as direct ABI targets with
 `return_shape=map_handle`; `target_shape` is omitted because the proof/return
 contract plus `result_origin=map_birth` metadata are now the SSOT for this
 retired source-owner capsule. The active source-owner consumers already use
-scalar predicates (`is_map` / `is_array`); Stage0 now plans, emits, traces, and
-propagates the map origin through LoweringPlan metadata views instead of a
-describe-specific call-site branch.
+scalar predicates (`is_map` / `is_array`). Its definition owner is
+`uniform_mir`; Stage0 now plans, emits, traces, and propagates the map origin
+through LoweringPlan metadata views instead of a describe-specific call-site
+branch.
 
 PatternUtil local-value probe direct calls are no longer a
 `GlobalCallTargetShape` variant. MIR still records them as direct ABI targets

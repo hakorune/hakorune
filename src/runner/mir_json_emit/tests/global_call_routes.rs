@@ -10,6 +10,7 @@ use crate::mir::{
 };
 
 mod blockers;
+mod box_type_inspector_describe;
 mod core;
 mod generic_i64;
 mod parser_program_json;

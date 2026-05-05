@@ -128,10 +128,10 @@ impl GlobalCallProof {
             Self::GenericStringVoidLogging
             | Self::ParserProgramJson
             | Self::StaticStringArray
-            | Self::MirSchemaMapConstructor => GlobalCallDefinitionOwner::UniformMir,
+            | Self::MirSchemaMapConstructor
+            | Self::BoxTypeInspectorDescribe => GlobalCallDefinitionOwner::UniformMir,
             Self::GenericPureString
             | Self::GenericStringOrVoidSentinel
-            | Self::BoxTypeInspectorDescribe
             | Self::PatternUtilLocalValueProbe => GlobalCallDefinitionOwner::ModuleGeneric,
         }
     }
