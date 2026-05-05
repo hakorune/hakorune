@@ -155,6 +155,8 @@ Completed focused probe:
     with the prepass call-instruction entry
   - P381DI moved module-generic emit-side externcall lowering-plan dispatch
     behind one active-body helper
+  - P381DJ moved module-generic emit-side ret value-reference and zext
+    emission behind one active-body helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

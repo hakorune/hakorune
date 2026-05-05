@@ -333,6 +333,11 @@ Module-generic emit externcall helper cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381DI-MODULE-GENERIC-EMIT-EXTERNCALL-HELPER.md`:
 emit-side `externcall` lowering-plan dispatch now has one active-body helper.
 
+Module-generic emit ret helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DJ-MODULE-GENERIC-EMIT-RET-HELPER.md`:
+emit-side `ret` value-reference and zext handling now has one active-body
+helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

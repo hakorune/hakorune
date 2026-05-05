@@ -1596,6 +1596,25 @@
         return rc == 1;
       }
 
+      auto int module_generic_string_emit_ret_instruction(
+          long long bid,
+          yyjson_val* ins) {
+        long long v = read_int(ins, "value");
+        long long cv = 0;
+        long long base = resolve_copy_source_reg(v);
+        char value_ref[64];
+        if (has_const(base, &cv)) {
+          EMIT("  ret i64 %lld\n", cv);
+        } else if (get_type(base) == T_I1) {
+          EMIT("  %%ret_zext_%lld_%lld = zext i1 %%r%lld to i64\n", bid, base, base);
+          EMIT("  ret i64 %%ret_zext_%lld_%lld\n", bid, base);
+        } else {
+          module_generic_string_format_i64_ref(value_ref, sizeof(value_ref), v);
+          EMIT("  ret i64 %s\n", value_ref);
+        }
+        return 1;
+      }
+
       auto int module_generic_string_emit_active_body(FILE* f, size_t fn_index) {
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
@@ -1674,19 +1693,7 @@
               continue;
             }
             if (!strcmp(op, "ret")) {
-              long long v = read_int(ins, "value");
-              long long cv = 0;
-              long long base = resolve_copy_source_reg(v);
-              char value_ref[64];
-              if (has_const(base, &cv)) {
-                EMIT("  ret i64 %lld\n", cv);
-              } else if (get_type(base) == T_I1) {
-                EMIT("  %%ret_zext_%lld_%lld = zext i1 %%r%lld to i64\n", block.id, base, base);
-                EMIT("  ret i64 %%ret_zext_%lld_%lld\n", block.id, base);
-              } else {
-                module_generic_string_format_i64_ref(value_ref, sizeof(value_ref), v);
-                EMIT("  ret i64 %s\n", value_ref);
-              }
+              if (!module_generic_string_emit_ret_instruction(block.id, ins)) return 0;
               continue;
             }
             if (!strcmp(op, "mir_call") || !strcmp(op, "call") || !strcmp(op, "boxcall")) {
