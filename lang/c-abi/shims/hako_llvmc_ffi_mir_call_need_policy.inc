@@ -613,10 +613,7 @@
         const char* route_id;
         const char* core_op;
         const char* route_kind;
-        const char* emit_kind;
         const char* symbol;
-        const char* proof;
-        enum LoweringPlanTierMetadata tier;
         enum MirCallNeedKind need_kind;
       };
 
@@ -631,12 +628,14 @@
                view->route_kind &&
                !strcmp(view->route_kind, rule->route_kind) &&
                view->emit_kind &&
-               !strcmp(view->emit_kind, rule->emit_kind) &&
+               !strcmp(view->emit_kind, "runtime_call") &&
                view->symbol &&
                !strcmp(view->symbol, rule->symbol) &&
                view->proof &&
-               !strcmp(view->proof, rule->proof) &&
-               view->tier == rule->tier;
+               !strcmp(view->proof, "extern_registry") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "extern_registry") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
       }
 
       auto enum MirCallNeedKind
@@ -646,60 +645,42 @@
             "extern.env.get",
             "EnvGet",
             "extern.env.get",
-            "runtime_call",
             "nyash.env.get",
-            "extern_registry",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
           },
           {
             "extern.env.set",
             "EnvSet",
             "extern.env.set",
-            "runtime_call",
             "nyash.env.set",
-            "extern_registry",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
           },
           {
             "extern.hostbridge.extern_invoke",
             "HostBridgeExternInvoke",
             "extern.hostbridge.extern_invoke",
-            "runtime_call",
             "nyash.hostbridge.extern_invoke",
-            "extern_registry",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP,
           },
           {
             "extern.stage1.emit_program_json_v0",
             "Stage1EmitProgramJson",
             "extern.stage1.emit_program_json_v0",
-            "runtime_call",
             "nyash.stage1.emit_program_json_v0_h",
-            "extern_registry",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_PROGRAM_JSON,
           },
           {
             "extern.stage1.emit_mir_from_source_v0",
             "Stage1EmitMirFromSource",
             "extern.stage1.emit_mir_from_source_v0",
-            "runtime_call",
             "nyash.stage1.emit_mir_from_source_v0_h",
-            "extern_registry",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_SOURCE,
           },
           {
             "extern.stage1.emit_mir_from_program_json_v0",
             "Stage1EmitMirFromProgramJson",
             "extern.stage1.emit_mir_from_program_json_v0",
-            "runtime_call",
             "nyash.stage1.emit_mir_from_program_json_v0_h",
-            "extern_registry",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_PROGRAM_JSON,
           },
         };

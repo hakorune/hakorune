@@ -239,6 +239,11 @@ env, hostbridge, and Stage1 extern route validators now share one exact
 LoweringPlan view helper, and the current Stage1 env MIR/OBJ/EXE contract probe
 is green.
 
+MIR call extern-need cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381CQ-MIR-CALL-EXTERN-NEED-CONTRACT-CLEANUP.md`:
+extern need-policy rows now carry only route-specific mapping facts while the
+shared runtime-call extern registry contract is checked once in the matcher.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

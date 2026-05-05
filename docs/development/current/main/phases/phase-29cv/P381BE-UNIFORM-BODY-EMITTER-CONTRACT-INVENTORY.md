@@ -117,6 +117,8 @@ Completed focused probe:
     shared module-generic exact-match helper
   - P381CP centralized extern-call LoweringPlan validators in the MIR call shell
     behind a shared exact-match helper
+  - P381CQ moved the common extern-call need-policy contract checks into the
+    matcher and removed repeated row fields
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
