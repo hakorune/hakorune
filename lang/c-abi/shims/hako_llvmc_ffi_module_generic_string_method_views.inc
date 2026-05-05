@@ -28,10 +28,12 @@
           const char* value_demand,
           const char* publication_policy,
           enum LoweringPlanTierMetadata tier) {
-        return view &&
-               module_generic_string_method_view_str_eq(view->route_id, route_id) &&
-               module_generic_string_method_view_str_eq(view->core_op, core_op) &&
-               module_generic_string_method_view_str_eq(view->route_kind, route_kind) &&
+        return lowering_plan_generic_method_view_matches_route_tuple(
+                   view,
+                   route_id,
+                   core_op,
+                   route_kind,
+                   tier) &&
                module_generic_string_method_view_str_eq(view->symbol, symbol) &&
                module_generic_string_method_view_str_eq(view->route_proof, route_proof) &&
                module_generic_string_method_view_str_eq(
@@ -45,8 +47,34 @@
                    value_demand) &&
                module_generic_string_method_view_optional_str_eq(
                    view->publication_policy,
-                   publication_policy) &&
-               view->tier == tier;
+                   publication_policy);
+      }
+
+      auto int module_generic_string_method_view_is_ownerless_with(
+          const struct LoweringPlanGenericMethodView* view,
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          const char* symbol,
+          const char* route_proof,
+          const char* return_shape,
+          const char* value_demand,
+          const char* publication_policy,
+          enum LoweringPlanTierMetadata tier) {
+        return lowering_plan_generic_method_view_matches_route_tuple(
+                   view,
+                   route_id,
+                   core_op,
+                   route_kind,
+                   tier) &&
+               module_generic_string_method_view_str_eq(view->symbol, symbol) &&
+               module_generic_string_method_view_str_eq(view->route_proof, route_proof) &&
+               !view->receiver_origin_box &&
+               module_generic_string_method_view_str_eq(view->return_shape, return_shape) &&
+               module_generic_string_method_view_str_eq(view->value_demand, value_demand) &&
+               module_generic_string_method_view_str_eq(
+                   view->publication_policy,
+                   publication_policy);
       }
 
       auto int module_generic_string_method_view_is_direct_string_len(
@@ -122,28 +150,17 @@
           const char* route_proof,
           const char* return_shape,
           const char* value_demand) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "ArrayGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "array_slot_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.array.slot_load_hi") &&
-               view->route_proof &&
-               route_proof &&
-               !strcmp(view->route_proof, route_proof) &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               return_shape &&
-               !strcmp(view->return_shape, return_shape) &&
-               view->value_demand &&
-               value_demand &&
-               !strcmp(view->value_demand, value_demand) &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_ownerless_with(
+            view,
+            "generic_method.get",
+            "ArrayGet",
+            "array_slot_load_any",
+            "nyash.array.slot_load_hi",
+            route_proof,
+            return_shape,
+            value_demand,
+            "no_publication",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(
@@ -229,25 +246,17 @@
 
       auto int module_generic_string_method_view_is_direct_mir_json_flags_keys(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.keys") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapKeys") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "map_keys_array") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.map.keys_h") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_flags_keys") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+        return module_generic_string_method_view_is_ownerless_with(
+            view,
+            "generic_method.keys",
+            "MapKeys",
+            "map_keys_array",
+            "nyash.map.keys_h",
+            "mir_json_flags_keys",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle",
+            "no_publication",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
       auto int module_generic_string_method_view_is_direct_map_get(
@@ -271,28 +280,17 @@
           const char* route_proof,
           const char* return_shape,
           const char* value_demand) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "runtime_data_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
-               view->route_proof &&
-               route_proof &&
-               !strcmp(view->route_proof, route_proof) &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               return_shape &&
-               !strcmp(view->return_shape, return_shape) &&
-               view->value_demand &&
-               value_demand &&
-               !strcmp(view->value_demand, value_demand) &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return module_generic_string_method_view_is_ownerless_with(
+            view,
+            "generic_method.get",
+            "MapGet",
+            "runtime_data_load_any",
+            "nyash.runtime_data.get_hh",
+            route_proof,
+            return_shape,
+            value_demand,
+            "no_publication",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME);
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_block_field_get(

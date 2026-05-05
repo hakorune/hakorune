@@ -249,6 +249,11 @@ Generic-method route tuple cleanup landed in
 route, emit-kind, need, and set-route consumers now share the route/core/kind/tier
 tuple comparison and keep only their extra local checks.
 
+Module-generic ownerless view cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381CS-MODULE-GENERIC-OWNERLESS-VIEW-HELPER.md`:
+MIR JSON array item, map field, and flags keys method-view predicates now share
+one ownerless-view helper while route-specific proof/key checks stay local.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

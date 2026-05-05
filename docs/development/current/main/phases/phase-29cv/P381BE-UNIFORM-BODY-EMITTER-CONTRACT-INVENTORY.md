@@ -121,6 +121,8 @@ Completed focused probe:
     matcher and removed repeated row fields
   - P381CR centralized generic-method route tuple matching behind one
     LoweringPlan helper shared by route, emit-kind, need, and set-route users
+  - P381CS centralized ownerless MIR JSON generic-method view matching in the
+    module-generic method view helpers
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
