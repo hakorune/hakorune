@@ -305,11 +305,14 @@ emit wrappers. It accepts `BuildBox._emit_program_json_from_scan_src/1` and the
 Stage1 raw wrapper that calls `BuildBox.emit_program_json_v0(source, null)`.
 It does not accept general `BuildBox.emit_program_json_v0/2` calls, MapBox
 options, or bundle paths. It uses the same Stage1 Program(JSON v0) handle
-export as `parser_program_json_body`, but the MIR proof must come from the
-wrapper shape, not from backend by-name matching.
+export as the parser Program(JSON) contract, but the MIR proof must come from
+the wrapper shape, not from backend by-name matching.
 MIR owns these classifications. Shape-bearing routes record `target_shape`;
 retired capsule routes may instead be direct proof/return-shape contracts with
 `target_shape=null`.
+Parser Program(JSON) direct calls use
+`proof=typed_global_call_parser_program_json`, `return_shape=string_handle`,
+and `value_demand=runtime_i64_or_handle` with `target_shape=null`.
 The string-or-void sentinel return-profile scan may classify
 `RuntimeDataBox.substring(i64)` / `RuntimeDataBox.substring(i64, i64)` /
 `StringBox.substring(i64)` / `StringBox.substring(i64, i64)` as a string return

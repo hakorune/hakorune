@@ -36,9 +36,10 @@ Audited results:
     contract rather than a target-shape variant
 - `BoxTypeInspectorDescribeBody`: blocked
   - P201 explicitly kept it separate from the schema-map capsule
-- `ParserProgramJsonBody`: blocked
-  - `GenericPureStringBody` still rejects the required `ParserBox` pattern via
-    the known-receiver blocker
+- `ParserProgramJsonBody`: superseded by P381BN
+  - `string_handle` + `ORG_STRING` semantics now live in the proof/return
+    contract rather than a target-shape variant; the dedicated body emitter
+    remains a later cleanup item
 - `GenericStringVoidLoggingBody`: superseded by P381BJ
   - P381BJ removed the target-shape variant after storing
     `proof=typed_global_call_generic_string_void_logging` and

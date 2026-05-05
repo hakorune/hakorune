@@ -37,7 +37,6 @@ pub enum GlobalCallTargetShape {
     GenericPureStringBody,
     GenericStringOrVoidSentinelBody,
     GenericI64Body,
-    ParserProgramJsonBody,
     BoxTypeInspectorDescribeBody,
     PatternUtilLocalValueProbeBody,
 }
@@ -96,7 +95,6 @@ impl GlobalCallProof {
                 Self::GenericStringOrVoidSentinel
             }
             GlobalCallTargetShape::GenericI64Body => Self::GenericI64,
-            GlobalCallTargetShape::ParserProgramJsonBody => Self::ParserProgramJson,
             GlobalCallTargetShape::BoxTypeInspectorDescribeBody => Self::BoxTypeInspectorDescribe,
             GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
                 Self::PatternUtilLocalValueProbe
@@ -148,7 +146,6 @@ impl GlobalCallTargetShape {
             Self::GenericPureStringBody => "generic_pure_string_body",
             Self::GenericStringOrVoidSentinelBody => "generic_string_or_void_sentinel_body",
             Self::GenericI64Body => "generic_i64_body",
-            Self::ParserProgramJsonBody => "parser_program_json_body",
             Self::BoxTypeInspectorDescribeBody => "box_type_inspector_describe_body",
             Self::PatternUtilLocalValueProbeBody => "pattern_util_local_value_probe_body",
         }
@@ -159,9 +156,7 @@ impl GlobalCallTargetShape {
             Self::NumericI64Leaf | Self::GenericI64Body => {
                 Some(GlobalCallReturnContract::ScalarI64)
             }
-            Self::GenericPureStringBody | Self::ParserProgramJsonBody => {
-                Some(GlobalCallReturnContract::StringHandle)
-            }
+            Self::GenericPureStringBody => Some(GlobalCallReturnContract::StringHandle),
             Self::GenericStringOrVoidSentinelBody => {
                 Some(GlobalCallReturnContract::StringHandleOrNull)
             }

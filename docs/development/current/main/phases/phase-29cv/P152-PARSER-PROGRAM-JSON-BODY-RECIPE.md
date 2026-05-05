@@ -36,13 +36,15 @@ BuildBox._parse_program_json(parse_src)
 
 ## Decision
 
-Add one MIR-owned direct target shape:
+Add one MIR-owned direct parser Program(JSON) contract. The original P152
+landing used a temporary target-shape variant; P381BN retired that variant, so
+the current route evidence is proof/return-contract based:
 
 ```text
-parser_program_json_body
 proof=typed_global_call_parser_program_json
 return_shape=string_handle
 value_demand=runtime_i64_or_handle
+target_shape=null
 ```
 
 This recipe accepts only the exact single-block parser authority body:
@@ -72,8 +74,8 @@ The MIR JSON route for the exact body is direct:
 ```text
 BuildBox._parse_program_json_from_scan_src/1 -> BuildBox._parse_program_json/1
   tier=DirectAbi
-  target_shape=parser_program_json_body
   proof=typed_global_call_parser_program_json
+  target_shape=null
 ```
 
 The top pure-first source-execution stop moved past `ParserBox.parse_program2`

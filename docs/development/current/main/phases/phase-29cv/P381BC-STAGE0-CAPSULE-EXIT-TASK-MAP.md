@@ -69,12 +69,12 @@ Retired capsule contracts:
 | `GenericStringVoidLoggingBody` | retired as a shape in P381BJ; direct ABI truth now lives in `proof=typed_global_call_generic_string_void_logging` plus `return_shape=void_sentinel_i64_zero` |
 | `StaticStringArrayBody` | retired as a shape in P381BL; direct ABI truth now lives in `proof=typed_global_call_static_string_array` plus `return_shape=array_handle` |
 | `MirSchemaMapConstructorBody` | retired as a shape in P381BM; direct ABI truth now lives in `proof=typed_global_call_mir_schema_map_constructor` plus `return_shape=map_handle` |
+| `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; dedicated body emission remains a later cleanup |
 
 Current temporary capsules from the Stage0 shape inventory:
 
 | Capsule | Reading |
 | --- | --- |
-| `ParserProgramJsonBody` | candidate only after dedicated parser Program(JSON) body emission is replaced or made uniform |
 | `GenericStringOrVoidSentinelBody` | source-owner cleanup first unless uniform body emission can carry the sentinel contract cleanly |
 | `BoxTypeInspectorDescribeBody` | source-owner scalar predicate cleanup first |
 | `PatternUtilLocalValueProbeBody` | source-owner text/scalar cleanup first |
@@ -144,7 +144,9 @@ the first static-array Rust consumer decoupling landed in
 static-array target-shape retirement landed in
 `docs/development/current/main/phases/phase-29cv/P381BL-STATIC-ARRAY-TARGET-SHAPE-RETIRE.md`;
 MIR-schema map target-shape retirement landed in
-`docs/development/current/main/phases/phase-29cv/P381BM-MIR-SCHEMA-MAP-TARGET-SHAPE-RETIRE.md`.
+`docs/development/current/main/phases/phase-29cv/P381BM-MIR-SCHEMA-MAP-TARGET-SHAPE-RETIRE.md`;
+Parser Program(JSON) target-shape retirement landed in
+`docs/development/current/main/phases/phase-29cv/P381BN-PARSER-PROGRAM-JSON-TARGET-SHAPE-RETIRE.md`.
 
 Acceptance must include:
 
@@ -156,9 +158,10 @@ Acceptance must include:
 
 ### T3: Origin-Carrying Capsule Retirements
 
-Handle origin-carrying capsules one at a time:
+Status: target-shape retirements landed for `MirSchemaMapConstructorBody` and
+`ParserProgramJsonBody`. Parser Program(JSON) still has a dedicated body emitter
+that belongs to T5/uniform-emitter cleanup, not another target-shape variant.
 
-1. `ParserProgramJsonBody`
 
 Do not remove a shape until the origin/return contract is represented without
 teaching Stage0 the source-owner meaning. If that requires a MIR-owned fact, add

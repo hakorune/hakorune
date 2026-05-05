@@ -2,7 +2,7 @@ use super::*;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 
 #[test]
-fn build_mir_json_root_emits_direct_plan_for_parser_program_json_body() {
+fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
     let mut module =
         crate::mir::MirModule::new("json_global_call_parser_program_json_test".to_string());
     let mut caller = make_function("main", true);
@@ -94,7 +94,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_body() {
 
     let root = build_mir_json_root(&module).expect("mir json root");
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
-    assert_eq!(route["target_shape"], "parser_program_json_body");
+    assert_eq!(route["target_shape"], serde_json::Value::Null);
     assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(route["tier"], "DirectAbi");
     assert_eq!(route["emit_kind"], "direct_function_call");
@@ -104,7 +104,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_body() {
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
     assert_eq!(plan["source"], "global_call_routes");
-    assert_eq!(plan["target_shape"], "parser_program_json_body");
+    assert_eq!(plan["target_shape"], serde_json::Value::Null);
     assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(plan["tier"], "DirectAbi");
     assert_eq!(plan["emit_kind"], "direct_function_call");

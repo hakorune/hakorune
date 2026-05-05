@@ -157,8 +157,9 @@ fn classify_global_call_target_shape(
         );
     }
     if is_parser_program_json_body_function(function) {
-        return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::ParserProgramJsonBody,
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::ParserProgramJson,
+            GlobalCallReturnContract::StringHandle,
         );
     }
     if is_program_json_emit_body_function(function) {

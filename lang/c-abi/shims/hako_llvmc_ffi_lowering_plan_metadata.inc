@@ -497,8 +497,6 @@
                !strcmp(view->proof, "typed_global_call_parser_program_json") &&
                view->route_proof &&
                !strcmp(view->route_proof, "typed_global_call_parser_program_json") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "parser_program_json_body") &&
                view->return_shape &&
                !strcmp(view->return_shape, "string_handle") &&
                view->value_demand &&

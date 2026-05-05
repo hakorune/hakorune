@@ -37,7 +37,7 @@ MIR-owned facts instead of shape-specific Stage0 branches.
 | --- | --- | --- | --- | --- | --- |
 | `GenericStringOrVoidSentinelBody` | `typed_global_call_generic_string_or_void_sentinel` / `generic_string_or_void_sentinel_body` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the generic-string direct predicate | planned as a generic module symbol; shares the generic string body path | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
 | `GenericStringVoidLoggingBody` | superseded by P381BJ: `typed_global_call_generic_string_void_logging` / `target_shape=null` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
-| `ParserProgramJsonBody` | `typed_global_call_parser_program_json` / `parser_program_json_body` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol and a parser Program(JSON) symbol; body has a dedicated `emit_parser_program_json_function_definition` path | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
+| `ParserProgramJsonBody` | superseded by P381BN: `typed_global_call_parser_program_json` / `target_shape=null` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol and a parser Program(JSON) symbol; body still has a dedicated `emit_parser_program_json_function_definition` path | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
 | `StaticStringArrayBody` | superseded by P381BL: `typed_global_call_static_string_array` / `target_shape=null` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` through the static-array contract predicate | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
 | `MirSchemaMapConstructorBody` | superseded by P381BM: `typed_global_call_mir_schema_map_constructor` / `target_shape=null` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` through the MIR-schema map contract predicate | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
 | `BoxTypeInspectorDescribeBody` | `typed_global_call_box_type_inspector_describe` / `box_type_inspector_describe_body` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; body remains source-owner shaped and should shrink through scalar predicates first | `global_call_route_plan::tests::box_type_inspector_describe` |
@@ -69,10 +69,13 @@ Completed focused probe:
 - `MirSchemaMapConstructorBody`
   - retired as a target-shape variant in P381BM
   - direct ABI truth now lives in stored proof and `map_handle` return-contract facts
+- `ParserProgramJsonBody`
+  - retired as a target-shape variant in P381BN
+  - direct ABI truth now lives in stored proof and `string_handle` return-contract facts
+  - the dedicated body emitter remains as a later uniform-emitter cleanup item
 
 Not ready for shape-delete-only:
 
-- `ParserProgramJsonBody`: dedicated parser Program(JSON) body emitter remains
 - `GenericStringOrVoidSentinelBody`: sentinel plumbing remains source-owner
   shaped
 - `BoxTypeInspectorDescribeBody`: scalar predicate cleanup should happen first
@@ -102,8 +105,9 @@ Done:
 - T1 inventory is complete
 - the first safe implementation probe, `GenericStringVoidLoggingBody`, is now
   retired as a target-shape variant by P381BJ
-- `StaticStringArrayBody` and `MirSchemaMapConstructorBody` are also retired as
-  target-shape variants after proof/return contracts became the SSOT
+- `StaticStringArrayBody`, `MirSchemaMapConstructorBody`, and
+  `ParserProgramJsonBody` are also retired as target-shape variants after
+  proof/return contracts became the SSOT
 - remaining temporary capsules have explicit blockers before deletion
 
 Next:

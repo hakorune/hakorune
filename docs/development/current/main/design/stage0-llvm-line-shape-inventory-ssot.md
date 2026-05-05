@@ -58,7 +58,6 @@ emission cannot handle the blocker yet.
 | `GenericI64Body` | permanent candidate | scalar/bool/i64 ABI helper classifier | keep narrow to scalar facts; do not add collection or compiler-owner semantics |
 | `GenericPureStringBody` | permanent candidate with shrink target | string-handle ABI helper classifier | keep only string flow; move collection/normalizer/source-owner meaning out |
 | `GenericStringOrVoidSentinelBody` | temporary capsule | string/void sentinel bridge for current source-execution blockers | replace by uniform MIR function emitter or source-owner sentinel cleanup |
-| `ParserProgramJsonBody` | temporary capsule | parser Program(JSON v0) route validator | replace by uniform MIR function emitter or parser/source owner cleanup |
 | `BoxTypeInspectorDescribeBody` | temporary capsule | box-type inspector map-return bridge | replace by source-owner scalar predicates or uniform MIR function emitter |
 | `PatternUtilLocalValueProbeBody` | temporary capsule | pattern util local-value probe bridge | replace by source-owner text/scalar cleanup or uniform MIR function emitter |
 
@@ -79,6 +78,14 @@ variant. MIR still records them as direct ABI targets with
 `proof=typed_global_call_mir_schema_map_constructor` and
 `return_shape=map_handle`; `target_shape` is omitted because the proof/return
 contract is now the SSOT for this retired origin-carrying capsule.
+
+Parser Program(JSON) direct calls are no longer a `GlobalCallTargetShape`
+variant. MIR still records them as direct ABI targets with
+`proof=typed_global_call_parser_program_json` and
+`return_shape=string_handle`; `target_shape` is omitted because the proof/return
+contract is now the SSOT for this retired source-execution capsule. The current
+Stage0 body definition is still a dedicated emitter and must be removed by the
+later uniform multi-function emitter cleanup.
 
 ## Missing Multi-Function Emitter Policy
 
