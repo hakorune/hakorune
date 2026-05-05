@@ -384,6 +384,11 @@ Module-generic restore label prune landed in
 function definition entry no longer carries the stale restore label after the
 pipeline split.
 
+Module-generic function view helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DU-MODULE-GENERIC-FUNCTION-VIEW-HELPER.md`:
+function definition entry now delegates generic pure function view parsing
+through one helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

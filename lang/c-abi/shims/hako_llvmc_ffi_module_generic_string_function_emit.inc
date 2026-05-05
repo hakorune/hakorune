@@ -1886,6 +1886,18 @@
         return 1;
       }
 
+      auto int module_generic_string_read_function_view(
+          yyjson_val* fn,
+          size_t fn_index,
+          hako_llvmc_generic_pure_function_view* out) {
+        return hako_llvmc_read_generic_pure_function_view(
+                   fn,
+                   fn_index,
+                   0,
+                   out) &&
+               out->metadata;
+      }
+
       auto int emit_generic_pure_string_function_definition(
           FILE* f,
           yyjson_val* fn,
@@ -1897,12 +1909,10 @@
         if (!module_generic_string_function_definition_is_eligible(fn, name)) {
           return 0;
         }
-        if (!hako_llvmc_read_generic_pure_function_view(
+        if (!module_generic_string_read_function_view(
                 fn,
                 fn_index,
-                0,
-                &local_function) ||
-            !local_function.metadata) {
+                &local_function)) {
           return -1;
         }
 

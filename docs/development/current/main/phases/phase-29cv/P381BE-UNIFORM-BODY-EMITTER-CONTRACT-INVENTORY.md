@@ -177,6 +177,8 @@ Completed focused probe:
     one definition-entry helper
   - P381DT removed the stale module-generic function restore label after the
     pipeline split
+  - P381DU moved module-generic generic pure function view parsing behind one
+    definition-entry helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
