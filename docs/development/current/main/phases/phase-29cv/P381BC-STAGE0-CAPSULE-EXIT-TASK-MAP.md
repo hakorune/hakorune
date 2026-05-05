@@ -130,7 +130,9 @@ Rust-side downstream return-contract readers landed in
 `docs/development/current/main/phases/phase-29cv/P381BG-GLOBAL-CALL-RETURN-CONTRACT-READERS.md`;
 return-contract storage landed in
 `docs/development/current/main/phases/phase-29cv/P381BH-GLOBAL-CALL-RETURN-CONTRACT-STORAGE.md`;
-proof/shape JSON compatibility and final capsule removal remain separate.
+proof storage landed in
+`docs/development/current/main/phases/phase-29cv/P381BI-GLOBAL-CALL-PROOF-CONTRACT-STORAGE.md`;
+final capsule removal remains separate.
 
 Acceptance must include:
 
