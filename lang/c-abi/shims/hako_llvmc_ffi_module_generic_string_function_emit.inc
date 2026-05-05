@@ -160,6 +160,101 @@
         }
       }
 
+      struct ModuleGenericStringGetRouteView {
+        int is_array_load;
+        int is_module_function_array_item_get;
+        int is_phi_incoming_array_item_get;
+        int publishes_map_get_origin;
+        int is_inst_field_get;
+        int is_function_field_get;
+        int is_module_field_get;
+      };
+
+      auto int module_generic_string_read_get_route_view(
+          const struct LoweringPlanGenericMethodView* method_view,
+          struct ModuleGenericStringGetRouteView* out) {
+        int is_array_get = 0;
+        int is_mir_json_block_inst_array_item_get = 0;
+        int is_mir_json_effects_array_item_get = 0;
+        int is_mir_json_function_block_array_item_get = 0;
+        int is_mir_json_params_array_item_get = 0;
+        int is_mir_json_phi_incoming_pair_scalar_get = 0;
+        int is_mir_json_vid_array_item_get = 0;
+        int is_mir_json_flags_rec_array_get = 0;
+        int is_map_get = 0;
+        int is_mir_json_block_field_get = 0;
+        int is_mir_json_const_value_field_get = 0;
+        int is_mir_json_numeric_value_field_get = 0;
+        int is_mir_json_callee_field_get = 0;
+        int is_mir_json_flags_rec_map_get = 0;
+        if (!out) return 0;
+        out->is_array_load = 0;
+        out->is_module_function_array_item_get = 0;
+        out->is_phi_incoming_array_item_get = 0;
+        out->publishes_map_get_origin = 0;
+        out->is_inst_field_get = 0;
+        out->is_function_field_get = 0;
+        out->is_module_field_get = 0;
+        if (!method_view) return 0;
+        is_array_get = module_generic_string_method_view_is_direct_array_get(method_view);
+        is_mir_json_block_inst_array_item_get =
+            module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(method_view);
+        is_mir_json_effects_array_item_get =
+            module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(method_view);
+        is_mir_json_function_block_array_item_get =
+            module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(method_view);
+        out->is_module_function_array_item_get =
+            module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(method_view);
+        is_mir_json_params_array_item_get =
+            module_generic_string_method_view_is_direct_mir_json_params_array_item_get(method_view);
+        out->is_phi_incoming_array_item_get =
+            module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(method_view);
+        is_mir_json_phi_incoming_pair_scalar_get =
+            module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(method_view);
+        is_mir_json_vid_array_item_get =
+            module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(method_view);
+        is_mir_json_flags_rec_array_get =
+            module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(method_view);
+        is_map_get = module_generic_string_method_view_is_direct_map_get(method_view);
+        is_mir_json_block_field_get =
+            module_generic_string_method_view_is_direct_mir_json_block_field_get(method_view);
+        is_mir_json_const_value_field_get =
+            module_generic_string_method_view_is_direct_mir_json_const_value_field_get(method_view);
+        is_mir_json_numeric_value_field_get =
+            module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(method_view);
+        is_mir_json_callee_field_get =
+            module_generic_string_method_view_is_direct_mir_json_callee_field_get(method_view);
+        out->is_inst_field_get =
+            module_generic_string_method_view_is_direct_mir_json_inst_field_get(method_view);
+        out->is_function_field_get =
+            module_generic_string_method_view_is_direct_mir_json_function_field_get(method_view);
+        out->is_module_field_get =
+            module_generic_string_method_view_is_direct_mir_json_module_field_get(method_view);
+        is_mir_json_flags_rec_map_get =
+            module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(method_view);
+        out->is_array_load = is_array_get ||
+                             is_mir_json_block_inst_array_item_get ||
+                             is_mir_json_effects_array_item_get ||
+                             is_mir_json_function_block_array_item_get ||
+                             out->is_module_function_array_item_get ||
+                             is_mir_json_params_array_item_get ||
+                             out->is_phi_incoming_array_item_get ||
+                             is_mir_json_phi_incoming_pair_scalar_get ||
+                             is_mir_json_vid_array_item_get ||
+                             is_mir_json_flags_rec_array_get;
+        out->publishes_map_get_origin =
+            is_map_get ||
+            is_mir_json_block_field_get ||
+            is_mir_json_const_value_field_get ||
+            is_mir_json_numeric_value_field_get ||
+            is_mir_json_callee_field_get ||
+            out->is_inst_field_get ||
+            out->is_function_field_get ||
+            out->is_module_field_get ||
+            is_mir_json_flags_rec_map_get;
+        return out->is_array_load || out->publishes_map_get_origin;
+      }
+
       auto int module_generic_string_read_arg_reg(
           yyjson_val* args,
           size_t index,
@@ -1028,99 +1123,14 @@
           yyjson_val* args) {
         char ab[256];
         long long key = 0;
-        int is_array_get = 0;
-        int is_mir_json_block_inst_array_item_get = 0;
-        int is_mir_json_effects_array_item_get = 0;
-        int is_mir_json_function_block_array_item_get = 0;
-        int is_mir_json_module_function_array_item_get = 0;
-        int is_mir_json_params_array_item_get = 0;
-        int is_mir_json_phi_incoming_array_item_get = 0;
-        int is_mir_json_phi_incoming_pair_scalar_get = 0;
-        int is_mir_json_vid_array_item_get = 0;
-        int is_mir_json_flags_rec_array_get = 0;
-        int is_map_get = 0;
-        int is_mir_json_block_field_get = 0;
-        int is_mir_json_const_value_field_get = 0;
-        int is_mir_json_numeric_value_field_get = 0;
-        int is_mir_json_callee_field_get = 0;
-        int is_mir_json_inst_field_get = 0;
-        int is_mir_json_function_field_get = 0;
-        int is_mir_json_module_field_get = 0;
-        int is_mir_json_flags_rec_map_get = 0;
-        int is_array_load = 0;
+        struct ModuleGenericStringGetRouteView route;
         const char* helper_symbol = NULL;
         (void)f;
         (void)bid;
         (void)ii;
         ab[0] = '\0';
-        if (method_view) {
-          is_array_get = module_generic_string_method_view_is_direct_array_get(method_view);
-          is_mir_json_block_inst_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(method_view);
-          is_mir_json_effects_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(method_view);
-          is_mir_json_function_block_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(method_view);
-          is_mir_json_module_function_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(method_view);
-          is_mir_json_params_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_params_array_item_get(method_view);
-          is_mir_json_phi_incoming_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(method_view);
-          is_mir_json_phi_incoming_pair_scalar_get =
-              module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(method_view);
-          is_mir_json_vid_array_item_get =
-              module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(method_view);
-          is_mir_json_flags_rec_array_get =
-              module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(method_view);
-          is_map_get = module_generic_string_method_view_is_direct_map_get(method_view);
-          is_mir_json_block_field_get =
-              module_generic_string_method_view_is_direct_mir_json_block_field_get(method_view);
-          is_mir_json_const_value_field_get =
-              module_generic_string_method_view_is_direct_mir_json_const_value_field_get(method_view);
-          is_mir_json_numeric_value_field_get =
-              module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(method_view);
-          is_mir_json_callee_field_get =
-              module_generic_string_method_view_is_direct_mir_json_callee_field_get(method_view);
-          is_mir_json_inst_field_get =
-              module_generic_string_method_view_is_direct_mir_json_inst_field_get(method_view);
-          is_mir_json_function_field_get =
-              module_generic_string_method_view_is_direct_mir_json_function_field_get(method_view);
-          is_mir_json_module_field_get =
-              module_generic_string_method_view_is_direct_mir_json_module_field_get(method_view);
-          is_mir_json_flags_rec_map_get =
-              module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(method_view);
-        }
-        if (!(is_array_get ||
-              is_mir_json_block_inst_array_item_get ||
-              is_mir_json_effects_array_item_get ||
-              is_mir_json_function_block_array_item_get ||
-              is_mir_json_module_function_array_item_get ||
-              is_mir_json_params_array_item_get ||
-              is_mir_json_phi_incoming_array_item_get ||
-              is_mir_json_phi_incoming_pair_scalar_get ||
-              is_mir_json_vid_array_item_get ||
-              is_mir_json_flags_rec_array_get ||
-              is_map_get ||
-              is_mir_json_block_field_get ||
-              is_mir_json_const_value_field_get ||
-              is_mir_json_numeric_value_field_get ||
-              is_mir_json_callee_field_get ||
-              is_mir_json_inst_field_get ||
-              is_mir_json_function_field_get ||
-              is_mir_json_module_field_get ||
-              is_mir_json_flags_rec_map_get)) return 0;
-        is_array_load = is_array_get ||
-                        is_mir_json_block_inst_array_item_get ||
-                        is_mir_json_effects_array_item_get ||
-                        is_mir_json_function_block_array_item_get ||
-                        is_mir_json_module_function_array_item_get ||
-                        is_mir_json_params_array_item_get ||
-                        is_mir_json_phi_incoming_array_item_get ||
-                        is_mir_json_phi_incoming_pair_scalar_get ||
-                        is_mir_json_vid_array_item_get ||
-                        is_mir_json_flags_rec_array_get;
-        helper_symbol = is_array_load
+        if (!module_generic_string_read_get_route_view(method_view, &route)) return 0;
+        helper_symbol = route.is_array_load
                             ? "nyash.array.slot_load_hi"
                             : "nyash.runtime_data.get_hh";
         if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
@@ -1129,32 +1139,24 @@
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
         module_generic_string_emit_i64_call(dst, helper_symbol, ab);
         if (dst) {
-          if (is_mir_json_module_function_array_item_get) {
+          if (route.is_module_function_array_item_get) {
             module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
           }
-          if (is_mir_json_phi_incoming_array_item_get) {
+          if (route.is_phi_incoming_array_item_get) {
             module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
           }
-          if (is_map_get ||
-              is_mir_json_block_field_get ||
-              is_mir_json_const_value_field_get ||
-              is_mir_json_numeric_value_field_get ||
-              is_mir_json_callee_field_get ||
-              is_mir_json_inst_field_get ||
-              is_mir_json_function_field_get ||
-              is_mir_json_module_field_get ||
-              is_mir_json_flags_rec_map_get) {
+          if (route.publishes_map_get_origin) {
             set_origin(dst, ORG_MAP_GET);
           }
-          if (is_mir_json_inst_field_get) {
+          if (route.is_inst_field_get) {
             module_generic_string_publish_inst_field_origin(
                 dst, method_view, 0);
           }
-          if (is_mir_json_function_field_get) {
+          if (route.is_function_field_get) {
             module_generic_string_publish_function_field_origin(
                 dst, method_view);
           }
-          if (is_mir_json_module_field_get) {
+          if (route.is_module_field_get) {
             module_generic_string_publish_module_field_origin(
                 dst, method_view);
           }

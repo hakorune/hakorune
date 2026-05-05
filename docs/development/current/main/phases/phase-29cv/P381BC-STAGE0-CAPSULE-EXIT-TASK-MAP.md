@@ -279,6 +279,11 @@ Module-generic MIR JSON key origin cleanup landed in
 inst/function/module field-key origin publication now shares one helper surface
 between prepass and the actual `get` emitter.
 
+Module-generic get route view cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381CY-MODULE-GENERIC-GET-ROUTE-VIEW.md`:
+the actual `get` emitter now consumes one route view for acceptance, helper
+selection, and result-origin follow-up.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`
