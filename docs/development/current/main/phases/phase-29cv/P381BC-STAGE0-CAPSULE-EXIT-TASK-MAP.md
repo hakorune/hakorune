@@ -274,6 +274,11 @@ Module-generic i64 origin publish cleanup landed in
 i64 type plus origin publication now has one helper, leaving scalar-only and
 origin-only updates visible.
 
+Module-generic MIR JSON key origin cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381CX-MODULE-GENERIC-MIR-JSON-KEY-ORIGIN-HELPERS.md`:
+inst/function/module field-key origin publication now shares one helper surface
+between prepass and the actual `get` emitter.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

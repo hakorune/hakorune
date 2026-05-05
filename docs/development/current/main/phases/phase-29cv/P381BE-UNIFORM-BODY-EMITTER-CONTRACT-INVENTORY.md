@@ -131,6 +131,8 @@ Completed focused probe:
     module-generic emitter while leaving origin-only updates explicit
   - P381CW centralized paired i64 type plus origin publication in the
     module-generic emitter while leaving scalar-only cases explicit
+  - P381CX centralized MIR JSON field-key origin publication in the
+    module-generic emitter while keeping route acceptance unchanged
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

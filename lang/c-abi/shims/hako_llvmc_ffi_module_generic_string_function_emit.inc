@@ -107,6 +107,59 @@
 
       #include "hako_llvmc_ffi_module_generic_string_method_views.inc"
 
+      auto const char* module_generic_string_method_view_key_const_text(
+          const struct LoweringPlanGenericMethodView* method_view) {
+        return method_view && method_view->entry
+                   ? read_str(method_view->entry, "key_const_text")
+                   : NULL;
+      }
+
+      auto void module_generic_string_publish_inst_field_origin(
+          long long dst,
+          const struct LoweringPlanGenericMethodView* method_view,
+          int publish_map_get_fallback) {
+        const char* key =
+            module_generic_string_method_view_key_const_text(method_view);
+        if (key &&
+            (!strcmp(key, "op") ||
+             !strcmp(key, "operation") ||
+             !strcmp(key, "op_kind") ||
+             !strcmp(key, "cmp") ||
+             !strcmp(key, "value"))) {
+          module_generic_string_publish_origin(dst, ORG_STRING);
+        } else if (key && (!strcmp(key, "args") || !strcmp(key, "effects"))) {
+          module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+        } else if (publish_map_get_fallback) {
+          set_origin(dst, ORG_MAP_GET);
+        }
+      }
+
+      auto void module_generic_string_publish_function_field_origin(
+          long long dst,
+          const struct LoweringPlanGenericMethodView* method_view) {
+        const char* key =
+            module_generic_string_method_view_key_const_text(method_view);
+        if (key && !strcmp(key, "name")) {
+          module_generic_string_publish_origin(dst, ORG_STRING);
+        } else if (key && (!strcmp(key, "params") || !strcmp(key, "blocks"))) {
+          module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+        } else if (key && !strcmp(key, "flags")) {
+          module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
+        }
+      }
+
+      auto void module_generic_string_publish_module_field_origin(
+          long long dst,
+          const struct LoweringPlanGenericMethodView* method_view) {
+        const char* key =
+            module_generic_string_method_view_key_const_text(method_view);
+        if (key && !strcmp(key, "functions")) {
+          module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+        } else if (key && !strcmp(key, "functions_0")) {
+          module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
+        }
+      }
+
       auto int module_generic_string_read_arg_reg(
           yyjson_val* args,
           size_t index,
@@ -535,40 +588,19 @@
                 set_origin(dst, ORG_MAP_GET);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_inst_field_get(&method_view)) {
-                const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
                 set_type(dst, T_I64);
-                if (key &&
-                    (!strcmp(key, "op") ||
-                     !strcmp(key, "operation") ||
-                     !strcmp(key, "op_kind") ||
-                     !strcmp(key, "cmp") ||
-                     !strcmp(key, "value"))) {
-                  module_generic_string_publish_origin(dst, ORG_STRING);
-                } else if (key && (!strcmp(key, "args") || !strcmp(key, "effects"))) {
-                  module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
-                } else {
-                  set_origin(dst, ORG_MAP_GET);
-                }
+                module_generic_string_publish_inst_field_origin(
+                    dst, &method_view, 1);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_function_field_get(&method_view)) {
-                const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
                 set_type(dst, T_I64);
-                if (key && !strcmp(key, "name")) {
-                  module_generic_string_publish_origin(dst, ORG_STRING);
-                } else if (key && (!strcmp(key, "params") || !strcmp(key, "blocks"))) {
-                  module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
-                } else if (key && !strcmp(key, "flags")) {
-                  module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
-                }
+                module_generic_string_publish_function_field_origin(
+                    dst, &method_view);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_module_field_get(&method_view)) {
-                const char* key = method_view.entry ? read_str(method_view.entry, "key_const_text") : NULL;
                 set_type(dst, T_I64);
-                if (key && !strcmp(key, "functions")) {
-                  module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
-                } else if (key && !strcmp(key, "functions_0")) {
-                  module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
-                }
+                module_generic_string_publish_module_field_origin(
+                    dst, &method_view);
               } else if (has_method_view &&
                          module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(&method_view)) {
                 set_type(dst, T_I64);
@@ -1115,35 +1147,16 @@
             set_origin(dst, ORG_MAP_GET);
           }
           if (is_mir_json_inst_field_get) {
-            const char* key = method_view && method_view->entry ? read_str(method_view->entry, "key_const_text") : NULL;
-            if (key &&
-                (!strcmp(key, "op") ||
-                 !strcmp(key, "operation") ||
-                 !strcmp(key, "op_kind") ||
-                 !strcmp(key, "cmp") ||
-                 !strcmp(key, "value"))) {
-              module_generic_string_publish_origin(dst, ORG_STRING);
-            } else if (key && (!strcmp(key, "args") || !strcmp(key, "effects"))) {
-              module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
-            }
+            module_generic_string_publish_inst_field_origin(
+                dst, method_view, 0);
           }
           if (is_mir_json_function_field_get) {
-            const char* key = method_view && method_view->entry ? read_str(method_view->entry, "key_const_text") : NULL;
-            if (key && !strcmp(key, "name")) {
-              module_generic_string_publish_origin(dst, ORG_STRING);
-            } else if (key && (!strcmp(key, "params") || !strcmp(key, "blocks"))) {
-              module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
-            } else if (key && !strcmp(key, "flags")) {
-              module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
-            }
+            module_generic_string_publish_function_field_origin(
+                dst, method_view);
           }
           if (is_mir_json_module_field_get) {
-            const char* key = method_view && method_view->entry ? read_str(method_view->entry, "key_const_text") : NULL;
-            if (key && !strcmp(key, "functions")) {
-              module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
-            } else if (key && !strcmp(key, "functions_0")) {
-              module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
-            }
+            module_generic_string_publish_module_field_origin(
+                dst, method_view);
           }
         }
         return 1;
