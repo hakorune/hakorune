@@ -250,9 +250,11 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_block_field_get(
-          const struct LoweringPlanGenericMethodView* view) {
-        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+      auto int module_generic_string_method_view_is_direct_mir_json_map_get_with(
+          const struct LoweringPlanGenericMethodView* view,
+          const char* route_proof,
+          const char* return_shape,
+          const char* value_demand) {
         return view &&
                view->route_id &&
                !strcmp(view->route_id, "generic_method.get") &&
@@ -263,123 +265,81 @@
                view->symbol &&
                !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
                view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_block_field") &&
+               route_proof &&
+               !strcmp(view->route_proof, route_proof) &&
                !view->receiver_origin_box &&
                view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
+               return_shape &&
+               !strcmp(view->return_shape, return_shape) &&
                view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
+               value_demand &&
+               !strcmp(view->value_demand, value_demand) &&
                view->publication_policy &&
                !strcmp(view->publication_policy, "no_publication") &&
-               key &&
-               (!strcmp(key, "id") || !strcmp(key, "instructions")) &&
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+      }
+
+      auto int module_generic_string_method_view_is_direct_mir_json_block_field_get(
+          const struct LoweringPlanGenericMethodView* view) {
+        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+                   view,
+                   "mir_json_block_field",
+                   "mixed_runtime_i64_or_handle",
+                   "runtime_i64_or_handle") &&
+               key &&
+               (!strcmp(key, "id") || !strcmp(key, "instructions"));
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_const_value_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "runtime_data_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_const_value_field") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
+        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+                   view,
+                   "mir_json_const_value_field",
+                   "mixed_runtime_i64_or_handle",
+                   "runtime_i64_or_handle") &&
                key &&
-               (!strcmp(key, "type") || !strcmp(key, "value")) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+               (!strcmp(key, "type") || !strcmp(key, "value"));
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "runtime_data_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_numeric_value_field") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "scalar_i64_or_missing_zero") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "scalar_i64") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
+        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+                   view,
+                   "mir_json_numeric_value_field",
+                   "scalar_i64_or_missing_zero",
+                   "scalar_i64") &&
                key &&
-               !strcmp(key, "value") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+               !strcmp(key, "value");
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_callee_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "runtime_data_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_callee_field") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
+        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+                   view,
+                   "mir_json_callee_field",
+                   "mixed_runtime_i64_or_handle",
+                   "runtime_i64_or_handle") &&
                key &&
                (!strcmp(key, "type") ||
                 !strcmp(key, "name") ||
                 !strcmp(key, "box_name") ||
                 !strcmp(key, "method") ||
                 !strcmp(key, "receiver") ||
-                !strcmp(key, "box_type")) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+                !strcmp(key, "box_type"));
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_inst_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "runtime_data_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_inst_field") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
+        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+                   view,
+                   "mir_json_inst_field",
+                   "mixed_runtime_i64_or_handle",
+                   "runtime_i64_or_handle") &&
                key &&
                (!strcmp(key, "op") ||
                 !strcmp(key, "operation") ||
@@ -400,86 +360,43 @@
                 !strcmp(key, "mir_call") ||
                 !strcmp(key, "callee") ||
                 !strcmp(key, "func") ||
-                !strcmp(key, "name")) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+                !strcmp(key, "name"));
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_function_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "runtime_data_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_function_field") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
+        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+                   view,
+                   "mir_json_function_field",
+                   "mixed_runtime_i64_or_handle",
+                   "runtime_i64_or_handle") &&
                key &&
                (!strcmp(key, "name") ||
                 !strcmp(key, "params") ||
                 !strcmp(key, "flags") ||
-                !strcmp(key, "blocks")) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+                !strcmp(key, "blocks"));
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_module_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "runtime_data_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_module_field") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
+        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+                   view,
+                   "mir_json_module_field",
+                   "mixed_runtime_i64_or_handle",
+                   "runtime_i64_or_handle") &&
                key &&
-               (!strcmp(key, "functions") || !strcmp(key, "functions_0")) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+               (!strcmp(key, "functions") || !strcmp(key, "functions_0"));
       }
 
       auto int module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "generic_method.get") &&
-               view->core_op &&
-               !strcmp(view->core_op, "MapGet") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "runtime_data_load_any") &&
-               view->symbol &&
-               !strcmp(view->symbol, "nyash.runtime_data.get_hh") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "mir_json_flags_rec_access") &&
-               !view->receiver_origin_box &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "mixed_runtime_i64_or_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle") &&
-               view->publication_policy &&
-               !strcmp(view->publication_policy, "no_publication") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+            view,
+            "mir_json_flags_rec_access",
+            "mixed_runtime_i64_or_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int module_generic_string_method_view_is_direct_map_set(

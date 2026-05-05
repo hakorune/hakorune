@@ -109,6 +109,8 @@ Completed focused probe:
     `definition_owner`, deleting the leaf/generic-i64 C proof/shape predicates
   - P381CL centralized the repeated MIR JSON array-item generic-method view
     predicates behind a shared module-generic helper
+  - P381CM centralized the repeated MIR JSON map-field generic-method view
+    predicates behind a shared module-generic helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 
