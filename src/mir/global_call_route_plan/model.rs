@@ -182,6 +182,7 @@ impl GlobalCallTargetShapeReason {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct GlobalCallTargetClassification {
     pub(super) shape: GlobalCallTargetShape,
+    pub(super) return_contract: Option<GlobalCallReturnContract>,
     pub(super) reason: Option<GlobalCallTargetShapeReason>,
     pub(super) blocker: Option<GlobalCallShapeBlocker>,
 }
@@ -196,6 +197,7 @@ impl GlobalCallTargetClassification {
     pub(super) fn direct(shape: GlobalCallTargetShape) -> Self {
         Self {
             shape,
+            return_contract: shape.return_contract(),
             reason: None,
             blocker: None,
         }
@@ -204,6 +206,7 @@ impl GlobalCallTargetClassification {
     pub(super) fn unknown(reason: GlobalCallTargetShapeReason) -> Self {
         Self {
             shape: GlobalCallTargetShape::Unknown,
+            return_contract: None,
             reason: Some(reason),
             blocker: None,
         }
@@ -216,6 +219,7 @@ impl GlobalCallTargetClassification {
     ) -> Self {
         Self {
             shape: GlobalCallTargetShape::Unknown,
+            return_contract: None,
             reason: Some(reason),
             blocker: Some(GlobalCallShapeBlocker {
                 symbol: symbol.into(),
@@ -232,6 +236,7 @@ pub struct GlobalCallTargetFacts {
     arity: Option<usize>,
     return_type: Option<MirType>,
     shape: GlobalCallTargetShape,
+    return_contract: Option<GlobalCallReturnContract>,
     shape_reason: Option<GlobalCallTargetShapeReason>,
     pub(super) shape_blocker: Option<GlobalCallShapeBlocker>,
 }
@@ -252,6 +257,7 @@ impl GlobalCallTargetFacts {
             arity: Some(arity),
             return_type: Some(return_type),
             shape: GlobalCallTargetShape::Unknown,
+            return_contract: None,
             shape_reason: None,
             shape_blocker: None,
         }
@@ -265,6 +271,7 @@ impl GlobalCallTargetFacts {
             arity: Some(arity),
             return_type: None,
             shape,
+            return_contract: shape.return_contract(),
             shape_reason: None,
             shape_blocker: None,
         }
@@ -291,7 +298,7 @@ impl GlobalCallTargetFacts {
     }
 
     pub(super) fn return_contract(&self) -> Option<GlobalCallReturnContract> {
-        self.shape.return_contract()
+        self.return_contract
     }
 
     pub(super) fn shape_reason(&self) -> Option<GlobalCallTargetShapeReason> {
@@ -315,6 +322,7 @@ impl GlobalCallTargetFacts {
         classification: GlobalCallTargetClassification,
     ) -> Self {
         self.shape = classification.shape;
+        self.return_contract = classification.return_contract;
         self.shape_reason = classification.reason;
         self.shape_blocker = classification.blocker;
         self
