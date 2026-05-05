@@ -208,28 +208,10 @@
         return proof && !strcmp(proof, "typed_global_call_parser_program_json");
       }
 
-      auto int lowering_plan_entry_is_typed_global_call_program_json_emit(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_program_json_emit");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_jsonfrag_instruction_array_normalizer(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_jsonfrag_instruction_array_normalizer");
-      }
-
       auto int lowering_plan_entry_is_typed_global_call_static_string_array(
           yyjson_val* entry) {
         const char* proof = read_str(entry, "proof");
         return proof && !strcmp(proof, "typed_global_call_static_string_array");
-      }
-
-      auto int lowering_plan_entry_is_typed_global_call_builder_registry_dispatch(
-          yyjson_val* entry) {
-        const char* proof = read_str(entry, "proof");
-        return proof && !strcmp(proof, "typed_global_call_builder_registry_dispatch");
       }
 
       auto int lowering_plan_entry_is_typed_global_call_mir_schema_map_constructor(
@@ -259,10 +241,7 @@
                lowering_plan_entry_is_typed_global_call_generic_string_void_logging(entry) ||
                lowering_plan_entry_is_typed_global_call_generic_i64(entry) ||
                lowering_plan_entry_is_typed_global_call_parser_program_json(entry) ||
-               lowering_plan_entry_is_typed_global_call_program_json_emit(entry) ||
-               lowering_plan_entry_is_typed_global_call_jsonfrag_instruction_array_normalizer(entry) ||
                lowering_plan_entry_is_typed_global_call_static_string_array(entry) ||
-               lowering_plan_entry_is_typed_global_call_builder_registry_dispatch(entry) ||
                lowering_plan_entry_is_typed_global_call_mir_schema_map_constructor(entry) ||
                lowering_plan_entry_is_typed_global_call_box_type_inspector_describe(entry) ||
                lowering_plan_entry_is_typed_global_call_pattern_util_local_value_probe(entry);
@@ -416,16 +395,13 @@
                 !strcmp(view->proof, "typed_global_call_leaf_numeric_i64") ||
                 !strcmp(view->proof, "typed_global_call_generic_pure_string") ||
                 !strcmp(view->proof, "typed_global_call_generic_string_or_void_sentinel") ||
-                !strcmp(view->proof, "typed_global_call_generic_string_void_logging") ||
-                !strcmp(view->proof, "typed_global_call_parser_program_json") ||
-                !strcmp(view->proof, "typed_global_call_program_json_emit") ||
-                !strcmp(view->proof, "typed_global_call_jsonfrag_instruction_array_normalizer") ||
-                !strcmp(view->proof, "typed_global_call_static_string_array") ||
-                !strcmp(view->proof, "typed_global_call_builder_registry_dispatch") ||
-                !strcmp(view->proof, "typed_global_call_mir_schema_map_constructor") ||
-                !strcmp(view->proof, "typed_global_call_box_type_inspector_describe") ||
-                !strcmp(view->proof, "typed_global_call_pattern_util_local_value_probe") ||
-                !strcmp(view->proof, "typed_global_call_generic_i64")) &&
+                 !strcmp(view->proof, "typed_global_call_generic_string_void_logging") ||
+                 !strcmp(view->proof, "typed_global_call_parser_program_json") ||
+                 !strcmp(view->proof, "typed_global_call_static_string_array") ||
+                 !strcmp(view->proof, "typed_global_call_mir_schema_map_constructor") ||
+                 !strcmp(view->proof, "typed_global_call_box_type_inspector_describe") ||
+                 !strcmp(view->proof, "typed_global_call_pattern_util_local_value_probe") ||
+                 !strcmp(view->proof, "typed_global_call_generic_i64")) &&
                view->target_exists &&
                view->has_target_arity &&
                view->has_arity_matches &&
@@ -481,36 +457,12 @@
         return 0;
       }
 
-      auto int lowering_plan_global_call_view_is_direct_builder_registry_dispatch(
+      auto int lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
                view->emit_kind &&
                !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_builder_registry_dispatch") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_builder_registry_dispatch") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "builder_registry_dispatch_body") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle_or_null") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
-      }
-
-      auto int lowering_plan_global_call_view_is_direct_generic_string_void_logging(
-          const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_generic_string_void_logging") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_generic_string_void_logging") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "generic_string_void_logging_body") &&
                view->return_shape &&
                !strcmp(view->return_shape, "void_sentinel_i64_zero") &&
                view->value_demand &&
@@ -547,42 +499,6 @@
                !strcmp(view->route_proof, "typed_global_call_parser_program_json") &&
                view->target_shape &&
                !strcmp(view->target_shape, "parser_program_json_body") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
-      }
-
-      auto int lowering_plan_global_call_view_is_direct_program_json_emit(
-          const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_program_json_emit") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_program_json_emit") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "program_json_emit_body") &&
-               view->return_shape &&
-               !strcmp(view->return_shape, "string_handle") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64_or_handle");
-      }
-
-      auto int lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(
-          const struct LoweringPlanGlobalCallView* view) {
-        return lowering_plan_global_call_view_has_direct_target(view) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "direct_function_call") &&
-               view->proof &&
-               !strcmp(view->proof, "typed_global_call_jsonfrag_instruction_array_normalizer") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "typed_global_call_jsonfrag_instruction_array_normalizer") &&
-               view->target_shape &&
-               !strcmp(view->target_shape, "jsonfrag_instruction_array_normalizer_body") &&
                view->return_shape &&
                !strcmp(view->return_shape, "string_handle") &&
                view->value_demand &&

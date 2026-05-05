@@ -9,7 +9,7 @@ use super::concat::{
 };
 use super::materialize::string_handle_from_owned;
 use super::{
-    string_len_from_handle, string_substring_hii_export_impl,
+    string_len_fast_export_impl, string_len_from_handle, string_substring_hii_export_impl,
     string_substring_publish_explicit_api_view_hii_export_impl,
 };
 use crate::plugin::{
@@ -98,6 +98,15 @@ fn string_handle_from_owned_seeds_len_cache() {
 
     assert_eq!(string_len_fast_cache_lookup(handle), Some(4));
     assert_eq!(string_len_from_handle(handle), Some(4));
+}
+
+#[test]
+fn string_len_fast_export_reads_string_without_seeding_len_cache() {
+    let handle = handles::to_handle_arc(Arc::new(StringBox::new("abcd".to_string()))) as i64;
+
+    assert_eq!(string_len_fast_cache_lookup(handle), None);
+    assert_eq!(string_len_fast_export_impl(handle), 4);
+    assert_eq!(string_len_fast_cache_lookup(handle), None);
 }
 
 #[test]

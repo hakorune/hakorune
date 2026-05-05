@@ -84,6 +84,10 @@ fn records_direct_len_family_core_method_routes() {
     assert_eq!(string_route.method(), "len");
     assert_eq!(string_route.receiver_origin_box(), Some("StringBox"));
     assert_eq!(string_route.route_kind(), GenericMethodRouteKind::StringLen);
+    assert_eq!(
+        string_route.route_kind().helper_symbol(),
+        "nyash.string.len_fast_h"
+    );
     let string_core = string_route.core_method().expect("StringLen carrier");
     assert_eq!(string_core.op, CoreMethodOp::StringLen);
 }
@@ -118,6 +122,10 @@ fn records_stringbox_length_self_arg_route() {
     assert_eq!(route.arity(), 1);
     assert_eq!(route.receiver_origin_box(), Some("StringBox"));
     assert_eq!(route.route_kind(), GenericMethodRouteKind::StringLen);
+    assert_eq!(
+        route.route_kind().helper_symbol(),
+        "nyash.string.len_fast_h"
+    );
     let core_method = route.core_method().expect("StringLen carrier");
     assert_eq!(core_method.op, CoreMethodOp::StringLen);
 }
@@ -251,6 +259,10 @@ fn records_runtime_data_string_len_from_generic_global_call_origin() {
     assert_eq!(route.method(), "length");
     assert_eq!(route.receiver_origin_box(), Some("StringBox"));
     assert_eq!(route.route_kind(), GenericMethodRouteKind::StringLen);
+    assert_eq!(
+        route.route_kind().helper_symbol(),
+        "nyash.string.len_fast_h"
+    );
     let core_method = route.core_method().expect("StringLen carrier");
     assert_eq!(core_method.op, CoreMethodOp::StringLen);
     assert_eq!(

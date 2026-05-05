@@ -57,7 +57,7 @@ Required fields:
 | `source_route_id` | original source route id, for example `generic_method.get` |
 | `core_op` | resolved semantic op, for example `MapGet` |
 | `tier` | `HotInline`, `DirectAbi`, `ColdRuntime`, or `Unsupported` |
-| `emit_kind` | `inline_ir`, `direct_abi_call`, `runtime_call`, or `unsupported` |
+| `emit_kind` | `inline_ir`, `direct_abi_call`, `direct_function_call`, `runtime_call`, or `unsupported` |
 | `symbol` | ABI/helper symbol for call-based entries, or `null` |
 | `proof` | semantic proof, initially `core_method_contract_manifest` |
 | `route_proof` | source route proof, for example `get_surface_policy` |
@@ -116,8 +116,12 @@ v0 bridges existing CoreMethodContract vocabulary into backend-facing tiers:
 | --- | --- | --- |
 | `warm_direct_abi` | `DirectAbi` | direct helper ABI call is explicit and accepted |
 | `cold_fallback` | `ColdRuntime` | runtime ABI call is explicit and not perf proof |
-| future hot proof | `HotInline` | inline IR with keeper proof |
+| `hot_inline` / future hot proof | `HotInline` | inline IR with keeper proof |
 | no plan | absent / `Unsupported` | plan builder owns diagnosis |
+
+The MIR carrier vocabulary should mirror these tiers directly even when a source
+manifest has not started emitting every row yet. That keeps JSON emission
+typed and prevents per-emitter string reconstruction.
 
 ## Migration Rule
 

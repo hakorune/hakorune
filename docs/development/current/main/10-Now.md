@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv Program(JSON v0) keeper buckets pending`
+- current blocker token: `remaining capsule retirements need owner cleanup or uniform emitter`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -30,8 +30,9 @@ Related:
 - cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   closed history lives in phase card files
 - normal `selfhost_build.sh --exe` is direct source MIR; raw Program(JSON)
-  compat emit syntax is helper-owned and the next work is retiring or archiving
-  each remaining keeper lane
+  compat emit syntax is helper-owned and the easy public capsule-collapse wins
+  are done, so the next work is owner cleanup or the uniform MIR emitter for
+  the remaining blocked keepers
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work

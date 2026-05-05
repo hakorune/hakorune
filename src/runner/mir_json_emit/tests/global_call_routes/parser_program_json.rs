@@ -223,22 +223,22 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
 
     let root = build_mir_json_root(&module).expect("mir json root");
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
-    assert_eq!(route["target_shape"], "program_json_emit_body");
+    assert_eq!(route["target_shape"], "generic_pure_string_body");
     assert_eq!(route["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(route["tier"], "DirectAbi");
     assert_eq!(route["emit_kind"], "direct_function_call");
-    assert_eq!(route["proof"], "typed_global_call_program_json_emit");
+    assert_eq!(route["proof"], "typed_global_call_generic_pure_string");
     assert_eq!(route["return_shape"], "string_handle");
     assert_eq!(route["value_demand"], "runtime_i64_or_handle");
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
     assert_eq!(plan["source"], "global_call_routes");
-    assert_eq!(plan["target_shape"], "program_json_emit_body");
+    assert_eq!(plan["target_shape"], "generic_pure_string_body");
     assert_eq!(plan["target_shape_reason"], serde_json::Value::Null);
     assert_eq!(plan["tier"], "DirectAbi");
     assert_eq!(plan["emit_kind"], "direct_function_call");
-    assert_eq!(plan["proof"], "typed_global_call_program_json_emit");
-    assert_eq!(plan["route_proof"], "typed_global_call_program_json_emit");
+    assert_eq!(plan["proof"], "typed_global_call_generic_pure_string");
+    assert_eq!(plan["route_proof"], "typed_global_call_generic_pure_string");
     assert_eq!(plan["return_shape"], "string_handle");
     assert_eq!(plan["value_demand"], "runtime_i64_or_handle");
 }

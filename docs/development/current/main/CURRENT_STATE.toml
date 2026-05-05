@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-05"
 
 active_lane = "phase-29cv Program(JSON v0) keeper closeout"
-active_lane_status = "Post-P53 cleanup: normal selfhost --exe is direct source MIR, active roundtrip smoke uses the current exit-code contract, stale root manual wrappers are archived, and root helper protected-category/delete lifecycle policy plus ROOT_SURFACE manifest are documented."
+active_lane_status = "Post-P53 cleanup remains intact, and the public-collapse pass for temporary global-call capsules is now exhausted: remaining capsules require source-owner cleanup or the uniform MIR emitter instead of another shape collapse."
 active_phase = "docs/development/current/main/phases/phase-29cv/README.md"
 phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON-V0-COMPAT-CAPSULE-SSOT.md"
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381AR-INC-BOUNDARY-TRUTH-AND-RUNTIME-DECL-ATTR-AUDIT"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381AR-INC-BOUNDARY-TRUTH-AND-RUNTIME-DECL-ATTR-AUDIT.md"
-latest_card_summary = "The next keeper bucket is now fixed as thin backend boundary truth: `.inc` stays plan-reader/emitter only, and the first runtime-decl audit concludes `nyash.string.len_h` must remain `nounwind` + `readwrite` because dispatch/cache/observe/tracing still mutate state."
+latest_card = "P381BF-VOID-LOGGING-DIRECT-CONTRACT-SHRINK"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381BF-VOID-LOGGING-DIRECT-CONTRACT-SHRINK.md"
+latest_card_summary = "The first void-logging capsule slice shrinks C-side direct-call/planner/prepass consumers to the `void_sentinel_i64_zero` + `scalar_i64` contract; Rust classification and final `GenericStringVoidLoggingBody` removal remain separate."
 
-current_blocker_token = "phase-29cv Program(JSON v0) keeper buckets pending"
+current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

@@ -47,10 +47,7 @@
         if (!(source && !strcmp(source, "global_call_routes"))) return;
         if (!read_lowering_plan_global_call_view(entry, &view)) return;
         if (lowering_plan_global_call_view_is_direct_generic_string(&view) ||
-            lowering_plan_global_call_view_is_direct_builder_registry_dispatch(&view) ||
-            lowering_plan_global_call_view_is_direct_parser_program_json(&view) ||
-            lowering_plan_global_call_view_is_direct_program_json_emit(&view) ||
-            lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(&view)) {
+            lowering_plan_global_call_view_is_direct_parser_program_json(&view)) {
           set_scan_origin(dst, ORG_STRING);
           set_origin(dst, ORG_STRING);
           return;

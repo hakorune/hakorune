@@ -581,25 +581,10 @@
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
-                         lowering_plan_global_call_view_is_direct_builder_registry_dispatch(&global_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
-              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
-                         lowering_plan_global_call_view_is_direct_generic_string_void_logging(&global_view)) {
+                         lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(&global_view)) {
                 set_type(dst, T_I64);
               } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
                          lowering_plan_global_call_view_is_direct_parser_program_json(&global_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
-              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
-                         lowering_plan_global_call_view_is_direct_program_json_emit(&global_view)) {
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_STRING);
-                set_scan_origin(dst, ORG_STRING);
-              } else if (read_lowering_plan_global_call_view(entry, &global_view) &&
-                         lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(&global_view)) {
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
@@ -948,14 +933,14 @@
           EMIT(
               "  %%r%lld = call i64 @\"%s\"(%s)\n",
               dst,
-              is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_h",
+              is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_fast_h",
               ab);
           set_type(dst, T_I64);
           if (is_string_len) remember_string_length_call(dst, recv);
         } else {
           EMIT(
               "  call i64 @\"%s\"(%s)\n",
-              is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_h",
+              is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_fast_h",
               ab);
         }
         return 1;
@@ -994,7 +979,7 @@
         } else {
           size_t used = strlen(ab);
           append_i64_arg_ref(recv_ab, sizeof(recv_ab), recv, 1);
-          EMIT("  %%substr_end_%lld_%zu = call i64 @\"nyash.string.len_h\"(%s)\n", bid, ii, recv_ab);
+          EMIT("  %%substr_end_%lld_%zu = call i64 @\"nyash.string.len_fast_h\"(%s)\n", bid, ii, recv_ab);
           if (used >= sizeof(ab)) return 0;
           snprintf(
               ab + used,
@@ -1391,7 +1376,7 @@
           append_i64_arg_ref(recv_ab, sizeof(recv_ab), recv, 1);
           append_i64_arg_ref(sub_ab, sizeof(sub_ab), recv, 1);
           append_i64_arg_ref(sub_ab, sizeof(sub_ab), start, 0);
-          EMIT("  %%indexof_len_%lld_%zu = call i64 @\"nyash.string.len_h\"(%s)\n",
+          EMIT("  %%indexof_len_%lld_%zu = call i64 @\"nyash.string.len_fast_h\"(%s)\n",
                bid,
                ii,
                recv_ab);
@@ -1865,10 +1850,14 @@
 
       auto int emit_module_function_generic_string_definitions(FILE* f) {
         int emitted = 0;
-        for (size_t i = 0; i < program.function_count; i++) {
-          yyjson_val* fn = yyjson_arr_get(program.functions, i);
+        for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
+          const char* name = planned_module_generic_string_symbols[i];
+          size_t fn_index = 0;
+          yyjson_val* fn = NULL;
+          if (!module_generic_string_find_function_index(name, &fn_index)) continue;
+          fn = yyjson_arr_get(program.functions, fn_index);
           if (!fn || fn == program.entry.fn) continue;
-          int rc = emit_generic_pure_string_function_definition(f, fn, i);
+          int rc = emit_generic_pure_string_function_definition(f, fn, fn_index);
           if (rc < 0) return -1;
           if (rc > 0) emitted++;
         }

@@ -60,10 +60,7 @@ emission cannot handle the blocker yet.
 | `GenericStringOrVoidSentinelBody` | temporary capsule | string/void sentinel bridge for current source-execution blockers | replace by uniform MIR function emitter or source-owner sentinel cleanup |
 | `GenericStringVoidLoggingBody` | temporary capsule | void/logging scalar bridge | replace by uniform MIR function emitter or source-owner logging contract cleanup |
 | `ParserProgramJsonBody` | temporary capsule | parser Program(JSON v0) route validator | replace by uniform MIR function emitter or parser/source owner cleanup |
-| `ProgramJsonEmitBody` | temporary capsule | Program(JSON v0) emit wrapper validator | replace by uniform MIR function emitter or owner-local direct MIR route |
-| `JsonFragInstructionArrayNormalizerBody` | temporary capsule | JsonFrag instruction-array normalizer validator | replace by uniform MIR function emitter; do not widen generic string/collection bodies |
 | `StaticStringArrayBody` | temporary capsule | static array construction bridge | replace by uniform MIR function emitter or explicit runtime helper route |
-| `BuilderRegistryDispatchBody` | temporary capsule | builder registry dispatch bridge | replace by uniform MIR function emitter or source-owner dispatch cleanup |
 | `MirSchemaMapConstructorBody` | temporary capsule | MIR schema map constructor bridge | replace by uniform MIR function emitter or MIR-owned schema facts |
 | `BoxTypeInspectorDescribeBody` | temporary capsule | box-type inspector map-return bridge | replace by source-owner scalar predicates or uniform MIR function emitter |
 | `PatternUtilLocalValueProbeBody` | temporary capsule | pattern util local-value probe bridge | replace by source-owner text/scalar cleanup or uniform MIR function emitter |

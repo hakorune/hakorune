@@ -189,11 +189,11 @@
               return 1;
             }
             if (dst) {
-              fprintf(f, "  %%r%lld = call i64 @\"nyash.string.len_h\"(%s)\n", dst, ab);
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.string.len_fast_h\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
               remember_string_length_call(dst, recv);
             } else {
-              fprintf(f, "  call i64 @\"nyash.string.len_h\"(%s)\n", ab);
+              fprintf(f, "  call i64 @\"nyash.string.len_fast_h\"(%s)\n", ab);
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE:

@@ -89,16 +89,62 @@ impl std::fmt::Display for CoreMethodOpProof {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LoweringPlanTier {
+    HotInline,
+    DirectAbi,
+    ColdRuntime,
+    Unsupported,
+}
+
+impl LoweringPlanTier {
+    pub fn as_json_name(self) -> &'static str {
+        match self {
+            Self::HotInline => "HotInline",
+            Self::DirectAbi => "DirectAbi",
+            Self::ColdRuntime => "ColdRuntime",
+            Self::Unsupported => "Unsupported",
+        }
+    }
+
+    pub fn is_direct_abi(self) -> bool {
+        self == Self::DirectAbi
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LoweringPlanEmitKind {
+    InlineIr,
+    DirectAbiCall,
+    DirectFunctionCall,
+    RuntimeCall,
+    Unsupported,
+}
+
+impl LoweringPlanEmitKind {
+    pub fn as_json_name(self) -> &'static str {
+        match self {
+            Self::InlineIr => "inline_ir",
+            Self::DirectAbiCall => "direct_abi_call",
+            Self::DirectFunctionCall => "direct_function_call",
+            Self::RuntimeCall => "runtime_call",
+            Self::Unsupported => "unsupported",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CoreMethodLoweringTier {
+    HotInline,
     WarmDirectAbi,
     ColdFallback,
 }
 
 impl CoreMethodLoweringTier {
-    pub const ALL: &'static [Self] = &[Self::WarmDirectAbi, Self::ColdFallback];
+    pub const ALL: &'static [Self] = &[Self::HotInline, Self::WarmDirectAbi, Self::ColdFallback];
 
     pub fn as_manifest_name(self) -> &'static str {
         match self {
+            Self::HotInline => "hot_inline",
             Self::WarmDirectAbi => "warm_direct_abi",
             Self::ColdFallback => "cold_fallback",
         }
@@ -113,6 +159,30 @@ impl CoreMethodLoweringTier {
 
     pub fn is_warm_direct_abi(self) -> bool {
         self == Self::WarmDirectAbi
+    }
+
+    pub fn is_hot_inline(self) -> bool {
+        self == Self::HotInline
+    }
+
+    pub fn is_cold_fallback(self) -> bool {
+        self == Self::ColdFallback
+    }
+
+    pub fn plan_tier(self) -> LoweringPlanTier {
+        match self {
+            Self::HotInline => LoweringPlanTier::HotInline,
+            Self::WarmDirectAbi => LoweringPlanTier::DirectAbi,
+            Self::ColdFallback => LoweringPlanTier::ColdRuntime,
+        }
+    }
+
+    pub fn plan_emit_kind(self) -> LoweringPlanEmitKind {
+        match self {
+            Self::HotInline => LoweringPlanEmitKind::InlineIr,
+            Self::WarmDirectAbi => LoweringPlanEmitKind::DirectAbiCall,
+            Self::ColdFallback => LoweringPlanEmitKind::RuntimeCall,
+        }
     }
 }
 
@@ -218,8 +288,20 @@ mod tests {
         assert_eq!(carrier.lowering_tier.to_string(), "warm_direct_abi");
         assert!(carrier.lowering_tier.is_warm_direct_abi());
         assert_eq!(
+            carrier.lowering_tier.plan_tier(),
+            LoweringPlanTier::DirectAbi
+        );
+        assert_eq!(
+            carrier.lowering_tier.plan_emit_kind(),
+            LoweringPlanEmitKind::DirectAbiCall
+        );
+        assert_eq!(
             CoreMethodLoweringTier::from_manifest_name("warm_direct_abi"),
             Some(CoreMethodLoweringTier::WarmDirectAbi)
+        );
+        assert_eq!(
+            CoreMethodLoweringTier::from_manifest_name("hot_inline"),
+            Some(CoreMethodLoweringTier::HotInline)
         );
         assert_eq!(CoreMethodLoweringTier::from_manifest_name("unknown"), None);
         assert_eq!(
@@ -227,5 +309,30 @@ mod tests {
             Some(CoreMethodOp::MapHas)
         );
         assert_eq!(CoreMethodOp::from_manifest_name("Unknown"), None);
+    }
+
+    #[test]
+    fn lowering_plan_tier_json_names_are_stable() {
+        assert_eq!(LoweringPlanTier::HotInline.as_json_name(), "HotInline");
+        assert_eq!(LoweringPlanTier::DirectAbi.as_json_name(), "DirectAbi");
+        assert_eq!(LoweringPlanTier::ColdRuntime.as_json_name(), "ColdRuntime");
+        assert_eq!(LoweringPlanTier::Unsupported.as_json_name(), "Unsupported");
+        assert_eq!(LoweringPlanEmitKind::InlineIr.as_json_name(), "inline_ir");
+        assert_eq!(
+            LoweringPlanEmitKind::DirectAbiCall.as_json_name(),
+            "direct_abi_call"
+        );
+        assert_eq!(
+            LoweringPlanEmitKind::DirectFunctionCall.as_json_name(),
+            "direct_function_call"
+        );
+        assert_eq!(
+            LoweringPlanEmitKind::RuntimeCall.as_json_name(),
+            "runtime_call"
+        );
+        assert_eq!(
+            LoweringPlanEmitKind::Unsupported.as_json_name(),
+            "unsupported"
+        );
     }
 }

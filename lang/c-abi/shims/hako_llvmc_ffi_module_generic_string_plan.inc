@@ -140,6 +140,19 @@
         return NULL;
       }
 
+      auto int module_generic_string_find_function_index(const char* name, size_t* out_index) {
+        if (!name) return 0;
+        for (size_t fi = 0; fi < program.function_count; fi++) {
+          yyjson_val* fn = yyjson_arr_get(program.functions, fi);
+          const char* fn_name = fn ? read_str(fn, "name") : NULL;
+          if (fn_name && !strcmp(fn_name, name)) {
+            if (out_index) *out_index = fi;
+            return 1;
+          }
+        }
+        return 0;
+      }
+
       auto int plan_module_generic_string_definition_edges(yyjson_val* fn) {
         int planned = 0;
         yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
@@ -149,43 +162,36 @@
           yyjson_val* entry = yyjson_arr_get(entries, pi);
           struct LoweringPlanGlobalCallView view;
           int is_parser_program_json = 0;
-          int is_program_json_emit = 0;
-          int is_jsonfrag_normalizer = 0;
           int is_static_string_array = 0;
-          int is_builder_registry_dispatch = 0;
           int is_mir_schema_map_constructor = 0;
           int is_box_type_inspector_describe = 0;
           int is_pattern_util_local_value_probe = 0;
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
           is_parser_program_json =
               lowering_plan_global_call_view_is_direct_parser_program_json(&view);
-          is_program_json_emit =
-              lowering_plan_global_call_view_is_direct_program_json_emit(&view);
-          is_jsonfrag_normalizer =
-              lowering_plan_global_call_view_is_direct_jsonfrag_instruction_array_normalizer(&view);
           is_static_string_array =
               lowering_plan_global_call_view_is_direct_static_string_array(&view);
-          is_builder_registry_dispatch =
-              lowering_plan_global_call_view_is_direct_builder_registry_dispatch(&view);
           is_mir_schema_map_constructor =
               lowering_plan_global_call_view_is_direct_mir_schema_map_constructor(&view);
           is_box_type_inspector_describe =
               lowering_plan_global_call_view_is_direct_box_type_inspector_describe(&view);
           is_pattern_util_local_value_probe =
               lowering_plan_global_call_view_is_direct_pattern_util_local_value_probe(&view);
+          if (lowering_plan_global_call_view_is_direct_leaf_i64(&view)) {
+            if (!remember_planned_module_leaf_symbol(view.target_symbol)) return -1;
+            planned++;
+            continue;
+          }
           if (!(lowering_plan_global_call_view_is_direct_generic_string(&view) ||
-                lowering_plan_global_call_view_is_direct_generic_string_void_logging(&view) ||
-                lowering_plan_global_call_view_is_direct_generic_i64(&view) ||
-                is_parser_program_json ||
-                is_program_json_emit ||
-                is_jsonfrag_normalizer ||
-                is_static_string_array ||
-                is_builder_registry_dispatch ||
-                is_mir_schema_map_constructor ||
-                is_box_type_inspector_describe ||
-                is_pattern_util_local_value_probe)) continue;
+                 lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(&view) ||
+                 lowering_plan_global_call_view_is_direct_generic_i64(&view) ||
+                 is_parser_program_json ||
+                 is_static_string_array ||
+                 is_mir_schema_map_constructor ||
+                 is_box_type_inspector_describe ||
+                 is_pattern_util_local_value_probe)) continue;
           if (!remember_planned_module_generic_string_symbol(view.target_symbol)) return -1;
-          if ((is_parser_program_json || is_program_json_emit) &&
+          if (is_parser_program_json &&
               !remember_planned_module_parser_program_json_symbol(view.target_symbol)) {
             return -1;
           }

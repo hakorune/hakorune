@@ -388,7 +388,7 @@
             "generic_method.len",
             "StringLen",
             "string_len",
-            "nyash.string.len_h",
+            "nyash.string.len_fast_h",
             "len_surface_policy",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN,

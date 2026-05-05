@@ -13,7 +13,7 @@
                view->route_kind &&
                !strcmp(view->route_kind, "string_len") &&
                view->symbol &&
-               !strcmp(view->symbol, "nyash.string.len_h") &&
+               !strcmp(view->symbol, "nyash.string.len_fast_h") &&
                view->route_proof &&
                !strcmp(view->route_proof, "len_surface_policy") &&
                view->return_shape &&

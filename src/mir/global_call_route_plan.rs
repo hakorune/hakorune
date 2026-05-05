@@ -157,11 +157,13 @@ fn classify_global_call_target_shape(
         );
     }
     if is_program_json_emit_body_function(function) {
-        return GlobalCallTargetClassification::direct(GlobalCallTargetShape::ProgramJsonEmitBody);
+        return GlobalCallTargetClassification::direct(
+            GlobalCallTargetShape::GenericPureStringBody,
+        );
     }
     if is_jsonfrag_instruction_array_normalizer_body_function(function) {
         return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody,
+            GlobalCallTargetShape::GenericPureStringBody,
         );
     }
     if is_static_string_array_body_function(function) {
@@ -208,7 +210,7 @@ fn classify_global_call_target_shape(
             };
         }
         return GlobalCallTargetClassification::direct(
-            GlobalCallTargetShape::BuilderRegistryDispatchBody,
+            GlobalCallTargetShape::GenericStringOrVoidSentinelBody,
         );
     }
     if string_or_void_sentinel_return_type_candidate(&function.signature.return_type) {

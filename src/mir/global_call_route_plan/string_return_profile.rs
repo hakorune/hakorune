@@ -600,12 +600,6 @@ fn refine_generic_string_return_value_class(
                         GlobalCallTargetShape::ParserProgramJsonBody => {
                             GenericStringReturnValueClass::String
                         }
-                        GlobalCallTargetShape::ProgramJsonEmitBody => {
-                            GenericStringReturnValueClass::String
-                        }
-                        GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
-                            GenericStringReturnValueClass::String
-                        }
                         GlobalCallTargetShape::StaticStringArrayBody => {
                             GenericStringReturnValueClass::Object
                         }
@@ -616,9 +610,6 @@ fn refine_generic_string_return_value_class(
                             GenericStringReturnValueClass::Object
                         }
                         GlobalCallTargetShape::GenericStringOrVoidSentinelBody => {
-                            GenericStringReturnValueClass::StringOrVoid
-                        }
-                        GlobalCallTargetShape::BuilderRegistryDispatchBody => {
                             GenericStringReturnValueClass::StringOrVoid
                         }
                         GlobalCallTargetShape::GenericStringVoidLoggingBody => {

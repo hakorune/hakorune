@@ -159,7 +159,7 @@
       "effect": "pure_read",
       "core_op": "StringLen",
       "lowering_tier": "warm_direct_abi",
-      "cold_lowering": "nyash.string.len_h",
+      "cold_lowering": "nyash.string.len_fast_h",
       "runtime_owner": ".hako StringBox contract / Rust string substrate",
       "status": "seed",
       "guards": [],

@@ -7,6 +7,7 @@
  */
 
 use super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, ValueId};
+use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExternCallRouteKind {
@@ -52,26 +53,20 @@ impl ExternCallRouteKind {
         }
     }
 
+    pub fn lowering_tier(self) -> LoweringPlanTier {
+        LoweringPlanTier::ColdRuntime
+    }
+
     pub fn tier(self) -> &'static str {
-        match self {
-            Self::EnvGet => "ColdRuntime",
-            Self::EnvSet => "ColdRuntime",
-            Self::HostBridgeExternInvoke => "ColdRuntime",
-            Self::Stage1EmitProgramJson => "ColdRuntime",
-            Self::Stage1EmitMirFromSource => "ColdRuntime",
-            Self::Stage1EmitMirFromProgramJson => "ColdRuntime",
-        }
+        self.lowering_tier().as_json_name()
+    }
+
+    pub fn lowering_emit_kind(self) -> LoweringPlanEmitKind {
+        LoweringPlanEmitKind::RuntimeCall
     }
 
     pub fn emit_kind(self) -> &'static str {
-        match self {
-            Self::EnvGet => "runtime_call",
-            Self::EnvSet => "runtime_call",
-            Self::HostBridgeExternInvoke => "runtime_call",
-            Self::Stage1EmitProgramJson => "runtime_call",
-            Self::Stage1EmitMirFromSource => "runtime_call",
-            Self::Stage1EmitMirFromProgramJson => "runtime_call",
-        }
+        self.lowering_emit_kind().as_json_name()
     }
 
     pub fn proof(self) -> &'static str {
@@ -187,8 +182,16 @@ impl ExternCallRoute {
         self.kind.tier()
     }
 
+    pub fn lowering_tier(&self) -> LoweringPlanTier {
+        self.kind.lowering_tier()
+    }
+
     pub fn emit_kind(&self) -> &'static str {
         self.kind.emit_kind()
+    }
+
+    pub fn lowering_emit_kind(&self) -> LoweringPlanEmitKind {
+        self.kind.lowering_emit_kind()
     }
 
     pub fn proof(&self) -> &'static str {
@@ -371,7 +374,12 @@ mod tests {
         assert_eq!(route.route_id(), "extern.env.get");
         assert_eq!(route.core_op(), "EnvGet");
         assert_eq!(route.symbol(), "nyash.env.get");
+        assert_eq!(route.lowering_tier(), LoweringPlanTier::ColdRuntime);
         assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(
+            route.lowering_emit_kind(),
+            LoweringPlanEmitKind::RuntimeCall
+        );
         assert_eq!(route.emit_kind(), "runtime_call");
         assert_eq!(route.proof(), "extern_registry");
         assert_eq!(route.source_symbol(), "env.get/1");
@@ -399,7 +407,12 @@ mod tests {
         assert_eq!(route.route_id(), "extern.env.set");
         assert_eq!(route.core_op(), "EnvSet");
         assert_eq!(route.symbol(), "nyash.env.set");
+        assert_eq!(route.lowering_tier(), LoweringPlanTier::ColdRuntime);
         assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(
+            route.lowering_emit_kind(),
+            LoweringPlanEmitKind::RuntimeCall
+        );
         assert_eq!(route.emit_kind(), "runtime_call");
         assert_eq!(route.proof(), "extern_registry");
         assert_eq!(route.source_symbol(), "env.set/2");

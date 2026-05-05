@@ -530,18 +530,13 @@ fn generic_i64_body_refine_instruction(
             };
             let class = match target.shape() {
                 GlobalCallTargetShape::GenericPureStringBody
-                | GlobalCallTargetShape::ParserProgramJsonBody
-                | GlobalCallTargetShape::ProgramJsonEmitBody
-                | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
-                    GenericI64ValueClass::String
-                }
+                | GlobalCallTargetShape::ParserProgramJsonBody => GenericI64ValueClass::String,
                 GlobalCallTargetShape::StaticStringArrayBody
                 | GlobalCallTargetShape::MirSchemaMapConstructorBody
                 | GlobalCallTargetShape::BoxTypeInspectorDescribeBody => {
                     GenericI64ValueClass::Unknown
                 }
                 GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-                | GlobalCallTargetShape::BuilderRegistryDispatchBody
                 | GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
                     GenericI64ValueClass::StringOrVoid
                 }

@@ -1,4 +1,5 @@
 use super::type_label::format_mir_type_label;
+use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -38,10 +39,7 @@ pub enum GlobalCallTargetShape {
     GenericStringVoidLoggingBody,
     GenericI64Body,
     ParserProgramJsonBody,
-    ProgramJsonEmitBody,
-    JsonFragInstructionArrayNormalizerBody,
     StaticStringArrayBody,
-    BuilderRegistryDispatchBody,
     MirSchemaMapConstructorBody,
     BoxTypeInspectorDescribeBody,
     PatternUtilLocalValueProbeBody,
@@ -57,12 +55,7 @@ impl GlobalCallTargetShape {
             Self::GenericStringVoidLoggingBody => "generic_string_void_logging_body",
             Self::GenericI64Body => "generic_i64_body",
             Self::ParserProgramJsonBody => "parser_program_json_body",
-            Self::ProgramJsonEmitBody => "program_json_emit_body",
-            Self::JsonFragInstructionArrayNormalizerBody => {
-                "jsonfrag_instruction_array_normalizer_body"
-            }
             Self::StaticStringArrayBody => "static_string_array_body",
-            Self::BuilderRegistryDispatchBody => "builder_registry_dispatch_body",
             Self::MirSchemaMapConstructorBody => "mir_schema_map_constructor_body",
             Self::BoxTypeInspectorDescribeBody => "box_type_inspector_describe_body",
             Self::PatternUtilLocalValueProbeBody => "pattern_util_local_value_probe_body",
@@ -296,20 +289,28 @@ impl GlobalCallRoute {
         "UserGlobalCall"
     }
 
-    pub fn tier(&self) -> &'static str {
+    pub fn lowering_tier(&self) -> LoweringPlanTier {
         if self.is_direct_abi_target() {
-            "DirectAbi"
+            LoweringPlanTier::DirectAbi
         } else {
-            "Unsupported"
+            LoweringPlanTier::Unsupported
+        }
+    }
+
+    pub fn tier(&self) -> &'static str {
+        self.lowering_tier().as_json_name()
+    }
+
+    pub fn lowering_emit_kind(&self) -> LoweringPlanEmitKind {
+        if self.is_direct_abi_target() {
+            LoweringPlanEmitKind::DirectFunctionCall
+        } else {
+            LoweringPlanEmitKind::Unsupported
         }
     }
 
     pub fn emit_kind(&self) -> &'static str {
-        if self.is_direct_abi_target() {
-            "direct_function_call"
-        } else {
-            "unsupported"
-        }
+        self.lowering_emit_kind().as_json_name()
     }
 
     pub fn proof(&self) -> &'static str {
@@ -328,17 +329,8 @@ impl GlobalCallRoute {
             Some(GlobalCallTargetShape::ParserProgramJsonBody) => {
                 "typed_global_call_parser_program_json"
             }
-            Some(GlobalCallTargetShape::ProgramJsonEmitBody) => {
-                "typed_global_call_program_json_emit"
-            }
-            Some(GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody) => {
-                "typed_global_call_jsonfrag_instruction_array_normalizer"
-            }
             Some(GlobalCallTargetShape::StaticStringArrayBody) => {
                 "typed_global_call_static_string_array"
-            }
-            Some(GlobalCallTargetShape::BuilderRegistryDispatchBody) => {
-                "typed_global_call_builder_registry_dispatch"
             }
             Some(GlobalCallTargetShape::MirSchemaMapConstructorBody) => {
                 "typed_global_call_mir_schema_map_constructor"
@@ -434,13 +426,10 @@ impl GlobalCallRoute {
                 GlobalCallTargetShape::GenericPureStringBody
                 | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
                 | GlobalCallTargetShape::ParserProgramJsonBody
-                | GlobalCallTargetShape::ProgramJsonEmitBody
-                | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
                 | GlobalCallTargetShape::StaticStringArrayBody
                 | GlobalCallTargetShape::MirSchemaMapConstructorBody
                 | GlobalCallTargetShape::BoxTypeInspectorDescribeBody
-                | GlobalCallTargetShape::PatternUtilLocalValueProbeBody
-                | GlobalCallTargetShape::BuilderRegistryDispatchBody,
+                | GlobalCallTargetShape::PatternUtilLocalValueProbeBody,
             ) => "runtime_i64_or_handle",
             _ => "typed_global_call_contract_missing",
         }
@@ -458,14 +447,7 @@ impl GlobalCallRoute {
                 Some("void_sentinel_i64_zero")
             }
             Some(GlobalCallTargetShape::ParserProgramJsonBody) => Some("string_handle"),
-            Some(GlobalCallTargetShape::ProgramJsonEmitBody) => Some("string_handle"),
-            Some(GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody) => {
-                Some("string_handle")
-            }
             Some(GlobalCallTargetShape::StaticStringArrayBody) => Some("array_handle"),
-            Some(GlobalCallTargetShape::BuilderRegistryDispatchBody) => {
-                Some("string_handle_or_null")
-            }
             Some(GlobalCallTargetShape::MirSchemaMapConstructorBody) => Some("map_handle"),
             Some(GlobalCallTargetShape::BoxTypeInspectorDescribeBody) => Some("map_handle"),
             Some(GlobalCallTargetShape::PatternUtilLocalValueProbeBody) => {
@@ -505,13 +487,10 @@ impl GlobalCallRoute {
             | GlobalCallTargetShape::GenericStringVoidLoggingBody
             | GlobalCallTargetShape::GenericI64Body
             | GlobalCallTargetShape::ParserProgramJsonBody
-            | GlobalCallTargetShape::ProgramJsonEmitBody
-            | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody
             | GlobalCallTargetShape::StaticStringArrayBody
             | GlobalCallTargetShape::MirSchemaMapConstructorBody
             | GlobalCallTargetShape::BoxTypeInspectorDescribeBody
-            | GlobalCallTargetShape::PatternUtilLocalValueProbeBody
-            | GlobalCallTargetShape::BuilderRegistryDispatchBody => Some(self.target.shape()),
+            | GlobalCallTargetShape::PatternUtilLocalValueProbeBody => Some(self.target.shape()),
             GlobalCallTargetShape::Unknown => None,
         }
     }

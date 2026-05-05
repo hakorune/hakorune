@@ -355,13 +355,13 @@ fn refresh_module_global_call_routes_marks_program_json_emit_body_direct_target(
     refresh_module_global_call_routes(&mut module);
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(route.target_shape(), Some("program_json_emit_body"));
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.target_shape_blocker_symbol(), None);
     assert_eq!(route.target_shape_blocker_reason(), None);
     assert_eq!(route.tier(), "DirectAbi");
     assert_eq!(route.emit_kind(), "direct_function_call");
-    assert_eq!(route.proof(), "typed_global_call_program_json_emit");
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
     assert_eq!(route.return_shape(), Some("string_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
     assert_eq!(route.reason(), None);
@@ -418,9 +418,9 @@ fn refresh_module_global_call_routes_marks_stage1_raw_program_json_wrapper_direc
     refresh_module_global_call_routes(&mut module);
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(route.target_shape(), Some("program_json_emit_body"));
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
     assert_eq!(route.target_shape_reason(), None);
-    assert_eq!(route.proof(), "typed_global_call_program_json_emit");
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
     assert_eq!(route.return_shape(), Some("string_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
 }

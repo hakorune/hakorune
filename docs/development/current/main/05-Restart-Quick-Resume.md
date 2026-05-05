@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-29cv Program(JSON v0) keeper closeout`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv Program(JSON v0) keeper buckets pending`
+- current blocker token: `remaining capsule retirements need owner cleanup or uniform emitter`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv Program(JSON v0) keeper buckets pending`
+- current blocker token: `remaining capsule retirements need owner cleanup or uniform emitter`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -53,8 +53,9 @@ cargo check -q
 
 - continue `phase-29cv` from the post-EXE-direct keeper inventory
 - normal `selfhost_build.sh --exe` is direct source MIR; raw Program(JSON)
-  compat emit syntax is helper-owned and the next work is retiring or archiving
-  each remaining keeper lane
+  compat emit syntax is helper-owned and the easy public capsule-collapse wins
+  are done, so the next work is owner cleanup or the uniform MIR emitter for
+  the remaining blocked keepers
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

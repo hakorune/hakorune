@@ -28,6 +28,7 @@ pub(crate) fn is_runtime_len_export(name: &str) -> bool {
     matches!(
         name,
         "nyash.string.len_h"
+            | "nyash.string.len_fast_h"
             | "nyash.string.substring_len_hii"
             | "nyash.string.length_si"
             | "nyrt_string_length"
@@ -36,7 +37,7 @@ pub(crate) fn is_runtime_len_export(name: &str) -> bool {
 }
 
 pub(crate) fn is_runtime_len_handle_export(name: &str) -> bool {
-    name == "nyash.string.len_h"
+    matches!(name, "nyash.string.len_h" | "nyash.string.len_fast_h")
 }
 
 pub(crate) fn is_runtime_slice_export(name: &str) -> bool {
@@ -78,6 +79,8 @@ mod tests {
 
     #[test]
     fn runtime_exports_split_len_from_slice() {
+        assert!(is_runtime_len_export("nyash.string.len_fast_h"));
+        assert!(is_runtime_len_handle_export("nyash.string.len_fast_h"));
         assert!(is_runtime_len_export("nyash.string.substring_len_hii"));
         assert!(is_runtime_slice_export("nyash.string.substring_hii"));
         assert!(!is_runtime_len_export("nyash.string.substring_hii"));

@@ -1,0 +1,112 @@
+---
+Status: Done
+Decision: accepted
+Date: 2026-05-05
+Scope: per-capsule contract inventory before uniform body-emitter deletion work
+Related:
+  - docs/development/current/main/phases/phase-29cv/P381BC-STAGE0-CAPSULE-EXIT-TASK-MAP.md
+  - docs/development/current/main/phases/phase-29cv/P381BD-STAGE0-MEASUREMENT-SCOPE-LOCK.md
+  - docs/development/current/main/design/stage0-llvm-line-shape-inventory-ssot.md
+  - src/mir/global_call_route_plan/model.rs
+  - lang/c-abi/shims/hako_llvmc_ffi_lowering_plan_metadata.inc
+  - lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell.inc
+  - lang/c-abi/shims/hako_llvmc_ffi_module_generic_string_plan.inc
+  - lang/c-abi/shims/hako_llvmc_ffi_module_generic_string_function_emit.inc
+---
+
+# P381BE: Uniform Body-Emitter Contract Inventory
+
+## Problem
+
+T1 from P381BC requires a per-capsule contract table before any
+`GlobalCallTargetShape` branch is deleted.
+
+The same-module call instruction is already mostly uniform:
+
+```llvm
+%rN = call i64 @"target.symbol"(...)
+```
+
+But the surrounding contracts are still not uniform. A capsule can only be
+retired after these contracts are either proven unnecessary or represented by
+MIR-owned facts instead of shape-specific Stage0 branches.
+
+## Contract Table
+
+| Capsule | Proof / target shape | Return / demand | Result origin side effect | Selected-set / body requirement | Current proof surface |
+| --- | --- | --- | --- | --- | --- |
+| `GenericStringOrVoidSentinelBody` | `typed_global_call_generic_string_or_void_sentinel` / `generic_string_or_void_sentinel_body` | `string_handle_or_null` / `runtime_i64_or_handle` | `ORG_STRING` through the generic-string direct predicate | planned as a generic module symbol; shares the generic string body path | `global_call_route_plan::tests::void_sentinel`, `hostbridge`, `runtime_methods`, runner MIR JSON void-sentinel tests |
+| `GenericStringVoidLoggingBody` | `typed_global_call_generic_string_void_logging` / `generic_string_void_logging_body` | `void_sentinel_i64_zero` / `scalar_i64` | none; no result register is allowed for void logging sites | planned as a generic module symbol; body still goes through generic module body emission | `global_call_route_plan::tests::void_logging` |
+| `ParserProgramJsonBody` | `typed_global_call_parser_program_json` / `parser_program_json_body` | `string_handle` / `runtime_i64_or_handle` | `ORG_STRING` | planned as a generic module symbol and a parser Program(JSON) symbol; body has a dedicated `emit_parser_program_json_function_definition` path | `global_call_route_plan::tests::shape_reasons`, runner MIR JSON parser Program(JSON) tests |
+| `StaticStringArrayBody` | `typed_global_call_static_string_array` / `static_string_array_body` | `array_handle` / `runtime_i64_or_handle` | `ORG_ARRAY_STRING_BIRTH` | planned as a generic module symbol and a static-array symbol; body has static-array active-function checks and array-push handling | `global_call_route_plan::tests::static_string_array`, runner MIR JSON static array tests |
+| `MirSchemaMapConstructorBody` | `typed_global_call_mir_schema_map_constructor` / `mir_schema_map_constructor_body` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; body relies on MIR schema map constructor support in the generic module body path | `global_call_route_plan::tests::mir_schema_map_constructor` |
+| `BoxTypeInspectorDescribeBody` | `typed_global_call_box_type_inspector_describe` / `box_type_inspector_describe_body` | `map_handle` / `runtime_i64_or_handle` | `ORG_MAP_BIRTH` | planned as a generic module symbol; body remains source-owner shaped and should shrink through scalar predicates first | `global_call_route_plan::tests::box_type_inspector_describe` |
+| `PatternUtilLocalValueProbeBody` | `typed_global_call_pattern_util_local_value_probe` / `pattern_util_local_value_probe_body` | `mixed_runtime_i64_or_handle` / `runtime_i64_or_handle` | none | planned as a generic module symbol; body remains mixed scalar/handle source-owner shaped | `global_call_route_plan::tests::pattern_util_local_value_probe` |
+
+## Current C-Side Branch Sites
+
+These branches must be checked before deleting any capsule:
+
+- metadata predicate:
+  `hako_llvmc_ffi_lowering_plan_metadata.inc`
+- call emission / origin propagation:
+  `hako_llvmc_ffi_mir_call_shell.inc`
+- selected-set planning:
+  `hako_llvmc_ffi_module_generic_string_plan.inc`
+- module body prepass and body emission:
+  `hako_llvmc_ffi_module_generic_string_function_emit.inc`
+
+## Retirement Readiness
+
+Ready for first focused probe:
+
+- `GenericStringVoidLoggingBody`
+  - smallest result-origin surface
+  - still must prove the void-sentinel result contract and no-result callsite
+
+Not ready for shape-delete-only:
+
+- `ParserProgramJsonBody`: dedicated parser Program(JSON) body emitter remains
+- `StaticStringArrayBody`: array origin and static-array body checks remain
+- `MirSchemaMapConstructorBody`: map origin and MIR schema body facts remain
+- `GenericStringOrVoidSentinelBody`: sentinel plumbing remains source-owner
+  shaped
+- `BoxTypeInspectorDescribeBody`: scalar predicate cleanup should happen first
+- `PatternUtilLocalValueProbeBody`: mixed scalar/handle cleanup should happen
+  first
+
+## Boundary
+
+Allowed:
+
+- use this table to choose the next single-capsule task
+- add a MIR-owned fact before deleting a shape branch
+- require both Rust route tests and runner MIR JSON tests when the capsule has
+  external JSON plan evidence
+
+Not allowed:
+
+- delete all matching `lowering_plan_global_call_view_is_direct_*` branches at
+  once
+- remove origin propagation without an equivalent MIR-owned return/origin fact
+- mix source-owner cleanup capsules with the first backend capsule probe
+
+## Result
+
+Done:
+
+- T1 inventory is complete
+- the first safe implementation probe is `GenericStringVoidLoggingBody`
+- all other temporary capsules have explicit blockers before deletion
+
+Next:
+
+1. retire or shrink `GenericStringVoidLoggingBody` in one card
+2. keep `stage0_shape_inventory_guard.sh` green while doing it
+
+## Acceptance
+
+```bash
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

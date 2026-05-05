@@ -23,13 +23,16 @@ fn refresh_module_global_call_routes_marks_builder_registry_dispatch_shape() {
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
-        Some("builder_registry_dispatch_body"),
+        Some("generic_string_or_void_sentinel_body"),
         "reason={:?} blocker={:?}/{:?}",
         route.target_shape_reason(),
         route.target_shape_blocker_symbol(),
         route.target_shape_blocker_reason()
     );
-    assert_eq!(route.proof(), "typed_global_call_builder_registry_dispatch");
+    assert_eq!(
+        route.proof(),
+        "typed_global_call_generic_string_or_void_sentinel"
+    );
     assert_eq!(route.return_shape(), Some("string_handle_or_null"));
 }
 

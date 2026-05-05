@@ -175,6 +175,20 @@ pub(super) fn string_len_export_impl(handle: i64) -> i64 {
     string_len_export_slow_path(handle)
 }
 
+#[inline(always)]
+pub(super) fn string_len_fast_export_impl(handle: i64) -> i64 {
+    if handle > 0 {
+        if let Some(fast_len) = handles::with_text_read_session_ready(|session| {
+            session.str_handle(handle as u64, |text| text.len() as i64)
+        })
+        .flatten()
+        {
+            return fast_len;
+        }
+    }
+    string_len_export_impl(handle)
+}
+
 #[inline(never)]
 fn string_len_trace_fast_return(handle: i64, cached: i64) -> i64 {
     trace_len_fast_hit(handle, cached);

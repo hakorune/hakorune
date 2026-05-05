@@ -21,6 +21,14 @@ memory = "readwrite"
 lanes = ["hako-ll-min-v0", "compare"]
 
 [[rows]]
+symbol = "nyash.string.len_fast_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
 symbol = "nyash.string.indexOf_hh"
 args = ["handle_owned", "handle_owned"]
 ret = "imm_i64"

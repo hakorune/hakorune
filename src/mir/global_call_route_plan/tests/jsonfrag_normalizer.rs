@@ -104,16 +104,10 @@ fn refresh_module_global_call_routes_marks_jsonfrag_instruction_array_normalizer
     refresh_module_global_call_routes(&mut module);
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(
-        route.target_shape(),
-        Some("jsonfrag_instruction_array_normalizer_body")
-    );
+    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
     assert_eq!(route.tier(), "DirectAbi");
     assert_eq!(route.reason(), None);
-    assert_eq!(
-        route.proof(),
-        "typed_global_call_jsonfrag_instruction_array_normalizer"
-    );
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
     assert_eq!(route.return_shape(), Some("string_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
 }

@@ -16,6 +16,12 @@ pub extern "C" fn nyash_string_len_h(handle: i64) -> i64 {
     string_len_export_impl(handle)
 }
 
+// String.len_fast_h(handle) -> i64
+#[export_name = "nyash.string.len_fast_h"]
+pub extern "C" fn nyash_string_len_fast_h(handle: i64) -> i64 {
+    string_len_fast_export_impl(handle)
+}
+
 // FAST-path helper: compute string length from raw pointer (i8*) with mode (reserved)
 // Exported as both legacy name (nyash.string.length_si) and neutral name (nyrt_string_length)
 #[export_name = "nyrt_string_length"]

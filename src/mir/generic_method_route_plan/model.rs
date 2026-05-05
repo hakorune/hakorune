@@ -1,4 +1,4 @@
-use crate::mir::core_method_op::CoreMethodOpCarrier;
+use crate::mir::core_method_op::{CoreMethodOpCarrier, LoweringPlanEmitKind, LoweringPlanTier};
 use crate::mir::generic_method_route_facts::{
     GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
     GenericMethodValueDemand,
@@ -79,7 +79,7 @@ impl GenericMethodRouteKind {
             Self::ArrayAppendAny => "nyash.array.slot_append_hh",
             Self::ArrayStoreAny => "nyash.array.slot_store_*",
             Self::MapStoreAny => "nyash.map.slot_store_hhh",
-            Self::StringLen => "nyash.string.len_h",
+            Self::StringLen => "nyash.string.len_fast_h",
             Self::StringSubstring => "nyash.string.substring_hii",
             Self::StringIndexOf => "nyash.string.indexOf_hh",
             Self::StringLastIndexOf => "nyash.string.lastIndexOf_hh",
@@ -428,6 +428,18 @@ impl GenericMethodRoute {
 
     pub fn core_method(&self) -> Option<CoreMethodOpCarrier> {
         self.decision.core_method
+    }
+
+    pub fn lowering_tier(&self) -> Option<LoweringPlanTier> {
+        self.decision
+            .core_method
+            .map(|carrier| carrier.lowering_tier.plan_tier())
+    }
+
+    pub fn lowering_emit_kind(&self) -> Option<LoweringPlanEmitKind> {
+        self.decision
+            .core_method
+            .map(|carrier| carrier.lowering_tier.plan_emit_kind())
     }
 
     pub fn return_shape(&self) -> Option<GenericMethodReturnShape> {

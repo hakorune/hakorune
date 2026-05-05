@@ -584,20 +584,14 @@ impl MirSchemaMapConstructorFacts {
             GlobalCallTargetShape::StaticStringArrayBody => Some(MirSchemaValueClass::Array),
             GlobalCallTargetShape::GenericPureStringBody
             | GlobalCallTargetShape::GenericStringOrVoidSentinelBody
-            | GlobalCallTargetShape::ParserProgramJsonBody
-            | GlobalCallTargetShape::ProgramJsonEmitBody
-            | GlobalCallTargetShape::JsonFragInstructionArrayNormalizerBody => {
-                Some(MirSchemaValueClass::String)
-            }
+            | GlobalCallTargetShape::ParserProgramJsonBody => Some(MirSchemaValueClass::String),
             GlobalCallTargetShape::NumericI64Leaf
             | GlobalCallTargetShape::GenericStringVoidLoggingBody
             | GlobalCallTargetShape::GenericI64Body
             | GlobalCallTargetShape::PatternUtilLocalValueProbeBody => {
                 Some(MirSchemaValueClass::Scalar)
             }
-            GlobalCallTargetShape::Unknown | GlobalCallTargetShape::BuilderRegistryDispatchBody => {
-                None
-            }
+            GlobalCallTargetShape::Unknown => None,
         }
     }
 

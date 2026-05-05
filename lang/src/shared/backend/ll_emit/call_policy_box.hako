@@ -198,7 +198,7 @@ static box LlEmitCallPolicyBox {
       return "string_method_receiver_unsupported"
     }
     if method_name == "len" || method_name == "length" || method_name == "size" {
-      return me._accept_manifest_call(out, dst, "nyash.string.len_h")
+      return me._accept_manifest_call(out, dst, "nyash.string.len_fast_h")
     }
     if method_name == "indexOf" {
       local args = call.get("args")
@@ -265,7 +265,7 @@ static box LlEmitCallPolicyBox {
     }
     if family == "string" {
       if method_name == "length" && arg_count == 0 {
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.len_h")
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.len_fast_h")
       }
       if method_name == "indexOf" && arg_count == 1 {
         local needle = args.get(0)

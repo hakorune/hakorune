@@ -473,7 +473,7 @@
       if (needs.string_const_box || module_has_planned_generic_string_definition())
         fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len || module_has_planned_generic_string_definition())
-        fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
+        fprintf(f, "declare i64 @\"nyash.string.len_fast_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.string.eq_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       fprintf(f, "declare i64 @\"nyash.string.lt_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof || module_has_planned_generic_string_definition())

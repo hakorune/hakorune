@@ -785,12 +785,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         fprintf(f, ")\n");
       }
       auto void emit_module_function_declarations(FILE* f) {
-        for (size_t i = 0; i < program.function_count; i++) {
-          yyjson_val* fn = yyjson_arr_get(program.functions, i);
-          const char* name = fn ? read_str(fn, "name") : NULL;
-          if (!name || fn == fn0) continue;
+        for (size_t i = 0; i < planned_module_generic_string_symbols_n; i++) {
+          const char* name = planned_module_generic_string_symbols[i];
+          yyjson_val* fn = module_generic_string_find_function(name);
+          if (!(name && fn) || fn == fn0) continue;
           if (module_function_is_numeric_i64_leaf(fn)) continue;
-          if (module_generic_symbol_will_be_defined(name)) continue;
           emit_i64_function_declaration(f, name, generic_pure_function_param_count(fn));
         }
       }

@@ -227,7 +227,7 @@ static box CoreMethodContractBox {
       me.effect_pure_read(),
       me.op_string_len(),
       me.tier_warm_direct_abi(),
-      "nyash.string.len_h",
+      "nyash.string.len_fast_h",
       me._runtime_owner_string()
     )
   }

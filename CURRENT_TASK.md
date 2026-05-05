@@ -37,7 +37,7 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-29cv Program(JSON v0) keeper closeout`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv Program(JSON v0) keeper buckets pending`
+- current blocker token: `remaining capsule retirements need owner cleanup or uniform emitter`
 - primary mode: Program(JSON v0) keeper closeout lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -63,8 +63,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: retire or archive each remaining Program(JSON v0) keeper bucket before
-  any broader compat deletion
+- next: the easy public capsule-collapse wins are done; remaining keepers now
+  need owner cleanup or the uniform MIR emitter before any broader compat deletion
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -82,8 +82,9 @@ Scope: current lane / next lane / restart order only.
 - latest checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   landed history lives in phase card files
 - next cleanup: Program(JSON v0) closeout continues through `phase-29cv`;
-  normal `selfhost_build.sh --exe` is direct MIR, while remaining keepers must
-  be retired or archived before deleting the compat flag
+  normal `selfhost_build.sh --exe` is direct MIR, while the remaining blocked
+  keeper capsules now need owner cleanup or the uniform MIR emitter before the
+  compat flag can disappear
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do

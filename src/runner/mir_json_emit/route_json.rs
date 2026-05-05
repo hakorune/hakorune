@@ -1,4 +1,4 @@
-use crate::mir::core_method_op::CoreMethodLoweringTier;
+use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 use crate::mir::userbox_known_receiver_method_seed_plan::{
     UserBoxKnownReceiverMethodSeedKind, UserBoxKnownReceiverMethodSeedPayload,
 };
@@ -11,13 +11,9 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
         .iter()
         .filter_map(|route| {
             let (tier, emit_kind, core_op, proof) = if let Some(carrier) = route.core_method() {
-                let (tier, emit_kind) = match carrier.lowering_tier {
-                    CoreMethodLoweringTier::WarmDirectAbi => ("DirectAbi", "direct_abi_call"),
-                    CoreMethodLoweringTier::ColdFallback => ("ColdRuntime", "runtime_call"),
-                };
                 (
-                    tier,
-                    emit_kind,
+                    carrier.lowering_tier.plan_tier(),
+                    carrier.lowering_tier.plan_emit_kind(),
                     carrier.op.to_string(),
                     carrier.proof.to_string(),
                 )
@@ -26,8 +22,8 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
                 && route.proof_tag() == "mir_json_flags_keys"
             {
                 (
-                    "DirectAbi",
-                    "direct_abi_call",
+                    LoweringPlanTier::DirectAbi,
+                    LoweringPlanEmitKind::DirectAbiCall,
                     "MapKeys".to_string(),
                     route.proof_tag().to_string(),
                 )
@@ -41,8 +37,8 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
                 "source": "generic_method_routes",
                 "source_route_id": route.route_id(),
                 "core_op": core_op,
-                "tier": tier,
-                "emit_kind": emit_kind,
+                "tier": tier.as_json_name(),
+                "emit_kind": emit_kind.as_json_name(),
                 "symbol": route.helper_symbol(),
                 "proof": proof,
                 "route_proof": route.proof_tag(),
@@ -100,9 +96,9 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
             "callee_name": route.callee_name(),
             "target_symbol": route.target_symbol(),
             "core_op": route.core_op(),
-            "tier": route.tier(),
-            "emit_kind": route.emit_kind(),
-            "symbol": if route.tier() == "DirectAbi" {
+            "tier": route.lowering_tier().as_json_name(),
+            "emit_kind": route.lowering_emit_kind().as_json_name(),
+            "symbol": if route.lowering_tier().is_direct_abi() {
                 route.target_symbol().map(serde_json::Value::from).unwrap_or(serde_json::Value::Null)
             } else {
                 serde_json::Value::Null
@@ -141,8 +137,8 @@ pub(super) fn build_extern_call_route_json(
         "instruction_index": route.instruction_index(),
         "source_symbol": route.source_symbol(),
         "core_op": route.core_op(),
-        "tier": route.tier(),
-        "emit_kind": route.emit_kind(),
+        "tier": route.lowering_tier().as_json_name(),
+        "emit_kind": route.lowering_emit_kind().as_json_name(),
         "symbol": route.symbol(),
         "proof": route.proof(),
         "key_value": route.key_value().as_u32(),
@@ -164,8 +160,8 @@ pub(super) fn build_global_call_route_json(
         "callee_name": route.callee_name(),
         "target_symbol": route.target_symbol(),
         "core_op": route.core_op(),
-        "tier": route.tier(),
-        "emit_kind": route.emit_kind(),
+        "tier": route.lowering_tier().as_json_name(),
+        "emit_kind": route.lowering_emit_kind().as_json_name(),
         "proof": route.proof(),
         "route_kind": route.route_kind(),
         "arity": route.arity(),
