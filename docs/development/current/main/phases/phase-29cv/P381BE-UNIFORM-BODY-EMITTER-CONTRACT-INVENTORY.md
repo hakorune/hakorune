@@ -165,6 +165,8 @@ Completed focused probe:
     instruction dispatcher entry
   - P381DN moved module-generic active-function prepass opcode dispatch behind
     one instruction dispatcher entry
+  - P381DO moved module-generic LLVM function signature emission behind one
+    function-definition helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

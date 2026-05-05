@@ -357,6 +357,11 @@ Module-generic prepass instruction dispatcher cleanup landed in
 active-function prepass now delegates per-instruction fact collection through
 one dispatcher.
 
+Module-generic function signature helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DO-MODULE-GENERIC-FUNCTION-SIGNATURE-HELPER.md`:
+function definition emission now delegates LLVM signature text through one
+helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

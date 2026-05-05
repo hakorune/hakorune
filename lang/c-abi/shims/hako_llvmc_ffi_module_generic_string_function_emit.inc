@@ -1770,6 +1770,22 @@
         return 1;
       }
 
+      auto int module_generic_string_emit_function_signature(
+          FILE* f,
+          yyjson_val* fn,
+          const char* name) {
+        yyjson_val* params = yyjson_obj_get(fn, "params");
+        size_t argc = params && yyjson_is_arr(params) ? yyjson_arr_size(params) : 0;
+        fprintf(f, "define i64 @\"%s\"(", name);
+        for (size_t ai = 0; ai < argc; ai++) {
+          yyjson_val* param = yyjson_arr_get(params, ai);
+          long long reg = param ? (long long)yyjson_get_sint(param) : 0;
+          fprintf(f, "%si64 %%r%lld", ai ? ", " : "", reg);
+        }
+        fprintf(f, ") {\n");
+        return 1;
+      }
+
       auto int emit_generic_pure_string_function_definition(
           FILE* f,
           yyjson_val* fn,
@@ -1824,17 +1840,9 @@
           goto MODULE_GENERIC_STRING_RESTORE;
         }
         module_generic_string_emit_const_globals(f, fn_index);
-        fprintf(f, "define i64 @\"%s\"(", name);
-        {
-          yyjson_val* params = yyjson_obj_get(fn, "params");
-          size_t argc = params && yyjson_is_arr(params) ? yyjson_arr_size(params) : 0;
-          for (size_t ai = 0; ai < argc; ai++) {
-            yyjson_val* param = yyjson_arr_get(params, ai);
-            long long reg = param ? (long long)yyjson_get_sint(param) : 0;
-            fprintf(f, "%si64 %%r%lld", ai ? ", " : "", reg);
-          }
+        if (!module_generic_string_emit_function_signature(f, fn, name)) {
+          goto MODULE_GENERIC_STRING_RESTORE;
         }
-        fprintf(f, ") {\n");
         if (!module_generic_string_emit_active_body(f, fn_index)) {
           note_pure_unsupported_shape_detail(
               -1,
