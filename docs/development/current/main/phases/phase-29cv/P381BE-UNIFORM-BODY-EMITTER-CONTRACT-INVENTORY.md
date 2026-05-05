@@ -139,6 +139,8 @@ Completed focused probe:
     while keeping its numeric-field origin exception explicit
   - P381DA moved module-generic method prepass facts behind one helper with
     accepted/no-match/malformed outcomes
+  - P381DB moved module-generic method emission dispatch behind one helper
+    after method birth and LoweringPlan view loading
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

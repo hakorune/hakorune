@@ -1345,6 +1345,104 @@
             "nyash.string.contains_hh");
       }
 
+      auto int module_generic_string_emit_generic_method_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        int rc = module_generic_string_emit_method_len_mir_call(
+            f,
+            bid,
+            ii,
+            method_view,
+            dst,
+            recv);
+        if (rc != 1) {
+          rc = module_generic_string_emit_method_push_mir_call(
+              f,
+              bid,
+              ii,
+              method_view,
+              dst,
+              recv,
+              args);
+        }
+        if (rc != 1) {
+          rc = module_generic_string_emit_method_get_mir_call(
+              f,
+              bid,
+              ii,
+              method_view,
+              dst,
+              recv,
+              args);
+        }
+        if (rc != 1) {
+          rc = module_generic_string_emit_method_keys_mir_call(
+              f,
+              bid,
+              ii,
+              method_view,
+              dst,
+              recv,
+              args);
+        }
+        if (rc != 1) {
+          rc = module_generic_string_emit_method_set_mir_call(
+              f,
+              bid,
+              ii,
+              method_view,
+              dst,
+              recv,
+              args);
+        }
+        if (rc != 1) {
+          rc = module_generic_string_emit_method_substring_mir_call(
+              f,
+              bid,
+              ii,
+              method_view,
+              dst,
+              recv,
+              args);
+        }
+        if (rc != 1) {
+          rc = module_generic_string_emit_method_indexof_mir_call(
+              f,
+              bid,
+              ii,
+              method_view,
+              dst,
+              recv,
+              args);
+        }
+        if (rc != 1) {
+          rc = module_generic_string_emit_method_lastindexof_mir_call(
+              f,
+              bid,
+              ii,
+              method_view,
+              dst,
+              recv,
+              args);
+        }
+        if (rc != 1) {
+          rc = module_generic_string_emit_method_contains_mir_call(
+              f,
+              bid,
+              ii,
+              method_view,
+              dst,
+              recv,
+              args);
+        }
+        return rc;
+      }
+
       auto int module_generic_string_emit_mir_call(
           FILE* f,
           long long bid,
@@ -1395,93 +1493,14 @@
           if (read_lowering_plan_generic_method_view(entry, &method_view)) {
             method_view_ptr = &method_view;
           }
-          rc = module_generic_string_emit_method_len_mir_call(
+          rc = module_generic_string_emit_generic_method_mir_call(
               f,
               bid,
               ii,
               method_view_ptr,
               dst,
-              recv);
-          if (rc != 1) {
-            rc = module_generic_string_emit_method_push_mir_call(
-                f,
-                bid,
-                ii,
-                method_view_ptr,
-                dst,
-                recv,
-                args);
-          }
-          if (rc != 1) {
-            rc = module_generic_string_emit_method_get_mir_call(
-                f,
-                bid,
-                ii,
-                method_view_ptr,
-                dst,
-                recv,
-                args);
-          }
-          if (rc != 1) {
-            rc = module_generic_string_emit_method_keys_mir_call(
-                f,
-                bid,
-                ii,
-                method_view_ptr,
-                dst,
-                recv,
-                args);
-          }
-          if (rc != 1) {
-            rc = module_generic_string_emit_method_set_mir_call(
-                f,
-                bid,
-                ii,
-                method_view_ptr,
-                dst,
-                recv,
-                args);
-          }
-          if (rc != 1) {
-            rc = module_generic_string_emit_method_substring_mir_call(
-                f,
-                bid,
-                ii,
-                method_view_ptr,
-                dst,
-                recv,
-                args);
-          }
-          if (rc != 1) {
-            rc = module_generic_string_emit_method_indexof_mir_call(
-                f,
-                bid,
-                ii,
-                method_view_ptr,
-                dst,
-                recv,
-                args);
-          }
-          if (rc != 1) {
-            rc = module_generic_string_emit_method_lastindexof_mir_call(
-                f,
-                bid,
-                ii,
-                method_view_ptr,
-                dst,
-                recv,
-                args);
-          }
-          if (rc != 1) {
-            rc = module_generic_string_emit_method_contains_mir_call(
-                f,
-                bid,
-                ii,
-                method_view_ptr,
-                dst,
-                recv,
-                args);
-          }
+              recv,
+              args);
         } else {
           return 0;
         }
