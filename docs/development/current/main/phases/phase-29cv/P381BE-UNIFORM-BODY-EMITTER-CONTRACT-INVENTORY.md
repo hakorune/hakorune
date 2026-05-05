@@ -153,6 +153,8 @@ Completed focused probe:
     behind one helper
   - P381DH aligned module-generic emit-side call instruction helper naming
     with the prepass call-instruction entry
+  - P381DI moved module-generic emit-side externcall lowering-plan dispatch
+    behind one active-body helper
   - capsule-specific proof readers remain only for route-contract parsing and
     Rust-owned proof serialization
 

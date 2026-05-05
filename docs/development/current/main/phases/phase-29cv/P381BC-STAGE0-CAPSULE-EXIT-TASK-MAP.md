@@ -329,6 +329,10 @@ Module-generic emit call-instruction helper cleanup landed in
 emit-side `mir_call`/`call`/`boxcall` handling now uses the same
 call-instruction helper vocabulary as prepass.
 
+Module-generic emit externcall helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381DI-MODULE-GENERIC-EMIT-EXTERNCALL-HELPER.md`:
+emit-side `externcall` lowering-plan dispatch now has one active-body helper.
+
 Primary targets:
 
 - `hako_llvmc_ffi_module_generic_string_function_emit.inc`

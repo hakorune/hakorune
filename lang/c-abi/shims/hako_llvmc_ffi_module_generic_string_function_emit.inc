@@ -1581,6 +1581,21 @@
         return rc == 1;
       }
 
+      auto int module_generic_string_emit_externcall_instruction(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          yyjson_val* ins) {
+        yyjson_val* args = yyjson_obj_get(ins, "args");
+        int rc = emit_extern_call_lowering_plan_mir_call(
+            f,
+            bid,
+            ii,
+            read_int(ins, "dst"),
+            args);
+        return rc == 1;
+      }
+
       auto int module_generic_string_emit_active_body(FILE* f, size_t fn_index) {
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
@@ -1679,14 +1694,11 @@
               continue;
             }
             if (!strcmp(op, "externcall")) {
-              yyjson_val* args = yyjson_obj_get(ins, "args");
-              int rc = emit_extern_call_lowering_plan_mir_call(
-                  f,
-                  block.id,
-                  ii,
-                  read_int(ins, "dst"),
-                  args);
-              if (rc != 1) return 0;
+              if (!module_generic_string_emit_externcall_instruction(
+                      f,
+                      block.id,
+                      ii,
+                      ins)) return 0;
               continue;
             }
             if (!strcmp(op, "keepalive") || !strcmp(op, "release_strong")) {
