@@ -247,7 +247,8 @@ Emit route wrappers（Program→MIR）:
 
 route contract note（fixed）:
 - helper 撤退は route/wrapper の集約を意味し、JSON v0 bridge contract の削除は含まない。
-- Program(JSON v0) を生成して MIR/VM に橋渡しする契約は本SSOTで維持する。
+- Program(JSON v0) を生成して Canonical MIR に橋渡しする契約は本SSOTで維持する。
+- VM はその canonical MIR/Program(JSON v0) keep を読む reference/debug consumer であり、daily mainline の必須経路ではない。
 - したがって `hako-helper` は縮退対象でも、`json_v0` は保持対象である。
 - ここでいう `Program(JSON v0)` retire は「current authority から外す / compat/bootstrap keep へ押し込む」を先に意味し、repo-wide caller inventory が 0 になる前の hard delete は含まない。
 

@@ -85,7 +85,7 @@ tools/perf/bench_compare_c_py_vs_hako.sh <bench_key> [warmup] [repeat]
 
 ## Smoke Contract
 
-### `phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh`
+### `phase21_5_perf_chip8_kernel_crosslang_contract.sh`
 
 検証項目:
 
@@ -108,7 +108,7 @@ tools/perf/bench_compare_c_py_vs_hako.sh chip8_kernel_small 1 1
 3. gate 実行例:
 
 ```bash
-bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
+bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract.sh
 ```
 
 ## Rules（必須）
@@ -125,7 +125,7 @@ bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_ch
 tools/perf/bench_compare_c_py_vs_hako.sh chip8_kernel_small 1 1
 
 # 2) contract smoke
-bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
+bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract.sh
 
 # 3) existing quick perf gate regression check
 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh

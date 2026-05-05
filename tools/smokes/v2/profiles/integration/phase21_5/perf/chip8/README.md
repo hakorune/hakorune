@@ -4,7 +4,8 @@ Chip8 crosslang baseline family.
 
 ## Contains
 
-- `phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh`
+- `phase21_5_perf_chip8_kernel_crosslang_contract.sh`
+- `phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh` (compat wrapper only)
 
 ## Contract
 

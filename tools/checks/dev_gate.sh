@@ -74,8 +74,8 @@ list_profiles() {
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
-    - phase291x_maplookup_fusion_const_fold_contract_vm.sh
-    - phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
+    - phase291x_maplookup_fusion_const_fold_contract_llvm.sh
+    - phase21_5_perf_chip8_kernel_crosslang_contract.sh
   hotpath:
     - quick
     - tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
@@ -338,11 +338,11 @@ run_quick() {
 
   run_step "MapLookup fusion const-fold contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
-      bash tools/smokes/v2/profiles/integration/apps/phase291x_maplookup_fusion_const_fold_contract_vm.sh
+      bash tools/smokes/v2/profiles/integration/apps/phase291x_maplookup_fusion_const_fold_contract_llvm.sh
 
-  run_step "chip8 crosslang contract smoke" \
+  run_step "chip8 crosslang mainline contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
-      bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
+      bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract.sh
 }
 
 run_hotpath() {
