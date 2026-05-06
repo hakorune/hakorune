@@ -17,11 +17,12 @@ static box BuildProgramFragmentBox {
   }
 
   method _inject_defs_json(ast_json, scan_src) {
-    if me._defs_scan_enabled() != 1 { return ast_json }
+    if me._defs_scan_enabled() != 1 { return "" + ast_json }
 
-    local defs_json = me._build_defs_fragment_json(scan_src, ast_json)
+    local defs_json = FuncScannerBox.collect_defs_fragment_json(scan_src)
     if me._is_freeze_tag(defs_json) == 1 { return defs_json }
-    return me._inject_defs_fragment_if_present(ast_json, defs_json)
+    if defs_json == "" || defs_json.length() <= 0 { return "" + ast_json }
+    return me.inject_json_fragment(ast_json, defs_json)
   }
 
   method _defs_scan_enabled() {
@@ -30,89 +31,18 @@ static box BuildProgramFragmentBox {
     return 1
   }
 
-  method _inject_defs_fragment_if_present(ast_json, defs_json) {
-    if defs_json == "" || defs_json.length() <= 0 { return ast_json }
-    return me.inject_json_fragment(ast_json, defs_json)
-  }
-
-  method _build_defs_fragment_json(scan_src, ast_json) {
-    // defs are collected from the same merged source handed to parser/using
-    // observers. Looking only at the original source drops bundled helper boxes.
-    local methods = FuncScannerBox.scan_all_boxes(scan_src)
-    return me._build_defs_json_with_source(methods)
-  }
-
   method _inject_imports_json(ast_json, scan_src) {
-    local imports_frag = me._build_imports_fragment_json(scan_src)
-    return me._inject_imports_fragment_if_present(ast_json, imports_frag)
+    local usings_json = UsingCollectorBox.collect(scan_src)
+    if usings_json == null || usings_json == "[]" || usings_json == "" { return "" + ast_json }
+    local imports_obj = me.convert_usings_to_imports(usings_json)
+    if imports_obj == null || imports_obj == "{}" || imports_obj == "" { return "" + ast_json }
+    return me.inject_json_fragment(ast_json, ",\"imports\":" + imports_obj)
   }
 
   method _inject_enum_decls_json(ast_json, scan_src) {
     local enum_decls = ParserEnumInventoryBox.collect(scan_src)
-    if enum_decls == null || enum_decls == "" || enum_decls == "[]" { return ast_json }
+    if enum_decls == null || enum_decls == "" || enum_decls == "[]" { return "" + ast_json }
     return me.inject_json_fragment(ast_json, ",\"enum_decls\":" + enum_decls)
-  }
-
-  method _build_defs_json_with_source(methods) {
-    local defs = methods
-    if defs == null { defs = new ArrayBox() }
-    return me._build_defs_json(defs)
-  }
-
-  method _build_defs_json(defs) {
-    if defs == null { return "" }
-    local cnt = defs.length()
-    if cnt == 0 { return "" }
-
-    local out = ",\"defs\":["
-    local i = 0
-    loop(i < cnt) {
-      local def = defs.get(i)
-      if def == null {
-        i = i + 1
-        continue
-      }
-      local def_str = "" + def
-      if def_str == def {
-        i = i + 1
-        continue
-      }
-
-      local mname = "" + def.get("name")
-      local mparams = def.get("params")
-      local mbody = "" + def.get("body_json")
-      local mbox = "" + def.get("box")
-      local wrapped_body = "{\"version\":0,\"kind\":\"Program\",\"body\":" + mbody + "}"
-      local params_arr = me._build_params_json(mparams)
-      if i > 0 { out = out + "," }
-      out = out + "{\"name\":\"" + mname + "\",\"params\":" + params_arr + ",\"body\":" + wrapped_body + ",\"box\":\"" + mbox + "\"}"
-      i = i + 1
-    }
-    out = out + "]"
-    return out
-  }
-
-  method _build_params_json(mparams) {
-    local params_arr = "["
-    if mparams != null {
-      local pi = 0
-      local pn = mparams.length()
-      loop(pi < pn) {
-        if pi > 0 { params_arr = params_arr + "," }
-        params_arr = params_arr + "\"" + ("" + mparams.get(pi)) + "\""
-        pi = pi + 1
-      }
-    }
-    params_arr = params_arr + "]"
-    return params_arr
-  }
-
-  method _build_imports_fragment_json(scan_src) {
-    local usings_json = UsingCollectorBox.collect(scan_src)
-    if usings_json == null || usings_json == "[]" || usings_json == "" { return "" }
-    local imports_obj = me.convert_usings_to_imports(usings_json)
-    if imports_obj == null || imports_obj == "{}" || imports_obj == "" { return "" }
-    return ",\"imports\":" + imports_obj
   }
 
   method convert_usings_to_imports(usings_json) {
@@ -137,16 +67,18 @@ static box BuildProgramFragmentBox {
       if entry_end < 0 { entry_end = n }
 
       local path_idx = StringHelpers.index_of(usings_json, name_idx, "\"path\":\"")
-      local path = null
+      local path = ""
+      local has_path = 0
       if path_idx >= 0 && path_idx < entry_end {
         local path_start = path_idx + 8
         local path_end = StringHelpers.index_of(usings_json, path_start, "\"")
         if path_end >= 0 && path_end < entry_end {
           path = usings_json.substring(path_start, path_end)
+          has_path = 1
         }
       }
 
-      if path != null && path != "" {
+      if has_path == 1 && path != "" {
         if count > 0 { out = out + "," }
         out = out + "\"" + name + "\":\"" + path + "\""
         count = count + 1
@@ -172,11 +104,6 @@ static box BuildProgramFragmentBox {
       return ajson.substring(0, close_pos) + fragment + ajson.substring(close_pos, ajson.length())
     }
     return json
-  }
-
-  method _inject_imports_fragment_if_present(ast_json, imports_frag) {
-    if imports_frag == "" || imports_frag.length() <= 0 { return ast_json }
-    return me.inject_json_fragment(ast_json, imports_frag)
   }
 
   method _is_freeze_tag(text) {

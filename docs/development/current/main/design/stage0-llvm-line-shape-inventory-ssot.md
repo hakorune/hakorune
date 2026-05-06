@@ -89,9 +89,11 @@ variant. MIR still records them as direct ABI targets with
 `proof=typed_global_call_parser_program_json` and
 `return_shape=string_handle`; `target_shape` is omitted because the proof/return
 contract plus `result_origin=string` metadata are now the SSOT for this retired
-source-execution capsule. Its Stage0 body definition is now emitted by the
-shared function emitter under `definition_owner=uniform_mir`; the old
-parser-only body clone has been removed.
+source-execution capsule. Its `definition_owner=diagnostics_only`, so Stage0 may
+surface the route as blocker evidence but must not plan or emit a same-module
+definition from it. The public BuildBox authority path lowers through the
+separate Stage1 runtime route fact; the private parser helper remains
+diagnostics-only.
 
 BoxTypeInspector describe direct calls are no longer a `GlobalCallTargetShape`
 variant. MIR still records them as direct ABI targets with

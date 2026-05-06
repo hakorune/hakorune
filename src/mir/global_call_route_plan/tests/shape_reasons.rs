@@ -148,38 +148,38 @@ fn refresh_module_global_call_routes_marks_parser_known_receiver_method_blocker(
 fn refresh_module_global_call_routes_marks_parser_program_json_contract_direct_target() {
     let mut module = MirModule::new("global_call_parser_program_json_body_test".to_string());
     let caller = make_function_with_global_call_args(
-        "BuildBox._parse_program_json/1",
+        "BuildBox._parse_program_json/2",
         Some(ValueId::new(20)),
-        vec![ValueId::new(1)],
+        vec![ValueId::new(1), ValueId::new(2)],
     );
     let mut callee = MirFunction::new(
         FunctionSignature {
-            name: "BuildBox._parse_program_json/1".to_string(),
-            params: vec![MirType::Integer],
+            name: "BuildBox._parse_program_json/2".to_string(),
+            params: vec![MirType::Integer, MirType::Integer],
             return_type: MirType::Integer,
             effects: EffectMask::PURE,
         },
         BasicBlockId::new(0),
     );
-    callee.params = vec![ValueId::new(1)];
+    callee.params = vec![ValueId::new(1), ValueId::new(2)];
     let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     block.instructions.extend([
         MirInstruction::NewBox {
-            dst: ValueId::new(2),
+            dst: ValueId::new(3),
             box_type: "ParserBox".to_string(),
             args: vec![],
         },
         MirInstruction::Copy {
-            dst: ValueId::new(3),
-            src: ValueId::new(2),
+            dst: ValueId::new(4),
+            src: ValueId::new(3),
         },
         MirInstruction::Call {
-            dst: Some(ValueId::new(4)),
+            dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
                 box_name: "ParserBox".to_string(),
                 method: "birth".to_string(),
-                receiver: Some(ValueId::new(3)),
+                receiver: Some(ValueId::new(4)),
                 certainty: TypeCertainty::Known,
                 box_kind: CalleeBoxKind::UserDefined,
             }),
@@ -187,47 +187,64 @@ fn refresh_module_global_call_routes_marks_parser_program_json_contract_direct_t
             effects: EffectMask::PURE,
         },
         MirInstruction::Const {
-            dst: ValueId::new(5),
+            dst: ValueId::new(6),
             value: ConstValue::Integer(1),
         },
         MirInstruction::Call {
-            dst: Some(ValueId::new(6)),
+            dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
                 box_name: "ParserBox".to_string(),
                 method: "stage3_enable".to_string(),
-                receiver: Some(ValueId::new(3)),
+                receiver: Some(ValueId::new(4)),
                 certainty: TypeCertainty::Known,
                 box_kind: CalleeBoxKind::UserDefined,
             }),
-            args: vec![ValueId::new(5)],
+            args: vec![ValueId::new(6)],
             effects: EffectMask::PURE,
         },
         MirInstruction::Copy {
-            dst: ValueId::new(7),
+            dst: ValueId::new(8),
             src: ValueId::new(1),
         },
+        MirInstruction::Copy {
+            dst: ValueId::new(9),
+            src: ValueId::new(2),
+        },
         MirInstruction::Call {
-            dst: Some(ValueId::new(8)),
+            dst: Some(ValueId::new(10)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "ParserBox".to_string(),
+                method: "set_enum_inventory_from_source".to_string(),
+                receiver: Some(ValueId::new(4)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            }),
+            args: vec![ValueId::new(9)],
+            effects: EffectMask::PURE,
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(11)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
                 box_name: "ParserBox".to_string(),
                 method: "parse_program2".to_string(),
-                receiver: Some(ValueId::new(3)),
+                receiver: Some(ValueId::new(4)),
                 certainty: TypeCertainty::Known,
                 box_kind: CalleeBoxKind::UserDefined,
             }),
-            args: vec![ValueId::new(7)],
+            args: vec![ValueId::new(8)],
             effects: EffectMask::PURE,
         },
     ]);
     block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(8)),
+        value: Some(ValueId::new(11)),
     });
     module.functions.insert("main".to_string(), caller);
     module
         .functions
-        .insert("BuildBox._parse_program_json/1".to_string(), callee);
+        .insert("BuildBox._parse_program_json/2".to_string(), callee);
 
     refresh_module_global_call_routes(&mut module);
 
@@ -241,10 +258,10 @@ fn refresh_module_global_call_routes_marks_parser_program_json_contract_direct_t
     assert_eq!(route.proof(), "typed_global_call_parser_program_json");
     assert_eq!(route.return_shape(), Some("string_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
-    assert_eq!(route.definition_owner(), "uniform_mir");
+    assert_eq!(route.definition_owner(), "diagnostics_only");
     assert_eq!(
         route.emit_trace_consumer(),
-        "mir_call_global_uniform_mir_emit"
+        "mir_call_global_diagnostics_only_emit"
     );
     assert_eq!(route.reason(), None);
 }
@@ -273,84 +290,21 @@ fn refresh_module_global_call_routes_marks_program_json_emit_body_direct_target(
             dst: ValueId::new(2),
             src: ValueId::new(1),
         },
-        MirInstruction::Call {
-            dst: Some(ValueId::new(3)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global(
-                "BuildBox._parse_program_json_from_scan_src/1".to_string(),
-            )),
-            args: vec![ValueId::new(2)],
-            effects: EffectMask::PURE,
-        },
-        MirInstruction::Copy {
-            dst: ValueId::new(4),
-            src: ValueId::new(3),
-        },
-        MirInstruction::Call {
-            dst: Some(ValueId::new(5)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global("BuildBox._is_freeze_tag/1".to_string())),
-            args: vec![ValueId::new(4)],
-            effects: EffectMask::PURE,
-        },
-        MirInstruction::Copy {
-            dst: ValueId::new(6),
-            src: ValueId::new(5),
-        },
         MirInstruction::Const {
-            dst: ValueId::new(7),
-            value: ConstValue::Integer(1),
-        },
-        MirInstruction::Compare {
-            dst: ValueId::new(8),
-            op: CompareOp::Eq,
-            lhs: ValueId::new(6),
-            rhs: ValueId::new(7),
-        },
-    ]);
-    entry.set_terminator(MirInstruction::Branch {
-        condition: ValueId::new(8),
-        then_bb: BasicBlockId::new(1),
-        else_bb: BasicBlockId::new(2),
-        then_edge_args: None,
-        else_edge_args: None,
-    });
-    let mut freeze_block = BasicBlock::new(BasicBlockId::new(1));
-    freeze_block.instructions.push(MirInstruction::Phi {
-        dst: ValueId::new(9),
-        inputs: vec![(BasicBlockId::new(0), ValueId::new(3))],
-        type_hint: Some(MirType::Integer),
-    });
-    freeze_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(9)),
-    });
-    let mut enrich_block = BasicBlock::new(BasicBlockId::new(2));
-    enrich_block.instructions.extend([
-        MirInstruction::Phi {
-            dst: ValueId::new(10),
-            inputs: vec![(BasicBlockId::new(0), ValueId::new(3))],
-            type_hint: Some(MirType::Integer),
-        },
-        MirInstruction::Phi {
-            dst: ValueId::new(11),
-            inputs: vec![(BasicBlockId::new(0), ValueId::new(1))],
-            type_hint: Some(MirType::Integer),
+            dst: ValueId::new(3),
+            value: ConstValue::Void,
         },
         MirInstruction::Call {
-            dst: Some(ValueId::new(12)),
+            dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global(
-                "BuildProgramFragmentBox.enrich/2".to_string(),
-            )),
-            args: vec![ValueId::new(10), ValueId::new(11)],
+            callee: Some(Callee::Global("BuildBox.emit_program_json_v0/2".to_string())),
+            args: vec![ValueId::new(2), ValueId::new(3)],
             effects: EffectMask::PURE,
         },
     ]);
-    enrich_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(12)),
+    entry.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
     });
-    callee.blocks.insert(BasicBlockId::new(1), freeze_block);
-    callee.blocks.insert(BasicBlockId::new(2), enrich_block);
     module.functions.insert("main".to_string(), caller);
     module.functions.insert(
         "BuildBox._emit_program_json_from_scan_src/1".to_string(),

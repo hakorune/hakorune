@@ -69,6 +69,7 @@ pub(super) enum GlobalCallProof {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum GlobalCallDefinitionOwner {
     None,
+    DiagnosticsOnly,
     LeafI64,
     GenericI64OrLeaf,
     ModuleGeneric,
@@ -175,8 +176,8 @@ impl GlobalCallProof {
             Self::ContractMissing => GlobalCallDefinitionOwner::None,
             Self::LeafNumericI64 => GlobalCallDefinitionOwner::LeafI64,
             Self::GenericI64 => GlobalCallDefinitionOwner::GenericI64OrLeaf,
+            Self::ParserProgramJson => GlobalCallDefinitionOwner::DiagnosticsOnly,
             Self::GenericStringVoidLogging
-            | Self::ParserProgramJson
             | Self::StaticStringArray
             | Self::MirSchemaMapConstructor
             | Self::BoxTypeInspectorDescribe
@@ -223,6 +224,7 @@ impl GlobalCallDefinitionOwner {
     fn as_json_name(self) -> &'static str {
         match self {
             Self::None => "none",
+            Self::DiagnosticsOnly => "diagnostics_only",
             Self::LeafI64 => "leaf_i64",
             Self::GenericI64OrLeaf => "generic_i64_or_leaf",
             Self::ModuleGeneric => "module_generic",
@@ -233,6 +235,7 @@ impl GlobalCallDefinitionOwner {
 
     fn emit_trace_consumer(self) -> &'static str {
         match self {
+            Self::DiagnosticsOnly => "mir_call_global_diagnostics_only_emit",
             Self::LeafI64 => "mir_call_global_leaf_emit",
             Self::GenericI64OrLeaf => "mir_call_global_generic_i64_emit",
             Self::ModuleGeneric => "mir_call_global_module_generic_emit",

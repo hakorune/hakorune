@@ -15,7 +15,14 @@ static box BuildBox {
     //   to full-source parse for non-box / non-main inputs
     if opts != null { return "[build/opts/source-only] use BuildBundleFacadeBox" }
     if me._bundle_env_requested() == 1 { return "[build/bundle/source-only] use BuildBundleFacadeBox" }
-    return me._emit_program_json_from_scan_src(src)
+    local parse_src = me._resolve_parse_src(src)
+    local ast_json = me._parse_program_json(parse_src, src)
+    if me._is_freeze_tag(ast_json) == 1 { return ast_json }
+    local enriched = BuildProgramFragmentBox._inject_defs_json(ast_json, src)
+    if me._is_freeze_tag(enriched) == 1 { return enriched }
+    enriched = BuildProgramFragmentBox._inject_enum_decls_json(enriched, src)
+    if me._is_freeze_tag(enriched) == 1 { return enriched }
+    return BuildProgramFragmentBox._inject_imports_json(enriched, src)
   }
 
   method _bundle_env_requested() {
@@ -34,17 +41,6 @@ static box BuildBox {
     p.stage3_enable(1)
     p.set_enum_inventory_from_source(scan_src)
     return p.parse_program2(parse_src)
-  }
-
-  method _emit_program_json_from_scan_src(scan_src) {
-    local ast_json = me._parse_program_json_from_scan_src(scan_src)
-    if me._is_freeze_tag(ast_json) == 1 { return ast_json }
-    return BuildProgramFragmentBox.enrich(ast_json, scan_src)
-  }
-
-  method _parse_program_json_from_scan_src(scan_src) {
-    local parse_src = me._resolve_parse_src(scan_src)
-    return me._parse_program_json(parse_src, scan_src)
   }
 
   method _is_freeze_tag(text) {

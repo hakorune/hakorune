@@ -41,6 +41,13 @@ Notes
   parsing, require CSV parsing, and bundle-input presence checks for BuildBox.
 - `BuildProgramFragmentBox` owns live defs/imports fragment construction,
   using-to-imports conversion, and Program(JSON v0) fragment injection.
+- Defs enrichment consumes `FuncScannerBox.collect_defs_fragment_json(source)`
+  as a scanner-owned text fragment seam; the public Build path must not consume
+  `FuncScannerBox.scan_all_boxes(source)` object records.
+- Defs method-body parsing uses the existing `ParserBox.parse_program2` seam;
+  the public Build path must not reintroduce `parse_block2` result stripping.
+- The legacy object-defs JSON builders were removed from this box after the
+  text-fragment seam became the only public defs enrichment path.
 - `BodyExtractionBox` owns parse-source narrowing from wrapped `Main.main`
   sources to the method body.
 - Current shape:
@@ -50,9 +57,8 @@ Notes
     - `BuildBundleFacadeBox._prepare_scan_src(...)`: bundle input collector plus resolver handoff only
     - `BuildBundleFacadeBox._new_prepare_scan_src_result(...)` / `BuildBundleFacadeBox._fail_prepare_scan_src(...)` / `BuildBundleFacadeBox._apply_prepare_scan_src_result(...)` / `BuildBundleFacadeBox._resolve_prepare_scan_src_if_needed(...)`: prepared-scan-src result/error/resolve handoff only
     - `BuildBundleFacadeBox._resolve_scan_src_from_bundle_ctx(...)`: `BuildBundleResolverBox` call only
+    - `BuildBox.emit_program_json_v0(...)`: public source-only producer seam
     - `_parse_program_json(...)`: parser entry only
-    - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
-    - `_parse_program_json_from_scan_src(...)`: parse-source narrowing handoff plus parser call only
     - `_resolve_parse_src(...)`: `BodyExtractionBox` parse-source narrowing handoff plus source-text fallback only
     - `_coerce_text_compat(...)`: fallback source-text materialization only
-    - `BuildProgramFragmentBox.enrich(...)`: defs/imports enrichment handoff only
+    - `BuildProgramFragmentBox._inject_defs_json(...)` / `_inject_enum_decls_json(...)` / `_inject_imports_json(...)`: direct fragment owner paths

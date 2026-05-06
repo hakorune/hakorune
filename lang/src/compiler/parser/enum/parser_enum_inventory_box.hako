@@ -1,5 +1,5 @@
-using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
 using lang.compiler.parser.scan.parser_ident_scan_box as ParserIdentScanBox
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box ParserEnumInventoryBox {
   collect(source) {
@@ -45,16 +45,39 @@ static box ParserEnumInventoryBox {
             in_block = 1
             next_i = i + 2
           }
-        } else if i + 4 <= n && s.substring(i, i + 4) == "enum" && me._kw_boundary_before(s, i) == 1 && me._kw_boundary_after(s, i + 4) == 1 {
-          local entry = me._scan_enum_decl(s, i)
-          local at = entry.lastIndexOf("@")
-          if at >= 0 {
-            local json = entry.substring(0, at)
-            next_i = ParserStringUtilsBox.to_int(entry.substring(at + 1, entry.length()))
-            if json != "" {
-              if count > 0 { out = out + "," }
-              out = out + json
-              count = count + 1
+        } else {
+          local enum_candidate = 0
+          if i + 4 <= n {
+            if s.substring(i, i + 4) == "enum" {
+              local before_ok = 1
+              if i > 0 {
+                local prev = s.substring(i - 1, i)
+                if StringHelpers.is_alpha(prev) == 1 { before_ok = 0 }
+                if StringHelpers.is_digit(prev) == 1 { before_ok = 0 }
+              }
+              if before_ok == 1 {
+                local after_i = i + 4
+                local after_ok = 1
+                if after_i < n {
+                  local next_ch = s.substring(after_i, after_i + 1)
+                  if StringHelpers.is_alpha(next_ch) == 1 { after_ok = 0 }
+                  if StringHelpers.is_digit(next_ch) == 1 { after_ok = 0 }
+                }
+                if after_ok == 1 { enum_candidate = 1 }
+              }
+            }
+          }
+          if enum_candidate == 1 {
+            local entry = me._scan_enum_decl(s, i)
+            local at = StringHelpers.last_index_of(entry, "@")
+            if at >= 0 {
+              local json = entry.substring(0, at)
+              next_i = StringHelpers.to_i64(entry.substring(at + 1, entry.length()))
+              if json != "" {
+                if count > 0 { out = out + "," }
+                out = out + json
+                count = count + 1
+              }
             }
           }
         }
@@ -76,7 +99,7 @@ static box ParserEnumInventoryBox {
     local found = null
     local found_count = 0
     loop(i < n) {
-      local open = ParserStringUtilsBox.index_of(text, i, "{")
+      local open = StringHelpers.index_of(text, i, "{")
       if open < 0 { break }
       local close = me._find_matching_delim(text, open, "{", "}")
       if close < 0 { break }
@@ -104,7 +127,7 @@ static box ParserEnumInventoryBox {
     if enum_obj == "" { return 0 }
     local variants_json = me._variants_array(enum_obj)
     if variants_json == "" { return 0 }
-    if ParserStringUtilsBox.index_of(variants_json, 0, "\"name\":\"" + variant_name + "\"") >= 0 {
+    if StringHelpers.index_of(variants_json, 0, "\"name\":\"" + variant_name + "\"") >= 0 {
       return 1
     }
     return 0
@@ -118,7 +141,7 @@ static box ParserEnumInventoryBox {
     local n = variants_json.length()
     local i = 0
     loop(i < n) {
-      local open = ParserStringUtilsBox.index_of(variants_json, i, "{")
+      local open = StringHelpers.index_of(variants_json, i, "{")
       if open < 0 { break }
       local close = me._find_matching_delim(variants_json, open, "{", "}")
       if close < 0 { break }
@@ -136,32 +159,32 @@ static box ParserEnumInventoryBox {
   _scan_enum_decl(source, idx) {
     local cursor = me._skip_ws(source, idx + 4)
     local identp = ParserIdentScanBox.scan_ident(source, cursor)
-    local at = identp.lastIndexOf("@")
-    if at < 0 { return "@" + ParserStringUtilsBox.i2s(cursor) }
+    local at = StringHelpers.last_index_of(identp, "@")
+    if at < 0 { return "@" + StringHelpers.int_to_str(cursor) }
     local name = identp.substring(0, at)
-    cursor = ParserStringUtilsBox.to_int(identp.substring(at + 1, identp.length()))
-    if name == "" { return "@" + ParserStringUtilsBox.i2s(cursor) }
+    cursor = StringHelpers.to_i64(identp.substring(at + 1, identp.length()))
+    if name == "" { return "@" + StringHelpers.int_to_str(cursor) }
 
     local type_params_json = "[]"
     cursor = me._skip_ws(source, cursor)
     if cursor < source.length() && source.substring(cursor, cursor + 1) == "<" {
       local type_params_res = me._scan_type_params_json(source, cursor)
-      local at_tp = type_params_res.lastIndexOf("@")
+      local at_tp = StringHelpers.last_index_of(type_params_res, "@")
       if at_tp >= 0 {
         type_params_json = type_params_res.substring(0, at_tp)
-        cursor = ParserStringUtilsBox.to_int(type_params_res.substring(at_tp + 1, type_params_res.length()))
+        cursor = StringHelpers.to_i64(type_params_res.substring(at_tp + 1, type_params_res.length()))
       }
     }
 
     cursor = me._skip_ws(source, cursor)
     if cursor >= source.length() || source.substring(cursor, cursor + 1) != "{" {
-      return "@" + ParserStringUtilsBox.i2s(cursor)
+      return "@" + StringHelpers.int_to_str(cursor)
     }
     local close = me._find_matching_delim(source, cursor, "{", "}")
-    if close < 0 { return "@" + ParserStringUtilsBox.i2s(source.length()) }
+    if close < 0 { return "@" + StringHelpers.int_to_str(source.length()) }
     local variants_json = me._scan_variants_json(source.substring(cursor + 1, close))
     local json = "{\"name\":\"" + name + "\",\"type_parameters\":" + type_params_json + ",\"variants\":" + variants_json + "}"
-    return json + "@" + ParserStringUtilsBox.i2s(close + 1)
+    return json + "@" + StringHelpers.int_to_str(close + 1)
   }
 
   _scan_type_params_json(source, open_idx) {
@@ -177,21 +200,23 @@ static box ParserEnumInventoryBox {
         break
       }
       local identp = ParserIdentScanBox.scan_ident(source, cursor)
-      local at = identp.lastIndexOf("@")
+      local at = StringHelpers.last_index_of(identp, "@")
       if at < 0 { break }
       local name = identp.substring(0, at)
-      cursor = ParserStringUtilsBox.to_int(identp.substring(at + 1, identp.length()))
+      cursor = StringHelpers.to_i64(identp.substring(at + 1, identp.length()))
       if name != "" {
         if count > 0 { out = out + "," }
         out = out + "\"" + name + "\""
         count = count + 1
       }
       cursor = me._skip_ws(source, cursor)
-      if cursor < n && source.substring(cursor, cursor + 1) == "," {
-        cursor = cursor + 1
+      if cursor < n {
+        if source.substring(cursor, cursor + 1) == "," {
+          cursor = cursor + 1
+        }
       }
     }
-    return out + "]@" + ParserStringUtilsBox.i2s(cursor)
+    return out + "]@" + StringHelpers.int_to_str(cursor)
   }
 
   _scan_variants_json(body) {
@@ -203,13 +228,13 @@ static box ParserEnumInventoryBox {
       cursor = me._skip_variant_separators(body, cursor)
       if cursor >= n { break }
       local identp = ParserIdentScanBox.scan_ident(body, cursor)
-      local at = identp.lastIndexOf("@")
+      local at = StringHelpers.last_index_of(identp, "@")
       if at < 0 {
         cursor = cursor + 1
         continue
       }
       local name = identp.substring(0, at)
-      cursor = ParserStringUtilsBox.to_int(identp.substring(at + 1, identp.length()))
+      cursor = StringHelpers.to_i64(identp.substring(at + 1, identp.length()))
       if name == "" { continue }
 
       local payload_json = "null"
@@ -217,8 +242,8 @@ static box ParserEnumInventoryBox {
       if cursor < n && body.substring(cursor, cursor + 1) == "(" {
         local close = me._find_matching_delim(body, cursor, "(", ")")
         if close < 0 { close = n - 1 }
-        local inner = ParserStringUtilsBox.trim(body.substring(cursor + 1, close))
-        if inner != "" && ParserStringUtilsBox.index_of(inner, 0, ",") < 0 {
+        local inner = StringHelpers.trim(body.substring(cursor + 1, close))
+        if inner != "" && StringHelpers.index_of(inner, 0, ",") < 0 {
           payload_json = "\"" + inner + "\""
         }
         cursor = close + 1
@@ -243,13 +268,13 @@ static box ParserEnumInventoryBox {
     local i = 0
     local seen = 0
     loop(i < n) {
-      local q1 = ParserStringUtilsBox.index_of(names, i, "\"")
+      local q1 = StringHelpers.index_of(names, i, "\"")
       if q1 < 0 { break }
-      local q2 = ParserStringUtilsBox.index_of(names, q1 + 1, "\"")
+      local q2 = StringHelpers.index_of(names, q1 + 1, "\"")
       if q2 < 0 { break }
       local name = names.substring(q1 + 1, q2)
       if name != "" {
-        if ParserStringUtilsBox.index_of(variants_json, 0, "\"name\":\"" + name + "\"") < 0 {
+        if StringHelpers.index_of(variants_json, 0, "\"name\":\"" + name + "\"") < 0 {
           return 0
         }
         seen = seen + 1
@@ -266,7 +291,7 @@ static box ParserEnumInventoryBox {
     local n = text.length()
     local i = 0
     loop(i < n) {
-      local open = ParserStringUtilsBox.index_of(text, i, "{")
+      local open = StringHelpers.index_of(text, i, "{")
       if open < 0 { break }
       local close = me._find_matching_delim(text, open, "{", "}")
       if close < 0 { break }
@@ -279,7 +304,7 @@ static box ParserEnumInventoryBox {
 
   _variants_array(enum_obj) {
     local key = "\"variants\":["
-    local start = ParserStringUtilsBox.index_of(enum_obj, 0, key)
+    local start = StringHelpers.index_of(enum_obj, 0, key)
     if start < 0 { return "" }
     local open = start + key.length() - 1
     local close = me._find_matching_delim(enum_obj, open, "[", "]")
@@ -289,17 +314,17 @@ static box ParserEnumInventoryBox {
 
   _json_string_field(obj, field_name) {
     local key = "\"" + field_name + "\":\""
-    local start = ParserStringUtilsBox.index_of(obj, 0, key)
+    local start = StringHelpers.index_of(obj, 0, key)
     if start < 0 { return "" }
     local value_start = start + key.length()
-    local value_end = ParserStringUtilsBox.index_of(obj, value_start, "\"")
+    local value_end = StringHelpers.index_of(obj, value_start, "\"")
     if value_end < 0 { return "" }
     return obj.substring(value_start, value_end)
   }
 
   _json_field_is_null(obj, field_name) {
     local key = "\"" + field_name + "\":null"
-    if ParserStringUtilsBox.index_of(obj, 0, key) >= 0 { return 1 }
+    if StringHelpers.index_of(obj, 0, key) >= 0 { return 1 }
     return 0
   }
 
@@ -333,19 +358,23 @@ static box ParserEnumInventoryBox {
 
   _kw_boundary_before(text, idx) {
     if idx <= 0 { return 1 }
-    if me._is_ident_char(text.substring(idx - 1, idx)) == 1 { return 0 }
+    local ch = text.substring(idx - 1, idx)
+    if StringHelpers.is_alpha(ch) == 1 { return 0 }
+    if StringHelpers.is_digit(ch) == 1 { return 0 }
     return 1
   }
 
   _kw_boundary_after(text, idx) {
     if idx >= text.length() { return 1 }
-    if me._is_ident_char(text.substring(idx, idx + 1)) == 1 { return 0 }
+    local ch = text.substring(idx, idx + 1)
+    if StringHelpers.is_alpha(ch) == 1 { return 0 }
+    if StringHelpers.is_digit(ch) == 1 { return 0 }
     return 1
   }
 
   _is_ident_char(ch) {
-    if ParserStringUtilsBox.is_alpha(ch) == 1 { return 1 }
-    if ParserStringUtilsBox.is_digit(ch) == 1 { return 1 }
+    if StringHelpers.is_alpha(ch) == 1 { return 1 }
+    if StringHelpers.is_digit(ch) == 1 { return 1 }
     if ch == "_" { return 1 }
     return 0
   }

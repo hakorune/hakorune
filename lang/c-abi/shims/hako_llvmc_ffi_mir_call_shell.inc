@@ -155,9 +155,6 @@
       auto int global_call_definition_target_is_ready(
           const struct LoweringPlanGlobalCallView* view) {
         if (!view) return 0;
-        if (lowering_plan_global_call_view_is_parser_program_json_contract(view)) {
-          return 0;
-        }
         if (lowering_plan_global_call_view_is_stage1_emit_program_json(view)) {
           return 1;
         }
@@ -188,9 +185,6 @@
         if (!entry) return 0;
         if (!(source && !strcmp(source, "global_call_routes"))) return 0;
         if (!read_lowering_plan_global_call_view(entry, &view)) return -1;
-        if (lowering_plan_global_call_view_is_parser_program_json_contract(&view)) {
-          return -1;
-        }
         is_void_sentinel_i64_zero =
             lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(&view);
         if (is_void_sentinel_i64_zero && !dst && !view.has_result_value) {

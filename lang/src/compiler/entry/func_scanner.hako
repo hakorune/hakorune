@@ -141,6 +141,391 @@ static box FuncScannerBox {
     return defs
   }
 
+  // Text-return seam for Program(JSON v0) enrichment.
+  // Keep the legacy ArrayBox/MapBox scanner API intact; BuildBox uses this
+  // path so defs enrichment does not depend on object-return ABI.
+  method collect_defs_fragment_json(source) {
+    if source == null { return "" }
+    local s = "" + source
+    local n = s.length()
+    local out = ",\"defs\":["
+    local chunks = 0
+    local i = 0
+    local in_str = 0
+    local esc = 0
+    local in_line = 0
+    local in_block = 0
+
+    loop(i < n) {
+      local next_i = i + 1
+      local ch = s.substring(i, i + 1)
+
+      if in_line == 1 {
+        if ch == "\n" { in_line = 0 }
+      } else if in_block == 1 {
+        if ch == "*" && i + 1 < n && s.substring(i + 1, i + 2) == "/" {
+          in_block = 0
+          next_i = i + 2
+        }
+      } else if in_str == 1 {
+        if esc == 1 {
+          esc = 0
+        } else if ch == "\\" {
+          esc = 1
+        } else if ch == "\"" {
+          in_str = 0
+        }
+      } else {
+        if ch == "\"" {
+          in_str = 1
+        } else if ch == "/" && i + 1 < n {
+          local ch2 = s.substring(i + 1, i + 2)
+          if ch2 == "/" {
+            in_line = 1
+            next_i = i + 2
+          } else if ch2 == "*" {
+            in_block = 1
+            next_i = i + 2
+          }
+        } else {
+          if i + 3 <= n && s.substring(i, i + 3) == "box" && FuncScannerHelpersBox.kw_boundary_before(s, i) == 1 && FuncScannerHelpersBox.kw_boundary_after(s, i + 3) == 1 {
+            local cursor = FuncScannerHelpersBox.skip_whitespace(s, i + 3)
+            local identp = FuncScannerBox._scan_ident_text(s, cursor)
+            local at_ident = StringHelpers.last_index_of(identp, "@")
+            local box_name = ""
+            if at_ident >= 0 {
+              box_name = identp.substring(0, at_ident)
+              cursor = StringHelpers.to_i64(identp.substring(at_ident + 1, identp.length()))
+            }
+            if box_name == "" {
+              next_i = cursor
+            } else {
+              local body_open = FuncScannerHelpersBox._seek_box_body_open_brace(s, cursor)
+              if body_open < 0 {
+                next_i = cursor
+              } else {
+                local close_idx = FuncScannerHelpersBox.find_matching_brace(s, body_open)
+                if close_idx < 0 {
+                  i = n
+                  next_i = n
+                } else {
+                  local body = s.substring(body_open + 1, close_idx)
+                  local skip_main = 0
+                  if box_name == "Main" { skip_main = 1 }
+                  local defs_arr = FuncScannerBox._scan_methods_defs_json_array(body, box_name, skip_main, 1)
+                  if defs_arr != null && defs_arr != "[]" && defs_arr.length() > 2 {
+                    local inner = defs_arr.substring(1, defs_arr.length() - 1)
+                    if inner != "" {
+                      if chunks > 0 { out = out + "," }
+                      out = out + inner
+                      chunks = chunks + 1
+                    }
+                  }
+                  next_i = close_idx + 1
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if next_i <= i { next_i = i + 1 }
+      i = next_i
+    }
+
+    if chunks == 0 { return "" }
+    return out + "]"
+  }
+
+  method _scan_methods_defs_json_array(source, box_name, skip_main, include_me) {
+    local s = "" + source
+    s = FuncScannerHelpersBox._strip_comments(s)
+    local scan_s = FuncScannerHelpersBox.mask_string_literals_keep_len(s)
+    local n = s.length()
+    local out = "["
+    local count = 0
+    local i = 0
+
+    loop(i < n) {
+      local next_i = i + 1
+      local k = -1
+      local name_start = -1
+      {
+        local pat = "method "
+        local m = pat.length()
+        local j = i
+        loop(j + m <= n) {
+          if scan_s.substring(j, j + m) == pat { k = j  break }
+          j = j + 1
+        }
+      }
+
+      if k >= 0 {
+        name_start = k + 7
+      } else {
+        local j = FuncScannerHelpersBox.skip_whitespace(scan_s, i)
+        if j >= n {
+          next_i = n
+        } else {
+          if FuncScannerHelpersBox.is_ident_char(scan_s.substring(j, j + 1)) == 1 {
+            name_start = j
+          } else {
+            next_i = j + 1
+          }
+        }
+      }
+
+      if name_start >= 0 {
+        local ident_start = FuncScannerHelpersBox.skip_whitespace(scan_s, name_start)
+        local identp = FuncScannerBox._scan_ident_text(scan_s, ident_start)
+        local at_ident = StringHelpers.last_index_of(identp, "@")
+        local method_name = ""
+        local ident_end = ident_start
+        if at_ident >= 0 {
+          method_name = identp.substring(0, at_ident)
+          ident_end = StringHelpers.to_i64(identp.substring(at_ident + 1, identp.length()))
+        }
+        local lparen = FuncScannerHelpersBox.skip_whitespace(scan_s, ident_end)
+
+        if method_name.length() > 0 && lparen < n && scan_s.substring(lparen, lparen + 1) == "(" {
+          local skip_this = 0
+          if skip_main == 1 && box_name == "Main" && method_name == "main" { skip_this = 1 }
+
+          local rparen = -1
+          {
+            local j = lparen + 1
+            local in_str2 = 0
+            local esc2 = 0
+            loop(j < n) {
+              local ch2 = s.substring(j, j + 1)
+              if in_str2 == 1 {
+                if esc2 == 1 { esc2 = 0  j = j + 1  continue }
+                if ch2 == "\\" { esc2 = 1  j = j + 1  continue }
+                if ch2 == "\"" { in_str2 = 0  j = j + 1  continue }
+                j = j + 1
+                continue
+              }
+              if ch2 == "\"" { in_str2 = 1  j = j + 1  continue }
+              if ch2 == ")" { rparen = j  break }
+              j = j + 1
+            }
+          }
+
+          if rparen >= 0 {
+            local params_str = s.substring(lparen + 1, rparen)
+            local params_json = FuncScannerBox._params_json_text(params_str, include_me)
+            local lbrace = FuncScannerHelpersBox._seek_method_body_open_brace(s, rparen + 1)
+
+            if lbrace >= 0 {
+              local rbrace = -1
+              {
+                local depth = 0
+                local j = lbrace
+                local in_str3 = 0
+                local esc3 = 0
+                loop(j < n) {
+                  local ch3 = s.substring(j, j + 1)
+                  if in_str3 == 1 {
+                    if esc3 == 1 { esc3 = 0  j = j + 1  continue }
+                    if ch3 == "\\" { esc3 = 1  j = j + 1  continue }
+                    if ch3 == "\"" { in_str3 = 0  j = j + 1  continue }
+                    j = j + 1
+                    continue
+                  }
+                  if ch3 == "\"" { in_str3 = 1  j = j + 1  continue }
+                  if ch3 == "{" { depth = depth + 1  j = j + 1  continue }
+                  if ch3 == "}" {
+                    depth = depth - 1
+                    j = j + 1
+                    if depth == 0 { rbrace = j - 1  break }
+                    continue
+                  }
+                  j = j + 1
+                }
+              }
+
+              if rbrace >= 0 {
+                local method_body = s.substring(lbrace + 1, rbrace)
+                method_body = FuncScannerHelpersBox._strip_comments(method_body)
+                method_body = FuncScannerHelpersBox._trim(method_body)
+                local body_json = ""
+                if method_body.length() > 0 {
+                  body_json = FuncScannerBox._parse_method_body_program_json(method_body)
+                }
+                if body_json != "" {
+                  if skip_this == 0 {
+                    if count > 0 { out = out + "," }
+                    out = out + "{\"name\":" + StringHelpers.json_quote(method_name) + ",\"params\":" + params_json + ",\"body\":" + body_json + ",\"box\":" + StringHelpers.json_quote(box_name) + "}"
+                    count = count + 1
+                  }
+                }
+                next_i = rbrace + 1
+              } else {
+                next_i = lbrace + 1
+              }
+            } else {
+              next_i = rparen + 1
+            }
+          } else {
+            next_i = lparen + 1
+          }
+        } else {
+          next_i = ident_start + 1
+        }
+      }
+
+      if next_i <= i { next_i = i + 1 }
+      i = next_i
+    }
+
+    return out + "]"
+  }
+
+  method _parse_method_body_program_json(method_body) {
+    local p = new ParserBox()
+    p.stage3_enable(1)
+    return p.parse_program2(method_body)
+  }
+
+  method _scan_ident_text(src, idx) {
+    local j = idx
+    local n = src.length()
+    if j >= n { return "@" + StringHelpers.int_to_str(idx) }
+    local ch = src.substring(j, j + 1)
+    if FuncScannerHelpersBox.is_ident_char(ch) != 1 { return "@" + StringHelpers.int_to_str(idx) }
+    j = j + 1
+    loop(j < n) {
+      local cj = src.substring(j, j + 1)
+      if FuncScannerHelpersBox.is_ident_char(cj) == 1 {
+        j = j + 1
+        continue
+      }
+      break
+    }
+    return src.substring(idx, j) + "@" + StringHelpers.int_to_str(j)
+  }
+
+  method _params_json_text(params_str, include_me) {
+    local text = ""
+    if params_str != null { text = "" + params_str }
+    local first_name = FuncScannerBox._first_param_name_text(text)
+    local out = "["
+    local count = 0
+    if include_me == 1 && first_name != "me" {
+      out = out + "\"me\""
+      count = 1
+    }
+
+    local n = text.length()
+    local cur = ""
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    local i = 0
+    loop(i < n) {
+      local ch = text.substring(i, i + 1)
+      if in_str == 1 {
+        cur = cur + ch
+        if esc == 1 {
+          esc = 0
+        } else if ch == "\\" {
+          esc = 1
+        } else if ch == "\"" {
+          in_str = 0
+        }
+        i = i + 1
+        continue
+      }
+      if ch == "\"" {
+        in_str = 1
+        cur = cur + ch
+        i = i + 1
+        continue
+      }
+      if ch == "(" || ch == "[" || ch == "{" {
+        depth = depth + 1
+        cur = cur + ch
+        i = i + 1
+        continue
+      }
+      if ch == ")" || ch == "]" || ch == "}" {
+        if depth > 0 { depth = depth - 1 }
+        cur = cur + ch
+        i = i + 1
+        continue
+      }
+      if ch == "," && depth == 0 {
+        local name = FuncScannerHelpersBox._normalize_param_name(cur)
+        if name.length() > 0 {
+          if count > 0 { out = out + "," }
+          out = out + StringHelpers.json_quote(name)
+          count = count + 1
+        }
+        cur = ""
+        i = i + 1
+        continue
+      }
+      cur = cur + ch
+      i = i + 1
+    }
+    local tail_name = FuncScannerHelpersBox._normalize_param_name(cur)
+    if tail_name.length() > 0 {
+      if count > 0 { out = out + "," }
+      out = out + StringHelpers.json_quote(tail_name)
+    }
+    return out + "]"
+  }
+
+  method _first_param_name_text(params_str) {
+    if params_str == null { return "" }
+    local text = "" + params_str
+    local n = text.length()
+    local cur = ""
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    local i = 0
+    loop(i < n) {
+      local ch = text.substring(i, i + 1)
+      if in_str == 1 {
+        cur = cur + ch
+        if esc == 1 {
+          esc = 0
+        } else if ch == "\\" {
+          esc = 1
+        } else if ch == "\"" {
+          in_str = 0
+        }
+        i = i + 1
+        continue
+      }
+      if ch == "\"" {
+        in_str = 1
+        cur = cur + ch
+        i = i + 1
+        continue
+      }
+      if ch == "(" || ch == "[" || ch == "{" {
+        depth = depth + 1
+        cur = cur + ch
+        i = i + 1
+        continue
+      }
+      if ch == ")" || ch == "]" || ch == "}" {
+        if depth > 0 { depth = depth - 1 }
+        cur = cur + ch
+        i = i + 1
+        continue
+      }
+      if ch == "," && depth == 0 {
+        return FuncScannerHelpersBox._normalize_param_name(cur)
+      }
+      cur = cur + ch
+      i = i + 1
+    }
+    return FuncScannerHelpersBox._normalize_param_name(cur)
+  }
+
   method _scan_methods(source, box_name, skip_main, include_me) {
     local methods = new ArrayBox()
     local s = "" + source

@@ -3,10 +3,16 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::{Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 
 pub(super) fn is_parser_program_json_body_function(function: &MirFunction) -> bool {
-    if function.params.len() != 1 || function.signature.params.len() != 1 {
+    if function.params.len() != function.signature.params.len()
+        || !matches!(function.params.len(), 1 | 2)
+    {
         return false;
     }
-    if !parser_source_type_is_handle_compatible(&function.signature.params[0])
+    if function
+        .signature
+        .params
+        .iter()
+        .any(|ty| !parser_source_type_is_handle_compatible(ty))
         || !parser_program_json_return_type_is_handle_compatible(&function.signature.return_type)
     {
         return false;
@@ -18,7 +24,10 @@ pub(super) fn is_parser_program_json_body_function(function: &MirFunction) -> bo
         return false;
     };
 
-    let mut state = ParserProgramJsonBodyState::new(function.params[0]);
+    let mut state = ParserProgramJsonBodyState::new(
+        function.params[0],
+        function.params.get(1).copied(),
+    );
     for instruction in block.instructions.iter().chain(block.terminator.iter()) {
         if !state.observe(instruction) {
             return false;
@@ -40,6 +49,7 @@ fn parser_program_json_return_type_is_handle_compatible(ty: &MirType) -> bool {
 #[derive(Debug)]
 struct ParserProgramJsonBodyState {
     source_param: ValueId,
+    enum_inventory_source_param: Option<ValueId>,
     aliases: BTreeMap<ValueId, ValueId>,
     parser_roots: BTreeSet<ValueId>,
     const_i64_values: BTreeMap<ValueId, i64>,
@@ -47,13 +57,15 @@ struct ParserProgramJsonBodyState {
     parse_result: Option<ValueId>,
     saw_birth: bool,
     saw_stage3_enable: bool,
+    saw_enum_inventory: bool,
     saw_return: bool,
 }
 
 impl ParserProgramJsonBodyState {
-    fn new(source_param: ValueId) -> Self {
+    fn new(source_param: ValueId, enum_inventory_source_param: Option<ValueId>) -> Self {
         Self {
             source_param,
+            enum_inventory_source_param,
             aliases: BTreeMap::new(),
             parser_roots: BTreeSet::new(),
             const_i64_values: BTreeMap::new(),
@@ -61,6 +73,7 @@ impl ParserProgramJsonBodyState {
             parse_result: None,
             saw_birth: false,
             saw_stage3_enable: false,
+            saw_enum_inventory: false,
             saw_return: false,
         }
     }
@@ -153,6 +166,9 @@ impl ParserProgramJsonBodyState {
                 if !self.saw_stage3_enable || self.parse_result.is_some() || args.len() != 1 {
                     return false;
                 }
+                if self.enum_inventory_source_param.is_some() && !self.saw_enum_inventory {
+                    return false;
+                }
                 if self.resolve(args[0]) != self.resolve(self.source_param) {
                     return false;
                 }
@@ -160,6 +176,26 @@ impl ParserProgramJsonBodyState {
                     return false;
                 };
                 self.parse_result = Some(dst);
+                true
+            }
+            "set_enum_inventory_from_source" => {
+                if !self.saw_stage3_enable
+                    || self.saw_enum_inventory
+                    || self.parse_result.is_some()
+                    || args.len() != 1
+                {
+                    return false;
+                }
+                let Some(enum_inventory_source_param) = self.enum_inventory_source_param else {
+                    return false;
+                };
+                if self.resolve(args[0]) != self.resolve(enum_inventory_source_param) {
+                    return false;
+                }
+                self.saw_enum_inventory = true;
+                if let Some(dst) = dst {
+                    self.const_i64_values.insert(dst, 0);
+                }
                 true
             }
             _ => false,
@@ -214,6 +250,7 @@ impl ParserProgramJsonBodyState {
         self.parser_root.is_some()
             && self.saw_birth
             && self.saw_stage3_enable
+            && (self.enum_inventory_source_param.is_none() || self.saw_enum_inventory)
             && self.parse_result.is_some()
             && self.saw_return
     }

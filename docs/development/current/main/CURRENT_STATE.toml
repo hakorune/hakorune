@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381FG-RUNTIME-HELPER-BOUNDARY-WORDING"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381FG-RUNTIME-HELPER-BOUNDARY-WORDING.md"
-latest_card_summary = "Kernel-side Stage1 Program(JSON) helper comments now describe a narrow runtime-boundary residue bucket instead of a vague compat-quarantine owner."
+latest_card = "P381FX-DEFS-METHOD-BODY-PROGRAM-NAME-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381FX-DEFS-METHOD-BODY-PROGRAM-NAME-CLEANUP.md"
+latest_card_summary = "The defs method-body parser seam was renamed to _parse_method_body_program_json to match its Program(JSON v0) contract; BuildBox enrichment remains DirectAbi with bad routes at zero."
 
-current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
+current_blocker_token = "concrete owner blocker: ParserBox.parse_program2"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

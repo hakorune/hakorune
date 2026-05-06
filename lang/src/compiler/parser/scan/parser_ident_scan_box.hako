@@ -1,25 +1,32 @@
 // Moved from apps/selfhost-compiler/boxes/parser/scan/parser_ident_scan_box.hako
-using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box ParserIdentScanBox {
   scan_ident(src, i) {
     local j = i
     local n = src.length()
-    if j >= n { return "@" + ParserStringUtilsBox.i2s(i) }
+    if j >= n { return "@" + StringHelpers.int_to_str(i) }
     // first char: alpha or '_'
     local ch = src.substring(j, j+1)
-    if !(ParserStringUtilsBox.is_alpha(ch) || ch == "_") { return "@" + ParserStringUtilsBox.i2s(i) }
+    local first_ok = 0
+    if StringHelpers.is_alpha(ch) == 1 { first_ok = 1 }
+    if ch == "_" { first_ok = 1 }
+    if first_ok != 1 { return "@" + StringHelpers.int_to_str(i) }
     j = j + 1
     // MirBuilder-friendly: explicit continue instead of if-else
     loop(j < n) {
       local ch = src.substring(j, j+1)
-      if ParserStringUtilsBox.is_alpha(ch) || ParserStringUtilsBox.is_digit(ch) || ch == "_" {
+      local ident_ok = 0
+      if StringHelpers.is_alpha(ch) == 1 { ident_ok = 1 }
+      if StringHelpers.is_digit(ch) == 1 { ident_ok = 1 }
+      if ch == "_" { ident_ok = 1 }
+      if ident_ok == 1 {
         j = j + 1
         continue
       }
       break
     }
     local s = src.substring(i, j)
-    return s + "@" + ParserStringUtilsBox.i2s(j)
+    return s + "@" + StringHelpers.int_to_str(j)
   }
 }

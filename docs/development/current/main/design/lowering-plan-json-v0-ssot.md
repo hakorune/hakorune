@@ -79,7 +79,7 @@ Optional fields may carry operands and result values:
 | `return_shape` | semantic result shape, or `null` |
 | `value_demand` | value demand expected by emitter/runtime |
 | `result_origin` | result-origin side effect for handle births, or `none` |
-| `definition_owner` | same-module definition owner set, or `none` |
+| `definition_owner` | same-module definition owner set, diagnostics-only owner, or `none` |
 | `emit_trace_consumer` | stable trace consumer tag selected by the plan builder |
 | `publication_policy` | publication/objectization policy, or `null` |
 | `effects` | stable effect tags |
@@ -198,15 +198,15 @@ that Stage0 needs to emit by route contract instead of proof-name lists:
 | field | vocabulary | meaning |
 | --- | --- | --- |
 | `result_origin` | `none`, `string`, `array_string_birth`, `map_birth` | post-call origin side effect for result registers |
-| `definition_owner` | `none`, `leaf_i64`, `generic_i64_or_leaf`, `module_generic`, `uniform_mir` | selected same-module definition set |
+| `definition_owner` | `none`, `diagnostics_only`, `leaf_i64`, `generic_i64_or_leaf`, `module_generic`, `uniform_mir`, `runtime_helper` | selected lowering owner set |
 | `emit_trace_consumer` | stable `[llvm-route/trace]` consumer string | trace identity chosen by MIR route facts |
 
 `result_origin` is the only source for Stage0 origin propagation on
-`global_call_routes`. `definition_owner` is the only source for deciding which
-same-module definition set should contain the target. `emit_trace_consumer` is
-the only source for global-call route trace consumer names. C shims must not
-reconstruct these from `proof`, `route_proof`, `target_shape`, or raw callee
-names.
+`global_call_routes`. `definition_owner` is the only source for deciding
+whether a route is emitted by a same-module definition set, a runtime helper, or
+diagnostics-only metadata. `emit_trace_consumer` is the only source for
+global-call route trace consumer names. C shims must not reconstruct these from
+`proof`, `route_proof`, `target_shape`, or raw callee names.
 
 When `target_exists=true` but `target_shape=null`, MIR must also carry
 `target_shape_reason` when it can explain why the target did not match a
@@ -338,7 +338,8 @@ retired capsule routes may instead be direct proof/return-shape contracts with
 `target_shape=null`.
 Parser Program(JSON) direct calls use
 `proof=typed_global_call_parser_program_json`, `return_shape=string_handle`,
-and `value_demand=runtime_i64_or_handle` with `target_shape=null`.
+`value_demand=runtime_i64_or_handle`, and
+`definition_owner=diagnostics_only` with `target_shape=null`.
 The string-or-void sentinel return-profile scan may classify
 `RuntimeDataBox.substring(i64)` / `RuntimeDataBox.substring(i64, i64)` /
 `StringBox.substring(i64)` / `StringBox.substring(i64, i64)` as a string return

@@ -15,7 +15,7 @@ static box BuildBundleFacadeBox {
     local prepared = me._prepare_scan_src(src, opts)
     if prepared.has("error") == true { return "" + prepared.get("error") }
     local scan_src = prepared.get("scan_src")
-    return BuildBox._emit_program_json_from_scan_src(scan_src)
+    return BuildBox.emit_program_json_v0(scan_src, null)
   }
 
   method _bundle_env_requested() {

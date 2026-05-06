@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `remaining capsule retirements need owner cleanup or uniform emitter`
+- current blocker token: `concrete owner blocker: ParserBox.parse_program2`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -31,8 +31,8 @@ Related:
   closed history lives in phase card files
 - normal `selfhost_build.sh --exe` is direct source MIR; raw Program(JSON)
   compat emit syntax is helper-owned and the easy public capsule-collapse wins
-  are done, so the next work is owner cleanup or the uniform MIR emitter for
-  the remaining blocked keepers
+  are done, and defs/imports/enum enrichment are DirectAbi on the public
+  BuildBox path
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
