@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381HB-BOX-TYPE-INSPECTOR-SIGNATURE-CONTRACT-HELPER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381HB-BOX-TYPE-INSPECTOR-SIGNATURE-CONTRACT-HELPER.md"
-latest_card_summary = "BoxTypeInspector describe now shares one local signature contract helper between candidate and reject paths, keeping the accepted shape unchanged."
+latest_card = "P381HC-VM-HAKO-SINGLETON-ARCHIVE-DELETE-WAVE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381HC-VM-HAKO-SINGLETON-ARCHIVE-DELETE-WAVE.md"
+latest_card_summary = "Deleted the safe vm_hako archive singletons for atomic, filebox_newbox, and tls; args_vm stays held because phase-291x cards still cite it as acceptance evidence."
 
 current_blocker_token = "phase-29cv targeted helper dedup if local seam is clear"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
