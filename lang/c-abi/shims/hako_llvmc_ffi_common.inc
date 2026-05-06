@@ -65,6 +65,16 @@ static int hako_llvmc_route_trace_enabled(void) {
          strcmp(value, "yes") == 0;
 }
 
+static int hako_llvmc_json_read_i64_field(
+    yyjson_val* obj,
+    const char* key,
+    long long* out) {
+  yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
+  if (!(val && yyjson_is_num(val))) return 0;
+  if (out) *out = (long long)yyjson_get_sint(val);
+  return 1;
+}
+
 static int hako_llvmc_fast_enabled(void) {
   const char* value = getenv("NYASH_LLVM_FAST");
   if (!value || !value[0]) return 0;

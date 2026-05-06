@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381GP-SMOKES-RUN-QUICK-SHIM-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381GP-SMOKES-RUN-QUICK-SHIM-CLEANUP.md"
-latest_card_summary = "The legacy smokes v2 run_quick.sh entry now delegates to the canonical quick profile instead of swallowing stale canary paths."
+latest_card = "P381GQ-JSON-I64-FIELD-READER-DEDUP"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381GQ-JSON-I64-FIELD-READER-DEDUP.md"
+latest_card_summary = "C ABI shims now share one required yyjson i64 field reader while route-specific validation stays local."
 
 current_blocker_token = "phase-29cv targeted helper dedup if local seam is clear"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

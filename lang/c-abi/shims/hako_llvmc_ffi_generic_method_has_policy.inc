@@ -11,16 +11,6 @@
         enum GenericMethodHasRouteKind route;
       };
 
-      auto int generic_method_has_route_read_i64_field(
-          yyjson_val* obj,
-          const char* key,
-          long long* out) {
-        yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
-        if (!(val && yyjson_is_num(val))) return 0;
-        if (out) *out = (long long)yyjson_get_sint(val);
-        return 1;
-      }
-
       auto const char* generic_method_has_helper_symbol(
           enum GenericMethodHasRouteKind route) {
         switch (route) {
@@ -260,8 +250,8 @@
           if (!(route_id && !strcmp(route_id, "generic_method.has"))) {
             continue;
           }
-          if (!generic_method_has_route_read_i64_field(route, "block", &block) ||
-              !generic_method_has_route_read_i64_field(
+          if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
+              !hako_llvmc_json_read_i64_field(
                   route,
                   "instruction_index",
                   &inst)) {
@@ -300,13 +290,13 @@
                !generic_method_has_receiver_origin_valid(route_kind, receiver_origin_box)) ||
               core_method_invalid ||
               route_kind == HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE ||
-              !generic_method_has_route_read_i64_field(route, "arity", &arity) ||
+              !hako_llvmc_json_read_i64_field(route, "arity", &arity) ||
               arity != 1 ||
-              !generic_method_has_route_read_i64_field(
+              !hako_llvmc_json_read_i64_field(
                   route,
                   "receiver_value",
                   &receiver_reg) ||
-              !generic_method_has_route_read_i64_field(route, "key_value", &key_reg) ||
+              !hako_llvmc_json_read_i64_field(route, "key_value", &key_reg) ||
               receiver_reg != recv ||
               key_reg != a0 ||
               !helper_symbol ||

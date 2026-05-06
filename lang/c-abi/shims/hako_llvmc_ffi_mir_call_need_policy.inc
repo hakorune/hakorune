@@ -253,16 +253,6 @@
         return mir_call_need_kind_from_name_rules(bname, rules, ARR_LEN(rules));
       }
 
-      auto int mir_call_need_route_read_i64_field(
-          yyjson_val* obj,
-          const char* key,
-          long long* out) {
-        yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
-        if (!(val && yyjson_is_num(val))) return 0;
-        if (out) *out = (long long)yyjson_get_sint(val);
-        return 1;
-      }
-
       auto enum MirCallNeedKind
       mir_call_need_kind_from_route_metadata_tokens(
           const char* route_id,
@@ -590,8 +580,8 @@
               HAKO_LLVMC_CORE_METHOD_METADATA_PROOF_NONE;
           enum CoreMethodLoweringTierMetadata lowering_tier =
               HAKO_LLVMC_CORE_METHOD_LOWERING_TIER_NONE;
-          if (!mir_call_need_route_read_i64_field(route, "block", &block) ||
-              !mir_call_need_route_read_i64_field(
+          if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
+              !hako_llvmc_json_read_i64_field(
                   route,
                   "instruction_index",
                   &inst) ||

@@ -13,16 +13,6 @@
         int has_stored_value_const;
       };
 
-      auto int map_lookup_fusion_read_i64_field(
-          yyjson_val* obj,
-          const char* key,
-          long long* out) {
-        yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
-        if (!(val && yyjson_is_num(val))) return 0;
-        if (out) *out = (long long)yyjson_get_sint(val);
-        return 1;
-      }
-
       auto int map_lookup_fusion_read_optional_i64_field(
           yyjson_val* obj,
           const char* key,
@@ -115,8 +105,8 @@
           if (!(route_id && !strcmp(route_id, "map_lookup.same_key"))) {
             continue;
           }
-          if (!map_lookup_fusion_read_i64_field(route, "block", &block) ||
-              !map_lookup_fusion_read_i64_field(route, target_inst_key, &target_inst)) {
+          if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
+              !hako_llvmc_json_read_i64_field(route, target_inst_key, &target_inst)) {
             if (out) out->invalid = 1;
             return 0;
           }
@@ -147,10 +137,10 @@
               !map_lookup_fusion_stored_value_proof_valid(stored_value_proof) ||
               !(proof && !strcmp(proof, "same_receiver_same_i64_key_scalar_get_has")) ||
               !(lowering_tier && !strcmp(lowering_tier, "cold_fallback")) ||
-              !map_lookup_fusion_read_i64_field(route, "receiver_value", &receiver_reg) ||
-              !map_lookup_fusion_read_i64_field(route, "key_value", &key_reg) ||
-              !map_lookup_fusion_read_i64_field(route, "get_result_value", &get_result_reg) ||
-              !map_lookup_fusion_read_i64_field(route, "has_result_value", &has_result_reg) ||
+              !hako_llvmc_json_read_i64_field(route, "receiver_value", &receiver_reg) ||
+              !hako_llvmc_json_read_i64_field(route, "key_value", &key_reg) ||
+              !hako_llvmc_json_read_i64_field(route, "get_result_value", &get_result_reg) ||
+              !hako_llvmc_json_read_i64_field(route, "has_result_value", &has_result_reg) ||
               !map_lookup_fusion_read_optional_i64_field(
                   route,
                   "stored_value_const",

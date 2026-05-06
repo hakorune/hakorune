@@ -7,15 +7,6 @@
        * the target body was emitted as a definition before a direct call uses
        * the symbol.
        */
-      auto int generic_pure_read_i64_field(
-          yyjson_val* obj,
-          const char* key,
-          long long* out) {
-        yyjson_val* v = obj ? yyjson_obj_get(obj, key) : NULL;
-        if (!(v && yyjson_is_num(v))) return 0;
-        if (out) *out = (long long)yyjson_get_sint(v);
-        return 1;
-      }
       auto int module_function_i64_leaf_const_is_numeric(yyjson_val* ins) {
         yyjson_val* value = ins ? yyjson_obj_get(ins, "value") : NULL;
         yyjson_val* ty = value ? yyjson_obj_get(value, "type") : NULL;
@@ -67,25 +58,25 @@
           if (!op) return 0;
           if (ii + 1 == inst_count) {
             return !strcmp(op, "ret") &&
-                   generic_pure_read_i64_field(ins, "value", &tmp);
+                   hako_llvmc_json_read_i64_field(ins, "value", &tmp);
           }
           if (!strcmp(op, "const")) {
-            if (!generic_pure_read_i64_field(ins, "dst", &tmp)) return 0;
+            if (!hako_llvmc_json_read_i64_field(ins, "dst", &tmp)) return 0;
             if (!module_function_i64_leaf_const_is_numeric(ins)) return 0;
             continue;
           }
           if (!strcmp(op, "copy")) {
-            if (!generic_pure_read_i64_field(ins, "dst", &tmp)) return 0;
-            if (!generic_pure_read_i64_field(ins, "src", &tmp)) return 0;
+            if (!hako_llvmc_json_read_i64_field(ins, "dst", &tmp)) return 0;
+            if (!hako_llvmc_json_read_i64_field(ins, "src", &tmp)) return 0;
             continue;
           }
           if (!strcmp(op, "binop")) {
             const char* kind = read_str(ins, "op_kind");
             if (!kind) kind = read_str(ins, "operation");
             if (!module_function_i64_leaf_binop_supported(kind)) return 0;
-            if (!generic_pure_read_i64_field(ins, "dst", &tmp)) return 0;
-            if (!generic_pure_read_i64_field(ins, "lhs", &tmp)) return 0;
-            if (!generic_pure_read_i64_field(ins, "rhs", &tmp)) return 0;
+            if (!hako_llvmc_json_read_i64_field(ins, "dst", &tmp)) return 0;
+            if (!hako_llvmc_json_read_i64_field(ins, "lhs", &tmp)) return 0;
+            if (!hako_llvmc_json_read_i64_field(ins, "rhs", &tmp)) return 0;
             continue;
           }
           return 0;
@@ -257,7 +248,7 @@
             yyjson_val* value = yyjson_obj_get(ins, "value");
             yyjson_val* literal = value ? yyjson_obj_get(value, "value") : NULL;
             long long dst = 0;
-            if (!generic_pure_read_i64_field(ins, "dst", &dst) ||
+            if (!hako_llvmc_json_read_i64_field(ins, "dst", &dst) ||
                 !module_leaf_put_const(
                     leaf_consts,
                     &leaf_consts_n,
@@ -270,8 +261,8 @@
           if (!strcmp(op, "copy")) {
             long long dst = 0;
             long long src = 0;
-            if (!generic_pure_read_i64_field(ins, "dst", &dst) ||
-                !generic_pure_read_i64_field(ins, "src", &src) ||
+            if (!hako_llvmc_json_read_i64_field(ins, "dst", &dst) ||
+                !hako_llvmc_json_read_i64_field(ins, "src", &src) ||
                 !module_leaf_put_copy(
                     aliases,
                     &aliases_n,
@@ -292,9 +283,9 @@
             if (!kind) kind = read_str(ins, "operation");
             irop = module_function_i64_leaf_irop(kind);
             if (!irop ||
-                !generic_pure_read_i64_field(ins, "dst", &dst) ||
-                !generic_pure_read_i64_field(ins, "lhs", &lhs) ||
-                !generic_pure_read_i64_field(ins, "rhs", &rhs)) {
+                !hako_llvmc_json_read_i64_field(ins, "dst", &dst) ||
+                !hako_llvmc_json_read_i64_field(ins, "lhs", &lhs) ||
+                !hako_llvmc_json_read_i64_field(ins, "rhs", &rhs)) {
               return -1;
             }
             module_leaf_format_i64_ref(
@@ -319,7 +310,7 @@
           if (!strcmp(op, "ret")) {
             long long value = 0;
             char value_ref[64];
-            if (!generic_pure_read_i64_field(ins, "value", &value)) return -1;
+            if (!hako_llvmc_json_read_i64_field(ins, "value", &value)) return -1;
             module_leaf_format_i64_ref(
                 value_ref,
                 sizeof(value_ref),

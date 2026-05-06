@@ -71,10 +71,7 @@
           yyjson_val* obj,
           const char* key,
           long long* out) {
-        yyjson_val* val = obj ? yyjson_obj_get(obj, key) : NULL;
-        if (!(val && yyjson_is_num(val))) return 0;
-        if (out) *out = (long long)yyjson_get_sint(val);
-        return 1;
+        return hako_llvmc_json_read_i64_field(obj, key, out);
       }
 
       auto int lowering_plan_read_bool_field(
