@@ -566,29 +566,15 @@
       auto int same_module_function_prepass_extern_call_view(
           const struct LoweringPlanExternCallView* extern_view,
           long long dst) {
+        int origin_kind = ORG_NONE;
         if (!extern_view) return 0;
-        if (lowering_plan_env_get_view_is_valid(extern_view)) {
-          same_module_function_publish_i64_origin(dst, ORG_STRING);
+        origin_kind = lowering_plan_extern_call_view_result_origin_kind(extern_view);
+        if (origin_kind != ORG_NONE) {
+          same_module_function_publish_i64_origin(dst, origin_kind);
           return 1;
         }
-        if (lowering_plan_env_set_view_is_valid(extern_view)) {
+        if (lowering_plan_extern_call_view_returns_scalar_i64(extern_view)) {
           set_type(dst, T_I64);
-          return 1;
-        }
-        if (lowering_plan_hostbridge_extern_invoke_view_is_valid(extern_view)) {
-          same_module_function_publish_i64_origin(dst, ORG_STRING);
-          return 1;
-        }
-        if (lowering_plan_stage1_emit_program_json_view_is_valid(extern_view)) {
-          same_module_function_publish_i64_origin(dst, ORG_STRING);
-          return 1;
-        }
-        if (lowering_plan_stage1_emit_mir_from_source_view_is_valid(extern_view)) {
-          same_module_function_publish_i64_origin(dst, ORG_STRING);
-          return 1;
-        }
-        if (lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(extern_view)) {
-          same_module_function_publish_i64_origin(dst, ORG_STRING);
           return 1;
         }
         return 0;

@@ -323,8 +323,28 @@
                view->proof &&
                !strcmp(view->proof, "extern_registry") &&
                view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
-               view->tier == tier;
+                !strcmp(view->route_proof, "extern_registry") &&
+                view->tier == tier;
+      }
+
+      auto int lowering_plan_extern_call_view_result_origin_kind(
+          const struct LoweringPlanExternCallView* view) {
+        if (!(view && view->return_shape && view->value_demand)) return ORG_NONE;
+        if (strcmp(view->value_demand, "runtime_i64_or_handle")) return ORG_NONE;
+        if (!strcmp(view->return_shape, "string_handle") ||
+            !strcmp(view->return_shape, "string_handle_or_null")) {
+          return ORG_STRING;
+        }
+        return ORG_NONE;
+      }
+
+      auto int lowering_plan_extern_call_view_returns_scalar_i64(
+          const struct LoweringPlanExternCallView* view) {
+        return view &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "scalar_i64") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "runtime_i64");
       }
 
       auto int read_lowering_plan_global_call_view(
