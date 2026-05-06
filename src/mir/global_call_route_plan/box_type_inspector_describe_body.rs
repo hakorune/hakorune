@@ -24,15 +24,8 @@ pub(super) fn box_type_inspector_describe_classification() -> GlobalCallTargetCl
 pub(super) fn box_type_inspector_describe_body_reject_reason(
     function: &MirFunction,
 ) -> Option<GenericPureStringReject> {
-    if function.params.len() != function.signature.params.len() || function.params.len() != 1 {
-        return Some(GenericPureStringReject::new(
-            GlobalCallTargetShapeReason::ParamBindingMismatch,
-        ));
-    }
-    if !box_type_inspector_return_type_candidate(&function.signature.return_type) {
-        return Some(GenericPureStringReject::new(
-            GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
-        ));
+    if let Some(reason) = box_type_inspector_describe_signature_blocker(function) {
+        return Some(GenericPureStringReject::new(reason));
     }
 
     let mut facts = BoxTypeInspectorDescribeFacts::default();
@@ -76,10 +69,7 @@ pub(super) fn box_type_inspector_describe_body_reject_reason(
 }
 
 pub(super) fn is_box_type_inspector_describe_body_candidate(function: &MirFunction) -> bool {
-    if function.params.len() != function.signature.params.len()
-        || function.params.len() != 1
-        || !box_type_inspector_return_type_candidate(&function.signature.return_type)
-    {
+    if box_type_inspector_describe_signature_blocker(function).is_some() {
         return false;
     }
 
@@ -90,6 +80,20 @@ pub(super) fn is_box_type_inspector_describe_body_candidate(function: &MirFuncti
         }
     }
     markers.is_candidate()
+}
+
+fn box_type_inspector_describe_signature_blocker(
+    function: &MirFunction,
+) -> Option<GlobalCallTargetShapeReason> {
+    if function.params.len() != function.signature.params.len() || function.params.len() != 1 {
+        return Some(GlobalCallTargetShapeReason::ParamBindingMismatch);
+    }
+    if !box_type_inspector_return_type_candidate(&function.signature.return_type) {
+        return Some(
+            GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
+        );
+    }
+    None
 }
 
 fn box_type_inspector_return_type_candidate(return_type: &MirType) -> bool {
