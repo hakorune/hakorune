@@ -5,7 +5,7 @@ Scope: inventory the remaining work after P381FY so the lane can be read as "wha
 
 ## Read
 
-After P381FD through P381GA, the lane is no longer blocked by:
+After P381FD through P381GB, the lane is no longer blocked by:
 
 - raw BuildBox matcher growth
 - parser-proof denylist cleanup
@@ -24,6 +24,8 @@ After P381FD through P381GA, the lane is no longer blocked by:
   string-or-void route
 - PatternUtil local-value probe proof/return contract split between the body
   recognizer and top-level classifier
+- BoxTypeInspector describe proof/return contract split between the body
+  recognizer and top-level classifier
 
 The remaining work is small in count but not all the same kind:
 
@@ -40,24 +42,12 @@ late cleanup phase
 
 ## Remaining Must-Fix Slices
 
-### 1. Remaining dedicated body-handling cleanup under T5
+### 1. T6 smoke/archive inventory before larger surface reduction
 
 SSOT:
 
 - `docs/development/current/main/phases/phase-29cv/P381BC-STAGE0-CAPSULE-EXIT-TASK-MAP.md`
 
-Target-shape retirement is done, but a few capsules still have body-handling or
-source-owner cleanup left under `.inc` consolidation / uniform-emitter cleanup:
-
-- BoxTypeInspector describe body handling
-
-These are no longer shape-expansion work. They are delete-last owner cleanup.
-
-### 2. T6 smoke/archive inventory before larger surface reduction
-
-SSOT:
-
-- `docs/development/current/main/phases/phase-29cv/P381BC-STAGE0-CAPSULE-EXIT-TASK-MAP.md`
 - `docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md`
 
 The large smoke/dev surface should not be reduced by feel. Before a meaningful
@@ -77,7 +67,7 @@ If the question is "how much is left?", the best current answer is:
 
 ```text
 must-fix:
-  2 slices
+  1 slice
 
 optional polish:
   2 smaller follow-ups
@@ -88,19 +78,18 @@ That is close enough to call the lane late-stage, but not close enough to say
 
 ## Ordered Next Checklist
 
-1. retire the remaining dedicated body-handling capsules under T5 without adding
-   new Stage0 semantics
-2. lock the smoke/archive inventory for T6 before any broad script reduction
+1. lock the smoke/archive inventory for T6 before any broad script reduction
 
 ## Concrete Near-Term Order
 
 `P381FN-CONCRETE-BLOCKER-ORDER.md` is the near-term ordering SSOT.
 
-Post-P381FY status: wrapper/enrichment cleanup is complete on the public BuildBox
-Program(JSON v0) path, and the parser Program(JSON) proof boundary is closed as
-diagnostics-only. The remaining concrete cleanup order is:
+Post-P381GB status: wrapper/enrichment cleanup is complete on the public
+BuildBox Program(JSON v0) path, parser Program(JSON) is diagnostics-only, and
+the remaining T5 owner/body cleanup is closed. The remaining concrete cleanup
+order is:
 
-1. BoxTypeInspector describe body handling
+1. T6 smoke/archive inventory before broad script reduction
 
 ## Result
 

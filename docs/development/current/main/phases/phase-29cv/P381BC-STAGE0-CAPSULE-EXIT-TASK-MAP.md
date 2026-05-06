@@ -176,10 +176,10 @@ the fact first and keep the deletion in a later card.
 ### T4: Source-Owner / Body Cleanup Follow-Ups
 
 No target-shape capsule remains. Generic string-or-void sentinel const
-publication is shared after P381FZ, and PatternUtil proof/return ownership is
-shared after P381GA. Remaining cleanup for BoxTypeInspector describe body
-handling must proceed as source-owner/body cleanup or uniform-emitter cleanup,
-not as another public shape.
+publication is shared after P381FZ, PatternUtil proof/return ownership is shared
+after P381GA, and BoxTypeInspector describe proof/return ownership is shared
+after P381GB. T5 owner/body cleanup is closed; the next structural cleanup is
+T6 smoke/archive inventory before any broad script reduction.
 
 ### T5: `.inc` Consolidation
 

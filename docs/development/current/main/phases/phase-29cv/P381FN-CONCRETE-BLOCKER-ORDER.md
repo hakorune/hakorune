@@ -1,7 +1,7 @@
 # P381FN Concrete Blocker Order
 
-Date: 2026-05-06 (refreshed post-P381GA)
-Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing/post-pattern-util blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA.
+Date: 2026-05-06 (refreshed post-P381GB)
+Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing/post-pattern-util/post-box-type-inspector blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB.
 
 ## Read
 
@@ -23,6 +23,7 @@ The public wrapper collapses are complete through:
 - `P381FY-PARSER-DIAGNOSTICS-BOUNDARY-CLOSEOUT`
 - `P381FZ-GENERIC-STRING-OR-VOID-SENTINEL-PLUMBING`
 - `P381GA-PATTERN-UTIL-PROBE-CONTRACT-HELPER`
+- `P381GB-BOX-TYPE-INSPECTOR-CONTRACT-HELPER`
 
 All intermediate wrapper methods in BuildBox and BuildProgramFragmentBox have been
 collapsed. The imports injection path also no longer depends on parser-private
@@ -41,6 +42,8 @@ Stage1 runtime helper.
 Generic string-or-void sentinel const publication is now shared between same-
 module prepass and emit const handling.
 PatternUtil local-value probe proof/return ownership is now shared by its body
+module contract helper.
+BoxTypeInspector describe proof/return ownership is now shared by its body
 module contract helper.
 
 ## Current Blocker Order
@@ -65,13 +68,12 @@ enrichment wrapper or promote parser-private ownership.
 
 Current preferred order:
 
-1. `BoxTypeInspector` describe body handling
-2. T6 smoke/archive inventory
+1. T6 smoke/archive inventory
 
 This keeps the lane on wrapper/owner cleanup and avoids promoting
 parser-private semantics into Stage0 without an explicit parser-owner card.
 
-## Result (post-P381GA)
+## Result (post-P381GB)
 
 `CURRENT_TASK.md` and the phase inventory should read the lane as:
 
@@ -87,9 +89,10 @@ parser-private semantics into Stage0 without an explicit parser-owner card.
 - parser diagnostics boundary closeout: complete (P381FY landed)
 - generic string-or-void sentinel plumbing cleanup: complete (P381FZ landed)
 - PatternUtil probe contract helper cleanup: complete (P381GA landed)
+- BoxTypeInspector describe contract helper cleanup: complete (P381GB landed)
 - parser-private contract discussion: no longer blocked by enrichment-side
   wrappers
-- current cleanup blocker: remaining T5 owner/body handling
+- current cleanup blocker: T6 smoke/archive inventory
 
-The next slices must address the remaining T5 body/owner seams, not wrapper
-structure and not parser-private ownership.
+The next slice is smoke/archive reachability inventory, not wrapper structure,
+not parser-private ownership, and not another Stage0 body-shape expansion.

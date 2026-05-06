@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `T5 owner cleanup: BoxTypeInspector describe body handling`
+  `T6 smoke/archive inventory before broad script reduction`
 - primary mode: Program(JSON v0) keeper closeout lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -67,7 +67,7 @@ Scope: current lane / next lane / restart order only.
 - next: the easy public capsule-collapse wins plus imports/enum/defs owner
   cleanup are done; parser Program(JSON) is closed as a diagnostics-only
   boundary and generic string-or-void sentinel plumbing is shared, leaving the
-  remaining BoxTypeInspector T5 owner/body cleanup seam
+  T6 smoke/archive inventory as the next cleanup gate
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold

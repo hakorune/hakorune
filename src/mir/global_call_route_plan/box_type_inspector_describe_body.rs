@@ -4,7 +4,22 @@ use crate::mir::extern_call_route_plan::{classify_extern_call_route, ExternCallR
 use crate::mir::{Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 
 use super::generic_string_reject::GenericPureStringReject;
-use super::model::GlobalCallTargetShapeReason;
+use super::model::{
+    GlobalCallProof, GlobalCallReturnContract, GlobalCallTargetClassification,
+    GlobalCallTargetShapeReason,
+};
+
+const BOX_TYPE_INSPECTOR_DESCRIBE_PROOF: GlobalCallProof =
+    GlobalCallProof::BoxTypeInspectorDescribe;
+const BOX_TYPE_INSPECTOR_DESCRIBE_RETURN_CONTRACT: GlobalCallReturnContract =
+    GlobalCallReturnContract::MapHandle;
+
+pub(super) fn box_type_inspector_describe_classification() -> GlobalCallTargetClassification {
+    GlobalCallTargetClassification::direct_contract(
+        BOX_TYPE_INSPECTOR_DESCRIBE_PROOF,
+        BOX_TYPE_INSPECTOR_DESCRIBE_RETURN_CONTRACT,
+    )
+}
 
 pub(super) fn box_type_inspector_describe_body_reject_reason(
     function: &MirFunction,

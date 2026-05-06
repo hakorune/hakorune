@@ -33,7 +33,8 @@ mod string_return_profile;
 mod type_label;
 
 use box_type_inspector_describe_body::{
-    box_type_inspector_describe_body_reject_reason, is_box_type_inspector_describe_body_candidate,
+    box_type_inspector_describe_body_reject_reason, box_type_inspector_describe_classification,
+    is_box_type_inspector_describe_body_candidate,
 };
 use builder_registry_dispatch_body::{
     builder_registry_dispatch_body_reject_reason, is_builder_registry_dispatch_body_candidate,
@@ -185,10 +186,7 @@ fn classify_global_call_target_shape(
         if let Some(reject) = box_type_inspector_describe_body_reject_reason(function) {
             return GlobalCallTargetClassification::unknown(reject.reason);
         }
-        return GlobalCallTargetClassification::direct_contract(
-            GlobalCallProof::BoxTypeInspectorDescribe,
-            GlobalCallReturnContract::MapHandle,
-        );
+        return box_type_inspector_describe_classification();
     }
     if is_mir_schema_map_constructor_body_candidate(function, targets) {
         if let Some(reject) = mir_schema_map_constructor_body_reject_reason(function, targets) {
