@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-30
+Date: 2026-05-07
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -30,17 +30,17 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-29cv Program(JSON v0) keeper closeout`
+- active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv targeted helper dedup if local seam is clear`
+- current blocker token: `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv targeted helper dedup if local seam is clear`
+- current blocker token: `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -51,16 +51,16 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-29cv` from the post-EXE-direct keeper inventory
-- normal `selfhost_build.sh --exe` is direct source MIR; raw Program(JSON)
-  compat emit syntax is helper-owned and the easy public capsule-collapse wins
-  are done, and defs/imports/enum enrichment are DirectAbi on the public
-  BuildBox path
-- parser Program(JSON) is closed as a diagnostics-only proof boundary; do not
-  promote `ParserBox.parse_program2`, and keep live source-owner calls on
-  `nyash.stage1.emit_program_json_v0_h`
-- current mirrors are thinned; continue with targeted helper dedup only if a
-  local owner seam is clear, unless a real Stage0 expressivity blocker appears
+- continue `phase-293x` real-app bringup
+- BoxTorrent mini is landed with app-local test and `real-apps` smoke coverage
+- next app: binary-trees allocation/shape benchmark
+- order after binary-trees: mimalloc-lite, then real allocator port
+- do not hide compiler blockers in app code; if a real app exposes a Stage0 or
+  VM/compiler seam, fix the compiler structurally first
+- real-app gate:
+  `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
+- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
+  card/taskboard first
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

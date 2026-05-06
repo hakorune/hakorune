@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-30
+Date: 2026-05-07
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -14,29 +14,27 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-29cv Program(JSON v0) keeper closeout`
+- active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv targeted helper dedup if local seam is clear`
+- current blocker token: `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue `phase-29cv` from the post-EXE-direct keeper inventory
-- cleanup checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
-  closed history lives in phase card files
-- normal `selfhost_build.sh --exe` is direct source MIR; raw Program(JSON)
-  compat emit syntax is helper-owned and the easy public capsule-collapse wins
-  are done, and defs/imports/enum enrichment are DirectAbi on the public
-  BuildBox path
-- parser Program(JSON) is closed as a diagnostics-only proof boundary; live
-  source-owner calls use `nyash.stage1.emit_program_json_v0_h`
-- current mirrors are thinned; continue with targeted helper dedup only if a
-  local owner seam is clear, unless a real Stage0 expressivity blocker appears
+- continue `phase-293x` real-app bringup
+- BoxTorrent mini is landed; binary-trees is next
+- real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port
+- run `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
+  for the active app suite
+- if a real app exposes a compiler expressivity blocker, fix the compiler seam
+  structurally instead of adding app-side workaround code
+- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
+  card/taskboard first
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
@@ -61,8 +59,8 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-29cv/README.md`
-3. `docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md`
+2. `docs/development/current/main/phases/phase-293x/README.md`
+3. `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
 4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
@@ -73,4 +71,5 @@ Related:
 git status -sb
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
+tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight
 ```

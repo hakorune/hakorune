@@ -1,0 +1,249 @@
+// BoxTorrent mini
+// Purpose: content-addressed chunks + dedupe + refcounted cache lifecycle.
+//
+// This is intentionally network-free. P2P transport can attach later to the
+// manifest/chunk-store seam without changing the content-owner model.
+
+static box ContentHash {
+    digest(text) {
+        local alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:.,/"
+        local acc = 17
+        local i = 0
+        local n = text.length()
+
+        loop(i < n) {
+            local ch = text.substring(i, i + 1)
+            local idx = alphabet.indexOf(ch)
+            if idx < 0 {
+                idx = 0
+            }
+            acc = (acc * 131 + idx + 1) % 1000003
+            i = i + 1
+        }
+
+        return "bt-" + n + "-" + acc
+    }
+}
+
+box ContentChunk {
+    init { cid, data, ref_count }
+
+    birth(cid, data) {
+        me.cid = cid
+        me.data = data
+        me.ref_count = 1
+    }
+
+    retain() {
+        me.ref_count = me.ref_count + 1
+        return me.ref_count
+    }
+
+    release() {
+        if me.ref_count > 0 {
+            me.ref_count = me.ref_count - 1
+        }
+        return me.ref_count
+    }
+}
+
+box BoxTorrentStore {
+    init { chunks, insertion_order, dedupe_hits }
+
+    birth() {
+        me.chunks = new MapBox()
+        me.insertion_order = new ArrayBox()
+        me.dedupe_hits = 0
+    }
+
+    put(data) {
+        local cid = ContentHash.digest(data)
+        if me.chunks.has(cid) {
+            local existing = me.chunks.get(cid)
+            existing.retain()
+            me.dedupe_hits = me.dedupe_hits + 1
+            return cid
+        }
+
+        local chunk = new ContentChunk(cid, data)
+        me.chunks.set(cid, chunk)
+        me.insertion_order.push(cid)
+        return cid
+    }
+
+    readData(cid) {
+        local chunk = me.chunks.get(cid)
+        if chunk == null {
+            return null
+        }
+        return chunk.data
+    }
+
+    refCount(cid) {
+        local chunk = me.chunks.get(cid)
+        if chunk == null {
+            return 0
+        }
+        return chunk.ref_count
+    }
+
+    release(cid) {
+        local chunk = me.chunks.get(cid)
+        if chunk == null {
+            return 0
+        }
+
+        local remain = chunk.release()
+        if remain == 0 {
+            me.chunks.delete(cid)
+        }
+        return remain
+    }
+
+    chunkCount() {
+        return me.chunks.keys().length()
+    }
+}
+
+box BoxTorrentManifest {
+    init { name, chunk_ids, total_bytes, root_id }
+
+    birth(name) {
+        me.name = name
+        me.chunk_ids = new ArrayBox()
+        me.total_bytes = 0
+        me.root_id = ""
+    }
+
+    addChunk(cid, byte_count) {
+        me.chunk_ids.push(cid)
+        me.total_bytes = me.total_bytes + byte_count
+    }
+
+    seal() {
+        me.root_id = ContentHash.digest(me.chunkListText())
+        return me.root_id
+    }
+
+    rootId() {
+        return me.root_id
+    }
+
+    totalBytes() {
+        return me.total_bytes
+    }
+
+    firstChunkId() {
+        if me.chunk_ids.length() == 0 {
+            return ""
+        }
+        return me.chunk_ids.get(0)
+    }
+
+    chunkListText() {
+        local out = ""
+        local ids = me.chunk_ids
+        local i = 0
+        local n = ids.length()
+        loop(i < n) {
+            if i > 0 {
+                out = out + "|"
+            }
+            out = out + ids.get(i)
+            i = i + 1
+        }
+        return out
+    }
+
+    materialize(store) {
+        local out = ""
+        local ids = me.chunk_ids
+        local i = 0
+        local n = ids.length()
+        loop(i < n) {
+            local cid = ids.get(i)
+            local data = store.readData(cid)
+            if data == null {
+                return null
+            }
+            out = out + data
+            i = i + 1
+        }
+        return out
+    }
+
+    releaseFrom(store) {
+        local ids = me.chunk_ids
+        local i = 0
+        local n = ids.length()
+        loop(i < n) {
+            store.release(ids.get(i))
+            i = i + 1
+        }
+    }
+}
+
+box BoxTorrentChunker {
+    ingest(store, name, data, chunk_size) {
+        local manifest = new BoxTorrentManifest(name)
+        local i = 0
+        local n = data.length()
+
+        loop(i < n) {
+            local end = i + chunk_size
+            if end > n {
+                end = n
+            }
+
+            local chunk_data = data.substring(i, end)
+            local cid = store.put(chunk_data)
+            manifest.addChunk(cid, chunk_data.length())
+            i = end
+        }
+
+        manifest.seal()
+        return manifest
+    }
+}
+
+static box Main {
+    main(args) {
+        local store = new BoxTorrentStore()
+        local chunker = new BoxTorrentChunker()
+        local source = Main.samplePayload()
+
+        local first = chunker.ingest(store, "payload-a", source, 8)
+        local second = chunker.ingest(store, "payload-a-copy", source, 8)
+
+        local restored = first.materialize(store)
+        local root_equal = first.rootId() == second.rootId()
+        local roundtrip = restored == source
+        local first_chunk = first.firstChunkId()
+        local ref_before_release = store.refCount(first_chunk)
+
+        second.releaseFrom(store)
+        local ref_after_release = store.refCount(first_chunk)
+
+        print("boxtorrent-mini")
+        print("root=" + first.rootId())
+        print("chunks=" + store.chunkCount())
+        print("bytes=" + first.totalBytes())
+        print("dedupe_hits=" + store.dedupe_hits)
+        print("root_equal=" + root_equal)
+        print("roundtrip=" + roundtrip)
+        print("ref_before_release=" + ref_before_release)
+        print("ref_after_release=" + ref_after_release)
+
+        if root_equal && roundtrip && ref_before_release == 2 && ref_after_release == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+
+    samplePayload() {
+        return "chunk001chunk002chunk003chunk004chunk005"
+    }
+}

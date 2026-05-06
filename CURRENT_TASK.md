@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-30
+Date: 2026-05-07
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -34,12 +34,12 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-29cv Program(JSON v0) keeper closeout`
+- active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `phase-29cv targeted helper dedup if local seam is clear`
-- primary mode: Program(JSON v0) keeper closeout lane
+  `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
+- primary mode: real-app bringup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -51,22 +51,22 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue `phase-29cv` from the post-EXE-direct keeper
-  inventory
+- resume point: continue `phase-293x` from the real-app suite; BoxTorrent
+  mini is the first landed slice, binary-trees is next
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
-  `tools/checks/dev_gate.sh quick` when the next slice is ready
+  `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
+  when the next app slice is ready
 
 ## Task Order
 
-- current task source: `CURRENT_STATE.toml` plus the latest phase-29cv card
+- current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: current mirrors are thinned; continue with targeted helper dedup only
-  if a local owner seam is clear, unless a real Stage0 expressivity blocker
-  appears
+- next: implement binary-trees as the next real app after BoxTorrent mini;
+  only change compiler acceptance when the app exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -77,29 +77,31 @@ Scope: current lane / next lane / restart order only.
 - do not add hot inline lowering without proof/evidence gate
 - do not reopen landed CoreBox router rows without an owner-path change
 
-## Current Ordered Cleanup
+## Current Ordered App Bringup
 
-- latest cleanup card: read `latest_card_path` in
+- latest app card: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- latest checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
-  landed history lives in phase card files
-- next cleanup: targeted helper dedup only when a local owner seam is clear
-- parser boundary: do not promote `ParserBox.parse_program2`; live source-owner
-  Program(JSON v0) calls route through `nyash.stage1.emit_program_json_v0_h`
-- normalized-shadow / normalization cleanup burst is closed; larger findings
-  must move to a new lane
-- keep these cleanup cards BoxShape-only; do not change bundle semantics, do
-  not reuse legacy `entry/bundle_resolver.hako`, and do not reopen
-  CoreMethodContract fallback rows
+- order:
+  1. BoxTorrent mini
+  2. binary-trees
+  3. mimalloc-lite
+  4. real allocator port
+- current status: BoxTorrent mini landed; binary-trees is next
+- compiler rule: do not hide a real compiler blocker in app code; fix the
+  compiler seam structurally when needed
 
 ## Detail Pointers
 
-- Program(JSON v0) keeper closeout phase:
-  `docs/development/current/main/phases/phase-29cv/README.md`
-- Current cleanup checkpoint: read `latest_card_path` in
+- Real-app bringup phase:
+  `docs/development/current/main/phases/phase-293x/README.md`
+- Real-app taskboard:
+  `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+- Real-app smoke suite:
+  `tools/smokes/v2/suites/integration/real-apps.txt`
+- Current app checkpoint: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
-- Current keeper inventory card:
-  `docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md`
+- Current app card:
+  `docs/development/current/main/phases/phase-293x/293x-001-BOXTORRENT-MINI-LOCAL-STORE.md`
 - Bootstrap route SSOT:
   `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Perf owner-first policy:

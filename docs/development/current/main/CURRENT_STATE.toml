@@ -6,20 +6,20 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-06"
+date = "2026-05-07"
 
-active_lane = "phase-29cv Program(JSON v0) keeper closeout"
-active_lane_status = "Post-P53 cleanup remains intact, and the first temporary global-call capsule is retired from the target-shape inventory; remaining capsules require origin cleanup, source-owner cleanup, or the uniform MIR emitter instead of another broad shape collapse."
-active_phase = "docs/development/current/main/phases/phase-29cv/README.md"
-phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON-V0-COMPAT-CAPSULE-SSOT.md"
-method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
+active_lane = "phase-293x real-app bringup"
+active_lane_status = "Real app lane is active after Program(JSON v0) cleanup; bring up BoxTorrent mini, binary-trees, mimalloc-lite, then the real allocator port while keeping compiler fixes structural."
+active_phase = "docs/development/current/main/phases/phase-293x/README.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORRENT-MINI-LOCAL-STORE.md"
+method_anchor = "apps/README.md"
+taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "P381HI-SELFHOST-STAGEB-OOB-ARCHIVE-DELETE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381HI-SELFHOST-STAGEB-OOB-ARCHIVE-DELETE.md"
-latest_card_summary = "Retired the last archive-only selfhost Stage-B OOB manual canary by deleting the opt-in smoke and removing its remaining keep references."
+latest_card = "293x-001-BOXTORRENT-MINI-LOCAL-STORE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORRENT-MINI-LOCAL-STORE.md"
+latest_card_summary = "Added BoxTorrent mini as the first real-app lane slice with deterministic content chunks, dedupe/refcount checks, app-local test, and real-app smoke suite entry."
 
-current_blocker_token = "phase-29cv targeted helper dedup if local seam is clear"
+current_blocker_token = "phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -222,4 +222,5 @@ landed_tail = [
   "29cv-P381HG same-module definition emit helper dedup landed",
   "29cv-P381HH stale Stage1 emit override retire landed",
   "29cv-P381HI selfhost Stage-B OOB archive delete landed",
+  "293x-001 BoxTorrent mini local content store landed",
 ]
