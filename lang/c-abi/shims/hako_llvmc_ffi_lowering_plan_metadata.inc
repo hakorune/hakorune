@@ -240,6 +240,28 @@
                view->tier == tier;
       }
 
+      auto int lowering_plan_generic_method_view_matches_symbolic_route(
+          const struct LoweringPlanGenericMethodView* view,
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          const char* symbol,
+          const char* route_proof,
+          enum LoweringPlanTierMetadata tier) {
+        return lowering_plan_generic_method_view_matches_route_tuple(
+                   view,
+                   route_id,
+                   core_op,
+                   route_kind,
+                   tier) &&
+               view->symbol &&
+               symbol &&
+               !strcmp(view->symbol, symbol) &&
+               view->route_proof &&
+               route_proof &&
+               !strcmp(view->route_proof, route_proof);
+      }
+
       auto int read_lowering_plan_extern_call_view(
           yyjson_val* entry,
           struct LoweringPlanExternCallView* out) {

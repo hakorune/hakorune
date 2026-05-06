@@ -252,6 +252,8 @@ Completed focused probe:
     metadata view so need-policy and call-emission consume the same predicate
   - P381EX renamed the runtime declaration need flag struct to
     `MirCallNeedFlags`, removing the old generic-pure owner name
+  - P381EY moved generic-method route tuple plus symbol/proof validation into
+    the LoweringPlan metadata view for MIR-call need classification
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

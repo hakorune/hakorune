@@ -533,6 +533,11 @@ MIR-call need flag naming cleanup landed in
 the runtime declaration need flags now use the `MirCallNeedFlags` owner name
 instead of the old generic-pure name.
 
+Generic-method symbolic route validation cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EY-GENERIC-METHOD-SYMBOLIC-ROUTE-MATCH-HELPER.md`:
+MIR-call need classification now consumes the LoweringPlan-owned predicate for
+route tuple plus symbol/proof validation.
+
 Primary remaining targets:
 
 - `hako_llvmc_ffi_mir_call_need_policy.inc`

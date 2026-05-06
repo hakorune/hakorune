@@ -323,16 +323,14 @@
           const struct LoweringPlanGenericMethodView* view,
           const struct LoweringPlanNeedRule* rule) {
         if (!(view && rule)) return 0;
-        return lowering_plan_generic_method_view_matches_route_tuple(
-                   view,
-                   rule->route_id,
-                   rule->core_op,
-                   rule->route_kind,
-                   rule->tier) &&
-               view->symbol &&
-               !strcmp(view->symbol, rule->symbol) &&
-               view->route_proof &&
-               !strcmp(view->route_proof, rule->route_proof);
+        return lowering_plan_generic_method_view_matches_symbolic_route(
+            view,
+            rule->route_id,
+            rule->core_op,
+            rule->route_kind,
+            rule->symbol,
+            rule->route_proof,
+            rule->tier);
       }
 
       auto enum MirCallNeedKind
