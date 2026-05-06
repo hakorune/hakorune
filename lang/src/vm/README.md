@@ -149,7 +149,6 @@ PHI Strict（既定ON）
 Quick profile opt‑in switches (smokes)
 - `SMOKES_ENABLE_LOOP_COMPARE=1` — Direct↔Bridge parity for loops (sum/break/continue/nested/mixed)
 - `SMOKES_ENABLE_LOOP_BRIDGE=1` — Bridge(JSON v0) loop canaries (quiet; last numeric extraction)
-- `SMOKES_ENABLE_STAGEB_OOB=1` — Stage‑B OOB observation (array/map)
 - `SMOKES_ENABLE_OOB_STRICT=1` — Gate‑C(Core) strict OOB fail‑fast canary (`gate_c_oob_strict_fail_vm.sh`)
 - `SMOKES_ENABLE_LLVM_SELF_PARAM=1` — LLVM instruction boxes self‑param builder tests (const/binop/compare/branch/jump/ret)
 - `SMOKES_ENABLE_STAGEB=1` — Stage‑B positive canaries（emit→Gate‑C）。既定OFF（安定化後に昇格予定）。

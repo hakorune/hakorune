@@ -65,7 +65,6 @@ smokes so future cleanup does not delete live profile entries by mistake.
 | `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_binop_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB=1` | manual Stage-B binop diagnostic |
 | `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_if_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB=1` | manual Stage-B if diagnostic |
 | `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_index_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB=1` | manual Stage-B index diagnostic |
-| `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_oob_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB_OOB=1` | manual OOB diagnostic canary |
 | `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_v1_compat_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB_V1=1` | manual v1-compat diagnostic canary |
 
 ### Keep current entry
