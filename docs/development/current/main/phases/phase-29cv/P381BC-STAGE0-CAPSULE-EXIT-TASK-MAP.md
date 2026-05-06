@@ -181,7 +181,7 @@ after P381GA, and BoxTypeInspector describe proof/return ownership is shared
 after P381GB. T5 owner/body cleanup is closed. P381GC locks T6 smoke/archive
 inventory and shows the archive/manual buckets are mixed protected/referenced
 surfaces. P381GD fixes the inventory report class-column summary, so the next
-structural cleanup is closing out remaining referenced smoke holds.
+structural cleanup is optional polish only.
 
 ### T5: `.inc` Consolidation
 
@@ -578,7 +578,8 @@ archive scripts, and P381GF deletes only that wave. The next slice is
 classifies the held legacy root-smoke zero-ref group as delete candidates; the
 next slice is deleting only that group.
 P381GH deletes that group and leaves only referenced/owner-held smoke surfaces
-for closeout.
+for closeout. P381GI closes T6 for this lane; future smoke deletion must be an
+owner-specific card, not a continuation of broad T6 deletion.
 
 ## Boundary
 

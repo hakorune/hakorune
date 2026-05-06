@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `T6 referenced smoke holds closeout`
+  `phase-29cv optional polish after T6`
 - primary mode: Program(JSON v0) keeper closeout lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -69,8 +69,8 @@ Scope: current lane / next lane / restart order only.
   boundary, generic string-or-void sentinel plumbing is shared, T6
   smoke/archive inventory is locked, the inventory report class-column summary
   is fixed, the first zero-ref v2 archive delete wave is landed, and the
-  legacy root-smoke zero-ref group is deleted. Close out remaining referenced
-  smoke holds next
+  legacy root-smoke zero-ref group is deleted, and T6 referenced smoke holds
+  are closed out. Continue only optional polish next
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold

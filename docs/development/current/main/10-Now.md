@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `T6 referenced smoke holds closeout`
+- current blocker token: `phase-29cv optional polish after T6`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -38,8 +38,9 @@ Related:
 - generic string-or-void sentinel const publication is shared; remaining T5
   body cleanup is closed, T6 smoke/archive inventory is locked, and the
   inventory report class-column summary is fixed, and the first zero-ref v2
-  archive delete wave is landed, and the legacy root-smoke zero-ref group is
-  deleted. The next gate is closing out remaining referenced smoke holds
+  archive delete wave is landed, the legacy root-smoke zero-ref group is
+  deleted, and T6 referenced smoke holds are closed out. The next gate is
+  optional polish only
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work

@@ -1,7 +1,7 @@
 # P381FN Concrete Blocker Order
 
-Date: 2026-05-06 (refreshed post-P381GH)
-Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing/post-pattern-util/post-box-type-inspector/post-smoke-inventory/tooling/candidate/delete/lifecycle blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB/P381GC/P381GD/P381GE/P381GF/P381GG/P381GH.
+Date: 2026-05-06 (refreshed post-P381GI)
+Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing/post-pattern-util/post-box-type-inspector/post-smoke-inventory/tooling/candidate/delete/lifecycle/hold-closeout blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB/P381GC/P381GD/P381GE/P381GF/P381GG/P381GH/P381GI.
 
 ## Read
 
@@ -30,6 +30,7 @@ The public wrapper collapses are complete through:
 - `P381GF-SMOKE-ARCHIVE-FIRST-DELETE-WAVE`
 - `P381GG-LEGACY-ROOT-SMOKE-LIFECYCLE`
 - `P381GH-LEGACY-ROOT-SMOKE-DELETE`
+- `P381GI-SMOKE-REFERENCED-HOLDS-CLOSEOUT`
 
 All intermediate wrapper methods in BuildBox and BuildProgramFragmentBox have been
 collapsed. The imports injection path also no longer depends on parser-private
@@ -59,6 +60,7 @@ The first deletion candidate wave is fixed to 45 zero-ref v2 archive scripts.
 The first deletion wave removed only those 45 v2 archive scripts.
 The held legacy root-smoke zero-ref group is lifecycle-classified for deletion.
 That group is now deleted; remaining smoke rows are referenced or owner-held.
+Referenced smoke holds are closed out for this lane.
 
 ## Current Blocker Order
 
@@ -82,12 +84,13 @@ enrichment wrapper or promote parser-private ownership.
 
 Current preferred order:
 
-1. T6 referenced smoke holds closeout
+1. optional doc compaction / mirror thinning
+2. targeted helper dedup only when a local owner seam is clear
 
 This keeps the lane on wrapper/owner cleanup and avoids promoting
 parser-private semantics into Stage0 without an explicit parser-owner card.
 
-## Result (post-P381GH)
+## Result (post-P381GI)
 
 `CURRENT_TASK.md` and the phase inventory should read the lane as:
 
@@ -111,10 +114,10 @@ parser-private semantics into Stage0 without an explicit parser-owner card.
 - first zero-ref v2 archive delete wave: complete (P381GF landed)
 - legacy root-smoke lifecycle classification: complete (P381GG landed)
 - legacy root-smoke zero-ref deletion: complete (P381GH landed)
+- referenced smoke holds closeout: complete (P381GI landed)
 - parser-private contract discussion: no longer blocked by enrichment-side
   wrappers
-- current cleanup blocker: T6 referenced smoke holds closeout
+- current cleanup blocker: optional polish after T6
 
-The next slice is closing out remaining referenced/owner-held smoke rows, not
-wrapper structure, not parser-private ownership, and not another Stage0
-body-shape expansion.
+The next slice is optional polish, not wrapper structure, not parser-private
+ownership, and not another Stage0 body-shape expansion.

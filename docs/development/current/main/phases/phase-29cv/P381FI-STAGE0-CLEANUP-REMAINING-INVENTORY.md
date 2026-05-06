@@ -5,7 +5,7 @@ Scope: inventory the remaining work after P381FY so the lane can be read as "wha
 
 ## Read
 
-After P381FD through P381GH, the lane is no longer blocked by:
+After P381FD through P381GI, the lane is no longer blocked by:
 
 - raw BuildBox matcher growth
 - parser-proof denylist cleanup
@@ -38,10 +38,11 @@ After P381FD through P381GH, the lane is no longer blocked by:
   zero-ref legacy root scripts as delete candidates
 - legacy root-smoke zero-ref deletion; P381GH deletes exactly the four P381GG
   candidates
+- referenced smoke hold closeout; P381GI closes remaining T6 holds without
+  approving more broad deletion
 
-The remaining work is small in count but not all the same kind:
+The remaining work is optional polish:
 
-- a small number of **must-fix owner/contract slices**
 - a small amount of **optional polish / shrink-last cleanup**
 
 So the honest reading is:
@@ -54,7 +55,9 @@ late cleanup phase
 
 ## Remaining Must-Fix Slices
 
-### 1. T6 referenced smoke holds closeout
+None in this cleanup lane after P381GI.
+
+## Optional Polish
 
 SSOT:
 
@@ -74,14 +77,11 @@ SSOT:
 
 - `docs/development/current/main/phases/phase-29cv/P381GH-LEGACY-ROOT-SMOKE-DELETE.md`
 
-The large smoke/dev surface should not be reduced by feel. P381GC fixed the
-bucket inventory and showed that each target directory is mixed. P381GD fixed
-the report summary column drift. P381GE fixed the first candidate list to 45
-zero-ref v2 archive scripts, and P381GF deletes only that wave. The remaining
-legacy root-smoke zero-ref group is classified by P381GG and deleted by P381GH.
-The remaining smoke surface needs hold closeout, not directory deletion.
+- `docs/development/current/main/phases/phase-29cv/P381GI-SMOKE-REFERENCED-HOLDS-CLOSEOUT.md`
 
-## Optional Polish
+The large smoke/dev surface should not be reduced by feel. P381GC through
+P381GI close the T6 zero-ref cleanup and park remaining referenced/owner-held
+rows.
 
 These do not block the structural "Stage0 is behaving correctly" reading:
 
@@ -94,7 +94,7 @@ If the question is "how much is left?", the best current answer is:
 
 ```text
 must-fix:
-  1 slice
+  0 slices
 
 optional polish:
   2 smaller follow-ups
@@ -105,20 +105,22 @@ That is close enough to call the lane late-stage, but not close enough to say
 
 ## Ordered Next Checklist
 
-1. close out remaining referenced smoke holds
+1. optional doc compaction / mirror thinning
+2. targeted helper dedup only when a local owner seam is clear
 
 ## Concrete Near-Term Order
 
 `P381FN-CONCRETE-BLOCKER-ORDER.md` is the near-term ordering SSOT.
 
-Post-P381GH status: wrapper/enrichment cleanup is complete on the public
+Post-P381GI status: wrapper/enrichment cleanup is complete on the public
 BuildBox Program(JSON v0) path, parser Program(JSON) is diagnostics-only, the
 remaining T5 owner/body cleanup is closed, and T6 smoke/archive inventory is
 locked as a mixed protected/referenced surface with corrected report summary
 counts plus a landed first zero-ref v2 delete wave and legacy root-smoke
-zero-ref deletion. The remaining concrete cleanup order is:
+zero-ref deletion. The remaining concrete cleanup order is optional polish:
 
-1. T6 referenced smoke holds closeout
+1. doc compaction / mirror thinning
+2. targeted helper dedup only when a local owner seam is clear
 
 ## Result
 
