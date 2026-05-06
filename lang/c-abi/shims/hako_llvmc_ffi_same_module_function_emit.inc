@@ -6,7 +6,7 @@
        * string/env/generic-method/global-call subset recorded by MIR
        * LoweringPlan.
        */
-      auto int module_generic_string_value_is_string(long long reg) {
+      auto int same_module_function_value_is_string(long long reg) {
         long long base = resolve_copy_source_reg(reg);
         return get_origin(reg) == ORG_STRING ||
                get_scan_origin(reg) == ORG_STRING ||
@@ -14,7 +14,7 @@
                get_scan_origin(base) == ORG_STRING;
       }
 
-      auto int module_generic_string_value_is_array(long long reg) {
+      auto int same_module_function_value_is_array(long long reg) {
         long long base = resolve_copy_source_reg(reg);
         int origin_kind = get_origin(reg);
         int scan = get_scan_origin(reg);
@@ -30,32 +30,32 @@
                base_scan == ORG_ARRAY_STRING_BIRTH;
       }
 
-      auto void module_generic_string_publish_origin(
+      auto void same_module_function_publish_origin(
           long long reg,
           int origin_kind) {
         set_origin(reg, origin_kind);
         set_scan_origin(reg, origin_kind);
       }
 
-      auto void module_generic_string_publish_i64_origin(
+      auto void same_module_function_publish_i64_origin(
           long long reg,
           int origin_kind) {
         set_type(reg, T_I64);
-        module_generic_string_publish_origin(reg, origin_kind);
+        same_module_function_publish_origin(reg, origin_kind);
       }
 
-      auto void module_generic_string_promote_array_string_push(
+      auto void same_module_function_promote_array_string_push(
           long long recv,
           long long value) {
-        if (!module_generic_string_value_is_string(value)) return;
+        if (!same_module_function_value_is_string(value)) return;
         promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
         promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
         if (recv) {
-          module_generic_string_publish_origin(recv, ORG_ARRAY_STRING_BIRTH);
+          same_module_function_publish_origin(recv, ORG_ARRAY_STRING_BIRTH);
         }
       }
 
-      auto int module_generic_string_read_string_const(
+      auto int same_module_function_read_string_const(
           yyjson_val* ins,
           const char** out) {
         yyjson_val* value = ins ? yyjson_obj_get(ins, "value") : NULL;
@@ -67,7 +67,7 @@
         return 1;
       }
 
-      auto int module_generic_string_read_i64_const(
+      auto int same_module_function_read_i64_const(
           yyjson_val* ins,
           long long* out) {
         yyjson_val* value = ins ? yyjson_obj_get(ins, "value") : NULL;
@@ -81,19 +81,19 @@
         return 1;
       }
 
-      auto int module_generic_string_binop_declares_i64(yyjson_val* ins) {
+      auto int same_module_function_binop_declares_i64(yyjson_val* ins) {
         const char* dst_type = read_str(ins, "dst_type");
         return dst_type && !strcmp(dst_type, "i64");
       }
 
-      auto int module_generic_string_read_void_sentinel_const(yyjson_val* ins) {
+      auto int same_module_function_read_void_sentinel_const(yyjson_val* ins) {
         yyjson_val* value = ins ? yyjson_obj_get(ins, "value") : NULL;
         yyjson_val* ty = value ? yyjson_obj_get(value, "type") : NULL;
         const char* ty_s = ty && yyjson_is_str(ty) ? yyjson_get_str(ty) : NULL;
         return ty_s && (!strcmp(ty_s, "void") || !strcmp(ty_s, "null"));
       }
 
-      auto void module_generic_string_format_i64_ref(
+      auto void same_module_function_format_i64_ref(
           char* out,
           size_t out_cap,
           long long reg) {
@@ -115,7 +115,7 @@
                    : NULL;
       }
 
-      auto void module_generic_string_publish_inst_field_origin(
+      auto void same_module_function_publish_inst_field_origin(
           long long dst,
           const struct LoweringPlanGenericMethodView* method_view,
           int publish_map_get_fallback) {
@@ -127,41 +127,41 @@
              !strcmp(key, "op_kind") ||
              !strcmp(key, "cmp") ||
              !strcmp(key, "value"))) {
-          module_generic_string_publish_origin(dst, ORG_STRING);
+          same_module_function_publish_origin(dst, ORG_STRING);
         } else if (key && (!strcmp(key, "args") || !strcmp(key, "effects"))) {
-          module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+          same_module_function_publish_origin(dst, ORG_ARRAY_BIRTH);
         } else if (publish_map_get_fallback) {
           set_origin(dst, ORG_MAP_GET);
         }
       }
 
-      auto void module_generic_string_publish_function_field_origin(
+      auto void same_module_function_publish_function_field_origin(
           long long dst,
           const struct LoweringPlanGenericMethodView* method_view) {
         const char* key =
             same_module_method_view_key_const_text(method_view);
         if (key && !strcmp(key, "name")) {
-          module_generic_string_publish_origin(dst, ORG_STRING);
+          same_module_function_publish_origin(dst, ORG_STRING);
         } else if (key && (!strcmp(key, "params") || !strcmp(key, "blocks"))) {
-          module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+          same_module_function_publish_origin(dst, ORG_ARRAY_BIRTH);
         } else if (key && !strcmp(key, "flags")) {
-          module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
+          same_module_function_publish_origin(dst, ORG_MAP_BIRTH);
         }
       }
 
-      auto void module_generic_string_publish_module_field_origin(
+      auto void same_module_function_publish_module_field_origin(
           long long dst,
           const struct LoweringPlanGenericMethodView* method_view) {
         const char* key =
             same_module_method_view_key_const_text(method_view);
         if (key && !strcmp(key, "functions")) {
-          module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+          same_module_function_publish_origin(dst, ORG_ARRAY_BIRTH);
         } else if (key && !strcmp(key, "functions_0")) {
-          module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
+          same_module_function_publish_origin(dst, ORG_MAP_BIRTH);
         }
       }
 
-      struct ModuleGenericStringGetRouteView {
+      struct SameModuleFunctionGetRouteView {
         int is_array_load;
         int is_module_function_array_item_get;
         int is_phi_incoming_array_item_get;
@@ -172,9 +172,9 @@
         int is_module_field_get;
       };
 
-      auto int module_generic_string_read_get_route_view(
+      auto int same_module_function_read_get_route_view(
           const struct LoweringPlanGenericMethodView* method_view,
-          struct ModuleGenericStringGetRouteView* out) {
+          struct SameModuleFunctionGetRouteView* out) {
         int is_array_get = 0;
         int is_mir_json_block_inst_array_item_get = 0;
         int is_mir_json_effects_array_item_get = 0;
@@ -264,7 +264,7 @@
         return out->is_array_load || out->publishes_map_get_origin;
       }
 
-      auto int module_generic_string_read_arg_reg(
+      auto int same_module_function_read_arg_reg(
           yyjson_val* args,
           size_t index,
           long long* out) {
@@ -276,18 +276,18 @@
         return 1;
       }
 
-      auto int module_generic_string_read_array_push_value(
+      auto int same_module_function_read_array_push_value(
           yyjson_val* args,
           long long* out_value) {
         size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         long long value = 0;
         if (argc == 1) {
-          if (!module_generic_string_read_arg_reg(args, 0, &value)) return 0;
+          if (!same_module_function_read_arg_reg(args, 0, &value)) return 0;
         } else if (argc == 2) {
           long long recv_arg = 0;
-          if (!module_generic_string_read_arg_reg(args, 0, &recv_arg)) return 0;
-          if (!module_generic_string_value_is_array(recv_arg)) return 0;
-          if (!module_generic_string_read_arg_reg(args, 1, &value)) return 0;
+          if (!same_module_function_read_arg_reg(args, 0, &recv_arg)) return 0;
+          if (!same_module_function_value_is_array(recv_arg)) return 0;
+          if (!same_module_function_read_arg_reg(args, 1, &value)) return 0;
         } else {
           return 0;
         }
@@ -295,7 +295,7 @@
         return 1;
       }
 
-      auto void module_generic_string_emit_i64_call(
+      auto void same_module_function_emit_i64_call(
           long long dst,
           const char* symbol,
           const char* args) {
@@ -307,18 +307,18 @@
         }
       }
 
-      auto void module_generic_string_emit_i64_birth_call(
+      auto void same_module_function_emit_i64_birth_call(
           long long dst,
           const char* symbol,
           int birth_origin) {
-        module_generic_string_emit_i64_call(dst, symbol, "");
+        same_module_function_emit_i64_call(dst, symbol, "");
         if (dst) {
           set_origin(dst, birth_origin);
           set_scan_origin(dst, birth_origin);
         }
       }
 
-      auto void module_generic_string_emit_array_slot_append_call(
+      auto void same_module_function_emit_array_slot_append_call(
           long long dst,
           long long recv,
           long long value) {
@@ -326,10 +326,10 @@
         ab[0] = '\0';
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), value, 0);
-        module_generic_string_emit_i64_call(dst, "nyash.array.slot_append_hh", ab);
+        same_module_function_emit_i64_call(dst, "nyash.array.slot_append_hh", ab);
       }
 
-      auto int module_generic_string_emit_string_needle_i64_call(
+      auto int same_module_function_emit_string_needle_i64_call(
           long long dst,
           long long recv,
           yyjson_val* args,
@@ -338,15 +338,15 @@
         long long needle = 0;
         if (!symbol) return 0;
         if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
-        if (!module_generic_string_read_arg_reg(args, 0, &needle)) return 0;
+        if (!same_module_function_read_arg_reg(args, 0, &needle)) return 0;
         ab[0] = '\0';
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), needle, 0);
-        module_generic_string_emit_i64_call(dst, symbol, ab);
+        same_module_function_emit_i64_call(dst, symbol, ab);
         return 1;
       }
 
-      auto int module_generic_string_record_phi(yyjson_val* ins, long long bid) {
+      auto int same_module_function_record_phi(yyjson_val* ins, long long bid) {
         struct BlockPhi* pb = ensure_phi_block(bid);
         struct PhiRec pr;
         yyjson_val* vals = ins ? yyjson_obj_get(ins, "values") : NULL;
@@ -388,7 +388,7 @@
         return 1;
       }
 
-      auto void module_generic_string_refine_phi_types(void) {
+      auto void same_module_function_refine_phi_types(void) {
         for (int pass = 0; pass < 8; pass++) {
           int changed = 0;
           for (int pi = 0; pi < phi_n; pi++) {
@@ -401,14 +401,14 @@
               for (int ii = 0; ii < pr->in_n; ii++) {
                 long long in_reg = pr->in[ii].val_reg;
                 int ty = get_type(in_reg);
-                int is_string = module_generic_string_value_is_string(in_reg);
+                int is_string = same_module_function_value_is_string(in_reg);
                 all_string = all_string && is_string;
                 all_bool = all_bool && is_bool_like_phi_input(in_reg);
                 if (is_string || ty != T_NONE) saw_known = 1;
               }
               if (all_string) {
                 if (get_origin(pr->dst) != ORG_STRING) {
-                  module_generic_string_publish_i64_origin(pr->dst, ORG_STRING);
+                  same_module_function_publish_i64_origin(pr->dst, ORG_STRING);
                   changed = 1;
                 }
               } else if (all_bool) {
@@ -426,7 +426,7 @@
         }
       }
 
-      auto int module_generic_string_read_call_payload(
+      auto int same_module_function_read_call_payload(
           yyjson_val* ins,
           yyjson_val** cal_out,
           yyjson_val** args_out) {
@@ -451,12 +451,12 @@
         return cal != NULL;
       }
 
-      auto const char* module_generic_string_call_type(const char* op, yyjson_val* cal) {
+      auto const char* same_module_function_call_type(const char* op, yyjson_val* cal) {
         if (op && !strcmp(op, "boxcall")) return "Method";
         return cal ? read_str(cal, "type") : NULL;
       }
 
-      auto const char* module_generic_string_call_name(const char* op, yyjson_val* cal) {
+      auto const char* same_module_function_call_name(const char* op, yyjson_val* cal) {
         const char* name = NULL;
         if (!cal) return NULL;
         if (op && !strcmp(op, "boxcall")) return read_str(cal, "method");
@@ -465,7 +465,7 @@
         return name;
       }
 
-      auto const char* module_generic_string_call_box_name(const char* op, yyjson_val* cal) {
+      auto const char* same_module_function_call_box_name(const char* op, yyjson_val* cal) {
         const char* name = NULL;
         if (!cal) return NULL;
         name = read_str(cal, "box_name");
@@ -474,7 +474,7 @@
         return name;
       }
 
-      auto int module_generic_string_call_is_array_or_map_birth(
+      auto int same_module_function_call_is_array_or_map_birth(
           const char* ctype,
           const char* mname,
           const char* bname) {
@@ -483,19 +483,19 @@
                bname && (!strcmp(bname, "ArrayBox") || !strcmp(bname, "MapBox"));
       }
 
-      auto long long module_generic_string_call_receiver(const char* op, yyjson_val* cal) {
+      auto long long same_module_function_call_receiver(const char* op, yyjson_val* cal) {
         if (!cal) return 0;
         if (op && !strcmp(op, "boxcall")) return read_int(cal, "box");
         return read_int(cal, "receiver");
       }
 
-      auto int module_generic_string_prepass_generic_method_view(
+      auto int same_module_function_prepass_generic_method_view(
           const char* op,
           yyjson_val* cal,
           yyjson_val* args,
           long long dst,
           const struct LoweringPlanGenericMethodView* method_view) {
-        struct ModuleGenericStringGetRouteView get_route;
+        struct SameModuleFunctionGetRouteView get_route;
         if (!method_view) return 0;
         if (same_module_method_view_is_direct_string_len(method_view)) {
           set_type(dst, T_I64);
@@ -506,36 +506,36 @@
           return 1;
         }
         if (same_module_method_view_is_direct_array_push(method_view)) {
-          long long recv = module_generic_string_call_receiver(op, cal);
+          long long recv = same_module_function_call_receiver(op, cal);
           long long value = 0;
           if (dst) set_type(dst, T_I64);
-          if (!module_generic_string_read_array_push_value(args, &value)) return -1;
-          module_generic_string_promote_array_string_push(recv, value);
+          if (!same_module_function_read_array_push_value(args, &value)) return -1;
+          same_module_function_promote_array_string_push(recv, value);
           return 1;
         }
         if (same_module_method_view_is_direct_mir_json_flags_keys(method_view)) {
-          module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
+          same_module_function_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
           return 1;
         }
-        if (module_generic_string_read_get_route_view(method_view, &get_route)) {
+        if (same_module_function_read_get_route_view(method_view, &get_route)) {
           set_type(dst, T_I64);
           if (get_route.is_module_function_array_item_get) {
-            module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
+            same_module_function_publish_origin(dst, ORG_MAP_BIRTH);
           } else if (get_route.is_phi_incoming_array_item_get) {
-            module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+            same_module_function_publish_origin(dst, ORG_ARRAY_BIRTH);
           } else if (get_route.prepass_publishes_map_get_origin) {
             set_origin(dst, ORG_MAP_GET);
           }
           if (get_route.is_inst_field_get) {
-            module_generic_string_publish_inst_field_origin(
+            same_module_function_publish_inst_field_origin(
                 dst, method_view, 1);
           }
           if (get_route.is_function_field_get) {
-            module_generic_string_publish_function_field_origin(
+            same_module_function_publish_function_field_origin(
                 dst, method_view);
           }
           if (get_route.is_module_field_get) {
-            module_generic_string_publish_module_field_origin(
+            same_module_function_publish_module_field_origin(
                 dst, method_view);
           }
           return 1;
@@ -545,7 +545,7 @@
           return 1;
         }
         if (same_module_method_view_is_direct_string_substring(method_view)) {
-          module_generic_string_publish_i64_origin(dst, ORG_STRING);
+          same_module_function_publish_i64_origin(dst, ORG_STRING);
           return 1;
         }
         if (same_module_method_view_is_direct_string_indexof(method_view)) {
@@ -563,12 +563,12 @@
         return 0;
       }
 
-      auto int module_generic_string_prepass_extern_call_view(
+      auto int same_module_function_prepass_extern_call_view(
           const struct LoweringPlanExternCallView* extern_view,
           long long dst) {
         if (!extern_view) return 0;
         if (lowering_plan_env_get_view_is_valid(extern_view)) {
-          module_generic_string_publish_i64_origin(dst, ORG_STRING);
+          same_module_function_publish_i64_origin(dst, ORG_STRING);
           return 1;
         }
         if (lowering_plan_env_set_view_is_valid(extern_view)) {
@@ -576,19 +576,19 @@
           return 1;
         }
         if (lowering_plan_hostbridge_extern_invoke_view_is_valid(extern_view)) {
-          module_generic_string_publish_i64_origin(dst, ORG_STRING);
+          same_module_function_publish_i64_origin(dst, ORG_STRING);
           return 1;
         }
         if (lowering_plan_stage1_emit_program_json_view_is_valid(extern_view)) {
-          module_generic_string_publish_i64_origin(dst, ORG_STRING);
+          same_module_function_publish_i64_origin(dst, ORG_STRING);
           return 1;
         }
         if (lowering_plan_stage1_emit_mir_from_source_view_is_valid(extern_view)) {
-          module_generic_string_publish_i64_origin(dst, ORG_STRING);
+          same_module_function_publish_i64_origin(dst, ORG_STRING);
           return 1;
         }
         if (lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(extern_view)) {
-          module_generic_string_publish_i64_origin(dst, ORG_STRING);
+          same_module_function_publish_i64_origin(dst, ORG_STRING);
           return 1;
         }
         return 0;
@@ -611,7 +611,7 @@
         return 0;
       }
 
-      auto int module_generic_string_prepass_print_global_call_surface(
+      auto int same_module_function_prepass_print_global_call_surface(
           const char* ctype,
           const char* mname,
           yyjson_val* args) {
@@ -621,7 +621,7 @@
                args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1;
       }
 
-      auto int module_generic_string_prepass_global_call_view(
+      auto int same_module_function_prepass_global_call_view(
           const char* ctype,
           const char* mname,
           yyjson_val* args,
@@ -630,7 +630,7 @@
         if (global_call_definition_prepass_view(dst, global_view)) {
           return 1;
         }
-        if (module_generic_string_prepass_print_global_call_surface(
+        if (same_module_function_prepass_print_global_call_surface(
                 ctype,
                 mname,
                 args)) {
@@ -639,7 +639,7 @@
         return 0;
       }
 
-      auto int module_generic_string_prepass_call_instruction(
+      auto int same_module_function_prepass_call_instruction(
           const char* op,
           long long bid,
           size_t ii,
@@ -658,20 +658,20 @@
         int has_global_view = 0;
         int method_prepass_rc = 0;
         long long dst = read_int(ins, "dst");
-        if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
-        ctype = module_generic_string_call_type(op, cal);
-        mname = module_generic_string_call_name(op, cal);
-        bname = module_generic_string_call_box_name(op, cal);
+        if (!same_module_function_read_call_payload(ins, &cal, &args)) return 0;
+        ctype = same_module_function_call_type(op, cal);
+        mname = same_module_function_call_name(op, cal);
+        bname = same_module_function_call_box_name(op, cal);
         has_method_view = read_lowering_plan_generic_method_view(entry, &method_view);
         has_extern_view = read_lowering_plan_extern_call_view(entry, &extern_view);
         has_global_view = read_lowering_plan_global_call_view(entry, &global_view);
-        if (module_generic_string_call_is_array_or_map_birth(
+        if (same_module_function_call_is_array_or_map_birth(
                 ctype, mname, bname)) {
           if (dst) set_type(dst, T_I64);
           return 1;
         }
         if (has_method_view) {
-          method_prepass_rc = module_generic_string_prepass_generic_method_view(
+          method_prepass_rc = same_module_function_prepass_generic_method_view(
               op,
               cal,
               args,
@@ -681,10 +681,10 @@
           if (method_prepass_rc > 0) return 1;
         }
         if (has_extern_view &&
-            module_generic_string_prepass_extern_call_view(&extern_view, dst)) {
+            same_module_function_prepass_extern_call_view(&extern_view, dst)) {
           return 1;
         }
-        return module_generic_string_prepass_global_call_view(
+        return same_module_function_prepass_global_call_view(
             ctype,
             mname,
             args,
@@ -692,7 +692,7 @@
             has_global_view ? &global_view : NULL);
       }
 
-      auto int module_generic_string_prepass_externcall(
+      auto int same_module_function_prepass_externcall(
           long long bid,
           size_t ii,
           yyjson_val* ins) {
@@ -700,10 +700,10 @@
         struct LoweringPlanExternCallView extern_view;
         long long dst = read_int(ins, "dst");
         if (!read_lowering_plan_extern_call_view(entry, &extern_view)) return 0;
-        return module_generic_string_prepass_extern_call_view(&extern_view, dst);
+        return same_module_function_prepass_extern_call_view(&extern_view, dst);
       }
 
-      auto int module_generic_string_prepass_instruction(
+      auto int same_module_function_prepass_instruction(
           long long bid,
           size_t ii,
           yyjson_val* ins) {
@@ -713,18 +713,18 @@
           long long dst = read_int(ins, "dst");
           const char* sval = NULL;
           long long ival = 0;
-          if (module_generic_string_read_string_const(ins, &sval)) {
+          if (same_module_function_read_string_const(ins, &sval)) {
             put_str_const(dst, sval);
             put_known_string_len(dst, (long long)strlen(sval));
-            module_generic_string_publish_i64_origin(dst, ORG_STRING);
+            same_module_function_publish_i64_origin(dst, ORG_STRING);
             return 1;
           }
-          if (module_generic_string_read_i64_const(ins, &ival)) {
+          if (same_module_function_read_i64_const(ins, &ival)) {
             put_const(dst, ival);
             set_type(dst, T_I64);
             return 1;
           }
-          if (module_generic_string_read_void_sentinel_const(ins)) {
+          if (same_module_function_read_void_sentinel_const(ins)) {
             put_const(dst, 0);
             set_type(dst, T_I64);
             return 1;
@@ -747,11 +747,11 @@
           long long dst = read_int(ins, "dst");
           const char* tname = read_str(ins, "type");
           if (tname && !strcmp(tname, "ArrayBox")) {
-            module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
+            same_module_function_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
             return 1;
           }
           if (tname && !strcmp(tname, "MapBox")) {
-            module_generic_string_publish_i64_origin(dst, ORG_MAP_BIRTH);
+            same_module_function_publish_i64_origin(dst, ORG_MAP_BIRTH);
             return 1;
           }
           return 0;
@@ -768,7 +768,7 @@
           return 1;
         }
         if (!strcmp(op, "phi")) {
-          return module_generic_string_record_phi(ins, bid);
+          return same_module_function_record_phi(ins, bid);
         }
         if (!strcmp(op, "binop")) {
           long long dst = read_int(ins, "dst");
@@ -776,12 +776,12 @@
           long long rhs = read_int(ins, "rhs");
           const char* kind = read_str(ins, "op_kind");
           if (!kind) kind = read_str(ins, "operation");
-          if (!module_generic_string_binop_declares_i64(ins) &&
+          if (!same_module_function_binop_declares_i64(ins) &&
               kind &&
               (!strcmp(kind, "+") || !strcmp(kind, "Add")) &&
-              (module_generic_string_value_is_string(lhs) ||
-               module_generic_string_value_is_string(rhs))) {
-            module_generic_string_publish_i64_origin(dst, ORG_STRING);
+              (same_module_function_value_is_string(lhs) ||
+               same_module_function_value_is_string(rhs))) {
+            same_module_function_publish_i64_origin(dst, ORG_STRING);
           } else {
             set_type(dst, T_I64);
           }
@@ -790,14 +790,14 @@
         if (!strcmp(op, "mir_call") ||
             !strcmp(op, "call") ||
             !strcmp(op, "boxcall")) {
-          return module_generic_string_prepass_call_instruction(
+          return same_module_function_prepass_call_instruction(
               op,
               bid,
               ii,
               ins);
         }
         if (!strcmp(op, "externcall")) {
-          return module_generic_string_prepass_externcall(bid, ii, ins);
+          return same_module_function_prepass_externcall(bid, ii, ins);
         }
         if (!strcmp(op, "select")) {
           long long dst = read_int(ins, "dst");
@@ -834,27 +834,27 @@
         return 0;
       }
 
-      auto int module_generic_string_prepass_active_function(void) {
+      auto int same_module_function_prepass_active_function(void) {
         yyjson_val* params = fn0 ? yyjson_obj_get(fn0, "params") : NULL;
         if (!(params && yyjson_is_arr(params))) return 0;
         for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
           yyjson_val* param = yyjson_arr_get(params, pi);
           long long reg = param ? (long long)yyjson_get_sint(param) : 0;
-          module_generic_string_publish_i64_origin(reg, ORG_STRING);
+          same_module_function_publish_i64_origin(reg, ORG_STRING);
         }
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
           if (!read_generic_pure_block_view(bi, &block)) return 0;
           for (size_t ii = 0; ii < block.instruction_count; ii++) {
             yyjson_val* ins = yyjson_arr_get(block.instructions, ii);
-            if (!module_generic_string_prepass_instruction(block.id, ii, ins)) return 0;
+            if (!same_module_function_prepass_instruction(block.id, ii, ins)) return 0;
           }
         }
-        module_generic_string_refine_phi_types();
+        same_module_function_refine_phi_types();
         return generic_capacity_ok();
       }
 
-      auto void module_generic_string_emit_const_globals(FILE* f, size_t fn_index) {
+      auto void same_module_function_emit_const_globals(FILE* f, size_t fn_index) {
         for (size_t sci = 0; sci < str_consts_n; sci++) {
           size_t slen = strlen(str_consts[sci].val);
           fprintf(f, "@.fnstr_%zu_%lld = private unnamed_addr constant [%zu x i8] c\"",
@@ -866,7 +866,7 @@
         }
       }
 
-      auto int module_generic_string_emit_const_box(
+      auto int same_module_function_emit_const_box(
           FILE* f,
           size_t fn_index,
           long long dst) {
@@ -879,11 +879,11 @@
              fn_index,
              dst);
         mark_string_const_box_emitted(dst);
-        module_generic_string_publish_i64_origin(dst, ORG_STRING);
+        same_module_function_publish_i64_origin(dst, ORG_STRING);
         return 1;
       }
 
-      auto int module_generic_string_emit_copy(long long dst, long long src) {
+      auto int same_module_function_emit_copy(long long dst, long long src) {
         int src_ty = get_type(src);
         int src_org = get_origin(src);
         int src_scan = get_scan_origin(src);
@@ -898,18 +898,18 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_newbox(yyjson_val* ins) {
+      auto int same_module_function_emit_newbox(yyjson_val* ins) {
         long long dst = read_int(ins, "dst");
         const char* tname = read_str(ins, "type");
         if (tname && !strcmp(tname, "ArrayBox")) {
-          module_generic_string_emit_i64_birth_call(
+          same_module_function_emit_i64_birth_call(
               dst,
               "nyash.array.birth_h",
               ORG_ARRAY_BIRTH);
           return 1;
         }
         if (tname && !strcmp(tname, "MapBox")) {
-          module_generic_string_emit_i64_birth_call(
+          same_module_function_emit_i64_birth_call(
               dst,
               "nyash.map.birth_h",
               ORG_MAP_BIRTH);
@@ -918,7 +918,7 @@
         return 0;
       }
 
-      auto int module_generic_string_emit_unop(yyjson_val* ins) {
+      auto int same_module_function_emit_unop(yyjson_val* ins) {
         const char* kind = read_str(ins, "op_kind");
         long long dst = read_int(ins, "dst");
         long long src = read_int(ins, "src");
@@ -948,7 +948,7 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_binop(yyjson_val* ins) {
+      auto int same_module_function_emit_binop(yyjson_val* ins) {
         const char* kind = read_str(ins, "op_kind");
         const char* irop = NULL;
         long long dst = read_int(ins, "dst");
@@ -959,7 +959,7 @@
         long long chain_a = 0;
         long long chain_b = 0;
         long long chain_c = 0;
-        int dst_declares_i64 = module_generic_string_binop_declares_i64(ins);
+        int dst_declares_i64 = same_module_function_binop_declares_i64(ins);
         int lhs_is_concat_chain =
             find_string_concat_pair(lhs_base, &chain_a, &chain_b) ||
             find_string_concat_triple(lhs_base, &chain_a, &chain_b, &chain_c);
@@ -971,8 +971,8 @@
         if (!kind) kind = read_str(ins, "operation");
         if ((!dst_declares_i64 || lhs_is_concat_chain || rhs_is_concat_chain) &&
             kind && (!strcmp(kind, "+") || !strcmp(kind, "Add")) &&
-            (module_generic_string_value_is_string(lhs) ||
-             module_generic_string_value_is_string(rhs))) {
+            (same_module_function_value_is_string(lhs) ||
+             same_module_function_value_is_string(rhs))) {
           if (!try_emit_string_concat3_chain_call(f, dst, lhs_base, rhs_base)) {
             emit_string_concat_hh_call(f, dst, lhs_base, rhs_base);
           }
@@ -986,14 +986,14 @@
           else if (!strcmp(kind, "%") || !strcmp(kind, "Mod")) irop = "srem";
         }
         if (!irop) return 0;
-        module_generic_string_format_i64_ref(lhs_ref, sizeof(lhs_ref), lhs);
-        module_generic_string_format_i64_ref(rhs_ref, sizeof(rhs_ref), rhs);
+        same_module_function_format_i64_ref(lhs_ref, sizeof(lhs_ref), lhs);
+        same_module_function_format_i64_ref(rhs_ref, sizeof(rhs_ref), rhs);
         EMIT("  %%r%lld = %s i64 %s, %s\n", dst, irop, lhs_ref, rhs_ref);
         set_type(dst, T_I64);
         return 1;
       }
 
-      auto int module_generic_string_emit_compare(yyjson_val* ins) {
+      auto int same_module_function_emit_compare(yyjson_val* ins) {
         const char* pred = read_str(ins, "cmp");
         const char* p2 = NULL;
         long long dst = read_int(ins, "dst");
@@ -1019,7 +1019,7 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_select(yyjson_val* ins) {
+      auto int same_module_function_emit_select(yyjson_val* ins) {
         long long dst = read_int(ins, "dst");
         long long cond = read_int(ins, "cond");
         long long then_val = read_int(ins, "then_val");
@@ -1090,7 +1090,7 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_method_len_mir_call(
+      auto int same_module_function_emit_method_len_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1114,14 +1114,14 @@
         }
         helper_symbol = is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_fast_h";
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        module_generic_string_emit_i64_call(dst, helper_symbol, ab);
+        same_module_function_emit_i64_call(dst, helper_symbol, ab);
         if (dst) {
           if (is_string_len) remember_string_length_call(dst, recv);
         }
         return 1;
       }
 
-      auto int module_generic_string_emit_method_substring_mir_call(
+      auto int same_module_function_emit_method_substring_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1143,11 +1143,11 @@
           return 0;
         }
         if (!(arg_count == 1 || arg_count == 2)) return 0;
-        if (!module_generic_string_read_arg_reg(args, 0, &start)) return 0;
+        if (!same_module_function_read_arg_reg(args, 0, &start)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), start, 0);
         if (arg_count == 2) {
-          if (!module_generic_string_read_arg_reg(args, 1, &end)) return 0;
+          if (!same_module_function_read_arg_reg(args, 1, &end)) return 0;
           append_i64_arg_ref(ab, sizeof(ab), end, 0);
           recorded_end = end;
         } else {
@@ -1162,15 +1162,15 @@
               bid,
               ii);
         }
-        module_generic_string_emit_i64_call(dst, "nyash.string.substring_hii", ab);
+        same_module_function_emit_i64_call(dst, "nyash.string.substring_hii", ab);
         if (dst) {
-          module_generic_string_publish_origin(dst, ORG_STRING);
+          same_module_function_publish_origin(dst, ORG_STRING);
           remember_string_substring_call(dst, recv, start, recorded_end);
         }
         return 1;
       }
 
-      auto int module_generic_string_emit_method_push_mir_call(
+      auto int same_module_function_emit_method_push_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1186,13 +1186,13 @@
               same_module_method_view_is_direct_array_push(method_view))) {
           return 0;
         }
-        if (!module_generic_string_read_array_push_value(args, &value)) return 0;
-        module_generic_string_emit_array_slot_append_call(dst, recv, value);
-        module_generic_string_promote_array_string_push(recv, value);
+        if (!same_module_function_read_array_push_value(args, &value)) return 0;
+        same_module_function_emit_array_slot_append_call(dst, recv, value);
+        same_module_function_promote_array_string_push(recv, value);
         return 1;
       }
 
-      auto int module_generic_string_emit_method_get_mir_call(
+      auto int same_module_function_emit_method_get_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1202,48 +1202,48 @@
           yyjson_val* args) {
         char ab[256];
         long long key = 0;
-        struct ModuleGenericStringGetRouteView route;
+        struct SameModuleFunctionGetRouteView route;
         const char* helper_symbol = NULL;
         (void)f;
         (void)bid;
         (void)ii;
         ab[0] = '\0';
-        if (!module_generic_string_read_get_route_view(method_view, &route)) return 0;
+        if (!same_module_function_read_get_route_view(method_view, &route)) return 0;
         helper_symbol = route.is_array_load
                             ? "nyash.array.slot_load_hi"
                             : "nyash.runtime_data.get_hh";
         if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
-        if (!module_generic_string_read_arg_reg(args, 0, &key)) return 0;
+        if (!same_module_function_read_arg_reg(args, 0, &key)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
-        module_generic_string_emit_i64_call(dst, helper_symbol, ab);
+        same_module_function_emit_i64_call(dst, helper_symbol, ab);
         if (dst) {
           if (route.is_module_function_array_item_get) {
-            module_generic_string_publish_origin(dst, ORG_MAP_BIRTH);
+            same_module_function_publish_origin(dst, ORG_MAP_BIRTH);
           }
           if (route.is_phi_incoming_array_item_get) {
-            module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+            same_module_function_publish_origin(dst, ORG_ARRAY_BIRTH);
           }
           if (route.publishes_map_get_origin) {
             set_origin(dst, ORG_MAP_GET);
           }
           if (route.is_inst_field_get) {
-            module_generic_string_publish_inst_field_origin(
+            same_module_function_publish_inst_field_origin(
                 dst, method_view, 0);
           }
           if (route.is_function_field_get) {
-            module_generic_string_publish_function_field_origin(
+            same_module_function_publish_function_field_origin(
                 dst, method_view);
           }
           if (route.is_module_field_get) {
-            module_generic_string_publish_module_field_origin(
+            same_module_function_publish_module_field_origin(
                 dst, method_view);
           }
         }
         return 1;
       }
 
-      auto int module_generic_string_emit_method_keys_mir_call(
+      auto int same_module_function_emit_method_keys_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1262,14 +1262,14 @@
         }
         if (args && yyjson_is_arr(args) && yyjson_arr_size(args) != 0) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        module_generic_string_emit_i64_call(dst, "nyash.map.keys_h", ab);
+        same_module_function_emit_i64_call(dst, "nyash.map.keys_h", ab);
         if (dst) {
-          module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
+          same_module_function_publish_origin(dst, ORG_ARRAY_BIRTH);
         }
         return 1;
       }
 
-      auto int module_generic_string_emit_method_set_mir_call(
+      auto int same_module_function_emit_method_set_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1299,16 +1299,16 @@
         } else if (argc != 2) {
           return 0;
         }
-        if (!module_generic_string_read_arg_reg(args, key_index, &key)) return 0;
-        if (!module_generic_string_read_arg_reg(args, value_index, &value)) return 0;
+        if (!same_module_function_read_arg_reg(args, key_index, &key)) return 0;
+        if (!same_module_function_read_arg_reg(args, value_index, &value)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
         append_i64_arg_ref(ab, sizeof(ab), value, 0);
-        module_generic_string_emit_i64_call(dst, "nyash.map.slot_store_hhh", ab);
+        same_module_function_emit_i64_call(dst, "nyash.map.slot_store_hhh", ab);
         return 1;
       }
 
-      auto int module_generic_string_emit_method_indexof_mir_call(
+      auto int same_module_function_emit_method_indexof_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1326,14 +1326,14 @@
         }
         if (!(arg_count == 1 || arg_count == 2)) return 0;
         if (arg_count == 1) {
-          return module_generic_string_emit_string_needle_i64_call(
+          return same_module_function_emit_string_needle_i64_call(
               dst,
               recv,
               args,
               "nyash.string.indexOf_hh");
         }
-        if (!module_generic_string_read_arg_reg(args, 0, &needle)) return 0;
-        if (!module_generic_string_read_arg_reg(args, 1, &start)) return 0;
+        if (!same_module_function_read_arg_reg(args, 0, &needle)) return 0;
+        if (!same_module_function_read_arg_reg(args, 1, &start)) return 0;
         {
           char recv_ab[128];
           char sub_ab[256];
@@ -1362,7 +1362,7 @@
                bid,
                ii,
                sub_ab);
-          module_generic_string_format_i64_ref(start_ref, sizeof(start_ref), start);
+          same_module_function_format_i64_ref(start_ref, sizeof(start_ref), start);
           snprintf(rel_ref, sizeof(rel_ref), "%%indexof_rel_%lld_%zu", bid, ii);
           EMIT("  %s = call i64 @\"nyash.string.indexOf_hh\"(i64 %%indexof_tail_%lld_%zu, i64 %%r%lld)\n",
                rel_ref,
@@ -1384,7 +1384,7 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_method_lastindexof_mir_call(
+      auto int same_module_function_emit_method_lastindexof_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1399,14 +1399,14 @@
               same_module_method_view_is_direct_string_lastindexof(method_view))) {
           return 0;
         }
-        return module_generic_string_emit_string_needle_i64_call(
+        return same_module_function_emit_string_needle_i64_call(
             dst,
             recv,
             args,
             "nyash.string.lastIndexOf_hh");
       }
 
-      auto int module_generic_string_emit_method_contains_mir_call(
+      auto int same_module_function_emit_method_contains_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1421,14 +1421,14 @@
               same_module_method_view_is_direct_string_contains(method_view))) {
           return 0;
         }
-        return module_generic_string_emit_string_needle_i64_call(
+        return same_module_function_emit_string_needle_i64_call(
             dst,
             recv,
             args,
             "nyash.string.contains_hh");
       }
 
-      auto int module_generic_string_emit_generic_method_mir_call(
+      auto int same_module_function_emit_generic_method_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1436,7 +1436,7 @@
           long long dst,
           long long recv,
           yyjson_val* args) {
-        int rc = module_generic_string_emit_method_len_mir_call(
+        int rc = same_module_function_emit_method_len_mir_call(
             f,
             bid,
             ii,
@@ -1444,7 +1444,7 @@
             dst,
             recv);
         if (rc != 1) {
-          rc = module_generic_string_emit_method_push_mir_call(
+          rc = same_module_function_emit_method_push_mir_call(
               f,
               bid,
               ii,
@@ -1454,7 +1454,7 @@
               args);
         }
         if (rc != 1) {
-          rc = module_generic_string_emit_method_get_mir_call(
+          rc = same_module_function_emit_method_get_mir_call(
               f,
               bid,
               ii,
@@ -1464,7 +1464,7 @@
               args);
         }
         if (rc != 1) {
-          rc = module_generic_string_emit_method_keys_mir_call(
+          rc = same_module_function_emit_method_keys_mir_call(
               f,
               bid,
               ii,
@@ -1474,7 +1474,7 @@
               args);
         }
         if (rc != 1) {
-          rc = module_generic_string_emit_method_set_mir_call(
+          rc = same_module_function_emit_method_set_mir_call(
               f,
               bid,
               ii,
@@ -1484,7 +1484,7 @@
               args);
         }
         if (rc != 1) {
-          rc = module_generic_string_emit_method_substring_mir_call(
+          rc = same_module_function_emit_method_substring_mir_call(
               f,
               bid,
               ii,
@@ -1494,7 +1494,7 @@
               args);
         }
         if (rc != 1) {
-          rc = module_generic_string_emit_method_indexof_mir_call(
+          rc = same_module_function_emit_method_indexof_mir_call(
               f,
               bid,
               ii,
@@ -1504,7 +1504,7 @@
               args);
         }
         if (rc != 1) {
-          rc = module_generic_string_emit_method_lastindexof_mir_call(
+          rc = same_module_function_emit_method_lastindexof_mir_call(
               f,
               bid,
               ii,
@@ -1514,7 +1514,7 @@
               args);
         }
         if (rc != 1) {
-          rc = module_generic_string_emit_method_contains_mir_call(
+          rc = same_module_function_emit_method_contains_mir_call(
               f,
               bid,
               ii,
@@ -1526,7 +1526,7 @@
         return rc;
       }
 
-      auto int module_generic_string_emit_global_call_mir_call(
+      auto int same_module_function_emit_global_call_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1536,7 +1536,7 @@
         int rc = emit_global_call_lowering_plan_mir_call(f, bid, ii, dst, args);
         if (rc != 1) {
           long long a0 = 0;
-          if (module_generic_string_read_arg_reg(args, 0, &a0)) {
+          if (same_module_function_read_arg_reg(args, 0, &a0)) {
             rc = emit_global_mir_call(
                 f,
                 classify_mir_call_global_surface(read_str(cal, "name")),
@@ -1548,7 +1548,7 @@
         return rc;
       }
 
-      auto int module_generic_string_emit_method_call_mir_call(
+      auto int same_module_function_emit_method_call_mir_call(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1556,14 +1556,14 @@
           yyjson_val* cal,
           yyjson_val* args,
           long long dst) {
-        long long recv = module_generic_string_call_receiver(op, cal);
-        const char* ctype = module_generic_string_call_type(op, cal);
-        const char* mname = module_generic_string_call_name(op, cal);
-        const char* bname = module_generic_string_call_box_name(op, cal);
+        long long recv = same_module_function_call_receiver(op, cal);
+        const char* ctype = same_module_function_call_type(op, cal);
+        const char* mname = same_module_function_call_name(op, cal);
+        const char* bname = same_module_function_call_box_name(op, cal);
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView method_view;
         const struct LoweringPlanGenericMethodView* method_view_ptr = NULL;
-        if (module_generic_string_call_is_array_or_map_birth(
+        if (same_module_function_call_is_array_or_map_birth(
                 ctype, mname, bname)) {
           if (dst) {
             put_const(dst, 0);
@@ -1574,7 +1574,7 @@
         if (read_lowering_plan_generic_method_view(entry, &method_view)) {
           method_view_ptr = &method_view;
         }
-        return module_generic_string_emit_generic_method_mir_call(
+        return same_module_function_emit_generic_method_mir_call(
             f,
             bid,
             ii,
@@ -1584,7 +1584,7 @@
             args);
       }
 
-      auto int module_generic_string_emit_call_instruction(
+      auto int same_module_function_emit_call_instruction(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1595,8 +1595,8 @@
         const char* ctype = NULL;
         long long dst = read_int(ins, "dst");
         int rc = 0;
-        if (!module_generic_string_read_call_payload(ins, &cal, &args)) return 0;
-        ctype = module_generic_string_call_type(op, cal);
+        if (!same_module_function_read_call_payload(ins, &cal, &args)) return 0;
+        ctype = same_module_function_call_type(op, cal);
         rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
         if (rc != 0) {
           return rc;
@@ -1604,7 +1604,7 @@
         if (ctype && !strcmp(ctype, "Extern")) {
           rc = 0;
         } else if (ctype && !strcmp(ctype, "Global")) {
-          rc = module_generic_string_emit_global_call_mir_call(
+          rc = same_module_function_emit_global_call_mir_call(
               f,
               bid,
               ii,
@@ -1612,7 +1612,7 @@
               args,
               dst);
         } else if (ctype && !strcmp(ctype, "Method")) {
-          rc = module_generic_string_emit_method_call_mir_call(
+          rc = same_module_function_emit_method_call_mir_call(
               f,
               bid,
               ii,
@@ -1626,7 +1626,7 @@
         return rc == 1;
       }
 
-      auto int module_generic_string_emit_externcall_instruction(
+      auto int same_module_function_emit_externcall_instruction(
           FILE* f,
           long long bid,
           size_t ii,
@@ -1641,7 +1641,7 @@
         return rc == 1;
       }
 
-      auto int module_generic_string_emit_ret_instruction(
+      auto int same_module_function_emit_ret_instruction(
           long long bid,
           yyjson_val* ins) {
         long long v = read_int(ins, "value");
@@ -1654,13 +1654,13 @@
           EMIT("  %%ret_zext_%lld_%lld = zext i1 %%r%lld to i64\n", bid, base, base);
           EMIT("  ret i64 %%ret_zext_%lld_%lld\n", bid, base);
         } else {
-          module_generic_string_format_i64_ref(value_ref, sizeof(value_ref), v);
+          same_module_function_format_i64_ref(value_ref, sizeof(value_ref), v);
           EMIT("  ret i64 %s\n", value_ref);
         }
         return 1;
       }
 
-      auto int module_generic_string_emit_const_instruction(
+      auto int same_module_function_emit_const_instruction(
           FILE* f,
           size_t fn_index,
           long long bid,
@@ -1669,8 +1669,8 @@
         const char* sval = NULL;
         long long ival = 0;
         long long dst = read_int(ins, "dst");
-        if (module_generic_string_read_string_const(ins, &sval)) {
-          if (!module_generic_string_emit_const_box(f, fn_index, dst)) {
+        if (same_module_function_read_string_const(ins, &sval)) {
+          if (!same_module_function_emit_const_box(f, fn_index, dst)) {
             note_pure_unsupported_shape(
                 bid,
                 ii,
@@ -1679,10 +1679,10 @@
                 NULL);
             return 0;
           }
-        } else if (module_generic_string_read_i64_const(ins, &ival)) {
+        } else if (same_module_function_read_i64_const(ins, &ival)) {
           put_const(dst, ival);
           set_type(dst, T_I64);
-        } else if (module_generic_string_read_void_sentinel_const(ins)) {
+        } else if (same_module_function_read_void_sentinel_const(ins)) {
           put_const(dst, 0);
           set_type(dst, T_I64);
         } else {
@@ -1691,7 +1691,7 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_branch_instruction(yyjson_val* ins) {
+      auto int same_module_function_emit_branch_instruction(yyjson_val* ins) {
         emit_branch(
             read_int(ins, "cond"),
             read_int(ins, "then"),
@@ -1699,12 +1699,12 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_jump_instruction(yyjson_val* ins) {
+      auto int same_module_function_emit_jump_instruction(yyjson_val* ins) {
         EMIT("  br label %%bb%lld\n", read_int(ins, "target"));
         return 1;
       }
 
-      auto int module_generic_string_emit_instruction(
+      auto int same_module_function_emit_instruction(
           FILE* f,
           size_t fn_index,
           long long bid,
@@ -1714,7 +1714,7 @@
         if (!op) return 0;
         if (!strcmp(op, "phi")) return 1;
         if (!strcmp(op, "const")) {
-          return module_generic_string_emit_const_instruction(
+          return same_module_function_emit_const_instruction(
               f,
               fn_index,
               bid,
@@ -1722,39 +1722,39 @@
               ins);
         }
         if (!strcmp(op, "copy")) {
-          return module_generic_string_emit_copy(
+          return same_module_function_emit_copy(
               read_int(ins, "dst"),
               read_int(ins, "src"));
         }
         if (!strcmp(op, "newbox")) {
-          return module_generic_string_emit_newbox(ins);
+          return same_module_function_emit_newbox(ins);
         }
         if (!strcmp(op, "compare")) {
-          return module_generic_string_emit_compare(ins);
+          return same_module_function_emit_compare(ins);
         }
         if (!strcmp(op, "unop")) {
-          return module_generic_string_emit_unop(ins);
+          return same_module_function_emit_unop(ins);
         }
         if (!strcmp(op, "select")) {
-          return module_generic_string_emit_select(ins);
+          return same_module_function_emit_select(ins);
         }
         if (!strcmp(op, "binop")) {
-          return module_generic_string_emit_binop(ins);
+          return same_module_function_emit_binop(ins);
         }
         if (!strcmp(op, "branch")) {
-          return module_generic_string_emit_branch_instruction(ins);
+          return same_module_function_emit_branch_instruction(ins);
         }
         if (!strcmp(op, "jump")) {
-          return module_generic_string_emit_jump_instruction(ins);
+          return same_module_function_emit_jump_instruction(ins);
         }
         if (!strcmp(op, "ret")) {
-          return module_generic_string_emit_ret_instruction(bid, ins);
+          return same_module_function_emit_ret_instruction(bid, ins);
         }
         if (!strcmp(op, "mir_call") || !strcmp(op, "call") || !strcmp(op, "boxcall")) {
-          return module_generic_string_emit_call_instruction(f, bid, ii, ins);
+          return same_module_function_emit_call_instruction(f, bid, ii, ins);
         }
         if (!strcmp(op, "externcall")) {
-          return module_generic_string_emit_externcall_instruction(
+          return same_module_function_emit_externcall_instruction(
               f,
               bid,
               ii,
@@ -1766,7 +1766,7 @@
         return 0;
       }
 
-      auto int module_generic_string_emit_active_body(FILE* f, size_t fn_index) {
+      auto int same_module_function_emit_active_body(FILE* f, size_t fn_index) {
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
           if (!read_generic_pure_block_view(bi, &block)) return 0;
@@ -1779,7 +1779,7 @@
           }
           for (size_t ii = 0; ii < block.instruction_count; ii++) {
             yyjson_val* ins = yyjson_arr_get(block.instructions, ii);
-            if (!module_generic_string_emit_instruction(
+            if (!same_module_function_emit_instruction(
                     f,
                     fn_index,
                     block.id,
@@ -1790,7 +1790,7 @@
         return 1;
       }
 
-      auto int module_generic_string_emit_function_signature(
+      auto int same_module_function_emit_function_signature(
           FILE* f,
           yyjson_val* fn,
           const char* name) {
@@ -1806,7 +1806,7 @@
         return 1;
       }
 
-      struct ModuleGenericStringFunctionContextSnapshot {
+      struct SameModuleFunctionContextSnapshot {
         hako_llvmc_generic_pure_function_view* active_function;
         yyjson_val* fn0;
         yyjson_val* fn_metadata;
@@ -1816,8 +1816,8 @@
         struct GenericPureFunctionLoweringState lowering_state;
       };
 
-      auto void module_generic_string_save_function_context(
-          struct ModuleGenericStringFunctionContextSnapshot* snapshot) {
+      auto void same_module_function_save_function_context(
+          struct SameModuleFunctionContextSnapshot* snapshot) {
         snapshot->active_function = active_function;
         snapshot->fn0 = fn0;
         snapshot->fn_metadata = fn_metadata;
@@ -1827,8 +1827,8 @@
         snapshot->lowering_state = lowering_state;
       }
 
-      auto void module_generic_string_restore_function_context(
-          const struct ModuleGenericStringFunctionContextSnapshot* snapshot) {
+      auto void same_module_function_restore_function_context(
+          const struct SameModuleFunctionContextSnapshot* snapshot) {
         free_owned_str_consts();
         reset_string_concat_tracking_state();
         lowering_state = snapshot->lowering_state;
@@ -1840,7 +1840,7 @@
         selection = snapshot->selection;
       }
 
-      auto void module_generic_string_activate_function_context(
+      auto void same_module_function_activate_function_context(
           hako_llvmc_generic_pure_function_view* local_function) {
         active_function = local_function;
         fn0 = local_function->fn;
@@ -1851,12 +1851,12 @@
         reset_string_concat_tracking_state();
       }
 
-      auto int module_generic_string_emit_function_pipeline(
+      auto int same_module_function_emit_function_pipeline(
           FILE* f,
           yyjson_val* fn,
           size_t fn_index,
           const char* name) {
-        if (!module_generic_string_prepass_active_function()) {
+        if (!same_module_function_prepass_active_function()) {
           note_pure_unsupported_shape_detail(
               -1,
               0,
@@ -1868,11 +1868,11 @@
               NULL);
           return -1;
         }
-        module_generic_string_emit_const_globals(f, fn_index);
-        if (!module_generic_string_emit_function_signature(f, fn, name)) {
+        same_module_function_emit_const_globals(f, fn_index);
+        if (!same_module_function_emit_function_signature(f, fn, name)) {
           return -1;
         }
-        if (!module_generic_string_emit_active_body(f, fn_index)) {
+        if (!same_module_function_emit_active_body(f, fn_index)) {
           note_pure_unsupported_shape_detail(
               -1,
               0,
@@ -1922,7 +1922,7 @@
           FILE* f,
           yyjson_val* fn,
           size_t fn_index) {
-        struct ModuleGenericStringFunctionContextSnapshot saved_context;
+        struct SameModuleFunctionContextSnapshot saved_context;
         hako_llvmc_generic_pure_function_view local_function;
         const char* name = fn ? read_str(fn, "name") : NULL;
         int rc = -1;
@@ -1936,16 +1936,16 @@
           return -1;
         }
 
-        module_generic_string_save_function_context(&saved_context);
-        module_generic_string_activate_function_context(&local_function);
+        same_module_function_save_function_context(&saved_context);
+        same_module_function_activate_function_context(&local_function);
 
-        rc = module_generic_string_emit_function_pipeline(
+        rc = same_module_function_emit_function_pipeline(
             f,
             fn,
             fn_index,
             name);
 
-        module_generic_string_restore_function_context(&saved_context);
+        same_module_function_restore_function_context(&saved_context);
         return rc;
       }
 

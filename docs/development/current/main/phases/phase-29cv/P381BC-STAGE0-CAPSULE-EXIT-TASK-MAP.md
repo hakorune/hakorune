@@ -518,6 +518,11 @@ Same-module method-view helper naming cleanup landed in
 generic-method view predicates now use the `same_module_method_view_*` helper
 prefix.
 
+Same-module function helper naming cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EV-SAME-MODULE-FUNCTION-HELPER-NAMES.md`:
+same-module body prepass/emitter helpers now use the `same_module_function_*`
+identifier prefix. Existing diagnostic reason strings remain stable.
+
 Primary remaining targets:
 
 - `hako_llvmc_ffi_mir_call_need_policy.inc`
