@@ -56,7 +56,9 @@ pub use model::{
     GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
 };
 use parser_program_json_body::is_parser_program_json_body_function;
-use pattern_util_local_value_probe_body::is_pattern_util_local_value_probe_body_function;
+use pattern_util_local_value_probe_body::{
+    is_pattern_util_local_value_probe_body_function, pattern_util_probe_body_classification,
+};
 use program_json_emit_body::is_program_json_emit_body_function;
 use static_string_array_body::is_static_string_array_body_function;
 
@@ -155,10 +157,7 @@ fn classify_global_call_target_shape(
         return GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericI64Body);
     }
     if is_pattern_util_local_value_probe_body_function(function, targets) {
-        return GlobalCallTargetClassification::direct_contract(
-            GlobalCallProof::PatternUtilLocalValueProbe,
-            GlobalCallReturnContract::MixedRuntimeI64OrHandle,
-        );
+        return pattern_util_probe_body_classification();
     }
     if is_parser_program_json_body_function(function) {
         return GlobalCallTargetClassification::direct_contract(

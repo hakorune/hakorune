@@ -5,7 +5,7 @@ Scope: inventory the remaining work after P381FY so the lane can be read as "wha
 
 ## Read
 
-After P381FD through P381FZ, the lane is no longer blocked by:
+After P381FD through P381GA, the lane is no longer blocked by:
 
 - raw BuildBox matcher growth
 - parser-proof denylist cleanup
@@ -22,6 +22,8 @@ After P381FD through P381FZ, the lane is no longer blocked by:
   `nyash.stage1.emit_program_json_v0_h`
 - duplicated same-module void/null sentinel const publication for the generic
   string-or-void route
+- PatternUtil local-value probe proof/return contract split between the body
+  recognizer and top-level classifier
 
 The remaining work is small in count but not all the same kind:
 
@@ -47,7 +49,6 @@ SSOT:
 Target-shape retirement is done, but a few capsules still have body-handling or
 source-owner cleanup left under `.inc` consolidation / uniform-emitter cleanup:
 
-- PatternUtil local-value probe body handling
 - BoxTypeInspector describe body handling
 
 These are no longer shape-expansion work. They are delete-last owner cleanup.
@@ -99,8 +100,7 @@ Post-P381FY status: wrapper/enrichment cleanup is complete on the public BuildBo
 Program(JSON v0) path, and the parser Program(JSON) proof boundary is closed as
 diagnostics-only. The remaining concrete cleanup order is:
 
-1. PatternUtil local-value probe body handling
-2. BoxTypeInspector describe body handling
+1. BoxTypeInspector describe body handling
 
 ## Result
 

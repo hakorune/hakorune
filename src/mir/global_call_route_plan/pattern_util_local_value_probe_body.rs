@@ -4,9 +4,21 @@ use std::collections::BTreeMap;
 use super::generic_string_abi::generic_pure_string_abi_type_is_handle_compatible;
 use super::generic_string_surface::generic_pure_string_global_name_is_self;
 use super::{
-    lookup_global_call_target, GlobalCallProof, GlobalCallReturnContract, GlobalCallTargetFacts,
-    GlobalCallTargetShape,
+    lookup_global_call_target, GlobalCallProof, GlobalCallReturnContract,
+    GlobalCallTargetClassification, GlobalCallTargetFacts, GlobalCallTargetShape,
 };
+
+const PATTERN_UTIL_LOCAL_VALUE_PROBE_PROOF: GlobalCallProof =
+    GlobalCallProof::PatternUtilLocalValueProbe;
+const PATTERN_UTIL_LOCAL_VALUE_PROBE_RETURN_CONTRACT: GlobalCallReturnContract =
+    GlobalCallReturnContract::MixedRuntimeI64OrHandle;
+
+pub(super) fn pattern_util_probe_body_classification() -> GlobalCallTargetClassification {
+    GlobalCallTargetClassification::direct_contract(
+        PATTERN_UTIL_LOCAL_VALUE_PROBE_PROOF,
+        PATTERN_UTIL_LOCAL_VALUE_PROBE_RETURN_CONTRACT,
+    )
+}
 
 pub(super) fn is_pattern_util_local_value_probe_body_function(
     function: &MirFunction,
@@ -180,6 +192,6 @@ impl PatternUtilLocalValueProbeFacts {
 }
 
 fn target_is_pattern_util_local_value_probe(target: &GlobalCallTargetFacts) -> bool {
-    target.proof() == GlobalCallProof::PatternUtilLocalValueProbe
-        && target.return_contract() == Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
+    target.proof() == PATTERN_UTIL_LOCAL_VALUE_PROBE_PROOF
+        && target.return_contract() == Some(PATTERN_UTIL_LOCAL_VALUE_PROBE_RETURN_CONTRACT)
 }
