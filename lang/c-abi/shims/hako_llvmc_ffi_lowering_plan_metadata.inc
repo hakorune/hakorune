@@ -441,9 +441,17 @@
                !strcmp(view->definition_owner, owner);
       }
 
+      auto int lowering_plan_global_call_view_is_parser_program_json_contract(
+          const struct LoweringPlanGlobalCallView* view) {
+        return view &&
+               view->proof &&
+               !strcmp(view->proof, "typed_global_call_parser_program_json");
+      }
+
       auto int lowering_plan_global_call_view_uses_uniform_mir_definition(
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_has_direct_target(view) &&
+               !lowering_plan_global_call_view_is_parser_program_json_contract(view) &&
                lowering_plan_global_call_view_definition_owner_is(view, "uniform_mir");
       }
 
