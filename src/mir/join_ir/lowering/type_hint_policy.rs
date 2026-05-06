@@ -53,6 +53,7 @@ const PRIMARY_TYPE_HINT_TARGETS: &[TypeHintTargetFamily] = &[
     },
 ];
 
+#[cfg(test)]
 fn matches_type_hint_family(func_name: &str, kind: TypeHintTargetKind) -> bool {
     PRIMARY_TYPE_HINT_TARGETS
         .iter()
@@ -106,47 +107,22 @@ impl TypeHintPolicy {
         matches_primary_type_hint_target(func_name)
     }
 
-    /// P1: If Select パターン判定
-    ///
-    /// # 対象
-    /// - `IfSelectTest.*` - If Select パターンのテスト関数
-    ///
-    /// # Phase
-    /// - Phase 63-6 で導入
+    #[cfg(test)]
     fn is_p1_target(func_name: &str) -> bool {
         matches_type_hint_family(func_name, TypeHintTargetKind::P1IfSelect)
     }
 
-    /// P2: If Merge パターン判定
-    ///
-    /// # 対象
-    /// - `IfMergeTest.*` - If Merge パターンのテスト関数
-    ///
-    /// # Phase
-    /// - Phase 64-3 で導入
+    #[cfg(test)]
     fn is_p2_target(func_name: &str) -> bool {
         matches_type_hint_family(func_name, TypeHintTargetKind::P2IfMerge)
     }
 
-    /// P3-A: StringBox メソッド使用関数判定
-    ///
-    /// # 対象
-    /// - `read_quoted*` - StringBox メソッド（substring/length）使用
-    ///
-    /// # Phase
-    /// - Phase 65-2-A で導入
-    /// - `IfMergeTest.read_quoted*` のような名前は P2 と P3-A の両方に該当
+    #[cfg(test)]
     fn is_p3a_target(func_name: &str) -> bool {
         matches_type_hint_family(func_name, TypeHintTargetKind::P3AReadQuoted)
     }
 
-    /// P3-B: NewBox コンストラクタ使用関数判定
-    ///
-    /// # 対象
-    /// - `NewBoxTest.*` - NewBox コンストラクタテスト関数
-    ///
-    /// # Phase
-    /// - Phase 65-2-B で導入
+    #[cfg(test)]
     fn is_p3b_target(func_name: &str) -> bool {
         matches_type_hint_family(func_name, TypeHintTargetKind::P3BNewBox)
     }

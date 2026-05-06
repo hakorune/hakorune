@@ -24,6 +24,7 @@ pub(crate) mod condition_lowerer; // Phase 171-fix: Core condition lowering logi
 pub mod condition_lowering_box; // Legacy trait-adapter self-test harness
 #[cfg(test)]
 pub mod condition_to_joinir; // Legacy re-export facade self-test harness
+#[cfg(test)]
 pub(crate) mod condition_var_extractor; // Phase 171-fix: Variable extraction from condition AST
 pub mod debug_output_box; // Phase 85: Centralized debug output management
 pub mod error_tags; // Phase 86: Centralized error message formatting

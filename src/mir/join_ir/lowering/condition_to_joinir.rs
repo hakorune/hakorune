@@ -32,6 +32,7 @@ pub use super::condition_env::{ConditionBinding, ConditionEnv};
 pub use super::condition_lowerer::{
     lower_condition_to_joinir, lower_condition_to_joinir_no_body_locals, lower_value_expression,
 };
+#[cfg(test)]
 pub use super::condition_var_extractor::extract_condition_variables;
 
 // Re-export JoinIR types for convenience
