@@ -77,6 +77,11 @@
                    publication_policy);
       }
 
+      auto const char* same_module_method_view_key_const_text(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+      }
+
       auto int same_module_method_view_is_direct_string_len(
           const struct LoweringPlanGenericMethodView* view) {
         return view &&
@@ -295,7 +300,7 @@
 
       auto int same_module_method_view_is_direct_mir_json_block_field_get(
           const struct LoweringPlanGenericMethodView* view) {
-        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+        const char* key = same_module_method_view_key_const_text(view);
         return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_block_field",
@@ -307,7 +312,7 @@
 
       auto int same_module_method_view_is_direct_mir_json_const_value_field_get(
           const struct LoweringPlanGenericMethodView* view) {
-        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+        const char* key = same_module_method_view_key_const_text(view);
         return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_const_value_field",
@@ -319,7 +324,7 @@
 
       auto int same_module_method_view_is_direct_mir_json_numeric_value_field_get(
           const struct LoweringPlanGenericMethodView* view) {
-        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+        const char* key = same_module_method_view_key_const_text(view);
         return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_numeric_value_field",
@@ -331,7 +336,7 @@
 
       auto int same_module_method_view_is_direct_mir_json_callee_field_get(
           const struct LoweringPlanGenericMethodView* view) {
-        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+        const char* key = same_module_method_view_key_const_text(view);
         return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_callee_field",
@@ -348,7 +353,7 @@
 
       auto int same_module_method_view_is_direct_mir_json_inst_field_get(
           const struct LoweringPlanGenericMethodView* view) {
-        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+        const char* key = same_module_method_view_key_const_text(view);
         return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_inst_field",
@@ -379,7 +384,7 @@
 
       auto int same_module_method_view_is_direct_mir_json_function_field_get(
           const struct LoweringPlanGenericMethodView* view) {
-        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+        const char* key = same_module_method_view_key_const_text(view);
         return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_function_field",
@@ -394,7 +399,7 @@
 
       auto int same_module_method_view_is_direct_mir_json_module_field_get(
           const struct LoweringPlanGenericMethodView* view) {
-        const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
+        const char* key = same_module_method_view_key_const_text(view);
         return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_module_field",

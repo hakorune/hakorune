@@ -553,6 +553,11 @@ MIR call extern emit-rule SSOT cleanup landed in
 the emit rule table now owns the full extern route payload while the named
 compatibility validators read the same local table.
 
+Same-module method-view key helper cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381GL-SAME-MODULE-METHOD-VIEW-KEY-HELPER.md`:
+MIR JSON `key_const_text` reading now belongs to the method-view seam and the
+same-module emitter consumes that helper.
+
 Primary remaining optional targets:
 
 - targeted helper dedup only when another local owner seam is clear

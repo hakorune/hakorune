@@ -113,13 +113,6 @@
 
       #include "hako_llvmc_ffi_same_module_method_views.inc"
 
-      auto const char* same_module_method_view_key_const_text(
-          const struct LoweringPlanGenericMethodView* method_view) {
-        return method_view && method_view->entry
-                   ? read_str(method_view->entry, "key_const_text")
-                   : NULL;
-      }
-
       auto void same_module_function_publish_inst_field_origin(
           long long dst,
           const struct LoweringPlanGenericMethodView* method_view,
