@@ -250,6 +250,8 @@ Completed focused probe:
     `same_module_function_*`, while preserving stable diagnostic reason strings
   - P381EW moved extern runtime route tuple validation into the LoweringPlan
     metadata view so need-policy and call-emission consume the same predicate
+  - P381EX renamed the runtime declaration need flag struct to
+    `MirCallNeedFlags`, removing the old generic-pure owner name
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

@@ -1,5 +1,5 @@
       // Pre-scan: consts + phis + needed method decls
-      struct GenericPureNeedFlags needs;
+      struct MirCallNeedFlags needs;
       memset(&needs, 0, sizeof(needs));
       size_t blen = generic_pure_block_count;
       for (size_t bi=0; bi<blen; bi++) {

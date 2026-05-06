@@ -10,7 +10,7 @@
           long long a0,
           long long dst,
           int scan_org,
-          struct GenericPureNeedFlags* needs) {
+          struct MirCallNeedFlags* needs) {
         struct ArrayTextObserverRouteMetadata observer_route;
 
         (void)blocks;
@@ -67,7 +67,7 @@
           size_t ilen,
           yyjson_val* insts,
           yyjson_val* ins,
-          struct GenericPureNeedFlags* needs) {
+          struct MirCallNeedFlags* needs) {
         yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
         yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
         const char* ctype = cal ? read_str(cal, "type") : NULL;

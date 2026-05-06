@@ -528,6 +528,11 @@ Extern runtime route validation cleanup landed in
 `mir_call_need_policy` and `mir_call_shell` now share the same LoweringPlan
 extern runtime route predicate instead of duplicating route/proof/tier checks.
 
+MIR-call need flag naming cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EX-MIR-CALL-NEED-FLAGS-NAME.md`:
+the runtime declaration need flags now use the `MirCallNeedFlags` owner name
+instead of the old generic-pure name.
+
 Primary remaining targets:
 
 - `hako_llvmc_ffi_mir_call_need_policy.inc`

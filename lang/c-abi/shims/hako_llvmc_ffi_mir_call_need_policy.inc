@@ -1,4 +1,4 @@
-      struct GenericPureNeedFlags {
+      struct MirCallNeedFlags {
         int map_birth;
         int map_set;
         int map_size;
@@ -64,7 +64,7 @@
       };
 
       auto void apply_mir_call_need_kind(
-          struct GenericPureNeedFlags* needs,
+          struct MirCallNeedFlags* needs,
           enum MirCallNeedKind kind) {
         if (!needs) return;
         switch (kind) {
