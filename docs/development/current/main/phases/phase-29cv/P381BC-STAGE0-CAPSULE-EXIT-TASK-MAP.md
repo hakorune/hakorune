@@ -548,10 +548,14 @@ Generic-method need-rule naming cleanup landed in
 the generic-method LoweringPlan need table and classifier names now carry their
 explicit owner instead of using broad `LoweringPlanNeedRule` names.
 
-Primary remaining targets:
+MIR call extern emit-rule SSOT cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381GK-MIR-CALL-EXTERN-EMIT-RULE-SSOT.md`:
+the emit rule table now owns the full extern route payload while the named
+compatibility validators read the same local table.
 
-- `hako_llvmc_ffi_mir_call_need_policy.inc`
-- `hako_llvmc_ffi_mir_call_shell.inc`
+Primary remaining optional targets:
+
+- targeted helper dedup only when another local owner seam is clear
 
 This is a cleanup result, not the first move. Do not delete helper files while a
 capsule still needs their contract.

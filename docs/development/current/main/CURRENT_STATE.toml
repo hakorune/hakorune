@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381GJ-CURRENT-MIRROR-THINNING"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381GJ-CURRENT-MIRROR-THINNING.md"
-latest_card_summary = "Current mirrors and near-term inventory cards now keep only restart/order facts; landed T5/T6 details stay in individual P381 cards."
+latest_card = "P381GK-MIR-CALL-EXTERN-EMIT-RULE-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381GK-MIR-CALL-EXTERN-EMIT-RULE-SSOT.md"
+latest_card_summary = "Stage0 MIR call extern emit rows now have one local rule table owner while named validators stay stable."
 
 current_blocker_token = "phase-29cv targeted helper dedup if local seam is clear"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

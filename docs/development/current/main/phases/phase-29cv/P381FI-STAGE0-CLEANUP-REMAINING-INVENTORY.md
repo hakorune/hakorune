@@ -5,7 +5,7 @@ Scope: inventory the remaining work after P381FY so the lane can be read as "wha
 
 ## Read
 
-After P381FD through P381GI, the lane is no longer blocked by:
+After P381FD through P381GK, the lane is no longer blocked by:
 
 - public BuildBox / BuildProgramFragmentBox wrapper and owner cleanup
 - parser Program(JSON) proof routing; `ParserBox.parse_program2` is
@@ -14,6 +14,8 @@ After P381FD through P381GI, the lane is no longer blocked by:
   cleanup
 - T6 smoke/archive inventory, tooling, zero-ref delete waves, and referenced
   hold closeout
+- MIR call extern emit row duplication; named validators now read the shared
+  local rule table
 
 The remaining work is optional polish:
 
@@ -45,7 +47,7 @@ rows.
 
 This does not block the structural "Stage0 is behaving correctly" reading:
 
-1. targeted `.inc` / helper dedup only when a local owner seam is clear
+1. targeted `.inc` / helper dedup only when another local owner seam is clear
 
 ## Size Reading
 
@@ -56,7 +58,7 @@ must-fix:
   0 slices
 
 optional polish:
-  1 smaller follow-up
+  1 optional follow-up class
 ```
 
 That is close enough to call the lane late-stage, but not close enough to say
@@ -64,17 +66,17 @@ That is close enough to call the lane late-stage, but not close enough to say
 
 ## Ordered Next Checklist
 
-1. targeted helper dedup only when a local owner seam is clear
+1. targeted helper dedup only when another local owner seam is clear
 
 ## Concrete Near-Term Order
 
 `P381FN-CONCRETE-BLOCKER-ORDER.md` is the near-term ordering SSOT.
 
-Post-P381GI status: wrapper/enrichment cleanup, parser diagnostics boundary,
+Post-P381GK status: wrapper/enrichment cleanup, parser diagnostics boundary,
 remaining T5 owner/body cleanup, and T6 smoke/archive cleanup are closed. The
 remaining concrete cleanup order is optional polish:
 
-1. targeted helper dedup only when a local owner seam is clear
+1. targeted helper dedup only when another local owner seam is clear
 
 ## Result
 

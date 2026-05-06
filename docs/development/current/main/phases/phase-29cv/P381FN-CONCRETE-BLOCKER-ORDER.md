@@ -1,6 +1,6 @@
 # P381FN Concrete Blocker Order
 
-Date: 2026-05-06 (refreshed post-P381GI)
+Date: 2026-05-06 (refreshed post-P381GK)
 Scope: lock the near-term order after wrapper/owner cleanup, T5 body contract cleanup, and T6 smoke closeout.
 
 ## Read
@@ -15,6 +15,8 @@ reading is:
   is shared at the body/helper seam
 - T6 smoke/archive cleanup is closed for this lane; future smoke deletion needs
   an owner-specific card
+- MIR call extern emit rows have one local table owner while named validator
+  seams stay stable
 
 ## Current Blocker Order
 
@@ -38,21 +40,22 @@ enrichment wrapper or promote parser-private ownership.
 
 Current preferred order:
 
-1. targeted helper dedup only when a local owner seam is clear
+1. targeted helper dedup only when another local owner seam is clear
 
 This keeps the lane on wrapper/owner cleanup and avoids promoting
 parser-private semantics into Stage0 without an explicit parser-owner card.
 
-## Result (post-P381GI)
+## Result (post-P381GK)
 
 `CURRENT_TASK.md` and the phase inventory should read the lane as:
 
 - must-fix wrapper/owner/body cleanup: complete
 - T6 smoke/archive cleanup: complete for this lane
+- first targeted helper dedup: complete for the MIR call extern emit-rule seam
 - parser-private contract discussion: no longer blocked by enrichment-side wrappers
 - current cleanup blocker: targeted helper dedup if local seam is clear
 
-The next slice is targeted helper dedup if a local seam is clear, not wrapper
-structure, not parser-private ownership, and not another Stage0 body-shape
-expansion. If a real Stage0 expressivity blocker appears, switch lanes to a
-fixture-backed BoxCount card.
+The next slice is targeted helper dedup only if another local seam is clear,
+not wrapper structure, not parser-private ownership, and not another Stage0
+body-shape expansion. If a real Stage0 expressivity blocker appears, switch
+lanes to a fixture-backed BoxCount card.

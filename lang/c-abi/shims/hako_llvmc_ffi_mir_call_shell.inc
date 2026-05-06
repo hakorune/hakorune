@@ -305,8 +305,8 @@
             rule->value_demand);
       }
 
-      auto const struct MirCallExternEmitRule* find_mir_call_extern_emit_rule(
-          const struct LoweringPlanExternCallView* view) {
+      auto const struct MirCallExternEmitRule* mir_call_extern_emit_rule_table(
+          size_t* count) {
         static const struct MirCallExternEmitRule rules[] = {
           {"extern.env.get",
            "EnvGet",
@@ -381,8 +381,17 @@
            "mir_call_stage1_emit_mir_from_program_json_emit",
            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
         };
+        if (count) *count = ARR_LEN(rules);
+        return rules;
+      }
+
+      auto const struct MirCallExternEmitRule* find_mir_call_extern_emit_rule(
+          const struct LoweringPlanExternCallView* view) {
+        size_t count = 0;
+        const struct MirCallExternEmitRule* rules =
+            mir_call_extern_emit_rule_table(&count);
         size_t ri = 0;
-        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+        for (ri = 0; ri < count; ri++) {
           if (lowering_plan_extern_emit_rule_matches(view, &rules[ri])) {
             return &rules[ri];
           }
@@ -390,118 +399,63 @@
         return NULL;
       }
 
+      auto const struct MirCallExternEmitRule*
+      find_mir_call_extern_emit_rule_by_route_id(const char* route_id) {
+        size_t count = 0;
+        const struct MirCallExternEmitRule* rules =
+            mir_call_extern_emit_rule_table(&count);
+        size_t ri = 0;
+        if (!route_id) return NULL;
+        for (ri = 0; ri < count; ri++) {
+          if (rules[ri].route_id && !strcmp(rules[ri].route_id, route_id)) {
+            return &rules[ri];
+          }
+        }
+        return NULL;
+      }
+
+      auto int lowering_plan_extern_emit_rule_view_is_valid_by_route_id(
+          const struct LoweringPlanExternCallView* view,
+          const char* route_id) {
+        return lowering_plan_extern_emit_rule_matches(
+            view,
+            find_mir_call_extern_emit_rule_by_route_id(route_id));
+      }
+
       auto int lowering_plan_env_get_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        static const struct MirCallExternEmitRule rule = {
-            "extern.env.get",
-            "EnvGet",
-            "extern.env.get",
-            "nyash.env.get",
-            "string_handle_or_null",
-            "runtime_i64_or_handle",
-            1,
-            0,
-            0,
-            1,
-            "mir_call_extern_emit",
-            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
-        };
-        return lowering_plan_extern_emit_rule_matches(view, &rule);
+        return lowering_plan_extern_emit_rule_view_is_valid_by_route_id(
+            view, "extern.env.get");
       }
 
       auto int lowering_plan_env_set_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        static const struct MirCallExternEmitRule rule = {
-            "extern.env.set",
-            "EnvSet",
-            "extern.env.set",
-            "nyash.env.set",
-            "scalar_i64",
-            "runtime_i64",
-            2,
-            1,
-            0,
-            0,
-            "mir_call_extern_emit",
-            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
-        };
-        return lowering_plan_extern_emit_rule_matches(view, &rule);
+        return lowering_plan_extern_emit_rule_view_is_valid_by_route_id(
+            view, "extern.env.set");
       }
 
       auto int lowering_plan_hostbridge_extern_invoke_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        static const struct MirCallExternEmitRule rule = {
-            "extern.hostbridge.extern_invoke",
-            "HostBridgeExternInvoke",
-            "extern.hostbridge.extern_invoke",
-            "nyash.hostbridge.extern_invoke",
-            "string_handle_or_null",
-            "runtime_i64_or_handle",
-            3,
-            1,
-            1,
-            1,
-            "mir_call_hostbridge_extern_invoke_trap_emit",
-            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_TRAP_SENTINEL,
-        };
-        return lowering_plan_extern_emit_rule_matches(view, &rule);
+        return lowering_plan_extern_emit_rule_view_is_valid_by_route_id(
+            view, "extern.hostbridge.extern_invoke");
       }
 
       auto int lowering_plan_stage1_emit_program_json_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        static const struct MirCallExternEmitRule rule = {
-            "extern.stage1.emit_program_json_v0",
-            "Stage1EmitProgramJson",
-            "extern.stage1.emit_program_json_v0",
-            "nyash.stage1.emit_program_json_v0_h",
-            "string_handle",
-            "runtime_i64_or_handle",
-            1,
-            0,
-            0,
-            1,
-            "mir_call_stage1_emit_program_json_emit",
-            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
-        };
-        return lowering_plan_extern_emit_rule_matches(view, &rule);
+        return lowering_plan_extern_emit_rule_view_is_valid_by_route_id(
+            view, "extern.stage1.emit_program_json_v0");
       }
 
       auto int lowering_plan_stage1_emit_mir_from_source_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        static const struct MirCallExternEmitRule rule = {
-            "extern.stage1.emit_mir_from_source_v0",
-            "Stage1EmitMirFromSource",
-            "extern.stage1.emit_mir_from_source_v0",
-            "nyash.stage1.emit_mir_from_source_v0_h",
-            "string_handle",
-            "runtime_i64_or_handle",
-            1,
-            0,
-            0,
-            1,
-            "mir_call_stage1_emit_mir_from_source_emit",
-            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
-        };
-        return lowering_plan_extern_emit_rule_matches(view, &rule);
+        return lowering_plan_extern_emit_rule_view_is_valid_by_route_id(
+            view, "extern.stage1.emit_mir_from_source_v0");
       }
 
       auto int lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        static const struct MirCallExternEmitRule rule = {
-            "extern.stage1.emit_mir_from_program_json_v0",
-            "Stage1EmitMirFromProgramJson",
-            "extern.stage1.emit_mir_from_program_json_v0",
-            "nyash.stage1.emit_mir_from_program_json_v0_h",
-            "string_handle",
-            "runtime_i64_or_handle",
-            1,
-            0,
-            0,
-            1,
-            "mir_call_stage1_emit_mir_from_program_json_emit",
-            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
-        };
-        return lowering_plan_extern_emit_rule_matches(view, &rule);
+        return lowering_plan_extern_emit_rule_view_is_valid_by_route_id(
+            view, "extern.stage1.emit_mir_from_program_json_v0");
       }
 
       auto int emit_extern_call_lowering_plan_mir_call(
