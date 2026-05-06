@@ -23,7 +23,9 @@ pub(crate) use crate::mir::join_ir::{
     BinOpKind, CompareOp, ConstValue, JoinFuncId, JoinFunction, JoinInst, JoinModule, MergePair,
     VarId,
 };
-pub(crate) use std::collections::{BTreeMap, HashSet};
+pub(crate) use std::collections::BTreeMap;
+#[cfg(test)]
+pub(crate) use std::collections::HashSet;
 
 mod analysis;
 mod context;

@@ -1,13 +1,18 @@
-use crate::mir::join_ir::{BinOpKind, CompareOp, ConstValue, JoinModule, MirLikeInst};
+use crate::mir::join_ir::{BinOpKind, CompareOp, ConstValue, MirLikeInst};
+#[cfg(test)]
+use crate::mir::join_ir::JoinModule;
 use crate::mir::ssot::extern_call::extern_call as build_extern_call;
 use crate::mir::{
     BinaryOp, CompareOp as MirCompareOp, ConstValue as MirConstValue, Effect, EffectMask,
-    MirInstruction, MirModule,
+    MirInstruction,
 };
+#[cfg(test)]
+use crate::mir::MirModule;
 
 use super::JoinIrVmBridgeError;
 
 // Phase 190: Use modular converters from parent module
+#[cfg(test)]
 use super::joinir_function_converter::JoinIrFunctionConverter;
 
 /// Phase 190: JoinIR → MIR 変換器（統合エントリーポイント）

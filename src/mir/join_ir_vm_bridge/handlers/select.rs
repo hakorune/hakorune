@@ -95,6 +95,8 @@ mod tests {
 
     #[test]
     fn test_handle_select_with_debug() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+
         let mut instructions = vec![];
         let dst = ValueId(500);
         let cond = ValueId(600);
