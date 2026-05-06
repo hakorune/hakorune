@@ -1,11 +1,11 @@
 # P381FI Stage0 Cleanup Remaining Inventory
 
 Date: 2026-05-06
-Scope: inventory the remaining work after P381FH so the lane can be read as "what must still land before Stage0 / Program(JSON v0) feels clean clean".
+Scope: inventory the remaining work after P381FY so the lane can be read as "what must still land before Stage0 / Program(JSON v0) feels clean clean".
 
 ## Read
 
-After P381FD through P381FX, the lane is no longer blocked by:
+After P381FD through P381FY, the lane is no longer blocked by:
 
 - raw BuildBox matcher growth
 - parser-proof denylist cleanup
@@ -17,6 +17,9 @@ After P381FD through P381FX, the lane is no longer blocked by:
 - defs enrichment object-return dependency (`FuncScannerBox.scan_all_boxes/1`)
 - defs method-body `parse_block2` result stripping on the public Build path
 - stale `BuildProgramFragmentBox` object-defs builder helpers
+- `ParserBox.parse_program2` as a live Stage0 lowering blocker; the parser
+  Program(JSON) proof is diagnostics-only and source-owner calls use
+  `nyash.stage1.emit_program_json_v0_h`
 
 The remaining work is small in count but not all the same kind:
 
@@ -33,52 +36,7 @@ late cleanup phase
 
 ## Remaining Must-Fix Slices
 
-### 1. BuildBox wrapper chain owner cleanup
-
-SSOT:
-
-- `docs/development/current/main/phases/phase-29cv/P381BS-PARSER-PROGRAM-JSON-BODY-EMITTER-BLOCKER.md`
-- `lang/src/compiler/build/build_box.hako`
-
-The old direct parser contract is a one-argument body:
-
-```text
-BuildBox._parse_program_json/1
-```
-
-but the live owner is:
-
-```text
-BuildBox._parse_program_json(parse_src, scan_src)/2
-```
-
-with enum-inventory setup in between.
-
-After the live Stage1 CLI probe and P381FL, the immediate same-module blockers
-now start at the public helper body:
-
-```text
-BuildBox.emit_program_json_v0/2
-  -> BuildBox._parse_program_json/2                      (blocker: ParserBox.parse_program2)
-  -> BuildProgramFragmentBox._inject_defs_json/2         (DirectAbi)
-  -> BuildProgramFragmentBox._inject_enum_decls_json/2   (DirectAbi)
-```
-
-Note: All public wrapper collapses are done through P381FO/FP/FQ/P381FR, and
-the imports/enum/defs owner cleanup is done through P381FS/P381FT/P381FU/P381FV/P381FW. The
-BuildProgramFragmentBox methods now follow a uniform direct pattern without
-intermediate wrappers; imports and enum_decls have direct generic children. The
-defs path now uses `FuncScannerBox.collect_defs_fragment_json/1`, so it no
-longer consumes ArrayBox/MapBox def records on the public Build path, and its
-method-body parsing uses `ParserBox.parse_program2` instead of `parse_block2`.
-The old object-defs builder helpers have been removed from
-`BuildProgramFragmentBox`.
-
-`_parse_program_json/2` is now the first live parser-private stop in the public
-BuildBox authority body. The old enrich-side blockers are no longer the active
-near-term blocker.
-
-### 2. Remaining dedicated body-handling cleanup under T5
+### 1. Remaining dedicated body-handling cleanup under T5
 
 SSOT:
 
@@ -87,14 +45,13 @@ SSOT:
 Target-shape retirement is done, but a few capsules still have body-handling or
 source-owner cleanup left under `.inc` consolidation / uniform-emitter cleanup:
 
-- parser Program(JSON)
 - generic string-or-void sentinel plumbing
 - PatternUtil local-value probe body handling
 - BoxTypeInspector describe body handling
 
 These are no longer shape-expansion work. They are delete-last owner cleanup.
 
-### 3. T6 smoke/archive inventory before larger surface reduction
+### 2. T6 smoke/archive inventory before larger surface reduction
 
 SSOT:
 
@@ -118,7 +75,7 @@ If the question is "how much is left?", the best current answer is:
 
 ```text
 must-fix:
-  3 slices
+  2 slices
 
 optional polish:
   2 smaller follow-ups
@@ -129,21 +86,21 @@ That is close enough to call the lane late-stage, but not close enough to say
 
 ## Ordered Next Checklist
 
-1. choose the BuildBox wrapper-chain resolution:
-   source-owner cleanup vs MIR-owned contract that removes the unsupported
-   `_parse_program_json_from_scan_src/1` hop
-2. retire the remaining dedicated body-handling capsules under T5 without adding
+1. retire the remaining dedicated body-handling capsules under T5 without adding
    new Stage0 semantics
-3. lock the smoke/archive inventory for T6 before any broad script reduction
+2. lock the smoke/archive inventory for T6 before any broad script reduction
 
 ## Concrete Near-Term Order
 
 `P381FN-CONCRETE-BLOCKER-ORDER.md` is the near-term ordering SSOT.
 
-Post-P381FW status: wrapper/enrichment cleanup is complete on the public BuildBox
-Program(JSON v0) path. The remaining concrete parser-owned seam is:
+Post-P381FY status: wrapper/enrichment cleanup is complete on the public BuildBox
+Program(JSON v0) path, and the parser Program(JSON) proof boundary is closed as
+diagnostics-only. The remaining concrete cleanup order is:
 
-1. `_parse_program_json/2` (calls ParserBox.parse_program2 → diagnostics-only direct route, parser owner still unresolved)
+1. generic string-or-void sentinel plumbing
+2. PatternUtil local-value probe body handling
+3. BoxTypeInspector describe body handling
 
 ## Result
 

@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `concrete owner blocker: ParserBox.parse_program2`
+  `T5 owner cleanup: generic string-or-void / PatternUtil / BoxTypeInspector body handling`
 - primary mode: Program(JSON v0) keeper closeout lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -65,9 +65,8 @@ Scope: current lane / next lane / restart order only.
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
 - next: the easy public capsule-collapse wins plus imports/enum/defs owner
-  cleanup are done; BuildBox Program(JSON v0) enrichment is direct through
-  defs/imports/enum_decls, leaving the parser-private `_parse_program_json/2`
-  seam
+  cleanup are done; parser Program(JSON) is closed as a diagnostics-only
+  boundary, leaving the remaining T5 owner/body cleanup seams
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -88,6 +87,8 @@ Scope: current lane / next lane / restart order only.
   normal `selfhost_build.sh --exe` is direct MIR, while the remaining blocked
   keeper capsules now need owner cleanup or the uniform MIR emitter before the
   compat flag can disappear
+- parser boundary: do not promote `ParserBox.parse_program2`; live source-owner
+  Program(JSON v0) calls route through `nyash.stage1.emit_program_json_v0_h`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
   must move to a new lane
 - keep these cleanup cards BoxShape-only; do not change bundle semantics, do

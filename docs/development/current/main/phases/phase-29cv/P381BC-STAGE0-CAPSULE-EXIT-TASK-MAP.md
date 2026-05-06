@@ -69,7 +69,7 @@ Retired capsule contracts:
 | `GenericStringVoidLoggingBody` | retired as a shape in P381BJ; direct ABI truth now lives in `proof=typed_global_call_generic_string_void_logging` plus `return_shape=void_sentinel_i64_zero`; definition owner is `uniform_mir` and runner MIR JSON coverage was added in P381EE |
 | `StaticStringArrayBody` | retired as a shape in P381BL; direct ABI truth now lives in `proof=typed_global_call_static_string_array` plus `return_shape=array_handle` |
 | `MirSchemaMapConstructorBody` | retired as a shape in P381BM; direct ABI truth now lives in `proof=typed_global_call_mir_schema_map_constructor` plus `return_shape=map_handle`; definition owner is `uniform_mir` and runner MIR JSON coverage was added in P381EF |
-| `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; dedicated body emission remains a later cleanup |
+| `ParserProgramJsonBody` | retired as a shape in P381BN; direct ABI truth now lives in `proof=typed_global_call_parser_program_json` plus `return_shape=string_handle`; P381FY closes it as diagnostics-only, and live source-owner Program(JSON v0) calls use `nyash.stage1.emit_program_json_v0_h` |
 | `BoxTypeInspectorDescribeBody` | retired as a shape in P381BO; direct ABI truth now lives in `proof=typed_global_call_box_type_inspector_describe` plus `return_shape=map_handle`; active source-owner callers already use scalar predicates; definition owner moved to `uniform_mir` in P381EC |
 | `PatternUtilLocalValueProbeBody` | retired as a shape in P381BP; direct ABI truth now lives in `proof=typed_global_call_pattern_util_local_value_probe` plus `return_shape=mixed_runtime_i64_or_handle`; child-probe recognition uses proof/return facts; definition owner moved to `uniform_mir` in P381ED |
 | `GenericStringOrVoidSentinelBody` | retired as a shape in P381BQ; direct ABI truth now lives in `proof=typed_global_call_generic_string_or_void_sentinel` plus `return_shape=string_handle_or_null`; generic-method string-origin consumers use proof/return facts; definition owner moved to `uniform_mir` in P381EN |
@@ -163,9 +163,10 @@ Acceptance must include:
 
 Status: target-shape retirements landed for `MirSchemaMapConstructorBody`,
 `ParserProgramJsonBody`, `BoxTypeInspectorDescribeBody`, and
-`PatternUtilLocalValueProbeBody`. Parser Program(JSON), BoxTypeInspector
-describe, and PatternUtil local-value probe still have dedicated body handling
-that belongs to T5/uniform-emitter cleanup, not another target-shape variant.
+`PatternUtilLocalValueProbeBody`. Parser Program(JSON) is diagnostics-only after
+P381FY; BoxTypeInspector describe and PatternUtil local-value probe still have
+dedicated body handling that belongs to T5/uniform-emitter cleanup, not another
+target-shape variant.
 
 
 Do not remove a shape until the origin/return contract is represented without
@@ -187,14 +188,15 @@ Status: first selected-set consolidation landed in
 `docs/development/current/main/phases/phase-29cv/P381BR-MODULE-GENERIC-SELECTED-KIND-REGISTRY.md`.
 Parser Program(JSON) and static string array no longer have parallel planned
 symbol arrays; their direct-contract identity is a kind on the unified planned
-generic symbol registry. Their specialized body handling still remains for a
-later uniform-emitter cleanup.
+generic symbol registry. Parser Program(JSON) is now diagnostics-only at the
+Stage0 lowering boundary; any remaining specialized body handling belongs to
+static string array / uniform-emitter cleanup.
 
 Failure-first probe landed in
-`docs/development/current/main/phases/phase-29cv/P381BS-PARSER-PROGRAM-JSON-BODY-EMITTER-BLOCKER.md`:
-parser Program(JSON) dedicated body-emitter deletion is blocked by the live
-two-argument `BuildBox._parse_program_json/2` owner body and must wait for
-source-owner cleanup or a matching MIR-owned two-argument body contract.
+`docs/development/current/main/phases/phase-29cv/P381BS-PARSER-PROGRAM-JSON-BODY-EMITTER-BLOCKER.md`;
+P381FY supersedes the active-blocker reading by confirming that parser
+Program(JSON) stays diagnostics-only and live source-owner calls route through
+`nyash.stage1.emit_program_json_v0_h`.
 
 Array-push body cleanup landed in
 `docs/development/current/main/phases/phase-29cv/P381BT-MODULE-GENERIC-ARRAY-PUSH-HELPER-CLEANUP.md`:
