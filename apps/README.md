@@ -49,6 +49,20 @@
 - `BoxTorrentManifest` でpayloadを復元
 - 参照カウントreleaseでcache lifecycleを確認
 
+#### binary-trees
+**場所**: `binary-trees/main.hako`
+CLBG風の二分木生成・破棄・再帰checksumを行う小型ベンチ。
+
+```bash
+./target/release/hakorune --backend vm apps/binary-trees/main.hako
+```
+
+**特徴**:
+- stretch tree と long-lived tree の両方を生成
+- 複数depthで短命treeを大量生成
+- 再帰 `itemCheck` で構造と値を検証
+- 後続のGC/allocator評価へ拡張しやすい固定出力
+
 #### ny-echo - 最小CLI実装
 **場所**: `ny-echo/main.hako`
 標準入力を読み取り、オプションに応じて変換して出力する基本的なCLIツール。
@@ -182,9 +196,9 @@ box TreeNode {
 - [x] enhanced_kilo_editor（実用ツール）
 - [x] tinyproxy（ネットワーク）
 - [x] BoxTorrent Mini（内容アドレスBox + 参照カウント連携）
+- [x] binary-trees（GC性能測定）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
-- [ ] binary-trees（GC性能測定）
 - [ ] n-body（数値計算）
 - [ ] mandelbrot（視覚的ベンチマーク）
 - [ ] JSON Stream Aggregator（プラグイン統一）

@@ -52,9 +52,10 @@ cargo check -q
 ## Immediate Next
 
 - continue `phase-293x` real-app bringup
-- BoxTorrent mini is landed with app-local test and `real-apps` smoke coverage
-- next app: binary-trees allocation/shape benchmark
-- order after binary-trees: mimalloc-lite, then real allocator port
+- BoxTorrent mini and binary-trees are landed with app-local tests and
+  `real-apps` smoke coverage
+- next app: mimalloc-lite
+- order after mimalloc-lite: real allocator port
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

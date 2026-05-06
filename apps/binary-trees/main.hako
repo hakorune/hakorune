@@ -1,0 +1,131 @@
+// binary-trees
+// Purpose: allocation-heavy tree construction and recursive checksum.
+//
+// This is a small CLBG-style slice sized for a fast VM smoke. Larger depths can
+// be added later as perf fronts after the real-app contract is stable.
+
+box TreeNode {
+    init { left, right, value }
+
+    birth(left, right, value) {
+        me.left = left
+        me.right = right
+        me.value = value
+    }
+
+    itemCheck() {
+        if me.left == null {
+            return me.value
+        }
+
+        return me.value + me.left.itemCheck() - me.right.itemCheck()
+    }
+}
+
+box BinaryTreeBuilder {
+    make(depth, value) {
+        if depth == 0 {
+            return new TreeNode(null, null, value)
+        }
+
+        local next_depth = depth - 1
+        local left_value = value * 2 - 1
+        local right_value = value * 2
+        local left = me.make(next_depth, left_value)
+        local right = me.make(next_depth, right_value)
+        return new TreeNode(left, right, value)
+    }
+}
+
+box BinaryTreesBench {
+    init { builder, min_depth, max_depth, stretch_depth, long_lived_depth }
+
+    birth() {
+        me.builder = new BinaryTreeBuilder()
+        me.min_depth = 4
+        me.max_depth = 6
+        me.stretch_depth = me.max_depth + 1
+        me.long_lived_depth = me.max_depth
+    }
+
+    run() {
+        local builder = me.builder
+        local min_depth = me.min_depth
+        local max_depth = me.max_depth
+        local stretch_depth = me.stretch_depth
+        local long_lived_depth = me.long_lived_depth
+
+        local stretch_tree = builder.make(stretch_depth, 0)
+        local stretch_check = stretch_tree.itemCheck()
+
+        local long_lived_tree = builder.make(long_lived_depth, 0)
+        local long_lived_check = long_lived_tree.itemCheck()
+
+        local depth = min_depth
+        local depth4_iterations = 0
+        local depth4_check = 0
+        local depth6_iterations = 0
+        local depth6_check = 0
+
+        loop(depth <= max_depth) {
+            local iterations = Main.pow2(max_depth - depth + min_depth)
+            local check = me.iterationCheck(builder, depth, iterations)
+
+            if depth == 4 {
+                depth4_iterations = iterations
+                depth4_check = check
+            }
+
+            if depth == 6 {
+                depth6_iterations = iterations
+                depth6_check = check
+            }
+
+            depth = depth + 2
+        }
+
+        print("binary-trees")
+        print("stretch_depth=" + stretch_depth + " check=" + stretch_check)
+        print("long_lived_depth=" + long_lived_depth + " check=" + long_lived_check)
+        print("iterations_depth_4=" + depth4_iterations + " check=" + depth4_check)
+        print("iterations_depth_6=" + depth6_iterations + " check=" + depth6_check)
+
+        if stretch_check == 0 - 1 && long_lived_check == 0 - 1 && depth4_check == 0 - 128 && depth6_check == 0 - 32 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+
+    iterationCheck(builder, depth, iterations) {
+        local i = 1
+        local sum = 0
+        loop(i <= iterations) {
+            local positive = builder.make(depth, i)
+            local negative = builder.make(depth, 0 - i)
+            sum = sum + positive.itemCheck()
+            sum = sum + negative.itemCheck()
+            i = i + 1
+        }
+        return sum
+    }
+}
+
+static box Main {
+    main(args) {
+        local bench = new BinaryTreesBench()
+        return bench.run()
+    }
+
+    pow2(exp) {
+        local out = 1
+        local i = 0
+        loop(i < exp) {
+            out = out * 2
+            i = i + 1
+        }
+        return out
+    }
+}

@@ -52,7 +52,7 @@ Scope: current lane / next lane / restart order only.
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
 - resume point: continue `phase-293x` from the real-app suite; BoxTorrent
-  mini is the first landed slice, binary-trees is next
+  mini and binary-trees are landed, mimalloc-lite is next
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
@@ -65,7 +65,7 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: implement binary-trees as the next real app after BoxTorrent mini;
+- next: implement mimalloc-lite after BoxTorrent mini and binary-trees;
   only change compiler acceptance when the app exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
@@ -86,7 +86,7 @@ Scope: current lane / next lane / restart order only.
   2. binary-trees
   3. mimalloc-lite
   4. real allocator port
-- current status: BoxTorrent mini landed; binary-trees is next
+- current status: BoxTorrent mini and binary-trees landed; mimalloc-lite is next
 - compiler rule: do not hide a real compiler blocker in app code; fix the
   compiler seam structurally when needed
 
@@ -101,7 +101,7 @@ Scope: current lane / next lane / restart order only.
 - Current app checkpoint: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
 - Current app card:
-  `docs/development/current/main/phases/phase-293x/293x-001-BOXTORRENT-MINI-LOCAL-STORE.md`
+  `docs/development/current/main/phases/phase-293x/293x-002-BINARY-TREES-REAL-APP.md`
 - Bootstrap route SSOT:
   `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Perf owner-first policy:

@@ -33,4 +33,5 @@ tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight
 ## Current Status
 
 - `293x-001`: BoxTorrent mini local content store landed.
-- Next: binary-trees allocation/shape benchmark app.
+- `293x-002`: binary-trees allocation/shape benchmark app landed.
+- Next: mimalloc-lite.

@@ -1,3 +1,4 @@
 # Integration real-app suite
 # Keep this suite focused on runnable applications, not compiler probes.
 apps/boxtorrent_mini_vm.sh
+apps/binary_trees_vm.sh
