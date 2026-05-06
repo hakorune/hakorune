@@ -530,12 +530,7 @@ impl GlobalCallRoute {
         }
     }
 
-    pub fn with_lowering_override(mut self, lowering_override: GlobalCallLoweringOverride) -> Self {
-        self.lowering_override = Some(lowering_override);
-        self
-    }
-
-    pub fn with_optional_lowering_override(
+    pub(super) fn with_optional_lowering_override(
         mut self,
         lowering_override: Option<GlobalCallLoweringOverride>,
     ) -> Self {
