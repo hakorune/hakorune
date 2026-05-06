@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381FE-PRIVATE-PARSER-FAILFAST"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381FE-PRIVATE-PARSER-FAILFAST.md"
-latest_card_summary = "typed_global_call_parser_program_json stays as diagnostics metadata, but Stage0 no longer plans or lowers it as a same-module target."
+latest_card = "P381FF-BUILDBOX-CANONICALIZE-COMPAT-ONLY"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381FF-BUILDBOX-CANONICALIZE-COMPAT-ONLY.md"
+latest_card_summary = "BuildBox Stage1 Program(JSON) routing no longer depends on callsite_canonicalize rewrites; MIR route facts own the lowering contract."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

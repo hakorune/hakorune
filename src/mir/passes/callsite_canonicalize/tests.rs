@@ -139,7 +139,7 @@ fn mcl5_suffixes_unsuffixed_qualified_global_name_when_matching_arity_exists() {
 }
 
 #[test]
-fn stage1_buildbox_emit_program_json_null_opts_rewrites_to_extern_route() {
+fn stage1_buildbox_emit_program_json_null_opts_stays_global_call() {
     let mut module = MirModule::new("stage1_buildbox_emit_program_json".to_string());
     let signature = FunctionSignature {
         name: "caller/0".to_string(),
@@ -177,7 +177,7 @@ fn stage1_buildbox_emit_program_json_null_opts_rewrites_to_extern_route() {
     module.add_function(func);
 
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("caller/0")
@@ -192,19 +192,19 @@ fn stage1_buildbox_emit_program_json_null_opts_rewrites_to_extern_route() {
         MirInstruction::Call {
             dst,
             func,
-            callee: Some(Callee::Extern(name)),
+            callee: Some(Callee::Global(name)),
             args,
             effects,
         } if *dst == Some(ValueId(3))
             && *func == ValueId::INVALID
-            && name == "nyash.stage1.emit_program_json_v0_h"
-            && args == &vec![ValueId(1)]
+            && name == "BuildBox.emit_program_json_v0/2"
+            && args == &vec![ValueId(1), ValueId(2)]
             && *effects == EffectMask::PURE
     ));
 }
 
 #[test]
-fn stage1_buildbox_emit_program_json_from_scan_src_rewrites_to_extern_route() {
+fn stage1_buildbox_emit_program_json_from_scan_src_stays_global_call() {
     let mut module = MirModule::new("stage1_buildbox_emit_program_json_from_scan_src".to_string());
     let signature = FunctionSignature {
         name: "caller/0".to_string(),
@@ -239,7 +239,7 @@ fn stage1_buildbox_emit_program_json_from_scan_src_rewrites_to_extern_route() {
     module.add_function(func);
 
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("caller/0")
@@ -254,12 +254,12 @@ fn stage1_buildbox_emit_program_json_from_scan_src_rewrites_to_extern_route() {
         MirInstruction::Call {
             dst,
             func,
-            callee: Some(Callee::Extern(name)),
+            callee: Some(Callee::Global(name)),
             args,
             effects,
         } if *dst == Some(ValueId(2))
             && *func == ValueId::INVALID
-            && name == "nyash.stage1.emit_program_json_v0_h"
+            && name == "BuildBox._emit_program_json_from_scan_src/1"
             && args == &vec![ValueId(1)]
             && *effects == EffectMask::PURE
     ));

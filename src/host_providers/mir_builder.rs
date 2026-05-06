@@ -276,7 +276,7 @@ mod tests {
         assert!(mir_json.contains("nyash.stage1.emit_program_json_v0_h"));
         assert!(
             !mir_json.contains("\"op\":\"boxcall\""),
-            "BuildBox emit_program_json_v0 must lower as an explicit extern helper call"
+            "BuildBox emit_program_json_v0 must publish the Stage1 runtime helper route"
         );
         assert!(
             !mir_json.contains("\"method\":\"emit_program_json_v0\""),
