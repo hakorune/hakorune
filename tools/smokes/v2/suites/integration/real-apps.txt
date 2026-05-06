@@ -2,3 +2,4 @@
 # Keep this suite focused on runnable applications, not compiler probes.
 apps/boxtorrent_mini_vm.sh
 apps/binary_trees_vm.sh
+apps/mimalloc_lite_vm.sh

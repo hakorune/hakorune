@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-002-BINARY-TREES-REAL-APP"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-002-BINARY-TREES-REAL-APP.md"
-latest_card_summary = "Added binary-trees as the second real-app lane slice with recursive allocation checks, app-local test, and real-app smoke suite coverage."
+latest_card = "293x-003-MIMALLOC-LITE-REAL-APP"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-003-MIMALLOC-LITE-REAL-APP.md"
+latest_card_summary = "Added mimalloc-lite as the third real-app lane slice with page/free-list/reuse accounting before the real allocator port."
 
 current_blocker_token = "phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -224,4 +224,5 @@ landed_tail = [
   "29cv-P381HI selfhost Stage-B OOB archive delete landed",
   "293x-001 BoxTorrent mini local content store landed",
   "293x-002 binary-trees real app landed",
+  "293x-003 mimalloc-lite real app landed",
 ]

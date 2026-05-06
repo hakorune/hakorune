@@ -63,6 +63,20 @@ CLBG風の二分木生成・破棄・再帰checksumを行う小型ベンチ。
 - 再帰 `itemCheck` で構造と値を検証
 - 後続のGC/allocator評価へ拡張しやすい固定出力
 
+#### mimalloc-lite
+**場所**: `mimalloc-lite/main.hako`
+本物allocator移植の前段として、page/free-list/reuseを持つ小型モデル。
+
+```bash
+./target/release/hakorune --backend vm apps/mimalloc-lite/main.hako
+```
+
+**特徴**:
+- small/medium page の固定サイズ割り当て
+- handle による release route
+- free-list reuse と peak usage の集計
+- 本物 allocator port 前に語彙とsmokeを固定
+
 #### ny-echo - 最小CLI実装
 **場所**: `ny-echo/main.hako`
 標準入力を読み取り、オプションに応じて変換して出力する基本的なCLIツール。
@@ -197,6 +211,7 @@ box TreeNode {
 - [x] tinyproxy（ネットワーク）
 - [x] BoxTorrent Mini（内容アドレスBox + 参照カウント連携）
 - [x] binary-trees（GC性能測定）
+- [x] mimalloc-lite（allocator-shaped model）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

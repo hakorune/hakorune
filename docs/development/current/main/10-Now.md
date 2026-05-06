@@ -27,7 +27,8 @@ Related:
 ## Next
 
 - continue `phase-293x` real-app bringup
-- BoxTorrent mini and binary-trees are landed; mimalloc-lite is next
+- BoxTorrent mini, binary-trees, and mimalloc-lite are landed; real allocator
+  port is next
 - real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port
 - run `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
   for the active app suite

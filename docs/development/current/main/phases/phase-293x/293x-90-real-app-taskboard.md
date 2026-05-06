@@ -8,7 +8,7 @@
 
 - [x] `293x-001` BoxTorrent mini local content store
 - [x] `293x-002` binary-trees allocation/GC benchmark
-- [ ] `293x-003` mimalloc-lite allocator-shaped app
+- [x] `293x-003` mimalloc-lite allocator-shaped app
 - [ ] `293x-004` real allocator port
 
 ## Gates
