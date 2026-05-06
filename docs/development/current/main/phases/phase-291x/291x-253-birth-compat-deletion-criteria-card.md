@@ -8,10 +8,11 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-250-constructor-birth-carrier-design-card.md
   - docs/development/current/main/phases/phase-291x/291x-251-constructor-birth-owner-shape-decision-card.md
   - docs/development/current/main/phases/phase-291x/291x-252-constructor-birth-marker-helper-card.md
+  - docs/development/current/main/phases/phase-96x/96x-92-execution-plan.md
   - src/mir/builder/calls/emit.rs
   - src/mir/builder/decls.rs
   - lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc
-  - tools/smokes/v2/profiles/archive/vm_hako_caps/args/args_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh
 ---
 
 # 291x-253 Birth Compat Deletion Criteria Card
@@ -40,9 +41,9 @@ This removes one more inline `birth()` construction site from
 and keeps the transitional marker emission owned by
 [`src/mir/builder/calls/emit.rs`](/home/tomoaki/git/hakorune-selfhost/src/mir/builder/calls/emit.rs).
 
-The archived `main(args)` capability smoke now resolves its shared helper from
-the integration vm-hako caps library through the repo root, matching the already
-repaired archived smokes.
+The old archived `main(args)` capability smoke was later retired by
+phase-96x `96xC1a`; the live owner anchor is now
+[`tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`](/home/tomoaki/git/hakorune-selfhost/tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh).
 
 ## Keep Boundary
 
@@ -91,6 +92,6 @@ cargo check -q
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/core_method_contract_inc_no_growth_guard.sh
 bash tools/smokes/v2/profiles/integration/joinir/phase29bq_harness_arraybox_birth_ternary_basic_vm.sh
-bash tools/smokes/v2/profiles/archive/vm_hako_caps/args/args_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh
 git diff --check
 ```

@@ -59,8 +59,8 @@ read stays a tagged string witness rather than falling back to a stale scalar
   `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
 - quick core witness:
   `tools/smokes/v2/profiles/quick/core/map/map_missing_key_tag_vm.sh`
-- legacy capability witness remains valid:
-  `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/mapbox_get_missing_ported_vm.sh`
+- legacy archive witness is retired after the live source-route and quick-core
+  pointers were reconciled to the phase-291x owner path.
 
 ## Next Slice
 

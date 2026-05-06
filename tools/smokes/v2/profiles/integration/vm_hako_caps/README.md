@@ -67,12 +67,21 @@ via `tools/smokes/v2/suites/integration/phase29y-hako-emit-mir.txt` and
 `tools/smokes/v2/suites/integration/selfhost-core.txt`.
 
 `mapbox/` is not part of the phase29y vm-hako acceptance gate.
-All 7 live `MapBox.*` owner rows now live in the dedicated non-vm_hako
-emit+exec smokes under
+The 7 mainline `MapBox.{set,size,get,has,delete,keys,clear}` owner rows now live
+in the dedicated non-vm_hako emit+exec smokes under
 `tools/smokes/v2/profiles/integration/phase29y/hako/emit_mir/`.
+The source-route missing-key and bad-key coverage moved to
+`tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_get_missing_vm.sh`
+and
+`tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_bad_key_vm.sh`,
+with quick-core guards in `tools/smokes/v2/profiles/quick/core/map/`.
+`MapBox.getField/setField` field-name behavior is now owned by
+`lang/src/runtime/collections/map_state_core_box.hako` via
+`lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako`, as tracked by
+`docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md`.
 `tools/smokes/v2/suites/integration/collection-core.txt` no longer depends on
-`collection_core/mapbox_*` directly; archive evidence remains under
-`tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`.
+`collection_core/mapbox_*` directly, and the old archive `mapbox/*_ported_vm.sh`
+witnesses are retired.
 `app1/` and `args/boxcall_args_gt1_ported_vm.sh` are no longer suite-owned.
 The product owner for APP-1 summary behavior is now
 `tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh` via

@@ -41,8 +41,11 @@ Field rows keep their separate field-name text:
 - Dispatch entry: `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako`
 - Rust VM source-visible precedent:
   `src/backend/mir_interpreter/handlers/boxes_map.rs`
-- Existing archived witnesses:
-  `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/*_bad_key_ported_vm.sh`
+- Current source-level witness:
+  `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_bad_key_vm.sh`
+- Field-name contract frontier:
+  `lang/src/runtime/collections/map_state_core_box.hako` via
+  `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako`
 
 ## Out Of Scope
 

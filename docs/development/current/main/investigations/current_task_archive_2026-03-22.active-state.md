@@ -164,11 +164,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` RVP-C21 is closed: `MapBox.delete(key)` now removes presence/value state, preserves `has/size` parity, and is pinned by `vm_hako_caps_mapbox_delete_ported_vm.sh`
   - `[x]` RVP-C22 is closed: `MapBox.keys()` now returns an ArrayBox-like token whose `size()` matches the map size, and is pinned by `vm_hako_caps_mapbox_keys_ported_vm.sh`
   - `[x]` RVP-C23 is closed: `MapBox.clear()` now resets visible `size/has/keys` state and is pinned by `vm_hako_caps_mapbox_clear_ported_vm.sh`
-  - `[x]` RVP-C24 is closed: `MapBox.get(missing-key)` now returns the stable `[map/missing] Key not found: <key>` text and is pinned by `vm_hako_caps_mapbox_get_missing_ported_vm.sh`
-  - `[x]` RVP-C25 is closed: `MapBox.get(non-string key)` now returns the stable `[map/bad-key] key must be string` text and is pinned by `vm_hako_caps_mapbox_get_bad_key_ported_vm.sh`
-  - `[x]` RVP-C26 is closed: `MapBox.set(non-string key, value)` now returns the stable `[map/bad-key] key must be string` text and is pinned by `vm_hako_caps_mapbox_set_bad_key_ported_vm.sh`
-  - `[x]` RVP-C27 is closed: `MapBox.getField(non-string key)` now returns the stable `[map/bad-key] field name must be string` text and is pinned by `vm_hako_caps_mapbox_getfield_bad_key_ported_vm.sh`
-  - `[x]` RVP-C28 is closed: `MapBox.setField(non-string key, value)` now returns the stable `[map/bad-key] field name must be string` text and is pinned by `vm_hako_caps_mapbox_setfield_bad_key_ported_vm.sh`
+  - `[x]` RVP-C24 is closed: `MapBox.get(missing-key)` now returns the stable `[map/missing] Key not found: <key>` text and is pinned by `phase291x_mapbox_hako_get_missing_vm.sh` plus `map_missing_key_tag_vm.sh`
+  - `[x]` RVP-C25 is closed: `MapBox.get(non-string key)` now returns the stable `[map/bad-key] key must be string` text and is pinned by `phase291x_mapbox_hako_bad_key_vm.sh`
+  - `[x]` RVP-C26 is closed: `MapBox.set(non-string key, value)` now returns the stable `[map/bad-key] key must be string` text and is pinned by `phase291x_mapbox_hako_bad_key_vm.sh`
+  - `[x]` RVP-C27 is closed: `MapBox.getField(non-string key)` now returns the stable `[map/bad-key] field name must be string` text and is owned by `map_state_core_box.hako` via `mir_vm_s0_boxcall_builtin.hako` (`291x-100` field-name contract)
+  - `[x]` RVP-C28 is closed: `MapBox.setField(non-string key, value)` now returns the stable `[map/bad-key] field name must be string` text and is owned by `map_state_core_box.hako` via `mir_vm_s0_boxcall_builtin.hako` (`291x-100` field-name contract)
   - `[x]` lane C map bad-key field sweep reached the stop line; reopen only if a new exact vm-hako blocker appears
   - `[x]` `RuntimeDataBox` facade-only stop line reached
     - reopen only on an exact protocol/dispatch blocker; do not reopen for collection-owner growth

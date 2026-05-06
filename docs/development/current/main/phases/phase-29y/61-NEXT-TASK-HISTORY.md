@@ -15,10 +15,10 @@ Related:
 - `RVP-0-min1` 完了（`src/cli/args.rs` / `src/runner/mod.rs` / `src/runner/emit.rs`）。
 - `RVP-0-min2` 完了（stage1 minimum route liveliness smoke 2件を再検証）。
 - `RVP-1-min1` 完了（`vm_hako_caps_filebox_newbox_vm.sh` PASS）。
-- `RVP-1-min2` 完了（`vm_hako_caps_args_vm.sh` PASS）。
+- `RVP-1-min2` 完了（当時の args capability smoke が PASS。現 owner は `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`）。
 - `RVP-1-min3` 完了（`vm_hako_caps_file_error_vm.sh` PASS）。
 - `RVP-3-min1` 完了（`vm_hako_caps_filebox_newbox_vm.sh` が ported 契約で PASS）。
-- `RVP-3-min2` 完了（`vm_hako_caps_args_vm.sh` が ported 契約で PASS）。
+- `RVP-3-min2` 完了（当時の args capability smoke が ported 契約で PASS。現 owner は `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`）。
 - `RVP-3-min3` 完了（`vm_hako_caps_file_error_vm.sh` が ported 契約で PASS）。
 - `RVP-4-min1` 完了（APP-1 residual capability rowization + blocked pin 5件を追加）。
 - `RVP-4-min2` 完了（C04 `Select` emit contract を port、C04 smoke を success 契約へ昇格）。

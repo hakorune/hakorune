@@ -38,7 +38,7 @@ Related:
 - `RVP-C21 MapBox.delete(key)` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_delete_exec_contract_vm.sh`.
 - `RVP-C22 MapBox.keys()` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_keys_exec_contract_vm.sh`.
 - `RVP-C23 MapBox.clear()` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_clear_exec_contract_vm.sh`.
-- `RVP-C28 MapBox.setField(non-string key, value)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_setfield_bad_key_ported_vm.sh`.
+- `RVP-C28 MapBox.setField(non-string key, value)` is now ported; the current field-name contract is tracked by `docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md` and owned by `lang/src/runtime/collections/map_state_core_box.hako` via `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako`.
   - no current exact blocker remains; reopen lane C only when a new exact vm-hako blocker appears.
 - 2026-03-09 monitor refresh:
   - `bash tools/checks/dev_gate.sh quick` PASS
@@ -195,7 +195,8 @@ Related:
   - `tools/smokes/v2/profiles/archive/vm_hako_caps/**`
   - `tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh` (tombstone)
 - latest completed pin:
-    - `tools/smokes/v2/profiles/integration/vm_hako_caps/mapbox/mapbox_setfield_bad_key_ported_vm.sh`
+    - `tools/smokes/v2/profiles/integration/apps/phase291x_mapbox_hako_bad_key_vm.sh`
+    - `docs/development/current/main/phases/phase-291x/291x-100-mapbox-bad-key-contract-card.md`
 - already returned after `RVP-C19`:
   - `map_basic_get_set_vm.sh`
   - `map_len_size_vm.sh`

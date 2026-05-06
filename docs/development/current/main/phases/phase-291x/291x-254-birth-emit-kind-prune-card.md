@@ -5,9 +5,11 @@ Scope: Prune the generic-method `birth` emit-kind classifier after the deletion 
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/phases/phase-291x/291x-253-birth-compat-deletion-criteria-card.md
+  - docs/development/current/main/phases/phase-96x/96x-92-execution-plan.md
   - lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc
   - lang/c-abi/shims/hako_llvmc_ffi_generic_method_lowering.inc
   - tools/checks/core_method_contract_inc_no_growth_allowlist.tsv
+  - tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh
 ---
 
 # 291x-254 Birth Emit-Kind Prune Card
@@ -51,8 +53,9 @@ rows=14
   transitional marker emission.
 - llvmlite harness compatibility for explicit `ArrayBox.birth()` remains pinned
   by the harness smoke.
-- `main(args)` bootstrap compatibility remains pinned by the archived
-  vm-hako capability smoke.
+- the retired `main(args)` vm-hako row no longer points at an archive smoke;
+  phase-96x `96xC1a` moved the live owner anchor to
+  `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`.
 - General constructor fallback in `builder_build.rs` is unchanged.
 
 ## Result
@@ -81,7 +84,7 @@ cargo check -q
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/core_method_contract_inc_no_growth_guard.sh
 bash tools/smokes/v2/profiles/integration/joinir/phase29bq_harness_arraybox_birth_ternary_basic_vm.sh
-bash tools/smokes/v2/profiles/archive/vm_hako_caps/args/args_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh
 tools/checks/dev_gate.sh quick
 git diff --check
 ```
