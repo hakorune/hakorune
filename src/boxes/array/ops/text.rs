@@ -261,9 +261,12 @@ impl ArrayBox {
         if loop_bound < 0 || row_modulus <= 0 {
             return None;
         }
+        let loop_bound = usize::try_from(loop_bound).ok()?;
+        let row_modulus = usize::try_from(row_modulus).ok()?;
         if loop_bound == 0 {
             return Some(0);
         }
+        let row_modulus_mask = row_modulus.is_power_of_two().then_some(row_modulus - 1);
         let mut items = self.items.write();
 
         if let ArrayStorage::Boxed(boxed) = &*items {
@@ -275,7 +278,10 @@ impl ArrayBox {
         if let ArrayStorage::Text(values) = &mut *items {
             let mut total = 0_i64;
             for step in 0..loop_bound {
-                let idx = (step % row_modulus) as usize;
+                let idx = match row_modulus_mask {
+                    Some(mask) => step & mask,
+                    None => step % row_modulus,
+                };
                 let value = values.get_mut(idx)?;
                 total = total.checked_add(f(value.as_mut_string())?)?;
             }
@@ -286,7 +292,10 @@ impl ArrayBox {
             ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible);
         let mut total = 0_i64;
         for step in 0..loop_bound {
-            let idx = (step % row_modulus) as usize;
+            let idx = match row_modulus_mask {
+                Some(mask) => step & mask,
+                None => step % row_modulus,
+            };
             let (delta, _kind) = session.update(idx, |value| f(value))?;
             total = total.checked_add(delta?)?;
         }
