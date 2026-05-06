@@ -1,12 +1,12 @@
 # Stage1 Module Dispatch
 
-Status: compat quarantine / shrink-only.
+Status: runtime-boundary residue / shrink-only.
 
 Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel/src/plugin/module_string_dispatch/`.
 
 ## Placement Rule
 
-- this directory is `compat quarantine`, not `Rust host microkernel`
+- this directory is a `runtime-boundary residue bucket`, not `Rust host microkernel`
 - it may stay temporarily, but it must not gain new semantic ownership
 - shrink or absorb it; do not widen it
 
@@ -17,7 +17,7 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - shared string-handle encode/decode helpers
   - shared MirBuilder dispatch helpers
   - shared MirBuilder gate/decode/freeze wrappers for the source and Program(JSON) routes
-  - probes `build_surrogate.rs` as an owner-local route before the shared table; it does not own `BuildBox.emit_program_json_v0` module/method strings or route registration
+  - probes `build_surrogate.rs` as an owner-local route before the shared table; it does not own `BuildBox.emit_program_json_v0` authority, only the residual runtime-boundary probe
 - `build_surrogate.rs`
   - compiled-stage1 `BuildBox.emit_program_json_v0` dispatch shim only
   - frozen exact owner for the build surrogate residue bucket; docs/inventory closeout only until caller-proof says removable
@@ -36,5 +36,5 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
 
 - do not mix `build_surrogate.rs` retirement with `stage1_bridge` or `.hako` live/bootstrap caller deletion
 - if the surrogate still cannot be removed, record that retreat in `phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
-- treat the shared `emit_from_program_json_v0` / `emit_from_source_v0` gate-decode helpers as thin-floor support code, not as a new authority owner
+- treat the shared `emit_from_program_json_v0` / `emit_from_source_v0` gate-decode helpers as thin runtime-boundary support code, not as a new authority owner
 - treat `build_surrogate.rs` and `compat/llvm_backend_surrogate.rs` as frozen exact owners; do not reopen either without caller-proof

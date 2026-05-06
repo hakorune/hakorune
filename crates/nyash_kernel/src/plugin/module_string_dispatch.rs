@@ -1,6 +1,7 @@
-// Compiled-stage1 compat quarantine route table.
+// Compiled-stage1 runtime-boundary route table.
 // Keep this internal-only, probe it explicitly from invoke paths, and do not let
-// it grow into a general semantic owner.
+// it grow into a general semantic owner. This module is a narrow residue bucket,
+// not the Program(JSON) authority itself.
 
 use crate::plugin::{materialize_owned_string, owned_string_from_handle};
 #[cfg(test)]
@@ -190,6 +191,8 @@ fn handle_mir_builder_emit_from_program_json_v0(
     arg1: i64,
     arg2: i64,
 ) -> Option<i64> {
+    // This path remains a thin MIR-builder runtime boundary; BuildBox/Program
+    // authority stays outside module_string_dispatch.
     let program_json = match decode_mir_builder_input_text(
         "mir_builder",
         "program_json",

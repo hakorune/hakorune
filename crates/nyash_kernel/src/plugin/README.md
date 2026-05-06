@@ -15,8 +15,8 @@ language-level collection or string semantics into this module.
   and `intarray.rs` are the public plugin entry modules.
 - `map_compat.rs` is compatibility quarantine. Keep it callable only through
   explicit compat exports/tests; do not re-export it through `map::*`.
-- `module_string_dispatch/` is compiled-stage1 compat quarantine. It is
-  shrink-only and must not gain new semantic ownership.
+- `module_string_dispatch/` is a compiled-stage1 runtime-boundary residue
+  bucket. It is shrink-only and must not gain new semantic ownership.
 
 ## Collection Routes
 

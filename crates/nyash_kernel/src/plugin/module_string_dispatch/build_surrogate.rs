@@ -1,5 +1,6 @@
-// Compiled-stage1 compat quarantine.
-// Keep this as a shrink-only surrogate route; do not let it become a permanent owner.
+// Compiled-stage1 BuildBox runtime-helper residue.
+// Keep this as a shrink-only surrogate route; do not let it become a permanent
+// owner. Program(JSON) authority remains in `nyash_rust::stage1::program_json_v0`.
 
 use super::{decode_string_handle, encode_string_handle, trace_log};
 

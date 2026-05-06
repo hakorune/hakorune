@@ -1,7 +1,8 @@
 // Stage1 compiler bridge exports.
 //
-// These ABI leaves are thin handle adapters. Program(JSON v0) authority and
-// route policy remain in `nyash_rust::stage1::program_json_v0`.
+// These ABI leaves are a narrow runtime-helper boundary only. Program(JSON v0)
+// authority and route policy remain in `nyash_rust::stage1::program_json_v0`;
+// this file only adapts string handles across the kernel ABI surface.
 
 use crate::plugin::{materialize_owned_string, owned_string_from_handle};
 
