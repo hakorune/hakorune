@@ -31,7 +31,7 @@
           char* ab,
           size_t ab_cap) {
         long long value = a1 ? a1 : a0;
-        if (recv) append_i64_arg_ref(ab, ab_cap, recv, ab[0]=='\0');
+        if (recv && ab[0] == '\0') append_i64_arg_ref(ab, ab_cap, recv, 1);
         if (value) append_i64_arg_ref(ab, ab_cap, value, ab[0]=='\0');
         enum GenericMethodPushRouteKind route = classify_generic_method_push_route(bname, plan);
         switch (route) {
