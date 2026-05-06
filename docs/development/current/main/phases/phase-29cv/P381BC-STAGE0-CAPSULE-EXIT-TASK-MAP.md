@@ -181,7 +181,7 @@ after P381GA, and BoxTypeInspector describe proof/return ownership is shared
 after P381GB. T5 owner/body cleanup is closed. P381GC locks T6 smoke/archive
 inventory and shows the archive/manual buckets are mixed protected/referenced
 surfaces. P381GD fixes the inventory report class-column summary, so the next
-structural cleanup is classifying the held legacy root-smoke zero-ref group.
+structural cleanup is deleting the held legacy root-smoke zero-ref group.
 
 ### T5: `.inc` Consolidation
 
@@ -575,7 +575,8 @@ P381GC fixes the current T6 bucket counts and the first-wave rule. P381GD fixes
 `class` column correctly. The five archive/manual buckets are not directory-
 level delete targets. P381GE fixes the first candidate list to 45 zero-ref v2
 archive scripts, and P381GF deletes only that wave. The next slice is
-classifying the held legacy root-smoke zero-ref group before any root deletion.
+classifies the held legacy root-smoke zero-ref group as delete candidates; the
+next slice is deleting only that group.
 
 ## Boundary
 
