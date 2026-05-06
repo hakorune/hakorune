@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381ET-SAME-MODULE-FUNCTION-EMIT-FILE"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381ET-SAME-MODULE-FUNCTION-EMIT-FILE.md"
-latest_card_summary = "Stage0 same-module function body emitter now uses the owner-neutral function emit file name."
+latest_card = "P381EU-SAME-MODULE-METHOD-VIEW-HELPER-NAMES"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381EU-SAME-MODULE-METHOD-VIEW-HELPER-NAMES.md"
+latest_card_summary = "Stage0 generic-method view helper prefix now matches the same-module method view shim."
 
 current_blocker_token = "remaining capsule retirements need owner cleanup or uniform emitter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

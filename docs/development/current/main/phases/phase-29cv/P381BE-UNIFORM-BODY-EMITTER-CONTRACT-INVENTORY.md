@@ -244,6 +244,8 @@ Completed focused probe:
     `hako_llvmc_ffi_same_module_method_views.inc`
   - P381ET moved the body prepass/emitter include to
     `hako_llvmc_ffi_same_module_function_emit.inc`
+  - P381EU renamed the generic-method view helper prefix to
+    `same_module_method_view_*`, matching the owner-neutral shim file
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

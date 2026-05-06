@@ -3,20 +3,20 @@
        * emitter. Keep this table-like surface out of body emission so route
        * vocabulary does not drift across emit sites.
        */
-      auto int module_generic_string_method_view_str_eq(
+      auto int same_module_method_view_str_eq(
           const char* actual,
           const char* expected) {
         return actual && expected && !strcmp(actual, expected);
       }
 
-      auto int module_generic_string_method_view_optional_str_eq(
+      auto int same_module_method_view_optional_str_eq(
           const char* actual,
           const char* expected) {
         if (!expected) return !actual;
         return actual && !strcmp(actual, expected);
       }
 
-      auto int module_generic_string_method_view_is_direct_receiver_with(
+      auto int same_module_method_view_is_direct_receiver_with(
           const struct LoweringPlanGenericMethodView* view,
           const char* route_id,
           const char* core_op,
@@ -34,23 +34,23 @@
                    core_op,
                    route_kind,
                    tier) &&
-               module_generic_string_method_view_str_eq(view->symbol, symbol) &&
-               module_generic_string_method_view_str_eq(view->route_proof, route_proof) &&
-               module_generic_string_method_view_str_eq(
+               same_module_method_view_str_eq(view->symbol, symbol) &&
+               same_module_method_view_str_eq(view->route_proof, route_proof) &&
+               same_module_method_view_str_eq(
                    view->receiver_origin_box,
                    receiver_origin_box) &&
-               module_generic_string_method_view_optional_str_eq(
+               same_module_method_view_optional_str_eq(
                    view->return_shape,
                    return_shape) &&
-               module_generic_string_method_view_str_eq(
+               same_module_method_view_str_eq(
                    view->value_demand,
                    value_demand) &&
-               module_generic_string_method_view_optional_str_eq(
+               same_module_method_view_optional_str_eq(
                    view->publication_policy,
                    publication_policy);
       }
 
-      auto int module_generic_string_method_view_is_ownerless_with(
+      auto int same_module_method_view_is_ownerless_with(
           const struct LoweringPlanGenericMethodView* view,
           const char* route_id,
           const char* core_op,
@@ -67,17 +67,17 @@
                    core_op,
                    route_kind,
                    tier) &&
-               module_generic_string_method_view_str_eq(view->symbol, symbol) &&
-               module_generic_string_method_view_str_eq(view->route_proof, route_proof) &&
+               same_module_method_view_str_eq(view->symbol, symbol) &&
+               same_module_method_view_str_eq(view->route_proof, route_proof) &&
                !view->receiver_origin_box &&
-               module_generic_string_method_view_str_eq(view->return_shape, return_shape) &&
-               module_generic_string_method_view_str_eq(view->value_demand, value_demand) &&
-               module_generic_string_method_view_str_eq(
+               same_module_method_view_str_eq(view->return_shape, return_shape) &&
+               same_module_method_view_str_eq(view->value_demand, value_demand) &&
+               same_module_method_view_str_eq(
                    view->publication_policy,
                    publication_policy);
       }
 
-      auto int module_generic_string_method_view_is_direct_string_len(
+      auto int same_module_method_view_is_direct_string_len(
           const struct LoweringPlanGenericMethodView* view) {
         return view &&
                view->route_id &&
@@ -97,9 +97,9 @@
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
       }
 
-      auto int module_generic_string_method_view_is_direct_array_len(
+      auto int same_module_method_view_is_direct_array_len(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_receiver_with(
             view,
             "generic_method.len",
             "ArrayLen",
@@ -113,9 +113,9 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
-      auto int module_generic_string_method_view_is_direct_array_push(
+      auto int same_module_method_view_is_direct_array_push(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_receiver_with(
             view,
             "generic_method.push",
             "ArrayPush",
@@ -129,9 +129,9 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME);
       }
 
-      auto int module_generic_string_method_view_is_direct_array_get(
+      auto int same_module_method_view_is_direct_array_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_receiver_with(
             view,
             "generic_method.get",
             "ArrayGet",
@@ -145,12 +145,12 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+      auto int same_module_method_view_is_direct_mir_json_array_item_get_with(
           const struct LoweringPlanGenericMethodView* view,
           const char* route_proof,
           const char* return_shape,
           const char* value_demand) {
-        return module_generic_string_method_view_is_ownerless_with(
+        return same_module_method_view_is_ownerless_with(
             view,
             "generic_method.get",
             "ArrayGet",
@@ -163,90 +163,90 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(
+      auto int same_module_method_view_is_direct_mir_json_block_inst_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_block_inst_array_item",
             "mixed_runtime_i64_or_handle",
             "runtime_i64_or_handle");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(
+      auto int same_module_method_view_is_direct_mir_json_effects_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_effects_array_item",
             "mixed_runtime_i64_or_handle",
             "runtime_i64_or_handle");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(
+      auto int same_module_method_view_is_direct_mir_json_function_block_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_function_block_array_item",
             "mixed_runtime_i64_or_handle",
             "runtime_i64_or_handle");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(
+      auto int same_module_method_view_is_direct_mir_json_module_function_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_module_function_array_item",
             "mixed_runtime_i64_or_handle",
             "runtime_i64_or_handle");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_params_array_item_get(
+      auto int same_module_method_view_is_direct_mir_json_params_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_params_array_item",
             "mixed_runtime_i64_or_handle",
             "runtime_i64_or_handle");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(
+      auto int same_module_method_view_is_direct_mir_json_phi_incoming_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_phi_incoming_array_item",
             "mixed_runtime_i64_or_handle",
             "runtime_i64_or_handle");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(
+      auto int same_module_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_phi_incoming_pair_scalar",
             "scalar_i64_or_missing_zero",
             "scalar_i64");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(
+      auto int same_module_method_view_is_direct_mir_json_vid_array_item_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_vid_array_item",
             "scalar_i64_or_missing_zero",
             "scalar_i64");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(
+      auto int same_module_method_view_is_direct_mir_json_flags_rec_array_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_array_item_get_with(
+        return same_module_method_view_is_direct_mir_json_array_item_get_with(
             view,
             "mir_json_flags_rec_access",
             "mixed_runtime_i64_or_handle",
             "runtime_i64_or_handle");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_flags_keys(
+      auto int same_module_method_view_is_direct_mir_json_flags_keys(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_ownerless_with(
+        return same_module_method_view_is_ownerless_with(
             view,
             "generic_method.keys",
             "MapKeys",
@@ -259,9 +259,9 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
-      auto int module_generic_string_method_view_is_direct_map_get(
+      auto int same_module_method_view_is_direct_map_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_receiver_with(
             view,
             "generic_method.get",
             "MapGet",
@@ -275,12 +275,12 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME);
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_map_get_with(
+      auto int same_module_method_view_is_direct_mir_json_map_get_with(
           const struct LoweringPlanGenericMethodView* view,
           const char* route_proof,
           const char* return_shape,
           const char* value_demand) {
-        return module_generic_string_method_view_is_ownerless_with(
+        return same_module_method_view_is_ownerless_with(
             view,
             "generic_method.get",
             "MapGet",
@@ -293,10 +293,10 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME);
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_block_field_get(
+      auto int same_module_method_view_is_direct_mir_json_block_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+        return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_block_field",
                    "mixed_runtime_i64_or_handle",
@@ -305,10 +305,10 @@
                (!strcmp(key, "id") || !strcmp(key, "instructions"));
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_const_value_field_get(
+      auto int same_module_method_view_is_direct_mir_json_const_value_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+        return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_const_value_field",
                    "mixed_runtime_i64_or_handle",
@@ -317,10 +317,10 @@
                (!strcmp(key, "type") || !strcmp(key, "value"));
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(
+      auto int same_module_method_view_is_direct_mir_json_numeric_value_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+        return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_numeric_value_field",
                    "scalar_i64_or_missing_zero",
@@ -329,10 +329,10 @@
                !strcmp(key, "value");
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_callee_field_get(
+      auto int same_module_method_view_is_direct_mir_json_callee_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+        return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_callee_field",
                    "mixed_runtime_i64_or_handle",
@@ -346,10 +346,10 @@
                 !strcmp(key, "box_type"));
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_inst_field_get(
+      auto int same_module_method_view_is_direct_mir_json_inst_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+        return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_inst_field",
                    "mixed_runtime_i64_or_handle",
@@ -377,10 +377,10 @@
                 !strcmp(key, "name"));
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_function_field_get(
+      auto int same_module_method_view_is_direct_mir_json_function_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+        return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_function_field",
                    "mixed_runtime_i64_or_handle",
@@ -392,10 +392,10 @@
                 !strcmp(key, "blocks"));
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_module_field_get(
+      auto int same_module_method_view_is_direct_mir_json_module_field_get(
           const struct LoweringPlanGenericMethodView* view) {
         const char* key = view && view->entry ? read_str(view->entry, "key_const_text") : NULL;
-        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+        return same_module_method_view_is_direct_mir_json_map_get_with(
                    view,
                    "mir_json_module_field",
                    "mixed_runtime_i64_or_handle",
@@ -404,18 +404,18 @@
                (!strcmp(key, "functions") || !strcmp(key, "functions_0"));
       }
 
-      auto int module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(
+      auto int same_module_method_view_is_direct_mir_json_flags_rec_map_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_mir_json_map_get_with(
+        return same_module_method_view_is_direct_mir_json_map_get_with(
             view,
             "mir_json_flags_rec_access",
             "mixed_runtime_i64_or_handle",
             "runtime_i64_or_handle");
       }
 
-      auto int module_generic_string_method_view_is_direct_map_set(
+      auto int same_module_method_view_is_direct_map_set(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_receiver_with(
             view,
             "generic_method.set",
             "MapSet",
@@ -429,9 +429,9 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME);
       }
 
-      auto int module_generic_string_method_view_is_direct_string_substring(
+      auto int same_module_method_view_is_direct_string_substring(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_receiver_with(
             view,
             "generic_method.substring",
             "StringSubstring",
@@ -445,14 +445,14 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
-      auto int module_generic_string_method_view_is_direct_string_scalar_with(
+      auto int same_module_method_view_is_direct_string_scalar_with(
           const struct LoweringPlanGenericMethodView* view,
           const char* route_id,
           const char* core_op,
           const char* route_kind,
           const char* symbol,
           const char* route_proof) {
-        return module_generic_string_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_receiver_with(
             view,
             route_id,
             core_op,
@@ -466,9 +466,9 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
-      auto int module_generic_string_method_view_is_direct_string_indexof(
+      auto int same_module_method_view_is_direct_string_indexof(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_string_scalar_with(
+        return same_module_method_view_is_direct_string_scalar_with(
             view,
             "generic_method.indexOf",
             "StringIndexOf",
@@ -477,9 +477,9 @@
             "indexof_surface_policy");
       }
 
-      auto int module_generic_string_method_view_is_direct_string_lastindexof(
+      auto int same_module_method_view_is_direct_string_lastindexof(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_string_scalar_with(
+        return same_module_method_view_is_direct_string_scalar_with(
             view,
             "generic_method.lastIndexOf",
             "StringLastIndexOf",
@@ -488,9 +488,9 @@
             "lastindexof_surface_policy");
       }
 
-      auto int module_generic_string_method_view_is_direct_string_contains(
+      auto int same_module_method_view_is_direct_string_contains(
           const struct LoweringPlanGenericMethodView* view) {
-        return module_generic_string_method_view_is_direct_string_scalar_with(
+        return same_module_method_view_is_direct_string_scalar_with(
             view,
             "generic_method.contains",
             "StringContains",

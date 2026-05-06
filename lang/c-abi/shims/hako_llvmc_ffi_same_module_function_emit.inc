@@ -108,7 +108,7 @@
 
       #include "hako_llvmc_ffi_same_module_method_views.inc"
 
-      auto const char* module_generic_string_method_view_key_const_text(
+      auto const char* same_module_method_view_key_const_text(
           const struct LoweringPlanGenericMethodView* method_view) {
         return method_view && method_view->entry
                    ? read_str(method_view->entry, "key_const_text")
@@ -120,7 +120,7 @@
           const struct LoweringPlanGenericMethodView* method_view,
           int publish_map_get_fallback) {
         const char* key =
-            module_generic_string_method_view_key_const_text(method_view);
+            same_module_method_view_key_const_text(method_view);
         if (key &&
             (!strcmp(key, "op") ||
              !strcmp(key, "operation") ||
@@ -139,7 +139,7 @@
           long long dst,
           const struct LoweringPlanGenericMethodView* method_view) {
         const char* key =
-            module_generic_string_method_view_key_const_text(method_view);
+            same_module_method_view_key_const_text(method_view);
         if (key && !strcmp(key, "name")) {
           module_generic_string_publish_origin(dst, ORG_STRING);
         } else if (key && (!strcmp(key, "params") || !strcmp(key, "blocks"))) {
@@ -153,7 +153,7 @@
           long long dst,
           const struct LoweringPlanGenericMethodView* method_view) {
         const char* key =
-            module_generic_string_method_view_key_const_text(method_view);
+            same_module_method_view_key_const_text(method_view);
         if (key && !strcmp(key, "functions")) {
           module_generic_string_publish_origin(dst, ORG_ARRAY_BIRTH);
         } else if (key && !strcmp(key, "functions_0")) {
@@ -199,42 +199,42 @@
         out->is_function_field_get = 0;
         out->is_module_field_get = 0;
         if (!method_view) return 0;
-        is_array_get = module_generic_string_method_view_is_direct_array_get(method_view);
+        is_array_get = same_module_method_view_is_direct_array_get(method_view);
         is_mir_json_block_inst_array_item_get =
-            module_generic_string_method_view_is_direct_mir_json_block_inst_array_item_get(method_view);
+            same_module_method_view_is_direct_mir_json_block_inst_array_item_get(method_view);
         is_mir_json_effects_array_item_get =
-            module_generic_string_method_view_is_direct_mir_json_effects_array_item_get(method_view);
+            same_module_method_view_is_direct_mir_json_effects_array_item_get(method_view);
         is_mir_json_function_block_array_item_get =
-            module_generic_string_method_view_is_direct_mir_json_function_block_array_item_get(method_view);
+            same_module_method_view_is_direct_mir_json_function_block_array_item_get(method_view);
         out->is_module_function_array_item_get =
-            module_generic_string_method_view_is_direct_mir_json_module_function_array_item_get(method_view);
+            same_module_method_view_is_direct_mir_json_module_function_array_item_get(method_view);
         is_mir_json_params_array_item_get =
-            module_generic_string_method_view_is_direct_mir_json_params_array_item_get(method_view);
+            same_module_method_view_is_direct_mir_json_params_array_item_get(method_view);
         out->is_phi_incoming_array_item_get =
-            module_generic_string_method_view_is_direct_mir_json_phi_incoming_array_item_get(method_view);
+            same_module_method_view_is_direct_mir_json_phi_incoming_array_item_get(method_view);
         is_mir_json_phi_incoming_pair_scalar_get =
-            module_generic_string_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(method_view);
+            same_module_method_view_is_direct_mir_json_phi_incoming_pair_scalar_get(method_view);
         is_mir_json_vid_array_item_get =
-            module_generic_string_method_view_is_direct_mir_json_vid_array_item_get(method_view);
+            same_module_method_view_is_direct_mir_json_vid_array_item_get(method_view);
         is_mir_json_flags_rec_array_get =
-            module_generic_string_method_view_is_direct_mir_json_flags_rec_array_get(method_view);
-        is_map_get = module_generic_string_method_view_is_direct_map_get(method_view);
+            same_module_method_view_is_direct_mir_json_flags_rec_array_get(method_view);
+        is_map_get = same_module_method_view_is_direct_map_get(method_view);
         is_mir_json_block_field_get =
-            module_generic_string_method_view_is_direct_mir_json_block_field_get(method_view);
+            same_module_method_view_is_direct_mir_json_block_field_get(method_view);
         is_mir_json_const_value_field_get =
-            module_generic_string_method_view_is_direct_mir_json_const_value_field_get(method_view);
+            same_module_method_view_is_direct_mir_json_const_value_field_get(method_view);
         is_mir_json_numeric_value_field_get =
-            module_generic_string_method_view_is_direct_mir_json_numeric_value_field_get(method_view);
+            same_module_method_view_is_direct_mir_json_numeric_value_field_get(method_view);
         is_mir_json_callee_field_get =
-            module_generic_string_method_view_is_direct_mir_json_callee_field_get(method_view);
+            same_module_method_view_is_direct_mir_json_callee_field_get(method_view);
         out->is_inst_field_get =
-            module_generic_string_method_view_is_direct_mir_json_inst_field_get(method_view);
+            same_module_method_view_is_direct_mir_json_inst_field_get(method_view);
         out->is_function_field_get =
-            module_generic_string_method_view_is_direct_mir_json_function_field_get(method_view);
+            same_module_method_view_is_direct_mir_json_function_field_get(method_view);
         out->is_module_field_get =
-            module_generic_string_method_view_is_direct_mir_json_module_field_get(method_view);
+            same_module_method_view_is_direct_mir_json_module_field_get(method_view);
         is_mir_json_flags_rec_map_get =
-            module_generic_string_method_view_is_direct_mir_json_flags_rec_map_get(method_view);
+            same_module_method_view_is_direct_mir_json_flags_rec_map_get(method_view);
         out->is_array_load = is_array_get ||
                              is_mir_json_block_inst_array_item_get ||
                              is_mir_json_effects_array_item_get ||
@@ -497,15 +497,15 @@
           const struct LoweringPlanGenericMethodView* method_view) {
         struct ModuleGenericStringGetRouteView get_route;
         if (!method_view) return 0;
-        if (module_generic_string_method_view_is_direct_string_len(method_view)) {
+        if (same_module_method_view_is_direct_string_len(method_view)) {
           set_type(dst, T_I64);
           return 1;
         }
-        if (module_generic_string_method_view_is_direct_array_len(method_view)) {
+        if (same_module_method_view_is_direct_array_len(method_view)) {
           set_type(dst, T_I64);
           return 1;
         }
-        if (module_generic_string_method_view_is_direct_array_push(method_view)) {
+        if (same_module_method_view_is_direct_array_push(method_view)) {
           long long recv = module_generic_string_call_receiver(op, cal);
           long long value = 0;
           if (dst) set_type(dst, T_I64);
@@ -513,7 +513,7 @@
           module_generic_string_promote_array_string_push(recv, value);
           return 1;
         }
-        if (module_generic_string_method_view_is_direct_mir_json_flags_keys(method_view)) {
+        if (same_module_method_view_is_direct_mir_json_flags_keys(method_view)) {
           module_generic_string_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
           return 1;
         }
@@ -540,23 +540,23 @@
           }
           return 1;
         }
-        if (module_generic_string_method_view_is_direct_map_set(method_view)) {
+        if (same_module_method_view_is_direct_map_set(method_view)) {
           if (dst) set_type(dst, T_I64);
           return 1;
         }
-        if (module_generic_string_method_view_is_direct_string_substring(method_view)) {
+        if (same_module_method_view_is_direct_string_substring(method_view)) {
           module_generic_string_publish_i64_origin(dst, ORG_STRING);
           return 1;
         }
-        if (module_generic_string_method_view_is_direct_string_indexof(method_view)) {
+        if (same_module_method_view_is_direct_string_indexof(method_view)) {
           set_type(dst, T_I64);
           return 1;
         }
-        if (module_generic_string_method_view_is_direct_string_lastindexof(method_view)) {
+        if (same_module_method_view_is_direct_string_lastindexof(method_view)) {
           set_type(dst, T_I64);
           return 1;
         }
-        if (module_generic_string_method_view_is_direct_string_contains(method_view)) {
+        if (same_module_method_view_is_direct_string_contains(method_view)) {
           set_type(dst, T_I64);
           return 1;
         }
@@ -1106,8 +1106,8 @@
         (void)ii;
         ab[0] = '\0';
         if (method_view) {
-          is_string_len = module_generic_string_method_view_is_direct_string_len(method_view);
-          is_array_len = module_generic_string_method_view_is_direct_array_len(method_view);
+          is_string_len = same_module_method_view_is_direct_string_len(method_view);
+          is_array_len = same_module_method_view_is_direct_array_len(method_view);
         }
         if (!(is_string_len || is_array_len)) {
           return 0;
@@ -1139,7 +1139,7 @@
         ab[0] = '\0';
         recv_ab[0] = '\0';
         if (!(method_view &&
-              module_generic_string_method_view_is_direct_string_substring(method_view))) {
+              same_module_method_view_is_direct_string_substring(method_view))) {
           return 0;
         }
         if (!(arg_count == 1 || arg_count == 2)) return 0;
@@ -1183,7 +1183,7 @@
         (void)bid;
         (void)ii;
         if (!(method_view &&
-              module_generic_string_method_view_is_direct_array_push(method_view))) {
+              same_module_method_view_is_direct_array_push(method_view))) {
           return 0;
         }
         if (!module_generic_string_read_array_push_value(args, &value)) return 0;
@@ -1257,7 +1257,7 @@
         (void)ii;
         ab[0] = '\0';
         if (!(method_view &&
-              module_generic_string_method_view_is_direct_mir_json_flags_keys(method_view))) {
+              same_module_method_view_is_direct_mir_json_flags_keys(method_view))) {
           return 0;
         }
         if (args && yyjson_is_arr(args) && yyjson_arr_size(args) != 0) return 0;
@@ -1288,7 +1288,7 @@
         (void)ii;
         ab[0] = '\0';
         if (!(method_view &&
-              module_generic_string_method_view_is_direct_map_set(method_view))) {
+              same_module_method_view_is_direct_map_set(method_view))) {
           return 0;
         }
         if (!(args && yyjson_is_arr(args))) return 0;
@@ -1321,7 +1321,7 @@
         size_t arg_count = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         (void)f;
         if (!(method_view &&
-              module_generic_string_method_view_is_direct_string_indexof(method_view))) {
+              same_module_method_view_is_direct_string_indexof(method_view))) {
           return 0;
         }
         if (!(arg_count == 1 || arg_count == 2)) return 0;
@@ -1396,7 +1396,7 @@
         (void)bid;
         (void)ii;
         if (!(method_view &&
-              module_generic_string_method_view_is_direct_string_lastindexof(method_view))) {
+              same_module_method_view_is_direct_string_lastindexof(method_view))) {
           return 0;
         }
         return module_generic_string_emit_string_needle_i64_call(
@@ -1418,7 +1418,7 @@
         (void)bid;
         (void)ii;
         if (!(method_view &&
-              module_generic_string_method_view_is_direct_string_contains(method_view))) {
+              same_module_method_view_is_direct_string_contains(method_view))) {
           return 0;
         }
         return module_generic_string_emit_string_needle_i64_call(

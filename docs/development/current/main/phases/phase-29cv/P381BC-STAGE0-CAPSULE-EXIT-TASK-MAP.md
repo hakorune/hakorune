@@ -513,6 +513,11 @@ Same-module function emitter file cleanup landed in
 the selected same-module body prepass/emitter moved from the historical
 `module_generic_string` file stem to `hako_llvmc_ffi_same_module_function_emit.inc`.
 
+Same-module method-view helper naming cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EU-SAME-MODULE-METHOD-VIEW-HELPER-NAMES.md`:
+generic-method view predicates now use the `same_module_method_view_*` helper
+prefix.
+
 Primary remaining targets:
 
 - `hako_llvmc_ffi_mir_call_need_policy.inc`
