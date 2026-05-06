@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-29cv Program(JSON v0) keeper closeout`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `T6 delete zero-ref v2 archive candidate wave`
+- current blocker token: `T6 legacy root smoke lifecycle classification`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `T6 delete zero-ref v2 archive candidate wave`
+- current blocker token: `T6 legacy root smoke lifecycle classification`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -64,7 +64,8 @@ cargo check -q
   inside its body module; BoxTypeInspector describe proof/return ownership is
   shared inside its body module; T6 smoke/archive inventory is locked and the
   inventory report class-column summary is fixed, and the first zero-ref v2
-  archive candidate list is fixed; delete only that candidate wave next
+  archive delete wave is landed; classify the held legacy root-smoke zero-ref
+  group next
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

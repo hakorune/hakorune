@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381GE-SMOKE-ARCHIVE-FIRST-CANDIDATE-LIST"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381GE-SMOKE-ARCHIVE-FIRST-CANDIDATE-LIST.md"
-latest_card_summary = "T6 per-script classification identified 45 zero-ref v2 archive scripts for the first deletion wave; integration/archive, legacy tools/smokes, and manual-smokes stay held."
+latest_card = "P381GF-SMOKE-ARCHIVE-FIRST-DELETE-WAVE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381GF-SMOKE-ARCHIVE-FIRST-DELETE-WAVE.md"
+latest_card_summary = "Deleted only the 45 zero-ref v2 archive scripts listed by P381GE; v2 profile script count dropped from 1464 to 1419 while suite-protected integration/archive and manual/legacy buckets remain held."
 
-current_blocker_token = "T6 delete zero-ref v2 archive candidate wave"
+current_blocker_token = "T6 legacy root smoke lifecycle classification"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

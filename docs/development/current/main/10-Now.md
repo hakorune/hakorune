@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `T6 delete zero-ref v2 archive candidate wave`
+- current blocker token: `T6 legacy root smoke lifecycle classification`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -38,8 +38,8 @@ Related:
 - generic string-or-void sentinel const publication is shared; remaining T5
   body cleanup is closed, T6 smoke/archive inventory is locked, and the
   inventory report class-column summary is fixed, and the first zero-ref v2
-  archive candidate list is fixed. The next gate is deleting only that
-  candidate wave
+  archive delete wave is landed. The next gate is classifying the held legacy
+  root-smoke zero-ref group
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
