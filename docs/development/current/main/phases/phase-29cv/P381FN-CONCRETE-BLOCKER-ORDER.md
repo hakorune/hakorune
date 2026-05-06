@@ -1,7 +1,7 @@
 # P381FN Concrete Blocker Order
 
-Date: 2026-05-06 (refreshed post-P381GB)
-Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing/post-pattern-util/post-box-type-inspector blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB.
+Date: 2026-05-06 (refreshed post-P381GC)
+Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing/post-pattern-util/post-box-type-inspector/post-smoke-inventory blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB/P381GC.
 
 ## Read
 
@@ -24,6 +24,7 @@ The public wrapper collapses are complete through:
 - `P381FZ-GENERIC-STRING-OR-VOID-SENTINEL-PLUMBING`
 - `P381GA-PATTERN-UTIL-PROBE-CONTRACT-HELPER`
 - `P381GB-BOX-TYPE-INSPECTOR-CONTRACT-HELPER`
+- `P381GC-SMOKE-ARCHIVE-INVENTORY-LOCK`
 
 All intermediate wrapper methods in BuildBox and BuildProgramFragmentBox have been
 collapsed. The imports injection path also no longer depends on parser-private
@@ -45,6 +46,8 @@ PatternUtil local-value probe proof/return ownership is now shared by its body
 module contract helper.
 BoxTypeInspector describe proof/return ownership is now shared by its body
 module contract helper.
+T6 smoke/archive bucket counts are fixed, and broad directory deletion is
+blocked until per-script candidates are proven.
 
 ## Current Blocker Order
 
@@ -68,12 +71,13 @@ enrichment wrapper or promote parser-private ownership.
 
 Current preferred order:
 
-1. T6 smoke/archive inventory
+1. T6 smoke inventory report class-column fix before deletion
+2. T6 per-script delete-candidate list
 
 This keeps the lane on wrapper/owner cleanup and avoids promoting
 parser-private semantics into Stage0 without an explicit parser-owner card.
 
-## Result (post-P381GB)
+## Result (post-P381GC)
 
 `CURRENT_TASK.md` and the phase inventory should read the lane as:
 
@@ -90,9 +94,12 @@ parser-private semantics into Stage0 without an explicit parser-owner card.
 - generic string-or-void sentinel plumbing cleanup: complete (P381FZ landed)
 - PatternUtil probe contract helper cleanup: complete (P381GA landed)
 - BoxTypeInspector describe contract helper cleanup: complete (P381GB landed)
+- T6 smoke/archive bucket inventory: complete enough to ban broad directory
+  deletion (P381GC landed)
 - parser-private contract discussion: no longer blocked by enrichment-side
   wrappers
-- current cleanup blocker: T6 smoke/archive inventory
+- current cleanup blocker: smoke inventory report class-column fix
 
-The next slice is smoke/archive reachability inventory, not wrapper structure,
-not parser-private ownership, and not another Stage0 body-shape expansion.
+The next slice is inventory tooling correctness and then per-script delete
+candidate classification, not wrapper structure, not parser-private ownership,
+and not another Stage0 body-shape expansion.

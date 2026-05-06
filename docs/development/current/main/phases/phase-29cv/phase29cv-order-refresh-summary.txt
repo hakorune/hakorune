@@ -5,7 +5,7 @@ Date: 2026-05-06
 Todo: phase29cv-order-refresh
 
 Scope:
-- Refreshed P381FI and P381FN through the post-P381GB state
+- Refreshed P381FI and P381FN through the post-P381GC state
 - Updated blocker descriptions to close the parser proof as diagnostics-only
 - Clarified that wrapper cleanup plus imports/enum/defs owner cleanup are complete
 
@@ -22,7 +22,7 @@ Changes:
    - Updated scope to include all six wrapper collapse cards
    - Clarified that injection methods are now direct (no wrappers)
    - Updated Result section to explicitly state wrapper cleanup is complete
-   - Refreshed again after P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB so enum_decls and defs are
+   - Refreshed again after P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB/P381GC so enum_decls and defs are
      DirectAbi on the public BuildBox path, and defs no longer consumes
      FuncScannerBox.scan_all_boxes object records or parse_block2 result
      stripping; stale object-defs builders are removed and the method-body
@@ -30,7 +30,8 @@ Changes:
      closed as diagnostics-only; generic string-or-void sentinel const
      publication is shared; PatternUtil proof/return ownership is shared by its
      body module; BoxTypeInspector proof/return ownership is shared by its body
-     module
+     module; T6 smoke/archive bucket inventory is locked as a mixed
+     protected/referenced surface
 
 Validation:
 - tools/checks/current_state_pointer_guard.sh: PASS
@@ -40,5 +41,7 @@ No conflicts with code worker:
 - Code change is limited to same-module sentinel const helper extraction
 
 Next steps:
-- The remaining blocker lane is T6 smoke/archive inventory
-- Order now: T6 smoke/archive inventory before broad script reduction
+- The remaining blocker lane is T6 smoke inventory tooling plus per-script
+  candidate classification
+- Order now: fix `smoke_inventory_report.sh` class-column summary reads before
+  broad script reduction

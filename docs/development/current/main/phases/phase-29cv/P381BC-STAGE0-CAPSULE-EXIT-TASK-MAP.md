@@ -178,8 +178,10 @@ the fact first and keep the deletion in a later card.
 No target-shape capsule remains. Generic string-or-void sentinel const
 publication is shared after P381FZ, PatternUtil proof/return ownership is shared
 after P381GA, and BoxTypeInspector describe proof/return ownership is shared
-after P381GB. T5 owner/body cleanup is closed; the next structural cleanup is
-T6 smoke/archive inventory before any broad script reduction.
+after P381GB. T5 owner/body cleanup is closed. P381GC locks T6 smoke/archive
+inventory and shows the archive/manual buckets are mixed protected/referenced
+surfaces, so the next structural cleanup is the inventory report class-column
+fix before any delete-candidate wave.
 
 ### T5: `.inc` Consolidation
 
@@ -567,6 +569,11 @@ that proves suite/gate/doc reachability for:
 
 The current `1,496` smoke count is real, but the proposed `-200` first wave is
 not yet proven. Delete only after references are audited.
+
+P381GC fixes the current T6 bucket counts and the first-wave rule. The five
+archive/manual buckets are not directory-level delete targets; the next slice is
+to fix `tools/checks/smoke_inventory_report.sh` so per-script orphan summaries
+read the `class` column correctly before any deletion list is trusted.
 
 ## Boundary
 

@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `T6 smoke/archive inventory before broad script reduction`
+- current blocker token: `T6 smoke inventory report class-column fix before deletion`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -36,7 +36,9 @@ Related:
 - parser Program(JSON) is closed as a diagnostics-only proof boundary; live
   source-owner calls use `nyash.stage1.emit_program_json_v0_h`
 - generic string-or-void sentinel const publication is shared; remaining T5
-  body cleanup is closed, so the next gate is T6 smoke/archive inventory
+  body cleanup is closed, and T6 smoke/archive inventory is locked. The next
+  gate is fixing the inventory report class-column summary before deletion
+  candidates are trusted
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work

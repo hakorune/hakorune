@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `T6 smoke/archive inventory before broad script reduction`
+  `T6 smoke inventory report class-column fix before deletion`
 - primary mode: Program(JSON v0) keeper closeout lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -66,8 +66,9 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/CURRENT_STATE.toml`
 - next: the easy public capsule-collapse wins plus imports/enum/defs owner
   cleanup are done; parser Program(JSON) is closed as a diagnostics-only
-  boundary and generic string-or-void sentinel plumbing is shared, leaving the
-  T6 smoke/archive inventory as the next cleanup gate
+  boundary, generic string-or-void sentinel plumbing is shared, and T6
+  smoke/archive inventory is locked. Fix the inventory report class-column
+  summary before producing a first delete-candidate list
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold

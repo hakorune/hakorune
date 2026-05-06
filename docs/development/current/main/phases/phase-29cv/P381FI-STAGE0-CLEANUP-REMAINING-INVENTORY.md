@@ -5,7 +5,7 @@ Scope: inventory the remaining work after P381FY so the lane can be read as "wha
 
 ## Read
 
-After P381FD through P381GB, the lane is no longer blocked by:
+After P381FD through P381GC, the lane is no longer blocked by:
 
 - raw BuildBox matcher growth
 - parser-proof denylist cleanup
@@ -26,6 +26,8 @@ After P381FD through P381GB, the lane is no longer blocked by:
   recognizer and top-level classifier
 - BoxTypeInspector describe proof/return contract split between the body
   recognizer and top-level classifier
+- uncounted T6 smoke/archive bucket reachability; P381GC locks the five target
+  bucket counts and proves broad directory deletion is not allowed
 
 The remaining work is small in count but not all the same kind:
 
@@ -42,7 +44,7 @@ late cleanup phase
 
 ## Remaining Must-Fix Slices
 
-### 1. T6 smoke/archive inventory before larger surface reduction
+### 1. T6 smoke inventory report fix before larger surface reduction
 
 SSOT:
 
@@ -50,9 +52,12 @@ SSOT:
 
 - `docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md`
 
-The large smoke/dev surface should not be reduced by feel. Before a meaningful
-archive/delete wave, the lane still needs a reachability/keeper inventory that
-proves which probes are active keepers versus historical evidence.
+- `docs/development/current/main/phases/phase-29cv/P381GC-SMOKE-ARCHIVE-INVENTORY-LOCK.md`
+
+The large smoke/dev surface should not be reduced by feel. P381GC fixed the
+bucket inventory and showed that each target directory is mixed. Before a
+meaningful archive/delete wave, the lane needs the inventory report
+class-column summary fix and then a per-script candidate list.
 
 ## Optional Polish
 
@@ -78,18 +83,22 @@ That is close enough to call the lane late-stage, but not close enough to say
 
 ## Ordered Next Checklist
 
-1. lock the smoke/archive inventory for T6 before any broad script reduction
+1. fix `tools/checks/smoke_inventory_report.sh` class-column summary reads
+2. rerun inventory on the five T6 buckets and produce a per-script candidate
+   list before deletion
 
 ## Concrete Near-Term Order
 
 `P381FN-CONCRETE-BLOCKER-ORDER.md` is the near-term ordering SSOT.
 
-Post-P381GB status: wrapper/enrichment cleanup is complete on the public
-BuildBox Program(JSON v0) path, parser Program(JSON) is diagnostics-only, and
-the remaining T5 owner/body cleanup is closed. The remaining concrete cleanup
+Post-P381GC status: wrapper/enrichment cleanup is complete on the public
+BuildBox Program(JSON v0) path, parser Program(JSON) is diagnostics-only, the
+remaining T5 owner/body cleanup is closed, and T6 smoke/archive inventory is
+locked as a mixed protected/referenced surface. The remaining concrete cleanup
 order is:
 
-1. T6 smoke/archive inventory before broad script reduction
+1. T6 smoke inventory report class-column fix before deletion
+2. T6 per-script delete-candidate list
 
 ## Result
 
