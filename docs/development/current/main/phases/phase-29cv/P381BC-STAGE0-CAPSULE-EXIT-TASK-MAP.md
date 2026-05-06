@@ -523,6 +523,11 @@ Same-module function helper naming cleanup landed in
 same-module body prepass/emitter helpers now use the `same_module_function_*`
 identifier prefix. Existing diagnostic reason strings remain stable.
 
+Extern runtime route validation cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EW-EXTERN-RUNTIME-ROUTE-MATCH-HELPER.md`:
+`mir_call_need_policy` and `mir_call_shell` now share the same LoweringPlan
+extern runtime route predicate instead of duplicating route/proof/tier checks.
+
 Primary remaining targets:
 
 - `hako_llvmc_ffi_mir_call_need_policy.inc`

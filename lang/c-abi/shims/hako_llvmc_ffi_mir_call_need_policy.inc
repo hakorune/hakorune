@@ -620,21 +620,13 @@
           const struct LoweringPlanExternCallView* view,
           const struct LoweringPlanExternNeedRule* rule) {
         if (!(view && rule)) return 0;
-        return view->route_id &&
-               !strcmp(view->route_id, rule->route_id) &&
-               view->core_op &&
-               !strcmp(view->core_op, rule->core_op) &&
-               view->route_kind &&
-               !strcmp(view->route_kind, rule->route_kind) &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
-               view->symbol &&
-               !strcmp(view->symbol, rule->symbol) &&
-               view->proof &&
-               !strcmp(view->proof, "extern_registry") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+        return lowering_plan_extern_call_view_matches_runtime_route(
+            view,
+            rule->route_id,
+            rule->core_op,
+            rule->route_kind,
+            rule->symbol,
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME);
       }
 
       auto enum MirCallNeedKind

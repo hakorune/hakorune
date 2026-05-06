@@ -248,6 +248,8 @@ Completed focused probe:
     `same_module_method_view_*`, matching the owner-neutral shim file
   - P381EV renamed the same-module function emitter helper identifiers to
     `same_module_function_*`, while preserving stable diagnostic reason strings
+  - P381EW moved extern runtime route tuple validation into the LoweringPlan
+    metadata view so need-policy and call-emission consume the same predicate
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions

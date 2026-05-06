@@ -196,32 +196,19 @@
           const char* symbol,
           const char* return_shape,
           const char* value_demand) {
-        return view &&
-               view->route_id &&
-               route_id &&
-               !strcmp(view->route_id, route_id) &&
-               view->core_op &&
-               core_op &&
-               !strcmp(view->core_op, core_op) &&
-               view->route_kind &&
-               route_kind &&
-               !strcmp(view->route_kind, route_kind) &&
-               view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
-               view->symbol &&
-               symbol &&
-               !strcmp(view->symbol, symbol) &&
-               view->proof &&
-               !strcmp(view->proof, "extern_registry") &&
-               view->route_proof &&
-               !strcmp(view->route_proof, "extern_registry") &&
+        return lowering_plan_extern_call_view_matches_runtime_route(
+                   view,
+                   route_id,
+                   core_op,
+                   route_kind,
+                   symbol,
+                   HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME) &&
                view->return_shape &&
                return_shape &&
                !strcmp(view->return_shape, return_shape) &&
                view->value_demand &&
                value_demand &&
-               !strcmp(view->value_demand, value_demand) &&
-               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
+               !strcmp(view->value_demand, value_demand);
       }
 
       auto int lowering_plan_env_get_view_is_valid(

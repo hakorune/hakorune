@@ -276,6 +276,35 @@
                out->proof;
       }
 
+      auto int lowering_plan_extern_call_view_matches_runtime_route(
+          const struct LoweringPlanExternCallView* view,
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          const char* symbol,
+          enum LoweringPlanTierMetadata tier) {
+        return view &&
+               view->route_id &&
+               route_id &&
+               !strcmp(view->route_id, route_id) &&
+               view->core_op &&
+               core_op &&
+               !strcmp(view->core_op, core_op) &&
+               view->route_kind &&
+               route_kind &&
+               !strcmp(view->route_kind, route_kind) &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "runtime_call") &&
+               view->symbol &&
+               symbol &&
+               !strcmp(view->symbol, symbol) &&
+               view->proof &&
+               !strcmp(view->proof, "extern_registry") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "extern_registry") &&
+               view->tier == tier;
+      }
+
       auto int read_lowering_plan_global_call_view(
           yyjson_val* entry,
           struct LoweringPlanGlobalCallView* out) {
