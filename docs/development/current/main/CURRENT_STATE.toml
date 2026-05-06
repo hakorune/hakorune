@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381HG-SAME-MODULE-DEFINITION-EMIT-HELPERS"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381HG-SAME-MODULE-DEFINITION-EMIT-HELPERS.md"
-latest_card_summary = "Deduplicated the local same-module definition lookup/read setup in the Stage0 emit seam without changing same-module emission behavior."
+latest_card = "P381HH-STAGE1-EMIT-OVERRIDE-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381HH-STAGE1-EMIT-OVERRIDE-RETIRE.md"
+latest_card_summary = "Removed the stale BuildBox._emit_program_json_from_scan_src/1 Stage1 override branch and repointed Program(JSON v0) route tests at the active Stage1 raw wrapper seam."
 
 current_blocker_token = "phase-29cv targeted helper dedup if local seam is clear"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -220,4 +220,5 @@ landed_tail = [
   "29cv-P253a count-param text sentinel wrappers landed",
   "29cv-P254a extern hostbridge param reg scan landed",
   "29cv-P381HG same-module definition emit helper dedup landed",
+  "29cv-P381HH stale Stage1 emit override retire landed",
 ]

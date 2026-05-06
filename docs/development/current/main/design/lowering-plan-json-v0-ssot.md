@@ -327,12 +327,14 @@ function emitter, returns ABI i64 zero, and reports
 contract is not a string-or-void return union and must not accept general void
 helpers without logging evidence.
 The sixth lowerable shape is `program_json_emit_body` for exact Program(JSON v0)
-emit wrappers. It accepts `BuildBox._emit_program_json_from_scan_src/1` and the
-Stage1 raw wrapper that calls `BuildBox.emit_program_json_v0(source, null)`.
-It does not accept general `BuildBox.emit_program_json_v0/2` calls, MapBox
-options, or bundle paths. It uses the same Stage1 Program(JSON v0) handle
-export as the parser Program(JSON) contract, but the MIR proof must come from
-the wrapper shape, not from backend by-name matching.
+emit wrappers. It accepts the Stage1 raw wrapper that calls
+`BuildBox.emit_program_json_v0(source, null)`. Direct null-opts
+`BuildBox.emit_program_json_v0/2` callsites lower through the dedicated Stage1
+override route instead of this wrapper shape. It does not accept general
+`BuildBox.emit_program_json_v0/2` calls, MapBox options, or bundle paths. It
+uses the same Stage1 Program(JSON v0) handle export as the parser Program(JSON)
+contract, but the MIR proof must come from the wrapper shape, not from backend
+by-name matching.
 MIR owns these classifications. Shape-bearing routes record `target_shape`;
 retired capsule routes may instead be direct proof/return-shape contracts with
 `target_shape=null`.

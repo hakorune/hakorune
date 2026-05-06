@@ -375,9 +375,6 @@ fn classify_global_call_lowering_override(
         {
             Some(GlobalCallLoweringOverride::Stage1EmitProgramJson)
         }
-        "BuildBox._emit_program_json_from_scan_src/1" if args.len() == 1 => {
-            Some(GlobalCallLoweringOverride::Stage1EmitProgramJson)
-        }
         _ => None,
     }
 }
