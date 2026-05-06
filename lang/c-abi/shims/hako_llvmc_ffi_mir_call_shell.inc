@@ -152,6 +152,27 @@
         if (string_const_box_was_emitted(base)) return 1;
         return emit_materialized_string_const_box_result(f, base);
       }
+
+      auto int read_stage1_emit_program_json_source_arg(
+          yyjson_val* args,
+          size_t argc,
+          long long* out) {
+        yyjson_val* source_arg = NULL;
+        yyjson_val* opts_arg = NULL;
+        long long opts_reg = 0;
+        long long opts_value = 0;
+        if (!(args && out)) return 0;
+        if (!(argc == 1 || argc == 2)) return 0;
+        source_arg = yyjson_arr_get(args, 0);
+        if (!(source_arg && yyjson_is_num(source_arg))) return 0;
+        *out = (long long)yyjson_get_sint(source_arg);
+        if (argc == 1) return 1;
+        opts_arg = yyjson_arr_get(args, 1);
+        if (!(opts_arg && yyjson_is_num(opts_arg))) return 0;
+        opts_reg = resolve_copy_source_reg((long long)yyjson_get_sint(opts_arg));
+        return has_const(opts_reg, &opts_value) && opts_value == 0;
+      }
+
       auto int global_call_definition_target_is_ready(
           const struct LoweringPlanGlobalCallView* view) {
         if (!view) return 0;
@@ -197,25 +218,29 @@
         if ((long long)argc != view.arity || argc > 64) return -1;
         if (!global_call_definition_target_is_ready(&view)) return -1;
         if (lowering_plan_global_call_view_is_stage1_emit_program_json(&view)) {
-          if (argc != 1) return -1;
-          if (!materialize_direct_global_call_arg_if_needed(
-                  f, (long long)yyjson_get_sint(yyjson_arr_get(args, 0)))) {
+          long long source_reg = 0;
+          long long source_base = 0;
+          if (!read_stage1_emit_program_json_source_arg(args, argc, &source_reg)) {
             return -1;
           }
+          if (!materialize_direct_global_call_arg_if_needed(f, source_reg)) {
+            return -1;
+          }
+          source_base = resolve_copy_source_reg(source_reg);
           if (dst) {
             fprintf(
                 f,
                 "  %%r%lld = call i64 @\"%s\"(i64 %%r%lld)\n",
                 dst,
                 view.target_symbol,
-                (long long)yyjson_get_sint(yyjson_arr_get(args, 0)));
+                source_base);
             set_type(dst, T_I64);
           } else {
             fprintf(
                 f,
                 "  call i64 @\"%s\"(i64 %%r%lld)\n",
                 view.target_symbol,
-                (long long)yyjson_get_sint(yyjson_arr_get(args, 0)));
+                source_base);
           }
           mark_global_call_result_origin_from_view(&view, dst);
           trace_lowering_plan_entry_hit(

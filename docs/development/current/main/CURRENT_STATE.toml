@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381GL-SAME-MODULE-METHOD-VIEW-KEY-HELPER"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381GL-SAME-MODULE-METHOD-VIEW-KEY-HELPER.md"
-latest_card_summary = "Same-module MIR JSON key_const_text reading now belongs to the method-view seam and emit code consumes that helper."
+latest_card = "P381GM-STAGE1-EMIT-PROGRAM-RUNTIME-HELPER-REPAIR"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381GM-STAGE1-EMIT-PROGRAM-RUNTIME-HELPER-REPAIR.md"
+latest_card_summary = "Stage0 now lowers the public BuildBox.emit_program_json_v0(source, null) seam to the Stage1 Program(JSON v0) runtime helper."
 
 current_blocker_token = "phase-29cv targeted helper dedup if local seam is clear"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

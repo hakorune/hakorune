@@ -5,7 +5,7 @@ Scope: inventory the remaining work after P381FY so the lane can be read as "wha
 
 ## Read
 
-After P381FD through P381GL, the lane is no longer blocked by:
+After P381FD through P381GM, the lane is no longer blocked by:
 
 - public BuildBox / BuildProgramFragmentBox wrapper and owner cleanup
 - parser Program(JSON) proof routing; `ParserBox.parse_program2` is
@@ -18,6 +18,9 @@ After P381FD through P381GL, the lane is no longer blocked by:
   local rule table
 - same-module MIR JSON `key_const_text` helper ownership; method views now own
   the read helper and emit code consumes it
+- public Stage1 Program(JSON v0) runtime-helper lowering;
+  `BuildBox.emit_program_json_v0(source, null)` now lowers through
+  `nyash.stage1.emit_program_json_v0_h(source)`
 
 The remaining work is optional polish:
 
@@ -74,7 +77,7 @@ That is close enough to call the lane late-stage, but not close enough to say
 
 `P381FN-CONCRETE-BLOCKER-ORDER.md` is the near-term ordering SSOT.
 
-Post-P381GL status: wrapper/enrichment cleanup, parser diagnostics boundary,
+Post-P381GM status: wrapper/enrichment cleanup, parser diagnostics boundary,
 remaining T5 owner/body cleanup, and T6 smoke/archive cleanup are closed. The
 remaining concrete cleanup order is optional polish:
 

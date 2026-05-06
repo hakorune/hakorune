@@ -1,6 +1,6 @@
 # P381FN Concrete Blocker Order
 
-Date: 2026-05-06 (refreshed post-P381GL)
+Date: 2026-05-06 (refreshed post-P381GM)
 Scope: lock the near-term order after wrapper/owner cleanup, T5 body contract cleanup, and T6 smoke closeout.
 
 ## Read
@@ -18,6 +18,8 @@ reading is:
 - MIR call extern emit rows have one local table owner while named validator
   seams stay stable
 - same-module MIR JSON `key_const_text` reading belongs to the method-view seam
+- public Stage1 Program(JSON v0) runtime-helper lowering is repaired for the
+  `BuildBox.emit_program_json_v0(source, null)` seam
 
 ## Current Blocker Order
 
@@ -46,7 +48,7 @@ Current preferred order:
 This keeps the lane on wrapper/owner cleanup and avoids promoting
 parser-private semantics into Stage0 without an explicit parser-owner card.
 
-## Result (post-P381GL)
+## Result (post-P381GM)
 
 `CURRENT_TASK.md` and the phase inventory should read the lane as:
 
@@ -54,6 +56,8 @@ parser-private semantics into Stage0 without an explicit parser-owner card.
 - T6 smoke/archive cleanup: complete for this lane
 - first targeted helper dedup: complete for the MIR call extern emit-rule seam
 - second targeted helper dedup: complete for the same-module method-view key seam
+- Stage1 emit-program runtime-helper repair: complete for OBJ/EXE and runtime
+  emit sanity
 - parser-private contract discussion: no longer blocked by enrichment-side wrappers
 - current cleanup blocker: targeted helper dedup if local seam is clear
 

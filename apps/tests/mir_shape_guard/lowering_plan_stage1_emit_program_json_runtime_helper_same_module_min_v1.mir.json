@@ -1,0 +1,172 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "lowering_plan": [
+          {
+            "site": "b0.i1",
+            "block": 0,
+            "instruction_index": 1,
+            "source": "global_call_routes",
+            "source_route_id": "global.user_call",
+            "callee_name": "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1",
+            "core_op": "UserGlobalCall",
+            "tier": "DirectAbi",
+            "emit_kind": "direct_function_call",
+            "symbol": "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1",
+            "target_symbol": "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1",
+            "target_return_type": "str",
+            "proof": "typed_global_call_generic_pure_string",
+            "route_proof": "typed_global_call_generic_pure_string",
+            "route_kind": "global.user_call",
+            "perf_proof": false,
+            "definition_owner": "module_generic",
+            "emit_trace_consumer": "mir_call_global_module_generic_emit",
+            "arity": 1,
+            "target_arity": 1,
+            "target_exists": true,
+            "arity_matches": true,
+            "result_value": 2,
+            "return_shape": "string_handle",
+            "value_demand": "runtime_i64_or_handle",
+            "result_origin": "string",
+            "publication_policy": null,
+            "effects": [
+              "call.global"
+            ]
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "return 1"
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 2,
+              "mir_call": {
+                "callee": {
+                  "type": "Global",
+                  "name": "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1"
+                },
+                "args": [
+                  1
+                ],
+                "effects": [
+                  "call.global"
+                ],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1",
+      "params": [
+        0
+      ],
+      "metadata": {
+        "lowering_plan": [
+          {
+            "site": "b1.i2",
+            "block": 1,
+            "instruction_index": 2,
+            "source": "global_call_routes",
+            "source_route_id": "global.user_call",
+            "callee_name": "BuildBox.emit_program_json_v0/2",
+            "core_op": "UserGlobalCall",
+            "tier": "ColdRuntime",
+            "emit_kind": "runtime_call",
+            "symbol": "nyash.stage1.emit_program_json_v0_h",
+            "target_symbol": "nyash.stage1.emit_program_json_v0_h",
+            "target_return_type": "str",
+            "proof": "typed_global_call_stage1_emit_program_json",
+            "route_proof": "typed_global_call_stage1_emit_program_json",
+            "route_kind": "stage1.emit_program_json_v0",
+            "perf_proof": false,
+            "definition_owner": "runtime_helper",
+            "emit_trace_consumer": "mir_call_stage1_emit_program_json_emit",
+            "arity": 2,
+            "target_arity": 2,
+            "target_exists": true,
+            "arity_matches": true,
+            "result_value": 2,
+            "return_shape": "string_handle",
+            "value_demand": "runtime_i64_or_handle",
+            "result_origin": "string",
+            "publication_policy": null,
+            "effects": [
+              "stage1.emit_program_json"
+            ]
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "id": 1,
+          "instructions": [
+            {
+              "op": "copy",
+              "dst": 3,
+              "src": 0
+            },
+            {
+              "op": "const",
+              "dst": 4,
+              "value": {
+                "type": "void",
+                "value": 0
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 2,
+              "mir_call": {
+                "callee": {
+                  "type": "Global",
+                  "name": "BuildBox.emit_program_json_v0/2"
+                },
+                "args": [
+                  3,
+                  4
+                ],
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

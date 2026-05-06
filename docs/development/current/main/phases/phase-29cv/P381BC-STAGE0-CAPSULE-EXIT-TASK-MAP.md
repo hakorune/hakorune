@@ -558,6 +558,11 @@ Same-module method-view key helper cleanup landed in
 MIR JSON `key_const_text` reading now belongs to the method-view seam and the
 same-module emitter consumes that helper.
 
+Stage1 emit-program runtime-helper repair landed in
+`docs/development/current/main/phases/phase-29cv/P381GM-STAGE1-EMIT-PROGRAM-RUNTIME-HELPER-REPAIR.md`:
+the public `BuildBox.emit_program_json_v0(source, null)` seam now lowers to
+`nyash.stage1.emit_program_json_v0_h(source)` in same-module Stage0 bodies.
+
 Primary remaining optional targets:
 
 - targeted helper dedup only when another local owner seam is clear
