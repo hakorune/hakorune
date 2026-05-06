@@ -91,29 +91,29 @@
         return planned_same_module_function_symbols_n > 0;
       }
 
-      auto yyjson_val* same_module_function_find(const char* name) {
-        if (!name) return NULL;
-        for (size_t fi = 0; fi < program.function_count; fi++) {
-          yyjson_val* fn = yyjson_arr_get(program.functions, fi);
-          const char* fn_name = fn ? read_str(fn, "name") : NULL;
-          if (fn_name && !strcmp(fn_name, name)) return fn;
-        }
-        return NULL;
-      }
-
-      auto int same_module_function_find_index(
+      auto yyjson_val* same_module_function_find_with_index(
           const char* name,
           size_t* out_index) {
-        if (!name) return 0;
+        if (!name) return NULL;
         for (size_t fi = 0; fi < program.function_count; fi++) {
           yyjson_val* fn = yyjson_arr_get(program.functions, fi);
           const char* fn_name = fn ? read_str(fn, "name") : NULL;
           if (fn_name && !strcmp(fn_name, name)) {
             if (out_index) *out_index = fi;
-            return 1;
+            return fn;
           }
         }
-        return 0;
+        return NULL;
+      }
+
+      auto yyjson_val* same_module_function_find(const char* name) {
+        return same_module_function_find_with_index(name, NULL);
+      }
+
+      auto int same_module_function_find_index(
+          const char* name,
+          size_t* out_index) {
+        return same_module_function_find_with_index(name, out_index) != NULL;
       }
 
       auto int plan_function_global_call_definition_edges(yyjson_val* fn) {
