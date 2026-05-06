@@ -7,6 +7,8 @@ Smokes v2 — Minimal Runner and Policy
 - **Target**: ~45 seconds, ~400 tests (Phase 287 P2: 45.85s / 413 tests ✅)
 - **Contents**: Minimal gate tests - basic syntax, using resolution, essential control flow
 - **Excluded**: Heavy selfhost/Stage-B, crate exe, S3/LLVM integration, long-running tests (>0.4s)
+- **Legacy shim**: `tools/smokes/v2/run_quick.sh` delegates to
+  `tools/smokes/v2/run.sh --profile quick`.
 
 ### integration
 - **Purpose**: Curated integration and heavier tests
