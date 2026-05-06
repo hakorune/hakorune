@@ -204,6 +204,68 @@ fn stage1_buildbox_emit_program_json_null_opts_rewrites_to_extern_route() {
 }
 
 #[test]
+fn stage1_buildbox_emit_program_json_from_scan_src_rewrites_to_extern_route() {
+    let mut module = MirModule::new("stage1_buildbox_emit_program_json_from_scan_src".to_string());
+    let signature = FunctionSignature {
+        name: "caller/0".to_string(),
+        params: vec![],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut func = MirFunction::new(signature, BasicBlockId(0));
+    let block = func
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .expect("entry block exists");
+
+    block.instructions.push(MirInstruction::Const {
+        dst: ValueId(1),
+        value: crate::mir::ConstValue::String("merged-source".to_string()),
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.instructions.push(MirInstruction::Call {
+        dst: Some(ValueId(2)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global(
+            "BuildBox._emit_program_json_from_scan_src/1".to_string(),
+        )),
+        args: vec![ValueId(1)],
+        effects: EffectMask::PURE,
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(2)),
+    });
+    module.add_function(func);
+
+    let rewritten = canonicalize_callsites(&mut module);
+    assert_eq!(rewritten, 1);
+
+    let inst = &module
+        .get_function("caller/0")
+        .expect("function exists")
+        .blocks
+        .get(&BasicBlockId(0))
+        .expect("entry block exists")
+        .instructions[1];
+
+    assert!(matches!(
+        inst,
+        MirInstruction::Call {
+            dst,
+            func,
+            callee: Some(Callee::Extern(name)),
+            args,
+            effects,
+        } if *dst == Some(ValueId(2))
+            && *func == ValueId::INVALID
+            && name == "nyash.stage1.emit_program_json_v0_h"
+            && args == &vec![ValueId(1)]
+            && *effects == EffectMask::PURE
+    ));
+}
+
+#[test]
 fn mcl5_suffixes_existing_global_callee_when_matching_arity_exists() {
     let mut module = MirModule::new("mcl5_global_suffix".to_string());
     let callee_sig = FunctionSignature {

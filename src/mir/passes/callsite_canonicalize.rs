@@ -14,7 +14,9 @@
 //!   `Call(callee=Method{certainty=Known, box_kind=UserDefined})` so later
 //!   thin-entry consumers can bind physical entries without backend-local
 //!   receiver guessing.
-//! - Stage1 Program(JSON) source-only BuildBox calls with static `null` opts
+//! - Stage1 Program(JSON) build-surrogate BuildBox calls
+//!   (`BuildBox.emit_program_json_v0/2` with static `null` opts and the direct
+//!   `BuildBox._emit_program_json_from_scan_src/1` helper)
 //!   canonicalize to the explicit `nyash.stage1.emit_program_json_v0_h` extern
 //!   route. This mirrors the JSON v0 bridge contract and keeps Stage0 from
 //!   selecting the BuildBox parser body as a same-module helper.

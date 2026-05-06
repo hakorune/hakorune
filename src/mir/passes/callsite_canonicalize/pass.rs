@@ -157,6 +157,27 @@ fn canonicalize_callsite_instruction(
         }
         MirInstruction::Call {
             dst,
+            func: _,
+            callee: Some(Callee::Global(name)),
+            args,
+            effects,
+        } if name == "BuildBox._emit_program_json_from_scan_src/1" && args.len() == 1 => {
+            let rewritten = MirInstruction::Call {
+                dst: *dst,
+                func: ValueId::INVALID,
+                callee: Some(Callee::Extern(
+                    ExternCallRouteKind::Stage1EmitProgramJson
+                        .symbol()
+                        .to_string(),
+                )),
+                args: vec![args[0]],
+                effects: *effects,
+            };
+            *inst = rewritten;
+            1
+        }
+        MirInstruction::Call {
+            dst,
             callee:
                 Some(Callee::Method {
                     box_name,
