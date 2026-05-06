@@ -23,6 +23,7 @@ pub struct GlobalCallRoute {
     callee_name: String,
     arity: usize,
     result_value: Option<ValueId>,
+    lowering_override: Option<GlobalCallLoweringOverride>,
     target: GlobalCallTargetFacts,
 }
 
@@ -58,6 +59,7 @@ pub(super) enum GlobalCallProof {
     GenericStringVoidLogging,
     GenericI64,
     ParserProgramJson,
+    Stage1EmitProgramJson,
     StaticStringArray,
     MirSchemaMapConstructor,
     BoxTypeInspectorDescribe,
@@ -71,6 +73,52 @@ enum GlobalCallDefinitionOwner {
     GenericI64OrLeaf,
     ModuleGeneric,
     UniformMir,
+    RuntimeHelper,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum GlobalCallLoweringOverride {
+    Stage1EmitProgramJson,
+}
+
+impl GlobalCallLoweringOverride {
+    fn route_kind(self) -> &'static str {
+        match self {
+            Self::Stage1EmitProgramJson => "stage1.emit_program_json_v0",
+        }
+    }
+
+    fn target_symbol(self) -> &'static str {
+        match self {
+            Self::Stage1EmitProgramJson => "nyash.stage1.emit_program_json_v0_h",
+        }
+    }
+
+    fn lowering_tier(self) -> LoweringPlanTier {
+        LoweringPlanTier::ColdRuntime
+    }
+
+    fn lowering_emit_kind(self) -> LoweringPlanEmitKind {
+        LoweringPlanEmitKind::RuntimeCall
+    }
+
+    fn proof(self) -> GlobalCallProof {
+        match self {
+            Self::Stage1EmitProgramJson => GlobalCallProof::Stage1EmitProgramJson,
+        }
+    }
+
+    fn return_contract(self) -> GlobalCallReturnContract {
+        match self {
+            Self::Stage1EmitProgramJson => GlobalCallReturnContract::StringHandle,
+        }
+    }
+
+    fn effect_tags(self) -> &'static [&'static str] {
+        match self {
+            Self::Stage1EmitProgramJson => &["stage1.emit_program_json"],
+        }
+    }
 }
 
 impl GlobalCallProof {
@@ -85,6 +133,7 @@ impl GlobalCallProof {
             Self::GenericStringVoidLogging => "typed_global_call_generic_string_void_logging",
             Self::GenericI64 => "typed_global_call_generic_i64",
             Self::ParserProgramJson => "typed_global_call_parser_program_json",
+            Self::Stage1EmitProgramJson => "typed_global_call_stage1_emit_program_json",
             Self::StaticStringArray => "typed_global_call_static_string_array",
             Self::MirSchemaMapConstructor => "typed_global_call_mir_schema_map_constructor",
             Self::BoxTypeInspectorDescribe => "typed_global_call_box_type_inspector_describe",
@@ -109,7 +158,8 @@ impl GlobalCallProof {
         match self {
             Self::GenericPureString
             | Self::GenericStringOrVoidSentinel
-            | Self::ParserProgramJson => "string",
+            | Self::ParserProgramJson
+            | Self::Stage1EmitProgramJson => "string",
             Self::StaticStringArray => "array_string_birth",
             Self::MirSchemaMapConstructor | Self::BoxTypeInspectorDescribe => "map_birth",
             Self::ContractMissing
@@ -132,6 +182,7 @@ impl GlobalCallProof {
             | Self::BoxTypeInspectorDescribe
             | Self::GenericStringOrVoidSentinel
             | Self::PatternUtilLocalValueProbe => GlobalCallDefinitionOwner::UniformMir,
+            Self::Stage1EmitProgramJson => GlobalCallDefinitionOwner::RuntimeHelper,
             Self::GenericPureString => GlobalCallDefinitionOwner::ModuleGeneric,
         }
     }
@@ -176,6 +227,7 @@ impl GlobalCallDefinitionOwner {
             Self::GenericI64OrLeaf => "generic_i64_or_leaf",
             Self::ModuleGeneric => "module_generic",
             Self::UniformMir => "uniform_mir",
+            Self::RuntimeHelper => "runtime_helper",
         }
     }
 
@@ -185,6 +237,7 @@ impl GlobalCallDefinitionOwner {
             Self::GenericI64OrLeaf => "mir_call_global_generic_i64_emit",
             Self::ModuleGeneric => "mir_call_global_module_generic_emit",
             Self::UniformMir => "mir_call_global_uniform_mir_emit",
+            Self::RuntimeHelper => "mir_call_stage1_emit_program_json_emit",
             Self::None => "mir_call_global_unknown_emit",
         }
     }
@@ -469,8 +522,22 @@ impl GlobalCallRoute {
             callee_name: callee_name.into(),
             arity,
             result_value,
+            lowering_override: None,
             target,
         }
+    }
+
+    pub fn with_lowering_override(mut self, lowering_override: GlobalCallLoweringOverride) -> Self {
+        self.lowering_override = Some(lowering_override);
+        self
+    }
+
+    pub fn with_optional_lowering_override(
+        mut self,
+        lowering_override: Option<GlobalCallLoweringOverride>,
+    ) -> Self {
+        self.lowering_override = lowering_override;
+        self
     }
 
     pub fn block(&self) -> BasicBlockId {
@@ -490,7 +557,9 @@ impl GlobalCallRoute {
     }
 
     pub fn lowering_tier(&self) -> LoweringPlanTier {
-        if self.is_direct_abi_target() {
+        if let Some(lowering_override) = self.lowering_override {
+            lowering_override.lowering_tier()
+        } else if self.is_direct_abi_target() {
             LoweringPlanTier::DirectAbi
         } else {
             LoweringPlanTier::Unsupported
@@ -502,7 +571,9 @@ impl GlobalCallRoute {
     }
 
     pub fn lowering_emit_kind(&self) -> LoweringPlanEmitKind {
-        if self.is_direct_abi_target() {
+        if let Some(lowering_override) = self.lowering_override {
+            lowering_override.lowering_emit_kind()
+        } else if self.is_direct_abi_target() {
             LoweringPlanEmitKind::DirectFunctionCall
         } else {
             LoweringPlanEmitKind::Unsupported
@@ -514,7 +585,9 @@ impl GlobalCallRoute {
     }
 
     pub fn proof(&self) -> &'static str {
-        if self.is_direct_abi_target() {
+        if let Some(lowering_override) = self.lowering_override {
+            lowering_override.proof().as_json_name()
+        } else if self.is_direct_abi_target() {
             self.target.proof().as_json_name()
         } else {
             GlobalCallProof::ContractMissing.as_json_name()
@@ -522,7 +595,11 @@ impl GlobalCallRoute {
     }
 
     pub fn route_kind(&self) -> &'static str {
-        "global.user_call"
+        if let Some(lowering_override) = self.lowering_override {
+            lowering_override.route_kind()
+        } else {
+            "global.user_call"
+        }
     }
 
     pub fn callee_name(&self) -> &str {
@@ -530,6 +607,9 @@ impl GlobalCallRoute {
     }
 
     pub fn target_symbol(&self) -> Option<&str> {
+        if let Some(lowering_override) = self.lowering_override {
+            return Some(lowering_override.target_symbol());
+        }
         if !self.target_exists() {
             return None;
         }
@@ -594,18 +674,20 @@ impl GlobalCallRoute {
     }
 
     pub fn value_demand(&self) -> &'static str {
-        self.direct_return_contract()
+        self.effective_return_contract()
             .map(GlobalCallReturnContract::value_demand)
             .unwrap_or("typed_global_call_contract_missing")
     }
 
     pub fn return_shape(&self) -> Option<&'static str> {
-        self.direct_return_contract()
+        self.effective_return_contract()
             .map(GlobalCallReturnContract::as_json_name)
     }
 
     pub fn result_origin(&self) -> &'static str {
-        if self.is_direct_abi_target() {
+        if let Some(lowering_override) = self.lowering_override {
+            lowering_override.proof().result_origin()
+        } else if self.is_direct_abi_target() {
             self.target.proof().result_origin()
         } else {
             "none"
@@ -613,6 +695,9 @@ impl GlobalCallRoute {
     }
 
     fn definition_owner_kind(&self) -> GlobalCallDefinitionOwner {
+        if let Some(lowering_override) = self.lowering_override {
+            return lowering_override.proof().definition_owner();
+        }
         if self.is_direct_abi_target() {
             return self.target.proof().definition_owner();
         }
@@ -631,7 +716,7 @@ impl GlobalCallRoute {
     }
 
     pub fn reason(&self) -> Option<&'static str> {
-        if self.is_direct_abi_target() {
+        if self.lowering_override.is_some() || self.is_direct_abi_target() {
             return None;
         }
         match self.arity_matches() {
@@ -642,7 +727,11 @@ impl GlobalCallRoute {
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
-        &["call.global"]
+        if let Some(lowering_override) = self.lowering_override {
+            lowering_override.effect_tags()
+        } else {
+            &["call.global"]
+        }
     }
 
     fn is_direct_abi_target(&self) -> bool {
@@ -658,5 +747,11 @@ impl GlobalCallRoute {
         } else {
             None
         }
+    }
+
+    fn effective_return_contract(&self) -> Option<GlobalCallReturnContract> {
+        self.lowering_override
+            .map(GlobalCallLoweringOverride::return_contract)
+            .or_else(|| self.direct_return_contract())
     }
 }

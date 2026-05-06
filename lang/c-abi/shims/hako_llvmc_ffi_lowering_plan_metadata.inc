@@ -178,6 +178,7 @@
                 !strcmp(proof, "typed_global_call_generic_string_void_logging") ||
                 !strcmp(proof, "typed_global_call_generic_i64") ||
                 !strcmp(proof, "typed_global_call_parser_program_json") ||
+                !strcmp(proof, "typed_global_call_stage1_emit_program_json") ||
                 !strcmp(proof, "typed_global_call_static_string_array") ||
                 !strcmp(proof, "typed_global_call_mir_schema_map_constructor") ||
                 !strcmp(proof, "typed_global_call_box_type_inspector_describe") ||
@@ -481,6 +482,50 @@
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_uses_module_generic_or_i64_definition(view) ||
                lowering_plan_global_call_view_uses_uniform_mir_definition(view);
+      }
+
+      auto int lowering_plan_global_call_view_matches_runtime_route(
+          const struct LoweringPlanGlobalCallView* view,
+          const char* route_kind,
+          const char* proof,
+          const char* symbol,
+          const char* return_shape,
+          const char* value_demand) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "global.user_call") &&
+               view->core_op &&
+               !strcmp(view->core_op, "UserGlobalCall") &&
+               view->route_kind &&
+               route_kind &&
+               !strcmp(view->route_kind, route_kind) &&
+               view->proof &&
+               proof &&
+               !strcmp(view->proof, proof) &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "runtime_call") &&
+               view->target_symbol &&
+               symbol &&
+               !strcmp(view->target_symbol, symbol) &&
+               view->return_shape &&
+               return_shape &&
+               !strcmp(view->return_shape, return_shape) &&
+               view->value_demand &&
+               value_demand &&
+               !strcmp(view->value_demand, value_demand) &&
+               llvm_quoted_symbol_name_is_safe(view->target_symbol);
+      }
+
+      auto int lowering_plan_global_call_view_is_stage1_emit_program_json(
+          const struct LoweringPlanGlobalCallView* view) {
+        return lowering_plan_global_call_view_matches_runtime_route(
+            view,
+            "stage1.emit_program_json_v0",
+            "typed_global_call_stage1_emit_program_json",
+            "nyash.stage1.emit_program_json_v0_h",
+            "string_handle",
+            "runtime_i64_or_handle");
       }
 
       auto int lowering_plan_global_call_view_result_origin_kind(

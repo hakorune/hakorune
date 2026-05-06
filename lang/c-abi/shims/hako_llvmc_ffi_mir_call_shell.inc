@@ -155,6 +155,9 @@
       auto int global_call_definition_target_is_ready(
           const struct LoweringPlanGlobalCallView* view) {
         if (!view) return 0;
+        if (lowering_plan_global_call_view_is_stage1_emit_program_json(view)) {
+          return 1;
+        }
         if (lowering_plan_global_call_view_uses_leaf_i64_definition(view)) {
           return module_leaf_symbol_was_emitted(view->target_symbol);
         }
@@ -193,6 +196,33 @@
         argc = yyjson_arr_size(args);
         if ((long long)argc != view.arity || argc > 64) return -1;
         if (!global_call_definition_target_is_ready(&view)) return -1;
+        if (lowering_plan_global_call_view_is_stage1_emit_program_json(&view)) {
+          if (argc != 1) return -1;
+          if (!materialize_direct_global_call_arg_if_needed(
+                  f, (long long)yyjson_get_sint(yyjson_arr_get(args, 0)))) {
+            return -1;
+          }
+          if (dst) {
+            fprintf(
+                f,
+                "  %%r%lld = call i64 @\"%s\"(i64 %%r%lld)\n",
+                dst,
+                view.target_symbol,
+                (long long)yyjson_get_sint(yyjson_arr_get(args, 0)));
+            set_type(dst, T_I64);
+          } else {
+            fprintf(
+                f,
+                "  call i64 @\"%s\"(i64 %%r%lld)\n",
+                view.target_symbol,
+                (long long)yyjson_get_sint(yyjson_arr_get(args, 0)));
+          }
+          mark_global_call_result_origin_from_view(&view, dst);
+          trace_lowering_plan_entry_hit(
+              entry,
+              lowering_plan_global_call_view_emit_trace_consumer(&view));
+          return 1;
+        }
         ab[0] = '\0';
         for (size_t ai = 0; ai < argc; ai++) {
           yyjson_val* arg = yyjson_arr_get(args, ai);

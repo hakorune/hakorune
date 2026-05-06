@@ -98,11 +98,10 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
             "core_op": route.core_op(),
             "tier": route.lowering_tier().as_json_name(),
             "emit_kind": route.lowering_emit_kind().as_json_name(),
-            "symbol": if route.lowering_tier().is_direct_abi() {
-                route.target_symbol().map(serde_json::Value::from).unwrap_or(serde_json::Value::Null)
-            } else {
-                serde_json::Value::Null
-            },
+            "symbol": route
+                .target_symbol()
+                .map(serde_json::Value::from)
+                .unwrap_or(serde_json::Value::Null),
             "proof": route.proof(),
             "route_proof": route.proof(),
             "route_kind": route.route_kind(),
@@ -165,6 +164,7 @@ pub(super) fn build_global_call_route_json(
         "core_op": route.core_op(),
         "tier": route.lowering_tier().as_json_name(),
         "emit_kind": route.lowering_emit_kind().as_json_name(),
+        "symbol": route.target_symbol(),
         "proof": route.proof(),
         "route_kind": route.route_kind(),
         "arity": route.arity(),

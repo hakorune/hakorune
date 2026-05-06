@@ -6,8 +6,10 @@
  * instead of rediscovering unsupported `Global(...)` names from raw MIR.
  */
 
-use super::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType};
-use std::collections::BTreeMap;
+use super::{
+    BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+};
+use std::collections::{BTreeMap, BTreeSet};
 
 mod box_type_inspector_describe_body;
 mod builder_registry_dispatch_body;
@@ -46,7 +48,8 @@ use mir_schema_map_constructor_body::{
     is_mir_schema_map_constructor_body_candidate, mir_schema_map_constructor_body_reject_reason,
 };
 use model::{
-    GlobalCallProof, GlobalCallReturnContract, GlobalCallShapeBlocker,
+    GlobalCallLoweringOverride, GlobalCallProof, GlobalCallReturnContract,
+    GlobalCallShapeBlocker,
     GlobalCallTargetClassification, GlobalCallTargetShapeReason,
 };
 pub use model::{
@@ -305,6 +308,7 @@ fn refresh_function_global_call_routes_with_targets(
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) {
     let mut routes = Vec::new();
+    let const_null_sentinels = collect_const_null_sentinels(function);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
@@ -325,19 +329,60 @@ fn refresh_function_global_call_routes_with_targets(
             if supported_backend_global(name) {
                 continue;
             }
-            routes.push(GlobalCallRoute::new(
-                GlobalCallRouteSite::new(block_id, instruction_index),
-                name,
-                args.len(),
-                *dst,
-                lookup_global_call_target(name, targets)
-                    .cloned()
-                    .unwrap_or_else(GlobalCallTargetFacts::missing),
-            ));
+            routes.push(
+                GlobalCallRoute::new(
+                    GlobalCallRouteSite::new(block_id, instruction_index),
+                    name,
+                    args.len(),
+                    *dst,
+                    lookup_global_call_target(name, targets)
+                        .cloned()
+                        .unwrap_or_else(GlobalCallTargetFacts::missing),
+                )
+                .with_optional_lowering_override(classify_global_call_lowering_override(
+                    name,
+                    args,
+                    &const_null_sentinels,
+                )),
+            );
         }
     }
 
     function.metadata.global_call_routes = routes;
+}
+
+fn collect_const_null_sentinels(function: &MirFunction) -> BTreeSet<ValueId> {
+    let mut nulls = BTreeSet::new();
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            if let MirInstruction::Const {
+                dst,
+                value: ConstValue::Null | ConstValue::Void,
+            } = instruction
+            {
+                nulls.insert(*dst);
+            }
+        }
+    }
+    nulls
+}
+
+fn classify_global_call_lowering_override(
+    name: &str,
+    args: &[ValueId],
+    const_null_sentinels: &BTreeSet<ValueId>,
+) -> Option<GlobalCallLoweringOverride> {
+    match name {
+        "BuildBox.emit_program_json_v0/2"
+            if args.len() == 2 && const_null_sentinels.contains(&args[1]) =>
+        {
+            Some(GlobalCallLoweringOverride::Stage1EmitProgramJson)
+        }
+        "BuildBox._emit_program_json_from_scan_src/1" if args.len() == 1 => {
+            Some(GlobalCallLoweringOverride::Stage1EmitProgramJson)
+        }
+        _ => None,
+    }
 }
 
 fn lookup_global_call_target<'a>(

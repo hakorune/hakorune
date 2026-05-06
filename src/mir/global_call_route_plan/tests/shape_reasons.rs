@@ -364,11 +364,68 @@ fn refresh_module_global_call_routes_marks_program_json_emit_body_direct_target(
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.target_shape_blocker_symbol(), None);
     assert_eq!(route.target_shape_blocker_reason(), None);
-    assert_eq!(route.tier(), "DirectAbi");
-    assert_eq!(route.emit_kind(), "direct_function_call");
-    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+    assert_eq!(route.tier(), "ColdRuntime");
+    assert_eq!(route.emit_kind(), "runtime_call");
+    assert_eq!(route.proof(), "typed_global_call_stage1_emit_program_json");
+    assert_eq!(route.route_kind(), "stage1.emit_program_json_v0");
+    assert_eq!(route.target_symbol(), Some("nyash.stage1.emit_program_json_v0_h"));
     assert_eq!(route.return_shape(), Some("string_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+    assert_eq!(route.definition_owner(), "runtime_helper");
+    assert_eq!(
+        route.emit_trace_consumer(),
+        "mir_call_stage1_emit_program_json_emit"
+    );
+    assert_eq!(route.reason(), None);
+}
+
+#[test]
+fn refresh_function_global_call_routes_marks_buildbox_emit_program_json_null_opts_runtime_route() {
+    let mut caller = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let block = caller.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::String("source".to_string()),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Void,
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(3)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("BuildBox.emit_program_json_v0/2".to_string())),
+            args: vec![ValueId::new(1), ValueId::new(2)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+
+    refresh_function_global_call_routes(&mut caller);
+
+    let route = &caller.metadata.global_call_routes[0];
+    assert_eq!(route.target_exists(), false);
+    assert_eq!(route.target_symbol(), Some("nyash.stage1.emit_program_json_v0_h"));
+    assert_eq!(route.tier(), "ColdRuntime");
+    assert_eq!(route.emit_kind(), "runtime_call");
+    assert_eq!(route.proof(), "typed_global_call_stage1_emit_program_json");
+    assert_eq!(route.route_kind(), "stage1.emit_program_json_v0");
+    assert_eq!(route.return_shape(), Some("string_handle"));
+    assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+    assert_eq!(route.result_origin(), "string");
+    assert_eq!(route.definition_owner(), "runtime_helper");
+    assert_eq!(
+        route.emit_trace_consumer(),
+        "mir_call_stage1_emit_program_json_emit"
+    );
     assert_eq!(route.reason(), None);
 }
 

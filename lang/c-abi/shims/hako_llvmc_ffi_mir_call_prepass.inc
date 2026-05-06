@@ -150,8 +150,14 @@
         }
 
         if (ctype && !strcmp(ctype, "Global")) {
+          enum MirCallNeedKind plan_need =
+              classify_mir_call_global_need_kind_from_lowering_plan(bid, ii);
           mark_global_call_result_origin_from_lowering_plan(
               bid, ii, read_int(ins, "dst"));
+          if (plan_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
+            apply_mir_call_need_kind(needs, plan_need);
+            return;
+          }
           apply_mir_call_need_kind(needs, classify_mir_call_global_need_kind(mname));
           return;
         }

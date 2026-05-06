@@ -635,6 +635,23 @@
         return mir_call_need_kind_from_name_rules(mname, rules, ARR_LEN(rules));
       }
 
+      auto enum MirCallNeedKind
+      classify_mir_call_global_need_kind_from_lowering_plan(
+          long long bid,
+          size_t ii) {
+        yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGlobalCallView view;
+        if (!plan_entry) return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        if (!read_lowering_plan_global_call_view(plan_entry, &view)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        if (lowering_plan_global_call_view_is_stage1_emit_program_json(&view)) {
+          trace_lowering_plan_entry_hit(plan_entry, "mir_call_global_need");
+          return HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_PROGRAM_JSON;
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
       auto enum MirCallNeedKind classify_mir_call_extern_need_kind(
           const char* mname) {
         static const struct MirCallNeedNameRule rules[] = {
