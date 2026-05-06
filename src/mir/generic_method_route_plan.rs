@@ -1319,8 +1319,7 @@ fn match_generic_len_route(
         return None;
     };
     if !is_len_method(method)
-        || !(args.is_empty()
-            || generic_string_len_self_arg_is_supported(function, def_map, box_name, args))
+        || !(args.is_empty() || generic_len_self_arg_is_supported(function, def_map, box_name, args))
     {
         return None;
     }
@@ -1404,16 +1403,27 @@ fn match_generic_keys_route(
     ))
 }
 
-fn generic_string_len_self_arg_is_supported(
+fn generic_len_self_arg_is_supported(
     function: &MirFunction,
     def_map: &ValueDefMap,
     box_name: &str,
     args: &[ValueId],
 ) -> bool {
-    box_name == "StringBox"
-        && args.len() == 1
-        && generic_pure_string_value_origin_box_name(function, def_map, args[0]).as_deref()
-            == Some("StringBox")
+    if args.len() != 1 {
+        return false;
+    }
+
+    match box_name {
+        "StringBox" => {
+            generic_pure_string_value_origin_box_name(function, def_map, args[0]).as_deref()
+                == Some("StringBox")
+        }
+        "ArrayBox" => {
+            generic_array_flow_origin_box_name(function, def_map, args[0]).as_deref()
+                == Some("ArrayBox")
+        }
+        _ => false,
+    }
 }
 
 fn match_generic_substring_route(
