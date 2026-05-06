@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `T5 owner cleanup: generic string-or-void / PatternUtil / BoxTypeInspector body handling`
+- current blocker token: `T5 owner cleanup: PatternUtil / BoxTypeInspector body handling`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -35,6 +35,8 @@ Related:
   BuildBox path
 - parser Program(JSON) is closed as a diagnostics-only proof boundary; live
   source-owner calls use `nyash.stage1.emit_program_json_v0_h`
+- generic string-or-void sentinel const publication is shared; remaining T5
+  cleanup is PatternUtil / BoxTypeInspector body handling
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work

@@ -5,7 +5,7 @@ Date: 2026-05-06
 Todo: phase29cv-order-refresh
 
 Scope:
-- Refreshed P381FI and P381FN through the post-P381FY state
+- Refreshed P381FI and P381FN through the post-P381FZ state
 - Updated blocker descriptions to close the parser proof as diagnostics-only
 - Clarified that wrapper cleanup plus imports/enum/defs owner cleanup are complete
 
@@ -22,22 +22,21 @@ Changes:
    - Updated scope to include all six wrapper collapse cards
    - Clarified that injection methods are now direct (no wrappers)
    - Updated Result section to explicitly state wrapper cleanup is complete
-   - Refreshed again after P381FT/P381FU/P381FV/P381FW/P381FX/P381FY so enum_decls and defs are
+   - Refreshed again after P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ so enum_decls and defs are
      DirectAbi on the public BuildBox path, and defs no longer consumes
      FuncScannerBox.scan_all_boxes object records or parse_block2 result
      stripping; stale object-defs builders are removed and the method-body
      program seam is named by its Program(JSON v0) contract; the parser proof is
-     closed as diagnostics-only
+     closed as diagnostics-only; generic string-or-void sentinel const
+     publication is shared
 
 Validation:
 - tools/checks/current_state_pointer_guard.sh: PASS
 
 No conflicts with code worker:
-- CURRENT_STATE.toml was not modified
-- Only doc files were updated
-- No code changes
+- CURRENT_STATE.toml was updated only for latest-card/current-blocker pointers
+- Code change is limited to same-module sentinel const helper extraction
 
 Next steps:
 - The remaining blocker lane is T5 owner/body cleanup
-- Order now: generic string-or-void sentinel plumbing, PatternUtil probe body,
-  BoxTypeInspector describe body
+- Order now: PatternUtil probe body, BoxTypeInspector describe body

@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-29cv Program(JSON v0) keeper closeout`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `T5 owner cleanup: generic string-or-void / PatternUtil / BoxTypeInspector body handling`
+- current blocker token: `T5 owner cleanup: PatternUtil / BoxTypeInspector body handling`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `T5 owner cleanup: generic string-or-void / PatternUtil / BoxTypeInspector body handling`
+- current blocker token: `T5 owner cleanup: PatternUtil / BoxTypeInspector body handling`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,6 +59,9 @@ cargo check -q
 - parser Program(JSON) is closed as a diagnostics-only proof boundary; do not
   promote `ParserBox.parse_program2`, and keep live source-owner calls on
   `nyash.stage1.emit_program_json_v0_h`
+- generic string-or-void sentinel const publication is shared between same-
+  module prepass and emit handling; continue with PatternUtil / BoxTypeInspector
+  body cleanup
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

@@ -93,6 +93,11 @@
         return ty_s && (!strcmp(ty_s, "void") || !strcmp(ty_s, "null"));
       }
 
+      auto void same_module_function_publish_void_sentinel_const(long long dst) {
+        put_const(dst, 0);
+        set_type(dst, T_I64);
+      }
+
       auto void same_module_function_format_i64_ref(
           char* out,
           size_t out_cap,
@@ -711,8 +716,7 @@
             return 1;
           }
           if (same_module_function_read_void_sentinel_const(ins)) {
-            put_const(dst, 0);
-            set_type(dst, T_I64);
+            same_module_function_publish_void_sentinel_const(dst);
             return 1;
           }
           return 0;
@@ -1669,8 +1673,7 @@
           put_const(dst, ival);
           set_type(dst, T_I64);
         } else if (same_module_function_read_void_sentinel_const(ins)) {
-          put_const(dst, 0);
-          set_type(dst, T_I64);
+          same_module_function_publish_void_sentinel_const(dst);
         } else {
           return 0;
         }

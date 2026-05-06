@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-29cv/P37-PROGRAM-JSON
 method_anchor = "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-29cv/P33-DELETE-LAST-BLOCKERS-ONLY.md"
 
-latest_card = "P381FY-PARSER-DIAGNOSTICS-BOUNDARY-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-29cv/P381FY-PARSER-DIAGNOSTICS-BOUNDARY-CLOSEOUT.md"
-latest_card_summary = "Parser Program(JSON) proof ownership is closed as diagnostics-only: live source-owner BuildBox.emit_program_json_v0(source,null) calls route through nyash.stage1.emit_program_json_v0_h, while typed_global_call_parser_program_json remains definition_owner=diagnostics_only and is not accepted by C lowering readiness."
+latest_card = "P381FZ-GENERIC-STRING-OR-VOID-SENTINEL-PLUMBING"
+latest_card_path = "docs/development/current/main/phases/phase-29cv/P381FZ-GENERIC-STRING-OR-VOID-SENTINEL-PLUMBING.md"
+latest_card_summary = "Generic string-or-void sentinel body plumbing now publishes void/null sentinel constants through one same-module emitter helper shared by prepass and emit const handling; proof/return/owner contracts stay unchanged."
 
-current_blocker_token = "T5 owner cleanup: generic string-or-void / PatternUtil / BoxTypeInspector body handling"
+current_blocker_token = "T5 owner cleanup: PatternUtil / BoxTypeInspector body handling"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

@@ -1,7 +1,7 @@
 # P381FN Concrete Blocker Order
 
-Date: 2026-05-06 (refreshed post-P381FY)
-Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY.
+Date: 2026-05-06 (refreshed post-P381FZ)
+Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ.
 
 ## Read
 
@@ -21,6 +21,7 @@ The public wrapper collapses are complete through:
 - `P381FW-BUILDFRAGMENT-DEAD-DEFS-BUILDERS-PRUNE`
 - `P381FX-DEFS-METHOD-BODY-PROGRAM-NAME-CLEANUP`
 - `P381FY-PARSER-DIAGNOSTICS-BOUNDARY-CLOSEOUT`
+- `P381FZ-GENERIC-STRING-OR-VOID-SENTINEL-PLUMBING`
 
 All intermediate wrapper methods in BuildBox and BuildProgramFragmentBox have been
 collapsed. The imports injection path also no longer depends on parser-private
@@ -36,6 +37,8 @@ contract.
 `ParserBox.parse_program2` is now closed as an intentional diagnostics-only
 proof boundary. Live source-owner Program(JSON v0) calls route through the
 Stage1 runtime helper.
+Generic string-or-void sentinel const publication is now shared between same-
+module prepass and emit const handling.
 
 ## Current Blocker Order
 
@@ -59,15 +62,14 @@ enrichment wrapper or promote parser-private ownership.
 
 Current preferred order:
 
-1. generic string-or-void sentinel plumbing
-2. `PatternUtil` local-value probe body handling
-3. `BoxTypeInspector` describe body handling
-4. T6 smoke/archive inventory
+1. `PatternUtil` local-value probe body handling
+2. `BoxTypeInspector` describe body handling
+3. T6 smoke/archive inventory
 
 This keeps the lane on wrapper/owner cleanup and avoids promoting
 parser-private semantics into Stage0 without an explicit parser-owner card.
 
-## Result (post-P381FY)
+## Result (post-P381FZ)
 
 `CURRENT_TASK.md` and the phase inventory should read the lane as:
 
@@ -81,6 +83,7 @@ parser-private semantics into Stage0 without an explicit parser-owner card.
 - dead object-defs builder cleanup: complete (P381FW landed)
 - method-body program seam naming cleanup: complete (P381FX landed)
 - parser diagnostics boundary closeout: complete (P381FY landed)
+- generic string-or-void sentinel plumbing cleanup: complete (P381FZ landed)
 - parser-private contract discussion: no longer blocked by enrichment-side
   wrappers
 - current cleanup blocker: remaining T5 owner/body handling
