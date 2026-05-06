@@ -123,6 +123,11 @@ right owner, and delete dead helper surface when the repo no longer calls it.
 - P367A promotes the EXDEV-safe `cargo_check_safe.sh` wrapper and its paired
   C preload helper to `tools/checks`, leaving `tools/dev` for active
   source/probe helpers only.
+- P381FA converts the remaining by-name ladders in
+  `hako_llvmc_ffi_mir_call_need_policy.inc` and
+  `hako_llvmc_ffi_mir_call_shell.inc` into table-driven shim consumers. The
+  next Stage0 blocker remains owner cleanup or the uniform MIR emitter, not
+  another ad-hoc matcher expansion.
 - P101 refreshed the caller inventory.
 - P102 moved `tools/selfhost_exe_stageb.sh` default to the MIR-first `direct`
   route. `stageb-delegate` remains available only as an explicit bridge

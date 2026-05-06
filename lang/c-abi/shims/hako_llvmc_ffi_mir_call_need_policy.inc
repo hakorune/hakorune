@@ -63,6 +63,94 @@
         HAKO_LLVMC_MIR_CALL_NEED_PRINTF,
       };
 
+      struct MirCallNeedNameRule {
+        const char* name;
+        enum MirCallNeedKind need_kind;
+      };
+
+      auto enum MirCallNeedKind mir_call_need_kind_from_name_rules(
+          const char* name,
+          const struct MirCallNeedNameRule* rules,
+          size_t rule_count) {
+        size_t ri = 0;
+        if (!(name && rules)) return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        for (ri = 0; ri < rule_count; ri++) {
+          if (rules[ri].name && !strcmp(name, rules[ri].name)) {
+            return rules[ri].need_kind;
+          }
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
+      struct MirCallRouteMetadataNeedRule {
+        const char* route_id;
+        const char* route_kind;
+        const char* helper_symbol;
+        const char* proof;
+        enum MirCallNeedKind need_kind;
+      };
+
+      auto int mir_call_route_metadata_need_rule_matches(
+          const char* route_id,
+          const char* route_kind,
+          const char* helper_symbol,
+          const char* proof,
+          const struct MirCallRouteMetadataNeedRule* rule) {
+        if (!(route_id && route_kind && helper_symbol && proof && rule &&
+              rule->route_id && rule->route_kind && rule->helper_symbol &&
+              rule->proof)) {
+          return 0;
+        }
+        return !strcmp(route_id, rule->route_id) &&
+               !strcmp(route_kind, rule->route_kind) &&
+               !strcmp(helper_symbol, rule->helper_symbol) &&
+               !strcmp(proof, rule->proof);
+      }
+
+      enum MirCallNeedTierGuard {
+        HAKO_LLVMC_MIR_CALL_NEED_TIER_ANY = 0,
+        HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK,
+        HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+      };
+
+      struct MirCallCoreMethodNeedRule {
+        const char* route_id;
+        const char* op;
+        const char* route_kind;
+        enum MirCallNeedTierGuard tier_guard;
+        enum MirCallNeedKind need_kind;
+      };
+
+      auto int mir_call_need_tier_guard_matches(
+          enum CoreMethodLoweringTierMetadata lowering_tier,
+          enum MirCallNeedTierGuard tier_guard) {
+        switch (tier_guard) {
+          case HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK:
+            return core_method_lowering_tier_is_cold_fallback(lowering_tier);
+          case HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI:
+            return core_method_lowering_tier_is_warm_direct_abi(lowering_tier);
+          case HAKO_LLVMC_MIR_CALL_NEED_TIER_ANY:
+          default:
+            return 1;
+        }
+      }
+
+      auto int mir_call_core_method_need_rule_matches(
+          const char* route_id,
+          const char* op,
+          const char* route_kind,
+          enum CoreMethodLoweringTierMetadata lowering_tier,
+          const struct MirCallCoreMethodNeedRule* rule) {
+        if (!(route_id && op && route_kind && rule && rule->route_id &&
+              rule->op && rule->route_kind)) {
+          return 0;
+        }
+        return !strcmp(route_id, rule->route_id) &&
+               !strcmp(op, rule->op) &&
+               !strcmp(route_kind, rule->route_kind) &&
+               mir_call_need_tier_guard_matches(lowering_tier, rule->tier_guard);
+      }
+
       auto void apply_mir_call_need_kind(
           struct MirCallNeedFlags* needs,
           enum MirCallNeedKind kind) {
@@ -158,13 +246,11 @@
 
       auto enum MirCallNeedKind classify_mir_call_constructor_need_kind(
           const char* bname) {
-        if (bname && !strcmp(bname, "MapBox")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_BIRTH;
-        }
-        if (bname && !strcmp(bname, "ArrayBox")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH;
-        }
-        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        static const struct MirCallNeedNameRule rules[] = {
+          {"MapBox", HAKO_LLVMC_MIR_CALL_NEED_MAP_BIRTH},
+          {"ArrayBox", HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH},
+        };
+        return mir_call_need_kind_from_name_rules(bname, rules, ARR_LEN(rules));
       }
 
       auto int mir_call_need_route_read_i64_field(
@@ -183,25 +269,28 @@
           const char* route_kind,
           const char* helper_symbol,
           const char* proof) {
-        if (route_id &&
-            !strcmp(route_id, "generic_method.has") &&
-            route_kind &&
-            !strcmp(route_kind, "runtime_data_contains_any") &&
-            helper_symbol &&
-            !strcmp(helper_symbol, "nyash.runtime_data.has_hh") &&
-            proof &&
-            !strcmp(proof, "has_surface_policy")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS;
-        }
-        if (route_id &&
-            !strcmp(route_id, "generic_method.keys") &&
-            route_kind &&
-            !strcmp(route_kind, "map_keys_array") &&
-            helper_symbol &&
-            !strcmp(helper_symbol, "nyash.map.keys_h") &&
-            proof &&
-            !strcmp(proof, "mir_json_flags_keys")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_KEYS;
+        static const struct MirCallRouteMetadataNeedRule rules[] = {
+          {
+            "generic_method.has",
+            "runtime_data_contains_any",
+            "nyash.runtime_data.has_hh",
+            "has_surface_policy",
+            HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS,
+          },
+          {
+            "generic_method.keys",
+            "map_keys_array",
+            "nyash.map.keys_h",
+            "mir_json_flags_keys",
+            HAKO_LLVMC_MIR_CALL_NEED_MAP_KEYS,
+          },
+        };
+        size_t ri = 0;
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          if (mir_call_route_metadata_need_rule_matches(
+                  route_id, route_kind, helper_symbol, proof, &rules[ri])) {
+            return rules[ri].need_kind;
+          }
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
@@ -212,99 +301,62 @@
           const char* op,
           const char* route_kind,
           enum CoreMethodLoweringTierMetadata lowering_tier) {
-        if (!(route_id && op && route_kind)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
-        }
-        if (!strcmp(route_id, "generic_method.get") &&
-            !strcmp(op, "MapGet") &&
-            !strcmp(route_kind, "runtime_data_load_any") &&
-            core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
-        }
-        if (!strcmp(route_id, "generic_method.get") &&
-            !strcmp(op, "MapGet") &&
-            !strcmp(route_kind, "map_load_any") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
-        }
-        if (!strcmp(route_id, "generic_method.get") &&
-            !strcmp(op, "ArrayGet") &&
-            !strcmp(route_kind, "array_slot_load_any") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET;
-        }
-        if (!strcmp(route_id, "generic_method.has") &&
-            !strcmp(op, "MapHas") &&
-            (!strcmp(route_kind, "map_contains_any") ||
-             !strcmp(route_kind, "map_contains_i64")) &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
-        }
-        if (!strcmp(route_id, "generic_method.has") &&
-            !strcmp(op, "ArrayHas") &&
-            !strcmp(route_kind, "array_contains_any") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS;
-        }
-        if (!strcmp(route_id, "generic_method.len") &&
-            !strcmp(op, "MapLen") &&
-            !strcmp(route_kind, "map_entry_count") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE;
-        }
-        if (!strcmp(route_id, "generic_method.len") &&
-            !strcmp(op, "ArrayLen") &&
-            !strcmp(route_kind, "array_slot_len") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN;
-        }
-        if (!strcmp(route_id, "generic_method.push") &&
-            !strcmp(op, "ArrayPush") &&
-            !strcmp(route_kind, "array_append_any") &&
-            core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH;
-        }
-        if (!strcmp(route_id, "generic_method.set") &&
-            !strcmp(op, "ArraySet") &&
-            !strcmp(route_kind, "array_store_any") &&
-            core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
-        }
-        if (!strcmp(route_id, "generic_method.set") &&
-            !strcmp(op, "MapSet") &&
-            !strcmp(route_kind, "map_store_any") &&
-            core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_MAP_SET;
-        }
-        if (!strcmp(route_id, "generic_method.len") &&
-            !strcmp(op, "StringLen") &&
-            !strcmp(route_kind, "string_len") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN;
-        }
-        if (!strcmp(route_id, "generic_method.substring") &&
-            !strcmp(op, "StringSubstring") &&
-            !strcmp(route_kind, "string_substring") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
-        }
-        if (!strcmp(route_id, "generic_method.indexOf") &&
-            !strcmp(op, "StringIndexOf") &&
-            !strcmp(route_kind, "string_indexof") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
-        }
-        if (!strcmp(route_id, "generic_method.lastIndexOf") &&
-            !strcmp(op, "StringLastIndexOf") &&
-            !strcmp(route_kind, "string_last_indexof") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
-        }
-        if (!strcmp(route_id, "generic_method.contains") &&
-            !strcmp(op, "StringContains") &&
-            !strcmp(route_kind, "string_contains") &&
-            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_CONTAINS;
+        static const struct MirCallCoreMethodNeedRule rules[] = {
+          {"generic_method.get", "MapGet", "runtime_data_load_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK,
+           HAKO_LLVMC_MIR_CALL_NEED_MAP_GET},
+          {"generic_method.get", "MapGet", "map_load_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_MAP_GET},
+          {"generic_method.get", "ArrayGet", "array_slot_load_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET},
+          {"generic_method.has", "MapHas", "map_contains_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS},
+          {"generic_method.has", "MapHas", "map_contains_i64",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS},
+          {"generic_method.has", "ArrayHas", "array_contains_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS},
+          {"generic_method.len", "MapLen", "map_entry_count",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE},
+          {"generic_method.len", "ArrayLen", "array_slot_len",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN},
+          {"generic_method.push", "ArrayPush", "array_append_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK,
+           HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH},
+          {"generic_method.set", "ArraySet", "array_store_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK,
+           HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET},
+          {"generic_method.set", "MapSet", "map_store_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK,
+           HAKO_LLVMC_MIR_CALL_NEED_MAP_SET},
+          {"generic_method.len", "StringLen", "string_len",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN},
+          {"generic_method.substring", "StringSubstring", "string_substring",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING},
+          {"generic_method.indexOf", "StringIndexOf", "string_indexof",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF},
+          {"generic_method.lastIndexOf", "StringLastIndexOf", "string_last_indexof",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF},
+          {"generic_method.contains", "StringContains", "string_contains",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_STRING_CONTAINS},
+        };
+        size_t ri = 0;
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          if (mir_call_core_method_need_rule_matches(
+                  route_id, op, route_kind, lowering_tier, &rules[ri])) {
+            return rules[ri].need_kind;
+          }
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
@@ -577,33 +629,27 @@
 
       auto enum MirCallNeedKind classify_mir_call_global_need_kind(
           const char* mname) {
-        if (mname && !strcmp(mname, "print")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_PRINTF;
-        }
-        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        static const struct MirCallNeedNameRule rules[] = {
+          {"print", HAKO_LLVMC_MIR_CALL_NEED_PRINTF},
+        };
+        return mir_call_need_kind_from_name_rules(mname, rules, ARR_LEN(rules));
       }
 
       auto enum MirCallNeedKind classify_mir_call_extern_need_kind(
           const char* mname) {
-        if (mname &&
-            (!strcmp(mname, "nyash.string.concat_hh") ||
-             !strcmp(mname, "nyash.string.concat3_hhh") ||
-             !strcmp(mname, "nyash.string.insert_hsi"))) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT;
-        }
-        if (mname &&
-            !strcmp(mname, "nyash.string.substring_hii")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
-        }
-        if (mname &&
-            (!strcmp(mname, "nyash.string.substring_concat_hhii") ||
-             !strcmp(mname, "nyash.string.substring_concat3_hhhii"))) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
-        }
-        if (mname && !strcmp(mname, "nyash.string.substring_len_hii")) {
-          return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN;
-        }
-        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        static const struct MirCallNeedNameRule rules[] = {
+          {"nyash.string.concat_hh", HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT},
+          {"nyash.string.concat3_hhh", HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT},
+          {"nyash.string.insert_hsi", HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT},
+          {"nyash.string.substring_hii", HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING},
+          {"nyash.string.substring_concat_hhii",
+           HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING},
+          {"nyash.string.substring_concat3_hhhii",
+           HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING},
+          {"nyash.string.substring_len_hii",
+           HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN},
+        };
+        return mir_call_need_kind_from_name_rules(mname, rules, ARR_LEN(rules));
       }
 
       struct LoweringPlanExternNeedRule {

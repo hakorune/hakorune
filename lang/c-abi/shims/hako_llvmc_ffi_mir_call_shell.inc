@@ -32,41 +32,79 @@
                  route->runtime_map_has);
         hako_llvmc_emit_route_trace("mir_call_method", "seen", mname ? mname : "unknown", extra);
       }
+
+      struct MirCallConstructorEmitRule {
+        enum MirCallConstructorSurfaceKind kind;
+        const char* symbol;
+        int result_origin;
+      };
+
+      auto const struct MirCallConstructorEmitRule*
+      find_mir_call_constructor_emit_rule(
+          enum MirCallConstructorSurfaceKind kind) {
+        static const struct MirCallConstructorEmitRule rules[] = {
+          {HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_MAP_BOX,
+           "nyash.map.birth_h",
+           ORG_MAP_BIRTH},
+          {HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_ARRAY_BOX,
+           "nyash.array.birth_h",
+           ORG_ARRAY_BIRTH},
+        };
+        size_t ri = 0;
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          if (rules[ri].kind == kind) return &rules[ri];
+        }
+        return NULL;
+      }
+
+      struct MirCallMethodBirthEmitRule {
+        enum MirCallMethodBirthSurfaceKind kind;
+        int receiver_origin;
+      };
+
+      auto const struct MirCallMethodBirthEmitRule* find_mir_call_method_birth_emit_rule(
+          enum MirCallMethodBirthSurfaceKind kind) {
+        static const struct MirCallMethodBirthEmitRule rules[] = {
+          {HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_MAP_BOX, ORG_MAP_BIRTH},
+          {HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_ARRAY_BOX, ORG_ARRAY_BIRTH},
+        };
+        size_t ri = 0;
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          if (rules[ri].kind == kind) return &rules[ri];
+        }
+        return NULL;
+      }
+
       auto int emit_constructor_mir_call(
           FILE* f,
           enum MirCallConstructorSurfaceKind kind,
           long long dst) {
-        if (kind == HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_MAP_BOX) {
-          if (dst) {
-            fprintf(f, "  %%r%lld = call i64 @\"nyash.map.birth_h\"()\n", dst);
-            set_type(dst, T_I64);
-            set_origin(dst, ORG_MAP_BIRTH);
-          } else {
-            fprintf(f, "  call i64 @\"nyash.map.birth_h\"()\n");
-          }
-          return 1;
+        const struct MirCallConstructorEmitRule* rule =
+            find_mir_call_constructor_emit_rule(kind);
+        if (!rule) return -1;
+        if (dst) {
+          fprintf(f, "  %%r%lld = call i64 @\"%s\"()\n", dst, rule->symbol);
+          set_type(dst, T_I64);
+          set_origin(dst, rule->result_origin);
+        } else {
+          fprintf(f, "  call i64 @\"%s\"()\n", rule->symbol);
         }
-        if (kind == HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_ARRAY_BOX) {
-          if (dst) {
-            fprintf(f, "  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst);
-            set_type(dst, T_I64);
-            set_origin(dst, ORG_ARRAY_BIRTH);
-          } else {
-            fprintf(f, "  call i64 @\"nyash.array.birth_h\"()\n");
-          }
-          return 1;
-        }
-        return -1;
+        return 1;
       }
       auto int emit_method_birth_mir_call(
           enum MirCallMethodBirthSurfaceKind kind,
           long long dst,
           long long recv,
           yyjson_val* args) {
+        const struct MirCallMethodBirthEmitRule* rule =
+            find_mir_call_method_birth_emit_rule(kind);
         int recv_org;
         size_t argc;
         if (kind == HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_NONE) {
           return 0;
+        }
+        if (!rule) {
+          return -1;
         }
         if (dst) {
           return -1;
@@ -79,15 +117,7 @@
         if (recv_org == ORG_NONE && recv) {
           recv_org = get_scan_origin(recv);
         }
-        if (kind == HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_ARRAY_BOX &&
-            recv_org == ORG_ARRAY_BIRTH) {
-          return 1;
-        }
-        if (kind == HAKO_LLVMC_MIR_CALL_METHOD_BIRTH_SURFACE_MAP_BOX &&
-            recv_org == ORG_MAP_BIRTH) {
-          return 1;
-        }
-        return -1;
+        return recv_org == rule->receiver_origin ? 1 : -1;
       }
       auto int emit_global_mir_call(
           FILE* f,
@@ -207,80 +237,241 @@
                return_shape &&
                !strcmp(view->return_shape, return_shape) &&
                view->value_demand &&
-               value_demand &&
-               !strcmp(view->value_demand, value_demand);
+                value_demand &&
+                !strcmp(view->value_demand, value_demand);
+      }
+
+      enum MirCallExternEmitBehavior {
+        HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL = 0,
+        HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_TRAP_SENTINEL,
+      };
+
+      struct MirCallExternEmitRule {
+        const char* route_id;
+        const char* core_op;
+        const char* route_kind;
+        const char* symbol;
+        const char* return_shape;
+        const char* value_demand;
+        long long arity;
+        int read_value_value;
+        int require_nonzero_method_arg;
+        int set_string_origin;
+        const char* trace_consumer;
+        enum MirCallExternEmitBehavior behavior;
+      };
+
+      auto int lowering_plan_extern_emit_rule_matches(
+          const struct LoweringPlanExternCallView* view,
+          const struct MirCallExternEmitRule* rule) {
+        if (!(view && rule)) return 0;
+        return lowering_plan_extern_call_view_is_valid_with(
+            view,
+            rule->route_id,
+            rule->core_op,
+            rule->route_kind,
+            rule->symbol,
+            rule->return_shape,
+            rule->value_demand);
+      }
+
+      auto const struct MirCallExternEmitRule* find_mir_call_extern_emit_rule(
+          const struct LoweringPlanExternCallView* view) {
+        static const struct MirCallExternEmitRule rules[] = {
+          {"extern.env.get",
+           "EnvGet",
+           "extern.env.get",
+           "nyash.env.get",
+           "string_handle_or_null",
+           "runtime_i64_or_handle",
+           1,
+           0,
+           0,
+           1,
+           "mir_call_extern_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
+          {"extern.env.set",
+           "EnvSet",
+           "extern.env.set",
+           "nyash.env.set",
+           "scalar_i64",
+           "runtime_i64",
+           2,
+           1,
+           0,
+           0,
+           "mir_call_extern_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
+          {"extern.hostbridge.extern_invoke",
+           "HostBridgeExternInvoke",
+           "extern.hostbridge.extern_invoke",
+           "nyash.hostbridge.extern_invoke",
+           "string_handle_or_null",
+           "runtime_i64_or_handle",
+           3,
+           1,
+           1,
+           1,
+           "mir_call_hostbridge_extern_invoke_trap_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_TRAP_SENTINEL},
+          {"extern.stage1.emit_program_json_v0",
+           "Stage1EmitProgramJson",
+           "extern.stage1.emit_program_json_v0",
+           "nyash.stage1.emit_program_json_v0_h",
+           "string_handle",
+           "runtime_i64_or_handle",
+           1,
+           0,
+           0,
+           1,
+           "mir_call_stage1_emit_program_json_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
+          {"extern.stage1.emit_mir_from_source_v0",
+           "Stage1EmitMirFromSource",
+           "extern.stage1.emit_mir_from_source_v0",
+           "nyash.stage1.emit_mir_from_source_v0_h",
+           "string_handle",
+           "runtime_i64_or_handle",
+           1,
+           0,
+           0,
+           1,
+           "mir_call_stage1_emit_mir_from_source_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
+          {"extern.stage1.emit_mir_from_program_json_v0",
+           "Stage1EmitMirFromProgramJson",
+           "extern.stage1.emit_mir_from_program_json_v0",
+           "nyash.stage1.emit_mir_from_program_json_v0_h",
+           "string_handle",
+           "runtime_i64_or_handle",
+           1,
+           0,
+           0,
+           1,
+           "mir_call_stage1_emit_mir_from_program_json_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
+        };
+        size_t ri = 0;
+        for (ri = 0; ri < ARR_LEN(rules); ri++) {
+          if (lowering_plan_extern_emit_rule_matches(view, &rules[ri])) {
+            return &rules[ri];
+          }
+        }
+        return NULL;
       }
 
       auto int lowering_plan_env_get_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return lowering_plan_extern_call_view_is_valid_with(
-            view,
+        static const struct MirCallExternEmitRule rule = {
             "extern.env.get",
             "EnvGet",
             "extern.env.get",
             "nyash.env.get",
             "string_handle_or_null",
-            "runtime_i64_or_handle");
+            "runtime_i64_or_handle",
+            1,
+            0,
+            0,
+            1,
+            "mir_call_extern_emit",
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
+        };
+        return lowering_plan_extern_emit_rule_matches(view, &rule);
       }
 
       auto int lowering_plan_env_set_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return lowering_plan_extern_call_view_is_valid_with(
-            view,
+        static const struct MirCallExternEmitRule rule = {
             "extern.env.set",
             "EnvSet",
             "extern.env.set",
             "nyash.env.set",
             "scalar_i64",
-            "runtime_i64");
+            "runtime_i64",
+            2,
+            1,
+            0,
+            0,
+            "mir_call_extern_emit",
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
+        };
+        return lowering_plan_extern_emit_rule_matches(view, &rule);
       }
 
       auto int lowering_plan_hostbridge_extern_invoke_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return lowering_plan_extern_call_view_is_valid_with(
-            view,
+        static const struct MirCallExternEmitRule rule = {
             "extern.hostbridge.extern_invoke",
             "HostBridgeExternInvoke",
             "extern.hostbridge.extern_invoke",
             "nyash.hostbridge.extern_invoke",
             "string_handle_or_null",
-            "runtime_i64_or_handle");
+            "runtime_i64_or_handle",
+            3,
+            1,
+            1,
+            1,
+            "mir_call_hostbridge_extern_invoke_trap_emit",
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_TRAP_SENTINEL,
+        };
+        return lowering_plan_extern_emit_rule_matches(view, &rule);
       }
 
       auto int lowering_plan_stage1_emit_program_json_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return lowering_plan_extern_call_view_is_valid_with(
-            view,
+        static const struct MirCallExternEmitRule rule = {
             "extern.stage1.emit_program_json_v0",
             "Stage1EmitProgramJson",
             "extern.stage1.emit_program_json_v0",
             "nyash.stage1.emit_program_json_v0_h",
             "string_handle",
-            "runtime_i64_or_handle");
+            "runtime_i64_or_handle",
+            1,
+            0,
+            0,
+            1,
+            "mir_call_stage1_emit_program_json_emit",
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
+        };
+        return lowering_plan_extern_emit_rule_matches(view, &rule);
       }
 
       auto int lowering_plan_stage1_emit_mir_from_source_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return lowering_plan_extern_call_view_is_valid_with(
-            view,
+        static const struct MirCallExternEmitRule rule = {
             "extern.stage1.emit_mir_from_source_v0",
             "Stage1EmitMirFromSource",
             "extern.stage1.emit_mir_from_source_v0",
             "nyash.stage1.emit_mir_from_source_v0_h",
             "string_handle",
-            "runtime_i64_or_handle");
+            "runtime_i64_or_handle",
+            1,
+            0,
+            0,
+            1,
+            "mir_call_stage1_emit_mir_from_source_emit",
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
+        };
+        return lowering_plan_extern_emit_rule_matches(view, &rule);
       }
 
       auto int lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(
           const struct LoweringPlanExternCallView* view) {
-        return lowering_plan_extern_call_view_is_valid_with(
-            view,
+        static const struct MirCallExternEmitRule rule = {
             "extern.stage1.emit_mir_from_program_json_v0",
             "Stage1EmitMirFromProgramJson",
             "extern.stage1.emit_mir_from_program_json_v0",
             "nyash.stage1.emit_mir_from_program_json_v0_h",
             "string_handle",
-            "runtime_i64_or_handle");
+            "runtime_i64_or_handle",
+            1,
+            0,
+            0,
+            1,
+            "mir_call_stage1_emit_mir_from_program_json_emit",
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL,
+        };
+        return lowering_plan_extern_emit_rule_matches(view, &rule);
       }
 
       auto int emit_extern_call_lowering_plan_mir_call(
@@ -292,17 +483,22 @@
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         const char* source = entry ? read_str(entry, "source") : NULL;
         struct LoweringPlanExternCallView view;
+        const struct MirCallExternEmitRule* rule = NULL;
         long long arity = 0;
         long long key_value = 0;
         long long value_value = 0;
         long long result_value = 0;
-        long long actual_key = 0;
         long long actual_value = 0;
+        long long actual_args[4] = {0, 0, 0, 0};
+        size_t argc = 0;
+        size_t ai = 0;
         char ab[160];
 
         if (!entry) return 0;
         if (!(source && !strcmp(source, "extern_call_routes"))) return 0;
         if (!read_lowering_plan_extern_call_view(entry, &view)) return -1;
+        rule = find_mir_call_extern_emit_rule(&view);
+        if (!rule) return -1;
         if (!lowering_plan_read_i64_field(entry, "key_value", &key_value)) {
           return -1;
         }
@@ -310,141 +506,62 @@
             result_value != dst) {
           return -1;
         }
-        if (lowering_plan_env_get_view_is_valid(&view)) {
-          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 1) {
-            return -1;
-          }
-          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 1) {
-            return -1;
-          }
-          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-          if (actual_key != key_value) {
-            return -1;
-          }
-
-          ab[0] = '\0';
-          append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
-          fprintf(f, "  %%r%lld = call i64 @\"nyash.env.get\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          trace_lowering_plan_entry_hit(entry, "mir_call_extern_emit");
-          return 1;
+        if (!lowering_plan_read_i64_field(entry, "arity", &arity) ||
+            arity != rule->arity ||
+            arity < 0 ||
+            arity > (long long)ARR_LEN(actual_args)) {
+          return -1;
         }
-        if (lowering_plan_env_set_view_is_valid(&view)) {
-          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 2) {
-            return -1;
-          }
+        if (!(args && yyjson_is_arr(args))) {
+          return -1;
+        }
+        argc = yyjson_arr_size(args);
+        if ((long long)argc != arity) {
+          return -1;
+        }
+        for (ai = 0; ai < argc; ai++) {
+          yyjson_val* arg = yyjson_arr_get(args, ai);
+          if (!(arg && yyjson_is_num(arg))) return -1;
+          actual_args[ai] = (long long)yyjson_get_sint(arg);
+        }
+        if (actual_args[0] != key_value) {
+          return -1;
+        }
+        if (rule->read_value_value) {
           if (!lowering_plan_read_i64_field(entry, "value_value", &value_value)) {
             return -1;
           }
-          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 2) {
+          actual_value = actual_args[argc - 1];
+          if (actual_value != value_value) {
             return -1;
           }
-          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-          actual_value = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
-          if (actual_key != key_value || actual_value != value_value) {
-            return -1;
-          }
-
-          ab[0] = '\0';
-          append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
-          append_i64_arg_ref(ab, sizeof(ab), value_value, 0);
-          fprintf(f, "  %%r%lld = call i64 @\"nyash.env.set\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-          trace_lowering_plan_entry_hit(entry, "mir_call_extern_emit");
-          return 1;
         }
-        if (lowering_plan_hostbridge_extern_invoke_view_is_valid(&view)) {
-          long long actual_method = 0;
-          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 3) {
-            return -1;
-          }
-          if (!lowering_plan_read_i64_field(entry, "value_value", &value_value)) {
-            return -1;
-          }
-          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 3) {
-            return -1;
-          }
-          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-          actual_method = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
-          actual_value = (long long)yyjson_get_sint(yyjson_arr_get(args, 2));
-          if (actual_key != key_value || !actual_method || actual_value != value_value) {
-            return -1;
-          }
-
+        if (rule->require_nonzero_method_arg && (!actual_args[1])) {
+          return -1;
+        }
+        if (rule->behavior == HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_TRAP_SENTINEL) {
           fprintf(f, "  call void @llvm.trap()\n");
           if (dst) {
             fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
             set_type(dst, T_I64);
-            set_origin(dst, ORG_STRING);
-            set_scan_origin(dst, ORG_STRING);
+            if (rule->set_string_origin) {
+              set_origin(dst, ORG_STRING);
+              set_scan_origin(dst, ORG_STRING);
+            }
           }
-          trace_lowering_plan_entry_hit(entry, "mir_call_hostbridge_extern_invoke_trap_emit");
+          trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
           return 1;
         }
-        if (lowering_plan_stage1_emit_program_json_view_is_valid(&view)) {
-          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 1) {
-            return -1;
-          }
-          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 1) {
-            return -1;
-          }
-          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-          if (actual_key != key_value) {
-            return -1;
-          }
-
-          ab[0] = '\0';
-          append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
-          fprintf(f, "  %%r%lld = call i64 @\"nyash.stage1.emit_program_json_v0_h\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
+        ab[0] = '\0';
+        for (ai = 0; ai < argc; ai++) {
+          append_i64_arg_ref(ab, sizeof(ab), actual_args[ai], ai == 0);
+        }
+        fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, rule->symbol, ab);
+        set_type(dst, T_I64);
+        if (rule->set_string_origin) {
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
-          trace_lowering_plan_entry_hit(entry, "mir_call_stage1_emit_program_json_emit");
-          return 1;
         }
-        if (lowering_plan_stage1_emit_mir_from_source_view_is_valid(&view)) {
-          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 1) {
-            return -1;
-          }
-          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 1) {
-            return -1;
-          }
-          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-          if (actual_key != key_value) {
-            return -1;
-          }
-
-          ab[0] = '\0';
-          append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
-          fprintf(f, "  %%r%lld = call i64 @\"nyash.stage1.emit_mir_from_source_v0_h\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          trace_lowering_plan_entry_hit(entry, "mir_call_stage1_emit_mir_from_source_emit");
-          return 1;
-        }
-        if (lowering_plan_stage1_emit_mir_from_program_json_view_is_valid(&view)) {
-          if (!lowering_plan_read_i64_field(entry, "arity", &arity) || arity != 1) {
-            return -1;
-          }
-          if (!(args && yyjson_is_arr(args)) || yyjson_arr_size(args) != 1) {
-            return -1;
-          }
-          actual_key = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-          if (actual_key != key_value) {
-            return -1;
-          }
-
-          ab[0] = '\0';
-          append_i64_arg_ref(ab, sizeof(ab), key_value, 1);
-          fprintf(f, "  %%r%lld = call i64 @\"nyash.stage1.emit_mir_from_program_json_v0_h\"(%s)\n", dst, ab);
-          set_type(dst, T_I64);
-          set_origin(dst, ORG_STRING);
-          set_scan_origin(dst, ORG_STRING);
-          trace_lowering_plan_entry_hit(entry, "mir_call_stage1_emit_mir_from_program_json_emit");
-          return 1;
-        }
-        return -1;
+        trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
+        return 1;
       }

@@ -104,6 +104,8 @@ Current partitions:
   - current executable `mir_call` prepass need-policy consumer; keep native
     until a generated producer or typed LoweringPlan feeds declaration /
     stable-object / publish / invalidation need flags
+  - current shape is table-driven; add rule rows or shared match helpers instead
+    of reopening local by-name ladders
 - `hako_llvmc_ffi_mir_call_surface_policy.inc`
   - current executable `mir_call` surface-policy consumer; keep native until a
     generated producer or typed LoweringPlan feeds constructor / global /
@@ -148,6 +150,8 @@ Current partitions:
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_mir_call_shell.inc`
   - shared `mir_call` emit-shell helpers for constructor/global/string-extern lowering
+  - constructor/global/extern emit validation is now table-driven; the next
+    structural move is the uniform MIR emitter, not another branch ladder
 - `hako_llvmc_ffi_indexof_observer_trace.inc`
   - route-trace wrappers for `indexOf` observer families
 - `hako_llvmc_ffi_route.inc`
