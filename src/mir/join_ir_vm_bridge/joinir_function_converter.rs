@@ -76,6 +76,7 @@ impl JoinIrFunctionConverter {
     ///
     /// JoinIR Frontend AST loweringで検出したif-in-loop修正変数を
     /// JoinModule metadataに格納し、MIR loweringで読み取る。
+    #[cfg(test)]
     pub(crate) fn convert_function(
         join_func: &JoinFunction,
     ) -> Result<MirFunction, JoinIrVmBridgeError> {

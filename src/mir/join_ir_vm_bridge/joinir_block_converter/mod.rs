@@ -32,6 +32,7 @@ pub struct JoinIrBlockConverter {
 }
 
 impl JoinIrBlockConverter {
+    #[cfg(test)]
     pub fn new() -> Self {
         Self {
             current_block_id: BasicBlockId(0), // entry block

@@ -10,13 +10,29 @@
       const char* emitted_same_module_function_symbols[1024];
       size_t emitted_same_module_function_symbols_n = 0;
 
-      auto int remember_planned_same_module_function_symbol(const char* name) {
+      auto int same_module_function_symbol_registry_contains(
+          const char* const* symbols,
+          size_t symbol_count,
+          const char* name) {
         if (!name) return 0;
-        for (size_t i = 0; i < planned_same_module_function_symbols_n; i++) {
-          if (!strcmp(planned_same_module_function_symbols[i], name)) return 1;
+        for (size_t i = 0; i < symbol_count; i++) {
+          if (!strcmp(symbols[i], name)) return 1;
         }
-        if (planned_same_module_function_symbols_n >=
-            ARR_LEN(planned_same_module_function_symbols)) {
+        return 0;
+      }
+
+      auto int remember_same_module_function_symbol_in_registry(
+          const char** symbols,
+          size_t* symbol_count,
+          size_t symbol_capacity,
+          const char* name) {
+        if (same_module_function_symbol_registry_contains(
+                symbols,
+                symbol_count ? *symbol_count : 0,
+                name)) {
+          return 1;
+        }
+        if (!symbol_count || *symbol_count >= symbol_capacity) {
           note_pure_unsupported_shape_detail(
               -1,
               0,
@@ -28,49 +44,47 @@
               NULL);
           return 0;
         }
-        planned_same_module_function_symbols[
-            planned_same_module_function_symbols_n] = name;
-        planned_same_module_function_symbols_n++;
+        symbols[*symbol_count] = name;
+        (*symbol_count)++;
+        return 1;
+      }
+
+      auto int remember_planned_same_module_function_symbol(const char* name) {
+        if (!name) return 0;
+        if (!remember_same_module_function_symbol_in_registry(
+                planned_same_module_function_symbols,
+                &planned_same_module_function_symbols_n,
+                ARR_LEN(planned_same_module_function_symbols),
+                name)) {
+          return 0;
+        }
         return 1;
       }
 
       auto int same_module_function_symbol_will_be_defined(const char* name) {
-        if (!name) return 0;
-        for (size_t i = 0; i < planned_same_module_function_symbols_n; i++) {
-          if (!strcmp(planned_same_module_function_symbols[i], name)) return 1;
-        }
-        return 0;
+        return same_module_function_symbol_registry_contains(
+            planned_same_module_function_symbols,
+            planned_same_module_function_symbols_n,
+            name);
       }
 
       auto int remember_emitted_same_module_function_symbol(const char* name) {
         if (!name) return 0;
-        for (size_t i = 0; i < emitted_same_module_function_symbols_n; i++) {
-          if (!strcmp(emitted_same_module_function_symbols[i], name)) return 1;
-        }
-        if (emitted_same_module_function_symbols_n >=
-            ARR_LEN(emitted_same_module_function_symbols)) {
-          note_pure_unsupported_shape_detail(
-              -1,
-              0,
-              "module_function",
-              "same_module_function_registry_full",
-              NULL,
-              NULL,
-              name,
-              NULL);
+        if (!remember_same_module_function_symbol_in_registry(
+                emitted_same_module_function_symbols,
+                &emitted_same_module_function_symbols_n,
+                ARR_LEN(emitted_same_module_function_symbols),
+                name)) {
           return 0;
         }
-        emitted_same_module_function_symbols[
-            emitted_same_module_function_symbols_n++] = name;
         return 1;
       }
 
       auto int same_module_function_symbol_was_emitted(const char* name) {
-        if (!name) return 0;
-        for (size_t i = 0; i < emitted_same_module_function_symbols_n; i++) {
-          if (!strcmp(emitted_same_module_function_symbols[i], name)) return 1;
-        }
-        return 0;
+        return same_module_function_symbol_registry_contains(
+            emitted_same_module_function_symbols,
+            emitted_same_module_function_symbols_n,
+            name);
       }
 
       auto int module_has_planned_same_module_function_definition(void) {

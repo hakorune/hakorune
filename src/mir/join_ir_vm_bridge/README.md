@@ -17,6 +17,15 @@ File layout:
 - `meta.rs`: experimental metadata-aware conversion hooks
 - `tests.rs`: bridge-specific unit tests (kept local to avoid cross-layer leakage)
 
+## Old top-level handler lane
+
+- Active normal-build owner: `joinir_block_converter/handlers.rs`
+- Legacy top-level lane: `handlers/**`, `block_finalizer.rs`,
+  `merge_variable_handler.rs`, `terminator_builder.rs`
+- Decision: keep the legacy lane available for unit coverage only and compile it
+  behind `#[cfg(test)]` until a dedicated retire/delete slice proves no tests or
+  docs still need it.
+
 ## P5 Crate Split Prep
 
 `join_ir_vm_bridge/` is a future `hakorune-mir-joinir` candidate, but it is not being

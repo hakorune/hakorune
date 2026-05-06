@@ -67,6 +67,7 @@ impl LoopVarClass {
 #[derive(Debug, Clone)]
 pub(crate) struct LoopScopeShape {
     pub header: BasicBlockId,
+    #[allow(dead_code)] // Structural vocabulary hold: builder owns the body slot even while current release routing only reads header/latch/exit.
     pub body: BasicBlockId,
     pub latch: BasicBlockId,
     pub exit: BasicBlockId,

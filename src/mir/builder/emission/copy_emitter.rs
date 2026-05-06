@@ -8,10 +8,15 @@ use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId}
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum CopyEmitReason {
+    #[cfg(test)]
     JoinIrBridgeConditionalMethodCall,
+    #[cfg(test)]
     JoinIrBridgeIfMergeThen,
+    #[cfg(test)]
     JoinIrBridgeIfMergeElse,
+    #[cfg(test)]
     JoinIrBridgeNestedIfMergeThen,
+    #[cfg(test)]
     JoinIrBridgeNestedIfMergeElse,
     JoinIrBridgeJoinirBlockConverterConditionalMethodCall,
     JoinIrMergeRewriterTailCallParamsContinuation,
@@ -43,12 +48,17 @@ impl CopyEmitReason {
     #[inline]
     pub const fn as_str(self) -> &'static str {
         match self {
+            #[cfg(test)]
             CopyEmitReason::JoinIrBridgeConditionalMethodCall => {
                 "joinir_bridge/conditional_method_call"
             }
+            #[cfg(test)]
             CopyEmitReason::JoinIrBridgeIfMergeThen => "joinir_bridge/if_merge/then",
+            #[cfg(test)]
             CopyEmitReason::JoinIrBridgeIfMergeElse => "joinir_bridge/if_merge/else",
+            #[cfg(test)]
             CopyEmitReason::JoinIrBridgeNestedIfMergeThen => "joinir_bridge/nested_if_merge/then",
+            #[cfg(test)]
             CopyEmitReason::JoinIrBridgeNestedIfMergeElse => "joinir_bridge/nested_if_merge/else",
             CopyEmitReason::JoinIrBridgeJoinirBlockConverterConditionalMethodCall => {
                 "joinir_bridge/joinir_block_converter:conditional_method_call"
