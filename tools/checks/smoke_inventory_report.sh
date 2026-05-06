@@ -24,6 +24,8 @@ LABEL="${SMOKE_INVENTORY_LABEL:-$LABEL_DEFAULT}"
 
 REPORT_TSV="$OUT_DIR/${LABEL}_inventory.tsv"
 SUMMARY_TXT="$OUT_DIR/${LABEL}_summary.txt"
+FAMILY_COLUMN=2
+CLASS_COLUMN=9
 
 if [[ ! -d "$TARGET_DIR" ]]; then
   echo "[FAIL] missing inventory directory: $TARGET_DIR" >&2
@@ -190,8 +192,8 @@ fi
 
 total="$(wc -l < "$REPORT_TSV")"
 data_rows="$(( total - 1 ))"
-orphans="$(awk -F'\t' 'NR>1 && ($7=="orphan_candidate" || $7=="orphan_wrapper_candidate"){c++} END{print c+0}' "$REPORT_TSV")"
-orphan_wrappers="$(awk -F'\t' 'NR>1 && $7=="orphan_wrapper_candidate"{c++} END{print c+0}' "$REPORT_TSV")"
+orphans="$(awk -F'\t' -v class_col="$CLASS_COLUMN" 'NR>1 && ($class_col=="orphan_candidate" || $class_col=="orphan_wrapper_candidate"){c++} END{print c+0}' "$REPORT_TSV")"
+orphan_wrappers="$(awk -F'\t' -v class_col="$CLASS_COLUMN" 'NR>1 && $class_col=="orphan_wrapper_candidate"{c++} END{print c+0}' "$REPORT_TSV")"
 referenced="$(( data_rows - orphans ))"
 
 {
@@ -211,13 +213,13 @@ referenced="$(( data_rows - orphans ))"
   echo
   # `head` intentionally truncates the sorted stream; ignore the expected SIGPIPE under pipefail.
   echo "Top families:"
-  awk -F'\t' 'NR>1{c[$2]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20 || true
+  awk -F'\t' -v family_col="$FAMILY_COLUMN" 'NR>1{c[$family_col]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20 || true
   echo
   echo "Top orphan candidate families:"
-  awk -F'\t' 'NR>1 && ($7=="orphan_candidate" || $7=="orphan_wrapper_candidate"){c[$2]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20 || true
+  awk -F'\t' -v family_col="$FAMILY_COLUMN" -v class_col="$CLASS_COLUMN" 'NR>1 && ($class_col=="orphan_candidate" || $class_col=="orphan_wrapper_candidate"){c[$family_col]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20 || true
   echo
   echo "Top orphan wrapper candidate families:"
-  awk -F'\t' 'NR>1 && $7=="orphan_wrapper_candidate"{c[$2]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20 || true
+  awk -F'\t' -v family_col="$FAMILY_COLUMN" -v class_col="$CLASS_COLUMN" 'NR>1 && $class_col=="orphan_wrapper_candidate"{c[$family_col]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20 || true
 
   if [[ -n "$PROFILE_NAME" ]]; then
   echo
