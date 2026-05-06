@@ -1,7 +1,7 @@
 # P381FN Concrete Blocker Order
 
-Date: 2026-05-06 (refreshed post-P381GD)
-Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing/post-pattern-util/post-box-type-inspector/post-smoke-inventory/tooling blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB/P381GC/P381GD.
+Date: 2026-05-06 (refreshed post-P381GE)
+Scope: lock the concrete post-wrapper/post-imports/post-enum/post-defs/post-parser-boundary/post-sentinel-plumbing/post-pattern-util/post-box-type-inspector/post-smoke-inventory/tooling/candidate blocker order after P381FK/P381FL/P381FM/P381FO/P381FP/P381FQ/P381FR/P381FS/P381FT/P381FU/P381FV/P381FW/P381FX/P381FY/P381FZ/P381GA/P381GB/P381GC/P381GD/P381GE.
 
 ## Read
 
@@ -26,6 +26,7 @@ The public wrapper collapses are complete through:
 - `P381GB-BOX-TYPE-INSPECTOR-CONTRACT-HELPER`
 - `P381GC-SMOKE-ARCHIVE-INVENTORY-LOCK`
 - `P381GD-SMOKE-INVENTORY-REPORT-CLASS-COLUMN`
+- `P381GE-SMOKE-ARCHIVE-FIRST-CANDIDATE-LIST`
 
 All intermediate wrapper methods in BuildBox and BuildProgramFragmentBox have been
 collapsed. The imports injection path also no longer depends on parser-private
@@ -51,6 +52,7 @@ T6 smoke/archive bucket counts are fixed, and broad directory deletion is
 blocked until per-script candidates are proven.
 The smoke inventory report summary now reads the TSV `class` column instead of
 `suite_hit_count`.
+The first deletion candidate wave is fixed to 45 zero-ref v2 archive scripts.
 
 ## Current Blocker Order
 
@@ -74,12 +76,12 @@ enrichment wrapper or promote parser-private ownership.
 
 Current preferred order:
 
-1. T6 per-script delete-candidate list
+1. T6 delete zero-ref v2 archive candidate wave
 
 This keeps the lane on wrapper/owner cleanup and avoids promoting
 parser-private semantics into Stage0 without an explicit parser-owner card.
 
-## Result (post-P381GD)
+## Result (post-P381GE)
 
 `CURRENT_TASK.md` and the phase inventory should read the lane as:
 
@@ -99,10 +101,11 @@ parser-private semantics into Stage0 without an explicit parser-owner card.
 - T6 smoke/archive bucket inventory: complete enough to ban broad directory
   deletion (P381GC landed)
 - smoke inventory report class-column fix: complete (P381GD landed)
+- first zero-ref v2 archive candidate list: complete (P381GE landed)
 - parser-private contract discussion: no longer blocked by enrichment-side
   wrappers
-- current cleanup blocker: T6 per-script delete-candidate list
+- current cleanup blocker: T6 delete zero-ref v2 archive candidate wave
 
-The next slice is per-script delete candidate classification, not wrapper
-structure, not parser-private ownership, and not another Stage0 body-shape
-expansion.
+The next slice is deleting only the listed zero-ref v2 archive scripts, not
+wrapper structure, not parser-private ownership, and not another Stage0
+body-shape expansion.

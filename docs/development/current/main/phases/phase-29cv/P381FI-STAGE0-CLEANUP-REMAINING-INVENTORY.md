@@ -5,7 +5,7 @@ Scope: inventory the remaining work after P381FY so the lane can be read as "wha
 
 ## Read
 
-After P381FD through P381GD, the lane is no longer blocked by:
+After P381FD through P381GE, the lane is no longer blocked by:
 
 - raw BuildBox matcher growth
 - parser-proof denylist cleanup
@@ -30,6 +30,8 @@ After P381FD through P381GD, the lane is no longer blocked by:
   bucket counts and proves broad directory deletion is not allowed
 - smoke inventory summary class-column drift; P381GD makes summary orphan counts
   read the TSV `class` column
+- unclassified T6 delete candidates; P381GE fixes the first zero-ref v2 archive
+  candidate wave
 
 The remaining work is small in count but not all the same kind:
 
@@ -46,7 +48,7 @@ late cleanup phase
 
 ## Remaining Must-Fix Slices
 
-### 1. T6 per-script delete-candidate list before surface reduction
+### 1. T6 zero-ref v2 archive deletion wave
 
 SSOT:
 
@@ -58,10 +60,12 @@ SSOT:
 
 - `docs/development/current/main/phases/phase-29cv/P381GD-SMOKE-INVENTORY-REPORT-CLASS-COLUMN.md`
 
+- `docs/development/current/main/phases/phase-29cv/P381GE-SMOKE-ARCHIVE-FIRST-CANDIDATE-LIST.md`
+
 The large smoke/dev surface should not be reduced by feel. P381GC fixed the
 bucket inventory and showed that each target directory is mixed. P381GD fixed
-the report summary column drift. Before a meaningful archive/delete wave, the
-lane needs a per-script candidate list that applies the P381GC first-wave rule.
+the report summary column drift. P381GE fixed the first candidate list to 45
+zero-ref v2 archive scripts. Delete only that wave next.
 
 ## Optional Polish
 
@@ -87,20 +91,20 @@ That is close enough to call the lane late-stage, but not close enough to say
 
 ## Ordered Next Checklist
 
-1. rerun inventory on the five T6 buckets and produce a per-script candidate
-   list before deletion
+1. delete only the 45 P381GE zero-ref v2 archive candidates
 
 ## Concrete Near-Term Order
 
 `P381FN-CONCRETE-BLOCKER-ORDER.md` is the near-term ordering SSOT.
 
-Post-P381GD status: wrapper/enrichment cleanup is complete on the public
+Post-P381GE status: wrapper/enrichment cleanup is complete on the public
 BuildBox Program(JSON v0) path, parser Program(JSON) is diagnostics-only, the
 remaining T5 owner/body cleanup is closed, and T6 smoke/archive inventory is
 locked as a mixed protected/referenced surface with corrected report summary
-counts. The remaining concrete cleanup order is:
+counts plus a first zero-ref candidate list. The remaining concrete cleanup
+order is:
 
-1. T6 per-script delete-candidate list
+1. T6 zero-ref v2 archive deletion wave
 
 ## Result
 
