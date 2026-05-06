@@ -5,7 +5,7 @@ Scope: inventory the remaining work after P381FY so the lane can be read as "wha
 
 ## Read
 
-After P381FD through P381GG, the lane is no longer blocked by:
+After P381FD through P381GH, the lane is no longer blocked by:
 
 - raw BuildBox matcher growth
 - parser-proof denylist cleanup
@@ -36,6 +36,8 @@ After P381FD through P381GG, the lane is no longer blocked by:
   candidates
 - legacy root-smoke lifecycle classification; P381GG classifies the four
   zero-ref legacy root scripts as delete candidates
+- legacy root-smoke zero-ref deletion; P381GH deletes exactly the four P381GG
+  candidates
 
 The remaining work is small in count but not all the same kind:
 
@@ -52,7 +54,7 @@ late cleanup phase
 
 ## Remaining Must-Fix Slices
 
-### 1. T6 legacy root-smoke zero-ref deletion
+### 1. T6 referenced smoke holds closeout
 
 SSOT:
 
@@ -70,12 +72,14 @@ SSOT:
 
 - `docs/development/current/main/phases/phase-29cv/P381GG-LEGACY-ROOT-SMOKE-LIFECYCLE.md`
 
+- `docs/development/current/main/phases/phase-29cv/P381GH-LEGACY-ROOT-SMOKE-DELETE.md`
+
 The large smoke/dev surface should not be reduced by feel. P381GC fixed the
 bucket inventory and showed that each target directory is mixed. P381GD fixed
 the report summary column drift. P381GE fixed the first candidate list to 45
 zero-ref v2 archive scripts, and P381GF deletes only that wave. The remaining
-clear follow-up is the held legacy root-smoke zero-ref group, now classified by
-P381GG.
+legacy root-smoke zero-ref group is classified by P381GG and deleted by P381GH.
+The remaining smoke surface needs hold closeout, not directory deletion.
 
 ## Optional Polish
 
@@ -101,20 +105,20 @@ That is close enough to call the lane late-stage, but not close enough to say
 
 ## Ordered Next Checklist
 
-1. delete the four P381GG legacy root-smoke candidates
+1. close out remaining referenced smoke holds
 
 ## Concrete Near-Term Order
 
 `P381FN-CONCRETE-BLOCKER-ORDER.md` is the near-term ordering SSOT.
 
-Post-P381GG status: wrapper/enrichment cleanup is complete on the public
+Post-P381GH status: wrapper/enrichment cleanup is complete on the public
 BuildBox Program(JSON v0) path, parser Program(JSON) is diagnostics-only, the
 remaining T5 owner/body cleanup is closed, and T6 smoke/archive inventory is
 locked as a mixed protected/referenced surface with corrected report summary
 counts plus a landed first zero-ref v2 delete wave and legacy root-smoke
-candidate classification. The remaining concrete cleanup order is:
+zero-ref deletion. The remaining concrete cleanup order is:
 
-1. T6 legacy root-smoke zero-ref deletion
+1. T6 referenced smoke holds closeout
 
 ## Result
 
