@@ -35,6 +35,7 @@ list_profiles() {
   quick:
     - tools/checks/current_state_pointer_guard.sh
     - tools/checks/stage0_shape_inventory_guard.sh
+    - tools/checks/stage1_emit_program_json_runtime_helper_guard.sh
     - tools/checks/program_json_dev_surface_guard.sh
     - tools/checks/program_json_v0_compat_caller_guard.sh
     - tools/checks/program_json_mir_bridge_caller_guard.sh
@@ -215,6 +216,9 @@ run_quick() {
 
   run_step "Stage0 shape inventory guard" \
     bash tools/checks/stage0_shape_inventory_guard.sh
+
+  run_step "Stage1 emit-program runtime-helper guard" \
+    bash tools/checks/stage1_emit_program_json_runtime_helper_guard.sh
 
   run_step "Program(JSON) dev surface guard" \
     bash tools/checks/program_json_dev_surface_guard.sh
