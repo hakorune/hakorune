@@ -1906,22 +1906,57 @@
                out->metadata;
       }
 
+      struct SameModuleFunctionDefinitionTarget {
+        yyjson_val* fn;
+        size_t fn_index;
+      };
+
+      auto int same_module_function_find_planned_definition(
+          const char* name,
+          struct SameModuleFunctionDefinitionTarget* out) {
+        yyjson_val* fn = NULL;
+        size_t fn_index = 0;
+        if (!out) return 0;
+        out->fn = NULL;
+        out->fn_index = 0;
+        fn = same_module_function_find_with_index(name, &fn_index);
+        if (!fn || fn == program.entry.fn) return 0;
+        out->fn = fn;
+        out->fn_index = fn_index;
+        return 1;
+      }
+
+      auto int same_module_function_prepare_definition(
+          yyjson_val* fn,
+          size_t fn_index,
+          const char** out_name,
+          hako_llvmc_generic_pure_function_view* out_function) {
+        const char* name = fn ? read_str(fn, "name") : NULL;
+        if (!same_module_function_definition_is_eligible(fn, name)) {
+          return 0;
+        }
+        if (!same_module_function_read_view(fn, fn_index, out_function)) {
+          return -1;
+        }
+        if (out_name) *out_name = name;
+        return 1;
+      }
+
       auto int emit_same_module_function_definition(
           FILE* f,
           yyjson_val* fn,
           size_t fn_index) {
         struct SameModuleFunctionContextSnapshot saved_context;
         hako_llvmc_generic_pure_function_view local_function;
-        const char* name = fn ? read_str(fn, "name") : NULL;
+        const char* name = NULL;
         int rc = -1;
-        if (!same_module_function_definition_is_eligible(fn, name)) {
-          return 0;
-        }
-        if (!same_module_function_read_view(
-                fn,
-                fn_index,
-                &local_function)) {
-          return -1;
+        rc = same_module_function_prepare_definition(
+            fn,
+            fn_index,
+            &name,
+            &local_function);
+        if (rc <= 0) {
+          return rc;
         }
 
         same_module_function_save_function_context(&saved_context);
@@ -1941,13 +1976,13 @@
           FILE* f,
           const char* name,
           int* emitted) {
-        size_t fn_index = 0;
-        yyjson_val* fn = NULL;
+        struct SameModuleFunctionDefinitionTarget target;
         int rc = 0;
-        if (!same_module_function_find_index(name, &fn_index)) return 1;
-        fn = yyjson_arr_get(program.functions, fn_index);
-        if (!fn || fn == program.entry.fn) return 1;
-        rc = emit_same_module_function_definition(f, fn, fn_index);
+        if (!same_module_function_find_planned_definition(name, &target)) return 1;
+        rc = emit_same_module_function_definition(
+            f,
+            target.fn,
+            target.fn_index);
         if (rc < 0) return -1;
         if (rc > 0 && emitted) (*emitted)++;
         return 1;
