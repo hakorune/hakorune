@@ -538,6 +538,11 @@ Generic-method symbolic route validation cleanup landed in
 MIR-call need classification now consumes the LoweringPlan-owned predicate for
 route tuple plus symbol/proof validation.
 
+Generic-method need-rule naming cleanup landed in
+`docs/development/current/main/phases/phase-29cv/P381EZ-GENERIC-METHOD-NEED-RULE-NAMES.md`:
+the generic-method LoweringPlan need table and classifier names now carry their
+explicit owner instead of using broad `LoweringPlanNeedRule` names.
+
 Primary remaining targets:
 
 - `hako_llvmc_ffi_mir_call_need_policy.inc`

@@ -309,7 +309,7 @@
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 
-      struct LoweringPlanNeedRule {
+      struct LoweringPlanGenericMethodNeedRule {
         const char* route_id;
         const char* core_op;
         const char* route_kind;
@@ -319,9 +319,9 @@
         enum MirCallNeedKind need_kind;
       };
 
-      auto int lowering_plan_need_rule_matches(
+      auto int lowering_plan_generic_method_need_rule_matches(
           const struct LoweringPlanGenericMethodView* view,
-          const struct LoweringPlanNeedRule* rule) {
+          const struct LoweringPlanGenericMethodNeedRule* rule) {
         if (!(view && rule)) return 0;
         return lowering_plan_generic_method_view_matches_symbolic_route(
             view,
@@ -334,8 +334,8 @@
       }
 
       auto enum MirCallNeedKind
-      mir_call_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
-        static const struct LoweringPlanNeedRule rules[] = {
+      mir_call_generic_method_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
+        static const struct LoweringPlanGenericMethodNeedRule rules[] = {
           {
             "generic_method.has",
             "MapHas",
@@ -496,7 +496,7 @@
           return HAKO_LLVMC_MIR_CALL_NEED_NONE;
         }
         for (ri = 0; ri < ARR_LEN(rules); ri++) {
-          if (lowering_plan_need_rule_matches(&view, &rules[ri])) {
+          if (lowering_plan_generic_method_need_rule_matches(&view, &rules[ri])) {
             return rules[ri].need_kind;
           }
         }
@@ -513,7 +513,7 @@
         if (!fn_metadata) return HAKO_LLVMC_MIR_CALL_NEED_NONE;
         if (plan_entry) {
           enum MirCallNeedKind plan_need =
-              mir_call_need_kind_from_lowering_plan_entry(plan_entry);
+              mir_call_generic_method_need_kind_from_lowering_plan_entry(plan_entry);
           if (plan_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
             trace_lowering_plan_entry_hit(plan_entry, "mir_call_need");
             return plan_need;

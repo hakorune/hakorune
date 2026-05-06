@@ -254,6 +254,8 @@ Completed focused probe:
     `MirCallNeedFlags`, removing the old generic-pure owner name
   - P381EY moved generic-method route tuple plus symbol/proof validation into
     the LoweringPlan metadata view for MIR-call need classification
+  - P381EZ renamed generic-method LoweringPlan need-rule helpers to carry their
+    explicit owner name
   - capsule proof strings remain as MIR-owned route-contract serialization;
     Stage0 now consumes them through shared metadata validation instead of
     per-proof reader functions
