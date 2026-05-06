@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-29cv Program(JSON v0) keeper closeout`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv optional polish after T6`
+- current blocker token: `phase-29cv targeted helper dedup if local seam is clear`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-29cv optional polish after T6`
+- current blocker token: `phase-29cv targeted helper dedup if local seam is clear`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,14 +59,8 @@ cargo check -q
 - parser Program(JSON) is closed as a diagnostics-only proof boundary; do not
   promote `ParserBox.parse_program2`, and keep live source-owner calls on
   `nyash.stage1.emit_program_json_v0_h`
-- generic string-or-void sentinel const publication is shared between same-
-  module prepass and emit handling; PatternUtil proof/return ownership is shared
-  inside its body module; BoxTypeInspector describe proof/return ownership is
-  shared inside its body module; T6 smoke/archive inventory is locked and the
-  inventory report class-column summary is fixed, and the first zero-ref v2
-  archive delete wave is landed, the legacy root-smoke zero-ref group is
-  deleted, and T6 referenced smoke holds are closed out; continue only optional
-  polish next
+- current mirrors are thinned; continue with targeted helper dedup only if a
+  local owner seam is clear, unless a real Stage0 expressivity blocker appears
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards
 - normalized-shadow / normalization cleanup burst is closed; larger findings

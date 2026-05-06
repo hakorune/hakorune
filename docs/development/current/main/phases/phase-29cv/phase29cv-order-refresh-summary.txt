@@ -44,6 +44,5 @@ No conflicts with code worker:
 - Code change is limited to same-module sentinel const helper extraction
 
 Next steps:
-- The remaining lane is optional polish after T6
-- Order now: doc compaction / mirror thinning, then targeted helper dedup only
-  when a local owner seam is clear
+- Current mirrors are thinned after P381GJ
+- Order now: targeted helper dedup only when a local owner seam is clear

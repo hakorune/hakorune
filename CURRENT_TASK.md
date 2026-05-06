@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `phase-29cv optional polish after T6`
+  `phase-29cv targeted helper dedup if local seam is clear`
 - primary mode: Program(JSON v0) keeper closeout lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -64,13 +64,9 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: the easy public capsule-collapse wins plus imports/enum/defs owner
-  cleanup are done; parser Program(JSON) is closed as a diagnostics-only
-  boundary, generic string-or-void sentinel plumbing is shared, T6
-  smoke/archive inventory is locked, the inventory report class-column summary
-  is fixed, the first zero-ref v2 archive delete wave is landed, and the
-  legacy root-smoke zero-ref group is deleted, and T6 referenced smoke holds
-  are closed out. Continue only optional polish next
+- next: current mirrors are thinned; continue with targeted helper dedup only
+  if a local owner seam is clear, unless a real Stage0 expressivity blocker
+  appears
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -87,10 +83,7 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/CURRENT_STATE.toml`
 - latest checkpoint: read `latest_card_path` in `CURRENT_STATE.toml`; detailed
   landed history lives in phase card files
-- next cleanup: Program(JSON v0) closeout continues through `phase-29cv`;
-  normal `selfhost_build.sh --exe` is direct MIR, while the remaining blocked
-  keeper capsules now need owner cleanup or the uniform MIR emitter before the
-  compat flag can disappear
+- next cleanup: targeted helper dedup only when a local owner seam is clear
 - parser boundary: do not promote `ParserBox.parse_program2`; live source-owner
   Program(JSON v0) calls route through `nyash.stage1.emit_program_json_v0_h`
 - normalized-shadow / normalization cleanup burst is closed; larger findings
