@@ -735,8 +735,10 @@
           return 1;
         }
         if (has_user_box_method_view &&
-            lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(
-                &user_box_method_view)) {
+            (lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(
+                 &user_box_method_view) ||
+             lowering_plan_user_box_method_view_is_direct_scalar_i64(
+                 &user_box_method_view))) {
           if (dst) set_type(dst, T_I64);
           return 1;
         }

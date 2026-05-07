@@ -298,10 +298,19 @@
         struct LoweringPlanUserBoxMethodView view;
         size_t argc = 0;
         char ab[2048];
+        int is_direct_void = 0;
+        int is_direct_scalar = 0;
         if (!entry) return 0;
         if (!(source && !strcmp(source, "user_box_method_routes"))) return 0;
         if (!read_lowering_plan_user_box_method_view(entry, &view)) return -1;
-        if (!lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(&view)) {
+        is_direct_void =
+            lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(&view);
+        is_direct_scalar =
+            lowering_plan_user_box_method_view_is_direct_scalar_i64(&view);
+        if (!is_direct_void && !is_direct_scalar) {
+          return 0;
+        }
+        if (is_direct_scalar && !dst) {
           return -1;
         }
         if (view.has_result_value) {

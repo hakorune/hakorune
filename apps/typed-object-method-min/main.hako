@@ -1,0 +1,27 @@
+// typed-object-method-min
+//
+// EXE typed-object instance method shape:
+// - `birth` initializes typed slots through same-module route
+// - `sum` lowers as a same-module user-box method call route
+// - method body reads typed slots and returns scalar i64
+
+box Pair {
+  left: IntegerBox
+  right: IntegerBox
+
+  birth(left, right) {
+    me.left = left
+    me.right = right
+  }
+
+  sum() {
+    return me.left + me.right
+  }
+}
+
+static box Main {
+  main() {
+    local pair = new Pair(10, 20)
+    return pair.sum()
+  }
+}

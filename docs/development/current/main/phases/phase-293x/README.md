@@ -38,9 +38,9 @@ tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --sk
 
 This is a blocker probe, not EXE parity. TypedObjectPlan now covers declared
 i64 fields, init-only untyped fields, handle storage, and observed empty user
-boxes. A conservative same-module `birth` route is available for the minimal
-typed-object fixture, but the real-app boundary still stops at the broader
-birth/method call route seam.
+boxes. Conservative same-module `birth` and scalar user-box method routes are
+available for the minimal typed-object fixtures, but the real-app boundary
+still stops at the broader birth/method call route seam.
 
 ## Current Status
 
@@ -62,6 +62,7 @@ birth/method call route seam.
   user-box allocation landed.
 - `293x-015`: typed user-box `birth` same-module EXE route landed for the
   conservative single-block body shape.
-- Next: expand pure-first route coverage for user-box instance method calls and
-  the next real-app `birth` body shapes; do not claim real-app EXE parity until
-  those call seams land.
+- `293x-016`: typed user-box scalar method same-module EXE route landed for the
+  conservative single-block body shape.
+- Next: expand pure-first route coverage for the next real-app method / `birth`
+  body shape; do not claim real-app EXE parity until those call seams land.

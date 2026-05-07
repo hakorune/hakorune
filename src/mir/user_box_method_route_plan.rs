@@ -65,7 +65,11 @@ impl UserBoxMethodRoute {
     }
 
     pub fn route_kind(&self) -> &'static str {
-        "user_box.birth"
+        if self.method == "birth" {
+            "user_box.birth"
+        } else {
+            "user_box.method"
+        }
     }
 
     pub fn lowering_tier(&self) -> LoweringPlanTier {
@@ -85,8 +89,10 @@ impl UserBoxMethodRoute {
     }
 
     pub fn proof(&self) -> &'static str {
-        if self.is_direct_abi_target() {
+        if self.is_direct_birth_target() {
             "typed_user_box_birth_same_module"
+        } else if self.is_direct_instance_method_target() {
+            "typed_user_box_method_same_module"
         } else {
             "typed_user_box_method_contract_missing"
         }
@@ -144,8 +150,13 @@ impl UserBoxMethodRoute {
     }
 
     pub fn return_shape(&self) -> Option<&'static str> {
-        self.is_direct_abi_target()
-            .then_some("void_sentinel_i64_zero")
+        if self.is_direct_birth_target() {
+            Some("void_sentinel_i64_zero")
+        } else if self.is_direct_instance_method_target() {
+            Some("scalar_i64")
+        } else {
+            None
+        }
     }
 
     pub fn value_demand(&self) -> &'static str {
@@ -169,8 +180,10 @@ impl UserBoxMethodRoute {
     }
 
     pub fn emit_trace_consumer(&self) -> &'static str {
-        if self.is_direct_abi_target() {
+        if self.is_direct_birth_target() {
             "mir_call_user_box_birth_same_module_emit"
+        } else if self.is_direct_instance_method_target() {
+            "mir_call_user_box_method_same_module_emit"
         } else {
             "mir_call_user_box_method_unknown_emit"
         }
@@ -190,21 +203,51 @@ impl UserBoxMethodRoute {
             return Some("user_box_method_arity_mismatch");
         }
         if !self.target_body_supported {
-            return Some("user_box_birth_body_unsupported");
+            if self.method == "birth" {
+                return Some("user_box_birth_body_unsupported");
+            }
+            return Some("user_box_method_body_unsupported");
+        }
+        if !self.return_type_supported() {
+            return Some("user_box_method_return_type_unsupported");
         }
         Some("user_box_method_contract_missing")
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {
-        &["call.user_box.birth"]
+        if self.method == "birth" {
+            &["call.user_box.birth"]
+        } else {
+            &["call.user_box.method"]
+        }
     }
 
     fn is_direct_abi_target(&self) -> bool {
+        self.is_direct_birth_target() || self.is_direct_instance_method_target()
+    }
+
+    fn has_direct_target_contract(&self) -> bool {
         self.type_id.is_some()
             && self.target_exists
             && self.arity_matches() == Some(true)
             && self.target_body_supported
+    }
+
+    fn is_direct_birth_target(&self) -> bool {
+        self.has_direct_target_contract()
             && self.method == "birth"
+            && matches!(self.target_return_type, Some(MirType::Void))
+    }
+
+    fn is_direct_instance_method_target(&self) -> bool {
+        self.has_direct_target_contract() && self.method != "birth" && self.return_type_supported()
+    }
+
+    fn return_type_supported(&self) -> bool {
+        matches!(
+            self.target_return_type,
+            Some(MirType::Integer | MirType::Bool)
+        )
     }
 }
 
@@ -270,9 +313,6 @@ fn refresh_function_user_box_method_routes_with_context(
             if *certainty != TypeCertainty::Known {
                 continue;
             }
-            if method != "birth" {
-                continue;
-            }
             if !user_box_names.contains(box_name) {
                 continue;
             }
@@ -314,10 +354,7 @@ fn collect_method_targets(
         .functions
         .iter()
         .filter_map(|(name, function)| {
-            let (box_name, method, arity) = parse_method_symbol(name)?;
-            if method != "birth" {
-                return None;
-            }
+            let (box_name, _method, arity) = parse_method_symbol(name)?;
             if !module.metadata.user_box_decls.contains_key(box_name)
                 && !module.metadata.user_box_field_decls.contains_key(box_name)
             {
@@ -533,5 +570,84 @@ mod tests {
         assert!(!route.target_body_supported());
         assert_eq!(route.reason(), Some("user_box_birth_body_unsupported"));
         assert_eq!(route.definition_owner(), "none");
+    }
+
+    #[test]
+    fn refresh_module_user_box_method_routes_accepts_scalar_instance_method_target() {
+        let mut module = MirModule::new("user_box_method_route_test".to_string());
+        module
+            .metadata
+            .user_box_decls
+            .insert("Pair".to_string(), vec!["left".to_string()]);
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Pair".to_string(),
+            type_id: 7,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+
+        let mut sum = MirFunction::new(
+            FunctionSignature {
+                name: "Pair.sum/0".to_string(),
+                params: vec![MirType::Box("Pair".to_string())],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        sum.params = vec![ValueId::new(0)];
+        let mut sum_block = BasicBlock::new(BasicBlockId::new(0));
+        sum_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(30),
+        });
+        sum_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        sum.add_block(sum_block);
+
+        let mut main = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "Pair".to_string(),
+                method: "sum".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        main.add_block(block);
+
+        module.add_function(sum);
+        module.add_function(main);
+
+        refresh_module_user_box_method_routes(&mut module);
+
+        let main = module.get_function("main").expect("main function");
+        let route = &main.metadata.user_box_method_routes[0];
+        assert_eq!(route.route_id(), "user_box.method_call");
+        assert_eq!(route.route_kind(), "user_box.method");
+        assert_eq!(route.proof(), "typed_user_box_method_same_module");
+        assert_eq!(route.target_symbol(), "Pair.sum/0");
+        assert_eq!(route.target_arity(), Some(1));
+        assert_eq!(route.arity_matches(), Some(true));
+        assert!(route.target_body_supported());
+        assert_eq!(route.return_shape(), Some("scalar_i64"));
+        assert_eq!(route.type_id(), Some(7));
+        assert_eq!(route.definition_owner(), "typed_object_method");
     }
 }

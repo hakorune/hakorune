@@ -224,6 +224,7 @@
           const char* proof) {
         return proof &&
                (!strcmp(proof, "typed_user_box_birth_same_module") ||
+                !strcmp(proof, "typed_user_box_method_same_module") ||
                 !strcmp(proof, "typed_user_box_method_contract_missing"));
       }
 
@@ -607,13 +608,18 @@
                view->core_op &&
                !strcmp(view->core_op, "UserBoxMethodCall") &&
                view->route_kind &&
-               !strcmp(view->route_kind, "user_box.birth") &&
                view->method &&
-               !strcmp(view->method, "birth") &&
                view->proof &&
-               !strcmp(view->proof, "typed_user_box_birth_same_module") &&
                view->route_proof &&
-               !strcmp(view->route_proof, "typed_user_box_birth_same_module") &&
+               ((view->method &&
+                 !strcmp(view->method, "birth") &&
+                 !strcmp(view->route_kind, "user_box.birth") &&
+                 !strcmp(view->proof, "typed_user_box_birth_same_module") &&
+                 !strcmp(view->route_proof, "typed_user_box_birth_same_module")) ||
+                (strcmp(view->method, "birth") &&
+                 !strcmp(view->route_kind, "user_box.method") &&
+                 !strcmp(view->proof, "typed_user_box_method_same_module") &&
+                 !strcmp(view->route_proof, "typed_user_box_method_same_module"))) &&
                view->target_exists &&
                view->has_target_arity &&
                view->has_arity_matches &&
@@ -640,6 +646,20 @@
                !strcmp(view->emit_kind, "direct_function_call") &&
                view->return_shape &&
                !strcmp(view->return_shape, "void_sentinel_i64_zero") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64");
+      }
+
+      auto int lowering_plan_user_box_method_view_is_direct_scalar_i64(
+          const struct LoweringPlanUserBoxMethodView* view) {
+        return lowering_plan_user_box_method_view_requires_same_module_function_definition(view) &&
+               view->method &&
+               strcmp(view->method, "birth") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "direct_function_call") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "scalar_i64") &&
                view->value_demand &&
                !strcmp(view->value_demand, "scalar_i64");
       }
