@@ -738,8 +738,18 @@
             (lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(
                  &user_box_method_view) ||
              lowering_plan_user_box_method_view_is_direct_scalar_i64(
+                 &user_box_method_view) ||
+             lowering_plan_user_box_method_view_is_direct_runtime_i64_or_handle(
                  &user_box_method_view))) {
           if (dst) set_type(dst, T_I64);
+          if (dst) {
+            int origin_kind =
+                lowering_plan_user_box_method_view_result_origin_kind(&user_box_method_view);
+            if (origin_kind != ORG_NONE) {
+              set_origin(dst, origin_kind);
+              set_scan_origin(dst, origin_kind);
+            }
+          }
           return 1;
         }
         if (has_method_view) {

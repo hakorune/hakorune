@@ -300,6 +300,7 @@
         char ab[2048];
         int is_direct_void = 0;
         int is_direct_scalar = 0;
+        int is_direct_handle = 0;
         if (!entry) return 0;
         if (!(source && !strcmp(source, "user_box_method_routes"))) return 0;
         if (!read_lowering_plan_user_box_method_view(entry, &view)) return -1;
@@ -307,10 +308,12 @@
             lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(&view);
         is_direct_scalar =
             lowering_plan_user_box_method_view_is_direct_scalar_i64(&view);
-        if (!is_direct_void && !is_direct_scalar) {
+        is_direct_handle =
+            lowering_plan_user_box_method_view_is_direct_runtime_i64_or_handle(&view);
+        if (!is_direct_void && !is_direct_scalar && !is_direct_handle) {
           return 0;
         }
-        if (is_direct_scalar && !dst) {
+        if ((is_direct_scalar || is_direct_handle) && !dst) {
           return -1;
         }
         if (view.has_result_value) {
@@ -340,6 +343,13 @@
         if (dst) {
           fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view.target_symbol, ab);
           set_type(dst, T_I64);
+          if (is_direct_handle) {
+            int origin_kind = lowering_plan_user_box_method_view_result_origin_kind(&view);
+            if (origin_kind != ORG_NONE) {
+              set_origin(dst, origin_kind);
+              set_scan_origin(dst, origin_kind);
+            }
+          }
         } else {
           fprintf(f, "  call i64 @\"%s\"(%s)\n", view.target_symbol, ab);
         }

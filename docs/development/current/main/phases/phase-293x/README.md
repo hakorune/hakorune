@@ -43,9 +43,11 @@ parameters, same-module call argument storage propagation, and same-module
 string-like global return storage. Conservative same-module `birth` and scalar
 user-box method routes are available for the minimal typed-object fixtures.
 BoxTorrent allocator page seeding now lowers through a MIR-owned void
-side-effect global route, and `BoxTorrentManifest` now has a typed object plan;
-the real-app boundary still stops at the broader `BoxTorrentChunker.ingest`
-method body route seam.
+side-effect global route, `BoxTorrentManifest` now has a typed object plan, and
+`BoxTorrentChunker.ingest` now exposes the nested `BoxTorrentStore.put` route.
+The real-app EXE probe is currently pinned at the BoxTorrent module-generic
+prepass seam (`firstChunkId` / `refCount`); the nested `Store.put` lane then
+needs ContentChunk / HakoAlloc nullable-handle typed object planning.
 
 ## Current Status
 
@@ -75,5 +77,9 @@ method body route seam.
   allocator page seeding chain.
 - `293x-019`: typed object call-param / global-return storage flow landed,
   making `BoxTorrentManifest` plan-backed.
-- Next: expand pure-first route coverage for `BoxTorrentChunker.ingest`; do not
-  claim real-app EXE parity until that method seam lands.
+- `293x-020`: BoxTorrent ingest user-box method body route expansion landed,
+  making `BoxTorrentStore.put` visible from `ingest` and routing Store Map/Array
+  field operations.
+- Next: lower the BoxTorrent module-generic prepass seam, then continue nullable
+  handle typed-object planning for `ContentChunk` / `HakoAllocHandle`; do not
+  claim real-app EXE parity until these nested seams land.

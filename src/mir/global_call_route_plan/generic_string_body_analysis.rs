@@ -125,10 +125,14 @@ pub(super) fn generic_pure_string_instruction_reject_reason(
                     || rhs_class == GenericPureValueClass::String)
             {
                 *has_string_surface = true;
-                if lhs_class == GenericPureValueClass::Unknown {
+                if lhs_class == GenericPureValueClass::Unknown
+                    && generic_pure_string_operand_allows_string_inference(function, *lhs)
+                {
                     set_string_handle_value_class(values, *lhs, changed);
                 }
-                if rhs_class == GenericPureValueClass::Unknown {
+                if rhs_class == GenericPureValueClass::Unknown
+                    && generic_pure_string_operand_allows_string_inference(function, *rhs)
+                {
                     set_string_handle_value_class(values, *rhs, changed);
                 }
                 set_string_handle_value_class(values, *dst, changed);
@@ -868,6 +872,16 @@ pub(super) fn generic_pure_string_instruction_reject_reason(
     }
 }
 
+fn generic_pure_string_operand_allows_string_inference(
+    function: &MirFunction,
+    value: ValueId,
+) -> bool {
+    !matches!(
+        function.metadata.value_types.get(&value),
+        Some(MirType::Integer | MirType::Bool)
+    )
+}
+
 fn generic_pure_string_route_value_class(
     function: &MirFunction,
     block: BasicBlockId,
@@ -882,9 +896,27 @@ fn generic_pure_string_route_value_class(
                 && route.instruction_index() == instruction_index
                 && matches!(
                     route.route_id(),
-                    "generic_method.get" | "generic_method.keys"
+                    "generic_method.get"
+                        | "generic_method.keys"
+                        | "generic_method.len"
+                        | "generic_method.substring"
+                        | "generic_method.indexOf"
+                        | "generic_method.lastIndexOf"
+                        | "generic_method.contains"
                 )
         })?;
+    match route.route_kind_tag() {
+        "string_len" | "array_slot_len" => Some(GenericPureValueClass::I64),
+        "string_substring" => Some(GenericPureValueClass::String),
+        "string_indexof" | "string_lastindexof" => Some(GenericPureValueClass::I64),
+        "string_contains" => Some(GenericPureValueClass::Bool),
+        _ => generic_pure_string_get_route_value_class(route),
+    }
+}
+
+fn generic_pure_string_get_route_value_class(
+    route: &crate::mir::generic_method_route_plan::GenericMethodRoute,
+) -> Option<GenericPureValueClass> {
     match route.proof_tag() {
         "mir_json_const_value_field" if route.route_kind_tag() == "runtime_data_load_any" => {
             match route.key_const_text()? {

@@ -665,6 +665,28 @@
                !strcmp(view->value_demand, "scalar_i64");
       }
 
+      auto int lowering_plan_user_box_method_view_is_direct_runtime_i64_or_handle(
+          const struct LoweringPlanUserBoxMethodView* view) {
+        return lowering_plan_user_box_method_view_requires_same_module_function_definition(view) &&
+               view->method &&
+               strcmp(view->method, "birth") &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "direct_function_call") &&
+               view->return_shape &&
+               (!strcmp(view->return_shape, "string_handle") ||
+                !strcmp(view->return_shape, "object_handle")) &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "runtime_i64_or_handle");
+      }
+
+      auto int lowering_plan_user_box_method_view_result_origin_kind(
+          const struct LoweringPlanUserBoxMethodView* view) {
+        if (!(view && view->result_origin)) return ORG_NONE;
+        if (!strcmp(view->result_origin, "string")) return ORG_STRING;
+        return ORG_NONE;
+      }
+
       auto int lowering_plan_global_call_view_matches_runtime_route(
           const struct LoweringPlanGlobalCallView* view,
           const char* route_kind,

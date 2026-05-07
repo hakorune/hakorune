@@ -14,9 +14,7 @@ use super::generic_string_facts::{
 };
 use super::generic_string_guards::generic_pure_string_non_void_guard_phi_values;
 use super::generic_string_reject::GenericPureStringReject;
-use super::model::{
-    GlobalCallReturnContract, GlobalCallTargetFacts, GlobalCallTargetShapeReason,
-};
+use super::model::{GlobalCallReturnContract, GlobalCallTargetFacts, GlobalCallTargetShapeReason};
 use super::string_return_profile::{
     generic_string_return_object_boundary_candidate, generic_string_void_sentinel_return_candidate,
     generic_string_void_sentinel_return_global_blocker,

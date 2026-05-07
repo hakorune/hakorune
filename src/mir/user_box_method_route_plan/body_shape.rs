@@ -6,28 +6,31 @@ pub(super) fn user_box_method_body_supported(
     function: &MirFunction,
     typed_plan_type_ids: &BTreeMap<String, u32>,
 ) -> bool {
-    if function.blocks.len() != 1 {
+    if function.blocks.is_empty() {
         return false;
     }
-    let Some(block) = function.blocks.get(&function.entry_block) else {
-        return false;
-    };
-    if !matches!(block.terminator, Some(MirInstruction::Return { .. })) {
-        return false;
-    }
-    block
-        .instructions
-        .iter()
-        .enumerate()
-        .all(|(instruction_index, instruction)| {
-            user_box_method_instruction_supported(
-                function,
-                function.entry_block,
-                instruction_index,
-                instruction,
-                typed_plan_type_ids,
-            )
-        })
+    function.blocks.iter().all(|(block_id, block)| {
+        let instructions_supported =
+            block
+                .instructions
+                .iter()
+                .enumerate()
+                .all(|(instruction_index, instruction)| {
+                    user_box_method_instruction_supported(
+                        function,
+                        *block_id,
+                        instruction_index,
+                        instruction,
+                        typed_plan_type_ids,
+                    )
+                });
+        instructions_supported
+            && block
+                .terminator
+                .as_ref()
+                .map(user_box_method_terminator_supported)
+                .unwrap_or(false)
+    })
 }
 
 fn user_box_method_instruction_supported(
@@ -40,7 +43,11 @@ fn user_box_method_instruction_supported(
     match instruction {
         MirInstruction::Const { value, .. } => matches!(
             value,
-            ConstValue::Integer(_) | ConstValue::Bool(_) | ConstValue::Void | ConstValue::Null
+            ConstValue::Integer(_)
+                | ConstValue::Bool(_)
+                | ConstValue::String(_)
+                | ConstValue::Void
+                | ConstValue::Null
         ),
         MirInstruction::Copy { .. } => true,
         MirInstruction::NewBox { box_type, .. } => {
@@ -48,10 +55,12 @@ fn user_box_method_instruction_supported(
                 || typed_plan_type_ids.contains_key(box_type)
         }
         MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. } => true,
+        MirInstruction::Phi { inputs, .. } => !inputs.is_empty(),
         MirInstruction::BinOp { op, .. } => matches!(
             op,
             BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
         ),
+        MirInstruction::Compare { .. } | MirInstruction::Select { .. } => true,
         MirInstruction::Call {
             callee: Some(Callee::Global(_)),
             ..
@@ -63,15 +72,26 @@ fn user_box_method_instruction_supported(
         MirInstruction::Call {
             callee: Some(Callee::Method { .. }),
             ..
-        } => function
-            .metadata
-            .user_box_method_routes
-            .iter()
-            .any(|route| {
-                route.block() == block_id
-                    && route.instruction_index() == instruction_index
-                    && route.reason().is_none()
-            }),
+        } => {
+            function.metadata.generic_method_routes.iter().any(|route| {
+                route.block() == block_id && route.instruction_index() == instruction_index
+            }) || function
+                .metadata
+                .user_box_method_routes
+                .iter()
+                .any(|route| {
+                    route.block() == block_id
+                        && route.instruction_index() == instruction_index
+                        && route.reason().is_none()
+                })
+        }
         _ => false,
     }
+}
+
+fn user_box_method_terminator_supported(instruction: &MirInstruction) -> bool {
+    matches!(
+        instruction,
+        MirInstruction::Branch { .. } | MirInstruction::Jump { .. } | MirInstruction::Return { .. }
+    )
 }

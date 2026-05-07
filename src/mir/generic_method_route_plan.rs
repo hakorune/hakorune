@@ -67,93 +67,75 @@ fn refresh_function_generic_method_routes_with_context(
             continue;
         };
         for (instruction_index, inst) in block.instructions.iter().enumerate() {
-            if let Some(route) =
-                match_generic_has_route(function, &def_map, block_id, instruction_index, inst)
-                    .or_else(|| {
-                        match_generic_get_route(
-                            function,
-                            &def_map,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-                    .or_else(|| {
-                        match_generic_len_route(
-                            function,
-                            &def_map,
-                            field_handle_origins,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-                    .or_else(|| {
-                        match_generic_keys_route(
-                            function,
-                            &def_map,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-                    .or_else(|| {
-                        match_generic_substring_route(
-                            function,
-                            &def_map,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-                    .or_else(|| {
-                        match_generic_indexof_route(
-                            function,
-                            &def_map,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-                    .or_else(|| {
-                        match_generic_lastindexof_route(
-                            function,
-                            &def_map,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-                    .or_else(|| {
-                        match_generic_contains_route(
-                            function,
-                            &def_map,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-                    .or_else(|| {
-                        match_generic_push_route(
-                            function,
-                            &def_map,
-                            field_handle_origins,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-                    .or_else(|| {
-                        match_generic_set_route(
-                            function,
-                            &def_map,
-                            field_handle_origins,
-                            block_id,
-                            instruction_index,
-                            inst,
-                        )
-                    })
-            {
+            if let Some(route) = match_generic_has_route(
+                function,
+                &def_map,
+                field_handle_origins,
+                block_id,
+                instruction_index,
+                inst,
+            )
+            .or_else(|| {
+                match_generic_get_route(
+                    function,
+                    &def_map,
+                    field_handle_origins,
+                    block_id,
+                    instruction_index,
+                    inst,
+                )
+            })
+            .or_else(|| {
+                match_generic_len_route(
+                    function,
+                    &def_map,
+                    field_handle_origins,
+                    block_id,
+                    instruction_index,
+                    inst,
+                )
+            })
+            .or_else(|| {
+                match_generic_keys_route(function, &def_map, block_id, instruction_index, inst)
+            })
+            .or_else(|| {
+                match_generic_substring_route(function, &def_map, block_id, instruction_index, inst)
+            })
+            .or_else(|| {
+                match_generic_indexof_route(function, &def_map, block_id, instruction_index, inst)
+            })
+            .or_else(|| {
+                match_generic_lastindexof_route(
+                    function,
+                    &def_map,
+                    block_id,
+                    instruction_index,
+                    inst,
+                )
+            })
+            .or_else(|| {
+                match_generic_contains_route(function, &def_map, block_id, instruction_index, inst)
+            })
+            .or_else(|| {
+                match_generic_push_route(
+                    function,
+                    &def_map,
+                    field_handle_origins,
+                    block_id,
+                    instruction_index,
+                    inst,
+                )
+            })
+            .or_else(|| {
+                match_generic_set_route(
+                    function,
+                    &def_map,
+                    field_handle_origins,
+                    block_id,
+                    instruction_index,
+                    inst,
+                )
+            }) {
                 routes.push(route);
             }
         }
@@ -229,11 +211,23 @@ fn typed_object_value_box_name(
     let origin = resolve_value_origin(function, def_map, value);
     if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
         let block = function.blocks.get(&block_id)?;
-        if let Some(MirInstruction::NewBox { box_type, .. }) =
-            block.instructions.get(instruction_index)
-        {
-            return Some(box_type.clone());
+        match block.instructions.get(instruction_index)? {
+            MirInstruction::NewBox { box_type, .. } => return Some(box_type.clone()),
+            MirInstruction::Phi { type_hint, .. } => {
+                if let Some(box_name) = type_hint.as_ref().and_then(box_name_from_mir_type) {
+                    return Some(box_name.to_string());
+                }
+            }
+            _ => {}
         }
+    }
+    if let Some(box_name) = function
+        .metadata
+        .value_types
+        .get(&origin)
+        .and_then(box_name_from_mir_type)
+    {
+        return Some(box_name.to_string());
     }
     function
         .params
@@ -262,6 +256,13 @@ fn method_receiver_box_name(symbol: &str) -> Option<String> {
     Some(box_name.to_string())
 }
 
+fn box_name_from_mir_type(ty: &MirType) -> Option<&str> {
+    match ty {
+        MirType::Box(name) => Some(name.as_str()),
+        _ => None,
+    }
+}
+
 fn handle_value_origin_box_name(
     function: &MirFunction,
     def_map: &ValueDefMap,
@@ -283,6 +284,7 @@ fn handle_value_origin_box_name(
 fn match_generic_has_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    field_handle_origins: &FieldHandleOriginMap,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -302,11 +304,15 @@ fn match_generic_has_route(
     else {
         return None;
     };
-    if method != "has" || args.len() != 1 {
+    if method != "has" {
         return None;
     }
+    let args = method_args_without_redundant_receiver(function, def_map, *receiver, args, 1)?;
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| {
+            generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
+        })
         .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
     let key_route = classify_key_route(function, def_map, args[0]);
     let (route_kind, core_method) = match box_name.as_str() {
@@ -366,6 +372,7 @@ fn match_generic_has_route(
 fn match_generic_get_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    field_handle_origins: &FieldHandleOriginMap,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -385,11 +392,15 @@ fn match_generic_get_route(
     else {
         return None;
     };
-    if method != "get" || args.len() != 1 {
+    if method != "get" {
         return None;
     }
+    let args = method_args_without_redundant_receiver(function, def_map, *receiver, args, 1)?;
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| {
+            generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
+        })
         .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
     let key_route = classify_key_route(function, def_map, args[0]);
     if let Some(result) = *dst {
@@ -1266,8 +1277,11 @@ fn generic_array_flow_origin_box_name(
             };
             for (instruction_index, inst) in block.instructions.iter().enumerate() {
                 match inst {
-                    MirInstruction::NewBox { dst, box_type, .. } if box_type == "ArrayBox" => {
-                        if array_values.insert(*dst, "ArrayBox") != Some("ArrayBox") {
+                    MirInstruction::NewBox { dst, box_type, .. } => {
+                        let Some(origin_box) = collection_origin_box_name(box_type) else {
+                            continue;
+                        };
+                        if array_values.insert(*dst, origin_box) != Some(origin_box) {
                             changed = true;
                         }
                     }
@@ -1285,11 +1299,13 @@ fn generic_array_flow_origin_box_name(
                         else {
                             continue;
                         };
-                        if field_handle_origins
+                        let Some(origin_box) = field_handle_origins
                             .get(&(box_name, field.clone()))
-                            .is_some_and(|origin| origin == "ArrayBox")
-                            && array_values.insert(*dst, "ArrayBox") != Some("ArrayBox")
-                        {
+                            .and_then(|origin| collection_origin_box_name(origin))
+                        else {
+                            continue;
+                        };
+                        if array_values.insert(*dst, origin_box) != Some(origin_box) {
                             changed = true;
                         }
                     }
@@ -1383,6 +1399,14 @@ fn generic_array_flow_origin_box_name(
     }
 
     array_values.get(&receiver).map(|name| (*name).to_string())
+}
+
+fn collection_origin_box_name(box_name: &str) -> Option<&'static str> {
+    match box_name {
+        "ArrayBox" => Some("ArrayBox"),
+        "MapBox" => Some("MapBox"),
+        _ => None,
+    }
 }
 
 fn generic_pure_string_flow_origin_box_name(

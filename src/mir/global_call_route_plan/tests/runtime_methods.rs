@@ -2206,3 +2206,133 @@ fn refresh_module_global_call_routes_accepts_self_recursive_generic_pure_string_
     assert_eq!(route.target_shape_reason(), None);
     assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
 }
+
+#[test]
+fn refresh_module_global_call_routes_keeps_i64_loop_phi_when_return_concat_uses_it() {
+    let mut module = MirModule::new("global_call_i64_phi_return_concat_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Hash.digest/1",
+        Some(ValueId::new(20)),
+        vec![ValueId::new(1)],
+    );
+    let mut digest = MirFunction::new(
+        FunctionSignature {
+            name: "Hash.digest/1".to_string(),
+            params: vec![MirType::String],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    digest.params = vec![ValueId::new(0)];
+    for value in [1, 2, 3, 4, 5, 6, 7, 8] {
+        digest
+            .metadata
+            .value_types
+            .insert(ValueId::new(value), MirType::Integer);
+    }
+
+    let entry = digest.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(17),
+        },
+        MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        },
+    ]);
+    entry.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(1),
+        edge_args: None,
+    });
+
+    let mut loop_block = BasicBlock::new(BasicBlockId::new(1));
+    loop_block.instructions.extend([
+        MirInstruction::Phi {
+            dst: ValueId::new(3),
+            inputs: vec![
+                (BasicBlockId::new(0), ValueId::new(2)),
+                (BasicBlockId::new(2), ValueId::new(6)),
+            ],
+            type_hint: Some(MirType::Integer),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(9),
+            value: ConstValue::Bool(false),
+        },
+    ]);
+    loop_block.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(9),
+        then_bb: BasicBlockId::new(2),
+        else_bb: BasicBlockId::new(3),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut body_block = BasicBlock::new(BasicBlockId::new(2));
+    body_block.instructions.extend([
+        MirInstruction::Copy {
+            dst: ValueId::new(4),
+            src: ValueId::new(3),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(5),
+            value: ConstValue::Integer(131),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(6),
+            op: BinaryOp::Mul,
+            lhs: ValueId::new(4),
+            rhs: ValueId::new(5),
+        },
+    ]);
+    body_block.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(1),
+        edge_args: None,
+    });
+
+    let mut exit_block = BasicBlock::new(BasicBlockId::new(3));
+    exit_block.instructions.extend([
+        MirInstruction::Phi {
+            dst: ValueId::new(7),
+            inputs: vec![(BasicBlockId::new(1), ValueId::new(3))],
+            type_hint: Some(MirType::Integer),
+        },
+        MirInstruction::Copy {
+            dst: ValueId::new(8),
+            src: ValueId::new(7),
+        },
+        MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::String("bt-".to_string()),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(11),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(10),
+            rhs: ValueId::new(8),
+        },
+    ]);
+    exit_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(11)),
+    });
+    digest.blocks.insert(BasicBlockId::new(1), loop_block);
+    digest.blocks.insert(BasicBlockId::new(2), body_block);
+    digest.blocks.insert(BasicBlockId::new(3), exit_block);
+    module.functions.insert("main".to_string(), caller);
+    module.functions.insert("Hash.digest/1".to_string(), digest);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("generic_pure_string_body"),
+        "reason={:?}",
+        route.target_shape_reason()
+    );
+    assert_eq!(route.return_shape(), Some("string_handle"));
+    assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+}
