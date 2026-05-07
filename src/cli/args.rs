@@ -434,12 +434,8 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         std::env::set_var("NYASH_ENABLE_USING", "1");
         // Allow top-level main resolution in dev for convenience (prod default remains OFF)
         std::env::set_var("NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN", "1");
-        // Ensure project root is available for prelude injection
-        if std::env::var("NYASH_ROOT").is_err() {
-            if let Ok(cwd) = std::env::current_dir() {
-                std::env::set_var("NYASH_ROOT", cwd.display().to_string());
-            }
-        }
+        // Ensure project root is available for prelude injection and child tools.
+        crate::config::env::ensure_root_aliases_from_cwd();
         // Operator Boxes: observe + prelude injection
         std::env::set_var("NYASH_OPERATOR_BOX_ALL", "1");
         std::env::set_var("NYASH_OPERATOR_BOX_STRINGIFY", "1");

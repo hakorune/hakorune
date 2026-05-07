@@ -89,14 +89,11 @@ fn cache_file_path() -> PathBuf {
             return PathBuf::from(trimmed);
         }
     }
-    if let Ok(root) = std::env::var("NYASH_ROOT") {
-        let trimmed = root.trim();
-        if !trimmed.is_empty() {
-            return Path::new(trimmed)
-                .join("target")
-                .join(".cache")
-                .join("stage1_module_env.json");
-        }
+    if let Some(root) = crate::config::env::hako_root() {
+        return Path::new(&root)
+            .join("target")
+            .join(".cache")
+            .join("stage1_module_env.json");
     }
     PathBuf::from("target/.cache/stage1_module_env.json")
 }

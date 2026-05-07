@@ -113,7 +113,7 @@ fn locate_toml_paths() -> Vec<PathBuf> {
     if let Some(local) = find_preferred_toml(Path::new(".")) {
         paths.push(local);
     }
-    if let Some(root) = env::env_string("NYASH_ROOT") {
+    if let Some(root) = env::hako_root() {
         if let Some(root_manifest) = find_preferred_toml(Path::new(&root)) {
             if !paths
                 .iter()

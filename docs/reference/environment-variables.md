@@ -1,6 +1,7 @@
 # 環境変数リファレンス
 
-Nyash の主要な環境変数をカテゴリ別に整理するよ。`適用経路` はどのパスで効くかを示す:
+Hakorune / Hako の主要な環境変数をカテゴリ別に整理するよ。`適用経路` はどのパスで効くかを示す。
+`HAKO_*` がある項目は新規利用の優先名で、対応する `NYASH_*` は互換 alias として残すよ。
 
 - Rust AST: Rust パーサ直通（例: `--dump-mir`。compile-only の入口）
 - JSON v0/Stage-1: selfhost/Stage-1/`--ny-parser-pipe` 経由（json_v0_bridge で処理）
@@ -142,7 +143,8 @@ Throw surface policy:
 
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
-| `NYASH_ROOT=/path/to/repo` | unset | Any | リポジトリルートのヒント（パス解決・ツール用途）。未指定なら自動推定 |
+| `HAKO_ROOT=/path/to/repo` | unset | Any | リポジトリルートのヒント（パス解決・ツール用途）。未指定なら自動推定 |
+| `NYASH_ROOT=/path/to/repo` | unset | Any | `HAKO_ROOT` の互換 alias |
 | `NYASH_WASM_ROUTE_POLICY=default\|legacy\|legacy-wasm-rust` | `default` | WASM (`--backend wasm`) | WASM 出力 route policy。`default`/`legacy-wasm-rust` のみ受理し、無効値は fail-fast（`[freeze:contract][wasm/route-policy]`）。 |
 | `NYASH_WASM_ROUTE_TRACE=1` | OFF | WASM (`--backend wasm`) | route 決定時に1行の観測ログを出す（`[wasm/route-trace] policy=<...> plan=<...> shape_id=<...>`）。 |
 | `NYASH_JSON_V0_IMPORT_TRACE=1` | OFF | Runner / Program(JSON v0) compat loader | `--json-file` compat umbrella intake の import-bundle 合流時に安定トレースを出す。summary は info-level で default-visible（`phase=<enter|skip|merge.done|fail>`）、詳細は `NYASH_RING0_LOG_LEVEL=DEBUG` でのみ出る（`phase=merge.begin|guard.set|restore`）。mainline MIR route trace ではなく、compat loader の hot/cold 切り分け専用。 |
@@ -273,7 +275,8 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 
 | 変数 | デフォルト | 説明 |
 | --- | --- | --- |
-| `NYASH_BIN` | `./target/release/hakorune` | hakorune バイナリのパス |
+| `HAKO_BIN` | `./target/release/hakorune` | hakorune バイナリのパス |
+| `NYASH_BIN` | `./target/release/hakorune` | `HAKO_BIN` の互換 alias |
 | `NYASH_LLVM_COMPILER` | `crate` | `tools/build_llvm.sh` のローカル mode selector。`harness` または `crate`。mainline backend boundary の ny-llvmc path truth には使わない |
 | `NYASH_NY_LLVM_COMPILER` | `target/release/ny-llvmc` | ny-llvmc バイナリのパス。backend-zero thin boundary / selfhost / stage1 helper で使う path truth |
 | `NYASH_LLVM_FEATURE` | `llvm` | LLVM feature flag (`llvm` または `llvm-inkwell-legacy`) |

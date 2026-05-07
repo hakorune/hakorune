@@ -161,7 +161,7 @@ impl<'a> UsingResolutionBox<'a> {
                 }
             }
 
-            // NYASH_ROOTも試す
+            // HAKO_ROOT (NYASH_ROOT compat alias) も試す
             if p.is_relative() {
                 if let Some(root) =
                     crate::runner::modes::common_util::resolve::root::resolve_repo_root(None)

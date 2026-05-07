@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-010-SMOKE-ENV-HAKO-ALIAS-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-010-SMOKE-ENV-HAKO-ALIAS-CLEANUP.md"
-latest_card_summary = "Centralized current real-app release VM env defaults behind run_hako_vm_release and added smoke-facing HAKO_ROOT/HAKO_BIN aliases while preserving NYASH compatibility."
+latest_card = "293x-011-CONFIG-ENV-HAKO-ROOT-BIN-ALIASES"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-011-CONFIG-ENV-HAKO-ROOT-BIN-ALIASES.md"
+latest_card_summary = "Added config-level HAKO_ROOT/HAKO_BIN helpers, documented NYASH compatibility aliases, and migrated low-risk root/bin path consumers to the helper seam."
 
 current_blocker_token = "phase-293x typed object EXE plan: general user-box newbox owner before real-app parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

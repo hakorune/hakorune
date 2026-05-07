@@ -16,7 +16,8 @@
 - [x] `293x-008` BoxTorrent allocator-backed store
 - [x] `293x-009` JSON stream aggregator
 - [x] `293x-010` smoke env Hako alias cleanup
-- [ ] `293x-011` typed object EXE plan for general user-box `newbox`
+- [x] `293x-011` config env Hako root/bin alias cleanup
+- [ ] `293x-012` typed object EXE plan for general user-box `newbox`
 
 ## Gates
 

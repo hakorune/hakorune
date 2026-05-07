@@ -29,8 +29,17 @@ fn write_file(path: &Path, content: &str) {
     std::fs::write(path, content).expect("write file");
 }
 
-fn restore_env_and_cwd(original_root: Option<String>, original_dir: PathBuf) {
-    if let Some(value) = original_root {
+fn restore_env_and_cwd(
+    original_hako_root: Option<String>,
+    original_nyash_root: Option<String>,
+    original_dir: PathBuf,
+) {
+    if let Some(value) = original_hako_root {
+        std::env::set_var("HAKO_ROOT", value);
+    } else {
+        std::env::remove_var("HAKO_ROOT");
+    }
+    if let Some(value) = original_nyash_root {
         std::env::set_var("NYASH_ROOT", value);
     } else {
         std::env::remove_var("NYASH_ROOT");
@@ -42,7 +51,8 @@ fn restore_env_and_cwd(original_root: Option<String>, original_dir: PathBuf) {
 fn populate_from_toml_merges_root_modules_into_local_manifest() {
     let _guard = test_guard().lock().expect("lock");
     let original_dir = std::env::current_dir().expect("cwd");
-    let original_root = std::env::var("NYASH_ROOT").ok();
+    let original_hako_root = std::env::var("HAKO_ROOT").ok();
+    let original_nyash_root = std::env::var("NYASH_ROOT").ok();
 
     let root_dir = unique_temp_dir("root");
     let local_dir = unique_temp_dir("local");
@@ -64,6 +74,7 @@ fn populate_from_toml_merges_root_modules_into_local_manifest() {
     std::fs::create_dir_all(local_dir.join("lib")).expect("lib dir");
 
     std::env::set_current_dir(&local_dir).expect("set cwd");
+    std::env::remove_var("HAKO_ROOT");
     std::env::set_var("NYASH_ROOT", &root_dir);
 
     let mut using_paths = Vec::new();
@@ -79,7 +90,7 @@ fn populate_from_toml_merges_root_modules_into_local_manifest() {
         &mut module_roots,
     );
 
-    restore_env_and_cwd(original_root, original_dir);
+    restore_env_and_cwd(original_hako_root, original_nyash_root, original_dir);
 
     assert!(
         result.is_ok(),
@@ -103,7 +114,8 @@ fn populate_from_toml_merges_root_modules_into_local_manifest() {
 fn populate_from_toml_prefers_local_module_override_over_root_manifest() {
     let _guard = test_guard().lock().expect("lock");
     let original_dir = std::env::current_dir().expect("cwd");
-    let original_root = std::env::var("NYASH_ROOT").ok();
+    let original_hako_root = std::env::var("HAKO_ROOT").ok();
+    let original_nyash_root = std::env::var("NYASH_ROOT").ok();
 
     let root_dir = unique_temp_dir("override_root");
     let local_dir = unique_temp_dir("override_local");
@@ -128,6 +140,7 @@ fn populate_from_toml_prefers_local_module_override_over_root_manifest() {
     );
 
     std::env::set_current_dir(&local_dir).expect("set cwd");
+    std::env::remove_var("HAKO_ROOT");
     std::env::set_var("NYASH_ROOT", &root_dir);
 
     let mut using_paths = Vec::new();
@@ -143,7 +156,7 @@ fn populate_from_toml_prefers_local_module_override_over_root_manifest() {
         &mut module_roots,
     );
 
-    restore_env_and_cwd(original_root, original_dir);
+    restore_env_and_cwd(original_hako_root, original_nyash_root, original_dir);
 
     assert!(
         result.is_ok(),

@@ -11,11 +11,8 @@ use super::Opts;
 const COMPARE_TAG: &str = "compare";
 
 fn resolve_hakorune_bin() -> PathBuf {
-    if let Ok(bin) = std::env::var("NYASH_BIN") {
-        let trimmed = bin.trim();
-        if !trimmed.is_empty() {
-            return PathBuf::from(trimmed);
-        }
+    if let Some(bin) = crate::config::env::hako_bin() {
+        return PathBuf::from(bin);
     }
     if let Ok(cur) = std::env::current_exe() {
         return cur;

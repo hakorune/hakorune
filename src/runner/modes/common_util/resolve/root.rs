@@ -1,9 +1,9 @@
 //! root — repository root resolution helpers (SSOT)
 //!
-//! `NYASH_ROOT` is allowed as an override for tools, but runtime semantics must
+//! `HAKO_ROOT` is allowed as an override for tools, but runtime semantics must
 //! not depend on whether it is set. When we need to locate repo-relative assets
 //! (e.g., operator preludes), prefer resolving a stable root via:
-//! 1) `NYASH_ROOT` when set
+//! 1) `HAKO_ROOT` when set (`NYASH_ROOT` remains a compatibility alias)
 //! 2) walking up from an on-disk hint file (e.g., the main source file)
 //! 3) current working directory
 //! 4) current executable path
@@ -11,7 +11,7 @@
 use std::path::{Path, PathBuf};
 
 pub fn resolve_repo_root(hint_file: Option<&str>) -> Option<PathBuf> {
-    if let Ok(root) = std::env::var("NYASH_ROOT") {
+    if let Some(root) = crate::config::env::hako_root() {
         let p = PathBuf::from(root);
         if p.exists() {
             return Some(p);

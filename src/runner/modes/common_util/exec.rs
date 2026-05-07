@@ -48,11 +48,7 @@ fn skip_nyrt_precheck() -> bool {
 fn default_nyrt_dir() -> String {
     std::env::var("NYASH_EMIT_EXE_NYRT")
         .ok()
-        .or_else(|| {
-            std::env::var("NYASH_ROOT")
-                .ok()
-                .map(|r| format!("{}/target/release", r))
-        })
+        .or_else(|| crate::config::env::hako_root().map(|r| format!("{}/target/release", r)))
         .unwrap_or_else(|| "target/release".to_string())
 }
 
@@ -105,7 +101,7 @@ fn resolve_python3() -> Option<PathBuf> {
 }
 
 fn resolve_llvmlite_harness() -> Option<PathBuf> {
-    if let Some(root) = std::env::var("NYASH_ROOT").ok() {
+    if let Some(root) = crate::config::env::hako_root() {
         let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
         if p.exists() {
             return Some(p);

@@ -5,7 +5,7 @@ pub(crate) fn resolve_runner_path() -> Option<std::path::PathBuf> {
     if runner.exists() {
         return Some(runner);
     }
-    if let Ok(root) = std::env::var("NYASH_ROOT") {
+    if let Some(root) = crate::config::env::hako_root() {
         let alt = std::path::Path::new(&root).join(PYVM_RUNNER_PATH);
         if alt.exists() {
             return Some(alt);
@@ -25,7 +25,7 @@ pub(crate) fn run_pyvm_harness_lib(
         Some(path) => path,
         None => {
             return Err(format!(
-                "PyVM runner not found: {} (cwd) or $NYASH_ROOT/{}",
+                "PyVM runner not found: {} (cwd) or $HAKO_ROOT/{}",
                 PYVM_RUNNER_PATH, PYVM_RUNNER_PATH
             ));
         }

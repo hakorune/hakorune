@@ -312,8 +312,26 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: None,
         },
         EnvVarMeta {
+            name: "HAKO_ROOT",
+            description: "Preferred repo root hint for tools/path resolution (optional)",
+            applies_to: AppliesTo::CLI,
+            default: None,
+        },
+        EnvVarMeta {
             name: "NYASH_ROOT",
-            description: "Repo root hint for tools/path resolution (optional)",
+            description: "Compatibility alias for HAKO_ROOT",
+            applies_to: AppliesTo::CLI,
+            default: None,
+        },
+        EnvVarMeta {
+            name: "HAKO_BIN",
+            description: "Preferred hakorune binary path hint for child tools",
+            applies_to: AppliesTo::CLI,
+            default: None,
+        },
+        EnvVarMeta {
+            name: "NYASH_BIN",
+            description: "Compatibility alias for HAKO_BIN",
             applies_to: AppliesTo::CLI,
             default: None,
         },

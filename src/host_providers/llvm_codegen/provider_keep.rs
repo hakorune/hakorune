@@ -35,7 +35,7 @@ fn resolve_python3() -> Option<PathBuf> {
 }
 
 fn resolve_llvmlite_harness() -> Option<PathBuf> {
-    if let Some(root) = crate::config::env::nyash_root() {
+    if let Some(root) = crate::config::env::hako_root() {
         let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
         if p.exists() {
             return Some(p);

@@ -1,6 +1,6 @@
 //! Global environment configuration aggregator (管理棟)
 //!
-//! Consolidates NYASH_* environment variables across subsystems and
+//! Consolidates HAKO_* / NYASH_* environment variables across subsystems and
 //! optionally applies overrides from `nyash.toml`.
 //!
 //! # Global Environment Configuration (管理棟)
@@ -25,7 +25,7 @@
 //! | `parser_flags` | `NYASH_PARSER_*` | Parser 設定 |
 //! | `tokenizer_flags` | `NYASH_TOK_*` | Tokenizer 設定 |
 //! | `llvm_provider_flags` | `NYASH_LLVM_*`, `HAKO_LLVM_*` | LLVM provider 設定 |
-//! | `paths` | `NYASH_ROOT` | パス解決ヒント |
+//! | `paths` | `HAKO_ROOT`, `HAKO_BIN`, compat `NYASH_ROOT`, `NYASH_BIN` | パス解決ヒント |
 //! | `using_flags` | `NYASH_USING_*` | Using / Namespace 設定 |
 //! | `verification_flags` | `NYASH_VERIFY_*` | Verification 設定 |
 //! | `selfhost_flags` | `NYASH_NY_COMPILER_*` | Selfhost compiler 設定 |

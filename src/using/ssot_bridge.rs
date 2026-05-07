@@ -90,8 +90,8 @@ fn call_hako_box(name: &str, ctx: &SsotCtx) -> Option<String> {
     };
     let _ = write!(tf, "{}", code);
     let path = tf.path().to_path_buf();
-    // Resolve nyash binary; Fail-Fast aware fallback
-    let bin = if let Ok(b) = std::env::var("NYASH_BIN") {
+    // Resolve hakorune binary; Fail-Fast aware fallback.
+    let bin = if let Some(b) = crate::config::env::hako_bin() {
         b
     } else {
         if let Ok(p) = std::env::current_exe() {
@@ -101,10 +101,10 @@ fn call_hako_box(name: &str, ctx: &SsotCtx) -> Option<String> {
                 let ring0 = crate::runtime::ring0::get_global_ring0();
                 ring0
                     .log
-                    .error("[failfast/ssot/nyash-bin] unable to resolve NYASH_BIN/current_exe");
-                panic!("Fail-Fast: cannot resolve nyash binary for SSOT child");
+                    .error("[failfast/ssot/hako-bin] unable to resolve HAKO_BIN/current_exe");
+                panic!("Fail-Fast: cannot resolve hakorune binary for SSOT child");
             }
-            "target/release/nyash".to_string()
+            "target/release/hakorune".to_string()
         }
     };
 

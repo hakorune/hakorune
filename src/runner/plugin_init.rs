@@ -11,7 +11,7 @@ use crate::runtime::{
 };
 
 fn resolve_plugin_toml() -> String {
-    // Prefer hakorune.toml, fallback to nyash.toml (check CWD, then NYASH_ROOT)
+    // Prefer hakorune.toml, fallback to nyash.toml (check CWD, then HAKO_ROOT)
     let cwd_hako = std::path::Path::new("hakorune.toml");
     if cwd_hako.exists() {
         return "hakorune.toml".to_string();
@@ -20,7 +20,7 @@ fn resolve_plugin_toml() -> String {
     if cwd_ny.exists() {
         return "nyash.toml".to_string();
     }
-    if let Some(root) = crate::config::env::nyash_root() {
+    if let Some(root) = crate::config::env::hako_root() {
         let p = std::path::Path::new(&root).join("hakorune.toml");
         if p.exists() {
             return p.to_string_lossy().to_string();
