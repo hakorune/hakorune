@@ -4,3 +4,4 @@ apps/boxtorrent_mini_vm.sh
 apps/binary_trees_vm.sh
 apps/mimalloc_lite_vm.sh
 apps/allocator_stress_vm.sh
+apps/json_stream_aggregator_vm.sh

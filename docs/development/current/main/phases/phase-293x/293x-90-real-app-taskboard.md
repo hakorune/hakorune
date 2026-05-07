@@ -2,7 +2,7 @@
 
 - Status: Active
 - Lane: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
+- Current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
 
 ## Tasks
 
@@ -14,7 +14,8 @@
 - [x] `293x-006` real allocator port
 - [x] `293x-007` allocator-stress app
 - [x] `293x-008` BoxTorrent allocator-backed store
-- [ ] `293x-009` JSON stream aggregator
+- [x] `293x-009` JSON stream aggregator
+- [ ] `293x-010` typed object EXE plan for general user-box `newbox`
 
 ## Gates
 

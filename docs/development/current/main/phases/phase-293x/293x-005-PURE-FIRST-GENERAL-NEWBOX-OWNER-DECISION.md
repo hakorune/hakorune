@@ -33,11 +33,8 @@ own broad user-box allocation policy.
 ## Consequence
 
 The old blocker is resolved as an ownership decision, not as EXE parity.
-The new active blocker is:
-
-```text
-phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan
-```
+The immediate post-decision allocator mode was VM-only policy/state work. The
+current active blocker token is maintained in `CURRENT_STATE.toml`.
 
 EXE boundary smokes remain blocker probes and must continue to fail-fast at the
 known pure-first unsupported shape until the typed object plan lands.

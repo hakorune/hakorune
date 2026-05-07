@@ -101,5 +101,6 @@ probe_one "boxtorrent-mini"
 probe_one "binary-trees"
 probe_one "mimalloc-lite"
 probe_one "allocator-stress"
+probe_one "json-stream-aggregator"
 
 test_pass "$SMOKE_NAME"

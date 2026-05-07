@@ -91,6 +91,20 @@ CLBG風の二分木生成・破棄・再帰checksumを行う小型ベンチ。
 - oversize と double-free の reject を固定
 - `hako_alloc` public seam 経由の deterministic accounting
 
+#### json-stream-aggregator
+**場所**: `json-stream-aggregator/main.hako`
+JSONL風イベントを逐次読み、userごとのbytes/ok/failを集計する小型アプリ。
+
+```bash
+./target/release/hakorune --backend vm apps/json-stream-aggregator/main.hako
+```
+
+**特徴**:
+- narrow JSONL scanner
+- `MapBox` による user stats 集計
+- deterministic report output
+- stream processing seam の real-app smoke
+
 #### ny-echo - 最小CLI実装
 **場所**: `ny-echo/main.hako`
 標準入力を読み取り、オプションに応じて変換して出力する基本的なCLIツール。

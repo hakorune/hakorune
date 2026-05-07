@@ -5,7 +5,7 @@
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Active lane token: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
+- Current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
 
 ## Order
 
@@ -50,5 +50,6 @@ This is a blocker probe, not EXE parity. The current direct EXE route reaches
 - `293x-006`: `hako_alloc` VM-only page/free-list policy-state port landed.
 - `293x-007`: allocator-stress app landed.
 - `293x-008`: BoxTorrent allocator-backed store landed.
-- Next: add JSON stream aggregator app coverage; do not claim real-app EXE
-  parity until the typed object plan lands.
+- `293x-009`: JSON stream aggregator app landed.
+- Next: typed object EXE planning for general user-box `newbox`; do not claim
+  real-app EXE parity until that plan lands.

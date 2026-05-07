@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
+- current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -28,8 +28,8 @@ Related:
 
 - continue `phase-293x` real-app bringup
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
-  page/free-list port, allocator-stress, and BoxTorrent allocator-backed store
-  are landed
+  page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
+  JSON stream aggregator are landed
 - real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite ->
   allocator port -> allocator-stress app -> BoxTorrent allocator-backed store ->
   JSON stream aggregator

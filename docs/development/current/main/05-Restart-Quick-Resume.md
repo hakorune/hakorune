@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
+- current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
+- current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -53,14 +53,14 @@ cargo check -q
 
 - continue `phase-293x` real-app bringup
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
-  page/free-list port, allocator-stress, and BoxTorrent allocator-backed store
-  are landed with `real-apps` smoke coverage
+  page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
+  JSON stream aggregator are landed with `real-apps` smoke coverage
 - direct EXE currently reaches `ny-llvmc` pure-first and stops at unsupported
   general `newbox`
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: add JSON stream aggregator app coverage; keep EXE parity blocked until
-  typed object planning owns general user-box `newbox`
+- next: design typed object EXE planning for general user-box `newbox`; keep
+  EXE parity blocked until that plan lands
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:
