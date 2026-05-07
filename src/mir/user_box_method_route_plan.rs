@@ -10,10 +10,11 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 use crate::mir::definitions::call_unified::TypeCertainty;
-use crate::mir::{
-    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType,
-    ValueId,
-};
+mod body_shape;
+
+use body_shape::user_box_method_body_supported;
+
+use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, MirType, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct UserBoxMethodRouteSite {
@@ -338,53 +339,11 @@ fn collect_method_targets(
                     box_name: box_name.to_string(),
                     arity: target_arity,
                     return_type: function.signature.return_type.clone(),
-                    body_supported: birth_body_supported(function, typed_plan_type_ids),
+                    body_supported: user_box_method_body_supported(function, typed_plan_type_ids),
                 },
             ))
         })
         .collect()
-}
-
-fn birth_body_supported(
-    function: &MirFunction,
-    typed_plan_type_ids: &BTreeMap<String, u32>,
-) -> bool {
-    if function.blocks.len() != 1 {
-        return false;
-    }
-    let Some(block) = function.blocks.get(&function.entry_block) else {
-        return false;
-    };
-    if !matches!(block.terminator, Some(MirInstruction::Return { .. })) {
-        return false;
-    }
-    block
-        .instructions
-        .iter()
-        .all(|instruction| birth_instruction_supported(instruction, typed_plan_type_ids))
-}
-
-fn birth_instruction_supported(
-    instruction: &MirInstruction,
-    typed_plan_type_ids: &BTreeMap<String, u32>,
-) -> bool {
-    match instruction {
-        MirInstruction::Const { value, .. } => matches!(
-            value,
-            ConstValue::Integer(_) | ConstValue::Bool(_) | ConstValue::Void | ConstValue::Null
-        ),
-        MirInstruction::Copy { .. } => true,
-        MirInstruction::NewBox { box_type, .. } => {
-            matches!(box_type.as_str(), "ArrayBox" | "MapBox")
-                || typed_plan_type_ids.contains_key(box_type)
-        }
-        MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. } => true,
-        MirInstruction::BinOp { op, .. } => matches!(
-            op,
-            BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
-        ),
-        _ => false,
-    }
 }
 
 fn parse_method_symbol(name: &str) -> Option<(&str, &str, usize)> {
