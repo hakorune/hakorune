@@ -25,7 +25,9 @@ use super::{
     },
     extern_call_route_plan::refresh_function_extern_call_routes,
     function::ModuleMetadata,
-    generic_method_route_plan::refresh_function_generic_method_routes,
+    generic_method_route_plan::{
+        refresh_function_generic_method_routes, refresh_module_generic_method_routes,
+    },
     global_call_route_plan::{
         refresh_function_global_call_routes, refresh_module_global_call_routes,
     },
@@ -112,14 +114,15 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         refresh_function_semantic_metadata(function, &module_metadata);
     }
+    refresh_module_generic_method_routes(module);
     refresh_module_global_call_routes(module);
     refresh_module_user_box_method_routes(module);
     for function in module.functions.values_mut() {
         // Some generic method routes depend on global-call target shapes
         // discovered only at module scope.
-        refresh_function_generic_method_routes(function);
         refresh_function_map_lookup_fusion_routes(function);
     }
+    refresh_module_generic_method_routes(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
 }

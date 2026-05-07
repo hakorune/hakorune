@@ -30,9 +30,11 @@ fi
 
 probe_one() {
   local app_name="$1"
+  shift || true
   local app_path="$NYASH_ROOT/apps/$app_name/main.hako"
   local exe_out="${TMP_ROOT}_${app_name//-/_}"
   local build_log="${TMP_ROOT}_${app_name//-/_}.log"
+  local expected_fragment=""
 
   if [ ! -f "$app_path" ]; then
     test_fail "$SMOKE_NAME: app missing: $app_path"
@@ -101,11 +103,24 @@ probe_one() {
     return 1
   fi
 
+  for expected_fragment in "$@"; do
+    if ! grep -Fq "$expected_fragment" "$build_log"; then
+      echo "[INFO] build output tail for $app_name:"
+      tail -n 120 "$build_log" || true
+      test_fail "$SMOKE_NAME: $app_name missing expected boundary fragment: $expected_fragment"
+      return 1
+    fi
+  done
+
   echo "[INFO] $app_name: EXE boundary pinned at pure-first birth/method call route"
   return 0
 }
 
-probe_one "boxtorrent-mini"
+probe_one "boxtorrent-mini" \
+  "consumer=mir_call_user_box_birth_same_module_emit site=b116.i11 route=user_box.method_call core_op=UserBoxMethodCall tier=DirectAbi symbol=HakoAllocHeap.birth/0" \
+  "consumer=mir_call_global_uniform_mir_emit site=b64.i29 route=global.user_call core_op=UserGlobalCall tier=DirectAbi symbol=HakoAllocPage.seedBlocks/0" \
+  "first_block=0 first_inst=19 first_op=mir_call" \
+  "bname=BoxTorrentChunker mname=ingest"
 probe_one "binary-trees"
 probe_one "mimalloc-lite"
 probe_one "allocator-stress"

@@ -258,13 +258,30 @@ pub fn refresh_module_user_box_method_routes(module: &mut MirModule) {
         .iter()
         .map(|plan| (plan.box_name.clone(), plan.type_id))
         .collect::<BTreeMap<_, _>>();
-    let targets = collect_method_targets(module, &typed_plan_type_ids);
-    for function in module.functions.values_mut() {
-        refresh_function_user_box_method_routes_with_context(
-            function,
-            &targets,
-            &typed_plan_type_ids,
-        );
+    for _ in 0..module.functions.len().max(1) {
+        let before = module
+            .functions
+            .iter()
+            .map(|(name, function)| (name.clone(), function.metadata.user_box_method_routes.clone()))
+            .collect::<BTreeMap<_, _>>();
+        let targets = collect_method_targets(module, &typed_plan_type_ids);
+        for function in module.functions.values_mut() {
+            refresh_function_user_box_method_routes_with_context(
+                function,
+                &targets,
+                &typed_plan_type_ids,
+            );
+        }
+        let changed = module.functions.iter().any(|(name, function)| {
+            before
+                .get(name)
+                .map_or(true, |routes| {
+                    routes != &function.metadata.user_box_method_routes
+                })
+        });
+        if !changed {
+            break;
+        }
     }
 }
 

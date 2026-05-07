@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::mir::{BinaryOp, ConstValue, MirFunction, MirInstruction};
+use crate::mir::{BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction};
 
 pub(super) fn user_box_method_body_supported(
     function: &MirFunction,
@@ -18,10 +18,22 @@ pub(super) fn user_box_method_body_supported(
     block
         .instructions
         .iter()
-        .all(|instruction| user_box_method_instruction_supported(instruction, typed_plan_type_ids))
+        .enumerate()
+        .all(|(instruction_index, instruction)| {
+            user_box_method_instruction_supported(
+                function,
+                function.entry_block,
+                instruction_index,
+                instruction,
+                typed_plan_type_ids,
+            )
+        })
 }
 
 fn user_box_method_instruction_supported(
+    function: &MirFunction,
+    block_id: BasicBlockId,
+    instruction_index: usize,
     instruction: &MirInstruction,
     typed_plan_type_ids: &BTreeMap<String, u32>,
 ) -> bool {
@@ -40,6 +52,22 @@ fn user_box_method_instruction_supported(
             op,
             BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
         ),
+        MirInstruction::Call {
+            callee: Some(Callee::Global(_)),
+            ..
+        } => function.metadata.global_call_routes.iter().any(|route| {
+            route.block() == block_id
+                && route.instruction_index() == instruction_index
+                && route.reason().is_none()
+        }),
+        MirInstruction::Call {
+            callee: Some(Callee::Method { .. }),
+            ..
+        } => function.metadata.user_box_method_routes.iter().any(|route| {
+            route.block() == block_id
+                && route.instruction_index() == instruction_index
+                && route.reason().is_none()
+        }),
         _ => false,
     }
 }

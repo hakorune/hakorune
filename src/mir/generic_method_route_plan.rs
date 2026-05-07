@@ -15,7 +15,8 @@ use super::generic_method_route_facts::{
 use super::string_corridor::StringCorridorOp;
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
-    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType,
+    ValueId,
 };
 use crate::mir::global_call_route_plan::GlobalCallRoute;
 use std::collections::{BTreeMap, BTreeSet};
@@ -37,13 +38,25 @@ pub(crate) use model::{
 
 #[cfg(test)]
 pub(crate) mod test_support;
+
+type FieldHandleOriginKey = (String, String);
+type FieldHandleOriginMap = BTreeMap<FieldHandleOriginKey, String>;
+
 pub fn refresh_module_generic_method_routes(module: &mut MirModule) {
+    let field_handle_origins = infer_typed_object_field_handle_origins(module);
     for function in module.functions.values_mut() {
-        refresh_function_generic_method_routes(function);
+        refresh_function_generic_method_routes_with_context(function, &field_handle_origins);
     }
 }
 
 pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
+    refresh_function_generic_method_routes_with_context(function, &FieldHandleOriginMap::new());
+}
+
+fn refresh_function_generic_method_routes_with_context(
+    function: &mut MirFunction,
+    field_handle_origins: &FieldHandleOriginMap,
+) {
     let mut routes = Vec::new();
     let def_map = build_value_def_map(function);
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
@@ -69,6 +82,7 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                         match_generic_len_route(
                             function,
                             &def_map,
+                            field_handle_origins,
                             block_id,
                             instruction_index,
                             inst,
@@ -123,6 +137,7 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                         match_generic_push_route(
                             function,
                             &def_map,
+                            field_handle_origins,
                             block_id,
                             instruction_index,
                             inst,
@@ -132,6 +147,7 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
                         match_generic_set_route(
                             function,
                             &def_map,
+                            field_handle_origins,
                             block_id,
                             instruction_index,
                             inst,
@@ -145,6 +161,123 @@ pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
 
     routes.sort_by_key(|route| (route.block().as_u32(), route.instruction_index()));
     function.metadata.generic_method_routes = routes;
+}
+
+fn infer_typed_object_field_handle_origins(module: &MirModule) -> FieldHandleOriginMap {
+    let typed_object_fields = module
+        .metadata
+        .typed_object_plans
+        .iter()
+        .flat_map(|plan| {
+            plan.fields.iter().map(move |field| {
+                (
+                    (plan.box_name.clone(), field.name.clone()),
+                    field.storage == crate::mir::function::TypedObjectFieldStorage::Handle,
+                )
+            })
+        })
+        .collect::<BTreeMap<_, _>>();
+    let mut origins = BTreeMap::<FieldHandleOriginKey, String>::new();
+    let mut conflicts = BTreeSet::<FieldHandleOriginKey>::new();
+
+    for function in module.functions.values() {
+        let def_map = build_value_def_map(function);
+        for block in function.blocks.values() {
+            for inst in &block.instructions {
+                let MirInstruction::FieldSet {
+                    base, field, value, ..
+                } = inst
+                else {
+                    continue;
+                };
+                let Some(box_name) = typed_object_value_box_name(function, &def_map, *base) else {
+                    continue;
+                };
+                let key = (box_name, field.clone());
+                if typed_object_fields.get(&key) != Some(&true) {
+                    continue;
+                }
+                let Some(origin_box) = handle_value_origin_box_name(function, &def_map, *value)
+                else {
+                    continue;
+                };
+                if conflicts.contains(&key) {
+                    continue;
+                }
+                match origins.get(&key) {
+                    Some(existing) if existing != &origin_box => {
+                        origins.remove(&key);
+                        conflicts.insert(key);
+                    }
+                    Some(_) => {}
+                    None => {
+                        origins.insert(key, origin_box);
+                    }
+                }
+            }
+        }
+    }
+
+    origins
+}
+
+fn typed_object_value_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<String> {
+    let origin = resolve_value_origin(function, def_map, value);
+    if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
+        let block = function.blocks.get(&block_id)?;
+        if let Some(MirInstruction::NewBox { box_type, .. }) =
+            block.instructions.get(instruction_index)
+        {
+            return Some(box_type.clone());
+        }
+    }
+    function
+        .params
+        .iter()
+        .position(|param| *param == origin)
+        .and_then(|index| {
+            function
+                .signature
+                .params
+                .get(index)
+                .and_then(|ty| match ty {
+                    MirType::Box(name) => Some(name.clone()),
+                    _ => None,
+                })
+                .or_else(|| {
+                    (index == 0)
+                        .then(|| method_receiver_box_name(&function.signature.name))
+                        .flatten()
+                })
+        })
+}
+
+fn method_receiver_box_name(symbol: &str) -> Option<String> {
+    let (owner_and_method, _arity) = symbol.rsplit_once('/')?;
+    let (box_name, _method) = owner_and_method.rsplit_once('.')?;
+    Some(box_name.to_string())
+}
+
+fn handle_value_origin_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<String> {
+    let origin = resolve_value_origin(function, def_map, value);
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    match block.instructions.get(instruction_index)? {
+        MirInstruction::NewBox { box_type, .. }
+            if matches!(box_type.as_str(), "ArrayBox" | "MapBox" | "StringBox") =>
+        {
+            Some(box_type.clone())
+        }
+        _ => None,
+    }
 }
 
 fn match_generic_has_route(
@@ -1299,6 +1432,7 @@ fn value_depends_on(
 fn match_generic_len_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    field_handle_origins: &FieldHandleOriginMap,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -1319,13 +1453,22 @@ fn match_generic_len_route(
         return None;
     };
     if !is_len_method(method)
-        || !(args.is_empty() || generic_len_self_arg_is_supported(function, def_map, box_name, args))
+        || !(args.is_empty()
+            || generic_len_self_arg_is_supported(
+                function,
+                def_map,
+                field_handle_origins,
+                box_name,
+                args,
+            ))
     {
         return None;
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
-        .or_else(|| generic_array_flow_origin_box_name(function, def_map, *receiver))
+        .or_else(|| {
+            generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
+        })
         .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
         .or_else(|| {
             string_corridor_method_origin_box_name(function, *dst, StringCorridorOp::StrLen)
@@ -1406,6 +1549,7 @@ fn match_generic_keys_route(
 fn generic_len_self_arg_is_supported(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    field_handle_origins: &FieldHandleOriginMap,
     box_name: &str,
     args: &[ValueId],
 ) -> bool {
@@ -1419,7 +1563,8 @@ fn generic_len_self_arg_is_supported(
                 == Some("StringBox")
         }
         "ArrayBox" => {
-            generic_array_flow_origin_box_name(function, def_map, args[0]).as_deref()
+            generic_array_flow_origin_box_name(function, def_map, field_handle_origins, args[0])
+                .as_deref()
                 == Some("ArrayBox")
         }
         _ => false,
@@ -1742,6 +1887,7 @@ fn string_corridor_value_has_op_flow(
 fn match_generic_push_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    field_handle_origins: &FieldHandleOriginMap,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -1766,7 +1912,9 @@ fn match_generic_push_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
-        .or_else(|| generic_array_flow_origin_box_name(function, def_map, *receiver))
+        .or_else(|| {
+            generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
+        })
         .or_else(|| (box_name == "ArrayBox").then(|| "ArrayBox".to_string()));
     if receiver_origin_box.as_deref() != Some("ArrayBox")
         || !matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox")
@@ -1775,7 +1923,9 @@ fn match_generic_push_route(
     }
     if args.len() == 2 {
         let receiver_arg_origin_box = receiver_origin_box_name(function, def_map, args[0])
-            .or_else(|| generic_array_flow_origin_box_name(function, def_map, args[0]));
+            .or_else(|| {
+                generic_array_flow_origin_box_name(function, def_map, field_handle_origins, args[0])
+            });
         if receiver_arg_origin_box.as_deref() != Some("ArrayBox")
             || resolve_value_origin(function, def_map, args[0])
                 != resolve_value_origin(function, def_map, *receiver)
@@ -1806,6 +1956,7 @@ fn match_generic_push_route(
 fn match_generic_set_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    field_handle_origins: &FieldHandleOriginMap,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -1831,6 +1982,9 @@ fn match_generic_set_route(
     let args = method_args_without_redundant_receiver(function, def_map, *receiver, args, 2)?;
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| {
+            generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
+        })
         .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
     let (route_kind, core_op) = match (box_name.as_str(), receiver_origin_box.as_deref()) {
         ("ArrayBox", _) | ("RuntimeDataBox", Some("ArrayBox")) => (
@@ -2010,6 +2164,7 @@ fn generic_param_type_can_flow_as_text(ty: &super::MirType) -> bool {
 fn generic_array_flow_origin_box_name(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    field_handle_origins: &FieldHandleOriginMap,
     receiver: ValueId,
 ) -> Option<String> {
     let mut array_values = BTreeMap::<ValueId, &'static str>::new();
@@ -2034,6 +2189,21 @@ fn generic_array_flow_origin_box_name(
                             if array_values.insert(*dst, origin) != Some(origin) {
                                 changed = true;
                             }
+                        }
+                    }
+                    MirInstruction::FieldGet {
+                        dst, base, field, ..
+                    } => {
+                        let Some(box_name) = typed_object_value_box_name(function, def_map, *base)
+                        else {
+                            continue;
+                        };
+                        if field_handle_origins
+                            .get(&(box_name, field.clone()))
+                            .is_some_and(|origin| origin == "ArrayBox")
+                            && array_values.insert(*dst, "ArrayBox") != Some("ArrayBox")
+                        {
+                            changed = true;
                         }
                     }
                     MirInstruction::Phi { dst, inputs, .. } if !inputs.is_empty() => {

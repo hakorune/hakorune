@@ -40,8 +40,9 @@ This is a blocker probe, not EXE parity. TypedObjectPlan now covers declared
 i64 fields, init-only untyped fields, handle storage, observed empty user
 boxes, and observed `newbox` argument storage flowing into same-module `birth`
 parameters. Conservative same-module `birth` and scalar user-box method routes
-are available for the minimal typed-object fixtures, but the real-app boundary
-still stops at the broader birth/method call route seam.
+are available for the minimal typed-object fixtures. BoxTorrent allocator page
+seeding now lowers through a MIR-owned void side-effect global route, but the
+real-app boundary still stops at the broader user-box method call route seam.
 
 ## Current Status
 
@@ -67,5 +68,7 @@ still stops at the broader birth/method call route seam.
   conservative single-block body shape.
 - `293x-017`: typed-object birth-param storage inference landed for untyped
   fields initialized from observed `newbox` constructor arguments.
-- Next: expand pure-first route coverage for the next real-app method / `birth`
-  body shape; do not claim real-app EXE parity until those call seams land.
+- `293x-018`: typed void side-effect global route landed for the BoxTorrent
+  allocator page seeding chain.
+- Next: expand pure-first route coverage for `BoxTorrentChunker.ingest`; do not
+  claim real-app EXE parity until that method seam lands.

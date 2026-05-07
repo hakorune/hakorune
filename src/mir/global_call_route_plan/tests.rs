@@ -51,4 +51,5 @@ mod runtime_methods;
 mod shape_reasons;
 mod static_string_array;
 mod void_logging;
+mod void_side_effect;
 mod void_sentinel;

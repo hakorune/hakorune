@@ -211,6 +211,7 @@
                 !strcmp(proof, "typed_global_call_static_string_array") ||
                 !strcmp(proof, "typed_global_call_mir_schema_map_constructor") ||
                 !strcmp(proof, "typed_global_call_box_type_inspector_describe") ||
+                !strcmp(proof, "typed_global_call_void_side_effect") ||
                 !strcmp(proof, "typed_global_call_pattern_util_local_value_probe"));
       }
 

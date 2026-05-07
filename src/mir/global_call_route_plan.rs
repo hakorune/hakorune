@@ -31,6 +31,7 @@ mod shape_blocker;
 mod static_string_array_body;
 mod string_return_profile;
 mod type_label;
+mod void_side_effect_body;
 
 use box_type_inspector_describe_body::{
     box_type_inspector_describe_body_reject_reason, box_type_inspector_describe_classification,
@@ -62,6 +63,7 @@ use pattern_util_local_value_probe_body::{
 };
 use program_json_emit_body::is_program_json_emit_body_function;
 use static_string_array_body::is_static_string_array_body_function;
+use void_side_effect_body::is_void_side_effect_body_function;
 
 fn supported_backend_global(name: &str) -> bool {
     matches!(name, "print")
@@ -251,6 +253,12 @@ fn classify_global_call_target_shape(
     {
         return GlobalCallTargetClassification::direct_contract(
             GlobalCallProof::GenericStringVoidLogging,
+            GlobalCallReturnContract::VoidSentinelI64Zero,
+        );
+    }
+    if is_void_side_effect_body_function(function, targets) {
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::VoidSideEffect,
             GlobalCallReturnContract::VoidSentinelI64Zero,
         );
     }

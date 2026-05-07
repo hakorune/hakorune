@@ -943,7 +943,24 @@
         return 0;
       }
 
+      long long same_module_function_prepass_failed_bid = -1;
+      size_t same_module_function_prepass_failed_ii = 0;
+      const char* same_module_function_prepass_failed_op = NULL;
+
+      auto void same_module_function_record_prepass_failure(
+          long long bid,
+          size_t ii,
+          yyjson_val* ins) {
+        if (same_module_function_prepass_failed_op) return;
+        same_module_function_prepass_failed_bid = bid;
+        same_module_function_prepass_failed_ii = ii;
+        same_module_function_prepass_failed_op = read_str(ins, "op");
+      }
+
       auto int same_module_function_prepass_active_function(void) {
+        same_module_function_prepass_failed_bid = -1;
+        same_module_function_prepass_failed_ii = 0;
+        same_module_function_prepass_failed_op = NULL;
         yyjson_val* params = fn0 ? yyjson_obj_get(fn0, "params") : NULL;
         if (!(params && yyjson_is_arr(params))) return 0;
         for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
@@ -958,7 +975,10 @@
           if (!read_generic_pure_block_view(bi, &block)) return 0;
           for (size_t ii = 0; ii < block.instruction_count; ii++) {
             yyjson_val* ins = yyjson_arr_get(block.instructions, ii);
-            if (!same_module_function_prepass_instruction(block.id, ii, ins)) return 0;
+            if (!same_module_function_prepass_instruction(block.id, ii, ins)) {
+              same_module_function_record_prepass_failure(block.id, ii, ins);
+              return 0;
+            }
           }
         }
         same_module_function_refine_phi_types();
@@ -2045,9 +2065,11 @@
           const char* name) {
         if (!same_module_function_prepass_active_function()) {
           note_pure_unsupported_shape_detail(
-              -1,
-              0,
-              "module_function",
+              same_module_function_prepass_failed_bid,
+              same_module_function_prepass_failed_ii,
+              same_module_function_prepass_failed_op
+                  ? same_module_function_prepass_failed_op
+                  : "module_function",
               "module_generic_prepass_failed",
               NULL,
               NULL,

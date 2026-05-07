@@ -64,6 +64,7 @@ pub(super) enum GlobalCallProof {
     MirSchemaMapConstructor,
     BoxTypeInspectorDescribe,
     PatternUtilLocalValueProbe,
+    VoidSideEffect,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -139,6 +140,7 @@ impl GlobalCallProof {
             Self::MirSchemaMapConstructor => "typed_global_call_mir_schema_map_constructor",
             Self::BoxTypeInspectorDescribe => "typed_global_call_box_type_inspector_describe",
             Self::PatternUtilLocalValueProbe => "typed_global_call_pattern_util_local_value_probe",
+            Self::VoidSideEffect => "typed_global_call_void_side_effect",
         }
     }
 
@@ -167,7 +169,8 @@ impl GlobalCallProof {
             | Self::LeafNumericI64
             | Self::GenericStringVoidLogging
             | Self::GenericI64
-            | Self::PatternUtilLocalValueProbe => "none",
+            | Self::PatternUtilLocalValueProbe
+            | Self::VoidSideEffect => "none",
         }
     }
 
@@ -182,7 +185,8 @@ impl GlobalCallProof {
             | Self::MirSchemaMapConstructor
             | Self::BoxTypeInspectorDescribe
             | Self::GenericStringOrVoidSentinel
-            | Self::PatternUtilLocalValueProbe => GlobalCallDefinitionOwner::UniformMir,
+            | Self::PatternUtilLocalValueProbe
+            | Self::VoidSideEffect => GlobalCallDefinitionOwner::UniformMir,
             Self::Stage1EmitProgramJson => GlobalCallDefinitionOwner::RuntimeHelper,
             Self::GenericPureString => GlobalCallDefinitionOwner::ModuleGeneric,
         }
