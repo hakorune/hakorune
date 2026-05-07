@@ -144,8 +144,8 @@ fn collect_typed_object_plan_values_preserves_backend_layout_truth() {
             TypedObjectFieldPlan {
                 name: "right".to_string(),
                 slot: 1,
-                declared_type_name: Some("IntegerBox".to_string()),
-                storage: TypedObjectFieldStorage::I64,
+                declared_type_name: Some("ArrayBox".to_string()),
+                storage: TypedObjectFieldStorage::Handle,
                 is_weak: false,
             },
         ],
@@ -162,4 +162,5 @@ fn collect_typed_object_plan_values_preserves_backend_layout_truth() {
     assert_eq!(plans[0]["fields"][0]["slot"], 0);
     assert_eq!(plans[0]["fields"][0]["storage"], "i64");
     assert_eq!(plans[0]["fields"][0]["weak"], false);
+    assert_eq!(plans[0]["fields"][1]["storage"], "handle");
 }

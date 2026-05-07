@@ -2,7 +2,7 @@
 
 - Status: Active
 - Lane: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x typed object EXE route expansion: untyped/handle fields plus birth/method calls before real-app parity`
+- Current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
 
 ## Tasks
 
@@ -19,7 +19,8 @@
 - [x] `293x-011` config env Hako root/bin alias cleanup
 - [x] `293x-012` typed object EXE plan for general user-box `newbox`
 - [x] `293x-013` i64 field typed-object EXE route for `newbox` + `field_set` / `field_get`
-- [ ] `293x-014` typed object route expansion for birth/method and non-i64 real-app storage blockers
+- [x] `293x-014` typed object route expansion for init-only untyped fields, handle storage, and empty user-box allocation
+- [ ] `293x-015` birth/method call route expansion before real-app EXE parity
 
 ## Gates
 

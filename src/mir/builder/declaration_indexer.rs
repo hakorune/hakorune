@@ -64,19 +64,19 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
             field_decls,
             methods,
             is_static,
+            init_fields,
+            weak_fields,
             ..
         } => {
             if !*is_static {
                 // Phase 285LLVM-1.1: Register instance box with field information
-                if field_decls.is_empty() {
-                    builder
-                        .comp_ctx
-                        .register_user_box_with_fields(name.clone(), fields.clone());
-                } else {
-                    builder
-                        .comp_ctx
-                        .register_user_box_with_field_decls(name.clone(), field_decls.clone());
-                }
+                builder.comp_ctx.register_user_box_surface_fields(
+                    name.clone(),
+                    fields,
+                    field_decls,
+                    init_fields,
+                    weak_fields,
+                );
             } else {
                 // Static box: no fields
                 builder.comp_ctx.register_user_box(name.clone());

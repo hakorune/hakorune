@@ -227,6 +227,7 @@ impl super::MirBuilder {
                 fields,
                 field_decls,
                 constructors,
+                init_fields,
                 weak_fields,
                 ..
             } => {
@@ -290,13 +291,13 @@ impl super::MirBuilder {
                 } else {
                     // Instance box: register type and lower instance methods/ctors as functions
                     // Phase 285LLVM-1.1: Register with field information for LLVM harness
-                    if field_decls.is_empty() {
-                        self.comp_ctx
-                            .register_user_box_with_fields(name.clone(), fields.clone());
-                    } else {
-                        self.comp_ctx
-                            .register_user_box_with_field_decls(name.clone(), field_decls.clone());
-                    }
+                    self.comp_ctx.register_user_box_surface_fields(
+                        name.clone(),
+                        &fields,
+                        &field_decls,
+                        &init_fields,
+                        &weak_fields,
+                    );
                     self.build_box_declaration(
                         name.clone(),
                         methods.clone(),

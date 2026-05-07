@@ -161,10 +161,10 @@ Unsupported first:
 
 - `293x-013`: i64 field-only user-box `newbox` + `field_set` / `field_get`
   EXE fixture.
-- `293x-014`: `birth` as a normal same-module function call after allocation.
-- `293x-015`: user-box instance method call, e.g. `p.sum()`.
-- `293x-016`: handle fields for String / Array / Map when the value type is
-  explicit.
+- `293x-014`: init-only untyped fields, handle storage, and observed
+  zero-field user-box allocation.
+- `293x-015`: `birth` as a normal same-module function call after allocation.
+- `293x-016`: user-box instance method call, e.g. `p.sum()`.
 - `293x-017`: allocator-backed object allocation route.
 - `293x-018`: BoxTorrent allocator-backed store EXE parity.
 - `293x-019`: JSON stream aggregator EXE parity.

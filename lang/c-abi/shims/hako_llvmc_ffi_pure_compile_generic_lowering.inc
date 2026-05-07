@@ -399,7 +399,7 @@
             long long value_const = 0;
             if (box_reg && value_reg &&
                 get_typed_object_binding(box_reg, &typed_plan_index) &&
-                typed_object_plan_field_i64_slot(typed_plan_index, field, &slot)) {
+                typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
               long long box_base = resolve_copy_source_reg(box_reg);
               if (has_const(value_base, &value_const)) {
                 EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 %lld, i64 %lld)\n",
@@ -431,7 +431,7 @@
             long long slot = -1;
             if (dst && box_reg &&
                 get_typed_object_binding(box_reg, &typed_plan_index) &&
-                typed_object_plan_field_i64_slot(typed_plan_index, field, &slot)) {
+                typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
               long long box_base = resolve_copy_source_reg(box_reg);
               EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_hii\"(i64 %%r%lld, i64 %lld)\n",
                    dst,

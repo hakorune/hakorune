@@ -5,7 +5,7 @@
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Active lane token: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x typed object EXE route expansion: untyped/handle fields plus birth/method calls before real-app parity`
+- Current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
 
 ## Order
 
@@ -36,9 +36,10 @@ tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight
 tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight
 ```
 
-This is a blocker probe, not EXE parity. The declared-i64 typed object route is
-now accepted by pure-first, but the real-app boundary still stops at the broader
-general-user-box gap for untyped/handle fields plus birth/method call expansion.
+This is a blocker probe, not EXE parity. TypedObjectPlan now covers declared
+i64 fields, init-only untyped fields, handle storage, and observed empty user
+boxes, but the real-app boundary still stops at the birth/method call route
+seam.
 
 ## Current Status
 
@@ -56,6 +57,7 @@ general-user-box gap for untyped/handle fields plus birth/method call expansion.
 - `293x-012`: typed object EXE plan for general user-box `newbox` landed.
 - `293x-013`: declared-i64 typed object EXE route for `newbox` plus
   `field_set` / `field_get` landed.
-- Next: expand typed object EXE coverage beyond declared i64 fields; do not
-  claim real-app EXE parity until untyped/handle field storage and birth/method
-  call seams land.
+- `293x-014`: init-only untyped fields, handle storage, and observed empty
+  user-box allocation landed.
+- Next: expand pure-first route coverage for `birth` and user-box instance
+  method calls; do not claim real-app EXE parity until those call seams land.

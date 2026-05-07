@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-293x typed object EXE route expansion: untyped/handle fields plus birth/method calls before real-app parity`
+- current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x typed object EXE route expansion: untyped/handle fields plus birth/method calls before real-app parity`
+- current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,13 +55,13 @@ cargo check -q
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage
-- declared-i64 typed object allocation plus slot field get/set has landed; direct
-  real-app EXE still stops at the broader general-user-box gap for
-  untyped/handle fields plus birth/method call expansion
+- typed-object EXE allocation plus slot field get/set now covers declared i64
+  fields, init-only untyped fields, handle storage, and observed empty user
+  boxes; direct real-app EXE still stops at the birth/method call route seam
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: expand typed-object EXE coverage toward real-app storage and call seams;
-  keep EXE parity blocked until those routes land
+- next: expand typed-object EXE coverage for `birth` and user-box instance
+  method calls; keep EXE parity blocked until those routes land
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

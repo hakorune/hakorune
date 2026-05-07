@@ -329,12 +329,14 @@ pub struct UserBoxFieldDecl {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TypedObjectFieldStorage {
     I64,
+    Handle,
 }
 
 impl TypedObjectFieldStorage {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::I64 => "i64",
+            Self::Handle => "handle",
         }
     }
 }

@@ -5,34 +5,66 @@
  * rediscovering user-box declarations or cloning VM InstanceBox semantics.
  */
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::{
-    function::{ModuleMetadata, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan},
-    MirModule, UserBoxFieldDecl,
+    function::{
+        MirFunction, ModuleMetadata, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+    },
+    value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap},
+    ConstValue, MirInstruction, MirModule, MirType, UserBoxFieldDecl, ValueId,
 };
 
 pub const TYPED_OBJECT_LAYOUT_KIND_RUNTIME_SLOT_OBJECT_V0: &str = "runtime_slot_object_v0";
 
 pub fn refresh_module_typed_object_plans(module: &mut MirModule) {
-    module.metadata.typed_object_plans = build_typed_object_plans(&module.metadata);
+    module.metadata.typed_object_plans = build_typed_object_plans(module);
 }
 
-pub fn build_typed_object_plans(metadata: &ModuleMetadata) -> Vec<TypedObjectPlan> {
+pub fn build_typed_object_plans(module: &MirModule) -> Vec<TypedObjectPlan> {
+    let inferred = infer_untyped_field_storages(module);
+    let observed_newboxes = observed_user_newbox_names(module);
+    build_typed_object_plans_from_metadata(&module.metadata, &inferred, &observed_newboxes)
+}
+
+fn build_typed_object_plans_from_metadata(
+    metadata: &ModuleMetadata,
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+    observed_newboxes: &BTreeSet<String>,
+) -> Vec<TypedObjectPlan> {
     let mut names = BTreeSet::new();
+    names.extend(metadata.user_box_decls.keys().cloned());
     names.extend(metadata.user_box_field_decls.keys().cloned());
+    names.extend(observed_newboxes.iter().cloned());
 
     let mut plans = Vec::new();
     for name in names {
-        let Some(field_decls) = metadata.user_box_field_decls.get(&name) else {
-            continue;
-        };
-        let Some(fields) = build_i64_field_plans(field_decls) else {
-            continue;
-        };
-        if fields.is_empty() {
+        if !metadata.user_box_decls.contains_key(&name)
+            && !metadata.user_box_field_decls.contains_key(&name)
+        {
             continue;
         }
+        let empty_field_decls = Vec::new();
+        let field_decls = metadata
+            .user_box_field_decls
+            .get(&name)
+            .unwrap_or(&empty_field_decls);
+        if field_decls.is_empty() {
+            if observed_newboxes.contains(&name) {
+                let type_id = plans.len() as u32 + 1;
+                plans.push(TypedObjectPlan {
+                    box_name: name,
+                    type_id,
+                    layout_kind: TYPED_OBJECT_LAYOUT_KIND_RUNTIME_SLOT_OBJECT_V0.to_string(),
+                    field_count: 0,
+                    fields: Vec::new(),
+                });
+            }
+            continue;
+        }
+        let Some(fields) = build_field_plans(metadata, &name, field_decls, inferred) else {
+            continue;
+        };
         let type_id = plans.len() as u32 + 1;
         plans.push(TypedObjectPlan {
             box_name: name,
@@ -45,13 +77,54 @@ pub fn build_typed_object_plans(metadata: &ModuleMetadata) -> Vec<TypedObjectPla
     plans
 }
 
-fn build_i64_field_plans(field_decls: &[UserBoxFieldDecl]) -> Option<Vec<TypedObjectFieldPlan>> {
+fn observed_user_newbox_names(module: &MirModule) -> BTreeSet<String> {
+    let mut names = BTreeSet::new();
+    for function in module.functions.values() {
+        for block in function.blocks.values() {
+            for inst in &block.instructions {
+                if let MirInstruction::NewBox { box_type, .. } = inst {
+                    if module.metadata.user_box_decls.contains_key(box_type)
+                        || module.metadata.user_box_field_decls.contains_key(box_type)
+                    {
+                        names.insert(box_type.clone());
+                    }
+                }
+            }
+        }
+    }
+    names
+}
+
+type FieldKey = (String, String);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum FieldStorageInference {
+    Known(TypedObjectFieldStorage),
+    Conflict,
+}
+
+fn build_field_plans(
+    metadata: &ModuleMetadata,
+    box_name: &str,
+    field_decls: &[UserBoxFieldDecl],
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+) -> Option<Vec<TypedObjectFieldPlan>> {
     let mut fields = Vec::new();
     for (slot, decl) in field_decls.iter().enumerate() {
         if decl.is_weak {
             return None;
         }
-        let storage = storage_for_declared_type(decl.declared_type_name.as_deref())?;
+        let declared = storage_for_declared_type(metadata, decl.declared_type_name.as_deref());
+        let observed = match inferred.get(&(box_name.to_string(), decl.name.clone())) {
+            Some(FieldStorageInference::Known(storage)) => Some(*storage),
+            Some(FieldStorageInference::Conflict) => return None,
+            None => None,
+        };
+        let storage = match (declared, observed) {
+            (Some(left), Some(right)) if left != right => return None,
+            (Some(storage), _) | (None, Some(storage)) => storage,
+            (None, None) => return None,
+        };
         fields.push(TypedObjectFieldPlan {
             name: decl.name.clone(),
             slot: slot as u32,
@@ -63,9 +136,233 @@ fn build_i64_field_plans(field_decls: &[UserBoxFieldDecl]) -> Option<Vec<TypedOb
     Some(fields)
 }
 
-fn storage_for_declared_type(type_name: Option<&str>) -> Option<TypedObjectFieldStorage> {
+fn infer_untyped_field_storages(module: &MirModule) -> BTreeMap<FieldKey, FieldStorageInference> {
+    let declared_fields = declared_field_sets(&module.metadata);
+    let mut inferred = BTreeMap::new();
+
+    for _ in 0..4 {
+        let mut changed = false;
+        for function in module.functions.values() {
+            let def_map = build_value_def_map(function);
+            for block in function.blocks.values() {
+                for inst in &block.instructions {
+                    let MirInstruction::FieldSet {
+                        base,
+                        field,
+                        value,
+                        declared_type,
+                    } = inst
+                    else {
+                        continue;
+                    };
+                    let Some(box_name) = box_name_for_value(function, &def_map, *base) else {
+                        continue;
+                    };
+                    if !declared_fields
+                        .get(&box_name)
+                        .is_some_and(|fields| fields.contains(field))
+                    {
+                        continue;
+                    }
+                    let storage = declared_type
+                        .as_ref()
+                        .and_then(storage_for_mir_type)
+                        .or_else(|| storage_for_value(function, &def_map, *value, &inferred));
+                    if let Some(storage) = storage {
+                        changed |= merge_storage_observation(
+                            &mut inferred,
+                            (box_name, field.clone()),
+                            storage,
+                        );
+                    }
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    inferred
+}
+
+fn declared_field_sets(metadata: &ModuleMetadata) -> BTreeMap<String, BTreeSet<String>> {
+    metadata
+        .user_box_field_decls
+        .iter()
+        .map(|(box_name, fields)| {
+            (
+                box_name.clone(),
+                fields.iter().map(|field| field.name.clone()).collect(),
+            )
+        })
+        .collect()
+}
+
+fn merge_storage_observation(
+    inferred: &mut BTreeMap<FieldKey, FieldStorageInference>,
+    key: FieldKey,
+    storage: TypedObjectFieldStorage,
+) -> bool {
+    use std::collections::btree_map::Entry;
+    match inferred.entry(key) {
+        Entry::Vacant(slot) => {
+            slot.insert(FieldStorageInference::Known(storage));
+            true
+        }
+        Entry::Occupied(mut slot) => {
+            let next = match *slot.get() {
+                FieldStorageInference::Known(existing) if existing == storage => {
+                    FieldStorageInference::Known(existing)
+                }
+                FieldStorageInference::Known(_) | FieldStorageInference::Conflict => {
+                    FieldStorageInference::Conflict
+                }
+            };
+            let changed = *slot.get() != next;
+            slot.insert(next);
+            changed
+        }
+    }
+}
+
+fn box_name_for_value(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<String> {
+    let origin = resolve_value_origin(function, def_map, value);
+    value_type_for(function, value)
+        .or_else(|| value_type_for(function, origin))
+        .and_then(box_name_from_mir_type)
+        .map(str::to_string)
+        .or_else(|| box_name_from_origin_instruction(function, def_map, origin))
+}
+
+fn box_name_from_origin_instruction(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    origin: ValueId,
+) -> Option<String> {
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    match block.instructions.get(instruction_index)? {
+        MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+        MirInstruction::Phi { type_hint, .. } => type_hint
+            .as_ref()
+            .and_then(box_name_from_mir_type)
+            .map(str::to_string),
+        _ => None,
+    }
+}
+
+fn storage_for_value(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+) -> Option<TypedObjectFieldStorage> {
+    let origin = resolve_value_origin(function, def_map, value);
+    value_type_for(function, value)
+        .or_else(|| value_type_for(function, origin))
+        .and_then(storage_for_mir_type)
+        .or_else(|| storage_from_origin_instruction(function, def_map, origin, inferred))
+}
+
+fn storage_from_origin_instruction(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    origin: ValueId,
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+) -> Option<TypedObjectFieldStorage> {
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    match block.instructions.get(instruction_index)? {
+        MirInstruction::Const { value, .. } => storage_for_const(value),
+        MirInstruction::NewBox { .. } | MirInstruction::NewClosure { .. } => {
+            Some(TypedObjectFieldStorage::Handle)
+        }
+        MirInstruction::FieldGet {
+            base,
+            field,
+            declared_type,
+            ..
+        } => declared_type
+            .as_ref()
+            .and_then(storage_for_mir_type)
+            .or_else(|| field_storage_for_get(function, def_map, *base, field, inferred)),
+        _ => None,
+    }
+}
+
+fn field_storage_for_get(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    base: ValueId,
+    field: &str,
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+) -> Option<TypedObjectFieldStorage> {
+    let box_name = box_name_for_value(function, def_map, base)?;
+    match inferred.get(&(box_name, field.to_string())) {
+        Some(FieldStorageInference::Known(storage)) => Some(*storage),
+        Some(FieldStorageInference::Conflict) | None => None,
+    }
+}
+
+fn value_type_for(function: &MirFunction, value: ValueId) -> Option<&MirType> {
+    function
+        .metadata
+        .value_types
+        .get(&value)
+        .or_else(|| function.signature.params.get(value.to_usize()))
+}
+
+fn storage_for_const(value: &ConstValue) -> Option<TypedObjectFieldStorage> {
+    match value {
+        ConstValue::Integer(_) | ConstValue::Bool(_) => Some(TypedObjectFieldStorage::I64),
+        ConstValue::String(_) => Some(TypedObjectFieldStorage::Handle),
+        // Null is compatible with the first concrete storage observed for the field.
+        ConstValue::Null | ConstValue::Void => None,
+        ConstValue::Float(_) => None,
+    }
+}
+
+fn storage_for_declared_type(
+    metadata: &ModuleMetadata,
+    type_name: Option<&str>,
+) -> Option<TypedObjectFieldStorage> {
     match type_name {
-        Some("IntegerBox") | Some("Integer") | Some("i64") => Some(TypedObjectFieldStorage::I64),
+        Some("IntegerBox") | Some("Integer") | Some("i64") | Some("BoolBox") | Some("Bool")
+        | Some("bool") | Some("i1") => Some(TypedObjectFieldStorage::I64),
+        Some("StringBox") | Some("String") | Some("str") | Some("ArrayBox") | Some("MapBox") => {
+            Some(TypedObjectFieldStorage::Handle)
+        }
+        Some(name) if metadata.user_box_decls.contains_key(name) => {
+            Some(TypedObjectFieldStorage::Handle)
+        }
+        Some(name) if metadata.user_box_field_decls.contains_key(name) => {
+            Some(TypedObjectFieldStorage::Handle)
+        }
+        _ => None,
+    }
+}
+
+fn storage_for_mir_type(ty: &MirType) -> Option<TypedObjectFieldStorage> {
+    match ty {
+        MirType::Integer | MirType::Bool => Some(TypedObjectFieldStorage::I64),
+        MirType::Box(name) if matches!(name.as_str(), "IntegerBox" | "BoolBox") => {
+            Some(TypedObjectFieldStorage::I64)
+        }
+        MirType::String | MirType::Box(_) | MirType::Array(_) | MirType::Future(_) => {
+            Some(TypedObjectFieldStorage::Handle)
+        }
+        MirType::Float | MirType::WeakRef | MirType::Void | MirType::Unknown => None,
+    }
+}
+
+fn box_name_from_mir_type(ty: &MirType) -> Option<&str> {
+    match ty {
+        MirType::Box(name) => Some(name.as_str()),
         _ => None,
     }
 }
@@ -73,7 +370,16 @@ fn storage_for_declared_type(type_name: Option<&str>) -> Option<TypedObjectField
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::UserBoxFieldDecl;
+    use crate::mir::{
+        BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType,
+        UserBoxFieldDecl, ValueId,
+    };
+
+    fn module_with_metadata(metadata: ModuleMetadata) -> MirModule {
+        let mut module = MirModule::new("typed_object_plan_test".to_string());
+        module.metadata = metadata;
+        module
+    }
 
     #[test]
     fn build_typed_object_plans_accepts_nonweak_i64_fields() {
@@ -93,8 +399,9 @@ mod tests {
                 },
             ],
         );
+        let module = module_with_metadata(metadata);
 
-        let plans = build_typed_object_plans(&metadata);
+        let plans = build_typed_object_plans(&module);
 
         assert_eq!(plans.len(), 1);
         assert_eq!(plans[0].box_name, "Pair");
@@ -128,9 +435,164 @@ mod tests {
                 is_weak: false,
             }],
         );
+        let module = module_with_metadata(metadata);
 
-        let plans = build_typed_object_plans(&metadata);
+        let plans = build_typed_object_plans(&module);
 
         assert!(plans.is_empty());
+    }
+
+    #[test]
+    fn build_typed_object_plans_infers_untyped_i64_and_handle_fields() {
+        let mut module = MirModule::new("typed_object_infer".to_string());
+        module.metadata.user_box_field_decls.insert(
+            "Holder".to_string(),
+            vec![
+                UserBoxFieldDecl {
+                    name: "count".to_string(),
+                    declared_type_name: None,
+                    is_weak: false,
+                },
+                UserBoxFieldDecl {
+                    name: "items".to_string(),
+                    declared_type_name: None,
+                    is_weak: false,
+                },
+            ],
+        );
+
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "Holder".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Integer(7),
+        });
+        block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(1),
+            field: "count".to_string(),
+            value: ValueId::new(2),
+            declared_type: None,
+        });
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(3),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(1),
+            field: "items".to_string(),
+            value: ValueId::new(3),
+            declared_type: None,
+        });
+        function.add_block(block);
+        module.add_function(function);
+
+        let plans = build_typed_object_plans(&module);
+
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].box_name, "Holder");
+        assert_eq!(plans[0].fields[0].storage, TypedObjectFieldStorage::I64);
+        assert_eq!(plans[0].fields[1].storage, TypedObjectFieldStorage::Handle);
+    }
+
+    #[test]
+    fn build_typed_object_plans_rejects_conflicting_untyped_storage() {
+        let mut module = MirModule::new("typed_object_conflict".to_string());
+        module.metadata.user_box_field_decls.insert(
+            "Bad".to_string(),
+            vec![UserBoxFieldDecl {
+                name: "value".to_string(),
+                declared_type_name: None,
+                is_weak: false,
+            }],
+        );
+
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "Bad".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Integer(7),
+        });
+        block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(1),
+            field: "value".to_string(),
+            value: ValueId::new(2),
+            declared_type: None,
+        });
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(3),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(1),
+            field: "value".to_string(),
+            value: ValueId::new(3),
+            declared_type: None,
+        });
+        function.add_block(block);
+        module.add_function(function);
+
+        let plans = build_typed_object_plans(&module);
+
+        assert!(plans.is_empty());
+    }
+
+    #[test]
+    fn build_typed_object_plans_accepts_observed_empty_user_box() {
+        let mut module = MirModule::new("typed_object_empty".to_string());
+        module
+            .metadata
+            .user_box_decls
+            .insert("Worker".to_string(), Vec::new());
+        module
+            .metadata
+            .user_box_field_decls
+            .insert("Worker".to_string(), Vec::new());
+
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "Worker".to_string(),
+            args: vec![],
+        });
+        function.add_block(block);
+        module.add_function(function);
+
+        let plans = build_typed_object_plans(&module);
+
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].box_name, "Worker");
+        assert_eq!(plans[0].field_count, 0);
+        assert!(plans[0].fields.is_empty());
     }
 }

@@ -82,7 +82,7 @@
             long long slot = -1;
             if (box_reg &&
                 get_typed_object_binding(box_reg, &typed_plan_index) &&
-                typed_object_plan_field_i64_slot(typed_plan_index, field, &slot)) {
+                typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
               (void)slot;
               needs.typed_object = 1;
             }
@@ -94,7 +94,7 @@
             long long slot = -1;
             if (box_reg &&
                 get_typed_object_binding(box_reg, &typed_plan_index) &&
-                typed_object_plan_field_i64_slot(typed_plan_index, field, &slot)) {
+                typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
               (void)slot;
               needs.typed_object = 1;
               if (dst) set_type(dst, T_I64);

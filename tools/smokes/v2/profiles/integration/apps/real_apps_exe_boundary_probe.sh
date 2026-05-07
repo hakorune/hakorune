@@ -3,8 +3,9 @@
 #
 # Contract pin:
 # - VM real-app suite is the executable correctness gate.
-# - Direct EXE currently reaches ny-llvmc pure-first and stops at the known
-#   unsupported general-newbox boundary.
+# - Direct EXE currently reaches ny-llvmc pure-first, lowers general user-box
+#   allocation/field slots through TypedObjectPlan, and stops at the known
+#   birth/method call route boundary.
 # - Do not enable compat replay as mainline proof.
 
 set -euo pipefail
@@ -79,10 +80,17 @@ probe_one() {
     return 1
   fi
 
-  if ! grep -Fq "first_op=newbox" "$build_log"; then
+  if ! grep -Fq "first_op=mir_call" "$build_log"; then
     echo "[INFO] build output tail for $app_name:"
     tail -n 120 "$build_log" || true
     test_fail "$SMOKE_NAME: $app_name unsupported-shape owner changed"
+    return 1
+  fi
+
+  if ! grep -Fq "reason=mir_call_no_route" "$build_log"; then
+    echo "[INFO] build output tail for $app_name:"
+    tail -n 120 "$build_log" || true
+    test_fail "$SMOKE_NAME: $app_name did not stop at birth/method call route boundary"
     return 1
   fi
 
@@ -93,7 +101,7 @@ probe_one() {
     return 1
   fi
 
-  echo "[INFO] $app_name: EXE boundary pinned at pure-first general-newbox"
+  echo "[INFO] $app_name: EXE boundary pinned at pure-first birth/method call route"
   return 0
 }
 

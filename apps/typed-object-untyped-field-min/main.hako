@@ -1,0 +1,22 @@
+// typed-object-untyped-field-min
+//
+// EXE typed-object expansion shape:
+// - user box fields declared by init names only
+// - MIR infers i64 and handle storage from FieldSet observations
+// - pure-first lowers both fields through the same runtime slot object ABI
+
+box Holder {
+  init { count, items }
+}
+
+static box Main {
+  main() {
+    local holder = new Holder()
+    holder.count = 7
+
+    local items = new ArrayBox()
+    holder.items = items
+
+    return holder.count
+  }
+}

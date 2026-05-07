@@ -2,4 +2,5 @@
 # This suite pins both the accepted typed-object seed and the remaining
 # real-app EXE blocker boundary.
 apps/typed_object_newbox_min_exe.sh
+apps/typed_object_untyped_field_min_exe.sh
 apps/real_apps_exe_boundary_probe.sh

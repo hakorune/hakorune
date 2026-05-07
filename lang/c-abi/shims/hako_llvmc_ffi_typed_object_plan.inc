@@ -40,7 +40,7 @@
         return plan ? read_int(plan, "field_count") : 0;
       }
 
-      auto int typed_object_plan_field_i64_slot(
+      auto int typed_object_plan_field_runtime_slot(
           int plan_index,
           const char* field_name,
           long long* out_slot) {
@@ -54,7 +54,8 @@
           const char* storage = field ? read_str(field, "storage") : NULL;
           long long slot = field ? read_int(field, "slot") : -1;
           if (name && storage && strcmp(name, field_name) == 0 &&
-              strcmp(storage, "i64") == 0 && slot >= 0) {
+              (strcmp(storage, "i64") == 0 || strcmp(storage, "handle") == 0) &&
+              slot >= 0) {
             if (out_slot) *out_slot = slot;
             return 1;
           }

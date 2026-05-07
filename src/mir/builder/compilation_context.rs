@@ -163,6 +163,39 @@ impl CompilationContext {
         self.user_box_field_decls.insert(name, Vec::new());
     }
 
+    pub fn register_user_box_surface_fields(
+        &mut self,
+        name: String,
+        fields: &[String],
+        field_decls: &[FieldDecl],
+        init_fields: &[String],
+        weak_fields: &[String],
+    ) {
+        let mut decls = field_decls.to_vec();
+        let mut names: Vec<String> = decls.iter().map(|decl| decl.name.clone()).collect();
+
+        for field in fields.iter().chain(init_fields.iter()) {
+            if names.contains(field) {
+                continue;
+            }
+            names.push(field.clone());
+            decls.push(FieldDecl {
+                name: field.clone(),
+                declared_type_name: None,
+                is_weak: weak_fields.contains(field),
+            });
+        }
+
+        for decl in &mut decls {
+            if weak_fields.contains(&decl.name) {
+                decl.is_weak = true;
+            }
+        }
+
+        self.user_defined_boxes.insert(name.clone(), names);
+        self.user_box_field_decls.insert(name, decls);
+    }
+
     pub fn register_user_box_with_field_decls(
         &mut self,
         name: String,
