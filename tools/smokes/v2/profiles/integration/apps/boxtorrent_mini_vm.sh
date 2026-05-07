@@ -38,6 +38,10 @@ root_equal=true
 roundtrip=true
 ref_before_release=2
 ref_after_release=1
+allocator_before_final_release=5
+allocator_after_final_release=0
+allocator_requested_bytes=40
+allocator_releases=5
 summary=ok
 TXT
 )

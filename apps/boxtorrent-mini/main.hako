@@ -4,6 +4,8 @@
 // This is intentionally network-free. P2P transport can attach later to the
 // manifest/chunk-store seam without changing the content-owner model.
 
+using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
+
 static box ContentHash {
     digest(text) {
         local alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:.,/"
@@ -26,12 +28,13 @@ static box ContentHash {
 }
 
 box ContentChunk {
-    init { cid, data, ref_count }
+    init { cid, data, ref_count, alloc_handle }
 
-    birth(cid, data) {
+    birth(cid, data, alloc_handle) {
         me.cid = cid
         me.data = data
         me.ref_count = 1
+        me.alloc_handle = alloc_handle
     }
 
     retain() {
@@ -48,12 +51,14 @@ box ContentChunk {
 }
 
 box BoxTorrentStore {
-    init { chunks, insertion_order, dedupe_hits }
+    init { chunks, insertion_order, dedupe_hits, allocator, allocator_releases }
 
     birth() {
         me.chunks = new MapBox()
         me.insertion_order = new ArrayBox()
         me.dedupe_hits = 0
+        me.allocator = new HakoAllocHeap()
+        me.allocator_releases = 0
     }
 
     put(data) {
@@ -65,7 +70,12 @@ box BoxTorrentStore {
             return cid
         }
 
-        local chunk = new ContentChunk(cid, data)
+        local alloc_handle = me.allocator.allocate(data.length())
+        if alloc_handle == null {
+            return ""
+        }
+
+        local chunk = new ContentChunk(cid, data, alloc_handle)
         me.chunks.set(cid, chunk)
         me.insertion_order.push(cid)
         return cid
@@ -95,6 +105,9 @@ box BoxTorrentStore {
 
         local remain = chunk.release()
         if remain == 0 {
+            if me.allocator.release(chunk.alloc_handle) {
+                me.allocator_releases = me.allocator_releases + 1
+            }
             me.chunks.delete(cid)
         }
         return remain
@@ -102,6 +115,14 @@ box BoxTorrentStore {
 
     chunkCount() {
         return me.chunks.keys().length()
+    }
+
+    allocatorBlocks() {
+        return me.allocator.outstandingBlocks()
+    }
+
+    allocatorRequestedBytes() {
+        return me.allocator.requestedBytes()
     }
 }
 
@@ -223,18 +244,28 @@ static box Main {
 
         second.releaseFrom(store)
         local ref_after_release = store.refCount(first_chunk)
+        local chunks_before_final_release = store.chunkCount()
+        local allocator_before_final_release = store.allocatorBlocks()
+        local allocator_requested_bytes = store.allocatorRequestedBytes()
+
+        first.releaseFrom(store)
+        local allocator_after_final_release = store.allocatorBlocks()
 
         print("boxtorrent-mini")
         print("root=" + first.rootId())
-        print("chunks=" + store.chunkCount())
+        print("chunks=" + chunks_before_final_release)
         print("bytes=" + first.totalBytes())
         print("dedupe_hits=" + store.dedupe_hits)
         print("root_equal=" + root_equal)
         print("roundtrip=" + roundtrip)
         print("ref_before_release=" + ref_before_release)
         print("ref_after_release=" + ref_after_release)
+        print("allocator_before_final_release=" + allocator_before_final_release)
+        print("allocator_after_final_release=" + allocator_after_final_release)
+        print("allocator_requested_bytes=" + allocator_requested_bytes)
+        print("allocator_releases=" + store.allocator_releases)
 
-        if root_equal && roundtrip && ref_before_release == 2 && ref_after_release == 1 {
+        if root_equal && roundtrip && chunks_before_final_release == 5 && ref_before_release == 2 && ref_after_release == 1 && allocator_before_final_release == 5 && allocator_after_final_release == 0 && allocator_requested_bytes == 40 && store.allocator_releases == 5 {
             print("summary=ok")
             return 0
         }

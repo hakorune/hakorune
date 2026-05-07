@@ -49,5 +49,6 @@ This is a blocker probe, not EXE parity. The current direct EXE route reaches
 - `293x-005`: pure-first general-newbox owner decision landed.
 - `293x-006`: `hako_alloc` VM-only page/free-list policy-state port landed.
 - `293x-007`: allocator-stress app landed.
-- Next: wire BoxTorrent mini to the `hako_alloc` allocator-backed store seam;
-  do not claim real-app EXE parity until the typed object plan lands.
+- `293x-008`: BoxTorrent allocator-backed store landed.
+- Next: add JSON stream aggregator app coverage; do not claim real-app EXE
+  parity until the typed object plan lands.
