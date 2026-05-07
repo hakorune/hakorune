@@ -30,9 +30,21 @@
 tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight
 ```
 
+## EXE Boundary Entry
+
+```bash
+tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight
+```
+
+This is a blocker probe, not EXE parity. The current direct EXE route reaches
+`ny-llvmc` pure-first and stops at `first_op=newbox` with
+`unsupported pure shape for current backend recipe`.
+
 ## Current Status
 
 - `293x-001`: BoxTorrent mini local content store landed.
 - `293x-002`: binary-trees allocation/shape benchmark app landed.
 - `293x-003`: mimalloc-lite allocator-shaped app landed.
-- Next: real allocator port.
+- `293x-004`: real-app EXE boundary probe landed.
+- Next: decide the pure-first general-newbox owner before treating real app EXE
+  parity as green.

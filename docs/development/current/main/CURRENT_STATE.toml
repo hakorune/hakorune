@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-07"
 
 active_lane = "phase-293x real-app bringup"
-active_lane_status = "Real app lane is active after Program(JSON v0) cleanup; bring up BoxTorrent mini, binary-trees, mimalloc-lite, then the real allocator port while keeping compiler fixes structural."
+active_lane_status = "Real app lane is active after Program(JSON v0) cleanup; BoxTorrent mini, binary-trees, and mimalloc-lite are VM-green, while direct EXE is pinned at the pure-first general-newbox boundary before the real allocator port."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORRENT-MINI-LOCAL-STORE.md"
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-003-MIMALLOC-LITE-REAL-APP"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-003-MIMALLOC-LITE-REAL-APP.md"
-latest_card_summary = "Added mimalloc-lite as the third real-app lane slice with page/free-list/reuse accounting before the real allocator port."
+latest_card = "293x-004-REAL-APPS-EXE-BOUNDARY-PROBE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-004-REAL-APPS-EXE-BOUNDARY-PROBE.md"
+latest_card_summary = "Added a real-app EXE boundary probe that locks the current pure-first unsupported general-newbox blocker without enabling compat replay."
 
-current_blocker_token = "phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port"
+current_blocker_token = "phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -225,4 +225,5 @@ landed_tail = [
   "293x-001 BoxTorrent mini local content store landed",
   "293x-002 binary-trees real app landed",
   "293x-003 mimalloc-lite real app landed",
+  "293x-004 real-app EXE boundary probe landed",
 ]

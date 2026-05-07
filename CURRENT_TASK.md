@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
+  `phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port`
 - primary mode: real-app bringup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -52,11 +52,13 @@ Scope: current lane / next lane / restart order only.
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
 - resume point: continue `phase-293x` from the real-app suite; BoxTorrent
-  mini, binary-trees, and mimalloc-lite are landed; real allocator port is next
+  mini, binary-trees, and mimalloc-lite are VM-green; EXE boundary is pinned at
+  pure-first unsupported `newbox`
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
-  when the next app slice is ready
+  plus `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
+  when checking the EXE boundary
 
 ## Task Order
 
@@ -65,8 +67,9 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: start the real allocator port after BoxTorrent mini, binary-trees, and
-  mimalloc-lite;
+- next: decide the pure-first general-newbox owner before treating real app EXE
+  parity as green; keep allocator port VM-only unless explicitly scoped as a
+  policy/state prototype
   only change compiler acceptance when the app exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
@@ -87,8 +90,8 @@ Scope: current lane / next lane / restart order only.
   2. binary-trees
   3. mimalloc-lite
   4. real allocator port
-- current status: BoxTorrent mini, binary-trees, and mimalloc-lite landed; real
-  allocator port is next
+- current status: BoxTorrent mini, binary-trees, and mimalloc-lite landed;
+  direct EXE currently stops at pure-first unsupported `newbox`
 - compiler rule: do not hide a real compiler blocker in app code; fix the
   compiler seam structurally when needed
 
@@ -100,10 +103,12 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
 - Real-app smoke suite:
   `tools/smokes/v2/suites/integration/real-apps.txt`
+- Real-app EXE boundary suite:
+  `tools/smokes/v2/suites/integration/real-apps-exe-boundary.txt`
 - Current app checkpoint: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
 - Current app card:
-  `docs/development/current/main/phases/phase-293x/293x-003-MIMALLOC-LITE-REAL-APP.md`
+  `docs/development/current/main/phases/phase-293x/293x-004-REAL-APPS-EXE-BOUNDARY-PROBE.md`
 - Bootstrap route SSOT:
   `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Perf owner-first policy:

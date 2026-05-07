@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
+- current blocker token: `phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
+- current blocker token: `phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -54,7 +54,11 @@ cargo check -q
 - continue `phase-293x` real-app bringup
 - BoxTorrent mini, binary-trees, and mimalloc-lite are landed with app-local tests and
   `real-apps` smoke coverage
-- next app: real allocator port
+- direct EXE currently reaches `ny-llvmc` pure-first and stops at unsupported
+  general `newbox`
+- EXE boundary gate:
+  `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
+- next: decide pure-first general-newbox ownership before claiming EXE parity
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

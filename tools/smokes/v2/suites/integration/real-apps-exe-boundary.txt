@@ -1,0 +1,3 @@
+# Integration real-app EXE boundary suite
+# This is a blocker probe, not an EXE parity suite.
+apps/real_apps_exe_boundary_probe.sh

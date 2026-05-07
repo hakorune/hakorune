@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
+- current blocker token: `phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -28,10 +28,13 @@ Related:
 
 - continue `phase-293x` real-app bringup
 - BoxTorrent mini, binary-trees, and mimalloc-lite are landed; real allocator
-  port is next
+  port waits behind the EXE boundary decision unless it is explicitly scoped as
+  a VM-only policy/state prototype
 - real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port
 - run `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
   for the active app suite
+- run `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
+  for the current EXE blocker probe
 - if a real app exposes a compiler expressivity blocker, fix the compiler seam
   structurally instead of adding app-side workaround code
 - current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
@@ -73,4 +76,5 @@ git status -sb
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight
+tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight
 ```

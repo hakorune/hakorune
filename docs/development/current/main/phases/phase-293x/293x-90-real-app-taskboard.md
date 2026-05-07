@@ -9,7 +9,9 @@
 - [x] `293x-001` BoxTorrent mini local content store
 - [x] `293x-002` binary-trees allocation/GC benchmark
 - [x] `293x-003` mimalloc-lite allocator-shaped app
-- [ ] `293x-004` real allocator port
+- [x] `293x-004` real-app EXE boundary probe
+- [ ] `293x-005` pure-first general-newbox owner decision
+- [ ] `293x-006` real allocator port
 
 ## Gates
 
@@ -17,6 +19,8 @@
   `apps/<app>/test.sh`
 - Real-app suite:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
+- EXE boundary suite:
+  `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
 - Current pointer guard:
   `bash tools/checks/current_state_pointer_guard.sh`
 
