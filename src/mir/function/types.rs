@@ -24,7 +24,7 @@ use crate::mir::{
     sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
     sum_variant_project_seed_plan::SumVariantProjectSeedRoute,
     sum_variant_tag_seed_plan::SumVariantTagSeedRoute, thin_entry::ThinEntryCandidate,
-    thin_entry_selection::ThinEntrySelection,
+    thin_entry_selection::ThinEntrySelection, user_box_method_route_plan::UserBoxMethodRoute,
     userbox_known_receiver_method_seed_plan::UserBoxKnownReceiverMethodSeedRoute,
     userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
     userbox_loop_micro_seed_plan::UserBoxLoopMicroSeedRoute, value_consumer::ValueConsumerFacts,
@@ -194,6 +194,12 @@ pub struct FunctionMetadata {
     /// These do not make global calls lowerable; they move the stop-line into
     /// LoweringPlan metadata so backend shims can fail from a typed plan.
     pub global_call_routes: Vec<GlobalCallRoute>,
+
+    /// Backend-consumable typed user-box method route plans.
+    /// The first accepted route is `birth` as a same-module uniform ABI
+    /// function call; backends must consume this metadata instead of
+    /// rediscovering user-box method semantics from raw names.
+    pub user_box_method_routes: Vec<UserBoxMethodRoute>,
 
     /// Metadata-only MapGet/MapHas same-key fusion preflight routes.
     /// These are derived from `generic_method_routes` and do not change

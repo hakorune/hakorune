@@ -99,6 +99,7 @@ pub mod thin_entry; // thin-entry inventory for known local routes
 pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub mod typed_object_plan; // MIR-owned typed user-object layout plans for EXE lowering
+pub mod user_box_method_route_plan; // MIR-owned route plans for typed user-box method calls
 pub mod userbox_known_receiver_method_seed_plan; // MIR-owned route plan for temporary UserBox known-receiver method exact seeds
 pub mod userbox_local_scalar_seed_plan; // MIR-owned route plan for temporary UserBox local scalar exact seeds
 pub mod userbox_loop_micro_seed_plan; // MIR-owned route plan for temporary UserBox loop micro exact seeds
@@ -233,6 +234,9 @@ pub use thin_entry_selection::{
 };
 pub use types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
+};
+pub use user_box_method_route_plan::{
+    refresh_function_user_box_method_routes, refresh_module_user_box_method_routes,
 };
 pub use userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes;
 pub use userbox_local_scalar_seed_plan::{

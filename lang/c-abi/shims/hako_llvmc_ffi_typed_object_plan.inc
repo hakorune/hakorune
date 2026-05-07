@@ -64,7 +64,7 @@
       }
 
       auto void set_typed_object_binding(long long reg, int plan_index) {
-        if (!reg || plan_index < 0) return;
+        if (plan_index < 0) return;
         for (size_t i = 0; i < typed_object_bindings_n; i++) {
           if (typed_object_bindings[i].reg == reg) {
             typed_object_bindings[i].plan_index = plan_index;

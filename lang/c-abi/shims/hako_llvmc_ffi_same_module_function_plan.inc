@@ -124,6 +124,19 @@
         for (size_t pi = 0; pi < yyjson_arr_size(entries); pi++) {
           yyjson_val* entry = yyjson_arr_get(entries, pi);
           struct LoweringPlanGlobalCallView view;
+          struct LoweringPlanUserBoxMethodView user_box_method_view;
+          if (read_lowering_plan_user_box_method_view(entry, &user_box_method_view)) {
+            if (!lowering_plan_user_box_method_view_requires_same_module_function_definition(
+                    &user_box_method_view)) {
+              continue;
+            }
+            if (!remember_planned_same_module_function_symbol(
+                    user_box_method_view.target_symbol)) {
+              return -1;
+            }
+            planned++;
+            continue;
+          }
           if (!read_lowering_plan_global_call_view(entry, &view)) continue;
           if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view)) {
             if (!remember_planned_module_leaf_symbol(view.target_symbol)) return -1;

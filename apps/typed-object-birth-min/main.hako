@@ -1,0 +1,23 @@
+// typed-object-birth-min
+//
+// EXE typed-object birth shape:
+// - newbox allocates only, even when constructor args are present
+// - `birth` is emitted as a same-module user-box method call route
+// - field_set / field_get inside birth consume the receiver's TypedObjectPlan
+
+box Pair {
+  left: IntegerBox
+  right: IntegerBox
+
+  birth(left, right) {
+    me.left = left
+    me.right = right
+  }
+}
+
+static box Main {
+  main() {
+    local pair = new Pair(10, 20)
+    return pair.left + pair.right
+  }
+}

@@ -467,6 +467,12 @@
             }
             if (src_origin != ORG_NONE) set_origin(dst, src_origin);
             if (src_scan_origin != ORG_NONE) set_scan_origin(dst, src_scan_origin);
+            {
+              int typed_plan_index = -1;
+              if (get_typed_object_binding(src, &typed_plan_index)) {
+                set_typed_object_binding(dst, typed_plan_index);
+              }
+            }
             continue;
           }
           if (strcmp(op, "compare")==0) {

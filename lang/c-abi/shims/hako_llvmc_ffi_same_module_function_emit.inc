@@ -44,6 +44,76 @@
         same_module_function_publish_origin(reg, origin_kind);
       }
 
+      auto int same_module_function_publish_typed_object_if_plan(
+          long long reg,
+          const char* box_name) {
+        int typed_plan_index = -1;
+        if (!box_name) return 0;
+        if (!find_typed_object_plan_index(box_name, &typed_plan_index)) return 0;
+        same_module_function_publish_i64_origin(reg, ORG_TYPED_OBJECT);
+        set_typed_object_binding(reg, typed_plan_index);
+        return 1;
+      }
+
+      auto int same_module_function_publish_handle_param_metadata(
+          long long reg,
+          yyjson_val* value_type) {
+        const char* kind = value_type ? read_str(value_type, "kind") : NULL;
+        const char* box_type = value_type ? read_str(value_type, "box_type") : NULL;
+        if (!(kind && !strcmp(kind, "handle"))) return 0;
+        if (box_type && !strcmp(box_type, "StringBox")) {
+          same_module_function_publish_i64_origin(reg, ORG_STRING);
+          return 1;
+        }
+        if (box_type && !strcmp(box_type, "ArrayBox")) {
+          same_module_function_publish_i64_origin(reg, ORG_ARRAY_BIRTH);
+          return 1;
+        }
+        if (box_type && !strcmp(box_type, "MapBox")) {
+          same_module_function_publish_i64_origin(reg, ORG_MAP_BIRTH);
+          return 1;
+        }
+        if (same_module_function_publish_typed_object_if_plan(reg, box_type)) {
+          return 1;
+        }
+        set_type(reg, T_I64);
+        return 1;
+      }
+
+      auto int same_module_function_publish_param_metadata(long long reg) {
+        char key[32];
+        yyjson_val* value_types = fn_metadata ? yyjson_obj_get(fn_metadata, "value_types") : NULL;
+        yyjson_val* value_type = NULL;
+        const char* scalar_type = NULL;
+        const char* kind = NULL;
+        if (!(value_types && yyjson_is_obj(value_types))) {
+          return 0;
+        }
+        snprintf(key, sizeof(key), "%lld", reg);
+        value_type = yyjson_obj_get(value_types, key);
+        if (!value_type) return 0;
+        if (yyjson_is_str(value_type)) {
+          scalar_type = yyjson_get_str(value_type);
+          if (scalar_type && !strcmp(scalar_type, "i1")) {
+            set_type(reg, T_I1);
+            return 1;
+          }
+          if (scalar_type &&
+              (!strcmp(scalar_type, "i64") ||
+               !strcmp(scalar_type, "void"))) {
+            set_type(reg, T_I64);
+            return 1;
+          }
+          return 0;
+        }
+        kind = read_str(value_type, "kind");
+        if (kind && !strcmp(kind, "string")) {
+          same_module_function_publish_i64_origin(reg, ORG_STRING);
+          return 1;
+        }
+        return same_module_function_publish_handle_param_metadata(reg, value_type);
+      }
+
       auto void same_module_function_promote_array_string_push(
           long long recv,
           long long value) {
@@ -640,12 +710,14 @@
         struct LoweringPlanGenericMethodView method_view;
         struct LoweringPlanExternCallView extern_view;
         struct LoweringPlanGlobalCallView global_view;
+        struct LoweringPlanUserBoxMethodView user_box_method_view;
         const char* ctype = NULL;
         const char* mname = NULL;
         const char* bname = NULL;
         int has_method_view = 0;
         int has_extern_view = 0;
         int has_global_view = 0;
+        int has_user_box_method_view = 0;
         int method_prepass_rc = 0;
         long long dst = read_int(ins, "dst");
         if (!same_module_function_read_call_payload(ins, &cal, &args)) return 0;
@@ -655,8 +727,16 @@
         has_method_view = read_lowering_plan_generic_method_view(entry, &method_view);
         has_extern_view = read_lowering_plan_extern_call_view(entry, &extern_view);
         has_global_view = read_lowering_plan_global_call_view(entry, &global_view);
+        has_user_box_method_view =
+            read_lowering_plan_user_box_method_view(entry, &user_box_method_view);
         if (same_module_function_call_is_array_or_map_birth(
                 ctype, mname, bname)) {
+          if (dst) set_type(dst, T_I64);
+          return 1;
+        }
+        if (has_user_box_method_view &&
+            lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(
+                &user_box_method_view)) {
           if (dst) set_type(dst, T_I64);
           return 1;
         }
@@ -730,6 +810,12 @@
           if (src_ty != T_NONE) set_type(dst, src_ty);
           if (src_org != ORG_NONE) set_origin(dst, src_org);
           if (src_scan != ORG_NONE) set_scan_origin(dst, src_scan);
+          {
+            int typed_plan_index = -1;
+            if (get_typed_object_binding(src, &typed_plan_index)) {
+              set_typed_object_binding(dst, typed_plan_index);
+            }
+          }
           return 1;
         }
         if (!strcmp(op, "newbox")) {
@@ -741,6 +827,38 @@
           }
           if (tname && !strcmp(tname, "MapBox")) {
             same_module_function_publish_i64_origin(dst, ORG_MAP_BIRTH);
+            return 1;
+          }
+          if (same_module_function_publish_typed_object_if_plan(dst, tname)) {
+            return 1;
+          }
+          return 0;
+        }
+        if (!strcmp(op, "field_set")) {
+          long long box_reg = read_int(ins, "box");
+          const char* field = read_str(ins, "field");
+          int typed_plan_index = -1;
+          long long slot = -1;
+          if (box_reg &&
+              get_typed_object_binding(box_reg, &typed_plan_index) &&
+              typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
+            (void)slot;
+            return 1;
+          }
+          return 0;
+        }
+        if (!strcmp(op, "field_get")) {
+          long long dst = read_int(ins, "dst");
+          long long box_reg = read_int(ins, "box");
+          const char* field = read_str(ins, "field");
+          int typed_plan_index = -1;
+          long long slot = -1;
+          if (dst &&
+              box_reg &&
+              get_typed_object_binding(box_reg, &typed_plan_index) &&
+              typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
+            (void)slot;
+            set_type(dst, T_I64);
             return 1;
           }
           return 0;
@@ -829,7 +947,9 @@
         for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
           yyjson_val* param = yyjson_arr_get(params, pi);
           long long reg = param ? (long long)yyjson_get_sint(param) : 0;
-          same_module_function_publish_i64_origin(reg, ORG_STRING);
+          if (!same_module_function_publish_param_metadata(reg)) {
+            same_module_function_publish_i64_origin(reg, ORG_STRING);
+          }
         }
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
@@ -884,12 +1004,19 @@
         if (src_ty != T_NONE) set_type(dst, src_ty);
         if (src_org != ORG_NONE) set_origin(dst, src_org);
         if (src_scan != ORG_NONE) set_scan_origin(dst, src_scan);
+        {
+          int typed_plan_index = -1;
+          if (get_typed_object_binding(src, &typed_plan_index)) {
+            set_typed_object_binding(dst, typed_plan_index);
+          }
+        }
         return 1;
       }
 
       auto int same_module_function_emit_newbox(yyjson_val* ins) {
         long long dst = read_int(ins, "dst");
         const char* tname = read_str(ins, "type");
+        int typed_plan_index = -1;
         if (tname && !strcmp(tname, "ArrayBox")) {
           same_module_function_emit_i64_birth_call(
               dst,
@@ -904,7 +1031,64 @@
               ORG_MAP_BIRTH);
           return 1;
         }
+        if (tname && find_typed_object_plan_index(tname, &typed_plan_index)) {
+          long long type_id = typed_object_plan_type_id(typed_plan_index);
+          long long field_count = typed_object_plan_field_count(typed_plan_index);
+          if (dst && type_id > 0 && field_count >= 0) {
+            EMIT("  %%r%lld = call i64 @\"nyash.object.new_typed_hi\"(i64 %lld, i64 %lld)\n",
+                 dst,
+                 type_id,
+                 field_count);
+            same_module_function_publish_i64_origin(dst, ORG_TYPED_OBJECT);
+            set_typed_object_binding(dst, typed_plan_index);
+            return 1;
+          }
+        }
         return 0;
+      }
+
+      auto int same_module_function_emit_typed_object_field_set(yyjson_val* ins) {
+        long long box_reg = read_int(ins, "box");
+        long long value_reg = read_int(ins, "value");
+        const char* field = read_str(ins, "field");
+        int typed_plan_index = -1;
+        long long slot = -1;
+        char ab[256];
+        if (!(box_reg && value_reg)) return 0;
+        if (!get_typed_object_binding(box_reg, &typed_plan_index)) return 0;
+        if (!typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) return 0;
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), box_reg, 1);
+        {
+          size_t used = strlen(ab);
+          if (used >= sizeof(ab)) return 0;
+          snprintf(ab + used, sizeof(ab) - used, ", i64 %lld", slot);
+        }
+        append_i64_arg_ref(ab, sizeof(ab), value_reg, 0);
+        EMIT("  call void @\"nyash.object.field_set_hii\"(%s)\n", ab);
+        return 1;
+      }
+
+      auto int same_module_function_emit_typed_object_field_get(yyjson_val* ins) {
+        long long dst = read_int(ins, "dst");
+        long long box_reg = read_int(ins, "box");
+        const char* field = read_str(ins, "field");
+        int typed_plan_index = -1;
+        long long slot = -1;
+        char ab[256];
+        if (!(dst && box_reg)) return 0;
+        if (!get_typed_object_binding(box_reg, &typed_plan_index)) return 0;
+        if (!typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) return 0;
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), box_reg, 1);
+        {
+          size_t used = strlen(ab);
+          if (used >= sizeof(ab)) return 0;
+          snprintf(ab + used, sizeof(ab) - used, ", i64 %lld", slot);
+        }
+        EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_hii\"(%s)\n", dst, ab);
+        set_type(dst, T_I64);
+        return 1;
       }
 
       auto int same_module_function_emit_unop(yyjson_val* ins) {
@@ -1552,6 +1736,13 @@
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView method_view;
         const struct LoweringPlanGenericMethodView* method_view_ptr = NULL;
+        {
+          int user_box_method_rc =
+              emit_user_box_method_lowering_plan_mir_call(f, bid, ii, dst, recv, args);
+          if (user_box_method_rc != 0) {
+            return user_box_method_rc;
+          }
+        }
         if (same_module_function_call_is_array_or_map_birth(
                 ctype, mname, bname)) {
           if (dst) {
@@ -1716,6 +1907,12 @@
         }
         if (!strcmp(op, "newbox")) {
           return same_module_function_emit_newbox(ins);
+        }
+        if (!strcmp(op, "field_set")) {
+          return same_module_function_emit_typed_object_field_set(ins);
+        }
+        if (!strcmp(op, "field_get")) {
+          return same_module_function_emit_typed_object_field_get(ins);
         }
         if (!strcmp(op, "compare")) {
           return same_module_function_emit_compare(ins);

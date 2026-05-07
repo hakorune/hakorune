@@ -44,6 +44,12 @@
         }
 
         if (ctype && !strcmp(ctype, "Method")) {
+          int user_box_method_rc =
+              emit_user_box_method_lowering_plan_mir_call(f, bid, ii, dst, recv, args);
+          if (user_box_method_rc != 0) {
+            return user_box_method_rc;
+          }
+
           enum MirCallMethodBirthSurfaceKind birth_kind =
               classify_mir_call_method_birth_surface(bname, mname);
           int birth_rc = emit_method_birth_mir_call(birth_kind, dst, recv, args);

@@ -20,7 +20,8 @@
 - [x] `293x-012` typed object EXE plan for general user-box `newbox`
 - [x] `293x-013` i64 field typed-object EXE route for `newbox` + `field_set` / `field_get`
 - [x] `293x-014` typed object route expansion for init-only untyped fields, handle storage, and empty user-box allocation
-- [ ] `293x-015` birth/method call route expansion before real-app EXE parity
+- [x] `293x-015` typed user-box `birth` same-module EXE route
+- [ ] `293x-016` user-box instance method / next birth-body route expansion before real-app EXE parity
 
 ## Gates
 

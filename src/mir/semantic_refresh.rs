@@ -41,6 +41,9 @@ use super::{
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     typed_object_plan::refresh_module_typed_object_plans,
+    user_box_method_route_plan::{
+        refresh_function_user_box_method_routes, refresh_module_user_box_method_routes,
+    },
     userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
     MirFunction, MirModule,
 };
@@ -80,6 +83,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_generic_method_routes(function);
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
+    refresh_function_user_box_method_routes(function);
     refresh_function_map_lookup_fusion_routes(function);
     refresh_function_array_rmw_window_routes(function);
     refresh_function_array_string_len_window_routes(function);
@@ -109,6 +113,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_semantic_metadata(function, &module_metadata);
     }
     refresh_module_global_call_routes(module);
+    refresh_module_user_box_method_routes(module);
     for function in module.functions.values_mut() {
         // Some generic method routes depend on global-call target shapes
         // discovered only at module scope.

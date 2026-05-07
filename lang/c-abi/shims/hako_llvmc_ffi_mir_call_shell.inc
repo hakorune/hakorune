@@ -273,6 +273,72 @@
             lowering_plan_global_call_view_emit_trace_consumer(&view));
         return 1;
       }
+
+      auto int user_box_method_definition_target_is_ready(
+          const struct LoweringPlanUserBoxMethodView* view) {
+        return lowering_plan_user_box_method_view_requires_same_module_function_definition(view) &&
+               same_module_function_symbol_will_be_defined(view->target_symbol);
+      }
+
+      auto const char* lowering_plan_user_box_method_view_emit_trace_consumer(
+          const struct LoweringPlanUserBoxMethodView* view) {
+        if (view && view->emit_trace_consumer) return view->emit_trace_consumer;
+        return "mir_call_user_box_method_emit";
+      }
+
+      auto int emit_user_box_method_lowering_plan_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        struct LoweringPlanUserBoxMethodView view;
+        size_t argc = 0;
+        char ab[2048];
+        if (!entry) return 0;
+        if (!(source && !strcmp(source, "user_box_method_routes"))) return 0;
+        if (!read_lowering_plan_user_box_method_view(entry, &view)) return -1;
+        if (!lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(&view)) {
+          return -1;
+        }
+        if (view.has_result_value) {
+          if (!dst || view.result_value != dst) return -1;
+        } else if (dst) {
+          return -1;
+        }
+        if (!recv ||
+            resolve_copy_source_reg(recv) !=
+                resolve_copy_source_reg(view.receiver_value)) {
+          return -1;
+        }
+        if (!(args && yyjson_is_arr(args))) return -1;
+        argc = yyjson_arr_size(args);
+        if ((long long)argc != view.arity || argc > 63) return -1;
+        if (!user_box_method_definition_target_is_ready(&view)) return -1;
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        for (size_t ai = 0; ai < argc; ai++) {
+          yyjson_val* arg = yyjson_arr_get(args, ai);
+          long long arg_reg = 0;
+          if (!(arg && yyjson_is_num(arg))) return -1;
+          arg_reg = (long long)yyjson_get_sint(arg);
+          if (!materialize_direct_global_call_arg_if_needed(f, arg_reg)) return -1;
+          append_i64_arg_ref(ab, sizeof(ab), arg_reg, 0);
+        }
+        if (dst) {
+          fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view.target_symbol, ab);
+          set_type(dst, T_I64);
+        } else {
+          fprintf(f, "  call i64 @\"%s\"(%s)\n", view.target_symbol, ab);
+        }
+        trace_lowering_plan_entry_hit(
+            entry,
+            lowering_plan_user_box_method_view_emit_trace_consumer(&view));
+        return 1;
+      }
       auto int lowering_plan_extern_call_view_is_valid_with(
           const struct LoweringPlanExternCallView* view,
           const char* route_id,

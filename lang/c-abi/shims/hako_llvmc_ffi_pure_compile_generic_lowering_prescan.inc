@@ -109,6 +109,12 @@
             if (dst && src_ty != T_NONE) set_type(dst, src_ty);
             if (dst && src_org != ORG_NONE) set_origin(dst, src_org);
             if (scan_org != ORG_NONE && dst) set_scan_origin(dst, scan_org);
+            if (dst) {
+              int typed_plan_index = -1;
+              if (get_typed_object_binding(src, &typed_plan_index)) {
+                set_typed_object_binding(dst, typed_plan_index);
+              }
+            }
             if (dst && src) {
               long long known_len = 0;
               if (get_known_string_len(src, &known_len)) {
@@ -503,7 +509,7 @@
       if (needs.arr_string_indexof_const_utf8) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hisi\"(i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_slot_load || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.typed_object) {
+      if (needs.typed_object || module_has_planned_same_module_function_definition()) {
         fprintf(f, "declare i64 @\"nyash.object.new_typed_hi\"(i64, i64)\n");
         fprintf(f, "declare void @\"nyash.object.field_set_hii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.field_get_hii\"(i64, i64)\n");

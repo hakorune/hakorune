@@ -1,8 +1,8 @@
 use super::route_json::{
     build_array_getset_micro_seed_route_json, build_array_text_state_residence_route_json,
     build_extern_call_route_json, build_global_call_route_json, build_lowering_plan_json,
-    build_map_lookup_fusion_route_json, build_userbox_known_receiver_method_seed_route_json,
-    build_userbox_loop_micro_seed_route_json,
+    build_map_lookup_fusion_route_json, build_user_box_method_route_json,
+    build_userbox_known_receiver_method_seed_route_json, build_userbox_loop_micro_seed_route_json,
 };
 use super::*;
 use crate::mir::userbox_local_scalar_seed_plan::{
@@ -754,6 +754,16 @@ pub(super) fn build_mir_json_root(
                         .global_call_routes
                         .iter()
                         .map(build_global_call_route_json)
+                        .collect(),
+                ),
+            );
+            obj.insert(
+                "user_box_method_routes".to_string(),
+                serde_json::Value::Array(
+                    f.metadata
+                        .user_box_method_routes
+                        .iter()
+                        .map(build_user_box_method_route_json)
                         .collect(),
                 ),
             );

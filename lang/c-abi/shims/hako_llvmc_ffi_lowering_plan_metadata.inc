@@ -67,6 +67,38 @@
         enum LoweringPlanTierMetadata tier;
       };
 
+      struct LoweringPlanUserBoxMethodView {
+        yyjson_val* entry;
+        const char* route_id;
+        const char* box_name;
+        const char* method;
+        const char* target_symbol;
+        const char* core_op;
+        const char* route_kind;
+        const char* emit_kind;
+        const char* proof;
+        const char* route_proof;
+        const char* reason;
+        const char* return_shape;
+        const char* value_demand;
+        const char* result_origin;
+        const char* definition_owner;
+        const char* emit_trace_consumer;
+        long long arity;
+        long long target_arity;
+        long long receiver_value;
+        long long result_value;
+        long long type_id;
+        int has_target_arity;
+        int has_receiver_value;
+        int has_result_value;
+        int has_type_id;
+        int target_exists;
+        int has_arity_matches;
+        int arity_matches;
+        enum LoweringPlanTierMetadata tier;
+      };
+
       auto int lowering_plan_read_i64_field(
           yyjson_val* obj,
           const char* key,
@@ -185,6 +217,19 @@
       auto int lowering_plan_entry_is_typed_global_call_contract(
           yyjson_val* entry) {
         return lowering_plan_proof_is_typed_global_call_contract(
+            read_str(entry, "proof"));
+      }
+
+      auto int lowering_plan_proof_is_typed_user_box_method_contract(
+          const char* proof) {
+        return proof &&
+               (!strcmp(proof, "typed_user_box_birth_same_module") ||
+                !strcmp(proof, "typed_user_box_method_contract_missing"));
+      }
+
+      auto int lowering_plan_entry_is_typed_user_box_method_contract(
+          yyjson_val* entry) {
+        return lowering_plan_proof_is_typed_user_box_method_contract(
             read_str(entry, "proof"));
       }
 
@@ -479,6 +524,124 @@
           const struct LoweringPlanGlobalCallView* view) {
         return lowering_plan_global_call_view_uses_module_generic_or_i64_definition(view) ||
                lowering_plan_global_call_view_uses_uniform_mir_definition(view);
+      }
+
+      auto int read_lowering_plan_user_box_method_view(
+          yyjson_val* entry,
+          struct LoweringPlanUserBoxMethodView* out) {
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        int invalid = 0;
+        enum LoweringPlanTierMetadata tier =
+            read_lowering_plan_tier_metadata(entry, &invalid);
+        long long target_arity = 0;
+        long long receiver_value = 0;
+        long long result_value = 0;
+        long long type_id = 0;
+        int target_exists = 0;
+        int arity_matches = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!(source && !strcmp(source, "user_box_method_routes")) ||
+            invalid ||
+            !lowering_plan_entry_is_typed_user_box_method_contract(entry)) {
+          return 0;
+        }
+        if (out) {
+          out->entry = entry;
+          out->route_id = read_str(entry, "source_route_id");
+          out->box_name = read_str(entry, "box_name");
+          out->method = read_str(entry, "method");
+          out->target_symbol = read_str(entry, "target_symbol");
+          out->core_op = read_str(entry, "core_op");
+          out->route_kind = read_str(entry, "route_kind");
+          out->emit_kind = read_str(entry, "emit_kind");
+          out->proof = read_str(entry, "proof");
+          out->route_proof = read_str(entry, "route_proof");
+          out->reason = read_str(entry, "reason");
+          out->return_shape = read_str(entry, "return_shape");
+          out->value_demand = read_str(entry, "value_demand");
+          out->result_origin = read_str(entry, "result_origin");
+          out->definition_owner = read_str(entry, "definition_owner");
+          out->emit_trace_consumer = read_str(entry, "emit_trace_consumer");
+          lowering_plan_read_i64_field(entry, "arity", &out->arity);
+          if (lowering_plan_read_i64_field(entry, "target_arity", &target_arity)) {
+            out->target_arity = target_arity;
+            out->has_target_arity = 1;
+          }
+          if (lowering_plan_read_i64_field(entry, "receiver_value", &receiver_value)) {
+            out->receiver_value = receiver_value;
+            out->has_receiver_value = 1;
+          }
+          if (lowering_plan_read_i64_field(entry, "result_value", &result_value)) {
+            out->result_value = result_value;
+            out->has_result_value = 1;
+          }
+          if (lowering_plan_read_i64_field(entry, "type_id", &type_id)) {
+            out->type_id = type_id;
+            out->has_type_id = 1;
+          }
+          if (lowering_plan_read_bool_field(entry, "target_exists", &target_exists)) {
+            out->target_exists = target_exists;
+          }
+          if (lowering_plan_read_bool_field(entry, "arity_matches", &arity_matches)) {
+            out->arity_matches = arity_matches;
+            out->has_arity_matches = 1;
+          }
+          out->tier = tier;
+        }
+        return out &&
+               out->route_id &&
+               out->box_name &&
+               out->method &&
+               out->target_symbol &&
+               out->core_op &&
+               out->route_kind &&
+               out->emit_kind &&
+               out->proof;
+      }
+
+      auto int lowering_plan_user_box_method_view_has_direct_target(
+          const struct LoweringPlanUserBoxMethodView* view) {
+        return view &&
+               view->route_id &&
+               !strcmp(view->route_id, "user_box.method_call") &&
+               view->core_op &&
+               !strcmp(view->core_op, "UserBoxMethodCall") &&
+               view->route_kind &&
+               !strcmp(view->route_kind, "user_box.birth") &&
+               view->method &&
+               !strcmp(view->method, "birth") &&
+               view->proof &&
+               !strcmp(view->proof, "typed_user_box_birth_same_module") &&
+               view->route_proof &&
+               !strcmp(view->route_proof, "typed_user_box_birth_same_module") &&
+               view->target_exists &&
+               view->has_target_arity &&
+               view->has_arity_matches &&
+               view->arity_matches &&
+               view->target_arity == view->arity + 1 &&
+               view->has_receiver_value &&
+               view->has_type_id &&
+               view->type_id > 0 &&
+               llvm_quoted_symbol_name_is_safe(view->target_symbol);
+      }
+
+      auto int lowering_plan_user_box_method_view_requires_same_module_function_definition(
+          const struct LoweringPlanUserBoxMethodView* view) {
+        return lowering_plan_user_box_method_view_has_direct_target(view) &&
+               view->definition_owner &&
+               !strcmp(view->definition_owner, "typed_object_method");
+      }
+
+      auto int lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(
+          const struct LoweringPlanUserBoxMethodView* view) {
+        return lowering_plan_user_box_method_view_requires_same_module_function_definition(view) &&
+               view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI &&
+               view->emit_kind &&
+               !strcmp(view->emit_kind, "direct_function_call") &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "void_sentinel_i64_zero") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64");
       }
 
       auto int lowering_plan_global_call_view_matches_runtime_route(
