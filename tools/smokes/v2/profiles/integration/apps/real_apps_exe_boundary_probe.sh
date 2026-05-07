@@ -100,5 +100,6 @@ probe_one() {
 probe_one "boxtorrent-mini"
 probe_one "binary-trees"
 probe_one "mimalloc-lite"
+probe_one "allocator-stress"
 
 test_pass "$SMOKE_NAME"

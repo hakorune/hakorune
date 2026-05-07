@@ -1,0 +1,82 @@
+// allocator-stress
+// Purpose: deterministic stress coverage for hako_alloc page/free-list policy.
+
+using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
+
+box AllocatorStress {
+    run() {
+        local heap = new HakoAllocHeap()
+        local small_handles = new ArrayBox()
+        local medium_handles = new ArrayBox()
+        local rejects = 0
+
+        local i = 0
+        loop(i < 8) {
+            small_handles.push(heap.allocate(1 + (i * 4)))
+            i = i + 1
+        }
+
+        local small_overflow = heap.allocate(32)
+        if small_overflow == null {
+            rejects = rejects + 1
+        }
+
+        heap.release(small_handles.get(1))
+        heap.release(small_handles.get(3))
+        heap.release(small_handles.get(5))
+
+        if heap.release(small_handles.get(1)) == false {
+            rejects = rejects + 1
+        }
+
+        small_handles.push(heap.allocate(6))
+        small_handles.push(heap.allocate(10))
+        small_handles.push(heap.allocate(14))
+
+        medium_handles.push(heap.allocate(40))
+        medium_handles.push(heap.allocate(48))
+        medium_handles.push(heap.allocate(56))
+        medium_handles.push(heap.allocate(64))
+
+        local medium_overflow = heap.allocate(48)
+        if medium_overflow == null {
+            rejects = rejects + 1
+        }
+
+        heap.release(medium_handles.get(0))
+        heap.release(medium_handles.get(2))
+
+        medium_handles.push(heap.allocate(52))
+        medium_handles.push(heap.allocate(44))
+
+        local oversize = heap.allocate(72)
+        if oversize == null {
+            rejects = rejects + 1
+        }
+
+        local small = heap.small_page
+        local medium = heap.medium_page
+
+        print("allocator-stress")
+        print("small_allocs=" + small.alloc_count + " frees=" + small.free_count + " reused=" + small.reuse_count + " peak=" + small.peak_used + " free=" + small.freeCount())
+        print("medium_allocs=" + medium.alloc_count + " frees=" + medium.free_count + " reused=" + medium.reuse_count + " peak=" + medium.peak_used + " free=" + medium.freeCount())
+        print("requested_bytes=" + heap.requestedBytes())
+        print("outstanding=" + heap.outstandingBlocks())
+        print("rejects=" + rejects)
+
+        if small.alloc_count == 11 && small.free_count == 3 && small.reuse_count == 3 && small.peak_used == 8 && small.freeCount() == 0 && medium.alloc_count == 6 && medium.free_count == 2 && medium.reuse_count == 2 && medium.peak_used == 4 && medium.freeCount() == 0 && heap.requestedBytes() == 454 && heap.outstandingBlocks() == 12 && rejects == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
+
+static box Main {
+    main(args) {
+        local stress = new AllocatorStress()
+        return stress.run()
+    }
+}

@@ -12,7 +12,7 @@
 - [x] `293x-004` real-app EXE boundary probe
 - [x] `293x-005` pure-first general-newbox owner decision
 - [x] `293x-006` real allocator port
-- [ ] `293x-007` allocator-stress app
+- [x] `293x-007` allocator-stress app
 - [ ] `293x-008` BoxTorrent allocator-backed store
 - [ ] `293x-009` JSON stream aggregator
 

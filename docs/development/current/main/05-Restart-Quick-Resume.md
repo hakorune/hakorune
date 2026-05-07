@@ -52,14 +52,14 @@ cargo check -q
 ## Immediate Next
 
 - continue `phase-293x` real-app bringup
-- BoxTorrent mini, binary-trees, mimalloc-lite, and the `hako_alloc` VM-only
-  page/free-list port are landed with `real-apps` smoke coverage
+- BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
+  page/free-list port, and allocator-stress are landed with `real-apps` smoke coverage
 - direct EXE currently reaches `ny-llvmc` pure-first and stops at unsupported
   general `newbox`
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: add allocator-stress app coverage over the `hako_alloc` seam; keep EXE
-  parity blocked until typed object planning owns general user-box `newbox`
+- next: wire BoxTorrent mini to an allocator-backed store seam; keep EXE parity
+  blocked until typed object planning owns general user-box `newbox`
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

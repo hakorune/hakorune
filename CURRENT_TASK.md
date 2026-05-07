@@ -67,9 +67,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: add allocator-stress app coverage over the `hako_alloc` seam; keep
-  direct EXE parity blocked until typed object planning owns general user-box
-  `newbox`
+- next: wire BoxTorrent mini to an allocator-backed store seam; keep direct EXE
+  parity blocked until typed object planning owns general user-box `newbox`
   only change compiler acceptance when the app exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
@@ -93,9 +92,9 @@ Scope: current lane / next lane / restart order only.
   5. allocator-stress app
   6. BoxTorrent allocator-backed store
   7. JSON stream aggregator
-- current status: BoxTorrent mini, binary-trees, mimalloc-lite, and the
-  `hako_alloc` VM-only page/free-list port landed; direct EXE currently stops
-  at pure-first unsupported `newbox`
+- current status: BoxTorrent mini, binary-trees, mimalloc-lite, the
+  `hako_alloc` VM-only page/free-list port, and allocator-stress landed; direct
+  EXE currently stops at pure-first unsupported `newbox`
 - compiler rule: do not hide a real compiler blocker in app code; fix the
   compiler seam structurally when needed
 
@@ -112,7 +111,7 @@ Scope: current lane / next lane / restart order only.
 - Current app checkpoint: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
 - Current app card:
-  `docs/development/current/main/phases/phase-293x/293x-006-HAKO-ALLOC-PAGE-HEAP-PORT.md`
+  `docs/development/current/main/phases/phase-293x/293x-007-ALLOCATOR-STRESS-APP.md`
 - Bootstrap route SSOT:
   `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Perf owner-first policy:

@@ -77,6 +77,20 @@ CLBG風の二分木生成・破棄・再帰checksumを行う小型ベンチ。
 - free-list reuse と peak usage の集計
 - 本物 allocator port 前に語彙とsmokeを固定
 
+#### allocator-stress
+**場所**: `allocator-stress/main.hako`
+`hako_alloc` page/free-list seam の飽和・再利用・rejectを固定する小型ストレス。
+
+```bash
+./target/release/hakorune --backend vm apps/allocator-stress/main.hako
+```
+
+**特徴**:
+- small/medium page の満杯状態を確認
+- release 後の free-list reuse を確認
+- oversize と double-free の reject を固定
+- `hako_alloc` public seam 経由の deterministic accounting
+
 #### ny-echo - 最小CLI実装
 **場所**: `ny-echo/main.hako`
 標準入力を読み取り、オプションに応じて変換して出力する基本的なCLIツール。

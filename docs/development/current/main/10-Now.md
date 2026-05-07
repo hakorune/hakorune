@@ -27,8 +27,8 @@ Related:
 ## Next
 
 - continue `phase-293x` real-app bringup
-- BoxTorrent mini, binary-trees, mimalloc-lite, and the `hako_alloc` VM-only
-  page/free-list port are landed
+- BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
+  page/free-list port, and allocator-stress are landed
 - real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite ->
   allocator port -> allocator-stress app -> BoxTorrent allocator-backed store ->
   JSON stream aggregator
