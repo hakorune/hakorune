@@ -57,11 +57,14 @@ cargo check -q
   JSON stream aggregator are landed with `real-apps` smoke coverage
 - typed-object EXE allocation plus slot field get/set now covers declared i64
   fields, init-only untyped fields, handle storage, and observed empty user
-  boxes; direct real-app EXE still stops at the birth/method call route seam
+  boxes, nullable handle storage through same-module RuntimeDataBox receiver
+  origins, and the BoxTorrent `firstChunkId` / `refCount` module-generic
+  prepass seam; direct real-app EXE now stops at the
+  `BoxTorrentChunker.ingest/4` user-box method route boundary
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: expand typed-object EXE coverage for `birth` and user-box instance
-  method calls; keep EXE parity blocked until those routes land
+- next: expand the `BoxTorrentChunker.ingest/4` direct user-box method route;
+  keep EXE parity blocked until the remaining nested method routes land
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

@@ -14,6 +14,7 @@
         const char* symbol;
         const char* route_proof;
         const char* receiver_origin_box;
+        const char* result_origin_box;
         const char* key_route;
         const char* return_shape;
         const char* value_demand;
@@ -257,6 +258,7 @@
           out->symbol = read_str(entry, "symbol");
           out->route_proof = read_str(entry, "route_proof");
           out->receiver_origin_box = read_str(entry, "receiver_origin_box");
+          out->result_origin_box = read_str(entry, "result_origin_box");
           out->key_route = read_str(entry, "key_route");
           out->return_shape = read_str(entry, "return_shape");
           out->value_demand = read_str(entry, "value_demand");

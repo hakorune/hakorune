@@ -123,6 +123,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_map_lookup_fusion_routes(function);
     }
     refresh_module_generic_method_routes(module);
+    refresh_module_user_box_method_routes(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
 }

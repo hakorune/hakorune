@@ -54,8 +54,10 @@ Scope: current lane / next lane / restart order only.
 - resume point: continue `phase-293x` from the real-app suite; BoxTorrent
   mini, binary-trees, and mimalloc-lite are VM-green; typed-object EXE
   allocation/field get/set covers declared i64 fields, init-only untyped
-  fields, handle storage, and observed empty user boxes, while real-app EXE
-  remains blocked on birth/method call seams
+  fields, handle storage, observed empty user boxes, nullable handle storage
+  through same-module RuntimeDataBox receiver origins, and the BoxTorrent
+  `firstChunkId` / `refCount` module-generic prepass seam, while real-app EXE
+  now stops at the `BoxTorrentChunker.ingest/4` user-box method route boundary
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
@@ -69,9 +71,9 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: expand typed-object EXE coverage for `birth` and user-box instance
-  method calls; keep direct EXE parity blocked until those routes land and only
-  change compiler acceptance when the app exposes a real blocker
+- next: expand the `BoxTorrentChunker.ingest/4` direct user-box method route;
+  keep direct EXE parity blocked until the remaining nested method routes land
+  and only change compiler acceptance when the app exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -97,8 +99,9 @@ Scope: current lane / next lane / restart order only.
 - current status: BoxTorrent mini, binary-trees, mimalloc-lite, the
   `hako_alloc` VM-only page/free-list port, allocator-stress, BoxTorrent
   allocator-backed store, and JSON stream aggregator landed; direct EXE now
-  lowers typed-object allocation/field slots and currently stops at the
-  pure-first birth/method call route seam
+  lowers typed-object allocation/field slots, the BoxTorrent `firstChunkId` /
+  `refCount` module-generic seam, and currently stops at the
+  `BoxTorrentChunker.ingest/4` user-box method route boundary
 - compiler rule: do not hide a real compiler blocker in app code; fix the
   compiler seam structurally when needed
 

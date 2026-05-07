@@ -55,6 +55,26 @@
         return 1;
       }
 
+      auto int same_module_function_publish_result_origin_box(
+          long long reg,
+          const char* box_name) {
+        if (!box_name) return 1;
+        if (!reg) return 1;
+        if (!strcmp(box_name, "StringBox")) {
+          same_module_function_publish_i64_origin(reg, ORG_STRING);
+          return 1;
+        }
+        if (!strcmp(box_name, "ArrayBox")) {
+          same_module_function_publish_i64_origin(reg, ORG_ARRAY_BIRTH);
+          return 1;
+        }
+        if (!strcmp(box_name, "MapBox")) {
+          same_module_function_publish_i64_origin(reg, ORG_MAP_BIRTH);
+          return 1;
+        }
+        return same_module_function_publish_typed_object_if_plan(reg, box_name);
+      }
+
       auto int same_module_function_publish_handle_param_metadata(
           long long reg,
           yyjson_val* value_type) {
@@ -238,6 +258,7 @@
         int is_inst_field_get;
         int is_function_field_get;
         int is_module_field_get;
+        const char* result_origin_box;
       };
 
       auto int same_module_function_read_get_route_view(
@@ -266,7 +287,9 @@
         out->is_inst_field_get = 0;
         out->is_function_field_get = 0;
         out->is_module_field_get = 0;
+        out->result_origin_box = NULL;
         if (!method_view) return 0;
+        out->result_origin_box = method_view->result_origin_box;
         is_array_get = same_module_method_view_is_direct_array_get(method_view);
         is_mir_json_block_inst_array_item_get =
             same_module_method_view_is_direct_mir_json_block_inst_array_item_get(method_view);
@@ -363,6 +386,26 @@
         return 1;
       }
 
+      auto int same_module_function_read_get_key_value(
+          yyjson_val* args,
+          long long recv,
+          long long* out_key) {
+        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
+        long long key = 0;
+        if (argc == 1) {
+          if (!same_module_function_read_arg_reg(args, 0, &key)) return 0;
+        } else if (argc == 2) {
+          long long recv_arg = 0;
+          if (!same_module_function_read_arg_reg(args, 0, &recv_arg)) return 0;
+          if (resolve_copy_source_reg(recv_arg) != resolve_copy_source_reg(recv)) return 0;
+          if (!same_module_function_read_arg_reg(args, 1, &key)) return 0;
+        } else {
+          return 0;
+        }
+        if (out_key) *out_key = key;
+        return 1;
+      }
+
       auto void same_module_function_emit_i64_call(
           long long dst,
           const char* symbol,
@@ -418,6 +461,7 @@
         struct BlockPhi* pb = ensure_phi_block(bid);
         struct PhiRec pr;
         yyjson_val* vals = ins ? yyjson_obj_get(ins, "values") : NULL;
+        yyjson_val* dst_type = ins ? yyjson_obj_get(ins, "dst_type") : NULL;
         const char* dst_type_s = ins ? read_str(ins, "dst_type") : NULL;
         if (!vals) vals = ins ? yyjson_obj_get(ins, "incoming") : NULL;
         if (!pb) return 0;
@@ -452,6 +496,29 @@
           set_type(pr.dst, T_I1);
         } else if (dst_type_s && !strcmp(dst_type_s, "i64")) {
           set_type(pr.dst, T_I64);
+        } else if (dst_type && yyjson_is_obj(dst_type)) {
+          same_module_function_publish_handle_param_metadata(pr.dst, dst_type);
+        } else if (pr.dst && pr.in_n > 0) {
+          int all_typed_object = 1;
+          int typed_plan_index = -1;
+          for (int ii = 0; ii < pr.in_n; ii++) {
+            int in_typed_plan_index = -1;
+            if (!get_typed_object_binding(
+                    pr.in[ii].val_reg, &in_typed_plan_index)) {
+              all_typed_object = 0;
+              break;
+            }
+            if (typed_plan_index < 0) {
+              typed_plan_index = in_typed_plan_index;
+            } else if (typed_plan_index != in_typed_plan_index) {
+              all_typed_object = 0;
+              break;
+            }
+          }
+          if (all_typed_object && typed_plan_index >= 0) {
+            same_module_function_publish_i64_origin(pr.dst, ORG_TYPED_OBJECT);
+            set_typed_object_binding(pr.dst, typed_plan_index);
+          }
         }
         return 1;
       }
@@ -464,17 +531,38 @@
               struct PhiRec* pr = &phis[pi].recs[ri];
               int all_string = pr->in_n > 0;
               int all_bool = pr->in_n > 0;
+              int all_typed_object = pr->in_n > 0;
+              int typed_plan_index = -1;
               int saw_known = 0;
               if (!pr->dst) continue;
               for (int ii = 0; ii < pr->in_n; ii++) {
                 long long in_reg = pr->in[ii].val_reg;
                 int ty = get_type(in_reg);
                 int is_string = same_module_function_value_is_string(in_reg);
+                int in_typed_plan_index = -1;
+                int is_typed_object =
+                    get_typed_object_binding(in_reg, &in_typed_plan_index);
                 all_string = all_string && is_string;
                 all_bool = all_bool && is_bool_like_phi_input(in_reg);
+                all_typed_object =
+                    all_typed_object &&
+                    is_typed_object &&
+                    (typed_plan_index < 0 ||
+                     typed_plan_index == in_typed_plan_index);
+                if (is_typed_object && typed_plan_index < 0) {
+                  typed_plan_index = in_typed_plan_index;
+                }
                 if (is_string || ty != T_NONE) saw_known = 1;
               }
-              if (all_string) {
+              if (all_typed_object && typed_plan_index >= 0) {
+                int current_plan_index = -1;
+                if (!get_typed_object_binding(pr->dst, &current_plan_index) ||
+                    current_plan_index != typed_plan_index) {
+                  same_module_function_publish_i64_origin(pr->dst, ORG_TYPED_OBJECT);
+                  set_typed_object_binding(pr->dst, typed_plan_index);
+                  changed = 1;
+                }
+              } else if (all_string) {
                 if (get_origin(pr->dst) != ORG_STRING) {
                   same_module_function_publish_i64_origin(pr->dst, ORG_STRING);
                   changed = 1;
@@ -605,6 +693,10 @@
           if (get_route.is_module_field_get) {
             same_module_function_publish_module_field_origin(
                 dst, method_view);
+          }
+          if (!same_module_function_publish_result_origin_box(
+                  dst, get_route.result_origin_box)) {
+            return 0;
           }
           return 1;
         }
@@ -1414,11 +1506,11 @@
         (void)ii;
         ab[0] = '\0';
         if (!same_module_function_read_get_route_view(method_view, &route)) return 0;
-        helper_symbol = route.is_array_load
-                            ? "nyash.array.slot_load_hi"
-                            : "nyash.runtime_data.get_hh";
-        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) return 0;
-        if (!same_module_function_read_arg_reg(args, 0, &key)) return 0;
+        helper_symbol = method_view->symbol
+                            ? method_view->symbol
+                            : (route.is_array_load ? "nyash.array.slot_load_hi"
+                                                   : "nyash.runtime_data.get_hh");
+        if (!same_module_function_read_get_key_value(args, recv, &key)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
         same_module_function_emit_i64_call(dst, helper_symbol, ab);
@@ -1443,6 +1535,10 @@
           if (route.is_module_field_get) {
             same_module_function_publish_module_field_origin(
                 dst, method_view);
+          }
+          if (!same_module_function_publish_result_origin_box(
+                  dst, route.result_origin_box)) {
+            return 0;
           }
         }
         return 1;

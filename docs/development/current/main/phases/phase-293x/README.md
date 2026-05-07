@@ -45,9 +45,11 @@ user-box method routes are available for the minimal typed-object fixtures.
 BoxTorrent allocator page seeding now lowers through a MIR-owned void
 side-effect global route, `BoxTorrentManifest` now has a typed object plan, and
 `BoxTorrentChunker.ingest` now exposes the nested `BoxTorrentStore.put` route.
-The real-app EXE probe is currently pinned at the BoxTorrent module-generic
-prepass seam (`firstChunkId` / `refCount`); the nested `Store.put` lane then
-needs ContentChunk / HakoAlloc nullable-handle typed object planning.
+The BoxTorrent module-generic prepass seam for `firstChunkId` / `refCount` is
+lowered; the real-app EXE probe is currently pinned at the next
+`BoxTorrentChunker.ingest` user-box method route boundary. `ContentChunk` is now
+plan-backed through nullable-handle storage flow; `HakoAllocHandle` typed-object
+planning remains a later allocator-detail seam, not the current EXE boundary.
 
 ## Current Status
 
@@ -80,6 +82,8 @@ needs ContentChunk / HakoAlloc nullable-handle typed object planning.
 - `293x-020`: BoxTorrent ingest user-box method body route expansion landed,
   making `BoxTorrentStore.put` visible from `ingest` and routing Store Map/Array
   field operations.
-- Next: lower the BoxTorrent module-generic prepass seam, then continue nullable
-  handle typed-object planning for `ContentChunk` / `HakoAllocHandle`; do not
-  claim real-app EXE parity until these nested seams land.
+- `293x-021`: BoxTorrent module-generic prepass seam landed for
+  `firstChunkId` / `refCount`, including `ContentChunk` typed-object planning
+  and same-module typed object PHI propagation in the EXE shim.
+- Next: expand the `BoxTorrentChunker.ingest` direct user-box method route; do
+  not claim real-app EXE parity until the remaining nested method seams land.

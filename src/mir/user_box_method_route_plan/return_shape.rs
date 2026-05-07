@@ -226,6 +226,13 @@ fn route_value_class(
         .iter()
         .find(|route| route.block() == block && route.instruction_index() == instruction_index)
     {
+        if let Some(box_name) = route.result_origin_box() {
+            return if box_name == "StringBox" {
+                Some(ValueClass::StringHandle)
+            } else {
+                Some(ValueClass::ObjectHandle)
+            };
+        }
         return match route.return_shape() {
             Some(GenericMethodReturnShape::ScalarI64)
             | Some(GenericMethodReturnShape::ScalarI64OrMissingZero) => Some(ValueClass::ScalarI64),

@@ -198,6 +198,16 @@ impl UserBoxMethodRoute {
         "none"
     }
 
+    pub fn target_result_box_name(&self) -> Option<&str> {
+        if self.target_returns_string_handle() {
+            return Some("StringBox");
+        }
+        match self.target_return_type {
+            Some(MirType::Box(ref name)) => Some(name.as_str()),
+            _ => None,
+        }
+    }
+
     pub fn definition_owner(&self) -> &'static str {
         if self.is_direct_abi_target() {
             "typed_object_method"

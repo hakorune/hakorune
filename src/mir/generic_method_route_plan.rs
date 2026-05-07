@@ -41,21 +41,41 @@ pub(crate) mod test_support;
 
 type FieldHandleOriginKey = (String, String);
 type FieldHandleOriginMap = BTreeMap<FieldHandleOriginKey, String>;
+type MethodParamBoxOriginKey = (String, usize);
+type MethodParamBoxOriginMap = BTreeMap<MethodParamBoxOriginKey, BoxOriginInference>;
+type CollectionElementOriginMap = BTreeMap<FieldHandleOriginKey, String>;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum BoxOriginInference {
+    Known(String),
+    Conflict,
+}
 
 pub fn refresh_module_generic_method_routes(module: &mut MirModule) {
     let field_handle_origins = infer_typed_object_field_handle_origins(module);
+    let collection_element_origins =
+        infer_typed_object_collection_element_origins(module, &field_handle_origins);
     for function in module.functions.values_mut() {
-        refresh_function_generic_method_routes_with_context(function, &field_handle_origins);
+        refresh_function_generic_method_routes_with_context(
+            function,
+            &field_handle_origins,
+            &collection_element_origins,
+        );
     }
 }
 
 pub fn refresh_function_generic_method_routes(function: &mut MirFunction) {
-    refresh_function_generic_method_routes_with_context(function, &FieldHandleOriginMap::new());
+    refresh_function_generic_method_routes_with_context(
+        function,
+        &FieldHandleOriginMap::new(),
+        &CollectionElementOriginMap::new(),
+    );
 }
 
 fn refresh_function_generic_method_routes_with_context(
     function: &mut MirFunction,
     field_handle_origins: &FieldHandleOriginMap,
+    collection_element_origins: &CollectionElementOriginMap,
 ) {
     let mut routes = Vec::new();
     let def_map = build_value_def_map(function);
@@ -80,6 +100,7 @@ fn refresh_function_generic_method_routes_with_context(
                     function,
                     &def_map,
                     field_handle_origins,
+                    collection_element_origins,
                     block_id,
                     instruction_index,
                     inst,
@@ -203,6 +224,211 @@ fn infer_typed_object_field_handle_origins(module: &MirModule) -> FieldHandleOri
     origins
 }
 
+fn infer_typed_object_collection_element_origins(
+    module: &MirModule,
+    field_handle_origins: &FieldHandleOriginMap,
+) -> CollectionElementOriginMap {
+    let param_box_origins = infer_same_module_method_param_box_origins(module);
+    let mut origins = CollectionElementOriginMap::new();
+    let mut conflicts = BTreeSet::<FieldHandleOriginKey>::new();
+
+    for function in module.functions.values() {
+        let def_map = build_value_def_map(function);
+        for block in function.blocks.values() {
+            for inst in &block.instructions {
+                let MirInstruction::Call {
+                    callee:
+                        Some(Callee::Method {
+                            box_name,
+                            method,
+                            receiver: Some(receiver),
+                            ..
+                        }),
+                    args,
+                    ..
+                } = inst
+                else {
+                    continue;
+                };
+                let Some(field_key) =
+                    typed_object_collection_field_key(function, &def_map, *receiver)
+                else {
+                    continue;
+                };
+                let Some(collection_box) = field_handle_origins.get(&field_key) else {
+                    continue;
+                };
+                let semantic_args = match method.as_str() {
+                    "push" if collection_box == "ArrayBox" => {
+                        method_args_without_redundant_receiver(
+                            function, &def_map, *receiver, args, 1,
+                        )
+                    }
+                    "set" if matches!(collection_box.as_str(), "ArrayBox" | "MapBox") => {
+                        method_args_without_redundant_receiver(
+                            function, &def_map, *receiver, args, 2,
+                        )
+                    }
+                    _ => None,
+                };
+                let Some(semantic_args) = semantic_args else {
+                    continue;
+                };
+                let value = if method == "push" {
+                    semantic_args[0]
+                } else {
+                    semantic_args[1]
+                };
+                let Some(origin_box) = handle_value_origin_box_name_with_context(
+                    module,
+                    function,
+                    &def_map,
+                    value,
+                    &param_box_origins,
+                ) else {
+                    continue;
+                };
+                merge_collection_origin(&mut origins, &mut conflicts, field_key, origin_box);
+                let _ = box_name;
+            }
+        }
+    }
+
+    origins
+}
+
+fn merge_collection_origin(
+    origins: &mut CollectionElementOriginMap,
+    conflicts: &mut BTreeSet<FieldHandleOriginKey>,
+    key: FieldHandleOriginKey,
+    origin_box: String,
+) {
+    if conflicts.contains(&key) {
+        return;
+    }
+    match origins.get(&key) {
+        Some(existing) if existing != &origin_box => {
+            origins.remove(&key);
+            conflicts.insert(key);
+        }
+        Some(_) => {}
+        None => {
+            origins.insert(key, origin_box);
+        }
+    }
+}
+
+fn infer_same_module_method_param_box_origins(module: &MirModule) -> MethodParamBoxOriginMap {
+    let mut origins = MethodParamBoxOriginMap::new();
+    for _ in 0..module.functions.len().max(1) {
+        let current = origins.clone();
+        let mut changed = false;
+        for function in module.functions.values() {
+            let def_map = build_value_def_map(function);
+            for route in &function.metadata.user_box_method_routes {
+                if !route.target_exists() || route.arity_matches() != Some(true) {
+                    continue;
+                }
+                let Some(block) = function.blocks.get(&route.block()) else {
+                    continue;
+                };
+                let Some(MirInstruction::Call { args, .. }) =
+                    block.instructions.get(route.instruction_index())
+                else {
+                    continue;
+                };
+                changed |= merge_box_origin(
+                    &mut origins,
+                    (route.target_symbol().to_string(), 0),
+                    route.box_name().to_string(),
+                );
+                for (arg_index, arg) in args.iter().enumerate() {
+                    let Some(arg_box) = handle_value_origin_box_name_with_context(
+                        module, function, &def_map, *arg, &current,
+                    ) else {
+                        continue;
+                    };
+                    changed |= merge_box_origin(
+                        &mut origins,
+                        (route.target_symbol().to_string(), arg_index + 1),
+                        arg_box,
+                    );
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    origins
+}
+
+fn merge_box_origin(
+    origins: &mut MethodParamBoxOriginMap,
+    key: MethodParamBoxOriginKey,
+    box_name: String,
+) -> bool {
+    use std::collections::btree_map::Entry;
+    match origins.entry(key) {
+        Entry::Vacant(slot) => {
+            slot.insert(BoxOriginInference::Known(box_name));
+            true
+        }
+        Entry::Occupied(mut slot) => {
+            let next = match slot.get() {
+                BoxOriginInference::Known(existing) if existing == &box_name => {
+                    BoxOriginInference::Known(existing.clone())
+                }
+                BoxOriginInference::Known(_) | BoxOriginInference::Conflict => {
+                    BoxOriginInference::Conflict
+                }
+            };
+            let changed = slot.get() != &next;
+            slot.insert(next);
+            changed
+        }
+    }
+}
+
+fn typed_object_collection_field_key(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<FieldHandleOriginKey> {
+    let origin = resolve_value_origin(function, def_map, value);
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    match block.instructions.get(instruction_index)? {
+        MirInstruction::FieldGet { base, field, .. } => {
+            let box_name = typed_object_value_box_name(function, def_map, *base)?;
+            Some((box_name, field.clone()))
+        }
+        MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
+            let mut field_key = None;
+            for (_, input) in inputs {
+                let next = typed_object_collection_field_key(function, def_map, *input)?;
+                field_key = match field_key {
+                    None => Some(next),
+                    Some(existing) if existing == next => Some(existing),
+                    _ => return None,
+                };
+            }
+            field_key
+        }
+        _ => None,
+    }
+}
+
+fn generic_collection_element_origin_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    collection_element_origins: &CollectionElementOriginMap,
+    receiver: ValueId,
+) -> Option<String> {
+    let field_key = typed_object_collection_field_key(function, def_map, receiver)?;
+    collection_element_origins.get(&field_key).cloned()
+}
+
 fn typed_object_value_box_name(
     function: &MirFunction,
     def_map: &ValueDefMap,
@@ -268,17 +494,171 @@ fn handle_value_origin_box_name(
     def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<String> {
+    handle_value_origin_box_name_with_context(
+        &MirModule::new(String::new()),
+        function,
+        def_map,
+        value,
+        &MethodParamBoxOriginMap::new(),
+    )
+}
+
+fn handle_value_origin_box_name_with_context(
+    module: &MirModule,
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    param_box_origins: &MethodParamBoxOriginMap,
+) -> Option<String> {
     let origin = resolve_value_origin(function, def_map, value);
-    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
-    let block = function.blocks.get(&block_id)?;
-    match block.instructions.get(instruction_index)? {
-        MirInstruction::NewBox { box_type, .. }
-            if matches!(box_type.as_str(), "ArrayBox" | "MapBox" | "StringBox") =>
+    if let Some(box_name) = value_box_name(function, value)
+        .or_else(|| value_box_name(function, origin))
+        .map(str::to_string)
+    {
+        return Some(box_name);
+    }
+    if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
+        let block = function.blocks.get(&block_id)?;
+        match block.instructions.get(instruction_index)? {
+            MirInstruction::Const {
+                value: ConstValue::String(_),
+                ..
+            } => return Some("StringBox".to_string()),
+            MirInstruction::NewBox { box_type, .. } => return Some(box_type.clone()),
+            MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
+                let mut input_box = None;
+                for (_, input) in inputs {
+                    let next = handle_value_origin_box_name_with_context(
+                        module,
+                        function,
+                        def_map,
+                        *input,
+                        param_box_origins,
+                    )?;
+                    input_box = match input_box {
+                        None => Some(next),
+                        Some(existing) if existing == next => Some(existing),
+                        _ => return None,
+                    };
+                }
+                return input_box;
+            }
+            MirInstruction::Call { dst, callee, .. } => {
+                if *dst == Some(origin) {
+                    match callee {
+                        Some(Callee::Method { .. }) => {
+                            if let Some(box_name) = user_box_method_call_result_origin_box_name(
+                                module,
+                                function,
+                                block_id,
+                                instruction_index,
+                            ) {
+                                return Some(box_name);
+                            }
+                        }
+                        Some(Callee::Global(_)) => {
+                            if let Some(box_name) = global_call_result_origin_box_name(
+                                module,
+                                function,
+                                block_id,
+                                instruction_index,
+                            ) {
+                                return Some(box_name);
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    function
+        .params
+        .iter()
+        .position(|param| *param == origin)
+        .and_then(
+            |index| match param_box_origins.get(&(function.signature.name.clone(), index)) {
+                Some(BoxOriginInference::Known(box_name)) => Some(box_name.clone()),
+                Some(BoxOriginInference::Conflict) | None => None,
+            },
+        )
+}
+
+fn user_box_method_call_result_origin_box_name(
+    module: &MirModule,
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+) -> Option<String> {
+    let route = function
+        .metadata
+        .user_box_method_routes
+        .iter()
+        .find(|route| route.block() == block && route.instruction_index() == instruction_index)?;
+    if let Some(box_name) = route.target_result_box_name() {
+        return Some(box_name.to_string());
+    }
+    if route.return_shape() == Some("string_handle") {
+        return Some("StringBox".to_string());
+    }
+    route
+        .target_return_type()
+        .as_deref()
+        .and_then(|label| box_name_from_type_label(module, label))
+}
+
+fn global_call_result_origin_box_name(
+    module: &MirModule,
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+) -> Option<String> {
+    let route =
+        function.metadata.global_call_routes.iter().find(|route| {
+            route.block() == block && route.instruction_index() == instruction_index
+        })?;
+    if matches!(
+        route.return_shape(),
+        Some("string_handle" | "string_handle_or_null")
+    ) {
+        return Some("StringBox".to_string());
+    }
+    route
+        .target_return_type()
+        .as_deref()
+        .and_then(|label| box_name_from_type_label(module, label))
+}
+
+fn box_name_from_type_label(module: &MirModule, label: &str) -> Option<String> {
+    match label {
+        "StringBox" | "String" | "str" => Some("StringBox".to_string()),
+        "ArrayBox" => Some("ArrayBox".to_string()),
+        "MapBox" => Some("MapBox".to_string()),
+        "i64" | "i1" | "void" | "unknown" | "WeakRef" => None,
+        name if module.metadata.user_box_decls.contains_key(name)
+            || module.metadata.user_box_field_decls.contains_key(name) =>
         {
-            Some(box_type.clone())
+            Some(name.to_string())
         }
         _ => None,
     }
+}
+
+fn value_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {
+    function
+        .metadata
+        .value_types
+        .get(&value)
+        .and_then(box_name_from_mir_type)
+        .or_else(|| {
+            function
+                .params
+                .iter()
+                .position(|param| *param == value)
+                .and_then(|index| function.signature.params.get(index))
+                .and_then(box_name_from_mir_type)
+        })
 }
 
 fn match_generic_has_route(
@@ -373,6 +753,7 @@ fn match_generic_get_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
     field_handle_origins: &FieldHandleOriginMap,
+    collection_element_origins: &CollectionElementOriginMap,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -402,6 +783,12 @@ fn match_generic_get_route(
             generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
         })
         .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
+    let result_origin_box = generic_collection_element_origin_box_name(
+        function,
+        def_map,
+        collection_element_origins,
+        *receiver,
+    );
     let key_route = classify_key_route(function, def_map, args[0]);
     if let Some(result) = *dst {
         if let Some(route) = mir_json_routes::match_mir_json_get_route(
@@ -423,7 +810,8 @@ fn match_generic_get_route(
         return Some(GenericMethodRoute::new(
             GenericMethodRouteSite::new(block, instruction_index),
             GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
-            GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
+            GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+                .with_result_origin_box(result_origin_box),
             GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
             GenericMethodRouteDecision::new(
                 GenericMethodRouteKind::ArraySlotLoadAny,
@@ -443,7 +831,8 @@ fn match_generic_get_route(
         return Some(GenericMethodRoute::new(
             GenericMethodRouteSite::new(block, instruction_index),
             GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
-            GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
+            GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+                .with_result_origin_box(result_origin_box),
             GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
             GenericMethodRouteDecision::new(
                 GenericMethodRouteKind::MapLoadAny,
@@ -463,7 +852,8 @@ fn match_generic_get_route(
         return Some(GenericMethodRoute::new(
             GenericMethodRouteSite::new(block, instruction_index),
             GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
-            GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
+            GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+                .with_result_origin_box(result_origin_box),
             GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
             GenericMethodRouteDecision::new(
                 GenericMethodRouteKind::ArraySlotLoadAny,
@@ -511,7 +901,8 @@ fn match_generic_get_route(
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
-        GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
+        GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+            .with_result_origin_box(result_origin_box),
         GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
         GenericMethodRouteDecision::new(
             GenericMethodRouteKind::RuntimeDataLoadAny,

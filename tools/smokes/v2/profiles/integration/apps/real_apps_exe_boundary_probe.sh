@@ -6,7 +6,7 @@
 # - Direct EXE currently reaches ny-llvmc pure-first, lowers general user-box
 #   allocation/field slots through TypedObjectPlan, and stops at the known
 #   typed user-box/generic method routes, and stops at the remaining known
-#   module-generic prepass boundary for BoxTorrent.
+#   BoxTorrentChunker.ingest user-box method route boundary.
 # - Do not enable compat replay as mainline proof.
 
 set -euo pipefail
@@ -84,17 +84,16 @@ probe_one() {
   fi
 
   if [ "$app_name" = "boxtorrent-mini" ]; then
-    if ! grep -Fq "reason=module_generic_prepass_failed" "$build_log"; then
+    if ! grep -Fq "reason=mir_call_no_route" "$build_log"; then
       echo "[INFO] build output tail for $app_name:"
       tail -n 120 "$build_log" || true
-      test_fail "$SMOKE_NAME: $app_name did not stop at the pinned module-generic boundary"
+      test_fail "$SMOKE_NAME: $app_name did not stop at the pinned ingest boundary"
       return 1
     fi
-    if ! grep -Fq "target_shape_blocker_symbol=BoxTorrentManifest.firstChunkId/0" "$build_log" &&
-       ! grep -Fq "target_shape_blocker_symbol=BoxTorrentStore.refCount/1" "$build_log"; then
+    if ! grep -Fq "bname=BoxTorrentChunker mname=ingest" "$build_log"; then
       echo "[INFO] build output tail for $app_name:"
       tail -n 120 "$build_log" || true
-      test_fail "$SMOKE_NAME: $app_name module-generic blocker changed"
+      test_fail "$SMOKE_NAME: $app_name ingest blocker changed"
       return 1
     fi
   else

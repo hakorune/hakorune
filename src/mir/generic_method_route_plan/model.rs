@@ -251,6 +251,7 @@ pub(crate) struct GenericMethodRouteEvidence {
     receiver_origin_box: Option<String>,
     key_route: Option<GenericMethodKeyRoute>,
     key_const_text: Option<String>,
+    result_origin_box: Option<String>,
 }
 
 impl GenericMethodRouteEvidence {
@@ -262,11 +263,17 @@ impl GenericMethodRouteEvidence {
             receiver_origin_box,
             key_route,
             key_const_text: None,
+            result_origin_box: None,
         }
     }
 
     pub(crate) fn with_key_const_text(mut self, text: impl Into<String>) -> Self {
         self.key_const_text = Some(text.into());
+        self
+    }
+
+    pub(crate) fn with_result_origin_box(mut self, box_name: Option<String>) -> Self {
+        self.result_origin_box = box_name;
         self
     }
 }
@@ -410,6 +417,10 @@ impl GenericMethodRoute {
 
     pub fn key_const_text(&self) -> Option<&str> {
         self.evidence.key_const_text.as_deref()
+    }
+
+    pub fn result_origin_box(&self) -> Option<&str> {
+        self.evidence.result_origin_box.as_deref()
     }
 
     pub fn effect_tags(&self) -> &'static [&'static str] {

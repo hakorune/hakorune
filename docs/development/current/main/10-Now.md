@@ -39,7 +39,10 @@ Related:
   for the current EXE blocker probe
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
-  empty user boxes; next route expands `birth` and user-box method call seams
+  empty user boxes, nullable handle storage through same-module RuntimeDataBox
+  receiver origins, and the BoxTorrent `firstChunkId` / `refCount`
+  module-generic prepass seam; next route expands the
+  `BoxTorrentChunker.ingest/4` user-box method boundary
 - if a real app exposes a compiler expressivity blocker, fix the compiler seam
   structurally instead of adding app-side workaround code
 - current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
