@@ -3,6 +3,8 @@
 ## TL;DR
 
 All smoke test environment variables are now managed in `tools/smokes/v2/lib/env.sh`.
+Prefer `HAKO_ROOT` / `HAKO_BIN` in new smoke scripts. `NYASH_ROOT` /
+`NYASH_BIN` remain compatibility aliases.
 
 ## For Script Authors
 
@@ -16,7 +18,8 @@ All smoke test environment variables are now managed in `tools/smokes/v2/lib/env
 source "$(dirname "$0")/../lib/test_runner.sh"  # Auto-sources env.sh
 require_env || exit 2
 
-# Your test code here
+APP="$HAKO_ROOT/apps/my-app/main.hako"
+output=$(run_hako_vm_release "$APP")
 test_pass "my_test: passed"
 ```
 
@@ -34,9 +37,11 @@ require_joinir_dev
 # Your test code here
 ```
 
-## Common Variables (Auto-Set by env.sh)
+## Common Variables (Auto-Set by test_runner/env.sh)
 
 ```bash
+HAKO_ROOT=/path/to/repo          # Preferred repo root override
+HAKO_BIN=/path/to/hakorune       # Preferred executable override
 NYASH_JOINIR_DEV=1          # JoinIR dev features
 HAKO_JOINIR_STRICT=1        # Strict validation
 NYASH_LLVM_USE_HARNESS=1    # Python llvmlite keep lane (explicit compat/probe)
@@ -49,6 +54,7 @@ NYASH_ENABLE_USING=1        # Using system enabled
 To override defaults, set BEFORE sourcing:
 
 ```bash
+export HAKO_BIN=target/release/hakorune
 export NYASH_CLI_VERBOSE=1      # Enable verbose mode
 export NYASH_DEBUG_FUEL=unlimited  # Unlimited debug fuel
 source "$(dirname "$0")/../lib/test_runner.sh"

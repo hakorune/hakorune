@@ -10,22 +10,14 @@ set -euo pipefail
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
-APP="$NYASH_ROOT/apps/mimalloc-lite/main.hako"
+APP="$HAKO_ROOT/apps/mimalloc-lite/main.hako"
 
 if [ ! -f "$APP" ]; then
   test_fail "mimalloc_lite_vm: App not found: $APP"
   exit 2
 fi
 
-output=$(SMOKES_CLEAN_ENV=1 \
-  NYASH_DISABLE_PLUGINS=1 \
-  NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
-  NYASH_VM_USE_FALLBACK=0 \
-  NYASH_JOINIR_DEV=0 \
-  HAKO_JOINIR_DEV=0 \
-  NYASH_JOINIR_STRICT=0 \
-  HAKO_JOINIR_STRICT=0 \
-  run_nyash_vm "$APP")
+output=$(run_hako_vm_release "$APP")
 
 expected=$(cat << 'TXT'
 mimalloc-lite

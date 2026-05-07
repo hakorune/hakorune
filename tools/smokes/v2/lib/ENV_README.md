@@ -4,6 +4,12 @@
 
 `tools/smokes/v2/lib/env.sh` provides centralized environment variable configuration for all smoke tests. This prevents "sparrow bugs" (scattered duplicate configurations) and provides a single source of truth (SSOT) for smoke test environment.
 
+New smoke scripts should use the Hako-facing helper names:
+
+- `HAKO_ROOT` / `HAKO_BIN`: preferred repo root and executable overrides.
+- `NYASH_ROOT` / `NYASH_BIN`: compatibility aliases kept for existing scripts.
+- `run_hako_vm_release`: deterministic release-style VM runner for app smokes.
+
 ## Usage
 
 ### Basic Usage
@@ -13,6 +19,9 @@ Source `env.sh` in your smoke script (already done in test_runner.sh and llvm_ex
 ```bash
 source "$(dirname "$0")/../lib/env.sh"
 ```
+
+Scripts that source `test_runner.sh` also get `HAKO_ROOT`, `HAKO_BIN`, and
+`run_hako_vm_release`.
 
 ### Mode-Specific Configuration
 
@@ -49,6 +58,27 @@ Output:
   Debug Fuel:          NYASH_DEBUG_FUEL=10000
   Verbose:             NYASH_CLI_VERBOSE=0
 ```
+
+## Hako-Facing App VM Helper
+
+Use `run_hako_vm_release` for deterministic application smokes:
+
+```bash
+source "$(dirname "$0")/../../../lib/test_runner.sh"
+require_env || exit 2
+
+APP="$HAKO_ROOT/apps/my-app/main.hako"
+output=$(run_hako_vm_release "$APP")
+```
+
+This helper centralizes the release-style compatibility env:
+
+- clean env sanitization enabled
+- plugins disabled by default
+- VM fallback disabled
+- JoinIR dev/strict disabled
+
+Do not repeat those env assignments in individual app smoke scripts.
 
 ## Environment Variables (SSOT)
 

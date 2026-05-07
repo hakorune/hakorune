@@ -6,9 +6,15 @@
 set -uo pipefail
 
 # ルート/バイナリ検出（CWDに依存しない実行を保証）
+# HAKO_* is the preferred smoke-facing spelling. NYASH_* remains a compatibility
+# bridge because many runtime/env readers still consume the historical names.
+if [ -n "${HAKO_ROOT:-}" ] && [ -z "${NYASH_ROOT:-}" ]; then
+  export NYASH_ROOT="$HAKO_ROOT"
+fi
 if [ -z "${NYASH_ROOT:-}" ]; then
   export NYASH_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 fi
+export HAKO_ROOT="${HAKO_ROOT:-$NYASH_ROOT}"
 
 # Source centralized environment configuration (SSOT)
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,6 +22,9 @@ if [ -f "$LIB_DIR/env.sh" ]; then
   source "$LIB_DIR/env.sh"
 fi
 # Prefer hakorune binary if exists; fallback to nyash for compatibility
+if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then
+  export NYASH_BIN="$HAKO_BIN"
+fi
 if [ -z "${NYASH_BIN:-}" ]; then
   if [ -x "$NYASH_ROOT/target/release/hakorune" ]; then
     export NYASH_BIN="$NYASH_ROOT/target/release/hakorune"
@@ -23,6 +32,7 @@ if [ -z "${NYASH_BIN:-}" ]; then
     export NYASH_BIN="$NYASH_ROOT/target/release/nyash"
   fi
 fi
+export HAKO_BIN="${HAKO_BIN:-$NYASH_BIN}"
 
 # Stage-3 is default: prefer feature flag instead of legacy parser envs.
 export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
@@ -177,10 +187,10 @@ require_env() {
         return 1
     fi
 
-    # Nyash実行ファイル確認
+    # Hakorune executable check. NYASH_BIN remains a compatibility alias.
     if [ ! -f "$NYASH_BIN" ]; then
-        log_error "Nyash executable not found at $NYASH_BIN"
-        log_error "Please run 'cargo build --release' first (in $NYASH_ROOT)"
+        log_error "Hakorune executable not found at $HAKO_BIN (compat NYASH_BIN=$NYASH_BIN)"
+        log_error "Please run 'cargo build --release' first (in $HAKO_ROOT)"
         return 1
     fi
 
@@ -242,6 +252,24 @@ run_quick_vm_release() {
     "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1 | filter_noise
     local exit_code=${PIPESTATUS[0]}
     return $exit_code
+}
+
+# Hako-facing direct VM helper for deterministic app smokes.
+# Keep the compatibility env names here so individual smoke scripts do not grow
+# NYASH_* env blocks. This is release-style: no JoinIR dev/strict, no fallback.
+run_hako_vm_release() {
+    local fixture="$1"
+    shift || true
+
+    SMOKES_CLEAN_ENV=1 \
+    NYASH_DISABLE_PLUGINS="${HAKO_DISABLE_PLUGINS:-1}" \
+    NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
+    NYASH_VM_USE_FALLBACK=0 \
+    NYASH_JOINIR_DEV=0 \
+    HAKO_JOINIR_DEV=0 \
+    NYASH_JOINIR_STRICT=0 \
+    HAKO_JOINIR_STRICT=0 \
+    run_nyash_vm "$fixture" "$@"
 }
 
 run_hako_fixture() {

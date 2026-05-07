@@ -51,5 +51,6 @@ This is a blocker probe, not EXE parity. The current direct EXE route reaches
 - `293x-007`: allocator-stress app landed.
 - `293x-008`: BoxTorrent allocator-backed store landed.
 - `293x-009`: JSON stream aggregator app landed.
+- `293x-010`: smoke env Hako alias cleanup landed.
 - Next: typed object EXE planning for general user-box `newbox`; do not claim
   real-app EXE parity until that plan lands.

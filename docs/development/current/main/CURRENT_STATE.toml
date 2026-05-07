@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-009-JSON-STREAM-AGGREGATOR-APP"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-009-JSON-STREAM-AGGREGATOR-APP.md"
-latest_card_summary = "Added a JSONL-style stream aggregator real app that exercises narrow string scanning, map-backed user stats, and deterministic reporting."
+latest_card = "293x-010-SMOKE-ENV-HAKO-ALIAS-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-010-SMOKE-ENV-HAKO-ALIAS-CLEANUP.md"
+latest_card_summary = "Centralized current real-app release VM env defaults behind run_hako_vm_release and added smoke-facing HAKO_ROOT/HAKO_BIN aliases while preserving NYASH compatibility."
 
 current_blocker_token = "phase-293x typed object EXE plan: general user-box newbox owner before real-app parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -231,4 +231,5 @@ landed_tail = [
   "293x-007 allocator-stress app landed",
   "293x-008 BoxTorrent allocator-backed store landed",
   "293x-009 JSON stream aggregator app landed",
+  "293x-010 smoke env Hako alias cleanup landed",
 ]
